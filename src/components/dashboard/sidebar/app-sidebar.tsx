@@ -26,11 +26,11 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import { Logo } from "@/components/sidebar-03/logo";
+import { Logo } from "@/components/dashboard/sidebar/logo";
 import type { Route } from "./nav-main";
-import DashboardNavigation from "@/components/sidebar-03/nav-main";
-import { NotificationsPopover } from "@/components/sidebar-03/nav-notifications";
-import { TeamSwitcher } from "@/components/sidebar-03/team-switcher";
+import DashboardNavigation from "@/components/dashboard/sidebar/nav-main";
+import { NotificationsPopover } from "@/components/dashboard/sidebar/nav-notifications";
+import { TeamSwitcher } from "@/components/dashboard/sidebar/team-switcher";
 
 const sampleNotifications = [
   {

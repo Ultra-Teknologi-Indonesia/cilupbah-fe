@@ -3,6 +3,7 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
+import { motion, AnimatePresence } from "framer-motion"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -30,6 +31,19 @@ const SIDEBAR_WIDTH = "16rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
+
+const SIDEBAR_EXPAND_TRANSITION = {
+  type: "spring" as const,
+  stiffness: 300,
+  damping: 28,
+  mass: 0.8,
+}
+
+const SIDEBAR_COLLAPSE_TRANSITION = {
+  type: "tween" as const,
+  duration: 0.3,
+  ease: [0.25, 0.1, 0.25, 1] as readonly [number, number, number, number],
+}
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed"
@@ -155,13 +169,39 @@ function Sidebar({
   className,
   children,
   dir,
-  ...props
 }: React.ComponentProps<"div"> & {
   side?: "left" | "right"
   variant?: "sidebar" | "floating" | "inset"
   collapsible?: "offcanvas" | "icon" | "none"
 }) {
-  const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+  const { isMobile, state, open, openMobile, setOpenMobile } = useSidebar()
+
+  const isFloatingOrInset = variant === "floating" || variant === "inset"
+
+  const expandedGapWidth = React.useMemo(() => {
+    if (collapsible === "offcanvas") return "0px"
+    return SIDEBAR_WIDTH
+  }, [collapsible])
+
+  const collapsedGapWidth = React.useMemo(() => {
+    if (collapsible === "offcanvas") return "0px"
+    if (collapsible === "icon") {
+      return isFloatingOrInset
+        ? `calc(${SIDEBAR_WIDTH_ICON} + 1rem)`
+        : SIDEBAR_WIDTH_ICON
+    }
+    return SIDEBAR_WIDTH
+  }, [collapsible, isFloatingOrInset])
+
+  const expandedContainerWidth = SIDEBAR_WIDTH
+  const collapsedContainerWidth = React.useMemo(() => {
+    if (collapsible === "icon") {
+      return isFloatingOrInset
+        ? `calc(${SIDEBAR_WIDTH_ICON} + 1rem + 2px)`
+        : SIDEBAR_WIDTH_ICON
+    }
+    return SIDEBAR_WIDTH
+  }, [collapsible, isFloatingOrInset])
 
   if (collapsible === "none") {
     return (
@@ -171,7 +211,6 @@ function Sidebar({
           "flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground",
           className
         )}
-        {...props}
       >
         {children}
       </div>
@@ -180,7 +219,7 @@ function Sidebar({
 
   if (isMobile) {
     return (
-      <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+      <Sheet open={openMobile} onOpenChange={setOpenMobile}>
         <SheetContent
           dir={dir}
           data-sidebar="sidebar"
@@ -214,38 +253,46 @@ function Sidebar({
       data-slot="sidebar"
     >
       {/* This is what handles the sidebar gap on desktop */}
-      <div
+      <motion.div
         data-slot="sidebar-gap"
         className={cn(
-          "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
-          "group-data-[collapsible=offcanvas]:w-0",
+          "relative bg-transparent",
           "group-data-[side=right]:rotate-180",
-          variant === "floating" || variant === "inset"
-            ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
-            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
         )}
+        animate={{
+          width: open ? expandedGapWidth : collapsedGapWidth,
+        }}
+        transition={open ? SIDEBAR_EXPAND_TRANSITION : SIDEBAR_COLLAPSE_TRANSITION}
       />
-      <div
+      <motion.div
         data-slot="sidebar-container"
         data-side={side}
         className={cn(
-          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] md:flex",
-          // Adjust the padding for floating and inset variants.
-          variant === "floating" || variant === "inset"
-            ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
-            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
+          "fixed inset-y-0 z-10 hidden h-svh data-[side=left]:left-0 data-[side=right]:right-0 md:flex",
+          isFloatingOrInset
+            ? "p-2"
+            : "group-data-[side=left]:border-r group-data-[side=right]:border-l",
           className
         )}
-        {...props}
+        animate={{
+          width: open ? expandedContainerWidth : collapsedContainerWidth,
+          left: collapsible === "offcanvas" && side === "left" && !open
+            ? `calc(${SIDEBAR_WIDTH} * -1)`
+            : undefined,
+          right: collapsible === "offcanvas" && side === "right" && !open
+            ? `calc(${SIDEBAR_WIDTH} * -1)`
+            : undefined,
+        }}
+        transition={open ? SIDEBAR_EXPAND_TRANSITION : SIDEBAR_COLLAPSE_TRANSITION}
       >
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-2xl group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border"
+          className="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-2xl group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border overflow-hidden"
         >
           {children}
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }
@@ -398,17 +445,29 @@ function SidebarGroupLabel({
   ...props
 }: React.ComponentProps<"div"> & { asChild?: boolean }) {
   const Comp = asChild ? Slot.Root : "div"
+  const { open } = useSidebar()
 
   return (
-    <Comp
-      data-slot="sidebar-group-label"
-      data-sidebar="group-label"
-      className={cn(
-        "flex h-8 shrink-0 items-center rounded-xl px-3 text-xs font-medium text-sidebar-foreground/70 ring-sidebar-ring outline-hidden transition-[margin,opacity] duration-200 ease-linear group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
-        className
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, height: 0, marginTop: 0 }}
+          animate={{ opacity: 1, height: 32, marginTop: 0 }}
+          exit={{ opacity: 0, height: 0, marginTop: -8 }}
+          transition={open ? SIDEBAR_EXPAND_TRANSITION : SIDEBAR_COLLAPSE_TRANSITION}
+        >
+          <Comp
+            data-slot="sidebar-group-label"
+            data-sidebar="group-label"
+            className={cn(
+              "flex h-8 shrink-0 items-center rounded-xl px-3 text-xs font-medium text-sidebar-foreground/70 ring-sidebar-ring outline-hidden focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+              className
+            )}
+            {...props}
+          />
+        </motion.div>
       )}
-      {...props}
-    />
+    </AnimatePresence>
   )
 }
 
