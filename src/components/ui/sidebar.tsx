@@ -27,22 +27,20 @@ import { PanelLeftIcon } from "lucide-react"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "16rem"
-const SIDEBAR_WIDTH_MOBILE = "18rem"
+const SIDEBAR_WIDTH = "18rem"
+const SIDEBAR_WIDTH_MOBILE = "20rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
-const SIDEBAR_EXPAND_TRANSITION = {
-  type: "spring" as const,
-  stiffness: 300,
-  damping: 28,
-  mass: 0.8,
-}
-
-const SIDEBAR_COLLAPSE_TRANSITION = {
+// Single shared curve for every sidebar transition so that the framer-driven
+// width animations (gap/container/group-label) and the CSS-driven button
+// transitions move on the exact same timing. Easing matches Tailwind's
+// `ease-in-out` (cubic-bezier(0.4, 0, 0.2, 1)) and duration matches
+// `duration-300`, keeping both systems perfectly in sync — no jumping.
+const SIDEBAR_TRANSITION = {
   type: "tween" as const,
   duration: 0.3,
-  ease: [0.25, 0.1, 0.25, 1] as readonly [number, number, number, number],
+  ease: [0.4, 0, 0.2, 1] as readonly [number, number, number, number],
 }
 
 type SidebarContextProps = {
@@ -252,17 +250,19 @@ function Sidebar({
       data-side={side}
       data-slot="sidebar"
     >
-      {/* This is what handles the sidebar gap on desktop */}
       <motion.div
         data-slot="sidebar-gap"
         className={cn(
           "relative bg-transparent",
           "group-data-[side=right]:rotate-180",
         )}
+        initial={{
+          width: open ? expandedGapWidth : collapsedGapWidth,
+        }}
         animate={{
           width: open ? expandedGapWidth : collapsedGapWidth,
         }}
-        transition={open ? SIDEBAR_EXPAND_TRANSITION : SIDEBAR_COLLAPSE_TRANSITION}
+        transition={SIDEBAR_TRANSITION}
       />
       <motion.div
         data-slot="sidebar-container"
@@ -274,6 +274,15 @@ function Sidebar({
             : "group-data-[side=left]:border-r group-data-[side=right]:border-l",
           className
         )}
+        initial={{
+          width: open ? expandedContainerWidth : collapsedContainerWidth,
+          left: collapsible === "offcanvas" && side === "left" && !open
+            ? `calc(${SIDEBAR_WIDTH} * -1)`
+            : undefined,
+          right: collapsible === "offcanvas" && side === "right" && !open
+            ? `calc(${SIDEBAR_WIDTH} * -1)`
+            : undefined,
+        }}
         animate={{
           width: open ? expandedContainerWidth : collapsedContainerWidth,
           left: collapsible === "offcanvas" && side === "left" && !open
@@ -283,7 +292,7 @@ function Sidebar({
             ? `calc(${SIDEBAR_WIDTH} * -1)`
             : undefined,
         }}
-        transition={open ? SIDEBAR_EXPAND_TRANSITION : SIDEBAR_COLLAPSE_TRANSITION}
+        transition={SIDEBAR_TRANSITION}
       >
         <div
           data-sidebar="sidebar"
@@ -448,13 +457,13 @@ function SidebarGroupLabel({
   const { open } = useSidebar()
 
   return (
-    <AnimatePresence>
+    <AnimatePresence initial={false}>
       {open && (
         <motion.div
           initial={{ opacity: 0, height: 0, marginTop: 0 }}
           animate={{ opacity: 1, height: 32, marginTop: 0 }}
           exit={{ opacity: 0, height: 0, marginTop: -8 }}
-          transition={open ? SIDEBAR_EXPAND_TRANSITION : SIDEBAR_COLLAPSE_TRANSITION}
+          transition={SIDEBAR_TRANSITION}
         >
           <Comp
             data-slot="sidebar-group-label"
@@ -528,7 +537,7 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 }
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-xl px-3 py-2 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
+  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-xl px-3 py-2 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] duration-300 ease-in-out group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
   {
     variants: {
       variant: {

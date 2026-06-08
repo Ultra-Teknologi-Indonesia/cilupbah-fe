@@ -1,5 +1,5 @@
 import { DashboardSidebar } from "@/components/dashboard/sidebar/app-sidebar";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export default function DashboardLayout({
@@ -10,16 +10,21 @@ export default function DashboardLayout({
   return (
     <TooltipProvider>
       <SidebarProvider>
-      <DashboardSidebar />
-      <SidebarInset>
-        <div className="flex flex-col h-screen overflow-hidden">
-          {/* Header/Navbar can go here later */}
-          <main className="flex-1 overflow-y-auto p-4 md:p-6">
-            {children}
-          </main>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+        <DashboardSidebar />
+        <SidebarInset>
+          <div className="flex flex-col h-screen overflow-hidden">
+            {/* Mobile Header with Hamburger Menu */}
+            <header className="flex h-14 items-center gap-4 border-b bg-background px-4 md:hidden">
+              <SidebarTrigger />
+              <div className="font-semibold text-lg">UltraFit WMS</div>
+            </header>
+            
+            <main className="flex-1 overflow-y-auto p-4 md:p-6">
+              {children}
+            </main>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
     </TooltipProvider>
   );
 }
