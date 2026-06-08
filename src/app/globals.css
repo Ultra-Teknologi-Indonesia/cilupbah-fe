@@ -51,9 +51,9 @@
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
+  --card: oklch(1 0 0 / 60%);
   --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
+  --popover: oklch(1 0 0 / 60%);
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
@@ -73,11 +73,11 @@
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: oklch(0.985 0 0 / 70%);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent: oklch(0 0 0 / 5%);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
@@ -86,9 +86,9 @@
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
+  --card: oklch(0.205 0 0 / 40%);
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
+  --popover: oklch(0.205 0 0 / 40%);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
@@ -107,11 +107,11 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
+  --sidebar: oklch(0.205 0 0 / 40%);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent: oklch(1 1 1 / 10%);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
@@ -121,8 +121,27 @@
   * {
     @apply border-border outline-ring/50;
   }
+  
+  /* Global Apple Glass Effect */
+  .bg-card, .bg-popover, .bg-sidebar, [data-sidebar="sidebar"] {
+    @apply backdrop-blur-3xl shadow-sm border border-white/20 dark:border-white/10;
+  }
+
   body {
     @apply bg-background text-foreground;
+    /* Apple/Notion Hybrid: Minimalist but with very soft ambient gradient to support glassmorphism */
+    background-color: var(--background);
+    background-image: 
+      radial-gradient(at 0% 0%, hsl(220, 100%, 97%) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsl(280, 100%, 98%) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsl(190, 100%, 97%) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+  .dark body {
+    background-image: 
+      radial-gradient(at 0% 0%, hsl(220, 30%, 15%) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsl(280, 30%, 15%) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsl(190, 30%, 15%) 0px, transparent 50%);
   }
   html {
     @apply font-sans;

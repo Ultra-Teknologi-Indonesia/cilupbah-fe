@@ -14,12 +14,12 @@ export default function DashboardLayout({
         <SidebarInset>
           <div className="flex flex-col h-screen overflow-hidden">
             {/* Mobile Header with Hamburger Menu */}
-            <header className="flex h-14 items-center gap-4 border-b bg-background px-4 md:hidden">
+            <header className="flex h-14 items-center gap-4 border-b border-white/20 dark:border-white/10 bg-background/60 dark:bg-background/40 backdrop-blur-xl px-4 md:hidden z-50 sticky top-0">
               <SidebarTrigger />
-              <div className="font-semibold text-lg">UltraFit WMS</div>
+              <div className="font-semibold text-lg tracking-tight">UltraFit WMS</div>
             </header>
             
-            <main className="flex-1 overflow-y-auto p-4 md:p-6">
+            <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-transparent">
               {children}
             </main>
           </div>

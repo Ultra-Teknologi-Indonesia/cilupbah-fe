@@ -15,7 +15,9 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
   Home,
+  Package,
   Package2,
+  ArrowUpRightSquare,
   Tag,
   FolderTree,
   ShoppingCart,
@@ -90,17 +92,21 @@ const dashboardGroups: { label?: string; items: Route[] }[] = [
     items: [
       {
         id: "produk",
-        title: "Produk",
+        title: "Produk Master",
         icon: Package2,
         link: "/dashboard/produk",
-        subs: [
-          { title: "Tarik Produk", link: "/dashboard/produk/tarik" },
-          { title: "Menunggu Review", link: "/dashboard/produk/review" },
-          { title: "Data Master", link: "/dashboard/produk/master" },
-          { title: "Produk Bundle", link: "/dashboard/produk/bundle" },
-          { title: "Naikkan Produk", link: "/dashboard/produk/naikkan" },
-          { title: "Arsip Produk", link: "/dashboard/produk/arsip" },
-        ],
+      },
+      {
+        id: "produk-bundle",
+        title: "Produk Bundle",
+        icon: Package,
+        link: "/dashboard/produk/bundle",
+      },
+      {
+        id: "naikkan-produk",
+        title: "Naikkan Produk",
+        icon: ArrowUpRightSquare,
+        link: "/dashboard/produk/naikkan",
       },
       {
         id: "harga-promosi",
