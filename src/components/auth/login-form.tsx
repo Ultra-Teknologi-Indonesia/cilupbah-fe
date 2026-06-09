@@ -6,12 +6,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { z } from "zod";
-import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail, TriangleAlert } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
 
 import { AuthService } from "@/services/auth/auth.service";
 import type { ApiResponse } from "@/types/api.types";
 import { cn } from "@/lib/utils";
+import { toast } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -46,14 +46,21 @@ export function LoginForm({ className }: { className?: string }) {
       if (res.data?.access_token) {
         localStorage.setItem("access_token", res.data.access_token);
       }
+      toast.success("Berhasil masuk", {
+        description: res.data?.user?.name
+          ? `Selamat datang kembali, ${res.data.user.name}.`
+          : "Mengalihkan ke dashboard…",
+      });
       router.push("/dashboard");
     },
+    onError: (error) => {
+      toast.error("Gagal masuk", {
+        description:
+          (error as Partial<ApiResponse>)?.message ||
+          "Email atau password salah. Silakan coba lagi.",
+      });
+    },
   });
-
-  const errorMessage = mutation.error
-    ? (mutation.error as Partial<ApiResponse>).message ||
-      "Email atau password salah. Silakan coba lagi."
-    : null;
 
   return (
     <Form {...form}>
@@ -62,20 +69,6 @@ export function LoginForm({ className }: { className?: string }) {
         className={cn("space-y-5", className)}
         noValidate
       >
-        <AnimatePresence>
-          {errorMessage && (
-            <motion.div
-              initial={{ opacity: 0, y: -8, height: 0 }}
-              animate={{ opacity: 1, y: 0, height: "auto" }}
-              exit={{ opacity: 0, y: -8, height: 0 }}
-              className="flex items-center gap-2.5 rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive backdrop-blur-md"
-            >
-              <TriangleAlert className="size-4 shrink-0" />
-              <span>{errorMessage}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         <FormField
           control={form.control}
           name="email"

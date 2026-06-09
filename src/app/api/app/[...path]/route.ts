@@ -27,15 +27,12 @@ async function proxyRequest(
     headers.set("authorization", `Bearer ${token}`);
   }
 
+  const hasBody = request.method !== "GET" && request.method !== "HEAD";
+
   const fetchOptions: RequestInit = {
     method: request.method,
     headers,
-    body:
-      request.method !== "GET" && request.method !== "HEAD"
-        ? request.body
-        : undefined,
-    // @ts-ignore
-    duplex: "half",
+    body: hasBody ? await request.arrayBuffer() : undefined,
   };
 
   try {
@@ -61,7 +58,7 @@ async function proxyRequest(
       status: response.status,
     });
   } catch (error: any) {
-    console.error("API Proxy Error:", error);
+    console.error("API Proxy Error:", targetUrl, error?.message, error?.cause);
 
     return NextResponse.json(
       {
