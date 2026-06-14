@@ -10,10 +10,37 @@ export default function DashboardLayout({
   return (
     <TooltipProvider>
       <SidebarProvider>
+
+        {/* Static lavender wash. The blobs are frozen (no perpetual drift) so the
+            glass surfaces don't recomposite their backdrop-filter every frame. */}
+        <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+          <div
+            className="absolute -top-[15%] -left-[10%] h-[55%] w-[55%] rounded-full opacity-25 blur-[100px]"
+            style={{
+              background:
+                "radial-gradient(circle, var(--brand) 0%, transparent 70%)",
+            }}
+          />
+          <div
+            className="absolute top-[8%] right-[-5%] h-[50%] w-[50%] rounded-full opacity-20 blur-[110px]"
+            style={{
+              background:
+                "radial-gradient(circle, var(--brand) 0%, transparent 70%)",
+            }}
+          />
+          <div
+            className="absolute bottom-[-8%] left-[35%] h-[55%] w-[55%] rounded-full opacity-[0.18] blur-[110px]"
+            style={{
+              background:
+                "radial-gradient(circle, var(--brand) 0%, transparent 70%)",
+            }}
+          />
+        </div>
+
         <DashboardSidebar />
         <SidebarInset>
           <div className="flex flex-col h-screen overflow-hidden">
-            {/* Mobile Header with Hamburger Menu */}
+
             <header className="flex h-14 items-center gap-4 border-b border-white/20 dark:border-white/10 bg-background/60 dark:bg-background/40 backdrop-blur-xl px-4 md:hidden z-50 sticky top-0">
               <SidebarTrigger />
               <div className="font-semibold text-lg tracking-tight">UltraFit WMS</div>

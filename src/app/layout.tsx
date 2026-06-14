@@ -1,21 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
-import "sf-font";
+import localFont from "next/font/local";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { LiquidGlassFilter } from "@/components/ui/liquid-glass-filter";
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+// Self-hosted SF Pro Display, only the 4 weights the UI actually uses
+// (400/500/600/700). next/font handles `font-display: swap`, preloading, and a
+// size-adjusted fallback to keep CLS ~0. The previous Geist/Geist_Mono/Inter
+// families were loaded but never rendered — dropped entirely.
+const sfPro = localFont({
+  src: [
+    { path: "./fonts/SFProDisplay-Regular.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/SFProDisplay-Medium.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/SFProDisplay-Semibold.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/SFProDisplay-Bold.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-sans",
+  display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -31,10 +35,10 @@ export default function RootLayout({
   return (
       <html
         lang="en"
-        className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
-        style={{ fontFamily: "'SF Pro Display', sans-serif" }}
+        className={cn("h-full", "antialiased", sfPro.variable, "font-sans")}
       >
       <body className="min-h-full flex flex-col">
+        <LiquidGlassFilter />
         <QueryProvider>
           {children}
         </QueryProvider>

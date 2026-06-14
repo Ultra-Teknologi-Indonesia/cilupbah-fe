@@ -1,0 +1,524 @@
+// Hardcoded mock data for the Master Produk page (Phase 1).
+// Shape mirrors the BE `MasterItemResource` (camelCased) so the Phase 2 swap to
+// `GET products/master` is mechanical. See PLAN-MASTER-PRODUK.md §5.
+
+export type ProductStatus = "download" | "in_review" | "master" | "archived"
+
+export interface ProductVariant {
+  itemId: string
+  sku: string
+  sellPrice: number | null
+  barcode: string | null
+  taxRate: number | null
+  variationValues: { label: string; value: string }[]
+  storeNames: { storeName: string }[]
+  stock: { onHand: number; available: number }
+}
+
+export interface ProductChannelStatus {
+  channelCode: string
+  channelName: string
+  storeName: string
+  channelUrl: string | null
+  errorText: string | null
+}
+
+export interface Product {
+  itemGroupId: string
+  itemName: string
+  status: ProductStatus
+  isPo: boolean
+  isConsignment: boolean
+  isBundle: boolean
+  categoryName: string
+  brandName: string
+  sellPrice: number | null
+  totalVariants: number
+  lastModified: string
+  thumbnail: string | null
+  variations: { label: string; values: string[] }[]
+  variants: ProductVariant[]
+  onlineStatus: ProductChannelStatus[]
+}
+
+const CHANNELS = {
+  shopee: { code: "shopee", name: "Shopee", store: "UltraFit Official" },
+  tokopedia: { code: "tokopedia", name: "Tokopedia", store: "UltraFit Store" },
+  tiktok: { code: "tiktok", name: "TikTok Shop", store: "UltraFit ID" },
+  lazada: { code: "lazada", name: "Lazada", store: "UltraFit Flagship" },
+} as const
+
+type ChannelKey = keyof typeof CHANNELS
+
+function channel(
+  key: ChannelKey,
+  error: string | null = null
+): ProductChannelStatus {
+  const c = CHANNELS[key]
+  return {
+    channelCode: c.code,
+    channelName: c.name,
+    storeName: c.store,
+    channelUrl: error ? null : `https://${c.code}.example/p/${key}`,
+    errorText: error,
+  }
+}
+
+let seq = 0
+function variant(
+  sku: string,
+  price: number,
+  values: [string, string][],
+  stock: number,
+  stores: ChannelKey[]
+): ProductVariant {
+  seq += 1
+  return {
+    itemId: `var-${seq}`,
+    sku,
+    sellPrice: price,
+    barcode: `899${(100000 + seq).toString()}`,
+    taxRate: 11,
+    variationValues: values.map(([label, value]) => ({ label, value })),
+    storeNames: stores.map((s) => ({ storeName: CHANNELS[s].store })),
+    stock: { onHand: stock, available: Math.max(0, stock - (seq % 4)) },
+  }
+}
+
+const img = (n: number) =>
+  `https://picsum.photos/seed/ultrafit-${n}/80/80`
+
+export const mockProducts: Product[] = [
+  {
+    itemGroupId: "PRD-0001",
+    itemName: "Resistance Band Set Premium 5pcs",
+    status: "master",
+    isPo: false,
+    isConsignment: false,
+    isBundle: true,
+    categoryName: "Aksesoris Latihan",
+    brandName: "UltraFit",
+    sellPrice: 89000,
+    totalVariants: 1,
+    lastModified: "2026-06-12T09:30:00Z",
+    thumbnail: img(1),
+    variations: [],
+    variants: [variant("RB-SET-5PCS", 89000, [], 240, ["shopee", "tokopedia", "tiktok"])],
+    onlineStatus: [channel("shopee"), channel("tokopedia"), channel("tiktok")],
+  },
+  {
+    itemGroupId: "PRD-0002",
+    itemName: "Adjustable Dumbbell 24kg",
+    status: "master",
+    isPo: false,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Beban & Barbel",
+    brandName: "IronCore",
+    sellPrice: 1250000,
+    totalVariants: 2,
+    lastModified: "2026-06-13T14:05:00Z",
+    thumbnail: img(2),
+    variations: [{ label: "Berat", values: ["12kg", "24kg"] }],
+    variants: [
+      variant("DB-ADJ-12", 850000, [["Berat", "12kg"]], 35, ["shopee", "lazada"]),
+      variant("DB-ADJ-24", 1250000, [["Berat", "24kg"]], 18, ["shopee", "lazada", "tokopedia"]),
+    ],
+    onlineStatus: [channel("shopee"), channel("lazada"), channel("tokopedia")],
+  },
+  {
+    itemGroupId: "PRD-0003",
+    itemName: "Yoga Mat TPE Anti-Slip 6mm",
+    status: "master",
+    isPo: false,
+    isConsignment: true,
+    isBundle: false,
+    categoryName: "Yoga & Pilates",
+    brandName: "ZenFlow",
+    sellPrice: 145000,
+    totalVariants: 4,
+    lastModified: "2026-06-10T08:00:00Z",
+    thumbnail: img(3),
+    variations: [{ label: "Warna", values: ["Hitam", "Ungu", "Hijau", "Biru"] }],
+    variants: [
+      variant("YM-TPE-BLK", 145000, [["Warna", "Hitam"]], 120, ["shopee", "tokopedia", "tiktok"]),
+      variant("YM-TPE-PRP", 145000, [["Warna", "Ungu"]], 86, ["shopee", "tokopedia"]),
+      variant("YM-TPE-GRN", 145000, [["Warna", "Hijau"]], 0, ["shopee"]),
+      variant("YM-TPE-BLU", 145000, [["Warna", "Biru"]], 54, ["tiktok"]),
+    ],
+    onlineStatus: [channel("shopee"), channel("tokopedia"), channel("tiktok")],
+  },
+  {
+    itemGroupId: "PRD-0004",
+    itemName: "Whey Protein Isolate 2lbs",
+    status: "in_review",
+    isPo: false,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Suplemen",
+    brandName: "PureGain",
+    sellPrice: 520000,
+    totalVariants: 3,
+    lastModified: "2026-06-13T19:20:00Z",
+    thumbnail: img(4),
+    variations: [{ label: "Rasa", values: ["Cokelat", "Vanila", "Stroberi"] }],
+    variants: [
+      variant("WPI-CHOC", 520000, [["Rasa", "Cokelat"]], 60, ["shopee", "tokopedia"]),
+      variant("WPI-VAN", 520000, [["Rasa", "Vanila"]], 42, ["shopee"]),
+      variant("WPI-STRW", 530000, [["Rasa", "Stroberi"]], 12, ["tokopedia"]),
+    ],
+    onlineStatus: [channel("shopee"), channel("tokopedia", "Kategori channel belum dipetakan")],
+  },
+  {
+    itemGroupId: "PRD-0005",
+    itemName: "Smart Skipping Rope Digital",
+    status: "master",
+    isPo: true,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Kardio",
+    brandName: "UltraFit",
+    sellPrice: 175000,
+    totalVariants: 1,
+    lastModified: "2026-06-09T11:45:00Z",
+    thumbnail: img(5),
+    variations: [],
+    variants: [variant("SR-DIGI-01", 175000, [], 200, ["shopee", "tiktok", "lazada"])],
+    onlineStatus: [channel("shopee"), channel("tiktok"), channel("lazada")],
+  },
+  {
+    itemGroupId: "PRD-0006",
+    itemName: "Kettlebell Cast Iron 16kg",
+    status: "master",
+    isPo: false,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Beban & Barbel",
+    brandName: "IronCore",
+    sellPrice: 410000,
+    totalVariants: 3,
+    lastModified: "2026-06-11T07:15:00Z",
+    thumbnail: img(6),
+    variations: [{ label: "Berat", values: ["8kg", "12kg", "16kg"] }],
+    variants: [
+      variant("KB-CI-08", 230000, [["Berat", "8kg"]], 44, ["shopee", "tokopedia"]),
+      variant("KB-CI-12", 320000, [["Berat", "12kg"]], 28, ["shopee"]),
+      variant("KB-CI-16", 410000, [["Berat", "16kg"]], 9, ["tokopedia", "lazada"]),
+    ],
+    onlineStatus: [channel("shopee"), channel("tokopedia"), channel("lazada")],
+  },
+  {
+    itemGroupId: "PRD-0007",
+    itemName: "Compression Shirt Long Sleeve",
+    status: "master",
+    isPo: false,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Apparel",
+    brandName: "FlexWear",
+    sellPrice: 199000,
+    totalVariants: 6,
+    lastModified: "2026-06-08T16:40:00Z",
+    thumbnail: img(7),
+    variations: [
+      { label: "Ukuran", values: ["M", "L", "XL"] },
+      { label: "Warna", values: ["Hitam", "Navy"] },
+    ],
+    variants: [
+      variant("CS-M-BLK", 199000, [["Ukuran", "M"], ["Warna", "Hitam"]], 70, ["shopee", "tiktok"]),
+      variant("CS-L-BLK", 199000, [["Ukuran", "L"], ["Warna", "Hitam"]], 65, ["shopee", "tiktok"]),
+      variant("CS-XL-BLK", 199000, [["Ukuran", "XL"], ["Warna", "Hitam"]], 30, ["shopee"]),
+      variant("CS-M-NVY", 199000, [["Ukuran", "M"], ["Warna", "Navy"]], 40, ["tiktok"]),
+      variant("CS-L-NVY", 199000, [["Ukuran", "L"], ["Warna", "Navy"]], 22, ["tiktok"]),
+      variant("CS-XL-NVY", 199000, [["Ukuran", "XL"], ["Warna", "Navy"]], 5, []),
+    ],
+    onlineStatus: [channel("shopee"), channel("tiktok")],
+  },
+  {
+    itemGroupId: "PRD-0008",
+    itemName: "Foam Roller High Density 45cm",
+    status: "archived",
+    isPo: false,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Recovery",
+    brandName: "ZenFlow",
+    sellPrice: 120000,
+    totalVariants: 1,
+    lastModified: "2026-05-28T10:10:00Z",
+    thumbnail: img(8),
+    variations: [],
+    variants: [variant("FR-HD-45", 120000, [], 0, [])],
+    onlineStatus: [],
+  },
+  {
+    itemGroupId: "PRD-0009",
+    itemName: "BCAA 2:1:1 Recovery 300g",
+    status: "in_review",
+    isPo: false,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Suplemen",
+    brandName: "PureGain",
+    sellPrice: 285000,
+    totalVariants: 2,
+    lastModified: "2026-06-13T21:00:00Z",
+    thumbnail: img(9),
+    variations: [{ label: "Rasa", values: ["Mangga", "Blue Razz"] }],
+    variants: [
+      variant("BCAA-MNG", 285000, [["Rasa", "Mangga"]], 38, ["shopee"]),
+      variant("BCAA-BLZ", 285000, [["Rasa", "Blue Razz"]], 24, ["shopee", "tiktok"]),
+    ],
+    onlineStatus: [channel("shopee"), channel("tiktok")],
+  },
+  {
+    itemGroupId: "PRD-0010",
+    itemName: "Pull Up Bar Doorway Heavy Duty",
+    status: "master",
+    isPo: false,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Aksesoris Latihan",
+    brandName: "IronCore",
+    sellPrice: 230000,
+    totalVariants: 1,
+    lastModified: "2026-06-07T13:25:00Z",
+    thumbnail: img(10),
+    variations: [],
+    variants: [variant("PUB-HD-01", 230000, [], 88, ["shopee", "tokopedia", "lazada"])],
+    onlineStatus: [channel("shopee"), channel("tokopedia"), channel("lazada")],
+  },
+  {
+    itemGroupId: "PRD-0011",
+    itemName: "Gym Gloves Pro Grip",
+    status: "master",
+    isPo: false,
+    isConsignment: true,
+    isBundle: false,
+    categoryName: "Aksesoris Latihan",
+    brandName: "FlexWear",
+    sellPrice: 95000,
+    totalVariants: 3,
+    lastModified: "2026-06-06T09:50:00Z",
+    thumbnail: img(11),
+    variations: [{ label: "Ukuran", values: ["S", "M", "L"] }],
+    variants: [
+      variant("GG-S", 95000, [["Ukuran", "S"]], 50, ["shopee"]),
+      variant("GG-M", 95000, [["Ukuran", "M"]], 75, ["shopee", "tiktok"]),
+      variant("GG-L", 95000, [["Ukuran", "L"]], 40, ["tiktok"]),
+    ],
+    onlineStatus: [channel("shopee"), channel("tiktok")],
+  },
+  {
+    itemGroupId: "PRD-0012",
+    itemName: "Protein Shaker Bottle 600ml",
+    status: "master",
+    isPo: false,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Aksesoris Latihan",
+    brandName: "UltraFit",
+    sellPrice: 55000,
+    totalVariants: 1,
+    lastModified: "2026-06-05T12:00:00Z",
+    thumbnail: img(12),
+    variations: [],
+    variants: [variant("SHK-600", 55000, [], 320, ["shopee", "tokopedia", "tiktok", "lazada"])],
+    // Listed across many shops (multiple stores per channel) → exercises the
+    // "+N" overflow chip on the card/table, including a hidden error.
+    onlineStatus: [
+      channel("shopee"),
+      channel("tokopedia"),
+      channel("tiktok"),
+      channel("lazada"),
+      { ...channel("shopee"), storeName: "UltraFit Mega Store" },
+      { ...channel("tokopedia"), storeName: "UltraFit Grosir", errorText: "Stok tidak sinkron" },
+      { ...channel("tiktok"), storeName: "UltraFit Outlet" },
+    ],
+  },
+  {
+    itemGroupId: "PRD-0013",
+    itemName: "Treadmill Lipat Elektrik X1",
+    status: "download",
+    isPo: true,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Kardio",
+    brandName: "IronCore",
+    sellPrice: 4250000,
+    totalVariants: 1,
+    lastModified: "2026-06-14T06:30:00Z",
+    thumbnail: img(13),
+    variations: [],
+    variants: [variant("TM-X1", 4250000, [], 6, ["lazada"])],
+    onlineStatus: [channel("lazada", "Menunggu sinkronisasi awal")],
+  },
+  {
+    itemGroupId: "PRD-0014",
+    itemName: "Ankle Weights 2kg (Pair)",
+    status: "master",
+    isPo: false,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Beban & Barbel",
+    brandName: "UltraFit",
+    sellPrice: 110000,
+    totalVariants: 2,
+    lastModified: "2026-06-04T15:30:00Z",
+    thumbnail: img(14),
+    variations: [{ label: "Berat", values: ["1kg", "2kg"] }],
+    variants: [
+      variant("AW-1KG", 80000, [["Berat", "1kg"]], 95, ["shopee"]),
+      variant("AW-2KG", 110000, [["Berat", "2kg"]], 60, ["shopee", "tokopedia"]),
+    ],
+    onlineStatus: [channel("shopee"), channel("tokopedia")],
+  },
+  {
+    itemGroupId: "PRD-0015",
+    itemName: "Pre-Workout Energy 250g",
+    status: "in_review",
+    isPo: false,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Suplemen",
+    brandName: "PureGain",
+    sellPrice: 320000,
+    totalVariants: 2,
+    lastModified: "2026-06-13T22:10:00Z",
+    thumbnail: img(15),
+    variations: [{ label: "Rasa", values: ["Semangka", "Jeruk"] }],
+    variants: [
+      variant("PW-WTM", 320000, [["Rasa", "Semangka"]], 28, ["shopee", "tiktok"]),
+      variant("PW-ORG", 320000, [["Rasa", "Jeruk"]], 16, ["tiktok"]),
+    ],
+    onlineStatus: [channel("shopee"), channel("tiktok")],
+  },
+  {
+    itemGroupId: "PRD-0016",
+    itemName: "Massage Gun Percussion Pro",
+    status: "master",
+    isPo: false,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Recovery",
+    brandName: "ZenFlow",
+    sellPrice: 680000,
+    totalVariants: 1,
+    lastModified: "2026-06-03T08:20:00Z",
+    thumbnail: img(16),
+    variations: [],
+    variants: [variant("MG-PRO", 680000, [], 22, ["shopee", "lazada"])],
+    onlineStatus: [channel("shopee"), channel("lazada")],
+  },
+  {
+    itemGroupId: "PRD-0017",
+    itemName: "Training Shorts Quick Dry",
+    status: "master",
+    isPo: false,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Apparel",
+    brandName: "FlexWear",
+    sellPrice: 135000,
+    totalVariants: 4,
+    lastModified: "2026-06-02T17:00:00Z",
+    thumbnail: img(17),
+    variations: [{ label: "Ukuran", values: ["M", "L", "XL", "XXL"] }],
+    variants: [
+      variant("TS-M", 135000, [["Ukuran", "M"]], 48, ["shopee", "tiktok"]),
+      variant("TS-L", 135000, [["Ukuran", "L"]], 52, ["shopee", "tiktok"]),
+      variant("TS-XL", 135000, [["Ukuran", "XL"]], 33, ["shopee"]),
+      variant("TS-XXL", 135000, [["Ukuran", "XXL"]], 10, []),
+    ],
+    onlineStatus: [channel("shopee"), channel("tiktok")],
+  },
+  {
+    itemGroupId: "PRD-0018",
+    itemName: "Creatine Monohydrate 500g",
+    status: "master",
+    isPo: false,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Suplemen",
+    brandName: "PureGain",
+    sellPrice: 240000,
+    totalVariants: 1,
+    lastModified: "2026-06-01T10:30:00Z",
+    thumbnail: img(18),
+    variations: [],
+    variants: [variant("CRE-500", 240000, [], 130, ["shopee", "tokopedia"])],
+    onlineStatus: [channel("shopee"), channel("tokopedia")],
+  },
+  {
+    itemGroupId: "PRD-0019",
+    itemName: "Push Up Board 9-in-1",
+    status: "master",
+    isPo: false,
+    isConsignment: false,
+    isBundle: true,
+    categoryName: "Aksesoris Latihan",
+    brandName: "UltraFit",
+    sellPrice: 165000,
+    totalVariants: 1,
+    lastModified: "2026-05-30T14:15:00Z",
+    thumbnail: img(19),
+    variations: [],
+    variants: [variant("PUB-9IN1", 165000, [], 77, ["shopee", "tiktok", "tokopedia"])],
+    onlineStatus: [channel("shopee"), channel("tiktok"), channel("tokopedia")],
+  },
+  {
+    itemGroupId: "PRD-0020",
+    itemName: "Sports Water Bottle 1L Insulated",
+    status: "master",
+    isPo: false,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Aksesoris Latihan",
+    brandName: "FlexWear",
+    sellPrice: 89000,
+    totalVariants: 3,
+    lastModified: "2026-05-29T09:00:00Z",
+    thumbnail: img(20),
+    variations: [{ label: "Warna", values: ["Hitam", "Pink", "Mint"] }],
+    variants: [
+      variant("WB-BLK", 89000, [["Warna", "Hitam"]], 110, ["shopee"]),
+      variant("WB-PNK", 89000, [["Warna", "Pink"]], 64, ["shopee", "tiktok"]),
+      variant("WB-MNT", 89000, [["Warna", "Mint"]], 0, ["tiktok"]),
+    ],
+    onlineStatus: [channel("shopee"), channel("tiktok")],
+  },
+  {
+    itemGroupId: "PRD-0021",
+    itemName: "Barbell Olympic 20kg 7ft",
+    status: "download",
+    isPo: true,
+    isConsignment: false,
+    isBundle: false,
+    categoryName: "Beban & Barbel",
+    brandName: "IronCore",
+    sellPrice: 1850000,
+    totalVariants: 1,
+    lastModified: "2026-06-14T05:00:00Z",
+    thumbnail: img(21),
+    variations: [],
+    variants: [variant("BB-OLY-20", 1850000, [], 4, ["lazada"])],
+    onlineStatus: [channel("lazada")],
+  },
+  {
+    itemGroupId: "PRD-0022",
+    itemName: "Resistance Loop Bands Mini 4pcs",
+    status: "master",
+    isPo: false,
+    isConsignment: true,
+    isBundle: true,
+    categoryName: "Aksesoris Latihan",
+    brandName: "ZenFlow",
+    sellPrice: 65000,
+    totalVariants: 1,
+    lastModified: "2026-05-27T11:20:00Z",
+    thumbnail: img(22),
+    variations: [],
+    variants: [variant("RLB-MINI-4", 65000, [], 180, ["shopee", "tokopedia", "tiktok"])],
+    onlineStatus: [channel("shopee"), channel("tokopedia"), channel("tiktok")],
+  },
+]

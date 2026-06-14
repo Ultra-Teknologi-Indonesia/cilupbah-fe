@@ -6,9 +6,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { z } from "zod";
-import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowRight, Eye, Loader2, Lock, Mail } from "lucide-react";
 
 import { AuthService } from "@/services/auth/auth.service";
+import { setLoginSession } from "@/app/actions/auth.actions";
 import type { ApiResponse } from "@/types/api.types";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/sonner";
@@ -42,16 +44,17 @@ export function LoginForm({ className }: { className?: string }) {
 
   const mutation = useMutation({
     mutationFn: (values: LoginValues) => AuthService.login(values),
-    onSuccess: (res) => {
+    onSuccess: async (res) => {
       if (res.data?.access_token) {
-        localStorage.setItem("access_token", res.data.access_token);
+        await setLoginSession(res.data.access_token);
       }
       toast.success("Berhasil masuk", {
         description: res.data?.user?.name
           ? `Selamat datang kembali, ${res.data.user.name}.`
           : "Mengalihkan ke dashboard…",
       });
-      router.push("/dashboard");
+      const callbackUrl = new URLSearchParams(window.location.search).get("callbackUrl");
+      router.push(callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : "/dashboard");
     },
     onError: (error) => {
       toast.error("Gagal masuk", {
@@ -121,8 +124,21 @@ export function LoginForm({ className }: { className?: string }) {
                     onClick={() => setShowPassword((s) => !s)}
                     className="absolute top-1/2 right-3 grid size-7 -translate-y-1/2 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
                     aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                    aria-pressed={showPassword}
                   >
-                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    <span className="relative grid size-4 place-items-center">
+                      <Eye className="size-4" />
+                      <span className="pointer-events-none absolute inset-0 grid place-items-center">
+                        <span className="block h-[1.6px] w-[22px] -rotate-45">
+                          <motion.span
+                            className="block h-full w-full origin-right rounded-full bg-current"
+                            initial={false}
+                            animate={{ scaleX: showPassword ? 0 : 1 }}
+                            transition={{ duration: 0.22, ease: "easeInOut" }}
+                          />
+                        </span>
+                      </span>
+                    </span>
                   </button>
                 </div>
               </FormControl>

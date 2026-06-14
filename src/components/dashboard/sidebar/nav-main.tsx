@@ -10,7 +10,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -35,17 +35,16 @@ export type Route = {
   subs?: SubRoute[];
 };
 
-const SUB_MENU_TRANSITION = {
-  type: "tween" as const,
-  duration: 0.25,
-  ease: [0.4, 0, 0.2, 1] as readonly [number, number, number, number],
-};
-
 export default function DashboardNavigation({ routes }: { routes: Route[] }) {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [openCollapsible, setOpenCollapsible] = useState<string | null>(null);
   const pathname = usePathname();
+  const shouldReduceMotion = useReducedMotion();
+  // Label fades in sync with the panel width instead of mounting/unmounting on
+  // collapse (which popped). overflow-hidden on the button clips the text.
+  const labelClass =
+    "min-w-0 truncate transition-opacity duration-200 ease-out group-data-[collapsible=icon]:opacity-0";
 
   const isRouteActive = (route: Route) => {
     if (pathname === route.link) return true;
@@ -81,31 +80,39 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                   }
                 >
                   {Icon && (
-                    <Icon fill={isActive ? "currentColor" : "none"} />
+                    <Icon />
                   )}
-                  {!isCollapsed && (
-                    <>
-                      <span>{route.title}</span>
-                      <motion.span
-                        className="ml-auto"
-                        animate={{ rotate: isOpen ? 90 : 0 }}
-                        transition={{ duration: 0.15, ease: "easeInOut" }}
-                      >
-                        <ChevronRight />
-                      </motion.span>
-                    </>
-                  )}
+                  <span className={labelClass}>{route.title}</span>
+                  <motion.span
+                    className="ml-auto transition-opacity duration-200 ease-out group-data-[collapsible=icon]:opacity-0"
+                    animate={{ rotate: isOpen ? 90 : 0 }}
+                    transition={
+                      shouldReduceMotion
+                        ? { duration: 0 }
+                        : { duration: 0.15, ease: "easeInOut" }
+                    }
+                  >
+                    <ChevronRight />
+                  </motion.span>
                 </SidebarMenuButton>
 
-                <AnimatePresence initial={false}>
-                  {isOpen && !isCollapsed && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={SUB_MENU_TRANSITION}
-                      style={{ overflow: "hidden" }}
-                    >
+                {/* CSS grid-rows reveal (0fr↔1fr): compositor-friendly and no JS
+                    height measurement, unlike animating height:auto. Kept mounted
+                    so it can transition closed. */}
+                <div
+                  className="grid transition-[grid-template-rows] ease-[cubic-bezier(0.4,0,0.2,1)]"
+                  style={{
+                    gridTemplateRows: isOpen ? "1fr" : "0fr",
+                    transitionDuration: shouldReduceMotion ? "0ms" : "250ms",
+                  }}
+                >
+                  <div
+                    className="min-h-0 overflow-hidden"
+                    style={{
+                      opacity: isOpen ? 1 : 0,
+                      transition: shouldReduceMotion ? "none" : "opacity 200ms ease",
+                    }}
+                  >
                       <SidebarMenuSub className="my-1 ml-3.5 border-sidebar-border">
                         {route.subs?.map((subRoute) => (
                           <div key={`${route.id}-${subRoute.title}`}>
@@ -117,13 +124,13 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                                   className={cn(
                                     "flex items-center justify-between rounded-md px-4 py-1.5 text-sm",
                                     pathname === subRoute.link
-                                      ? "bg-sidebar-accent text-foreground font-medium"
+                                      ? "bg-sidebar-accent text-brand font-medium"
                                       : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
                                   )}
                                 >
                                   <span>{subRoute.title}</span>
                                   {subRoute.badge && (
-                                    <span className="flex h-5 items-center justify-center rounded-full bg-primary/10 px-2 text-[10px] font-medium text-primary">
+                                    <span className="flex h-5 items-center justify-center rounded-full bg-brand/10 px-2 text-[10px] font-medium text-brand">
                                       {subRoute.badge}
                                     </span>
                                   )}
@@ -142,7 +149,7 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                                         className={cn(
                                           "flex items-center rounded-md px-4 py-1 text-xs",
                                           pathname === nestedSub.link
-                                            ? "bg-sidebar-accent text-foreground font-medium"
+                                            ? "bg-sidebar-accent text-brand font-medium"
                                             : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
                                         )}
                                       >
@@ -156,9 +163,8 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                           </div>
                         ))}
                       </SidebarMenuSub>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                  </div>
+                </div>
               </div>
             ) : (
               <SidebarMenuButton tooltip={route.title} isActive={isActive} asChild>
@@ -167,9 +173,9 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                   prefetch={true}
                 >
                   {Icon && (
-                    <Icon fill={isActive ? "currentColor" : "none"} />
+                    <Icon />
                   )}
-                  {!isCollapsed && <span>{route.title}</span>}
+                  <span className={labelClass}>{route.title}</span>
                 </Link>
               </SidebarMenuButton>
             )}

@@ -20,7 +20,9 @@ export function proxy(request: NextRequest) {
   }
 
   if (isGuestRoute && token) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    const callbackUrl = request.nextUrl.searchParams.get('callbackUrl');
+    const dest = callbackUrl && callbackUrl.startsWith('/') ? callbackUrl : '/dashboard';
+    return NextResponse.redirect(new URL(dest, request.url));
   }
 
   return NextResponse.next();

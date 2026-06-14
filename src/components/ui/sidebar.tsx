@@ -3,7 +3,7 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -181,11 +181,13 @@ function Sidebar({
     return SIDEBAR_WIDTH
   }, [collapsible])
 
+  // Plain single-unit rem values (no calc()) so framer-motion can interpolate the
+  // width smoothly — calc() endpoints are not interpolatable and snap at the end.
   const collapsedGapWidth = React.useMemo(() => {
     if (collapsible === "offcanvas") return "0px"
     if (collapsible === "icon") {
       return isFloatingOrInset
-        ? `calc(${SIDEBAR_WIDTH_ICON} + 1rem)`
+        ? `${parseFloat(SIDEBAR_WIDTH_ICON) + 1}rem`
         : SIDEBAR_WIDTH_ICON
     }
     return SIDEBAR_WIDTH
@@ -194,12 +196,55 @@ function Sidebar({
   const expandedContainerWidth = SIDEBAR_WIDTH
   const collapsedContainerWidth = React.useMemo(() => {
     if (collapsible === "icon") {
+      // +1rem floating padding, +0.125rem (~2px) border compensation.
       return isFloatingOrInset
-        ? `calc(${SIDEBAR_WIDTH_ICON} + 1rem + 2px)`
+        ? `${parseFloat(SIDEBAR_WIDTH_ICON) + 1.125}rem`
         : SIDEBAR_WIDTH_ICON
     }
     return SIDEBAR_WIDTH
   }, [collapsible, isFloatingOrInset])
+
+  const shouldReduceMotion = useReducedMotion()
+  const sidebarTransition = shouldReduceMotion
+    ? { duration: 0 }
+    : SIDEBAR_TRANSITION
+
+  // While the width animates we drop the (expensive) SVG refraction so the
+  // collapse/expand stays smooth; it returns the moment the panel settles.
+  const [isAnimating, setIsAnimating] = React.useState(false)
+
+  // Pointer-reactive specular highlight on the glass surface.
+  const glassRef = React.useRef<HTMLDivElement | null>(null)
+  const specRafRef = React.useRef<number | null>(null)
+  const reducedRef = React.useRef(false)
+  React.useEffect(() => {
+    reducedRef.current = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches
+    return () => {
+      if (specRafRef.current) cancelAnimationFrame(specRafRef.current)
+    }
+  }, [])
+  const handleGlassMove = React.useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (reducedRef.current || specRafRef.current) return
+      const x = e.clientX
+      const y = e.clientY
+      specRafRef.current = requestAnimationFrame(() => {
+        specRafRef.current = null
+        const el = glassRef.current
+        if (!el) return
+        const rect = el.getBoundingClientRect()
+        el.style.setProperty("--lg-x", `${x - rect.left}px`)
+        el.style.setProperty("--lg-y", `${y - rect.top}px`)
+        el.style.setProperty("--lg-spec", "1")
+      })
+    },
+    []
+  )
+  const handleGlassLeave = React.useCallback(() => {
+    glassRef.current?.style.setProperty("--lg-spec", "0")
+  }, [])
 
   if (collapsible === "none") {
     return (
@@ -262,7 +307,8 @@ function Sidebar({
         animate={{
           width: open ? expandedGapWidth : collapsedGapWidth,
         }}
-        transition={SIDEBAR_TRANSITION}
+        transition={sidebarTransition}
+        style={{ willChange: "width" }}
       />
       <motion.div
         data-slot="sidebar-container"
@@ -292,13 +338,37 @@ function Sidebar({
             ? `calc(${SIDEBAR_WIDTH} * -1)`
             : undefined,
         }}
-        transition={SIDEBAR_TRANSITION}
+        transition={sidebarTransition}
+        style={{ willChange: "width" }}
+        onAnimationStart={() => setIsAnimating(true)}
+        onAnimationComplete={() => setIsAnimating(false)}
       >
         <div
+          ref={glassRef}
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-2xl group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border overflow-hidden"
+          onPointerMove={handleGlassMove}
+          onPointerLeave={handleGlassLeave}
+          className={cn(
+            "liquid-glass-subtle sidebar-glass flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-2xl group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border overflow-hidden",
+            isAnimating && "lg-animating"
+          )}
         >
+          <div
+            aria-hidden="true"
+            data-glass-specular=""
+            style={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 0,
+              pointerEvents: "none",
+              opacity: "var(--lg-spec, 0)",
+              transition: "opacity 0.4s ease-out",
+              mixBlendMode: "soft-light",
+              background:
+                "radial-gradient(200px circle at var(--lg-x, 50%) var(--lg-y, 50%), rgba(255,255,255,0.4), rgba(255,255,255,0) 60%)",
+            }}
+          />
           {children}
         </div>
       </motion.div>
@@ -455,6 +525,7 @@ function SidebarGroupLabel({
 }: React.ComponentProps<"div"> & { asChild?: boolean }) {
   const Comp = asChild ? Slot.Root : "div"
   const { open } = useSidebar()
+  const shouldReduceMotion = useReducedMotion()
 
   return (
     <AnimatePresence initial={false}>
@@ -463,7 +534,7 @@ function SidebarGroupLabel({
           initial={{ opacity: 0, height: 0, marginTop: 0 }}
           animate={{ opacity: 1, height: 32, marginTop: 0 }}
           exit={{ opacity: 0, height: 0, marginTop: -8 }}
-          transition={SIDEBAR_TRANSITION}
+          transition={shouldReduceMotion ? { duration: 0 } : SIDEBAR_TRANSITION}
         >
           <Comp
             data-slot="sidebar-group-label"
@@ -537,7 +608,7 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 }
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-xl px-3 py-2 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] duration-300 ease-in-out group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
+  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-xl px-3 py-2 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] duration-300 ease-in-out group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-brand [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
   {
     variants: {
       variant: {

@@ -1,3 +1,5 @@
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+
 export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
@@ -9,23 +11,31 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {/* Placeholder cards */}
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-xl border bg-card text-card-foreground shadow">
-            <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
-              <h3 className="tracking-tight text-sm font-medium">Metric {i + 1}</h3>
+          <LiquidGlass
+            key={i}
+            radius={20}
+            intensity="default"
+            className="bg-white/40 dark:bg-white/[0.06]"
+          >
+            <div className="flex flex-row items-center justify-between p-6 pb-2">
+              <h2 className="text-sm font-medium tracking-tight">Metric {i + 1}</h2>
             </div>
             <div className="p-6 pt-0">
               <div className="text-2xl font-bold">123</div>
               <p className="text-xs text-muted-foreground">+20.1% dari bulan lalu</p>
             </div>
-          </div>
+          </LiquidGlass>
         ))}
       </div>
-      
-      <div className="rounded-xl border bg-card text-card-foreground shadow h-[400px] flex items-center justify-center">
+
+      <LiquidGlass
+        radius={24}
+        intensity="default"
+        className="flex h-[400px] items-center justify-center bg-white/40 dark:bg-white/[0.06]"
+      >
         <p className="text-muted-foreground">Area Konten Utama</p>
-      </div>
+      </LiquidGlass>
     </div>
   );
 }

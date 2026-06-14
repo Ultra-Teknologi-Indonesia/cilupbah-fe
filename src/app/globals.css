@@ -7,8 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* No monospace in this UI — `font-mono` resolves to SF Pro like everything else. */
+  --font-mono: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -39,6 +40,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -53,10 +56,12 @@
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0 / 60%);
   --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0 / 60%);
+  --popover: oklch(1 0 0 / 65%);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --primary: oklch(0.218 0 0);
   --primary-foreground: oklch(0.985 0 0);
+  --brand: oklch(0.554 0.15 296);
+  --brand-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -88,10 +93,12 @@
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0 / 40%);
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0 / 40%);
+  --popover: oklch(0.205 0 0 / 72%);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
+  --brand: oklch(0.7 0.135 296);
+  --brand-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
@@ -122,28 +129,454 @@
     @apply border-border outline-ring/50;
   }
   
-  /* Global Apple Glass Effect */
-  .bg-card, .bg-popover, .bg-sidebar, [data-sidebar="sidebar"] {
-    @apply backdrop-blur-3xl shadow-sm border border-white/20 dark:border-white/10;
+
+  /* Sidebar stays on the lighter treatment (it also carries .liquid-glass-subtle)
+     so the width animation doesn't repaint a heavy shadow each frame. */
+  .bg-sidebar, [data-sidebar="sidebar"] {
+    /* blur-xl (24px) instead of blur-3xl (64px): backdrop-filter cost scales with
+       the blur radius, and 24px is visually indistinguishable here. */
+    @apply backdrop-blur-xl shadow-sm border border-white/20 dark:border-white/10;
+  }
+
+  /* True liquid glass for cards & popovers: refraction (saturate), a diagonal
+     specular streak, a top rim highlight, and a purple-tinted depth shadow. */
+  .bg-card, .bg-popover {
+    backdrop-filter: blur(20px) saturate(1.8) brightness(1.05);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8) brightness(1.05);
+    background-image: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.18) 0%,
+      transparent 40%,
+      transparent 62%,
+      rgba(255, 255, 255, 0.06) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
+      0 12px 32px -12px color-mix(in oklch, var(--brand) 35%, transparent),
+      0 2px 8px -2px rgba(0, 0, 0, 0.05);
+  }
+  .dark .bg-card, .dark .bg-popover {
+    background-image: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 40%,
+      transparent 62%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.14),
+      0 12px 32px -12px rgba(0, 0, 0, 0.6);
   }
 
   body {
     @apply bg-background text-foreground;
-    /* Apple/Notion Hybrid: Minimalist but with very soft ambient gradient to support glassmorphism */
+
     background-color: var(--background);
-    background-image: 
-      radial-gradient(at 0% 0%, hsl(220, 100%, 97%) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, hsl(280, 100%, 98%) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, hsl(190, 100%, 97%) 0px, transparent 50%);
-    background-attachment: fixed;
+    /* Soft warm-purple wash so liquid-glass surfaces have colour to refract.
+       Kept low-opacity to stay tasteful, not "over". */
+    background-image:
+      radial-gradient(at 12% 6%, color-mix(in oklch, var(--brand) 12%, transparent) 0px, transparent 45%),
+      radial-gradient(at 88% 4%, color-mix(in oklch, var(--brand) 8%, transparent) 0px, transparent 45%),
+      radial-gradient(at 70% 96%, color-mix(in oklch, var(--brand) 8%, transparent) 0px, transparent 50%);
+    /* NOTE: `background-attachment: fixed` was removed — combined with the glass
+       backdrop-filters it forced a full-viewport re-raster on every scroll. The
+       wash is on <body> (which doesn't scroll; the dashboard <main> does), so it
+       looks identical while costing nothing per scroll/paint. */
   }
   .dark body {
-    background-image: 
-      radial-gradient(at 0% 0%, hsl(220, 30%, 15%) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, hsl(280, 30%, 15%) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, hsl(190, 30%, 15%) 0px, transparent 50%);
+    background-image:
+      radial-gradient(at 12% 6%, color-mix(in oklch, var(--brand) 20%, transparent) 0px, transparent 45%),
+      radial-gradient(at 88% 4%, color-mix(in oklch, var(--brand) 14%, transparent) 0px, transparent 45%),
+      radial-gradient(at 70% 96%, color-mix(in oklch, var(--brand) 13%, transparent) 0px, transparent 50%);
   }
   html {
     @apply font-sans;
   }
+}
+
+/* Purple-tinted icon container — single class, no ad-hoc hex. */
+.icon-chip {
+  background: color-mix(in oklch, var(--brand) 12%, transparent);
+  color: var(--brand);
+}
+
+/* Reserved for the future scanner viewfinder corners. */
+.scan-frame-corner {
+  border-color: var(--brand);
+}
+
+
+
+
+/* Liquid-glass backdrop strength is driven by CSS vars (set by the LiquidGlass
+   component) so the Chromium-only `.refraction` variant can extend the
+   backdrop-filter chain with the SVG displacement map for *real* refraction.
+   Non-Chromium engines never get the url() and keep the blur+rim glass. */
+.lg-glass {
+  backdrop-filter: blur(var(--lg-blur, 18px)) saturate(var(--lg-sat, 1.5))
+    brightness(var(--lg-bright, 1.05));
+  -webkit-backdrop-filter: blur(var(--lg-blur, 18px)) saturate(var(--lg-sat, 1.5))
+    brightness(var(--lg-bright, 1.05));
+}
+
+/* PERF: the SVG `feDisplacementMap` refraction is intentionally NOT applied to
+   cards / popovers / lg-glass surfaces. There can be 5+ of them on screen and
+   they repaint constantly (panel sliding over them, hover, scroll); an SVG-filter
+   backdrop is the most expensive paint a browser can do, so ×5 of them every
+   animation frame is what made clicks feel heavy. They keep the cheaper
+   blur+saturate "frosted" glass (defined on `.lg-glass` / `.bg-card`). Real
+   displacement refraction is kept ONLY on the single, idle sidebar below. */
+
+/* Sidebar glass: keep a local stacking context and lift real content above the
+   pointer-reactive specular overlay. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.sidebar-glass {
+  isolation: isolate;
+  /* Defined edge so the panel boundary stays visible over a light/white area. */
+  border: 1px solid color-mix(in oklch, var(--foreground) 8%, transparent);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.65);
+}
+.dark .sidebar-glass {
+  border-color: color-mix(in oklch, var(--foreground) 16%, transparent);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+}
+.sidebar-glass > *:not([data-glass-specular]) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Elevation/separation shadow for the floating rail & panel. Applied to the
+   rail itself and the panel's OUTER wrapper (not the inner — its shadow would be
+   clipped by the width-animation overflow). */
+.glass-elevation {
+  box-shadow:
+    0 10px 30px -8px color-mix(in oklch, var(--brand) 22%, transparent),
+    0 4px 14px -6px rgba(0, 0, 0, 0.12);
+}
+.dark .glass-elevation {
+  box-shadow:
+    0 10px 30px -8px rgba(0, 0, 0, 0.55),
+    0 4px 14px -6px rgba(0, 0, 0, 0.4);
+}
+/* Real refraction only while idle (not animating width) — gated to Chromium. */
+.refraction .sidebar-glass:not(.lg-animating) {
+  backdrop-filter: blur(6px) saturate(1.6) brightness(1.04)
+    url(#liquid-glass-refraction);
+}
+
+/* While the panel is sliding, swap the (per-frame re-sampled) backdrop blur for a
+   cheap solid translucent fill. A moving backdrop-filter element repaints its
+   blurred backdrop every frame; this keeps the transform slide on the compositor.
+   Blur returns the instant `.lg-animating` is removed (animation settles). */
+.sidebar-glass.lg-animating {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background-color: color-mix(in oklch, var(--sidebar) 92%, transparent);
+}
+
+.liquid-glass {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  backdrop-filter: blur(18px) saturate(1.5) brightness(1.05);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5) brightness(1.05);
+  filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.12)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
+  transition: opacity 0.26s ease-out;
+}
+
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: 28px;
+  pointer-events: none;
+  box-shadow: inset 0 0.5px 0 0 rgba(255, 255, 255, 0.6),
+              inset 0 0 8px 0 rgba(255, 255, 255, 0.25);
+  border-top: 0.5px solid rgba(255, 255, 255, 0.5);
+  border-left: 0.5px solid rgba(255, 255, 255, 0.3);
+}
+
+.liquid-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 28px;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.08) 100%);
+}
+
+.dark .liquid-glass::before {
+  box-shadow: inset 0 0.5px 0 0 rgba(255, 255, 255, 0.2),
+              inset 0 0 8px 0 rgba(255, 255, 255, 0.08);
+  border-top-color: rgba(255, 255, 255, 0.15);
+  border-left-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .liquid-glass::after {
+  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.03) 100%);
+}
+
+.liquid-glass-subtle {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  backdrop-filter: blur(12px) saturate(1.2) brightness(1.02);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2) brightness(1.02);
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.06)) drop-shadow(0 1px 4px rgba(0, 0, 0, 0.04));
+  transition: opacity 0.26s ease-out;
+}
+
+.liquid-glass-subtle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: 16px;
+  pointer-events: none;
+  box-shadow: inset 0 0.5px 0 0 rgba(255, 255, 255, 0.4),
+              inset 0 0 6px 0 rgba(255, 255, 255, 0.15);
+  border-top: 0.5px solid rgba(255, 255, 255, 0.35);
+  border-left: 0.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .liquid-glass-subtle::before {
+  box-shadow: inset 0 0.5px 0 0 rgba(255, 255, 255, 0.12),
+              inset 0 0 6px 0 rgba(255, 255, 255, 0.05);
+  border-top-color: rgba(255, 255, 255, 0.1);
+  border-left-color: rgba(255, 255, 255, 0.06);
+}
+
+.liquid-glass-glow {
+  position: relative;
+}
+
+.liquid-glass-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0.5px 0 0 rgba(255, 255, 255, 0.6),
+              inset 0 0 8px 0 rgba(255, 255, 255, 0.25);
+  border-top: 0.5px solid rgba(255, 255, 255, 0.5);
+}
+
+.dark .liquid-glass-glow::after {
+  box-shadow: inset 0 0.5px 0 0 rgba(255, 255, 255, 0.2),
+              inset 0 0 8px 0 rgba(255, 255, 255, 0.08);
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ========== LIQUID GLASS BUTTON (interactive tier) ==========
+   Animated conic rim + bevel + moving specular sweep + 3D press. Adapted from
+   the classic CSS technique to the project palette (near-black text, --brand,
+   light/dark). Used via the shadcn button `glass` variant. */
+@property --lg-angle-1 {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: -75deg;
+}
+@property --lg-angle-2 {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: -45deg;
+}
+
+.lg-button {
+  --lg-btn-border: clamp(1px, 0.0625em, 4px);
+  --lg-ease: cubic-bezier(0.25, 1, 0.5, 1);
+  --lg-time: 400ms;
+  position: relative;
+  isolation: isolate;
+  color: var(--foreground);
+  background: linear-gradient(
+    -75deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.22),
+    rgba(255, 255, 255, 0.06)
+  );
+  box-shadow:
+    inset 0 0.125em 0.125em rgba(0, 0, 0, 0.05),
+    inset 0 -0.125em 0.125em rgba(255, 255, 255, 0.5),
+    0 0.25em 0.125em -0.125em rgba(0, 0, 0, 0.2),
+    inset 0 0 0.1em 0.25em rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(clamp(1px, 0.125em, 4px));
+  -webkit-backdrop-filter: blur(clamp(1px, 0.125em, 4px));
+  text-shadow: 0 0.05em 0.05em rgba(0, 0, 0, 0.08);
+  transition:
+    transform var(--lg-time) var(--lg-ease),
+    box-shadow var(--lg-time) var(--lg-ease);
+}
+.lg-button:hover {
+  transform: scale(0.975);
+  box-shadow:
+    inset 0 0.125em 0.125em rgba(0, 0, 0, 0.05),
+    inset 0 -0.125em 0.125em rgba(255, 255, 255, 0.5),
+    0 0.15em 0.05em -0.1em rgba(0, 0, 0, 0.25),
+    inset 0 0 0.05em 0.1em rgba(255, 255, 255, 0.5);
+}
+.lg-button:active {
+  transform: scale(0.95) rotate3d(1, 0, 0, 18deg);
+}
+
+/* Moving specular sweep (above the surface, below content is fine — screen) */
+.lg-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    var(--lg-angle-2),
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.5) 40% 50%,
+    rgba(255, 255, 255, 0) 55%
+  );
+  background-size: 200% 200%;
+  background-position: 0% 50%;
+  background-repeat: no-repeat;
+  mix-blend-mode: screen;
+  transition:
+    background-position calc(var(--lg-time) * 1.25) var(--lg-ease),
+    --lg-angle-2 calc(var(--lg-time) * 1.25) var(--lg-ease);
+}
+.lg-button:hover::before {
+  background-position: 25% 50%;
+}
+.lg-button:active::before {
+  background-position: 50% 15%;
+  --lg-angle-2: -15deg;
+}
+
+/* Animated conic rim (border via mask-composite) */
+.lg-button::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  border-radius: inherit;
+  padding: var(--lg-btn-border);
+  box-sizing: border-box;
+  pointer-events: none;
+  background:
+    conic-gradient(
+      from var(--lg-angle-1) at 50% 50%,
+      color-mix(in oklch, var(--foreground) 50%, transparent),
+      transparent 5% 40%,
+      color-mix(in oklch, var(--foreground) 50%, transparent) 50%,
+      transparent 60% 95%,
+      color-mix(in oklch, var(--foreground) 50%, transparent)
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5));
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  box-shadow: inset 0 0 0 calc(var(--lg-btn-border) / 2) rgba(255, 255, 255, 0.5);
+  transition: --lg-angle-1 500ms ease;
+}
+.lg-button:hover::after {
+  --lg-angle-1: -125deg;
+}
+.lg-button:active::after {
+  --lg-angle-1: -75deg;
+}
+
+/* Dark mode: darker base, lighter rim, no dark text-shadow */
+.dark .lg-button {
+  background: linear-gradient(
+    -75deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.09),
+    rgba(255, 255, 255, 0.02)
+  );
+  box-shadow:
+    inset 0 0.125em 0.125em rgba(0, 0, 0, 0.3),
+    inset 0 -0.125em 0.125em rgba(255, 255, 255, 0.1),
+    0 0.25em 0.125em -0.125em rgba(0, 0, 0, 0.5),
+    inset 0 0 0.1em 0.25em rgba(255, 255, 255, 0.08);
+  text-shadow: none;
+}
+.dark .lg-button::after {
+  background:
+    conic-gradient(
+      from var(--lg-angle-1) at 50% 50%,
+      rgba(255, 255, 255, 0.7),
+      transparent 5% 40%,
+      rgba(255, 255, 255, 0.7) 50%,
+      transparent 60% 95%,
+      rgba(255, 255, 255, 0.7)
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15));
+}
+
+/* Accessibility: no motion → static rim, sweep, and no press transform */
+@media (prefers-reduced-motion: reduce) {
+  .lg-button,
+  .lg-button::before,
+  .lg-button::after {
+    transition: none;
+  }
+  .lg-button:hover,
+  .lg-button:active {
+    transform: none;
+  }
+  .lg-button:hover::after,
+  .lg-button:active::after {
+    --lg-angle-1: -75deg;
+  }
+  .lg-button:hover::before,
+  .lg-button:active::before {
+    background-position: 0% 50%;
+    --lg-angle-2: -45deg;
+  }
+}
+
+/* Touch devices: freeze the light angle (no hover) */
+@media (hover: none) and (pointer: coarse) {
+  .lg-button::before,
+  .lg-button:active::before {
+    --lg-angle-2: -45deg;
+  }
+  .lg-button::after,
+  .lg-button:active::after {
+    --lg-angle-1: -75deg;
+  }
+}
+
+@keyframes liquid-blob-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+@keyframes liquid-blob-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-40px, 30px) scale(1.05); }
+  66% { transform: translate(25px, -15px) scale(1.1); }
+}
+
+@keyframes liquid-blob-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(20px, 30px) scale(1.15); }
+  66% { transform: translate(-30px, -25px) scale(0.9); }
 }
