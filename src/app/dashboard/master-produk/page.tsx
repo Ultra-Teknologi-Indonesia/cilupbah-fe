@@ -1,7 +1,5 @@
 import { PageTitle } from "@/components/dashboard/page-title"
-import { ProductStats } from "@/components/dashboard/master-produk/product-stats"
-import { ProductExplorer } from "@/components/dashboard/master-produk/product-explorer"
-import { mockProducts } from "@/mocks/master-produk/mock-products"
+import { ProductMasterView } from "@/components/dashboard/master-produk/product-master-view"
 
 export default function ProdukMasterPage() {
   return (
@@ -16,9 +14,7 @@ export default function ProdukMasterPage() {
         ]}
       />
 
-      <ProductStats products={mockProducts} />
-
-      <ProductExplorer data={mockProducts} />
+      <ProductMasterView />
     </div>
   )
 }

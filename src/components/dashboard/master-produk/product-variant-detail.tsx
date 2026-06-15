@@ -42,13 +42,13 @@ export function ProductVariantDetail({ product }: { product: Product }) {
               <td
                 className={cn(
                   "py-2 pr-4 text-right tabular-nums",
-                  v.stock.available === 0 && "text-destructive font-medium"
+                  v.stock?.available === 0 && "text-destructive font-medium"
                 )}
               >
-                {v.stock.available}
+                {v.stock?.available ?? "—"}
               </td>
               <td className="py-2 pr-4 text-right tabular-nums text-muted-foreground">
-                {v.stock.onHand}
+                {v.stock?.onHand ?? "—"}
               </td>
               <td className="py-2 text-xs text-muted-foreground">
                 {v.storeNames.length

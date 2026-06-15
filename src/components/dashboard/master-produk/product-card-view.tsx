@@ -20,13 +20,20 @@ import {
   DataTablePagination,
   DataTableToolbar,
 } from "@/components/ui/data-table"
+import { Skeleton } from "@/components/ui/skeleton"
 import type { Product } from "@/types/master-produk"
 import { productColumns } from "./product-columns"
 import { ProductBulkActions } from "./product-bulk-actions"
 import { ProductCard } from "./product-card"
 import { useProductFacets } from "./product-facets"
 
-export function ProductCardView({ data }: { data: Product[] }) {
+export function ProductCardView({
+  data,
+  isLoading = false,
+}: {
+  data: Product[]
+  isLoading?: boolean
+}) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] =
     React.useState<ColumnFiltersState>([])
@@ -60,6 +67,16 @@ export function ProductCardView({ data }: { data: Product[] }) {
   const selectedRows = table
     .getFilteredSelectedRowModel()
     .rows.map((r) => r.original)
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Skeleton key={i} className="h-64 rounded-2xl" />
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-4">

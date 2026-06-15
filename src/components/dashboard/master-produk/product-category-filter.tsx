@@ -23,11 +23,11 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { CATEGORY_TREE } from "@/mocks/master-produk/mock-categories"
 import {
   collectLeafNames,
   findCategoryPath,
 } from "@/lib/master-produk/category-tree"
+import { useCategoryTree } from "@/hooks/master-produk/use-master-data"
 import type { CategoryNode } from "@/types/master-produk"
 
 function CategoryColumn({
@@ -74,13 +74,15 @@ function CategoryColumn({
 
 export function ProductCategoryFilter({
   column,
-  tree = CATEGORY_TREE,
+  tree: treeProp,
   title = "Kategori",
 }: {
   column?: Column<unknown, unknown>
   tree?: CategoryNode[]
   title?: string
 }) {
+  const { data: fetchedTree = [] } = useCategoryTree()
+  const tree = treeProp ?? fetchedTree
   const [open, setOpen] = React.useState(false)
   const [query, setQuery] = React.useState("")
   const [path, setPath] = React.useState<CategoryNode[]>([])

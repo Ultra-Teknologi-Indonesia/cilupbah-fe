@@ -14,7 +14,13 @@ import { ProductCardView } from "./product-card-view"
 
 type View = "card" | "table"
 
-export function ProductExplorer({ data }: { data: Product[] }) {
+export function ProductExplorer({
+  data,
+  isLoading = false,
+}: {
+  data: Product[]
+  isLoading?: boolean
+}) {
   const router = useRouter()
   const [view, setView] = React.useState<View>("card")
 
@@ -29,7 +35,7 @@ export function ProductExplorer({ data }: { data: Product[] }) {
         <div>
           <h2 className="text-base font-medium">Daftar Produk</h2>
           <p className="text-sm text-muted-foreground">
-            {data.length} produk induk
+            {isLoading ? "Memuat…" : `${data.length} produk induk`}
           </p>
         </div>
 
@@ -91,9 +97,9 @@ export function ProductExplorer({ data }: { data: Product[] }) {
 
       <div className="px-5 py-5 sm:px-6">
         {view === "card" ? (
-          <ProductCardView data={data} />
+          <ProductCardView data={data} isLoading={isLoading} />
         ) : (
-          <ProductTable data={data} />
+          <ProductTable data={data} isLoading={isLoading} />
         )}
       </div>
     </LiquidGlass>

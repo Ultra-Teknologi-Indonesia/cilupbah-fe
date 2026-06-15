@@ -9,13 +9,20 @@ import { ProductBulkActions } from "./product-bulk-actions"
 import { ProductVariantDetail } from "./product-variant-detail"
 import { useProductFacets } from "./product-facets"
 
-export function ProductTable({ data }: { data: Product[] }) {
+export function ProductTable({
+  data,
+  isLoading = false,
+}: {
+  data: Product[]
+  isLoading?: boolean
+}) {
   const facetedFilters = useProductFacets(data)
 
   return (
     <DataTable
       columns={productColumns}
       data={data}
+      isLoading={isLoading}
       getRowId={(p) => p.itemGroupId}
       searchColumnId="itemName"
       searchPlaceholder="Cari nama produk…"
