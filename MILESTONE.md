@@ -24,25 +24,23 @@ Status & roadmap halaman dashboard. **Prioritas: Produk (Katalog).**
 
 Melengkapi siklus katalog: buat → lihat → edit → review/approve → kelola.
 
-| # | Halaman | Route | BE siap? | Effort |
-|---|---------|-------|----------|--------|
-| 1.1 | **Detail Produk** | `/dashboard/master-produk/[id]` | ✅ `GET /products/{id}` | M |
-| 1.2 | **Edit Produk** | `/dashboard/master-produk/[id]/edit` | ✅ `PUT /products/{id}` | M |
-| 1.3 | **Review & Approval** (in_review → master) | `/dashboard/master-produk/review` | ✅ `GET /products/reviews`, `approve`/`reject` | M |
-| 1.4 | **Arsip Produk** | `/dashboard/master-produk/arsip` | ✅ `GET /products/archives`, `restore` | S |
-| 1.5 | **Kategori** (tree kategori→sub→jenis) | `/dashboard/kategori-merek/kategori` | ✅ `categories` CRUD | M |
-| 1.6 | **Merek** | `/dashboard/kategori-merek/merek` | ✅ `brands` CRUD | S |
-| 1.7 | **Produk Bundle** (list + buat) | `/dashboard/produk/bundle` | ✅ `inventory/items` (bundle) | L |
-| 1.8 | **Naikkan Produk** (upload ke channel) | `/dashboard/produk/naikkan` | ✅ `raise-products` | L |
-| 1.9 | **Listing Marketplace** | `/dashboard/listing-marketplace` | ✅ `products/channel-products` | M |
-| 1.10 | **Harga & Promosi** (Daftar Harga + Promosi) | `/dashboard/harga-promosi/*` | ✅ `price-lists` | M |
+| # | Status | Halaman | Route | BE siap? | Effort |
+|---|--------|---------|-------|----------|--------|
+| 1.1 | ✅ Selesai | **Detail Produk** | `/dashboard/master-produk/[id]` | ✅ `GET /products/{id}` | M |
+| 1.2 | ✅ Selesai | **Edit Produk** | `/dashboard/master-produk/[id]/edit` | ✅ `PUT /products/{id}` | M |
+| 1.3 | ⏭️ Skip | **Review & Approval** (internal) | — | approve/reject sudah di **Detail**; tak ada gerbang maker–checker | — |
+| 1.4 | ✅ Selesai | **Arsip Produk** | `/dashboard/master-produk/arsip` | ✅ `GET /products/archives`, `restore` | S |
+| 1.5 | ⬜ Belum | **Kategori** (tree kategori→sub→jenis) | `/dashboard/kategori-merek/kategori` | ✅ `categories` CRUD | M |
+| 1.6 | ⬜ Belum | **Merek** | `/dashboard/kategori-merek/merek` | ✅ `brands` CRUD | S |
+| 1.7 | ⬜ Belum | **Produk Bundle** (list + buat) | `/dashboard/produk/bundle` | ✅ `inventory/items` (bundle) | L |
+| 1.8 | ⬜ Belum | **Naikkan Produk** (upload ke channel) | `/dashboard/produk/naikkan` | ✅ `raise-products` | L |
+| 1.9 | ⬜ Belum | **Listing Marketplace** | `/dashboard/listing-marketplace` | ✅ `products/channel-products` | M |
+| 1.10 | ⬜ Belum | **Harga & Promosi** (Daftar Harga + Promosi) | `/dashboard/harga-promosi/*` | ✅ `price-lists` | M |
 
-**Paling kritis & cepat:** 1.1–1.3. Saat ini produk bisa dibuat & muncul di list,
-tetapi belum bisa **dibuka, diedit, atau di-approve** dari UI.
+**Sudah jalan:** Detail (1.1), Edit (1.2), Arsip (1.4) — CRUD produk + lifecycle (approve/reject/archive/restore) dari halaman Detail.
 
-### Sprint 1 (disarankan)
-1.1 Detail → 1.2 Edit → 1.3 Review/Approval → 1.5 Kategori + 1.6 Merek.
-Melengkapi CRUD produk + tata kelola katalog; semua BE-nya sudah ada.
+### Sprint berikutnya (disarankan)
+1.5 Kategori + 1.6 Merek (tata kelola katalog), lalu 1.9 Listing Marketplace.
 
 ---
 

@@ -1,3 +1,7 @@
+import Link from "next/link"
+import { ArchiveIcon } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
 import { PageTitle } from "@/components/dashboard/page-title"
 import { ProductMasterView } from "@/components/dashboard/master-produk/product-master-view"
 
@@ -12,6 +16,14 @@ export default function ProdukMasterPage() {
           { label: "Katalog" },
           { label: "Produk Master" },
         ]}
+        actions={
+          <Button variant="outline" asChild>
+            <Link href="/dashboard/master-produk/arsip">
+              <ArchiveIcon />
+              Arsip
+            </Link>
+          </Button>
+        }
       />
 
       <ProductMasterView />
