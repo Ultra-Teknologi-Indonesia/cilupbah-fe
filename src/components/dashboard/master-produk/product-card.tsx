@@ -80,8 +80,8 @@ export function ProductCard({
             <h3 className="truncate text-sm font-medium leading-tight">
               {product.itemName}
             </h3>
-            <p className="text-xs text-muted-foreground">
-              {product.itemGroupId}
+            <p className="font-mono text-xs text-muted-foreground">
+              {product.sku ?? "—"}
             </p>
           </div>
           <ProductRowActions product={product} />
