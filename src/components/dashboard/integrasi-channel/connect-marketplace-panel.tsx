@@ -16,9 +16,9 @@ export function ConnectMarketplacePanel({
   return (
     <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm">
       <div className="mb-3">
-        <h2 className="text-sm font-medium">Hubungkan Toko</h2>
+        <h2 className="text-sm font-medium">Hubungkan Marketplace Lain</h2>
         <p className="text-xs text-muted-foreground">
-          Pilih marketplace untuk menghubungkan akun toko Anda.
+          Marketplace yang belum memiliki toko terhubung.
         </p>
       </div>
 

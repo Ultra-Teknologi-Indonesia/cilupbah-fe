@@ -1,121 +1,92 @@
 "use client"
 
 import * as React from "react"
-import { StoreIcon } from "lucide-react"
 import { toast } from "sonner"
 
-import type { ConnectedStore } from "@/types/channel"
-import { MOCK_CHANNELS, MOCK_CONNECTED_STORES } from "@/app/dashboard/integrasi-channel/_data/mock"
+import type { ChannelGroup as ChannelGroupType } from "@/types/channel"
+import {
+  MOCK_AVAILABLE_CHANNELS,
+  MOCK_CHANNEL_GROUPS,
+} from "@/app/dashboard/integrasi-channel/_data/mock"
+import { ChannelGroup } from "./channel-group"
 import { ConnectMarketplacePanel } from "./connect-marketplace-panel"
-import { ConnectedStoreCard } from "./connected-store-card"
-import { ConnectedStoreCardSkeleton } from "./connected-store-card-skeleton"
 
-function useIdSet() {
-  const [ids, setIds] = React.useState<Set<string>>(new Set())
-  const add = React.useCallback(
-    (id: string) => setIds((p) => new Set(p).add(id)),
-    []
+function GroupSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm">
+      <div className="flex items-center gap-3 px-4 py-3.5">
+        <div className="size-10 animate-pulse rounded-xl bg-muted motion-reduce:animate-none" />
+        <div className="space-y-2">
+          <div className="h-4 w-24 animate-pulse rounded bg-muted motion-reduce:animate-none" />
+          <div className="h-3 w-16 animate-pulse rounded bg-muted motion-reduce:animate-none" />
+        </div>
+      </div>
+      <div className="space-y-3 border-t border-border/60 p-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div
+            key={i}
+            className="h-6 w-full animate-pulse rounded bg-muted motion-reduce:animate-none"
+          />
+        ))}
+      </div>
+    </div>
   )
-  const remove = React.useCallback(
-    (id: string) =>
-      setIds((p) => {
-        const next = new Set(p)
-        next.delete(id)
-        return next
-      }),
-    []
-  )
-  return { has: (id: string) => ids.has(id), add, remove }
 }
 
 export function IntegrasiChannelView() {
   const [isLoading, setIsLoading] = React.useState(true)
-  const [stores, setStores] = React.useState<ConnectedStore[]>([])
-  const refreshing = useIdSet()
-  const disconnecting = useIdSet()
+  const [groups, setGroups] = React.useState<ChannelGroupType[]>([])
 
-  // Simulasi pemuatan awal (akan diganti React Query saat integrasi BE).
   React.useEffect(() => {
     const t = setTimeout(() => {
-      setStores(MOCK_CONNECTED_STORES)
+      setGroups(MOCK_CHANNEL_GROUPS)
       setIsLoading(false)
     }, 700)
     return () => clearTimeout(t)
   }, [])
 
-  const handleRefresh = (store: ConnectedStore) => {
-    refreshing.add(store.id)
-    setTimeout(() => {
-      refreshing.remove(store.id)
-      toast.success(`Token ${store.shopName} diperbarui (mock)`)
-    }, 800)
-  }
+  const patchStore = (
+    id: string,
+    patch: Partial<{ isActive: boolean; ordersEnabled: boolean }>
+  ) =>
+    setGroups((prev) =>
+      prev.map((g) => ({
+        ...g,
+        stores: g.stores.map((s) => (s.id === id ? { ...s, ...patch } : s)),
+      }))
+    )
 
-  const handleDisconnect = (store: ConnectedStore) => {
-    disconnecting.add(store.id)
-    setTimeout(() => {
-      disconnecting.remove(store.id)
-      setStores((prev) => prev.filter((s) => s.id !== store.id))
-      toast.success(`${store.shopName} diputuskan (mock)`)
-    }, 700)
+  const onToggleActive = (id: string, value: boolean) =>
+    patchStore(id, { isActive: value })
+  const onToggleOrders = (id: string, value: boolean) =>
+    patchStore(id, { ordersEnabled: value })
+  const onAdd = (group: ChannelGroupType) =>
+    toast.info(`Hubungkan toko ${group.name} — menunggu integrasi OAuth`)
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-6">
+        <GroupSkeleton />
+        <GroupSkeleton />
+      </div>
+    )
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <section>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-medium">
-            Toko Terhubung
-            {!isLoading && (
-              <span className="ml-2 text-xs font-normal text-muted-foreground">
-                {stores.length} toko
-              </span>
-            )}
-          </h2>
-        </div>
+      {groups.map((group) => (
+        <ChannelGroup
+          key={group.id}
+          group={group}
+          onAdd={onAdd}
+          onToggleActive={onToggleActive}
+          onToggleOrders={onToggleOrders}
+        />
+      ))}
 
-        {isLoading ? (
-          <div
-            className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
-            aria-busy
-            aria-label="Memuat toko terhubung"
-          >
-            {Array.from({ length: 3 }).map((_, i) => (
-              <ConnectedStoreCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : stores.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-card/40 px-6 py-12 text-center">
-            <StoreIcon className="size-6 text-muted-foreground" />
-            <p className="text-sm font-medium">Belum ada toko terhubung</p>
-            <p className="max-w-sm text-xs text-muted-foreground">
-              Hubungkan akun marketplace Anda untuk mulai sinkronisasi produk,
-              stok, dan pesanan.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {stores.map((store) => (
-              <ConnectedStoreCard
-                key={store.id}
-                store={store}
-                isRefreshing={refreshing.has(store.id)}
-                isDisconnecting={disconnecting.has(store.id)}
-                onRefresh={handleRefresh}
-                onDisconnect={handleDisconnect}
-              />
-            ))}
-          </div>
-        )}
-      </section>
-
-      <ConnectMarketplacePanel
-        channels={MOCK_CHANNELS}
-        connectedCounts={stores.reduce<Record<string, number>>((acc, s) => {
-          acc[s.channel.code] = (acc[s.channel.code] ?? 0) + 1
-          return acc
-        }, {})}
-      />
+      {MOCK_AVAILABLE_CHANNELS.length > 0 && (
+        <ConnectMarketplacePanel channels={MOCK_AVAILABLE_CHANNELS} />
+      )}
     </div>
   )
 }

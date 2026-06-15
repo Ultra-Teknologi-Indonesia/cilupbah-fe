@@ -6,27 +6,44 @@ export type ChannelCode =
   | "blibli"
   | (string & {})
 
-export interface Channel {
-  id: string
-  code: ChannelCode
-  name: string
-  /** OAuth connect sudah didukung BE (TikTok & Lazada saat ini). */
-  connectable: boolean
+export type IntegrationStatus = "normal" | "error"
+
+export interface StoreIntegration {
+  status: IntegrationStatus
+  /** Catatan saat bermasalah, mis. "Perlu otorisasi ulang". */
+  note?: string
 }
 
 export interface ConnectedStore {
   id: string
   shopId: string
   shopName: string
+  /** Platform asal toko (bisa beda dengan grup, mis. tokopedia di grup tiktok). */
+  channel: { code: ChannelCode; name: string }
   isActive: boolean
-  channel: { id: string; code: ChannelCode; name: string }
+  ordersEnabled: boolean
+  integration: StoreIntegration
+  /** "Izin akses belum dikonfirmasi" — kosong kalau normal. */
+  accessNote?: string
+  /** Toko Terhubung di platform lain (mis. counterpart TikTok↔Tokopedia). */
+  linkedStore?: { code: ChannelCode; name: string }
   connectedAt: string
 }
 
-export interface RawChannel {
+export interface ChannelGroup {
   id: string
-  code: string
+  code: ChannelCode
   name: string
+  /** OAuth connect didukung BE (TikTok & Lazada saat ini). */
+  connectable: boolean
+  stores: ConnectedStore[]
+}
+
+export interface Channel {
+  id: string
+  code: ChannelCode
+  name: string
+  connectable: boolean
 }
 
 export interface RawConnectedStore {
@@ -36,4 +53,10 @@ export interface RawConnectedStore {
   is_active: boolean
   channel: { id: string; code: string; name: string } | null
   created_at: string
+}
+
+export interface RawChannel {
+  id: string
+  code: string
+  name: string
 }
