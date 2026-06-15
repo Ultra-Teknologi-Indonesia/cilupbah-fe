@@ -9,8 +9,14 @@ import { cn } from "@/lib/utils"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import type { Product } from "@/types/master-produk"
 
-export function ProductStats({ products }: { products: Product[] }) {
-  const total = products.length
+export function ProductStats({
+  products,
+  total: totalOverride,
+}: {
+  products: Product[]
+  total?: number
+}) {
+  const total = totalOverride ?? products.length
   const master = products.filter((p) => p.status === "master").length
   const review = products.filter((p) => p.status === "in_review").length
   const channelErrors = products.filter((p) =>

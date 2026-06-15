@@ -3,21 +3,21 @@
 import { AlertTriangleIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { useMasterProducts } from "@/hooks/master-produk/use-master-products"
+import { useProductListQuery } from "@/hooks/master-produk/use-product-list-query"
 import { ProductStats } from "./product-stats"
 import { ProductExplorer } from "./product-explorer"
 
-// Mengambil daftar master produk dari BE (GET /products/master) lalu memberi
-// data ke stats + explorer. Filter/sort/paginasi masih sisi-klien atas set ini.
+// Sumber query daftar produk (server-driven). Stats memakai total dari meta;
+// explorer menampilkan halaman saat ini + kontrol filter/paginasi.
 export function ProductMasterView() {
-  const { data, isLoading, isError, isFetching, refetch } = useMasterProducts({
-    perPage: 200,
-  })
+  const query = useProductListQuery()
+  const { data, isError, isFetching, refetch } = query.result
   const products = data?.items ?? []
+  const total = data?.meta?.total ?? 0
 
   return (
     <>
-      <ProductStats products={products} />
+      <ProductStats products={products} total={total} />
 
       {isError ? (
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card/60 py-12 text-center backdrop-blur-xl">
@@ -38,7 +38,7 @@ export function ProductMasterView() {
           </Button>
         </div>
       ) : (
-        <ProductExplorer data={products} isLoading={isLoading} />
+        <ProductExplorer query={query} />
       )}
     </>
   )

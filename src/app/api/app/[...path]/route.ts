@@ -57,13 +57,14 @@ async function proxyRequest(
     return NextResponse.json(jsonData, {
       status: response.status,
     });
-  } catch (error: any) {
-    console.error("API Proxy Error:", targetUrl, error?.message, error?.cause);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("API Proxy Error:", targetUrl, message);
 
     return NextResponse.json(
       {
         message: "Internal Server Error",
-        error: error.message,
+        error: message,
       },
       {
         status: 500,

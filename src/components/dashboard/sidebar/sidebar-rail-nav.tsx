@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { PanelLeft } from "lucide-react";
+import { PanelLeft, SettingsIcon, LogOutIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import {
@@ -10,7 +10,17 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AuthService } from "@/services/auth/auth.service";
+import { clearLoginSession } from "@/app/actions/auth.actions";
 import { Logo } from "./logo";
 import { NotificationsPopover } from "./nav-notifications";
 import {
@@ -106,6 +116,16 @@ export function SidebarRailNav({
   onSelect: (id: string) => void;
   onTogglePanel: () => void;
 }) {
+  const handleLogout = async () => {
+    try {
+      await AuthService.logout();
+    } catch {
+      // Abaikan kegagalan revoke server — tetap bersihkan sesi lokal.
+    }
+    await clearLoginSession();
+    window.location.href = "/login";
+  };
+
   return (
     <aside
       aria-label="Navigasi utama"
@@ -154,10 +174,36 @@ export function SidebarRailNav({
           </TooltipTrigger>
           <TooltipContent side="right">Toggle panel (⌘B)</TooltipContent>
         </Tooltip>
-        <Avatar className="mt-1 size-9">
-          <AvatarImage src="" />
-          <AvatarFallback className="bg-brand/10 text-brand font-medium">DA</AvatarFallback>
-        </Avatar>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label="Akun"
+              className="mt-1 rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/30"
+            >
+              <Avatar className="size-9">
+                <AvatarImage src="" />
+                <AvatarFallback className="bg-brand/10 text-brand font-medium">
+                  DA
+                </AvatarFallback>
+              </Avatar>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="right" align="end" className="w-52">
+            <DropdownMenuLabel>Akun</DropdownMenuLabel>
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/pengaturan">
+                <SettingsIcon className="size-4 text-muted-foreground" />
+                Pengaturan
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+              <LogOutIcon className="size-4" />
+              Keluar
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </aside>
   );

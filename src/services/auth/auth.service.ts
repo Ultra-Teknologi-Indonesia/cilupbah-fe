@@ -9,4 +9,7 @@ export const AuthService = {
     });
   },
 
+  logout: async (): Promise<void> => {
+    await fetchClient("/auth/logout", { method: "POST" });
+  },
 };

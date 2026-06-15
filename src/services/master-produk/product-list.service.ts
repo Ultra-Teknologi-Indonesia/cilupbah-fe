@@ -5,6 +5,10 @@ import type { Product, RawMasterItem } from "@/types/master-produk"
 export interface MasterProductsParams {
   search?: string
   status?: string
+  brandId?: string
+  categoryId?: string
+  /** Spatie sort, mis. "name" atau "-updated_at". */
+  sort?: string
   page?: number
   perPage?: number
 }
@@ -57,8 +61,11 @@ export const ProductListService = {
     const q = new URLSearchParams()
     if (params.search) q.set("search", params.search)
     if (params.status) q.set("status", params.status)
+    if (params.brandId) q.set("filter[brand_id]", params.brandId)
+    if (params.categoryId) q.set("filter[category_id]", params.categoryId)
+    if (params.sort) q.set("sort", params.sort)
     q.set("page", String(params.page ?? 1))
-    q.set("per_page", String(params.perPage ?? 200))
+    q.set("per_page", String(params.perPage ?? 20))
 
     const res = await fetchClient<ApiPaginated<RawMasterItem>>(
       `/products/master?${q.toString()}`

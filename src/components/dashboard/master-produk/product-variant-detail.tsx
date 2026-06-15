@@ -1,8 +1,14 @@
+"use client"
+
 import { cn } from "@/lib/utils"
 import type { Product } from "@/types/master-produk"
+import { useVariantStocks } from "@/hooks/master-produk/use-variant-stocks"
 import { formatIDR } from "./product-columns"
 
 export function ProductVariantDetail({ product }: { product: Product }) {
+  const itemIds = product.variants.map((v) => v.itemId)
+  const { data: stocks = {}, isLoading } = useVariantStocks(itemIds)
+
   return (
     <div className="px-14 py-3">
       <table className="w-full text-sm">
@@ -17,7 +23,9 @@ export function ProductVariantDetail({ product }: { product: Product }) {
           </tr>
         </thead>
         <tbody>
-          {product.variants.map((v) => (
+          {product.variants.map((v) => {
+            const st = stocks[v.itemId]
+            return (
             <tr key={v.itemId} className="border-t border-border/60">
               <td className="py-2 pr-4 font-mono text-xs">{v.sku}</td>
               <td className="py-2 pr-4">
@@ -42,13 +50,13 @@ export function ProductVariantDetail({ product }: { product: Product }) {
               <td
                 className={cn(
                   "py-2 pr-4 text-right tabular-nums",
-                  v.stock?.available === 0 && "text-destructive font-medium"
+                  st?.available === 0 && "text-destructive font-medium"
                 )}
               >
-                {v.stock?.available ?? "—"}
+                {isLoading ? "…" : (st?.available ?? "—")}
               </td>
               <td className="py-2 pr-4 text-right tabular-nums text-muted-foreground">
-                {v.stock?.onHand ?? "—"}
+                {isLoading ? "…" : (st?.onHand ?? "—")}
               </td>
               <td className="py-2 text-xs text-muted-foreground">
                 {v.storeNames.length
@@ -56,7 +64,8 @@ export function ProductVariantDetail({ product }: { product: Product }) {
                   : "—"}
               </td>
             </tr>
-          ))}
+            )
+          })}
         </tbody>
       </table>
     </div>
