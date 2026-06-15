@@ -15,20 +15,14 @@ export function SidebarPanel({ group, open }: { group: NavGroup; open: boolean }
   const reduce = useReducedMotion();
   const [isAnimating, setIsAnimating] = React.useState(false);
 
-  // The outer "spacer" reserves layout width with NO animation, so the main
-  // content reflows exactly once per toggle. The inner panel then slides into
-  // that space with `transform` only (compositor-driven → 60fps). On close we
-  // keep the space reserved until the slide-out finishes, then collapse it.
   const [reserved, setReserved] = React.useState(open);
-  // Reserve the moment the panel opens (adjust state during render, the
-  // React-recommended pattern — no effect). It's released in onAnimationComplete
-  // once the slide-out finishes.
+
   if (open && !reserved) setReserved(true);
 
   return (
     <div
       className="hidden h-full overflow-hidden md:block"
-      // Instant width change (no transition) — one reflow, not one-per-frame.
+
       style={{ width: reserved ? PANEL_WIDTH : 0 }}
     >
       <motion.div

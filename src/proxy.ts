@@ -10,7 +10,7 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
-  
+
   const isGuestRoute = guestRoutes.some((route) => pathname.startsWith(route));
 
   if (isProtectedRoute && !token) {

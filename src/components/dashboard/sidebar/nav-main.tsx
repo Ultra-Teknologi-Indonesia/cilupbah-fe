@@ -36,13 +36,18 @@ export type Route = {
 };
 
 export default function DashboardNavigation({ routes }: { routes: Route[] }) {
-  const { state } = useSidebar();
+  const { state, setOpen, setOpenMobile, isMobile } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [openCollapsible, setOpenCollapsible] = useState<string | null>(null);
   const pathname = usePathname();
   const shouldReduceMotion = useReducedMotion();
-  // Label fades in sync with the panel width instead of mounting/unmounting on
-  // collapse (which popped). overflow-hidden on the button clips the text.
+
+  // Setelah memilih item (navigasi), tutup panel nested — jangan terus terbuka.
+  const handleNavClick = () => {
+    if (isMobile) setOpenMobile(false);
+    else setOpen(false);
+  };
+
   const labelClass =
     "min-w-0 truncate transition-opacity duration-200 ease-out group-data-[collapsible=icon]:opacity-0";
 
@@ -96,9 +101,6 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                   </motion.span>
                 </SidebarMenuButton>
 
-                {/* CSS grid-rows reveal (0fr↔1fr): compositor-friendly and no JS
-                    height measurement, unlike animating height:auto. Kept mounted
-                    so it can transition closed. */}
                 <div
                   className="grid transition-[grid-template-rows] ease-[cubic-bezier(0.4,0,0.2,1)]"
                   style={{
@@ -121,6 +123,7 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                                 <Link
                                   href={subRoute.link}
                                   prefetch={true}
+                                  onClick={handleNavClick}
                                   className={cn(
                                     "flex items-center justify-between rounded-md px-4 py-1.5 text-sm",
                                     pathname === subRoute.link
@@ -146,6 +149,7 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                                       <Link
                                         href={nestedSub.link}
                                         prefetch={true}
+                                        onClick={handleNavClick}
                                         className={cn(
                                           "flex items-center rounded-md px-4 py-1 text-xs",
                                           pathname === nestedSub.link
@@ -171,6 +175,7 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                 <Link
                   href={route.link}
                   prefetch={true}
+                  onClick={handleNavClick}
                 >
                   {Icon && (
                     <Icon />

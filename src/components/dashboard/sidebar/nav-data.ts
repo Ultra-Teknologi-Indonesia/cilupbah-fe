@@ -301,7 +301,6 @@ export const sampleNotifications = [
   { id: "1", avatar: "/avatars/01.png", fallback: "OM", text: "New order received.", time: "10m ago" },
 ];
 
-/** True if `pathname` falls under `link` (exact or nested). */
 function linkMatchLen(pathname: string, link: string): number {
   return pathname === link || pathname.startsWith(link + "/") ? link.length : -1;
 }
@@ -317,8 +316,6 @@ function routeMatchLen(pathname: string, route: Route): number {
   return best;
 }
 
-/** Group whose item link most specifically matches the path (longest prefix wins,
- *  so /dashboard/produk → "katalog", not the shorter "/dashboard"). */
 export function findGroupIdForPath(pathname: string, groups: NavGroup[]): string {
   let bestId = groups[0].id;
   let bestLen = -1;
@@ -334,7 +331,6 @@ export function findGroupIdForPath(pathname: string, groups: NavGroup[]): string
   return bestId;
 }
 
-/** Leaf groups (single childless item, e.g. Dashboard) navigate directly. */
 export function isLeafGroup(group: NavGroup): boolean {
   return group.items.length === 1 && !group.items[0].subs?.length;
 }

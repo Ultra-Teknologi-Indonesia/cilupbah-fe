@@ -32,11 +32,6 @@ const SIDEBAR_WIDTH_MOBILE = "20rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
-// Single shared curve for every sidebar transition so that the framer-driven
-// width animations (gap/container/group-label) and the CSS-driven button
-// transitions move on the exact same timing. Easing matches Tailwind's
-// `ease-in-out` (cubic-bezier(0.4, 0, 0.2, 1)) and duration matches
-// `duration-300`, keeping both systems perfectly in sync — no jumping.
 const SIDEBAR_TRANSITION = {
   type: "tween" as const,
   duration: 0.3,
@@ -80,8 +75,6 @@ function SidebarProvider({
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
 
-  // This is the internal state of the sidebar.
-  // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(defaultOpen)
   const open = openProp ?? _open
   const setOpen = React.useCallback(
@@ -93,18 +86,15 @@ function SidebarProvider({
         _setOpen(openState)
       }
 
-      // This sets the cookie to keep the sidebar state.
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
     },
     [setOpenProp, open]
   )
 
-  // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
   }, [isMobile, setOpen, setOpenMobile])
 
-  // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (
@@ -120,8 +110,6 @@ function SidebarProvider({
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [toggleSidebar])
 
-  // We add a state so that we can do data-state="expanded" or "collapsed".
-  // This makes it easier to style the sidebar with Tailwind classes.
   const state = open ? "expanded" : "collapsed"
 
   const contextValue = React.useMemo<SidebarContextProps>(
@@ -181,8 +169,6 @@ function Sidebar({
     return SIDEBAR_WIDTH
   }, [collapsible])
 
-  // Plain single-unit rem values (no calc()) so framer-motion can interpolate the
-  // width smoothly — calc() endpoints are not interpolatable and snap at the end.
   const collapsedGapWidth = React.useMemo(() => {
     if (collapsible === "offcanvas") return "0px"
     if (collapsible === "icon") {
@@ -196,7 +182,7 @@ function Sidebar({
   const expandedContainerWidth = SIDEBAR_WIDTH
   const collapsedContainerWidth = React.useMemo(() => {
     if (collapsible === "icon") {
-      // +1rem floating padding, +0.125rem (~2px) border compensation.
+
       return isFloatingOrInset
         ? `${parseFloat(SIDEBAR_WIDTH_ICON) + 1.125}rem`
         : SIDEBAR_WIDTH_ICON
@@ -209,11 +195,8 @@ function Sidebar({
     ? { duration: 0 }
     : SIDEBAR_TRANSITION
 
-  // While the width animates we drop the (expensive) SVG refraction so the
-  // collapse/expand stays smooth; it returns the moment the panel settles.
   const [isAnimating, setIsAnimating] = React.useState(false)
 
-  // Pointer-reactive specular highlight on the glass surface.
   const glassRef = React.useRef<HTMLDivElement | null>(null)
   const specRafRef = React.useRef<number | null>(null)
   const reducedRef = React.useRef(false)
@@ -729,7 +712,7 @@ function SidebarMenuSkeleton({
 }: React.ComponentProps<"div"> & {
   showIcon?: boolean
 }) {
-  // Random width between 50 to 90%.
+
   const [width] = React.useState(() => {
     return `${Math.floor(Math.random() * 40) + 50}%`
   })

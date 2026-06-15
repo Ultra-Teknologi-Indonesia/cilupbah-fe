@@ -11,12 +11,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import type { LookupOption } from "@/types/common";
 
-export interface ComboboxOption {
-  value: string;
-  label: string;
-  hint?: string;
-}
+/** Bentuk opsi combobox = LookupOption generik (reusable). */
+export type ComboboxOption = LookupOption;
 
 interface ComboboxProps {
   options: ComboboxOption[];
@@ -31,7 +29,6 @@ interface ComboboxProps {
   className?: string;
 }
 
-/** Searchable single-select (combobox) — glass popover, solid trigger. */
 export function Combobox({
   options,
   value,

@@ -1,10 +1,8 @@
 import { PageTitle } from "@/components/dashboard/page-title"
-import { ProductStats } from "./_components/product-stats"
-import { ProductExplorer } from "./_components/product-explorer"
-import { mockProducts } from "./_data/mock-products"
+import { ProductStats } from "@/components/dashboard/master-produk/product-stats"
+import { ProductExplorer } from "@/components/dashboard/master-produk/product-explorer"
+import { mockProducts } from "@/mocks/master-produk/mock-products"
 
-// Phase 1: fully hardcoded layout for review. Phase 2 swaps `mockProducts`
-// for `GET products/master`. See PLAN-MASTER-PRODUK.md.
 export default function ProdukMasterPage() {
   return (
     <div className="flex flex-col gap-6">

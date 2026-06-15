@@ -15,7 +15,7 @@ import {
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>
-  /** Human labels per column id; falls back to the column id. */
+
   labels?: Record<string, string>
 }
 

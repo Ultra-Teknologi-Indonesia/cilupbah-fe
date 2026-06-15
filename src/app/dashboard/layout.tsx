@@ -11,8 +11,6 @@ export default function DashboardLayout({
     <TooltipProvider>
       <SidebarProvider>
 
-        {/* Static lavender wash. The blobs are frozen (no perpetual drift) so the
-            glass surfaces don't recomposite their backdrop-filter every frame. */}
         <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
           <div
             className="absolute -top-[15%] -left-[10%] h-[55%] w-[55%] rounded-full opacity-25 blur-[100px]"
@@ -45,7 +43,7 @@ export default function DashboardLayout({
               <SidebarTrigger />
               <div className="font-semibold text-lg tracking-tight">UltraFit WMS</div>
             </header>
-            
+
             <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-transparent">
               {children}
             </main>

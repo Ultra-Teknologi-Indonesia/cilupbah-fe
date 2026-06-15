@@ -18,7 +18,7 @@ export async function fetchClient<T>(
   try {
     const response = await apiClient(formattedEndpoint, options);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw error.response.data;
     }

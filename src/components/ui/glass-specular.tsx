@@ -1,7 +1,5 @@
 import * as React from "react";
 
-/** Absolutely-positioned highlight that follows `--lg-x`/`--lg-y` (set by
- *  useGlassSpecular) and fades via `--lg-spec`. Sits below content (z-0). */
 export function GlassSpecular({ size = 200 }: { size?: number }) {
   return (
     <div

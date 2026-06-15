@@ -12,14 +12,14 @@ import type { FacetedFilter } from "./types"
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
-  /** Column id for the free-text search box. */
+
   searchColumnId?: string
   searchPlaceholder?: string
-  /** Controlled global/search value (server mode). When set, overrides column filter. */
+
   searchValue?: string
   onSearchChange?: (value: string) => void
   facetedFilters?: FacetedFilter[]
-  /** Right-aligned actions (e.g. Tambah, Import). */
+
   actions?: React.ReactNode
   columnLabels?: Record<string, string>
   enableColumnVisibility?: boolean

@@ -39,13 +39,11 @@ export interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
 
-  // ── identity ──────────────────────────────────────────────
   getRowId?: (row: TData, index: number) => string
 
-  // ── toolbar ───────────────────────────────────────────────
   searchColumnId?: string
   searchPlaceholder?: string
-  /** Controlled search value — enables server-side search. */
+
   searchValue?: string
   onSearchChange?: (value: string) => void
   facetedFilters?: FacetedFilter[]
@@ -53,41 +51,37 @@ export interface DataTableProps<TData, TValue> {
   columnLabels?: Record<string, string>
   hideToolbar?: boolean
 
-  // ── selection / expansion ─────────────────────────────────
   enableRowSelection?: boolean
   enableColumnVisibility?: boolean
-  /** Renders an expandable detail panel under a row when provided. */
+
   renderSubRow?: (row: TData, rowInstance: Row<TData>) => React.ReactNode
-  /** Sticky bar rendered when rows are selected. */
+
   bulkActions?: (
     selected: TData[],
     table: TableInstance<TData>
   ) => React.ReactNode
   onRowClick?: (row: TData) => void
 
-  // ── server mode ───────────────────────────────────────────
   manualPagination?: boolean
   manualSorting?: boolean
   manualFiltering?: boolean
-  /** Total row count from server meta (required for manualPagination). */
+
   rowCount?: number
   sorting?: SortingState
   onSortingChange?: (s: SortingState) => void
   pagination?: PaginationState
   onPaginationChange?: (p: PaginationState) => void
 
-  // ── status ────────────────────────────────────────────────
   isLoading?: boolean
-  /** Skeleton row count while loading. */
+
   loadingRows?: number
   emptyState?: React.ReactNode
   errorState?: React.ReactNode
 
-  // ── layout ────────────────────────────────────────────────
   pageSizeOptions?: number[]
   hidePagination?: boolean
   className?: string
-  /** Override the table frame (e.g. `border-0` when nested inside a Card). */
+
   tableContainerClassName?: string
 }
 
@@ -214,9 +208,7 @@ export function DataTable<TData, TValue>({
 
       <div
         className={cn(
-          // Liquid glass: keep the translucent card tint but add a backdrop
-          // blur so the lavender wash behind it is frosted, not bleeding
-          // through — keeps text legible.
+
           "overflow-hidden rounded-2xl border border-border bg-card backdrop-blur-xl",
           tableContainerClassName
         )}

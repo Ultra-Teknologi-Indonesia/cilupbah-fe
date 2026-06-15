@@ -20,18 +20,13 @@ export interface BreadcrumbEntry {
 interface PageTitleProps {
   title: string
   description?: string
-  /** Breadcrumb trail shown above the title. Last item is the current page. */
+
   breadcrumb?: BreadcrumbEntry[]
-  /** Optional right-aligned actions (buttons, etc.). */
+
   actions?: React.ReactNode
   className?: string
 }
 
-/**
- * Reusable page header on the app's richer liquid-glass surface — same
- * <LiquidGlass> treatment (glow rim, shimmer, drop-shadow) as the stats and
- * product panels, so all top-level cards stay visually consistent.
- */
 export function PageTitle({
   title,
   description,

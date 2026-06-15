@@ -25,8 +25,6 @@ export function DashboardSidebar() {
     findGroupIdForPath(pathname, dashboardGroups)
   );
 
-  // Keep the rail/panel in sync with the route as the user navigates — adjust
-  // state during render (React-recommended) instead of in an effect.
   const [prevPath, setPrevPath] = React.useState(pathname);
   if (pathname !== prevPath) {
     setPrevPath(pathname);
@@ -40,7 +38,7 @@ export function DashboardSidebar() {
     (id: string) => {
       setActiveGroupId(id);
       const group = dashboardGroups.find((g) => g.id === id);
-      // Selecting a non-leaf group while the panel is hidden re-opens it.
+
       if (group && !isLeafGroup(group) && !open) toggleSidebar();
     },
     [open, toggleSidebar]
@@ -78,7 +76,7 @@ export function DashboardSidebar() {
         onSelect={handleSelect}
         onTogglePanel={toggleSidebar}
       />
-      {/* Leaf groups (Dashboard) navigate directly — no secondary panel. */}
+
       <SidebarPanel group={activeGroup} open={open && !isLeafGroup(activeGroup)} />
     </div>
   );

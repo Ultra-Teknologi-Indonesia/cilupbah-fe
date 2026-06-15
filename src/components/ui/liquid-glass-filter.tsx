@@ -2,14 +2,6 @@
 
 import { useEffect } from "react";
 
-/**
- * Mounts the SVG displacement filter used for *real* backdrop refraction and
- * enables it only on Chromium engines, where `backdrop-filter: url(#...)` with
- * feDisplacementMap actually renders. Safari/Firefox keep the lighter blur+rim
- * glass (graceful fallback), so there is zero compatibility risk.
- *
- * Mount once near the app root.
- */
 export function LiquidGlassFilter() {
   useEffect(() => {
     const brands = (
@@ -39,7 +31,7 @@ export function LiquidGlassFilter() {
           height="150%"
           colorInterpolationFilters="sRGB"
         >
-          {/* Smooth low-frequency noise → gentle, glass-like warping (not grain). */}
+
           <feTurbulence
             type="fractalNoise"
             baseFrequency="0.009 0.013"
@@ -48,7 +40,7 @@ export function LiquidGlassFilter() {
             result="noise"
           />
           <feGaussianBlur in="noise" stdDeviation="2.2" result="softNoise" />
-          {/* Refract the backdrop (SourceGraphic) by the noise field. */}
+
           <feDisplacementMap
             in="SourceGraphic"
             in2="softNoise"

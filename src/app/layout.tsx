@@ -6,10 +6,6 @@ import { QueryProvider } from "@/components/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { LiquidGlassFilter } from "@/components/ui/liquid-glass-filter";
 
-// Self-hosted SF Pro Display, only the 4 weights the UI actually uses
-// (400/500/600/700). next/font handles `font-display: swap`, preloading, and a
-// size-adjusted fallback to keep CLS ~0. The previous Geist/Geist_Mono/Inter
-// families were loaded but never rendered — dropped entirely.
 const sfPro = localFont({
   src: [
     { path: "./fonts/SFProDisplay-Regular.woff2", weight: "400", style: "normal" },

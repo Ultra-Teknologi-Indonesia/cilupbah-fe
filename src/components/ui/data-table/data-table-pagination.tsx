@@ -20,7 +20,7 @@ import {
 interface DataTablePaginationProps<TData> {
   table: Table<TData>
   pageSizeOptions?: number[]
-  /** Hide the "x of y selected" hint (e.g. when selection is disabled). */
+
   showSelectionCount?: boolean
 }
 

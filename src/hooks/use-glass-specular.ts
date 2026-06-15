@@ -2,12 +2,6 @@
 
 import * as React from "react";
 
-/**
- * Pointer-reactive specular highlight for liquid-glass surfaces. Returns a ref to
- * attach to the glass element plus pointer handlers that update `--lg-x`/`--lg-y`
- * (rAF-throttled) and `--lg-spec`. Pair with an absolutely-positioned overlay that
- * reads those vars. Respects prefers-reduced-motion.
- */
 export function useGlassSpecular<T extends HTMLElement = HTMLDivElement>() {
   const ref = React.useRef<T | null>(null);
   const rafRef = React.useRef<number | null>(null);

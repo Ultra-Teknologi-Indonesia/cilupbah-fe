@@ -8,13 +8,7 @@ interface LiquidGlassProps extends React.HTMLAttributes<HTMLDivElement> {
   radius?: number;
   showGlow?: boolean;
   showShadow?: boolean;
-  /**
-   * Pointer-reactive specular highlight (the light "catches" the surface).
-   * PERF: defaults to `false`. The effect blends (`mix-blend-mode: soft-light`)
-   * over a `backdrop-filter` surface, so each pointer move repaints the blurred
-   * backdrop — cheap for one showcase tile, a jank source for a grid of cards.
-   * Opt in only on a hero/standalone surface.
-   */
+
   reactive?: boolean;
 }
 
@@ -89,8 +83,7 @@ const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
             position: "relative",
             borderRadius: radius,
             overflow: "hidden",
-            // Consumed by the `.lg-glass` CSS so the `.refraction` variant can
-            // extend the backdrop-filter chain with the SVG displacement map.
+
             "--lg-blur": `${blur}px`,
             "--lg-sat": `${saturation}`,
             "--lg-bright": `${brightness}`,
@@ -102,7 +95,7 @@ const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
         }
         {...props}
       >
-        {/* Rim light / inner glow */}
+
         {showGlow && (
           <div
             aria-hidden="true"
@@ -120,7 +113,6 @@ const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
           />
         )}
 
-        {/* Pointer-reactive specular highlight */}
         {reactive && (
           <div
             aria-hidden="true"
@@ -139,7 +131,6 @@ const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
           />
         )}
 
-        {/* Static diagonal shimmer */}
         <div
           aria-hidden="true"
           style={{
