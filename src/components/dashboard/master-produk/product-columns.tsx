@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import type { ColumnDef } from "@tanstack/react-table"
 import { ChevronRightIcon, ImageIcon, PackageIcon } from "lucide-react"
 
@@ -101,7 +102,12 @@ export const productColumns: ColumnDef<Product>[] = [
 
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="truncate font-medium">{p.itemName}</span>
+              <Link
+                href={`/dashboard/master-produk/${p.itemGroupId}`}
+                className="truncate font-medium hover:text-primary hover:underline"
+              >
+                {p.itemName}
+              </Link>
               {p.isBundle && (
                 <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
                   Bundle

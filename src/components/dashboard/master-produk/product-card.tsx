@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { ImageIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -78,7 +79,12 @@ export function ProductCard({
         <div className="flex items-start justify-between gap-1">
           <div className="min-w-0">
             <h3 className="truncate text-sm font-medium leading-tight">
-              {product.itemName}
+              <Link
+                href={`/dashboard/master-produk/${product.itemGroupId}`}
+                className="hover:text-primary hover:underline"
+              >
+                {product.itemName}
+              </Link>
             </h3>
             <p className="font-mono text-xs text-muted-foreground">
               {product.sku ?? "—"}
