@@ -1,0 +1,77 @@
+import type {
+  BuatProdukFormValues,
+  CreateMediaInput,
+  CreateVariantInput,
+  ProductUpdatePayload,
+} from "@/types/master-produk"
+
+function num(value?: string | null): number | undefined {
+  if (value == null) return undefined
+  const trimmed = String(value).trim()
+  if (!trimmed) return undefined
+  const n = Number(trimmed)
+  return Number.isFinite(n) ? n : undefined
+}
+
+/**
+ * Map nilai form → payload PUT /products/{id} (partial).
+ * - includeVariant=false (produk variasi) → varian tidak dikirim (tak disentuh BE).
+ * - originalVariantSku dipakai agar update varian by-SKU, bukan membuat varian baru.
+ * - media hanya disertakan bila ada unggahan baru (replace-all di BE).
+ */
+export function buildUpdatePayload(
+  values: BuatProdukFormValues,
+  opts: {
+    includeVariant: boolean
+    originalVariantSku?: string
+    media?: CreateMediaInput[]
+  }
+): ProductUpdatePayload {
+  const payload: ProductUpdatePayload = {
+    name: values.name.trim(),
+    sku: values.sku.trim() || null,
+    category_id: Number(values.category!.id),
+    brand_id: values.brandId ? Number(values.brandId) : null,
+    description: values.description?.trim() || null,
+    is_bundle: values.isBundle,
+    is_consignment: values.isConsignment,
+    order_type: values.isPreorder ? "PREORDER" : "REGULER",
+    ...(values.isPreorder ? { indent_days: num(values.indentDays) ?? 0 } : {}),
+    is_stored: values.isStored,
+    is_sold: values.isSold,
+    is_purchased: values.isPurchased,
+    purchase_lead_time: num(values.purchaseLeadTime) ?? null,
+    sales_account_id: values.salesAccountId,
+    sales_return_account_id: values.salesReturnAccountId,
+    inventory_account_id: values.inventoryAccountId,
+    cogs_account_id: values.cogsAccountId,
+    weight: num(values.weight) ?? null,
+    length: num(values.length) ?? null,
+    width: num(values.width) ?? null,
+    height: num(values.height) ?? null,
+    package_contents: values.packageContents?.trim() || null,
+  }
+
+  if (opts.includeVariant) {
+    const variant: CreateVariantInput = {
+      sku: opts.originalVariantSku ?? values.sku.trim(),
+      sell_price: num(values.sellPrice) ?? 0,
+      buy_price: num(values.buyPrice) ?? null,
+      sales_tax_id: values.salesTaxId ? Number(values.salesTaxId) : null,
+      purchase_tax_id: values.purchaseTaxId ? Number(values.purchaseTaxId) : null,
+      min_stock: num(values.minStock) ?? null,
+      safe_stock: num(values.safeStock) ?? null,
+      is_active: true,
+      ...(values.unlimitedShopIds.length
+        ? { unlimited_shop_ids: values.unlimitedShopIds }
+        : {}),
+    }
+    payload.variants = [variant]
+  }
+
+  if (opts.media?.length) {
+    payload.media = opts.media
+  }
+
+  return payload
+}

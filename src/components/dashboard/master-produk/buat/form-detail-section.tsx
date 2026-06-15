@@ -22,7 +22,11 @@ import {
   useCategoryTree,
 } from "@/hooks/master-produk/use-master-data"
 
-export function FormDetailSection() {
+export function FormDetailSection({
+  skuDisabled = false,
+}: {
+  skuDisabled?: boolean
+} = {}) {
   const { control, watch } = useFormContext<BuatProdukFormValues>()
   const isPreorder = watch("isPreorder")
   const { data: brandOptions = [] } = useBrandOptions()
@@ -102,8 +106,11 @@ export function FormDetailSection() {
             <FormItem>
               <FormLabel>SKU <span className="text-destructive">*</span></FormLabel>
               <FormControl>
-                <Input placeholder="mis. RB-SET-5PCS" maxLength={50} {...field} />
+                <Input placeholder="mis. RB-SET-5PCS" maxLength={50} disabled={skuDisabled} {...field} />
               </FormControl>
+              {skuDisabled && (
+                <FormDescription>SKU tidak dapat diubah setelah produk dibuat.</FormDescription>
+              )}
               <FormMessage />
             </FormItem>
           )}
