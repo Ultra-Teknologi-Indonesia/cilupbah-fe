@@ -5,7 +5,6 @@ import { CheckIcon, ChevronsUpDownIcon, SearchIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Popover,
   PopoverContent,
@@ -94,7 +93,7 @@ export function Combobox({
             className="h-10 border-0 bg-transparent px-0 focus-visible:ring-0"
           />
         </div>
-        <ScrollArea className="max-h-64">
+        <div className="max-h-64 overflow-y-auto overscroll-contain">
           <ul className="p-1.5">
             {filtered.length === 0 && (
               <li className="px-3 py-6 text-center text-sm text-muted-foreground">
@@ -137,7 +136,7 @@ export function Combobox({
               );
             })}
           </ul>
-        </ScrollArea>
+        </div>
       </PopoverContent>
     </Popover>
   );

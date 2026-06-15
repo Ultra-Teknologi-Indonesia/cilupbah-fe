@@ -59,11 +59,13 @@ export function CategoryPicker({
   onChange,
   invalid,
   tree = [],
+  triggerClassName,
 }: {
   value: SelectedCategory | null
   onChange: (v: SelectedCategory) => void
   invalid?: boolean
   tree?: CategoryNode[]
+  triggerClassName?: string
 }) {
   const [open, setOpen] = React.useState(false)
   const [path, setPath] = React.useState<CategoryNode[]>([])
@@ -96,7 +98,8 @@ export function CategoryPicker({
         className={cn(
           "flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-border bg-background px-3 text-sm outline-none transition-[color,box-shadow]",
           "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30",
-          invalid && "border-destructive ring-3 ring-destructive/20"
+          invalid && "border-destructive ring-3 ring-destructive/20",
+          triggerClassName
         )}
       >
         {value ? (

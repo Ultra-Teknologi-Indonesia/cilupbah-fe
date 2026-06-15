@@ -151,6 +151,7 @@ export function ProductExplorer({ query }: { query: Query }) {
             value={query.category}
             onChange={query.setCategory}
             tree={categoryTree}
+            triggerClassName="h-9 rounded-full"
           />
         </div>
         {query.hasFilter && (
