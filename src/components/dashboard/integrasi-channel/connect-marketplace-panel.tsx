@@ -5,7 +5,14 @@ import { Badge } from "@/components/ui/badge"
 import type { Channel } from "@/types/channel"
 import { ChannelLogo } from "./channel-logo"
 
-export function ConnectMarketplacePanel({ channels }: { channels: Channel[] }) {
+export function ConnectMarketplacePanel({
+  channels,
+  connectedCounts = {},
+}: {
+  channels: Channel[]
+  /** Jumlah toko terhubung per kode channel (boleh > 1 per channel). */
+  connectedCounts?: Record<string, number>
+}) {
   return (
     <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm">
       <div className="mb-3">
@@ -26,41 +33,48 @@ export function ConnectMarketplacePanel({ channels }: { channels: Channel[] }) {
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {channels.map((channel) => (
-          <div
-            key={channel.id}
-            className="flex items-center gap-3 rounded-xl border border-border/60 bg-background/40 p-3"
-          >
-            <ChannelLogo code={channel.code} name={channel.name} />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">{channel.name}</p>
-              {channel.connectable ? (
-                <p className="text-xs text-muted-foreground">Menunggu integrasi</p>
-              ) : (
-                <Badge
-                  variant="outline"
-                  className="mt-0.5 px-1.5 py-0 text-[10px] text-muted-foreground"
-                >
-                  Segera hadir
-                </Badge>
-              )}
-            </div>
-            <Button
-              variant={channel.connectable ? "primary" : "outline"}
-              size="sm"
-              disabled
-              aria-label={`Hubungkan ${channel.name}`}
-              title={
-                channel.connectable
-                  ? "Menunggu integrasi OAuth"
-                  : "Belum didukung"
-              }
+        {channels.map((channel) => {
+          const count = connectedCounts[channel.code] ?? 0
+          return (
+            <div
+              key={channel.id}
+              className="flex items-center gap-3 rounded-xl border border-border/60 bg-background/40 p-3"
             >
-              <PlusIcon />
-              Hubungkan
-            </Button>
-          </div>
-        ))}
+              <ChannelLogo code={channel.code} name={channel.name} />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{channel.name}</p>
+                {count > 0 ? (
+                  <p className="text-xs text-muted-foreground">
+                    {count} toko terhubung
+                  </p>
+                ) : channel.connectable ? (
+                  <p className="text-xs text-muted-foreground">Menunggu integrasi</p>
+                ) : (
+                  <Badge
+                    variant="outline"
+                    className="mt-0.5 px-1.5 py-0 text-[10px] text-muted-foreground"
+                  >
+                    Segera hadir
+                  </Badge>
+                )}
+              </div>
+              <Button
+                variant={channel.connectable ? "primary" : "outline"}
+                size="sm"
+                disabled
+                aria-label={`Hubungkan ${channel.name}`}
+                title={
+                  channel.connectable
+                    ? "Menunggu integrasi OAuth"
+                    : "Belum didukung"
+                }
+              >
+                <PlusIcon />
+                {count > 0 ? "Tambah toko" : "Hubungkan"}
+              </Button>
+            </div>
+          )
+        })}
       </div>
     </section>
   )

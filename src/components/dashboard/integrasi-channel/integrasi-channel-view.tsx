@@ -109,7 +109,13 @@ export function IntegrasiChannelView() {
         )}
       </section>
 
-      <ConnectMarketplacePanel channels={MOCK_CHANNELS} />
+      <ConnectMarketplacePanel
+        channels={MOCK_CHANNELS}
+        connectedCounts={stores.reduce<Record<string, number>>((acc, s) => {
+          acc[s.channel.code] = (acc[s.channel.code] ?? 0) + 1
+          return acc
+        }, {})}
+      />
     </div>
   )
 }

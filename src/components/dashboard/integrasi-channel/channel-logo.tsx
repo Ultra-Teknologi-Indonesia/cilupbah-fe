@@ -1,13 +1,16 @@
 import { cn } from "@/lib/utils"
 import type { ChannelCode } from "@/types/channel"
 
-const STYLES: Record<string, { bg: string; label: string }> = {
-  tiktok: { bg: "bg-neutral-900 text-white", label: "TT" },
-  lazada: { bg: "bg-[#0F146D] text-white", label: "LZ" },
-  shopee: { bg: "bg-[#EE4D2D] text-white", label: "SP" },
-  tokopedia: { bg: "bg-[#03AC0E] text-white", label: "TP" },
-  blibli: { bg: "bg-[#0095DA] text-white", label: "BL" },
+// Tile berwarna brand + glyph putih (di-mask dari SVG di /public/channels).
+const TILE: Record<string, string> = {
+  tiktok: "bg-neutral-900",
+  shopee: "bg-[#EE4D2D]",
+  lazada: "bg-[#0F146D]",
+  tokopedia: "bg-[#03AC0E]",
+  blibli: "bg-[#0095DA]",
 }
+
+const HAS_ICON = new Set(Object.keys(TILE))
 
 export function ChannelLogo({
   code,
@@ -18,20 +21,36 @@ export function ChannelLogo({
   name: string
   className?: string
 }) {
-  const style = STYLES[code] ?? {
-    bg: "bg-muted text-foreground",
-    label: name.slice(0, 2).toUpperCase(),
+  // Fallback (channel tanpa ikon): inisial di tile netral.
+  if (!HAS_ICON.has(code)) {
+    return (
+      <span
+        aria-hidden
+        className={cn(
+          "grid size-10 shrink-0 place-items-center rounded-xl bg-muted text-xs font-semibold text-foreground",
+          className
+        )}
+      >
+        {name.slice(0, 2).toUpperCase()}
+      </span>
+    )
   }
+
+  const mask = `url(/channels/${code}.svg) center / contain no-repeat`
+
   return (
     <span
       aria-hidden
       className={cn(
-        "grid size-10 shrink-0 place-items-center rounded-xl text-xs font-semibold",
-        style.bg,
+        "grid size-10 shrink-0 place-items-center rounded-xl",
+        TILE[code],
         className
       )}
     >
-      {style.label}
+      <span
+        className="size-5 bg-white"
+        style={{ mask, WebkitMask: mask }}
+      />
     </span>
   )
 }
