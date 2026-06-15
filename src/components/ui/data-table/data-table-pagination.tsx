@@ -30,7 +30,14 @@ export function DataTablePagination<TData>({
   showSelectionCount = true,
 }: DataTablePaginationProps<TData>) {
   const pageIndex = table.getState().pagination.pageIndex
+  const pageSize = table.getState().pagination.pageSize
   const pageCount = table.getPageCount()
+
+  // Selalu sertakan pageSize aktif agar Select punya item yang cocok
+  // (kalau tidak, trigger tampil kosong saat pageSize di luar daftar opsi).
+  const sizeOptions = Array.from(new Set([...pageSizeOptions, pageSize])).sort(
+    (a, b) => a - b
+  )
 
   return (
     <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between">
@@ -47,17 +54,17 @@ export function DataTablePagination<TData>({
         <div className="flex items-center gap-2">
           <p className="text-sm font-medium">Baris per halaman</p>
           <Select
-            value={`${table.getState().pagination.pageSize}`}
+            value={`${pageSize}`}
             onValueChange={(value) => table.setPageSize(Number(value))}
           >
             <SelectTrigger
               size="sm"
               className="w-[4.5rem] rounded-full border-border bg-background"
             >
-              <SelectValue placeholder={table.getState().pagination.pageSize} />
+              <SelectValue>{pageSize}</SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {pageSizeOptions.map((size) => (
+              {sizeOptions.map((size) => (
                 <SelectItem key={size} value={`${size}`}>
                   {size}
                 </SelectItem>

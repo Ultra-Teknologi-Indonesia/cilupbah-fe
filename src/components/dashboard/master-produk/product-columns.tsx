@@ -114,7 +114,7 @@ export const productColumns: ColumnDef<Product>[] = [
               )}
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="font-mono">{p.itemGroupId}</span>
+              <span className="font-mono">{p.sku ?? "—"}</span>
               <span className="inline-flex items-center gap-1">
                 <PackageIcon className="size-3" />
                 {p.totalVariants} varian

@@ -25,6 +25,7 @@ export interface ProductChannelStatus {
 export interface Product {
   itemGroupId: string
   itemName: string
+  sku: string | null
   status: ProductStatus
   isPo: boolean
   isConsignment: boolean
@@ -61,6 +62,7 @@ export interface RawMasterOnlineStatus {
 
 export interface RawMasterItem {
   item_group_id: string
+  sku: string | null
   status: ProductStatus
   is_po: boolean
   is_bundle: boolean

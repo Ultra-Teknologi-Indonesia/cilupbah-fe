@@ -23,6 +23,7 @@ function mapMasterItem(raw: RawMasterItem): Product {
   return {
     itemGroupId: raw.item_group_id,
     itemName: raw.item_name,
+    sku: raw.sku ?? null,
     status: raw.status,
     isPo: raw.is_po,
     isConsignment: raw.is_consignment,
