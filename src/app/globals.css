@@ -40,8 +40,6 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --color-brand: var(--brand);
-  --color-brand-foreground: var(--brand-foreground);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -58,10 +56,8 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0 / 65%);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.218 0 0);
+  --primary: oklch(0.623 0.214 259.8);
   --primary-foreground: oklch(0.985 0 0);
-  --brand: oklch(0.554 0.15 296);
-  --brand-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -95,10 +91,8 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0 / 72%);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
+  --primary: oklch(0.726 0.143 256);
   --primary-foreground: oklch(0.205 0 0);
-  --brand: oklch(0.7 0.135 296);
-  --brand-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
@@ -153,7 +147,7 @@
     border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
-      0 12px 32px -12px color-mix(in oklch, var(--brand) 35%, transparent),
+      0 12px 32px -12px color-mix(in oklch, var(--primary) 35%, transparent),
       0 2px 8px -2px rgba(0, 0, 0, 0.05);
   }
   .dark .bg-card, .dark .bg-popover {
@@ -177,9 +171,9 @@
     /* Soft warm-purple wash so liquid-glass surfaces have colour to refract.
        Kept low-opacity to stay tasteful, not "over". */
     background-image:
-      radial-gradient(at 12% 6%, color-mix(in oklch, var(--brand) 12%, transparent) 0px, transparent 45%),
-      radial-gradient(at 88% 4%, color-mix(in oklch, var(--brand) 8%, transparent) 0px, transparent 45%),
-      radial-gradient(at 70% 96%, color-mix(in oklch, var(--brand) 8%, transparent) 0px, transparent 50%);
+      radial-gradient(at 12% 6%, color-mix(in oklch, var(--primary) 12%, transparent) 0px, transparent 45%),
+      radial-gradient(at 88% 4%, color-mix(in oklch, var(--primary) 8%, transparent) 0px, transparent 45%),
+      radial-gradient(at 70% 96%, color-mix(in oklch, var(--primary) 8%, transparent) 0px, transparent 50%);
     /* NOTE: `background-attachment: fixed` was removed — combined with the glass
        backdrop-filters it forced a full-viewport re-raster on every scroll. The
        wash is on <body> (which doesn't scroll; the dashboard <main> does), so it
@@ -187,9 +181,9 @@
   }
   .dark body {
     background-image:
-      radial-gradient(at 12% 6%, color-mix(in oklch, var(--brand) 20%, transparent) 0px, transparent 45%),
-      radial-gradient(at 88% 4%, color-mix(in oklch, var(--brand) 14%, transparent) 0px, transparent 45%),
-      radial-gradient(at 70% 96%, color-mix(in oklch, var(--brand) 13%, transparent) 0px, transparent 50%);
+      radial-gradient(at 12% 6%, color-mix(in oklch, var(--primary) 20%, transparent) 0px, transparent 45%),
+      radial-gradient(at 88% 4%, color-mix(in oklch, var(--primary) 14%, transparent) 0px, transparent 45%),
+      radial-gradient(at 70% 96%, color-mix(in oklch, var(--primary) 13%, transparent) 0px, transparent 50%);
   }
   html {
     @apply font-sans;
@@ -198,13 +192,13 @@
 
 /* Purple-tinted icon container — single class, no ad-hoc hex. */
 .icon-chip {
-  background: color-mix(in oklch, var(--brand) 12%, transparent);
-  color: var(--brand);
+  background: color-mix(in oklch, var(--primary) 12%, transparent);
+  color: var(--primary);
 }
 
 /* Reserved for the future scanner viewfinder corners. */
 .scan-frame-corner {
-  border-color: var(--brand);
+  border-color: var(--primary);
 }
 
 
@@ -258,7 +252,7 @@
    clipped by the width-animation overflow). */
 .glass-elevation {
   box-shadow:
-    0 10px 30px -8px color-mix(in oklch, var(--brand) 22%, transparent),
+    0 10px 30px -8px color-mix(in oklch, var(--primary) 22%, transparent),
     0 4px 14px -6px rgba(0, 0, 0, 0.12);
 }
 .dark .glass-elevation {
@@ -383,7 +377,7 @@
 
 /* ========== LIQUID GLASS BUTTON (interactive tier) ==========
    Animated conic rim + bevel + moving specular sweep + 3D press. Adapted from
-   the classic CSS technique to the project palette (near-black text, --brand,
+   the classic CSS technique to the project palette (near-black text, --primary,
    light/dark). Used via the shadcn button `glass` variant. */
 @property --lg-angle-1 {
   syntax: "<angle>";

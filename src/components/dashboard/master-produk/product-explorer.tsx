@@ -98,7 +98,7 @@ export function ProductExplorer({ query }: { query: Query }) {
             <span className="hidden sm:inline">Impor</span>
           </Button>
           <Button
-            variant="brand"
+            variant="primary"
             size="sm"
             className="h-9 gap-2"
             onClick={() => router.push("/dashboard/master-produk/buat")}

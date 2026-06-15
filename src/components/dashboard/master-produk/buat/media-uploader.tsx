@@ -9,14 +9,15 @@ interface Preview {
   id: string
   url: string
   name: string
+  file: File
 }
 
 const MAX_IMAGES = 9
 
 export function MediaUploader({
-  onImagesChange,
+  onChange,
 }: {
-  onImagesChange?: (count: number) => void
+  onChange?: (files: File[]) => void
 }) {
   const [images, setImages] = React.useState<Preview[]>([])
   const [video, setVideo] = React.useState<Preview | null>(null)
@@ -25,8 +26,8 @@ export function MediaUploader({
   const vidInput = React.useRef<HTMLInputElement>(null)
 
   React.useEffect(() => {
-    onImagesChange?.(images.length)
-  }, [images.length, onImagesChange])
+    onChange?.(images.map((i) => i.file))
+  }, [images, onChange])
 
   React.useEffect(
     () => () => {
@@ -45,6 +46,7 @@ export function MediaUploader({
         id: `${f.name}-${i}-${f.size}`,
         url: URL.createObjectURL(f),
         name: f.name,
+        file: f,
       }))
     setImages((prev) => [...prev, ...next].slice(0, MAX_IMAGES))
   }
@@ -75,7 +77,7 @@ export function MediaUploader({
           }}
           className={cn(
             "rounded-2xl border border-dashed p-4 transition-colors",
-            dragOver ? "border-brand bg-brand/5" : "border-border"
+            dragOver ? "border-primary bg-primary/5" : "border-border"
           )}
         >
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
@@ -101,7 +103,7 @@ export function MediaUploader({
               <button
                 type="button"
                 onClick={() => imgInput.current?.click()}
-                className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border text-muted-foreground transition-colors hover:border-brand hover:text-brand"
+                className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
               >
                 <UploadCloudIcon className="size-5" />
                 <span className="text-[11px]">Tambah</span>
@@ -150,7 +152,7 @@ export function MediaUploader({
           <button
             type="button"
             onClick={() => vidInput.current?.click()}
-            className="flex aspect-square w-32 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border text-muted-foreground transition-colors hover:border-brand hover:text-brand"
+            className="flex aspect-square w-32 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
           >
             <ImageIcon className="size-5" />
             <span className="text-[11px]">Tambah Video</span>
@@ -164,7 +166,12 @@ export function MediaUploader({
           onChange={(e) => {
             const f = e.target.files?.[0]
             if (f)
-              setVideo({ id: f.name, url: URL.createObjectURL(f), name: f.name })
+              setVideo({
+                id: f.name,
+                url: URL.createObjectURL(f),
+                name: f.name,
+                file: f,
+              })
           }}
         />
       </div>

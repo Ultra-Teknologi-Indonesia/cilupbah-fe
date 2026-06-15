@@ -127,13 +127,13 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                                   className={cn(
                                     "flex items-center justify-between rounded-md px-4 py-1.5 text-sm",
                                     pathname === subRoute.link
-                                      ? "bg-sidebar-accent text-brand font-medium"
+                                      ? "bg-sidebar-accent text-primary font-medium"
                                       : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
                                   )}
                                 >
                                   <span>{subRoute.title}</span>
                                   {subRoute.badge && (
-                                    <span className="flex h-5 items-center justify-center rounded-full bg-brand/10 px-2 text-[10px] font-medium text-brand">
+                                    <span className="flex h-5 items-center justify-center rounded-full bg-primary/10 px-2 text-[10px] font-medium text-primary">
                                       {subRoute.badge}
                                     </span>
                                   )}
@@ -153,7 +153,7 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                                         className={cn(
                                           "flex items-center rounded-md px-4 py-1 text-xs",
                                           pathname === nestedSub.link
-                                            ? "bg-sidebar-accent text-brand font-medium"
+                                            ? "bg-sidebar-accent text-primary font-medium"
                                             : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
                                         )}
                                       >

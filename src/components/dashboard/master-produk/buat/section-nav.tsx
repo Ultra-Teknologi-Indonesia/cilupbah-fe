@@ -46,7 +46,7 @@ export function SectionNav({ sections }: { sections: SectionItem[] }) {
         </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-muted">
           <div
-            className="h-full rounded-full bg-brand transition-all duration-300"
+            className="h-full rounded-full bg-primary transition-all duration-300"
             style={{ width: `${(completed / sections.length) * 100}%` }}
           />
         </div>
@@ -72,7 +72,7 @@ export function SectionNav({ sections }: { sections: SectionItem[] }) {
             className={cn(
               "flex items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm transition-colors",
               isActive
-                ? "bg-brand/10 font-medium text-brand"
+                ? "bg-primary/10 font-medium text-primary"
                 : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
             )}
           >

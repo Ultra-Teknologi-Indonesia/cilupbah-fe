@@ -113,7 +113,7 @@ export function Combobox({
                     className={cn(
                       "flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors",
                       isSelected
-                        ? "bg-brand/10 text-brand"
+                        ? "bg-primary/10 text-primary"
                         : "hover:bg-muted/60",
                     )}
                   >

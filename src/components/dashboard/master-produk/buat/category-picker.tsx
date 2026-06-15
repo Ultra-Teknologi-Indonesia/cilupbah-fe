@@ -38,7 +38,7 @@ function Column({
               className={cn(
                 "flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors",
                 n.id === activeId
-                  ? "bg-brand/10 font-medium text-brand"
+                  ? "bg-primary/10 font-medium text-primary"
                   : "hover:bg-muted/60"
               )}
             >

@@ -20,7 +20,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         success: (
           <CircleCheckIcon className="size-4 text-emerald-600 dark:text-emerald-400" />
         ),
-        info: <InfoIcon className="size-4 text-brand" />,
+        info: <InfoIcon className="size-4 text-primary" />,
         warning: (
           <TriangleAlertIcon className="size-4 text-amber-600 dark:text-amber-400" />
         ),
@@ -45,7 +45,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           icon: "flex items-center",
           content: "gap-0.5",
           actionButton:
-            "bg-brand! text-brand-foreground! rounded-full! px-3! text-xs! font-medium!",
+            "bg-primary! text-primary-foreground! rounded-full! px-3! text-xs! font-medium!",
           cancelButton:
             "bg-muted! text-muted-foreground! rounded-full! px-3! text-xs! font-medium! hover:bg-muted/70!",
           closeButton:

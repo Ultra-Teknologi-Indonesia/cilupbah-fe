@@ -4,10 +4,11 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { SaveIcon, SendIcon } from "lucide-react"
+import { Loader2Icon, SaveIcon, SendIcon } from "lucide-react"
 import { toast } from "sonner"
 import { buatProdukSchema } from "@/schemas/master-produk"
 import type { BuatProdukFormValues } from "@/types/master-produk"
+import { useCreateProduct } from "@/hooks/master-produk/use-create-product"
 
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
@@ -21,10 +22,34 @@ import { FormSalesSection } from "./form-sales-section"
 import { FormShippingSection } from "./form-shipping-section"
 import { FormSectionCard } from "@/components/ui/form-section-card"
 
+const SERVER_FIELD_MAP: Record<string, keyof BuatProdukFormValues> = {
+  name: "name",
+  sku: "sku",
+  "variants.0.sku": "sku",
+  category_id: "category",
+  brand_id: "brandId",
+  description: "description",
+  "variants.0.sell_price": "sellPrice",
+  "variants.0.buy_price": "buyPrice",
+  "variants.0.min_stock": "minStock",
+  "variants.0.safe_stock": "safeStock",
+  indent_days: "indentDays",
+  weight: "weight",
+  length: "length",
+  width: "width",
+  height: "height",
+  purchase_lead_time: "purchaseLeadTime",
+  sales_account_id: "salesAccountId",
+  sales_return_account_id: "salesReturnAccountId",
+  inventory_account_id: "inventoryAccountId",
+  cogs_account_id: "cogsAccountId",
+}
+
 export function BuatProdukForm() {
   const router = useRouter()
-  const [imageCount, setImageCount] = React.useState(0)
+  const [mediaFiles, setMediaFiles] = React.useState<File[]>([])
   const modeRef = React.useRef<"download" | "in_review">("in_review")
+  const { mutateAsync, isPending } = useCreateProduct()
 
   const form = useForm<BuatProdukFormValues>({
     resolver: zodResolver(buatProdukSchema),
@@ -71,15 +96,41 @@ export function BuatProdukForm() {
 
   const v = watch()
 
-  const onValid = (data: BuatProdukFormValues) => {
-    toast.success(
-      modeRef.current === "download"
-        ? "Draf produk disimpan (mock)"
-        : "Produk diajukan untuk review (mock)",
-      { description: `${data.name} · ${data.sku}` }
-    )
+  const applyServerErrors = (err: unknown): boolean => {
+    const body = err as { message?: string; errors?: Record<string, string[]> }
+    const errors = body?.errors
+    if (!errors || typeof errors !== "object") return false
 
-    router.push("/dashboard/master-produk")
+    let firstField: keyof BuatProdukFormValues | undefined
+    for (const [key, messages] of Object.entries(errors)) {
+      const field = SERVER_FIELD_MAP[key]
+      if (!field) continue
+      const message = Array.isArray(messages) ? messages[0] : String(messages)
+      form.setError(field, { type: "server", message })
+      firstField ??= field
+    }
+    if (firstField) form.setFocus(firstField)
+    return true
+  }
+
+  const onValid = async (data: BuatProdukFormValues) => {
+    try {
+      await mutateAsync({ values: data, files: mediaFiles, status: modeRef.current })
+      toast.success(
+        modeRef.current === "download"
+          ? "Draf produk disimpan"
+          : "Produk diajukan untuk review",
+        { description: `${data.name} · ${data.sku}` }
+      )
+      router.push("/dashboard/master-produk")
+    } catch (err) {
+      const body = err as { message?: string }
+      if (applyServerErrors(err)) {
+        toast.error(body?.message || "Beberapa isian ditolak server")
+      } else {
+        toast.error(body?.message || "Gagal menyimpan produk")
+      }
+    }
   }
 
   const onInvalid = () => {
@@ -91,6 +142,7 @@ export function BuatProdukForm() {
   }
 
   const submit = (mode: "download" | "in_review") => {
+    if (isPending) return
     modeRef.current = mode
     handleSubmit(onValid, onInvalid)()
   }
@@ -109,7 +161,7 @@ export function BuatProdukForm() {
     if (id === "detail") return v.name && v.sku && v.category ? "valid" : "empty"
     if (id === "penjualan") return !v.isSold || v.sellPrice ? "valid" : "empty"
     if (id === "pengiriman") return v.weight ? "valid" : "empty"
-    if (id === "media") return imageCount > 0 ? "valid" : "empty"
+    if (id === "media") return mediaFiles.length > 0 ? "valid" : "empty"
     return "empty"
   }
 
@@ -138,12 +190,28 @@ export function BuatProdukForm() {
                 {errorCount} perlu diperbaiki
               </span>
             )}
-            <Button variant="outline" onClick={() => submit("download")}>
-              <SaveIcon />
+            <Button
+              variant="outline"
+              onClick={() => submit("download")}
+              disabled={isPending}
+            >
+              {isPending && modeRef.current === "download" ? (
+                <Loader2Icon className="animate-spin" />
+              ) : (
+                <SaveIcon />
+              )}
               Simpan draf
             </Button>
-            <Button variant="brand" onClick={() => submit("in_review")}>
-              <SendIcon />
+            <Button
+              variant="primary"
+              onClick={() => submit("in_review")}
+              disabled={isPending}
+            >
+              {isPending && modeRef.current === "in_review" ? (
+                <Loader2Icon className="animate-spin" />
+              ) : (
+                <SendIcon />
+              )}
               Simpan &amp; Ajukan Review
             </Button>
           </div>
@@ -167,7 +235,7 @@ export function BuatProdukForm() {
             <FormShippingSection />
 
             <FormSectionCard id="media" title="Gambar & Video Produk">
-              <MediaUploader onImagesChange={setImageCount} />
+              <MediaUploader onChange={setMediaFiles} />
             </FormSectionCard>
           </form>
         </Form>

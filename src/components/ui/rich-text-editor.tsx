@@ -134,7 +134,7 @@ export function RichTextEditor({
             "[&_h2]:my-1 [&_h2]:text-lg [&_h2]:font-semibold",
             "[&_ul]:my-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-1 [&_ol]:list-decimal [&_ol]:pl-5",
             "[&_blockquote]:my-1 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_blockquote]:text-muted-foreground",
-            "[&_a]:text-brand [&_a]:underline [&_a]:underline-offset-2",
+            "[&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2",
             "[&_img]:my-2 [&_img]:max-h-56 [&_img]:rounded-lg [&_img]:border [&_img]:border-border"
           )}
         />

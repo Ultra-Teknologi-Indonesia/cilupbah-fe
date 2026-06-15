@@ -16,21 +16,21 @@ export default function DashboardLayout({
             className="absolute -top-[15%] -left-[10%] h-[55%] w-[55%] rounded-full opacity-25 blur-[100px]"
             style={{
               background:
-                "radial-gradient(circle, var(--brand) 0%, transparent 70%)",
+                "radial-gradient(circle, var(--primary) 0%, transparent 70%)",
             }}
           />
           <div
             className="absolute top-[8%] right-[-5%] h-[50%] w-[50%] rounded-full opacity-20 blur-[110px]"
             style={{
               background:
-                "radial-gradient(circle, var(--brand) 0%, transparent 70%)",
+                "radial-gradient(circle, var(--primary) 0%, transparent 70%)",
             }}
           />
           <div
             className="absolute bottom-[-8%] left-[35%] h-[55%] w-[55%] rounded-full opacity-[0.18] blur-[110px]"
             style={{
               background:
-                "radial-gradient(circle, var(--brand) 0%, transparent 70%)",
+                "radial-gradient(circle, var(--primary) 0%, transparent 70%)",
             }}
           />
         </div>

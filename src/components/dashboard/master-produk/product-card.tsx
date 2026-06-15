@@ -28,7 +28,7 @@ export function ProductCard({
       className={cn(
 
         "group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md",
-        selected && "ring-2 ring-brand"
+        selected && "ring-2 ring-primary"
       )}
     >
 

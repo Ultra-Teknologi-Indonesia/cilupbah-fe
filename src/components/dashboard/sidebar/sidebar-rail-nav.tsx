@@ -54,7 +54,7 @@ function RailItem({
       className={cn(
         "grid size-10 place-items-center rounded-xl transition-colors",
         active
-          ? "bg-brand/10 text-brand"
+          ? "bg-primary/10 text-primary"
           : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
       )}
     >
@@ -183,7 +183,7 @@ export function SidebarRailNav({
             >
               <Avatar className="size-9">
                 <AvatarImage src="" />
-                <AvatarFallback className="bg-brand/10 text-brand font-medium">
+                <AvatarFallback className="bg-primary/10 text-primary font-medium">
                   DA
                 </AvatarFallback>
               </Avatar>
