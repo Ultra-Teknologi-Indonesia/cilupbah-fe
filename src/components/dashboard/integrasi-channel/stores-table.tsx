@@ -4,30 +4,47 @@ import { cn } from "@/lib/utils"
 import { Switch } from "@/components/ui/switch"
 import type { ConnectedStore } from "@/types/channel"
 import { ChannelLogo } from "./channel-logo"
+import { StoreRowActions } from "./store-row-actions"
+
+const STATUS_STYLE = {
+  normal: {
+    chip: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    dot: "bg-emerald-500",
+    label: "Normal",
+    note: "",
+  },
+  warning: {
+    chip: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+    dot: "bg-amber-500",
+    label: "Perlu Perhatian",
+    note: "text-amber-600 dark:text-amber-400",
+  },
+  error: {
+    chip: "bg-destructive/10 text-destructive",
+    dot: "bg-destructive",
+    label: "Integrasi Bermasalah",
+    note: "text-destructive",
+  },
+} as const
 
 function IntegrationStatus({ store }: { store: ConnectedStore }) {
-  const error = store.integration.status === "error"
+  const status = store.integration.status
+  const style = STATUS_STYLE[status] ?? STATUS_STYLE.normal
   return (
     <div>
       <span
         className={cn(
           "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium",
-          error
-            ? "bg-destructive/10 text-destructive"
-            : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+          style.chip
         )}
       >
-        <span
-          aria-hidden
-          className={cn(
-            "size-1.5 rounded-full",
-            error ? "bg-destructive" : "bg-emerald-500"
-          )}
-        />
-        {error ? "Integrasi Bermasalah" : "Normal"}
+        <span aria-hidden className={cn("size-1.5 rounded-full", style.dot)} />
+        {style.label}
       </span>
-      {error && store.integration.note && (
-        <p className="mt-1 text-[11px] text-destructive">{store.integration.note}</p>
+      {status !== "normal" && store.integration.note && (
+        <p className={cn("mt-1 text-[11px]", style.note)}>
+          {store.integration.note}
+        </p>
       )}
     </div>
   )
@@ -37,10 +54,14 @@ export function StoresTable({
   stores,
   onToggleActive,
   onToggleOrders,
+  onRefresh,
+  onDisconnect,
 }: {
   stores: ConnectedStore[]
   onToggleActive: (id: string, value: boolean) => void
   onToggleOrders: (id: string, value: boolean) => void
+  onRefresh: (store: ConnectedStore) => void
+  onDisconnect: (store: ConnectedStore) => void
 }) {
   const showAccess = stores.some((s) => s.accessNote)
   const showLinked = stores.some((s) => s.linkedStore)
@@ -56,6 +77,7 @@ export function StoresTable({
             {showLinked && <th className="px-4 py-3">Toko Terhubung</th>}
             <th className="px-4 py-3 text-center">Toko Aktif</th>
             <th className="px-4 py-3 text-center">Pesanan</th>
+            <th className="px-4 py-3 text-right">Aksi</th>
           </tr>
         </thead>
         <tbody>
@@ -117,6 +139,15 @@ export function StoresTable({
                     checked={store.ordersEnabled}
                     onCheckedChange={(v) => onToggleOrders(store.id, v)}
                     aria-label={`Pesanan ${store.shopName}`}
+                  />
+                </div>
+              </td>
+              <td className="px-4 py-3">
+                <div className="flex justify-end">
+                  <StoreRowActions
+                    store={store}
+                    onRefresh={onRefresh}
+                    onDisconnect={onDisconnect}
                   />
                 </div>
               </td>

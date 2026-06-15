@@ -1,13 +1,23 @@
 "use client"
 
 import * as React from "react"
+import { StoreIcon } from "lucide-react"
 import { toast } from "sonner"
 
-import type { ChannelGroup as ChannelGroupType } from "@/types/channel"
+import { Button } from "@/components/ui/button"
+import type {
+  Channel,
+  ChannelGroup as ChannelGroupType,
+  ConnectedStore,
+} from "@/types/channel"
+import { groupStores } from "@/lib/channel/group-stores"
+import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
 import {
-  MOCK_AVAILABLE_CHANNELS,
-  MOCK_CHANNEL_GROUPS,
-} from "@/app/dashboard/integrasi-channel/_data/mock"
+  useConnectChannel,
+  useDisconnectStore,
+  useRefreshToken,
+  useToggleStoreFlag,
+} from "@/hooks/channel/use-channel-actions"
 import { ChannelGroup } from "./channel-group"
 import { ConnectMarketplacePanel } from "./connect-marketplace-panel"
 
@@ -34,40 +44,63 @@ function GroupSkeleton() {
 }
 
 export function IntegrasiChannelView() {
-  const [isLoading, setIsLoading] = React.useState(true)
-  const [groups, setGroups] = React.useState<ChannelGroupType[]>([])
+  const { data, isLoading, isError, refetch } = useConnectedStores()
+  const toggle = useToggleStoreFlag()
+  const disconnect = useDisconnectStore()
+  const refresh = useRefreshToken()
+  const { connect, pendingCode } = useConnectChannel()
 
+  // Tangani hasil redirect OAuth (?connected=&count= / &error=).
   React.useEffect(() => {
-    const t = setTimeout(() => {
-      setGroups(MOCK_CHANNEL_GROUPS)
-      setIsLoading(false)
-    }, 700)
-    return () => clearTimeout(t)
-  }, [])
+    const sp = new URLSearchParams(window.location.search)
+    const connected = sp.get("connected")
+    if (!connected) return
 
-  const patchStore = (
-    id: string,
-    patch: Partial<{ isActive: boolean; ordersEnabled: boolean }>
-  ) =>
-    setGroups((prev) =>
-      prev.map((g) => ({
-        ...g,
-        stores: g.stores.map((s) => (s.id === id ? { ...s, ...patch } : s)),
-      }))
-    )
+    const error = sp.get("error")
+    if (error) {
+      toast.error(`Gagal menghubungkan ${connected}: ${error}`)
+    } else {
+      const count = sp.get("count")
+      toast.success(`${count ?? ""} toko ${connected} berhasil dihubungkan`.trim())
+      refetch()
+    }
+    window.history.replaceState({}, "", "/dashboard/integrasi-channel")
+  }, [refetch])
+
+  const { groups, available } = React.useMemo(
+    () => groupStores(data ?? []),
+    [data]
+  )
 
   const onToggleActive = (id: string, value: boolean) =>
-    patchStore(id, { isActive: value })
+    toggle.mutate({ id, flags: { is_active: value } })
   const onToggleOrders = (id: string, value: boolean) =>
-    patchStore(id, { ordersEnabled: value })
-  const onAdd = (group: ChannelGroupType) =>
-    toast.info(`Hubungkan toko ${group.name} — menunggu integrasi OAuth`)
+    toggle.mutate({ id, flags: { order_sync_enabled: value } })
+  const onDisconnect = (store: ConnectedStore) => disconnect.mutate(store.id)
+  const onRefresh = (store: ConnectedStore) => {
+    // Toko Tokopedia dikelola via TikTok (merger) → refresh lewat endpoint tiktok.
+    const channel = store.channel.code === "tokopedia" ? "tiktok" : store.channel.code
+    refresh.mutate({ channel, id: store.id })
+  }
+  const onAdd = (group: ChannelGroupType) => connect(group.code)
+  const onConnect = (channel: Channel) => connect(channel.code)
 
   if (isLoading) {
     return (
       <div className="flex flex-col gap-6">
         <GroupSkeleton />
         <GroupSkeleton />
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border bg-card/40 px-6 py-12 text-center">
+        <p className="text-sm font-medium">Gagal memuat daftar toko</p>
+        <Button variant="outline" size="sm" onClick={() => refetch()}>
+          Coba lagi
+        </Button>
       </div>
     )
   }
@@ -81,11 +114,28 @@ export function IntegrasiChannelView() {
           onAdd={onAdd}
           onToggleActive={onToggleActive}
           onToggleOrders={onToggleOrders}
+          onRefresh={onRefresh}
+          onDisconnect={onDisconnect}
         />
       ))}
 
-      {MOCK_AVAILABLE_CHANNELS.length > 0 && (
-        <ConnectMarketplacePanel channels={MOCK_AVAILABLE_CHANNELS} />
+      {groups.length === 0 && (
+        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-card/40 px-6 py-12 text-center">
+          <StoreIcon className="size-6 text-muted-foreground" />
+          <p className="text-sm font-medium">Belum ada toko terhubung</p>
+          <p className="max-w-sm text-xs text-muted-foreground">
+            Hubungkan akun marketplace di bawah untuk mulai sinkronisasi produk,
+            stok, dan pesanan.
+          </p>
+        </div>
+      )}
+
+      {available.length > 0 && (
+        <ConnectMarketplacePanel
+          channels={available}
+          onConnect={onConnect}
+          pendingCode={pendingCode}
+        />
       )}
     </div>
   )

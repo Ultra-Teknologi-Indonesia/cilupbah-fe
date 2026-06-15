@@ -1,40 +1,31 @@
-import { InfoIcon, PlusIcon } from "lucide-react"
+import { Loader2Icon, PlusIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import type { Channel } from "@/types/channel"
+import type { Channel, ChannelCode } from "@/types/channel"
 import { ChannelLogo } from "./channel-logo"
 
 export function ConnectMarketplacePanel({
   channels,
-  connectedCounts = {},
+  onConnect,
+  pendingCode,
 }: {
   channels: Channel[]
-  /** Jumlah toko terhubung per kode channel (boleh > 1 per channel). */
-  connectedCounts?: Record<string, number>
+  onConnect: (channel: Channel) => void
+  pendingCode?: ChannelCode | null
 }) {
   return (
     <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm">
-      <div className="mb-3">
+      <div className="mb-4">
         <h2 className="text-sm font-medium">Hubungkan Marketplace Lain</h2>
         <p className="text-xs text-muted-foreground">
           Marketplace yang belum memiliki toko terhubung.
         </p>
       </div>
 
-      {/* Jelaskan kenapa tombol nonaktif — agar tidak terkesan rusak. */}
-      <div className="mb-4 flex items-start gap-2 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5 text-xs text-foreground/80">
-        <InfoIcon className="mt-0.5 size-4 shrink-0 text-primary" />
-        <p>
-          Integrasi OAuth sedang disiapkan. Tombol{" "}
-          <span className="font-medium">Hubungkan</span> akan aktif untuk channel
-          yang didukung setelah backend siap.
-        </p>
-      </div>
-
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {channels.map((channel) => {
-          const count = connectedCounts[channel.code] ?? 0
+          const connecting = pendingCode === channel.code
           return (
             <div
               key={channel.id}
@@ -43,12 +34,8 @@ export function ConnectMarketplacePanel({
               <ChannelLogo code={channel.code} name={channel.name} />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{channel.name}</p>
-                {count > 0 ? (
-                  <p className="text-xs text-muted-foreground">
-                    {count} toko terhubung
-                  </p>
-                ) : channel.connectable ? (
-                  <p className="text-xs text-muted-foreground">Menunggu integrasi</p>
+                {channel.connectable ? (
+                  <p className="text-xs text-muted-foreground">Belum terhubung</p>
                 ) : (
                   <Badge
                     variant="outline"
@@ -61,16 +48,17 @@ export function ConnectMarketplacePanel({
               <Button
                 variant={channel.connectable ? "primary" : "outline"}
                 size="sm"
-                disabled
+                disabled={!channel.connectable || connecting}
+                onClick={() => onConnect(channel)}
                 aria-label={`Hubungkan ${channel.name}`}
-                title={
-                  channel.connectable
-                    ? "Menunggu integrasi OAuth"
-                    : "Belum didukung"
-                }
+                title={channel.connectable ? undefined : "Belum didukung"}
               >
-                <PlusIcon />
-                {count > 0 ? "Tambah toko" : "Hubungkan"}
+                {connecting ? (
+                  <Loader2Icon className="animate-spin motion-reduce:animate-none" />
+                ) : (
+                  <PlusIcon />
+                )}
+                Hubungkan
               </Button>
             </div>
           )

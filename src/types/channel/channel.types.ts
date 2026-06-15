@@ -6,7 +6,7 @@ export type ChannelCode =
   | "blibli"
   | (string & {})
 
-export type IntegrationStatus = "normal" | "error"
+export type IntegrationStatus = "normal" | "warning" | "error"
 
 export interface StoreIntegration {
   status: IntegrationStatus
@@ -51,6 +51,9 @@ export interface RawConnectedStore {
   shop_id: string
   shop_name: string
   is_active: boolean
+  order_sync_enabled: boolean
+  integration: { status: IntegrationStatus; note?: string }
+  token_expires_at: string | null
   channel: { id: string; code: string; name: string } | null
   created_at: string
 }

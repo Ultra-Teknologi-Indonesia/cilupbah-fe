@@ -5,7 +5,10 @@ import { ChevronDownIcon, PlusIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import type { ChannelGroup as ChannelGroupType } from "@/types/channel"
+import type {
+  ChannelGroup as ChannelGroupType,
+  ConnectedStore,
+} from "@/types/channel"
 import { ChannelLogo } from "./channel-logo"
 import { StoresTable } from "./stores-table"
 
@@ -14,11 +17,15 @@ export function ChannelGroup({
   onAdd,
   onToggleActive,
   onToggleOrders,
+  onRefresh,
+  onDisconnect,
 }: {
   group: ChannelGroupType
   onAdd: (group: ChannelGroupType) => void
   onToggleActive: (id: string, value: boolean) => void
   onToggleOrders: (id: string, value: boolean) => void
+  onRefresh: (store: ConnectedStore) => void
+  onDisconnect: (store: ConnectedStore) => void
 }) {
   const [open, setOpen] = React.useState(true)
 
@@ -70,6 +77,8 @@ export function ChannelGroup({
             stores={group.stores}
             onToggleActive={onToggleActive}
             onToggleOrders={onToggleOrders}
+            onRefresh={onRefresh}
+            onDisconnect={onDisconnect}
           />
         </div>
       )}
