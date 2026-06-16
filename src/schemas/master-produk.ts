@@ -63,13 +63,28 @@ export const buatProdukSchema = z
         value: z.string().optional(),
       })
     ),
+    // Komponen bundle (B6): tiap baris = varian terpilih + qty.
+    bundleComponents: z
+      .array(
+        z.object({
+          variantId: z.string(),
+          productName: z.string(),
+          sku: z.string().nullable(),
+          variationValues: z.array(z.object({ value: z.string() })).optional(),
+          qty: z.number().int().min(1),
+        })
+      )
+      .default([]),
   })
   .superRefine((v, ctx) => {
     if (!v.category)
       ctx.addIssue({ path: ["category"], code: "custom", message: "Kategori wajib dipilih" })
     const hasVariants = v.variationTypes.length > 0
+    // Bundle: komposisi wajib; harga/varian satuan tidak relevan.
+    if (v.isBundle && (v.bundleComponents?.length ?? 0) === 0)
+      ctx.addIssue({ path: ["bundleComponents"], code: "custom", message: "Tambahkan minimal 1 komponen bundle" })
     // Harga jual: untuk produk satuan di header; untuk multivarian diisi per varian.
-    if (v.isSold && !hasVariants && !v.sellPrice?.trim())
+    if (v.isSold && !hasVariants && !v.isBundle && !v.sellPrice?.trim())
       ctx.addIssue({ path: ["sellPrice"], code: "custom", message: "Harga jual wajib diisi" })
     if (hasVariants && v.variants.length === 0)
       ctx.addIssue({ path: ["variants"], code: "custom", message: "Lengkapi kombinasi varian" })

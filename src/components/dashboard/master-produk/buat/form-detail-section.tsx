@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch"
 
 import { FormSectionCard } from "@/components/ui/form-section-card"
 import { CategoryPicker } from "./category-picker"
+import { BundleBuilder } from "./bundle-builder"
 import type { BuatProdukFormValues, SelectedCategory } from "@/types/master-produk"
 import {
   useBrandOptions,
@@ -29,6 +30,7 @@ export function FormDetailSection({
 } = {}) {
   const { control, watch } = useFormContext<BuatProdukFormValues>()
   const isPreorder = watch("isPreorder")
+  const isBundle = watch("isBundle")
   const { data: brandOptions = [] } = useBrandOptions()
   const { data: categoryTree = [] } = useCategoryTree()
 
@@ -198,6 +200,28 @@ export function FormDetailSection({
                   <FormLabel>Lama indent (hari) <span className="text-destructive">*</span></FormLabel>
                   <FormControl>
                     <Input type="number" min={0} placeholder="mis. 7" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+
+        {isBundle && (
+          <div className="mt-5 rounded-lg border border-primary/30 bg-primary/[0.03] p-4">
+            <FormField
+              control={control}
+              name="bundleComponents"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Komposisi Bundle <span className="text-destructive">*</span></FormLabel>
+                  <FormDescription>
+                    Pilih produk komponen beserta jumlahnya. Bundle dijual sebagai 1 SKU; stoknya dihitung
+                    otomatis dari komponen.
+                  </FormDescription>
+                  <FormControl>
+                    <BundleBuilder value={field.value ?? []} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

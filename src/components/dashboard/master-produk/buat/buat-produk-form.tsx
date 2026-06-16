@@ -9,6 +9,7 @@ import { toast } from "sonner"
 import { buatProdukSchema } from "@/schemas/master-produk"
 import type { BuatProdukFormValues } from "@/types/master-produk"
 import { useCreateProduct } from "@/hooks/master-produk/use-create-product"
+import { useCreateBundle } from "@/hooks/master-produk/use-create-bundle"
 import { SERVER_FIELD_MAP } from "@/lib/master-produk/server-field-map"
 
 import { Button } from "@/components/ui/button"
@@ -30,6 +31,7 @@ export function BuatProdukForm() {
   const [mediaFiles, setMediaFiles] = React.useState<File[]>([])
   const modeRef = React.useRef<"download" | "in_review">("in_review")
   const { mutateAsync, isPending } = useCreateProduct()
+  const { mutateAsync: createBundle, isPending: isBundlePending } = useCreateBundle()
 
   const form = useForm<BuatProdukFormValues>({
     resolver: zodResolver(buatProdukSchema),
@@ -68,6 +70,7 @@ export function BuatProdukForm() {
       variationTypes: [],
       variants: [],
       specifications: [],
+      bundleComponents: [],
     },
   })
 
@@ -98,6 +101,23 @@ export function BuatProdukForm() {
 
   const onValid = async (data: BuatProdukFormValues) => {
     try {
+      if (data.isBundle) {
+        // Bundle ditangani endpoint khusus (storeBundle): 1 SKU + komposisi komponen.
+        await createBundle({
+          name: data.name,
+          sku: data.sku?.trim() || null,
+          category_id: Number(data.category!.id),
+          brand_id: data.brandId ? Number(data.brandId) : null,
+          components: (data.bundleComponents ?? []).map((c) => ({
+            variant_id: c.variantId,
+            qty: c.qty,
+          })),
+        })
+        toast.success("Bundle produk dibuat", { description: `${data.name} · ${data.sku}` })
+        router.push("/dashboard/master-produk")
+        return
+      }
+
       await mutateAsync({ values: data, files: mediaFiles, status: modeRef.current })
       toast.success(
         modeRef.current === "download"
@@ -124,8 +144,10 @@ export function BuatProdukForm() {
     toast.error("Beberapa isian perlu diperbaiki")
   }
 
+  const busy = isPending || isBundlePending
+
   const submit = (mode: "download" | "in_review") => {
-    if (isPending) return
+    if (busy) return
     modeRef.current = mode
     handleSubmit(onValid, onInvalid)()
   }
@@ -176,9 +198,9 @@ export function BuatProdukForm() {
             <Button
               variant="outline"
               onClick={() => submit("download")}
-              disabled={isPending}
+              disabled={busy}
             >
-              {isPending && modeRef.current === "download" ? (
+              {busy && modeRef.current === "download" ? (
                 <Loader2Icon className="animate-spin" />
               ) : (
                 <SaveIcon />
@@ -188,9 +210,9 @@ export function BuatProdukForm() {
             <Button
               variant="primary"
               onClick={() => submit("in_review")}
-              disabled={isPending}
+              disabled={busy}
             >
-              {isPending && modeRef.current === "in_review" ? (
+              {busy && modeRef.current === "in_review" ? (
                 <Loader2Icon className="animate-spin" />
               ) : (
                 <SendIcon />

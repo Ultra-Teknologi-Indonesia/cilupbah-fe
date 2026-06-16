@@ -96,7 +96,7 @@ export function ProductDetailView({ id }: { id: string }) {
             <TabVariasi productId={id} />
           </TabsContent>
           <TabsContent value="komposisi">
-            <TabKomposisi components={product.bundleComponents} />
+            <TabKomposisi components={product.bundleComponents} bundleStock={product.bundleStock} />
           </TabsContent>
           <TabsContent value="channel">
             <TabChannel productId={id} />

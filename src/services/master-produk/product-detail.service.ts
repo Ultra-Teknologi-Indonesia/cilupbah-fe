@@ -39,6 +39,14 @@ function mapDetail(raw: RawProductDetail): ProductDetail {
           }
         : null,
     })),
+    bundleStock: raw.bundle_stock
+      ? {
+          onHand: raw.bundle_stock.on_hand,
+          reserved: raw.bundle_stock.reserved,
+          onOrder: raw.bundle_stock.on_order,
+          available: raw.bundle_stock.available,
+        }
+      : null,
     isConsignment: raw.is_consignment,
     isStored: raw.is_stored,
     isSold: raw.is_sold,

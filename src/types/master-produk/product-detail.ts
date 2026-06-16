@@ -77,6 +77,7 @@ export interface ProductDetail {
   productType: ProductTypeKind
   totalVariants: number
   bundleComponents: BundleComponent[]
+  bundleStock: { onHand: number; reserved: number; onOrder: number; available: number } | null
   isConsignment: boolean
   isStored: boolean
   isSold: boolean
@@ -129,6 +130,7 @@ export interface RawProductDetail {
     variation_values?: Array<{ attribute_id: number; value: string }>
     stock: { on_hand: number; reserved: number; on_order: number; available: number } | null
   }>
+  bundle_stock?: { on_hand: number; reserved: number; on_order: number; available: number } | null
   is_consignment: boolean
   is_stored: boolean
   is_sold: boolean
