@@ -11,7 +11,7 @@ import type { ProductTypeKind } from "@/types/master-produk"
 import { ProductDetailSkeleton } from "./product-detail-skeleton"
 import { DetailHeader } from "./detail-header"
 import { DetailTabs, type DetailTab } from "./detail-tabs"
-import { VariantTable } from "./variant-table"
+import { TabVariasi } from "./tab-variasi"
 import { ChannelListing } from "./channel-listing"
 import { AccountsCard, ShippingCard } from "./accounts-shipping"
 
@@ -86,7 +86,7 @@ export function ProductDetailView({ id }: { id: string }) {
         <DetailTabs tabs={tabs} active={active} onChange={setTab} />
 
         <div role="tabpanel" className="p-4 sm:p-5">
-          {active === "variasi" && <VariantTable variants={product.variants} />}
+          {active === "variasi" && <TabVariasi productId={id} />}
           {active === "channel" && <ChannelListing mappings={product.channelMappings} />}
           {active === "komposisi" && <TabPlaceholder label="Komposisi" />}
           {active === "harga-channel" && <TabPlaceholder label="Harga Channel" />}
