@@ -16,6 +16,10 @@ function mapDetail(raw: RawProductDetail): ProductDetail {
     category: raw.category,
     brand: raw.brand,
     isBundle: raw.is_bundle,
+    productType:
+      raw.product_type ??
+      (raw.is_bundle ? "bundle" : (raw.variants?.length ?? 0) > 1 ? "variant" : "single"),
+    totalVariants: raw.total_variants ?? raw.variants?.length ?? 0,
     isConsignment: raw.is_consignment,
     isStored: raw.is_stored,
     isSold: raw.is_sold,

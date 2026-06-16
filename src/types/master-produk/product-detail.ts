@@ -1,5 +1,8 @@
 import type { ProductStatus } from "./product"
 
+/** Tipe produk turunan dari BE (product_type). */
+export type ProductTypeKind = "single" | "variant" | "bundle"
+
 export interface AccountRef {
   id: string
   code: string
@@ -61,6 +64,8 @@ export interface ProductDetail {
   category: { id: number; name: string } | null
   brand: { id: number; name: string } | null
   isBundle: boolean
+  productType: ProductTypeKind
+  totalVariants: number
   isConsignment: boolean
   isStored: boolean
   isSold: boolean
@@ -102,6 +107,8 @@ export interface RawProductDetail {
   category: { id: number; name: string } | null
   brand: { id: number; name: string } | null
   is_bundle: boolean
+  product_type?: ProductTypeKind
+  total_variants?: number
   is_consignment: boolean
   is_stored: boolean
   is_sold: boolean
