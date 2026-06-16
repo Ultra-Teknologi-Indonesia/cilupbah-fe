@@ -11,6 +11,7 @@ function mapDetail(raw: RawProductDetail): ProductDetail {
     status: raw.status,
     isActive: raw.is_active,
     primaryImage: raw.primary_image,
+    images: (raw.images ?? []).map((i) => ({ url: i.url, isPrimary: i.is_primary })),
     priceRange: raw.price_range,
     channelsCount: raw.channels_count ?? null,
     category: raw.category,

@@ -82,10 +82,10 @@ export function ProductDetailView({ id }: { id: string }) {
         onLifecycle={(action, reason) => lifecycle.mutate({ action, reason })}
       />
 
-      <div className="flex flex-col gap-4">
+      <div className="rounded-2xl border border-border/60 bg-card/50 shadow-sm">
         <DetailTabs tabs={tabs} active={active} onChange={setTab} />
 
-        <div role="tabpanel">
+        <div role="tabpanel" className="p-4 sm:p-5">
           {active === "variasi" && <VariantTable variants={product.variants} />}
           {active === "channel" && <ChannelListing mappings={product.channelMappings} />}
           {active === "komposisi" && <TabPlaceholder label="Komposisi" />}

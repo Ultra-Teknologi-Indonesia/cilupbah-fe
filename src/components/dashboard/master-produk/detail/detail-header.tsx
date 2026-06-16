@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { ChevronRightIcon, ImageIcon, PencilIcon } from "lucide-react"
+import { ChevronRightIcon, ImageIcon, PencilIcon, XIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -28,6 +28,63 @@ function ProductTypeBadge({ type }: { type: ProductTypeKind }) {
     <span className={cn("rounded-md px-2 py-0.5 text-xs font-medium", TYPE_STYLE[type])}>
       {TYPE_LABEL[type]}
     </span>
+  )
+}
+
+function Gallery({
+  images,
+  fallback,
+  name,
+}: {
+  images: { url: string; isPrimary: boolean }[]
+  fallback: string | null
+  name: string
+}) {
+  const list = images.length ? images.map((i) => i.url) : fallback ? [fallback] : []
+  const [idx, setIdx] = React.useState(0)
+  const main = list[Math.min(idx, list.length - 1)]
+
+  return (
+    <div className="space-y-2">
+      <div className="grid aspect-square w-full place-items-center overflow-hidden rounded-xl border border-border bg-muted/30">
+        {main ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={main} alt={name} className="size-full object-contain" />
+        ) : (
+          <ImageIcon className="size-10 text-muted-foreground" />
+        )}
+      </div>
+      {list.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
+          {list.map((url, i) => (
+            <button
+              key={`${url}-${i}`}
+              type="button"
+              onClick={() => setIdx(i)}
+              aria-label={`Gambar ${i + 1}`}
+              className={cn(
+                "size-14 shrink-0 overflow-hidden rounded-lg border transition",
+                i === idx
+                  ? "border-primary ring-2 ring-primary/30"
+                  : "border-border hover:border-primary/50"
+              )}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={url} alt={`${name} ${i + 1}`} className="size-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div>
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="text-sm font-medium">{value}</div>
+    </div>
   )
 }
 
@@ -59,78 +116,77 @@ export function DetailHeader({
         <span className="truncate text-foreground">{product.name}</span>
       </nav>
 
-      {/* Liquid glass header card */}
-      <div className="rounded-2xl border border-border/60 bg-card/60 p-4 shadow-sm backdrop-blur-xl sm:p-5">
-        <div className="flex flex-wrap items-start gap-4">
-          <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl border border-border bg-muted/40">
-            {product.primaryImage ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={product.primaryImage} alt={product.name} className="size-full object-cover" />
-            ) : (
-              <ImageIcon className="size-6 text-muted-foreground" />
+      <div className="rounded-2xl border border-border/60 bg-card/60 p-4 shadow-sm backdrop-blur-xl sm:p-6">
+        {/* Judul + aksi */}
+        <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h1 className="text-xl font-semibold sm:text-2xl">{product.name}</h1>
+            {product.sku && (
+              <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
+                {product.sku}
+              </span>
             )}
+            <ProductStatusBadge status={product.status} />
+            <ProductTypeBadge type={product.productType} />
           </div>
-
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-semibold">{product.name}</h1>
-              {product.sku && (
-                <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
-                  {product.sku}
-                </span>
-              )}
-              <ProductStatusBadge status={product.status} />
-              <ProductTypeBadge type={product.productType} />
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {product.brand?.name ?? "Tanpa merek"} · {product.category?.name ?? "—"} ·{" "}
-              {product.isActive ? "Aktif" : "Nonaktif"}
-            </p>
-            <div className="mt-2 text-sm">
-              <span className="text-muted-foreground">Rentang harga: </span>
-              <span className="font-semibold tabular-nums">{priceText}</span>
-              <span className="text-muted-foreground"> · {product.totalVariants} varian</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <Button variant="outline" size="sm" asChild disabled={lifecyclePending}>
               <Link href={`/dashboard/master-produk/${product.id}/edit`}>
                 <PencilIcon /> Edit
               </Link>
             </Button>
-            <StatusActions
-              product={product}
-              isPending={lifecyclePending}
-              onAction={onLifecycle}
-            />
+            <StatusActions product={product} isPending={lifecyclePending} onAction={onLifecycle} />
+            <Button variant="ghost" size="icon" asChild aria-label="Tutup">
+              <Link href="/dashboard/master-produk">
+                <XIcon />
+              </Link>
+            </Button>
           </div>
         </div>
 
-        {product.description && (
-          <div className="mt-4 border-t border-border/50 pt-3">
-            <div
-              className={cn(
-                "prose-sm max-w-none text-sm leading-relaxed text-foreground/90 [&_a]:text-primary [&_a]:underline",
-                !expanded && "line-clamp-3"
-              )}
-              dangerouslySetInnerHTML={{ __html: product.description }}
-            />
-            <button
-              type="button"
-              onClick={() => setExpanded((v) => !v)}
-              className="mt-1 text-xs font-medium text-primary hover:underline"
-            >
-              {expanded ? "Lebih sedikit" : "Lihat selengkapnya"}
-            </button>
-          </div>
-        )}
+        {/* Galeri + info */}
+        <div className="grid gap-6 sm:grid-cols-[280px_1fr]">
+          <Gallery images={product.images} fallback={product.primaryImage} name={product.name} />
 
-        {product.status === "archived" && product.archiveReason && (
-          <div className="mt-3 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-2.5 text-sm text-destructive">
-            Diarsipkan — {product.archiveReason}
+          <div className="flex flex-col gap-4">
+            <div>
+              <div className="text-xs text-muted-foreground">Harga</div>
+              <div className="text-2xl font-bold tabular-nums">{priceText}</div>
+              <div className="text-xs text-muted-foreground">{product.totalVariants} varian</div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <InfoRow label="Merek" value={product.brand?.name ?? "Tidak ada merek"} />
+              <InfoRow label="Kategori" value={product.category?.name ?? "—"} />
+            </div>
+
+            {product.description && (
+              <div>
+                <div className="mb-1 text-xs text-muted-foreground">Deskripsi</div>
+                <div
+                  className={cn(
+                    "prose-sm max-w-none text-sm leading-relaxed text-foreground/90 [&_a]:text-primary [&_a]:underline",
+                    !expanded && "line-clamp-4"
+                  )}
+                  dangerouslySetInnerHTML={{ __html: product.description }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setExpanded((v) => !v)}
+                  className="mt-1 text-xs font-medium text-primary hover:underline"
+                >
+                  {expanded ? "Lebih sedikit" : "Lihat selengkapnya"}
+                </button>
+              </div>
+            )}
+
+            {product.status === "archived" && product.archiveReason && (
+              <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-2.5 text-sm text-destructive">
+                Diarsipkan — {product.archiveReason}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   )

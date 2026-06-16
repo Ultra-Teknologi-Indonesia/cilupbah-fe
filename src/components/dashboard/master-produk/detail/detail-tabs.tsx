@@ -15,11 +15,11 @@ export function DetailTabs({
   onChange: (id: string) => void
 }) {
   return (
-    <div className="sticky top-0 z-20 -mx-1 border-b border-border/60 bg-background/70 backdrop-blur-xl">
+    <div className="sticky top-0 z-10 rounded-t-2xl border-b border-border/60 bg-card/80 backdrop-blur-xl">
       <div
         role="tablist"
         aria-label="Detail produk"
-        className="flex gap-1 overflow-x-auto px-1 py-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex gap-1 overflow-x-auto px-2 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {tabs.map((t) => (
           <button

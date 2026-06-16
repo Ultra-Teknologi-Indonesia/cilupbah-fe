@@ -59,6 +59,7 @@ export interface ProductDetail {
   status: ProductStatus
   isActive: boolean
   primaryImage: string | null
+  images: { url: string; isPrimary: boolean }[]
   priceRange: { min: number; max: number } | null
   channelsCount: number | null
   category: { id: number; name: string } | null
@@ -102,6 +103,7 @@ export interface RawProductDetail {
   status: ProductStatus
   is_active: boolean
   primary_image: string | null
+  images?: Array<{ url: string; is_primary: boolean }>
   price_range: { min: number; max: number } | null
   channels_count?: number
   category: { id: number; name: string } | null
