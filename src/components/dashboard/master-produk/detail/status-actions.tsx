@@ -99,7 +99,7 @@ export function StatusActions({
         <>
           {editBtn}
           <Button variant="outline" asChild disabled={isPending}>
-            <Link href="/dashboard/produk/upload">
+            <Link href={`/dashboard/produk/${product.id}/upload-to-channel`}>
               <ArrowUpRightIcon />
               Upload ke channel
             </Link>

@@ -7,114 +7,72 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query"
-import type { PaginationState } from "@tanstack/react-table"
 import { toast } from "sonner"
 
 import {
   UploadService,
-  type UploadableParams,
+  type DraftParams,
+  type HistoryParams,
+  type UploadListingParams,
 } from "@/services/master-produk/upload.service"
 
-export const uploadableKey = (params: UploadableParams) =>
-  ["master-produk", "uploadable", params] as const
+/* ── Query keys ─────────────────────────────────────────────────────────── */
 
+export const uploadListingKey = (productId: string, params: UploadListingParams) =>
+  ["master-produk", "upload-listing", productId, params] as const
+export const channelDraftsKey = (params: DraftParams) =>
+  ["master-produk", "channel-drafts", params] as const
+export const uploadHistoriesKey = (params: HistoryParams) =>
+  ["master-produk", "upload-histories", params] as const
 
-export function useUploadableProducts(params: UploadableParams) {
+/* ── Upload-to-Channel (per produk) ─────────────────────────────────────── */
+
+export function useUploadListing(productId: string, params: UploadListingParams) {
   return useQuery({
-    queryKey: uploadableKey(params),
-    queryFn: () => UploadService.uploadable(params),
-    enabled: !!params.shopId,
+    queryKey: uploadListingKey(productId, params),
+    queryFn: () => UploadService.listing(productId, params),
+    enabled: !!productId,
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
   })
 }
 
-
-export function useUploadableQuery() {
-  const [shopId, setShopIdRaw] = React.useState<string | null>(null)
-  const [search, setSearch] = React.useState("")
-  const [debouncedSearch, setDebouncedSearch] = React.useState("")
-  const [pagination, setPagination] = React.useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 20,
-  })
-
-  const resetPage = React.useCallback(
-    () => setPagination((p) => ({ ...p, pageIndex: 0 })),
-    []
-  )
-
-  React.useEffect(() => {
-    const t = setTimeout(() => {
-      setDebouncedSearch(search)
-      resetPage()
-    }, 350)
-    return () => clearTimeout(t)
-  }, [search, resetPage])
-
-  const setShopId = React.useCallback(
-    (v: string | null) => {
-      setShopIdRaw(v)
-      resetPage()
+export function useMatchListing(productId: string) {
+  return useMutation({
+    mutationFn: (storeIds: string[]) => UploadService.match(productId, storeIds),
+    onError: (err) => {
+      const message = (err as { message?: string })?.message
+      toast.error(message || "Gagal mencocokkan data master")
     },
-    [resetPage]
-  )
-
-  const result = useUploadableProducts({
-    shopId: shopId ?? "",
-    search: debouncedSearch || undefined,
-    page: pagination.pageIndex + 1,
-    perPage: pagination.pageSize,
   })
-
-  return {
-    shopId,
-    setShopId,
-    search,
-    setSearch,
-    pagination,
-    setPagination,
-    result,
-  }
 }
 
-
-function useInvalidateUpload() {
+function useInvalidateUpload(productId?: string) {
   const qc = useQueryClient()
   return React.useCallback(() => {
-    qc.invalidateQueries({ queryKey: ["master-produk", "uploadable"] })
+    qc.invalidateQueries({ queryKey: ["master-produk", "upload-listing"] })
     qc.invalidateQueries({ queryKey: ["master-produk", "channel-drafts"] })
-    qc.invalidateQueries({ queryKey: ["master-produk", "list"] })
-    qc.invalidateQueries({ queryKey: ["channel-monitor"] })
-  }, [qc])
+    qc.invalidateQueries({ queryKey: ["master-produk", "upload-histories"] })
+    if (productId) {
+      qc.invalidateQueries({ queryKey: ["master-produk", "detail", productId] })
+    }
+  }, [qc, productId])
 }
 
-
-export function useUploadToShop() {
-  const invalidate = useInvalidateUpload()
+export function useUploadToStores(productId: string) {
+  const invalidate = useInvalidateUpload(productId)
 
   return useMutation({
-    mutationFn: ({
-      productIds,
-      shopId,
-    }: {
-      productIds: string[]
-      shopId: string
-    }) => UploadService.uploadProductsToShop(productIds, shopId),
+    mutationFn: (shopIds: string[]) => UploadService.uploadToStores(productId, shopIds),
     onSuccess: (res) => {
-      if (res.uploaded > 0) {
-        toast.success(`${res.uploaded} produk diantrekan untuk upload`)
-      }
+      if (res.uploaded > 0) toast.success(`${res.uploaded} toko diantrekan untuk upload`)
       if (res.skipped.length > 0) {
-        toast.warning(`${res.skipped.length} produk dilewati`, {
-          description: res.skipped
-            .map((s) => s.reason)
-            .slice(0, 3)
-            .join("; "),
+        toast.warning(`${res.skipped.length} toko dilewati`, {
+          description: res.skipped.map((s) => s.reason).slice(0, 3).join("; "),
         })
       }
       if (res.uploaded === 0 && res.skipped.length === 0) {
-        toast("Tidak ada produk yang diantrekan")
+        toast("Tidak ada toko yang diantrekan")
       }
       invalidate()
     },
@@ -122,5 +80,76 @@ export function useUploadToShop() {
       const message = (err as { message?: string })?.message
       toast.error(message || "Upload gagal diproses")
     },
+  })
+}
+
+/* ── Tab Draft ──────────────────────────────────────────────────────────── */
+
+export function useChannelDrafts(params: DraftParams) {
+  return useQuery({
+    queryKey: channelDraftsKey(params),
+    queryFn: () => UploadService.drafts(params),
+    placeholderData: keepPreviousData,
+    staleTime: 30 * 1000,
+  })
+}
+
+export function useUploadDraft() {
+  const invalidate = useInvalidateUpload()
+  return useMutation({
+    mutationFn: (draftId: string) => UploadService.uploadDraft(draftId),
+    onSuccess: () => {
+      toast.success("Draft diantrekan untuk upload")
+      invalidate()
+    },
+    onError: (err) => toast.error((err as { message?: string })?.message || "Gagal mengupload draft"),
+  })
+}
+
+export function useDeleteDraft() {
+  const invalidate = useInvalidateUpload()
+  return useMutation({
+    mutationFn: ({ productId, draftId }: { productId: string; draftId: string }) =>
+      UploadService.deleteDraft(productId, draftId),
+    onSuccess: () => {
+      toast.success("Draft dihapus")
+      invalidate()
+    },
+    onError: (err) => toast.error((err as { message?: string })?.message || "Gagal menghapus draft"),
+  })
+}
+
+/* ── Tab Hasil ──────────────────────────────────────────────────────────── */
+
+export function useUploadHistories(params: HistoryParams) {
+  return useQuery({
+    queryKey: uploadHistoriesKey(params),
+    queryFn: () => UploadService.histories(params),
+    placeholderData: keepPreviousData,
+    staleTime: 30 * 1000,
+  })
+}
+
+export function useReuploadHistory() {
+  const invalidate = useInvalidateUpload()
+  return useMutation({
+    mutationFn: (id: string) => UploadService.reupload(id),
+    onSuccess: () => {
+      toast.success("Produk diantrekan untuk upload ulang")
+      invalidate()
+    },
+    onError: (err) => toast.error((err as { message?: string })?.message || "Gagal mengantrekan upload ulang"),
+  })
+}
+
+export function useBulkDeleteHistories() {
+  const invalidate = useInvalidateUpload()
+  return useMutation({
+    mutationFn: (ids: string[]) => UploadService.bulkDeleteHistories(ids),
+    onSuccess: () => {
+      toast.success("Riwayat upload dihapus")
+      invalidate()
+    },
+    onError: (err) => toast.error((err as { message?: string })?.message || "Gagal menghapus riwayat"),
   })
 }

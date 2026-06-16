@@ -1,204 +1,258 @@
 import { fetchClient } from "@/lib/api-client"
 import type { ApiPaginated, ApiResponse } from "@/types/api.types"
 
-export type ProductType = "single" | "variant" | "bundle"
 export type DraftStatus = "draft" | "ready" | "cancelled"
 
-export interface UploadableParams {
-  
-  shopId: string
+/* ── Tab Upload-to-Channel: daftar toko tujuan per produk ───────────────── */
+
+export interface UploadListingParams {
+  isUploaded?: boolean
   search?: string
-  
-  sort?: string
+  channel?: string
   page?: number
   perPage?: number
 }
 
-
-interface RawUploadable {
-  id: string
-  name: string
-  sku: string | null
-  status: string
-  primary_image: string | null
-  price_range: { min: number | null; max: number | null } | null
-  category: { id: string; name: string } | null
-  brand: { id: string; name: string } | null
-  product_type: ProductType
-  total_variants: number
-  is_bundle: boolean
+interface RawUploadListing {
+  item_group_id: string
+  item_group_name: string | null
+  store_id: string
+  shop_id: string | null
+  store_name: string | null
+  channel_id: string | null
+  channel_code: string | null
+  channel_name: string | null
+  is_uploaded: boolean
+  channel_group_id: string | null
+  sync_status: string | null
+  product_channels: Array<{
+    master_sku: string | null
+    channel_sku: string | null
+    variation: string | null
+  }>
 }
 
-export interface UploadableProduct {
-  id: string
-  name: string
-  sku: string | null
-  status: string
-  image: string | null
-  priceMin: number | null
-  priceMax: number | null
-  categoryName: string
-  brandName: string
-  productType: ProductType
-  totalVariants: number
-  isBundle: boolean
+export interface UploadDestination {
+  itemGroupId: string
+  itemGroupName: string | null
+  /** channel_shop UUID — dipakai untuk match (store_ids). */
+  storeId: string
+  /** marketplace shop_id — dipakai untuk membuat draft/upload. */
+  shopId: string | null
+  storeName: string | null
+  channelId: string | null
+  channelCode: string | null
+  channelName: string | null
+  isUploaded: boolean
+  channelGroupId: string | null
+  syncStatus: string | null
+  productChannels: Array<{ masterSku: string | null; channelSku: string | null; variation: string | null }>
 }
 
-export interface UploadableResult {
-  items: UploadableProduct[]
-  meta: ApiPaginated<RawUploadable>["meta"]
+export interface UploadListingResult {
+  items: UploadDestination[]
+  meta: ApiPaginated<RawUploadListing>["meta"]
 }
 
+function mapDestination(raw: RawUploadListing): UploadDestination {
+  return {
+    itemGroupId: raw.item_group_id,
+    itemGroupName: raw.item_group_name,
+    storeId: raw.store_id,
+    shopId: raw.shop_id,
+    storeName: raw.store_name,
+    channelId: raw.channel_id,
+    channelCode: raw.channel_code,
+    channelName: raw.channel_name,
+    isUploaded: raw.is_uploaded,
+    channelGroupId: raw.channel_group_id,
+    syncStatus: raw.sync_status,
+    productChannels: (raw.product_channels ?? []).map((p) => ({
+      masterSku: p.master_sku,
+      channelSku: p.channel_sku,
+      variation: p.variation,
+    })),
+  }
+}
+
+export interface MatchRow {
+  storeId: string
+  channelGroupId: string | null
+  message: string
+  matched: boolean
+}
+
+interface RawMatchRow {
+  store_id: string
+  channel_group_id: string | null
+  message: string
+  matched: boolean
+}
+
+/* ── Tab Draft (global) ─────────────────────────────────────────────────── */
+
+export interface DraftParams {
+  search?: string
+  status?: DraftStatus
+  channel?: string
+  page?: number
+  perPage?: number
+}
 
 interface RawDraft {
   id: string
   item_group_id: string
-  item_group_name: string
+  item_group_name: string | null
   thumbnail: string | null
   status: DraftStatus
   can_upload: boolean
+  max: string | null
   channel_code: string | null
   channel_name: string | null
   store_id: string | null
-  channel_category_id: string | null
   price_override: number | null
 }
 
-export interface ChannelDraft {
+export interface DraftRow {
   id: string
-  productId: string
-  productName: string
+  itemGroupId: string
+  itemGroupName: string | null
   thumbnail: string | null
   status: DraftStatus
   canUpload: boolean
+  storeName: string | null
   channelCode: string | null
   channelName: string | null
   storeId: string | null
-  channelCategoryId: string | null
   priceOverride: number | null
 }
 
-export interface CreateDraftInput {
-  
-  shopId: string
-  channelCategoryId?: string | null
-  attributeMapping?: Record<string, unknown> | null
-  priceOverride?: number | null
-  status?: DraftStatus
+function mapDraft(raw: RawDraft): DraftRow {
+  return {
+    id: raw.id,
+    itemGroupId: raw.item_group_id,
+    itemGroupName: raw.item_group_name,
+    thumbnail: raw.thumbnail,
+    status: raw.status,
+    canUpload: raw.can_upload,
+    storeName: raw.max,
+    channelCode: raw.channel_code,
+    channelName: raw.channel_name,
+    storeId: raw.store_id,
+    priceOverride: raw.price_override,
+  }
 }
 
-export type UpdateDraftInput = Omit<CreateDraftInput, "shopId">
+/* ── Tab Hasil (riwayat upload, global) ─────────────────────────────────── */
+
+export interface HistoryParams {
+  search?: string
+  status?: string
+  channel?: string
+  shopId?: string
+  dateFrom?: string
+  dateTo?: string
+  page?: number
+  perPage?: number
+}
+
+interface RawHistory {
+  id: string
+  item_group_id: string
+  item_group_name: string | null
+  thumbnail: string | null
+  upload_date: string | null
+  success: boolean
+  status_message: string | null
+  can_reupload: boolean
+  max: string | null
+  channel_code: string | null
+  channel_name: string | null
+  store_id: string | null
+  channel_url: string | null
+}
+
+export interface HistoryRow {
+  id: string
+  itemGroupId: string
+  itemGroupName: string | null
+  thumbnail: string | null
+  uploadDate: string | null
+  success: boolean
+  statusMessage: string | null
+  canReupload: boolean
+  storeName: string | null
+  channelCode: string | null
+  channelName: string | null
+  storeId: string | null
+  channelUrl: string | null
+}
+
+function mapHistory(raw: RawHistory): HistoryRow {
+  return {
+    id: raw.id,
+    itemGroupId: raw.item_group_id,
+    itemGroupName: raw.item_group_name,
+    thumbnail: raw.thumbnail,
+    uploadDate: raw.upload_date,
+    success: raw.success,
+    statusMessage: raw.status_message,
+    canReupload: raw.can_reupload,
+    storeName: raw.max,
+    channelCode: raw.channel_code,
+    channelName: raw.channel_name,
+    storeId: raw.store_id,
+    channelUrl: raw.channel_url,
+  }
+}
 
 export interface BulkUploadResult {
   uploaded: number
   skipped: { id: string; reason: string }[]
 }
 
-function mapUploadable(raw: RawUploadable): UploadableProduct {
-  return {
-    id: raw.id,
-    name: raw.name,
-    sku: raw.sku ?? null,
-    status: raw.status,
-    image: raw.primary_image ?? null,
-    priceMin: raw.price_range?.min ?? null,
-    priceMax: raw.price_range?.max ?? null,
-    categoryName: raw.category?.name ?? "—",
-    brandName: raw.brand?.name ?? "—",
-    productType: raw.product_type,
-    totalVariants: raw.total_variants,
-    isBundle: raw.is_bundle,
-  }
-}
-
-function mapDraft(raw: RawDraft): ChannelDraft {
-  return {
-    id: raw.id,
-    productId: raw.item_group_id,
-    productName: raw.item_group_name,
-    thumbnail: raw.thumbnail ?? null,
-    status: raw.status,
-    canUpload: raw.can_upload,
-    channelCode: raw.channel_code ?? null,
-    channelName: raw.channel_name ?? null,
-    storeId: raw.store_id ?? null,
-    channelCategoryId: raw.channel_category_id ?? null,
-    priceOverride: raw.price_override ?? null,
-  }
-}
-
-function draftBody(input: CreateDraftInput | UpdateDraftInput) {
-  const body: Record<string, unknown> = {}
-  if ("shopId" in input && input.shopId) body.shop_id = input.shopId
-  if (input.channelCategoryId !== undefined) body.channel_category_id = input.channelCategoryId
-  if (input.attributeMapping !== undefined) body.attribute_mapping = input.attributeMapping
-  if (input.priceOverride !== undefined) body.price_override = input.priceOverride
-  if (input.status !== undefined) body.status = input.status
-  return body
-}
-
 export const UploadService = {
-  
-  uploadable: async (params: UploadableParams): Promise<UploadableResult> => {
+  /* Toko tujuan untuk satu produk (Belum/Sudah Diupload). */
+  listing: async (
+    productId: string,
+    params: UploadListingParams = {}
+  ): Promise<UploadListingResult> => {
     const q = new URLSearchParams()
-    q.set("shop_id", params.shopId)
+    q.set("is_uploaded", params.isUploaded ? "true" : "false")
     if (params.search) q.set("search", params.search)
-    if (params.sort) q.set("sort", params.sort)
+    if (params.channel) q.set("filter[channel]", params.channel)
     q.set("page", String(params.page ?? 1))
-    q.set("per_page", String(params.perPage ?? 20))
+    q.set("per_page", String(params.perPage ?? 25))
 
-    const res = await fetchClient<ApiPaginated<RawUploadable>>(
-      `/products/uploadable?${q.toString()}`
+    const res = await fetchClient<ApiPaginated<RawUploadListing>>(
+      `/products/${productId}/upload-listing?${q.toString()}`
     )
-    return { items: (res.data ?? []).map(mapUploadable), meta: res.meta }
+    return { items: (res.data ?? []).map(mapDestination), meta: res.meta }
   },
 
-  
-  drafts: async (productId: string): Promise<ChannelDraft[]> => {
-    const res = await fetchClient<ApiResponse<RawDraft[]>>(
-      `/products/${productId}/channel-drafts`
+  /* Kecocokan data master untuk toko-toko terpilih (channel_shop UUID). */
+  match: async (productId: string, storeIds: string[]): Promise<MatchRow[]> => {
+    const res = await fetchClient<ApiResponse<RawMatchRow[]>>(
+      `/products/${productId}/upload-listing/match`,
+      { method: "POST", data: { store_ids: storeIds } }
     )
-    return (res.data ?? []).map(mapDraft)
+    return (res.data ?? []).map((r) => ({
+      storeId: r.store_id,
+      channelGroupId: r.channel_group_id,
+      message: r.message,
+      matched: r.matched,
+    }))
   },
 
-  
-  createDraft: async (
-    productId: string,
-    input: CreateDraftInput
-  ): Promise<ChannelDraft> => {
-    const res = await fetchClient<ApiResponse<RawDraft>>(
+  /* Upsert draft (status ready) untuk produk↔toko (shop_id marketplace). */
+  createDraft: async (productId: string, shopId: string): Promise<{ id: string }> => {
+    const res = await fetchClient<ApiResponse<{ id: string }>>(
       `/products/${productId}/channel-drafts`,
-      { method: "POST", data: draftBody(input) }
+      { method: "POST", data: { shop_id: shopId, status: "ready" } }
     )
-    return mapDraft(res.data)
+    return res.data
   },
 
-  updateDraft: async (
-    productId: string,
-    draftId: string,
-    input: UpdateDraftInput
-  ): Promise<ChannelDraft> => {
-    const res = await fetchClient<ApiResponse<RawDraft>>(
-      `/products/${productId}/channel-drafts/${draftId}`,
-      { method: "PUT", data: draftBody(input) }
-    )
-    return mapDraft(res.data)
-  },
-
-  deleteDraft: async (productId: string, draftId: string): Promise<void> => {
-    await fetchClient(`/products/${productId}/channel-drafts/${draftId}`, {
-      method: "DELETE",
-    })
-  },
-
-  
-  uploadDraft: async (draftId: string): Promise<void> => {
-    await fetchClient(`/products/channel-drafts/${draftId}/upload`, {
-      method: "POST",
-    })
-  },
-
-  
   bulkUpload: async (draftIds: string[]): Promise<BulkUploadResult> => {
     const res = await fetchClient<ApiResponse<BulkUploadResult>>(
       `/products/channel-drafts/bulk-upload`,
@@ -207,16 +261,63 @@ export const UploadService = {
     return res.data
   },
 
-  
-  uploadProductsToShop: async (
-    productIds: string[],
-    shopId: string
+  /* Aksi upload: buat draft per toko lalu antrekan upload. */
+  uploadToStores: async (
+    productId: string,
+    shopIds: string[]
   ): Promise<BulkUploadResult> => {
     const drafts = await Promise.all(
-      productIds.map((id) =>
-        UploadService.createDraft(id, { shopId, status: "ready" })
-      )
+      shopIds.map((shopId) => UploadService.createDraft(productId, shopId))
     )
     return UploadService.bulkUpload(drafts.map((d) => d.id))
+  },
+
+  /* Tab Draft (global). */
+  drafts: async (params: DraftParams = {}): Promise<{ items: DraftRow[]; meta: ApiPaginated<RawDraft>["meta"] }> => {
+    const q = new URLSearchParams()
+    if (params.search) q.set("search", params.search)
+    if (params.status) q.set("filter[status]", params.status)
+    if (params.channel) q.set("filter[channel]", params.channel)
+    q.set("page", String(params.page ?? 1))
+    q.set("per_page", String(params.perPage ?? 25))
+
+    const res = await fetchClient<ApiPaginated<RawDraft>>(
+      `/products/channel-drafts?${q.toString()}`
+    )
+    return { items: (res.data ?? []).map(mapDraft), meta: res.meta }
+  },
+
+  deleteDraft: async (productId: string, draftId: string): Promise<void> => {
+    await fetchClient(`/products/${productId}/channel-drafts/${draftId}`, { method: "DELETE" })
+  },
+
+  uploadDraft: async (draftId: string): Promise<void> => {
+    await fetchClient(`/products/channel-drafts/${draftId}/upload`, { method: "POST" })
+  },
+
+  /* Tab Hasil (riwayat upload, global). */
+  histories: async (params: HistoryParams = {}): Promise<{ items: HistoryRow[]; meta: ApiPaginated<RawHistory>["meta"] }> => {
+    const q = new URLSearchParams()
+    if (params.search) q.set("search", params.search)
+    if (params.status) q.set("filter[status]", params.status)
+    if (params.channel) q.set("filter[channel]", params.channel)
+    if (params.shopId) q.set("filter[shop_id]", params.shopId)
+    if (params.dateFrom) q.set("filter[date_from]", params.dateFrom)
+    if (params.dateTo) q.set("filter[date_to]", params.dateTo)
+    q.set("page", String(params.page ?? 1))
+    q.set("per_page", String(params.perPage ?? 25))
+
+    const res = await fetchClient<ApiPaginated<RawHistory>>(
+      `/upload-histories?${q.toString()}`
+    )
+    return { items: (res.data ?? []).map(mapHistory), meta: res.meta }
+  },
+
+  reupload: async (id: string): Promise<void> => {
+    await fetchClient(`/upload-histories/${id}/re-upload`, { method: "POST" })
+  },
+
+  bulkDeleteHistories: async (ids: string[]): Promise<void> => {
+    await fetchClient(`/upload-histories/bulk-delete`, { method: "POST", data: { ids } })
   },
 }

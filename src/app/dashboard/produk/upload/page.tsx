@@ -1,20 +1,25 @@
-import { PageTitle } from "@/components/dashboard/page-title"
-import { UploadView } from "@/components/dashboard/master-produk/upload/upload-view"
+import { Suspense } from "react"
 
-export default function UploadProdukPage() {
+import { PageTitle } from "@/components/dashboard/page-title"
+import { UploadMassalView } from "@/components/dashboard/master-produk/upload/upload-massal-view"
+
+export default function UploadMassalPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageTitle
-        title="Upload ke Marketplace"
-        description="Kirim produk master ke toko marketplace yang terhubung."
+        title="Upload Massal"
+        description="Upload produk master ke marketplace."
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Katalog" },
-          { label: "Upload ke Marketplace" },
+          { label: "Produk" },
+          { label: "Upload Massal" },
         ]}
       />
 
-      <UploadView />
+      <Suspense fallback={null}>
+        <UploadMassalView />
+      </Suspense>
     </div>
   )
 }
