@@ -12,6 +12,17 @@ export interface DetailTax {
   rate: number
 }
 
+export interface DetailVariantOption {
+  attributeId: number
+  value: string
+}
+
+export interface DetailVariationType {
+  attributeId: number
+  name: string | null
+  sortOrder: number
+}
+
 export interface DetailVariant {
   id: string
   sku: string
@@ -24,6 +35,7 @@ export interface DetailVariant {
   isActive: boolean
   salesTax: DetailTax | null
   purchaseTax: DetailTax | null
+  options: DetailVariantOption[]
   stock?: { onHand: number; reserved: number; onOrder: number; available: number }
 }
 
@@ -69,6 +81,7 @@ export interface ProductDetail {
     cogs: AccountRef | null
   }
   channelMappings: DetailChannelMapping[]
+  variationTypes: DetailVariationType[]
   variants: DetailVariant[]
   verifiedAt: string | null
   archivedAt: string | null
@@ -116,6 +129,11 @@ export interface RawProductDetail {
     sync_status: string | null
     last_synced_at: string | null
   }>
+  variation_types?: Array<{
+    attribute_id: number
+    name: string | null
+    sort_order: number
+  }>
   variants?: Array<{
     id: string
     sku: string
@@ -128,6 +146,7 @@ export interface RawProductDetail {
     is_active: boolean
     sales_tax: DetailTax | null
     purchase_tax: DetailTax | null
+    options?: Array<{ attribute_id: number; value: string }>
     stock?: { on_hand: number; reserved: number; on_order: number; available: number }
   }>
   verified_at: string | null

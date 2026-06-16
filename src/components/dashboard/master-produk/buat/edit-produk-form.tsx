@@ -11,7 +11,7 @@ import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { buatProdukSchema } from "@/schemas/master-produk"
 import type { BuatProdukFormValues, ProductDetail } from "@/types/master-produk"
-import { detailToFormValues } from "@/lib/master-produk/detail-to-form"
+import { detailToFormValues, detailVariantLocks } from "@/lib/master-produk/detail-to-form"
 import { SERVER_FIELD_MAP } from "@/lib/master-produk/server-field-map"
 import { useUpdateProduct } from "@/hooks/master-produk/use-update-product"
 
@@ -25,6 +25,7 @@ import { MediaUploader } from "./media-uploader"
 import { FormDetailSection } from "./form-detail-section"
 import { FormSalesSection } from "./form-sales-section"
 import { FormShippingSection } from "./form-shipping-section"
+import { FormVariantSection } from "./form-variant-section"
 import { FormSectionCard } from "@/components/ui/form-section-card"
 
 export function EditProdukForm({ product }: { product: ProductDetail }) {
@@ -35,6 +36,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
   const isMultiVariant = product.variants.length > 1
   const originalVariantSku = product.variants[0]?.sku
   const detailHref = `/dashboard/master-produk/${product.id}`
+  const variantLocks = React.useMemo(() => detailVariantLocks(product), [product])
 
   const form = useForm<BuatProdukFormValues>({
     resolver: zodResolver(buatProdukSchema),
@@ -162,6 +164,11 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
         <Form {...form}>
           <form className="flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
             <FormDetailSection skuDisabled />
+
+            <FormVariantSection
+              lockedTypeIds={variantLocks.lockedTypeIds}
+              lockedValues={variantLocks.lockedValues}
+            />
 
             <fieldset
               disabled={isMultiVariant}

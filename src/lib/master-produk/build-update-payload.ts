@@ -52,7 +52,21 @@ export function buildUpdatePayload(
     package_contents: values.packageContents?.trim() || null,
   }
 
-  if (opts.includeVariant) {
+  if (values.variationTypes.length > 0) {
+    // Produk varian: kirim jenis varian + kombinasi (BE = immutability + ekspansi).
+    payload.variation_types = values.variationTypes.map((t, i) => ({
+      attribute_id: t.attributeId,
+      sort_order: i,
+    }))
+    payload.variants = values.variants.map((row) => ({
+      sku: row.sku.trim(),
+      sell_price: num(row.sellPrice) ?? num(values.sellPrice) ?? 0,
+      sales_tax_id: values.salesTaxId ? Number(values.salesTaxId) : null,
+      purchase_tax_id: values.purchaseTaxId ? Number(values.purchaseTaxId) : null,
+      is_active: true,
+      options: row.options.map((o) => ({ attribute_id: o.attributeId, value: o.value })),
+    }))
+  } else if (opts.includeVariant) {
     const variant: CreateVariantInput = {
       sku: opts.originalVariantSku ?? values.sku.trim(),
       sell_price: num(values.sellPrice) ?? 0,

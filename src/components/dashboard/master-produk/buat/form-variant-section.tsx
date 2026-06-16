@@ -9,23 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Combobox } from "@/components/ui/combobox"
 import { FormSectionCard } from "@/components/ui/form-section-card"
 import { useCategoryFormAttributes } from "@/hooks/master-produk/use-master-data"
+import { buildCombos, comboKey, comboLabel, skuPart } from "@/lib/master-produk/variant-combos"
 import type { BuatProdukFormValues, FormAttribute } from "@/types/master-produk"
-
-type VarOption = { attributeId: number; value: string }
-
-function buildCombos(types: { attributeId: number; values: string[] }[]): VarOption[][] {
-  if (types.length === 0) return []
-  let acc: VarOption[][] = [[]]
-  for (const t of types) {
-    if (t.values.length === 0) return []
-    acc = acc.flatMap((combo) =>
-      t.values.map((v) => [...combo, { attributeId: t.attributeId, value: v }])
-    )
-  }
-  return acc
-}
-
-const skuPart = (s: string) => s.replace(/[^A-Za-z0-9]+/g, "-")
 
 /** Input penambah opsi nilai untuk satu jenis varian + saran dari atribut channel. */
 function OptionAdder({
@@ -117,8 +102,8 @@ export function FormVariantSection({
     const combos = buildCombos(variationTypes)
     const prevByKey = new Map(getValues("variants").map((v) => [v.key, v]))
     const next = combos.map((opts) => {
-      const key = opts.map((o) => `${o.attributeId}:${o.value}`).join("|")
-      const label = opts.map((o) => o.value).join(" / ")
+      const key = comboKey(opts)
+      const label = comboLabel(opts)
       const suggest = [baseSku, ...opts.map((o) => skuPart(o.value))]
         .filter(Boolean)
         .join("-")

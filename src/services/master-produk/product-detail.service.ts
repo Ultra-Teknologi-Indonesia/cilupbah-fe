@@ -43,6 +43,11 @@ function mapDetail(raw: RawProductDetail): ProductDetail {
       syncStatus: m.sync_status,
       lastSyncedAt: m.last_synced_at,
     })),
+    variationTypes: (raw.variation_types ?? []).map((t) => ({
+      attributeId: t.attribute_id,
+      name: t.name,
+      sortOrder: t.sort_order,
+    })),
     variants: (raw.variants ?? []).map((v) => ({
       id: v.id,
       sku: v.sku,
@@ -55,6 +60,10 @@ function mapDetail(raw: RawProductDetail): ProductDetail {
       isActive: v.is_active,
       salesTax: v.sales_tax,
       purchaseTax: v.purchase_tax,
+      options: (v.options ?? []).map((o) => ({
+        attributeId: o.attribute_id,
+        value: o.value,
+      })),
       stock: v.stock
         ? {
             onHand: v.stock.on_hand,
