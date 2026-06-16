@@ -8,6 +8,11 @@ export interface CreateMediaInput {
   sort_order?: number
 }
 
+export interface VariantOptionInput {
+  attribute_id: number
+  value: string
+}
+
 export interface CreateVariantInput {
   sku: string
   barcode?: string | null
@@ -19,6 +24,18 @@ export interface CreateVariantInput {
   safe_stock?: number | null
   is_active?: boolean
   unlimited_shop_ids?: string[]
+  options?: VariantOptionInput[]
+}
+
+export interface VariationTypeInput {
+  attribute_id: number
+  sort_order?: number
+}
+
+export interface SpecificationInput {
+  attribute_id: number
+  attribute_option_id?: number | null
+  text_value?: string | null
 }
 
 export interface CreateProductPayload {
@@ -46,6 +63,8 @@ export interface CreateProductPayload {
   height?: number | null
   package_contents?: string | null
   media?: CreateMediaInput[]
+  variation_types?: VariationTypeInput[]
+  specifications?: SpecificationInput[]
   variants: CreateVariantInput[]
 }
 

@@ -1,7 +1,8 @@
 import { fetchClient } from "@/lib/api-client"
-import type { ApiList } from "@/types/api.types"
+import type { ApiList, ApiResponse } from "@/types/api.types"
 import type { LookupOption } from "@/types/common"
 import type {
+  CategoryFormAttributes,
   CategoryNode,
   RawAccount,
   RawBrand,
@@ -81,5 +82,15 @@ export const MasterDataService = {
   categoryTree: async (): Promise<CategoryNode[]> => {
     const res = await fetchClient<ApiList<RawCategory>>("/categories?all=1")
     return buildCategoryTree(res.data ?? [])
+  },
+
+  // Atribut form (spesifikasi + jenis varian) untuk kategori Level-2.
+  categoryFormAttributes: async (
+    id: string | number
+  ): Promise<CategoryFormAttributes> => {
+    const res = await fetchClient<ApiResponse<CategoryFormAttributes>>(
+      `/categories/${id}/form-attributes`
+    )
+    return res.data
   },
 }

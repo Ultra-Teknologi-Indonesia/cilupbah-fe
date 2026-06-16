@@ -30,3 +30,12 @@ export const useShopOptions = () =>
   useMasterDataQuery("shops", MasterDataService.shops)
 export const useCategoryTree = () =>
   useMasterDataQuery("categories", MasterDataService.categoryTree)
+
+/** Atribut form (spesifikasi + jenis varian) untuk kategori Level-2; enabled saat ada id. */
+export const useCategoryFormAttributes = (categoryId?: string | number | null) =>
+  useQuery({
+    queryKey: ["master-produk", "category-attributes", categoryId],
+    queryFn: () => MasterDataService.categoryFormAttributes(categoryId!),
+    enabled: categoryId != null && categoryId !== "",
+    staleTime: STALE,
+  })

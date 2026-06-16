@@ -34,12 +34,45 @@ export const buatProdukSchema = z
     width: z.string().optional(),
     height: z.string().optional(),
     packageContents: z.string().max(2000).optional(),
+    // Jenis varian (≤2), tiap jenis punya ≥1 nilai opsi.
+    variationTypes: z
+      .array(
+        z.object({
+          attributeId: z.number(),
+          name: z.string(),
+          values: z
+            .array(z.string().trim().min(1, "Opsi tidak boleh kosong"))
+            .min(1, "Minimal 1 opsi"),
+        })
+      )
+      .max(2, "Maksimal 2 jenis varian"),
+    // Kombinasi varian (cartesian) — diisi builder; tiap baris punya SKU.
+    variants: z.array(
+      z.object({
+        key: z.string(),
+        label: z.string(),
+        options: z.array(z.object({ attributeId: z.number(), value: z.string() })),
+        sku: z.string().trim().min(1, "SKU varian wajib diisi").max(50),
+        sellPrice: z.string().optional(),
+      })
+    ),
+    // Spesifikasi dinamis per kategori.
+    specifications: z.array(
+      z.object({
+        attributeId: z.number(),
+        value: z.string().optional(),
+      })
+    ),
   })
   .superRefine((v, ctx) => {
     if (!v.category)
       ctx.addIssue({ path: ["category"], code: "custom", message: "Kategori wajib dipilih" })
-    if (v.isSold && !v.sellPrice?.trim())
+    const hasVariants = v.variationTypes.length > 0
+    // Harga jual: untuk produk satuan di header; untuk multivarian diisi per varian.
+    if (v.isSold && !hasVariants && !v.sellPrice?.trim())
       ctx.addIssue({ path: ["sellPrice"], code: "custom", message: "Harga jual wajib diisi" })
+    if (hasVariants && v.variants.length === 0)
+      ctx.addIssue({ path: ["variants"], code: "custom", message: "Lengkapi kombinasi varian" })
     if (v.isPreorder && !v.indentDays?.trim())
       ctx.addIssue({ path: ["indentDays"], code: "custom", message: "Lama indent wajib diisi" })
     const descText = (v.description ?? "").replace(/<[^>]*>/g, "").trim()

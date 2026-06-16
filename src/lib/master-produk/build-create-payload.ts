@@ -19,8 +19,9 @@ export function buildCreatePayload(
   opts: { status: ProductCreateStatus; media?: CreateMediaInput[] }
 ): CreateProductPayload {
   const sku = values.sku.trim()
+  const hasVariants = values.variationTypes.length > 0
 
-  const variant: CreateVariantInput = {
+  const singleVariant: CreateVariantInput = {
     sku,
     sell_price: num(values.sellPrice) ?? 0,
     buy_price: num(values.buyPrice) ?? null,
@@ -33,6 +34,21 @@ export function buildCreatePayload(
       ? { unlimited_shop_ids: values.unlimitedShopIds }
       : {}),
   }
+
+  const variants: CreateVariantInput[] = hasVariants
+    ? values.variants.map((row) => ({
+        sku: row.sku.trim(),
+        sell_price: num(row.sellPrice) ?? num(values.sellPrice) ?? 0,
+        sales_tax_id: values.salesTaxId ? Number(values.salesTaxId) : null,
+        purchase_tax_id: values.purchaseTaxId ? Number(values.purchaseTaxId) : null,
+        is_active: true,
+        options: row.options.map((o) => ({ attribute_id: o.attributeId, value: o.value })),
+      }))
+    : [singleVariant]
+
+  const specifications = values.specifications
+    .filter((s) => (s.value ?? "").trim() !== "")
+    .map((s) => ({ attribute_id: s.attributeId, text_value: (s.value ?? "").trim() }))
 
   return {
     name: values.name.trim(),
@@ -59,6 +75,15 @@ export function buildCreatePayload(
     height: num(values.height) ?? null,
     package_contents: values.packageContents?.trim() || null,
     ...(opts.media?.length ? { media: opts.media } : {}),
-    variants: [variant],
+    ...(hasVariants
+      ? {
+          variation_types: values.variationTypes.map((t, i) => ({
+            attribute_id: t.attributeId,
+            sort_order: i,
+          })),
+        }
+      : {}),
+    ...(specifications.length ? { specifications } : {}),
+    variants,
   }
 }

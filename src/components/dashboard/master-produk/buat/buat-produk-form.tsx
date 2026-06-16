@@ -21,6 +21,8 @@ import { MediaUploader } from "./media-uploader"
 import { FormDetailSection } from "./form-detail-section"
 import { FormSalesSection } from "./form-sales-section"
 import { FormShippingSection } from "./form-shipping-section"
+import { FormVariantSection } from "./form-variant-section"
+import { FormSpecificationSection } from "./form-specification-section"
 import { FormSectionCard } from "@/components/ui/form-section-card"
 
 export function BuatProdukForm() {
@@ -63,6 +65,9 @@ export function BuatProdukForm() {
       width: "",
       height: "",
       packageContents: "",
+      variationTypes: [],
+      variants: [],
+      specifications: [],
     },
   })
 
@@ -209,6 +214,8 @@ export function BuatProdukForm() {
             onSubmit={(e) => e.preventDefault()}
           >
             <FormDetailSection />
+            <FormVariantSection />
+            <FormSpecificationSection />
             <FormSalesSection />
             <FormShippingSection />
 

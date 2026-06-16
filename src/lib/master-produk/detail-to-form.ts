@@ -39,5 +39,9 @@ export function detailToFormValues(p: ProductDetail): BuatProdukFormValues {
     width: s(p.width),
     height: s(p.height),
     packageContents: p.packageContents ?? "",
+    // Edit varian/spesifikasi dinamis menyusul (butuh detail BE mengekspos opsi varian).
+    variationTypes: [],
+    variants: [],
+    specifications: [],
   }
 }
