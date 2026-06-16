@@ -52,6 +52,83 @@ function mapRow(r: RawVariantRow): VariantRow {
   }
 }
 
+// ── Channel listing (#4) ──────────────────────────────────────────────
+export interface ChannelListingItem {
+  channelShopId: string | null
+  shopName: string | null
+  channelName: string | null
+  channelCode: string | null
+  externalProductId: string | null
+  syncStatus: string | null
+  lastSyncedAt: string | null
+}
+export interface ChannelListingRow {
+  variantId: string
+  sku: string
+  options: { attributeId: number; value: string }[]
+  listings: ChannelListingItem[]
+}
+interface RawChannelListingRow {
+  variant_id: string
+  sku: string
+  options?: Array<{ attribute_id: number; value: string }>
+  listings?: Array<{
+    channel_shop_id: string | null
+    shop_name: string | null
+    channel_name: string | null
+    channel_code: string | null
+    external_product_id: string | null
+    sync_status: string | null
+    last_synced_at: string | null
+  }>
+}
+
+// ── Harga channel (#5) ────────────────────────────────────────────────
+export interface ChannelPriceCell {
+  channelShopId: string | null
+  shopName: string | null
+  channelCode: string | null
+  price: number | null
+}
+export interface ChannelPriceRow {
+  variantId: string
+  sku: string
+  options: { attributeId: number; value: string }[]
+  internalPrice: number | null
+  prices: ChannelPriceCell[]
+}
+interface RawChannelPriceRow {
+  variant_id: string
+  sku: string
+  options?: Array<{ attribute_id: number; value: string }>
+  internal_price: number | null
+  prices?: Array<{
+    channel_shop_id: string | null
+    shop_name: string | null
+    channel_code: string | null
+    price: number | null
+  }>
+}
+
+export interface ChannelTabParams {
+  page?: number
+  perPage?: number
+  channel?: string
+  includeUnlisted?: boolean
+}
+
+function channelQuery(params: ChannelTabParams): string {
+  const q = new URLSearchParams()
+  if (params.page) q.set("page", String(params.page))
+  if (params.perPage) q.set("per_page", String(params.perPage))
+  if (params.channel) q.set("filter[channel]", params.channel)
+  if (params.includeUnlisted) q.set("include_unlisted", "1")
+  return q.toString()
+}
+
+const mapOptions = (o?: Array<{ attribute_id: number; value: string }>) =>
+  (o ?? []).map((x) => ({ attributeId: x.attribute_id, value: x.value }))
+
 export const ProductTabsService = {
   variants: async (productId: string, params: VariantsParams = {}): Promise<VariantsResult> => {
     const q = new URLSearchParams()
@@ -72,5 +149,55 @@ export const ProductTabsService = {
     body: { action: BulkVariantAction; variant_ids: string[] }
   ): Promise<ApiResponse<{ affected?: number; deleted?: number; blocked?: string[] }>> => {
     return fetchClient(`/products/${productId}/variants/bulk`, { method: "POST", data: body })
+  },
+
+  channelListings: async (
+    productId: string,
+    params: ChannelTabParams = {}
+  ): Promise<{ items: ChannelListingRow[]; meta: PageMeta }> => {
+    const res = await fetchClient<ApiPaginated<RawChannelListingRow>>(
+      `/products/${productId}/channel-listings?${channelQuery(params)}`
+    )
+    return {
+      items: (res.data ?? []).map((r) => ({
+        variantId: r.variant_id,
+        sku: r.sku,
+        options: mapOptions(r.options),
+        listings: (r.listings ?? []).map((l) => ({
+          channelShopId: l.channel_shop_id,
+          shopName: l.shop_name,
+          channelName: l.channel_name,
+          channelCode: l.channel_code,
+          externalProductId: l.external_product_id,
+          syncStatus: l.sync_status,
+          lastSyncedAt: l.last_synced_at,
+        })),
+      })),
+      meta: res.meta,
+    }
+  },
+
+  channelPrices: async (
+    productId: string,
+    params: ChannelTabParams = {}
+  ): Promise<{ items: ChannelPriceRow[]; meta: PageMeta }> => {
+    const res = await fetchClient<ApiPaginated<RawChannelPriceRow>>(
+      `/products/${productId}/channel-prices?${channelQuery(params)}`
+    )
+    return {
+      items: (res.data ?? []).map((r) => ({
+        variantId: r.variant_id,
+        sku: r.sku,
+        options: mapOptions(r.options),
+        internalPrice: r.internal_price,
+        prices: (r.prices ?? []).map((p) => ({
+          channelShopId: p.channel_shop_id,
+          shopName: p.shop_name,
+          channelCode: p.channel_code,
+          price: p.price,
+        })),
+      })),
+      meta: res.meta,
+    }
   },
 }

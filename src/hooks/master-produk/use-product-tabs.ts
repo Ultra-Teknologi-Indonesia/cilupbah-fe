@@ -10,6 +10,7 @@ import {
 import {
   ProductTabsService,
   type BulkVariantAction,
+  type ChannelTabParams,
   type VariantsParams,
 } from "@/services/master-produk/product-tabs.service"
 
@@ -22,6 +23,32 @@ export const useProductVariants = (
   useQuery({
     queryKey: ["master-produk", "variants", productId, params],
     queryFn: () => ProductTabsService.variants(productId, params),
+    enabled,
+    placeholderData: keepPreviousData,
+    staleTime: 30 * 1000,
+  })
+
+export const useProductChannelListings = (
+  productId: string,
+  params: ChannelTabParams,
+  enabled: boolean
+) =>
+  useQuery({
+    queryKey: ["master-produk", "channel-listings", productId, params],
+    queryFn: () => ProductTabsService.channelListings(productId, params),
+    enabled,
+    placeholderData: keepPreviousData,
+    staleTime: 30 * 1000,
+  })
+
+export const useProductChannelPrices = (
+  productId: string,
+  params: ChannelTabParams,
+  enabled: boolean
+) =>
+  useQuery({
+    queryKey: ["master-produk", "channel-prices", productId, params],
+    queryFn: () => ProductTabsService.channelPrices(productId, params),
     enabled,
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,

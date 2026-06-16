@@ -6,14 +6,17 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { PackageIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useProductDetail, useProductLifecycle } from "@/hooks/master-produk/use-product-detail"
 import type { ProductTypeKind } from "@/types/master-produk"
 import { ProductDetailSkeleton } from "./product-detail-skeleton"
 import { DetailHeader } from "./detail-header"
-import { DetailTabs, type DetailTab } from "./detail-tabs"
 import { TabVariasi } from "./tab-variasi"
-import { ChannelListing } from "./channel-listing"
+import { TabChannel } from "./tab-channel"
+import { TabHargaChannel } from "./tab-harga-channel"
 import { AccountsCard, ShippingCard } from "./accounts-shipping"
+
+type DetailTab = { id: string; label: string }
 
 function tabsFor(type: ProductTypeKind): DetailTab[] {
   const first: DetailTab =
@@ -82,18 +85,38 @@ export function ProductDetailView({ id }: { id: string }) {
         onLifecycle={(action, reason) => lifecycle.mutate({ action, reason })}
       />
 
-      <div className="rounded-2xl border border-border/60 bg-card/50 shadow-sm">
-        <DetailTabs tabs={tabs} active={active} onChange={setTab} />
-
-        <div role="tabpanel" className="p-4 sm:p-5">
-          {active === "variasi" && <TabVariasi productId={id} />}
-          {active === "channel" && <ChannelListing mappings={product.channelMappings} />}
-          {active === "komposisi" && <TabPlaceholder label="Komposisi" />}
-          {active === "harga-channel" && <TabPlaceholder label="Harga Channel" />}
-          {active === "buku-harga" && <TabPlaceholder label="Buku Harga" />}
-          {active === "riwayat" && <TabPlaceholder label="Riwayat Upload" />}
+      <Tabs value={active} onValueChange={setTab} className="rounded-2xl border border-border/60 bg-card/50 shadow-sm">
+        <div className="sticky top-0 z-10 overflow-x-auto rounded-t-2xl border-b border-border/60 bg-card/80 px-3 pt-3 backdrop-blur-xl">
+          <TabsList variant="line" className="h-auto pb-2">
+            {tabs.map((t) => (
+              <TabsTrigger key={t.id} value={t.id}>
+                {t.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
         </div>
-      </div>
+
+        <div className="p-4 sm:p-5">
+          <TabsContent value="variasi">
+            <TabVariasi productId={id} />
+          </TabsContent>
+          <TabsContent value="komposisi">
+            <TabPlaceholder label="Komposisi" />
+          </TabsContent>
+          <TabsContent value="channel">
+            <TabChannel productId={id} />
+          </TabsContent>
+          <TabsContent value="harga-channel">
+            <TabHargaChannel productId={id} />
+          </TabsContent>
+          <TabsContent value="buku-harga">
+            <TabPlaceholder label="Buku Harga" />
+          </TabsContent>
+          <TabsContent value="riwayat">
+            <TabPlaceholder label="Riwayat Upload" />
+          </TabsContent>
+        </div>
+      </Tabs>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <AccountsCard product={product} />
