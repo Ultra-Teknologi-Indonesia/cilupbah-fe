@@ -42,7 +42,7 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
   const pathname = usePathname();
   const shouldReduceMotion = useReducedMotion();
 
-  // Setelah memilih item (navigasi), tutup panel nested — jangan terus terbuka.
+  
   const handleNavClick = () => {
     if (isMobile) setOpenMobile(false);
     else setOpen(false);

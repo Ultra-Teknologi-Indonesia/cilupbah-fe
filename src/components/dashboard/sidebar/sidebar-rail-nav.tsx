@@ -120,7 +120,7 @@ export function SidebarRailNav({
     try {
       await AuthService.logout();
     } catch {
-      // Abaikan kegagalan revoke server — tetap bersihkan sesi lokal.
+      
     }
     await clearLoginSession();
     window.location.href = "/login";

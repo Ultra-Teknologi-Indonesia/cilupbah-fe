@@ -25,10 +25,7 @@ interface RichTextEditorProps {
   invalid?: boolean
 }
 
-/**
- * WYSIWYG sederhana (contentEditable). Selalu menampilkan hasil render —
- * tanpa tanda markdown & tanpa mode tulis/pratinjau. Output: HTML.
- */
+
 export function RichTextEditor({
   value = "",
   onChange,
@@ -40,7 +37,7 @@ export function RichTextEditor({
 }: RichTextEditorProps) {
   const ref = React.useRef<HTMLDivElement>(null)
 
-  // Sinkronkan nilai eksternal (mis. reset form) tanpa mengganggu kursor.
+  
   React.useEffect(() => {
     const el = ref.current
     if (!el) return
@@ -78,7 +75,7 @@ export function RichTextEditor({
     >
       <div
         className="flex flex-wrap items-center gap-0.5 border-b border-border/60 bg-muted/30 px-1.5 py-1"
-        // Jangan curi fokus dari editor saat klik toolbar (cegah blur → validasi dini).
+        
         onMouseDown={(e) => e.preventDefault()}
       >
         <ToolBtn label="Tebal" onClick={() => exec("bold")}>

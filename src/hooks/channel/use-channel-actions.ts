@@ -16,7 +16,7 @@ function errMessage(err: unknown, fallback: string): string {
   return typeof m === "string" && m ? m : fallback
 }
 
-/** Toggle is_active / order_sync_enabled dengan update optimistic + rollback. */
+
 export function useToggleStoreFlag() {
   const qc = useQueryClient()
 
@@ -39,7 +39,7 @@ export function useToggleStoreFlag() {
   })
 }
 
-/** Soft disconnect: hapus toko dari daftar (optimistic). */
+
 export function useDisconnectStore() {
   const qc = useQueryClient()
 
@@ -79,7 +79,7 @@ export function useRefreshToken() {
   })
 }
 
-/** Mulai OAuth: ambil auth_url lalu arahkan browser (BE redirect balik ke FE). */
+
 export function useConnectChannel() {
   const [pendingCode, setPendingCode] = React.useState<ChannelCode | null>(null)
 

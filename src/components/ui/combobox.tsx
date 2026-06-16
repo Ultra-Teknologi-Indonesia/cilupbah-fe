@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/popover";
 import type { LookupOption } from "@/types/common";
 
-/** Bentuk opsi combobox = LookupOption generik (reusable). */
+
 export type ComboboxOption = LookupOption;
 
 interface ComboboxProps {

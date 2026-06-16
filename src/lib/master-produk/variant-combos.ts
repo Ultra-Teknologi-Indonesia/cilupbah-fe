@@ -1,8 +1,8 @@
-// Util kombinasi varian — dipakai builder (form) & hidrasi edit agar KEY konsisten.
+
 
 export type VarOption = { attributeId: number; value: string }
 
-/** Cartesian dari nilai opsi tiap jenis varian (urut sesuai urutan jenis). */
+
 export function buildCombos(
   types: { attributeId: number; values: string[] }[]
 ): VarOption[][] {

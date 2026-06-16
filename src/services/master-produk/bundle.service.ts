@@ -1,7 +1,7 @@
 import { fetchClient } from "@/lib/api-client"
 import type { ApiResponse } from "@/types/api.types"
 
-/** Payload POST /inventory/items (storeBundle) — bundle = 1 SKU + komposisi komponen. */
+
 export interface CreateBundlePayload {
   id?: string
   name: string

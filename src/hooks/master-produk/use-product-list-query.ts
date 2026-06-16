@@ -6,16 +6,13 @@ import type { PaginationState, SortingState } from "@tanstack/react-table"
 import type { SelectedCategory } from "@/types/master-produk"
 import { useMasterProducts } from "./use-master-products"
 
-// Kolom FE → field sort yang didukung master feed.
+
 const SORT_FIELD: Record<string, string> = {
   itemName: "name",
   lastModified: "updated_at",
 }
 
-/**
- * State query daftar produk (server-driven): search (debounced), status, brand,
- * sort, pagination → params untuk GET /products/master.
- */
+
 export function useProductListQuery() {
   const [search, setSearch] = React.useState("")
   const [debouncedSearch, setDebouncedSearch] = React.useState("")
@@ -33,7 +30,7 @@ export function useProductListQuery() {
     []
   )
 
-  // Debounce pencarian → balik ke halaman 1.
+  
   React.useEffect(() => {
     const t = setTimeout(() => {
       setDebouncedSearch(search)

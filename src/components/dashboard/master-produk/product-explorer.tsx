@@ -74,7 +74,7 @@ export function ProductExplorer({ query }: { query: Query }) {
       intensity="default"
       className="bg-white/40 dark:bg-white/[0.06]"
     >
-      {/* Header */}
+      {}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6 sm:py-5">
         <div>
           <h2 className="text-base font-medium">Daftar Produk</h2>
@@ -109,7 +109,7 @@ export function ProductExplorer({ query }: { query: Query }) {
         </div>
       </div>
 
-      {/* Toolbar server-driven (search + status + merek) */}
+      {}
       <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-5 py-3 sm:px-6">
         <div className="relative w-full max-w-xs sm:w-64">
           <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -167,7 +167,7 @@ export function ProductExplorer({ query }: { query: Query }) {
         )}
       </div>
 
-      {/* Body */}
+      {}
       <div className="px-5 py-5 sm:px-6">
         {view === "card" ? (
           <ProductCardView {...viewProps} />

@@ -3,7 +3,7 @@ import { buildCombos, comboKey, comboLabel } from "./variant-combos"
 
 const s = (n: number | null | undefined): string => (n == null ? "" : String(n))
 
-/** Rekonstruksi jenis varian + kombinasi dari detail (untuk hidrasi builder edit). */
+
 function reconstructVariants(p: ProductDetail) {
   const active = p.variants.filter((v) => v.isActive)
   const types = [...p.variationTypes].sort((a, b) => a.sortOrder - b.sortOrder)
@@ -40,7 +40,7 @@ function reconstructVariants(p: ProductDetail) {
   return { variationTypes, variants }
 }
 
-/** Jenis & nilai opsi yang sudah tersimpan → tak boleh dihapus saat edit (immutability). */
+
 export function detailVariantLocks(p: ProductDetail): {
   lockedTypeIds: number[]
   lockedValues: Record<number, string[]>
@@ -52,7 +52,7 @@ export function detailVariantLocks(p: ProductDetail): {
   }
 }
 
-/** ProductDetail → nilai awal form (prefill Edit). */
+
 export function detailToFormValues(p: ProductDetail): BuatProdukFormValues {
   const variant = p.variants[0]
   const { variationTypes, variants } = reconstructVariants(p)
@@ -92,9 +92,9 @@ export function detailToFormValues(p: ProductDetail): BuatProdukFormValues {
     packageContents: p.packageContents ?? "",
     variationTypes,
     variants,
-    // Spesifikasi belum dihidrasi (detail belum mengekspos) → kosong, tak dikirim saat update.
+    
     specifications: [],
-    // Komposisi bundle (B6): hidrasi dari detail agar edit menampilkan komponen tersimpan.
+    
     bundleComponents: p.bundleComponents.map((c) => ({
       variantId: c.componentVariantId,
       productName: c.product?.name ?? "",

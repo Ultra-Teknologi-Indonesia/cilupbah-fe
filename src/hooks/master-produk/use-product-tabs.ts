@@ -16,7 +16,7 @@ import {
   type VariantsParams,
 } from "@/services/master-produk/product-tabs.service"
 
-/** Varian per-tab (lazy + server-paginated). enabled = tab Variasi aktif. */
+
 export const useProductVariants = (
   productId: string,
   params: VariantsParams,

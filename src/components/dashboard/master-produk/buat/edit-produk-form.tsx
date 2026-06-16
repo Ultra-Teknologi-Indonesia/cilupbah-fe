@@ -74,7 +74,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
   const onValid = async (data: BuatProdukFormValues) => {
     try {
       if (data.isBundle) {
-        // Bundle: update komposisi via endpoint storeBundle (createOrUpdateBundle pakai id).
+        
         await saveBundle({
           id: product.id,
           name: data.name,

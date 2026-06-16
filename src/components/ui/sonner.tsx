@@ -29,7 +29,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={
         {
-          // Liquid glass: latar translusen (popover 65%) + diblur lewat class.
+          
           "--normal-bg": "var(--popover)",
           "--normal-text": "var(--popover-foreground)",
           "--normal-border": "transparent",

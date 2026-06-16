@@ -18,7 +18,7 @@ import {
 
 const PAGE_SIZES = [10, 20, 50, 100]
 
-/** Paginasi server seragam untuk tab detail (rows-per-page + nav + indikator). */
+
 export function TabPagination({
   page,
   perPage,

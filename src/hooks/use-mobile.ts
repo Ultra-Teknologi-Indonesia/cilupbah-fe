@@ -8,10 +8,7 @@ function subscribe(callback: () => void) {
   return () => mql.removeEventListener("change", callback);
 }
 
-/**
- * Sumber kebenaran eksternal (matchMedia) via useSyncExternalStore — SSR-safe
- * dan tanpa setState-in-effect.
- */
+
 export function useIsMobile() {
   return React.useSyncExternalStore(
     subscribe,

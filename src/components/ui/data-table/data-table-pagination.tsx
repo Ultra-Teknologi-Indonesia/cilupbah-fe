@@ -33,8 +33,8 @@ export function DataTablePagination<TData>({
   const pageSize = table.getState().pagination.pageSize
   const pageCount = table.getPageCount()
 
-  // Selalu sertakan pageSize aktif agar Select punya item yang cocok
-  // (kalau tidak, trigger tampil kosong saat pageSize di luar daftar opsi).
+  
+  
   const sizeOptions = Array.from(new Set([...pageSizeOptions, pageSize])).sort(
     (a, b) => a - b
   )

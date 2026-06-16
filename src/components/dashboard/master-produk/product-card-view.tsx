@@ -15,7 +15,7 @@ import { ProductBulkActions } from "./product-bulk-actions"
 import { ProductCard } from "./product-card"
 import type { ProductListViewProps } from "./product-table"
 
-/** Grid kartu produk — server-driven (instance manual, paginasi dari server). */
+
 export function ProductCardView({
   items,
   total,

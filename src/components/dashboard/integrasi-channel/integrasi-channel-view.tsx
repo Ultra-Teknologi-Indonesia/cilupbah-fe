@@ -50,7 +50,7 @@ export function IntegrasiChannelView() {
   const refresh = useRefreshToken()
   const { connect, pendingCode } = useConnectChannel()
 
-  // Tangani hasil redirect OAuth (?connected=&count= / &error=).
+  
   React.useEffect(() => {
     const sp = new URLSearchParams(window.location.search)
     const connected = sp.get("connected")
@@ -78,7 +78,7 @@ export function IntegrasiChannelView() {
     toggle.mutate({ id, flags: { order_sync_enabled: value } })
   const onDisconnect = (store: ConnectedStore) => disconnect.mutate(store.id)
   const onRefresh = (store: ConnectedStore) => {
-    // Toko Tokopedia dikelola via TikTok (merger) → refresh lewat endpoint tiktok.
+    
     const channel = store.channel.code === "tokopedia" ? "tiktok" : store.channel.code
     refresh.mutate({ channel, id: store.id })
   }

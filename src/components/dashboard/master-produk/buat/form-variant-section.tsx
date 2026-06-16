@@ -12,7 +12,7 @@ import { useCategoryFormAttributes } from "@/hooks/master-produk/use-master-data
 import { buildCombos, comboKey, comboLabel, skuPart } from "@/lib/master-produk/variant-combos"
 import type { BuatProdukFormValues, FormAttribute } from "@/types/master-produk"
 
-/** Input penambah opsi nilai untuk satu jenis varian + saran dari atribut channel. */
+
 function OptionAdder({
   suggestions,
   existing,
@@ -70,12 +70,7 @@ function OptionAdder({
   )
 }
 
-/**
- * Builder varian: pilih ≤2 jenis varian (dari atribut kategori), tambah opsi nilai
- * (custom string didukung), lalu kombinasi (cartesian) tampil sebagai tabel untuk diisi
- * SKU & harga. Saat edit: jenis/opsi yang sudah tersimpan tak boleh dihapus (lockedTypeIds/
- * lockedValues), hanya boleh menambah.
- */
+
 export function FormVariantSection({
   lockedTypeIds = [],
   lockedValues = {},

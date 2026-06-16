@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 const guestRoutes = ["/login", "/register"];
 const protectedRoutes = ["/dashboard", "/profile"];
 
-/** Validasi token ke BE. Sumber kebenaran tunggal untuk akses dashboard. */
+
 async function isTokenValid(token: string): Promise<boolean> {
   const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   try {
@@ -13,9 +13,9 @@ async function isTokenValid(token: string): Promise<boolean> {
       cache: "no-store",
     });
     if (res.status === 401) return false;
-    return true; // 200 valid; error non-401 → jangan kunci user
+    return true; 
   } catch {
-    return true; // BE/jaringan bermasalah → jangan kunci user
+    return true; 
   }
 }
 
@@ -40,14 +40,14 @@ export async function proxy(request: NextRequest) {
   }
 
   if (isGuestRoute && token) {
-    // Hanya alihkan kalau token benar-benar valid (cegah loop login↔dashboard).
+    
     if (await isTokenValid(token)) {
       const callbackUrl = request.nextUrl.searchParams.get("callbackUrl");
       const dest =
         callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : "/dashboard";
       return NextResponse.redirect(new URL(dest, request.url));
     }
-    // Token basi di halaman tamu → bersihkan, biarkan tetap di /login.
+    
     const res = NextResponse.next();
     res.cookies.delete("token");
     return res;

@@ -4,10 +4,10 @@ import { useQuery } from "@tanstack/react-query"
 
 import { MasterDataService } from "@/services/master-produk/master-data.service"
 
-// Master data jarang berubah → cache lama.
+
 const STALE = 5 * 60 * 1000
 
-/** Helper reusable: query master-data dengan key & cache seragam. */
+
 function useMasterDataQuery<T>(key: string, queryFn: () => Promise<T>) {
   return useQuery({ queryKey: ["master-produk", "lookup", key], queryFn, staleTime: STALE })
 }
@@ -31,7 +31,7 @@ export const useShopOptions = () =>
 export const useCategoryTree = () =>
   useMasterDataQuery("categories", MasterDataService.categoryTree)
 
-/** Atribut form (spesifikasi + jenis varian) untuk kategori Level-2; enabled saat ada id. */
+
 export const useCategoryFormAttributes = (categoryId?: string | number | null) =>
   useQuery({
     queryKey: ["master-produk", "category-attributes", categoryId],

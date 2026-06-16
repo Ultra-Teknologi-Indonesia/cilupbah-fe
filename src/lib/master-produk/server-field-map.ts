@@ -1,6 +1,6 @@
 import type { BuatProdukFormValues } from "@/types/master-produk"
 
-// Field error BE (snake_case / path varian) → field form (camelCase).
+
 export const SERVER_FIELD_MAP: Record<string, keyof BuatProdukFormValues> = {
   name: "name",
   sku: "sku",

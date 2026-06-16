@@ -99,9 +99,9 @@ export function StatusActions({
         <>
           {editBtn}
           <Button variant="outline" asChild disabled={isPending}>
-            <Link href="/dashboard/produk/naikkan">
+            <Link href="/dashboard/produk/upload">
               <ArrowUpRightIcon />
-              Naikkan ke channel
+              Upload ke channel
             </Link>
           </Button>
         </>

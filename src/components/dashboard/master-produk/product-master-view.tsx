@@ -7,8 +7,8 @@ import { useProductListQuery } from "@/hooks/master-produk/use-product-list-quer
 import { ProductStats } from "./product-stats"
 import { ProductExplorer } from "./product-explorer"
 
-// Sumber query daftar produk (server-driven). Stats memakai total dari meta;
-// explorer menampilkan halaman saat ini + kontrol filter/paginasi.
+
+
 export function ProductMasterView() {
   const query = useProductListQuery()
   const { data, isError, isFetching, refetch } = query.result

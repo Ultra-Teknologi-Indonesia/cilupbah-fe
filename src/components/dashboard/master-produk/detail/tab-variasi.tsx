@@ -83,7 +83,7 @@ export function TabVariasi({ productId }: { productId: string }) {
   const [perPage, setPerPage] = React.useState(10)
   const [selected, setSelected] = React.useState<Set<string>>(new Set())
 
-  // Debounce search (300ms) + reset ke halaman 1.
+  
   React.useEffect(() => {
     const t = setTimeout(() => {
       setSearch(searchInput)
@@ -156,7 +156,7 @@ export function TabVariasi({ productId }: { productId: string }) {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Toolbar */}
+      {}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="relative max-w-xs flex-1">
           <SearchIcon className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -172,7 +172,7 @@ export function TabVariasi({ productId }: { productId: string }) {
         </div>
       </div>
 
-      {/* Bulk action bar */}
+      {}
       {selected.size > 0 && (
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm">
           <span className="font-medium">{selected.size} dipilih</span>
@@ -191,7 +191,7 @@ export function TabVariasi({ productId }: { productId: string }) {
         </div>
       )}
 
-      {/* Tabel (solid) */}
+      {}
       <div className="overflow-x-auto rounded-lg border border-border/60 bg-card">
         <table className="w-full min-w-[720px] border-collapse text-sm">
           <thead>
@@ -279,7 +279,7 @@ export function TabVariasi({ productId }: { productId: string }) {
         </table>
       </div>
 
-      {/* Paginasi */}
+      {}
       <div className="flex flex-col-reverse items-center gap-3 sm:flex-row sm:justify-between">
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Baris per halaman</span>

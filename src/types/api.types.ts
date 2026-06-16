@@ -4,10 +4,10 @@ export interface ApiResponse<T = unknown> {
   data: T;
 }
 
-/** Respons API yang membungkus daftar item. */
+
 export type ApiList<T> = ApiResponse<T[]>;
 
-/** Respons API berpaginasi (data + meta). */
+
 export interface ApiPaginated<T> extends ApiResponse<T[]> {
   meta: {
     current_page: number;

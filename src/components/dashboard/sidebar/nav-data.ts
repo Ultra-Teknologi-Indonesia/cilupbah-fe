@@ -3,6 +3,7 @@ import {
   Package,
   Package2,
   ArrowUpRightSquare,
+  UploadCloud,
   Tag,
   FolderTree,
   ShoppingCart,
@@ -67,6 +68,7 @@ export const dashboardGroups: NavGroup[] = [
     zone: "ops",
     items: [
       { id: "produk", title: "Produk Master", icon: Package2, link: "/dashboard/master-produk" },
+      { id: "upload-produk", title: "Upload ke Marketplace", icon: UploadCloud, link: "/dashboard/produk/upload" },
       { id: "produk-bundle", title: "Produk Bundle", icon: Package, link: "/dashboard/produk/bundle" },
       { id: "naikkan-produk", title: "Naikkan Produk", icon: ArrowUpRightSquare, link: "/dashboard/produk/naikkan" },
       {

@@ -8,11 +8,7 @@ import { FormSectionCard } from "@/components/ui/form-section-card"
 import { useCategoryFormAttributes } from "@/hooks/master-produk/use-master-data"
 import type { BuatProdukFormValues } from "@/types/master-produk"
 
-/**
- * Spesifikasi dinamis: field menyesuaikan kategori Level-2 yang dipilih
- * (dari GET /categories/{id}/form-attributes). Hanya tampil bila kategori
- * punya atribut spesifikasi.
- */
+
 export function FormSpecificationSection() {
   const { watch, setValue } = useFormContext<BuatProdukFormValues>()
   const category = watch("category")

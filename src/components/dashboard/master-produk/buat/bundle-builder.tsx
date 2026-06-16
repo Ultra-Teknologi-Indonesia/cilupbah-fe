@@ -34,7 +34,7 @@ export function BundleBuilder({
   }, [search])
 
   const { data, isFetching } = useMasterProducts({ search: debounced || undefined, perPage: 10 })
-  // Bundle tak boleh berisi bundle lain (guard BE 23504) → sembunyikan di picker.
+  
   const results = (data?.items ?? []).filter((p) => !p.isBundle)
 
   const chosen = new Set(value.map((c) => c.variantId))
@@ -55,7 +55,7 @@ export function BundleBuilder({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Daftar komponen terpilih */}
+      {}
       {value.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-border/60 bg-card/40 px-4 py-8 text-center">
           <PackageIcon className="size-6 text-muted-foreground" />
@@ -103,7 +103,7 @@ export function BundleBuilder({
         </ul>
       )}
 
-      {/* Picker */}
+      {}
       <div className="relative">
         {open ? (
           <div className="rounded-lg border border-border/60 bg-card shadow-sm">

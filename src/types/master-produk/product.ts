@@ -1,4 +1,4 @@
-// Tipe domain produk untuk tampilan daftar Master Produk.
+
 
 export type ProductStatus = "download" | "in_review" | "master" | "archived"
 
@@ -10,7 +10,7 @@ export interface ProductVariant {
   taxRate: number | null
   variationValues: { label: string; value: string }[]
   storeNames: { storeName: string }[]
-  // Stok tidak disediakan master feed (perlu panggilan inventory terpisah).
+  
   stock?: { onHand: number; available: number }
 }
 
@@ -41,7 +41,7 @@ export interface Product {
   onlineStatus: ProductChannelStatus[]
 }
 
-// ── DTO mentah dari GET /products/master (MasterItemResource) ──────────
+
 export interface RawMasterVariant {
   item_id: string
   item_code: string | null

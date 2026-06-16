@@ -6,8 +6,8 @@ import type {
   RawConnectedStore,
 } from "@/types/channel"
 
-// Katalog marketplace (display name + dukungan OAuth). Tokopedia menyatu
-// ke grup TikTok (merger TikTok–Tokopedia), jadi bukan entri terpisah.
+
+
 export const CHANNEL_CATALOG: Channel[] = [
   { id: "ch-tiktok", code: "tiktok", name: "TikTok", connectable: true },
   { id: "ch-shopee", code: "shopee", name: "Shopee", connectable: false },
@@ -23,7 +23,7 @@ const DISPLAY_NAME: Record<string, string> = {
   blibli: "Blibli",
 }
 
-/** Kode grup untuk sebuah channel (tokopedia → tiktok). */
+
 function groupCode(code: ChannelCode): ChannelCode {
   return code === "tokopedia" ? "tiktok" : code
 }
@@ -47,7 +47,7 @@ export interface GroupedStores {
   available: Channel[]
 }
 
-/** Flat store list dari BE → grup per channel + daftar channel belum terhubung. */
+
 export function groupStores(raws: RawConnectedStore[]): GroupedStores {
   const byGroup = new Map<string, ConnectedStore[]>()
 

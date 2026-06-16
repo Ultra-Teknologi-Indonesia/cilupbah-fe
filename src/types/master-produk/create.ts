@@ -72,7 +72,7 @@ export interface CreateProductResult {
   productId: string
 }
 
-// Payload PUT /products/{id} — partial; varian/media opsional, tanpa status.
+
 export type ProductUpdatePayload = Omit<
   CreateProductPayload,
   "status" | "variants"

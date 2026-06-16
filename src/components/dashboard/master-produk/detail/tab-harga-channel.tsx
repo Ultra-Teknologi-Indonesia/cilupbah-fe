@@ -39,7 +39,7 @@ export function TabHargaChannel({ productId }: { productId: string }) {
     return [...s]
   }, [rows])
 
-  // Kolom toko untuk mode matriks (dari data halaman).
+  
   const stores = React.useMemo(() => {
     const m = new Map<string, string>()
     rows.forEach((r) =>

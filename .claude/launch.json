@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "fe-upload-smoke",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "NEXT_PUBLIC_API_URL=http://127.0.0.1:9 npx next dev -p 3988"],
+      "port": 3988
+    }
+  ]
+}

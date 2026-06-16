@@ -13,7 +13,7 @@ export interface VariantStock {
 }
 
 export const InventoryService = {
-  /** Stok agregat per varian (dijumlah lintas lokasi/bin) untuk daftar item_id. */
+  
   getVariantStocks: async (
     itemIds: string[]
   ): Promise<Record<string, VariantStock>> => {

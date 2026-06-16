@@ -1,12 +1,12 @@
 import type { LookupOption } from "@/types/common"
 
-// ── Master data siap-pakai untuk select form ──────────────────────────
+
 export interface TaxLookup {
   options: LookupOption[]
   rateById: Record<string, number>
 }
 
-// ── DTO mentah dari API (bentuk respons BE) ───────────────────────────
+
 export interface RawTax {
   id: number | string
   name: string

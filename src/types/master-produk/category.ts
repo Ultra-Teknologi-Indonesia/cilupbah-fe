@@ -1,4 +1,4 @@
-// Tipe kategori berjenjang (kategori → subkategori → jenis).
+
 
 export interface CategoryNode {
   id: string
@@ -6,7 +6,7 @@ export interface CategoryNode {
   children?: CategoryNode[]
 }
 
-/** Kategori terpilih beserta jejak path-nya (untuk picker form). */
+
 export interface SelectedCategory {
   id: string
   name: string

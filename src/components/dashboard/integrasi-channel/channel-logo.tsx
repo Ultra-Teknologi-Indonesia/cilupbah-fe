@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils"
 import type { ChannelCode } from "@/types/channel"
 
-// Tile berwarna brand + glyph putih (di-mask dari SVG di /public/channels).
+
 const TILE: Record<string, string> = {
   tiktok: "bg-neutral-900",
   shopee: "bg-[#EE4D2D]",
@@ -21,7 +21,7 @@ export function ChannelLogo({
   name: string
   className?: string
 }) {
-  // Fallback (channel tanpa ikon): inisial di tile netral.
+  
   if (!HAS_ICON.has(code)) {
     return (
       <span

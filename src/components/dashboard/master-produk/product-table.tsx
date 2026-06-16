@@ -19,7 +19,7 @@ export interface ProductListViewProps {
   onPaginationChange: (p: PaginationState) => void
 }
 
-/** Tabel produk — server-driven (paginasi/sort/filter di sisi server). */
+
 export function ProductTable({
   items,
   total,

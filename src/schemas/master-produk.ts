@@ -34,7 +34,7 @@ export const buatProdukSchema = z
     width: z.string().optional(),
     height: z.string().optional(),
     packageContents: z.string().max(2000).optional(),
-    // Jenis varian (≤2), tiap jenis punya ≥1 nilai opsi.
+    
     variationTypes: z
       .array(
         z.object({
@@ -46,7 +46,7 @@ export const buatProdukSchema = z
         })
       )
       .max(2, "Maksimal 2 jenis varian"),
-    // Kombinasi varian (cartesian) — diisi builder; tiap baris punya SKU.
+    
     variants: z.array(
       z.object({
         key: z.string(),
@@ -56,14 +56,14 @@ export const buatProdukSchema = z
         sellPrice: z.string().optional(),
       })
     ),
-    // Spesifikasi dinamis per kategori.
+    
     specifications: z.array(
       z.object({
         attributeId: z.number(),
         value: z.string().optional(),
       })
     ),
-    // Komponen bundle (B6): tiap baris = varian terpilih + qty.
+    
     bundleComponents: z
       .array(
         z.object({
@@ -80,10 +80,10 @@ export const buatProdukSchema = z
     if (!v.category)
       ctx.addIssue({ path: ["category"], code: "custom", message: "Kategori wajib dipilih" })
     const hasVariants = v.variationTypes.length > 0
-    // Bundle: komposisi wajib; harga/varian satuan tidak relevan.
+    
     if (v.isBundle && (v.bundleComponents?.length ?? 0) === 0)
       ctx.addIssue({ path: ["bundleComponents"], code: "custom", message: "Tambahkan minimal 1 komponen bundle" })
-    // Harga jual: untuk produk satuan di header; untuk multivarian diisi per varian.
+    
     if (v.isSold && !hasVariants && !v.isBundle && !v.sellPrice?.trim())
       ctx.addIssue({ path: ["sellPrice"], code: "custom", message: "Harga jual wajib diisi" })
     if (hasVariants && v.variants.length === 0)

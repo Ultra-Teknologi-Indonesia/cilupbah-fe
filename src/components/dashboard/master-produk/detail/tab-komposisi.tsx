@@ -6,10 +6,7 @@ import type { BundleComponent } from "@/types/master-produk"
 
 type BundleStock = { onHand: number; reserved: number; onOrder: number; available: number } | null
 
-/**
- * Tab Komposisi (bundle): daftar produk komponen penyusun bundle + stok turunan.
- * Bundle dijual sebagai 1 SKU; stoknya diturunkan dari komponen (read-only).
- */
+
 export function TabKomposisi({
   components,
   bundleStock,
@@ -17,7 +14,7 @@ export function TabKomposisi({
   components: BundleComponent[]
   bundleStock?: BundleStock
 }) {
-  // Komponen yang stoknya tak cukup untuk merakit minimal 1 bundle.
+  
   const blocking = components.filter((c) => (c.stock?.available ?? 0) < c.qty)
   const derivedAvailable = bundleStock?.available ?? 0
 

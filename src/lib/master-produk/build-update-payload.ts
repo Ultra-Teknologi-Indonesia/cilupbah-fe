@@ -13,12 +13,7 @@ function num(value?: string | null): number | undefined {
   return Number.isFinite(n) ? n : undefined
 }
 
-/**
- * Map nilai form → payload PUT /products/{id} (partial).
- * - includeVariant=false (produk variasi) → varian tidak dikirim (tak disentuh BE).
- * - originalVariantSku dipakai agar update varian by-SKU, bukan membuat varian baru.
- * - media hanya disertakan bila ada unggahan baru (replace-all di BE).
- */
+
 export function buildUpdatePayload(
   values: BuatProdukFormValues,
   opts: {
@@ -53,7 +48,7 @@ export function buildUpdatePayload(
   }
 
   if (values.variationTypes.length > 0) {
-    // Produk varian: kirim jenis varian + kombinasi (BE = immutability + ekspansi).
+    
     payload.variation_types = values.variationTypes.map((t, i) => ({
       attribute_id: t.attributeId,
       sort_order: i,

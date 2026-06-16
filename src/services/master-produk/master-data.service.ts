@@ -12,7 +12,7 @@ import type {
   TaxLookup,
 } from "@/types/master-produk"
 
-/** Bangun pohon kategori dari respons nested ATAU flat (parent_id). */
+
 function buildCategoryTree(raw: RawCategory[]): CategoryNode[] {
   const hasNested = raw.some((r) => Array.isArray(r.children) && r.children.length)
   if (hasNested) {
@@ -84,7 +84,7 @@ export const MasterDataService = {
     return buildCategoryTree(res.data ?? [])
   },
 
-  // Atribut form (spesifikasi + jenis varian) untuk kategori Level-2.
+  
   categoryFormAttributes: async (
     id: string | number
   ): Promise<CategoryFormAttributes> => {

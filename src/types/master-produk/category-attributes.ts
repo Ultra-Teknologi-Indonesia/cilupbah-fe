@@ -1,4 +1,4 @@
-// Atribut form per kategori Level-2 (dari GET /categories/{id}/form-attributes).
+
 
 export interface FormAttributeOption {
   id: number

@@ -1,6 +1,6 @@
 import type { ProductStatus } from "./product"
 
-/** Tipe produk turunan dari BE (product_type). */
+
 export type ProductTypeKind = "single" | "variant" | "bundle"
 
 export interface AccountRef {
@@ -105,7 +105,7 @@ export interface ProductDetail {
   archiveReason: string | null
 }
 
-// ── DTO mentah dari GET /products/{id} (ProductResource) ──────────────
+
 export interface RawProductDetail {
   id: string
   name: string

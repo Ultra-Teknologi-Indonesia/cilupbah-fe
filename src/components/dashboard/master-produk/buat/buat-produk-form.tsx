@@ -102,7 +102,7 @@ export function BuatProdukForm() {
   const onValid = async (data: BuatProdukFormValues) => {
     try {
       if (data.isBundle) {
-        // Bundle ditangani endpoint khusus (storeBundle): 1 SKU + komposisi komponen.
+        
         await createBundle({
           name: data.name,
           sku: data.sku?.trim() || null,

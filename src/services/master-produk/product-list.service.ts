@@ -7,7 +7,7 @@ export interface MasterProductsParams {
   status?: string
   brandId?: string
   categoryId?: string
-  /** Spatie sort, mis. "name" atau "-updated_at". */
+  
   sort?: string
   page?: number
   perPage?: number
@@ -18,7 +18,7 @@ export interface MasterProductsResult {
   meta: ApiPaginated<RawMasterItem>["meta"]
 }
 
-/** MasterItemResource (snake_case BE) → Product (camelCase FE). */
+
 function mapMasterItem(raw: RawMasterItem): Product {
   return {
     itemGroupId: raw.item_group_id,
@@ -43,7 +43,7 @@ function mapMasterItem(raw: RawMasterItem): Product {
       taxRate: v.tax_rate,
       variationValues: v.variation_values ?? [],
       storeNames: (v.store_names ?? []).map((s) => ({ storeName: s.store_name })),
-      // Master feed tidak membawa stok → undefined (lihat detail varian).
+      
     })),
     onlineStatus: (raw.online_status ?? []).map((o) => ({
       channelCode: o.channel_code ?? "",

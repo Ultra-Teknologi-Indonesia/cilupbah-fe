@@ -1,7 +1,7 @@
 import { fetchClient } from "@/lib/api-client"
 import type { ApiPaginated, ApiResponse } from "@/types/api.types"
 
-/** Baris varian dari GET /products/{id}/variants. */
+
 export interface VariantRow {
   id: string
   sku: string
@@ -27,7 +27,7 @@ export interface VariantsParams {
   perPage?: number
   search?: string
   option?: string
-  /** Spatie sort: sku | sell_price | stock (awali "-" untuk desc). */
+  
   sort?: string
 }
 
@@ -52,7 +52,7 @@ function mapRow(r: RawVariantRow): VariantRow {
   }
 }
 
-// ── Channel listing (#4) ──────────────────────────────────────────────
+
 export interface ChannelListingItem {
   channelShopId: string | null
   shopName: string | null
@@ -83,7 +83,7 @@ interface RawChannelListingRow {
   }>
 }
 
-// ── Harga channel (#5) ────────────────────────────────────────────────
+
 export interface ChannelPriceCell {
   channelShopId: string | null
   shopName: string | null
@@ -117,7 +117,7 @@ export interface ChannelTabParams {
   includeUnlisted?: boolean
 }
 
-// ── Buku harga (price-book) ───────────────────────────────────────────
+
 export interface PriceBookRow {
   id: string
   variantId: string
@@ -139,11 +139,11 @@ interface RawPriceBookRow {
 export interface PriceBookParams {
   page?: number
   perPage?: number
-  /** Spatie sort: min_qty | customer_type | price (awali "-" untuk desc). */
+  
   sort?: string
 }
 
-// ── Riwayat upload (upload-histories, di-scope product_id) ────────────
+
 export interface UploadHistoryRow {
   id: string
   uploadDate: string | null

@@ -8,7 +8,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  /* No monospace in this UI — `font-mono` resolves to SF Pro like everything else. */
+  
   --font-mono: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -124,16 +124,13 @@
   }
   
 
-  /* Sidebar stays on the lighter treatment (it also carries .liquid-glass-subtle)
-     so the width animation doesn't repaint a heavy shadow each frame. */
+  
   .bg-sidebar, [data-sidebar="sidebar"] {
-    /* blur-xl (24px) instead of blur-3xl (64px): backdrop-filter cost scales with
-       the blur radius, and 24px is visually indistinguishable here. */
+    
     @apply backdrop-blur-xl shadow-sm border border-white/20 dark:border-white/10;
   }
 
-  /* True liquid glass for cards & popovers: refraction (saturate), a diagonal
-     specular streak, a top rim highlight, and a purple-tinted depth shadow. */
+  
   .bg-card, .bg-popover {
     backdrop-filter: blur(20px) saturate(1.8) brightness(1.05);
     -webkit-backdrop-filter: blur(20px) saturate(1.8) brightness(1.05);
@@ -168,8 +165,7 @@
     @apply bg-background text-foreground;
 
     background-color: var(--background);
-    /* Soft warm-purple wash so liquid-glass surfaces have colour to refract.
-       Kept low-opacity to stay tasteful, not "over". */
+    
     background-image:
       radial-gradient(at 12% 6%, color-mix(in oklch, var(--primary) 12%, transparent) 0px, transparent 45%),
       radial-gradient(at 88% 4%, color-mix(in oklch, var(--primary) 8%, transparent) 0px, transparent 45%),
@@ -190,13 +186,13 @@
   }
 }
 
-/* Purple-tinted icon container — single class, no ad-hoc hex. */
+
 .icon-chip {
   background: color-mix(in oklch, var(--primary) 12%, transparent);
   color: var(--primary);
 }
 
-/* Reserved for the future scanner viewfinder corners. */
+
 .scan-frame-corner {
   border-color: var(--primary);
 }
@@ -204,10 +200,7 @@
 
 
 
-/* Liquid-glass backdrop strength is driven by CSS vars (set by the LiquidGlass
-   component) so the Chromium-only `.refraction` variant can extend the
-   backdrop-filter chain with the SVG displacement map for *real* refraction.
-   Non-Chromium engines never get the url() and keep the blur+rim glass. */
+
 .lg-glass {
   backdrop-filter: blur(var(--lg-blur, 18px)) saturate(var(--lg-sat, 1.5))
     brightness(var(--lg-bright, 1.05));
@@ -215,16 +208,9 @@
     brightness(var(--lg-bright, 1.05));
 }
 
-/* PERF: the SVG `feDisplacementMap` refraction is intentionally NOT applied to
-   cards / popovers / lg-glass surfaces. There can be 5+ of them on screen and
-   they repaint constantly (panel sliding over them, hover, scroll); an SVG-filter
-   backdrop is the most expensive paint a browser can do, so ×5 of them every
-   animation frame is what made clicks feel heavy. They keep the cheaper
-   blur+saturate "frosted" glass (defined on `.lg-glass` / `.bg-card`). Real
-   displacement refraction is kept ONLY on the single, idle sidebar below. */
 
-/* Sidebar glass: keep a local stacking context and lift real content above the
-   pointer-reactive specular overlay. */
+
+
 .no-scrollbar {
   scrollbar-width: none;
 }
@@ -234,7 +220,7 @@
 
 .sidebar-glass {
   isolation: isolate;
-  /* Defined edge so the panel boundary stays visible over a light/white area. */
+  
   border: 1px solid color-mix(in oklch, var(--foreground) 8%, transparent);
   box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.65);
 }
@@ -247,9 +233,7 @@
   z-index: 1;
 }
 
-/* Elevation/separation shadow for the floating rail & panel. Applied to the
-   rail itself and the panel's OUTER wrapper (not the inner — its shadow would be
-   clipped by the width-animation overflow). */
+
 .glass-elevation {
   box-shadow:
     0 10px 30px -8px color-mix(in oklch, var(--primary) 22%, transparent),
@@ -260,16 +244,13 @@
     0 10px 30px -8px rgba(0, 0, 0, 0.55),
     0 4px 14px -6px rgba(0, 0, 0, 0.4);
 }
-/* Real refraction only while idle (not animating width) — gated to Chromium. */
+
 .refraction .sidebar-glass:not(.lg-animating) {
   backdrop-filter: blur(6px) saturate(1.6) brightness(1.04)
     url(#liquid-glass-refraction);
 }
 
-/* While the panel is sliding, swap the (per-frame re-sampled) backdrop blur for a
-   cheap solid translucent fill. A moving backdrop-filter element repaints its
-   blurred backdrop every frame; this keeps the transform slide on the compositor.
-   Blur returns the instant `.lg-animating` is removed (animation settles). */
+
 .sidebar-glass.lg-animating {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -375,10 +356,7 @@
   border-top-color: rgba(255, 255, 255, 0.12);
 }
 
-/* ========== LIQUID GLASS BUTTON (interactive tier) ==========
-   Animated conic rim + bevel + moving specular sweep + 3D press. Adapted from
-   the classic CSS technique to the project palette (near-black text, --primary,
-   light/dark). Used via the shadcn button `glass` variant. */
+
 @property --lg-angle-1 {
   syntax: "<angle>";
   inherits: false;
@@ -427,7 +405,7 @@
   transform: scale(0.95) rotate3d(1, 0, 0, 18deg);
 }
 
-/* Moving specular sweep (above the surface, below content is fine — screen) */
+
 .lg-button::before {
   content: "";
   position: absolute;
@@ -457,7 +435,7 @@
   --lg-angle-2: -15deg;
 }
 
-/* Animated conic rim (border via mask-composite) */
+
 .lg-button::after {
   content: "";
   position: absolute;
@@ -495,7 +473,7 @@
   --lg-angle-1: -75deg;
 }
 
-/* Dark mode: darker base, lighter rim, no dark text-shadow */
+
 .dark .lg-button {
   background: linear-gradient(
     -75deg,
@@ -523,7 +501,7 @@
     linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15));
 }
 
-/* Accessibility: no motion → static rim, sweep, and no press transform */
+
 @media (prefers-reduced-motion: reduce) {
   .lg-button,
   .lg-button::before,
@@ -545,7 +523,7 @@
   }
 }
 
-/* Touch devices: freeze the light angle (no hover) */
+
 @media (hover: none) and (pointer: coarse) {
   .lg-button::before,
   .lg-button:active::before {

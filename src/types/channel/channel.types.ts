@@ -10,7 +10,7 @@ export type IntegrationStatus = "normal" | "warning" | "error"
 
 export interface StoreIntegration {
   status: IntegrationStatus
-  /** Catatan saat bermasalah, mis. "Perlu otorisasi ulang". */
+  
   note?: string
 }
 
@@ -18,14 +18,14 @@ export interface ConnectedStore {
   id: string
   shopId: string
   shopName: string
-  /** Platform asal toko (bisa beda dengan grup, mis. tokopedia di grup tiktok). */
+  
   channel: { code: ChannelCode; name: string }
   isActive: boolean
   ordersEnabled: boolean
   integration: StoreIntegration
-  /** "Izin akses belum dikonfirmasi" — kosong kalau normal. */
+  
   accessNote?: string
-  /** Toko Terhubung di platform lain (mis. counterpart TikTok↔Tokopedia). */
+  
   linkedStore?: { code: ChannelCode; name: string }
   connectedAt: string
 }
@@ -34,7 +34,7 @@ export interface ChannelGroup {
   id: string
   code: ChannelCode
   name: string
-  /** OAuth connect didukung BE (TikTok & Lazada saat ini). */
+  
   connectable: boolean
   stores: ConnectedStore[]
 }
