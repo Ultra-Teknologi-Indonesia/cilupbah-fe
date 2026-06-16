@@ -11,6 +11,8 @@ import {
   ProductTabsService,
   type BulkVariantAction,
   type ChannelTabParams,
+  type PriceBookParams,
+  type UploadHistoryParams,
   type VariantsParams,
 } from "@/services/master-produk/product-tabs.service"
 
@@ -53,6 +55,42 @@ export const useProductChannelPrices = (
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
   })
+
+export const useProductPriceBook = (
+  productId: string,
+  params: PriceBookParams,
+  enabled: boolean
+) =>
+  useQuery({
+    queryKey: ["master-produk", "price-book", productId, params],
+    queryFn: () => ProductTabsService.priceBook(productId, params),
+    enabled,
+    placeholderData: keepPreviousData,
+    staleTime: 30 * 1000,
+  })
+
+export const useProductUploadHistories = (
+  productId: string,
+  params: UploadHistoryParams,
+  enabled: boolean
+) =>
+  useQuery({
+    queryKey: ["master-produk", "upload-histories", productId, params],
+    queryFn: () => ProductTabsService.uploadHistories(productId, params),
+    enabled,
+    placeholderData: keepPreviousData,
+    staleTime: 30 * 1000,
+  })
+
+export const useReuploadHistory = (productId: string) => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => ProductTabsService.reuploadHistory(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["master-produk", "upload-histories", productId] })
+    },
+  })
+}
 
 export const useBulkVariants = (productId: string) => {
   const qc = useQueryClient()

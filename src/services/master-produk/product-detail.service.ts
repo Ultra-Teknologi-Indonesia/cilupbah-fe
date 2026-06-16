@@ -21,6 +21,24 @@ function mapDetail(raw: RawProductDetail): ProductDetail {
       raw.product_type ??
       (raw.is_bundle ? "bundle" : (raw.variants?.length ?? 0) > 1 ? "variant" : "single"),
     totalVariants: raw.total_variants ?? raw.variants?.length ?? 0,
+    bundleComponents: (raw.bundle_components ?? []).map((c) => ({
+      componentVariantId: c.component_variant_id,
+      qty: c.qty,
+      sku: c.sku,
+      product: c.product,
+      variationValues: (c.variation_values ?? []).map((o) => ({
+        attributeId: o.attribute_id,
+        value: o.value,
+      })),
+      stock: c.stock
+        ? {
+            onHand: c.stock.on_hand,
+            reserved: c.stock.reserved,
+            onOrder: c.stock.on_order,
+            available: c.stock.available,
+          }
+        : null,
+    })),
     isConsignment: raw.is_consignment,
     isStored: raw.is_stored,
     isSold: raw.is_sold,

@@ -42,6 +42,15 @@ export interface DetailVariant {
   stock?: { onHand: number; reserved: number; onOrder: number; available: number }
 }
 
+export interface BundleComponent {
+  componentVariantId: string
+  qty: number
+  sku: string | null
+  product: { id: string; name: string } | null
+  variationValues: DetailVariantOption[]
+  stock: { onHand: number; reserved: number; onOrder: number; available: number } | null
+}
+
 export interface DetailChannelMapping {
   channelShopId: string | null
   shopName: string | null
@@ -67,6 +76,7 @@ export interface ProductDetail {
   isBundle: boolean
   productType: ProductTypeKind
   totalVariants: number
+  bundleComponents: BundleComponent[]
   isConsignment: boolean
   isStored: boolean
   isSold: boolean
@@ -111,6 +121,14 @@ export interface RawProductDetail {
   is_bundle: boolean
   product_type?: ProductTypeKind
   total_variants?: number
+  bundle_components?: Array<{
+    component_variant_id: string
+    qty: number
+    sku: string | null
+    product: { id: string; name: string } | null
+    variation_values?: Array<{ attribute_id: number; value: string }>
+    stock: { on_hand: number; reserved: number; on_order: number; available: number } | null
+  }>
   is_consignment: boolean
   is_stored: boolean
   is_sold: boolean

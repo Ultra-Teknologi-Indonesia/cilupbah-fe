@@ -14,6 +14,9 @@ import { DetailHeader } from "./detail-header"
 import { TabVariasi } from "./tab-variasi"
 import { TabChannel } from "./tab-channel"
 import { TabHargaChannel } from "./tab-harga-channel"
+import { TabKomposisi } from "./tab-komposisi"
+import { TabBukuHarga } from "./tab-buku-harga"
+import { TabRiwayat } from "./tab-riwayat"
 import { AccountsCard, ShippingCard } from "./accounts-shipping"
 
 type DetailTab = { id: string; label: string }
@@ -30,14 +33,6 @@ function tabsFor(type: ProductTypeKind): DetailTab[] {
     { id: "buku-harga", label: "Buku Harga" },
     { id: "riwayat", label: "Riwayat Upload" },
   ]
-}
-
-function TabPlaceholder({ label }: { label: string }) {
-  return (
-    <div className="rounded-2xl border border-dashed border-border/60 bg-card/40 px-6 py-12 text-center text-sm text-muted-foreground">
-      Tab &ldquo;{label}&rdquo; akan dimuat per-halaman (segera).
-    </div>
-  )
 }
 
 export function ProductDetailView({ id }: { id: string }) {
@@ -101,7 +96,7 @@ export function ProductDetailView({ id }: { id: string }) {
             <TabVariasi productId={id} />
           </TabsContent>
           <TabsContent value="komposisi">
-            <TabPlaceholder label="Komposisi" />
+            <TabKomposisi components={product.bundleComponents} />
           </TabsContent>
           <TabsContent value="channel">
             <TabChannel productId={id} />
@@ -110,10 +105,10 @@ export function ProductDetailView({ id }: { id: string }) {
             <TabHargaChannel productId={id} />
           </TabsContent>
           <TabsContent value="buku-harga">
-            <TabPlaceholder label="Buku Harga" />
+            <TabBukuHarga productId={id} />
           </TabsContent>
           <TabsContent value="riwayat">
-            <TabPlaceholder label="Riwayat Upload" />
+            <TabRiwayat productId={id} />
           </TabsContent>
         </div>
       </Tabs>

@@ -117,6 +117,61 @@ export interface ChannelTabParams {
   includeUnlisted?: boolean
 }
 
+// ── Buku harga (price-book) ───────────────────────────────────────────
+export interface PriceBookRow {
+  id: string
+  variantId: string
+  sku: string | null
+  customerType: string | null
+  minQty: number | null
+  maxQty: number | null
+  price: number | null
+}
+interface RawPriceBookRow {
+  id: string
+  variant_id: string
+  sku: string | null
+  customer_type: string | null
+  min_qty: number | null
+  max_qty: number | null
+  price: number | null
+}
+export interface PriceBookParams {
+  page?: number
+  perPage?: number
+  /** Spatie sort: min_qty | customer_type | price (awali "-" untuk desc). */
+  sort?: string
+}
+
+// ── Riwayat upload (upload-histories, di-scope product_id) ────────────
+export interface UploadHistoryRow {
+  id: string
+  uploadDate: string | null
+  success: boolean
+  statusMessage: string | null
+  canReupload: boolean
+  shopName: string | null
+  channelName: string | null
+  channelCode: string | null
+  channelUrl: string | null
+}
+interface RawUploadHistoryRow {
+  id: string
+  upload_date: string | null
+  success: boolean
+  status_message: string | null
+  can_reupload: boolean
+  max: string | null
+  channel_name: string | null
+  channel_code: string | null
+  channel_url: string | null
+}
+export interface UploadHistoryParams {
+  page?: number
+  perPage?: number
+  status?: string
+}
+
 function channelQuery(params: ChannelTabParams): string {
   const q = new URLSearchParams()
   if (params.page) q.set("page", String(params.page))
@@ -199,5 +254,64 @@ export const ProductTabsService = {
       })),
       meta: res.meta,
     }
+  },
+
+  priceBook: async (
+    productId: string,
+    params: PriceBookParams = {}
+  ): Promise<{ items: PriceBookRow[]; meta: PageMeta }> => {
+    const q = new URLSearchParams()
+    if (params.page) q.set("page", String(params.page))
+    if (params.perPage) q.set("per_page", String(params.perPage))
+    if (params.sort) q.set("sort", params.sort)
+
+    const res = await fetchClient<ApiPaginated<RawPriceBookRow>>(
+      `/products/${productId}/price-book?${q.toString()}`
+    )
+    return {
+      items: (res.data ?? []).map((r) => ({
+        id: r.id,
+        variantId: r.variant_id,
+        sku: r.sku,
+        customerType: r.customer_type,
+        minQty: r.min_qty,
+        maxQty: r.max_qty,
+        price: r.price,
+      })),
+      meta: res.meta,
+    }
+  },
+
+  uploadHistories: async (
+    productId: string,
+    params: UploadHistoryParams = {}
+  ): Promise<{ items: UploadHistoryRow[]; meta: PageMeta }> => {
+    const q = new URLSearchParams()
+    q.set("filter[product_id]", productId)
+    if (params.page) q.set("page", String(params.page))
+    if (params.perPage) q.set("per_page", String(params.perPage))
+    if (params.status) q.set("filter[status]", params.status)
+
+    const res = await fetchClient<ApiPaginated<RawUploadHistoryRow>>(
+      `/upload-histories?${q.toString()}`
+    )
+    return {
+      items: (res.data ?? []).map((r) => ({
+        id: r.id,
+        uploadDate: r.upload_date,
+        success: r.success,
+        statusMessage: r.status_message,
+        canReupload: r.can_reupload,
+        shopName: r.max,
+        channelName: r.channel_name,
+        channelCode: r.channel_code,
+        channelUrl: r.channel_url,
+      })),
+      meta: res.meta,
+    }
+  },
+
+  reuploadHistory: async (id: string): Promise<ApiResponse<null>> => {
+    return fetchClient(`/upload-histories/${id}/re-upload`, { method: "POST" })
   },
 }
