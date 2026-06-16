@@ -94,5 +94,13 @@ export function detailToFormValues(p: ProductDetail): BuatProdukFormValues {
     variants,
     // Spesifikasi belum dihidrasi (detail belum mengekspos) → kosong, tak dikirim saat update.
     specifications: [],
+    // Komposisi bundle (B6): hidrasi dari detail agar edit menampilkan komponen tersimpan.
+    bundleComponents: p.bundleComponents.map((c) => ({
+      variantId: c.componentVariantId,
+      productName: c.product?.name ?? "",
+      sku: c.sku,
+      variationValues: c.variationValues.map((o) => ({ value: o.value })),
+      qty: c.qty,
+    })),
   }
 }

@@ -14,6 +14,7 @@ import type { BuatProdukFormValues, ProductDetail } from "@/types/master-produk"
 import { detailToFormValues, detailVariantLocks } from "@/lib/master-produk/detail-to-form"
 import { SERVER_FIELD_MAP } from "@/lib/master-produk/server-field-map"
 import { useUpdateProduct } from "@/hooks/master-produk/use-update-product"
+import { useCreateBundle } from "@/hooks/master-produk/use-create-bundle"
 
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
@@ -32,6 +33,8 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
   const router = useRouter()
   const [mediaFiles, setMediaFiles] = React.useState<File[]>([])
   const { mutateAsync, isPending } = useUpdateProduct(product.id)
+  const { mutateAsync: saveBundle, isPending: isBundlePending } = useCreateBundle()
+  const busy = isPending || isBundlePending
 
   const isMultiVariant = product.variants.length > 1
   const originalVariantSku = product.variants[0]?.sku
@@ -70,6 +73,24 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
 
   const onValid = async (data: BuatProdukFormValues) => {
     try {
+      if (data.isBundle) {
+        // Bundle: update komposisi via endpoint storeBundle (createOrUpdateBundle pakai id).
+        await saveBundle({
+          id: product.id,
+          name: data.name,
+          sku: data.sku?.trim() || null,
+          category_id: Number(data.category!.id),
+          brand_id: data.brandId ? Number(data.brandId) : null,
+          components: (data.bundleComponents ?? []).map((c) => ({
+            variant_id: c.variantId,
+            qty: c.qty,
+          })),
+        })
+        toast.success("Perubahan bundle disimpan")
+        router.push(detailHref)
+        return
+      }
+
       await mutateAsync({
         values: data,
         files: mediaFiles,
@@ -128,11 +149,11 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" asChild disabled={isPending}>
+            <Button variant="outline" asChild disabled={busy}>
               <Link href={detailHref}>Batal</Link>
             </Button>
-            <Button variant="primary" onClick={() => !isPending && handleSubmit(onValid, onInvalid)()} disabled={isPending}>
-              {isPending ? <Loader2Icon className="animate-spin" /> : <SaveIcon />}
+            <Button variant="primary" onClick={() => !busy && handleSubmit(onValid, onInvalid)()} disabled={busy}>
+              {busy ? <Loader2Icon className="animate-spin" /> : <SaveIcon />}
               Simpan perubahan
             </Button>
           </div>
