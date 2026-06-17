@@ -3,7 +3,7 @@
 import * as React from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import type { PaginationState } from "@tanstack/react-table"
-import { AlertTriangleIcon, InfoIcon, SearchIcon, SearchXIcon } from "lucide-react"
+import { AlertTriangleIcon, SearchIcon, SearchXIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -109,8 +109,6 @@ export function PantauanView() {
     resetPage()
   }
 
-  const lensUnsupported = lens === "atribut"
-
   return (
     <div className="flex flex-col gap-5 lg:flex-row">
       {/* Panel filter */}
@@ -197,16 +195,6 @@ export function PantauanView() {
           </div>
 
           <div className="px-4 py-5 sm:px-5">
-            {lensUnsupported && (
-              <div className="mb-4 flex items-start gap-2 rounded-lg border border-info/30 bg-info/5 px-3 py-2.5 text-sm text-muted-foreground">
-                <InfoIcon className="mt-0.5 size-4 shrink-0 text-info" />
-                <span>
-                  Lensa ini memerlukan data dari channel yang sedang dikumpulkan (fase berikutnya). Daftar akan terisi
-                  setelah sinkronisasi channel berjalan.
-                </span>
-              </div>
-            )}
-
             {query.isError ? (
               <div className="flex flex-col items-center gap-3 py-12 text-center">
                 <AlertTriangleIcon className="size-8 text-destructive" />
