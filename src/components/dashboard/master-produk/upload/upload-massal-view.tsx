@@ -5,8 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { UploadCloudIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DraftTab } from "./draft-tab"
 import { HasilTab } from "./hasil-tab"
 import { ProductPickerDialog } from "./product-picker-dialog"
@@ -32,13 +31,19 @@ export function UploadMassalView() {
   }
 
   return (
-    <LiquidGlass
-      radius={24}
-      intensity="default"
-      className="bg-white/40 dark:bg-white/[0.06]"
-    >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6 sm:py-5">
-        <h2 className="text-base font-medium">Produk</h2>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="overflow-x-auto">
+          <Tabs value={active} onValueChange={setTab}>
+            <TabsList variant="line">
+              {TABS.map((t) => (
+                <TabsTrigger key={t.id} value={t.id}>
+                  {t.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </div>
         <Button
           variant="primary"
           size="sm"
@@ -50,28 +55,9 @@ export function UploadMassalView() {
         </Button>
       </div>
 
-      <Tabs value={active} onValueChange={setTab}>
-        <div className="overflow-x-auto border-b border-border/60 px-3 pt-3 sm:px-4">
-          <TabsList variant="line" className="h-auto pb-2">
-            {TABS.map((t) => (
-              <TabsTrigger key={t.id} value={t.id}>
-                {t.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </div>
-
-        <div className="px-5 py-5 sm:px-6">
-          <TabsContent value="draft">
-            <DraftTab />
-          </TabsContent>
-          <TabsContent value="hasil">
-            <HasilTab />
-          </TabsContent>
-        </div>
-      </Tabs>
+      {active === "draft" ? <DraftTab /> : <HasilTab />}
 
       <ProductPickerDialog open={pickerOpen} onOpenChange={setPickerOpen} />
-    </LiquidGlass>
+    </div>
   )
 }

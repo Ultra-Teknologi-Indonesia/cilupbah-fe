@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Combobox } from "@/components/ui/combobox"
 import { Checkbox } from "@/components/ui/checkbox"
+import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { DataTable } from "@/components/ui/data-table"
 import {
   useBulkDeleteHistories,
@@ -26,6 +27,7 @@ import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
 import type { HistoryRow } from "@/services/master-produk/upload.service"
 import type { ChannelCode } from "@/types/channel"
 import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
+import { FilterShell } from "../filter-shell"
 
 const STATUS_OPTIONS = [
   { value: "", label: "Semua" },
@@ -59,17 +61,26 @@ function HistoryStatus({ row }: { row: HistoryRow }) {
     )
   }
   return (
-    <span
-      className={
-        "rounded px-1.5 py-0.5 text-[11px] font-medium " +
-        (row.canReupload
-          ? "bg-destructive/10 text-destructive"
-          : "bg-amber-500/10 text-amber-600 dark:text-amber-400")
-      }
-      title={row.statusMessage ?? undefined}
-    >
-      {row.canReupload ? "Gagal" : "Diproses"}
-    </span>
+    <div className="flex max-w-[16rem] flex-col items-start gap-1">
+      <span
+        className={
+          "rounded px-1.5 py-0.5 text-[11px] font-medium " +
+          (row.canReupload
+            ? "bg-destructive/10 text-destructive"
+            : "bg-amber-500/10 text-amber-600 dark:text-amber-400")
+        }
+      >
+        {row.canReupload ? "Gagal" : "Diproses"}
+      </span>
+      {row.statusMessage && (
+        <span
+          className="line-clamp-2 text-[11px] leading-snug text-destructive/90"
+          title={row.statusMessage}
+        >
+          {row.statusMessage}
+        </span>
+      )}
+    </div>
   )
 }
 
@@ -270,125 +281,129 @@ export function HasilTab() {
     [reupload]
   )
 
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-start gap-2 rounded-2xl border border-border/60 bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-        <InfoIcon className="mt-0.5 size-4 shrink-0" />
-        <p>
-          Produk yang berhasil di-upload ke channel lebih dari 30 hari akan
-          otomatis terhapus dari halaman ini.
-        </p>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative w-full max-w-xs sm:w-64">
-          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Cari produk…"
-            className="h-9 rounded-full border-border bg-background pl-9 pr-8"
-          />
-          {searchInput.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setSearchInput("")}
-              aria-label="Bersihkan pencarian"
-              className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <XIcon className="size-3.5" />
-            </button>
-          )}
-        </div>
-        <Combobox
-          options={storeOptions}
-          value={shopId}
-          onChange={(v) => {
-            setShopId(v)
-            resetPage()
-          }}
-          placeholder="Pilih toko"
-          searchPlaceholder="Cari toko"
-          className="h-9 w-48 rounded-full"
-        />
-        <Combobox
-          options={STATUS_OPTIONS}
-          value={status}
-          onChange={(v) => {
-            setStatus(v ?? "")
-            resetPage()
-          }}
-          placeholder="Semua"
-          searchPlaceholder="Cari status"
-          className="h-9 w-36 rounded-full"
-        />
+  const filters = (
+    <>
+      <div className="relative">
+        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          type="date"
-          value={dateFrom}
-          onChange={(e) => {
-            setDateFrom(e.target.value)
-            resetPage()
-          }}
-          aria-label="Dari tanggal"
-          className="h-9 w-40 rounded-full border-border bg-background"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="Cari produk…"
+          className="h-9 rounded-lg border-border bg-background pl-9 pr-8"
         />
-        <Input
-          type="date"
-          value={dateTo}
-          onChange={(e) => {
-            setDateTo(e.target.value)
-            resetPage()
-          }}
-          aria-label="Sampai tanggal"
-          className="h-9 w-40 rounded-full border-border bg-background"
-        />
-        {hasFilter && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-9 gap-1.5 rounded-full px-3"
-            onClick={onReset}
+        {searchInput.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setSearchInput("")}
+            aria-label="Bersihkan pencarian"
+            className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
-            Reset
-            <XIcon className="size-4" />
-          </Button>
+            <XIcon className="size-3.5" />
+          </button>
         )}
-        <span className="ml-auto text-sm text-muted-foreground tabular-nums">
-          Total {total}
-        </span>
       </div>
-
-      <DataTable
-        columns={columns}
-        data={items}
-        getRowId={(h) => h.id}
-        isLoading={isLoading}
-        hideToolbar
-        manualPagination
-        rowCount={total}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        enableRowSelection
-        tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
-        bulkActions={(selected, table) => (
-          <Button
-            variant="destructive"
-            size="sm"
-            disabled={bulkDelete.isPending}
-            onClick={() =>
-              bulkDelete.mutate(
-                selected.map((h) => h.id),
-                { onSuccess: () => table.resetRowSelection() }
-              )
-            }
-          >
-            Hapus
-          </Button>
-        )}
-        emptyState={
-          <span className="text-muted-foreground">Belum ada riwayat upload</span>
-        }
+      <Combobox
+        options={storeOptions}
+        value={shopId}
+        onChange={(v) => {
+          setShopId(v)
+          resetPage()
+        }}
+        placeholder="Pilih toko"
+        searchPlaceholder="Cari toko"
+        className="h-9 w-full rounded-lg"
       />
-    </div>
+      <Combobox
+        options={STATUS_OPTIONS}
+        value={status}
+        onChange={(v) => {
+          setStatus(v ?? "")
+          resetPage()
+        }}
+        placeholder="Semua status"
+        searchPlaceholder="Cari status"
+        className="h-9 w-full rounded-lg"
+      />
+      <div>
+        <div className="mb-1.5 text-sm font-medium">Tanggal Upload</div>
+        <div className="flex flex-col gap-2">
+          <Input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => {
+              setDateFrom(e.target.value)
+              resetPage()
+            }}
+            aria-label="Dari tanggal"
+            className="h-9 rounded-lg border-border bg-background"
+          />
+          <Input
+            type="date"
+            value={dateTo}
+            onChange={(e) => {
+              setDateTo(e.target.value)
+              resetPage()
+            }}
+            aria-label="Sampai tanggal"
+            className="h-9 rounded-lg border-border bg-background"
+          />
+        </div>
+      </div>
+    </>
+  )
+
+  return (
+    <FilterShell filters={filters} onReset={hasFilter ? onReset : undefined}>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-start gap-2 rounded-2xl border border-border/60 bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+          <InfoIcon className="mt-0.5 size-4 shrink-0" />
+          <p>
+            Produk yang berhasil di-upload ke channel lebih dari 30 hari akan
+            otomatis terhapus dari halaman ini.
+          </p>
+        </div>
+
+        <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+          <div className="flex items-center justify-end border-b border-border/60 px-5 py-3 sm:px-6">
+            <span className="text-sm text-muted-foreground">
+              Total <span className="font-medium text-foreground tabular-nums">{total}</span>
+            </span>
+          </div>
+          <div className="px-5 py-5 sm:px-6">
+            <DataTable
+              columns={columns}
+              data={items}
+              getRowId={(h) => h.id}
+              isLoading={isLoading}
+              hideToolbar
+              manualPagination
+              rowCount={total}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              enableRowSelection
+              tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+              bulkActions={(selected, table) => (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={bulkDelete.isPending}
+                  onClick={() =>
+                    bulkDelete.mutate(
+                      selected.map((h) => h.id),
+                      { onSuccess: () => table.resetRowSelection() }
+                    )
+                  }
+                >
+                  Hapus
+                </Button>
+              )}
+              emptyState={
+                <span className="text-muted-foreground">Belum ada riwayat upload</span>
+              }
+            />
+          </div>
+        </LiquidGlass>
+      </div>
+    </FilterShell>
   )
 }

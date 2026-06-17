@@ -5,11 +5,13 @@ import { ArchiveIcon, ChevronLeftIcon, ChevronRightIcon, SearchIcon } from "luci
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { LiquidGlass } from "@/components/ui/liquid-glass"
 import {
   useArchivedProducts,
   useRestoreProduct,
 } from "@/hooks/master-produk/use-archived-products"
 import type { ArchivedProduct } from "@/types/master-produk"
+import { FilterShell } from "../filter-shell"
 import { ArchiveTable } from "./archive-table"
 
 export function ArchiveView() {
@@ -36,18 +38,25 @@ export function ArchiveView() {
   const meta = data?.meta
   const items = data?.items ?? []
 
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="relative w-full sm:max-w-xs">
-        <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Cari nama / SKU…"
-          className="h-9 rounded-full pl-9"
-        />
-      </div>
+  const filters = (
+    <div className="relative">
+      <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Cari nama / SKU…"
+        className="h-9 rounded-lg pl-9"
+      />
+    </div>
+  )
 
+  return (
+    <FilterShell filters={filters} onReset={search ? () => setSearch("") : undefined}>
+      <LiquidGlass
+        radius={24}
+        intensity="default"
+        className="flex flex-col gap-4 bg-white/40 p-5 dark:bg-white/[0.06] sm:p-6"
+      >
       {isLoading ? (
         <div className="space-y-2 rounded-2xl border border-border/60 p-4">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -107,6 +116,7 @@ export function ArchiveView() {
           )}
         </>
       )}
-    </div>
+      </LiquidGlass>
+    </FilterShell>
   )
 }

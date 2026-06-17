@@ -24,6 +24,7 @@ import {
 } from "@/hooks/master-produk/use-master-data"
 import type { useProductListQuery } from "@/hooks/master-produk/use-product-list-query"
 import { CategoryPicker } from "./buat/category-picker"
+import { FilterShell } from "./filter-shell"
 import { ProductTable } from "./product-table"
 import { ProductCardView } from "./product-card-view"
 
@@ -68,113 +69,101 @@ export function ProductExplorer({ query }: { query: Query }) {
     </Button>
   )
 
-  return (
-    <LiquidGlass
-      radius={24}
-      intensity="default"
-      className="bg-white/40 dark:bg-white/[0.06]"
-    >
-      {}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6 sm:py-5">
-        <div>
-          <h2 className="text-base font-medium">Daftar Produk</h2>
-          <p className="text-sm text-muted-foreground">
-            {isLoading ? "Memuat…" : `${total} produk`}
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-0.5 rounded-full bg-black/[0.06] p-1 ring-1 ring-border/60 dark:bg-white/10">
-            {toggleBtn("card", "Tampilan kartu", LayoutGridIcon)}
-            {toggleBtn("table", "Tampilan tabel", TableIcon)}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-9 gap-2"
-            onClick={() => toast("Impor produk", { description: "Segera hadir" })}
+  const filters = (
+    <>
+      <div className="relative">
+        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={query.search}
+          onChange={(e) => query.setSearch(e.target.value)}
+          placeholder="Cari nama / SKU…"
+          className="h-9 rounded-lg border-border bg-background pl-9 pr-8"
+        />
+        {query.search.length > 0 && (
+          <button
+            type="button"
+            onClick={() => query.setSearch("")}
+            aria-label="Bersihkan pencarian"
+            className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
-            <UploadIcon className="size-4" />
-            <span className="hidden sm:inline">Impor</span>
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            className="h-9 gap-2"
-            onClick={() => router.push("/dashboard/master-produk/buat")}
-          >
-            <PlusIcon className="size-4" />
-            <span className="hidden sm:inline">Tambah Produk</span>
-          </Button>
-        </div>
+            <XIcon className="size-3.5" />
+          </button>
+        )}
       </div>
+      <Combobox
+        options={PRODUCT_STATUS_OPTIONS}
+        value={query.status}
+        onChange={query.setStatus}
+        placeholder="Semua status"
+        searchPlaceholder="Cari status"
+        className="h-9 w-full rounded-lg"
+      />
+      <Combobox
+        options={brandOptions}
+        value={query.brandId}
+        onChange={query.setBrandId}
+        placeholder="Semua merek"
+        searchPlaceholder="Cari merek"
+        className="h-9 w-full rounded-lg"
+      />
+      <CategoryPicker
+        value={query.category}
+        onChange={query.setCategory}
+        tree={categoryTree}
+        triggerClassName="h-9 w-full rounded-lg"
+      />
+    </>
+  )
 
-      {}
-      <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-5 py-3 sm:px-6">
-        <div className="relative w-full max-w-xs sm:w-64">
-          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={query.search}
-            onChange={(e) => query.setSearch(e.target.value)}
-            placeholder="Cari nama / SKU…"
-            className="h-9 rounded-full border-border bg-background pl-9 pr-8"
-          />
-          {query.search.length > 0 && (
-            <button
-              type="button"
-              onClick={() => query.setSearch("")}
-              aria-label="Bersihkan pencarian"
-              className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+  return (
+    <FilterShell filters={filters} onReset={query.hasFilter ? query.reset : undefined}>
+      <LiquidGlass
+        radius={24}
+        intensity="default"
+        className="bg-white/40 dark:bg-white/[0.06]"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6 sm:py-5">
+          <div>
+            <h2 className="text-base font-medium">Daftar Produk</h2>
+            <p className="text-sm text-muted-foreground">
+              {isLoading ? "Memuat…" : `${total} produk`}
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-0.5 rounded-full bg-black/[0.06] p-1 ring-1 ring-border/60 dark:bg-white/10">
+              {toggleBtn("card", "Tampilan kartu", LayoutGridIcon)}
+              {toggleBtn("table", "Tampilan tabel", TableIcon)}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 gap-2"
+              onClick={() => toast("Impor produk", { description: "Segera hadir" })}
             >
-              <XIcon className="size-3.5" />
-            </button>
+              <UploadIcon className="size-4" />
+              <span className="hidden sm:inline">Impor</span>
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              className="h-9 gap-2"
+              onClick={() => router.push("/dashboard/master-produk/buat")}
+            >
+              <PlusIcon className="size-4" />
+              <span className="hidden sm:inline">Tambah Produk</span>
+            </Button>
+          </div>
+        </div>
+
+        <div className="px-5 py-5 sm:px-6">
+          {view === "card" ? (
+            <ProductCardView {...viewProps} />
+          ) : (
+            <ProductTable {...viewProps} />
           )}
         </div>
-        <Combobox
-          options={PRODUCT_STATUS_OPTIONS}
-          value={query.status}
-          onChange={query.setStatus}
-          placeholder="Semua status"
-          searchPlaceholder="Cari status"
-          className="h-9 w-40 rounded-full"
-        />
-        <Combobox
-          options={brandOptions}
-          value={query.brandId}
-          onChange={query.setBrandId}
-          placeholder="Semua merek"
-          searchPlaceholder="Cari merek"
-          className="h-9 w-44 rounded-full"
-        />
-        <div className="w-full sm:w-56">
-          <CategoryPicker
-            value={query.category}
-            onChange={query.setCategory}
-            tree={categoryTree}
-            triggerClassName="h-9 rounded-full"
-          />
-        </div>
-        {query.hasFilter && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-9 gap-1.5 rounded-full px-3"
-            onClick={query.reset}
-          >
-            Reset
-            <XIcon className="size-4" />
-          </Button>
-        )}
-      </div>
-
-      {}
-      <div className="px-5 py-5 sm:px-6">
-        {view === "card" ? (
-          <ProductCardView {...viewProps} />
-        ) : (
-          <ProductTable {...viewProps} />
-        )}
-      </div>
-    </LiquidGlass>
+      </LiquidGlass>
+    </FilterShell>
   )
 }

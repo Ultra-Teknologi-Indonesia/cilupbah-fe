@@ -38,6 +38,7 @@ import {
   channelListingRowId,
   type ChannelListing,
 } from "@/services/master-produk/channel-product.service"
+import { FilterShell } from "../filter-shell"
 import { buildChannelListingColumns } from "./listing-columns"
 
 export function ListingMarketplaceView() {
@@ -208,55 +209,45 @@ export function ListingMarketplaceView() {
     resetPage()
   }
 
-  return (
-    <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6 sm:py-5">
-        <div>
-          <h2 className="text-base font-medium">Produk Channel</h2>
-          <p className="text-sm text-muted-foreground">
-            {query.isLoading ? "Memuat…" : `${total} listing`}
-          </p>
-        </div>
-      </div>
-
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-5 py-3 sm:px-6">
-        <div className="relative w-full max-w-xs sm:w-64">
-          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari nama / SKU…"
-            className="h-9 rounded-full border-border bg-background pl-9 pr-8"
-          />
-          {search.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setSearch("")}
-              aria-label="Bersihkan pencarian"
-              className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <XIcon className="size-3.5" />
-            </button>
-          )}
-        </div>
-        <Combobox
-          options={storeOptions}
-          value={shopId}
-          onChange={setStore}
-          placeholder="Semua toko"
-          searchPlaceholder="Cari toko"
-          className="h-9 w-52 rounded-full"
+  const filters = (
+    <>
+      <div className="relative">
+        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Cari nama / SKU…"
+          className="h-9 rounded-lg border-border bg-background pl-9 pr-8"
         />
+        {search.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            aria-label="Bersihkan pencarian"
+            className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <XIcon className="size-3.5" />
+          </button>
+        )}
+      </div>
+      <Combobox
+        options={storeOptions}
+        value={shopId}
+        onChange={setStore}
+        placeholder="Semua toko"
+        searchPlaceholder="Cari toko"
+        className="h-9 w-full rounded-lg"
+      />
+      <div>
+        <div className="mb-1.5 text-sm font-medium">Rentang Harga</div>
         <div className="flex items-center gap-1.5">
           <Input
             value={minInput}
             onChange={(e) => setMinInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && applyPrice()}
             inputMode="numeric"
-            placeholder="Harga min"
-            className="h-9 w-28 rounded-full border-border bg-background"
+            placeholder="Min"
+            className="h-9 rounded-lg border-border bg-background"
           />
           <span className="text-muted-foreground">–</span>
           <Input
@@ -264,23 +255,32 @@ export function ListingMarketplaceView() {
             onChange={(e) => setMaxInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && applyPrice()}
             inputMode="numeric"
-            placeholder="Harga maks"
-            className="h-9 w-28 rounded-full border-border bg-background"
+            placeholder="Max"
+            className="h-9 rounded-lg border-border bg-background"
           />
-          <Button variant="outline" size="sm" className="h-9 rounded-full" onClick={applyPrice}>
-            Terapkan
-          </Button>
         </div>
-        {hasFilter && (
-          <Button variant="ghost" size="sm" className="h-9 gap-1.5 rounded-full px-3" onClick={reset}>
-            Reset
-            <XIcon className="size-4" />
-          </Button>
-        )}
+        <Button variant="outline" size="sm" className="mt-2 h-9 w-full rounded-lg" onClick={applyPrice}>
+          Terapkan
+        </Button>
       </div>
+    </>
+  )
 
-      {/* Body */}
-      <div className="px-5 py-5 sm:px-6">
+  return (
+    <FilterShell filters={filters} onReset={hasFilter ? reset : undefined}>
+      <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+        {/* Header */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6 sm:py-5">
+          <div>
+            <h2 className="text-base font-medium">Produk Channel</h2>
+            <p className="text-sm text-muted-foreground">
+              {query.isLoading ? "Memuat…" : `${total} listing`}
+            </p>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="px-5 py-5 sm:px-6">
         {query.isError ? (
           <div className="flex flex-col items-center gap-3 py-12 text-center">
             <AlertTriangleIcon className="size-8 text-destructive" />
@@ -375,6 +375,7 @@ export function ListingMarketplaceView() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </LiquidGlass>
+      </LiquidGlass>
+    </FilterShell>
   )
 }

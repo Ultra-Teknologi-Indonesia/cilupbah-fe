@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Combobox } from "@/components/ui/combobox"
+import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { DataTable } from "@/components/ui/data-table"
 import {
   Dialog,
@@ -32,6 +33,7 @@ import {
 import type { DraftRow, DraftStatus } from "@/services/master-produk/upload.service"
 import type { ChannelCode } from "@/types/channel"
 import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
+import { FilterShell } from "../filter-shell"
 import { SyncStatusBadge } from "../detail/tab-pagination"
 
 const STATUS_OPTIONS = [
@@ -192,56 +194,75 @@ export function DraftTab() {
     [uploadDraft]
   )
 
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative w-full max-w-xs sm:w-64">
-          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Cari produk…"
-            className="h-9 rounded-full border-border bg-background pl-9 pr-8"
-          />
-          {searchInput.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setSearchInput("")}
-              aria-label="Bersihkan pencarian"
-              className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <XIcon className="size-3.5" />
-            </button>
-          )}
-        </div>
-        <Combobox
-          options={STATUS_OPTIONS}
-          value={status}
-          onChange={(v) => {
-            setStatus(v ?? "")
-            setPagination((p) => ({ ...p, pageIndex: 0 }))
-          }}
-          placeholder="Semua"
-          searchPlaceholder="Cari status"
-          className="h-9 w-40 rounded-full"
-        />
-      </div>
+  const hasFilter = !!searchInput || !!status
+  const onReset = () => {
+    setSearchInput("")
+    setSearch("")
+    setStatus("")
+    setPagination((p) => ({ ...p, pageIndex: 0 }))
+  }
 
-      <DataTable
-        columns={columns}
-        data={items}
-        getRowId={(d) => d.id}
-        isLoading={isLoading}
-        hideToolbar
-        manualPagination
-        rowCount={total}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
-        emptyState={
-          <span className="text-muted-foreground">Belum ada draft upload</span>
-        }
+  const filters = (
+    <>
+      <div className="relative">
+        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="Cari produk…"
+          className="h-9 rounded-lg border-border bg-background pl-9 pr-8"
+        />
+        {searchInput.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setSearchInput("")}
+            aria-label="Bersihkan pencarian"
+            className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <XIcon className="size-3.5" />
+          </button>
+        )}
+      </div>
+      <Combobox
+        options={STATUS_OPTIONS}
+        value={status}
+        onChange={(v) => {
+          setStatus(v ?? "")
+          setPagination((p) => ({ ...p, pageIndex: 0 }))
+        }}
+        placeholder="Semua status"
+        searchPlaceholder="Cari status"
+        className="h-9 w-full rounded-lg"
       />
+    </>
+  )
+
+  return (
+    <FilterShell filters={filters} onReset={hasFilter ? onReset : undefined}>
+      <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+        <div className="flex items-center justify-end border-b border-border/60 px-5 py-3 sm:px-6">
+          <span className="text-sm text-muted-foreground">
+            Total <span className="font-medium text-foreground tabular-nums">{total}</span>
+          </span>
+        </div>
+        <div className="px-5 py-5 sm:px-6">
+          <DataTable
+            columns={columns}
+            data={items}
+            getRowId={(d) => d.id}
+            isLoading={isLoading}
+            hideToolbar
+            manualPagination
+            rowCount={total}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+            emptyState={
+              <span className="text-muted-foreground">Belum ada draft upload</span>
+            }
+          />
+        </div>
+      </LiquidGlass>
 
       <Dialog
         open={!!deletePending}
@@ -281,6 +302,6 @@ export function DraftTab() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </FilterShell>
   )
 }

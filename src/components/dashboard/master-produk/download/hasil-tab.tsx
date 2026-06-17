@@ -17,6 +17,7 @@ import { useMasterProducts } from "@/hooks/master-produk/use-master-products"
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
 import type { SelectedCategory } from "@/types/master-produk"
 import { CategoryPicker } from "../buat/category-picker"
+import { FilterShell } from "../filter-shell"
 import { ProductCardView } from "../product-card-view"
 import { ProductTable } from "../product-table"
 
@@ -141,85 +142,71 @@ export function HasilTab() {
     </Button>
   )
 
-  return (
-    <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6">
-        <div>
-          <h2 className="text-base font-medium">Produk Hasil Download</h2>
-          <p className="text-sm text-muted-foreground">
-            {isLoading ? "Memuat…" : `${total} produk`}
-          </p>
-        </div>
-        <div className="flex items-center gap-0.5 rounded-full bg-black/[0.06] p-1 ring-1 ring-border/60 dark:bg-white/10">
-          {toggleBtn("card", "Tampilan kartu", LayoutGridIcon)}
-          {toggleBtn("table", "Tampilan tabel", TableIcon)}
-        </div>
+  const filters = (
+    <>
+      <div className="relative">
+        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Cari nama / SKU…"
+          className="h-9 rounded-lg border-border bg-background pl-9 pr-8"
+        />
+        {search.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            aria-label="Bersihkan pencarian"
+            className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <XIcon className="size-3.5" />
+          </button>
+        )}
       </div>
-
-      <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-5 py-3 sm:px-6">
-        <div className="relative w-full max-w-xs sm:w-64">
-          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari nama / SKU…"
-            className="h-9 rounded-full border-border bg-background pl-9 pr-8"
-          />
-          {search.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setSearch("")}
-              aria-label="Bersihkan pencarian"
-              className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <XIcon className="size-3.5" />
-            </button>
-          )}
-        </div>
-        <Combobox
-          options={TYPE_OPTIONS}
-          value={type}
-          onChange={(v) => {
-            setType(v)
-            resetPage()
-          }}
-          placeholder="Semua tipe"
-          searchPlaceholder="Cari tipe"
-          className="h-9 w-40 rounded-full"
-        />
-        <Combobox
-          options={brandOptions}
-          value={brandId}
-          onChange={(v) => {
-            setBrandId(v)
-            resetPage()
-          }}
-          placeholder="Semua merek"
-          searchPlaceholder="Cari merek"
-          className="h-9 w-44 rounded-full"
-        />
-        <Combobox
-          options={channelOptions}
-          value={channel}
-          onChange={(v) => {
-            setChannel(v)
-            resetPage()
-          }}
-          placeholder="Semua channel"
-          searchPlaceholder="Cari channel"
-          className="h-9 w-44 rounded-full"
-        />
-        <div className="w-full sm:w-56">
-          <CategoryPicker
-            value={category}
-            onChange={(v) => {
-              setCategory(v)
-              resetPage()
-            }}
-            tree={categoryTree}
-            triggerClassName="h-9 rounded-full"
-          />
-        </div>
+      <Combobox
+        options={TYPE_OPTIONS}
+        value={type}
+        onChange={(v) => {
+          setType(v)
+          resetPage()
+        }}
+        placeholder="Semua tipe"
+        searchPlaceholder="Cari tipe"
+        className="h-9 w-full rounded-lg"
+      />
+      <Combobox
+        options={brandOptions}
+        value={brandId}
+        onChange={(v) => {
+          setBrandId(v)
+          resetPage()
+        }}
+        placeholder="Semua merek"
+        searchPlaceholder="Cari merek"
+        className="h-9 w-full rounded-lg"
+      />
+      <Combobox
+        options={channelOptions}
+        value={channel}
+        onChange={(v) => {
+          setChannel(v)
+          resetPage()
+        }}
+        placeholder="Semua channel"
+        searchPlaceholder="Cari channel"
+        className="h-9 w-full rounded-lg"
+      />
+      <CategoryPicker
+        value={category}
+        onChange={(v) => {
+          setCategory(v)
+          resetPage()
+        }}
+        tree={categoryTree}
+        triggerClassName="h-9 w-full rounded-lg"
+      />
+      <div>
+        <div className="mb-1.5 text-sm font-medium">Rentang Harga</div>
         <div className="flex items-center gap-1">
           <Input
             type="number"
@@ -228,8 +215,8 @@ export function HasilTab() {
             onChange={(e) => setDMin(e.target.value)}
             onBlur={applyPrice}
             onKeyDown={(e) => e.key === "Enter" && applyPrice()}
-            placeholder="Harga min"
-            className="h-9 w-28 rounded-full"
+            placeholder="Min"
+            className="h-9 rounded-lg"
             aria-label="Harga minimal"
           />
           <span className="text-muted-foreground">–</span>
@@ -240,22 +227,35 @@ export function HasilTab() {
             onChange={(e) => setDMax(e.target.value)}
             onBlur={applyPrice}
             onKeyDown={(e) => e.key === "Enter" && applyPrice()}
-            placeholder="Harga max"
-            className="h-9 w-28 rounded-full"
+            placeholder="Max"
+            className="h-9 rounded-lg"
             aria-label="Harga maksimal"
           />
         </div>
-        {hasFilter && (
-          <Button variant="ghost" size="sm" className="h-9 gap-1.5 rounded-full px-3" onClick={reset}>
-            Reset
-            <XIcon className="size-4" />
-          </Button>
-        )}
       </div>
+    </>
+  )
 
-      <div className="px-5 py-5 sm:px-6">
-        {view === "card" ? <ProductCardView {...viewProps} /> : <ProductTable {...viewProps} />}
-      </div>
-    </LiquidGlass>
+  return (
+    <FilterShell filters={filters} onReset={hasFilter ? reset : undefined}>
+      <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6">
+          <div>
+            <h2 className="text-base font-medium">Produk Hasil Download</h2>
+            <p className="text-sm text-muted-foreground">
+              {isLoading ? "Memuat…" : `${total} produk`}
+            </p>
+          </div>
+          <div className="flex items-center gap-0.5 rounded-full bg-black/[0.06] p-1 ring-1 ring-border/60 dark:bg-white/10">
+            {toggleBtn("card", "Tampilan kartu", LayoutGridIcon)}
+            {toggleBtn("table", "Tampilan tabel", TableIcon)}
+          </div>
+        </div>
+
+        <div className="px-5 py-5 sm:px-6">
+          {view === "card" ? <ProductCardView {...viewProps} /> : <ProductTable {...viewProps} />}
+        </div>
+      </LiquidGlass>
+    </FilterShell>
   )
 }
