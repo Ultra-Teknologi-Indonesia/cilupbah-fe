@@ -11,6 +11,8 @@ import {
   UploadCloudIcon,
 } from "lucide-react"
 
+import Link from "next/link"
+
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -243,13 +245,20 @@ export function DestinationTable({
             )
           }
           return (
-            <span
-              className="inline-flex items-center gap-1.5 text-sm text-amber-600 dark:text-amber-400"
-              title={state.message}
-            >
-              <AlertTriangleIcon className="size-4 shrink-0" />
-              <span className="truncate">{state.message}</span>
-            </span>
+            <div className="flex flex-col gap-0.5">
+              <span className="inline-flex items-center gap-1.5 text-sm text-amber-600 dark:text-amber-400">
+                <AlertTriangleIcon className="size-4 shrink-0" />
+                <span className="truncate" title={state.message}>{state.message}</span>
+              </span>
+              <Link
+                href={`/dashboard/master-produk/${productId}/edit`}
+                prefetch={false}
+                onClick={(e) => e.stopPropagation()}
+                className="ml-[22px] text-xs font-medium text-primary hover:underline"
+              >
+                Perbaiki &rarr;
+              </Link>
+            </div>
           )
         },
       },
@@ -321,8 +330,34 @@ export function DestinationTable({
 
   const [confirmRows, setConfirmRows] = React.useState<UploadDestination[] | null>(null)
 
+  const blockedEntries = React.useMemo(
+    () => [...matchMap.values()].filter((s) => !s.matched),
+    [matchMap]
+  )
+
   return (
     <>
+      {blockedEntries.length > 0 && (
+        <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm text-amber-700 dark:text-amber-400">
+          <AlertTriangleIcon className="mt-0.5 size-4 shrink-0" />
+          <div className="min-w-0">
+            <p className="font-medium">
+              {blockedEntries.length} toko tidak bisa diupload
+            </p>
+            <p className="mt-0.5 text-amber-600/80 dark:text-amber-400/80">
+              {blockedEntries[0].message}
+            </p>
+            <Link
+              href={`/dashboard/master-produk/${productId}/edit`}
+              prefetch={false}
+              className="mt-1 inline-block font-medium underline underline-offset-2 hover:text-amber-800 dark:hover:text-amber-300"
+            >
+              Edit Produk
+            </Link>
+          </div>
+        </div>
+      )}
+
       <DataTable<UploadDestination, unknown>
         columns={columns}
         data={rows}
