@@ -261,6 +261,8 @@ export function DestinationTable({
         cell: ({ row }) => {
           const d = row.original
           const isMatching = matching.has(d.storeId)
+          const state = matchMap.get(d.storeId)
+          const isBlocked = state?.matched === false
           return (
             <div className="flex items-center justify-end gap-1">
               <Button
@@ -292,12 +294,18 @@ export function DestinationTable({
               <Button
                 variant="ghost"
                 size="icon-sm"
-                disabled={!d.shopId || upload.isPending}
+                disabled={!d.shopId || upload.isPending || isBlocked}
                 onClick={(e) => {
                   e.stopPropagation()
-                  if (d.shopId) upload.mutate([d.shopId])
+                  if (d.shopId && !isBlocked) upload.mutate([d.shopId])
                 }}
-                title={d.shopId ? "Upload ke channel" : "Toko tidak punya shop id"}
+                title={
+                  !d.shopId
+                    ? "Toko tidak punya shop id"
+                    : isBlocked
+                      ? (state?.message ?? "Data belum cocok dengan master — perbaiki dulu")
+                      : "Upload ke channel"
+                }
                 aria-label="Upload"
               >
                 <UploadCloudIcon />
@@ -363,14 +371,29 @@ export function DestinationTable({
                 }}
               >
                 <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Upload ke channel</DialogTitle>
-                    <DialogDescription>
-                      Upload <span className="font-medium">{productName}</span> ke{" "}
-                      {confirmRows.filter((r) => r.shopId).length} toko{" "}
-                      {isUploaded ? "(upload ulang)" : "yang belum terdaftar"}?
-                    </DialogDescription>
-                  </DialogHeader>
+                  {(() => {
+                    const blockedCount = confirmRows.filter(
+                      (r) => matchMap.get(r.storeId)?.matched === false
+                    ).length
+                    const eligibleCount = confirmRows.filter(
+                      (r) => r.shopId && matchMap.get(r.storeId)?.matched !== false
+                    ).length
+                    return (
+                      <DialogHeader>
+                        <DialogTitle>Upload ke channel</DialogTitle>
+                        <DialogDescription>
+                          Upload <span className="font-medium">{productName}</span> ke{" "}
+                          {eligibleCount} toko{" "}
+                          {isUploaded ? "(upload ulang)" : "yang belum terdaftar"}?
+                          {blockedCount > 0 && (
+                            <span className="mt-1 block text-amber-600 dark:text-amber-400">
+                              {blockedCount} toko dilewati karena data belum cocok dengan master.
+                            </span>
+                          )}
+                        </DialogDescription>
+                      </DialogHeader>
+                    )
+                  })()}
                   <DialogFooter>
                     <DialogClose asChild>
                       <Button variant="outline">Batal</Button>
@@ -379,7 +402,10 @@ export function DestinationTable({
                       <Button
                         variant="primary"
                         onClick={() => {
+                          // Hanya upload toko yang cocok; yang tidak cocok dilewati
+                          // (BE juga menolaknya sebagai pertahanan berlapis).
                           const shopIds = confirmRows
+                            .filter((r) => matchMap.get(r.storeId)?.matched !== false)
                             .map((r) => r.shopId)
                             .filter((id): id is string => !!id)
                           if (shopIds.length > 0) upload.mutate(shopIds)
