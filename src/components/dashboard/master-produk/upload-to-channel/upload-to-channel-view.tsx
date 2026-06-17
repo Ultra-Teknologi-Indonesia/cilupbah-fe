@@ -61,7 +61,7 @@ export function UploadToChannelView({ id }: { id: string }) {
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-3">
         <Button variant="outline" size="icon-sm" asChild aria-label="Kembali ke produk">
-          <Link href={`/dashboard/master-produk/${id}`}>
+          <Link href={`/dashboard/master-produk/${id}`} prefetch={false}>
             <ArrowLeftIcon />
           </Link>
         </Button>

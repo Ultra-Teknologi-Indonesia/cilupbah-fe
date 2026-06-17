@@ -52,7 +52,7 @@ export function StatusActions({
   const spinner = <Loader2Icon className="animate-spin motion-reduce:animate-none" />
   const editBtn = (
     <Button variant="outline" asChild disabled={isPending}>
-      <Link href={editHref}>
+      <Link href={editHref} prefetch={false}>
         <PencilIcon />
         Edit
       </Link>
@@ -99,7 +99,7 @@ export function StatusActions({
         <>
           {editBtn}
           <Button variant="outline" asChild disabled={isPending}>
-            <Link href={`/dashboard/produk/${product.id}/upload-to-channel`}>
+            <Link href={`/dashboard/produk/${product.id}/upload-to-channel`} prefetch={false}>
               <ArrowUpRightIcon />
               Upload ke channel
             </Link>

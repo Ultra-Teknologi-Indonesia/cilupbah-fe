@@ -20,7 +20,7 @@ export default function ProdukMasterPage() {
         ]}
         actions={
           <Button variant="outline" asChild>
-            <Link href="/dashboard/master-produk/arsip">
+            <Link href="/dashboard/master-produk/arsip" prefetch={false}>
               <ArchiveIcon />
               Arsip
             </Link>

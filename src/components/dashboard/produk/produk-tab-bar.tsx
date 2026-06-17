@@ -90,7 +90,7 @@ export function ProdukTabBar() {
                 asChild
                 className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
               >
-                <Link href={tab.href}>
+                <Link href={tab.href} prefetch={false}>
                   <Icon />
                   {tab.label}
                 </Link>

@@ -109,9 +109,9 @@ export function DetailHeader({
   return (
     <div className="flex flex-col gap-4">
       <nav className="flex items-center gap-1 text-xs text-muted-foreground">
-        <Link href="/dashboard" className="hover:text-foreground">Dashboard</Link>
+        <Link href="/dashboard" prefetch={false} className="hover:text-foreground">Dashboard</Link>
         <ChevronRightIcon className="size-3" />
-        <Link href="/dashboard/master-produk" className="hover:text-foreground">Produk Master</Link>
+        <Link href="/dashboard/master-produk" prefetch={false} className="hover:text-foreground">Produk Master</Link>
         <ChevronRightIcon className="size-3" />
         <span className="truncate text-foreground">{product.name}</span>
       </nav>
@@ -131,13 +131,13 @@ export function DetailHeader({
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <Button variant="outline" size="sm" asChild disabled={lifecyclePending}>
-              <Link href={`/dashboard/master-produk/${product.id}/edit`}>
+              <Link href={`/dashboard/master-produk/${product.id}/edit`} prefetch={false}>
                 <PencilIcon /> Edit
               </Link>
             </Button>
             <StatusActions product={product} isPending={lifecyclePending} onAction={onLifecycle} />
             <Button variant="ghost" size="icon" asChild aria-label="Tutup">
-              <Link href="/dashboard/master-produk">
+              <Link href="/dashboard/master-produk" prefetch={false}>
                 <XIcon />
               </Link>
             </Button>

@@ -23,7 +23,7 @@ export function EditProdukLoader({ id }: { id: string }) {
             Coba lagi
           </Button>
           <Button variant="primary" size="sm" asChild>
-            <Link href="/dashboard/master-produk">Kembali ke daftar</Link>
+            <Link href="/dashboard/master-produk" prefetch={false}>Kembali ke daftar</Link>
           </Button>
         </div>
       </div>

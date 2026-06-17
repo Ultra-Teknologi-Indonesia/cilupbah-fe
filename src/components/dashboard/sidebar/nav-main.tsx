@@ -127,7 +127,7 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                               <SidebarMenuSubButton asChild>
                                 <Link
                                   href={subRoute.link}
-                                  prefetch={true}
+                                  prefetch={false}
                                   onClick={handleNavClick}
                                   className={cn(
                                     "flex items-center justify-between rounded-md px-4 py-1.5 text-sm",
@@ -153,7 +153,7 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         href={nestedSub.link}
-                                        prefetch={true}
+                                        prefetch={false}
                                         onClick={handleNavClick}
                                         className={cn(
                                           "flex items-center rounded-md px-4 py-1 text-xs",
@@ -179,7 +179,7 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
               <SidebarMenuButton tooltip={route.title} isActive={isActive} asChild>
                 <Link
                   href={route.link}
-                  prefetch={true}
+                  prefetch={false}
                   onClick={handleNavClick}
                 >
                   {Icon && (

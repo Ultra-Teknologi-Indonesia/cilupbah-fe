@@ -24,6 +24,7 @@ function produkCell(p: PantauanProduct) {
       <div className="min-w-0">
         <Link
           href={`/dashboard/master-produk/${p.productId}`}
+          prefetch={false}
           className="line-clamp-1 font-medium hover:text-primary hover:underline"
         >
           {p.productName}
@@ -85,7 +86,7 @@ export function buildPantauanColumns(lens: PantauanLens): ColumnDef<PantauanProd
       cell: ({ row }) => (
         <div className="text-right">
           <Button variant="primary" size="sm" asChild>
-            <Link href={`/dashboard/produk/${row.original.productId}/upload-to-channel`}>
+            <Link href={`/dashboard/produk/${row.original.productId}/upload-to-channel`} prefetch={false}>
               <UploadIcon className="size-4" />
               Upload
             </Link>

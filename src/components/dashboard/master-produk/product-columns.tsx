@@ -104,6 +104,7 @@ export const productColumns: ColumnDef<Product>[] = [
             <div className="flex items-center gap-1.5">
               <Link
                 href={`/dashboard/master-produk/${p.itemGroupId}`}
+                prefetch={false}
                 className="truncate font-medium hover:text-primary hover:underline"
               >
                 {p.itemName}

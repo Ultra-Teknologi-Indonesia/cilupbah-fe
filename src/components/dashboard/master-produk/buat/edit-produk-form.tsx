@@ -150,7 +150,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" asChild disabled={busy}>
-              <Link href={detailHref}>Batal</Link>
+              <Link href={detailHref} prefetch={false}>Batal</Link>
             </Button>
             <Button variant="primary" onClick={() => !busy && handleSubmit(onValid, onInvalid)()} disabled={busy}>
               {busy ? <Loader2Icon className="animate-spin" /> : <SaveIcon />}
