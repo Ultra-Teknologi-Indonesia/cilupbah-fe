@@ -28,7 +28,13 @@ import { FormSectionCard } from "@/components/ui/form-section-card"
 
 export function BuatProdukForm() {
   const router = useRouter()
-  const [mediaFiles, setMediaFiles] = React.useState<File[]>([])
+  const [mediaFiles, setMediaFilesRaw] = React.useState<File[]>([])
+  const [mediaError, setMediaError] = React.useState(false)
+  const hasImage = mediaFiles.some((f) => f.type.startsWith("image/"))
+  const setMediaFiles = (files: File[]) => {
+    setMediaFilesRaw(files)
+    if (files.some((f) => f.type.startsWith("image/"))) setMediaError(false)
+  }
   const modeRef = React.useRef<"download" | "in_review">("in_review")
   const { mutateAsync, isPending } = useCreateProduct()
   const { mutateAsync: createBundle, isPending: isBundlePending } = useCreateBundle()
@@ -148,6 +154,13 @@ export function BuatProdukForm() {
 
   const submit = (mode: "download" | "in_review") => {
     if (busy) return
+    // Foto wajib minimal 1 (kecuali bundle yang tersusun dari komponen).
+    if (!form.getValues("isBundle") && !hasImage) {
+      setMediaError(true)
+      toast.error("Minimal 1 foto produk wajib diunggah")
+      document.getElementById("media")?.scrollIntoView({ behavior: "smooth", block: "start" })
+      return
+    }
     modeRef.current = mode
     handleSubmit(onValid, onInvalid)()
   }
@@ -166,7 +179,7 @@ export function BuatProdukForm() {
     if (id === "detail") return v.name && v.sku && v.category ? "valid" : "empty"
     if (id === "penjualan") return !v.isSold || v.sellPrice ? "valid" : "empty"
     if (id === "pengiriman") return v.weight ? "valid" : "empty"
-    if (id === "media") return mediaFiles.length > 0 ? "valid" : "empty"
+    if (id === "media") return mediaError ? "error" : hasImage ? "valid" : "empty"
     return "empty"
   }
 
@@ -243,6 +256,14 @@ export function BuatProdukForm() {
 
             <FormSectionCard id="media" title="Gambar & Video Produk">
               <MediaUploader onChange={setMediaFiles} />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Minimal 1 foto produk wajib diunggah.
+              </p>
+              {mediaError && (
+                <p className="mt-1 text-xs font-medium text-destructive">
+                  Tambahkan minimal 1 foto produk untuk melanjutkan.
+                </p>
+              )}
             </FormSectionCard>
           </form>
         </Form>
