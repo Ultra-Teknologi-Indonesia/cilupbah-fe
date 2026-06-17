@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { LiquidGlassFilter } from "@/components/ui/liquid-glass-filter";
@@ -39,6 +40,7 @@ export default function RootLayout({
           {children}
         </QueryProvider>
         <Toaster />
+        <SpeedInsights />
       </body>
     </html>
   );

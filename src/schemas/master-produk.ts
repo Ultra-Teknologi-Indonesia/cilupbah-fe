@@ -2,7 +2,12 @@ import { z } from "zod"
 
 export const buatProdukSchema = z
   .object({
-    name: z.string().trim().min(1, "Nama produk wajib diisi").max(255),
+    name: z
+      .string()
+      .trim()
+      .min(1, "Nama produk wajib diisi")
+      .min(25, "Nama produk minimal 25 karakter (syarat upload ke TikTok).")
+      .max(255, "Nama produk maksimal 255 karakter."),
     sku: z.string().trim().min(1, "SKU wajib diisi").max(50),
     category: z
       .object({ id: z.string(), name: z.string(), path: z.array(z.string()) })

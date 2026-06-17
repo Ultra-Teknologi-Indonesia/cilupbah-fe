@@ -15,41 +15,9 @@ export function LiquidGlassFilter() {
     }
   }, []);
 
-  return (
-    <svg
-      aria-hidden="true"
-      width="0"
-      height="0"
-      style={{ position: "absolute", width: 0, height: 0, pointerEvents: "none" }}
-    >
-      <defs>
-        <filter
-          id="liquid-glass-refraction"
-          x="-25%"
-          y="-25%"
-          width="150%"
-          height="150%"
-          colorInterpolationFilters="sRGB"
-        >
-
-          <feTurbulence
-            type="fractalNoise"
-            baseFrequency="0.009 0.013"
-            numOctaves={2}
-            seed={7}
-            result="noise"
-          />
-          <feGaussianBlur in="noise" stdDeviation="2.2" result="softNoise" />
-
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="softNoise"
-            scale="16"
-            xChannelSelector="R"
-            yChannelSelector="G"
-          />
-        </filter>
-      </defs>
-    </svg>
-  );
+  // Filter SVG refraction (feTurbulence + feDisplacementMap) dihapus: itu
+  // backdrop-filter termahal dan di-repaint terus selama sidebar terlihat,
+  // membuat seluruh app terasa berat di Chrome. Class `refraction` tetap
+  // disuntik agar blur kaca sidebar (di globals.css) aktif tanpa displacement.
+  return null;
 }

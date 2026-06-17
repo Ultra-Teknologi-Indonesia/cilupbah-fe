@@ -239,8 +239,11 @@
 }
 
 .refraction .sidebar-glass:not(.lg-animating) {
-  backdrop-filter: blur(6px) saturate(1.6) brightness(1.04)
-    url(#liquid-glass-refraction);
+  /* SVG refraction (feTurbulence + feDisplacementMap) dilepas — operasi
+     backdrop-filter terberat & di-repaint terus selama sidebar terlihat.
+     Blur kaca dipertahankan agar tampilan tetap sama. */
+  backdrop-filter: blur(6px) saturate(1.6) brightness(1.04);
+  -webkit-backdrop-filter: blur(6px) saturate(1.6) brightness(1.04);
 }
 
 .sidebar-glass.lg-animating {

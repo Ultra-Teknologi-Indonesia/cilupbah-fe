@@ -62,7 +62,7 @@ export function ProductCard({
             checked={selected}
             onCheckedChange={(v) => onSelectedChange(!!v)}
             aria-label="Pilih produk"
-            className="border-transparent bg-background/80 shadow-sm backdrop-blur"
+            className="border-transparent bg-background/95 shadow-sm"
           />
         </div>
 
@@ -70,7 +70,7 @@ export function ProductCard({
           <ProductStatusBadge
             status={product.status}
 
-            className="border-transparent bg-background/90 shadow-sm ring-1 ring-black/5 backdrop-blur-sm"
+            className="border-transparent bg-background/95 shadow-sm ring-1 ring-black/5"
           />
         </div>
       </div>

@@ -44,8 +44,11 @@ export function FormDetailSection({
             <FormItem>
               <FormLabel>Nama Produk <span className="text-destructive">*</span></FormLabel>
               <FormControl>
-                <Input placeholder="mis. Resistance Band Set Premium" {...field} />
+                <Input placeholder="mis. Resistance Band Set Premium Anti Slip 5 Tingkat" {...field} />
               </FormControl>
+              <FormDescription>
+                Minimal 25 karakter agar bisa diupload ke TikTok ({(field.value ?? "").trim().length}/25).
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

@@ -61,7 +61,7 @@ function HistoryStatus({ row }: { row: HistoryRow }) {
     )
   }
   return (
-    <div className="flex max-w-[16rem] flex-col items-start gap-1">
+    <div className="flex flex-col items-start gap-1">
       <span
         className={
           "rounded px-1.5 py-0.5 text-[11px] font-medium " +
@@ -74,7 +74,7 @@ function HistoryStatus({ row }: { row: HistoryRow }) {
       </span>
       {row.statusMessage && (
         <span
-          className="line-clamp-2 text-[11px] leading-snug text-destructive/90"
+          className="line-clamp-2 max-w-[18rem] break-words text-[11px] leading-snug text-destructive/90"
           title={row.statusMessage}
         >
           {row.statusMessage}
