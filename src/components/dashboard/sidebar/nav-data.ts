@@ -1,12 +1,8 @@
 import {
   Home,
-  Package,
   Package2,
-  ArrowUpRightSquare,
-  UploadCloud,
   Tag,
   FolderTree,
-  ShoppingCart,
   BarChart2,
   RefreshCw,
   Eye,
@@ -67,10 +63,13 @@ export const dashboardGroups: NavGroup[] = [
     icon: Boxes,
     zone: "ops",
     items: [
-      { id: "produk", title: "Produk Master", icon: Package2, link: "/dashboard/master-produk" },
-      { id: "upload-produk", title: "Upload ke Marketplace", icon: UploadCloud, link: "/dashboard/produk/upload" },
-      { id: "produk-bundle", title: "Produk Bundle", icon: Package, link: "/dashboard/produk/bundle" },
-      { id: "naikkan-produk", title: "Naikkan Produk", icon: ArrowUpRightSquare, link: "/dashboard/produk/naikkan" },
+      {
+        id: "produk",
+        title: "Produk",
+        icon: Package2,
+        link: "/dashboard/master-produk",
+        match: ["/dashboard/master-produk", "/dashboard/produk", "/dashboard/listing-marketplace"],
+      },
       {
         id: "harga-promosi",
         title: "Harga & Promosi",
@@ -91,7 +90,6 @@ export const dashboardGroups: NavGroup[] = [
           { title: "Merek", link: "/dashboard/kategori-merek/merek" },
         ],
       },
-      { id: "listing-marketplace", title: "Listing Marketplace", icon: ShoppingCart, link: "/dashboard/listing-marketplace" },
     ],
   },
   {

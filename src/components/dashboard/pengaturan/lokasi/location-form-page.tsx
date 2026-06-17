@@ -31,7 +31,7 @@ import type {
 import { InformasiTab } from "./informasi-tab"
 import { LayoutGudangTab } from "./layout-gudang-tab"
 
-const LIST_HREF = "/dashboard/pengaturan/lokasi"
+const LIST_HREF = "/dashboard/manajemen-rak/lokasi"
 
 type Section = "informasi" | "layout"
 
@@ -203,8 +203,9 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
         <PageTitle
           title={title}
           breadcrumb={[
-            { label: "Pengaturan", href: "/dashboard/pengaturan" },
-            { label: "Lokasi", href: LIST_HREF },
+            { label: "Gudang" },
+            { label: "Manajemen Rak & Lokasi" },
+            { label: "Lokasi Gudang", href: LIST_HREF },
             { label: title },
           ]}
           actions={

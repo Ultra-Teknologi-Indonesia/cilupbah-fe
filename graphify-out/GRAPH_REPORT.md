@@ -1,16 +1,16 @@
 # Graph Report - cilupbah-fe  (2026-06-17)
 
 ## Corpus Check
-- 231 files · ~68,341 words
+- 232 files · ~68,806 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1124 nodes · 2875 edges · 70 communities (59 shown, 11 thin omitted)
+- 1129 nodes · 2894 edges · 63 communities (50 shown, 13 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `16e40200`
+- Built from commit: `286a3d17`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -70,16 +70,9 @@
 - [[_COMMUNITY_Community 56|Community 56]]
 - [[_COMMUNITY_Community 57|Community 57]]
 - [[_COMMUNITY_Community 58|Community 58]]
-- [[_COMMUNITY_Community 59|Community 59]]
 - [[_COMMUNITY_Community 60|Community 60]]
 - [[_COMMUNITY_Community 61|Community 61]]
-- [[_COMMUNITY_Community 62|Community 62]]
-- [[_COMMUNITY_Community 63|Community 63]]
 - [[_COMMUNITY_Community 64|Community 64]]
-- [[_COMMUNITY_Community 65|Community 65]]
-- [[_COMMUNITY_Community 66|Community 66]]
-- [[_COMMUNITY_Community 67|Community 67]]
-- [[_COMMUNITY_Community 68|Community 68]]
 - [[_COMMUNITY_Community 69|Community 69]]
 
 ## God Nodes (most connected - your core abstractions)
@@ -109,7 +102,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (70 total, 11 thin omitted)
+## Communities (63 total, 13 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.05
@@ -124,27 +117,27 @@ Cohesion: 0.04
 Nodes (45): dependencies, axios, class-variance-authority, clsx, framer-motion, @hookform/resolvers, lucide-react, maplibre-gl (+37 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.27
-Nodes (11): ListingMarketplaceView(), ChannelListingParams, ChannelProductService, channelProductsKey(), UnlinkInput, useBulkUnlinkListing(), useChannelProducts(), useDownloadChannel() (+3 more)
+Cohesion: 0.16
+Nodes (15): BreadcrumbEntry, PageTitle(), PageTitleProps, cn(), Breadcrumb(), BreadcrumbEllipsis(), BreadcrumbItem(), BreadcrumbLink() (+7 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.15
-Nodes (19): DataTableColumnHeader(), DataTableColumnHeaderProps, DataTableViewOptionsProps, Team, TeamSwitcher(), DropdownMenu(), DropdownMenuCheckboxItem(), DropdownMenuContent() (+11 more)
+Cohesion: 0.07
+Nodes (43): DataTableColumnHeader(), DataTableColumnHeaderProps, DataTableProps, DataTableFacetedFilter(), DataTableFacetedFilterProps, DataTablePagination(), DataTableToolbar(), DataTableToolbarProps (+35 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.10
 Nodes (19): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+11 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.06
-Nodes (54): clearLoginSession(), setLoginSession(), loginSchema, LoginValues, BundleBuilder(), BundleComponentValue, CategoryPicker(), FormDetailSection() (+46 more)
+Cohesion: 0.17
+Nodes (16): clearLoginSession(), setLoginSession(), loginSchema, LoginValues, FormControl, FormDescription, FormField(), FormFieldContext (+8 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.29
-Nodes (6): StoreFlags, BundleService, CreateBundlePayload, ApiList, ApiResponse, ApiValidationError
+Nodes (6): apiClient, fetchClient(), InventoryService, RawStockRow, VariantStock, ProductUpdateService
 
 ### Community 8 - "Community 8"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (20): useGlassSpecular(), DashboardSidebar(), Logo(), dashboardGroups, findGroupIdForPath(), isLeafGroup(), linkMatchLen(), NavGroup (+12 more)
 
 ### Community 9 - "Community 9"
@@ -152,20 +145,20 @@ Cohesion: 0.06
 Nodes (54): DataTablePaginationProps, CUSTOMER_TYPE_LABEL, SortHeader(), TabBukuHarga(), TabChannel(), TabHargaChannel(), PAGE_SIZES, STATUS_LABEL (+46 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.10
-Nodes (26): useIsMobile(), cn(), Sheet(), SheetContent(), SheetDescription(), SheetFooter(), SheetHeader(), SheetOverlay() (+18 more)
+Cohesion: 0.09
+Nodes (27): useIsMobile(), TeamSwitcher(), DashboardNavigation(), Route, SubRoute, TeamSwitcher(), Separator(), Sidebar() (+19 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.13
-Nodes (21): buildCreatePayload(), num(), buildUpdatePayload(), num(), CreateMediaInput, CreateProductPayload, CreateProductResult, CreateVariantInput (+13 more)
+Cohesion: 0.16
+Nodes (17): BuatProdukForm(), EditProdukForm(), FormShippingSection(), FormSpecificationSection(), FormVariantSection(), MediaUploader(), Preview, SectionItem (+9 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.08
-Nodes (33): DataTable(), BulkUploadResult, DraftParams, DraftRow, DraftStatus, HistoryParams, HistoryRow, MatchRow (+25 more)
+Cohesion: 0.05
+Nodes (64): DataTable(), Confirm, stack(), ListingMarketplaceView(), CategoryNode, findCategoryPath(), ChannelListing, ChannelListingParams (+56 more)
 
 ### Community 13 - "Community 13"
-Cohesion: 0.17
-Nodes (16): DimensionRowProps, LayoutGudangTab(), LayoutGudangTabProps, binCombinationCount(), buildBinPreview(), BinPreviewItem, Label(), Skeleton() (+8 more)
+Cohesion: 0.16
+Nodes (18): DimensionRowProps, LayoutGudangTabProps, ChannelDot(), Label(), Skeleton(), Switch(), Table(), TableBody() (+10 more)
 
 ### Community 14 - "Community 14"
 Cohesion: 0.27
@@ -180,20 +173,20 @@ Cohesion: 0.50
 Nodes (3): Deploy on Vercel, Getting Started, Learn More
 
 ### Community 21 - "Community 21"
-Cohesion: 0.24
-Nodes (15): Confirm, StatusActions(), Button(), buttonVariants, Dialog(), DialogClose(), DialogContent(), DialogDescription() (+7 more)
+Cohesion: 0.25
+Nodes (5): DetailHeader(), ProductTypeBadge(), TYPE_LABEL, TYPE_STYLE, StatusActions()
 
 ### Community 32 - "Community 32"
-Cohesion: 0.35
-Nodes (8): DataTableProps, DataTableFacetedFilter(), DataTableFacetedFilterProps, DataTableToolbar(), DataTableToolbarProps, DataTableViewOptions(), FacetedFilter, FacetedFilterOption
+Cohesion: 0.17
+Nodes (18): buildCreatePayload(), num(), buildUpdatePayload(), num(), CreateMediaInput, CreateProductPayload, CreateProductResult, CreateVariantInput (+10 more)
 
 ### Community 33 - "Community 33"
-Cohesion: 0.11
-Nodes (25): Channel, ChannelCode, ChannelGroup, ConnectedStore, IntegrationStatus, RawChannel, RawConnectedStore, StoreIntegration (+17 more)
+Cohesion: 0.09
+Nodes (33): ChannelService, StoreFlags, Channel, ChannelCode, ChannelGroup, ConnectedStore, IntegrationStatus, RawChannel (+25 more)
 
 ### Community 34 - "Community 34"
-Cohesion: 0.19
-Nodes (13): BuatProdukForm(), EditProdukForm(), FormShippingSection(), MediaUploader(), Preview, SectionItem, SectionNav(), SectionStatus (+5 more)
+Cohesion: 0.38
+Nodes (10): FormSalesSection(), useCogsAccounts(), useInventoryAccounts(), useMasterDataQuery(), usePurchaseTaxes(), useSalesAccounts(), useSalesReturnAccounts(), useSalesTaxes() (+2 more)
 
 ### Community 35 - "Community 35"
 Cohesion: 0.11
@@ -208,32 +201,32 @@ Cohesion: 0.12
 Nodes (15): 1.1 Listing master (utama untuk halaman ini), 1.2 CRUD produk penuh (`apiResource products`), 1.3 Payload create/update (`CreateProductRequest`), 1.4 Lookups & operasi pendukung, 1.5 Bentuk response standar, 1. Ringkasan Backend (sumber kebenaran), 2. Use case yang harus ditangani, 3. Arsitektur & struktur file (FE) (+7 more)
 
 ### Community 38 - "Community 38"
-Cohesion: 0.32
-Nodes (6): LocationListParams, LocationPayload, LocationService, locationKeys, ToggleLocationActiveVars, UpdateLocationVars
+Cohesion: 0.24
+Nodes (10): LoginForm(), LoginScreen(), metadata, Card(), CardAction(), CardContent(), CardDescription(), CardFooter() (+2 more)
 
 ### Community 39 - "Community 39"
-Cohesion: 0.17
-Nodes (10): BreadcrumbEntry, PageTitle(), PageTitleProps, Breadcrumb(), BreadcrumbEllipsis(), BreadcrumbItem(), BreadcrumbLink(), BreadcrumbList() (+2 more)
+Cohesion: 0.32
+Nodes (9): detailToFormValues(), detailVariantLocks(), reconstructVariants(), s(), buildCombos(), comboKey(), comboLabel(), skuPart() (+1 more)
 
 ### Community 40 - "Community 40"
-Cohesion: 0.22
-Nodes (10): ChannelService, useConnectChannel(), useDisconnectStore(), useRefreshToken(), useToggleStoreFlag(), CHANNEL_STORES_KEY, useConnectedStores(), ChannelGroup() (+2 more)
+Cohesion: 0.18
+Nodes (10): acc(), AccountsCard(), ShippingCard(), yn(), DetailTab, ProductDetailView(), BundleStock, TabKomposisi() (+2 more)
 
 ### Community 41 - "Community 41"
-Cohesion: 0.18
-Nodes (13): ShopMultiSelect(), ProductVariantPopover(), Checkbox(), ComboboxOption, ComboboxProps, Popover(), PopoverContent(), PopoverDescription() (+5 more)
+Cohesion: 0.19
+Nodes (12): ShopMultiSelect(), ProductVariantPopover(), ComboboxOption, ComboboxProps, Popover(), PopoverContent(), PopoverDescription(), PopoverHeader() (+4 more)
 
 ### Community 42 - "Community 42"
-Cohesion: 0.16
-Nodes (17): data, SidebarItem, sidebarItems, Notification, NotificationsPopover(), Avatar(), AvatarBadge(), AvatarFallback() (+9 more)
+Cohesion: 0.10
+Nodes (22): data, SidebarItem, sidebarItems, Avatar(), AvatarBadge(), AvatarFallback(), AvatarGroup(), AvatarGroupCount() (+14 more)
 
 ### Community 43 - "Community 43"
 Cohesion: 0.24
 Nodes (8): RawAccount, RawBrand, RawCategory, RawShop, RawTax, TaxLookup, MasterDataService, LookupOption
 
 ### Community 44 - "Community 44"
-Cohesion: 0.26
-Nodes (9): DataTablePagination(), ProductBulkActions(), ProductCardView(), productColumns, Product, ProductListViewProps, ProductTable(), ProductVariantDetail() (+1 more)
+Cohesion: 0.24
+Nodes (10): CategoryPicker(), FormDetailSection(), ProductCardView(), ProductExplorer(), Query, View, ProductTable(), useBrandOptions() (+2 more)
 
 ### Community 45 - "Community 45"
 Cohesion: 0.17
@@ -244,109 +237,73 @@ Cohesion: 0.17
 Nodes (11): Catatan & risiko, Endpoint BE (acuan, sudah ada), FASE L — Listing Marketplace (Produk Channel)  🔴 prioritas 2, FASE M — Pantauan / Monitoring  🟠 prioritas 3, FASE N — Naikkan Produk = Promosi & Iklan (boost)  ⚪ OPSIONAL · DIKERJAKAN TERAKHIR, FASE R — In Review (daftar review)  🟢 prioritas 4 (kecil), FASE U — Upload ke marketplace  🔴 prioritas 1, IA & Navigasi — rekomendasi UX (page vs tab) (+3 more)
 
 ### Community 47 - "Community 47"
-Cohesion: 0.07
-Nodes (28): EditProdukLoader(), acc(), AccountsCard(), ShippingCard(), yn(), ProductDetailSkeleton(), DetailTab, ProductDetailView() (+20 more)
+Cohesion: 0.15
+Nodes (16): activeId(), ProdukTabBar(), Tab, TABS, LiquidGlass, LiquidGlassProps, Tabs(), TabsContent() (+8 more)
 
 ### Community 48 - "Community 48"
 Cohesion: 0.16
 Nodes (14): DEFAULT_CENTER, LocationMapPicker(), LocationMapPickerProps, MapClickHandler(), parseCoordinate(), CompassButton(), Map, MapArc() (+6 more)
 
 ### Community 49 - "Community 49"
-Cohesion: 0.23
-Nodes (9): LocationBinService, GenerateBinsPayload, LocationBin, LocationVillage, RawLocationBin, WarehouseLayoutSetting, GenerateBinsVars, RawSetting (+1 more)
+Cohesion: 0.22
+Nodes (7): EditProdukLoader(), ProductDetailSkeleton(), LifecycleAction, ProductDetailService, ACTION_LABEL, productDetailKey(), useProductDetail()
 
 ### Community 50 - "Community 50"
-Cohesion: 0.20
-Nodes (10): DeleteLocationDialog(), LocationListView(), LocationTable(), useDeleteLocation(), useLocations(), useToggleLocationActive(), settingKey, useSaveWarehouseLayoutSetting() (+2 more)
+Cohesion: 0.23
+Nodes (9): InformasiTab(), RegionOption, RawRegion, RegionService, regionKeys, useCities(), useDistricts(), useProvinces() (+1 more)
 
 ### Community 51 - "Community 51"
 Cohesion: 0.40
 Nodes (4): WarehouseUser, useWarehouseUsers(), RawUser, WarehouseUserService
 
 ### Community 52 - "Community 52"
-Cohesion: 0.21
-Nodes (10): ArchivedProduct, RawArchivedItem, ChannelListingResult, ArchiveResult, MasterProductsParams, MasterProductsResult, ProductListService, RawMasterItem (+2 more)
+Cohesion: 0.08
+Nodes (26): ArchiveTable(), ArchiveView(), BundleBuilder(), BundleComponentValue, ArchivedProduct, RawArchivedItem, SelectedCategory, ChannelListingResult (+18 more)
 
 ### Community 53 - "Community 53"
 Cohesion: 0.29
 Nodes (7): AuthService, AuthData, LoginRequest, LoginResponse, User, AuthState, useAuthStore
 
 ### Community 54 - "Community 54"
-Cohesion: 0.18
-Nodes (9): apiClient, fetchClient(), ChannelListing, ChannelListingVariant, RawChannelListing, RawConnection, RegionOption, RawRegion (+1 more)
+Cohesion: 0.40
+Nodes (4): CHANNEL_COLORS, PRODUCT_STATUS_META, PRODUCT_STATUS_OPTIONS, StatusBadgeVariant
 
 ### Community 55 - "Community 55"
-Cohesion: 0.13
-Nodes (12): createDefaults, LocationFormPage(), LocationFormPageProps, Section, layoutBuilderSchema, LayoutBuilderValues, locationFormSchema, LocationFormValues (+4 more)
+Cohesion: 0.06
+Nodes (45): DeleteLocationDialog(), DeleteLocationDialogProps, LayoutGudangTab(), createDefaults, LocationFormPage(), LocationFormPageProps, Section, LocationListView() (+37 more)
 
 ### Community 56 - "Community 56"
-Cohesion: 0.29
-Nodes (4): DetailHeader(), ProductCard(), formatIDR(), DetailVariant
+Cohesion: 0.25
+Nodes (7): BundleService, CreateBundlePayload, RawMedia, UploadedMedia, ApiList, ApiResponse, ApiValidationError
 
 ### Community 57 - "Community 57"
-Cohesion: 0.15
-Nodes (12): ProductTypeBadge(), TYPE_LABEL, TYPE_STYLE, AccountRef, DetailTax, DetailVariantOption, DetailVariationType, ProductDetail (+4 more)
-
-### Community 58 - "Community 58"
-Cohesion: 0.22
-Nodes (11): CHANNEL_COLORS, PRODUCT_STATUS_META, StatusBadgeVariant, ProductCardProps, ChannelDot(), ProductChannelBadges(), productColumnLabels, ProductRowActions() (+3 more)
-
-### Community 59 - "Community 59"
-Cohesion: 0.24
-Nodes (8): ArchiveTable(), ArchiveView(), ArchiveParams, ProductArchiveService, ProductDetailService, ARCHIVE_KEY, useArchivedProducts(), useRestoreProduct()
+Cohesion: 0.18
+Nodes (12): AccountRef, DetailTax, DetailVariantOption, DetailVariationType, ProductDetail, ProductTypeKind, RawProductDetail, ProductChannelStatus (+4 more)
 
 ### Community 60 - "Community 60"
-Cohesion: 0.24
-Nodes (10): LoginForm(), LoginScreen(), metadata, Card(), CardAction(), CardContent(), CardDescription(), CardFooter() (+2 more)
-
-### Community 61 - "Community 61"
-Cohesion: 0.29
-Nodes (10): FormVariantSection(), detailToFormValues(), detailVariantLocks(), reconstructVariants(), s(), buildCombos(), comboKey(), comboLabel() (+2 more)
-
-### Community 62 - "Community 62"
-Cohesion: 0.33
-Nodes (3): CategoryNode, SelectedCategory, findCategoryPath()
-
-### Community 63 - "Community 63"
-Cohesion: 0.22
-Nodes (10): TeamSwitcher(), DashboardNavigation(), SubRoute, SidebarGroupLabel(), SidebarMenuButton(), sidebarMenuButtonVariants, SidebarMenuSub(), SidebarMenuSubButton() (+2 more)
-
-### Community 65 - "Community 65"
-Cohesion: 0.40
-Nodes (5): DeleteLocationDialogProps, LocationTableProps, Location, RawLocation, LocationListResult
-
-### Community 66 - "Community 66"
 Cohesion: 0.40
 Nodes (4): CategoryFormAttributes, FormAttribute, FormAttributeChannelStatus, FormAttributeOption
-
-### Community 67 - "Community 67"
-Cohesion: 0.50
-Nodes (3): InventoryService, RawStockRow, VariantStock
-
-### Community 68 - "Community 68"
-Cohesion: 0.40
-Nodes (4): ProductChannelStatus, ProductVariant, RawMasterOnlineStatus, RawMasterVariant
 
 ### Community 69 - "Community 69"
 Cohesion: 0.50
 Nodes (4): MarkerContent(), MarkerPopup(), MarkerTooltip(), useMarkerContext()
 
 ## Knowledge Gaps
-- **305 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+300 more)
+- **307 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+302 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `cn()` connect `Community 10` to `Community 0`, `Community 4`, `Community 6`, `Community 8`, `Community 9`, `Community 12`, `Community 13`, `Community 14`, `Community 21`, `Community 33`, `Community 34`, `Community 39`, `Community 40`, `Community 41`, `Community 42`, `Community 44`, `Community 47`, `Community 48`, `Community 50`, `Community 55`, `Community 56`, `Community 57`, `Community 58`, `Community 60`, `Community 63`, `Community 64`, `Community 69`?**
-  _High betweenness centrality (0.254) - this node is a cross-community bridge._
-- **Why does `Button()` connect `Community 21` to `Community 4`, `Community 6`, `Community 9`, `Community 10`, `Community 12`, `Community 13`, `Community 32`, `Community 33`, `Community 34`, `Community 40`, `Community 42`, `Community 44`, `Community 47`, `Community 50`, `Community 55`, `Community 57`, `Community 58`, `Community 59`, `Community 61`?**
-  _High betweenness centrality (0.053) - this node is a cross-community bridge._
-- **Why does `ApiResponse` connect `Community 7` to `Community 67`, `Community 6`, `Community 38`, `Community 9`, `Community 43`, `Community 11`, `Community 12`, `Community 49`, `Community 52`, `Community 53`, `Community 54`, `Community 57`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+- **Why does `cn()` connect `Community 3` to `Community 0`, `Community 4`, `Community 6`, `Community 8`, `Community 9`, `Community 10`, `Community 11`, `Community 12`, `Community 13`, `Community 14`, `Community 21`, `Community 33`, `Community 34`, `Community 38`, `Community 41`, `Community 42`, `Community 44`, `Community 47`, `Community 48`, `Community 52`, `Community 55`, `Community 61`, `Community 64`, `Community 69`?**
+  _High betweenness centrality (0.261) - this node is a cross-community bridge._
+- **Why does `Button()` connect `Community 12` to `Community 33`, `Community 3`, `Community 4`, `Community 6`, `Community 39`, `Community 40`, `Community 9`, `Community 42`, `Community 11`, `Community 44`, `Community 13`, `Community 10`, `Community 47`, `Community 49`, `Community 52`, `Community 21`, `Community 55`?**
+  _High betweenness centrality (0.061) - this node is a cross-community bridge._
+- **Why does `Input()` connect `Community 6` to `Community 33`, `Community 34`, `Community 3`, `Community 4`, `Community 39`, `Community 9`, `Community 41`, `Community 11`, `Community 12`, `Community 13`, `Community 44`, `Community 10`, `Community 47`, `Community 52`, `Community 55`?**
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **What connects `$schema`, `style`, `rsc` to the rest of the system?**
-  _305 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _307 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.05 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**

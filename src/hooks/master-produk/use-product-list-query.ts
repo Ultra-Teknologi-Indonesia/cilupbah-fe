@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import type { PaginationState, SortingState } from "@tanstack/react-table"
 
 import type { SelectedCategory } from "@/types/master-produk"
@@ -14,9 +15,16 @@ const SORT_FIELD: Record<string, string> = {
 
 
 export function useProductListQuery() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  // Status = lensa URL (deep-linkable, dipakai tab Master/In Review).
+  const urlStatus = searchParams.get("status")
+
   const [search, setSearch] = React.useState("")
   const [debouncedSearch, setDebouncedSearch] = React.useState("")
-  const [status, setStatusRaw] = React.useState<string | null>(null)
+  const [status, setStatusRaw] = React.useState<string | null>(urlStatus)
+  const [prevUrlStatus, setPrevUrlStatus] = React.useState<string | null>(urlStatus)
   const [brandId, setBrandIdRaw] = React.useState<string | null>(null)
   const [category, setCategoryRaw] = React.useState<SelectedCategory | null>(null)
   const [sorting, setSorting] = React.useState<SortingState>([])
@@ -30,7 +38,14 @@ export function useProductListQuery() {
     []
   )
 
-  
+  // Sinkron status dari URL (mis. klik tab In Review / tombol Back) → state.
+  if (prevUrlStatus !== urlStatus) {
+    setPrevUrlStatus(urlStatus)
+    setStatusRaw(urlStatus)
+    resetPage()
+  }
+
+
   React.useEffect(() => {
     const t = setTimeout(() => {
       setDebouncedSearch(search)
@@ -41,10 +56,13 @@ export function useProductListQuery() {
 
   const setStatus = React.useCallback(
     (v: string | null) => {
-      setStatusRaw(v)
-      resetPage()
+      const params = new URLSearchParams(searchParams.toString())
+      if (v) params.set("status", v)
+      else params.delete("status")
+      const qs = params.toString()
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
     },
-    [resetPage]
+    [router, pathname, searchParams]
   )
   const setBrandId = React.useCallback(
     (v: string | null) => {
@@ -64,12 +82,17 @@ export function useProductListQuery() {
   const reset = React.useCallback(() => {
     setSearch("")
     setDebouncedSearch("")
-    setStatusRaw(null)
     setBrandIdRaw(null)
     setCategoryRaw(null)
     setSorting([])
     resetPage()
-  }, [resetPage])
+    if (searchParams.get("status")) {
+      const params = new URLSearchParams(searchParams.toString())
+      params.delete("status")
+      const qs = params.toString()
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+    }
+  }, [resetPage, router, pathname, searchParams])
 
   const sort = sorting[0]
     ? `${sorting[0].desc ? "-" : ""}${SORT_FIELD[sorting[0].id] ?? sorting[0].id}`

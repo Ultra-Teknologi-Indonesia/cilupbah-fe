@@ -1,4 +1,7 @@
+import { Suspense } from "react"
+
 import { PageTitle } from "@/components/dashboard/page-title"
+import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar"
 import { ArchiveView } from "@/components/dashboard/master-produk/arsip/archive-view"
 
 export default function ArsipProdukPage() {
@@ -9,10 +12,14 @@ export default function ArsipProdukPage() {
         description="Produk yang diarsipkan. Pulihkan untuk mengembalikannya ke katalog."
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Produk Master", href: "/dashboard/master-produk" },
+          { label: "Produk", href: "/dashboard/master-produk" },
           { label: "Arsip" },
         ]}
       />
+
+      <Suspense fallback={null}>
+        <ProdukTabBar />
+      </Suspense>
 
       <ArchiveView />
     </div>

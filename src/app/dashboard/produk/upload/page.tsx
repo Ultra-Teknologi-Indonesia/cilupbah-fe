@@ -1,6 +1,7 @@
 import { Suspense } from "react"
 
 import { PageTitle } from "@/components/dashboard/page-title"
+import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar"
 import { UploadMassalView } from "@/components/dashboard/master-produk/upload/upload-massal-view"
 
 export default function UploadMassalPage() {
@@ -16,6 +17,10 @@ export default function UploadMassalPage() {
           { label: "Upload Massal" },
         ]}
       />
+
+      <Suspense fallback={null}>
+        <ProdukTabBar />
+      </Suspense>
 
       <Suspense fallback={null}>
         <UploadMassalView />

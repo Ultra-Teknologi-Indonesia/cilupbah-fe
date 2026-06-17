@@ -1,8 +1,10 @@
+import { Suspense } from "react"
 import Link from "next/link"
 import { ArchiveIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { PageTitle } from "@/components/dashboard/page-title"
+import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar"
 import { ProductMasterView } from "@/components/dashboard/master-produk/product-master-view"
 
 export default function ProdukMasterPage() {
@@ -26,7 +28,13 @@ export default function ProdukMasterPage() {
         }
       />
 
-      <ProductMasterView />
+      <Suspense fallback={null}>
+        <ProdukTabBar />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <ProductMasterView />
+      </Suspense>
     </div>
   )
 }

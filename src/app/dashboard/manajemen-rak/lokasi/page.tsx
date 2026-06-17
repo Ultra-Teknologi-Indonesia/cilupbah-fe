@@ -9,16 +9,17 @@ export default function LokasiPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageTitle
-        title="Lokasi"
+        title="Lokasi Gudang"
         description="Kelola gudang dan lokasi penyimpanan."
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Pengaturan", href: "/dashboard/pengaturan" },
-          { label: "Lokasi" },
+          { label: "Gudang" },
+          { label: "Manajemen Rak & Lokasi" },
+          { label: "Lokasi Gudang" },
         ]}
         actions={
           <Button variant="primary" asChild>
-            <Link href="/dashboard/pengaturan/lokasi/buat">
+            <Link href="/dashboard/manajemen-rak/lokasi/buat">
               <PlusIcon />
               Tambah baru
             </Link>

@@ -1,4 +1,7 @@
+import { Suspense } from "react"
+
 import { PageTitle } from "@/components/dashboard/page-title"
+import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar"
 import { ListingMarketplaceView } from "@/components/dashboard/master-produk/listing-marketplace/listing-view"
 
 export default function ListingMarketplacePage() {
@@ -13,6 +16,10 @@ export default function ListingMarketplacePage() {
           { label: "Produk Channel" },
         ]}
       />
+
+      <Suspense fallback={null}>
+        <ProdukTabBar />
+      </Suspense>
 
       <ListingMarketplaceView />
     </div>

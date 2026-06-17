@@ -32,6 +32,8 @@ export type Route = {
   title: string;
   icon?: React.ElementType;
   link: string;
+  /** Prefix path tambahan yang menandai item ini aktif (mis. workspace bertab). */
+  match?: string[];
   subs?: SubRoute[];
 };
 
@@ -53,6 +55,9 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
 
   const isRouteActive = (route: Route) => {
     if (pathname === route.link) return true;
+    if (route.match?.some((m) => pathname === m || pathname.startsWith(m + "/"))) {
+      return true;
+    }
     if (route.subs) {
       return route.subs.some((sub) => {
         if (pathname === sub.link) return true;
