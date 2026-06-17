@@ -34,8 +34,6 @@ export function DashboardSidebar() {
   const activeGroup =
     dashboardGroups.find((g) => g.id === activeGroupId) ?? dashboardGroups[0];
 
-  // Workspace Produk punya tab-bar sendiri (ProdukTabBar) → panel nested Katalog
-  // jangan auto-tampil di rute ini (konsisten antar tab Produk).
   const PRODUK_PREFIXES = [
     "/dashboard/master-produk",
     "/dashboard/produk",
@@ -90,7 +88,7 @@ export function DashboardSidebar() {
 
       <SidebarPanel
         group={activeGroup}
-        open={open && !isLeafGroup(activeGroup) && !isProdukWorkspace}
+        open={open && !isLeafGroup(activeGroup) && !(isProdukWorkspace && activeGroupId === "katalog")}
       />
     </div>
   );
