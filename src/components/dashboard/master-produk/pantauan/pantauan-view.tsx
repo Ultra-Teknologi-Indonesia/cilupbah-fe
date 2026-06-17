@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import type { PaginationState } from "@tanstack/react-table"
 import { AlertTriangleIcon, RefreshCwIcon, SearchIcon, SearchXIcon } from "lucide-react"
 
@@ -38,7 +38,6 @@ const TYPES: { value: "" | ProductTypeFilter; label: string }[] = [
 ]
 
 export function PantauanView() {
-  const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const urlLens = searchParams.get("lens")
@@ -95,7 +94,11 @@ export function PantauanView() {
   const setLens = (next: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set("lens", next)
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+    // Update URL secara client-side (tetap deep-linkable & sinkron dengan
+    // useSearchParams) TANPA navigasi server. router.replace memicu RSC fetch
+    // tiap klik tab → tab terasa macet & berat. pushState instan + menambah
+    // entri history, jadi tombol Back browser kembali ke tab sebelumnya.
+    window.history.pushState(null, "", `${pathname}?${params.toString()}`)
   }
 
   const apply = () => {
