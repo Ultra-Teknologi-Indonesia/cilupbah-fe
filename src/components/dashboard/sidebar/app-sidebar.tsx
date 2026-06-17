@@ -24,11 +24,13 @@ export function DashboardSidebar() {
   const [activeGroupId, setActiveGroupId] = React.useState(() =>
     findGroupIdForPath(pathname, dashboardGroups)
   );
+  const [userPickedGroup, setUserPickedGroup] = React.useState(false);
 
   const [prevPath, setPrevPath] = React.useState(pathname);
   if (pathname !== prevPath) {
     setPrevPath(pathname);
     setActiveGroupId(findGroupIdForPath(pathname, dashboardGroups));
+    setUserPickedGroup(false);
   }
 
   const activeGroup =
@@ -46,6 +48,7 @@ export function DashboardSidebar() {
   const handleSelect = React.useCallback(
     (id: string) => {
       setActiveGroupId(id);
+      setUserPickedGroup(true);
       const group = dashboardGroups.find((g) => g.id === id);
 
       if (group && !isLeafGroup(group) && !open) toggleSidebar();
@@ -88,7 +91,7 @@ export function DashboardSidebar() {
 
       <SidebarPanel
         group={activeGroup}
-        open={open && !isLeafGroup(activeGroup) && !(isProdukWorkspace && activeGroupId === "katalog")}
+        open={open && !isLeafGroup(activeGroup) && !(isProdukWorkspace && activeGroupId === "katalog" && !userPickedGroup)}
       />
     </div>
   );
