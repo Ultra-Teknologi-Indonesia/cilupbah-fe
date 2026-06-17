@@ -8,7 +8,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  
+
   --font-mono: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -122,15 +122,12 @@
   * {
     @apply border-border outline-ring/50;
   }
-  
 
-  
   .bg-sidebar, [data-sidebar="sidebar"] {
-    
+
     @apply backdrop-blur-xl shadow-sm border border-white/20 dark:border-white/10;
   }
 
-  
   .bg-card, .bg-popover {
     backdrop-filter: blur(20px) saturate(1.8) brightness(1.05);
     -webkit-backdrop-filter: blur(20px) saturate(1.8) brightness(1.05);
@@ -165,7 +162,7 @@
     @apply bg-background text-foreground;
 
     background-color: var(--background);
-    
+
     background-image:
       radial-gradient(at 12% 6%, color-mix(in oklch, var(--primary) 12%, transparent) 0px, transparent 45%),
       radial-gradient(at 88% 4%, color-mix(in oklch, var(--primary) 8%, transparent) 0px, transparent 45%),
@@ -184,22 +181,22 @@
   html {
     @apply font-sans;
   }
+  .maplibregl-popup-content {
+    @apply bg-transparent! shadow-none! p-0! rounded-none!;
+  }
+  .maplibregl-popup-tip {
+    @apply hidden!;
+  }
 }
-
 
 .icon-chip {
   background: color-mix(in oklch, var(--primary) 12%, transparent);
   color: var(--primary);
 }
 
-
 .scan-frame-corner {
   border-color: var(--primary);
 }
-
-
-
-
 
 .lg-glass {
   backdrop-filter: blur(var(--lg-blur, 18px)) saturate(var(--lg-sat, 1.5))
@@ -207,9 +204,6 @@
   -webkit-backdrop-filter: blur(var(--lg-blur, 18px)) saturate(var(--lg-sat, 1.5))
     brightness(var(--lg-bright, 1.05));
 }
-
-
-
 
 .no-scrollbar {
   scrollbar-width: none;
@@ -220,7 +214,7 @@
 
 .sidebar-glass {
   isolation: isolate;
-  
+
   border: 1px solid color-mix(in oklch, var(--foreground) 8%, transparent);
   box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.65);
 }
@@ -232,7 +226,6 @@
   position: relative;
   z-index: 1;
 }
-
 
 .glass-elevation {
   box-shadow:
@@ -249,7 +242,6 @@
   backdrop-filter: blur(6px) saturate(1.6) brightness(1.04)
     url(#liquid-glass-refraction);
 }
-
 
 .sidebar-glass.lg-animating {
   backdrop-filter: none;
@@ -356,7 +348,6 @@
   border-top-color: rgba(255, 255, 255, 0.12);
 }
 
-
 @property --lg-angle-1 {
   syntax: "<angle>";
   inherits: false;
@@ -405,7 +396,6 @@
   transform: scale(0.95) rotate3d(1, 0, 0, 18deg);
 }
 
-
 .lg-button::before {
   content: "";
   position: absolute;
@@ -434,7 +424,6 @@
   background-position: 50% 15%;
   --lg-angle-2: -15deg;
 }
-
 
 .lg-button::after {
   content: "";
@@ -473,7 +462,6 @@
   --lg-angle-1: -75deg;
 }
 
-
 .dark .lg-button {
   background: linear-gradient(
     -75deg,
@@ -501,7 +489,6 @@
     linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15));
 }
 
-
 @media (prefers-reduced-motion: reduce) {
   .lg-button,
   .lg-button::before,
@@ -522,7 +509,6 @@
     --lg-angle-2: -45deg;
   }
 }
-
 
 @media (hover: none) and (pointer: coarse) {
   .lg-button::before,

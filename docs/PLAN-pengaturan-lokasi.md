@@ -153,10 +153,10 @@ src/components/dashboard/pengaturan/lokasi/layout-gudang-tab.tsx
 
 ## 9. Urutan & status
 
-1. [ ] Milestone 1 — BE (migration, resource, request, setting, search, user list, test)
-2. [ ] Milestone 2 — FE plumbing
-3. [ ] Milestone 3 — List page
-4. [ ] Milestone 4 — Tambah/Edit (Informasi + Layout)
+1. [x] Milestone 1 — BE (migration, resource, request, setting, search, user list, test) ✅ 2026-06-17
+2. [x] Milestone 2 — FE plumbing ✅ 2026-06-17
+3. [x] Milestone 3 — List page ✅ 2026-06-17
+4. [x] Milestone 4 — Tambah/Edit (Informasi + Layout) ✅ 2026-06-17
 5. [ ] Pengaturan index: navigasi 5 menu (aktif: Lokasi)
 
 ## 10. Ditunda (di luar fokus)
