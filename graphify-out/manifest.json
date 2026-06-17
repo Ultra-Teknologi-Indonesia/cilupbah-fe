@@ -1059,154 +1059,29 @@
     "ast_hash": "765718fb9a705a317e2dd78e69d4cfa8",
     "semantic_hash": ""
   },
-  "src/hooks/pengaturan/use-create-location.ts": {
-    "mtime": 1781658957.453463,
-    "ast_hash": "b112d43f6d6b7a59c65caa887d481691",
-    "semantic_hash": ""
-  },
-  "src/hooks/pengaturan/use-delete-location.ts": {
-    "mtime": 1781658975.3118138,
-    "ast_hash": "421dcdd626e0ef350da21572380f38cf",
-    "semantic_hash": ""
-  },
-  "src/hooks/pengaturan/use-generate-bins.ts": {
-    "mtime": 1781659022.6364536,
-    "ast_hash": "b632957fc185570a6274bac2a19d62a2",
-    "semantic_hash": ""
-  },
-  "src/hooks/pengaturan/use-location-detail.ts": {
-    "mtime": 1781658949.4470055,
-    "ast_hash": "58add86c094887b4ea13c7d1353d7fa2",
-    "semantic_hash": ""
-  },
-  "src/hooks/pengaturan/use-locations.ts": {
-    "mtime": 1781658940.8047037,
-    "ast_hash": "29edaca034655e9b7fdd301dd6dbd417",
-    "semantic_hash": ""
-  },
-  "src/hooks/pengaturan/use-regions.ts": {
-    "mtime": 1781658994.8692663,
-    "ast_hash": "3e9787c00f295e1c6086cf7276c2b586",
-    "semantic_hash": ""
-  },
-  "src/hooks/pengaturan/use-toggle-location-active.ts": {
-    "mtime": 1781658983.6363616,
-    "ast_hash": "b35087ac7799d0d5552c35a666293504",
-    "semantic_hash": ""
-  },
-  "src/hooks/pengaturan/use-update-location.ts": {
-    "mtime": 1781658967.4352956,
-    "ast_hash": "e3ae44b1fb66b9a8f3a14f17bf8f4403",
-    "semantic_hash": ""
-  },
-  "src/hooks/pengaturan/use-warehouse-layout-setting.ts": {
-    "mtime": 1781659013.0316987,
-    "ast_hash": "8adf713184f7c5f882180c3182a97343",
-    "semantic_hash": ""
-  },
-  "src/hooks/pengaturan/use-warehouse-users.ts": {
-    "mtime": 1781659002.131108,
-    "ast_hash": "39b441c09bba81cdecb751039f483ba3",
-    "semantic_hash": ""
-  },
-  "src/lib/pengaturan/bin-preview.ts": {
-    "mtime": 1781658929.9781737,
-    "ast_hash": "1c26eeedec7911f1e82b3552ea1cd0f8",
-    "semantic_hash": ""
-  },
-  "src/lib/pengaturan/location-schema.ts": {
-    "mtime": 1781660757.116736,
-    "ast_hash": "dac50c7c5762690beab00e196aff7080",
-    "semantic_hash": ""
-  },
-  "src/services/pengaturan/location-bin.service.ts": {
-    "mtime": 1781659122.541872,
-    "ast_hash": "0980adb31e127127577fff65e67cd72d",
-    "semantic_hash": ""
-  },
-  "src/services/pengaturan/location.service.ts": {
-    "mtime": 1781659093.3255973,
-    "ast_hash": "e3352379f3fd3ba85cd3dc43e912cbfa",
-    "semantic_hash": ""
-  },
-  "src/services/pengaturan/region.service.ts": {
-    "mtime": 1781659103.118896,
-    "ast_hash": "d9a8a0c6a851a72700711b070e1135bb",
-    "semantic_hash": ""
-  },
-  "src/services/pengaturan/warehouse-setting.service.ts": {
-    "mtime": 1781659108.9127064,
-    "ast_hash": "fe8ab341e9139fbbf372eb0c620e2634",
-    "semantic_hash": ""
-  },
-  "src/services/pengaturan/warehouse-user.service.ts": {
-    "mtime": 1781659116.3410676,
-    "ast_hash": "b321982f5a52d2ab5e4f520a43980dec",
-    "semantic_hash": ""
-  },
-  "src/types/pengaturan/location.ts": {
-    "mtime": 1781658772.6252863,
-    "ast_hash": "091283015965d59715f747c31988f127",
-    "semantic_hash": ""
-  },
-  "src/components/dashboard/pengaturan/lokasi/delete-location-dialog.tsx": {
-    "mtime": 1781659446.3939245,
-    "ast_hash": "6f85f7474bf8367153d2d408ad463cbe",
-    "semantic_hash": ""
-  },
-  "src/components/dashboard/pengaturan/lokasi/location-list-view.tsx": {
-    "mtime": 1781659479.1476653,
-    "ast_hash": "7d6670fa25a1f2ca52d1f8a903bb7719",
-    "semantic_hash": ""
-  },
-  "src/components/dashboard/pengaturan/lokasi/location-table.tsx": {
-    "mtime": 1781662203.2824192,
-    "ast_hash": "1f38ea3ee68f3476f15751bf211ee1ae",
-    "semantic_hash": ""
-  },
-  "src/components/dashboard/pengaturan/lokasi/informasi-tab.tsx": {
-    "mtime": 1781660598.652325,
-    "ast_hash": "a9450d4050e1e94b2fa130a17ee3fc9d",
-    "semantic_hash": ""
-  },
-  "src/components/dashboard/pengaturan/lokasi/layout-gudang-tab.tsx": {
-    "mtime": 1781660641.3468153,
-    "ast_hash": "5f71fc0a159ad8d187d74c7b8ad6da79",
-    "semantic_hash": ""
-  },
-  "src/components/dashboard/pengaturan/lokasi/location-form-page.tsx": {
-    "mtime": 1781662189.3994467,
-    "ast_hash": "d3d5764cc9c3e45e13f0b179b49ec2ea",
-    "semantic_hash": ""
-  },
-  "src/components/dashboard/pengaturan/lokasi/location-map-picker.tsx": {
-    "mtime": 1781660557.6983988,
-    "ast_hash": "e1acce1087dcfab62b51b479e4fc48a2",
-    "semantic_hash": ""
-  },
   "src/components/ui/map.tsx": {
     "mtime": 1781660355.3147314,
     "ast_hash": "8b090e877274dd3a0359324de7856d86",
     "semantic_hash": ""
   },
   "src/app/dashboard/manajemen-rak/lokasi/[id]/edit/page.tsx": {
-    "mtime": 1781660725.9267414,
-    "ast_hash": "cb29d2d24d9d5455d7e54d0fdb8839d6",
+    "mtime": 1781678493.0981362,
+    "ast_hash": "846f9a0e52ddf9aeaf77e44a1de067ed",
     "semantic_hash": ""
   },
   "src/app/dashboard/manajemen-rak/lokasi/buat/page.tsx": {
-    "mtime": 1781660717.620164,
-    "ast_hash": "2a81574d34fe7c61467882eabc03c449",
+    "mtime": 1781678493.0949123,
+    "ast_hash": "c334f420c18363ab5db02153d8b2df4c",
     "semantic_hash": ""
   },
   "src/app/dashboard/manajemen-rak/lokasi/page.tsx": {
-    "mtime": 1781662178.0157285,
-    "ast_hash": "7e253a3421f98db0ed776bdc67c46b58",
+    "mtime": 1781678493.1017702,
+    "ast_hash": "c7f7c71b60313b877036ad1f17ddd679",
     "semantic_hash": ""
   },
   "src/components/dashboard/produk/produk-tab-bar.tsx": {
-    "mtime": 1781671302.2749255,
-    "ast_hash": "6176e203e4d7524338d1b54e0e30f0e4",
+    "mtime": 1781679427.7935753,
+    "ast_hash": "38d757a0872e4ffece38abb401a05557",
     "semantic_hash": ""
   },
   "src/app/dashboard/produk/pantauan/page.tsx": {
@@ -1240,8 +1115,183 @@
     "semantic_hash": ""
   },
   "docs/SESSION-HANDOFF.md": {
-    "mtime": 1781677268.4247546,
-    "ast_hash": "d409063976aa80e41b1c2bb612b61551",
+    "mtime": 1781679982.1242461,
+    "ast_hash": "096f7d72de311f25439d6ddf89a2e74f",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/manajemen-rak/lokasi/delete-location-dialog.tsx": {
+    "mtime": 1781678493.1052015,
+    "ast_hash": "0303cc36f8a145c37d6b9adb3fb04078",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/manajemen-rak/lokasi/informasi-tab.tsx": {
+    "mtime": 1781679839.6957362,
+    "ast_hash": "488c54b15e4403aaa77268eca62b933d",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/manajemen-rak/lokasi/layout-gudang-tab.tsx": {
+    "mtime": 1781678493.121813,
+    "ast_hash": "3f074d57ce6a16c99720014b3adc4e26",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/manajemen-rak/lokasi/location-form-page.tsx": {
+    "mtime": 1781679059.8374286,
+    "ast_hash": "5367212ec5d13630090a67939e973725",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/manajemen-rak/lokasi/location-list-view.tsx": {
+    "mtime": 1781678795.3634791,
+    "ast_hash": "d444639dafa3ae77b26911391ae50f30",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/manajemen-rak/lokasi/location-map-picker.tsx": {
+    "mtime": 1781660557.6983988,
+    "ast_hash": "e1acce1087dcfab62b51b479e4fc48a2",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/manajemen-rak/lokasi/location-table.tsx": {
+    "mtime": 1781678493.115298,
+    "ast_hash": "271c71785a337df44a5c377240b40ebf",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/master-produk/download/download-massal-dialog.tsx": {
+    "mtime": 1781679478.1089156,
+    "ast_hash": "1fd5a4a88147f70904e3c27e62b0c92d",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/master-produk/download/download-satuan-dialog.tsx": {
+    "mtime": 1781679484.3912442,
+    "ast_hash": "1815940c2f80c764a5c67c6a2ce9c4ff",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/master-produk/download/hasil-tab.tsx": {
+    "mtime": 1781679383.7589357,
+    "ast_hash": "57210a223f6652296bbb63c44f28e68a",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/master-produk/download/progress-columns.tsx": {
+    "mtime": 1781679190.5042787,
+    "ast_hash": "d23eaef7178258ba308a3fdd427954dc",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/master-produk/download/progress-tab.tsx": {
+    "mtime": 1781679238.6690705,
+    "ast_hash": "4b78fcd8e9914884462f3e2437ab3f73",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/master-produk/download/transaction-detail-sheet.tsx": {
+    "mtime": 1781679470.3963354,
+    "ast_hash": "3c38de5d8aba9616c632cb2ebea0d0c9",
+    "semantic_hash": ""
+  },
+  "src/hooks/manajemen-rak/use-create-location.ts": {
+    "mtime": 1781678493.128799,
+    "ast_hash": "94e1a02197d06af751da507535574233",
+    "semantic_hash": ""
+  },
+  "src/hooks/manajemen-rak/use-delete-location.ts": {
+    "mtime": 1781678493.1552753,
+    "ast_hash": "2b292cf3f59ca696e4a7976df14f5cfe",
+    "semantic_hash": ""
+  },
+  "src/hooks/manajemen-rak/use-generate-bins.ts": {
+    "mtime": 1781678493.1253288,
+    "ast_hash": "1ad0e83a2fcad98487a20c98e2bd956f",
+    "semantic_hash": ""
+  },
+  "src/hooks/manajemen-rak/use-location-detail.ts": {
+    "mtime": 1781678493.1417613,
+    "ast_hash": "06e7440f4c99b07b7d877c5b4d26e6c2",
+    "semantic_hash": ""
+  },
+  "src/hooks/manajemen-rak/use-locations.ts": {
+    "mtime": 1781678493.1453145,
+    "ast_hash": "f0845a07f1b3976de9cd5a7a046a797b",
+    "semantic_hash": ""
+  },
+  "src/hooks/manajemen-rak/use-regions.ts": {
+    "mtime": 1781678493.1325302,
+    "ast_hash": "90b5f1ea5081939a555c34d5e087970a",
+    "semantic_hash": ""
+  },
+  "src/hooks/manajemen-rak/use-toggle-location-active.ts": {
+    "mtime": 1781678493.1387079,
+    "ast_hash": "d0f70a37a42aedab2d921f0a47c481ed",
+    "semantic_hash": ""
+  },
+  "src/hooks/manajemen-rak/use-update-location.ts": {
+    "mtime": 1781678493.1521876,
+    "ast_hash": "b20e6c5713f314e3c922a4bcb0a8f878",
+    "semantic_hash": ""
+  },
+  "src/hooks/manajemen-rak/use-warehouse-layout-setting.ts": {
+    "mtime": 1781678493.148649,
+    "ast_hash": "c9091cc6cfba5ae9c43251c231d6e45b",
+    "semantic_hash": ""
+  },
+  "src/hooks/manajemen-rak/use-warehouse-users.ts": {
+    "mtime": 1781678672.942952,
+    "ast_hash": "ae344e4e8f9ceeaa5c0c029c4df3e431",
+    "semantic_hash": ""
+  },
+  "src/hooks/master-produk/use-download.ts": {
+    "mtime": 1781679169.6829982,
+    "ast_hash": "fa3bd8a152087e0a386d86b69b4c6e61",
+    "semantic_hash": ""
+  },
+  "src/lib/manajemen-rak/bin-preview.ts": {
+    "mtime": 1781678493.1583705,
+    "ast_hash": "3b5e38c540115668a4e68c1179e42457",
+    "semantic_hash": ""
+  },
+  "src/lib/manajemen-rak/location-schema.ts": {
+    "mtime": 1781660757.116736,
+    "ast_hash": "dac50c7c5762690beab00e196aff7080",
+    "semantic_hash": ""
+  },
+  "src/services/manajemen-rak/location-bin.service.ts": {
+    "mtime": 1781678493.1759853,
+    "ast_hash": "75bc62c39099ca0012ce4d1b3a09eb7c",
+    "semantic_hash": ""
+  },
+  "src/services/manajemen-rak/location.service.ts": {
+    "mtime": 1781678493.1728384,
+    "ast_hash": "1131edd1269c7a5a20480d100c041815",
+    "semantic_hash": ""
+  },
+  "src/services/manajemen-rak/region.service.ts": {
+    "mtime": 1781678493.1689231,
+    "ast_hash": "1d3d3e4392fd0a067795e4b6cc5eaee9",
+    "semantic_hash": ""
+  },
+  "src/services/manajemen-rak/warehouse-setting.service.ts": {
+    "mtime": 1781678493.1645482,
+    "ast_hash": "1c90696bd65ee9354d148ca7a972aaeb",
+    "semantic_hash": ""
+  },
+  "src/services/manajemen-rak/warehouse-user.service.ts": {
+    "mtime": 1781679793.3724968,
+    "ast_hash": "e706b1583722d840ecf8b727f461e5c3",
+    "semantic_hash": ""
+  },
+  "src/services/master-produk/download.service.ts": {
+    "mtime": 1781679791.5683353,
+    "ast_hash": "31cf023b67cadd278c712658ae9b6630",
+    "semantic_hash": ""
+  },
+  "src/types/manajemen-rak/location.ts": {
+    "mtime": 1781679783.033871,
+    "ast_hash": "b02d63be6ada4970dab249454a5ad16e",
+    "semantic_hash": ""
+  },
+  "src/app/dashboard/produk/download/page.tsx": {
+    "mtime": 1781679417.3175113,
+    "ast_hash": "039168da5ea6cb09596593992a0c8916",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/master-produk/download/download-view.tsx": {
+    "mtime": 1781679410.7445757,
+    "ast_hash": "1815656669d773b6bf0bea4c41c15cf6",
     "semantic_hash": ""
   }
 }

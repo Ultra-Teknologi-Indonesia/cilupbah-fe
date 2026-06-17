@@ -43,3 +43,15 @@ Monorepo `cilupbah-superapp/`: **`cilupbah-be`** (Laravel modular, `Modules/*`),
 - Build: `cd cilupbah-fe && npm run build` (atau jalankan app utk verifikasi visual).
 - BE jalan (`php artisan serve`) + login agar proxy `/api/app` dapat token; seeder `WarehouseDatabaseSeeder` utk Pusat/Transit.
 - Setelah ubah kode: `graphify update .` di repo terkait.
+
+## Update 2026-06-17 (lanjutan) — hardening
+- **Folder internal di-rename** `*/pengaturan` → `*/manajemen-rak` (components/hooks/services/types/lib). Import sudah disesuaikan. Route stub `app/dashboard/pengaturan/page.tsx` **tetap** (masih dipakai menu Pengaturan top-level).
+- **Default Staff**: BE endpoint bergaya Jubelio `GET /api/v1/systemsetting/users?pageSize=&page=&q=` (auth saja, tanpa permission `view-user`) → response `{ data: [{user_id, email, last_login, is_owner}], totalCount }` (`UserService::getUserLookup`, `UserController::lookup`). FE `warehouse-user.service` map ke `WarehouseUser{id,email,isOwner,lastLogin}`; combobox label = email. Test: `systemsetting users lookup ...` ✅ (auth tanpa view-user 200; filter `q`).
+- **Region prefill (edit)**: `LocationResource.village` kini dibentuk eksplisit nested (`village→district→city→province`, hanya id+nama). Lebih robust untuk cascade saat edit.
+- **Pagination list**: `per_page=10` + pager Prev/Next ("Halaman X dari Y"), reset ke 1 saat search berubah.
+- **Map picker**: diverifikasi sesuai mapcn docs (`Map center/zoom`, `MapMarker draggable`+`onDragEnd`, `MarkerContent`). OK.
+- **Feedback validasi**: submit invalid → auto pindah ke tab Informasi + toast.
+- **Grup Lokasi**: dipastikan tidak ada di form (dibuang).
+- **Denah Rak**: item nav dihapus.
+- Status cek: FE typecheck 0 / eslint clean; BE Warehouse+Auth tests **117 passed**.
+- **Masih belum**: `next build` & verifikasi visual runtime (List/Tambah/Edit/Map). Itu langkah berikutnya untuk 100%.
