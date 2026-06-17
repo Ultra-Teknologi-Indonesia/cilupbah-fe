@@ -45,15 +45,36 @@ export function DashboardSidebar() {
     (p) => pathname === p || pathname.startsWith(p + "/")
   );
 
+  const suppressKatalog =
+    isProdukWorkspace && activeGroupId === "katalog" && !userPickedGroup;
+  const panelOpen =
+    open && !isLeafGroup(activeGroup) && !suppressKatalog;
+
   const handleSelect = React.useCallback(
     (id: string) => {
-      setActiveGroupId(id);
-      setUserPickedGroup(true);
       const group = dashboardGroups.find((g) => g.id === id);
+      const hasPanel = group && !isLeafGroup(group);
 
-      if (group && !isLeafGroup(group) && !open) toggleSidebar();
+      if (!hasPanel) {
+        setActiveGroupId(id);
+        setUserPickedGroup(true);
+        return;
+      }
+
+      if (id === activeGroupId) {
+        if (panelOpen) {
+          toggleSidebar();
+        } else {
+          setUserPickedGroup(true);
+          if (!open) toggleSidebar();
+        }
+      } else {
+        setActiveGroupId(id);
+        setUserPickedGroup(true);
+        if (!open) toggleSidebar();
+      }
     },
-    [open, toggleSidebar]
+    [activeGroupId, open, panelOpen, toggleSidebar]
   );
 
   if (isMobile) {
@@ -89,10 +110,7 @@ export function DashboardSidebar() {
         onTogglePanel={toggleSidebar}
       />
 
-      <SidebarPanel
-        group={activeGroup}
-        open={open && !isLeafGroup(activeGroup) && !(isProdukWorkspace && activeGroupId === "katalog" && !userPickedGroup)}
-      />
+      <SidebarPanel group={activeGroup} open={panelOpen} />
     </div>
   );
 }
