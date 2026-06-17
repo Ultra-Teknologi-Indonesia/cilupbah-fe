@@ -3,7 +3,7 @@
 import * as React from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import type { PaginationState } from "@tanstack/react-table"
-import { AlertTriangleIcon, SearchIcon, SearchXIcon } from "lucide-react"
+import { AlertTriangleIcon, RefreshCwIcon, SearchIcon, SearchXIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -14,7 +14,7 @@ import { DataTable } from "@/components/ui/data-table"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useCategoryTree } from "@/hooks/master-produk/use-master-data"
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
-import { usePantauan } from "@/hooks/master-produk/use-pantauan"
+import { usePantauan, useRefreshChannelData } from "@/hooks/master-produk/use-pantauan"
 import type { SelectedCategory } from "@/types/master-produk"
 import type {
   PantauanLens,
@@ -89,6 +89,8 @@ export function PantauanView() {
   const items = query.data?.items ?? []
   const total = query.data?.meta?.total ?? 0
   const columns = React.useMemo(() => buildPantauanColumns(lens), [lens])
+
+  const refresh = useRefreshChannelData()
 
   const setLens = (next: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -189,9 +191,22 @@ export function PantauanView() {
                 </TabsList>
               </Tabs>
             </div>
-            <span className="pb-2 text-sm text-muted-foreground">
-              Total <span className="font-medium text-foreground tabular-nums">{total}</span>
-            </span>
+            <div className="flex items-center gap-3 pb-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1.5"
+                onClick={() => refresh.mutate()}
+                disabled={refresh.isPending}
+                title="Tarik ulang data dari channel"
+              >
+                <RefreshCwIcon className={cn("size-4", refresh.isPending && "animate-spin motion-reduce:animate-none")} />
+                Refresh
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Total <span className="font-medium text-foreground tabular-nums">{total}</span>
+              </span>
+            </div>
           </div>
 
           <div className="px-4 py-5 sm:px-5">

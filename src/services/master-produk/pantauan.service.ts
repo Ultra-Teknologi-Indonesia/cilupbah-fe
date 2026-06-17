@@ -1,5 +1,5 @@
 import { fetchClient } from "@/lib/api-client"
-import type { ApiPaginated } from "@/types/api.types"
+import type { ApiPaginated, ApiResponse } from "@/types/api.types"
 
 export type PantauanLens = "belum_upload" | "harga" | "sku" | "atribut"
 export type ProductTypeFilter = "satuan" | "bundle" | "konsinyasi"
@@ -61,5 +61,14 @@ export const PantauanService = {
 
     const res = await fetchClient<ApiPaginated<RawPantauan>>(`/products/pantauan?${q.toString()}`)
     return { items: (res.data ?? []).map(mapItem), meta: res.meta }
+  },
+
+  /** Antrekan rekonsiliasi data channel (non-destruktif) untuk semua toko aktif. */
+  refresh: async (): Promise<{ queued: number; skippedChannels: string[] }> => {
+    const res = await fetchClient<ApiResponse<{ queued: number; skipped_channels: string[] }>>(
+      `/channel-monitor/refresh`,
+      { method: "POST" }
+    )
+    return { queued: res.data?.queued ?? 0, skippedChannels: res.data?.skipped_channels ?? [] }
   },
 }

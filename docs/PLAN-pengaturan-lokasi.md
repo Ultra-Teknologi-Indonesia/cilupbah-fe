@@ -157,7 +157,7 @@ src/components/dashboard/pengaturan/lokasi/layout-gudang-tab.tsx
 2. [x] Milestone 2 — FE plumbing ✅ 2026-06-17
 3. [x] Milestone 3 — List page ✅ 2026-06-17
 4. [x] Milestone 4 — Tambah/Edit (Informasi + Layout) ✅ 2026-06-17
-5. [ ] Pengaturan index: navigasi 5 menu (aktif: Lokasi)
+5. [x] Milestone 5 — Navigasi ✅ 2026-06-17 (IA berubah: Lokasi pindah ke **Gudang › Manajemen Rak & Lokasi › Lokasi Gudang**, route `/dashboard/manajemen-rak/lokasi`; nav-data sudah wired; ditambah redirect index `/dashboard/manajemen-rak` → `/lokasi`)
 
 ## 10. Ditunda (di luar fokus)
 

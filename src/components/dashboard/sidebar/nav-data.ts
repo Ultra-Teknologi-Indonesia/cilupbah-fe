@@ -231,7 +231,6 @@ export const dashboardGroups: NavGroup[] = [
         link: "/dashboard/manajemen-rak",
         subs: [
           { title: "Lokasi Gudang", link: "/dashboard/manajemen-rak/lokasi" },
-          { title: "Denah Rak", link: "/dashboard/manajemen-rak/denah" },
         ],
       },
     ],
