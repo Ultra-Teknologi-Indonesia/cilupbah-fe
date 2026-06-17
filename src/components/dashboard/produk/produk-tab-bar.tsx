@@ -26,7 +26,7 @@ type Tab = {
 // Tahap "Alur Pengelolaan Produk" (selaras Jubelio). Tab tanpa href = belum
 // dibangun → tampil disabled "Segera".
 const TABS: Tab[] = [
-  { id: "pantauan", label: "Pantauan", icon: ActivityIcon },
+  { id: "pantauan", label: "Pantauan", icon: ActivityIcon, href: "/dashboard/produk/pantauan" },
   { id: "master", label: "Master", icon: Package2Icon, href: "/dashboard/master-produk" },
   { id: "upload", label: "Upload", icon: UploadCloudIcon, href: "/dashboard/produk/upload" },
   { id: "download", label: "Download", icon: CloudDownloadIcon },
@@ -39,6 +39,7 @@ const TABS: Tab[] = [
 function activeId(pathname: string, status: string | null): string {
   if (pathname.startsWith("/dashboard/master-produk/arsip")) return "arsip"
   if (pathname === "/dashboard/master-produk") return status === "in_review" ? "in_review" : "master"
+  if (pathname.startsWith("/dashboard/produk/pantauan")) return "pantauan"
   if (pathname.startsWith("/dashboard/produk/upload")) return "upload"
   if (pathname.startsWith("/dashboard/listing-marketplace")) return "channel"
   return ""
