@@ -2,9 +2,9 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
-import { LocationBinService } from "@/services/pengaturan/location-bin.service"
-import { locationKeys } from "@/hooks/pengaturan/use-locations"
-import type { GenerateBinsPayload } from "@/types/pengaturan/location"
+import { LocationBinService } from "@/services/manajemen-rak/location-bin.service"
+import { locationKeys } from "@/hooks/manajemen-rak/use-locations"
+import type { GenerateBinsPayload } from "@/types/manajemen-rak/location"
 
 export interface GenerateBinsVars {
   locationId: string

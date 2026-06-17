@@ -2,9 +2,9 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
-import { LocationService } from "@/services/pengaturan/location.service"
-import { locationKeys } from "@/hooks/pengaturan/use-locations"
-import type { LocationPayload } from "@/types/pengaturan/location"
+import { LocationService } from "@/services/manajemen-rak/location.service"
+import { locationKeys } from "@/hooks/manajemen-rak/use-locations"
+import type { LocationPayload } from "@/types/manajemen-rak/location"
 
 export function useCreateLocation() {
   const queryClient = useQueryClient()

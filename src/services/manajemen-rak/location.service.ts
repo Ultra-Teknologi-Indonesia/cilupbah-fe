@@ -7,7 +7,7 @@ import type {
   LocationPayload,
   RawLocation,
   RawLocationBin,
-} from "@/types/pengaturan/location"
+} from "@/types/manajemen-rak/location"
 
 function mapBin(raw: RawLocationBin): LocationBin {
   return {

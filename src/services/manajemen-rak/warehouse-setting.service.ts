@@ -1,6 +1,6 @@
 import { fetchClient } from "@/lib/api-client"
 import type { ApiResponse } from "@/types/api.types"
-import type { WarehouseLayoutSetting } from "@/types/pengaturan/location"
+import type { WarehouseLayoutSetting } from "@/types/manajemen-rak/location"
 
 type RawSetting = { use_warehouse_layout: boolean }
 

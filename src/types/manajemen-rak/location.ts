@@ -111,8 +111,9 @@ export interface LocationPayload {
 
 export interface WarehouseUser {
   id: string
-  name: string
   email: string
+  isOwner: boolean
+  lastLogin: string | null
 }
 
 export interface WarehouseLayoutSetting {

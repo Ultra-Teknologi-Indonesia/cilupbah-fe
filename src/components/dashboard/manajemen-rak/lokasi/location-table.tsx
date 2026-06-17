@@ -20,7 +20,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
-import type { Location } from "@/types/pengaturan/location"
+import type { Location } from "@/types/manajemen-rak/location"
 
 interface LocationTableProps {
   locations: Location[]

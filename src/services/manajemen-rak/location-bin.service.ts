@@ -1,6 +1,6 @@
 import { fetchClient } from "@/lib/api-client"
 import type { ApiResponse } from "@/types/api.types"
-import type { GenerateBinsPayload } from "@/types/pengaturan/location"
+import type { GenerateBinsPayload } from "@/types/manajemen-rak/location"
 
 export const LocationBinService = {
   // Simpan kombinasi rak ke lokasi (butuh lokasi sudah tersimpan).

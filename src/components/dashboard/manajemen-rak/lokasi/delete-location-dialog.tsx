@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import type { Location } from "@/types/pengaturan/location"
+import type { Location } from "@/types/manajemen-rak/location"
 
 interface DeleteLocationDialogProps {
   location: Location | null

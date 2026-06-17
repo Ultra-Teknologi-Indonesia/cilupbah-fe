@@ -2,12 +2,12 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { WarehouseUserService } from "@/services/pengaturan/warehouse-user.service"
+import { WarehouseUserService } from "@/services/manajemen-rak/warehouse-user.service"
 
-export function useWarehouseUsers(search?: string) {
+export function useWarehouseUsers() {
   return useQuery({
-    queryKey: ["pengaturan", "warehouse-users", search ?? ""],
-    queryFn: () => WarehouseUserService.list(search),
+    queryKey: ["manajemen-rak", "warehouse-users"],
+    queryFn: () => WarehouseUserService.list(),
     staleTime: 5 * 60 * 1000,
   })
 }

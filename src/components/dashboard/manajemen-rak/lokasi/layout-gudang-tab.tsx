@@ -20,8 +20,8 @@ import {
   buildBinPreview,
   binCombinationCount,
   MAX_BIN_COMBINATIONS,
-} from "@/lib/pengaturan/bin-preview"
-import type { BinPreviewItem, GenerateBinsPayload } from "@/types/pengaturan/location"
+} from "@/lib/manajemen-rak/bin-preview"
+import type { BinPreviewItem, GenerateBinsPayload } from "@/types/manajemen-rak/location"
 
 interface DimensionRowProps {
   label: string

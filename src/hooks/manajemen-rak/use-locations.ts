@@ -2,8 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { LocationService } from "@/services/pengaturan/location.service"
-import type { LocationListParams } from "@/types/pengaturan/location"
+import { LocationService } from "@/services/manajemen-rak/location.service"
+import type { LocationListParams } from "@/types/manajemen-rak/location"
 
 export const locationKeys = {
   all: ["pengaturan", "lokasi"] as const,

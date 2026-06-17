@@ -1,4 +1,4 @@
-import { LocationFormPage } from "@/components/dashboard/pengaturan/lokasi/location-form-page"
+import { LocationFormPage } from "@/components/dashboard/manajemen-rak/lokasi/location-form-page"
 
 export default async function EditLokasiPage({
   params,

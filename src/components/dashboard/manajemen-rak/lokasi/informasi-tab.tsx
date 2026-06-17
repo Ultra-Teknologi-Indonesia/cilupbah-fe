@@ -19,10 +19,10 @@ import {
   useCities,
   useDistricts,
   useVillages,
-} from "@/hooks/pengaturan/use-regions"
-import { useWarehouseUsers } from "@/hooks/pengaturan/use-warehouse-users"
-import type { LocationFormValues } from "@/lib/pengaturan/location-schema"
-import type { RegionOption } from "@/types/pengaturan/location"
+} from "@/hooks/manajemen-rak/use-regions"
+import { useWarehouseUsers } from "@/hooks/manajemen-rak/use-warehouse-users"
+import type { LocationFormValues } from "@/lib/manajemen-rak/location-schema"
+import type { RegionOption } from "@/types/manajemen-rak/location"
 
 import { LocationMapPicker } from "./location-map-picker"
 
@@ -267,8 +267,8 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
                 <Combobox
                   options={(users.data ?? []).map((u) => ({
                     value: u.email,
-                    label: u.name,
-                    hint: u.email,
+                    label: u.email,
+                    hint: u.isOwner ? "Owner" : undefined,
                   }))}
                   value={field.value || null}
                   onChange={(v) => field.onChange(v ?? "")}

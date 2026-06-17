@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
-import { WarehouseSettingService } from "@/services/pengaturan/warehouse-setting.service"
+import { WarehouseSettingService } from "@/services/manajemen-rak/warehouse-setting.service"
 
 const settingKey = ["pengaturan", "warehouse-layout-setting"] as const
 

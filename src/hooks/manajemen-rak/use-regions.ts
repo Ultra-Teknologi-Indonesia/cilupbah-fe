@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { RegionService } from "@/services/pengaturan/region.service"
+import { RegionService } from "@/services/manajemen-rak/region.service"
 
 const regionKeys = {
   provinces: ["pengaturan", "regions", "provinces"] as const,

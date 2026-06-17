@@ -3,7 +3,7 @@ import { PlusIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { PageTitle } from "@/components/dashboard/page-title"
-import { LocationListView } from "@/components/dashboard/pengaturan/lokasi/location-list-view"
+import { LocationListView } from "@/components/dashboard/manajemen-rak/lokasi/location-list-view"
 
 export default function LokasiPage() {
   return (

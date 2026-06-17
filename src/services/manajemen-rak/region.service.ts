@@ -1,6 +1,6 @@
 import { fetchClient } from "@/lib/api-client"
 import type { ApiResponse } from "@/types/api.types"
-import type { RegionOption } from "@/types/pengaturan/location"
+import type { RegionOption } from "@/types/manajemen-rak/location"
 
 // Region API mengembalikan baris mentah { id, nama, ... }.
 type RawRegion = { id: string | number; nama: string }

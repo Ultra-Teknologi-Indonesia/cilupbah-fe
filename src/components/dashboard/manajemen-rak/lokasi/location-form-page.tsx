@@ -15,18 +15,18 @@ import { cn } from "@/lib/utils"
 import {
   locationFormSchema,
   type LocationFormValues,
-} from "@/lib/pengaturan/location-schema"
-import { useLocationDetail } from "@/hooks/pengaturan/use-location-detail"
-import { useCreateLocation } from "@/hooks/pengaturan/use-create-location"
-import { useUpdateLocation } from "@/hooks/pengaturan/use-update-location"
-import { useGenerateBins } from "@/hooks/pengaturan/use-generate-bins"
-import { useWarehouseLayoutSetting } from "@/hooks/pengaturan/use-warehouse-layout-setting"
+} from "@/lib/manajemen-rak/location-schema"
+import { useLocationDetail } from "@/hooks/manajemen-rak/use-location-detail"
+import { useCreateLocation } from "@/hooks/manajemen-rak/use-create-location"
+import { useUpdateLocation } from "@/hooks/manajemen-rak/use-update-location"
+import { useGenerateBins } from "@/hooks/manajemen-rak/use-generate-bins"
+import { useWarehouseLayoutSetting } from "@/hooks/manajemen-rak/use-warehouse-layout-setting"
 import type {
   BinPreviewItem,
   GenerateBinsPayload,
   Location,
   LocationPayload,
-} from "@/types/pengaturan/location"
+} from "@/types/manajemen-rak/location"
 
 import { InformasiTab } from "./informasi-tab"
 import { LayoutGudangTab } from "./layout-gudang-tab"
@@ -172,6 +172,10 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
     } catch (err) {
       toast.error(getErrorMessage(err, "Gagal menyimpan lokasi."))
     }
+  }, () => {
+    // Semua field wajib ada di tab Informasi -> arahkan ke sana saat validasi gagal.
+    setSection("informasi")
+    toast.error("Lengkapi field wajib di tab Informasi Lokasi.")
   })
 
   const title = mode === "create" ? "Tambah Lokasi" : "Edit Lokasi"

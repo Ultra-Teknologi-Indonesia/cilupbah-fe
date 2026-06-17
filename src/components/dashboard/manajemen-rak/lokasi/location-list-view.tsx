@@ -1,12 +1,19 @@
 "use client"
 
 import * as React from "react"
-import { InfoIcon, Loader2Icon, SearchIcon } from "lucide-react"
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  InfoIcon,
+  Loader2Icon,
+  SearchIcon,
+} from "lucide-react"
 import { toast } from "sonner"
 
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import {
   Tooltip,
@@ -14,14 +21,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useLocations } from "@/hooks/pengaturan/use-locations"
-import { useDeleteLocation } from "@/hooks/pengaturan/use-delete-location"
-import { useToggleLocationActive } from "@/hooks/pengaturan/use-toggle-location-active"
+import { useLocations } from "@/hooks/manajemen-rak/use-locations"
+import { useDeleteLocation } from "@/hooks/manajemen-rak/use-delete-location"
+import { useToggleLocationActive } from "@/hooks/manajemen-rak/use-toggle-location-active"
 import {
   useWarehouseLayoutSetting,
   useSaveWarehouseLayoutSetting,
-} from "@/hooks/pengaturan/use-warehouse-layout-setting"
-import type { Location } from "@/types/pengaturan/location"
+} from "@/hooks/manajemen-rak/use-warehouse-layout-setting"
+import type { Location } from "@/types/manajemen-rak/location"
 
 import { LocationTable } from "./location-table"
 import { DeleteLocationDialog } from "./delete-location-dialog"
@@ -37,16 +44,24 @@ function getErrorMessage(error: unknown, fallback: string): string {
 export function LocationListView() {
   const [searchInput, setSearchInput] = React.useState("")
   const [search, setSearch] = React.useState("")
+  const [page, setPage] = React.useState(1)
   const [deleteTarget, setDeleteTarget] = React.useState<Location | null>(null)
   const [togglingId, setTogglingId] = React.useState<string | null>(null)
 
-  // Debounce input pencarian.
+  // Debounce input pencarian + reset ke halaman 1.
   React.useEffect(() => {
-    const t = setTimeout(() => setSearch(searchInput.trim()), 350)
+    const t = setTimeout(() => {
+      setSearch(searchInput.trim())
+      setPage(1)
+    }, 350)
     return () => clearTimeout(t)
   }, [searchInput])
 
-  const { data, isLoading, isError } = useLocations({ search, perPage: 50 })
+  const { data, isLoading, isError, isFetching } = useLocations({
+    search,
+    page,
+    perPage: 10,
+  })
   const setting = useWarehouseLayoutSetting()
   const saveSetting = useSaveWarehouseLayoutSetting()
   const deleteLocation = useDeleteLocation()
@@ -54,6 +69,8 @@ export function LocationListView() {
 
   const locations = data?.items ?? []
   const total = data?.meta?.total ?? locations.length
+  const currentPage = data?.meta?.current_page ?? page
+  const lastPage = data?.meta?.last_page ?? 1
 
   function handleToggleActive(location: Location) {
     setTogglingId(location.id)
@@ -150,6 +167,32 @@ export function LocationListView() {
             onToggleActive={handleToggleActive}
             onDelete={(loc) => setDeleteTarget(loc)}
           />
+        )}
+
+        {!isLoading && !isError && locations.length > 0 && lastPage > 1 && (
+          <div className="flex items-center justify-between gap-3 border-t border-border/60 px-5 py-3">
+            <span className="text-sm text-muted-foreground">
+              Halaman {currentPage} dari {lastPage}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage <= 1 || isFetching}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                <ChevronLeftIcon /> Sebelumnya
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage >= lastPage || isFetching}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Berikutnya <ChevronRightIcon />
+              </Button>
+            </div>
+          </div>
         )}
       </LiquidGlass>
 

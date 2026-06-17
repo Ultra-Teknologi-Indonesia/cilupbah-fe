@@ -1,4 +1,4 @@
-import type { BinPreviewItem, GenerateBinsPayload } from "@/types/pengaturan/location"
+import type { BinPreviewItem, GenerateBinsPayload } from "@/types/manajemen-rak/location"
 
 export const MAX_BIN_COMBINATIONS = 2000
 
