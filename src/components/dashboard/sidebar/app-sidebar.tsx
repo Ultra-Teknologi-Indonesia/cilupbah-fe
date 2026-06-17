@@ -34,6 +34,17 @@ export function DashboardSidebar() {
   const activeGroup =
     dashboardGroups.find((g) => g.id === activeGroupId) ?? dashboardGroups[0];
 
+  // Workspace Produk punya tab-bar sendiri (ProdukTabBar) → panel nested Katalog
+  // jangan auto-tampil di rute ini (konsisten antar tab Produk).
+  const PRODUK_PREFIXES = [
+    "/dashboard/master-produk",
+    "/dashboard/produk",
+    "/dashboard/listing-marketplace",
+  ];
+  const isProdukWorkspace = PRODUK_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(p + "/")
+  );
+
   const handleSelect = React.useCallback(
     (id: string) => {
       setActiveGroupId(id);
@@ -77,7 +88,10 @@ export function DashboardSidebar() {
         onTogglePanel={toggleSidebar}
       />
 
-      <SidebarPanel group={activeGroup} open={open && !isLeafGroup(activeGroup)} />
+      <SidebarPanel
+        group={activeGroup}
+        open={open && !isLeafGroup(activeGroup) && !isProdukWorkspace}
+      />
     </div>
   );
 }
