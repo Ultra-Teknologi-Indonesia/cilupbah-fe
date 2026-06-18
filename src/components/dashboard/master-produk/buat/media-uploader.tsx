@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { UploadCloudIcon, VideoIcon, XIcon, ImageIcon } from "lucide-react"
+import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
 
@@ -39,8 +40,15 @@ export function MediaUploader({
 
   const addImages = (files: FileList | null) => {
     if (!files) return
-    const next = Array.from(files)
-      .filter((f) => f.type.startsWith("image/"))
+    const incoming = Array.from(files).filter((f) => f.type.startsWith("image/"))
+    if (images.length >= MAX_IMAGES) {
+      toast.error(`Maksimal ${MAX_IMAGES} foto produk`)
+      return
+    }
+    if (images.length + incoming.length > MAX_IMAGES) {
+      toast.warning(`Hanya ${MAX_IMAGES - images.length} foto lagi yang bisa ditambahkan`)
+    }
+    const next = incoming
       .slice(0, MAX_IMAGES - images.length)
       .map((f, i) => ({
         id: `${f.name}-${i}-${f.size}`,
