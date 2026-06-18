@@ -32,10 +32,10 @@ export function BuatProdukForm() {
   const [mediaFiles, setMediaFilesRaw] = React.useState<File[]>([])
   const [mediaError, setMediaError] = React.useState(false)
   const hasImage = mediaFiles.some((f) => f.type.startsWith("image/"))
-  const setMediaFiles = (files: File[]) => {
+  const setMediaFiles = React.useCallback((files: File[]) => {
     setMediaFilesRaw(files)
     if (files.some((f) => f.type.startsWith("image/"))) setMediaError(false)
-  }
+  }, [])
   const modeRef = React.useRef<"download" | "in_review">("in_review")
   const { mutateAsync, isPending } = useCreateProduct()
   const { mutateAsync: createBundle, isPending: isBundlePending } = useCreateBundle()
@@ -155,15 +155,25 @@ export function BuatProdukForm() {
 
   const submit = (mode: "download" | "in_review") => {
     if (busy) return
-    // Foto wajib minimal 1 (kecuali bundle yang tersusun dari komponen).
-    if (!form.getValues("isBundle") && !hasImage) {
-      setMediaError(true)
-      toast.error("Minimal 1 foto produk wajib diunggah")
-      document.getElementById("media")?.scrollIntoView({ behavior: "smooth", block: "start" })
-      return
-    }
     modeRef.current = mode
-    handleSubmit(onValid, onInvalid)()
+
+    const missingMedia = !form.getValues("isBundle") && !hasImage
+    if (missingMedia) setMediaError(true)
+
+    handleSubmit(
+      (data) => {
+        if (missingMedia) {
+          toast.error("Minimal 1 foto produk wajib diunggah")
+          document.getElementById("media")?.scrollIntoView({ behavior: "smooth", block: "start" })
+          return
+        }
+        onValid(data)
+      },
+      () => {
+        if (missingMedia) setMediaError(true)
+        onInvalid()
+      },
+    )()
   }
 
   const has = (...keys: (keyof BuatProdukFormValues)[]) => keys.some((k) => errors[k])

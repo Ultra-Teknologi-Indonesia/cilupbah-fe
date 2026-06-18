@@ -25,10 +25,12 @@ export function MediaUploader({
   const [dragOver, setDragOver] = React.useState(false)
   const imgInput = React.useRef<HTMLInputElement>(null)
   const vidInput = React.useRef<HTMLInputElement>(null)
+  const onChangeRef = React.useRef(onChange)
+  onChangeRef.current = onChange
 
   React.useEffect(() => {
-    onChange?.(images.map((i) => i.file))
-  }, [images, onChange])
+    onChangeRef.current?.(images.map((i) => i.file))
+  }, [images])
 
   React.useEffect(
     () => () => {
