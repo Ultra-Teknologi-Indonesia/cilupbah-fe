@@ -1,7 +1,7 @@
 import { fetchClient } from "@/lib/api-client"
 import type { ApiPaginated, ApiResponse } from "@/types/api.types"
 
-export type PantauanLens = "belum_upload" | "harga" | "sku" | "atribut"
+export type PantauanLens = "belum_upload" | "harga" | "sku" | "atribut" | "persyaratan"
 export type ProductTypeFilter = "satuan" | "bundle" | "konsinyasi"
 
 export interface PantauanParams {
@@ -22,6 +22,7 @@ interface RawPantauan {
   category_name: string | null
   product_type: string
   not_uploaded_count: number | null
+  requirements_summary: string | null
 }
 
 export interface PantauanProduct {
@@ -32,6 +33,7 @@ export interface PantauanProduct {
   categoryName: string | null
   productType: string
   notUploadedCount: number | null
+  requirementsSummary: string | null
 }
 
 function mapItem(raw: RawPantauan): PantauanProduct {
@@ -43,6 +45,7 @@ function mapItem(raw: RawPantauan): PantauanProduct {
     categoryName: raw.category_name,
     productType: raw.product_type,
     notUploadedCount: raw.not_uploaded_count,
+    requirementsSummary: raw.requirements_summary,
   }
 }
 

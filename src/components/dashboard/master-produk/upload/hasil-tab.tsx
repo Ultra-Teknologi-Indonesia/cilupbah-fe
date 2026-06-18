@@ -85,7 +85,13 @@ function HistoryStatus({ row }: { row: HistoryRow }) {
   )
 }
 
-export function HasilTab() {
+export function HasilTab({
+  tabBar,
+  actionButton,
+}: {
+  tabBar?: React.ReactNode
+  actionButton?: React.ReactNode
+}) {
   const [searchInput, setSearchInput] = React.useState("")
   const [search, setSearch] = React.useState("")
   const [shopId, setShopId] = React.useState<string | null>(null)
@@ -365,10 +371,14 @@ export function HasilTab() {
         </div>
 
         <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
-          <div className="flex items-center justify-end border-b border-border/60 px-5 py-3 sm:px-6">
-            <span className="text-sm text-muted-foreground">
-              Total <span className="font-medium text-foreground tabular-nums">{total}</span>
-            </span>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 pt-3 sm:px-5">
+            <div className="overflow-x-auto">{tabBar}</div>
+            <div className="flex items-center gap-3 pb-2">
+              {actionButton}
+              <span className="text-sm text-muted-foreground">
+                Total <span className="font-medium text-foreground tabular-nums">{total}</span>
+              </span>
+            </div>
           </div>
           <div className="px-5 py-5 sm:px-6">
             <DataTable

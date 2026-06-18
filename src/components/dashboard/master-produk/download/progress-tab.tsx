@@ -26,7 +26,13 @@ const STATES: { value: "" | DownloadState; label: string }[] = [
   { value: "failed", label: "Gagal" },
 ]
 
-export function ProgressTab() {
+export function ProgressTab({
+  tabBar,
+  actionButton,
+}: {
+  tabBar?: React.ReactNode
+  actionButton?: React.ReactNode
+}) {
   const { data: stores = [] } = useConnectedStores()
   const storeOptions = React.useMemo(
     () =>
@@ -155,11 +161,10 @@ export function ProgressTab() {
       {/* Konten */}
       <div className="min-w-0 flex-1">
         <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 py-3 sm:px-5">
-            <p className="text-sm text-muted-foreground">
-              Transaksi yang muncul di sini hanya untuk produk yang didownload massal.
-            </p>
-            <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 pt-3 sm:px-5">
+            <div className="overflow-x-auto">{tabBar}</div>
+            <div className="flex items-center gap-3 pb-2">
+              {actionButton}
               <Button
                 variant="outline"
                 size="sm"

@@ -75,11 +75,18 @@ function mapDestination(raw: RawUploadListing): UploadDestination {
   }
 }
 
+export interface RulesSummary {
+  requiredCertsCount: number
+  sizeChartRequired: boolean
+  hasSpecialRequirements: boolean
+}
+
 export interface MatchRow {
   storeId: string
   channelGroupId: string | null
   message: string
   matched: boolean
+  rulesSummary: RulesSummary | null
 }
 
 interface RawMatchRow {
@@ -87,6 +94,11 @@ interface RawMatchRow {
   channel_group_id: string | null
   message: string
   matched: boolean
+  rules_summary: {
+    required_certs_count: number
+    size_chart_required: boolean
+    has_special_requirements: boolean
+  } | null
 }
 
 /* ── Tab Draft (global) ─────────────────────────────────────────────────── */
@@ -225,9 +237,26 @@ interface RawRequiredAttribute {
   options: RawRequiredAttributeOption[]
 }
 
+interface RawCategoryRules {
+  cod?: { is_supported?: boolean }
+  epr?: { is_required?: boolean }
+  manufacturer?: { is_required?: boolean }
+  package_dimension?: { is_required?: boolean }
+  product_certifications?: Array<{
+    id: string
+    name: string
+    is_required?: boolean
+    document_details?: string
+    sample_image_url?: string
+  }>
+  responsible_person?: { is_required?: boolean }
+  size_chart?: { is_required?: boolean; is_supported?: boolean }
+}
+
 interface RawRequiredAttributesData {
   channel_category_id: string | null
   attributes: RawRequiredAttribute[]
+  rules: RawCategoryRules | null
 }
 
 export interface RequiredAttributeOption {
@@ -242,9 +271,26 @@ export interface RequiredAttribute {
   options: RequiredAttributeOption[]
 }
 
+export interface CategoryCertification {
+  id: string
+  name: string
+  isRequired: boolean
+  documentDetails?: string
+  sampleImageUrl?: string
+}
+
+export interface CategoryRules {
+  cod: { isSupported: boolean }
+  manufacturer: { isRequired: boolean }
+  packageDimension: { isRequired: boolean }
+  productCertifications: CategoryCertification[]
+  sizeChart: { isRequired: boolean; isSupported: boolean }
+}
+
 export interface RequiredAttributesResult {
   channelCategoryId: string | null
   attributes: RequiredAttribute[]
+  rules: CategoryRules | null
 }
 
 export const UploadService = {
@@ -277,6 +323,13 @@ export const UploadService = {
       channelGroupId: r.channel_group_id,
       message: r.message,
       matched: r.matched,
+      rulesSummary: r.rules_summary
+        ? {
+            requiredCertsCount: r.rules_summary.required_certs_count,
+            sizeChartRequired: r.rules_summary.size_chart_required,
+            hasSpecialRequirements: r.rules_summary.has_special_requirements,
+          }
+        : null,
     }))
   },
 
@@ -317,6 +370,7 @@ export const UploadService = {
       `/products/${productId}/channel-drafts/required-attributes?shop_id=${encodeURIComponent(shopId)}`
     )
     const raw = res.data
+    const rawRules = raw.rules
     return {
       channelCategoryId: raw.channel_category_id,
       attributes: (raw.attributes ?? []).map((a) => ({
@@ -328,6 +382,24 @@ export const UploadService = {
           name: o.name,
         })),
       })),
+      rules: rawRules
+        ? {
+            cod: { isSupported: rawRules.cod?.is_supported ?? false },
+            manufacturer: { isRequired: rawRules.manufacturer?.is_required ?? false },
+            packageDimension: { isRequired: rawRules.package_dimension?.is_required ?? false },
+            productCertifications: (rawRules.product_certifications ?? []).map((c) => ({
+              id: c.id,
+              name: c.name,
+              isRequired: c.is_required ?? false,
+              documentDetails: c.document_details,
+              sampleImageUrl: c.sample_image_url,
+            })),
+            sizeChart: {
+              isRequired: rawRules.size_chart?.is_required ?? false,
+              isSupported: rawRules.size_chart?.is_supported ?? false,
+            },
+          }
+        : null,
     }
   },
 

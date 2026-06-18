@@ -36,12 +36,13 @@ import {
 } from "@/hooks/master-produk/use-upload"
 import type {
   MatchRow,
+  RulesSummary,
   UploadDestination,
 } from "@/services/master-produk/upload.service"
 import type { ChannelCode } from "@/types/channel/channel.types"
 import { AttributeSelectionDialog } from "./attribute-selection-dialog"
 
-type MatchState = { matched: boolean; message: string }
+type MatchState = { matched: boolean; message: string; rulesSummary: RulesSummary | null }
 
 /** Aggregate the API's one-row-per-(store × master-variant) into one row per store. */
 function aggregateMatches(rows: MatchRow[]): Map<string, MatchState> {
@@ -59,6 +60,7 @@ function aggregateMatches(rows: MatchRow[]): Map<string, MatchState> {
     result.set(storeId, {
       matched: allMatched,
       message: allMatched ? "Sesuai sama master" : firstFail?.message ?? "Tidak cocok",
+      rulesSummary: list[0]?.rulesSummary ?? null,
     })
   }
   return result
@@ -247,10 +249,20 @@ export function DestinationTable({
           }
           if (state.matched) {
             return (
-              <span className="inline-flex items-center gap-1.5 text-sm text-emerald-600 dark:text-emerald-400">
-                <CheckCircleIcon className="size-4" />
-                Cocok
-              </span>
+              <div className="flex flex-col gap-0.5">
+                <span className="inline-flex items-center gap-1.5 text-sm text-emerald-600 dark:text-emerald-400">
+                  <CheckCircleIcon className="size-4" />
+                  Cocok
+                </span>
+                {state.rulesSummary?.hasSpecialRequirements && (
+                  <span className="ml-[22px] inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
+                    <AlertTriangleIcon className="size-3 shrink-0" />
+                    {state.rulesSummary.requiredCertsCount > 0
+                      ? `${state.rulesSummary.requiredCertsCount} sertifikasi diperlukan`
+                      : "Persyaratan khusus"}
+                  </span>
+                )}
+              </div>
             )
           }
           return (

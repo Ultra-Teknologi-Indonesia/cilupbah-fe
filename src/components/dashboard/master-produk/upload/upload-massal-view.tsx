@@ -30,34 +30,38 @@ export function UploadMassalView() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
+  const tabBar = (
+    <Tabs value={active} onValueChange={setTab}>
+      <TabsList variant="line">
+        {TABS.map((t) => (
+          <TabsTrigger key={t.id} value={t.id}>
+            {t.label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
+  )
+
+  const actionButton = (
+    <Button
+      variant="primary"
+      size="sm"
+      className="h-9 gap-2"
+      onClick={() => setPickerOpen(true)}
+    >
+      <UploadCloudIcon className="size-4" />
+      Upload Baru
+    </Button>
+  )
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="overflow-x-auto">
-          <Tabs value={active} onValueChange={setTab}>
-            <TabsList variant="line">
-              {TABS.map((t) => (
-                <TabsTrigger key={t.id} value={t.id}>
-                  {t.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </div>
-        <Button
-          variant="primary"
-          size="sm"
-          className="h-9 gap-2"
-          onClick={() => setPickerOpen(true)}
-        >
-          <UploadCloudIcon className="size-4" />
-          Upload Baru
-        </Button>
-      </div>
-
-      {active === "draft" ? <DraftTab /> : <HasilTab />}
-
+    <>
+      {active === "draft" ? (
+        <DraftTab tabBar={tabBar} actionButton={actionButton} />
+      ) : (
+        <HasilTab tabBar={tabBar} actionButton={actionButton} />
+      )}
       <ProductPickerDialog open={pickerOpen} onOpenChange={setPickerOpen} />
-    </div>
+    </>
   )
 }

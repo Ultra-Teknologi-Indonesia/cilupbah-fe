@@ -35,7 +35,7 @@ function produkCell(p: PantauanProduct) {
   )
 }
 
-const LENS_BADGE: Record<Exclude<PantauanLens, "belum_upload">, { label: string; cls: string }> = {
+const LENS_BADGE: Record<Exclude<PantauanLens, "belum_upload" | "persyaratan">, { label: string; cls: string }> = {
   harga: { label: "Harga berbeda antar channel", cls: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
   sku: { label: "SKU berbeda dengan master", cls: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
   atribut: { label: "Atribut berbeda antar channel", cls: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
@@ -56,16 +56,31 @@ export function buildPantauanColumns(lens: PantauanLens): ColumnDef<PantauanProd
             )
           },
         }
-      : {
-          id: "lens",
-          header: "Keterangan",
-          cell: () => {
-            const b = LENS_BADGE[lens]
-            return (
-              <span className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${b.cls}`}>{b.label}</span>
-            )
-          },
-        }
+      : lens === "persyaratan"
+        ? {
+            id: "persyaratan",
+            header: "Persyaratan",
+            cell: ({ row }) => {
+              const summary = row.original.requirementsSummary
+              return summary ? (
+                <span className="rounded px-1.5 py-0.5 text-[11px] font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                  {summary}
+                </span>
+              ) : (
+                <span className="text-muted-foreground">—</span>
+              )
+            },
+          }
+        : {
+            id: "lens",
+            header: "Keterangan",
+            cell: () => {
+              const b = LENS_BADGE[lens]
+              return (
+                <span className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${b.cls}`}>{b.label}</span>
+              )
+            },
+          }
 
   return [
     {

@@ -39,53 +39,57 @@ export function DownloadView() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
+  const tabBar = (
+    <Tabs value={active} onValueChange={setTab}>
+      <TabsList variant="line">
+        {TABS.map((t) => (
+          <TabsTrigger key={t.id} value={t.id}>
+            {t.label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
+  )
+
+  const actionButton = (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="primary" size="sm" className="h-9 gap-2">
+          <CloudDownloadIcon className="size-4" />
+          Tambah Baru
+          <ChevronDownIcon className="size-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-64">
+        <DropdownMenuItem onSelect={() => setSatuanOpen(true)} className="flex-col items-start gap-0.5">
+          <span className="flex items-center gap-2 font-medium">
+            <PackageIcon className="size-4" />
+            Download Satuan
+          </span>
+          <span className="pl-6 text-xs text-muted-foreground">
+            Cari & unduh produk satu per satu.
+          </span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => setMassalOpen(true)} className="flex-col items-start gap-0.5">
+          <span className="flex items-center gap-2 font-medium">
+            <LayersIcon className="size-4" />
+            Download Massal
+          </span>
+          <span className="pl-6 text-xs text-muted-foreground">
+            Tarik seluruh produk dari toko.
+          </span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="overflow-x-auto">
-          <Tabs value={active} onValueChange={setTab}>
-            <TabsList variant="line">
-              {TABS.map((t) => (
-                <TabsTrigger key={t.id} value={t.id}>
-                  {t.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </div>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="primary" size="sm" className="h-9 gap-2">
-              <CloudDownloadIcon className="size-4" />
-              Tambah Baru
-              <ChevronDownIcon className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-64">
-            <DropdownMenuItem onSelect={() => setSatuanOpen(true)} className="flex-col items-start gap-0.5">
-              <span className="flex items-center gap-2 font-medium">
-                <PackageIcon className="size-4" />
-                Download Satuan
-              </span>
-              <span className="pl-6 text-xs text-muted-foreground">
-                Cari & unduh produk satu per satu.
-              </span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setMassalOpen(true)} className="flex-col items-start gap-0.5">
-              <span className="flex items-center gap-2 font-medium">
-                <LayersIcon className="size-4" />
-                Download Massal
-              </span>
-              <span className="pl-6 text-xs text-muted-foreground">
-                Tarik seluruh produk dari toko.
-              </span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      {active === "hasil" ? <HasilTab /> : <ProgressTab />}
+    <>
+      {active === "hasil" ? (
+        <HasilTab tabBar={tabBar} actionButton={actionButton} />
+      ) : (
+        <ProgressTab tabBar={tabBar} actionButton={actionButton} />
+      )}
 
       <DownloadMassalDialog
         open={massalOpen}
@@ -93,6 +97,6 @@ export function DownloadView() {
         onQueued={() => setTab("progress")}
       />
       <DownloadSatuanDialog open={satuanOpen} onOpenChange={setSatuanOpen} />
-    </div>
+    </>
   )
 }

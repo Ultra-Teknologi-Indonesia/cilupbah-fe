@@ -4,6 +4,7 @@ import * as React from "react"
 import { Loader2Icon, CheckCircleIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { CategoryRulesCard } from "@/components/dashboard/master-produk/upload-to-channel/category-rules-card"
 import { Combobox } from "@/components/ui/combobox"
 import {
   Dialog,
@@ -113,6 +114,8 @@ export function AttributeSelectionDialog({
         {data && !isLoading && !isError && (
           <ScrollArea className="max-h-[60vh]">
             <div className="space-y-5 pr-3">
+              {data.rules && <CategoryRulesCard rules={data.rules} />}
+
               {uncoveredAttrs.map((attr) => (
                 <div key={attr.externalId} className="space-y-1.5">
                   <label className="flex items-center gap-2 text-sm font-medium">

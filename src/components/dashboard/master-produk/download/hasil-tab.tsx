@@ -30,7 +30,13 @@ const TYPE_OPTIONS = [
   { value: "pre_order", label: "Pre-Order" },
 ]
 
-export function HasilTab() {
+export function HasilTab({
+  tabBar,
+  actionButton,
+}: {
+  tabBar?: React.ReactNode
+  actionButton?: React.ReactNode
+}) {
   const [view, setView] = React.useState<View>("card")
   const { data: brandOptions = [] } = useBrandOptions()
   const { data: categoryTree = [] } = useCategoryTree()
@@ -239,16 +245,17 @@ export function HasilTab() {
   return (
     <FilterShell filters={filters} onReset={hasFilter ? reset : undefined}>
       <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6">
-          <div>
-            <h2 className="text-base font-medium">Produk Hasil Download</h2>
-            <p className="text-sm text-muted-foreground">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 pt-3 sm:px-5">
+          <div className="overflow-x-auto">{tabBar}</div>
+          <div className="flex items-center gap-3 pb-2">
+            {actionButton}
+            <div className="flex items-center gap-0.5 rounded-full bg-black/[0.06] p-1 ring-1 ring-border/60 dark:bg-white/10">
+              {toggleBtn("card", "Tampilan kartu", LayoutGridIcon)}
+              {toggleBtn("table", "Tampilan tabel", TableIcon)}
+            </div>
+            <span className="text-sm text-muted-foreground">
               {isLoading ? "Memuat…" : `${total} produk`}
-            </p>
-          </div>
-          <div className="flex items-center gap-0.5 rounded-full bg-black/[0.06] p-1 ring-1 ring-border/60 dark:bg-white/10">
-            {toggleBtn("card", "Tampilan kartu", LayoutGridIcon)}
-            {toggleBtn("table", "Tampilan tabel", TableIcon)}
+            </span>
           </div>
         </div>
 

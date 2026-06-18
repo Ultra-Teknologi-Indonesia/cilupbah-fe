@@ -28,6 +28,7 @@ const LENSES: { id: PantauanLens; label: string }[] = [
   { id: "atribut", label: "Atribut Tidak Seragam" },
   { id: "harga", label: "Harga Tidak Seragam" },
   { id: "sku", label: "SKU Tidak Seragam" },
+  { id: "persyaratan", label: "Persyaratan Channel" },
 ]
 
 const TYPES: { value: "" | ProductTypeFilter; label: string }[] = [
