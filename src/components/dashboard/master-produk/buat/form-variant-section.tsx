@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useFormContext } from "react-hook-form"
-import { PlusIcon, Trash2Icon, XIcon } from "lucide-react"
+import { InfoIcon, PlusIcon, Trash2Icon, XIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -84,7 +84,7 @@ export function FormVariantSection({
   const variationTypes = watch("variationTypes")
   const variants = watch("variants")
 
-  const { data } = useCategoryFormAttributes(category?.id)
+  const { data, isError } = useCategoryFormAttributes(category?.id)
   const availableTypes: FormAttribute[] = data?.variant_types ?? []
 
   const usedAttrIds = variationTypes.map((t) => t.attributeId)
@@ -117,7 +117,45 @@ export function FormVariantSection({
   }, [typesKey, baseSku])
 
   if (!category) return null
-  if (availableTypes.length === 0) return null
+
+  if (isError) {
+    return (
+      <FormSectionCard id="varian" title="Varian Produk">
+        <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
+          <InfoIcon className="mt-0.5 size-4 shrink-0" />
+          <p>
+            Pilih kategori sampai level terdalam (Kategori &rsaquo; Sub-Kategori &rsaquo; Jenis Produk) untuk mengatur varian.
+          </p>
+        </div>
+      </FormSectionCard>
+    )
+  }
+
+  if (availableTypes.length === 0) {
+    return (
+      <FormSectionCard id="varian" title="Varian Produk">
+        <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm text-amber-700 dark:text-amber-400">
+          <InfoIcon className="mt-0.5 size-4 shrink-0" />
+          <div>
+            <p>
+              Kategori <span className="font-medium">{category.name}</span> belum memiliki tipe variasi
+              (mis. Ukuran, Warna).
+            </p>
+            <p className="mt-1">
+              Tambahkan tipe variasi di{" "}
+              <a
+                href="/dashboard/kategori-merek/kategori"
+                className="font-medium underline underline-offset-2 hover:text-amber-800 dark:hover:text-amber-300"
+              >
+                Manajemen Kategori
+              </a>{" "}
+              agar bisa mengatur varian produk ini.
+            </p>
+          </div>
+        </div>
+      </FormSectionCard>
+    )
+  }
 
   const setTypes = (next: BuatProdukFormValues["variationTypes"]) =>
     setValue("variationTypes", next, { shouldDirty: true })

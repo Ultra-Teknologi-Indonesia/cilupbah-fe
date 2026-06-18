@@ -38,4 +38,5 @@ export const useCategoryFormAttributes = (categoryId?: string | number | null) =
     queryFn: () => MasterDataService.categoryFormAttributes(categoryId!),
     enabled: categoryId != null && categoryId !== "",
     staleTime: STALE,
+    retry: false,
   })

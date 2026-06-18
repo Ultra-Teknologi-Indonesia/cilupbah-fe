@@ -146,10 +146,14 @@ export function CategoryPicker({
 
             <div className="flex items-center justify-between gap-3 border-t border-border/60 px-5 py-4 sm:px-6">
               <span className="text-sm text-muted-foreground">
-                {chosen ? path.map((p) => p.name).join(" › ") : "Belum dipilih"}
+                {!chosen
+                  ? "Belum dipilih"
+                  : isLeaf
+                    ? path.map((p) => p.name).join(" › ")
+                    : `${path.map((p) => p.name).join(" › ")} — pilih sampai level terdalam`}
               </span>
-              <Button onClick={apply} disabled={!chosen}>
-                {isLeaf ? "Pilih kategori ini" : "Pilih"}
+              <Button onClick={apply} disabled={!chosen || !isLeaf}>
+                {isLeaf ? "Pilih kategori ini" : "Pilih subkategori"}
               </Button>
             </div>
           </LiquidGlass>

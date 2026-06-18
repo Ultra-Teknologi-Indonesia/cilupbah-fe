@@ -131,6 +131,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
 
   const sections = [
     { id: "detail", label: "Detail Produk", status: sectionStatus("detail") },
+    { id: "varian", label: "Varian", status: "empty" as SectionStatus },
     { id: "penjualan", label: "Penjualan & Pembelian", status: sectionStatus("penjualan") },
     { id: "pengiriman", label: "Pengiriman", status: sectionStatus("pengiriman") },
     { id: "media", label: "Gambar & Video", status: sectionStatus("media") },

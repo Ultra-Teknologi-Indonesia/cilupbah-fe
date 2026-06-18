@@ -13,10 +13,10 @@ export function FormSpecificationSection() {
   const { watch, setValue } = useFormContext<BuatProdukFormValues>()
   const category = watch("category")
   const specs = watch("specifications")
-  const { data } = useCategoryFormAttributes(category?.id)
+  const { data, isError } = useCategoryFormAttributes(category?.id)
   const specAttrs = data?.specifications ?? []
 
-  if (!category || specAttrs.length === 0) return null
+  if (!category || isError || specAttrs.length === 0) return null
 
   const valueOf = (id: number) => specs.find((s) => s.attributeId === id)?.value ?? ""
 
