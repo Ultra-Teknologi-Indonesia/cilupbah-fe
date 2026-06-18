@@ -1,10 +1,11 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2Icon, SaveIcon, SendIcon } from "lucide-react"
+import { ArrowLeftIcon, Loader2Icon, SaveIcon, SendIcon } from "lucide-react"
 import { toast } from "sonner"
 import { buatProdukSchema } from "@/schemas/master-produk"
 import type { BuatProdukFormValues } from "@/types/master-produk"
@@ -203,6 +204,11 @@ export function BuatProdukForm() {
         ]}
         actions={
           <div className="flex items-center gap-2">
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/master-produk" prefetch={false}>
+                <ArrowLeftIcon /> Kembali
+              </Link>
+            </Button>
             {errorCount > 0 && (
               <span className="hidden text-xs text-destructive sm:inline">
                 {errorCount} perlu diperbaiki

@@ -211,6 +211,42 @@ export interface BulkUploadResult {
   skipped: { id: string; reason: string }[]
 }
 
+/* ── Required Attributes (TikTok) ──────────────────────────────────────── */
+
+interface RawRequiredAttributeOption {
+  external_id: string
+  name: string
+}
+
+interface RawRequiredAttribute {
+  external_id: string
+  name: string
+  is_covered: boolean
+  options: RawRequiredAttributeOption[]
+}
+
+interface RawRequiredAttributesData {
+  channel_category_id: string | null
+  attributes: RawRequiredAttribute[]
+}
+
+export interface RequiredAttributeOption {
+  externalId: string
+  name: string
+}
+
+export interface RequiredAttribute {
+  externalId: string
+  name: string
+  isCovered: boolean
+  options: RequiredAttributeOption[]
+}
+
+export interface RequiredAttributesResult {
+  channelCategoryId: string | null
+  attributes: RequiredAttribute[]
+}
+
 export const UploadService = {
   /* Toko tujuan untuk satu produk (Belum/Sudah Diupload). */
   listing: async (
@@ -268,6 +304,65 @@ export const UploadService = {
   ): Promise<BulkUploadResult> => {
     const drafts = await Promise.all(
       shopIds.map((shopId) => UploadService.createDraft(productId, shopId))
+    )
+    return UploadService.bulkUpload(drafts.map((d) => d.id))
+  },
+
+  /* Required attributes TikTok untuk product+store. */
+  fetchRequiredAttributes: async (
+    productId: string,
+    shopId: string
+  ): Promise<RequiredAttributesResult> => {
+    const res = await fetchClient<ApiResponse<RawRequiredAttributesData>>(
+      `/products/${productId}/channel-drafts/required-attributes?shop_id=${encodeURIComponent(shopId)}`
+    )
+    const raw = res.data
+    return {
+      channelCategoryId: raw.channel_category_id,
+      attributes: (raw.attributes ?? []).map((a) => ({
+        externalId: a.external_id,
+        name: a.name,
+        isCovered: a.is_covered,
+        options: (a.options ?? []).map((o) => ({
+          externalId: o.external_id,
+          name: o.name,
+        })),
+      })),
+    }
+  },
+
+  /* Buat draft dengan attribute_mapping lalu upload. */
+  createDraftWithAttributes: async (
+    productId: string,
+    shopId: string,
+    attributeMapping: Record<string, string> | null
+  ): Promise<{ id: string }> => {
+    const res = await fetchClient<ApiResponse<{ id: string }>>(
+      `/products/${productId}/channel-drafts`,
+      {
+        method: "POST",
+        data: {
+          shop_id: shopId,
+          status: "ready",
+          ...(attributeMapping && Object.keys(attributeMapping).length > 0
+            ? { attribute_mapping: attributeMapping }
+            : {}),
+        },
+      }
+    )
+    return res.data
+  },
+
+  /* Upload dengan attribute mapping: buat draft per toko lalu antrekan. */
+  uploadToStoresWithAttributes: async (
+    productId: string,
+    shopIds: string[],
+    attributeMapping: Record<string, string> | null
+  ): Promise<BulkUploadResult> => {
+    const drafts = await Promise.all(
+      shopIds.map((shopId) =>
+        UploadService.createDraftWithAttributes(productId, shopId, attributeMapping)
+      )
     )
     return UploadService.bulkUpload(drafts.map((d) => d.id))
   },

@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { InfoIcon, Loader2Icon, SaveIcon } from "lucide-react"
+import { ArrowLeftIcon, InfoIcon, Loader2Icon, SaveIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
@@ -151,7 +151,9 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" asChild disabled={busy}>
-              <Link href={detailHref} prefetch={false}>Batal</Link>
+              <Link href={detailHref} prefetch={false}>
+                <ArrowLeftIcon /> Kembali
+              </Link>
             </Button>
             <Button variant="primary" onClick={() => !busy && handleSubmit(onValid, onInvalid)()} disabled={busy}>
               {busy ? <Loader2Icon className="animate-spin" /> : <SaveIcon />}

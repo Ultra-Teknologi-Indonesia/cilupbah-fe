@@ -42,10 +42,12 @@ export function AccountsCard({ product }: { product: ProductDetail }) {
 }
 
 export function ShippingCard({ product }: { product: ProductDetail }) {
-  const dim =
-    product.length || product.width || product.height
-      ? `${product.length ?? 0} × ${product.width ?? 0} × ${product.height ?? 0} cm`
-      : "—"
+  const hasDim = [product.length, product.width, product.height].some(
+    (v) => v != null && Number(v) > 0
+  )
+  const dim = hasDim
+    ? `${product.length ?? 0} × ${product.width ?? 0} × ${product.height ?? 0} cm`
+    : "—"
   return (
     <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm sm:p-5">
       <h3 className="mb-2 text-sm font-medium">Pengiriman</h3>

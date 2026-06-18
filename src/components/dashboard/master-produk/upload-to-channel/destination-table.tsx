@@ -32,12 +32,14 @@ import {
   useMatchListing,
   useUploadListing,
   useUploadToStores,
+  useUploadWithAttributes,
 } from "@/hooks/master-produk/use-upload"
 import type {
   MatchRow,
   UploadDestination,
 } from "@/services/master-produk/upload.service"
 import type { ChannelCode } from "@/types/channel/channel.types"
+import { AttributeSelectionDialog } from "./attribute-selection-dialog"
 
 type MatchState = { matched: boolean; message: string }
 
@@ -95,6 +97,13 @@ export function DestinationTable({
 
   const match = useMatchListing(productId)
   const upload = useUploadToStores(productId)
+  const uploadWithAttrs = useUploadWithAttributes(productId)
+
+  const [attrDialog, setAttrDialog] = React.useState<{
+    shopIds: string[]
+    shopId: string
+    resetSelection?: () => void
+  } | null>(null)
 
   const rows = React.useMemo(() => listing.data?.items ?? [], [listing.data])
   const total = listing.data?.meta?.total ?? 0
@@ -303,10 +312,15 @@ export function DestinationTable({
               <Button
                 variant="ghost"
                 size="icon-sm"
-                disabled={!d.shopId || upload.isPending || isBlocked}
+                disabled={!d.shopId || upload.isPending || uploadWithAttrs.isPending || isBlocked}
                 onClick={(e) => {
                   e.stopPropagation()
-                  if (d.shopId && !isBlocked) upload.mutate([d.shopId])
+                  if (!d.shopId || isBlocked) return
+                  if (d.channelCode === "tiktok") {
+                    setAttrDialog({ shopIds: [d.shopId], shopId: d.shopId })
+                  } else {
+                    upload.mutate([d.shopId])
+                  }
                 }}
                 title={
                   !d.shopId
@@ -325,7 +339,7 @@ export function DestinationTable({
         size: 132,
       },
     ],
-    [isUploaded, matchMap, matching, runMatch, upload]
+    [isUploaded, matchMap, matching, runMatch, upload, uploadWithAttrs]
   )
 
   const [confirmRows, setConfirmRows] = React.useState<UploadDestination[] | null>(null)
@@ -437,15 +451,28 @@ export function DestinationTable({
                       <Button
                         variant="primary"
                         onClick={() => {
-                          // Hanya upload toko yang cocok; yang tidak cocok dilewati
-                          // (BE juga menolaknya sebagai pertahanan berlapis).
-                          const shopIds = confirmRows
-                            .filter((r) => matchMap.get(r.storeId)?.matched !== false)
-                            .map((r) => r.shopId)
-                            .filter((id): id is string => !!id)
-                          if (shopIds.length > 0) upload.mutate(shopIds)
+                          const eligible = confirmRows.filter(
+                            (r) => r.shopId && matchMap.get(r.storeId)?.matched !== false
+                          )
+                          const nonTiktok = eligible
+                            .filter((r) => r.channelCode !== "tiktok")
+                            .map((r) => r.shopId!)
+                          const tiktok = eligible.filter((r) => r.channelCode === "tiktok")
+
+                          if (nonTiktok.length > 0) upload.mutate(nonTiktok)
+
+                          if (tiktok.length > 0) {
+                            const tiktokShopIds = tiktok.map((r) => r.shopId!)
+                            setAttrDialog({
+                              shopIds: tiktokShopIds,
+                              shopId: tiktokShopIds[0],
+                              resetSelection: () => table.resetRowSelection(),
+                            })
+                          } else {
+                            table.resetRowSelection()
+                          }
+
                           setConfirmRows(null)
-                          table.resetRowSelection()
                         }}
                       >
                         Upload
@@ -470,6 +497,32 @@ export function DestinationTable({
             Coba lagi
           </button>
         </p>
+      )}
+
+      {attrDialog && (
+        <AttributeSelectionDialog
+          open={!!attrDialog}
+          onOpenChange={(o) => {
+            if (!o) setAttrDialog(null)
+          }}
+          productId={productId}
+          shopId={attrDialog.shopId}
+          isUploading={uploadWithAttrs.isPending}
+          onConfirm={(mapping) => {
+            uploadWithAttrs.mutate(
+              {
+                shopIds: attrDialog.shopIds,
+                attributeMapping: Object.keys(mapping).length > 0 ? mapping : null,
+              },
+              {
+                onSettled: () => {
+                  attrDialog.resetSelection?.()
+                  setAttrDialog(null)
+                },
+              }
+            )
+          }}
+        />
       )}
     </>
   )

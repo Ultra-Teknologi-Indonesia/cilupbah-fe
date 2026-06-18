@@ -33,6 +33,7 @@ const STATUS_OPTIONS = [
   { value: "", label: "Semua" },
   { value: "success", label: "Berhasil" },
   { value: "failed", label: "Gagal" },
+  { value: "pending", label: "Diproses" },
 ]
 
 function fmtDate(iso: string | null) {

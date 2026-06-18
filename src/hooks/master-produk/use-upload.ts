@@ -14,6 +14,7 @@ import {
   type DraftParams,
   type HistoryParams,
   type UploadListingParams,
+  type BulkUploadResult,
 } from "@/services/master-produk/upload.service"
 
 /* ── Query keys ─────────────────────────────────────────────────────────── */
@@ -65,6 +66,50 @@ export function useUploadToStores(productId: string) {
   return useMutation({
     mutationFn: (shopIds: string[]) => UploadService.uploadToStores(productId, shopIds),
     onSuccess: (res) => {
+      if (res.uploaded > 0) toast.success(`${res.uploaded} toko diantrekan untuk upload`)
+      if (res.skipped.length > 0) {
+        toast.warning(`${res.skipped.length} toko dilewati`, {
+          description: res.skipped.map((s) => s.reason).slice(0, 3).join("; "),
+        })
+      }
+      if (res.uploaded === 0 && res.skipped.length === 0) {
+        toast("Tidak ada toko yang diantrekan")
+      }
+      invalidate()
+    },
+    onError: (err) => {
+      const message = (err as { message?: string })?.message
+      toast.error(message || "Upload gagal diproses")
+    },
+  })
+}
+
+/* ── Required Attributes (TikTok) ──────────────────────────────────────── */
+
+export const requiredAttributesKey = (productId: string, shopId: string) =>
+  ["master-produk", "required-attributes", productId, shopId] as const
+
+export function useRequiredAttributes(productId: string, shopId: string | null) {
+  return useQuery({
+    queryKey: requiredAttributesKey(productId, shopId ?? ""),
+    queryFn: () => UploadService.fetchRequiredAttributes(productId, shopId!),
+    enabled: !!productId && !!shopId,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useUploadWithAttributes(productId: string) {
+  const invalidate = useInvalidateUpload(productId)
+
+  return useMutation({
+    mutationFn: ({
+      shopIds,
+      attributeMapping,
+    }: {
+      shopIds: string[]
+      attributeMapping: Record<string, string> | null
+    }) => UploadService.uploadToStoresWithAttributes(productId, shopIds, attributeMapping),
+    onSuccess: (res: BulkUploadResult) => {
       if (res.uploaded > 0) toast.success(`${res.uploaded} toko diantrekan untuk upload`)
       if (res.skipped.length > 0) {
         toast.warning(`${res.skipped.length} toko dilewati`, {

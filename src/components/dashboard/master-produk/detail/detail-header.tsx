@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { ChevronRightIcon, ImageIcon, PencilIcon, XIcon } from "lucide-react"
+import { ArrowLeftIcon, ChevronRightIcon, ImageIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -130,15 +130,10 @@ export function DetailHeader({
             <ProductTypeBadge type={product.productType} />
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <Button variant="outline" size="sm" asChild disabled={lifecyclePending}>
-              <Link href={`/dashboard/master-produk/${product.id}/edit`} prefetch={false}>
-                <PencilIcon /> Edit
-              </Link>
-            </Button>
             <StatusActions product={product} isPending={lifecyclePending} onAction={onLifecycle} />
-            <Button variant="ghost" size="icon" asChild aria-label="Tutup">
+            <Button variant="outline" size="sm" asChild aria-label="Kembali">
               <Link href="/dashboard/master-produk" prefetch={false}>
-                <XIcon />
+                <ArrowLeftIcon /> Kembali
               </Link>
             </Button>
           </div>
