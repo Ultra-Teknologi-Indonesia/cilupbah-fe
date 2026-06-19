@@ -1,23 +1,8 @@
 "use client"
 
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronsLeftIcon,
-  ChevronsRightIcon,
-} from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { SimplePagination } from "@/components/ui/simple-pagination"
 
 const PAGE_SIZES = [10, 20, 50, 100]
-
 
 export function TabPagination({
   page,
@@ -35,44 +20,15 @@ export function TabPagination({
   onPerPage: (n: number) => void
 }) {
   return (
-    <div className="flex flex-col-reverse items-center gap-3 sm:flex-row sm:justify-between">
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">Baris per halaman</span>
-        <Select value={`${perPage}`} onValueChange={(v) => onPerPage(Number(v))}>
-          <SelectTrigger className="h-8 w-[72px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {PAGE_SIZES.map((s) => (
-              <SelectItem key={s} value={`${s}`}>
-                {s}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {isFetching && <span className="text-xs text-muted-foreground">memuat…</span>}
-      </div>
-
-      <div className="flex items-center gap-2">
-        <span className="text-sm tabular-nums text-muted-foreground">
-          Halaman {page} dari {lastPage}
-        </span>
-        <div className="flex items-center gap-1">
-          <Button variant="outline" size="icon" className="size-8" disabled={page <= 1} onClick={() => onPage(1)}>
-            <ChevronsLeftIcon />
-          </Button>
-          <Button variant="outline" size="icon" className="size-8" disabled={page <= 1} onClick={() => onPage(page - 1)}>
-            <ChevronLeftIcon />
-          </Button>
-          <Button variant="outline" size="icon" className="size-8" disabled={page >= lastPage} onClick={() => onPage(page + 1)}>
-            <ChevronRightIcon />
-          </Button>
-          <Button variant="outline" size="icon" className="size-8" disabled={page >= lastPage} onClick={() => onPage(lastPage)}>
-            <ChevronsRightIcon />
-          </Button>
-        </div>
-      </div>
-    </div>
+    <SimplePagination
+      page={page}
+      lastPage={lastPage}
+      onPageChange={onPage}
+      perPage={perPage}
+      onPerPageChange={onPerPage}
+      pageSizeOptions={PAGE_SIZES}
+      isFetching={isFetching}
+    />
   )
 }
 

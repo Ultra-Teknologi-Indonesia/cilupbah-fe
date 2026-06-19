@@ -2,23 +2,13 @@
 
 import * as React from "react"
 import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronsLeftIcon,
-  ChevronsRightIcon,
   Loader2Icon,
   PencilIcon,
   Trash2Icon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { SimplePagination } from "@/components/ui/simple-pagination"
 import {
   Table,
   TableBody,
@@ -55,7 +45,7 @@ function flattenTree(
   return result
 }
 
-const PAGE_SIZE_OPTIONS = [10, 20, 30, 50]
+const PAGE_SIZE_OPTIONS = [10, 20, 30, 50] as const
 
 export function KategoriListTab({ search }: { search: string }) {
   const [page, setPage] = React.useState(1)
@@ -161,82 +151,16 @@ export function KategoriListTab({ search }: { search: string }) {
       )}
 
       {!isLoading && !isError && (
-        <div className="flex flex-col-reverse items-center gap-4 border-t border-border/60 pt-3 sm:flex-row sm:justify-between">
-          <div className="text-sm text-muted-foreground">
-            {total} kategori
-          </div>
-
-          <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-medium">Baris per halaman</p>
-              <Select
-                value={`${perPage}`}
-                onValueChange={(v) => {
-                  setPerPage(Number(v))
-                  setPage(1)
-                }}
-              >
-                <SelectTrigger size="sm" className="w-[4.5rem] rounded-full border-border bg-background">
-                  <SelectValue>{perPage}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {PAGE_SIZE_OPTIONS.map((size) => (
-                    <SelectItem key={size} value={`${size}`}>
-                      {size}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex w-[7.5rem] items-center justify-center text-sm font-medium">
-              Halaman {lastPage === 0 ? 0 : page} dari {lastPage}
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <Button
-                variant="outline"
-                size="icon"
-                className="hidden size-8 lg:flex"
-                onClick={() => setPage(1)}
-                disabled={page <= 1}
-                aria-label="Halaman pertama"
-              >
-                <ChevronsLeftIcon className="size-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-8"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                aria-label="Halaman sebelumnya"
-              >
-                <ChevronLeftIcon className="size-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-8"
-                onClick={() => setPage((p) => p + 1)}
-                disabled={page >= lastPage}
-                aria-label="Halaman berikutnya"
-              >
-                <ChevronRightIcon className="size-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="hidden size-8 lg:flex"
-                onClick={() => setPage(lastPage)}
-                disabled={page >= lastPage}
-                aria-label="Halaman terakhir"
-              >
-                <ChevronsRightIcon className="size-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
+        <SimplePagination
+          page={page}
+          lastPage={lastPage}
+          onPageChange={setPage}
+          perPage={perPage}
+          onPerPageChange={setPerPage}
+          pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
+          total={total}
+          label="kategori"
+        />
       )}
 
       <ConfirmDialog

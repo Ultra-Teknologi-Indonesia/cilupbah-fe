@@ -2,10 +2,6 @@
 
 import * as React from "react"
 import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronsLeftIcon,
-  ChevronsRightIcon,
   ArrowUpDownIcon,
   ArrowUpIcon,
   ArrowDownIcon,
@@ -17,13 +13,7 @@ import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { SimplePagination } from "@/components/ui/simple-pagination"
 import { formatIDR } from "../product-columns"
 import { useProductVariants, useBulkVariants } from "@/hooks/master-produk/use-product-tabs"
 import type { BulkVariantAction } from "@/services/master-produk/product-tabs.service"
@@ -279,31 +269,17 @@ export function TabVariasi({ productId }: { productId: string }) {
         </table>
       </div>
 
-      {}
-      <div className="flex flex-col-reverse items-center gap-3 sm:flex-row sm:justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Baris per halaman</span>
-          <Select value={`${perPage}`} onValueChange={(v) => { setPerPage(Number(v)); setPage(1) }}>
-            <SelectTrigger className="h-8 w-[72px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {PAGE_SIZES.map((s) => <SelectItem key={s} value={`${s}`}>{s}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          {isFetching && <span className="text-xs text-muted-foreground">memuat…</span>}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground tabular-nums">
-            Halaman {page} dari {lastPage}
-          </span>
-          <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon" className="size-8" disabled={page <= 1} onClick={() => setPage(1)}><ChevronsLeftIcon /></Button>
-            <Button variant="outline" size="icon" className="size-8" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}><ChevronLeftIcon /></Button>
-            <Button variant="outline" size="icon" className="size-8" disabled={page >= lastPage} onClick={() => setPage((p) => Math.min(lastPage, p + 1))}><ChevronRightIcon /></Button>
-            <Button variant="outline" size="icon" className="size-8" disabled={page >= lastPage} onClick={() => setPage(lastPage)}><ChevronsRightIcon /></Button>
-          </div>
-        </div>
-      </div>
+      <SimplePagination
+        page={page}
+        lastPage={lastPage}
+        onPageChange={setPage}
+        perPage={perPage}
+        onPerPageChange={setPerPage}
+        pageSizeOptions={PAGE_SIZES}
+        total={total}
+        label="varian"
+        isFetching={isFetching}
+      />
     </div>
   )
 }

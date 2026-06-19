@@ -1,10 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { ArchiveIcon, ChevronLeftIcon, ChevronRightIcon, SearchIcon } from "lucide-react"
+import { ArchiveIcon, SearchIcon } from "lucide-react"
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { SimplePagination } from "@/components/ui/simple-pagination"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import {
   useArchivedProducts,
@@ -85,34 +86,14 @@ export function ArchiveView() {
             pendingId={pendingId}
             onRestore={(item: ArchivedProduct) => restore.mutate(item.itemGroupId)}
           />
-          {meta && meta.last_page > 1 && (
-            <div className="flex items-center justify-end gap-3 text-sm">
-              <span className="text-muted-foreground">
-                Halaman {meta.current_page} dari {meta.last_page}
-              </span>
-              <div className="flex gap-1.5">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-8"
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  aria-label="Sebelumnya"
-                >
-                  <ChevronLeftIcon className="size-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-8"
-                  disabled={page >= meta.last_page}
-                  onClick={() => setPage((p) => p + 1)}
-                  aria-label="Berikutnya"
-                >
-                  <ChevronRightIcon className="size-4" />
-                </Button>
-              </div>
-            </div>
+          {meta && (
+            <SimplePagination
+              page={meta.current_page}
+              lastPage={meta.last_page}
+              onPageChange={setPage}
+              total={meta.total}
+              label="arsip"
+            />
           )}
         </>
       )}

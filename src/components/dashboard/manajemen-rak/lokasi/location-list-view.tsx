@@ -2,8 +2,6 @@
 
 import * as React from "react"
 import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
   InfoIcon,
   Loader2Icon,
   SearchIcon,
@@ -14,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { SimplePagination } from "@/components/ui/simple-pagination"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import {
   Tooltip,
@@ -169,29 +168,16 @@ export function LocationListView() {
           />
         )}
 
-        {!isLoading && !isError && locations.length > 0 && lastPage > 1 && (
-          <div className="flex items-center justify-between gap-3 border-t border-border/60 px-5 py-3">
-            <span className="text-sm text-muted-foreground">
-              Halaman {currentPage} dari {lastPage}
-            </span>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={currentPage <= 1 || isFetching}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              >
-                <ChevronLeftIcon /> Sebelumnya
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={currentPage >= lastPage || isFetching}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Berikutnya <ChevronRightIcon />
-              </Button>
-            </div>
+        {!isLoading && !isError && (
+          <div className="px-5 pb-3">
+            <SimplePagination
+              page={currentPage}
+              lastPage={lastPage}
+              onPageChange={setPage}
+              total={total}
+              label="lokasi"
+              isFetching={isFetching}
+            />
           </div>
         )}
       </LiquidGlass>
