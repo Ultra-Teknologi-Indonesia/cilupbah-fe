@@ -57,6 +57,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
     channelId: string
     channelCode: string
     channelName: string
+    mappedExternalId?: string
   } | null>(null)
 
   return (
@@ -106,6 +107,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
                   </TableCell>
                   {channels.map((ch) => {
                     const name = item[`${ch.code}_category_name`] as string | null
+                    const extId = item[`${ch.code}_category_id`] as string | null
                     const openPicker = () =>
                       setPickerState({
                         categoryId: item.category_id,
@@ -113,6 +115,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
                         channelId: ch.id,
                         channelCode: ch.code,
                         channelName: ch.name,
+                        mappedExternalId: extId ?? undefined,
                       })
                     return (
                       <TableCell key={ch.code} className="text-sm">
@@ -194,6 +197,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
         channelName={pickerState?.channelName ?? ""}
         categoryId={pickerState?.categoryId ?? 0}
         categoryName={pickerState?.categoryName ?? ""}
+        mappedExternalId={pickerState?.mappedExternalId}
         onSuccess={() => setPickerState(null)}
       />
     </>

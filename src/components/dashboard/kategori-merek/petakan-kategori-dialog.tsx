@@ -112,6 +112,7 @@ interface PetakanKategoriDialogProps {
   channelName: string
   categoryId: number
   categoryName: string
+  mappedExternalId?: string
   onSuccess?: () => void
 }
 
@@ -123,6 +124,7 @@ export function PetakanKategoriDialog({
   channelName,
   categoryId,
   categoryName,
+  mappedExternalId,
   onSuccess,
 }: PetakanKategoriDialogProps) {
   const [path, setPath] = React.useState<ChannelCategoryNode[]>([])
@@ -159,11 +161,18 @@ export function PetakanKategoriDialog({
   }, [search, flat])
 
   React.useEffect(() => {
-    if (open) {
-      setPath([])
-      setSearch("")
+    if (!open) return
+    setSearch("")
+
+    if (mappedExternalId && flat.length > 0) {
+      const match = flat.find((f) => f.node.external_id === mappedExternalId)
+      if (match) {
+        setPath(match.path)
+        return
+      }
     }
-  }, [open])
+    setPath([])
+  }, [open, mappedExternalId, flat])
 
   const allColumns = React.useMemo(() => {
     const cols: { nodes: ChannelCategoryNode[]; level: number }[] = [
