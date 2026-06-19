@@ -142,6 +142,21 @@ export function useCreateKategori() {
   })
 }
 
+export function useUpdateKategori() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, name }: { id: number; name: string }) =>
+      KategoriService.updateCategory(id, { name }),
+    onSuccess: () => {
+      toast.success("Kategori berhasil diperbarui")
+      qc.invalidateQueries({ queryKey: ["kategori"] })
+      qc.invalidateQueries({ queryKey: ["master-produk", "lookup", "categories"] })
+    },
+    onError: (err) =>
+      toast.error((err as { message?: string })?.message || "Gagal memperbarui kategori"),
+  })
+}
+
 export function useDeleteKategori() {
   const qc = useQueryClient()
   return useMutation({

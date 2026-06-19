@@ -5,6 +5,7 @@ import {
   CheckIcon,
   ChevronRightIcon,
   Loader2Icon,
+  PencilIcon,
   PlusIcon,
   SearchIcon,
   XIcon,
@@ -27,6 +28,7 @@ import {
   useEnabledCategories,
   useCreateKategori,
   useSearchKategori,
+  useUpdateKategori,
 } from "@/hooks/kategori-merek/use-kategori"
 import type { KategoriItem } from "@/types/kategori-merek/kategori"
 
@@ -123,6 +125,101 @@ function InlineAdd({
   )
 }
 
+function ColumnItem({
+  node,
+  isActive,
+  onSelect,
+}: {
+  node: KategoriItem
+  isActive: boolean
+  onSelect: () => void
+}) {
+  const [editing, setEditing] = React.useState(false)
+  const [editValue, setEditValue] = React.useState(node.name)
+  const editRef = React.useRef<HTMLInputElement>(null)
+  const updateMut = useUpdateKategori()
+
+  React.useEffect(() => {
+    if (editing) {
+      setEditValue(node.name)
+      requestAnimationFrame(() => editRef.current?.select())
+    }
+  }, [editing, node.name])
+
+  const saveEdit = () => {
+    const trimmed = editValue.trim()
+    if (!trimmed || trimmed === node.name) {
+      setEditing(false)
+      return
+    }
+    updateMut.mutate(
+      { id: node.id, name: trimmed },
+      { onSuccess: () => setEditing(false) },
+    )
+  }
+
+  if (editing) {
+    return (
+      <div className="flex items-center gap-1 rounded-xl bg-muted/40 px-2 py-1">
+        <input
+          ref={editRef}
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") saveEdit()
+            if (e.key === "Escape") setEditing(false)
+          }}
+          disabled={updateMut.isPending}
+          className="h-6 min-w-0 flex-1 rounded border border-primary/40 bg-background px-1.5 text-xs outline-none focus:border-primary"
+        />
+        {updateMut.isPending ? (
+          <Loader2Icon className="size-3 animate-spin text-primary" />
+        ) : (
+          <>
+            <button type="button" onClick={saveEdit} className="p-0.5 text-primary">
+              <CheckIcon className="size-3" />
+            </button>
+            <button type="button" onClick={() => setEditing(false)} className="p-0.5 text-muted-foreground">
+              <XIcon className="size-3" />
+            </button>
+          </>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div className="group flex items-center">
+      <button
+        type="button"
+        onClick={onSelect}
+        className={cn(
+          "flex min-w-0 flex-1 items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors",
+          isActive
+            ? "bg-primary/10 font-medium text-primary"
+            : "hover:bg-muted/60",
+        )}
+      >
+        <span className="truncate">{node.name}</span>
+        {node.children?.length ? (
+          <ChevronRightIcon className="size-4 shrink-0 opacity-50" />
+        ) : null}
+      </button>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
+          setEditing(true)
+        }}
+        className="shrink-0 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
+        aria-label={`Edit ${node.name}`}
+      >
+        <PencilIcon className="size-3" />
+      </button>
+    </div>
+  )
+}
+
 function Column({
   label,
   nodes,
@@ -161,21 +258,11 @@ function Column({
           <ul className="flex flex-col gap-0.5 p-1.5 pt-0">
             {nodes.map((n) => (
               <li key={n.id}>
-                <button
-                  type="button"
-                  onClick={() => onSelect(n)}
-                  className={cn(
-                    "flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors",
-                    n.id === activeId
-                      ? "bg-primary/10 font-medium text-primary"
-                      : "hover:bg-muted/60",
-                  )}
-                >
-                  <span className="truncate">{n.name}</span>
-                  {n.children?.length ? (
-                    <ChevronRightIcon className="size-4 shrink-0 opacity-50" />
-                  ) : null}
-                </button>
+                <ColumnItem
+                  node={n}
+                  isActive={n.id === activeId}
+                  onSelect={() => onSelect(n)}
+                />
               </li>
             ))}
           </ul>

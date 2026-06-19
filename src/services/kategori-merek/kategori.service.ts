@@ -57,6 +57,14 @@ export const KategoriService = {
     return res.data ?? []
   },
 
+  updateCategory: async (id: number, data: { name: string }): Promise<KategoriItem> => {
+    const res = await fetchClient<ApiResponse<KategoriItem>>(`/categories/${id}`, {
+      method: "PUT",
+      data,
+    })
+    return res.data
+  },
+
   deleteCategory: async (id: number): Promise<void> => {
     await fetchClient(`/categories/${id}`, { method: "DELETE" })
   },

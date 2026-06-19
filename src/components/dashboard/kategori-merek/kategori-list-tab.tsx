@@ -2,14 +2,17 @@
 
 import * as React from "react"
 import {
+  CheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   Loader2Icon,
+  PencilIcon,
   Trash2Icon,
+  XIcon,
 } from "lucide-react"
 
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import {
   Table,
   TableBody,
@@ -19,7 +22,12 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { useEnabledCategories, useDeleteKategori, useDisableKategori } from "@/hooks/kategori-merek/use-kategori"
+import {
+  useEnabledCategories,
+  useDeleteKategori,
+  useDisableKategori,
+  useUpdateKategori,
+} from "@/hooks/kategori-merek/use-kategori"
 import type { KategoriItem, FlatKategori } from "@/types/kategori-merek/kategori"
 
 function flattenTree(
@@ -43,6 +51,95 @@ function flattenTree(
     }
   }
   return result
+}
+
+function InlineEditCell({
+  item,
+}: {
+  item: FlatKategori
+}) {
+  const [editing, setEditing] = React.useState(false)
+  const [value, setValue] = React.useState(item.name)
+  const inputRef = React.useRef<HTMLInputElement>(null)
+  const updateMut = useUpdateKategori()
+
+  React.useEffect(() => {
+    if (editing) {
+      setValue(item.name)
+      requestAnimationFrame(() => inputRef.current?.select())
+    }
+  }, [editing, item.name])
+
+  const save = () => {
+    const trimmed = value.trim()
+    if (!trimmed || trimmed === item.name) {
+      setEditing(false)
+      return
+    }
+    updateMut.mutate(
+      { id: item.id, name: trimmed },
+      { onSuccess: () => setEditing(false) },
+    )
+  }
+
+  const cancel = () => {
+    setValue(item.name)
+    setEditing(false)
+  }
+
+  if (editing) {
+    return (
+      <div className="flex items-center gap-1.5">
+        <input
+          ref={inputRef}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") save()
+            if (e.key === "Escape") cancel()
+          }}
+          disabled={updateMut.isPending}
+          className="h-8 min-w-0 flex-1 rounded-lg border border-primary/40 bg-background px-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+        />
+        {updateMut.isPending ? (
+          <Loader2Icon className="size-4 animate-spin text-primary" />
+        ) : (
+          <>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="text-primary hover:text-primary"
+              onClick={save}
+            >
+              <CheckIcon className="size-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="text-muted-foreground"
+              onClick={cancel}
+            >
+              <XIcon className="size-3.5" />
+            </Button>
+          </>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div className="group flex items-center gap-2">
+      <span className="text-sm text-primary">{item.fullPath}</span>
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        className="shrink-0 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-muted/60 hover:text-foreground group-hover:opacity-100"
+        aria-label={`Edit ${item.name}`}
+      >
+        <PencilIcon className="size-3.5" />
+      </button>
+    </div>
+  )
 }
 
 const PER_PAGE = 20
@@ -117,7 +214,7 @@ export function KategoriListTab({ search }: { search: string }) {
             {paginated.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>
-                  <span className="text-sm text-primary">{item.fullPath}</span>
+                  <InlineEditCell item={item} />
                 </TableCell>
                 <TableCell className="text-center text-sm">
                   {item.hasChildren ? "Ya" : "Tidak"}
