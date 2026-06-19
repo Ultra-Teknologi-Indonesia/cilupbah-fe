@@ -95,9 +95,11 @@ export function KategoriMappingTab({ search }: { search: string }) {
             </colgroup>
             <TableHeader>
               <TableRow>
-                <TableHead>Cilupbah</TableHead>
+                <TableHead className="whitespace-normal">Cilupbah</TableHead>
                 {channels.map((ch) => (
-                  <TableHead key={ch.code}>{ch.name}</TableHead>
+                  <TableHead key={ch.code} className="whitespace-normal">
+                    {ch.name}
+                  </TableHead>
                 ))}
                 <TableHead className="w-10" />
               </TableRow>
@@ -105,8 +107,8 @@ export function KategoriMappingTab({ search }: { search: string }) {
             <TableBody>
               {items.map((item) => (
                 <TableRow key={item.category_id}>
-                  <TableCell className="font-medium text-sm">
-                    <span className="line-clamp-2" title={item.full_category_name}>
+                  <TableCell className="whitespace-normal align-top font-medium text-sm">
+                    <span className="line-clamp-2 break-words" title={item.full_category_name}>
                       {item.full_category_name}
                     </span>
                   </TableCell>
@@ -123,13 +125,13 @@ export function KategoriMappingTab({ search }: { search: string }) {
                         mappedExternalId: extId ?? undefined,
                       })
                     return (
-                      <TableCell key={ch.code} className="text-sm">
+                      <TableCell key={ch.code} className="whitespace-normal align-top text-sm">
                         {name ? (
                           <button
                             type="button"
                             onClick={openPicker}
                             title={name}
-                            className="text-left text-primary hover:underline cursor-pointer line-clamp-2"
+                            className="text-left text-primary hover:underline cursor-pointer line-clamp-2 break-words"
                           >
                             {name.split(" > ").pop()}
                           </button>
@@ -141,7 +143,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
                       </TableCell>
                     )
                   })}
-                  <TableCell>
+                  <TableCell className="align-top">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="size-8">
