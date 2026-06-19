@@ -166,7 +166,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
         </div>
       )}
 
-      {!isLoading && !isError && items.length > 0 && lastPage > 1 && (
+      {!isLoading && !isError && (
         <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-3">
           <span className="text-sm text-muted-foreground">
             Halaman {currentPage} dari {lastPage}

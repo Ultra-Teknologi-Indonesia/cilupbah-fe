@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { DownloadIcon, PlusIcon, SearchIcon } from "lucide-react"
+import { DownloadIcon, PlusIcon, SearchIcon, XIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,14 +16,7 @@ export function KategoriView() {
   const [importOpen, setImportOpen] = React.useState(false)
   const [tambahOpen, setTambahOpen] = React.useState(false)
 
-  const [draftSearch, setDraftSearch] = React.useState("")
   const [search, setSearch] = React.useState("")
-
-  const apply = () => setSearch(draftSearch.trim())
-  const reset = () => {
-    setDraftSearch("")
-    setSearch("")
-  }
 
   return (
     <>
@@ -39,58 +32,45 @@ export function KategoriView() {
       </div>
 
       <Tabs defaultValue="daftar">
-        <div className="flex flex-col gap-5 lg:flex-row">
-          {/* Panel filter */}
-          <aside className="lg:w-64 lg:shrink-0">
-            <LiquidGlass radius={20} intensity="subtle" className="bg-white/40 p-4 dark:bg-white/[0.06]">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="font-medium">Filter</span>
-                {draftSearch && (
-                  <button type="button" onClick={reset} className="text-sm font-medium text-destructive hover:underline">
-                    Reset
-                  </button>
-                )}
-              </div>
-              <div className="flex flex-col gap-3">
-                <div className="relative">
-                  <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    value={draftSearch}
-                    onChange={(e) => setDraftSearch(e.target.value)}
-                    placeholder="Cari kategori"
-                    className="h-9 rounded-lg border-border bg-background pl-9"
-                  />
-                </div>
-                <Button variant="primary" className="w-full" onClick={apply}>
-                  Terapkan
-                </Button>
-              </div>
-            </LiquidGlass>
-          </aside>
+        <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 pt-3 sm:px-5">
+            <div className="overflow-x-auto">
+              <TabsList variant="line">
+                <TabsTrigger value="daftar">Daftar Kategori</TabsTrigger>
+                <TabsTrigger value="pemetaan">Pemetaan Kategori</TabsTrigger>
+              </TabsList>
+            </div>
 
-          {/* Konten */}
-          <div className="min-w-0 flex-1">
-            <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 pt-3 sm:px-5">
-                <div className="overflow-x-auto">
-                  <TabsList variant="line">
-                    <TabsTrigger value="daftar">Daftar Kategori</TabsTrigger>
-                    <TabsTrigger value="pemetaan">Pemetaan Kategori</TabsTrigger>
-                  </TabsList>
-                </div>
-              </div>
-
-              <div className="px-4 py-5 sm:px-5">
-                <TabsContent value="daftar" className="mt-0">
-                  <KategoriListTab search={search} />
-                </TabsContent>
-                <TabsContent value="pemetaan" className="mt-0">
-                  <KategoriMappingTab search={search} />
-                </TabsContent>
-              </div>
-            </LiquidGlass>
+            <div className="relative w-full pb-3 sm:w-64 sm:pb-0">
+              <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Cari kategori…"
+                className="h-9 rounded-lg border-border bg-background pl-9 pr-8"
+              />
+              {search.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setSearch("")}
+                  aria-label="Bersihkan pencarian"
+                  className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  <XIcon className="size-3.5" />
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+
+          <div className="px-4 py-5 sm:px-5">
+            <TabsContent value="daftar" className="mt-0">
+              <KategoriListTab search={search} />
+            </TabsContent>
+            <TabsContent value="pemetaan" className="mt-0">
+              <KategoriMappingTab search={search} />
+            </TabsContent>
+          </div>
+        </LiquidGlass>
       </Tabs>
 
       <ImportSystemDialog open={importOpen} onOpenChange={setImportOpen} />

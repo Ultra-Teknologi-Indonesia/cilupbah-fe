@@ -150,7 +150,7 @@ export function KategoriListTab({ search }: { search: string }) {
         </Table>
       )}
 
-      {!isLoading && !isError && total > PER_PAGE && (
+      {!isLoading && !isError && (
         <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-3">
           <span className="text-sm text-muted-foreground">
             Halaman {page} dari {lastPage}
