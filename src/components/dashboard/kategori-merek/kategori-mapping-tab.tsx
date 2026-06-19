@@ -128,7 +128,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
                             title={name}
                             className="text-left text-primary hover:underline cursor-pointer line-clamp-2"
                           >
-                            {name}
+                            {name.split(" > ").pop()}
                           </button>
                         ) : (
                           <Button variant="primary" size="sm" onClick={openPicker}>

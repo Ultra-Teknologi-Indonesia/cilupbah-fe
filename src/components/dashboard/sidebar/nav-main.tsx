@@ -14,8 +14,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 
 export type SubRoute = {
   title: string;
@@ -43,6 +42,12 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
   const [openCollapsible, setOpenCollapsible] = useState<string | null>(null);
   const pathname = usePathname();
   const shouldReduceMotion = useReducedMotion();
+
+  const prevPathRef = React.useRef(pathname);
+  if (prevPathRef.current !== pathname) {
+    prevPathRef.current = pathname;
+    if (openCollapsible !== null) setOpenCollapsible(null);
+  }
 
   
   const handleNavClick = () => {
