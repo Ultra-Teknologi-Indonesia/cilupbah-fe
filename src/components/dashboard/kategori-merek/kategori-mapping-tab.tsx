@@ -55,6 +55,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
     categoryId: number
     categoryName: string
     channelId: string
+    channelCode: string
     channelName: string
   } | null>(null)
 
@@ -110,6 +111,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
                         categoryId: item.category_id,
                         categoryName: item.full_category_name,
                         channelId: ch.id,
+                        channelCode: ch.code,
                         channelName: ch.name,
                       })
                     return (
@@ -188,6 +190,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
         open={!!pickerState}
         onOpenChange={(open) => !open && setPickerState(null)}
         channelId={pickerState?.channelId ?? ""}
+        channelCode={pickerState?.channelCode ?? ""}
         channelName={pickerState?.channelName ?? ""}
         categoryId={pickerState?.categoryId ?? 0}
         categoryName={pickerState?.categoryName ?? ""}

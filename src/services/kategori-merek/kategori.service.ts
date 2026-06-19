@@ -133,6 +133,17 @@ export const KategoriService = {
     })
   },
 
+  syncChannelCategories: async (
+    channelCode: string,
+    shopId: string
+  ): Promise<number> => {
+    const res = await fetchClient<ApiResponse<{ synced: number }>>(
+      `/${channelCode}/sync/categories`,
+      { method: "POST", data: { shop_id: shopId } }
+    )
+    return res.data?.synced ?? 0
+  },
+
   getMappingList: async (params: {
     search?: string
     page?: number

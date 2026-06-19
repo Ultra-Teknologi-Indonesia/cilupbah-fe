@@ -17,7 +17,9 @@ import {
 import {
   useChannelCategories,
   useMapCategoryToChannel,
+  useSyncChannelCategories,
 } from "@/hooks/kategori-merek/use-kategori"
+import { ChannelService } from "@/services/channel/channel.service"
 import type { ChannelCategoryNode } from "@/types/kategori-merek/kategori"
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -106,6 +108,7 @@ interface PetakanKategoriDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   channelId: string
+  channelCode: string
   channelName: string
   categoryId: number
   categoryName: string
@@ -116,6 +119,7 @@ export function PetakanKategoriDialog({
   open,
   onOpenChange,
   channelId,
+  channelCode,
   channelName,
   categoryId,
   categoryName,
@@ -129,6 +133,20 @@ export function PetakanKategoriDialog({
     open ? channelId : ""
   )
   const mapMutation = useMapCategoryToChannel()
+  const syncMutation = useSyncChannelCategories()
+
+  const handleSync = async () => {
+    const stores = await ChannelService.listStores()
+    const shop = stores.find(
+      (s) => s.channel?.code === channelCode && s.is_active
+    )
+    if (!shop) {
+      const { toast } = await import("sonner")
+      toast.error(`Tidak ada toko ${channelName} yang terhubung. Hubungkan toko terlebih dahulu.`)
+      return
+    }
+    syncMutation.mutate({ channelCode, shopId: shop.shop_id })
+  }
 
   const tree = React.useMemo(() => buildTree(rawCategories ?? []), [rawCategories])
 
@@ -208,8 +226,23 @@ export function PetakanKategoriDialog({
               Gagal memuat kategori. Pastikan kategori {channelName} sudah di-sync.
             </div>
           ) : (rawCategories?.length ?? 0) === 0 ? (
-            <div className="py-16 text-center text-sm text-muted-foreground">
-              Belum ada kategori {channelName}. Silakan sync kategori terlebih dahulu.
+            <div className="flex flex-col items-center gap-3 py-16">
+              <p className="text-sm text-muted-foreground">
+                Belum ada kategori {channelName}.
+              </p>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleSync}
+                disabled={syncMutation.isPending}
+              >
+                {syncMutation.isPending ? (
+                  <Loader2Icon className="size-3.5 animate-spin" />
+                ) : (
+                  <RefreshCwIcon className="size-3.5" />
+                )}
+                {syncMutation.isPending ? "Menyinkronkan…" : "Sync Kategori"}
+              </Button>
             </div>
           ) : searchResults ? (
             <ScrollArea className="h-72 rounded-2xl border border-border/60">
@@ -262,11 +295,15 @@ export function PetakanKategoriDialog({
             <Button
               variant="outline"
               size="sm"
-              onClick={handleRefresh}
-              disabled={isLoading}
+              onClick={(rawCategories?.length ?? 0) === 0 ? handleSync : handleRefresh}
+              disabled={isLoading || syncMutation.isPending}
             >
-              <RefreshCwIcon className="size-3.5" />
-              Refresh
+              {syncMutation.isPending ? (
+                <Loader2Icon className="size-3.5 animate-spin" />
+              ) : (
+                <RefreshCwIcon className="size-3.5" />
+              )}
+              {(rawCategories?.length ?? 0) === 0 ? "Sync" : "Refresh"}
             </Button>
             <Button
               variant="outline"

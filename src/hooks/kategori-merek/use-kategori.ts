@@ -109,6 +109,20 @@ export function useMapCategoryToChannel() {
   })
 }
 
+export function useSyncChannelCategories() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ channelCode, shopId }: { channelCode: string; shopId: string }) =>
+      KategoriService.syncChannelCategories(channelCode, shopId),
+    onSuccess: (count, { channelCode }) => {
+      toast.success(`${count} kategori ${channelCode} berhasil disinkronkan`)
+      qc.invalidateQueries({ queryKey: ["kategori", "channel-categories"] })
+    },
+    onError: (err) =>
+      toast.error((err as { message?: string })?.message || "Gagal sinkron kategori"),
+  })
+}
+
 export function useMapAttributeToChannel() {
   const qc = useQueryClient()
   return useMutation({
