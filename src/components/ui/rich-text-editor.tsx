@@ -24,7 +24,7 @@ const turndown = new TurndownService({
   emDelimiter: "*",
 })
 turndown.addRule("strikethrough", {
-  filter: ["del", "s", "strike"],
+  filter: ["del", "s", "strike" as keyof HTMLElementTagNameMap],
   replacement: (content) => `~~${content}~~`,
 })
 

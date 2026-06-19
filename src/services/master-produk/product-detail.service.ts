@@ -117,6 +117,12 @@ export type LifecycleAction =
   | "archive"
   | "restore"
 
+export interface BulkResult {
+  success: number
+  failed: number
+  errors: string[]
+}
+
 export const ProductDetailService = {
   get: async (id: string): Promise<ProductDetail> => {
     const res = await fetchClient<ApiResponse<RawProductDetail>>(`/products/${id}`)
@@ -132,5 +138,33 @@ export const ProductDetailService = {
       method: "POST",
       data: payload,
     })
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await fetchClient(`/products/${id}`, { method: "DELETE" })
+  },
+
+  bulkArchive: async (ids: string[], reason?: string): Promise<BulkResult> => {
+    const res = await fetchClient<ApiResponse<BulkResult>>("/products/bulk-archive", {
+      method: "POST",
+      data: { ids, ...(reason ? { reason } : {}) },
+    })
+    return res.data
+  },
+
+  bulkRestore: async (ids: string[]): Promise<BulkResult> => {
+    const res = await fetchClient<ApiResponse<BulkResult>>("/products/bulk-restore", {
+      method: "POST",
+      data: { ids },
+    })
+    return res.data
+  },
+
+  bulkDelete: async (ids: string[]): Promise<BulkResult> => {
+    const res = await fetchClient<ApiResponse<BulkResult>>("/products/bulk-delete", {
+      method: "POST",
+      data: { ids },
+    })
+    return res.data
   },
 }
