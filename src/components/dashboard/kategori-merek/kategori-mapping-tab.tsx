@@ -84,11 +84,11 @@ export function KategoriMappingTab({ search }: { search: string }) {
           Belum ada kategori yang diaktifkan.
         </div>
       ) : (
-        <div>
+        <div className="overflow-hidden">
           <Table className="table-fixed w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[30%] bg-background/80 backdrop-blur-sm">
+                <TableHead className="w-[28%] bg-background/80 backdrop-blur-sm">
                   Cilupbah
                 </TableHead>
                 {channels.map((ch) => (
@@ -102,8 +102,10 @@ export function KategoriMappingTab({ search }: { search: string }) {
             <TableBody>
               {items.map((item) => (
                 <TableRow key={item.category_id}>
-                  <TableCell className="bg-background/80 backdrop-blur-sm font-medium">
-                    {item.full_category_name}
+                  <TableCell className="bg-background/80 backdrop-blur-sm font-medium text-sm">
+                    <span className="line-clamp-2" title={item.full_category_name}>
+                      {item.full_category_name}
+                    </span>
                   </TableCell>
                   {channels.map((ch) => {
                     const name = item[`${ch.code}_category_name`] as string | null
@@ -123,7 +125,8 @@ export function KategoriMappingTab({ search }: { search: string }) {
                           <button
                             type="button"
                             onClick={openPicker}
-                            className="text-left text-primary hover:underline cursor-pointer"
+                            title={name}
+                            className="text-left text-primary hover:underline cursor-pointer line-clamp-2"
                           >
                             {name}
                           </button>
