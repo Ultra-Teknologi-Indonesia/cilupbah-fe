@@ -177,6 +177,10 @@ export interface RawProductDetail {
     min_stock: number | null
     safe_stock: number | null
     is_active: boolean
+    weight?: number | null
+    length?: number | null
+    width?: number | null
+    height?: number | null
     sales_tax: DetailTax | null
     purchase_tax: DetailTax | null
     options?: Array<{ attribute_id: number; value: string }>
