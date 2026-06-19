@@ -1,10 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { ChevronRightIcon } from "lucide-react"
+import { ChevronRightIcon, SearchIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import {
@@ -16,6 +17,24 @@ import {
 } from "@/components/ui/dialog"
 import { findCategoryPath } from "@/lib/master-produk/category-tree"
 import type { CategoryNode, SelectedCategory } from "@/types/master-produk"
+
+interface FlatCategory {
+  node: CategoryNode
+  path: CategoryNode[]
+  pathLabel: string
+}
+
+function flattenTree(nodes: CategoryNode[], parents: CategoryNode[] = []): FlatCategory[] {
+  const result: FlatCategory[] = []
+  for (const node of nodes) {
+    const path = [...parents, node]
+    result.push({ node, path, pathLabel: path.map((p) => p.name).join(" › ") })
+    if (node.children?.length) {
+      result.push(...flattenTree(node.children, path))
+    }
+  }
+  return result
+}
 
 function Column({
   nodes,
@@ -69,11 +88,21 @@ export function CategoryPicker({
 }) {
   const [open, setOpen] = React.useState(false)
   const [path, setPath] = React.useState<CategoryNode[]>([])
+  const [search, setSearch] = React.useState("")
+
+  const flat = React.useMemo(() => flattenTree(tree), [tree])
+
+  const searchResults = React.useMemo(() => {
+    const q = search.trim().toLowerCase()
+    if (!q) return null
+    return flat.filter((f) => f.node.name.toLowerCase().includes(q)).slice(0, 50)
+  }, [search, flat])
 
   const handleOpen = (next: boolean) => {
     setOpen(next)
     if (next) {
       setPath(value ? findCategoryPath(tree, value.id) ?? [] : [])
+      setSearch("")
     }
   }
 
@@ -83,6 +112,11 @@ export function CategoryPicker({
 
   const selectAt = (level: number, node: CategoryNode) =>
     setPath((prev) => [...prev.slice(0, level), node])
+
+  const selectFromSearch = (item: FlatCategory) => {
+    setPath(item.path)
+    setSearch("")
+  }
 
   const apply = () => {
     if (!chosen) return
@@ -136,12 +170,60 @@ export function CategoryPicker({
               </DialogClose>
             </div>
 
-            <div className="px-5 py-4 sm:px-6">
-              <div className="grid grid-cols-1 divide-y divide-border/60 overflow-hidden rounded-2xl border border-border/60 lg:grid-cols-3 lg:divide-x lg:divide-y-0">
-                <Column nodes={columns[0]} activeId={path[0]?.id} onSelect={(n) => selectAt(0, n)} />
-                <Column nodes={columns[1]} activeId={path[1]?.id} onSelect={(n) => selectAt(1, n)} />
-                <Column nodes={columns[2]} activeId={path[2]?.id} onSelect={(n) => selectAt(2, n)} />
+            <div className="px-5 sm:px-6 pt-4">
+              <div className="relative">
+                <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Cari kategori..."
+                  className="pl-9"
+                />
               </div>
+            </div>
+
+            <div className="px-5 py-4 sm:px-6">
+              {searchResults ? (
+                <ScrollArea className="h-64 rounded-2xl border border-border/60">
+                  {searchResults.length === 0 ? (
+                    <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+                      Tidak ditemukan kategori untuk &ldquo;{search}&rdquo;
+                    </p>
+                  ) : (
+                    <ul className="flex flex-col gap-0.5 p-1.5">
+                      {searchResults.map((item) => {
+                        const leaf = !item.node.children?.length
+                        return (
+                          <li key={item.node.id}>
+                            <button
+                              type="button"
+                              onClick={() => selectFromSearch(item)}
+                              className={cn(
+                                "flex w-full flex-col gap-0.5 rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-muted/60",
+                                item.node.id === chosen?.id && "bg-primary/10"
+                              )}
+                            >
+                              <span className={cn("truncate", leaf ? "font-medium" : "")}>
+                                {item.node.name}
+                              </span>
+                              <span className="truncate text-xs text-muted-foreground">
+                                {item.pathLabel}
+                                {!leaf && " ›"}
+                              </span>
+                            </button>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  )}
+                </ScrollArea>
+              ) : (
+                <div className="grid grid-cols-1 divide-y divide-border/60 overflow-hidden rounded-2xl border border-border/60 lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+                  <Column nodes={columns[0]} activeId={path[0]?.id} onSelect={(n) => selectAt(0, n)} />
+                  <Column nodes={columns[1]} activeId={path[1]?.id} onSelect={(n) => selectAt(1, n)} />
+                  <Column nodes={columns[2]} activeId={path[2]?.id} onSelect={(n) => selectAt(2, n)} />
+                </div>
+              )}
             </div>
 
             <div className="flex items-center justify-between gap-3 border-t border-border/60 px-5 py-4 sm:px-6">

@@ -48,18 +48,25 @@ function OptionAdder({
           placeholder="Masukkan opsi (mis. Merah, 256/8)"
           className="h-9"
         />
-        <Button type="button" variant="outline" size="sm" onClick={submit}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={submit}
+          disabled={!text.trim()}
+        >
           <PlusIcon /> Tambah
         </Button>
       </div>
+
       {freeSuggestions.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
-          {freeSuggestions.slice(0, 12).map((s) => (
+          {freeSuggestions.map((s) => (
             <button
               key={s}
               type="button"
               onClick={() => onAdd(s)}
-              className="rounded-full border border-dashed border-border px-2.5 py-0.5 text-xs text-muted-foreground hover:bg-muted/60"
+              className="rounded-full border border-border px-2.5 py-0.5 text-xs transition-colors hover:bg-muted"
             >
               + {s}
             </button>
@@ -83,6 +90,7 @@ export function FormVariantSection({
   const baseSku = watch("sku")
   const variationTypes = watch("variationTypes")
   const variants = watch("variants")
+  const [customInput, setCustomInput] = React.useState("")
 
   const { data, isError } = useCategoryFormAttributes(category?.id)
   const availableTypes: FormAttribute[] = data?.variant_types ?? []
@@ -131,32 +139,6 @@ export function FormVariantSection({
     )
   }
 
-  if (availableTypes.length === 0) {
-    return (
-      <FormSectionCard id="varian" title="Varian Produk">
-        <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm text-amber-700 dark:text-amber-400">
-          <InfoIcon className="mt-0.5 size-4 shrink-0" />
-          <div>
-            <p>
-              Kategori <span className="font-medium">{category.name}</span> belum memiliki tipe variasi
-              (mis. Ukuran, Warna).
-            </p>
-            <p className="mt-1">
-              Tambahkan tipe variasi di{" "}
-              <a
-                href="/dashboard/kategori-merek/kategori"
-                className="font-medium underline underline-offset-2 hover:text-amber-800 dark:hover:text-amber-300"
-              >
-                Manajemen Kategori
-              </a>{" "}
-              agar bisa mengatur varian produk ini.
-            </p>
-          </div>
-        </div>
-      </FormSectionCard>
-    )
-  }
-
   const setTypes = (next: BuatProdukFormValues["variationTypes"]) =>
     setValue("variationTypes", next, { shouldDirty: true })
 
@@ -167,6 +149,18 @@ export function FormVariantSection({
       { attributeId: attr.attribute_id, name: attr.name, values: [] },
     ])
   }
+
+  const addCustomType = () => {
+    const name = customInput.trim()
+    if (!name || variationTypes.length >= 2) return
+    if (variationTypes.some((t) => t.name.toLowerCase() === name.toLowerCase())) return
+    setTypes([
+      ...variationTypes,
+      { attributeId: -Date.now(), name, values: [] },
+    ])
+    setCustomInput("")
+  }
+
   const removeType = (idx: number) =>
     setTypes(variationTypes.filter((_, i) => i !== idx))
 
@@ -262,20 +256,49 @@ export function FormVariantSection({
           )
         })}
 
-        {variationTypes.length < 2 && selectableTypes.length > 0 && (
-          <div className="max-w-xs">
-            <Combobox
-              options={selectableTypes.map((t) => ({
-                value: String(t.attribute_id),
-                label: t.name,
-              }))}
-              value={null}
-              onChange={(v) => {
-                const t = selectableTypes.find((x) => String(x.attribute_id) === v)
-                if (t) addType(t)
-              }}
-              placeholder="+ Tambah jenis varian"
-            />
+        {variationTypes.length < 2 && (
+          <div className="space-y-2">
+            {selectableTypes.length > 0 && (
+              <div className="max-w-xs">
+                <Combobox
+                  options={selectableTypes.map((t) => ({
+                    value: String(t.attribute_id),
+                    label: t.name,
+                  }))}
+                  value={null}
+                  onChange={(v) => {
+                    const t = selectableTypes.find((x) => String(x.attribute_id) === v)
+                    if (t) addType(t)
+                  }}
+                  placeholder="+ Tambah jenis varian"
+                />
+              </div>
+            )}
+            <div className="max-w-xs">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={customInput}
+                  onChange={(e) => setCustomInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault()
+                      addCustomType()
+                    }
+                  }}
+                  placeholder="Atau ketik jenis varian custom..."
+                  className="h-9"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addCustomType}
+                  disabled={!customInput.trim()}
+                >
+                  <PlusIcon />
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -270,7 +270,7 @@ export function BuatProdukForm() {
             <FormSalesSection />
             <FormShippingSection />
 
-            <FormSectionCard id="media" title="Gambar & Video Produk">
+            <FormSectionCard id="media" title={<>Gambar & Video Produk <span className="text-destructive">*</span></>}>
               <MediaUploader onChange={setMediaFiles} />
               <p className="mt-1 text-xs text-muted-foreground">
                 Minimal 1 foto produk wajib diunggah.

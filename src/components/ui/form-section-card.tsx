@@ -15,7 +15,7 @@ export function FormSectionCard({
   children,
 }: {
   id?: string
-  title: string
+  title: React.ReactNode
   action?: React.ReactNode
   children: React.ReactNode
 }) {
