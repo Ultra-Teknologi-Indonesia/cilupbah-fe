@@ -165,7 +165,22 @@ export function PetakanKategoriDialog({
     }
   }, [open])
 
-  const columns = [tree, path[0]?.children ?? [], path[1]?.children ?? []]
+  const allColumns = React.useMemo(() => {
+    const cols: { nodes: ChannelCategoryNode[]; level: number }[] = [
+      { nodes: tree, level: 0 },
+    ]
+    for (let i = 0; i < path.length; i++) {
+      const children = path[i].children ?? []
+      if (children.length > 0) {
+        cols.push({ nodes: children, level: i + 1 })
+      }
+    }
+    return cols
+  }, [tree, path])
+
+  const visibleStart = Math.max(0, allColumns.length - 3)
+  const visibleColumns = allColumns.slice(visibleStart)
+
   const chosen = path[path.length - 1] ?? null
   const isLeaf = chosen?.is_leaf ?? false
 
@@ -275,10 +290,20 @@ export function PetakanKategoriDialog({
               )}
             </ScrollArea>
           ) : (
-            <div className="grid grid-cols-1 divide-y divide-border/60 overflow-hidden rounded-2xl border border-border/60 lg:grid-cols-3 lg:divide-x lg:divide-y-0">
-              <Column nodes={columns[0]} activeId={path[0]?.id} onSelect={(n) => selectAt(0, n)} />
-              <Column nodes={columns[1]} activeId={path[1]?.id} onSelect={(n) => selectAt(1, n)} />
-              <Column nodes={columns[2]} activeId={path[2]?.id} onSelect={(n) => selectAt(2, n)} />
+            <div className={cn(
+              "grid grid-cols-1 divide-y divide-border/60 overflow-hidden rounded-2xl border border-border/60 lg:divide-x lg:divide-y-0",
+              visibleColumns.length === 1 && "lg:grid-cols-1",
+              visibleColumns.length === 2 && "lg:grid-cols-2",
+              visibleColumns.length >= 3 && "lg:grid-cols-3",
+            )}>
+              {visibleColumns.map((col) => (
+                <Column
+                  key={col.level}
+                  nodes={col.nodes}
+                  activeId={path[col.level]?.id}
+                  onSelect={(n) => selectAt(col.level, n)}
+                />
+              ))}
             </div>
           )}
         </div>
@@ -289,7 +314,7 @@ export function PetakanKategoriDialog({
               ? "Nama Kategori  - /"
               : isLeaf
                 ? path.map((p) => p.name).join(" > ")
-                : `${path.map((p) => p.name).join(" > ")} — pilih sampai level terdalam`}
+                : `${path.map((p) => p.name).join(" > ")} ›`}
           </span>
           <div className="flex items-center gap-2">
             <Button
