@@ -12,7 +12,7 @@ export const KategoriService = {
     const res = await fetchClient<ApiResponse<KategoriItem[]>>(
       "/categories?all=1&include[]=children.children.children"
     )
-    return res.data ?? []
+    return (res.data ?? []).filter((item) => item.parent_id === null)
   },
 
   getSystemCategories: async (): Promise<KategoriItem[]> => {

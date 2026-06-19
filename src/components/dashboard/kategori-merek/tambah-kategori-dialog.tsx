@@ -28,8 +28,8 @@ import {
   useEnabledCategories,
   useCreateKategori,
   useSearchKategori,
-  useUpdateKategori,
 } from "@/hooks/kategori-merek/use-kategori"
+import { EditKategoriDialog } from "./edit-kategori-dialog"
 import type { KategoriItem } from "@/types/kategori-merek/kategori"
 
 type Mode = "root" | "sub"
@@ -129,65 +129,13 @@ function ColumnItem({
   node,
   isActive,
   onSelect,
+  onEdit,
 }: {
   node: KategoriItem
   isActive: boolean
   onSelect: () => void
+  onEdit: () => void
 }) {
-  const [editing, setEditing] = React.useState(false)
-  const [editValue, setEditValue] = React.useState(node.name)
-  const editRef = React.useRef<HTMLInputElement>(null)
-  const updateMut = useUpdateKategori()
-
-  React.useEffect(() => {
-    if (editing) {
-      setEditValue(node.name)
-      requestAnimationFrame(() => editRef.current?.select())
-    }
-  }, [editing, node.name])
-
-  const saveEdit = () => {
-    const trimmed = editValue.trim()
-    if (!trimmed || trimmed === node.name) {
-      setEditing(false)
-      return
-    }
-    updateMut.mutate(
-      { id: node.id, name: trimmed },
-      { onSuccess: () => setEditing(false) },
-    )
-  }
-
-  if (editing) {
-    return (
-      <div className="flex items-center gap-1 rounded-xl bg-muted/40 px-2 py-1">
-        <input
-          ref={editRef}
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") saveEdit()
-            if (e.key === "Escape") setEditing(false)
-          }}
-          disabled={updateMut.isPending}
-          className="h-6 min-w-0 flex-1 rounded border border-primary/40 bg-background px-1.5 text-xs outline-none focus:border-primary"
-        />
-        {updateMut.isPending ? (
-          <Loader2Icon className="size-3 animate-spin text-primary" />
-        ) : (
-          <>
-            <button type="button" onClick={saveEdit} className="p-0.5 text-primary">
-              <CheckIcon className="size-3" />
-            </button>
-            <button type="button" onClick={() => setEditing(false)} className="p-0.5 text-muted-foreground">
-              <XIcon className="size-3" />
-            </button>
-          </>
-        )}
-      </div>
-    )
-  }
-
   return (
     <div className="group flex items-center">
       <button
@@ -209,7 +157,7 @@ function ColumnItem({
         type="button"
         onClick={(e) => {
           e.stopPropagation()
-          setEditing(true)
+          onEdit()
         }}
         className="shrink-0 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
         aria-label={`Edit ${node.name}`}
@@ -226,6 +174,7 @@ function Column({
   activeId,
   parentId,
   onSelect,
+  onEdit,
   showAdd,
 }: {
   label: string
@@ -233,6 +182,7 @@ function Column({
   activeId?: number
   parentId: number | null
   onSelect: (n: KategoriItem) => void
+  onEdit: (n: KategoriItem) => void
   showAdd: boolean
 }) {
   return (
@@ -262,6 +212,7 @@ function Column({
                   node={n}
                   isActive={n.id === activeId}
                   onSelect={() => onSelect(n)}
+                  onEdit={() => onEdit(n)}
                 />
               </li>
             ))}
@@ -286,6 +237,7 @@ export function TambahKategoriDialog({
   const [pathIds, setPathIds] = React.useState<number[]>([])
   const [search, setSearch] = React.useState("")
   const [debouncedSearch, setDebouncedSearch] = React.useState("")
+  const [editTarget, setEditTarget] = React.useState<{ id: number; name: string; fullPath: string } | null>(null)
 
   const { data: tree } = useEnabledCategories()
   const { data: searchResults, isFetching: isSearching } = useSearchKategori(debouncedSearch)
@@ -311,6 +263,15 @@ export function TambahKategoriDialog({
 
   const selectAt = (level: number, node: KategoriItem) =>
     setPathIds((prev) => [...prev.slice(0, level), node.id])
+
+  const handleEdit = (node: KategoriItem) => {
+    const trail = buildPath(tree ?? [], node.id)
+    setEditTarget({
+      id: node.id,
+      name: node.name,
+      fullPath: trail.map((t) => t.name).join(" > "),
+    })
+  }
 
   const parentId = mode === "sub" ? pathIds[pathIds.length - 1] ?? null : null
   const parentLabel = resolved.map((p) => p.name).join(" > ")
@@ -489,6 +450,7 @@ export function TambahKategoriDialog({
                         activeId={pathIds[0]}
                         parentId={null}
                         onSelect={(n) => selectAt(0, n)}
+                        onEdit={handleEdit}
                         showAdd
                       />
                       <Column
@@ -497,6 +459,7 @@ export function TambahKategoriDialog({
                         activeId={pathIds[1]}
                         parentId={resolved[0]?.id ?? null}
                         onSelect={(n) => selectAt(1, n)}
+                        onEdit={handleEdit}
                         showAdd={Boolean(resolved[0])}
                       />
                       <Column
@@ -505,6 +468,7 @@ export function TambahKategoriDialog({
                         activeId={pathIds[2]}
                         parentId={resolved[1]?.id ?? null}
                         onSelect={(n) => selectAt(2, n)}
+                        onEdit={handleEdit}
                         showAdd={Boolean(resolved[1])}
                       />
                     </div>
@@ -565,6 +529,14 @@ export function TambahKategoriDialog({
           </form>
         </LiquidGlass>
       </DialogContent>
+
+      <EditKategoriDialog
+        open={Boolean(editTarget)}
+        onOpenChange={(o) => { if (!o) setEditTarget(null) }}
+        categoryId={editTarget?.id ?? null}
+        currentName={editTarget?.name ?? ""}
+        fullPath={editTarget?.fullPath ?? ""}
+      />
     </Dialog>
   )
 }

@@ -2,16 +2,13 @@
 
 import * as React from "react"
 import {
-  CheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   Loader2Icon,
   PencilIcon,
   Trash2Icon,
-  XIcon,
 } from "lucide-react"
 
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Table,
@@ -22,12 +19,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import {
-  useEnabledCategories,
-  useDeleteKategori,
-  useDisableKategori,
-  useUpdateKategori,
-} from "@/hooks/kategori-merek/use-kategori"
+import { EditKategoriDialog } from "./edit-kategori-dialog"
+import { useEnabledCategories, useDeleteKategori, useDisableKategori } from "@/hooks/kategori-merek/use-kategori"
 import type { KategoriItem, FlatKategori } from "@/types/kategori-merek/kategori"
 
 function flattenTree(
@@ -53,100 +46,12 @@ function flattenTree(
   return result
 }
 
-function InlineEditCell({
-  item,
-}: {
-  item: FlatKategori
-}) {
-  const [editing, setEditing] = React.useState(false)
-  const [value, setValue] = React.useState(item.name)
-  const inputRef = React.useRef<HTMLInputElement>(null)
-  const updateMut = useUpdateKategori()
-
-  React.useEffect(() => {
-    if (editing) {
-      setValue(item.name)
-      requestAnimationFrame(() => inputRef.current?.select())
-    }
-  }, [editing, item.name])
-
-  const save = () => {
-    const trimmed = value.trim()
-    if (!trimmed || trimmed === item.name) {
-      setEditing(false)
-      return
-    }
-    updateMut.mutate(
-      { id: item.id, name: trimmed },
-      { onSuccess: () => setEditing(false) },
-    )
-  }
-
-  const cancel = () => {
-    setValue(item.name)
-    setEditing(false)
-  }
-
-  if (editing) {
-    return (
-      <div className="flex items-center gap-1.5">
-        <input
-          ref={inputRef}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") save()
-            if (e.key === "Escape") cancel()
-          }}
-          disabled={updateMut.isPending}
-          className="h-8 min-w-0 flex-1 rounded-lg border border-primary/40 bg-background px-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
-        />
-        {updateMut.isPending ? (
-          <Loader2Icon className="size-4 animate-spin text-primary" />
-        ) : (
-          <>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="text-primary hover:text-primary"
-              onClick={save}
-            >
-              <CheckIcon className="size-3.5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="text-muted-foreground"
-              onClick={cancel}
-            >
-              <XIcon className="size-3.5" />
-            </Button>
-          </>
-        )}
-      </div>
-    )
-  }
-
-  return (
-    <div className="group flex items-center gap-2">
-      <span className="text-sm text-primary">{item.fullPath}</span>
-      <button
-        type="button"
-        onClick={() => setEditing(true)}
-        className="shrink-0 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-muted/60 hover:text-foreground group-hover:opacity-100"
-        aria-label={`Edit ${item.name}`}
-      >
-        <PencilIcon className="size-3.5" />
-      </button>
-    </div>
-  )
-}
-
 const PER_PAGE = 20
 
 export function KategoriListTab({ search }: { search: string }) {
   const [page, setPage] = React.useState(1)
   const [deleteTarget, setDeleteTarget] = React.useState<FlatKategori | null>(null)
+  const [editTarget, setEditTarget] = React.useState<FlatKategori | null>(null)
 
   const { data: tree, isLoading, isError } = useEnabledCategories()
   const deleteMut = useDeleteKategori()
@@ -207,27 +112,37 @@ export function KategoriListTab({ search }: { search: string }) {
             <TableRow>
               <TableHead className="min-w-[300px]">Nama Kategori</TableHead>
               <TableHead className="w-32 text-center">Sub-kategori</TableHead>
-              <TableHead className="w-16" />
+              <TableHead className="w-24" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginated.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>
-                  <InlineEditCell item={item} />
+                  <span className="text-sm text-primary">{item.fullPath}</span>
                 </TableCell>
                 <TableCell className="text-center text-sm">
                   {item.hasChildren ? "Ya" : "Tidak"}
                 </TableCell>
                 <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => setDeleteTarget(item)}
-                  >
-                    <Trash2Icon className="size-4" />
-                  </Button>
+                  <div className="flex items-center justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-muted-foreground hover:text-foreground"
+                      onClick={() => setEditTarget(item)}
+                    >
+                      <PencilIcon className="size-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => setDeleteTarget(item)}
+                    >
+                      <Trash2Icon className="size-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -276,6 +191,16 @@ export function KategoriListTab({ search }: { search: string }) {
         variant="destructive"
         loading={deleteMut.isPending || disableMut.isPending}
         onConfirm={handleDelete}
+      />
+
+      <EditKategoriDialog
+        open={Boolean(editTarget)}
+        onOpenChange={(open) => {
+          if (!open) setEditTarget(null)
+        }}
+        categoryId={editTarget?.id ?? null}
+        currentName={editTarget?.name ?? ""}
+        fullPath={editTarget?.fullPath ?? ""}
       />
     </>
   )
