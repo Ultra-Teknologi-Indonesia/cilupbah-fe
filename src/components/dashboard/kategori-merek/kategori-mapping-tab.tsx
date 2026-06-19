@@ -85,13 +85,13 @@ export function KategoriMappingTab({ search }: { search: string }) {
         </div>
       ) : (
         <div className="overflow-hidden">
-          <Table className="table-fixed w-full">
+          <Table className="table-fixed w-full" containerClassName="overflow-x-hidden">
             <colgroup>
-              <col className="w-[30%]" />
+              <col className="w-[34%]" />
               {channels.map((ch) => (
                 <col key={ch.code} />
               ))}
-              <col className="w-10" />
+              <col className="w-11" />
             </colgroup>
             <TableHeader>
               <TableRow>
@@ -101,7 +101,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
                     {ch.name}
                   </TableHead>
                 ))}
-                <TableHead className="w-10" />
+                <TableHead className="px-1" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -143,7 +143,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
                       </TableCell>
                     )
                   })}
-                  <TableCell className="align-top">
+                  <TableCell className="px-1 align-top">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="size-8">

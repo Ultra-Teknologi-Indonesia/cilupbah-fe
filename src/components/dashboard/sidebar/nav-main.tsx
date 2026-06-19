@@ -10,7 +10,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -47,8 +47,8 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
     setOpenCollapsible(null);
   }, [pathname]);
 
-  
   const handleNavClick = () => {
+    setOpenCollapsible(null);
     if (isMobile) setOpenMobile(false);
     else setOpen(false);
   };
@@ -109,20 +109,20 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                   </motion.span>
                 </SidebarMenuButton>
 
-                <div
-                  className="grid transition-[grid-template-rows] ease-[cubic-bezier(0.4,0,0.2,1)]"
-                  style={{
-                    gridTemplateRows: isOpen ? "1fr" : "0fr",
-                    transitionDuration: shouldReduceMotion ? "0ms" : "250ms",
-                  }}
-                >
-                  <div
-                    className="min-h-0 overflow-hidden"
-                    style={{
-                      opacity: isOpen ? 1 : 0,
-                      transition: shouldReduceMotion ? "none" : "opacity 200ms ease",
-                    }}
-                  >
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      key="submenu"
+                      className="overflow-hidden"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={
+                        shouldReduceMotion
+                          ? { duration: 0 }
+                          : { duration: 0.22, ease: [0.4, 0, 0.2, 1] }
+                      }
+                    >
                       <SidebarMenuSub className="my-1 ml-3.5 border-sidebar-border">
                         {route.subs?.map((subRoute) => (
                           <div key={`${route.id}-${subRoute.title}`}>
@@ -175,8 +175,9 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                           </div>
                         ))}
                       </SidebarMenuSub>
-                  </div>
-                </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ) : (
               <SidebarMenuButton tooltip={route.title} isActive={isActive} asChild>
