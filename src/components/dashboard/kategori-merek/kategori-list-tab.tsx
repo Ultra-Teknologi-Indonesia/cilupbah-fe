@@ -46,7 +46,7 @@ function flattenTree(
   return result
 }
 
-const PER_PAGE = 20
+const PER_PAGE = 10
 
 export function KategoriListTab({ search }: { search: string }) {
   const [page, setPage] = React.useState(1)

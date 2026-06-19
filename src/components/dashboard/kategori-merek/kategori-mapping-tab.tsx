@@ -41,7 +41,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
   const { data, isLoading, isError, isFetching } = useKategoriMapping({
     search: search || undefined,
     page,
-    perPage: 15,
+    perPage: 10,
   })
 
   const items = data?.items ?? []
@@ -79,7 +79,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
           <Table className="min-w-[900px]">
             <TableHeader>
               <TableRow>
-                <TableHead className="sticky left-0 z-10 bg-muted/50 min-w-[250px]">
+                <TableHead className="sticky left-0 z-10 min-w-[250px] bg-white/60 backdrop-blur-sm dark:bg-neutral-900/60">
                   Cilupbah
                 </TableHead>
                 {channels.map((ch) => (
@@ -93,7 +93,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
             <TableBody>
               {items.map((item) => (
                 <TableRow key={item.category_id}>
-                  <TableCell className="sticky left-0 z-10 bg-background font-medium whitespace-nowrap">
+                  <TableCell className="sticky left-0 z-10 bg-white/60 backdrop-blur-sm font-medium whitespace-nowrap dark:bg-neutral-900/60">
                     {item.full_category_name}
                   </TableCell>
                   {channels.map((ch) => {
