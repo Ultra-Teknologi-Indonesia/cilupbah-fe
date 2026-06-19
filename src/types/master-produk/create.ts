@@ -19,6 +19,10 @@ export interface CreateVariantInput {
   barcode?: string | null
   sell_price: number
   buy_price?: number | null
+  weight?: number | null
+  length?: number | null
+  width?: number | null
+  height?: number | null
   sales_tax_id?: number | null
   purchase_tax_id?: number | null
   min_stock?: number | null

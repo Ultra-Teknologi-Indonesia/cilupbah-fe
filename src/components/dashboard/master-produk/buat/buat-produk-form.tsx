@@ -14,6 +14,7 @@ import { SERVER_FIELD_MAP } from "@/lib/master-produk/server-field-map"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import { Card } from "@/components/ui/card"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { PageTitle } from "@/components/dashboard/page-title"
 
 import { SectionNav, type SectionStatus } from "./section-nav"
@@ -36,6 +37,7 @@ export function BuatProdukForm() {
   }, [])
   const modeRef = React.useRef<"download" | "master">("master")
   const [serverErrors, setServerErrors] = React.useState<string[]>([])
+  const [cancelOpen, setCancelOpen] = React.useState(false)
   const { mutateAsync, isPending } = useCreateProduct()
 
   const form = useForm<BuatProdukFormValues>({
@@ -263,6 +265,16 @@ export function BuatProdukForm() {
               )}
               <Button
                 variant="outline"
+                size="lg"
+                onClick={() => setCancelOpen(true)}
+                disabled={busy}
+              >
+                <XIcon />
+                Batalkan
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
                 onClick={() => submit("download")}
                 disabled={busy}
               >
@@ -275,6 +287,7 @@ export function BuatProdukForm() {
               </Button>
               <Button
                 variant="primary"
+                size="lg"
                 onClick={() => submit("master")}
                 disabled={busy}
               >
@@ -286,6 +299,16 @@ export function BuatProdukForm() {
                 Simpan Produk
               </Button>
             </div>
+
+            <ConfirmDialog
+              open={cancelOpen}
+              onOpenChange={setCancelOpen}
+              title="Batalkan perubahan?"
+              description="Data yang belum disimpan akan hilang."
+              confirmLabel="Ya, batalkan"
+              variant="destructive"
+              onConfirm={() => router.push("/dashboard/master-produk")}
+            />
           </form>
         </Form>
       </div>

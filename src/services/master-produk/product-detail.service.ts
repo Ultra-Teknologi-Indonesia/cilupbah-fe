@@ -89,6 +89,10 @@ function mapDetail(raw: RawProductDetail): ProductDetail {
       minStock: v.min_stock,
       safeStock: v.safe_stock,
       isActive: v.is_active,
+      weight: v.weight ?? null,
+      length: v.length ?? null,
+      width: v.width ?? null,
+      height: v.height ?? null,
       salesTax: v.sales_tax,
       purchaseTax: v.purchase_tax,
       options: (v.options ?? []).map((o) => ({

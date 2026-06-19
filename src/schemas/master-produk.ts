@@ -58,7 +58,13 @@ export const buatProdukSchema = z
         label: z.string(),
         options: z.array(z.object({ attributeId: z.number(), value: z.string() })),
         sku: z.string().trim().min(1, "SKU varian wajib diisi").max(50),
+        barcode: z.string().max(100).optional(),
         sellPrice: z.string().optional(),
+        buyPrice: z.string().optional(),
+        weight: z.string().optional(),
+        length: z.string().optional(),
+        width: z.string().optional(),
+        height: z.string().optional(),
       })
     ),
     

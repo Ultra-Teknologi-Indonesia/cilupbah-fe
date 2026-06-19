@@ -36,6 +36,10 @@ export interface DetailVariant {
   minStock: number | null
   safeStock: number | null
   isActive: boolean
+  weight: number | null
+  length: number | null
+  width: number | null
+  height: number | null
   salesTax: DetailTax | null
   purchaseTax: DetailTax | null
   options: DetailVariantOption[]

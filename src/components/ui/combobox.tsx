@@ -54,10 +54,10 @@ export function Combobox({
         o.label.toLowerCase().includes(trimmed.toLowerCase()),
       )
     : options;
-  const showCreate =
-    onCreateOption &&
-    trimmed &&
-    !options.some((o) => o.label.toLowerCase() === trimmed.toLowerCase());
+  const showCreate = onCreateOption && trimmed;
+  const exactMatch = options.some(
+    (o) => o.label.toLowerCase() === trimmed.toLowerCase(),
+  );
 
   return (
     <Popover
@@ -98,6 +98,21 @@ export function Combobox({
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && onCreateOption && trimmed) {
+                e.preventDefault();
+                if (!exactMatch) {
+                  onCreateOption(trimmed);
+                } else {
+                  const match = options.find(
+                    (o) => o.label.toLowerCase() === trimmed.toLowerCase(),
+                  );
+                  if (match) onChange(match.value);
+                }
+                setQuery("");
+                setOpen(false);
+              }
+            }}
             placeholder={searchPlaceholder}
             className="h-10 border-0 bg-transparent px-0 focus-visible:ring-0"
           />
@@ -144,12 +159,12 @@ export function Combobox({
                 </li>
               );
             })}
-            {showCreate && (
+            {showCreate && !exactMatch && (
               <li>
                 <button
                   type="button"
                   onClick={() => {
-                    onCreateOption(trimmed);
+                    onCreateOption!(trimmed);
                     setQuery("");
                     setOpen(false);
                   }}
@@ -158,6 +173,13 @@ export function Combobox({
                   <PlusIcon className="size-4" />
                   <span>{createLabel(trimmed)}</span>
                 </button>
+              </li>
+            )}
+            {onCreateOption && !trimmed && (
+              <li className="border-t border-border/60 mt-1 pt-1">
+                <div className="px-2.5 py-2 text-xs text-muted-foreground">
+                  Ketik nama lalu tekan Enter untuk membuat jenis varian baru
+                </div>
               </li>
             )}
           </ul>

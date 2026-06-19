@@ -39,23 +39,23 @@ export function PageTitle({
 }: PageTitleProps) {
   return (
     <div className={cn(sticky && "sticky top-0 z-30")}>
+      {backHref && (
+        <Link
+          href={backHref}
+          prefetch={false}
+          className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeftIcon className="size-4" />
+          Kembali
+        </Link>
+      )}
+
       <LiquidGlass
         radius={24}
         intensity="default"
         className={cn("bg-white/40 dark:bg-white/[0.06]", className)}
       >
         <div className="px-5 py-4 sm:px-6 sm:py-5">
-          {backHref && (
-            <Link
-              href={backHref}
-              prefetch={false}
-              className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <ArrowLeftIcon className="size-4" />
-              Kembali
-            </Link>
-          )}
-
           {breadcrumb && breadcrumb.length > 0 && (
             <Breadcrumb className="mb-1.5">
               <BreadcrumbList>

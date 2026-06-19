@@ -135,7 +135,7 @@ export function FormSalesSection() {
               name="sellPrice"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Harga jual {v.isSold && <span className="text-destructive">*</span>}</FormLabel>
+                  <FormLabel>Harga jual default {v.isSold && <span className="text-destructive">*</span>}</FormLabel>
                   <FormControl>
                     <MoneyInput placeholder="0" {...field} />
                   </FormControl>

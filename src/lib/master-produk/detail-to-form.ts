@@ -33,7 +33,13 @@ function reconstructVariants(p: ProductDetail) {
       label: comboLabel(opts),
       options: opts,
       sku: match?.sku ?? "",
+      barcode: match?.barcode ?? "",
       sellPrice: match?.sellPrice != null ? String(match.sellPrice) : "",
+      buyPrice: match?.buyPrice != null ? String(match.buyPrice) : "",
+      weight: match?.weight != null ? String(match.weight) : "",
+      length: match?.length != null ? String(match.length) : "",
+      width: match?.width != null ? String(match.width) : "",
+      height: match?.height != null ? String(match.height) : "",
     }
   })
 

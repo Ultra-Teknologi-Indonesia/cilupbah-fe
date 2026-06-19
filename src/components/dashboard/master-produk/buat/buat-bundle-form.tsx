@@ -4,7 +4,7 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2Icon, SaveIcon } from "lucide-react"
+import { Loader2Icon, SaveIcon, XIcon } from "lucide-react"
 import { toast } from "sonner"
 import { buatBundleSchema } from "@/schemas/master-produk"
 import type { BuatBundleFormValues } from "@/types/master-produk"
@@ -12,6 +12,7 @@ import { useCreateBundle } from "@/hooks/master-produk/use-create-bundle"
 
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { PageTitle } from "@/components/dashboard/page-title"
 import { FormDetailSection } from "./form-detail-section"
 
@@ -62,6 +63,7 @@ export function BuatBundleForm() {
     })()
   }
 
+  const [cancelOpen, setCancelOpen] = React.useState(false)
   const errorCount = Object.keys(errors).length
 
   return (
@@ -92,7 +94,17 @@ export function BuatBundleForm() {
                 </span>
               )}
               <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setCancelOpen(true)}
+                disabled={isPending}
+              >
+                <XIcon />
+                Batalkan
+              </Button>
+              <Button
                 variant="primary"
+                size="lg"
                 onClick={submit}
                 disabled={isPending}
               >
@@ -104,6 +116,16 @@ export function BuatBundleForm() {
                 Simpan Bundle
               </Button>
             </div>
+
+            <ConfirmDialog
+              open={cancelOpen}
+              onOpenChange={setCancelOpen}
+              title="Batalkan perubahan?"
+              description="Data yang belum disimpan akan hilang."
+              confirmLabel="Ya, batalkan"
+              variant="destructive"
+              onConfirm={() => router.push("/dashboard/master-produk")}
+            />
           </form>
         </Form>
       </div>

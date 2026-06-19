@@ -55,7 +55,13 @@ export function buildUpdatePayload(
     }))
     payload.variants = values.variants.map((row) => ({
       sku: row.sku.trim(),
+      barcode: row.barcode?.trim() || null,
       sell_price: num(row.sellPrice) ?? num(values.sellPrice) ?? 0,
+      buy_price: num(row.buyPrice) ?? null,
+      weight: num(row.weight) ?? null,
+      length: num(row.length) ?? null,
+      width: num(row.width) ?? null,
+      height: num(row.height) ?? null,
       sales_tax_id: values.salesTaxId ? Number(values.salesTaxId) : null,
       purchase_tax_id: values.purchaseTaxId ? Number(values.purchaseTaxId) : null,
       is_active: true,
