@@ -17,26 +17,26 @@ export function KategoriView() {
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div />
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => setImportOpen(true)}>
-            <DownloadIcon />
-            Import dari Sistem
-          </Button>
-          <Button variant="primary" onClick={() => setTambahOpen(true)}>
-            <PlusIcon />
-            Tambah Baru
-          </Button>
-        </div>
-      </div>
-
       <Tabs defaultValue="daftar">
-        <LiquidGlass radius={20} intensity="subtle" className="bg-white/40 dark:bg-white/[0.06]">
-          <TabsList variant="line" className="px-4">
-            <TabsTrigger value="daftar">Daftar Kategori</TabsTrigger>
-            <TabsTrigger value="pemetaan">Pemetaan Kategori</TabsTrigger>
-          </TabsList>
+        <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-3 sm:px-5">
+            <div className="overflow-x-auto">
+              <TabsList variant="line">
+                <TabsTrigger value="daftar">Daftar Kategori</TabsTrigger>
+                <TabsTrigger value="pemetaan">Pemetaan Kategori</TabsTrigger>
+              </TabsList>
+            </div>
+            <div className="flex items-center gap-2 pb-2">
+              <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => setImportOpen(true)}>
+                <DownloadIcon className="size-4" />
+                Import dari Sistem
+              </Button>
+              <Button variant="primary" size="sm" className="h-8 gap-1.5" onClick={() => setTambahOpen(true)}>
+                <PlusIcon className="size-4" />
+                Tambah Baru
+              </Button>
+            </div>
+          </div>
         </LiquidGlass>
 
         <TabsContent value="daftar">
