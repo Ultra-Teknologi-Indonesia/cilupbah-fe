@@ -86,6 +86,29 @@ export function useDeleteCategoryAttribute() {
   })
 }
 
+export function useChannelCategories(channelId: string) {
+  return useQuery({
+    queryKey: ["kategori", "channel-categories", channelId],
+    queryFn: () => KategoriService.getChannelCategories(channelId),
+    staleTime: 5 * 60 * 1000,
+    enabled: Boolean(channelId),
+  })
+}
+
+export function useMapCategoryToChannel() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ categoryId, channelCategoryIds }: { categoryId: number; channelCategoryIds: string[] }) =>
+      KategoriService.mapCategoryToChannel(categoryId, channelCategoryIds),
+    onSuccess: () => {
+      toast.success("Kategori berhasil dipetakan ke channel")
+      qc.invalidateQueries({ queryKey: ["kategori", "mapping"] })
+    },
+    onError: (err) =>
+      toast.error((err as { message?: string })?.message || "Gagal memetakan kategori"),
+  })
+}
+
 export function useMapAttributeToChannel() {
   const qc = useQueryClient()
   return useMutation({

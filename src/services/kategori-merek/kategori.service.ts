@@ -5,6 +5,7 @@ import type {
   KategoriMappingItem,
   CategoryFormAttributes,
   ChannelAttributeItem,
+  ChannelCategoryNode,
 } from "@/types/kategori-merek/kategori"
 
 export const KategoriService = {
@@ -112,6 +113,23 @@ export const KategoriService = {
     await fetchClient(`/attributes/${attributeId}/map-channel`, {
       method: "POST",
       data: { channel_attribute_ids: channelAttributeIds },
+    })
+  },
+
+  getChannelCategories: async (channelId: string): Promise<ChannelCategoryNode[]> => {
+    const res = await fetchClient<ApiResponse<ChannelCategoryNode[]>>(
+      `/${channelId}/categories?all=1`
+    )
+    return res.data ?? []
+  },
+
+  mapCategoryToChannel: async (
+    categoryId: number,
+    channelCategoryIds: string[]
+  ): Promise<void> => {
+    await fetchClient(`/categories/${categoryId}/map-channel`, {
+      method: "POST",
+      data: { channel_category_ids: channelCategoryIds },
     })
   },
 

@@ -10,7 +10,7 @@ import type {
 
 export const CHANNEL_CATALOG: Channel[] = [
   { id: "ch-tiktok", code: "tiktok", name: "TikTok", connectable: true },
-  { id: "ch-shopee", code: "shopee", name: "Shopee", connectable: false },
+  { id: "ch-shopee", code: "shopee", name: "Shopee", connectable: true },
   { id: "ch-lazada", code: "lazada", name: "Lazada", connectable: true },
   { id: "ch-blibli", code: "blibli", name: "Blibli", connectable: false },
 ]
@@ -74,7 +74,7 @@ export function groupStores(raws: RawConnectedStore[]): GroupedStores {
       id: `grp-${code}`,
       code,
       name: DISPLAY_NAME[code] ?? code,
-      connectable: code === "tiktok" || code === "lazada",
+      connectable: code === "tiktok" || code === "lazada" || code === "shopee",
       stores,
     })
   }

@@ -11,7 +11,6 @@ import {
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +27,7 @@ import {
 } from "@/components/ui/table"
 import { useKategoriMapping } from "@/hooks/kategori-merek/use-kategori"
 import type { ChannelInfo } from "@/types/kategori-merek/kategori"
+import { PetakanKategoriDialog } from "./petakan-kategori-dialog"
 
 export function KategoriMappingTab({ search }: { search: string }) {
   const [page, setPage] = React.useState(1)
@@ -50,6 +50,13 @@ export function KategoriMappingTab({ search }: { search: string }) {
   const lastPage = data?.meta?.last_page ?? 1
 
   const channels: ChannelInfo[] = items[0]?.channels ?? []
+
+  const [pickerState, setPickerState] = React.useState<{
+    categoryId: number
+    categoryName: string
+    channelId: string
+    channelName: string
+  } | null>(null)
 
   return (
     <>
@@ -79,7 +86,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
           <Table className="min-w-[900px]">
             <TableHeader>
               <TableRow>
-                <TableHead className="sticky left-0 z-10 min-w-[250px] bg-white/60 backdrop-blur-sm dark:bg-neutral-900/60">
+                <TableHead className="sticky left-0 z-10 min-w-[250px] bg-background/80 backdrop-blur-sm">
                   Cilupbah
                 </TableHead>
                 {channels.map((ch) => (
@@ -93,17 +100,30 @@ export function KategoriMappingTab({ search }: { search: string }) {
             <TableBody>
               {items.map((item) => (
                 <TableRow key={item.category_id}>
-                  <TableCell className="sticky left-0 z-10 bg-white/60 backdrop-blur-sm font-medium whitespace-nowrap dark:bg-neutral-900/60">
+                  <TableCell className="sticky left-0 z-10 bg-background/80 backdrop-blur-sm font-medium whitespace-nowrap">
                     {item.full_category_name}
                   </TableCell>
                   {channels.map((ch) => {
                     const name = item[`${ch.code}_category_name`] as string | null
+                    const openPicker = () =>
+                      setPickerState({
+                        categoryId: item.category_id,
+                        categoryName: item.full_category_name,
+                        channelId: ch.id,
+                        channelName: ch.name,
+                      })
                     return (
                       <TableCell key={ch.code} className="text-sm">
                         {name ? (
-                          <span className="text-primary">{name}</span>
+                          <button
+                            type="button"
+                            onClick={openPicker}
+                            className="text-left text-primary hover:underline cursor-pointer"
+                          >
+                            {name}
+                          </button>
                         ) : (
-                          <Button variant="primary" size="sm">
+                          <Button variant="primary" size="sm" onClick={openPicker}>
                             Petakan
                           </Button>
                         )}
@@ -163,6 +183,16 @@ export function KategoriMappingTab({ search }: { search: string }) {
           </div>
         </div>
       )}
+
+      <PetakanKategoriDialog
+        open={!!pickerState}
+        onOpenChange={(open) => !open && setPickerState(null)}
+        channelId={pickerState?.channelId ?? ""}
+        channelName={pickerState?.channelName ?? ""}
+        categoryId={pickerState?.categoryId ?? 0}
+        categoryName={pickerState?.categoryName ?? ""}
+        onSuccess={() => setPickerState(null)}
+      />
     </>
   )
 }

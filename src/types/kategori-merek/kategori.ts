@@ -10,8 +10,19 @@ export interface KategoriItem {
 }
 
 export interface ChannelInfo {
+  id: string
   code: string
   name: string
+}
+
+export interface ChannelCategoryNode {
+  id: string
+  channel_id: string
+  external_id: string
+  parent_external_id: string | null
+  name: string
+  is_leaf: boolean
+  children?: ChannelCategoryNode[]
 }
 
 export interface KategoriMappingItem {
