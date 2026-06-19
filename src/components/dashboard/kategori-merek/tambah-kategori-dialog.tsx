@@ -390,32 +390,36 @@ export function TambahKategoriDialog({
                     </div>
                   )}
 
-                  {/* Selected parent breadcrumb */}
-                  {parentId && (
-                    <p className="text-sm text-muted-foreground">
-                      Induk:{" "}
-                      <span className="font-medium text-foreground">
-                        {parentLabel}
-                      </span>
-                    </p>
-                  )}
                 </div>
               )}
 
-              {/* Name input */}
+              {/* Name input — inline with path for sub-kategori */}
               <div className="space-y-2">
                 <Label htmlFor="kategori-name">Nama Kategori</Label>
-                <Input
-                  id="kategori-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder={
-                    mode === "root"
-                      ? "Nama kategori baru"
-                      : "Nama sub-kategori"
-                  }
-                  autoFocus
-                />
+                {mode === "sub" && parentId ? (
+                  <div className="flex items-center gap-0 rounded-xl border border-border/60 bg-background/50 focus-within:ring-2 focus-within:ring-primary/30">
+                    <span className="shrink-0 pl-3 text-sm text-primary">
+                      {parentLabel.replace(/ > /g, " / ")}{" / "}
+                    </span>
+                    <input
+                      id="kategori-name"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Nama sub-kategori"
+                      autoFocus
+                      className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground"
+                    />
+                  </div>
+                ) : (
+                  <Input
+                    id="kategori-name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Nama kategori baru"
+                    autoFocus
+                  />
+                )}
               </div>
             </div>
 
