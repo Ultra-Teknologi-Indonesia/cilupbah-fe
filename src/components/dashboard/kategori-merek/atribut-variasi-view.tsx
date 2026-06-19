@@ -199,11 +199,6 @@ function AtributRow({
     <TableRow>
       <TableCell className="sticky left-0 z-10 bg-background font-medium whitespace-nowrap">
         {item.name}
-        {item.is_required && (
-          <Badge variant="outline" className="ml-2 text-xs">
-            Wajib
-          </Badge>
-        )}
       </TableCell>
       {CHANNELS.map((ch) => (
         <ChannelMappingCell

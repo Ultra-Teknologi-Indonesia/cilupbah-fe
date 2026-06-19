@@ -40,7 +40,6 @@ export interface CategoryFormAttributes {
 export interface CategoryAttributeItem {
   attribute_id: number
   name: string
-  is_required: boolean
   options: { id: number; value: string }[]
   channels: Record<string, { mapped: boolean; required: boolean }>
 }
