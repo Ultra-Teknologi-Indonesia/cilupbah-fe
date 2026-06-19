@@ -178,8 +178,14 @@ export function PetakanKategoriDialog({
     return cols
   }, [tree, path])
 
-  const visibleStart = Math.max(0, allColumns.length - 3)
-  const visibleColumns = allColumns.slice(visibleStart)
+  const scrollRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    const el = scrollRef.current
+    if (el) {
+      el.scrollTo({ left: el.scrollWidth, behavior: "smooth" })
+    }
+  }, [allColumns.length])
 
   const chosen = path[path.length - 1] ?? null
   const isLeaf = chosen?.is_leaf ?? false
@@ -290,19 +296,24 @@ export function PetakanKategoriDialog({
               )}
             </ScrollArea>
           ) : (
-            <div className={cn(
-              "grid grid-cols-1 divide-y divide-border/60 overflow-hidden rounded-2xl border border-border/60 lg:divide-x lg:divide-y-0",
-              visibleColumns.length === 1 && "lg:grid-cols-1",
-              visibleColumns.length === 2 && "lg:grid-cols-2",
-              visibleColumns.length >= 3 && "lg:grid-cols-3",
-            )}>
-              {visibleColumns.map((col) => (
-                <Column
+            <div
+              ref={scrollRef}
+              className="flex overflow-x-auto rounded-2xl border border-border/60"
+            >
+              {allColumns.map((col, idx) => (
+                <div
                   key={col.level}
-                  nodes={col.nodes}
-                  activeId={path[col.level]?.id}
-                  onSelect={(n) => selectAt(col.level, n)}
-                />
+                  className={cn(
+                    "min-w-[200px] flex-1",
+                    idx < allColumns.length - 1 && "border-r border-border/60"
+                  )}
+                >
+                  <Column
+                    nodes={col.nodes}
+                    activeId={path[col.level]?.id}
+                    onSelect={(n) => selectAt(col.level, n)}
+                  />
+                </div>
               ))}
             </div>
           )}
