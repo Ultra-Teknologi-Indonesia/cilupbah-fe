@@ -69,34 +69,12 @@ export function BuatBundleForm() {
       <PageTitle
         title="Buat Produk Bundle"
         description="Gabungkan beberapa produk menjadi satu SKU bundle."
-        sticky
         backHref="/dashboard/master-produk"
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Produk Master", href: "/dashboard/master-produk" },
           { label: "Buat Bundle" },
         ]}
-        actions={
-          <div className="flex items-center gap-2">
-            {errorCount > 0 && (
-              <span className="hidden text-xs text-destructive sm:inline">
-                {errorCount} perlu diperbaiki
-              </span>
-            )}
-            <Button
-              variant="primary"
-              onClick={submit}
-              disabled={isPending}
-            >
-              {isPending ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <SaveIcon />
-              )}
-              Simpan Bundle
-            </Button>
-          </div>
-        }
       />
 
       <div className="mx-auto w-full max-w-2xl">
@@ -106,6 +84,26 @@ export function BuatBundleForm() {
             onSubmit={(e) => e.preventDefault()}
           >
             <FormDetailSection mode="bundle" />
+
+            <div className="flex items-center justify-end gap-3">
+              {errorCount > 0 && (
+                <span className="text-xs text-destructive">
+                  {errorCount} perlu diperbaiki
+                </span>
+              )}
+              <Button
+                variant="primary"
+                onClick={submit}
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <Loader2Icon className="animate-spin" />
+                ) : (
+                  <SaveIcon />
+                )}
+                Simpan Bundle
+              </Button>
+            </div>
           </form>
         </Form>
       </div>

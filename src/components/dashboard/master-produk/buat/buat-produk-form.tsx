@@ -194,46 +194,12 @@ export function BuatProdukForm() {
       <PageTitle
         title="Buat Produk Satuan"
         description="Lengkapi informasi produk. Field bertanda * wajib diisi."
-        sticky
         backHref="/dashboard/master-produk"
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Produk Master", href: "/dashboard/master-produk" },
           { label: "Buat Produk" },
         ]}
-        actions={
-          <div className="flex items-center gap-2">
-            {errorCount > 0 && (
-              <span className="hidden text-xs text-destructive sm:inline">
-                {errorCount} perlu diperbaiki
-              </span>
-            )}
-            <Button
-              variant="outline"
-              onClick={() => submit("download")}
-              disabled={busy}
-            >
-              {busy && modeRef.current === "download" ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <SaveIcon />
-              )}
-              Simpan draf
-            </Button>
-            <Button
-              variant="primary"
-              onClick={() => submit("master")}
-              disabled={busy}
-            >
-              {busy && modeRef.current === "master" ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <SendIcon />
-              )}
-              Simpan Produk
-            </Button>
-          </div>
-        }
       />
 
       {serverErrors.length > 0 && (
@@ -261,7 +227,7 @@ export function BuatProdukForm() {
 
       <div className="grid gap-6 lg:grid-cols-[14rem_1fr]">
         <aside className="hidden lg:block">
-          <Card className="sticky top-28 gap-0 px-2 py-4 backdrop-blur-xl">
+          <Card className="sticky top-6 gap-0 px-2 py-4 backdrop-blur-xl">
             <SectionNav sections={sections} />
           </Card>
         </aside>
@@ -288,6 +254,38 @@ export function BuatProdukForm() {
                 </p>
               )}
             </FormSectionCard>
+
+            <div className="flex items-center justify-end gap-3">
+              {errorCount > 0 && (
+                <span className="text-xs text-destructive">
+                  {errorCount} perlu diperbaiki
+                </span>
+              )}
+              <Button
+                variant="outline"
+                onClick={() => submit("download")}
+                disabled={busy}
+              >
+                {busy && modeRef.current === "download" ? (
+                  <Loader2Icon className="animate-spin" />
+                ) : (
+                  <SaveIcon />
+                )}
+                Simpan draf
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => submit("master")}
+                disabled={busy}
+              >
+                {busy && modeRef.current === "master" ? (
+                  <Loader2Icon className="animate-spin" />
+                ) : (
+                  <SendIcon />
+                )}
+                Simpan Produk
+              </Button>
+            </div>
           </form>
         </Form>
       </div>

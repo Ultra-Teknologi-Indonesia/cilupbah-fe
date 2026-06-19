@@ -14,7 +14,7 @@ export const buatProdukSchema = z
       .nullable(),
     brandId: z.string().nullable(),
     brandOther: z.string().max(255).optional(),
-    description: z.string().max(10000).optional(),
+    description: z.string().min(30, "Deskripsi minimal 30 karakter").max(10000),
     isBundle: z.boolean(),
     isConsignment: z.boolean(),
     isPreorder: z.boolean(),
@@ -95,9 +95,6 @@ export const buatProdukSchema = z
       ctx.addIssue({ path: ["variants"], code: "custom", message: "Lengkapi kombinasi varian" })
     if (v.isPreorder && !v.indentDays?.trim())
       ctx.addIssue({ path: ["indentDays"], code: "custom", message: "Lama indent wajib diisi" })
-    const descText = (v.description ?? "").replace(/<[^>]*>/g, "").trim()
-    if (descText.length > 0 && descText.length < 30)
-      ctx.addIssue({ path: ["description"], code: "custom", message: "Minimal 30 karakter" })
     const min = Number(v.minStock || 0)
     const safe = Number(v.safeStock || 0)
     if (v.safeStock?.trim() && safe < min)
@@ -113,7 +110,7 @@ export const buatBundleSchema = z
       .nullable(),
     brandId: z.string().nullable(),
     brandOther: z.string().max(255).optional(),
-    description: z.string().max(10000).optional(),
+    description: z.string().min(30, "Deskripsi minimal 30 karakter").max(10000),
     bundleComponents: z
       .array(
         z.object({
@@ -129,7 +126,4 @@ export const buatBundleSchema = z
   .superRefine((v, ctx) => {
     if (!v.category)
       ctx.addIssue({ path: ["category"], code: "custom", message: "Kategori wajib dipilih" })
-    const descText = (v.description ?? "").replace(/<[^>]*>/g, "").trim()
-    if (descText.length > 0 && descText.length < 30)
-      ctx.addIssue({ path: ["description"], code: "custom", message: "Minimal 30 karakter" })
   })

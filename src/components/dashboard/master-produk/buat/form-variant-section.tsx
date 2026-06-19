@@ -90,7 +90,6 @@ export function FormVariantSection({
   const baseSku = watch("sku")
   const variationTypes = watch("variationTypes")
   const variants = watch("variants")
-  const [customInput, setCustomInput] = React.useState("")
 
   const { data, isError } = useCategoryFormAttributes(category?.id)
   const availableTypes: FormAttribute[] = data?.variant_types ?? []
@@ -150,15 +149,13 @@ export function FormVariantSection({
     ])
   }
 
-  const addCustomType = () => {
-    const name = customInput.trim()
+  const addCustomType = (name: string) => {
     if (!name || variationTypes.length >= 2) return
     if (variationTypes.some((t) => t.name.toLowerCase() === name.toLowerCase())) return
     setTypes([
       ...variationTypes,
       { attributeId: -Date.now(), name, values: [] },
     ])
-    setCustomInput("")
   }
 
   const removeType = (idx: number) =>
@@ -257,48 +254,22 @@ export function FormVariantSection({
         })}
 
         {variationTypes.length < 2 && (
-          <div className="space-y-2">
-            {selectableTypes.length > 0 && (
-              <div className="max-w-xs">
-                <Combobox
-                  options={selectableTypes.map((t) => ({
-                    value: String(t.attribute_id),
-                    label: t.name,
-                  }))}
-                  value={null}
-                  onChange={(v) => {
-                    const t = selectableTypes.find((x) => String(x.attribute_id) === v)
-                    if (t) addType(t)
-                  }}
-                  placeholder="+ Tambah jenis varian"
-                />
-              </div>
-            )}
-            <div className="max-w-xs">
-              <div className="flex items-center gap-2">
-                <Input
-                  value={customInput}
-                  onChange={(e) => setCustomInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault()
-                      addCustomType()
-                    }
-                  }}
-                  placeholder="Atau ketik jenis varian custom..."
-                  className="h-9"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addCustomType}
-                  disabled={!customInput.trim()}
-                >
-                  <PlusIcon />
-                </Button>
-              </div>
-            </div>
+          <div className="max-w-xs">
+            <Combobox
+              options={selectableTypes.map((t) => ({
+                value: String(t.attribute_id),
+                label: t.name,
+              }))}
+              value={null}
+              onChange={(v) => {
+                const t = selectableTypes.find((x) => String(x.attribute_id) === v)
+                if (t) addType(t)
+              }}
+              placeholder="+ Tambah jenis varian"
+              searchPlaceholder="Cari atau ketik jenis varian baru..."
+              onCreateOption={addCustomType}
+              createLabel={(q) => `Buat jenis varian "${q}"`}
+            />
           </div>
         )}
       </div>

@@ -12,12 +12,44 @@ import {
   LinkIcon,
   ImageIcon,
 } from "lucide-react"
+import TurndownService from "turndown"
 
 import { cn } from "@/lib/utils"
 
+const turndown = new TurndownService({
+  headingStyle: "atx",
+  bulletListMarker: "-",
+  codeBlockStyle: "fenced",
+  strongDelimiter: "**",
+  emDelimiter: "*",
+})
+turndown.addRule("strikethrough", {
+  filter: ["del", "s", "strike"],
+  replacement: (content) => `~~${content}~~`,
+})
+
+function markdownToHtml(md: string): string {
+  if (!md) return ""
+  let html = md
+  html = html.replace(/^## (.+)$/gm, "<h2>$1</h2>")
+  html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+  html = html.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>")
+  html = html.replace(/~~(.+?)~~/g, "<del>$1</del>")
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">')
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+  html = html.replace(/^> (.+)$/gm, "<blockquote>$1</blockquote>")
+  html = html.replace(/^- (.+)$/gm, "<li>$1</li>")
+  html = html.replace(/^(\d+)\. (.+)$/gm, "<li>$2</li>")
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, (match) => {
+    return `<ul>${match}</ul>`
+  })
+  html = html.replace(/\n/g, "<br>")
+  return html
+}
+
 interface RichTextEditorProps {
   value?: string
-  onChange?: (html: string) => void
+  onChange?: (markdown: string) => void
   onBlur?: () => void
   placeholder?: string
   rows?: number
@@ -36,17 +68,23 @@ export function RichTextEditor({
   invalid,
 }: RichTextEditorProps) {
   const ref = React.useRef<HTMLDivElement>(null)
+  const lastEmitted = React.useRef(value)
 
-  
   React.useEffect(() => {
     const el = ref.current
     if (!el) return
-    if (document.activeElement !== el && el.innerHTML !== value) {
-      el.innerHTML = value
+    if (document.activeElement !== el && value !== lastEmitted.current) {
+      el.innerHTML = markdownToHtml(value)
+      lastEmitted.current = value
     }
   }, [value])
 
-  const emit = () => onChange?.(ref.current?.innerHTML ?? "")
+  const emit = () => {
+    const html = ref.current?.innerHTML ?? ""
+    const md = turndown.turndown(html)
+    lastEmitted.current = md
+    onChange?.(md)
+  }
 
   const exec = (command: string, arg?: string) => {
     ref.current?.focus()
@@ -63,7 +101,7 @@ export function RichTextEditor({
     if (url) exec("insertImage", url)
   }
 
-  const isEmpty = !value || value === "<br>" || value === "<p></p>"
+  const isEmpty = !value || !value.trim()
 
   return (
     <div

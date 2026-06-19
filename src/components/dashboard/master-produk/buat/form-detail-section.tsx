@@ -130,7 +130,7 @@ export function FormDetailSection({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Deskripsi</FormLabel>
+              <FormLabel>Deskripsi <span className="text-destructive">*</span></FormLabel>
               <FormControl>
                 <RichTextEditor
                   value={field.value ?? ""}
@@ -141,7 +141,7 @@ export function FormDetailSection({
                 />
               </FormControl>
               <FormDescription>
-                Opsional. Jika diisi, minimal 30 karakter.
+                Minimal 30 karakter. Format markdown didukung.
               </FormDescription>
               <FormMessage />
             </FormItem>

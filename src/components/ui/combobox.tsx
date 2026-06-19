@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CheckIcon, ChevronsUpDownIcon, SearchIcon } from "lucide-react";
+import { CheckIcon, ChevronsUpDownIcon, PlusIcon, SearchIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,8 @@ interface ComboboxProps {
   id?: string;
   invalid?: boolean;
   className?: string;
+  onCreateOption?: (query: string) => void;
+  createLabel?: (query: string) => string;
 }
 
 export function Combobox({
@@ -39,16 +41,23 @@ export function Combobox({
   id,
   invalid,
   className,
+  onCreateOption,
+  createLabel = (q) => `Buat "${q}"`,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
 
   const selected = options.find((o) => o.value === value) ?? null;
-  const filtered = query.trim()
+  const trimmed = query.trim();
+  const filtered = trimmed
     ? options.filter((o) =>
-        o.label.toLowerCase().includes(query.trim().toLowerCase()),
+        o.label.toLowerCase().includes(trimmed.toLowerCase()),
       )
     : options;
+  const showCreate =
+    onCreateOption &&
+    trimmed &&
+    !options.some((o) => o.label.toLowerCase() === trimmed.toLowerCase());
 
   return (
     <Popover
@@ -135,6 +144,22 @@ export function Combobox({
                 </li>
               );
             })}
+            {showCreate && (
+              <li>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onCreateOption(trimmed);
+                    setQuery("");
+                    setOpen(false);
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-primary transition-colors hover:bg-primary/10"
+                >
+                  <PlusIcon className="size-4" />
+                  <span>{createLabel(trimmed)}</span>
+                </button>
+              </li>
+            )}
           </ul>
         </div>
       </PopoverContent>
