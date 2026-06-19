@@ -74,7 +74,7 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
     <SidebarMenu className="group-data-[collapsible=icon]:items-center">
       {routes.map((route) => {
         const isActive = isRouteActive(route);
-        const isOpen = !isCollapsed && (openCollapsible === route.id || isActive);
+        const isOpen = !isCollapsed && openCollapsible === route.id;
         const hasSubRoutes = !!route.subs?.length;
         const Icon = route.icon;
 

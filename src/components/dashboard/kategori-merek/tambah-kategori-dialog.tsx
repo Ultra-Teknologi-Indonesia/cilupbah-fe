@@ -2,11 +2,9 @@
 
 import * as React from "react"
 import {
-  CheckIcon,
   ChevronRightIcon,
   Loader2Icon,
   PencilIcon,
-  PlusIcon,
   SearchIcon,
   XIcon,
 } from "lucide-react"
@@ -59,72 +57,6 @@ function buildPath(tree: KategoriItem[], targetId: number): KategoriItem[] {
   return walk(tree, []) ?? []
 }
 
-function InlineAdd({
-  parentId,
-  disabled,
-}: {
-  parentId: number | null
-  disabled?: boolean
-}) {
-  const [value, setValue] = React.useState("")
-  const [focused, setFocused] = React.useState(false)
-  const createMut = useCreateKategori()
-
-  const submit = () => {
-    const trimmed = value.trim()
-    if (!trimmed || createMut.isPending) return
-    createMut.mutate(
-      { name: trimmed, parent_id: parentId, is_active: true },
-      { onSuccess: () => setValue("") },
-    )
-  }
-
-  return (
-    <div className="px-1.5 pb-1.5">
-      <div
-        className={cn(
-          "flex items-center gap-1 rounded-xl border border-dashed px-2 transition-colors",
-          focused
-            ? "border-primary bg-primary/5"
-            : "border-border/60 hover:border-primary/40",
-          disabled && "pointer-events-none opacity-40",
-        )}
-      >
-        {createMut.isPending ? (
-          <Loader2Icon className="size-3.5 shrink-0 animate-spin text-primary" />
-        ) : (
-          <PlusIcon className="size-3.5 shrink-0 text-muted-foreground" />
-        )}
-        <input
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault()
-              submit()
-            }
-          }}
-          placeholder="Tambah cepat..."
-          disabled={disabled || createMut.isPending}
-          className="h-8 w-full min-w-0 bg-transparent text-xs outline-none placeholder:text-muted-foreground/60"
-        />
-        {value.trim() && (
-          <button
-            type="button"
-            onClick={submit}
-            disabled={createMut.isPending}
-            className="shrink-0 rounded-md p-0.5 text-primary hover:bg-primary/10"
-          >
-            <CheckIcon className="size-3.5" />
-          </button>
-        )}
-      </div>
-    </div>
-  )
-}
-
 function ColumnItem({
   node,
   isActive,
@@ -172,18 +104,14 @@ function Column({
   label,
   nodes,
   activeId,
-  parentId,
   onSelect,
   onEdit,
-  showAdd,
 }: {
   label: string
   nodes: KategoriItem[]
   activeId?: number
-  parentId: number | null
   onSelect: (n: KategoriItem) => void
   onEdit: (n: KategoriItem) => void
-  showAdd: boolean
 }) {
   return (
     <div className="flex min-h-[220px] flex-col">
@@ -193,16 +121,10 @@ function Column({
         </span>
       </div>
 
-      {showAdd && <InlineAdd parentId={parentId} />}
-
       <ScrollArea className="flex-1">
-        {nodes.length === 0 && !showAdd ? (
+        {nodes.length === 0 ? (
           <p className="px-3 py-6 text-center text-xs text-muted-foreground">
             Pilih kategori di kolom sebelumnya
-          </p>
-        ) : nodes.length === 0 && showAdd ? (
-          <p className="px-3 py-4 text-center text-xs text-muted-foreground">
-            Belum ada. Tambah di atas.
           </p>
         ) : (
           <ul className="flex flex-col gap-0.5 p-1.5 pt-0">
@@ -448,28 +370,22 @@ export function TambahKategoriDialog({
                         label="Level 1"
                         nodes={columns[0]}
                         activeId={pathIds[0]}
-                        parentId={null}
                         onSelect={(n) => selectAt(0, n)}
                         onEdit={handleEdit}
-                        showAdd
                       />
                       <Column
                         label="Level 2"
                         nodes={columns[1]}
                         activeId={pathIds[1]}
-                        parentId={resolved[0]?.id ?? null}
                         onSelect={(n) => selectAt(1, n)}
                         onEdit={handleEdit}
-                        showAdd={Boolean(resolved[0])}
                       />
                       <Column
                         label="Level 3"
                         nodes={columns[2]}
                         activeId={pathIds[2]}
-                        parentId={resolved[1]?.id ?? null}
                         onSelect={(n) => selectAt(2, n)}
                         onEdit={handleEdit}
-                        showAdd={Boolean(resolved[1])}
                       />
                     </div>
                   )}
