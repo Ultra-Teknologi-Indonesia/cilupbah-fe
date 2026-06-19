@@ -1,10 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { ChevronRightIcon, Loader2Icon, XIcon } from "lucide-react"
+import { Loader2Icon, XIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import {
@@ -39,7 +38,7 @@ export function EditKategoriDialog({
   }, [open, currentName])
 
   const pathSegments = fullPath.split(" > ")
-  const isRoot = pathSegments.length <= 1
+  const parentSegments = pathSegments.slice(0, -1)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -62,7 +61,7 @@ export function EditKategoriDialog({
     >
       <DialogContent
         showCloseButton={false}
-        className="border-0 bg-transparent p-0 shadow-none ring-0 sm:max-w-md"
+        className="border-0 bg-transparent p-0 shadow-none ring-0 sm:max-w-lg"
       >
         <LiquidGlass
           radius={28}
@@ -85,33 +84,22 @@ export function EditKategoriDialog({
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div className="space-y-4 px-5 py-4 sm:px-6">
-              {/* Location breadcrumb */}
-              <div className="space-y-1.5">
-                <Label className="text-muted-foreground">Lokasi</Label>
-                <div className="flex flex-wrap items-center gap-1 rounded-xl bg-muted/50 px-3 py-2.5">
-                  {pathSegments.map((segment, idx) => (
-                    <React.Fragment key={idx}>
-                      {idx > 0 && (
-                        <ChevronRightIcon className="size-3 shrink-0 text-muted-foreground/60" />
-                      )}
-                      <span className="text-sm text-muted-foreground">
-                        {segment}
-                      </span>
-                    </React.Fragment>
-                  ))}
-                </div>
-              </div>
-
-              {/* Name input */}
-              <div className="space-y-1.5">
-                <Label htmlFor="edit-kategori-name">Nama Kategori</Label>
-                <Input
+            <div className="px-5 py-4 sm:px-6">
+              <Label htmlFor="edit-kategori-name">Nama Kategori</Label>
+              <div className="mt-1.5 flex items-center gap-0 rounded-xl border border-border/60 bg-background/50 focus-within:ring-2 focus-within:ring-primary/30">
+                {parentSegments.length > 0 && (
+                  <span className="shrink-0 pl-3 text-sm text-primary">
+                    {parentSegments.join(" / ")}{" / "}
+                  </span>
+                )}
+                <input
                   id="edit-kategori-name"
+                  type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Nama kategori"
                   autoFocus
+                  className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground"
                 />
               </div>
             </div>
