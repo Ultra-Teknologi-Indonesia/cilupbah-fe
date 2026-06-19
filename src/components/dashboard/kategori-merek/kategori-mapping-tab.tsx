@@ -86,15 +86,18 @@ export function KategoriMappingTab({ search }: { search: string }) {
       ) : (
         <div className="overflow-hidden">
           <Table className="table-fixed w-full">
+            <colgroup>
+              <col className="w-[30%]" />
+              {channels.map((ch) => (
+                <col key={ch.code} />
+              ))}
+              <col className="w-10" />
+            </colgroup>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[28%] bg-background/80 backdrop-blur-sm">
-                  Cilupbah
-                </TableHead>
+                <TableHead>Cilupbah</TableHead>
                 {channels.map((ch) => (
-                  <TableHead key={ch.code}>
-                    {ch.name}
-                  </TableHead>
+                  <TableHead key={ch.code}>{ch.name}</TableHead>
                 ))}
                 <TableHead className="w-10" />
               </TableRow>
@@ -102,7 +105,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
             <TableBody>
               {items.map((item) => (
                 <TableRow key={item.category_id}>
-                  <TableCell className="bg-background/80 backdrop-blur-sm font-medium text-sm">
+                  <TableCell className="font-medium text-sm">
                     <span className="line-clamp-2" title={item.full_category_name}>
                       {item.full_category_name}
                     </span>
