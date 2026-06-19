@@ -5,14 +5,11 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Loader2Icon,
-  SearchIcon,
   Trash2Icon,
 } from "lucide-react"
 
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
 import {
   Table,
   TableBody,
@@ -21,7 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { FilterShell } from "@/components/dashboard/master-produk/filter-shell"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { useEnabledCategories, useDeleteKategori, useDisableKategori } from "@/hooks/kategori-merek/use-kategori"
 import type { KategoriItem, FlatKategori } from "@/types/kategori-merek/kategori"
@@ -51,9 +47,7 @@ function flattenTree(
 
 const PER_PAGE = 20
 
-export function KategoriListTab() {
-  const [searchInput, setSearchInput] = React.useState("")
-  const [search, setSearch] = React.useState("")
+export function KategoriListTab({ search }: { search: string }) {
   const [page, setPage] = React.useState(1)
   const [deleteTarget, setDeleteTarget] = React.useState<FlatKategori | null>(null)
 
@@ -61,13 +55,11 @@ export function KategoriListTab() {
   const deleteMut = useDeleteKategori()
   const disableMut = useDisableKategori()
 
-  React.useEffect(() => {
-    const t = setTimeout(() => {
-      setSearch(searchInput.trim())
-      setPage(1)
-    }, 350)
-    return () => clearTimeout(t)
-  }, [searchInput])
+  const prevSearch = React.useRef(search)
+  if (prevSearch.current !== search) {
+    prevSearch.current = search
+    if (page !== 1) setPage(1)
+  }
 
   const flat = React.useMemo(() => flattenTree(tree ?? []), [tree])
 
@@ -94,109 +86,83 @@ export function KategoriListTab() {
     }
   }
 
-  const resetFilter = () => {
-    setSearchInput("")
-    setSearch("")
-    setPage(1)
-  }
-
   return (
-    <FilterShell
-      filters={
-        <>
-          <div className="relative">
-            <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Cari kategori"
-              className="pl-9"
-            />
-          </div>
-          <Button variant="primary" size="sm" className="w-full" onClick={() => setSearch(searchInput.trim())}>
-            Terapkan
-          </Button>
-        </>
-      }
-      onReset={searchInput ? resetFilter : undefined}
-    >
-      <LiquidGlass radius={24} className="bg-white/40 dark:bg-white/[0.06]">
-        <div className="flex items-center justify-end px-5 py-3 text-sm text-muted-foreground">
-          Total <Badge className="ml-2">{total}</Badge>
+    <>
+      <div className="flex items-center justify-end pb-3 text-sm text-muted-foreground">
+        Total <span className="ml-2 font-medium text-foreground tabular-nums">{total}</span>
+      </div>
+
+      {isLoading ? (
+        <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
+          <Loader2Icon className="size-4 animate-spin" /> Memuat kategori…
         </div>
-
-        {isLoading ? (
-          <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
-            <Loader2Icon className="size-4 animate-spin" /> Memuat kategori…
-          </div>
-        ) : isError ? (
-          <div className="py-16 text-center text-sm text-destructive">
-            Gagal memuat data kategori.
-          </div>
-        ) : paginated.length === 0 ? (
-          <div className="py-16 text-center text-sm text-muted-foreground">
-            {search ? "Tidak ditemukan kategori." : "Belum ada kategori. Import dari sistem atau tambah baru."}
-          </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="min-w-[300px]">Nama Kategori</TableHead>
-                <TableHead className="w-32 text-center">Sub-kategori</TableHead>
-                <TableHead className="w-16" />
+      ) : isError ? (
+        <div className="py-16 text-center text-sm text-destructive">
+          Gagal memuat data kategori.
+        </div>
+      ) : paginated.length === 0 ? (
+        <div className="py-16 text-center text-sm text-muted-foreground">
+          {search ? "Tidak ditemukan kategori." : "Belum ada kategori. Import dari sistem atau tambah baru."}
+        </div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="min-w-[300px]">Nama Kategori</TableHead>
+              <TableHead className="w-32 text-center">Sub-kategori</TableHead>
+              <TableHead className="w-16" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginated.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell>
+                  <span className="text-sm text-primary">{item.fullPath}</span>
+                </TableCell>
+                <TableCell className="text-center text-sm">
+                  {item.hasChildren ? "Ya" : "Tidak"}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => setDeleteTarget(item)}
+                  >
+                    <Trash2Icon className="size-4" />
+                  </Button>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginated.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <span className="text-sm text-primary">{item.fullPath}</span>
-                  </TableCell>
-                  <TableCell className="text-center text-sm">
-                    {item.hasChildren ? "Ya" : "Tidak"}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      className="text-destructive hover:text-destructive"
-                      onClick={() => setDeleteTarget(item)}
-                    >
-                      <Trash2Icon className="size-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
+            ))}
+          </TableBody>
+        </Table>
+      )}
 
-        {!isLoading && !isError && total > PER_PAGE && (
-          <div className="flex items-center justify-between gap-3 border-t border-border/60 px-5 py-3">
-            <span className="text-sm text-muted-foreground">
-              Halaman {page} dari {lastPage}
-            </span>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              >
-                <ChevronLeftIcon /> Sebelumnya
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page >= lastPage}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Berikutnya <ChevronRightIcon />
-              </Button>
-            </div>
+      {!isLoading && !isError && total > PER_PAGE && (
+        <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-3">
+          <span className="text-sm text-muted-foreground">
+            Halaman {page} dari {lastPage}
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              <ChevronLeftIcon /> Sebelumnya
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= lastPage}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Berikutnya <ChevronRightIcon />
+            </Button>
           </div>
-        )}
-      </LiquidGlass>
+        </div>
+      )}
 
       <ConfirmDialog
         open={Boolean(deleteTarget)}
@@ -214,6 +180,6 @@ export function KategoriListTab() {
         loading={deleteMut.isPending || disableMut.isPending}
         onConfirm={handleDelete}
       />
-    </FilterShell>
+    </>
   )
 }
