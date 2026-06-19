@@ -4,6 +4,8 @@ import * as React from "react"
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
+  ChevronsLeftIcon,
+  ChevronsRightIcon,
   InfoIcon,
   Loader2Icon,
   MoreHorizontalIcon,
@@ -11,6 +13,13 @@ import {
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,8 +38,11 @@ import { useKategoriMapping } from "@/hooks/kategori-merek/use-kategori"
 import type { ChannelInfo } from "@/types/kategori-merek/kategori"
 import { PetakanKategoriDialog } from "./petakan-kategori-dialog"
 
+const PAGE_SIZE_OPTIONS = [10, 20, 30, 50]
+
 export function KategoriMappingTab({ search }: { search: string }) {
   const [page, setPage] = React.useState(1)
+  const [perPage, setPerPage] = React.useState(20)
 
   const prevSearch = React.useRef(search)
   if (prevSearch.current !== search) {
@@ -41,7 +53,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
   const { data, isLoading, isError, isFetching } = useKategoriMapping({
     search: search || undefined,
     page,
-    perPage: 10,
+    perPage,
   })
 
   const items = data?.items ?? []
@@ -167,27 +179,80 @@ export function KategoriMappingTab({ search }: { search: string }) {
       )}
 
       {!isLoading && !isError && (
-        <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-3">
-          <span className="text-sm text-muted-foreground">
-            Halaman {currentPage} dari {lastPage}
-          </span>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage <= 1 || isFetching}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-            >
-              <ChevronLeftIcon /> Sebelumnya
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage >= lastPage || isFetching}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              Berikutnya <ChevronRightIcon />
-            </Button>
+        <div className="flex flex-col-reverse items-center gap-4 border-t border-border/60 pt-3 sm:flex-row sm:justify-between">
+          <div className="text-sm text-muted-foreground">
+            {total} pemetaan
+          </div>
+
+          <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium">Baris per halaman</p>
+              <Select
+                value={`${perPage}`}
+                onValueChange={(v) => {
+                  setPerPage(Number(v))
+                  setPage(1)
+                }}
+              >
+                <SelectTrigger size="sm" className="w-[4.5rem] rounded-full border-border bg-background">
+                  <SelectValue>{perPage}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {PAGE_SIZE_OPTIONS.map((size) => (
+                    <SelectItem key={size} value={`${size}`}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex w-[7.5rem] items-center justify-center text-sm font-medium">
+              Halaman {lastPage === 0 ? 0 : currentPage} dari {lastPage}
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <Button
+                variant="outline"
+                size="icon"
+                className="hidden size-8 lg:flex"
+                onClick={() => setPage(1)}
+                disabled={currentPage <= 1 || isFetching}
+                aria-label="Halaman pertama"
+              >
+                <ChevronsLeftIcon className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-8"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage <= 1 || isFetching}
+                aria-label="Halaman sebelumnya"
+              >
+                <ChevronLeftIcon className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-8"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={currentPage >= lastPage || isFetching}
+                aria-label="Halaman berikutnya"
+              >
+                <ChevronRightIcon className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="hidden size-8 lg:flex"
+                onClick={() => setPage(lastPage)}
+                disabled={currentPage >= lastPage || isFetching}
+                aria-label="Halaman terakhir"
+              >
+                <ChevronsRightIcon className="size-4" />
+              </Button>
+            </div>
           </div>
         </div>
       )}
