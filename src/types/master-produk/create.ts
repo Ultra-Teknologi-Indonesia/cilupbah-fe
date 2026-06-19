@@ -1,4 +1,4 @@
-export type ProductCreateStatus = "download" | "in_review"
+export type ProductCreateStatus = "download" | "master"
 
 export interface CreateMediaInput {
   media_uuid?: string
@@ -9,7 +9,8 @@ export interface CreateMediaInput {
 }
 
 export interface VariantOptionInput {
-  attribute_id: number
+  attribute_id?: number
+  name?: string
   value: string
 }
 
@@ -28,7 +29,8 @@ export interface CreateVariantInput {
 }
 
 export interface VariationTypeInput {
-  attribute_id: number
+  attribute_id?: number
+  name?: string
   sort_order?: number
 }
 

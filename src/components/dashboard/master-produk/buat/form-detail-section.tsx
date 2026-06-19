@@ -25,12 +25,14 @@ import {
 
 export function FormDetailSection({
   skuDisabled = false,
+  mode = "full",
 }: {
   skuDisabled?: boolean
+  mode?: "full" | "bundle"
 } = {}) {
-  const { control, watch } = useFormContext<BuatProdukFormValues>()
-  const isPreorder = watch("isPreorder")
-  const isBundle = watch("isBundle")
+  const { control, watch } = useFormContext()
+  const isPreorder = mode === "full" ? watch("isPreorder") : false
+  const isBundle = mode === "bundle"
   const { data: brandOptions = [] } = useBrandOptions()
   const { data: categoryTree = [] } = useCategoryTree()
 
@@ -147,92 +149,80 @@ export function FormDetailSection({
         />
       </div>
 
-      <div className="mt-6 border-t pt-5">
-        <h4 className="mb-3 text-sm font-medium">Tipe Produk</h4>
-        <div className="grid gap-3 sm:grid-cols-3">
+      {mode === "full" && (
+        <div className="mt-6 border-t pt-5">
+          <h4 className="mb-3 text-sm font-medium">Tipe Produk</h4>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <FormField
+              control={control}
+              name="isConsignment"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Produk Konsinyasi</FormLabel>
+                  </div>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="isPreorder"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Pre-Order</FormLabel>
+                  </div>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+          {isPreorder && (
+            <div className="mt-4 max-w-xs">
+              <FormField
+                control={control}
+                name="indentDays"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Lama indent (hari) <span className="text-destructive">*</span></FormLabel>
+                    <FormControl>
+                      <Input type="number" min={0} placeholder="mis. 7" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      {mode === "bundle" && (
+        <div className="mt-6 border-t pt-5">
           <FormField
             control={control}
-            name="isBundle"
+            name="bundleComponents"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                <div className="space-y-0.5">
-                  <FormLabel>Produk Bundle</FormLabel>
-                </div>
+              <FormItem>
+                <FormLabel>Komposisi Bundle <span className="text-destructive">*</span></FormLabel>
+                <FormDescription>
+                  Pilih produk komponen beserta jumlahnya. Bundle dijual sebagai 1 SKU; stoknya dihitung
+                  otomatis dari komponen.
+                </FormDescription>
                 <FormControl>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  <BundleBuilder value={field.value ?? []} onChange={field.onChange} />
                 </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="isConsignment"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                <div className="space-y-0.5">
-                  <FormLabel>Produk Konsinyasi</FormLabel>
-                </div>
-                <FormControl>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="isPreorder"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                <div className="space-y-0.5">
-                  <FormLabel>Pre-Order</FormLabel>
-                </div>
-                <FormControl>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
         </div>
-        {isPreorder && (
-          <div className="mt-4 max-w-xs">
-            <FormField
-              control={control}
-              name="indentDays"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Lama indent (hari) <span className="text-destructive">*</span></FormLabel>
-                  <FormControl>
-                    <Input type="number" min={0} placeholder="mis. 7" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        )}
-
-        {isBundle && (
-          <div className="mt-5 rounded-lg border border-primary/30 bg-primary/[0.03] p-4">
-            <FormField
-              control={control}
-              name="bundleComponents"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Komposisi Bundle <span className="text-destructive">*</span></FormLabel>
-                  <FormDescription>
-                    Pilih produk komponen beserta jumlahnya. Bundle dijual sebagai 1 SKU; stoknya dihitung
-                    otomatis dari komponen.
-                  </FormDescription>
-                  <FormControl>
-                    <BundleBuilder value={field.value ?? []} onChange={field.onChange} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        )}
-      </div>
+      )}
     </FormSectionCard>
   )
 }

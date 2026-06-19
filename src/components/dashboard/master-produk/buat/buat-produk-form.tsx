@@ -1,16 +1,14 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ArrowLeftIcon, Loader2Icon, SaveIcon, SendIcon } from "lucide-react"
+import { AlertTriangleIcon, Loader2Icon, SaveIcon, SendIcon, XIcon } from "lucide-react"
 import { toast } from "sonner"
 import { buatProdukSchema } from "@/schemas/master-produk"
 import type { BuatProdukFormValues } from "@/types/master-produk"
 import { useCreateProduct } from "@/hooks/master-produk/use-create-product"
-import { useCreateBundle } from "@/hooks/master-produk/use-create-bundle"
 import { SERVER_FIELD_MAP } from "@/lib/master-produk/server-field-map"
 
 import { Button } from "@/components/ui/button"
@@ -36,9 +34,9 @@ export function BuatProdukForm() {
     setMediaFilesRaw(files)
     if (files.some((f) => f.type.startsWith("image/"))) setMediaError(false)
   }, [])
-  const modeRef = React.useRef<"download" | "in_review">("in_review")
+  const modeRef = React.useRef<"download" | "master">("master")
+  const [serverErrors, setServerErrors] = React.useState<string[]>([])
   const { mutateAsync, isPending } = useCreateProduct()
-  const { mutateAsync: createBundle, isPending: isBundlePending } = useCreateBundle()
 
   const form = useForm<BuatProdukFormValues>({
     resolver: zodResolver(buatProdukSchema),
@@ -91,45 +89,33 @@ export function BuatProdukForm() {
 
   const applyServerErrors = (err: unknown): boolean => {
     const body = err as { message?: string; errors?: Record<string, string[]> }
-    const errors = body?.errors
-    if (!errors || typeof errors !== "object") return false
+    const serverErrs = body?.errors
+    if (!serverErrs || typeof serverErrs !== "object") return false
 
+    const allMessages: string[] = []
     let firstField: keyof BuatProdukFormValues | undefined
-    for (const [key, messages] of Object.entries(errors)) {
+    for (const [key, messages] of Object.entries(serverErrs)) {
+      const msg = Array.isArray(messages) ? messages[0] : String(messages)
+      allMessages.push(msg)
       const field = SERVER_FIELD_MAP[key]
       if (!field) continue
-      const message = Array.isArray(messages) ? messages[0] : String(messages)
-      form.setError(field, { type: "server", message })
+      form.setError(field, { type: "server", message: msg })
       firstField ??= field
     }
+    setServerErrors(allMessages)
     if (firstField) form.setFocus(firstField)
+    window.scrollTo({ top: 0, behavior: "smooth" })
     return true
   }
 
   const onValid = async (data: BuatProdukFormValues) => {
+    setServerErrors([])
     try {
-      if (data.isBundle) {
-        
-        await createBundle({
-          name: data.name,
-          sku: data.sku?.trim() || null,
-          category_id: Number(data.category!.id),
-          brand_id: data.brandId ? Number(data.brandId) : null,
-          components: (data.bundleComponents ?? []).map((c) => ({
-            variant_id: c.variantId,
-            qty: c.qty,
-          })),
-        })
-        toast.success("Bundle produk dibuat", { description: `${data.name} · ${data.sku}` })
-        router.push("/dashboard/master-produk")
-        return
-      }
-
       await mutateAsync({ values: data, files: mediaFiles, status: modeRef.current })
       toast.success(
         modeRef.current === "download"
           ? "Draf produk disimpan"
-          : "Produk diajukan untuk review",
+          : "Produk berhasil dibuat",
         { description: `${data.name} · ${data.sku}` }
       )
       router.push("/dashboard/master-produk")
@@ -138,6 +124,7 @@ export function BuatProdukForm() {
       if (applyServerErrors(err)) {
         toast.error(body?.message || "Beberapa isian ditolak server")
       } else {
+        setServerErrors([body?.message || "Gagal menyimpan produk"])
         toast.error(body?.message || "Gagal menyimpan produk")
       }
     }
@@ -151,13 +138,13 @@ export function BuatProdukForm() {
     toast.error("Beberapa isian perlu diperbaiki")
   }
 
-  const busy = isPending || isBundlePending
+  const busy = isPending
 
-  const submit = (mode: "download" | "in_review") => {
+  const submit = (mode: "download" | "master") => {
     if (busy) return
     modeRef.current = mode
 
-    const missingMedia = !form.getValues("isBundle") && !hasImage
+    const missingMedia = !hasImage
     if (missingMedia) setMediaError(true)
 
     handleSubmit(
@@ -207,6 +194,8 @@ export function BuatProdukForm() {
       <PageTitle
         title="Buat Produk Satuan"
         description="Lengkapi informasi produk. Field bertanda * wajib diisi."
+        sticky
+        backHref="/dashboard/master-produk"
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Produk Master", href: "/dashboard/master-produk" },
@@ -214,11 +203,6 @@ export function BuatProdukForm() {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/master-produk" prefetch={false}>
-                <ArrowLeftIcon /> Kembali
-              </Link>
-            </Button>
             {errorCount > 0 && (
               <span className="hidden text-xs text-destructive sm:inline">
                 {errorCount} perlu diperbaiki
@@ -238,23 +222,46 @@ export function BuatProdukForm() {
             </Button>
             <Button
               variant="primary"
-              onClick={() => submit("in_review")}
+              onClick={() => submit("master")}
               disabled={busy}
             >
-              {busy && modeRef.current === "in_review" ? (
+              {busy && modeRef.current === "master" ? (
                 <Loader2Icon className="animate-spin" />
               ) : (
                 <SendIcon />
               )}
-              Simpan &amp; Ajukan Review
+              Simpan Produk
             </Button>
           </div>
         }
       />
 
+      {serverErrors.length > 0 && (
+        <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3">
+          <AlertTriangleIcon className="mt-0.5 size-5 shrink-0 text-destructive" />
+          <div className="flex-1 space-y-1">
+            <p className="text-sm font-medium text-destructive">
+              Gagal menyimpan produk — perbaiki kesalahan berikut:
+            </p>
+            <ul className="list-disc space-y-0.5 pl-4 text-sm text-destructive/90">
+              {serverErrors.map((msg, i) => (
+                <li key={i}>{msg}</li>
+              ))}
+            </ul>
+          </div>
+          <button
+            type="button"
+            onClick={() => setServerErrors([])}
+            className="shrink-0 text-destructive/60 hover:text-destructive"
+          >
+            <XIcon className="size-4" />
+          </button>
+        </div>
+      )}
+
       <div className="grid gap-6 lg:grid-cols-[14rem_1fr]">
         <aside className="hidden lg:block">
-          <Card className="sticky top-6 gap-0 px-2 py-4 backdrop-blur-xl">
+          <Card className="sticky top-28 gap-0 px-2 py-4 backdrop-blur-xl">
             <SectionNav sections={sections} />
           </Card>
         </aside>

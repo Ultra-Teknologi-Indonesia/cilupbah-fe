@@ -35,6 +35,8 @@ export function buildCreatePayload(
       : {}),
   }
 
+  const typeNameById = new Map(values.variationTypes.map((t) => [t.attributeId, t.name]))
+
   const variants: CreateVariantInput[] = hasVariants
     ? values.variants.map((row) => ({
         sku: row.sku.trim(),
@@ -42,7 +44,11 @@ export function buildCreatePayload(
         sales_tax_id: values.salesTaxId ? Number(values.salesTaxId) : null,
         purchase_tax_id: values.purchaseTaxId ? Number(values.purchaseTaxId) : null,
         is_active: true,
-        options: row.options.map((o) => ({ attribute_id: o.attributeId, value: o.value })),
+        options: row.options.map((o) =>
+          o.attributeId < 0
+            ? { name: typeNameById.get(o.attributeId) ?? "", value: o.value }
+            : { attribute_id: o.attributeId, value: o.value }
+        ),
       }))
     : [singleVariant]
 
@@ -77,10 +83,11 @@ export function buildCreatePayload(
     ...(opts.media?.length ? { media: opts.media } : {}),
     ...(hasVariants
       ? {
-          variation_types: values.variationTypes.map((t, i) => ({
-            attribute_id: t.attributeId,
-            sort_order: i,
-          })),
+          variation_types: values.variationTypes.map((t, i) =>
+            t.attributeId < 0
+              ? { name: t.name, sort_order: i }
+              : { attribute_id: t.attributeId, sort_order: i }
+          ),
         }
       : {}),
     ...(specifications.length ? { specifications } : {}),
