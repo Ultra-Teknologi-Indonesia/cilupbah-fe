@@ -14,6 +14,15 @@ export function useEnabledCategories() {
   })
 }
 
+export function useSearchKategori(search: string) {
+  return useQuery({
+    queryKey: ["kategori", "search", search],
+    queryFn: () => KategoriService.searchCategories(search),
+    staleTime: STALE,
+    enabled: search.length >= 2,
+  })
+}
+
 export function useSystemCategories(enabled = false) {
   return useQuery({
     queryKey: ["kategori", "system"],

@@ -50,6 +50,13 @@ export const KategoriService = {
     return res.data
   },
 
+  searchCategories: async (search: string): Promise<KategoriItem[]> => {
+    const res = await fetchClient<ApiResponse<KategoriItem[]>>(
+      `/categories?all=1&search=${encodeURIComponent(search)}`
+    )
+    return res.data ?? []
+  },
+
   deleteCategory: async (id: number): Promise<void> => {
     await fetchClient(`/categories/${id}`, { method: "DELETE" })
   },
