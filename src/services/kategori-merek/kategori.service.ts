@@ -42,7 +42,6 @@ export const KategoriService = {
     name: string
     parent_id?: number | null
     is_active?: boolean
-    is_leaf?: boolean
   }): Promise<KategoriItem> => {
     const res = await fetchClient<ApiResponse<KategoriItem>>("/categories", {
       method: "POST",
