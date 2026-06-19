@@ -92,7 +92,7 @@ function Column({
                   : "hover:bg-muted/60"
               )}
             >
-              <span className="truncate">{n.name}</span>
+              <span className="break-words">{n.name}</span>
               {(n.children?.length ?? 0) > 0 ? (
                 <ChevronRightIcon className="size-4 shrink-0 opacity-50" />
               ) : null}
@@ -187,15 +187,6 @@ export function PetakanKategoriDialog({
     return cols
   }, [tree, path])
 
-  const scrollRef = React.useRef<HTMLDivElement>(null)
-
-  React.useEffect(() => {
-    const el = scrollRef.current
-    if (el) {
-      el.scrollTo({ left: el.scrollWidth, behavior: "smooth" })
-    }
-  }, [allColumns.length])
-
   const chosen = path[path.length - 1] ?? null
   const isLeaf = chosen?.is_leaf ?? false
 
@@ -226,7 +217,7 @@ export function PetakanKategoriDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl gap-0 p-0">
+      <DialogContent className="sm:max-w-5xl gap-0 p-0">
         <DialogHeader className="px-6 pt-6">
           <DialogTitle className="text-lg">Petakan Kategori</DialogTitle>
           <DialogDescription className="sr-only">
@@ -306,14 +297,14 @@ export function PetakanKategoriDialog({
             </ScrollArea>
           ) : (
             <div
-              ref={scrollRef}
-              className="flex overflow-x-auto rounded-2xl border border-border/60"
+              className="grid overflow-hidden rounded-2xl border border-border/60"
+              style={{ gridTemplateColumns: `repeat(${allColumns.length}, minmax(0, 1fr))` }}
             >
               {allColumns.map((col, idx) => (
                 <div
                   key={col.level}
                   className={cn(
-                    "min-w-[200px] flex-1",
+                    "min-w-0",
                     idx < allColumns.length - 1 && "border-r border-border/60"
                   )}
                 >

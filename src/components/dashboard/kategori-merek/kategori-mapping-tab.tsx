@@ -84,25 +84,25 @@ export function KategoriMappingTab({ search }: { search: string }) {
           Belum ada kategori yang diaktifkan.
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <Table className="min-w-[900px]">
+        <div>
+          <Table className="table-fixed w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="sticky left-0 z-10 min-w-[250px] bg-background/80 backdrop-blur-sm">
+                <TableHead className="w-[30%] bg-background/80 backdrop-blur-sm">
                   Cilupbah
                 </TableHead>
                 {channels.map((ch) => (
-                  <TableHead key={ch.code} className="min-w-[180px]">
+                  <TableHead key={ch.code}>
                     {ch.name}
                   </TableHead>
                 ))}
-                <TableHead className="w-12" />
+                <TableHead className="w-10" />
               </TableRow>
             </TableHeader>
             <TableBody>
               {items.map((item) => (
                 <TableRow key={item.category_id}>
-                  <TableCell className="sticky left-0 z-10 bg-background/80 backdrop-blur-sm font-medium whitespace-nowrap">
+                  <TableCell className="bg-background/80 backdrop-blur-sm font-medium">
                     {item.full_category_name}
                   </TableCell>
                   {channels.map((ch) => {
