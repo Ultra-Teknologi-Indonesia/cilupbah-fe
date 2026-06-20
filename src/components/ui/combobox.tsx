@@ -135,7 +135,7 @@ export function Combobox({
                       setOpen(false);
                     }}
                     className={cn(
-                      "flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors",
+                      "flex w-full items-center justify-between gap-2 rounded-full px-2.5 py-2 text-left text-sm transition-colors",
                       isSelected
                         ? "bg-primary/10 text-primary"
                         : "hover:bg-muted/60",
@@ -168,7 +168,7 @@ export function Combobox({
                     setQuery("");
                     setOpen(false);
                   }}
-                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-primary transition-colors hover:bg-primary/10"
+                  className="flex w-full items-center gap-2 rounded-full px-2.5 py-2 text-left text-sm text-primary transition-colors hover:bg-primary/10"
                 >
                   <PlusIcon className="size-4" />
                   <span>{createLabel(trimmed)}</span>
