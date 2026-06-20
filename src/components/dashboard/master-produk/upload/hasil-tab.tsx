@@ -299,7 +299,7 @@ export function HasilTab({
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           placeholder="Cari produk…"
-          className="h-9 rounded-lg border-border bg-background pl-9 pr-8"
+          className="h-9 border-border bg-background pl-9 pr-8"
         />
         {searchInput.length > 0 && (
           <button
@@ -321,7 +321,7 @@ export function HasilTab({
         }}
         placeholder="Pilih toko"
         searchPlaceholder="Cari toko"
-        className="h-9 w-full rounded-lg"
+        className="h-9 w-full"
       />
       <Combobox
         options={STATUS_OPTIONS}
@@ -332,7 +332,7 @@ export function HasilTab({
         }}
         placeholder="Semua status"
         searchPlaceholder="Cari status"
-        className="h-9 w-full rounded-lg"
+        className="h-9 w-full"
       />
       <div>
         <div className="mb-1.5 text-sm font-medium">Tanggal Upload</div>

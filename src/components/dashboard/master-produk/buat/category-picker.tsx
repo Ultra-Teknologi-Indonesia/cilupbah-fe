@@ -130,7 +130,7 @@ export function CategoryPicker({
         type="button"
         onClick={() => handleOpen(true)}
         className={cn(
-          "flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-border bg-background px-3 text-sm outline-none transition-[color,box-shadow]",
+          "flex h-10 w-full items-center justify-between gap-2 rounded-full border border-border bg-background px-3 text-sm outline-none transition-[color,box-shadow]",
           "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30",
           invalid && "border-destructive ring-3 ring-destructive/20",
           triggerClassName

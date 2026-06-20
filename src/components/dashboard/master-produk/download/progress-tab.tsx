@@ -107,7 +107,7 @@ export function ProgressTab({
               onChange={setDShop}
               placeholder="Pilih toko"
               searchPlaceholder="Cari toko"
-              className="h-9 rounded-lg"
+              className="h-9"
             />
 
             <div>

@@ -216,7 +216,7 @@ export function DraftTab({
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           placeholder="Cari produk…"
-          className="h-9 rounded-lg border-border bg-background pl-9 pr-8"
+          className="h-9 border-border bg-background pl-9 pr-8"
         />
         {searchInput.length > 0 && (
           <button
@@ -238,7 +238,7 @@ export function DraftTab({
         }}
         placeholder="Semua status"
         searchPlaceholder="Cari status"
-        className="h-9 w-full rounded-lg"
+        className="h-9 w-full"
       />
     </>
   )

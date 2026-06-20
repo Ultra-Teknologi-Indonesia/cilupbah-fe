@@ -86,7 +86,7 @@ export function ProductExplorer({ query }: { query: Query }) {
           value={query.search}
           onChange={(e) => query.setSearch(e.target.value)}
           placeholder="Cari nama / SKU…"
-          className="h-9 rounded-lg border-border bg-background pl-9 pr-8"
+          className="h-9 border-border bg-background pl-9 pr-8"
         />
         {query.search.length > 0 && (
           <button
@@ -105,7 +105,7 @@ export function ProductExplorer({ query }: { query: Query }) {
         onChange={query.setStatus}
         placeholder="Semua status"
         searchPlaceholder="Cari status"
-        className="h-9 w-full rounded-lg"
+        className="h-9 w-full"
       />
       <Combobox
         options={brandOptions}
@@ -113,13 +113,13 @@ export function ProductExplorer({ query }: { query: Query }) {
         onChange={query.setBrandId}
         placeholder="Semua merek"
         searchPlaceholder="Cari merek"
-        className="h-9 w-full rounded-lg"
+        className="h-9 w-full"
       />
       <CategoryPicker
         value={query.category}
         onChange={query.setCategory}
         tree={categoryTree}
-        triggerClassName="h-9 w-full rounded-lg"
+        triggerClassName="h-9 w-full"
       />
     </>
   )

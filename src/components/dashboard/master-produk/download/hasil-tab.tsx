@@ -156,7 +156,7 @@ export function HasilTab({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Cari nama / SKU…"
-          className="h-9 rounded-lg border-border bg-background pl-9 pr-8"
+          className="h-9 border-border bg-background pl-9 pr-8"
         />
         {search.length > 0 && (
           <button
@@ -178,7 +178,7 @@ export function HasilTab({
         }}
         placeholder="Semua tipe"
         searchPlaceholder="Cari tipe"
-        className="h-9 w-full rounded-lg"
+        className="h-9 w-full"
       />
       <Combobox
         options={brandOptions}
@@ -189,7 +189,7 @@ export function HasilTab({
         }}
         placeholder="Semua merek"
         searchPlaceholder="Cari merek"
-        className="h-9 w-full rounded-lg"
+        className="h-9 w-full"
       />
       <Combobox
         options={channelOptions}
@@ -200,7 +200,7 @@ export function HasilTab({
         }}
         placeholder="Semua channel"
         searchPlaceholder="Cari channel"
-        className="h-9 w-full rounded-lg"
+        className="h-9 w-full"
       />
       <CategoryPicker
         value={category}
@@ -209,7 +209,7 @@ export function HasilTab({
           resetPage()
         }}
         tree={categoryTree}
-        triggerClassName="h-9 w-full rounded-lg"
+        triggerClassName="h-9 w-full"
       />
       <div>
         <div className="mb-1.5 text-sm font-medium">Rentang Harga</div>
@@ -222,7 +222,7 @@ export function HasilTab({
             onBlur={applyPrice}
             onKeyDown={(e) => e.key === "Enter" && applyPrice()}
             placeholder="Min"
-            className="h-9 rounded-lg"
+            className="h-9"
             aria-label="Harga minimal"
           />
           <span className="text-muted-foreground">–</span>
@@ -234,7 +234,7 @@ export function HasilTab({
             onBlur={applyPrice}
             onKeyDown={(e) => e.key === "Enter" && applyPrice()}
             placeholder="Max"
-            className="h-9 rounded-lg"
+            className="h-9"
             aria-label="Harga maksimal"
           />
         </div>

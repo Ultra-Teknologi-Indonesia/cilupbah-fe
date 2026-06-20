@@ -93,7 +93,7 @@ export function TransactionDetailSheet({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari nama / SKU…"
-              className="h-9 rounded-lg"
+              className="h-9"
             />
           </div>
           <Combobox
@@ -102,7 +102,7 @@ export function TransactionDetailSheet({
             onChange={(v) => setMasterFilter(v ?? "all")}
             placeholder="Status Produk"
             searchPlaceholder="Status"
-            className="h-9 w-52 rounded-lg"
+            className="h-9 w-52"
           />
         </div>
 

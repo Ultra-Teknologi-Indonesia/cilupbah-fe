@@ -134,11 +134,11 @@ export function PantauanView() {
                 value={dSearch}
                 onChange={(e) => setDSearch(e.target.value)}
                 placeholder="Cari nama & SKU"
-                className="h-9 rounded-lg border-border bg-background pl-9"
+                className="h-9 border-border bg-background pl-9"
               />
             </div>
 
-            <CategoryPicker value={dCategory} onChange={setDCategory} tree={categoryTree} triggerClassName="h-9 rounded-lg" />
+            <CategoryPicker value={dCategory} onChange={setDCategory} tree={categoryTree} triggerClassName="h-9" />
 
             <Combobox
               options={channelOptions}
@@ -146,7 +146,7 @@ export function PantauanView() {
               onChange={setDChannel}
               placeholder="Pilih channel"
               searchPlaceholder="Cari channel"
-              className="h-9 rounded-lg"
+              className="h-9"
             />
 
             <div>

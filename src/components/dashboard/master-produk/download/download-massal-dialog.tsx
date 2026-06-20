@@ -94,7 +94,7 @@ export function DownloadMassalDialog({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari toko"
-            className="h-9 rounded-lg pl-9"
+            className="h-9 pl-9"
           />
         </div>
 

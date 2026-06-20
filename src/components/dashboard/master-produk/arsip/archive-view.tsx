@@ -46,7 +46,7 @@ export function ArchiveView() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Cari nama / SKU…"
-        className="h-9 rounded-lg pl-9"
+        className="h-9 pl-9"
       />
     </div>
   )

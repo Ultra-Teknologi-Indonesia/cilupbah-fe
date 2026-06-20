@@ -217,7 +217,7 @@ export function ListingMarketplaceView() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Cari nama / SKU…"
-          className="h-9 rounded-lg border-border bg-background pl-9 pr-8"
+          className="h-9 border-border bg-background pl-9 pr-8"
         />
         {search.length > 0 && (
           <button
@@ -236,7 +236,7 @@ export function ListingMarketplaceView() {
         onChange={setStore}
         placeholder="Semua toko"
         searchPlaceholder="Cari toko"
-        className="h-9 w-full rounded-lg"
+        className="h-9 w-full"
       />
       <div>
         <div className="mb-1.5 text-sm font-medium">Rentang Harga</div>
@@ -247,7 +247,7 @@ export function ListingMarketplaceView() {
             onKeyDown={(e) => e.key === "Enter" && applyPrice()}
             inputMode="numeric"
             placeholder="Min"
-            className="h-9 rounded-lg border-border bg-background"
+            className="h-9 border-border bg-background"
           />
           <span className="text-muted-foreground">–</span>
           <Input
@@ -256,10 +256,10 @@ export function ListingMarketplaceView() {
             onKeyDown={(e) => e.key === "Enter" && applyPrice()}
             inputMode="numeric"
             placeholder="Max"
-            className="h-9 rounded-lg border-border bg-background"
+            className="h-9 border-border bg-background"
           />
         </div>
-        <Button variant="outline" size="sm" className="mt-2 h-9 w-full rounded-lg" onClick={applyPrice}>
+        <Button variant="outline" size="sm" className="mt-2 h-9 w-full" onClick={applyPrice}>
           Terapkan
         </Button>
       </div>
