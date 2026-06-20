@@ -314,7 +314,4 @@ export const ProductTabsService = {
     }
   },
 
-  reuploadHistory: async (id: string): Promise<ApiResponse<null>> => {
-    return fetchClient(`/upload-histories/${id}/re-upload`, { method: "POST" })
-  },
 }

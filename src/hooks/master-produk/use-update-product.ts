@@ -1,6 +1,7 @@
 "use client"
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 import { buildUpdatePayload } from "@/lib/master-produk/build-update-payload"
 import { MediaService } from "@/services/master-produk/media.service"
@@ -61,5 +62,7 @@ export function useUpdateProduct(id: string) {
       qc.invalidateQueries({ queryKey: productDetailKey(id) })
       qc.invalidateQueries({ queryKey: ["master-produk", "list"] })
     },
+    onError: (err) =>
+      toast.error((err as { message?: string })?.message || "Gagal memperbarui produk"),
   })
 }

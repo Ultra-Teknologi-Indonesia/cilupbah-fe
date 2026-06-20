@@ -137,6 +137,89 @@ export function useMapAttributeToChannel() {
   })
 }
 
+export function useAttributeMapping(categoryId: number) {
+  return useQuery({
+    queryKey: ["kategori", "attribute-mapping", categoryId],
+    queryFn: () => KategoriService.getAttributeMapping(categoryId),
+    staleTime: STALE,
+    enabled: categoryId > 0,
+  })
+}
+
+export function useVariationMapping(categoryId: number) {
+  return useQuery({
+    queryKey: ["kategori", "variation-mapping", categoryId],
+    queryFn: () => KategoriService.getVariationMapping(categoryId),
+    staleTime: STALE,
+    enabled: categoryId > 0,
+  })
+}
+
+export function useAvailableChannelAttributes(categoryId: number) {
+  return useQuery({
+    queryKey: ["kategori", "available-channel-attributes", categoryId],
+    queryFn: () => KategoriService.getAvailableChannelAttributes(categoryId),
+    staleTime: 5 * 60 * 1000,
+    enabled: categoryId > 0,
+  })
+}
+
+export function useStoreAttributeMapping() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ categoryId, data }: { categoryId: number; data: { attribute_id: number; channel_attribute_ids: string[] } }) =>
+      KategoriService.storeAttributeMapping(categoryId, data),
+    onSuccess: () => {
+      toast.success("Mapping atribut berhasil disimpan")
+      qc.invalidateQueries({ queryKey: ["kategori", "attribute-mapping"] })
+    },
+    onError: (err) =>
+      toast.error((err as { message?: string })?.message || "Gagal menyimpan mapping atribut"),
+  })
+}
+
+export function useRemoveAttributeMapping() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ categoryId, data }: { categoryId: number; data: { attribute_id: number; channel_attribute_ids: string[] } }) =>
+      KategoriService.removeAttributeMapping(categoryId, data),
+    onSuccess: () => {
+      toast.success("Mapping atribut berhasil dihapus")
+      qc.invalidateQueries({ queryKey: ["kategori", "attribute-mapping"] })
+    },
+    onError: (err) =>
+      toast.error((err as { message?: string })?.message || "Gagal menghapus mapping atribut"),
+  })
+}
+
+export function useStoreVariationMapping() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ categoryId, data }: { categoryId: number; data: { attribute_id: number; channel_attribute_ids: string[] } }) =>
+      KategoriService.storeVariationMapping(categoryId, data),
+    onSuccess: () => {
+      toast.success("Mapping variasi berhasil disimpan")
+      qc.invalidateQueries({ queryKey: ["kategori", "variation-mapping"] })
+    },
+    onError: (err) =>
+      toast.error((err as { message?: string })?.message || "Gagal menyimpan mapping variasi"),
+  })
+}
+
+export function useRemoveVariationMapping() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ categoryId, data }: { categoryId: number; data: { attribute_id: number; channel_attribute_ids: string[] } }) =>
+      KategoriService.removeVariationMapping(categoryId, data),
+    onSuccess: () => {
+      toast.success("Mapping variasi berhasil dihapus")
+      qc.invalidateQueries({ queryKey: ["kategori", "variation-mapping"] })
+    },
+    onError: (err) =>
+      toast.error((err as { message?: string })?.message || "Gagal menghapus mapping variasi"),
+  })
+}
+
 export function useEnableKategori() {
   const qc = useQueryClient()
   return useMutation({

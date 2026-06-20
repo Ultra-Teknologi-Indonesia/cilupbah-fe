@@ -13,6 +13,7 @@ import {
   ChannelProductService,
   type ChannelListingParams,
 } from "@/services/master-produk/channel-product.service"
+import { DownloadService } from "@/services/master-produk/download.service"
 
 export const channelProductsKey = (params: ChannelListingParams) =>
   ["master-produk", "channel-products", params] as const
@@ -77,7 +78,7 @@ export function useDownloadChannel() {
   const invalidate = useInvalidateChannelProducts()
   return useMutation({
     mutationFn: ({ channel, shopId }: { channel: string; shopId: string }) =>
-      ChannelProductService.download(channel, shopId),
+      DownloadService.downloadShop(channel, shopId),
     onSuccess: () => {
       toast.success("Download produk dari channel diantrekan")
       invalidate()

@@ -15,6 +15,7 @@ import {
   type UploadHistoryParams,
   type VariantsParams,
 } from "@/services/master-produk/product-tabs.service"
+import { UploadService } from "@/services/master-produk/upload.service"
 
 
 export const useProductVariants = (
@@ -85,7 +86,7 @@ export const useProductUploadHistories = (
 export const useReuploadHistory = (productId: string) => {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => ProductTabsService.reuploadHistory(id),
+    mutationFn: (id: string) => UploadService.reupload(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["master-produk", "upload-histories", productId] })
     },

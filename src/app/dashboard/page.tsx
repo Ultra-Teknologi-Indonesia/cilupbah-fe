@@ -1,14 +1,13 @@
 import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { PageTitle } from "@/components/dashboard/page-title";
 
 export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground mt-2">
-          Selamat datang di halaman dashboard. Ini adalah tampilan awal dengan struktur layout utama dan sidebar.
-        </p>
-      </div>
+      <PageTitle
+        title="Dashboard"
+        description="Selamat datang di halaman dashboard. Ini adalah tampilan awal dengan struktur layout utama dan sidebar."
+      />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (

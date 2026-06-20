@@ -1,6 +1,7 @@
 "use client"
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 import { buildCreatePayload } from "@/lib/master-produk/build-create-payload"
 import { MediaService } from "@/services/master-produk/media.service"
@@ -36,5 +37,7 @@ export function useCreateProduct() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["master-produk"] })
     },
+    onError: (err) =>
+      toast.error((err as { message?: string })?.message || "Gagal membuat produk"),
   })
 }

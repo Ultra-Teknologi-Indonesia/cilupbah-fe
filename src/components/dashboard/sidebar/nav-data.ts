@@ -75,10 +75,7 @@ export const dashboardGroups: NavGroup[] = [
         title: "Harga & Promosi",
         icon: Tag,
         link: "/dashboard/harga-promosi",
-        subs: [
-          { title: "Daftar Harga", link: "/dashboard/harga-promosi/daftar" },
-          { title: "Promosi", link: "/dashboard/harga-promosi/promosi" },
-        ],
+        comingSoon: true,
       },
       {
         id: "kategori-merek",
@@ -98,39 +95,10 @@ export const dashboardGroups: NavGroup[] = [
     icon: Layers,
     zone: "ops",
     items: [
-      {
-        id: "posisi-stok",
-        title: "Posisi Stok",
-        icon: BarChart2,
-        link: "/dashboard/posisi-stok",
-        subs: [
-          { title: "Per Produk", link: "/dashboard/posisi-stok/produk" },
-          { title: "Per Gudang", link: "/dashboard/posisi-stok/gudang" },
-          { title: "Perlu Restock", link: "/dashboard/posisi-stok/restock" },
-          { title: "Stok Habis", link: "/dashboard/posisi-stok/habis" },
-        ],
-      },
-      {
-        id: "transaksi-stok",
-        title: "Transaksi Stok",
-        icon: RefreshCw,
-        link: "/dashboard/transaksi-stok",
-        subs: [
-          { title: "Penyesuaian Stok", link: "/dashboard/transaksi-stok/penyesuaian" },
-          {
-            title: "Transfer Stok",
-            link: "/dashboard/transaksi-stok/transfer",
-            subs: [
-              { title: "Masuk", link: "/dashboard/transaksi-stok/transfer/masuk" },
-              { title: "Keluar", link: "/dashboard/transaksi-stok/transfer/keluar" },
-              { title: "Transit", link: "/dashboard/transaksi-stok/transfer/transit" },
-            ],
-          },
-          { title: "Stok Opname", link: "/dashboard/transaksi-stok/opname" },
-        ],
-      },
-      { id: "monitor-stok", title: "Monitor Stok", icon: Eye, link: "/dashboard/monitor-stok" },
-      { id: "stok-terpesan", title: "Stok Terpesan", icon: PackageCheck, link: "/dashboard/stok-terpesan" },
+      { id: "posisi-stok", title: "Posisi Stok", icon: BarChart2, link: "/dashboard/posisi-stok", comingSoon: true },
+      { id: "transaksi-stok", title: "Transaksi Stok", icon: RefreshCw, link: "/dashboard/transaksi-stok", comingSoon: true },
+      { id: "monitor-stok", title: "Monitor Stok", icon: Eye, link: "/dashboard/monitor-stok", comingSoon: true },
+      { id: "stok-terpesan", title: "Stok Terpesan", icon: PackageCheck, link: "/dashboard/stok-terpesan", comingSoon: true },
     ],
   },
   {
@@ -139,32 +107,10 @@ export const dashboardGroups: NavGroup[] = [
     icon: ShoppingBag,
     zone: "ops",
     items: [
-      {
-        id: "pesanan",
-        title: "Pesanan",
-        icon: ShoppingBag,
-        link: "/dashboard/pesanan",
-        subs: [
-          { title: "Siap Proses", link: "/dashboard/pesanan/siap-proses" },
-          { title: "Siap Picking", link: "/dashboard/pesanan/siap-picking" },
-          { title: "Dalam Pengiriman", link: "/dashboard/pesanan/dalam-pengiriman" },
-          { title: "Selesai", link: "/dashboard/pesanan/selesai" },
-          { title: "Dibatalkan", link: "/dashboard/pesanan/dibatalkan" },
-        ],
-      },
-      {
-        id: "retur-penjualan",
-        title: "Retur Penjualan",
-        icon: CornerDownLeft,
-        link: "/dashboard/retur-penjualan",
-        subs: [
-          { title: "Menunggu Proses", link: "/dashboard/retur-penjualan/menunggu" },
-          { title: "Diterima", link: "/dashboard/retur-penjualan/diterima" },
-          { title: "Penyelesaian Retur", link: "/dashboard/retur-penjualan/penyelesaian" },
-        ],
-      },
-      { id: "kontak-pelanggan", title: "Kontak Pelanggan", icon: Users, link: "/dashboard/kontak-pelanggan" },
-      { id: "kasir-pos", title: "Kasir (POS)", icon: MonitorSmartphone, link: "/dashboard/kasir-pos" },
+      { id: "pesanan", title: "Pesanan", icon: ShoppingBag, link: "/dashboard/pesanan", comingSoon: true },
+      { id: "retur-penjualan", title: "Retur Penjualan", icon: CornerDownLeft, link: "/dashboard/retur-penjualan", comingSoon: true },
+      { id: "kontak-pelanggan", title: "Kontak Pelanggan", icon: Users, link: "/dashboard/kontak-pelanggan", comingSoon: true },
+      { id: "kasir-pos", title: "Kasir (POS)", icon: MonitorSmartphone, link: "/dashboard/kasir-pos", comingSoon: true },
       { id: "integrasi-channel", title: "Integrasi Channel", icon: LinkIcon, link: "/dashboard/integrasi-channel" },
     ],
   },
@@ -174,18 +120,9 @@ export const dashboardGroups: NavGroup[] = [
     icon: ClipboardList,
     zone: "ops",
     items: [
-      {
-        id: "purchase-order",
-        title: "Purchase Order",
-        icon: ClipboardList,
-        link: "/dashboard/purchase-order",
-        subs: [
-          { title: "Semua PO", link: "/dashboard/purchase-order/semua" },
-          { title: "Progress Terima Barang", link: "/dashboard/purchase-order/progress" },
-        ],
-      },
-      { id: "retur-pembelian", title: "Retur Pembelian", icon: CornerUpLeft, link: "/dashboard/retur-pembelian" },
-      { id: "kontak-pemasok", title: "Kontak Pemasok", icon: Truck, link: "/dashboard/kontak-pemasok" },
+      { id: "purchase-order", title: "Purchase Order", icon: ClipboardList, link: "/dashboard/purchase-order", comingSoon: true },
+      { id: "retur-pembelian", title: "Retur Pembelian", icon: CornerUpLeft, link: "/dashboard/retur-pembelian", comingSoon: true },
+      { id: "kontak-pemasok", title: "Kontak Pemasok", icon: Truck, link: "/dashboard/kontak-pemasok", comingSoon: true },
     ],
   },
   {
@@ -194,36 +131,8 @@ export const dashboardGroups: NavGroup[] = [
     icon: Warehouse,
     zone: "ops",
     items: [
-      {
-        id: "barang-masuk",
-        title: "Barang Masuk (Inbound)",
-        icon: Inbox,
-        link: "/dashboard/barang-masuk",
-        subs: [
-          { title: "Daftar Penerimaan", link: "/dashboard/barang-masuk/daftar" },
-          {
-            title: "Putaway",
-            link: "/dashboard/barang-masuk/putaway",
-            subs: [
-              { title: "Belum Dimulai", link: "/dashboard/barang-masuk/putaway/belum" },
-              { title: "Dalam Proses", link: "/dashboard/barang-masuk/putaway/proses" },
-              { title: "Selesai", link: "/dashboard/barang-masuk/putaway/selesai" },
-            ],
-          },
-          { title: "Laporan Putaway", link: "/dashboard/barang-masuk/laporan" },
-        ],
-      },
-      {
-        id: "barang-keluar",
-        title: "Barang Keluar (Outbound)",
-        icon: Send,
-        link: "/dashboard/barang-keluar",
-        subs: [
-          { title: "Picklist", link: "/dashboard/barang-keluar/picklist" },
-          { title: "Packlist", link: "/dashboard/barang-keluar/packlist" },
-          { title: "Jadwal Pengiriman", link: "/dashboard/barang-keluar/jadwal" },
-        ],
-      },
+      { id: "barang-masuk", title: "Barang Masuk (Inbound)", icon: Inbox, link: "/dashboard/barang-masuk", comingSoon: true },
+      { id: "barang-keluar", title: "Barang Keluar (Outbound)", icon: Send, link: "/dashboard/barang-keluar", comingSoon: true },
       {
         id: "manajemen-rak",
         title: "Manajemen Rak & Lokasi",
@@ -241,39 +150,12 @@ export const dashboardGroups: NavGroup[] = [
     icon: CircleDollarSign,
     zone: "fin",
     items: [
-      {
-        id: "piutang",
-        title: "Piutang (Tagihan Masuk)",
-        icon: ReceiptText,
-        link: "/dashboard/piutang",
-        subs: [
-          { title: "Invoice", link: "/dashboard/piutang/invoice" },
-          { title: "Pembayaran Invoice", link: "/dashboard/piutang/pembayaran" },
-        ],
-      },
-      {
-        id: "hutang",
-        title: "Hutang",
-        icon: HandCoins,
-        link: "/dashboard/hutang",
-        subs: [
-          { title: "Bill / Tagihan", link: "/dashboard/hutang/bill" },
-          { title: "Pembayaran Bill", link: "/dashboard/hutang/pembayaran" },
-        ],
-      },
-      { id: "kas-bank", title: "Kas & Bank", icon: Landmark, link: "/dashboard/kas-bank" },
-      {
-        id: "jurnal",
-        title: "Jurnal",
-        icon: BookOpen,
-        link: "/dashboard/jurnal",
-        subs: [
-          { title: "Manual Journal", link: "/dashboard/jurnal/manual" },
-          { title: "Transaksi Rutin", link: "/dashboard/jurnal/rutin" },
-        ],
-      },
-      { id: "aset", title: "Aset", icon: Building2, link: "/dashboard/aset" },
-      { id: "peta-akun", title: "Peta Akun", icon: Map, link: "/dashboard/peta-akun" },
+      { id: "piutang", title: "Piutang (Tagihan Masuk)", icon: ReceiptText, link: "/dashboard/piutang", comingSoon: true },
+      { id: "hutang", title: "Hutang", icon: HandCoins, link: "/dashboard/hutang", comingSoon: true },
+      { id: "kas-bank", title: "Kas & Bank", icon: Landmark, link: "/dashboard/kas-bank", comingSoon: true },
+      { id: "jurnal", title: "Jurnal", icon: BookOpen, link: "/dashboard/jurnal", comingSoon: true },
+      { id: "aset", title: "Aset", icon: Building2, link: "/dashboard/aset", comingSoon: true },
+      { id: "peta-akun", title: "Peta Akun", icon: Map, link: "/dashboard/peta-akun", comingSoon: true },
     ],
   },
   {
@@ -282,11 +164,11 @@ export const dashboardGroups: NavGroup[] = [
     icon: BarChart3,
     zone: "fin",
     items: [
-      { id: "laporan-penjualan", title: "Laporan Penjualan", icon: TrendingUp, link: "/dashboard/laporan/penjualan" },
-      { id: "laporan-pembelian", title: "Laporan Pembelian", icon: TrendingDown, link: "/dashboard/laporan/pembelian" },
-      { id: "laporan-inventori", title: "Laporan Inventori", icon: PackageOpen, link: "/dashboard/laporan/inventori" },
-      { id: "laporan-gudang", title: "Laporan Gudang", icon: Factory, link: "/dashboard/laporan/gudang" },
-      { id: "laporan-keuangan", title: "Laporan Keuangan", icon: CircleDollarSign, link: "/dashboard/laporan/keuangan" },
+      { id: "laporan-penjualan", title: "Laporan Penjualan", icon: TrendingUp, link: "/dashboard/laporan/penjualan", comingSoon: true },
+      { id: "laporan-pembelian", title: "Laporan Pembelian", icon: TrendingDown, link: "/dashboard/laporan/pembelian", comingSoon: true },
+      { id: "laporan-inventori", title: "Laporan Inventori", icon: PackageOpen, link: "/dashboard/laporan/inventori", comingSoon: true },
+      { id: "laporan-gudang", title: "Laporan Gudang", icon: Factory, link: "/dashboard/laporan/gudang", comingSoon: true },
+      { id: "laporan-keuangan", title: "Laporan Keuangan", icon: CircleDollarSign, link: "/dashboard/laporan/keuangan", comingSoon: true },
     ],
   },
 ];

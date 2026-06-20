@@ -144,6 +144,67 @@ export const KategoriService = {
     return res.data?.synced ?? 0
   },
 
+  getAttributeMapping: async (categoryId: number) => {
+    const res = await fetchClient<ApiResponse<Record<string, unknown>[]>>(
+      `/categories/${categoryId}/attribute-mapping`
+    )
+    return res.data ?? []
+  },
+
+  storeAttributeMapping: async (
+    categoryId: number,
+    data: { attribute_id: number; channel_attribute_ids: string[] }
+  ): Promise<void> => {
+    await fetchClient(`/categories/${categoryId}/attribute-mapping`, {
+      method: "POST",
+      data,
+    })
+  },
+
+  removeAttributeMapping: async (
+    categoryId: number,
+    data: { attribute_id: number; channel_attribute_ids: string[] }
+  ): Promise<void> => {
+    await fetchClient(`/categories/${categoryId}/attribute-mapping`, {
+      method: "DELETE",
+      data,
+    })
+  },
+
+  getVariationMapping: async (categoryId: number) => {
+    const res = await fetchClient<ApiResponse<Record<string, unknown>[]>>(
+      `/categories/${categoryId}/variation-mapping`
+    )
+    return res.data ?? []
+  },
+
+  storeVariationMapping: async (
+    categoryId: number,
+    data: { attribute_id: number; channel_attribute_ids: string[] }
+  ): Promise<void> => {
+    await fetchClient(`/categories/${categoryId}/variation-mapping`, {
+      method: "POST",
+      data,
+    })
+  },
+
+  removeVariationMapping: async (
+    categoryId: number,
+    data: { attribute_id: number; channel_attribute_ids: string[] }
+  ): Promise<void> => {
+    await fetchClient(`/categories/${categoryId}/variation-mapping`, {
+      method: "DELETE",
+      data,
+    })
+  },
+
+  getAvailableChannelAttributes: async (categoryId: number) => {
+    const res = await fetchClient<ApiResponse<ChannelAttributeItem[]>>(
+      `/categories/${categoryId}/available-channel-attributes`
+    )
+    return res.data ?? []
+  },
+
   getMappingList: async (params: {
     search?: string
     page?: number

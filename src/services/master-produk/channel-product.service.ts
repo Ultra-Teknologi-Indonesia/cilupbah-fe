@@ -137,14 +137,6 @@ export const ChannelProductService = {
     })
   },
 
-  /** Download/tarik produk dari satu toko channel (status → download). */
-  download: async (channel: string, shopId: string): Promise<void> => {
-    await fetchClient(`/${channel}/download`, {
-      method: "POST",
-      data: { shop_id: shopId },
-    })
-  },
-
   activate: async (channel: string, externalProductId: string, shopId: string): Promise<void> => {
     await fetchClient(`/${channel}/products/${externalProductId}/activate`, {
       method: "PUT",

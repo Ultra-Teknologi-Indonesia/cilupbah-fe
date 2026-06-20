@@ -20,6 +20,7 @@ export type SubRoute = {
   title: string;
   link: string;
   badge?: string | number;
+  comingSoon?: boolean;
   subs?: {
     title: string;
     link: string;
@@ -33,6 +34,7 @@ export type Route = {
   link: string;
   /** Prefix path tambahan yang menandai item ini aktif (mis. workspace bertab). */
   match?: string[];
+  comingSoon?: boolean;
   subs?: SubRoute[];
 };
 
@@ -80,6 +82,23 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
         const isOpen = !isCollapsed && openCollapsible === route.id;
         const hasSubRoutes = !!route.subs?.length;
         const Icon = route.icon;
+
+        if (route.comingSoon) {
+          return (
+            <SidebarMenuItem key={route.id}>
+              <SidebarMenuButton
+                tooltip={`${route.title} — Segera`}
+                className="pointer-events-none opacity-50"
+              >
+                {Icon && <Icon />}
+                <span className={labelClass}>{route.title}</span>
+                <span className="ml-auto rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground transition-opacity duration-200 ease-out group-data-[collapsible=icon]:opacity-0">
+                  Segera
+                </span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          );
+        }
 
         return (
           <SidebarMenuItem key={route.id}>
