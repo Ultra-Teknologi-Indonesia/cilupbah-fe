@@ -68,7 +68,9 @@ export function RichTextEditor({
   invalid,
 }: RichTextEditorProps) {
   const ref = React.useRef<HTMLDivElement>(null)
-  const lastEmitted = React.useRef(value)
+  // null (bukan `value`) agar effect pertama selalu mengisi konten awal saat edit;
+  // jika diinisialisasi `value`, kondisi `value !== lastEmitted` gagal di mount → editor kosong.
+  const lastEmitted = React.useRef<string | null>(null)
 
   React.useEffect(() => {
     const el = ref.current

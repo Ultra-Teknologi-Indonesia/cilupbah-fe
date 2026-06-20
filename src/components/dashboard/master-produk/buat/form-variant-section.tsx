@@ -282,12 +282,11 @@ export function FormVariantSection({
 
       {variants.length > 0 && (
         <div className="mt-6 overflow-x-auto rounded-lg border">
-          <table className="min-w-[950px] w-full text-sm">
+          <table className="min-w-[820px] w-full text-sm">
             <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
               <tr>
                 <th className="sticky left-0 z-10 bg-muted/50 px-3 py-2 font-medium">Variasi</th>
                 <th className="px-3 py-2 font-medium">SKU <span className="text-destructive">*</span></th>
-                <th className="px-3 py-2 font-medium">Barcode</th>
                 <th className="px-3 py-2 font-medium">Harga Jual</th>
                 <th className="px-3 py-2 font-medium">Harga Beli</th>
                 <th className="px-3 py-2 font-medium">Berat (gr)</th>
@@ -303,14 +302,6 @@ export function FormVariantSection({
                       value={row.sku}
                       onChange={(e) => updateVariant(i, { sku: e.target.value })}
                       className="h-9 min-w-28"
-                    />
-                  </td>
-                  <td className="px-2 py-2">
-                    <Input
-                      value={row.barcode ?? ""}
-                      onChange={(e) => updateVariant(i, { barcode: e.target.value })}
-                      placeholder="Barcode"
-                      className="h-9 min-w-24"
                     />
                   </td>
                   <td className="px-2 py-2">
@@ -340,37 +331,37 @@ export function FormVariantSection({
                       value={row.weight ?? ""}
                       onChange={(e) => updateVariant(i, { weight: e.target.value })}
                       placeholder="0"
-                      className="h-9 w-20"
+                      className="h-9 w-24"
                     />
                   </td>
-                  <td className="pl-2 pr-0.5 py-2">
+                  <td className="pl-2 pr-1 py-2">
                     <Input
                       type="number"
                       min={0}
                       value={row.length ?? ""}
                       onChange={(e) => updateVariant(i, { length: e.target.value })}
                       placeholder="P"
-                      className="h-9 w-16"
+                      className="h-9 w-20"
                     />
                   </td>
-                  <td className="px-0.5 py-2">
+                  <td className="px-1 py-2">
                     <Input
                       type="number"
                       min={0}
                       value={row.width ?? ""}
                       onChange={(e) => updateVariant(i, { width: e.target.value })}
                       placeholder="L"
-                      className="h-9 w-16"
+                      className="h-9 w-20"
                     />
                   </td>
-                  <td className="pl-0.5 pr-2 py-2">
+                  <td className="pl-1 pr-2 py-2">
                     <Input
                       type="number"
                       min={0}
                       value={row.height ?? ""}
                       onChange={(e) => updateVariant(i, { height: e.target.value })}
                       placeholder="T"
-                      className="h-9 w-16"
+                      className="h-9 w-20"
                     />
                   </td>
                 </tr>

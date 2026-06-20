@@ -41,6 +41,14 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
   const detailHref = `/dashboard/master-produk/${product.id}`
   const variantLocks = React.useMemo(() => detailVariantLocks(product), [product])
 
+  // Gambar produk saat ini (dedup URL, karena channel kadang mengirim duplikat).
+  const currentImages = React.useMemo(() => {
+    const seen = new Set<string>()
+    return (product.images ?? []).filter(
+      (img) => img.url && !seen.has(img.url) && seen.add(img.url)
+    )
+  }, [product.images])
+
   const form = useForm<BuatProdukFormValues>({
     resolver: zodResolver(buatProdukSchema),
     mode: "onBlur",
@@ -187,7 +195,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
 
         <Form {...form}>
           <form className="flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
-            <FormDetailSection skuDisabled />
+            <FormDetailSection />
 
             <FormVariantSection
               lockedTypeIds={variantLocks.lockedTypeIds}
@@ -204,14 +212,23 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
             <FormShippingSection />
 
             <FormSectionCard id="media" title="Gambar & Video Produk">
-              {product.primaryImage && (
-                <div className="mb-4 flex items-center gap-3 rounded-xl border border-border/60 bg-background/40 p-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={product.primaryImage} alt={product.name} className="size-12 rounded-lg object-cover" />
-                  <p className="text-xs text-muted-foreground">
-                    Gambar saat ini. Mengunggah gambar baru akan{" "}
+              {currentImages.length > 0 && (
+                <div className="mb-4 rounded-xl border border-border/60 bg-background/40 p-3">
+                  <p className="mb-2 text-xs text-muted-foreground">
+                    {currentImages.length} gambar saat ini. Mengunggah gambar baru akan{" "}
                     <span className="font-medium">menggantikan semua</span> gambar lama.
                   </p>
+                  <div className="flex flex-wrap gap-2">
+                    {currentImages.map((img) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        key={img.url}
+                        src={img.url}
+                        alt={product.name}
+                        className="size-16 rounded-lg border border-border/60 object-cover"
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
               <MediaUploader onChange={setMediaFiles} />
