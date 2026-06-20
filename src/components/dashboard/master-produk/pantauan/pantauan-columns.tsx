@@ -2,13 +2,16 @@
 
 import Link from "next/link"
 import type { ColumnDef } from "@tanstack/react-table"
-import { ImageIcon, UploadIcon } from "lucide-react"
+import { ExternalLinkIcon, ImageIcon, UploadIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
+import { SyncStatusBadge } from "../detail/tab-pagination"
 import type {
   PantauanLens,
   PantauanProduct,
 } from "@/services/master-produk/pantauan.service"
+import type { ChannelCode } from "@/types/channel"
 
 function produkCell(p: PantauanProduct) {
   return (
@@ -35,13 +38,45 @@ function produkCell(p: PantauanProduct) {
   )
 }
 
-const LENS_BADGE: Record<Exclude<PantauanLens, "belum_upload" | "persyaratan">, { label: string; cls: string }> = {
+const LENS_BADGE: Record<string, { label: string; cls: string }> = {
   harga: { label: "Harga berbeda antar channel", cls: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
   sku: { label: "SKU berbeda dengan master", cls: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
   atribut: { label: "Atribut berbeda antar channel", cls: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
 }
 
+function reviewChannelsCell(row: PantauanProduct, showReason: boolean) {
+  const channels = row.reviewChannels
+  if (!channels.length) return <span className="text-muted-foreground">—</span>
+  return (
+    <div className="flex flex-col gap-1.5">
+      {channels.map((rc, i) => (
+        <div key={i} className="flex items-center gap-1.5">
+          {rc.channelCode && (
+            <ChannelLogo
+              code={rc.channelCode as ChannelCode}
+              name={rc.shopName ?? ""}
+              className="size-5 rounded text-[9px]"
+            />
+          )}
+          <span className="text-xs text-muted-foreground">{rc.shopName}</span>
+          <SyncStatusBadge status={rc.syncStatus} reason={rc.errorMessage} />
+          {showReason && rc.errorMessage && (
+            <span
+              className="truncate text-xs text-destructive max-w-[200px]"
+              title={rc.errorMessage}
+            >
+              {rc.errorMessage}
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function buildPantauanColumns(lens: PantauanLens): ColumnDef<PantauanProduct>[] {
+  const isReviewLens = lens === "direview" || lens === "ditolak"
+
   const lensColumn: ColumnDef<PantauanProduct> =
     lens === "belum_upload"
       ? {
@@ -71,16 +106,22 @@ export function buildPantauanColumns(lens: PantauanLens): ColumnDef<PantauanProd
               )
             },
           }
-        : {
-            id: "lens",
-            header: "Keterangan",
-            cell: () => {
-              const b = LENS_BADGE[lens]
-              return (
-                <span className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${b.cls}`}>{b.label}</span>
-              )
-            },
-          }
+        : isReviewLens
+          ? {
+              id: "review_status",
+              header: lens === "direview" ? "Status Review" : "Alasan Ditolak",
+              cell: ({ row }) => reviewChannelsCell(row.original, lens === "ditolak"),
+            }
+          : {
+              id: "lens",
+              header: "Keterangan",
+              cell: () => {
+                const b = LENS_BADGE[lens]
+                return b ? (
+                  <span className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${b.cls}`}>{b.label}</span>
+                ) : null
+              },
+            }
 
   return [
     {
@@ -100,12 +141,21 @@ export function buildPantauanColumns(lens: PantauanLens): ColumnDef<PantauanProd
       enableHiding: false,
       cell: ({ row }) => (
         <div className="text-right">
-          <Button variant="primary" size="sm" asChild>
-            <Link href={`/dashboard/produk/${row.original.productId}/upload-to-channel`} prefetch={false}>
-              <UploadIcon className="size-4" />
-              Upload
-            </Link>
-          </Button>
+          {isReviewLens ? (
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/dashboard/master-produk/${row.original.productId}`} prefetch={false}>
+                <ExternalLinkIcon className="size-4" />
+                Detail
+              </Link>
+            </Button>
+          ) : (
+            <Button variant="primary" size="sm" asChild>
+              <Link href={`/dashboard/produk/${row.original.productId}/upload-to-channel`} prefetch={false}>
+                <UploadIcon className="size-4" />
+                Upload
+              </Link>
+            </Button>
+          )}
         </div>
       ),
       size: 100,

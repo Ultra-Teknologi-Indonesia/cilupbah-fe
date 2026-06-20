@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
+import { SyncStatusBadge } from "../detail/tab-pagination"
 import type {
   ChannelListing,
   ChannelListingVariant,
@@ -193,6 +194,25 @@ export function buildChannelListingColumns(ctx: Ctx): ColumnDef<ChannelListing>[
           </div>
         )
       },
+    },
+    {
+      id: "status",
+      header: "Status",
+      enableSorting: false,
+      cell: ({ row }) => {
+        const l = row.original
+        return (
+          <div className="flex flex-col gap-0.5">
+            <SyncStatusBadge status={l.syncStatus} reason={l.errorMessage} />
+            {l.errorMessage && (l.syncStatus === "rejected" || l.syncStatus === "failed") && (
+              <span className="truncate text-xs text-destructive max-w-[180px]" title={l.errorMessage}>
+                {l.errorMessage}
+              </span>
+            )}
+          </div>
+        )
+      },
+      size: 140,
     },
     {
       id: "actions",

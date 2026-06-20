@@ -23,6 +23,7 @@ export interface ChannelListing {
   channelCode: string | null
   channelUrl: string | null
   syncStatus: string | null
+  errorMessage: string | null
   hasProductData: boolean
   thumbnail: string | null
   variants: ChannelListingVariant[]
@@ -66,6 +67,7 @@ interface RawChannelListing {
   channel_code: string | null
   channel_url: string | null
   sync_status: string | null
+  error_message: string | null
   has_product_data: boolean
   product: RawConnection[]
 }
@@ -94,6 +96,7 @@ function mapListing(raw: RawChannelListing): ChannelListing {
     channelCode: raw.channel_code,
     channelUrl: raw.channel_url,
     syncStatus: raw.sync_status,
+    errorMessage: raw.error_message,
     hasProductData: raw.has_product_data,
     thumbnail: variants.find((v) => v.thumbnail)?.thumbnail ?? null,
     variants,

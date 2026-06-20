@@ -123,7 +123,7 @@ export function TabChannel({ productId }: { productId: string }) {
                           title={l.channelName ?? undefined}
                         >
                           <span className="truncate max-w-[160px]">{l.shopName ?? l.channelCode}</span>
-                          <SyncStatusBadge status={l.syncStatus} />
+                          <SyncStatusBadge status={l.syncStatus} reason={l.errorMessage} />
                         </span>
                       ))}
                     </div>

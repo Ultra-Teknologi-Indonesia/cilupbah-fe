@@ -1,7 +1,7 @@
 import { fetchClient } from "@/lib/api-client"
 import type { ApiPaginated, ApiResponse } from "@/types/api.types"
 
-export type PantauanLens = "belum_upload" | "harga" | "sku" | "atribut" | "persyaratan"
+export type PantauanLens = "belum_upload" | "harga" | "sku" | "atribut" | "persyaratan" | "direview" | "ditolak"
 export type ProductTypeFilter = "satuan" | "bundle" | "konsinyasi"
 
 export interface PantauanParams {
@@ -14,6 +14,22 @@ export interface PantauanParams {
   perPage?: number
 }
 
+interface RawReviewChannel {
+  channel_code: string | null
+  shop_name: string | null
+  sync_status: string | null
+  error_message: string | null
+  reviewed_at: string | null
+}
+
+export interface ReviewChannel {
+  channelCode: string | null
+  shopName: string | null
+  syncStatus: string | null
+  errorMessage: string | null
+  reviewedAt: string | null
+}
+
 interface RawPantauan {
   product_id: string
   product_name: string
@@ -23,6 +39,7 @@ interface RawPantauan {
   product_type: string
   not_uploaded_count: number | null
   requirements_summary: string | null
+  review_channels?: RawReviewChannel[]
 }
 
 export interface PantauanProduct {
@@ -34,6 +51,7 @@ export interface PantauanProduct {
   productType: string
   notUploadedCount: number | null
   requirementsSummary: string | null
+  reviewChannels: ReviewChannel[]
 }
 
 function mapItem(raw: RawPantauan): PantauanProduct {
@@ -46,6 +64,13 @@ function mapItem(raw: RawPantauan): PantauanProduct {
     productType: raw.product_type,
     notUploadedCount: raw.not_uploaded_count,
     requirementsSummary: raw.requirements_summary,
+    reviewChannels: (raw.review_channels ?? []).map((rc) => ({
+      channelCode: rc.channel_code,
+      shopName: rc.shop_name,
+      syncStatus: rc.sync_status,
+      errorMessage: rc.error_message,
+      reviewedAt: rc.reviewed_at,
+    })),
   }
 }
 

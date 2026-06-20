@@ -51,11 +51,12 @@ const STATUS_LABEL: Record<string, string> = {
   deactivated: "Nonaktif",
 }
 
-export function SyncStatusBadge({ status }: { status: string | null }) {
+export function SyncStatusBadge({ status, reason }: { status: string | null; reason?: string | null }) {
   const s = status ?? ""
   return (
     <span
       className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${STATUS_STYLE[s] ?? "text-muted-foreground bg-muted"}`}
+      title={reason && (s === "rejected" || s === "failed") ? reason : undefined}
     >
       {STATUS_LABEL[s] ?? s ?? "—"}
     </span>
