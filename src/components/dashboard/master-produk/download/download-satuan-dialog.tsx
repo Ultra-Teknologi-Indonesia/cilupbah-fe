@@ -200,14 +200,22 @@ export function DownloadSatuanDialog({
     setSearching(true)
     setResults(null)
     setRowSel({})
+    const failed: string[] = []
     try {
       const batches = await Promise.all(
         chosen.map((s) =>
-          DownloadService.searchChannel({ channel: s.channel!.code, shopId: s.shop_id, q })
-            .catch(() => [] as ChannelSearchItem[])
+          DownloadService.searchChannel({ channel: s.channel!.code, shopId: s.shop_id, q }).catch(
+            () => {
+              failed.push(s.shop_name ?? s.shop_id)
+              return [] as ChannelSearchItem[]
+            }
+          )
         )
       )
       setResults(batches.flat())
+      if (failed.length > 0) {
+        toast.error(`Gagal mencari di: ${failed.join(", ")}`)
+      }
     } finally {
       setSearching(false)
     }
@@ -254,7 +262,7 @@ export function DownloadSatuanDialog({
 
         <div className="grid min-h-0 flex-1 md:grid-cols-[20rem_1fr]">
           {/* Filter */}
-          <div className="flex flex-col gap-4 border-b border-border/60 p-6 md:border-b-0 md:border-r">
+          <div className="flex min-w-0 flex-col gap-4 border-b border-border/60 p-6 md:border-b-0 md:border-r">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium">Kata kunci</label>
               <div className="relative">
@@ -334,7 +342,7 @@ export function DownloadSatuanDialog({
           </div>
 
           {/* Daftar produk */}
-          <div className="flex min-h-0 flex-col">
+          <div className="flex min-h-0 min-w-0 flex-col">
             <div className="flex items-center justify-between border-b border-border/60 px-5 py-3">
               <span className="text-sm font-medium">Daftar Produk</span>
               <span className="text-xs text-muted-foreground">
