@@ -48,7 +48,7 @@ export function ChannelLogo({
       )}
     >
       <span
-        className="size-5 bg-white"
+        className="h-1/2 w-1/2 bg-white"
         style={{ mask, WebkitMask: mask }}
       />
     </span>
