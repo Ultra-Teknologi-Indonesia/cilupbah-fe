@@ -316,7 +316,7 @@ export function DownloadSatuanDialog({
 
   const bulkDownload = async () => {
     for (const item of selectedItems) {
-      if (downloaded[channelSearchRowId(item)]) continue
+      if (downloaded[channelSearchRowId(item)] || item.alreadyDownloaded) continue
       await runDownload(item)
     }
   }
@@ -459,7 +459,7 @@ export function DownloadSatuanDialog({
                 <ul className="divide-y divide-border/60">
                   {items.map((item) => {
                     const id = channelSearchRowId(item)
-                    const isDone = downloaded[id]
+                    const isDone = downloaded[id] || item.alreadyDownloaded
                     return (
                       <li key={id} className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-muted/30">
                         <Checkbox

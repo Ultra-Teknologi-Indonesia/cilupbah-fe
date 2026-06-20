@@ -152,6 +152,7 @@ export interface ChannelSearchItem {
   shopId: string
   shopName: string | null
   channelCode: string
+  alreadyDownloaded: boolean
 }
 
 interface RawChannelSearchItem {
@@ -162,6 +163,7 @@ interface RawChannelSearchItem {
   shop_id: string
   shop_name: string | null
   channel_code: string
+  already_downloaded?: boolean
 }
 
 function mapSearchItem(raw: RawChannelSearchItem): ChannelSearchItem {
@@ -173,6 +175,7 @@ function mapSearchItem(raw: RawChannelSearchItem): ChannelSearchItem {
     shopId: raw.shop_id,
     shopName: raw.shop_name,
     channelCode: raw.channel_code,
+    alreadyDownloaded: raw.already_downloaded ?? false,
   }
 }
 
