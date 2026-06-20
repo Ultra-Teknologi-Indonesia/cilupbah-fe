@@ -5,6 +5,7 @@ import {
   ArrowUpDownIcon,
   ArrowUpIcon,
   ArrowDownIcon,
+  ImageIcon,
   SearchIcon,
   Trash2Icon,
 } from "lucide-react"
@@ -239,8 +240,22 @@ export function TabVariasi({ productId }: { productId: string }) {
                     />
                   </td>
                   <td className="px-3 py-2.5">
-                    <div className="font-mono text-xs text-primary">{v.sku}</div>
-                    {v.barcode && <div className="font-mono text-[11px] text-muted-foreground">{v.barcode}</div>}
+                    <div className="flex items-center gap-2.5">
+                      <div className="size-9 shrink-0 overflow-hidden rounded-md border border-border/60 bg-muted/40">
+                        {v.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={v.image} alt={v.sku} className="size-full object-cover" />
+                        ) : (
+                          <div className="flex size-full items-center justify-center">
+                            <ImageIcon className="size-4 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-mono text-xs text-primary">{v.sku}</div>
+                        {v.barcode && <div className="font-mono text-[11px] text-muted-foreground">{v.barcode}</div>}
+                      </div>
+                    </div>
                   </td>
                   <td className="px-3 py-2.5">
                     <div className="flex flex-wrap gap-1">

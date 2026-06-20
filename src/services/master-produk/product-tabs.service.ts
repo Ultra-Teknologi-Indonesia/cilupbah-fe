@@ -8,6 +8,7 @@ export interface VariantRow {
   barcode: string | null
   sellPrice: number | null
   isActive: boolean
+  image: string | null
   options: { attributeId: number; value: string }[]
   stock: number
 }
@@ -18,6 +19,7 @@ interface RawVariantRow {
   barcode: string | null
   sell_price: number | null
   is_active: boolean
+  image?: string | null
   options?: Array<{ attribute_id: number; value: string }>
   stock?: number
 }
@@ -47,6 +49,7 @@ function mapRow(r: RawVariantRow): VariantRow {
     barcode: r.barcode,
     sellPrice: r.sell_price,
     isActive: r.is_active,
+    image: r.image ?? null,
     options: (r.options ?? []).map((o) => ({ attributeId: o.attribute_id, value: o.value })),
     stock: r.stock ?? 0,
   }
