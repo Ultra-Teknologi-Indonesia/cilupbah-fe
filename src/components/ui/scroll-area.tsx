@@ -18,7 +18,10 @@ function ScrollArea({
     >
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
-        className="size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
+        // max-h-[inherit]: saat Root hanya diberi max-h-* (tanpa height tetap),
+        // viewport ikut ter-cap sehingga konten panjang men-scroll, bukan meluap.
+        // Untuk Root ber-height tetap, inherit = none → perilaku lama tak berubah.
+        className="size-full max-h-[inherit] rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
       >
         {children}
       </ScrollAreaPrimitive.Viewport>
