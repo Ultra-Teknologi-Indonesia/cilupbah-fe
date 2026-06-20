@@ -24,7 +24,7 @@ import {
 } from "@/services/master-produk/download.service"
 
 // Channel yang mendukung pencarian produk by SKU/nama.
-const SUPPORTED = new Set(["tiktok", "lazada"])
+const SUPPORTED = new Set(["tiktok", "lazada", "shopee"])
 
 export function DownloadSatuanDialog({
   open,
@@ -120,7 +120,7 @@ export function DownloadSatuanDialog({
           <DialogTitle>Download Dari Channel</DialogTitle>
           <DialogDescription>
             Cari produk yang sudah diunggah di marketplace berdasarkan SKU/nama, lalu unduh
-            datanya. Hanya TikTok &amp; Lazada yang mendukung pencarian.
+            datanya. Mendukung TikTok, Lazada &amp; Shopee.
           </DialogDescription>
         </DialogHeader>
 
@@ -141,7 +141,7 @@ export function DownloadSatuanDialog({
             <div className="max-h-48 overflow-y-auto rounded-lg border border-border/60">
               {supportedStores.length === 0 ? (
                 <div className="px-3 py-6 text-center text-xs text-muted-foreground">
-                  Belum ada toko TikTok/Lazada aktif.
+                  Belum ada toko aktif.
                 </div>
               ) : (
                 <ul className="divide-y divide-border/60">
