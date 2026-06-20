@@ -144,14 +144,6 @@ export const KategoriService = {
     return res.data?.synced ?? 0
   },
 
-  togglePullDefault: async (mappingId: number): Promise<{ id: number; is_pull_default: boolean }> => {
-    const res = await fetchClient<ApiResponse<{ id: number; is_pull_default: boolean }>>(
-      `/categories/mapping/${mappingId}/pull-default`,
-      { method: "PATCH" }
-    )
-    return res.data
-  },
-
   getMappingList: async (params: {
     search?: string
     page?: number
