@@ -12,9 +12,12 @@ import {
   XIcon,
 } from "lucide-react"
 
+import { format, parseISO } from "date-fns"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Combobox } from "@/components/ui/combobox"
+import { DatePicker } from "@/components/ui/date-picker"
 import { Checkbox } from "@/components/ui/checkbox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { DataTable } from "@/components/ui/data-table"
@@ -334,25 +337,21 @@ export function HasilTab({
       <div>
         <div className="mb-1.5 text-sm font-medium">Tanggal Upload</div>
         <div className="flex flex-col gap-2">
-          <Input
-            type="date"
-            value={dateFrom}
-            onChange={(e) => {
-              setDateFrom(e.target.value)
+          <DatePicker
+            value={dateFrom ? parseISO(dateFrom) : undefined}
+            onChange={(d) => {
+              setDateFrom(d ? format(d, "yyyy-MM-dd") : "")
               resetPage()
             }}
-            aria-label="Dari tanggal"
-            className="h-9 rounded-lg border-border bg-background"
+            placeholder="Dari tanggal"
           />
-          <Input
-            type="date"
-            value={dateTo}
-            onChange={(e) => {
-              setDateTo(e.target.value)
+          <DatePicker
+            value={dateTo ? parseISO(dateTo) : undefined}
+            onChange={(d) => {
+              setDateTo(d ? format(d, "yyyy-MM-dd") : "")
               resetPage()
             }}
-            aria-label="Sampai tanggal"
-            className="h-9 rounded-lg border-border bg-background"
+            placeholder="Sampai tanggal"
           />
         </div>
       </div>

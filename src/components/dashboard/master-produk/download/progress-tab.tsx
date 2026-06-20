@@ -4,10 +4,13 @@ import * as React from "react"
 import type { PaginationState } from "@tanstack/react-table"
 import { AlertTriangleIcon, RefreshCwIcon, SearchXIcon } from "lucide-react"
 
+import { format, parseISO } from "date-fns"
+
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Combobox } from "@/components/ui/combobox"
+import { DatePicker } from "@/components/ui/date-picker"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { DataTable } from "@/components/ui/data-table"
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
@@ -134,19 +137,15 @@ export function ProgressTab({
             <div>
               <div className="mb-1.5 text-sm font-medium">Tanggal Download</div>
               <div className="flex flex-col gap-2">
-                <Input
-                  type="date"
-                  value={dFrom}
-                  onChange={(e) => setDFrom(e.target.value)}
-                  className="h-9 rounded-lg"
-                  aria-label="Dari tanggal"
+                <DatePicker
+                  value={dFrom ? parseISO(dFrom) : undefined}
+                  onChange={(d) => setDFrom(d ? format(d, "yyyy-MM-dd") : "")}
+                  placeholder="Dari tanggal"
                 />
-                <Input
-                  type="date"
-                  value={dTo}
-                  onChange={(e) => setDTo(e.target.value)}
-                  className="h-9 rounded-lg"
-                  aria-label="Sampai tanggal"
+                <DatePicker
+                  value={dTo ? parseISO(dTo) : undefined}
+                  onChange={(d) => setDTo(d ? format(d, "yyyy-MM-dd") : "")}
+                  placeholder="Sampai tanggal"
                 />
               </div>
             </div>
