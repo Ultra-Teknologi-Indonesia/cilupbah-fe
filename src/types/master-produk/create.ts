@@ -64,6 +64,7 @@ export interface CreateProductPayload {
   inventory_account_id?: string | null
   cogs_account_id?: string | null
   weight?: number | null
+  weight_unit?: "gram" | "kg"
   length?: number | null
   width?: number | null
   height?: number | null

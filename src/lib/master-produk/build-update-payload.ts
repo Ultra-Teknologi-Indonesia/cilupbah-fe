@@ -41,6 +41,7 @@ export function buildUpdatePayload(
     inventory_account_id: values.inventoryAccountId,
     cogs_account_id: values.cogsAccountId,
     weight: num(values.weight) ?? null,
+    weight_unit: values.weightUnit ?? "kg",
     length: num(values.length) ?? null,
     width: num(values.width) ?? null,
     height: num(values.height) ?? null,

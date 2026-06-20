@@ -90,6 +90,7 @@ export function FormVariantSection({
   const baseSku = watch("sku")
   const variationTypes = watch("variationTypes")
   const variants = watch("variants")
+  const weightUnit = watch("weightUnit") === "gram" ? "gr" : "kg"
 
   const { data, isError } = useCategoryFormAttributes(category?.id)
   const availableTypes: FormAttribute[] = data?.variant_types ?? []
@@ -289,7 +290,7 @@ export function FormVariantSection({
                 <th className="px-3 py-2 font-medium">SKU <span className="text-destructive">*</span></th>
                 <th className="px-3 py-2 font-medium">Harga Jual</th>
                 <th className="px-3 py-2 font-medium">Harga Beli</th>
-                <th className="px-3 py-2 font-medium">Berat (gr)</th>
+                <th className="px-3 py-2 font-medium">Berat ({weightUnit})</th>
                 <th className="px-3 py-2 font-medium" colSpan={3}>Dimensi P×L×T (cm)</th>
               </tr>
             </thead>

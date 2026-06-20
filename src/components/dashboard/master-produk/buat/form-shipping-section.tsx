@@ -11,6 +11,13 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 import { FormSectionCard } from "@/components/ui/form-section-card"
 import type { BuatProdukFormValues } from "@/types/master-produk"
@@ -26,10 +33,27 @@ export function FormShippingSection() {
           name="weight"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Berat paket (gram) <span className="text-destructive">*</span></FormLabel>
-              <FormControl>
-                <Input type="number" min={0} placeholder="0" {...field} />
-              </FormControl>
+              <FormLabel>Berat paket <span className="text-destructive">*</span></FormLabel>
+              <div className="flex gap-2">
+                <FormControl>
+                  <Input type="number" min={0} placeholder="0" {...field} />
+                </FormControl>
+                <FormField
+                  control={control}
+                  name="weightUnit"
+                  render={({ field: unitField }) => (
+                    <Select value={unitField.value ?? "kg"} onValueChange={unitField.onChange}>
+                      <SelectTrigger className="w-24 shrink-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="gram">gram</SelectItem>
+                        <SelectItem value="kg">kg</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
               <FormMessage />
             </FormItem>
           )}

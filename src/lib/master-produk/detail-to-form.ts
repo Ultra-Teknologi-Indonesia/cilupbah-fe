@@ -92,6 +92,7 @@ export function detailToFormValues(p: ProductDetail): BuatProdukFormValues {
     safeStock: s(variant?.safeStock ?? null),
     unlimitedShopIds: [],
     weight: s(p.weight),
+    weightUnit: p.weightUnit ?? "kg",
     length: s(p.length),
     width: s(p.width),
     height: s(p.height),

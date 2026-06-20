@@ -92,6 +92,7 @@ export interface ProductDetail {
   purchaseLeadTime: number | null
   packageContents: string | null
   weight: number | null
+  weightUnit: "gram" | "kg"
   length: number | null
   width: number | null
   height: number | null
@@ -145,6 +146,7 @@ export interface RawProductDetail {
   purchase_lead_time: number | null
   package_contents: string | null
   weight: number | null
+  weight_unit?: "gram" | "kg" | string
   length: number | null
   width: number | null
   height: number | null

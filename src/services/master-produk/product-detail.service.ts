@@ -57,6 +57,7 @@ function mapDetail(raw: RawProductDetail): ProductDetail {
     purchaseLeadTime: raw.purchase_lead_time,
     packageContents: raw.package_contents,
     weight: raw.weight,
+    weightUnit: raw.weight_unit === "gram" ? "gram" : "kg",
     length: raw.length,
     width: raw.width,
     height: raw.height,
