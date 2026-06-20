@@ -73,7 +73,7 @@ export function Combobox({
           id={id}
           disabled={disabled}
           className={cn(
-            "flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-border bg-background px-3 text-sm outline-none transition-[color,box-shadow]",
+            "flex h-10 w-full items-center justify-between gap-2 rounded-full border border-border bg-background px-3 text-sm outline-none transition-[color,box-shadow]",
             "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30",
             "disabled:cursor-not-allowed disabled:opacity-50",
             invalid && "border-destructive ring-3 ring-destructive/20",

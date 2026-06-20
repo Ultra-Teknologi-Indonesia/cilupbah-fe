@@ -7,21 +7,41 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import type { ProductChannelStatus } from "@/types/master-produk"
-import { CHANNEL_COLORS } from "@/lib/master-produk/constants"
+
+const CHANNEL_BG: Record<string, string> = {
+  shopee: "bg-[#EE4D2D]",
+  tokopedia: "bg-[#03AC0E]",
+  tiktok: "bg-neutral-900",
+  lazada: "bg-[#0F146D]",
+}
 
 function ChannelDot({ ch }: { ch: ProductChannelStatus }) {
-  const initial = ch.channelName.charAt(0).toUpperCase()
   const hasError = !!ch.errorText
+  const bg = CHANNEL_BG[ch.channelCode]
+  const hasIcon = !!bg
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <span
           className={cn(
-            "relative flex size-6 items-center justify-center rounded-full text-[11px] font-semibold text-white ring-2 ring-card",
-            CHANNEL_COLORS[ch.channelCode] ?? "bg-muted-foreground"
+            "relative flex size-6 items-center justify-center rounded-full ring-2 ring-card",
+            hasIcon ? bg : "bg-muted-foreground"
           )}
         >
-          {initial}
+          {hasIcon ? (
+            <span
+              className="size-3.5 bg-white"
+              style={{
+                mask: `url(/channels/${ch.channelCode}.svg) center / contain no-repeat`,
+                WebkitMask: `url(/channels/${ch.channelCode}.svg) center / contain no-repeat`,
+              }}
+            />
+          ) : (
+            <span className="text-[11px] font-semibold text-white">
+              {ch.channelName.charAt(0).toUpperCase()}
+            </span>
+          )}
           {hasError && (
             <span className="absolute -right-0.5 -top-0.5 flex size-3 items-center justify-center rounded-full bg-destructive text-white ring-2 ring-card">
               <AlertTriangleIcon className="size-2" />
@@ -52,7 +72,7 @@ export function ProductChannelBadges({
   max?: number
 }) {
   if (channels.length === 0) {
-    return <span className="text-xs text-muted-foreground">—</span>
+    return null
   }
 
   const overflowing = max !== undefined && channels.length > max

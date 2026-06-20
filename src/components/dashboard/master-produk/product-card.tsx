@@ -95,9 +95,9 @@ export function ProductCard({
         </div>
 
         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
-          <span>{product.categoryName}</span>
-          <span aria-hidden>·</span>
-          <span>{product.brandName}</span>
+          {product.categoryName && <span>{product.categoryName}</span>}
+          {product.categoryName && product.brandName && <span aria-hidden>·</span>}
+          {product.brandName && <span>{product.brandName}</span>}
           {product.isBundle && (
             <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
               Bundle
