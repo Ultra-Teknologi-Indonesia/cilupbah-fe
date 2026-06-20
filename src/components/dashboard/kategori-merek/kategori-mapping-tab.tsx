@@ -5,6 +5,7 @@ import {
   InfoIcon,
   Loader2Icon,
   MoreHorizontalIcon,
+  StarIcon,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -24,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useKategoriMapping } from "@/hooks/kategori-merek/use-kategori"
+import { useKategoriMapping, useTogglePullDefault } from "@/hooks/kategori-merek/use-kategori"
 import type { ChannelInfo } from "@/types/kategori-merek/kategori"
 import { PetakanKategoriDialog } from "./petakan-kategori-dialog"
 
@@ -50,6 +51,8 @@ export function KategoriMappingTab({ search }: { search: string }) {
   const lastPage = data?.meta?.last_page ?? 1
 
   const channels: ChannelInfo[] = items[0]?.channels ?? []
+
+  const toggleDefault = useTogglePullDefault()
 
   const [pickerState, setPickerState] = React.useState<{
     categoryId: number
@@ -115,6 +118,8 @@ export function KategoriMappingTab({ search }: { search: string }) {
                   {channels.map((ch) => {
                     const name = item[`${ch.code}_category_name`] as string | null
                     const extId = item[`${ch.code}_category_id`] as string | null
+                    const mappingId = item[`${ch.code}_mapping_id`] as number | null
+                    const isPullDefault = item[`${ch.code}_is_pull_default`] as boolean
                     const openPicker = () =>
                       setPickerState({
                         categoryId: item.category_id,
@@ -127,14 +132,32 @@ export function KategoriMappingTab({ search }: { search: string }) {
                     return (
                       <TableCell key={ch.code} className="whitespace-normal align-top text-sm">
                         {name ? (
-                          <button
-                            type="button"
-                            onClick={openPicker}
-                            title={name}
-                            className="text-left text-primary hover:underline cursor-pointer line-clamp-2 break-words"
-                          >
-                            {name.split(" > ").pop()}
-                          </button>
+                          <div className="flex items-start gap-1">
+                            <button
+                              type="button"
+                              onClick={openPicker}
+                              title={name}
+                              className="text-left text-primary hover:underline cursor-pointer line-clamp-2 break-words"
+                            >
+                              {name.split(" > ").pop()}
+                            </button>
+                            {mappingId && (
+                              <button
+                                type="button"
+                                title={isPullDefault ? "Default untuk pull (klik untuk nonaktifkan)" : "Jadikan default untuk pull"}
+                                onClick={() => toggleDefault.mutate(mappingId)}
+                                className="mt-0.5 shrink-0"
+                              >
+                                <StarIcon
+                                  className={`size-3.5 transition-colors ${
+                                    isPullDefault
+                                      ? "fill-amber-400 text-amber-400"
+                                      : "text-muted-foreground/40 hover:text-amber-400"
+                                  }`}
+                                />
+                              </button>
+                            )}
+                          </div>
                         ) : (
                           <Button variant="primary" size="sm" onClick={openPicker}>
                             Petakan

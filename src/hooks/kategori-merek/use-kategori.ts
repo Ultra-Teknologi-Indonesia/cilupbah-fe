@@ -95,6 +95,19 @@ export function useChannelCategories(channelId: string) {
   })
 }
 
+export function useTogglePullDefault() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (mappingId: number) => KategoriService.togglePullDefault(mappingId),
+    onSuccess: (data) => {
+      toast.success(data.is_pull_default ? "Default pull diaktifkan" : "Default pull dinonaktifkan")
+      qc.invalidateQueries({ queryKey: ["kategori", "mapping"] })
+    },
+    onError: (err) =>
+      toast.error((err as { message?: string })?.message || "Gagal mengubah default pull"),
+  })
+}
+
 export function useMapCategoryToChannel() {
   const qc = useQueryClient()
   return useMutation({
