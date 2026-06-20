@@ -3,6 +3,14 @@ import type { ProductStatus } from "./product"
 
 export type ProductTypeKind = "single" | "variant" | "bundle"
 
+export interface DetailMedia {
+  uuid: string | null
+  url: string
+  mediaType: "image" | "video"
+  isPrimary: boolean
+  sortOrder: number
+}
+
 export interface AccountRef {
   id: string
   code: string
@@ -73,6 +81,7 @@ export interface ProductDetail {
   isActive: boolean
   primaryImage: string | null
   images: { url: string; isPrimary: boolean }[]
+  media: DetailMedia[]
   priceRange: { min: number; max: number } | null
   channelsCount: number | null
   category: { id: number; name: string } | null
@@ -120,6 +129,13 @@ export interface RawProductDetail {
   is_active: boolean
   primary_image: string | null
   images?: Array<{ url: string; is_primary: boolean }>
+  media?: Array<{
+    uuid: string | null
+    url: string
+    media_type: "image" | "video"
+    is_primary: boolean
+    sort_order: number
+  }>
   price_range: { min: number; max: number } | null
   channels_count?: number
   category: { id: number; name: string } | null

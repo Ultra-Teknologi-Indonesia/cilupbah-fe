@@ -12,6 +12,13 @@ function mapDetail(raw: RawProductDetail): ProductDetail {
     isActive: raw.is_active,
     primaryImage: raw.primary_image,
     images: (raw.images ?? []).map((i) => ({ url: i.url, isPrimary: i.is_primary })),
+    media: (raw.media ?? []).map((m) => ({
+      uuid: m.uuid ?? null,
+      url: m.url,
+      mediaType: m.media_type,
+      isPrimary: m.is_primary,
+      sortOrder: m.sort_order,
+    })),
     priceRange: raw.price_range,
     channelsCount: raw.channels_count ?? null,
     category: raw.category,

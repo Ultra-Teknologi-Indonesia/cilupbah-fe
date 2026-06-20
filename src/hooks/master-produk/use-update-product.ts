@@ -6,11 +6,12 @@ import { buildUpdatePayload } from "@/lib/master-produk/build-update-payload"
 import { MediaService } from "@/services/master-produk/media.service"
 import { ProductUpdateService } from "@/services/master-produk/product-update.service"
 import type { BuatProdukFormValues, CreateMediaInput } from "@/types/master-produk"
+import type { EditMediaItem } from "@/components/dashboard/master-produk/buat/product-media-manager"
 import { productDetailKey } from "./use-product-detail"
 
 export interface UpdateProductVars {
   values: BuatProdukFormValues
-  files: File[]
+  mediaItems: EditMediaItem[]
   includeVariant: boolean
   originalVariantSku?: string
 }
@@ -21,20 +22,33 @@ export function useUpdateProduct(id: string) {
   return useMutation({
     mutationFn: async ({
       values,
-      files,
+      mediaItems,
       includeVariant,
       originalVariantSku,
     }: UpdateProductVars) => {
-      let media: CreateMediaInput[] | undefined
-      if (files.length) {
-        const uploaded = await Promise.all(files.map((f) => MediaService.upload(f)))
-        media = uploaded.map((m, i) => ({
-          media_uuid: m.uuid,
-          media_type: "image",
-          is_primary: i === 0,
-          sort_order: i,
-        }))
-      }
+      // Upload file baru lebih dulu untuk memperoleh uuid (S3 internal).
+      const uploaded = new Map<string, string>()
+      await Promise.all(
+        mediaItems
+          .filter((m) => m.kind === "new" && m.file)
+          .map(async (m) => {
+            const up = await MediaService.upload(m.file as File)
+            uploaded.set(m.localId, up.uuid)
+          })
+      )
+
+      // Kirim daftar media lengkap & terurut (existing + baru) sesuai editor.
+      const media: CreateMediaInput[] = mediaItems.map((m, idx) => {
+        const uuid = m.kind === "existing" ? m.uuid : uploaded.get(m.localId) ?? null
+        return {
+          media_uuid: uuid ?? undefined,
+          // legacy: media existing tanpa uuid (URL marketplace lama) dipertahankan by url
+          url: uuid ? undefined : m.url,
+          media_type: m.mediaType,
+          is_primary: m.isPrimary,
+          sort_order: idx,
+        }
+      })
 
       const payload = buildUpdatePayload(values, {
         includeVariant,

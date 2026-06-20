@@ -22,7 +22,11 @@ import { Card } from "@/components/ui/card"
 import { PageTitle } from "@/components/dashboard/page-title"
 
 import { SectionNav, type SectionStatus } from "./section-nav"
-import { MediaUploader } from "./media-uploader"
+import {
+  ProductMediaManager,
+  mediaItemsFromDetail,
+  type EditMediaItem,
+} from "./product-media-manager"
 import { FormDetailSection } from "./form-detail-section"
 import { FormSalesSection } from "./form-sales-section"
 import { FormShippingSection } from "./form-shipping-section"
@@ -31,7 +35,9 @@ import { FormSectionCard } from "@/components/ui/form-section-card"
 
 export function EditProdukForm({ product }: { product: ProductDetail }) {
   const router = useRouter()
-  const [mediaFiles, setMediaFiles] = React.useState<File[]>([])
+  const [mediaItems, setMediaItems] = React.useState<EditMediaItem[]>(() =>
+    mediaItemsFromDetail(product.media)
+  )
   const { mutateAsync, isPending } = useUpdateProduct(product.id)
   const { mutateAsync: saveBundle, isPending: isBundlePending } = useCreateBundle()
   const busy = isPending || isBundlePending
@@ -40,14 +46,6 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
   const originalVariantSku = product.variants[0]?.sku
   const detailHref = `/dashboard/master-produk/${product.id}`
   const variantLocks = React.useMemo(() => detailVariantLocks(product), [product])
-
-  // Gambar produk saat ini (dedup URL, karena channel kadang mengirim duplikat).
-  const currentImages = React.useMemo(() => {
-    const seen = new Set<string>()
-    return (product.images ?? []).filter(
-      (img) => img.url && !seen.has(img.url) && seen.add(img.url)
-    )
-  }, [product.images])
 
   const form = useForm<BuatProdukFormValues>({
     resolver: zodResolver(buatProdukSchema),
@@ -101,7 +99,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
 
       await mutateAsync({
         values: data,
-        files: mediaFiles,
+        mediaItems,
         includeVariant: !isMultiVariant,
         originalVariantSku,
       })
@@ -133,7 +131,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
     if (id === "detail") return v.name && v.sku && v.category ? "valid" : "empty"
     if (id === "penjualan") return !v.isSold || v.sellPrice ? "valid" : "empty"
     if (id === "pengiriman") return v.weight ? "valid" : "empty"
-    if (id === "media") return mediaFiles.length > 0 ? "valid" : "empty"
+    if (id === "media") return mediaItems.length > 0 ? "valid" : "empty"
     return "empty"
   }
 
@@ -212,26 +210,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
             <FormShippingSection />
 
             <FormSectionCard id="media" title="Gambar & Video Produk">
-              {currentImages.length > 0 && (
-                <div className="mb-4 rounded-xl border border-border/60 bg-background/40 p-3">
-                  <p className="mb-2 text-xs text-muted-foreground">
-                    {currentImages.length} gambar saat ini. Mengunggah gambar baru akan{" "}
-                    <span className="font-medium">menggantikan semua</span> gambar lama.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {currentImages.map((img) => (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        key={img.url}
-                        src={img.url}
-                        alt={product.name}
-                        className="size-16 rounded-lg border border-border/60 object-cover"
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-              <MediaUploader onChange={setMediaFiles} />
+              <ProductMediaManager value={mediaItems} onChange={setMediaItems} />
             </FormSectionCard>
           </form>
         </Form>

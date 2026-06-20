@@ -85,7 +85,9 @@ export function buildUpdatePayload(
     payload.variants = [variant]
   }
 
-  if (opts.media?.length) {
+  // Selalu kirim media bila editor menyediakannya (termasuk array kosong),
+  // agar penghapusan semua gambar tersimpan.
+  if (opts.media !== undefined) {
     payload.media = opts.media
   }
 
