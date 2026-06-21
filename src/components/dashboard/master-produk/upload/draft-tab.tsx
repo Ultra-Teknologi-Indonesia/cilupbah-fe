@@ -229,6 +229,7 @@ export function DraftTab({
           searchPlaceholder="Cari produk…"
           onReset={hasFilter ? onReset : undefined}
           hasFilter={hasFilter}
+          activeCount={[status !== "all"].filter(Boolean).length}
         >
           <Select
             value={status}

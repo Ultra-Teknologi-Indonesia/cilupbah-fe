@@ -225,6 +225,7 @@ export function ListingMarketplaceView() {
           searchPlaceholder="Cari nama / SKU…"
           onReset={hasFilter ? reset : undefined}
           hasFilter={hasFilter}
+          activeCount={(shopId ? 1 : 0) + (priceRange.min != null || priceRange.max != null ? 1 : 0)}
         >
           <Combobox
             options={storeOptions}

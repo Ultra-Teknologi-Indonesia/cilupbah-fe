@@ -170,6 +170,7 @@ export function HasilTab({
         searchPlaceholder="Cari nama / SKU…"
         onReset={hasFilter ? reset : undefined}
         hasFilter={hasFilter}
+        activeCount={[type, brandId, channel, category, price.min != null, price.max != null].filter(Boolean).length}
       >
         <Combobox
           options={TYPE_OPTIONS}

@@ -103,7 +103,7 @@ export function ProgressTab({
         </div>
       </div>
 
-      <FilterToolbar onReset={hasFilter ? reset : undefined} hasFilter={hasFilter}>
+      <FilterToolbar onReset={hasFilter ? reset : undefined} hasFilter={hasFilter} activeCount={[shop, state !== "all", dateFrom, dateTo].filter(Boolean).length}>
         <Combobox
           options={storeOptions}
           value={shop}

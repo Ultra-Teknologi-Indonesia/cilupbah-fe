@@ -176,6 +176,11 @@ export function PantauanView() {
         searchPlaceholder="Cari nama & SKU"
         onReset={hasFilter ? reset : undefined}
         hasFilter={hasFilter}
+        activeCount={
+          (category ? 1 : 0) +
+          (channel ? 1 : 0) +
+          (type !== "all" ? 1 : 0)
+        }
       >
         <CategoryPicker
           value={category}

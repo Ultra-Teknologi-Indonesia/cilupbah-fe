@@ -52,6 +52,7 @@ export function ArchiveView() {
         searchPlaceholder="Cari nama / SKU…"
         onReset={hasFilter ? () => setSearch("") : undefined}
         hasFilter={hasFilter}
+        activeCount={0}
       />
 
       <div className="flex flex-col gap-4 p-5 sm:p-6">

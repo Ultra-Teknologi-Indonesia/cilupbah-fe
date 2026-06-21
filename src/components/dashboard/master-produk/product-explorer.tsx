@@ -176,6 +176,7 @@ export function ProductExplorer({ query }: { query: Query }) {
           searchPlaceholder="Cari nama / SKU…"
           onReset={query.hasFilter ? query.reset : undefined}
           hasFilter={query.hasFilter}
+          activeCount={[query.status, query.brandId, query.category].filter(Boolean).length}
         >
           <Combobox
             options={PRODUCT_STATUS_OPTIONS}

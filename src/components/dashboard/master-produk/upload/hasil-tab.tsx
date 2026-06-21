@@ -321,6 +321,7 @@ export function HasilTab({
           searchPlaceholder="Cari produk…"
           onReset={hasFilter ? onReset : undefined}
           hasFilter={hasFilter}
+          activeCount={[shopId !== null, status !== "all", dateFrom !== "", dateTo !== ""].filter(Boolean).length}
         >
           <Combobox
             options={storeOptions}

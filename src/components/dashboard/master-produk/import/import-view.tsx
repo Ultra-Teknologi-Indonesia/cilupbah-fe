@@ -300,6 +300,7 @@ export function ImportView() {
             setPagination((p) => ({ ...p, pageIndex: 0 }))
           } : undefined}
           hasFilter={hasFilter}
+          activeCount={(typeFilter !== "all" ? 1 : 0) + (stateFilter !== "all" ? 1 : 0)}
         >
           <Select
             value={typeFilter}
