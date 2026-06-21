@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -66,14 +65,6 @@ export function LoginScreen() {
               <LoginForm />
             </CardContent>
 
-            <CardFooter>
-              <p className="w-full text-center text-sm text-muted-foreground">
-                Belum punya akun?{" "}
-                <a href="#" className="font-medium text-foreground transition-colors hover:underline">
-                  Daftar sekarang
-                </a>
-              </p>
-            </CardFooter>
           </Card>
         </LiquidGlass>
       </div>
