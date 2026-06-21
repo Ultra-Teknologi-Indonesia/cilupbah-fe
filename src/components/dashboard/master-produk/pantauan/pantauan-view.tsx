@@ -186,7 +186,7 @@ export function PantauanView() {
           value={category}
           onChange={handleCategoryChange}
           tree={categoryTree}
-          triggerClassName="h-9 border-transparent bg-input/50"
+          triggerClassName="h-9 bg-background"
         />
         <Combobox
           options={channelOptions}
@@ -194,10 +194,10 @@ export function PantauanView() {
           onChange={handleChannelChange}
           placeholder="Pilih channel"
           searchPlaceholder="Cari channel"
-          className="h-9 border-transparent bg-input/50"
+          className="h-9 bg-background"
         />
         <Select value={type} onValueChange={handleTypeChange}>
-          <SelectTrigger className="h-9 w-auto min-w-[140px] rounded-full border-transparent bg-input/50">
+          <SelectTrigger className="h-9 w-auto min-w-[140px] rounded-full bg-background">
             <SelectValue placeholder="Tipe Produk" />
           </SelectTrigger>
           <SelectContent>

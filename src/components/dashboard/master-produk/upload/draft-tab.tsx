@@ -238,7 +238,7 @@ export function DraftTab({
               setPagination((p) => ({ ...p, pageIndex: 0 }))
             }}
           >
-            <SelectTrigger className="h-9 w-auto min-w-[140px] rounded-full border-transparent bg-input/50">
+            <SelectTrigger className="h-9 w-auto min-w-[140px] rounded-full bg-background">
               <SelectValue placeholder="Semua status" />
             </SelectTrigger>
             <SelectContent>

@@ -233,7 +233,7 @@ export function ListingMarketplaceView() {
             onChange={setStore}
             placeholder="Semua toko"
             searchPlaceholder="Cari toko"
-            className="h-9 border-transparent bg-input/50"
+            className="h-9 bg-background"
           />
           <div className="flex items-center gap-1.5">
             <Input
@@ -243,7 +243,7 @@ export function ListingMarketplaceView() {
               onBlur={applyPrice}
               inputMode="numeric"
               placeholder="Harga min"
-              className="h-9 w-24 rounded-full border-transparent bg-input/50"
+              className="h-9 w-24 rounded-full bg-background"
             />
             <span className="text-muted-foreground">–</span>
             <Input
@@ -253,7 +253,7 @@ export function ListingMarketplaceView() {
               onBlur={applyPrice}
               inputMode="numeric"
               placeholder="Harga max"
-              className="h-9 w-24 rounded-full border-transparent bg-input/50"
+              className="h-9 w-24 rounded-full bg-background"
             />
           </div>
         </FilterToolbar>

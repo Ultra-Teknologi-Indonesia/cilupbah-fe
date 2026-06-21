@@ -184,7 +184,7 @@ export function ProductExplorer({ query }: { query: Query }) {
             onChange={query.setStatus}
             placeholder="Semua status"
             searchPlaceholder="Cari status"
-            className="h-9 border-transparent bg-input/50"
+            className="h-9 bg-background"
           />
           <Combobox
             options={brandOptions}
@@ -192,13 +192,13 @@ export function ProductExplorer({ query }: { query: Query }) {
             onChange={query.setBrandId}
             placeholder="Semua merek"
             searchPlaceholder="Cari merek"
-            className="h-9 border-transparent bg-input/50"
+            className="h-9 bg-background"
           />
           <CategoryPicker
             value={query.category}
             onChange={query.setCategory}
             tree={categoryTree}
-            triggerClassName="h-9 border-transparent bg-input/50"
+            triggerClassName="h-9 bg-background"
           />
         </FilterToolbar>
 
