@@ -1,14 +1,13 @@
 "use client"
 
 import * as React from "react"
-import { useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import {
   CheckIcon,
   ChevronsUpDownIcon,
   CloudDownloadIcon,
-  ImageIcon,
   Loader2Icon,
+  PackageIcon,
   SearchIcon,
   StoreIcon,
   XIcon,
@@ -152,77 +151,6 @@ function StoreMultiSelect({
         </div>
       </PopoverContent>
     </Popover>
-  )
-}
-
-/* ------------------------------------------------------------------ *
- * Thumbnail produk dengan lazy-fetch gambar (hanya saat row terlihat)
- * ------------------------------------------------------------------ */
-function useInView<T extends Element>() {
-  const ref = React.useRef<T | null>(null)
-  const [inView, setInView] = React.useState(false)
-
-  React.useEffect(() => {
-    const el = ref.current
-    if (!el || inView) return
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setInView(true)
-          io.disconnect()
-        }
-      },
-      { rootMargin: "200px" }
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [inView])
-
-  return { ref, inView }
-}
-
-function ProductThumb({ item }: { item: ChannelSearchItem }) {
-  const { ref, inView } = useInView<HTMLDivElement>()
-  const hasInitial = !!item.image
-
-  const { data, isLoading } = useQuery({
-    queryKey: [
-      "channel-product-image",
-      item.channelCode,
-      item.shopId,
-      item.externalProductId,
-    ],
-    queryFn: () =>
-      DownloadService.getProductImage({
-        channel: item.channelCode,
-        shopId: item.shopId,
-        externalProductId: item.externalProductId,
-      }),
-    enabled: inView && !hasInitial,
-    staleTime: 5 * 60 * 1000,
-    retry: 1,
-  })
-
-  const src = item.image ?? data ?? null
-
-  return (
-    <div ref={ref} className="relative size-11 shrink-0 overflow-hidden rounded-lg bg-muted/40">
-      {src ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt={item.name} className="size-full object-cover" />
-      ) : isLoading ? (
-        <div className="size-full animate-pulse bg-muted" />
-      ) : (
-        <div className="flex size-full items-center justify-center">
-          <ImageIcon className="size-4 text-muted-foreground" />
-        </div>
-      )}
-      <ChannelLogo
-        code={item.channelCode}
-        name={item.channelCode}
-        className="absolute -bottom-0.5 -right-0.5 size-4 rounded-md ring-2 ring-background"
-      />
-    </div>
   )
 }
 
@@ -451,7 +379,7 @@ export function DownloadSatuanDialog({
               ) : items.length === 0 ? (
                 <div className="flex h-full min-h-[20rem] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-muted-foreground">
                   <div className="grid size-12 place-items-center rounded-2xl bg-muted/50">
-                    <ImageIcon className="size-6" />
+                    <PackageIcon className="size-6" />
                   </div>
                   Tidak ada produk yang cocok.
                 </div>
@@ -467,7 +395,14 @@ export function DownloadSatuanDialog({
                           disabled={isDone}
                           onCheckedChange={(v) => setRowSel((prev) => ({ ...prev, [id]: !!v }))}
                         />
-                        <ProductThumb item={item} />
+                        <div className="relative grid size-10 shrink-0 place-items-center rounded-lg bg-muted/40">
+                          <PackageIcon className="size-4 text-muted-foreground" />
+                          <ChannelLogo
+                            code={item.channelCode}
+                            name={item.channelCode}
+                            className="absolute -bottom-0.5 -right-0.5 size-4 rounded-md ring-2 ring-background"
+                          />
+                        </div>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium">{item.name}</p>
                           <p className="truncate font-mono text-xs text-muted-foreground">

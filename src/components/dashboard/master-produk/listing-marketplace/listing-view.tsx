@@ -5,10 +5,8 @@ import type { PaginationState } from "@tanstack/react-table"
 import {
   AlertTriangleIcon,
   Loader2Icon,
-  SearchIcon,
   SearchXIcon,
   Trash2Icon,
-  XIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -38,7 +36,7 @@ import {
   channelListingRowId,
   type ChannelListing,
 } from "@/services/master-produk/channel-product.service"
-import { FilterShell } from "../filter-shell"
+import { FilterToolbar } from "../filter-toolbar"
 import { buildChannelListingColumns } from "./listing-columns"
 
 export function ListingMarketplaceView() {
@@ -209,67 +207,9 @@ export function ListingMarketplaceView() {
     resetPage()
   }
 
-  const filters = (
-    <>
-      <div className="relative">
-        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Cari nama / SKU…"
-          className="h-9 border-border bg-background pl-9 pr-8"
-        />
-        {search.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setSearch("")}
-            aria-label="Bersihkan pencarian"
-            className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <XIcon className="size-3.5" />
-          </button>
-        )}
-      </div>
-      <Combobox
-        options={storeOptions}
-        value={shopId}
-        onChange={setStore}
-        placeholder="Semua toko"
-        searchPlaceholder="Cari toko"
-        className="h-9 w-full"
-      />
-      <div>
-        <div className="mb-1.5 text-sm font-medium">Rentang Harga</div>
-        <div className="flex items-center gap-1.5">
-          <Input
-            value={minInput}
-            onChange={(e) => setMinInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && applyPrice()}
-            inputMode="numeric"
-            placeholder="Min"
-            className="h-9 border-border bg-background"
-          />
-          <span className="text-muted-foreground">–</span>
-          <Input
-            value={maxInput}
-            onChange={(e) => setMaxInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && applyPrice()}
-            inputMode="numeric"
-            placeholder="Max"
-            className="h-9 border-border bg-background"
-          />
-        </div>
-        <Button variant="outline" size="sm" className="mt-2 h-9 w-full" onClick={applyPrice}>
-          Terapkan
-        </Button>
-      </div>
-    </>
-  )
-
   return (
-    <FilterShell filters={filters} onReset={hasFilter ? reset : undefined}>
+    <>
       <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
-        {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6 sm:py-5">
           <div>
             <h2 className="text-base font-medium">Produk Channel</h2>
@@ -279,54 +219,91 @@ export function ListingMarketplaceView() {
           </div>
         </div>
 
-        {/* Body */}
-        <div className="px-5 py-5 sm:px-6">
-        {query.isError ? (
-          <div className="flex flex-col items-center gap-3 py-12 text-center">
-            <AlertTriangleIcon className="size-8 text-destructive" />
-            <div>
-              <p className="font-medium">Gagal memuat listing</p>
-              <p className="text-sm text-muted-foreground">Periksa koneksi atau coba lagi.</p>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => query.refetch()} disabled={query.isFetching}>
-              Coba lagi
-            </Button>
-          </div>
-        ) : (
-          <DataTable
-            columns={columns}
-            data={items}
-            isLoading={query.isLoading}
-            getRowId={(l) => channelListingRowId(l)}
-            hideToolbar
-            manualPagination
-            rowCount={total}
-            pagination={pagination}
-            onPaginationChange={setPagination}
-            enableRowSelection
-            bulkActions={(selected, table) => (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setBulkTarget({ rows: selected, reset: () => table.resetRowSelection() })}
-              >
-                <Trash2Icon className="size-4" />
-                Putuskan koneksi
-              </Button>
-            )}
-            tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
-            emptyState={
-              <div className="flex flex-col items-center gap-2 py-6">
-                <SearchXIcon className="size-8 text-muted-foreground" />
-                <p className="font-medium">Tidak ada listing channel</p>
-                <p className="text-sm text-muted-foreground">Coba ubah pencarian atau filter toko.</p>
-              </div>
-            }
+        <FilterToolbar
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Cari nama / SKU…"
+          onReset={hasFilter ? reset : undefined}
+          hasFilter={hasFilter}
+        >
+          <Combobox
+            options={storeOptions}
+            value={shopId}
+            onChange={setStore}
+            placeholder="Semua toko"
+            searchPlaceholder="Cari toko"
+            className="h-9"
           />
-        )}
-      </div>
+          <div className="flex items-center gap-1.5">
+            <Input
+              value={minInput}
+              onChange={(e) => setMinInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && applyPrice()}
+              onBlur={applyPrice}
+              inputMode="numeric"
+              placeholder="Harga min"
+              className="h-9 w-24 rounded-full border-transparent bg-input/50"
+            />
+            <span className="text-muted-foreground">–</span>
+            <Input
+              value={maxInput}
+              onChange={(e) => setMaxInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && applyPrice()}
+              onBlur={applyPrice}
+              inputMode="numeric"
+              placeholder="Harga max"
+              className="h-9 w-24 rounded-full border-transparent bg-input/50"
+            />
+          </div>
+        </FilterToolbar>
 
-      {/* Konfirmasi unlink satuan */}
+        <div className="px-5 py-5 sm:px-6">
+          {query.isError ? (
+            <div className="flex flex-col items-center gap-3 py-12 text-center">
+              <AlertTriangleIcon className="size-8 text-destructive" />
+              <div>
+                <p className="font-medium">Gagal memuat listing</p>
+                <p className="text-sm text-muted-foreground">Periksa koneksi atau coba lagi.</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => query.refetch()} disabled={query.isFetching}>
+                Coba lagi
+              </Button>
+            </div>
+          ) : (
+            <DataTable
+              columns={columns}
+              data={items}
+              isLoading={query.isLoading}
+              getRowId={(l) => channelListingRowId(l)}
+              hideToolbar
+              manualPagination
+              rowCount={total}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              enableRowSelection
+              bulkActions={(selected, table) => (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setBulkTarget({ rows: selected, reset: () => table.resetRowSelection() })}
+                >
+                  <Trash2Icon className="size-4" />
+                  Putuskan koneksi
+                </Button>
+              )}
+              tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+              emptyState={
+                <div className="flex flex-col items-center gap-2 py-6">
+                  <SearchXIcon className="size-8 text-muted-foreground" />
+                  <p className="font-medium">Tidak ada listing channel</p>
+                  <p className="text-sm text-muted-foreground">Coba ubah pencarian atau filter toko.</p>
+                </div>
+              }
+            />
+          )}
+        </div>
+      </LiquidGlass>
+
       <Dialog open={!!unlinkTarget} onOpenChange={(o) => !o && setUnlinkTarget(null)}>
         <DialogContent>
           <DialogHeader>
@@ -348,7 +325,6 @@ export function ListingMarketplaceView() {
         </DialogContent>
       </Dialog>
 
-      {/* Konfirmasi unlink massal */}
       <Dialog
         open={!!bulkTarget}
         onOpenChange={(o) => {
@@ -375,7 +351,6 @@ export function ListingMarketplaceView() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      </LiquidGlass>
-    </FilterShell>
+    </>
   )
 }

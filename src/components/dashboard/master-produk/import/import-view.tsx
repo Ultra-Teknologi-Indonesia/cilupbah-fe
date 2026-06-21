@@ -25,8 +25,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { DataTable } from "@/components/ui/data-table"
+import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { useImportBatches } from "@/hooks/master-produk/use-import"
 import type {
   ImportBatch,
@@ -115,7 +123,7 @@ function buildColumns(
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <FileSpreadsheetIcon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-          <span className="truncate max-w-[200px]">{row.original.originalFilename}</span>
+          <span className="max-w-[200px] truncate">{row.original.originalFilename}</span>
         </div>
       ),
     },
@@ -196,35 +204,20 @@ function buildColumns(
   ]
 }
 
-const FILTERS: { value: "" | ImportBatchType; label: string }[] = [
-  { value: "", label: "Semua Tipe" },
-  { value: "single", label: "Satuan" },
-  { value: "bundle", label: "Bundle" },
-]
-
-const STATE_FILTERS: { value: "" | ImportBatchState; label: string }[] = [
-  { value: "", label: "Semua Status" },
-  { value: "queued", label: "Menunggu" },
-  { value: "processing", label: "Diproses" },
-  { value: "done", label: "Selesai" },
-  { value: "done_with_errors", label: "Selesai (Error)" },
-  { value: "failed", label: "Gagal" },
-]
-
 export function ImportView() {
   const [importType, setImportType] = React.useState<ImportBatchType | null>(null)
   const [errorBatch, setErrorBatch] = React.useState<ImportBatch | null>(null)
 
-  const [typeFilter, setTypeFilter] = React.useState<"" | ImportBatchType>("")
-  const [stateFilter, setStateFilter] = React.useState<"" | ImportBatchState>("")
+  const [typeFilter, setTypeFilter] = React.useState<"all" | ImportBatchType>("all")
+  const [stateFilter, setStateFilter] = React.useState<"all" | ImportBatchState>("all")
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 25,
   })
 
   const query = useImportBatches({
-    type: typeFilter || undefined,
-    state: stateFilter || undefined,
+    type: typeFilter === "all" ? undefined : typeFilter,
+    state: stateFilter === "all" ? undefined : stateFilter,
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
   })
@@ -232,6 +225,8 @@ export function ImportView() {
   const items = query.data?.items ?? []
   const total = query.data?.meta?.total ?? 0
   const columns = React.useMemo(() => buildColumns(setErrorBatch), [])
+
+  const hasFilter = typeFilter !== "all" || stateFilter !== "all"
 
   return (
     <>
@@ -295,53 +290,54 @@ export function ImportView() {
               />
               Refresh
             </Button>
-
-            <span className="text-sm text-muted-foreground">
-              Total <span className="font-medium text-foreground tabular-nums">{total}</span>
-            </span>
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-2 border-b border-border/40 px-4 py-2.5 sm:px-5">
-          {FILTERS.map((f) => (
-            <button
-              key={f.value || "all-type"}
-              type="button"
-              onClick={() => {
-                setTypeFilter(f.value)
-                setPagination((p) => ({ ...p, pageIndex: 0 }))
-              }}
-              className={cn(
-                "rounded-full px-3 py-1 text-xs font-medium transition-colors",
-                typeFilter === f.value
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
-          <span className="mx-1 self-center text-border">|</span>
-          {STATE_FILTERS.map((f) => (
-            <button
-              key={f.value || "all-state"}
-              type="button"
-              onClick={() => {
-                setStateFilter(f.value)
-                setPagination((p) => ({ ...p, pageIndex: 0 }))
-              }}
-              className={cn(
-                "rounded-full px-3 py-1 text-xs font-medium transition-colors",
-                stateFilter === f.value
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
+        <FilterToolbar
+          onReset={hasFilter ? () => {
+            setTypeFilter("all")
+            setStateFilter("all")
+            setPagination((p) => ({ ...p, pageIndex: 0 }))
+          } : undefined}
+          hasFilter={hasFilter}
+        >
+          <Select
+            value={typeFilter}
+            onValueChange={(v) => {
+              setTypeFilter(v as "all" | ImportBatchType)
+              setPagination((p) => ({ ...p, pageIndex: 0 }))
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Tipe</SelectItem>
+              <SelectItem value="single">Satuan</SelectItem>
+              <SelectItem value="bundle">Bundle</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={stateFilter}
+            onValueChange={(v) => {
+              setStateFilter(v as "all" | ImportBatchState)
+              setPagination((p) => ({ ...p, pageIndex: 0 }))
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Status</SelectItem>
+              <SelectItem value="queued">Menunggu</SelectItem>
+              <SelectItem value="processing">Diproses</SelectItem>
+              <SelectItem value="done">Selesai</SelectItem>
+              <SelectItem value="done_with_errors">Selesai (Error)</SelectItem>
+              <SelectItem value="failed">Gagal</SelectItem>
+            </SelectContent>
+          </Select>
+        </FilterToolbar>
 
         <div className="px-4 py-5 sm:px-5">
           {query.isError ? (

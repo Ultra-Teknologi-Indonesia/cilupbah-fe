@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import type { PaginationState, SortingState } from "@tanstack/react-table"
-import { LayoutGridIcon, SearchIcon, TableIcon, XIcon } from "lucide-react"
+import { LayoutGridIcon, TableIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -17,7 +17,7 @@ import { useMasterProducts } from "@/hooks/master-produk/use-master-products"
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
 import type { SelectedCategory } from "@/types/master-produk"
 import { CategoryPicker } from "../buat/category-picker"
-import { FilterShell } from "../filter-shell"
+import { FilterToolbar } from "../filter-toolbar"
 import { ProductCardView } from "../product-card-view"
 import { ProductTable } from "../product-table"
 
@@ -148,71 +148,71 @@ export function HasilTab({
     </Button>
   )
 
-  const filters = (
-    <>
-      <div className="relative">
-        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Cari nama / SKU…"
-          className="h-9 border-border bg-background pl-9 pr-8"
-        />
-        {search.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setSearch("")}
-            aria-label="Bersihkan pencarian"
-            className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <XIcon className="size-3.5" />
-          </button>
-        )}
+  return (
+    <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 pt-3 sm:px-5">
+        <div className="overflow-x-auto">{tabBar}</div>
+        <div className="flex items-center gap-3 pb-2">
+          {actionButton}
+          <div className="flex items-center gap-0.5 rounded-full bg-black/[0.06] p-1 ring-1 ring-border/60 dark:bg-white/10">
+            {toggleBtn("card", "Tampilan kartu", LayoutGridIcon)}
+            {toggleBtn("table", "Tampilan tabel", TableIcon)}
+          </div>
+          <span className="text-sm text-muted-foreground">
+            {isLoading ? "Memuat…" : `${total} produk`}
+          </span>
+        </div>
       </div>
-      <Combobox
-        options={TYPE_OPTIONS}
-        value={type}
-        onChange={(v) => {
-          setType(v)
-          resetPage()
-        }}
-        placeholder="Semua tipe"
-        searchPlaceholder="Cari tipe"
-        className="h-9 w-full"
-      />
-      <Combobox
-        options={brandOptions}
-        value={brandId}
-        onChange={(v) => {
-          setBrandId(v)
-          resetPage()
-        }}
-        placeholder="Semua merek"
-        searchPlaceholder="Cari merek"
-        className="h-9 w-full"
-      />
-      <Combobox
-        options={channelOptions}
-        value={channel}
-        onChange={(v) => {
-          setChannel(v)
-          resetPage()
-        }}
-        placeholder="Semua channel"
-        searchPlaceholder="Cari channel"
-        className="h-9 w-full"
-      />
-      <CategoryPicker
-        value={category}
-        onChange={(v) => {
-          setCategory(v)
-          resetPage()
-        }}
-        tree={categoryTree}
-        triggerClassName="h-9 w-full"
-      />
-      <div>
-        <div className="mb-1.5 text-sm font-medium">Rentang Harga</div>
+
+      <FilterToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Cari nama / SKU…"
+        onReset={hasFilter ? reset : undefined}
+        hasFilter={hasFilter}
+      >
+        <Combobox
+          options={TYPE_OPTIONS}
+          value={type}
+          onChange={(v) => {
+            setType(v)
+            resetPage()
+          }}
+          placeholder="Semua tipe"
+          searchPlaceholder="Cari tipe"
+          className="h-9"
+        />
+        <Combobox
+          options={brandOptions}
+          value={brandId}
+          onChange={(v) => {
+            setBrandId(v)
+            resetPage()
+          }}
+          placeholder="Semua merek"
+          searchPlaceholder="Cari merek"
+          className="h-9"
+        />
+        <Combobox
+          options={channelOptions}
+          value={channel}
+          onChange={(v) => {
+            setChannel(v)
+            resetPage()
+          }}
+          placeholder="Semua channel"
+          searchPlaceholder="Cari channel"
+          className="h-9"
+        />
+        <CategoryPicker
+          value={category}
+          onChange={(v) => {
+            setCategory(v)
+            resetPage()
+          }}
+          tree={categoryTree}
+          triggerClassName="h-9"
+        />
         <div className="flex items-center gap-1">
           <Input
             type="number"
@@ -222,7 +222,7 @@ export function HasilTab({
             onBlur={applyPrice}
             onKeyDown={(e) => e.key === "Enter" && applyPrice()}
             placeholder="Min"
-            className="h-9"
+            className="h-9 w-24"
             aria-label="Harga minimal"
           />
           <span className="text-muted-foreground">–</span>
@@ -234,35 +234,15 @@ export function HasilTab({
             onBlur={applyPrice}
             onKeyDown={(e) => e.key === "Enter" && applyPrice()}
             placeholder="Max"
-            className="h-9"
+            className="h-9 w-24"
             aria-label="Harga maksimal"
           />
         </div>
+      </FilterToolbar>
+
+      <div className="px-5 py-5 sm:px-6">
+        {view === "card" ? <ProductCardView {...viewProps} /> : <ProductTable {...viewProps} />}
       </div>
-    </>
-  )
-
-  return (
-    <FilterShell filters={filters} onReset={hasFilter ? reset : undefined}>
-      <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 pt-3 sm:px-5">
-          <div className="overflow-x-auto">{tabBar}</div>
-          <div className="flex items-center gap-3 pb-2">
-            {actionButton}
-            <div className="flex items-center gap-0.5 rounded-full bg-black/[0.06] p-1 ring-1 ring-border/60 dark:bg-white/10">
-              {toggleBtn("card", "Tampilan kartu", LayoutGridIcon)}
-              {toggleBtn("table", "Tampilan tabel", TableIcon)}
-            </div>
-            <span className="text-sm text-muted-foreground">
-              {isLoading ? "Memuat…" : `${total} produk`}
-            </span>
-          </div>
-        </div>
-
-        <div className="px-5 py-5 sm:px-6">
-          {view === "card" ? <ProductCardView {...viewProps} /> : <ProductTable {...viewProps} />}
-        </div>
-      </LiquidGlass>
-    </FilterShell>
+    </LiquidGlass>
   )
 }

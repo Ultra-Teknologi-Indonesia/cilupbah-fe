@@ -8,19 +8,23 @@ import {
   ImageIcon,
   InfoIcon,
   RotateCcwIcon,
-  SearchIcon,
-  XIcon,
 } from "lucide-react"
 
 import { format, parseISO } from "date-fns"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Combobox } from "@/components/ui/combobox"
 import { DatePicker } from "@/components/ui/date-picker"
 import { Checkbox } from "@/components/ui/checkbox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { DataTable } from "@/components/ui/data-table"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   useBulkDeleteHistories,
   useReuploadHistory,
@@ -30,10 +34,10 @@ import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
 import type { HistoryRow } from "@/services/master-produk/upload.service"
 import type { ChannelCode } from "@/types/channel"
 import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
-import { FilterShell } from "../filter-shell"
+import { FilterToolbar } from "../filter-toolbar"
 
 const STATUS_OPTIONS = [
-  { value: "", label: "Semua" },
+  { value: "all", label: "Semua" },
   { value: "success", label: "Berhasil" },
   { value: "failed", label: "Gagal" },
   { value: "pending", label: "Diproses" },
@@ -98,7 +102,7 @@ export function HasilTab({
   const [searchInput, setSearchInput] = React.useState("")
   const [search, setSearch] = React.useState("")
   const [shopId, setShopId] = React.useState<string | null>(null)
-  const [status, setStatus] = React.useState<string | null>("")
+  const [status, setStatus] = React.useState("all")
   const [dateFrom, setDateFrom] = React.useState("")
   const [dateTo, setDateTo] = React.useState("")
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -129,7 +133,7 @@ export function HasilTab({
 
   const { data, isLoading } = useUploadHistories({
     search: search || undefined,
-    status: status || undefined,
+    status: status === "all" ? undefined : status,
     shopId: shopId || undefined,
     dateFrom: dateFrom || undefined,
     dateTo: dateTo || undefined,
@@ -144,13 +148,13 @@ export function HasilTab({
   const bulkDelete = useBulkDeleteHistories()
 
   const hasFilter =
-    !!search || !!status || !!shopId || !!dateFrom || !!dateTo
+    !!search || status !== "all" || !!shopId || !!dateFrom || !!dateTo
 
   const onReset = () => {
     setSearchInput("")
     setSearch("")
     setShopId(null)
-    setStatus("")
+    setStatus("all")
     setDateFrom("")
     setDateTo("")
     resetPage()
@@ -291,52 +295,62 @@ export function HasilTab({
     [reupload]
   )
 
-  const filters = (
-    <>
-      <div className="relative">
-        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          placeholder="Cari produk…"
-          className="h-9 border-border bg-background pl-9 pr-8"
-        />
-        {searchInput.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setSearchInput("")}
-            aria-label="Bersihkan pencarian"
-            className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <XIcon className="size-3.5" />
-          </button>
-        )}
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-start gap-2 rounded-2xl border border-border/60 bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+        <InfoIcon className="mt-0.5 size-4 shrink-0" />
+        <p>
+          Produk yang berhasil di-upload ke channel lebih dari 30 hari akan
+          otomatis terhapus dari halaman ini.
+        </p>
       </div>
-      <Combobox
-        options={storeOptions}
-        value={shopId}
-        onChange={(v) => {
-          setShopId(v)
-          resetPage()
-        }}
-        placeholder="Pilih toko"
-        searchPlaceholder="Cari toko"
-        className="h-9 w-full"
-      />
-      <Combobox
-        options={STATUS_OPTIONS}
-        value={status}
-        onChange={(v) => {
-          setStatus(v ?? "")
-          resetPage()
-        }}
-        placeholder="Semua status"
-        searchPlaceholder="Cari status"
-        className="h-9 w-full"
-      />
-      <div>
-        <div className="mb-1.5 text-sm font-medium">Tanggal Upload</div>
-        <div className="flex flex-col gap-2">
+
+      <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 pt-3 sm:px-5">
+          <div className="overflow-x-auto">{tabBar}</div>
+          <div className="flex items-center gap-3 pb-2">
+            {actionButton}
+            <span className="text-sm text-muted-foreground">
+              Total <span className="font-medium text-foreground tabular-nums">{total}</span>
+            </span>
+          </div>
+        </div>
+        <FilterToolbar
+          search={searchInput}
+          onSearchChange={setSearchInput}
+          searchPlaceholder="Cari produk…"
+          onReset={hasFilter ? onReset : undefined}
+          hasFilter={hasFilter}
+        >
+          <Combobox
+            options={storeOptions}
+            value={shopId}
+            onChange={(v) => {
+              setShopId(v)
+              resetPage()
+            }}
+            placeholder="Pilih toko"
+            searchPlaceholder="Cari toko"
+            className="h-9"
+          />
+          <Select
+            value={status}
+            onValueChange={(v) => {
+              setStatus(v)
+              resetPage()
+            }}
+          >
+            <SelectTrigger className="h-9 w-auto min-w-[140px]">
+              <SelectValue placeholder="Semua status" />
+            </SelectTrigger>
+            <SelectContent>
+              {STATUS_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <DatePicker
             value={dateFrom ? parseISO(dateFrom) : undefined}
             onChange={(d) => {
@@ -353,67 +367,41 @@ export function HasilTab({
             }}
             placeholder="Sampai tanggal"
           />
+        </FilterToolbar>
+        <div className="px-5 py-5 sm:px-6">
+          <DataTable
+            columns={columns}
+            data={items}
+            getRowId={(h) => h.id}
+            isLoading={isLoading}
+            hideToolbar
+            manualPagination
+            rowCount={total}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            enableRowSelection
+            tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+            bulkActions={(selected, table) => (
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={bulkDelete.isPending}
+                onClick={() =>
+                  bulkDelete.mutate(
+                    selected.map((h) => h.id),
+                    { onSuccess: () => table.resetRowSelection() }
+                  )
+                }
+              >
+                Hapus
+              </Button>
+            )}
+            emptyState={
+              <span className="text-muted-foreground">Belum ada riwayat upload</span>
+            }
+          />
         </div>
-      </div>
-    </>
-  )
-
-  return (
-    <FilterShell filters={filters} onReset={hasFilter ? onReset : undefined}>
-      <div className="flex flex-col gap-4">
-        <div className="flex items-start gap-2 rounded-2xl border border-border/60 bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-          <InfoIcon className="mt-0.5 size-4 shrink-0" />
-          <p>
-            Produk yang berhasil di-upload ke channel lebih dari 30 hari akan
-            otomatis terhapus dari halaman ini.
-          </p>
-        </div>
-
-        <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 pt-3 sm:px-5">
-            <div className="overflow-x-auto">{tabBar}</div>
-            <div className="flex items-center gap-3 pb-2">
-              {actionButton}
-              <span className="text-sm text-muted-foreground">
-                Total <span className="font-medium text-foreground tabular-nums">{total}</span>
-              </span>
-            </div>
-          </div>
-          <div className="px-5 py-5 sm:px-6">
-            <DataTable
-              columns={columns}
-              data={items}
-              getRowId={(h) => h.id}
-              isLoading={isLoading}
-              hideToolbar
-              manualPagination
-              rowCount={total}
-              pagination={pagination}
-              onPaginationChange={setPagination}
-              enableRowSelection
-              tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
-              bulkActions={(selected, table) => (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  disabled={bulkDelete.isPending}
-                  onClick={() =>
-                    bulkDelete.mutate(
-                      selected.map((h) => h.id),
-                      { onSuccess: () => table.resetRowSelection() }
-                    )
-                  }
-                >
-                  Hapus
-                </Button>
-              )}
-              emptyState={
-                <span className="text-muted-foreground">Belum ada riwayat upload</span>
-              }
-            />
-          </div>
-        </LiquidGlass>
-      </div>
-    </FilterShell>
+      </LiquidGlass>
+    </div>
   )
 }

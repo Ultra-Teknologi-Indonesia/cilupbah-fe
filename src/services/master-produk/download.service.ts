@@ -284,21 +284,6 @@ export const DownloadService = {
     return (res.data ?? []).map(mapSearchItem)
   },
 
-  /** Download Satuan — ambil URL gambar utama satu produk (lazy thumbnail). */
-  getProductImage: async (params: {
-    channel: string
-    shopId: string
-    externalProductId: string
-  }): Promise<string | null> => {
-    const search = new URLSearchParams()
-    search.set("shop_id", params.shopId)
-    search.set("external_product_id", params.externalProductId)
-    const res = await fetchClient<ApiResponse<{ image: string | null }>>(
-      `/${params.channel}/download/product-image?${search.toString()}`
-    )
-    return res.data?.image ?? null
-  },
-
   /** Download Satuan — tarik satu produk by external id. */
   downloadProduct: async (params: {
     channel: string

@@ -7,8 +7,6 @@ import {
   TableIcon,
   PlusIcon,
   UploadIcon,
-  SearchIcon,
-  XIcon,
   ChevronDownIcon,
   PackageIcon,
   LayersIcon,
@@ -16,7 +14,6 @@ import {
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import {
@@ -33,7 +30,7 @@ import {
 import type { useProductListQuery } from "@/hooks/master-produk/use-product-list-query"
 import type { ImportBatchType } from "@/services/master-produk/import.service"
 import { CategoryPicker } from "./buat/category-picker"
-import { FilterShell } from "./filter-shell"
+import { FilterToolbar } from "./filter-toolbar"
 import { ImportDialog } from "./import/import-dialog"
 import { ProductTable } from "./product-table"
 import { ProductCardView } from "./product-card-view"
@@ -80,54 +77,8 @@ export function ProductExplorer({ query }: { query: Query }) {
     </Button>
   )
 
-  const filters = (
-    <>
-      <div className="relative">
-        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={query.search}
-          onChange={(e) => query.setSearch(e.target.value)}
-          placeholder="Cari nama / SKU…"
-          className="h-9 border-border bg-background pl-9 pr-8"
-        />
-        {query.search.length > 0 && (
-          <button
-            type="button"
-            onClick={() => query.setSearch("")}
-            aria-label="Bersihkan pencarian"
-            className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <XIcon className="size-3.5" />
-          </button>
-        )}
-      </div>
-      <Combobox
-        options={PRODUCT_STATUS_OPTIONS}
-        value={query.status}
-        onChange={query.setStatus}
-        placeholder="Semua status"
-        searchPlaceholder="Cari status"
-        className="h-9 w-full"
-      />
-      <Combobox
-        options={brandOptions}
-        value={query.brandId}
-        onChange={query.setBrandId}
-        placeholder="Semua merek"
-        searchPlaceholder="Cari merek"
-        className="h-9 w-full"
-      />
-      <CategoryPicker
-        value={query.category}
-        onChange={query.setCategory}
-        tree={categoryTree}
-        triggerClassName="h-9 w-full"
-      />
-    </>
-  )
-
   return (
-    <FilterShell filters={filters} onReset={query.hasFilter ? query.reset : undefined}>
+    <>
       <LiquidGlass
         radius={24}
         intensity="default"
@@ -219,6 +170,37 @@ export function ProductExplorer({ query }: { query: Query }) {
           </div>
         </div>
 
+        <FilterToolbar
+          search={query.search}
+          onSearchChange={query.setSearch}
+          searchPlaceholder="Cari nama / SKU…"
+          onReset={query.hasFilter ? query.reset : undefined}
+          hasFilter={query.hasFilter}
+        >
+          <Combobox
+            options={PRODUCT_STATUS_OPTIONS}
+            value={query.status}
+            onChange={query.setStatus}
+            placeholder="Semua status"
+            searchPlaceholder="Cari status"
+            className="h-9"
+          />
+          <Combobox
+            options={brandOptions}
+            value={query.brandId}
+            onChange={query.setBrandId}
+            placeholder="Semua merek"
+            searchPlaceholder="Cari merek"
+            className="h-9"
+          />
+          <CategoryPicker
+            value={query.category}
+            onChange={query.setCategory}
+            tree={categoryTree}
+            triggerClassName="h-9"
+          />
+        </FilterToolbar>
+
         <div className="px-5 py-5 sm:px-6">
           {view === "card" ? (
             <ProductCardView {...viewProps} />
@@ -235,6 +217,6 @@ export function ProductExplorer({ query }: { query: Query }) {
           onOpenChange={(o) => !o && setImportType(null)}
         />
       )}
-    </FilterShell>
+    </>
   )
 }
