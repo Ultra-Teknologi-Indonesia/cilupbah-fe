@@ -19,7 +19,6 @@ export function useProductDetail(id: string) {
 }
 
 const ACTION_LABEL: Record<LifecycleAction, string> = {
-  approve: "Produk disetujui menjadi Master",
   archive: "Produk diarsipkan",
   restore: "Produk dipulihkan",
 }

@@ -1,4 +1,4 @@
-export type ProductCreateStatus = "download" | "master"
+export type ProductCreateStatus = "master"
 
 export interface CreateMediaInput {
   media_uuid?: string

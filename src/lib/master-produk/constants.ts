@@ -8,8 +8,6 @@ export const PRODUCT_STATUS_META: Record<
   { label: string; variant: StatusBadgeVariant }
 > = {
   master: { label: "Master", variant: "success" },
-  in_review: { label: "Review", variant: "warning" },
-  download: { label: "Draf", variant: "muted" },
   archived: { label: "Diarsip", variant: "outline" },
 }
 

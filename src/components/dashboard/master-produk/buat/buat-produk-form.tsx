@@ -4,7 +4,7 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { AlertTriangleIcon, Loader2Icon, SaveIcon, SendIcon, XIcon } from "lucide-react"
+import { AlertTriangleIcon, Loader2Icon, SendIcon, XIcon } from "lucide-react"
 import { toast } from "sonner"
 import { buatProdukSchema } from "@/schemas/master-produk"
 import type { BuatProdukFormValues } from "@/types/master-produk"
@@ -35,7 +35,7 @@ export function BuatProdukForm() {
     setMediaFilesRaw(files)
     if (files.some((f) => f.type.startsWith("image/"))) setMediaError(false)
   }, [])
-  const modeRef = React.useRef<"download" | "master">("master")
+  const modeRef = React.useRef<"master">("master")
   const [serverErrors, setServerErrors] = React.useState<string[]>([])
   const [cancelOpen, setCancelOpen] = React.useState(false)
   const { mutateAsync, isPending } = useCreateProduct()
@@ -114,12 +114,9 @@ export function BuatProdukForm() {
     setServerErrors([])
     try {
       await mutateAsync({ values: data, files: mediaFiles, status: modeRef.current })
-      toast.success(
-        modeRef.current === "download"
-          ? "Draf produk disimpan"
-          : "Produk berhasil dibuat",
-        { description: `${data.name} · ${data.sku}` }
-      )
+      toast.success("Produk berhasil dibuat", {
+        description: `${data.name} · ${data.sku}`,
+      })
       router.push("/dashboard/master-produk")
     } catch (err) {
       const body = err as { message?: string }
@@ -142,7 +139,7 @@ export function BuatProdukForm() {
 
   const busy = isPending
 
-  const submit = (mode: "download" | "master") => {
+  const submit = (mode: "master") => {
     if (busy) return
     modeRef.current = mode
 
@@ -271,19 +268,6 @@ export function BuatProdukForm() {
               >
                 <XIcon />
                 Batalkan
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => submit("download")}
-                disabled={busy}
-              >
-                {busy && modeRef.current === "download" ? (
-                  <Loader2Icon className="animate-spin" />
-                ) : (
-                  <SaveIcon />
-                )}
-                Simpan draf
               </Button>
               <Button
                 variant="primary"

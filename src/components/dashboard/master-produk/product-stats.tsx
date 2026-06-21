@@ -1,7 +1,6 @@
 import {
   BoxesIcon,
   CheckCircle2Icon,
-  ClockIcon,
   AlertTriangleIcon,
 } from "lucide-react"
 
@@ -18,7 +17,6 @@ export function ProductStats({
 }) {
   const total = totalOverride ?? products.length
   const master = products.filter((p) => p.status === "master").length
-  const review = products.filter((p) => p.status === "in_review").length
   const channelErrors = products.filter((p) =>
     p.onlineStatus.some((c) => c.errorText)
   ).length
@@ -26,7 +24,6 @@ export function ProductStats({
   const cards = [
     { label: "Total Produk", value: total, icon: BoxesIcon, tone: "text-foreground" },
     { label: "Aktif (Master)", value: master, icon: CheckCircle2Icon, tone: "text-emerald-600 dark:text-emerald-400" },
-    { label: "Menunggu Review", value: review, icon: ClockIcon, tone: "text-amber-600 dark:text-amber-400" },
     { label: "Bermasalah di Channel", value: channelErrors, icon: AlertTriangleIcon, tone: "text-destructive" },
   ]
 
@@ -36,17 +33,13 @@ export function ProductStats({
       intensity="default"
       className="bg-white/40 dark:bg-white/[0.06]"
     >
-      <div className="grid grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3">
         {cards.map((c, i) => (
           <div
             key={c.label}
             className={cn(
               "flex flex-col gap-2 p-4 sm:p-5",
-
-              i % 2 === 1 && "border-l border-border/60",
-              i >= 2 && "border-t border-border/60",
-              "lg:border-t-0 lg:border-l lg:border-border/60",
-              i === 0 && "lg:border-l-0"
+              i > 0 && "border-t border-border/60 sm:border-t-0 sm:border-l"
             )}
           >
             <div className="flex items-center justify-between">

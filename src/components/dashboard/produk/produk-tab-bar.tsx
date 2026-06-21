@@ -5,7 +5,6 @@ import { usePathname, useSearchParams } from "next/navigation"
 import {
   ActivityIcon,
   ArchiveIcon,
-  ClockIcon,
   CloudDownloadIcon,
   ImportIcon,
   Package2Icon,
@@ -32,7 +31,6 @@ const TABS: Tab[] = [
   { id: "upload", label: "Upload", icon: UploadCloudIcon, href: "/dashboard/produk/upload" },
   { id: "download", label: "Download", icon: CloudDownloadIcon, href: "/dashboard/produk/download" },
   { id: "import", label: "Import", icon: ImportIcon, href: "/dashboard/produk/import" },
-  { id: "in_review", label: "In Review", icon: ClockIcon, href: "/dashboard/master-produk?status=in_review" },
   { id: "arsip", label: "Arsip", icon: ArchiveIcon, href: "/dashboard/master-produk/arsip" },
   { id: "channel", label: "Produk Channel", icon: PlugIcon, href: "/dashboard/listing-marketplace" },
   { id: "naikkan", label: "Naikkan Produk", icon: TrendingUpIcon, href: "/dashboard/produk/naikkan" },
@@ -40,7 +38,7 @@ const TABS: Tab[] = [
 
 function activeId(pathname: string, status: string | null): string {
   if (pathname.startsWith("/dashboard/master-produk/arsip")) return "arsip"
-  if (pathname === "/dashboard/master-produk") return status === "in_review" ? "in_review" : "master"
+  if (pathname === "/dashboard/master-produk") return "master"
   if (pathname.startsWith("/dashboard/produk/pantauan")) return "pantauan"
   if (pathname.startsWith("/dashboard/produk/upload")) return "upload"
   if (pathname.startsWith("/dashboard/produk/download")) return "download"

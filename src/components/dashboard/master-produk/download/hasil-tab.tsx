@@ -76,7 +76,7 @@ export function HasilTab({
     : undefined
 
   const query = useMasterProducts({
-    status: "download",
+    status: undefined,
     search: debounced || undefined,
     brandId: brandId || undefined,
     categoryId: category?.id || undefined,

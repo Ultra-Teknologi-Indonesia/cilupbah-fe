@@ -127,7 +127,6 @@ function mapDetail(raw: RawProductDetail): ProductDetail {
 }
 
 export type LifecycleAction =
-  | "approve"
   | "archive"
   | "restore"
 

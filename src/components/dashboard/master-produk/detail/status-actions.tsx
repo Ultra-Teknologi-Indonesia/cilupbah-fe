@@ -5,7 +5,6 @@ import Link from "next/link"
 import {
   ArchiveIcon,
   ArrowUpRightIcon,
-  CheckIcon,
   Loader2Icon,
   PencilIcon,
   RotateCcwIcon,
@@ -59,16 +58,6 @@ export function StatusActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {product.status === "download" && (
-        <>
-          <Button variant="primary" disabled={isPending} onClick={() => onAction("approve")}>
-            {isPending ? spinner : <CheckIcon />}
-            Setujui jadi Master
-          </Button>
-          {editBtn}
-        </>
-      )}
-
       {product.status === "master" && (
         <>
           {editBtn}

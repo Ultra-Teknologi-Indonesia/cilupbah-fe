@@ -8,8 +8,6 @@ import {
   XCircleIcon,
 } from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Combobox } from "@/components/ui/combobox"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -21,7 +19,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import {
-  useApproveProduct,
   useDownloadTransactionDetail,
 } from "@/hooks/master-produk/use-download"
 import type { DownloadTransaction } from "@/services/master-produk/download.service"
@@ -60,8 +57,6 @@ export function TransactionDetailSheet({
     isMaster,
     perPage: 100,
   })
-  const approve = useApproveProduct()
-
   const detail = query.data
   const products = detail?.products ?? []
   const pct = Math.min(100, Math.max(0, detail?.percent ?? trx?.progressPercent ?? 0))
@@ -155,21 +150,9 @@ export function TransactionDetailSheet({
                     </div>
 
                     <div className="w-44 shrink-0 text-right">
-                      {p.isMaster ? (
-                        <span className={cn("text-xs text-muted-foreground")} title={p.masterItemName ?? undefined}>
-                          {p.masterItemName ?? "Master"}
-                        </span>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8"
-                          onClick={() => approve.mutate(p.itemId)}
-                          disabled={approve.isPending}
-                        >
-                          Jadikan Master
-                        </Button>
-                      )}
+                      <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                        Master
+                      </span>
                     </div>
                   </div>
                 )
