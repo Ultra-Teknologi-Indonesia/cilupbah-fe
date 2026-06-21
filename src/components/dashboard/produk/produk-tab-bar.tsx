@@ -7,6 +7,7 @@ import {
   ArchiveIcon,
   ClockIcon,
   CloudDownloadIcon,
+  ImportIcon,
   Package2Icon,
   PlugIcon,
   TrendingUpIcon,
@@ -30,6 +31,7 @@ const TABS: Tab[] = [
   { id: "master", label: "Master", icon: Package2Icon, href: "/dashboard/master-produk" },
   { id: "upload", label: "Upload", icon: UploadCloudIcon, href: "/dashboard/produk/upload" },
   { id: "download", label: "Download", icon: CloudDownloadIcon, href: "/dashboard/produk/download" },
+  { id: "import", label: "Import", icon: ImportIcon, href: "/dashboard/produk/import" },
   { id: "in_review", label: "In Review", icon: ClockIcon, href: "/dashboard/master-produk?status=in_review" },
   { id: "arsip", label: "Arsip", icon: ArchiveIcon, href: "/dashboard/master-produk/arsip" },
   { id: "channel", label: "Produk Channel", icon: PlugIcon, href: "/dashboard/listing-marketplace" },
@@ -42,6 +44,7 @@ function activeId(pathname: string, status: string | null): string {
   if (pathname.startsWith("/dashboard/produk/pantauan")) return "pantauan"
   if (pathname.startsWith("/dashboard/produk/upload")) return "upload"
   if (pathname.startsWith("/dashboard/produk/download")) return "download"
+  if (pathname.startsWith("/dashboard/produk/import")) return "import"
   if (pathname.startsWith("/dashboard/listing-marketplace")) return "channel"
   return ""
 }
