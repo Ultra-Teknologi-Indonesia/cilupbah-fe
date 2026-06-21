@@ -34,6 +34,8 @@ function reconstructVariants(p: ProductDetail) {
       options: opts,
       sku: match?.sku ?? "",
       barcode: match?.barcode ?? "",
+      image: match?.image ?? null,
+      imageFile: undefined,
       sellPrice: match?.sellPrice != null ? String(match.sellPrice) : "",
       buyPrice: match?.buyPrice != null ? String(match.buyPrice) : "",
       weight: match?.weight != null ? String(match.weight) : "",

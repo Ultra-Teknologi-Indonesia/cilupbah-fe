@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useFormContext } from "react-hook-form"
-import { InfoIcon, PlusIcon, Trash2Icon, XIcon } from "lucide-react"
+import { ImageIcon, InfoIcon, PlusIcon, Trash2Icon, XIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,6 +12,51 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip
 import { useCategoryFormAttributes } from "@/hooks/master-produk/use-master-data"
 import { buildCombos, comboKey, comboLabel, skuPart } from "@/lib/master-produk/variant-combos"
 import type { BuatProdukFormValues, FormAttribute } from "@/types/master-produk"
+
+function useObjectUrl(file: File | undefined) {
+  const [url, setUrl] = React.useState<string | null>(null)
+  React.useEffect(() => {
+    if (!(file instanceof File)) { setUrl(null); return }
+    const u = URL.createObjectURL(file)
+    setUrl(u)
+    return () => URL.revokeObjectURL(u)
+  }, [file])
+  return url
+}
+
+function VariantImageCell({
+  image,
+  imageFile,
+  onChange,
+}: {
+  image: string | null | undefined
+  imageFile: File | undefined
+  onChange: (file: File) => void
+}) {
+  const previewUrl = useObjectUrl(imageFile)
+  const src = previewUrl ?? image ?? null
+
+  return (
+    <label className="group relative flex size-12 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-border transition-colors hover:border-primary/50 hover:bg-muted/40">
+      {src ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt="" className="size-full object-cover" />
+      ) : (
+        <ImageIcon className="size-4 text-muted-foreground" />
+      )}
+      <input
+        type="file"
+        accept="image/*"
+        className="sr-only"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) onChange(file)
+          e.target.value = ""
+        }}
+      />
+    </label>
+  )
+}
 
 
 function OptionAdder({
@@ -119,6 +164,8 @@ export function FormVariantSection({
         options: opts,
         sku: prev?.sku || suggest,
         barcode: prev?.barcode ?? "",
+        image: prev?.image ?? null,
+        imageFile: prev?.imageFile ?? undefined,
         sellPrice: prev?.sellPrice ?? "",
         buyPrice: prev?.buyPrice ?? "",
         weight: prev?.weight ?? "",
@@ -308,10 +355,11 @@ export function FormVariantSection({
 
       {variants.length > 0 && (
         <div className="mt-6 overflow-x-auto rounded-lg border">
-          <table className="min-w-[820px] w-full text-sm">
+          <table className="min-w-[900px] w-full text-sm">
             <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
               <tr>
                 <th className="sticky left-0 z-10 bg-muted/50 px-3 py-2 font-medium">Variasi</th>
+                <th className="px-3 py-2 font-medium">Foto</th>
                 <th className="px-3 py-2 font-medium">SKU <span className="text-destructive">*</span></th>
                 <th className="px-3 py-2 font-medium">Harga Jual</th>
                 <th className="px-3 py-2 font-medium">Harga Beli</th>
@@ -323,6 +371,13 @@ export function FormVariantSection({
               {variants.map((row, i) => (
                 <tr key={row.key} className="border-t">
                   <td className="sticky left-0 z-10 bg-background px-3 py-2 font-medium whitespace-nowrap">{row.label}</td>
+                  <td className="px-2 py-2">
+                    <VariantImageCell
+                      image={row.image}
+                      imageFile={row.imageFile instanceof File ? row.imageFile : undefined}
+                      onChange={(file) => updateVariant(i, { imageFile: file })}
+                    />
+                  </td>
                   <td className="px-2 py-2">
                     <Input
                       value={row.sku}

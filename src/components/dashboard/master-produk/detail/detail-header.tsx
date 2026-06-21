@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { ArrowLeftIcon, ChevronRightIcon, ImageIcon } from "lucide-react"
+import { ArrowLeftIcon, ChevronRightIcon, ImageIcon, PlayCircleIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -16,7 +16,7 @@ import { ProductStatusBadge } from "../product-status-badge"
 import { formatIDR } from "../product-columns"
 import { StatusActions } from "./status-actions"
 import type { LifecycleAction } from "@/services/master-produk/product-detail.service"
-import type { ProductDetail, ProductTypeKind } from "@/types/master-produk"
+import type { DetailMedia, ProductDetail, ProductTypeKind } from "@/types/master-produk"
 
 const TYPE_LABEL: Record<ProductTypeKind, string> = {
   single: "Satuan",
@@ -37,46 +37,72 @@ function ProductTypeBadge({ type }: { type: ProductTypeKind }) {
   )
 }
 
+interface GalleryItem {
+  url: string
+  type: "image" | "video"
+}
+
 function Gallery({
+  media,
   images,
   fallback,
   name,
 }: {
+  media: DetailMedia[]
   images: { url: string; isPrimary: boolean }[]
   fallback: string | null
   name: string
 }) {
-  const list = images.length ? images.map((i) => i.url) : fallback ? [fallback] : []
+  const items: GalleryItem[] = React.useMemo(() => {
+    if (media.length > 0) {
+      return media
+        .filter((m) => m.url)
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .map((m) => ({ url: m.url, type: m.mediaType }))
+    }
+    if (images.length > 0) return images.map((i) => ({ url: i.url, type: "image" as const }))
+    if (fallback) return [{ url: fallback, type: "image" as const }]
+    return []
+  }, [media, images, fallback])
+
   const [idx, setIdx] = React.useState(0)
-  const main = list[Math.min(idx, list.length - 1)]
+  const current = items[Math.min(idx, items.length - 1)]
 
   return (
     <div className="space-y-2">
       <div className="grid aspect-square w-full place-items-center overflow-hidden rounded-xl border border-border bg-muted/30">
-        {main ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={main} alt={name} className="size-full object-contain" />
-        ) : (
+        {!current ? (
           <ImageIcon className="size-10 text-muted-foreground" />
+        ) : current.type === "video" ? (
+          <video src={current.url} controls className="size-full object-contain" />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={current.url} alt={name} className="size-full object-contain" />
         )}
       </div>
-      {list.length > 1 && (
+      {items.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
-          {list.map((url, i) => (
+          {items.map((item, i) => (
             <button
-              key={`${url}-${i}`}
+              key={`${item.url}-${i}`}
               type="button"
               onClick={() => setIdx(i)}
-              aria-label={`Gambar ${i + 1}`}
+              aria-label={item.type === "video" ? "Video" : `Gambar ${i + 1}`}
               className={cn(
-                "size-14 shrink-0 overflow-hidden rounded-lg border transition",
+                "relative size-14 shrink-0 overflow-hidden rounded-lg border transition",
                 i === idx
                   ? "border-primary ring-2 ring-primary/30"
                   : "border-border hover:border-primary/50"
               )}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt={`${name} ${i + 1}`} className="size-full object-cover" />
+              {item.type === "video" ? (
+                <div className="flex size-full items-center justify-center bg-muted/60">
+                  <PlayCircleIcon className="size-6 text-primary" />
+                </div>
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={item.url} alt={`${name} ${i + 1}`} className="size-full object-cover" />
+              )}
             </button>
           ))}
         </div>
@@ -144,7 +170,7 @@ export function DetailHeader({
         </div>
 
         <div className="grid gap-6 sm:grid-cols-[280px_1fr]">
-          <Gallery images={product.images} fallback={product.primaryImage} name={product.name} />
+          <Gallery media={product.media} images={product.images} fallback={product.primaryImage} name={product.name} />
 
           <div className="flex flex-col gap-4">
             <div>
@@ -174,7 +200,7 @@ export function DetailHeader({
                   Lihat selengkapnya
                 </button>
                 <Dialog open={descOpen} onOpenChange={setDescOpen}>
-                  <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto">
+                  <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Deskripsi Produk</DialogTitle>
                     </DialogHeader>

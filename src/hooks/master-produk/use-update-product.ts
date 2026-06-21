@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-import { buildUpdatePayload } from "@/lib/master-produk/build-update-payload"
+import { buildUpdatePayload, type VariantMediaEntry } from "@/lib/master-produk/build-update-payload"
 import { MediaService } from "@/services/master-produk/media.service"
 import { ProductUpdateService } from "@/services/master-produk/product-update.service"
 import type { BuatProdukFormValues, CreateMediaInput } from "@/types/master-produk"
@@ -43,7 +43,6 @@ export function useUpdateProduct(id: string) {
         const uuid = m.kind === "existing" ? m.uuid : uploaded.get(m.localId) ?? null
         return {
           media_uuid: uuid ?? undefined,
-          // legacy: media existing tanpa uuid (URL marketplace lama) dipertahankan by url
           url: uuid ? undefined : m.url,
           media_type: m.mediaType,
           is_primary: m.isPrimary,
@@ -51,10 +50,22 @@ export function useUpdateProduct(id: string) {
         }
       })
 
+      const variantMedia: VariantMediaEntry[] = []
+      const variantsWithNewImage = values.variants.filter((v) => v.imageFile instanceof File)
+      if (variantsWithNewImage.length > 0) {
+        await Promise.all(
+          variantsWithNewImage.map(async (v) => {
+            const up = await MediaService.upload(v.imageFile as File)
+            variantMedia.push({ variantKey: v.key, mediaUuid: up.uuid })
+          })
+        )
+      }
+
       const payload = buildUpdatePayload(values, {
         includeVariant,
         originalVariantSku,
         media,
+        variantMedia: variantMedia.length > 0 ? variantMedia : undefined,
       })
       return ProductUpdateService.update(id, payload)
     },

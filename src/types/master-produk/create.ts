@@ -30,6 +30,7 @@ export interface CreateVariantInput {
   is_active?: boolean
   unlimited_shop_ids?: string[]
   options?: VariantOptionInput[]
+  media?: CreateMediaInput[]
 }
 
 export interface VariationTypeInput {

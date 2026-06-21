@@ -13,6 +13,10 @@ function num(value?: string | null): number | undefined {
   return Number.isFinite(n) ? n : undefined
 }
 
+export interface VariantMediaEntry {
+  variantKey: string
+  mediaUuid: string
+}
 
 export function buildUpdatePayload(
   values: BuatProdukFormValues,
@@ -20,6 +24,7 @@ export function buildUpdatePayload(
     includeVariant: boolean
     originalVariantSku?: string
     media?: CreateMediaInput[]
+    variantMedia?: VariantMediaEntry[]
   }
 ): ProductUpdatePayload {
   const payload: ProductUpdatePayload = {
@@ -61,20 +66,27 @@ export function buildUpdatePayload(
       attribute_id: t.attributeId,
       sort_order: i,
     }))
-    payload.variants = values.variants.map((row) => ({
-      sku: row.sku.trim(),
-      barcode: row.barcode?.trim() || null,
-      sell_price: num(row.sellPrice) ?? num(values.sellPrice) ?? 0,
-      buy_price: num(row.buyPrice) ?? null,
-      weight: num(row.weight) ?? null,
-      length: num(row.length) ?? null,
-      width: num(row.width) ?? null,
-      height: num(row.height) ?? null,
-      sales_tax_id: values.salesTaxId ? Number(values.salesTaxId) : null,
-      purchase_tax_id: values.purchaseTaxId ? Number(values.purchaseTaxId) : null,
-      is_active: true,
-      options: row.options.map((o) => ({ attribute_id: o.attributeId, value: o.value })),
-    }))
+    payload.variants = values.variants.map((row) => {
+      const v: CreateVariantInput = {
+        sku: row.sku.trim(),
+        barcode: row.barcode?.trim() || null,
+        sell_price: num(row.sellPrice) ?? num(values.sellPrice) ?? 0,
+        buy_price: num(row.buyPrice) ?? null,
+        weight: num(row.weight) ?? null,
+        length: num(row.length) ?? null,
+        width: num(row.width) ?? null,
+        height: num(row.height) ?? null,
+        sales_tax_id: values.salesTaxId ? Number(values.salesTaxId) : null,
+        purchase_tax_id: values.purchaseTaxId ? Number(values.purchaseTaxId) : null,
+        is_active: true,
+        options: row.options.map((o) => ({ attribute_id: o.attributeId, value: o.value })),
+      }
+      const vm = opts.variantMedia?.find((m) => m.variantKey === row.key)
+      if (vm) {
+        v.media = [{ media_uuid: vm.mediaUuid, media_type: "image", is_primary: true, sort_order: 0 }]
+      }
+      return v
+    })
   } else if (opts.includeVariant) {
     const variant: CreateVariantInput = {
       sku: opts.originalVariantSku ?? values.sku.trim(),

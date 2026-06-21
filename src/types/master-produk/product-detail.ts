@@ -37,6 +37,7 @@ export interface DetailVariationType {
 export interface DetailVariant {
   id: string
   sku: string
+  image: string | null
   barcode: string | null
   buyPrice: number | null
   sellPrice: number | null
@@ -199,6 +200,7 @@ export interface RawProductDetail {
   variants?: Array<{
     id: string
     sku: string
+    image?: string | null
     barcode: string | null
     buy_price: number | null
     sell_price: number | null

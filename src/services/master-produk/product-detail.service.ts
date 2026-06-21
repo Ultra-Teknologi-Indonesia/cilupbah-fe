@@ -94,6 +94,7 @@ function mapDetail(raw: RawProductDetail): ProductDetail {
     variants: (raw.variants ?? []).map((v) => ({
       id: v.id,
       sku: v.sku,
+      image: v.image ?? null,
       barcode: v.barcode,
       buyPrice: v.buy_price,
       sellPrice: v.sell_price,
