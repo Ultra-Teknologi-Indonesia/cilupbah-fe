@@ -11,6 +11,8 @@ export interface ChannelListingVariant {
 }
 
 export interface ChannelListing {
+  /** product_channel_mapping UUID. */
+  mappingId: string | null
   /** external_product_id channel (dipakai unlink). */
   channelGroupId: string | null
   /** channel_shop UUID. */
@@ -58,6 +60,7 @@ interface RawConnection {
 }
 
 interface RawChannelListing {
+  mapping_id: string | null
   channel_group_id: string | null
   store_id: string | null
   shop_id: string | null
@@ -87,6 +90,7 @@ function mapListing(raw: RawChannelListing): ChannelListing {
   }))
 
   return {
+    mappingId: raw.mapping_id,
     channelGroupId: raw.channel_group_id,
     storeId: raw.store_id,
     shopId: raw.shop_id,

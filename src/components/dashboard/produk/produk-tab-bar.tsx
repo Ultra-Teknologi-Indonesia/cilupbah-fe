@@ -35,7 +35,7 @@ const TABS: Tab[] = [
   { id: "in_review", label: "In Review", icon: ClockIcon, href: "/dashboard/master-produk?status=in_review" },
   { id: "arsip", label: "Arsip", icon: ArchiveIcon, href: "/dashboard/master-produk/arsip" },
   { id: "channel", label: "Produk Channel", icon: PlugIcon, href: "/dashboard/listing-marketplace" },
-  { id: "naikkan", label: "Naikkan Produk", icon: TrendingUpIcon },
+  { id: "naikkan", label: "Naikkan Produk", icon: TrendingUpIcon, href: "/dashboard/produk/naikkan" },
 ]
 
 function activeId(pathname: string, status: string | null): string {
@@ -46,6 +46,7 @@ function activeId(pathname: string, status: string | null): string {
   if (pathname.startsWith("/dashboard/produk/download")) return "download"
   if (pathname.startsWith("/dashboard/produk/import")) return "import"
   if (pathname.startsWith("/dashboard/listing-marketplace")) return "channel"
+  if (pathname.startsWith("/dashboard/produk/naikkan")) return "naikkan"
   return ""
 }
 
