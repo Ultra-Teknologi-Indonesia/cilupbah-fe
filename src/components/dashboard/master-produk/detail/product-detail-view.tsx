@@ -77,7 +77,7 @@ export function ProductDetailView({ id }: { id: string }) {
       <DetailHeader
         product={product}
         lifecyclePending={lifecycle.isPending}
-        onLifecycle={(action, reason) => lifecycle.mutate({ action, reason })}
+        onLifecycle={(action, opts) => lifecycle.mutate({ action, ...opts })}
       />
 
       <Tabs value={active} onValueChange={setTab} className="rounded-2xl border border-border/60 bg-card/50 shadow-sm">

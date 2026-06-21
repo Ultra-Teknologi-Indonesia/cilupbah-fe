@@ -5,12 +5,10 @@ import Link from "next/link"
 import {
   ArchiveIcon,
   ArrowUpRightIcon,
+  CheckIcon,
   Loader2Icon,
   PencilIcon,
   RotateCcwIcon,
-  SendIcon,
-  CheckIcon,
-  XIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -42,7 +40,7 @@ export function StatusActions({
 }: {
   product: ProductDetail
   isPending: boolean
-  onAction: (action: LifecycleAction, reason?: string) => void
+  onAction: (action: LifecycleAction, opts?: { reason?: string }) => void
 }) {
   const [confirm, setConfirm] = React.useState<Confirm | null>(null)
   const [reason, setReason] = React.useState("")
@@ -63,33 +61,9 @@ export function StatusActions({
     <div className="flex flex-wrap items-center gap-2">
       {product.status === "download" && (
         <>
-          <Button variant="primary" disabled={isPending} onClick={() => onAction("submit-review")}>
-            {isPending ? spinner : <SendIcon />}
-            Ajukan Review
-          </Button>
-          {editBtn}
-        </>
-      )}
-
-      {product.status === "in_review" && (
-        <>
           <Button variant="primary" disabled={isPending} onClick={() => onAction("approve")}>
             {isPending ? spinner : <CheckIcon />}
             Setujui jadi Master
-          </Button>
-          <Button
-            variant="outline"
-            disabled={isPending}
-            onClick={() =>
-              setConfirm({
-                action: "reject",
-                title: "Tolak produk?",
-                description: "Produk dikembalikan ke status Draft untuk diperbaiki.",
-              })
-            }
-          >
-            <XIcon />
-            Tolak
           </Button>
           {editBtn}
         </>
@@ -133,6 +107,7 @@ export function StatusActions({
         </Button>
       )}
 
+      {/* Generic Confirm Dialog (archive) */}
       <Dialog
         open={!!confirm}
         onOpenChange={(o) => {
@@ -163,7 +138,7 @@ export function StatusActions({
               <Button
                 variant={confirm?.destructive ? "destructive" : "primary"}
                 onClick={() => {
-                  if (confirm) onAction(confirm.action, reason.trim() || undefined)
+                  if (confirm) onAction(confirm.action, { reason: reason.trim() || undefined })
                   setReason("")
                 }}
               >

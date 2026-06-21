@@ -101,7 +101,7 @@ export function DetailHeader({
 }: {
   product: ProductDetail
   lifecyclePending: boolean
-  onLifecycle: (action: LifecycleAction, reason?: string) => void
+  onLifecycle: (action: LifecycleAction, opts?: { reason?: string }) => void
 }) {
   const [descOpen, setDescOpen] = React.useState(false)
 

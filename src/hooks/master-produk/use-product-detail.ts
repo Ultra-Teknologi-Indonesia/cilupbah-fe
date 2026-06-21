@@ -19,9 +19,7 @@ export function useProductDetail(id: string) {
 }
 
 const ACTION_LABEL: Record<LifecycleAction, string> = {
-  "submit-review": "Produk diajukan untuk review",
   approve: "Produk disetujui menjadi Master",
-  reject: "Produk dikembalikan ke Draft",
   archive: "Produk diarsipkan",
   restore: "Produk dipulihkan",
 }
@@ -36,7 +34,10 @@ export function useProductLifecycle(id: string) {
     }: {
       action: LifecycleAction
       reason?: string
-    }) => ProductDetailService.lifecycle(id, action, reason ? { reason } : undefined),
+    }) =>
+      ProductDetailService.lifecycle(id, action, {
+        ...(reason ? { reason } : {}),
+      }),
     onSuccess: (_data, { action }) => {
       toast.success(ACTION_LABEL[action])
       qc.invalidateQueries({ queryKey: productDetailKey(id) })
