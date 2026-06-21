@@ -12,6 +12,8 @@ import {
 } from "lucide-react"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -79,6 +81,7 @@ export function DestinationTable({
   search?: string
   channel?: string
 }) {
+  const router = useRouter()
   const [pagination, setPagination] = React.useState({ pageIndex: 0, pageSize: 25 })
 
   // Reset to first page whenever the filters change (render-phase adjustment).
@@ -96,6 +99,18 @@ export function DestinationTable({
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
   })
+
+  const navigateToPantauan = React.useCallback(
+    (uploaded: number) => {
+      if (uploaded > 0) {
+        toast.success(`${uploaded} toko berhasil diantrekan`, {
+          description: "Menuju halaman pantauan…",
+        })
+        router.push("/dashboard/produk/pantauan")
+      }
+    },
+    [router]
+  )
 
   const match = useMatchListing(productId)
   const upload = useUploadToStores(productId)
@@ -331,7 +346,9 @@ export function DestinationTable({
                   if (d.channelCode === "tiktok") {
                     setAttrDialog({ shopIds: [d.shopId], shopId: d.shopId })
                   } else {
-                    upload.mutate([d.shopId])
+                    upload.mutate([d.shopId], {
+                      onSuccess: (res) => navigateToPantauan(res.uploaded),
+                    })
                   }
                 }}
                 title={
@@ -351,7 +368,7 @@ export function DestinationTable({
         size: 132,
       },
     ],
-    [isUploaded, matchMap, matching, runMatch, upload, uploadWithAttrs]
+    [isUploaded, matchMap, matching, navigateToPantauan, runMatch, upload, uploadWithAttrs]
   )
 
   const [confirmRows, setConfirmRows] = React.useState<UploadDestination[] | null>(null)
@@ -471,7 +488,11 @@ export function DestinationTable({
                             .map((r) => r.shopId!)
                           const tiktok = eligible.filter((r) => r.channelCode === "tiktok")
 
-                          if (nonTiktok.length > 0) upload.mutate(nonTiktok)
+                          if (nonTiktok.length > 0) {
+                            upload.mutate(nonTiktok, {
+                              onSuccess: (res) => navigateToPantauan(res.uploaded),
+                            })
+                          }
 
                           if (tiktok.length > 0) {
                             const tiktokShopIds = tiktok.map((r) => r.shopId!)
@@ -527,6 +548,7 @@ export function DestinationTable({
                 attributeMapping: Object.keys(mapping).length > 0 ? mapping : null,
               },
               {
+                onSuccess: (res) => navigateToPantauan(res.uploaded),
                 onSettled: () => {
                   attrDialog.resetSelection?.()
                   setAttrDialog(null)
