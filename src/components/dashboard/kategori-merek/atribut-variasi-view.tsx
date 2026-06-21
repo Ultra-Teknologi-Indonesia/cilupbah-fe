@@ -8,9 +8,10 @@ import {
   Trash2Icon,
 } from "lucide-react"
 
+import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import {
   Select,
@@ -53,6 +54,7 @@ interface AtributVariasiViewProps {
 
 export function AtributVariasiView({ categoryId, type }: AtributVariasiViewProps) {
   const [search, setSearch] = React.useState("")
+  const [filterOpen, setFilterOpen] = React.useState(false)
   const [addOpen, setAddOpen] = React.useState(false)
   const [deleteTarget, setDeleteTarget] = React.useState<CategoryAttributeItem | null>(null)
 
@@ -98,27 +100,39 @@ export function AtributVariasiView({ categoryId, type }: AtributVariasiViewProps
         }
       />
 
-      <FilterShell
-        filters={
-          <>
+      <LiquidGlass radius={24} className="bg-white/40 dark:bg-white/[0.06]">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6 sm:py-5">
+          <div>
+            <h2 className="text-base font-medium">{pageLabel}</h2>
+            <p className="text-sm text-muted-foreground">
+              {isLoading ? "Memuat…" : `${items.length} ${label.toLowerCase()}`}
+            </p>
+          </div>
+        </div>
+
+        <FilterShell
+          open={filterOpen}
+          onOpenChange={setFilterOpen}
+          activeCount={search ? 1 : 0}
+          onReset={search ? () => setSearch("") : undefined}
+        >
+          <div className={cn("sm:col-span-2 lg:col-span-3")}>
+            <label className="mb-1.5 block text-sm font-medium text-muted-foreground">
+              Pencarian
+            </label>
             <div className="relative">
-              <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={`Cari ${label.toLowerCase()}`}
-                className="pl-9"
+                className="h-10 rounded-lg pl-9"
               />
             </div>
-          </>
-        }
-        onReset={search ? () => setSearch("") : undefined}
-      >
-        <LiquidGlass radius={24} className="bg-white/40 dark:bg-white/[0.06]">
-          <div className="flex items-center justify-end px-5 py-3 text-sm text-muted-foreground">
-            Total <Badge className="ml-2">{items.length}</Badge>
           </div>
+        </FilterShell>
 
+        <div className="px-5 py-5 sm:px-6">
           {isLoading ? (
             <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
               <Loader2Icon className="size-4 animate-spin" /> Memuat {label.toLowerCase()}…
@@ -161,8 +175,8 @@ export function AtributVariasiView({ categoryId, type }: AtributVariasiViewProps
               </Table>
             </div>
           )}
-        </LiquidGlass>
-      </FilterShell>
+        </div>
+      </LiquidGlass>
 
       <TambahAtributDialog
         open={addOpen}
