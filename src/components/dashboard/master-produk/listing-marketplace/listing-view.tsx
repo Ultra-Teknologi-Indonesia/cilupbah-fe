@@ -233,7 +233,7 @@ export function ListingMarketplaceView() {
             onChange={setStore}
             placeholder="Semua toko"
             searchPlaceholder="Cari toko"
-            className="h-9"
+            className="h-9 border-transparent bg-input/50"
           />
           <div className="flex items-center gap-1.5">
             <Input

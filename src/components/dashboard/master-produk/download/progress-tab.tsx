@@ -113,10 +113,10 @@ export function ProgressTab({
           }}
           placeholder="Pilih toko"
           searchPlaceholder="Cari toko"
-          className="h-9"
+          className="h-9 border-transparent bg-input/50"
         />
         <Select value={state} onValueChange={(v) => { setState(v as StateFilter); resetPage() }}>
-          <SelectTrigger>
+          <SelectTrigger className="rounded-full border-transparent bg-input/50">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -131,12 +131,14 @@ export function ProgressTab({
             value={dateFrom ? parseISO(dateFrom) : undefined}
             onChange={(d) => { setDateFrom(d ? format(d, "yyyy-MM-dd") : ""); resetPage() }}
             placeholder="Dari tanggal"
+            className="border-transparent bg-input/50"
           />
           <span className="text-muted-foreground">–</span>
           <DatePicker
             value={dateTo ? parseISO(dateTo) : undefined}
             onChange={(d) => { setDateTo(d ? format(d, "yyyy-MM-dd") : ""); resetPage() }}
             placeholder="Sampai tanggal"
+            className="border-transparent bg-input/50"
           />
         </div>
       </FilterToolbar>

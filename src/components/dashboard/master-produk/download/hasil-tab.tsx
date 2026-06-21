@@ -181,7 +181,7 @@ export function HasilTab({
           }}
           placeholder="Semua tipe"
           searchPlaceholder="Cari tipe"
-          className="h-9"
+          className="h-9 border-transparent bg-input/50"
         />
         <Combobox
           options={brandOptions}
@@ -192,7 +192,7 @@ export function HasilTab({
           }}
           placeholder="Semua merek"
           searchPlaceholder="Cari merek"
-          className="h-9"
+          className="h-9 border-transparent bg-input/50"
         />
         <Combobox
           options={channelOptions}
@@ -203,7 +203,7 @@ export function HasilTab({
           }}
           placeholder="Semua channel"
           searchPlaceholder="Cari channel"
-          className="h-9"
+          className="h-9 border-transparent bg-input/50"
         />
         <CategoryPicker
           value={category}
@@ -212,7 +212,7 @@ export function HasilTab({
             resetPage()
           }}
           tree={categoryTree}
-          triggerClassName="h-9"
+          triggerClassName="h-9 border-transparent bg-input/50"
         />
         <div className="flex items-center gap-1">
           <Input
@@ -223,7 +223,7 @@ export function HasilTab({
             onBlur={applyPrice}
             onKeyDown={(e) => e.key === "Enter" && applyPrice()}
             placeholder="Min"
-            className="h-9 w-24"
+            className="h-9 w-24 rounded-full border-transparent bg-input/50"
             aria-label="Harga minimal"
           />
           <span className="text-muted-foreground">–</span>
@@ -235,7 +235,7 @@ export function HasilTab({
             onBlur={applyPrice}
             onKeyDown={(e) => e.key === "Enter" && applyPrice()}
             placeholder="Max"
-            className="h-9 w-24"
+            className="h-9 w-24 rounded-full border-transparent bg-input/50"
             aria-label="Harga maksimal"
           />
         </div>

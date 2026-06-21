@@ -332,7 +332,7 @@ export function HasilTab({
             }}
             placeholder="Pilih toko"
             searchPlaceholder="Cari toko"
-            className="h-9"
+            className="h-9 border-transparent bg-input/50"
           />
           <Select
             value={status}
@@ -341,7 +341,7 @@ export function HasilTab({
               resetPage()
             }}
           >
-            <SelectTrigger className="h-9 w-auto min-w-[140px]">
+            <SelectTrigger className="h-9 w-auto min-w-[140px] rounded-full border-transparent bg-input/50">
               <SelectValue placeholder="Semua status" />
             </SelectTrigger>
             <SelectContent>
@@ -359,6 +359,7 @@ export function HasilTab({
               resetPage()
             }}
             placeholder="Dari tanggal"
+            className="border-transparent bg-input/50"
           />
           <DatePicker
             value={dateTo ? parseISO(dateTo) : undefined}
@@ -367,6 +368,7 @@ export function HasilTab({
               resetPage()
             }}
             placeholder="Sampai tanggal"
+            className="border-transparent bg-input/50"
           />
         </FilterToolbar>
         <div className="px-5 py-5 sm:px-6">

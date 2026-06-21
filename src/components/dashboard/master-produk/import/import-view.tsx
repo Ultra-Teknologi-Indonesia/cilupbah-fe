@@ -309,7 +309,7 @@ export function ImportView() {
               setPagination((p) => ({ ...p, pageIndex: 0 }))
             }}
           >
-            <SelectTrigger>
+            <SelectTrigger className="rounded-full border-transparent bg-input/50">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -326,7 +326,7 @@ export function ImportView() {
               setPagination((p) => ({ ...p, pageIndex: 0 }))
             }}
           >
-            <SelectTrigger>
+            <SelectTrigger className="rounded-full border-transparent bg-input/50">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
