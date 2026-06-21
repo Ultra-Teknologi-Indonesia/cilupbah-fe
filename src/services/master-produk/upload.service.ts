@@ -118,7 +118,7 @@ interface RawDraft {
   thumbnail: string | null
   status: DraftStatus
   can_upload: boolean
-  max: string | null
+  shop_name: string | null
   channel_code: string | null
   channel_name: string | null
   store_id: string | null
@@ -147,7 +147,7 @@ function mapDraft(raw: RawDraft): DraftRow {
     thumbnail: raw.thumbnail,
     status: raw.status,
     canUpload: raw.can_upload,
-    storeName: raw.max,
+    storeName: raw.shop_name,
     channelCode: raw.channel_code,
     channelName: raw.channel_name,
     storeId: raw.store_id,
@@ -177,7 +177,7 @@ interface RawHistory {
   success: boolean
   status_message: string | null
   can_reupload: boolean
-  max: string | null
+  shop_name: string | null
   channel_code: string | null
   channel_name: string | null
   store_id: string | null
@@ -210,7 +210,7 @@ function mapHistory(raw: RawHistory): HistoryRow {
     success: raw.success,
     statusMessage: raw.status_message,
     canReupload: raw.can_reupload,
-    storeName: raw.max,
+    storeName: raw.shop_name,
     channelCode: raw.channel_code,
     channelName: raw.channel_name,
     storeId: raw.store_id,

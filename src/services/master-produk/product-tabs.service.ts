@@ -166,7 +166,7 @@ interface RawUploadHistoryRow {
   success: boolean
   status_message: string | null
   can_reupload: boolean
-  max: string | null
+  shop_name: string | null
   channel_name: string | null
   channel_code: string | null
   channel_url: string | null
@@ -308,7 +308,7 @@ export const ProductTabsService = {
         success: r.success,
         statusMessage: r.status_message,
         canReupload: r.can_reupload,
-        shopName: r.max,
+        shopName: r.shop_name,
         channelName: r.channel_name,
         channelCode: r.channel_code,
         channelUrl: r.channel_url,
