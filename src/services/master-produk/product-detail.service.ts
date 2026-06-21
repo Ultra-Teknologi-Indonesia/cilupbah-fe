@@ -74,6 +74,10 @@ function mapDetail(raw: RawProductDetail): ProductDetail {
       inventory: raw.accounts.inventory,
       cogs: raw.accounts.cogs,
     },
+    specifications: (raw.specifications ?? []).map((s) => ({
+      attributeId: s.attribute_id,
+      value: s.value ?? "",
+    })),
     channelMappings: (raw.channel_mappings ?? []).map((m) => ({
       channelShopId: m.channel_shop_id,
       shopName: m.shop_name,

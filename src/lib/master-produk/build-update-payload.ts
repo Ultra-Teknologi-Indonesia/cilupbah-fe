@@ -48,6 +48,13 @@ export function buildUpdatePayload(
     package_contents: values.packageContents?.trim() || null,
   }
 
+  const specifications = values.specifications
+    .filter((s) => (s.value ?? "").trim() !== "")
+    .map((s) => ({ attribute_id: s.attributeId, text_value: (s.value ?? "").trim() }))
+  if (specifications.length) {
+    payload.specifications = specifications
+  }
+
   if (values.variationTypes.length > 0) {
     
     payload.variation_types = values.variationTypes.map((t, i) => ({

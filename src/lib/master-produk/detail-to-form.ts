@@ -100,7 +100,10 @@ export function detailToFormValues(p: ProductDetail): BuatProdukFormValues {
     variationTypes,
     variants,
     
-    specifications: [],
+    specifications: (p.specifications ?? []).map((s) => ({
+      attributeId: s.attributeId,
+      value: s.value ?? "",
+    })),
     
     bundleComponents: p.bundleComponents.map((c) => ({
       variantId: c.componentVariantId,

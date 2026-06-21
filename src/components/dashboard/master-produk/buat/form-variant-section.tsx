@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Combobox } from "@/components/ui/combobox"
 import { FormSectionCard } from "@/components/ui/form-section-card"
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { useCategoryFormAttributes } from "@/hooks/master-produk/use-master-data"
 import { buildCombos, comboKey, comboLabel, skuPart } from "@/lib/master-produk/variant-combos"
 import type { BuatProdukFormValues, FormAttribute } from "@/types/master-produk"
@@ -212,7 +213,22 @@ export function FormVariantSection({
             <div key={t.attributeId} className="rounded-lg border p-4">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-sm font-medium">{t.name}</span>
-                {!locked && (
+                {locked ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        disabled
+                        className="opacity-40"
+                      >
+                        <Trash2Icon /> Hapus jenis
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Jenis varian yang sudah digunakan tidak dapat dihapus</TooltipContent>
+                  </Tooltip>
+                ) : (
                   <Button
                     type="button"
                     variant="ghost"
@@ -236,7 +252,16 @@ export function FormVariantSection({
                       className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs"
                     >
                       {val}
-                      {!valLocked && (
+                      {valLocked ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="cursor-not-allowed text-muted-foreground/40" aria-label={`${val} terkunci`}>
+                              <XIcon className="size-3" />
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>Opsi varian yang sudah digunakan tidak dapat dihapus</TooltipContent>
+                        </Tooltip>
+                      ) : (
                         <button
                           type="button"
                           onClick={() => removeValue(idx, vi)}

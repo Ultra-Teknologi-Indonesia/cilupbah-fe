@@ -72,6 +72,11 @@ export interface DetailChannelMapping {
   lastSyncedAt: string | null
 }
 
+export interface DetailSpecification {
+  attributeId: number
+  value: string
+}
+
 export interface ProductDetail {
   id: string
   name: string
@@ -111,6 +116,7 @@ export interface ProductDetail {
     inventory: AccountRef | null
     cogs: AccountRef | null
   }
+  specifications: DetailSpecification[]
   channelMappings: DetailChannelMapping[]
   variationTypes: DetailVariationType[]
   variants: DetailVariant[]
@@ -172,6 +178,11 @@ export interface RawProductDetail {
     inventory: AccountRef | null
     cogs: AccountRef | null
   }
+  specifications?: Array<{
+    attribute_id: number
+    attribute_option_id: number | null
+    value: string | null
+  }>
   channel_mappings?: Array<{
     channel_shop_id: string | null
     shop_name: string | null
