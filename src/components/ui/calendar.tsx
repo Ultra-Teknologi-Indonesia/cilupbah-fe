@@ -27,15 +27,15 @@ function Calendar({
       endMonth={defaultEnd}
       className={cn("p-3", className)}
       classNames={{
-        months: "flex flex-col gap-4 sm:flex-row",
+        months: "relative flex flex-col gap-4 sm:flex-row",
         month: "flex flex-col gap-4",
-        month_caption: "flex items-center justify-between px-1",
+        month_caption: "flex items-center justify-center px-9",
         caption_label: "hidden",
         dropdowns: "flex items-center gap-1.5",
         dropdown: "rounded-full border border-border bg-background px-2.5 py-1 text-sm font-medium outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30",
         months_dropdown: "appearance-none cursor-pointer",
         years_dropdown: "appearance-none cursor-pointer",
-        nav: "flex items-center gap-1",
+        nav: "absolute top-0 inset-x-0 flex items-center justify-between px-1 z-10 pointer-events-none [&>button]:pointer-events-auto",
         button_previous: cn(
           buttonVariants({ variant: "outline", size: "icon" }),
           "size-7"

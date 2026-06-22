@@ -177,6 +177,8 @@ export function ProductExplorer({ query }: { query: Query }) {
           onReset={query.hasFilter ? query.reset : undefined}
           hasFilter={query.hasFilter}
           activeCount={[query.status, query.brandId, query.category].filter(Boolean).length}
+          align="end"
+          gridCols={2}
         >
           <Combobox
             options={PRODUCT_STATUS_OPTIONS}
