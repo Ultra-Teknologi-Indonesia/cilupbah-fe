@@ -5,7 +5,8 @@ import type { OrderListParams } from "@/types/pesanan/order"
 const MOCK_ORDERS: Order[] = [
   {
     id: "01926a1b-0001-7000-8000-000000000001",
-    salesorder_no: "TK-20260620-0001",
+    salesorder_no: "TT-584656171258644177",
+    channel_order_no: "584656171258644177",
     source: "tiktok",
     channel_shop_id: "7302145",
     customer_name: "Andi Pratama",
@@ -76,7 +77,8 @@ const MOCK_ORDERS: Order[] = [
   },
   {
     id: "01926a1b-0002-7000-8000-000000000002",
-    salesorder_no: "SP-20260620-0042",
+    salesorder_no: "SP-260620ABCDE042",
+    channel_order_no: "260620ABCDE042",
     source: "shopee",
     channel_shop_id: "8801234",
     customer_name: "Siti Nurhaliza",
@@ -160,7 +162,8 @@ const MOCK_ORDERS: Order[] = [
   },
   {
     id: "01926a1b-0003-7000-8000-000000000003",
-    salesorder_no: "TK-20260619-0088",
+    salesorder_no: "TT-584656171258640088",
+    channel_order_no: "584656171258640088",
     source: "tiktok",
     channel_shop_id: "7302145",
     customer_name: "Budi Santoso",
@@ -218,7 +221,8 @@ const MOCK_ORDERS: Order[] = [
   },
   {
     id: "01926a1b-0004-7000-8000-000000000004",
-    salesorder_no: "SP-20260619-0102",
+    salesorder_no: "SP-260619R7TACG0W",
+    channel_order_no: "260619R7TACG0W",
     source: "shopee",
     channel_shop_id: "8801234",
     customer_name: "Dewi Lestari",
@@ -276,7 +280,8 @@ const MOCK_ORDERS: Order[] = [
   },
   {
     id: "01926a1b-0005-7000-8000-000000000005",
-    salesorder_no: "TK-20260618-0055",
+    salesorder_no: "TT-584656171258640055",
+    channel_order_no: "584656171258640055",
     source: "tiktok",
     channel_shop_id: "7302145",
     customer_name: "Rizky Hidayat",
@@ -334,7 +339,8 @@ const MOCK_ORDERS: Order[] = [
   },
   {
     id: "01926a1b-0006-7000-8000-000000000006",
-    salesorder_no: "SP-20260620-0063",
+    salesorder_no: "SP-260620FGHIJ063",
+    channel_order_no: "260620FGHIJ063",
     source: "shopee",
     channel_shop_id: "8801234",
     customer_name: "Maya Anggraeni",
@@ -405,7 +411,8 @@ const MOCK_ORDERS: Order[] = [
   },
   {
     id: "01926a1b-0007-7000-8000-000000000007",
-    salesorder_no: "TK-20260620-0015",
+    salesorder_no: "TT-584656171258640015",
+    channel_order_no: "584656171258640015",
     source: "tiktok",
     channel_shop_id: "7302145",
     customer_name: "Fajar Ramadhan",
@@ -476,7 +483,8 @@ const MOCK_ORDERS: Order[] = [
   },
   {
     id: "01926a1b-0008-7000-8000-000000000008",
-    salesorder_no: "SP-20260617-0200",
+    salesorder_no: "SP-260617KLMNO200",
+    channel_order_no: "260617KLMNO200",
     source: "shopee",
     channel_shop_id: "8801234",
     customer_name: "Putri Wulandari",
@@ -547,7 +555,8 @@ const MOCK_ORDERS: Order[] = [
   },
   {
     id: "01926a1b-0009-7000-8000-000000000009",
-    salesorder_no: "TK-20260619-0072",
+    salesorder_no: "TT-584656171258640072",
+    channel_order_no: "584656171258640072",
     source: "tiktok",
     channel_shop_id: "7302145",
     customer_name: "Hendra Gunawan",
@@ -605,7 +614,8 @@ const MOCK_ORDERS: Order[] = [
   },
   {
     id: "01926a1b-0010-7000-8000-000000000010",
-    salesorder_no: "SP-20260618-0155",
+    salesorder_no: "SP-260618PQRST155",
+    channel_order_no: "260618PQRST155",
     source: "shopee",
     channel_shop_id: "8801234",
     customer_name: "Lina Marlina",
@@ -689,7 +699,8 @@ const MOCK_ORDERS: Order[] = [
   },
   {
     id: "01926a1b-0011-7000-8000-000000000011",
-    salesorder_no: "TK-20260620-0028",
+    salesorder_no: "TT-584656171258640028",
+    channel_order_no: "584656171258640028",
     source: "tiktok",
     channel_shop_id: "7302145",
     customer_name: "Agus Setiawan",
@@ -786,7 +797,8 @@ const MOCK_ORDERS: Order[] = [
   },
   {
     id: "01926a1b-0012-7000-8000-000000000012",
-    salesorder_no: "SP-20260616-0310",
+    salesorder_no: "SP-260616UVWXY310",
+    channel_order_no: "260616UVWXY310",
     source: "shopee",
     channel_shop_id: "8801234",
     customer_name: "Rina Susanti",
@@ -886,7 +898,10 @@ function filterOrders(orders: Order[], params: OrderListParams): Order[] {
       )
     } else {
       filtered = filtered.filter(
-        (o) => o.salesorder_no.toLowerCase().includes(q) || o.customer_name.toLowerCase().includes(q)
+        (o) =>
+          o.salesorder_no.toLowerCase().includes(q) ||
+          (o.channel_order_no ?? "").toLowerCase().includes(q) ||
+          o.customer_name.toLowerCase().includes(q)
       )
     }
   }

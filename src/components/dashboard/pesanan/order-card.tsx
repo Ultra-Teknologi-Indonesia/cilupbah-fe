@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { format } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
 import {
@@ -16,6 +17,7 @@ import {
   CheckCircleIcon,
   PlayIcon,
   Trash2Icon,
+  AlertTriangleIcon,
 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
@@ -24,6 +26,8 @@ import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Separator } from "@/components/ui/separator"
 import {
   Tooltip,
   TooltipContent,
@@ -108,10 +112,12 @@ function OrderActions({
 }: {
   order: Order
 }) {
-  const actions: React.ReactNode[] = []
+  const [cancelOpen, setCancelOpen] = React.useState(false)
+
+  const primaryActions: React.ReactNode[] = []
 
   if (!order.is_paid && !order.is_canceled && order.status === "pending") {
-    actions.push(
+    primaryActions.push(
       <Button key="pay" size="sm" className="h-8 gap-1.5 text-xs">
         <CreditCardIcon className="h-3.5 w-3.5" />
         Tandai Dibayar
@@ -124,7 +130,7 @@ function OrderActions({
     !order.is_canceled &&
     (order.status === "pending" || order.status === "reserved")
   ) {
-    actions.push(
+    primaryActions.push(
       <Button key="process" size="sm" className="h-8 gap-1.5 text-xs">
         <PlayIcon className="h-3.5 w-3.5" />
         Proses Pesanan
@@ -133,7 +139,7 @@ function OrderActions({
   }
 
   if (order.status === "packed" && !order.is_canceled) {
-    actions.push(
+    primaryActions.push(
       <Button key="ship" size="sm" className="h-8 gap-1.5 text-xs">
         <TruckIcon className="h-3.5 w-3.5" />
         Kirim
@@ -142,7 +148,7 @@ function OrderActions({
   }
 
   if (order.shipping?.tracking_number && !order.is_canceled) {
-    actions.push(
+    primaryActions.push(
       <Button
         key="print"
         variant="outline"
@@ -156,7 +162,7 @@ function OrderActions({
   }
 
   if (order.cancel_requested_at && !order.is_canceled) {
-    actions.push(
+    primaryActions.push(
       <Button
         key="accept-cancel"
         variant="destructive"
@@ -170,7 +176,7 @@ function OrderActions({
   }
 
   if (order.status === "shipped" && !order.is_canceled) {
-    actions.push(
+    primaryActions.push(
       <Button
         key="complete"
         variant="outline"
@@ -184,7 +190,7 @@ function OrderActions({
   }
 
   if (order.is_canceled) {
-    actions.push(
+    primaryActions.push(
       <Button
         key="delete"
         variant="ghost"
@@ -197,26 +203,55 @@ function OrderActions({
     )
   }
 
-  if (
+  const showCancel =
     !order.is_canceled &&
     !order.cancel_requested_at &&
     order.status !== "shipped" &&
     order.status !== "cancelled"
-  ) {
-    actions.push(
-      <Button
-        key="cancel"
-        variant="ghost"
-        size="sm"
-        className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-destructive"
-      >
-        <BanIcon className="h-3.5 w-3.5" />
-        Batalkan
-      </Button>
-    )
-  }
 
-  return <>{actions}</>
+  return (
+    <>
+      {showCancel && (
+        <>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 gap-1.5 text-xs text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10"
+            onClick={() => setCancelOpen(true)}
+          >
+            <BanIcon className="h-3.5 w-3.5" />
+            Batalkan
+          </Button>
+          {primaryActions.length > 0 && (
+            <Separator orientation="vertical" className="!h-5" />
+          )}
+        </>
+      )}
+      {primaryActions}
+
+      <ConfirmDialog
+        open={cancelOpen}
+        onOpenChange={setCancelOpen}
+        title="Batalkan pesanan ini?"
+        description={`Pesanan ${order.salesorder_no} akan dibatalkan. Stok yang sudah direservasi akan dikembalikan. Tindakan ini tidak dapat dibatalkan.`}
+        confirmLabel="Ya, Batalkan Pesanan"
+        cancelLabel="Tidak, Kembali"
+        variant="destructive"
+        onConfirm={() => {
+          setCancelOpen(false)
+          toast.info("Fitur pembatalan akan segera tersedia")
+        }}
+      >
+        <div className="flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50 p-3 dark:border-orange-500/20 dark:bg-orange-500/10">
+          <AlertTriangleIcon className="mt-0.5 h-4 w-4 shrink-0 text-orange-600 dark:text-orange-400" />
+          <p className="text-sm text-orange-700 dark:text-orange-300">
+            Jika pesanan ini berasal dari marketplace, pembatalan juga akan
+            dikirim ke channel terkait.
+          </p>
+        </div>
+      </ConfirmDialog>
+    </>
+  )
 }
 
 export function OrderCard({
@@ -259,12 +294,32 @@ export function OrderCard({
               onClick={() => copyToClipboard(order.salesorder_no)}
               className="inline-flex items-center gap-1.5 font-mono text-sm font-semibold hover:text-primary transition-colors"
             >
-              No Pesanan: {order.salesorder_no}
+              {order.salesorder_no}
               <CopyIcon className="h-3 w-3 opacity-0 group-hover:opacity-50 transition-opacity" />
             </button>
           </TooltipTrigger>
-          <TooltipContent>Klik untuk salin</TooltipContent>
+          <TooltipContent>Klik untuk salin No. Pesanan</TooltipContent>
         </Tooltip>
+
+        {order.channel_order_no && (
+          <>
+            <span className="text-border select-none">|</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => copyToClipboard(order.channel_order_no!)}
+                  className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <span className="text-[11px] font-medium text-muted-foreground/70">Ref:</span>
+                  <span className="font-mono">{order.channel_order_no}</span>
+                  <CopyIcon className="h-2.5 w-2.5 opacity-0 group-hover:opacity-50 transition-opacity" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Klik untuk salin No. Referensi Channel</TooltipContent>
+            </Tooltip>
+          </>
+        )}
 
         <span className="text-border select-none">|</span>
         <ChannelIcon source={order.source} />
@@ -386,7 +441,7 @@ export function OrderCard({
       </div>
 
       {/* ── Footer: actions ── */}
-      <div className="flex items-center justify-end gap-2 border-t border-border/40 px-4 py-2 sm:px-5">
+      <div className="flex items-center gap-2 border-t border-border/40 px-4 py-2 sm:px-5">
         <Button
           variant="link"
           size="sm"
@@ -399,7 +454,9 @@ export function OrderCard({
           </Link>
         </Button>
 
-        <OrderActions order={order} />
+        <div className="ml-auto flex items-center gap-2">
+          <OrderActions order={order} />
+        </div>
       </div>
     </div>
   )

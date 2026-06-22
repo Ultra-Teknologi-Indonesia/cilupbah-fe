@@ -36,6 +36,7 @@ export interface OrderListParams {
 export interface Order {
   id: string
   salesorder_no: string
+  channel_order_no: string | null
   source: string | null
   channel_shop_id: string | null
   customer_name: string
@@ -119,12 +120,12 @@ export const TAB_CONFIG = [
 ] as const
 
 export const STATUS_LABELS: Record<string, { label: string; className: string }> = {
-  pending: { label: "Menunggu", className: "text-amber-700 bg-amber-100 border-amber-200 dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20" },
-  reserved: { label: "Direservasi", className: "text-sky-700 bg-sky-100 border-sky-200 dark:text-sky-400 dark:bg-sky-500/10 dark:border-sky-500/20" },
-  picked: { label: "Dipick", className: "text-indigo-700 bg-indigo-100 border-indigo-200 dark:text-indigo-400 dark:bg-indigo-500/10 dark:border-indigo-500/20" },
-  packed: { label: "Dikemas - Siap Dikirim", className: "text-violet-700 bg-violet-100 border-violet-200 dark:text-violet-400 dark:bg-violet-500/10 dark:border-violet-500/20" },
-  shipped: { label: "Dikirim", className: "text-emerald-700 bg-emerald-100 border-emerald-200 dark:text-emerald-400 dark:bg-emerald-500/10 dark:border-emerald-500/20" },
-  cancelled: { label: "Dibatalkan", className: "text-red-700 bg-red-100 border-red-200 dark:text-red-400 dark:bg-red-500/10 dark:border-red-500/20" },
+  pending: { label: "Menunggu", className: "text-orange-700 bg-orange-50 border-orange-300 dark:text-orange-300 dark:bg-orange-500/10 dark:border-orange-500/20" },
+  reserved: { label: "Direservasi", className: "text-blue-700 bg-blue-50 border-blue-300 dark:text-blue-300 dark:bg-blue-500/10 dark:border-blue-500/20" },
+  picked: { label: "Dipick", className: "text-cyan-700 bg-cyan-50 border-cyan-300 dark:text-cyan-300 dark:bg-cyan-500/10 dark:border-cyan-500/20" },
+  packed: { label: "Dikemas - Siap Dikirim", className: "text-purple-700 bg-purple-50 border-purple-300 dark:text-purple-300 dark:bg-purple-500/10 dark:border-purple-500/20" },
+  shipped: { label: "Dikirim", className: "text-emerald-700 bg-emerald-50 border-emerald-300 dark:text-emerald-300 dark:bg-emerald-500/10 dark:border-emerald-500/20" },
+  cancelled: { label: "Dibatalkan", className: "text-rose-700 bg-rose-50 border-rose-300 dark:text-rose-300 dark:bg-rose-500/10 dark:border-rose-500/20" },
 }
 
 export const CHANNEL_MAP: Record<string, { label: string; color: string }> = {
