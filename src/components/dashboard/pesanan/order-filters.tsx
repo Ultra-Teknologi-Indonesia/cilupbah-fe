@@ -62,7 +62,7 @@ export function OrderFilters({
       <Combobox
         options={[{ value: "", label: "Semua Lokasi" }, ...locations]}
         value={filters.location_id}
-        onValueChange={(v) => onChange({ ...filters, location_id: v })}
+        onChange={(v) => onChange({ ...filters, location_id: v ?? "" })}
         placeholder="Lokasi"
         className="w-40"
       />
@@ -70,7 +70,7 @@ export function OrderFilters({
       <Combobox
         options={CHANNEL_OPTIONS}
         value={filters.channel}
-        onValueChange={(v) => onChange({ ...filters, channel: v, store_id: "" })}
+        onChange={(v) => onChange({ ...filters, channel: v ?? "", store_id: "" })}
         placeholder="Channel"
         className="w-36"
       />
@@ -78,7 +78,7 @@ export function OrderFilters({
       <Combobox
         options={[{ value: "", label: "Semua Toko" }, ...stores]}
         value={filters.store_id}
-        onValueChange={(v) => onChange({ ...filters, store_id: v })}
+        onChange={(v) => onChange({ ...filters, store_id: v ?? "" })}
         placeholder="Toko"
         className="w-40"
       />
@@ -86,7 +86,7 @@ export function OrderFilters({
       <Combobox
         options={CONTENT_OPTIONS}
         value={filters.content_type}
-        onValueChange={(v) => onChange({ ...filters, content_type: v })}
+        onChange={(v) => onChange({ ...filters, content_type: v ?? "" })}
         placeholder="Isi Pesanan"
         className="w-40"
       />
