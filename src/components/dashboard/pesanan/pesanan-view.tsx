@@ -2,10 +2,11 @@
 
 import { useState, useMemo, useCallback } from "react"
 
+import { Checkbox } from "@/components/ui/checkbox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { useOrders } from "@/hooks/pesanan/use-orders"
 import type { OrderTab, OrderListParams, SubFilter } from "@/types/pesanan/order"
-import { SUB_PILL_CONFIG } from "@/types/pesanan/order"
+import { SUB_PILL_CONFIG, TABS_WITH_ACTIONS } from "@/types/pesanan/order"
 
 import { OrderStatusTabs } from "./order-status-tabs"
 import { OrderFilters, EMPTY_FILTERS, type FilterState } from "./order-filters"
@@ -66,6 +67,30 @@ export function PesananView() {
   const orders = data?.data ?? []
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
 
+  const selectable = TABS_WITH_ACTIONS.has(tab)
+  const allSelected = selectable && orders.length > 0 && orders.every((o) => selectedIds.has(o.id))
+  const someSelected = selectable && orders.some((o) => selectedIds.has(o.id))
+
+  const toggleAll = useCallback(() => {
+    if (allSelected) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(orders.map((o) => o.id)))
+    }
+  }, [allSelected, orders])
+
+  const selectAllCheckbox = selectable ? (
+    <div className="flex items-center gap-2">
+      <Checkbox
+        checked={allSelected ? true : someSelected ? "indeterminate" : false}
+        onCheckedChange={toggleAll}
+      />
+      <span className="text-sm text-muted-foreground">
+        {allSelected ? "Batalkan" : "Pilih semua"}
+      </span>
+    </div>
+  ) : null
+
   return (
     <div className="flex flex-col gap-4">
       <OrderStatusTabs
@@ -81,6 +106,7 @@ export function PesananView() {
           onQueryChange={handleQueryChange}
           filters={filters}
           onChange={handleFilterChange}
+          leading={selectAllCheckbox}
         />
 
         <div className="px-4 py-4 sm:px-5">

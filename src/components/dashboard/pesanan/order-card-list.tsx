@@ -2,7 +2,6 @@
 
 import { SearchXIcon } from "lucide-react"
 
-import { Checkbox } from "@/components/ui/checkbox"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination } from "@/components/ui/simple-pagination"
 import { OrderCard } from "./order-card"
@@ -42,17 +41,6 @@ export function OrderCardList({
 }: OrderCardListProps) {
   const selectable = TABS_WITH_ACTIONS.has(tab)
 
-  const allSelected = selectable && orders.length > 0 && orders.every((o) => selectedIds.has(o.id))
-  const someSelected = selectable && orders.some((o) => selectedIds.has(o.id))
-
-  function toggleAll() {
-    if (allSelected) {
-      onSelectionChange(new Set())
-    } else {
-      onSelectionChange(new Set(orders.map((o) => o.id)))
-    }
-  }
-
   function toggleOne(id: string, checked: boolean) {
     const next = new Set(selectedIds)
     if (checked) {
@@ -87,18 +75,6 @@ export function OrderCardList({
 
   return (
     <div className="flex flex-col gap-4">
-      {selectable && (
-        <div className="flex items-center gap-2">
-          <Checkbox
-            checked={allSelected ? true : someSelected ? "indeterminate" : false}
-            onCheckedChange={toggleAll}
-          />
-          <span className="text-sm text-muted-foreground">
-            {allSelected ? "Batalkan pilihan" : "Pilih semua"}
-          </span>
-        </div>
-      )}
-
       <div className="flex flex-col gap-3">
         {orders.map((order) => (
           <OrderCard

@@ -1,5 +1,6 @@
 "use client"
 
+import type React from "react"
 import { useMemo } from "react"
 import { format, parse } from "date-fns"
 import type { DateRange } from "react-day-picker"
@@ -48,11 +49,13 @@ export function OrderFilters({
   onQueryChange,
   filters,
   onChange,
+  leading,
 }: {
   query: string
   onQueryChange: (v: string) => void
   filters: FilterState
   onChange: (f: FilterState) => void
+  leading?: React.ReactNode
 }) {
   const { data: locData } = useLocations()
   const { data: storeData } = useConnectedStores()
@@ -89,11 +92,12 @@ export function OrderFilters({
     <FilterToolbar
       search={query}
       onSearchChange={onQueryChange}
-      searchPlaceholder="Cari no. pesanan, nama pelanggan, atau SKU..."
+      searchPlaceholder="Cari no. pesanan, nama, SKU…"
       onReset={hasActive ? () => onChange(EMPTY) : undefined}
       hasFilter={hasActive}
       activeCount={activeCount}
       align="end"
+      leading={leading}
     >
       <Combobox
         options={[{ value: "", label: "Semua Lokasi" }, ...locations]}

@@ -80,7 +80,7 @@ export const MasterDataService = {
   },
 
   categoryTree: async (): Promise<CategoryNode[]> => {
-    const res = await fetchClient<ApiList<RawCategory>>("/categories?all=1")
+    const res = await fetchClient<ApiList<RawCategory>>("/categories?all=1&include=children.children.children")
     return buildCategoryTree(res.data ?? [])
   },
 
