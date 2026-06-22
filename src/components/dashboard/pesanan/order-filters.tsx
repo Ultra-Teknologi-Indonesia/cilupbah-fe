@@ -41,14 +41,14 @@ export function OrderFilters({
   const { data: locData } = useLocations()
   const { data: storeData } = useConnectedStores()
 
-  const locations = (locData?.data ?? []).map((l: { id: string; location_name: string }) => ({
+  const locations = (locData?.items ?? []).map((l) => ({
     value: l.id,
-    label: l.location_name,
+    label: l.locationName,
   }))
 
-  const stores = (storeData?.data ?? [])
-    .filter((s: { channel_code?: string }) => !filters.channel || s.channel_code === filters.channel)
-    .map((s: { shop_id: string; shop_name: string }) => ({
+  const stores = (storeData ?? [])
+    .filter((s) => !filters.channel || s.channel?.code === filters.channel)
+    .map((s) => ({
       value: s.shop_id,
       label: s.shop_name,
     }))
