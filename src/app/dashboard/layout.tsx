@@ -36,18 +36,15 @@ export default function DashboardLayout({
         </div>
 
         <DashboardSidebar />
-        <SidebarInset>
-          <div className="flex flex-col h-screen overflow-hidden">
-
-            <header className="flex h-14 items-center gap-4 border-b border-white/20 dark:border-white/10 bg-background/60 dark:bg-background/40 backdrop-blur-xl px-4 md:hidden z-50 sticky top-0">
+        <SidebarInset className="h-screen overflow-hidden">
+            <header className="flex h-14 items-center gap-4 border-b border-white/20 dark:border-white/10 bg-background/60 dark:bg-background/40 backdrop-blur-xl px-4 md:hidden z-50">
               <SidebarTrigger />
               <div className="font-semibold text-lg tracking-tight">UltraFit WMS</div>
             </header>
 
-            <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-transparent">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6">
               {children}
-            </main>
-          </div>
+            </div>
         </SidebarInset>
       </SidebarProvider>
     </TooltipProvider>
