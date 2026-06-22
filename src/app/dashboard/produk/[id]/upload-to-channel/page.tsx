@@ -15,7 +15,7 @@ export default async function UploadToChannelPage({
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Katalog" },
-          { label: "Produk", href: "/dashboard/master-produk" },
+          { label: "Produk", href: "/dashboard/produk" },
           { label: "Upload ke Channel" },
         ]}
       />

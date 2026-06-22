@@ -96,7 +96,7 @@ export function ArchiveTable({
                   </div>
                   <div className="min-w-0">
                     <Link
-                      href={`/dashboard/master-produk/${item.itemGroupId}`}
+                      href={`/dashboard/produk/${item.itemGroupId}`}
                       prefetch={false}
                       className="truncate font-medium hover:text-primary hover:underline"
                     >

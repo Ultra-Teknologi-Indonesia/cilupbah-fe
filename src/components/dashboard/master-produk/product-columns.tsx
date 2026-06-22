@@ -103,7 +103,7 @@ export const productColumns: ColumnDef<Product>[] = [
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <Link
-                href={`/dashboard/master-produk/${p.itemGroupId}`}
+                href={`/dashboard/produk/${p.itemGroupId}`}
                 prefetch={false}
                 className="truncate font-medium hover:text-primary hover:underline"
               >

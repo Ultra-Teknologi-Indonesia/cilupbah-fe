@@ -44,7 +44,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
 
   const isMultiVariant = product.variants.length > 1
   const originalVariantSku = product.variants[0]?.sku
-  const detailHref = `/dashboard/master-produk/${product.id}`
+  const detailHref = `/dashboard/produk/${product.id}`
   const variantLocks = React.useMemo(() => detailVariantLocks(product), [product])
 
   const form = useForm<BuatProdukFormValues>({
@@ -150,7 +150,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
         description={product.name}
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Produk Master", href: "/dashboard/master-produk" },
+          { label: "Produk Master", href: "/dashboard/produk" },
           { label: product.name, href: detailHref },
           { label: "Edit" },
         ]}

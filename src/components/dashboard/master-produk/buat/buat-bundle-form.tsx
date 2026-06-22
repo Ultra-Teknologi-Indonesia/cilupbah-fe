@@ -49,7 +49,7 @@ export function BuatBundleForm() {
         })),
       })
       toast.success("Bundle produk dibuat", { description: `${data.name} · ${data.sku}` })
-      router.push("/dashboard/master-produk")
+      router.push("/dashboard/produk")
     } catch (err) {
       const body = err as { message?: string }
       toast.error(body?.message || "Gagal membuat bundle")
@@ -71,10 +71,10 @@ export function BuatBundleForm() {
       <PageTitle
         title="Buat Produk Bundle"
         description="Gabungkan beberapa produk menjadi satu SKU bundle."
-        backHref="/dashboard/master-produk"
+        backHref="/dashboard/produk"
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Produk Master", href: "/dashboard/master-produk" },
+          { label: "Produk Master", href: "/dashboard/produk" },
           { label: "Buat Bundle" },
         ]}
       />
@@ -124,7 +124,7 @@ export function BuatBundleForm() {
               description="Data yang belum disimpan akan hilang."
               confirmLabel="Ya, batalkan"
               variant="destructive"
-              onConfirm={() => router.push("/dashboard/master-produk")}
+              onConfirm={() => router.push("/dashboard/produk")}
             />
           </form>
         </Form>

@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/dialog"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
-import { SyncStatusBadge } from "@/components/dashboard/master-produk/detail/tab-pagination"
+import { SyncStatusBadge } from "@/components/dashboard/produk/detail/tab-pagination"
 import {
   useMatchListing,
   useUploadListing,
@@ -287,7 +287,7 @@ export function DestinationTable({
                 <span className="truncate" title={state.message}>{state.message}</span>
               </span>
               <Link
-                href={`/dashboard/master-produk/${productId}/edit`}
+                href={`/dashboard/produk/${productId}/edit`}
                 prefetch={false}
                 onClick={(e) => e.stopPropagation()}
                 className="ml-[22px] text-xs font-medium text-primary hover:underline"
@@ -391,7 +391,7 @@ export function DestinationTable({
               {blockedEntries[0].message}
             </p>
             <Link
-              href={`/dashboard/master-produk/${productId}/edit`}
+              href={`/dashboard/produk/${productId}/edit`}
               prefetch={false}
               className="mt-1 inline-block font-medium underline underline-offset-2 hover:text-amber-800 dark:hover:text-amber-300"
             >

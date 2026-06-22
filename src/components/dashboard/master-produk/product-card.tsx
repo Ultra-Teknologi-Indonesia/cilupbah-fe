@@ -80,7 +80,7 @@ export function ProductCard({
           <div className="min-w-0">
             <h3 className="truncate text-sm font-medium leading-tight">
               <Link
-                href={`/dashboard/master-produk/${product.itemGroupId}`}
+                href={`/dashboard/produk/${product.itemGroupId}`}
                 prefetch={false}
                 className="hover:text-primary hover:underline"
               >

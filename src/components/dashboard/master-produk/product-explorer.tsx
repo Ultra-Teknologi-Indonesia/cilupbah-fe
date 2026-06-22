@@ -142,7 +142,7 @@ export function ProductExplorer({ query }: { query: Query }) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64">
                 <DropdownMenuItem
-                  onSelect={() => router.push("/dashboard/master-produk/buat")}
+                  onSelect={() => router.push("/dashboard/produk/buat")}
                   className="flex-col items-start gap-0.5"
                 >
                   <span className="flex items-center gap-2 font-medium">
@@ -154,7 +154,7 @@ export function ProductExplorer({ query }: { query: Query }) {
                   </span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onSelect={() => router.push("/dashboard/master-produk/buat-bundle")}
+                  onSelect={() => router.push("/dashboard/produk/buat-bundle")}
                   className="flex-col items-start gap-0.5"
                 >
                   <span className="flex items-center gap-2 font-medium">

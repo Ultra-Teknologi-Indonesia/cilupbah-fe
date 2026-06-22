@@ -67,8 +67,7 @@ export const dashboardGroups: NavGroup[] = [
         id: "produk",
         title: "Produk",
         icon: Package2,
-        link: "/dashboard/master-produk",
-        match: ["/dashboard/master-produk", "/dashboard/produk", "/dashboard/listing-marketplace"],
+        link: "/dashboard/produk",
       },
       {
         id: "harga-promosi",

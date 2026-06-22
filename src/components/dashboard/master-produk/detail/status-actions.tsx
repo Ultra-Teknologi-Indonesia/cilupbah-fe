@@ -44,7 +44,7 @@ export function StatusActions({
   const [confirm, setConfirm] = React.useState<Confirm | null>(null)
   const [reason, setReason] = React.useState("")
 
-  const editHref = `/dashboard/master-produk/${product.id}/edit`
+  const editHref = `/dashboard/produk/${product.id}/edit`
 
   const spinner = <Loader2Icon className="animate-spin motion-reduce:animate-none" />
   const editBtn = (

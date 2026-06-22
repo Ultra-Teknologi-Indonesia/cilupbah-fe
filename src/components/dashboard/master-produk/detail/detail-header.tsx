@@ -155,14 +155,14 @@ export function DetailHeader({
       <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-card/60 px-4 py-3 shadow-sm backdrop-blur-xl">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild aria-label="Kembali">
-            <Link href="/dashboard/master-produk" prefetch={false}>
+            <Link href="/dashboard/produk" prefetch={false}>
               <ArrowLeftIcon /> Kembali
             </Link>
           </Button>
           <nav className="flex items-center gap-1 text-xs text-muted-foreground">
             <Link href="/dashboard" prefetch={false} className="hover:text-foreground">Dashboard</Link>
             <ChevronRightIcon className="size-3" />
-            <Link href="/dashboard/master-produk" prefetch={false} className="hover:text-foreground">Produk Master</Link>
+            <Link href="/dashboard/produk" prefetch={false} className="hover:text-foreground">Produk Master</Link>
             <ChevronRightIcon className="size-3" />
             <span className="truncate text-foreground">{product.name}</span>
           </nav>

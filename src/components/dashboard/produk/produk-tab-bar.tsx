@@ -27,24 +27,24 @@ type Tab = {
 // dibangun → tampil disabled "Segera".
 const TABS: Tab[] = [
   { id: "pantauan", label: "Pantauan", icon: ActivityIcon, href: "/dashboard/produk/pantauan" },
-  { id: "master", label: "Master", icon: Package2Icon, href: "/dashboard/master-produk" },
+  { id: "master", label: "Master", icon: Package2Icon, href: "/dashboard/produk" },
   { id: "upload", label: "Upload", icon: UploadCloudIcon, href: "/dashboard/produk/upload" },
   { id: "download", label: "Download", icon: CloudDownloadIcon, href: "/dashboard/produk/download" },
   { id: "import", label: "Import", icon: ImportIcon, href: "/dashboard/produk/import" },
-  { id: "arsip", label: "Arsip", icon: ArchiveIcon, href: "/dashboard/master-produk/arsip" },
-  { id: "channel", label: "Produk Channel", icon: PlugIcon, href: "/dashboard/listing-marketplace" },
+  { id: "arsip", label: "Arsip", icon: ArchiveIcon, href: "/dashboard/produk/arsip" },
+  { id: "channel", label: "Produk Channel", icon: PlugIcon, href: "/dashboard/produk/listing-marketplace" },
   { id: "naikkan", label: "Naikkan Produk", icon: TrendingUpIcon, href: "/dashboard/produk/naikkan" },
 ]
 
 function activeId(pathname: string, status: string | null): string {
-  if (pathname.startsWith("/dashboard/master-produk/arsip")) return "arsip"
-  if (pathname === "/dashboard/master-produk") return "master"
+  if (pathname.startsWith("/dashboard/produk/arsip")) return "arsip"
   if (pathname.startsWith("/dashboard/produk/pantauan")) return "pantauan"
   if (pathname.startsWith("/dashboard/produk/upload")) return "upload"
   if (pathname.startsWith("/dashboard/produk/download")) return "download"
   if (pathname.startsWith("/dashboard/produk/import")) return "import"
-  if (pathname.startsWith("/dashboard/listing-marketplace")) return "channel"
+  if (pathname.startsWith("/dashboard/produk/listing-marketplace")) return "channel"
   if (pathname.startsWith("/dashboard/produk/naikkan")) return "naikkan"
+  if (pathname.startsWith("/dashboard/produk")) return "master"
   return ""
 }
 

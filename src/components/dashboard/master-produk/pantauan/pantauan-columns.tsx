@@ -26,7 +26,7 @@ function produkCell(p: PantauanProduct) {
       </div>
       <div className="min-w-0">
         <Link
-          href={`/dashboard/master-produk/${p.productId}`}
+          href={`/dashboard/produk/${p.productId}`}
           prefetch={false}
           className="line-clamp-1 font-medium hover:text-primary hover:underline"
         >
@@ -143,7 +143,7 @@ export function buildPantauanColumns(lens: PantauanLens): ColumnDef<PantauanProd
         <div className="text-right">
           {isReviewLens ? (
             <Button variant="outline" size="sm" asChild>
-              <Link href={`/dashboard/master-produk/${row.original.productId}`} prefetch={false}>
+              <Link href={`/dashboard/produk/${row.original.productId}`} prefetch={false}>
                 <ExternalLinkIcon className="size-4" />
                 Detail
               </Link>

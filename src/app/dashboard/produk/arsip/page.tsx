@@ -12,7 +12,7 @@ export default function ArsipProdukPage() {
         description="Produk yang diarsipkan. Pulihkan untuk mengembalikannya ke katalog."
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Produk", href: "/dashboard/master-produk" },
+          { label: "Produk", href: "/dashboard/produk" },
           { label: "Arsip" },
         ]}
       />

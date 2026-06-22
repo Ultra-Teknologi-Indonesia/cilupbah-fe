@@ -117,7 +117,7 @@ export function BuatProdukForm() {
       toast.success("Produk berhasil dibuat", {
         description: `${data.name} · ${data.sku}`,
       })
-      router.push("/dashboard/master-produk")
+      router.push("/dashboard/produk")
     } catch (err) {
       const body = err as { message?: string }
       if (applyServerErrors(err)) {
@@ -193,10 +193,10 @@ export function BuatProdukForm() {
       <PageTitle
         title="Buat Produk Satuan"
         description="Lengkapi informasi produk. Field bertanda * wajib diisi."
-        backHref="/dashboard/master-produk"
+        backHref="/dashboard/produk"
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Produk Master", href: "/dashboard/master-produk" },
+          { label: "Produk Master", href: "/dashboard/produk" },
           { label: "Buat Produk" },
         ]}
       />
@@ -291,7 +291,7 @@ export function BuatProdukForm() {
               description="Data yang belum disimpan akan hilang."
               confirmLabel="Ya, batalkan"
               variant="destructive"
-              onConfirm={() => router.push("/dashboard/master-produk")}
+              onConfirm={() => router.push("/dashboard/produk")}
             />
           </form>
         </Form>
