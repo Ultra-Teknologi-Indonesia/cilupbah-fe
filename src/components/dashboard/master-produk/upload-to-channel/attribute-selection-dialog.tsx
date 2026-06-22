@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { Loader2Icon, CheckCircleIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -104,9 +105,11 @@ export function AttributeSelectionDialog({
               variant="outline"
               size="sm"
               className="mt-3"
-              onClick={() => refetch()}
+              asChild
             >
-              Coba lagi
+              <Link href="/dashboard/kategori-merek/kategori">
+                Petakan Kategori
+              </Link>
             </Button>
           </div>
         )}
@@ -161,25 +164,27 @@ export function AttributeSelectionDialog({
           </ScrollArea>
         )}
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isUploading}>
-            Batal
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleConfirm}
-            disabled={!allFilled || isLoading || isError || isUploading}
-          >
-            {isUploading ? (
-              <>
-                <Loader2Icon className="mr-2 size-4 animate-spin" />
-                Mengupload…
-              </>
-            ) : (
-              "Upload"
-            )}
-          </Button>
-        </DialogFooter>
+        {!isError && (
+          <DialogFooter>
+            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isUploading}>
+              Batal
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleConfirm}
+              disabled={!allFilled || isLoading || isUploading}
+            >
+              {isUploading ? (
+                <>
+                  <Loader2Icon className="mr-2 size-4 animate-spin" />
+                  Mengupload…
+                </>
+              ) : (
+                "Upload"
+              )}
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   )

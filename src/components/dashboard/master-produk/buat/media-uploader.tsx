@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { UploadCloudIcon, VideoIcon, XIcon, ImageIcon } from "lucide-react"
+import { UploadCloudIcon, XIcon, ImageIcon, PlayIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
@@ -144,11 +144,21 @@ export function MediaUploader({
           Format MP4, durasi maks. 1 menit, ukuran maks. 30MB.
         </p>
         {video ? (
-          <div className="relative inline-flex aspect-square w-32 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
-            <VideoIcon className="size-6 text-muted-foreground" />
-            <span className="absolute bottom-1 left-1 right-6 truncate text-[10px] text-muted-foreground">
-              {video.name}
-            </span>
+          <div className="relative w-40 overflow-hidden rounded-xl border border-border bg-muted/40">
+            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+            <video
+              src={video.url}
+              muted
+              playsInline
+              preload="metadata"
+              className="aspect-square w-full object-cover"
+              onLoadedData={(e) => { e.currentTarget.currentTime = 0.5 }}
+            />
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
+              <div className="grid size-9 place-items-center rounded-full bg-white/90 shadow-sm">
+                <PlayIcon className="ml-0.5 size-4 fill-current text-foreground" />
+              </div>
+            </div>
             <button
               type="button"
               onClick={() => setVideo(null)}
@@ -157,6 +167,9 @@ export function MediaUploader({
             >
               <XIcon className="size-3" />
             </button>
+            <span className="absolute bottom-1 left-1 flex items-center gap-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+              Video
+            </span>
           </div>
         ) : (
           <button

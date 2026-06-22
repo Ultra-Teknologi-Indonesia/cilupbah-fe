@@ -2,10 +2,11 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { ArrowLeftIcon, ChevronRightIcon, ImageIcon, PlayCircleIcon } from "lucide-react"
+import { ArrowLeftIcon, ChevronRightIcon, ImageIcon, PlayIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { VideoPlayer } from "@/components/ui/video-player"
 import {
   Dialog,
   DialogContent,
@@ -74,7 +75,7 @@ function Gallery({
         {!current ? (
           <ImageIcon className="size-10 text-muted-foreground" />
         ) : current.type === "video" ? (
-          <video src={current.url} controls className="size-full object-contain" />
+          <VideoPlayer src={current.url} className="size-full" />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={current.url} alt={name} className="size-full object-contain" />
@@ -96,8 +97,19 @@ function Gallery({
               )}
             >
               {item.type === "video" ? (
-                <div className="flex size-full items-center justify-center bg-muted/60">
-                  <PlayCircleIcon className="size-6 text-primary" />
+                <div className="relative size-full bg-muted/60">
+                  {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+                  <video
+                    src={item.url}
+                    muted
+                    playsInline
+                    preload="metadata"
+                    className="size-full object-cover"
+                    onLoadedData={(e) => { e.currentTarget.currentTime = 0.5 }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                    <PlayIcon className="size-4 fill-current text-white drop-shadow" />
+                  </div>
                 </div>
               ) : (
                 // eslint-disable-next-line @next/next/no-img-element

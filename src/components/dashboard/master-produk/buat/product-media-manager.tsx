@@ -3,10 +3,10 @@
 import * as React from "react"
 import {
   ImageIcon,
+  PlayIcon,
   StarIcon,
   Trash2Icon,
   UploadCloudIcon,
-  VideoIcon,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -219,7 +219,19 @@ export function ProductMediaManager({
         {video ? (
           <div className="relative w-40 overflow-hidden rounded-xl border border-border/60 bg-muted/30">
             {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-            <video src={video.url} className="aspect-square w-full object-cover" />
+            <video
+              src={video.url}
+              muted
+              playsInline
+              preload="metadata"
+              className="aspect-square w-full object-cover"
+              onLoadedData={(e) => { e.currentTarget.currentTime = 0.5 }}
+            />
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
+              <div className="grid size-9 place-items-center rounded-full bg-white/90 shadow-sm">
+                <PlayIcon className="ml-0.5 size-4 fill-current text-foreground" />
+              </div>
+            </div>
             <button
               type="button"
               onClick={() => setVideo(null)}
@@ -229,7 +241,7 @@ export function ProductMediaManager({
               <Trash2Icon className="size-3.5" />
             </button>
             <span className="absolute bottom-1 left-1 flex items-center gap-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
-              <VideoIcon className="size-3" /> Video
+              Video
             </span>
           </div>
         ) : (
