@@ -106,7 +106,7 @@ export const dashboardGroups: NavGroup[] = [
     icon: ShoppingBag,
     zone: "ops",
     items: [
-      { id: "pesanan", title: "Pesanan", icon: ShoppingBag, link: "/dashboard/pesanan", comingSoon: true },
+      { id: "pesanan", title: "Pesanan", icon: ShoppingBag, link: "/dashboard/pesanan" },
       { id: "retur-penjualan", title: "Retur Penjualan", icon: CornerDownLeft, link: "/dashboard/retur-penjualan", comingSoon: true },
       { id: "kontak-pelanggan", title: "Kontak Pelanggan", icon: Users, link: "/dashboard/kontak-pelanggan", comingSoon: true },
       { id: "kasir-pos", title: "Kasir (POS)", icon: MonitorSmartphone, link: "/dashboard/kasir-pos", comingSoon: true },
