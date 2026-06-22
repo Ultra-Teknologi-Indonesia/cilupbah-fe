@@ -17,7 +17,6 @@ import {
   PlayIcon,
   Trash2Icon,
 } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 import { toast } from "sonner"
 
@@ -50,42 +49,34 @@ function copyToClipboard(text: string) {
   toast.success("Disalin ke clipboard")
 }
 
-const CHANNEL_ICONS: Record<string, string> = {
-  tiktok: "/channels/tiktok.svg",
-  shopee: "/channels/shopee.svg",
-  lazada: "/channels/lazada.svg",
-  tokopedia: "/channels/tokopedia.svg",
-}
-
 function ChannelIcon({ source }: { source: string | null }) {
   if (!source) return null
   const ch = CHANNEL_MAP[source]
-  const icon = source ? CHANNEL_ICONS[source] : null
   if (!ch) return null
+
+  const mask = `url(/channels/${source}.svg) center / contain no-repeat`
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <span
-          className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md"
-          style={{ backgroundColor: `${ch.color}14` }}
+          className="inline-flex h-6 items-center gap-1.5 shrink-0 rounded-md px-1.5"
+          style={{ backgroundColor: `${ch.color}10` }}
         >
-          {icon ? (
-            <Image
-              src={icon}
-              alt={ch.label}
-              width={16}
-              height={16}
-              className="h-4 w-4 object-contain"
-            />
-          ) : (
-            <span
-              className="text-[10px] font-bold"
-              style={{ color: ch.color }}
-            >
-              {ch.label.slice(0, 2)}
-            </span>
-          )}
+          <span
+            className="inline-block h-4 w-4 shrink-0"
+            style={{
+              backgroundColor: ch.color,
+              mask,
+              WebkitMask: mask,
+            }}
+          />
+          <span
+            className="text-xs font-semibold"
+            style={{ color: ch.color }}
+          >
+            {ch.label}
+          </span>
         </span>
       </TooltipTrigger>
       <TooltipContent>{ch.label}</TooltipContent>
