@@ -2,13 +2,19 @@
 
 import { SearchXIcon } from "lucide-react"
 
+import { Checkbox } from "@/components/ui/checkbox"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination } from "@/components/ui/simple-pagination"
 import { OrderCard } from "./order-card"
-import type { Order } from "@/types/pesanan/order"
+import type { Order, OrderTab, SubFilter } from "@/types/pesanan/order"
+import { TABS_WITH_ACTIONS } from "@/types/pesanan/order"
 
 interface OrderCardListProps {
   orders: Order[]
+  tab: OrderTab
+  subFilter: SubFilter
+  selectedIds: Set<string>
+  onSelectionChange: (ids: Set<string>) => void
   isLoading: boolean
   page: number
   lastPage: number
@@ -21,6 +27,10 @@ interface OrderCardListProps {
 
 export function OrderCardList({
   orders,
+  tab,
+  subFilter,
+  selectedIds,
+  onSelectionChange,
   isLoading,
   page,
   lastPage,
@@ -30,6 +40,29 @@ export function OrderCardList({
   onPerPageChange,
   isFetching,
 }: OrderCardListProps) {
+  const selectable = TABS_WITH_ACTIONS.has(tab)
+
+  const allSelected = selectable && orders.length > 0 && orders.every((o) => selectedIds.has(o.id))
+  const someSelected = selectable && orders.some((o) => selectedIds.has(o.id))
+
+  function toggleAll() {
+    if (allSelected) {
+      onSelectionChange(new Set())
+    } else {
+      onSelectionChange(new Set(orders.map((o) => o.id)))
+    }
+  }
+
+  function toggleOne(id: string, checked: boolean) {
+    const next = new Set(selectedIds)
+    if (checked) {
+      next.add(id)
+    } else {
+      next.delete(id)
+    }
+    onSelectionChange(next)
+  }
+
   if (isLoading) {
     return (
       <div className="flex flex-col gap-3">
@@ -54,9 +87,28 @@ export function OrderCardList({
 
   return (
     <div className="flex flex-col gap-4">
+      {selectable && (
+        <div className="flex items-center gap-2">
+          <Checkbox
+            checked={allSelected ? true : someSelected ? "indeterminate" : false}
+            onCheckedChange={toggleAll}
+          />
+          <span className="text-sm text-muted-foreground">
+            {allSelected ? "Batalkan pilihan" : "Pilih semua"}
+          </span>
+        </div>
+      )}
+
       <div className="flex flex-col gap-3">
         {orders.map((order) => (
-          <OrderCard key={order.id} order={order} />
+          <OrderCard
+            key={order.id}
+            order={order}
+            tab={tab}
+            subFilter={subFilter}
+            selected={selectable ? selectedIds.has(order.id) : undefined}
+            onSelectedChange={selectable ? (v) => toggleOne(order.id, !!v) : undefined}
+          />
         ))}
       </div>
 

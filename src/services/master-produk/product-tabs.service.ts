@@ -40,7 +40,7 @@ export interface VariantsResult {
   meta: PageMeta
 }
 
-export type BulkVariantAction = "activate" | "deactivate" | "delete"
+export type BulkVariantAction = "delete"
 
 function mapRow(r: RawVariantRow): VariantRow {
   return {

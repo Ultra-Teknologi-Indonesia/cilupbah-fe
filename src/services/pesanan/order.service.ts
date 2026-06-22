@@ -6,6 +6,7 @@ export const OrderService = {
   list: (params: OrderListParams) => {
     const sp = new URLSearchParams()
     if (params.tab && params.tab !== "all") sp.set("tab", params.tab)
+    if (params.sub) sp.set("sub", params.sub)
     if (params.q) sp.set("q", params.q)
     if (params.channel) sp.set("channel", params.channel)
     if (params.store_id) sp.set("store_id", params.store_id)
@@ -61,6 +62,59 @@ export const OrderService = {
     return fetchClient<ApiResponse>("/sales/orders/delete-canceled", {
       method: "POST",
       data: { ids },
+    })
+  },
+
+  moveToReadyToProcess: (orderIds: string[]) => {
+    return fetchClient<ApiResponse>("/sales/orders/move-to-ready", {
+      method: "POST",
+      data: { order_ids: orderIds },
+    })
+  },
+
+  relocateOrder: (orderId: string, locationId: string) => {
+    return fetchClient<ApiResponse>(`/sales/${orderId}`, {
+      method: "PUT",
+      data: { location_id: locationId },
+    })
+  },
+
+  acceptCancelRequest: (orderId: string) => {
+    return fetchClient<ApiResponse>(`/sales/orders/${orderId}/accept-cancel`, {
+      method: "POST",
+    })
+  },
+
+  rejectCancelRequest: (orderId: string) => {
+    return fetchClient<ApiResponse>(`/sales/orders/${orderId}/reject-cancel`, {
+      method: "POST",
+    })
+  },
+
+  saveReceivedDate: (orderId: string, receivedDate?: string) => {
+    return fetchClient<ApiResponse>("/sales/orders/save-received-date", {
+      method: "POST",
+      data: { order_id: orderId, received_date: receivedDate },
+    })
+  },
+
+  requestAwb: (orderId: string, courierCode?: string) => {
+    return fetchClient<ApiResponse>("/sales/request-awb-order", {
+      method: "POST",
+      data: { order_id: orderId, courier_code: courierCode },
+    })
+  },
+
+  acceptReturn: (returnId: string) => {
+    return fetchClient<ApiResponse>(`/sales/returns/${returnId}/accept`, {
+      method: "POST",
+    })
+  },
+
+  rejectReturn: (returnId: string, reason?: string) => {
+    return fetchClient<ApiResponse>(`/sales/returns/${returnId}/reject`, {
+      method: "POST",
+      data: { reason },
     })
   },
 }

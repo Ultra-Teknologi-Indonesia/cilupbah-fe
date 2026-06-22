@@ -1,6 +1,5 @@
 "use client"
 
-import { cn } from "@/lib/utils"
 import { formatIDR } from "../product-columns"
 import type { DetailVariant } from "@/types/master-produk"
 
@@ -27,7 +26,6 @@ export function VariantTable({ variants }: { variants: DetailVariant[] }) {
             <th className="px-3 py-2.5">Pajak</th>
             <th className="px-3 py-2.5 text-right">Stok</th>
             <th className="px-3 py-2.5 text-right">Min / Aman</th>
-            <th className="px-3 py-2.5 text-right">Status</th>
           </tr>
         </thead>
         <tbody>
@@ -62,18 +60,6 @@ export function VariantTable({ variants }: { variants: DetailVariant[] }) {
               </td>
               <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">
                 {num(v.minStock)} / {num(v.safeStock)}
-              </td>
-              <td className="px-3 py-2.5 text-right">
-                <span
-                  className={cn(
-                    "text-[11px]",
-                    v.isActive
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-muted-foreground"
-                  )}
-                >
-                  {v.isActive ? "Aktif" : "Nonaktif"}
-                </span>
               </td>
             </tr>
           ))}

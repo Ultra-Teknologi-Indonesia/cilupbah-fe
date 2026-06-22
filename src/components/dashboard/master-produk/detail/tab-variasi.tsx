@@ -168,12 +168,6 @@ export function TabVariasi({ productId }: { productId: string }) {
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm">
           <span className="font-medium">{selected.size} dipilih</span>
           <div className="ml-auto flex items-center gap-2">
-            <Button size="sm" variant="outline" disabled={bulk.isPending} onClick={() => runBulk("activate")}>
-              Aktifkan
-            </Button>
-            <Button size="sm" variant="outline" disabled={bulk.isPending} onClick={() => runBulk("deactivate")}>
-              Nonaktifkan
-            </Button>
             <Button size="sm" variant="outline" disabled={bulk.isPending} onClick={() => runBulk("delete")}
               className="text-destructive hover:text-destructive">
               <Trash2Icon /> Hapus
@@ -200,21 +194,20 @@ export function TabVariasi({ productId }: { productId: string }) {
               <th className="px-3 py-2.5">Opsi</th>
               <SortHeader label="Harga jual" col="sell_price" sort={sort} onSort={onSort} />
               <SortHeader label="Stok" col="stock" sort={sort} onSort={onSort} align="right" />
-              <th className="px-3 py-2.5 text-right">Status</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <tr key={i} className="border-b border-border/40">
-                  <td colSpan={6} className="px-3 py-3">
+                  <td colSpan={5} className="px-3 py-3">
                     <div className="h-5 w-full animate-pulse rounded bg-muted/60" />
                   </td>
                 </tr>
               ))
             ) : isError ? (
               <tr>
-                <td colSpan={6} className="px-3 py-10 text-center text-sm text-muted-foreground">
+                <td colSpan={5} className="px-3 py-10 text-center text-sm text-muted-foreground">
                   Gagal memuat varian.{" "}
                   <button className="font-medium text-primary hover:underline" onClick={() => refetch()}>
                     Coba lagi
@@ -223,7 +216,7 @@ export function TabVariasi({ productId }: { productId: string }) {
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-3 py-10 text-center text-sm text-muted-foreground">
+                <td colSpan={5} className="px-3 py-10 text-center text-sm text-muted-foreground">
                   {search ? "Tidak ada varian yang cocok." : "Belum ada varian."}
                 </td>
               </tr>
@@ -272,11 +265,6 @@ export function TabVariasi({ productId }: { productId: string }) {
                   </td>
                   <td className="px-3 py-2.5 tabular-nums">{formatIDR(v.sellPrice)}</td>
                   <td className="px-3 py-2.5 text-right tabular-nums">{new Intl.NumberFormat("id-ID").format(v.stock)}</td>
-                  <td className="px-3 py-2.5 text-right">
-                    <span className={cn("text-[11px]", v.isActive ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground")}>
-                      {v.isActive ? "Aktif" : "Nonaktif"}
-                    </span>
-                  </td>
                 </tr>
               ))
             )}

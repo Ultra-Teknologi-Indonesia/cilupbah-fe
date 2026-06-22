@@ -4,25 +4,38 @@ import { useState, useMemo, useCallback } from "react"
 
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { useOrders } from "@/hooks/pesanan/use-orders"
-import type { OrderTab, OrderListParams } from "@/types/pesanan/order"
+import type { OrderTab, OrderListParams, SubFilter } from "@/types/pesanan/order"
+import { SUB_PILL_CONFIG } from "@/types/pesanan/order"
 
 import { OrderStatusTabs } from "./order-status-tabs"
 import { OrderFilters, EMPTY_FILTERS, type FilterState } from "./order-filters"
 import { OrderCardList } from "./order-card-list"
+import { BulkActionBar } from "./bulk-action-bar"
 
 export function PesananView() {
   const [tab, setTab] = useState<OrderTab>("all")
+  const [subFilter, setSubFilter] = useState<SubFilter>(null)
   const [query, setQuery] = useState("")
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(12)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   const resetPage = useCallback(() => setPage(1), [])
+  const clearSelection = useCallback(() => setSelectedIds(new Set()), [])
 
   const handleTabChange = useCallback((t: OrderTab) => {
     setTab(t)
+    setSubFilter(null)
     resetPage()
-  }, [resetPage])
+    clearSelection()
+  }, [resetPage, clearSelection])
+
+  const handleSubFilterChange = useCallback((s: SubFilter) => {
+    setSubFilter(s)
+    resetPage()
+    clearSelection()
+  }, [resetPage, clearSelection])
 
   const handleQueryChange = useCallback((v: string) => {
     setQuery(v)
@@ -36,6 +49,7 @@ export function PesananView() {
 
   const params = useMemo<OrderListParams>(() => ({
     tab,
+    sub: subFilter || undefined,
     q: query || undefined,
     channel: filters.channel || undefined,
     store_id: filters.store_id || undefined,
@@ -45,7 +59,7 @@ export function PesananView() {
     date_to: filters.date_to || undefined,
     page,
     per_page: perPage,
-  }), [tab, query, filters, page, perPage])
+  }), [tab, subFilter, query, filters, page, perPage])
 
   const { data, isLoading, isFetching } = useOrders(params)
 
@@ -54,7 +68,12 @@ export function PesananView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <OrderStatusTabs active={tab} onChange={handleTabChange} />
+      <OrderStatusTabs
+        active={tab}
+        onChange={handleTabChange}
+        subFilter={subFilter}
+        onSubFilterChange={handleSubFilterChange}
+      />
 
       <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
         <OrderFilters
@@ -67,6 +86,10 @@ export function PesananView() {
         <div className="px-4 py-4 sm:px-5">
           <OrderCardList
             orders={orders}
+            tab={tab}
+            subFilter={subFilter}
+            selectedIds={selectedIds}
+            onSelectionChange={setSelectedIds}
             isLoading={isLoading}
             page={meta.current_page}
             lastPage={meta.last_page}
@@ -78,6 +101,13 @@ export function PesananView() {
           />
         </div>
       </LiquidGlass>
+
+      <BulkActionBar
+        tab={tab}
+        subFilter={subFilter}
+        count={selectedIds.size}
+        onClear={clearSelection}
+      />
     </div>
   )
 }

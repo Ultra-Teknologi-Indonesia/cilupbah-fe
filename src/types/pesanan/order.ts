@@ -1,13 +1,18 @@
 export type OrderTab =
   | "all"
   | "unpaid"
-  | "failed"
   | "ready-to-process"
+  | "in-transit"
+  | "completed"
+  | "failed"
   | "empty-stock"
   | "failed-pick"
-  | "request-cancel"
-  | "cancelled"
+  | "cancellation"
   | "returned"
+
+export type CancellationSub = "pending" | "cancelled"
+export type ReturnSub = "pending" | "accepted" | "rejected"
+export type SubFilter = CancellationSub | ReturnSub | null
 
 export type OrderStatus =
   | "pending"
@@ -19,6 +24,7 @@ export type OrderStatus =
 
 export interface OrderListParams {
   tab?: OrderTab
+  sub?: string
   q?: string
   channel?: string
   store_id?: string
@@ -64,6 +70,7 @@ export interface Order {
   total_qty: number
   total_sku: number
   items: OrderItem[]
+  received_date: string | null
   created_at: string
   updated_at: string
 }
@@ -99,24 +106,44 @@ export interface OrderTabCounts {
   unpaid: number
   failed: number
   "ready-to-process": number
+  "in-transit": number
+  completed: number
   "empty-stock": number
   "failed-pick": number
-  "request-cancel": number
-  cancelled: number
+  cancellation: number
   returned: number
 }
 
-export const TAB_CONFIG = [
-  { key: "all", label: "Semua" },
-  { key: "unpaid", label: "Belum Dibayar" },
-  { key: "failed", label: "Gagal Download" },
-  { key: "ready-to-process", label: "Siap Proses" },
-  { key: "empty-stock", label: "Stok Kosong" },
-  { key: "failed-pick", label: "Gagal Picking" },
-  { key: "request-cancel", label: "Request Batal" },
-  { key: "cancelled", label: "Batal" },
-  { key: "returned", label: "Diretur" },
+interface TabConfigItem {
+  key: string
+  label: string
+  zone: "lifecycle" | "problem" | "admin"
+}
+
+export const TAB_CONFIG: readonly TabConfigItem[] = [
+  { key: "all", label: "Semua", zone: "lifecycle" },
+  { key: "unpaid", label: "Belum Dibayar", zone: "lifecycle" },
+  { key: "ready-to-process", label: "Perlu Dikirim", zone: "lifecycle" },
+  { key: "in-transit", label: "Dikirim", zone: "lifecycle" },
+  { key: "completed", label: "Selesai", zone: "lifecycle" },
+  { key: "failed", label: "Gagal Download", zone: "problem" },
+  { key: "empty-stock", label: "Stok Kosong", zone: "problem" },
+  { key: "failed-pick", label: "Gagal Picking", zone: "problem" },
+  { key: "cancellation", label: "Pembatalan", zone: "admin" },
+  { key: "returned", label: "Pengembalian", zone: "admin" },
 ] as const
+
+export const SUB_PILL_CONFIG: Partial<Record<OrderTab, { key: string; label: string }[]>> = {
+  cancellation: [
+    { key: "pending", label: "Menunggu" },
+    { key: "cancelled", label: "Dibatalkan" },
+  ],
+  returned: [
+    { key: "pending", label: "Menunggu" },
+    { key: "accepted", label: "Diterima" },
+    { key: "rejected", label: "Ditolak" },
+  ],
+}
 
 export const STATUS_LABELS: Record<string, { label: string; className: string }> = {
   pending: { label: "Menunggu", className: "text-orange-700 bg-orange-50 border-orange-300 dark:text-orange-300 dark:bg-orange-500/10 dark:border-orange-500/20" },
@@ -126,6 +153,17 @@ export const STATUS_LABELS: Record<string, { label: string; className: string }>
   shipped: { label: "Dikirim", className: "text-emerald-700 bg-emerald-50 border-emerald-300 dark:text-emerald-300 dark:bg-emerald-500/10 dark:border-emerald-500/20" },
   cancelled: { label: "Dibatalkan", className: "text-rose-700 bg-rose-50 border-rose-300 dark:text-rose-300 dark:bg-rose-500/10 dark:border-rose-500/20" },
 }
+
+export const TABS_WITH_ACTIONS: Set<OrderTab> = new Set([
+  "all",
+  "ready-to-process",
+  "in-transit",
+  "completed",
+  "empty-stock",
+  "failed-pick",
+  "cancellation",
+  "returned",
+])
 
 export const CHANNEL_MAP: Record<string, { label: string; color: string }> = {
   tiktok: { label: "TikTok", color: "#000000" },

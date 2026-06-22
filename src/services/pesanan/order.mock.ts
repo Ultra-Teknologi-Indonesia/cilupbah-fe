@@ -72,6 +72,7 @@ const MOCK_ORDERS: Order[] = [
         amount: 52000,
       },
     ],
+    received_date: null,
     created_at: "2026-06-20T10:30:00Z",
     updated_at: "2026-06-20T10:32:00Z",
   },
@@ -157,6 +158,7 @@ const MOCK_ORDERS: Order[] = [
         amount: 240000,
       },
     ],
+    received_date: null,
     created_at: "2026-06-20T08:15:00Z",
     updated_at: "2026-06-20T08:22:00Z",
   },
@@ -216,6 +218,7 @@ const MOCK_ORDERS: Order[] = [
         amount: 89000,
       },
     ],
+    received_date: null,
     created_at: "2026-06-19T14:45:00Z",
     updated_at: "2026-06-20T09:00:00Z",
   },
@@ -275,6 +278,7 @@ const MOCK_ORDERS: Order[] = [
         amount: 178000,
       },
     ],
+    received_date: null,
     created_at: "2026-06-19T16:20:00Z",
     updated_at: "2026-06-19T16:20:00Z",
   },
@@ -334,6 +338,7 @@ const MOCK_ORDERS: Order[] = [
         amount: 250000,
       },
     ],
+    received_date: null,
     created_at: "2026-06-18T11:00:00Z",
     updated_at: "2026-06-18T12:35:00Z",
   },
@@ -406,6 +411,7 @@ const MOCK_ORDERS: Order[] = [
         amount: 134000,
       },
     ],
+    received_date: null,
     created_at: "2026-06-20T07:00:00Z",
     updated_at: "2026-06-20T11:30:00Z",
   },
@@ -478,6 +484,7 @@ const MOCK_ORDERS: Order[] = [
         amount: 67000,
       },
     ],
+    received_date: null,
     created_at: "2026-06-20T09:00:00Z",
     updated_at: "2026-06-20T12:00:00Z",
   },
@@ -550,6 +557,7 @@ const MOCK_ORDERS: Order[] = [
         amount: 150000,
       },
     ],
+    received_date: null,
     created_at: "2026-06-17T20:30:00Z",
     updated_at: "2026-06-17T20:30:00Z",
   },
@@ -609,8 +617,9 @@ const MOCK_ORDERS: Order[] = [
         amount: 89000,
       },
     ],
+    received_date: "2026-06-20T10:00:00Z",
     created_at: "2026-06-19T13:15:00Z",
-    updated_at: "2026-06-20T08:00:00Z",
+    updated_at: "2026-06-20T10:00:00Z",
   },
   {
     id: "01926a1b-0010-7000-8000-000000000010",
@@ -694,6 +703,7 @@ const MOCK_ORDERS: Order[] = [
         amount: 240000,
       },
     ],
+    received_date: null,
     created_at: "2026-06-18T18:45:00Z",
     updated_at: "2026-06-19T15:00:00Z",
   },
@@ -792,6 +802,7 @@ const MOCK_ORDERS: Order[] = [
         amount: 120000,
       },
     ],
+    received_date: null,
     created_at: "2026-06-20T11:30:00Z",
     updated_at: "2026-06-20T11:40:00Z",
   },
@@ -851,6 +862,7 @@ const MOCK_ORDERS: Order[] = [
         amount: 175000,
       },
     ],
+    received_date: null,
     created_at: "2026-06-16T09:30:00Z",
     updated_at: "2026-06-16T14:00:00Z",
   },
@@ -861,10 +873,11 @@ const MOCK_COUNTS: OrderTabCounts = {
   unpaid: 2,
   failed: 0,
   "ready-to-process": 3,
+  "in-transit": 1,
+  completed: 1,
   "empty-stock": 0,
   "failed-pick": 0,
-  "request-cancel": 1,
-  cancelled: 2,
+  cancellation: 3,
   returned: 0,
 }
 
@@ -879,11 +892,14 @@ function filterOrders(orders: Order[], params: OrderListParams): Order[] {
       case "ready-to-process":
         filtered = filtered.filter((o) => o.is_paid && !o.is_canceled && ["pending", "reserved"].includes(o.status))
         break
-      case "request-cancel":
-        filtered = filtered.filter((o) => !!o.cancel_requested_at && !o.is_canceled)
+      case "in-transit":
+        filtered = filtered.filter((o) => o.status === "shipped" && !o.received_date)
         break
-      case "cancelled":
-        filtered = filtered.filter((o) => o.is_canceled)
+      case "completed":
+        filtered = filtered.filter((o) => o.status === "shipped" && !!o.received_date)
+        break
+      case "cancellation":
+        filtered = filtered.filter((o) => o.is_canceled || !!o.cancel_requested_at)
         break
       default:
         break
