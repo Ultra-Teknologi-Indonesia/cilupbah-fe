@@ -892,18 +892,13 @@ function filterOrders(orders: Order[], params: OrderListParams): Order[] {
 
   if (params.q) {
     const q = params.q.toLowerCase()
-    if (params.search_by === "sku") {
-      filtered = filtered.filter((o) =>
+    filtered = filtered.filter(
+      (o) =>
+        o.salesorder_no.toLowerCase().includes(q) ||
+        (o.channel_order_no ?? "").toLowerCase().includes(q) ||
+        o.customer_name.toLowerCase().includes(q) ||
         o.items.some((i) => i.sku.toLowerCase().includes(q) || (i.description ?? "").toLowerCase().includes(q))
-      )
-    } else {
-      filtered = filtered.filter(
-        (o) =>
-          o.salesorder_no.toLowerCase().includes(q) ||
-          (o.channel_order_no ?? "").toLowerCase().includes(q) ||
-          o.customer_name.toLowerCase().includes(q)
-      )
-    }
+    )
   }
 
   if (params.channel) {

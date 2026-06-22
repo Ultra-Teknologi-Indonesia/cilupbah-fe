@@ -7,7 +7,6 @@ export const OrderService = {
     const sp = new URLSearchParams()
     if (params.tab && params.tab !== "all") sp.set("tab", params.tab)
     if (params.q) sp.set("q", params.q)
-    if (params.search_by) sp.set("search_by", params.search_by)
     if (params.channel) sp.set("channel", params.channel)
     if (params.store_id) sp.set("store_id", params.store_id)
     if (params.location_id) sp.set("location_id", params.location_id)

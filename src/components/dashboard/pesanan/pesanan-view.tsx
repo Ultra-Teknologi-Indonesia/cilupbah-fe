@@ -7,14 +7,12 @@ import { useOrders } from "@/hooks/pesanan/use-orders"
 import type { OrderTab, OrderListParams } from "@/types/pesanan/order"
 
 import { OrderStatusTabs } from "./order-status-tabs"
-import { OrderSearch } from "./order-search"
 import { OrderFilters, EMPTY_FILTERS, type FilterState } from "./order-filters"
 import { OrderCardList } from "./order-card-list"
 
 export function PesananView() {
   const [tab, setTab] = useState<OrderTab>("all")
   const [query, setQuery] = useState("")
-  const [searchBy, setSearchBy] = useState<"order" | "sku">("order")
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(12)
@@ -31,11 +29,6 @@ export function PesananView() {
     resetPage()
   }, [resetPage])
 
-  const handleSearchByChange = useCallback((v: "order" | "sku") => {
-    setSearchBy(v)
-    resetPage()
-  }, [resetPage])
-
   const handleFilterChange = useCallback((f: FilterState) => {
     setFilters(f)
     resetPage()
@@ -44,7 +37,6 @@ export function PesananView() {
   const params = useMemo<OrderListParams>(() => ({
     tab,
     q: query || undefined,
-    search_by: query ? searchBy : undefined,
     channel: filters.channel || undefined,
     store_id: filters.store_id || undefined,
     location_id: filters.location_id || undefined,
@@ -53,7 +45,7 @@ export function PesananView() {
     date_to: filters.date_to || undefined,
     page,
     per_page: perPage,
-  }), [tab, query, searchBy, filters, page, perPage])
+  }), [tab, query, filters, page, perPage])
 
   const { data, isLoading, isFetching } = useOrders(params)
 
@@ -65,28 +57,27 @@ export function PesananView() {
       <OrderStatusTabs active={tab} onChange={handleTabChange} />
 
       <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
-        <div className="space-y-3 px-4 py-3">
-          <OrderSearch
-            query={query}
-            searchBy={searchBy}
-            onQueryChange={handleQueryChange}
-            onSearchByChange={handleSearchByChange}
+        <OrderFilters
+          query={query}
+          onQueryChange={handleQueryChange}
+          filters={filters}
+          onChange={handleFilterChange}
+        />
+
+        <div className="px-4 py-4 sm:px-5">
+          <OrderCardList
+            orders={orders}
+            isLoading={isLoading}
+            page={meta.current_page}
+            lastPage={meta.last_page}
+            total={meta.total}
+            perPage={meta.per_page}
+            onPageChange={setPage}
+            onPerPageChange={(s) => { setPerPage(s); resetPage() }}
+            isFetching={isFetching}
           />
-          <OrderFilters filters={filters} onChange={handleFilterChange} />
         </div>
       </LiquidGlass>
-
-      <OrderCardList
-        orders={orders}
-        isLoading={isLoading}
-        page={meta.current_page}
-        lastPage={meta.last_page}
-        total={meta.total}
-        perPage={meta.per_page}
-        onPageChange={setPage}
-        onPerPageChange={(s) => { setPerPage(s); resetPage() }}
-        isFetching={isFetching}
-      />
     </div>
   )
 }

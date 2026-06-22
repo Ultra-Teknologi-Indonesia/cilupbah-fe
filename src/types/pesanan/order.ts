@@ -20,7 +20,6 @@ export type OrderStatus =
 export interface OrderListParams {
   tab?: OrderTab
   q?: string
-  search_by?: "order" | "sku"
   channel?: string
   store_id?: string
   location_id?: string

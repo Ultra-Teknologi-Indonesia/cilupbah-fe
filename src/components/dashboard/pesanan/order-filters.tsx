@@ -1,9 +1,8 @@
 "use client"
 
-import { FilterIcon, XIcon } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { Input } from "@/components/ui/input"
+import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
 import { CHANNEL_MAP } from "@/types/pesanan/order"
@@ -32,9 +31,13 @@ export interface FilterState {
 const EMPTY: FilterState = { channel: "", store_id: "", location_id: "", content_type: "", date_from: "", date_to: "" }
 
 export function OrderFilters({
+  query,
+  onQueryChange,
   filters,
   onChange,
 }: {
+  query: string
+  onQueryChange: (v: string) => void
   filters: FilterState
   onChange: (f: FilterState) => void
 }) {
@@ -54,17 +57,30 @@ export function OrderFilters({
     }))
 
   const hasActive = Object.values(filters).some(Boolean)
+  const activeCount = [
+    filters.channel,
+    filters.store_id,
+    filters.location_id,
+    filters.content_type,
+    filters.date_from || filters.date_to,
+  ].filter(Boolean).length
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <FilterIcon className="h-4 w-4 text-muted-foreground" />
-
+    <FilterToolbar
+      search={query}
+      onSearchChange={onQueryChange}
+      searchPlaceholder="Cari no. pesanan, nama pelanggan, atau SKU..."
+      onReset={hasActive ? () => onChange(EMPTY) : undefined}
+      hasFilter={hasActive}
+      activeCount={activeCount}
+    >
       <Combobox
         options={[{ value: "", label: "Semua Lokasi" }, ...locations]}
         value={filters.location_id}
         onChange={(v) => onChange({ ...filters, location_id: v ?? "" })}
         placeholder="Lokasi"
-        className="w-40"
+        searchPlaceholder="Cari lokasi"
+        className="h-9 bg-background"
       />
 
       <Combobox
@@ -72,7 +88,8 @@ export function OrderFilters({
         value={filters.channel}
         onChange={(v) => onChange({ ...filters, channel: v ?? "", store_id: "" })}
         placeholder="Channel"
-        className="w-36"
+        searchPlaceholder="Cari channel"
+        className="h-9 bg-background"
       />
 
       <Combobox
@@ -80,7 +97,8 @@ export function OrderFilters({
         value={filters.store_id}
         onChange={(v) => onChange({ ...filters, store_id: v ?? "" })}
         placeholder="Toko"
-        className="w-40"
+        searchPlaceholder="Cari toko"
+        className="h-9 bg-background"
       />
 
       <Combobox
@@ -88,34 +106,35 @@ export function OrderFilters({
         value={filters.content_type}
         onChange={(v) => onChange({ ...filters, content_type: v ?? "" })}
         placeholder="Isi Pesanan"
-        className="w-40"
+        searchPlaceholder="Cari tipe"
+        className="h-9 bg-background"
       />
 
-      <div className="flex items-center gap-1.5">
-        <Input
-          type="date"
-          value={filters.date_from}
-          onChange={(e) => onChange({ ...filters, date_from: e.target.value })}
-          className="h-9 w-36 text-xs"
-          placeholder="Dari"
-        />
-        <span className="text-muted-foreground text-xs">-</span>
-        <Input
-          type="date"
-          value={filters.date_to}
-          onChange={(e) => onChange({ ...filters, date_to: e.target.value })}
-          className="h-9 w-36 text-xs"
-          placeholder="Sampai"
-        />
+      <div className="flex items-center gap-2 sm:col-span-2">
+        <div className="flex-1">
+          <label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+            Dari tanggal
+          </label>
+          <Input
+            type="date"
+            value={filters.date_from}
+            onChange={(e) => onChange({ ...filters, date_from: e.target.value })}
+            className="h-9 bg-background text-xs"
+          />
+        </div>
+        <div className="flex-1">
+          <label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+            Sampai tanggal
+          </label>
+          <Input
+            type="date"
+            value={filters.date_to}
+            onChange={(e) => onChange({ ...filters, date_to: e.target.value })}
+            className="h-9 bg-background text-xs"
+          />
+        </div>
       </div>
-
-      {hasActive && (
-        <Button variant="ghost" size="sm" onClick={() => onChange(EMPTY)} className="h-8 gap-1 text-xs">
-          <XIcon className="h-3 w-3" />
-          Reset
-        </Button>
-      )}
-    </div>
+    </FilterToolbar>
   )
 }
 
