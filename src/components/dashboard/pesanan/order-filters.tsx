@@ -1,7 +1,11 @@
 "use client"
 
+import { useMemo } from "react"
+import { format, parse } from "date-fns"
+import type { DateRange } from "react-day-picker"
+
 import { Combobox } from "@/components/ui/combobox"
-import { Input } from "@/components/ui/input"
+import { DateRangePicker } from "@/components/ui/date-picker"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
@@ -29,6 +33,15 @@ export interface FilterState {
 }
 
 const EMPTY: FilterState = { channel: "", store_id: "", location_id: "", content_type: "", date_from: "", date_to: "" }
+
+function toDate(s: string): Date | undefined {
+  if (!s) return undefined
+  return parse(s, "yyyy-MM-dd", new Date())
+}
+
+function toStr(d: Date | undefined): string {
+  return d ? format(d, "yyyy-MM-dd") : ""
+}
 
 export function OrderFilters({
   query,
@@ -65,6 +78,13 @@ export function OrderFilters({
     filters.date_from || filters.date_to,
   ].filter(Boolean).length
 
+  const dateRange = useMemo<DateRange | undefined>(() => {
+    const from = toDate(filters.date_from)
+    const to = toDate(filters.date_to)
+    if (!from && !to) return undefined
+    return { from, to }
+  }, [filters.date_from, filters.date_to])
+
   return (
     <FilterToolbar
       search={query}
@@ -73,6 +93,7 @@ export function OrderFilters({
       onReset={hasActive ? () => onChange(EMPTY) : undefined}
       hasFilter={hasActive}
       activeCount={activeCount}
+      align="end"
     >
       <Combobox
         options={[{ value: "", label: "Semua Lokasi" }, ...locations]}
@@ -110,29 +131,19 @@ export function OrderFilters({
         className="h-9 bg-background"
       />
 
-      <div className="flex items-center gap-2 sm:col-span-2">
-        <div className="flex-1">
-          <label className="mb-1 block text-[11px] font-medium text-muted-foreground">
-            Dari tanggal
-          </label>
-          <Input
-            type="date"
-            value={filters.date_from}
-            onChange={(e) => onChange({ ...filters, date_from: e.target.value })}
-            className="h-9 bg-background text-xs"
-          />
-        </div>
-        <div className="flex-1">
-          <label className="mb-1 block text-[11px] font-medium text-muted-foreground">
-            Sampai tanggal
-          </label>
-          <Input
-            type="date"
-            value={filters.date_to}
-            onChange={(e) => onChange({ ...filters, date_to: e.target.value })}
-            className="h-9 bg-background text-xs"
-          />
-        </div>
+      <div className="sm:col-span-2">
+        <DateRangePicker
+          value={dateRange}
+          onChange={(range) =>
+            onChange({
+              ...filters,
+              date_from: toStr(range?.from),
+              date_to: toStr(range?.to),
+            })
+          }
+          placeholder="Pilih rentang tanggal"
+          className="h-9 bg-background"
+        />
       </div>
     </FilterToolbar>
   )
