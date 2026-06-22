@@ -32,9 +32,9 @@ export function OrderCardList({
 }: OrderCardListProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-56 rounded-2xl" />
+      <div className="flex flex-col gap-3">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-[120px] w-full rounded-xl" />
         ))}
       </div>
     )
@@ -42,7 +42,7 @@ export function OrderCardList({
 
   if (orders.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border py-16">
+      <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-border py-16">
         <SearchXIcon className="size-8 text-muted-foreground" />
         <p className="font-medium">Tidak ada pesanan</p>
         <p className="text-sm text-muted-foreground">
@@ -54,7 +54,7 @@ export function OrderCardList({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="flex flex-col gap-3">
         {orders.map((order) => (
           <OrderCard key={order.id} order={order} />
         ))}
@@ -66,7 +66,7 @@ export function OrderCardList({
         onPageChange={onPageChange}
         perPage={perPage}
         onPerPageChange={onPerPageChange}
-        pageSizeOptions={[12, 24, 48]}
+        pageSizeOptions={[10, 20, 50]}
         isFetching={isFetching}
         label="pesanan"
         total={total}
