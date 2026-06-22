@@ -95,6 +95,7 @@ export function useRequiredAttributes(productId: string, shopId: string | null) 
     queryFn: () => UploadService.fetchRequiredAttributes(productId, shopId!),
     enabled: !!productId && !!shopId,
     staleTime: 5 * 60 * 1000,
+    retry: false,
   })
 }
 

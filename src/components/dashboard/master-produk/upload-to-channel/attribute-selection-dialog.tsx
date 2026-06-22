@@ -36,7 +36,7 @@ export function AttributeSelectionDialog({
   onConfirm,
   isUploading,
 }: AttributeSelectionDialogProps) {
-  const { data, isLoading, isError, refetch } = useRequiredAttributes(
+  const { data, isLoading, isError, error, refetch } = useRequiredAttributes(
     productId,
     open ? shopId : null
   )
@@ -97,8 +97,8 @@ export function AttributeSelectionDialog({
 
         {isError && (
           <div className="py-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              Gagal memuat atribut.
+            <p className="text-sm text-destructive font-medium">
+              {(error as { message?: string })?.message || "Gagal memuat atribut."}
             </p>
             <Button
               variant="outline"
