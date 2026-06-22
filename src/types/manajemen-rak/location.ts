@@ -80,6 +80,9 @@ export interface RawLocationBin {
   bin_final_code: string
   max_qty: number
   is_inbound: boolean
+  is_stock_acknowledged: boolean
+  is_large_bin: boolean
+  category: string | null
 }
 
 export interface LocationBin {
@@ -91,6 +94,9 @@ export interface LocationBin {
   binFinalCode: string
   maxQty: number
   isInbound: boolean
+  isStockAcknowledged: boolean
+  isLargeBin: boolean
+  category: string | null
 }
 
 // Payload create/update yang dikirim ke API (snake_case sesuai request BE).
@@ -140,6 +146,9 @@ export interface BinPreviewItem {
   binCode: string
   binFinalCode: string
   maxQty: number
+  isStockAcknowledged: boolean
+  isLargeBin: boolean
+  category: string
 }
 
 export interface LocationListParams {

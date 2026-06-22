@@ -23,6 +23,9 @@ export function buildBinPreview(payload: GenerateBinsPayload): BinPreviewItem[] 
             binCode,
             binFinalCode: [floorCode, rowCode, columnCode, binCode].join("-"),
             maxQty,
+            isStockAcknowledged: true,
+            isLargeBin: false,
+            category: "",
           })
         }
       }

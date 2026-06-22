@@ -145,6 +145,9 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
           binCode: b.binCode ?? "",
           binFinalCode: b.binFinalCode,
           maxQty: b.maxQty,
+          isStockAcknowledged: b.isStockAcknowledged,
+          isLargeBin: b.isLargeBin,
+          category: b.category ?? "",
         })),
     [detail.data]
   )

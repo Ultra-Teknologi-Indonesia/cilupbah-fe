@@ -19,6 +19,9 @@ function mapBin(raw: RawLocationBin): LocationBin {
     binFinalCode: raw.bin_final_code,
     maxQty: raw.max_qty,
     isInbound: raw.is_inbound,
+    isStockAcknowledged: raw.is_stock_acknowledged ?? true,
+    isLargeBin: raw.is_large_bin ?? false,
+    category: raw.category ?? null,
   }
 }
 
@@ -90,5 +93,22 @@ export const LocationService = {
 
   remove: async (id: string): Promise<void> => {
     await fetchClient<ApiResponse<null>>(`/locations/${id}`, { method: "DELETE" })
+  },
+
+  bulkUpdateBins: async (
+    locationId: string,
+    bins: {
+      id: string
+      max_qty: number
+      is_stock_acknowledged: boolean
+      is_large_bin: boolean
+      category: string | null
+    }[]
+  ): Promise<{ updated: number }> => {
+    const res = await fetchClient<ApiResponse<{ updated: number }>>(
+      `/locations/${locationId}/bins/bulk`,
+      { method: "PUT", data: { bins } }
+    )
+    return res.data
   },
 }
