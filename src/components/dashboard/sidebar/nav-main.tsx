@@ -52,22 +52,21 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
   const handleNavClick = () => {
     setOpenCollapsible(null);
     if (isMobile) setOpenMobile(false);
-    else setOpen(false);
   };
 
   const labelClass =
     "min-w-0 truncate transition-opacity duration-200 ease-out group-data-[collapsible=icon]:opacity-0";
 
   const isRouteActive = (route: Route) => {
-    if (pathname === route.link) return true;
+    if (pathname === route.link || pathname.startsWith(route.link + "/")) return true;
     if (route.match?.some((m) => pathname === m || pathname.startsWith(m + "/"))) {
       return true;
     }
     if (route.subs) {
       return route.subs.some((sub) => {
-        if (pathname === sub.link) return true;
+        if (pathname === sub.link || pathname.startsWith(sub.link + "/")) return true;
         if (sub.subs) {
-          return sub.subs.some((nestedSub) => pathname === nestedSub.link);
+          return sub.subs.some((nestedSub) => pathname === nestedSub.link || pathname.startsWith(nestedSub.link + "/"));
         }
         return false;
       });
@@ -153,7 +152,7 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                                   onClick={handleNavClick}
                                   className={cn(
                                     "flex items-center justify-between rounded-md px-4 py-1.5 text-sm",
-                                    pathname === subRoute.link
+                                    pathname === subRoute.link || pathname.startsWith(subRoute.link + "/")
                                       ? "bg-sidebar-accent text-primary font-medium"
                                       : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
                                   )}
@@ -179,7 +178,7 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                                         onClick={handleNavClick}
                                         className={cn(
                                           "flex items-center rounded-md px-4 py-1 text-xs",
-                                          pathname === nestedSub.link
+                                          pathname === nestedSub.link || pathname.startsWith(nestedSub.link + "/")
                                             ? "bg-sidebar-accent text-primary font-medium"
                                             : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
                                         )}

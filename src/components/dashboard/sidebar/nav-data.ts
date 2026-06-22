@@ -187,6 +187,9 @@ function linkMatchLen(pathname: string, link: string): number {
 
 function routeMatchLen(pathname: string, route: Route): number {
   let best = linkMatchLen(pathname, route.link);
+  route.match?.forEach((m) => {
+    best = Math.max(best, linkMatchLen(pathname, m));
+  });
   route.subs?.forEach((s) => {
     best = Math.max(best, linkMatchLen(pathname, s.link));
     s.subs?.forEach((n) => {

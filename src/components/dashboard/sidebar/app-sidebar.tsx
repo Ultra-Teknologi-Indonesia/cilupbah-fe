@@ -24,31 +24,17 @@ export function DashboardSidebar() {
   const [activeGroupId, setActiveGroupId] = React.useState(() =>
     findGroupIdForPath(pathname, dashboardGroups)
   );
-  const [userPickedGroup, setUserPickedGroup] = React.useState(false);
 
   const [prevPath, setPrevPath] = React.useState(pathname);
   if (pathname !== prevPath) {
     setPrevPath(pathname);
     setActiveGroupId(findGroupIdForPath(pathname, dashboardGroups));
-    setUserPickedGroup(false);
   }
 
   const activeGroup =
     dashboardGroups.find((g) => g.id === activeGroupId) ?? dashboardGroups[0];
 
-  const PRODUK_PREFIXES = [
-    "/dashboard/master-produk",
-    "/dashboard/produk",
-    "/dashboard/listing-marketplace",
-  ];
-  const isProdukWorkspace = PRODUK_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(p + "/")
-  );
-
-  const suppressKatalog =
-    isProdukWorkspace && activeGroupId === "katalog" && !userPickedGroup;
-  const panelOpen =
-    open && !isLeafGroup(activeGroup) && !suppressKatalog;
+  const panelOpen = open && !isLeafGroup(activeGroup);
 
   const handleSelect = React.useCallback(
     (id: string) => {
@@ -57,20 +43,13 @@ export function DashboardSidebar() {
 
       if (!hasPanel) {
         setActiveGroupId(id);
-        setUserPickedGroup(true);
         return;
       }
 
       if (id === activeGroupId) {
-        if (panelOpen) {
-          toggleSidebar();
-        } else {
-          setUserPickedGroup(true);
-          if (!open) toggleSidebar();
-        }
+        toggleSidebar();
       } else {
         setActiveGroupId(id);
-        setUserPickedGroup(true);
         if (!open) toggleSidebar();
       }
     },
