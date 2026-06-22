@@ -84,6 +84,7 @@ export const dashboardGroups: NavGroup[] = [
         link: "/dashboard/kategori-merek",
         subs: [
           { title: "Kategori", link: "/dashboard/kategori-merek/kategori" },
+          { title: "Merek", link: "/dashboard/kategori-merek/merek" },
         ],
       },
     ],
