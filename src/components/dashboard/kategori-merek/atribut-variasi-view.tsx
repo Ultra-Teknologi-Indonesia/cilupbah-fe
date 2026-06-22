@@ -126,7 +126,7 @@ export function AtributVariasiView({ categoryId, type }: AtributVariasiViewProps
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={`Cari ${label.toLowerCase()}`}
-                className="h-10 rounded-lg pl-9"
+                className="h-10 pl-9"
               />
             </div>
           </div>

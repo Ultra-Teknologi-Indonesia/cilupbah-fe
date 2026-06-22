@@ -60,7 +60,7 @@ export function DraftTab({
   const [status, setStatus] = React.useState("all")
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 25,
+    pageSize: 10,
   })
   const [deletePending, setDeletePending] = React.useState<DeletePending | null>(
     null

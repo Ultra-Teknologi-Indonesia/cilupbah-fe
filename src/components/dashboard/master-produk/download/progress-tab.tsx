@@ -52,7 +52,7 @@ export function ProgressTab({
   const [dateFrom, setDateFrom] = React.useState("")
   const [dateTo, setDateTo] = React.useState("")
 
-  const [pagination, setPagination] = React.useState<PaginationState>({ pageIndex: 0, pageSize: 25 })
+  const [pagination, setPagination] = React.useState<PaginationState>({ pageIndex: 0, pageSize: 10 })
   const resetPage = () => setPagination((p) => ({ ...p, pageIndex: 0 }))
 
   const [openTrx, setOpenTrx] = React.useState<DownloadTransaction | null>(null)

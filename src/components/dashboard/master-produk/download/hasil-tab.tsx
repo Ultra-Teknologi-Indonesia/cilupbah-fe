@@ -59,7 +59,7 @@ export function HasilTab({
   const [dMax, setDMax] = React.useState("")
   const [price, setPrice] = React.useState<{ min?: number; max?: number }>({})
   const [sorting, setSorting] = React.useState<SortingState>([])
-  const [pagination, setPagination] = React.useState<PaginationState>({ pageIndex: 0, pageSize: 24 })
+  const [pagination, setPagination] = React.useState<PaginationState>({ pageIndex: 0, pageSize: 10 })
 
   const resetPage = React.useCallback(() => setPagination((p) => ({ ...p, pageIndex: 0 })), [])
 

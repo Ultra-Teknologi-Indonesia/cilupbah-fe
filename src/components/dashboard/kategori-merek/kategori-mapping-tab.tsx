@@ -30,7 +30,7 @@ import { PetakanKategoriDialog } from "./petakan-kategori-dialog"
 
 export function KategoriMappingTab({ search }: { search: string }) {
   const [page, setPage] = React.useState(1)
-  const [perPage, setPerPage] = React.useState(20)
+  const [perPage, setPerPage] = React.useState(10)
 
   const prevSearch = React.useRef(search)
   if (prevSearch.current !== search) {
@@ -179,6 +179,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
           perPage={perPage}
           onPerPageChange={setPerPage}
           total={total}
+          pageSizeOptions={[10, 20, 50, 100]}
           label="pemetaan"
           isFetching={isFetching}
         />

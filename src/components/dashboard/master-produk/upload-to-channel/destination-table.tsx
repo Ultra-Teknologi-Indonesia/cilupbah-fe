@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/dialog"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
-import { SyncStatusBadge } from "@/components/dashboard/produk/detail/tab-pagination"
+import { SyncStatusBadge } from "@/components/dashboard/master-produk/detail/tab-pagination"
 import {
   useMatchListing,
   useUploadListing,
@@ -82,7 +82,7 @@ export function DestinationTable({
   channel?: string
 }) {
   const router = useRouter()
-  const [pagination, setPagination] = React.useState({ pageIndex: 0, pageSize: 25 })
+  const [pagination, setPagination] = React.useState({ pageIndex: 0, pageSize: 10 })
 
   // Reset to first page whenever the filters change (render-phase adjustment).
   const filterKey = `${search}|${channel ?? ""}`

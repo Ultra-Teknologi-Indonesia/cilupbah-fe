@@ -60,7 +60,7 @@ export function PantauanView() {
   const [channel, setChannel] = React.useState<string | null>(null)
   const [type, setType] = React.useState<"all" | ProductTypeFilter>("all")
 
-  const [pagination, setPagination] = React.useState<PaginationState>({ pageIndex: 0, pageSize: 25 })
+  const [pagination, setPagination] = React.useState<PaginationState>({ pageIndex: 0, pageSize: 10 })
   const resetPage = React.useCallback(() => setPagination((p) => ({ ...p, pageIndex: 0 })), [])
 
   // Debounce search input.

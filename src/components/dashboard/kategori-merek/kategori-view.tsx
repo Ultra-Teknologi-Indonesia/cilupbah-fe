@@ -47,7 +47,7 @@ export function KategoriView() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Cari kategori…"
-                className="h-9 rounded-lg border-border bg-background pl-9 pr-8"
+                className="h-9 border-border bg-background pl-9 pr-8"
               />
               {search.length > 0 && (
                 <button

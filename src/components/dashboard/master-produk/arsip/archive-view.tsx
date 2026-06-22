@@ -30,7 +30,7 @@ export function ArchiveView() {
   const { data, isLoading, isError, refetch } = useArchivedProducts({
     search: debounced || undefined,
     page,
-    perPage: 20,
+    perPage: 10,
   })
   const restore = useRestoreProduct()
   const pendingId = restore.isPending ? restore.variables ?? null : null

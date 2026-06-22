@@ -36,11 +36,11 @@ export function NaikkanDetailView({ id }: { id: string }) {
   const [tab, setTab] = React.useState<TabValue>("produk")
   const [produkPagination, setProdukPagination] = React.useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 25,
+    pageSize: 10,
   })
   const [historyPagination, setHistoryPagination] = React.useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 25,
+    pageSize: 10,
   })
 
   const detailQuery = useNaikkanDetail(id, {

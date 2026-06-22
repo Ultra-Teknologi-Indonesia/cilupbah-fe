@@ -30,7 +30,7 @@ export function useProductListQuery() {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 20,
+    pageSize: 10,
   })
 
   const resetPage = React.useCallback(

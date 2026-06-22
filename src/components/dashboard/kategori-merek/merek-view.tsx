@@ -28,14 +28,14 @@ import { EditMerekDialog } from "./edit-merek-dialog"
 import { useBrands, useDeleteBrand } from "@/hooks/kategori-merek/use-brand"
 import type { BrandItem } from "@/types/kategori-merek/brand"
 
-const PAGE_SIZE_OPTIONS = [10, 20, 30, 50] as const
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const
 
 export function MerekView() {
   const [tambahOpen, setTambahOpen] = React.useState(false)
   const [search, setSearch] = React.useState("")
   const [debouncedSearch, setDebouncedSearch] = React.useState("")
   const [page, setPage] = React.useState(1)
-  const [perPage, setPerPage] = React.useState(20)
+  const [perPage, setPerPage] = React.useState(10)
   const [deleteTarget, setDeleteTarget] = React.useState<BrandItem | null>(null)
   const [editTarget, setEditTarget] = React.useState<BrandItem | null>(null)
 
@@ -84,7 +84,7 @@ export function MerekView() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari merek…"
-              className="h-9 rounded-lg border-border bg-background pl-9 pr-8"
+              className="h-9 border-border bg-background pl-9 pr-8"
             />
             {search.length > 0 && (
               <button

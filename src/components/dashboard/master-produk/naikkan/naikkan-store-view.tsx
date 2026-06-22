@@ -22,7 +22,7 @@ export function NaikkanStoreView() {
   const [appliedSearch, setAppliedSearch] = React.useState("")
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 25,
+    pageSize: 10,
   })
 
   const query = useNaikkanList({

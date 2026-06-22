@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-const DEFAULT_PAGE_SIZES = [10, 20, 30, 50]
+const DEFAULT_PAGE_SIZES = [10, 20, 50, 100]
 
 interface SimplePaginationProps {
   page: number

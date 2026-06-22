@@ -46,7 +46,7 @@ export function ListingMarketplaceView() {
   const [minInput, setMinInput] = React.useState("")
   const [maxInput, setMaxInput] = React.useState("")
   const [priceRange, setPriceRange] = React.useState<{ min?: number; max?: number }>({})
-  const [pagination, setPagination] = React.useState<PaginationState>({ pageIndex: 0, pageSize: 25 })
+  const [pagination, setPagination] = React.useState<PaginationState>({ pageIndex: 0, pageSize: 10 })
   const [expanded, setExpanded] = React.useState<Set<string>>(new Set())
 
   const resetPage = React.useCallback(() => setPagination((p) => ({ ...p, pageIndex: 0 })), [])
