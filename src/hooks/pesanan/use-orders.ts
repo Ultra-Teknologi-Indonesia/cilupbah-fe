@@ -7,11 +7,13 @@ import type { OrderListParams } from "@/types/pesanan/order"
 
 const STALE = 30_000
 
+const all = ["pesanan"] as const
+
 export const orderKeys = {
-  all: ["pesanan"] as const,
-  list: (params: OrderListParams) => [...orderKeys.all, "list", params] as const,
-  detail: (id: string) => [...orderKeys.all, "detail", id] as const,
-  counts: [...orderKeys.all, "counts"] as const,
+  all,
+  list: (params: OrderListParams) => [...all, "list", params] as const,
+  detail: (id: string) => [...all, "detail", id] as const,
+  counts: [...all, "counts"] as const,
 }
 
 export function useOrders(params: OrderListParams) {
