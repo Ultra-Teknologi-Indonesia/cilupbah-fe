@@ -2,6 +2,7 @@ import {
   Home,
   Package2,
   Tag,
+  Percent,
   FolderTree,
   BarChart2,
   RefreshCw,
@@ -70,10 +71,21 @@ export const dashboardGroups: NavGroup[] = [
         link: "/dashboard/produk",
       },
       {
-        id: "harga-promosi",
-        title: "Harga & Promosi",
+        id: "harga",
+        title: "Harga",
         icon: Tag,
-        link: "/dashboard/harga-promosi",
+        link: "/dashboard/harga",
+        subs: [
+          { title: "Harga Online", link: "/dashboard/harga/online" },
+          { title: "Harga Offline", link: "/dashboard/harga/offline" },
+          { title: "Penyesuaian", link: "/dashboard/harga/penyesuaian" },
+        ],
+      },
+      {
+        id: "promosi",
+        title: "Promosi",
+        icon: Percent,
+        link: "/dashboard/promosi",
         comingSoon: true,
       },
       {
