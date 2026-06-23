@@ -1,44 +1,82 @@
 import { fetchClient } from "@/lib/api-client"
-import type { ApiPaginated } from "@/types/api.types"
+import type { ApiPaginated, ApiResponse } from "@/types/api.types"
 import type {
   FulfillmentListParams,
+  FulfillmentOrder,
   Packlist,
+  Picker,
   Picklist,
+  RawFulfillmentOrder,
   RawPacklist,
+  RawPicker,
   RawPicklist,
+  RawReadyToShipResult,
   RawShipment,
+  ReadyToShipResult,
   Shipment,
 } from "@/types/proses-pesanan/fulfillment"
 
-// Proxy FE memetakan /api/app/* -> /api/v1/*, jadi endapoint outbound diakses
-// lewat prefix "/outbound/...".
+// Proxy FE memetakan /api/app/* -> /api/v1/*. Endpoint outbound diakses lewat
+// prefix "/outbound/...", endpoint dokumen lewat "/reports/...".
 
-function qs(params: FulfillmentListParams): string {
+type Meta = ApiPaginated<unknown>["meta"]
+
+export interface ListResult<T> {
+  items: T[]
+  meta: Meta
+}
+
+const FALLBACK_META: Meta = { current_page: 1, last_page: 1, per_page: 20, total: 0 }
+
+function buildQuery(params: FulfillmentListParams, extra?: Record<string, string>): string {
   const q = new URLSearchParams()
-  if (params.sub) q.set("sub", params.sub)
-  if (params.q) q.set("q", params.q)
-  if (params.location_id) q.set("location_id", params.location_id)
-  if (params.courier) q.set("courier", params.courier)
+  if (params.q) q.set("filter[q]", params.q)
+  if (params.location_id) q.set("filter[location_id]", params.location_id)
+  if (params.source) q.set("filter[source]", params.source)
+  if (params.status) q.set("filter[status]", params.status)
+  q.set("limit", String(params.per_page ?? 20))
   q.set("page", String(params.page ?? 1))
-  q.set("per_page", String(params.per_page ?? 20))
+  if (extra) for (const [k, v] of Object.entries(extra)) q.set(k, v)
   return q.toString()
 }
 
+// ── Mappers ──────────────────────────────────────────────────────────────────
+function mapOrder(raw: RawFulfillmentOrder): FulfillmentOrder {
+  return {
+    id: raw.id,
+    salesorderNo: raw.salesorder_no,
+    channelOrderNo: raw.channel_order_no ?? null,
+    customerName: raw.customer_name ?? null,
+    source: raw.source ?? null,
+    status: raw.status ?? null,
+    isPaid: Boolean(raw.is_paid),
+    transactionDate: raw.transaction_date ?? null,
+    grandTotal: raw.grand_total ?? 0,
+    locationId: raw.location_id ?? null,
+    locationName: raw.location_name ?? null,
+    trackingNumber: raw.tracking_number ?? null,
+    shippingProvider: raw.shipping_provider ?? null,
+    totalQty: raw.total_qty ?? null,
+    totalSku: raw.total_sku ?? null,
+  }
+}
+
 function mapPicklist(raw: RawPicklist): Picklist {
+  const status = (raw.status ?? "DRAFT") as Picklist["status"]
   return {
     id: raw.id,
     picklistNo: raw.picklist_no,
-    locationId: raw.location_id ?? null,
-    locationName: raw.location_name ?? null,
-    pickerId: raw.picker_id ?? null,
-    pickerName: raw.picker_name ?? null,
-    waveName: raw.wave_name ?? null,
-    totalOrders: raw.total_orders ?? 0,
-    totalQty: raw.total_qty ?? 0,
-    durationMinutes: raw.duration_minutes ?? null,
-    progressDone: raw.progress_done ?? 0,
-    progressTotal: raw.progress_total ?? 0,
-    status: raw.status ?? null,
+    locationId: raw.location_id ?? raw.location?.id ?? null,
+    locationName: raw.location?.location_name ?? null,
+    pickerId: raw.picker_id ?? raw.picker?.id ?? null,
+    pickerName: raw.picker?.name ?? null,
+    status,
+    startedAt: raw.started_at ?? null,
+    completedAt: raw.completed_at ?? null,
+    notes: raw.notes ?? null,
+    itemsCount: raw.items_count ?? 0,
+    qtyOrdered: raw.items_sum_qty_ordered ?? 0,
+    qtyPicked: raw.items_sum_qty_picked ?? 0,
   }
 }
 
@@ -46,13 +84,10 @@ function mapPacklist(raw: RawPacklist): Packlist {
   return {
     id: raw.id,
     packlistNo: raw.packlist_no,
-    locationId: raw.location_id ?? null,
-    locationName: raw.location_name ?? null,
-    packerId: raw.packer_id ?? null,
-    packerName: raw.packer_name ?? null,
-    totalOrders: raw.total_orders ?? 0,
-    totalQty: raw.total_qty ?? 0,
+    locationName: raw.location?.location_name ?? null,
+    packerName: raw.packer?.name ?? null,
     status: raw.status ?? null,
+    itemsCount: raw.items_count ?? 0,
   }
 }
 
@@ -62,47 +97,147 @@ function mapShipment(raw: RawShipment): Shipment {
     shipmentNo: raw.shipment_no,
     courierCode: raw.courier_code ?? null,
     courierName: raw.courier_name ?? null,
-    type: raw.type ?? null,
-    totalOrders: raw.total_orders ?? 0,
     status: raw.status ?? null,
-    scheduledAt: raw.scheduled_at ?? null,
   }
 }
 
-type Meta = ApiPaginated<unknown>["meta"]
-
-export interface FulfillmentListResult<T> {
-  items: T[]
-  meta: Meta
+function mapPicker(raw: RawPicker): Picker {
+  return { id: raw.id, name: raw.name ?? raw.email ?? raw.id, email: raw.email ?? null }
 }
 
-const FALLBACK_META: Meta = { current_page: 1, last_page: 1, per_page: 20, total: 0 }
+function mapShipResult(raw: RawReadyToShipResult): ReadyToShipResult {
+  return {
+    orderId: raw.order_id,
+    salesorderNo: raw.salesorder_no ?? null,
+    source: raw.source ?? null,
+    status: raw.status ?? "failed",
+    message: raw.message ?? null,
+  }
+}
+
+// Envelope paginator Laravel (dipakai /outbound/orders/{stage}).
+interface RawPaginator<T> {
+  data: T[]
+  current_page: number
+  last_page: number
+  per_page: number
+  total: number
+}
 
 export const OutboundService = {
-  picklists: async (
+  // Order per-stage (belum/selesai picking, dll). Envelope: {success, data: paginator}.
+  ordersByStage: async (
+    stage: string,
     params: FulfillmentListParams
-  ): Promise<FulfillmentListResult<Picklist>> => {
+  ): Promise<ListResult<FulfillmentOrder>> => {
+    const res = await fetchClient<{ success?: boolean; data: RawPaginator<RawFulfillmentOrder> }>(
+      `/outbound/orders/${stage}?${buildQuery(params)}`
+    )
+    const p = res.data
+    return {
+      items: (p?.data ?? []).map(mapOrder),
+      meta: {
+        current_page: p?.current_page ?? 1,
+        last_page: p?.last_page ?? 1,
+        per_page: p?.per_page ?? params.per_page ?? 20,
+        total: p?.total ?? 0,
+      },
+    }
+  },
+
+  // Picklist. Envelope: {status, message, data[], meta}.
+  picklists: async (params: FulfillmentListParams): Promise<ListResult<Picklist>> => {
     const res = await fetchClient<ApiPaginated<RawPicklist>>(
-      `/outbound/picklists?${qs(params)}`
+      `/outbound/picklists?${buildQuery(params)}`
     )
     return { items: (res.data ?? []).map(mapPicklist), meta: res.meta ?? FALLBACK_META }
   },
 
-  packlists: async (
-    params: FulfillmentListParams
-  ): Promise<FulfillmentListResult<Packlist>> => {
+  packlists: async (params: FulfillmentListParams): Promise<ListResult<Packlist>> => {
     const res = await fetchClient<ApiPaginated<RawPacklist>>(
-      `/outbound/packlists?${qs(params)}`
+      `/outbound/packlists?${buildQuery(params)}`
     )
     return { items: (res.data ?? []).map(mapPacklist), meta: res.meta ?? FALLBACK_META }
   },
 
-  shipments: async (
-    params: FulfillmentListParams
-  ): Promise<FulfillmentListResult<Shipment>> => {
+  shipments: async (params: FulfillmentListParams): Promise<ListResult<Shipment>> => {
     const res = await fetchClient<ApiPaginated<RawShipment>>(
-      `/outbound/shipments?${qs(params)}`
+      `/outbound/shipments?${buildQuery(params)}`
     )
     return { items: (res.data ?? []).map(mapShipment), meta: res.meta ?? FALLBACK_META }
+  },
+
+  // Daftar picker (warehouse user). Defensif terhadap envelope {status,data} / {success,data}.
+  pickers: async (locationId?: string): Promise<Picker[]> => {
+    const q = locationId ? `?location_id=${encodeURIComponent(locationId)}` : ""
+    const res = await fetchClient<{ data: RawPicker[] }>(`/outbound/pickers${q}`)
+    return (res.data ?? []).map(mapPicker)
+  },
+
+  // ── Mutasi ─────────────────────────────────────────────────────────────────
+  createPicklist: async (payload: {
+    order_ids: string[]
+    location_id: string
+    picker_id?: string | null
+    notes?: string | null
+  }): Promise<Picklist> => {
+    const res = await fetchClient<{ data: RawPicklist }>(`/outbound/picklists`, {
+      method: "POST",
+      data: payload,
+    })
+    return mapPicklist(res.data)
+  },
+
+  assignPicker: async (picklistId: string, pickerId: string): Promise<Picklist> => {
+    const res = await fetchClient<{ data: RawPicklist }>(
+      `/outbound/picklists/${picklistId}/assign-picker`,
+      { method: "POST", data: { picker_id: pickerId } }
+    )
+    return mapPicklist(res.data)
+  },
+
+  // Omnichannel "Siap Dikirim" — dispatcher BE merutekan per source (Shopee/TikTok/Lazada).
+  readyToShip: async (orderIds: string[]): Promise<ReadyToShipResult[]> => {
+    const res = await fetchClient<{ data: RawReadyToShipResult[] }>(
+      `/outbound/orders/ready-to-ship`,
+      { method: "POST", data: { order_ids: orderIds } }
+    )
+    return (res.data ?? []).map(mapShipResult)
+  },
+
+  // ── Dokumen (JSON dari modul Report) ─────────────────────────────────────────
+  shippingLabel: async (orderIds: string[]): Promise<unknown> => {
+    const res = await fetchClient<ApiResponse<unknown>>(
+      `/reports/shipping-label?order_ids=${orderIds.join(",")}`
+    )
+    return res.data
+  },
+
+  pickListDoc: async (orderIds: string[]): Promise<unknown> => {
+    const res = await fetchClient<ApiResponse<unknown>>(
+      `/reports/wms/pick-list?order_ids=${orderIds.join(",")}`
+    )
+    return res.data
+  },
+
+  pickListByPicklist: async (picklistId: string): Promise<unknown> => {
+    const res = await fetchClient<ApiResponse<unknown>>(
+      `/reports/wms/pick-list?picklist_id=${encodeURIComponent(picklistId)}`
+    )
+    return res.data
+  },
+
+  invoiceDoc: async (orderIds: string[]): Promise<unknown> => {
+    const res = await fetchClient<ApiResponse<unknown>>(
+      `/reports/invoice?order_ids=${orderIds.join(",")}`
+    )
+    return res.data
+  },
+
+  suratJalanDoc: async (orderIds: string[]): Promise<unknown> => {
+    const res = await fetchClient<ApiResponse<unknown>>(
+      `/reports/wms/shipping-manifest?order_ids=${orderIds.join(",")}`
+    )
+    return res.data
   },
 }

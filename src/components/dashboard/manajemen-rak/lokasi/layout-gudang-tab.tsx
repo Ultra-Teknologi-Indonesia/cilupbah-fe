@@ -370,6 +370,19 @@ function WarehouseVisual({ floors, rows, columns, bins }: WarehouseVisualProps) 
   )
 }
 
+// Identitas baris stabil, terpisah dari binFinalCode agar kode rak bisa diedit
+// tanpa merusak pemetaan update/hapus/pilih.
+type BinRow = BinPreviewItem & { id: string }
+
+let binRowSeq = 0
+function withId(item: BinPreviewItem): BinRow {
+  const id =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `bin-${Date.now()}-${binRowSeq++}`
+  return { ...item, id }
+}
+
 interface LayoutGudangTabProps {
   disabled?: boolean
   initialBins?: BinPreviewItem[]
@@ -390,7 +403,9 @@ export function LayoutGudangTab({
   const [qtyColumn, setQtyColumn] = React.useState("")
   const [qtyBin, setQtyBin] = React.useState("")
 
-  const [bins, setBins] = React.useState<BinPreviewItem[]>(initialBins ?? [])
+  const [bins, setBins] = React.useState<BinRow[]>(() =>
+    (initialBins ?? []).map(withId)
+  )
   const [search, setSearch] = React.useState("")
   const [selected, setSelected] = React.useState<Set<string>>(new Set())
   const [uniformOpen, setUniformOpen] = React.useState(false)
@@ -425,30 +440,30 @@ export function LayoutGudangTab({
       return
     }
 
-    const generated = buildBinPreview(payload)
+    const generated = buildBinPreview(payload).map(withId)
     setBins(generated)
     setSelected(new Set())
     onApply(payload)
     toast.success(`${total} kombinasi rak siap disimpan.`)
   }
 
-  const updateBin = (code: string, field: keyof BinPreviewItem, value: unknown) => {
+  const updateBin = (id: string, field: keyof BinPreviewItem, value: unknown) => {
     setBins((prev) =>
-      prev.map((b) => (b.binFinalCode === code ? { ...b, [field]: value } : b))
+      prev.map((b) => (b.id === id ? { ...b, [field]: value } : b))
     )
   }
 
-  const deleteBin = (code: string) => {
-    setBins((prev) => prev.filter((b) => b.binFinalCode !== code))
+  const deleteBin = (id: string) => {
+    setBins((prev) => prev.filter((b) => b.id !== id))
     setSelected((prev) => {
       const next = new Set(prev)
-      next.delete(code)
+      next.delete(id)
       return next
     })
   }
 
   const deleteSelected = () => {
-    setBins((prev) => prev.filter((b) => !selected.has(b.binFinalCode)))
+    setBins((prev) => prev.filter((b) => !selected.has(b.id)))
     setSelected(new Set())
   }
 
@@ -458,23 +473,23 @@ export function LayoutGudangTab({
       )
     : bins
 
-  const filteredCodes = filtered.map((b) => b.binFinalCode)
-  const allSelected = filteredCodes.length > 0 && filteredCodes.every((c) => selected.has(c))
-  const someSelected = filteredCodes.some((c) => selected.has(c))
+  const filteredIds = filtered.map((b) => b.id)
+  const allSelected = filteredIds.length > 0 && filteredIds.every((c) => selected.has(c))
+  const someSelected = filteredIds.some((c) => selected.has(c))
 
   const toggleAll = () => {
     if (allSelected) {
       setSelected(new Set())
     } else {
-      setSelected(new Set(filteredCodes))
+      setSelected(new Set(filteredIds))
     }
   }
 
-  const toggleOne = (code: string) => {
+  const toggleOne = (id: string) => {
     setSelected((prev) => {
       const next = new Set(prev)
-      if (next.has(code)) next.delete(code)
-      else next.add(code)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
       return next
     })
   }
@@ -487,7 +502,7 @@ export function LayoutGudangTab({
   }) => {
     setBins((prev) =>
       prev.map((b) =>
-        selected.has(b.binFinalCode)
+        selected.has(b.id)
           ? {
               ...b,
               maxQty: values.maxQty,
@@ -606,10 +621,10 @@ export function LayoutGudangTab({
               </thead>
               <tbody>
                 {filtered.slice(0, 200).map((b) => {
-                  const isSelected = selected.has(b.binFinalCode)
+                  const isSelected = selected.has(b.id)
                   return (
                     <tr
-                      key={b.binFinalCode}
+                      key={b.id}
                       className={cn(
                         "border-b border-border/60 last:border-0",
                         isSelected && "bg-primary/5"
@@ -618,16 +633,17 @@ export function LayoutGudangTab({
                       <td className="px-3 py-2.5">
                         <Checkbox
                           checked={isSelected}
-                          onCheckedChange={() => toggleOne(b.binFinalCode)}
+                          onCheckedChange={() => toggleOne(b.id)}
                           disabled={disabled}
                         />
                       </td>
                       <td className="px-3 py-2.5">
                         <Input
                           value={b.binFinalCode}
-                          readOnly
-                          disabled
-                          className="h-9 max-w-[200px] bg-muted/30"
+                          onChange={(e) => updateBin(b.id, "binFinalCode", e.target.value)}
+                          disabled={disabled}
+                          placeholder="Kode rak"
+                          className="h-9 max-w-[200px]"
                         />
                       </td>
                       <td className="px-3 py-2.5">
@@ -637,7 +653,7 @@ export function LayoutGudangTab({
                           inputMode="numeric"
                           value={b.maxQty}
                           onChange={(e) =>
-                            updateBin(b.binFinalCode, "maxQty", Number.parseInt(e.target.value, 10) || 0)
+                            updateBin(b.id, "maxQty", Number.parseInt(e.target.value, 10) || 0)
                           }
                           disabled={disabled}
                           className="h-9 w-24"
@@ -646,21 +662,21 @@ export function LayoutGudangTab({
                       <td className="px-3 py-2.5 text-center">
                         <Switch
                           checked={b.isStockAcknowledged}
-                          onCheckedChange={(v) => updateBin(b.binFinalCode, "isStockAcknowledged", v)}
+                          onCheckedChange={(v) => updateBin(b.id, "isStockAcknowledged", v)}
                           disabled={disabled}
                         />
                       </td>
                       <td className="px-3 py-2.5 text-center">
                         <Switch
                           checked={b.isLargeBin}
-                          onCheckedChange={(v) => updateBin(b.binFinalCode, "isLargeBin", v)}
+                          onCheckedChange={(v) => updateBin(b.id, "isLargeBin", v)}
                           disabled={disabled}
                         />
                       </td>
                       <td className="px-3 py-2.5">
                         <Input
                           value={b.category}
-                          onChange={(e) => updateBin(b.binFinalCode, "category", e.target.value)}
+                          onChange={(e) => updateBin(b.id, "category", e.target.value)}
                           disabled={disabled}
                           placeholder="Kategori"
                           className="h-9 max-w-[180px]"
@@ -673,7 +689,7 @@ export function LayoutGudangTab({
                             variant="ghost"
                             size="icon-sm"
                             className="text-destructive hover:text-destructive"
-                            onClick={() => deleteBin(b.binFinalCode)}
+                            onClick={() => deleteBin(b.id)}
                           >
                             <Trash2Icon className="size-4" />
                           </Button>
