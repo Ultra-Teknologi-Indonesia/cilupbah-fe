@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { MockOrderService as OrderService } from "@/services/pesanan/order.mock"
+import { OrderService } from "@/services/pesanan/order.service"
 import type { OrderListParams } from "@/types/pesanan/order"
 
 const STALE = 30_000
