@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import {
   SearchIcon,
   RefreshCwIcon,
@@ -194,9 +195,11 @@ function OrderCard({
             {order.items.map((item) => (
               <div key={item.id} className="flex items-center gap-3 text-sm">
                 {item.imageUrl ? (
-                  <img
+                  <Image
                     src={item.imageUrl}
                     alt={item.description || item.sku}
+                    width={40}
+                    height={40}
                     className="h-10 w-10 shrink-0 rounded-lg border border-border/60 object-cover"
                   />
                 ) : (

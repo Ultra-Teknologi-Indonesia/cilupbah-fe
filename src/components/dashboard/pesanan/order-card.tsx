@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { format } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
 import {
@@ -98,9 +99,11 @@ function ItemRow({ item }: { item: OrderItem }) {
   return (
     <div className="flex items-center gap-3">
       {item.image_url ? (
-        <img
+        <Image
           src={item.image_url}
           alt={item.description || item.sku}
+          width={40}
+          height={40}
           className="h-10 w-10 shrink-0 rounded-lg border border-border/60 object-cover"
         />
       ) : (
