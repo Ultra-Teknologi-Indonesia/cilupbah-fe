@@ -24,7 +24,11 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { useOrdersByStage, useReadyToShip } from "@/hooks/proses-pesanan/use-fulfillment"
+import {
+  useMarkComplete,
+  useOrdersByStage,
+  useReadyToShip,
+} from "@/hooks/proses-pesanan/use-fulfillment"
 import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment"
 
 import { ChannelBadge, OrderStatusBadge } from "../channel-badge"
@@ -41,6 +45,7 @@ export interface OrderTableActions {
   fakturLabel?: boolean
   suratJalan?: boolean
   siapDikirim?: boolean
+  selesaikanPesanan?: boolean
 }
 
 function formatDate(iso: string | null): string {
@@ -85,6 +90,7 @@ export function FulfillmentOrdersTable({
   )
   const { data, isLoading, isFetching, refetch } = useOrdersByStage(stage, params)
   const readyToShip = useReadyToShip()
+  const markComplete = useMarkComplete()
 
   const orders = data?.items ?? []
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: 20, total: 0 }
@@ -139,6 +145,21 @@ export function FulfillmentOrdersTable({
     }
   }
 
+  const handleComplete = async (ids: string[]) => {
+    if (!ids.length) return
+    try {
+      const n = await markComplete.mutateAsync(ids)
+      toast.success(`${n} pesanan diselesaikan.`)
+      clearSelection()
+    } catch (err) {
+      const msg =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message?: unknown }).message)
+          : "Gagal menyelesaikan pesanan."
+      toast.error(msg)
+    }
+  }
+
   const rowMenu = (o: FulfillmentOrder) => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -177,6 +198,11 @@ export function FulfillmentOrdersTable({
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => handleShip([o.id])}>Siap Dikirim</DropdownMenuItem>
           </>
+        )}
+        {actions.selesaikanPesanan && (
+          <DropdownMenuItem onSelect={() => handleComplete([o.id])}>
+            Selesaikan Pesanan
+          </DropdownMenuItem>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
@@ -259,6 +285,17 @@ export function FulfillmentOrdersTable({
             >
               {readyToShip.isPending && <Loader2Icon className="animate-spin" />}
               Siap Dikirim
+            </Button>
+          )}
+          {actions.selesaikanPesanan && (
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => handleComplete(selectedIds)}
+              disabled={markComplete.isPending}
+            >
+              {markComplete.isPending && <Loader2Icon className="animate-spin" />}
+              Selesaikan Pesanan
             </Button>
           )}
           <Button size="sm" variant="ghost" onClick={clearSelection} className="ml-auto">
@@ -401,4 +438,6 @@ export const ORDER_ACTION_PRESET = {
   pickingBelum: { buatPicklist: true, cetakLabel: true, cetakPicklist: true, siapDikirim: true },
   docSet: { cetakFaktur: true, cetakLabel: true, fakturLabel: true, suratJalan: true, siapDikirim: true },
   shippingSiapKirim: { buatPengiriman: true, cetakLabel: true, cetakFaktur: true },
+  sudahDikirim: { selesaikanPesanan: true, cetakLabel: true },
+  selesai: { cetakFaktur: true, cetakLabel: true },
 } satisfies Record<string, OrderTableActions>

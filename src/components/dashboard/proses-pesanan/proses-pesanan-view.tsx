@@ -76,6 +76,10 @@ export function ProsesPesananView() {
       if (sub === "jadwal") return <ShipmentTable />
       return <FulfillmentOrdersTable stage="finish-pack" actions={ORDER_ACTION_PRESET.shippingSiapKirim} />
     }
+    if (stage === "delivered")
+      return <FulfillmentOrdersTable stage="ready-to-ship" actions={ORDER_ACTION_PRESET.sudahDikirim} />
+    if (stage === "done")
+      return <FulfillmentOrdersTable stage="shipped" actions={ORDER_ACTION_PRESET.selesai} />
     return <ComingSoon label={`${stageLabel}${subLabel ? ` · ${subLabel}` : ""}`} />
   }
 

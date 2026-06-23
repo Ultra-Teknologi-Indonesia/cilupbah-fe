@@ -172,6 +172,14 @@ export function useReadyToShip() {
   })
 }
 
+export function useMarkComplete() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (orderIds: string[]) => OutboundService.markComplete(orderIds),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+  })
+}
+
 export function useCreateShipment() {
   const qc = useQueryClient()
   return useMutation({

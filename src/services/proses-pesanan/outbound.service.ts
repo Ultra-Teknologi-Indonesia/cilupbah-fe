@@ -287,6 +287,15 @@ export const OutboundService = {
     return res.data
   },
 
+  // Selesaikan Pesanan (modul Sales): finalisasi order packed/reserved -> shipped.
+  markComplete: async (orderIds: string[]): Promise<number> => {
+    const res = await fetchClient<{ data?: { completed?: number } }>(
+      `/sales/orders/mark-as-complete`,
+      { method: "POST", data: { order_ids: orderIds } }
+    )
+    return res.data?.completed ?? 0
+  },
+
   // Omnichannel "Siap Dikirim" — dispatcher BE merutekan per source (Shopee/TikTok/Lazada).
   readyToShip: async (orderIds: string[]): Promise<ReadyToShipResult[]> => {
     const res = await fetchClient<{ data: RawReadyToShipResult[] }>(
