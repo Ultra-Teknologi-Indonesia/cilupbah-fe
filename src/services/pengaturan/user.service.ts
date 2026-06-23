@@ -64,14 +64,14 @@ export const UserService = {
   create: async (payload: UserFormPayload) => {
     return fetchClient<{ data: RawUser }>("/systemsetting/users", {
       method: "POST",
-      body: JSON.stringify(payload),
+      data: payload,
     })
   },
 
   update: async (id: string, payload: UserFormPayload) => {
     return fetchClient<{ data: RawUser }>(`/systemsetting/users/${id}`, {
       method: "PUT",
-      body: JSON.stringify(payload),
+      data: payload,
     })
   },
 
