@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-import { OrderService } from "@/services/pesanan/order.service"
+import { OrderService, type ShippingLabelResult } from "@/services/pesanan/order.service"
 import { orderKeys } from "./use-orders"
 
 export function useSetPaid() {
@@ -140,5 +140,53 @@ export function useRejectReturn() {
       qc.invalidateQueries({ queryKey: orderKeys.all })
     },
     onError: (err: Error) => toast.error(err.message || "Gagal menolak retur"),
+  })
+}
+
+function openShippingLabel(result: ShippingLabelResult) {
+  if (result.type === "url" && result.url) {
+    window.open(result.url, "_blank")
+    return
+  }
+  if (result.type === "base64" && result.document_base64) {
+    const contentType = result.content_type || "application/pdf"
+    const byteChars = atob(result.document_base64)
+    const byteArray = new Uint8Array(byteChars.length)
+    for (let i = 0; i < byteChars.length; i++) {
+      byteArray[i] = byteChars.charCodeAt(i)
+    }
+    const blob = new Blob([byteArray], { type: contentType })
+    const url = URL.createObjectURL(blob)
+    window.open(url, "_blank")
+    return
+  }
+  toast.info("Format label tidak dikenali")
+}
+
+export function useGetShippingLabel() {
+  return useMutation({
+    mutationFn: (data: { orderId: string; docType?: string }) =>
+      OrderService.getShippingLabel(data.orderId, data.docType),
+    onSuccess: (res) => {
+      const result = res.data
+      if (result) {
+        openShippingLabel(result)
+        toast.success("Shipping label berhasil diambil")
+      }
+    },
+    onError: (err: Error) => toast.error(err.message || "Gagal mengambil shipping label"),
+  })
+}
+
+export function useRelocateOrder() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: { orderId: string; locationId: string }) =>
+      OrderService.relocateOrder(data.orderId, data.locationId),
+    onSuccess: () => {
+      toast.success("Lokasi pengambilan berhasil diubah")
+      qc.invalidateQueries({ queryKey: orderKeys.all })
+    },
+    onError: (err: Error) => toast.error(err.message || "Gagal mengubah lokasi pengambilan"),
   })
 }

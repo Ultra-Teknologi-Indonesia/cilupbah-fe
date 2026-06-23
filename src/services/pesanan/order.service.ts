@@ -2,6 +2,15 @@ import { fetchClient } from "@/lib/api-client"
 import type { ApiPaginated, ApiResponse } from "@/types/api.types"
 import type { Order, OrderListParams, OrderTabCounts } from "@/types/pesanan/order"
 
+export interface ShippingLabelResult {
+  type: "url" | "base64" | "raw"
+  url?: string
+  content_type?: string
+  document_base64?: string
+  source: string
+  data?: unknown
+}
+
 export const OrderService = {
   list: (params: OrderListParams) => {
     const sp = new URLSearchParams()
@@ -73,10 +82,16 @@ export const OrderService = {
   },
 
   relocateOrder: (orderId: string, locationId: string) => {
-    return fetchClient<ApiResponse>(`/sales/${orderId}`, {
+    return fetchClient<ApiResponse>(`/sales/${orderId}/relocate`, {
       method: "PUT",
       data: { location_id: locationId },
     })
+  },
+
+  getShippingLabel: (orderId: string, docType?: string) => {
+    const sp = new URLSearchParams()
+    if (docType) sp.set("doc_type", docType)
+    return fetchClient<ApiResponse<ShippingLabelResult>>(`/sales/${orderId}/shipping-label?${sp}`)
   },
 
   acceptCancelRequest: (orderId: string) => {

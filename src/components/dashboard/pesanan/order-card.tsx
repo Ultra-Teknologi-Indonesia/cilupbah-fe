@@ -20,7 +20,7 @@ import {
   WarehouseIcon,
   ArrowRightIcon,
   FileTextIcon,
-  TagIcon,
+
   CheckIcon,
   XIcon,
 } from "lucide-react"
@@ -47,6 +47,21 @@ import {
   CHANNEL_MAP,
 } from "@/types/pesanan/order"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   useCancelOrder,
   useMarkComplete,
   useRequestAwb,
@@ -55,7 +70,10 @@ import {
   useRejectCancelRequest,
   useAcceptReturn,
   useRejectReturn,
+  useGetShippingLabel,
+  useRelocateOrder,
 } from "@/hooks/pesanan/use-order-actions"
+import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("id-ID", {
@@ -134,6 +152,66 @@ function ItemRow({ item }: { item: OrderItem }) {
   )
 }
 
+function RelocateDialog({
+  order,
+  open,
+  onOpenChange,
+}: {
+  order: Order
+  open: boolean
+  onOpenChange: (v: boolean) => void
+}) {
+  const [locationId, setLocationId] = React.useState("")
+  const { data: locationsData } = useLocations({ perPage: 50 })
+  const relocate = useRelocateOrder()
+
+  const locations = React.useMemo(() => {
+    const items = locationsData?.items ?? []
+    return items.filter((l) => l.id !== order.location_id)
+  }, [locationsData, order.location_id])
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Ubah Gudang Pengambilan</DialogTitle>
+          <DialogDescription>
+            Pilih gudang baru untuk pesanan {order.salesorder_no}
+          </DialogDescription>
+        </DialogHeader>
+        <Select value={locationId} onValueChange={setLocationId}>
+          <SelectTrigger>
+            <SelectValue placeholder="Pilih gudang..." />
+          </SelectTrigger>
+          <SelectContent>
+            {locations.map((loc) => (
+              <SelectItem key={loc.id} value={loc.id}>
+                {loc.locationName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Batal
+          </Button>
+          <Button
+            disabled={!locationId || relocate.isPending}
+            onClick={() => {
+              relocate.mutate(
+                { orderId: order.id, locationId },
+                { onSuccess: () => onOpenChange(false) }
+              )
+            }}
+          >
+            {relocate.isPending ? "Menyimpan..." : "Simpan"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 function OrderActions({
   order,
   tab,
@@ -145,6 +223,7 @@ function OrderActions({
 }) {
   const [cancelOpen, setCancelOpen] = React.useState(false)
   const [completeOpen, setCompleteOpen] = React.useState(false)
+  const [relocateOpen, setRelocateOpen] = React.useState(false)
 
   const cancelOrder = useCancelOrder()
   const markComplete = useMarkComplete()
@@ -154,8 +233,21 @@ function OrderActions({
   const rejectCancel = useRejectCancelRequest()
   const acceptReturn = useAcceptReturn()
   const rejectReturn = useRejectReturn()
+  const getLabel = useGetShippingLabel()
 
-  const printPlaceholder = (label: string) => () => toast.info(`Fitur ${label} akan segera tersedia`)
+  const isMarketplace = !!order.source && order.source !== "manual"
+
+  const handlePrintLabel = () => {
+    if (isMarketplace) {
+      getLabel.mutate({ orderId: order.id })
+    } else {
+      toast.info("Cetak resi hanya tersedia untuk pesanan marketplace")
+    }
+  }
+
+  const handlePrintInvoice = () => {
+    window.open(`/dashboard/pesanan/${order.id}/invoice`, "_blank")
+  }
 
   const busy =
     cancelOrder.isPending ||
@@ -165,7 +257,8 @@ function OrderActions({
     acceptCancel.isPending ||
     rejectCancel.isPending ||
     acceptReturn.isPending ||
-    rejectReturn.isPending
+    rejectReturn.isPending ||
+    getLabel.isPending
 
   if (tab === "unpaid") return null
 
@@ -181,7 +274,12 @@ function OrderActions({
           <PlayIcon className="h-3.5 w-3.5" />
           {requestAwb.isPending ? "Memproses..." : "Proses Pesanan"}
         </Button>
-        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={printPlaceholder("Edit Gudang")}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          onClick={() => setRelocateOpen(true)}
+        >
           <WarehouseIcon className="h-3.5 w-3.5" />
           Edit Gudang
         </Button>
@@ -198,9 +296,15 @@ function OrderActions({
           </Button>
         )}
         {order.shipping?.tracking_number && (
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={printPlaceholder("Cetak Label")}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            disabled={busy}
+            onClick={handlePrintLabel}
+          >
             <PrinterIcon className="h-3.5 w-3.5" />
-            Cetak Label
+            {getLabel.isPending ? "Mengambil..." : "Cetak Label"}
           </Button>
         )}
         <Button
@@ -225,6 +329,7 @@ function OrderActions({
             markComplete.mutate([order.id])
           }}
         />
+        <RelocateDialog order={order} open={relocateOpen} onOpenChange={setRelocateOpen} />
       </>
     )
   }
@@ -233,9 +338,15 @@ function OrderActions({
     return (
       <>
         {order.shipping?.tracking_number && (
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={printPlaceholder("Cetak Resi")}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            disabled={busy}
+            onClick={handlePrintLabel}
+          >
             <PrinterIcon className="h-3.5 w-3.5" />
-            Cetak Resi
+            {getLabel.isPending ? "Mengambil..." : "Cetak Resi"}
           </Button>
         )}
         <Button
@@ -266,14 +377,25 @@ function OrderActions({
   if (tab === "completed") {
     return (
       <>
-        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={printPlaceholder("Cetak Faktur")}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          onClick={handlePrintInvoice}
+        >
           <FileTextIcon className="h-3.5 w-3.5" />
           Cetak Faktur
         </Button>
         {order.shipping?.tracking_number && (
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={printPlaceholder("Cetak Resi")}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            disabled={busy}
+            onClick={handlePrintLabel}
+          >
             <PrinterIcon className="h-3.5 w-3.5" />
-            Cetak Resi
+            {getLabel.isPending ? "Mengambil..." : "Cetak Resi"}
           </Button>
         )}
       </>
@@ -325,7 +447,12 @@ function OrderActions({
   if (tab === "returned") {
     if (subFilter === "accepted" || subFilter === "rejected") {
       return (
-        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={printPlaceholder("Cetak Faktur")}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          onClick={handlePrintInvoice}
+        >
           <FileTextIcon className="h-3.5 w-3.5" />
           Cetak Faktur
         </Button>
@@ -353,7 +480,12 @@ function OrderActions({
           <XIcon className="h-3.5 w-3.5" />
           {rejectReturn.isPending ? "Memproses..." : "Tolak"}
         </Button>
-        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={printPlaceholder("Cetak Faktur")}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          onClick={handlePrintInvoice}
+        >
           <FileTextIcon className="h-3.5 w-3.5" />
           Cetak Faktur
         </Button>
@@ -380,9 +512,16 @@ function OrderActions({
     }
     if (order.shipping?.tracking_number && !order.is_canceled) {
       actions.push(
-        <Button key="print-resi" variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={printPlaceholder("Cetak Resi")}>
+        <Button
+          key="print-resi"
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          disabled={busy}
+          onClick={handlePrintLabel}
+        >
           <PrinterIcon className="h-3.5 w-3.5" />
-          Cetak Resi
+          {getLabel.isPending ? "Mengambil..." : "Cetak Resi"}
         </Button>
       )
     }
