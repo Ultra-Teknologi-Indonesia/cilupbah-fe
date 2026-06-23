@@ -171,7 +171,15 @@ export const dashboardGroups: NavGroup[] = [
 ];
 
 export const settingsRoutes: Route[] = [
-  { id: "pengaturan", title: "Pengaturan", icon: Settings, link: "/dashboard/pengaturan" },
+  {
+    id: "pengaturan",
+    title: "Pengaturan",
+    icon: Settings,
+    link: "/dashboard/pengaturan",
+    subs: [
+      { title: "Daftar Pengguna", link: "/dashboard/pengaturan/pengguna" },
+    ],
+  },
   { id: "bantuan", title: "Bantuan", icon: HelpCircle, link: "/dashboard/bantuan" },
 ];
 
