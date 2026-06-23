@@ -77,6 +77,12 @@ function mapOrder(raw: RawFulfillmentOrder): FulfillmentOrder {
     shippingProvider: raw.shipping_provider ?? null,
     totalQty: raw.total_qty ?? null,
     totalSku: raw.total_sku ?? null,
+    items: (raw.items ?? []).map((i) => ({
+      id: i.id,
+      sku: i.sku,
+      description: i.description,
+      qty: i.qty_in_base,
+    })),
   }
 }
 

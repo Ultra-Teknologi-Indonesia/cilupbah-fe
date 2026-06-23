@@ -77,6 +77,13 @@ export interface FulfillmentListParams {
 }
 
 // ── Order per-stage (baris SalesOrder mentah dari /outbound/orders/{stage}) ────
+export interface RawFulfillmentOrderItem {
+  id: string
+  sku: string
+  description: string
+  qty_in_base: number
+}
+
 export interface RawFulfillmentOrder {
   id: string
   salesorder_no: string
@@ -93,6 +100,14 @@ export interface RawFulfillmentOrder {
   shipping_provider?: string | null
   total_qty?: number | null
   total_sku?: number | null
+  items?: RawFulfillmentOrderItem[] | null
+}
+
+export interface FulfillmentOrderItem {
+  id: string
+  sku: string
+  description: string
+  qty: number
 }
 
 export interface FulfillmentOrder {
@@ -111,6 +126,7 @@ export interface FulfillmentOrder {
   shippingProvider: string | null
   totalQty: number | null
   totalSku: number | null
+  items: FulfillmentOrderItem[]
 }
 
 // ── Picklist (sesuai response BE: model + agregat) ───────────────────────────

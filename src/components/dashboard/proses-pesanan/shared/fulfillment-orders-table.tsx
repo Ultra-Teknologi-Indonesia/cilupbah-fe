@@ -14,7 +14,6 @@ import {
   MapPinIcon,
   TruckIcon,
   PackageIcon,
-  WalletIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -188,8 +187,24 @@ function OrderCard({
         </div>
       </div>
 
+      {/* Items */}
+      {order.items.length > 0 && (
+        <div className="border-b border-border/40 px-4 py-2.5 sm:px-5">
+          <div className="flex flex-col gap-1.5">
+            {order.items.map((item) => (
+              <div key={item.id} className="flex items-center gap-3 text-sm">
+                <PackageIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <span className="min-w-0 flex-1 truncate">{item.description || item.sku}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">SKU: {item.sku}</span>
+                <span className="shrink-0 font-medium tabular-nums">×{item.qty}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Body */}
-      <div className="grid grid-cols-2 gap-x-6 gap-y-3 px-4 py-3.5 sm:grid-cols-4 sm:px-5 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-3 px-4 py-3.5 sm:grid-cols-4 sm:px-5">
         <div>
           <OrderStatusBadge status={order.status} />
           {order.totalQty != null && (
@@ -253,57 +268,73 @@ function OrderCard({
             <p className="text-sm text-muted-foreground">—</p>
           )}
         </div>
+      </div>
 
-        {/* Inline actions for large screens */}
-        <div className="col-span-2 flex items-center justify-end gap-1.5 sm:col-span-4 lg:col-span-1">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon-sm" aria-label="Aksi">
-                <MoreHorizontalIcon className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-52">
-              {actions.cetakFaktur && (
-                <DropdownMenuItem onSelect={() => DocActions.invoice([order.id])}>
-                  Cetak Faktur
-                </DropdownMenuItem>
-              )}
-              {actions.cetakLabel && (
-                <DropdownMenuItem onSelect={() => DocActions.shippingLabel([order.id])}>
-                  Cetak Label Pengiriman
-                </DropdownMenuItem>
-              )}
-              {actions.fakturLabel && (
-                <DropdownMenuItem onSelect={() => DocActions.invoiceAndLabel([order.id])}>
-                  Cetak Faktur & Label
-                </DropdownMenuItem>
-              )}
-              {actions.suratJalan && (
-                <DropdownMenuItem onSelect={() => DocActions.suratJalanAndInvoice([order.id])}>
-                  Surat Jalan + Faktur
-                </DropdownMenuItem>
-              )}
-              {actions.cetakPicklist && (
-                <DropdownMenuItem onSelect={() => DocActions.pickList([order.id])}>
-                  Cetak Picklist
-                </DropdownMenuItem>
-              )}
-              {actions.siapDikirim && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={() => onShip([order.id])}>
-                    Siap Dikirim
-                  </DropdownMenuItem>
-                </>
-              )}
-              {actions.selesaikanPesanan && (
-                <DropdownMenuItem onSelect={() => onComplete([order.id])}>
-                  Selesaikan Pesanan
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+      {/* Footer actions */}
+      <div className="flex items-center gap-2 border-t border-border/40 px-4 py-2.5 sm:px-5">
+        <div className="flex flex-1 flex-wrap items-center gap-2">
+          {actions.buatPicklist && (
+            <Button size="sm" variant="primary" onClick={onToggle}>
+              Buat Picklist
+            </Button>
+          )}
+          {actions.siapDikirim && (
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => onShip([order.id])}
+              disabled={shipPending}
+            >
+              {shipPending && <Loader2Icon className="animate-spin" />}
+              Siap Dikirim
+            </Button>
+          )}
+          {actions.selesaikanPesanan && (
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => onComplete([order.id])}
+              disabled={completePending}
+            >
+              {completePending && <Loader2Icon className="animate-spin" />}
+              Selesaikan Pesanan
+            </Button>
+          )}
+          {actions.cetakFaktur && (
+            <Button size="sm" variant="outline" onClick={() => DocActions.invoice([order.id])}>
+              Cetak Faktur
+            </Button>
+          )}
+          {actions.cetakLabel && (
+            <Button size="sm" variant="outline" onClick={() => DocActions.shippingLabel([order.id])}>
+              Cetak Label
+            </Button>
+          )}
+          {actions.cetakPicklist && (
+            <Button size="sm" variant="outline" onClick={() => DocActions.pickList([order.id])}>
+              Cetak Picklist
+            </Button>
+          )}
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon-sm" aria-label="Aksi lainnya">
+              <MoreHorizontalIcon className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-52">
+            {actions.fakturLabel && (
+              <DropdownMenuItem onSelect={() => DocActions.invoiceAndLabel([order.id])}>
+                Cetak Faktur & Label
+              </DropdownMenuItem>
+            )}
+            {actions.suratJalan && (
+              <DropdownMenuItem onSelect={() => DocActions.suratJalanAndInvoice([order.id])}>
+                Surat Jalan + Faktur
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   )
