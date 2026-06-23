@@ -880,7 +880,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "bantuan_page",
-      "community": 72,
+      "community": 51,
       "norm_label": "page.tsx"
     },
     {
@@ -890,7 +890,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "bantuan_page_bantuanpage",
-      "community": 72,
+      "community": 51,
       "norm_label": "bantuanpage()"
     },
     {
@@ -1020,7 +1020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_dashboard_lokasi_id_edit_page_tsx_edit_page",
-      "community": 55,
+      "community": 34,
       "norm_label": "page.tsx"
     },
     {
@@ -1030,7 +1030,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "edit_page_editlokasipage",
-      "community": 55,
+      "community": 34,
       "norm_label": "editlokasipage()"
     },
     {
@@ -1040,7 +1040,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_dashboard_lokasi_buat_page_tsx_buat_page",
-      "community": 55,
+      "community": 34,
       "norm_label": "page.tsx"
     },
     {
@@ -1050,7 +1050,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "buat_page_buatlokasipage",
-      "community": 55,
+      "community": 34,
       "norm_label": "buatlokasipage()"
     },
     {
@@ -1060,7 +1060,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lokasi_page",
-      "community": 80,
+      "community": 78,
       "norm_label": "page.tsx"
     },
     {
@@ -1070,7 +1070,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "lokasi_page_lokasipage",
-      "community": 80,
+      "community": 78,
       "norm_label": "lokasipage()"
     },
     {
@@ -1100,7 +1100,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pengaturan_page",
-      "community": 72,
+      "community": 51,
       "norm_label": "page.tsx"
     },
     {
@@ -1110,7 +1110,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "pengaturan_page_pengaturanpage",
-      "community": 72,
+      "community": 51,
       "norm_label": "pengaturanpage()"
     },
     {
@@ -1180,7 +1180,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "upload_to_channel_page",
-      "community": 49,
+      "community": 65,
       "norm_label": "page.tsx"
     },
     {
@@ -1190,7 +1190,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "upload_to_channel_page_uploadtochannelpage",
-      "community": 49,
+      "community": 65,
       "norm_label": "uploadtochannelpage()"
     },
     {
@@ -1220,7 +1220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "buat_bundle_page",
-      "community": 7,
+      "community": 74,
       "norm_label": "page.tsx"
     },
     {
@@ -1230,7 +1230,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "buat_bundle_page_buatbundlepage",
-      "community": 7,
+      "community": 74,
       "norm_label": "buatbundlepage()"
     },
     {
@@ -1260,7 +1260,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "download_page",
-      "community": 65,
+      "community": 51,
       "norm_label": "page.tsx"
     },
     {
@@ -1270,7 +1270,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "download_page_downloadpage",
-      "community": 65,
+      "community": 51,
       "norm_label": "downloadpage()"
     },
     {
@@ -1340,7 +1340,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "naikkan_page",
-      "community": 51,
+      "community": 60,
       "norm_label": "page.tsx"
     },
     {
@@ -1350,7 +1350,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "naikkan_page_naikkanpage",
-      "community": 51,
+      "community": 60,
       "norm_label": "naikkanpage()"
     },
     {
@@ -1420,7 +1420,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "proses_pesanan_page",
-      "community": 67,
+      "community": 51,
       "norm_label": "page.tsx"
     },
     {
@@ -1430,7 +1430,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "proses_pesanan_page_prosespesananpage",
-      "community": 67,
+      "community": 51,
       "norm_label": "prosespesananpage()"
     },
     {
@@ -1650,7 +1650,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "integrasi_channel_connect_marketplace_panel",
-      "community": 83,
+      "community": 64,
       "norm_label": "connect-marketplace-panel.tsx"
     },
     {
@@ -1660,7 +1660,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "integrasi_channel_connect_marketplace_panel_connectmarketplacepanel",
-      "community": 83,
+      "community": 42,
       "norm_label": "connectmarketplacepanel()"
     },
     {
@@ -1700,7 +1700,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "integrasi_channel_store_row_actions",
-      "community": 64,
+      "community": 83,
       "norm_label": "store-row-actions.tsx"
     },
     {
@@ -1740,7 +1740,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "integrasi_channel_stores_table_integrationstatus",
-      "community": 64,
+      "community": 72,
       "norm_label": "integrationstatus()"
     },
     {
@@ -1830,7 +1830,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "kategori_merek_edit_kategori_dialog",
-      "community": 3,
+      "community": 58,
       "norm_label": "edit-kategori-dialog.tsx"
     },
     {
@@ -1840,7 +1840,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "kategori_merek_edit_kategori_dialog_findnode",
-      "community": 3,
+      "community": 58,
       "norm_label": "findnode()"
     },
     {
@@ -1850,7 +1850,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "kategori_merek_edit_kategori_dialog_buildpathids",
-      "community": 3,
+      "community": 58,
       "norm_label": "buildpathids()"
     },
     {
@@ -1860,7 +1860,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "kategori_merek_edit_kategori_dialog_readonlycolumn",
-      "community": 3,
+      "community": 58,
       "norm_label": "readonlycolumn()"
     },
     {
@@ -1870,7 +1870,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "kategori_merek_edit_kategori_dialog_editkategoridialogprops",
-      "community": 3,
+      "community": 58,
       "norm_label": "editkategoridialogprops"
     },
     {
@@ -1890,7 +1890,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "kategori_merek_edit_merek_dialog",
-      "community": 39,
+      "community": 58,
       "norm_label": "edit-merek-dialog.tsx"
     },
     {
@@ -1900,7 +1900,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "kategori_merek_edit_merek_dialog_editmerekdialogprops",
-      "community": 39,
+      "community": 58,
       "norm_label": "editmerekdialogprops"
     },
     {
@@ -1980,7 +1980,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "kategori_merek_kategori_list_tab",
-      "community": 3,
+      "community": 44,
       "norm_label": "kategori-list-tab.tsx"
     },
     {
@@ -1990,7 +1990,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "kategori_merek_kategori_list_tab_flattentree",
-      "community": 3,
+      "community": 44,
       "norm_label": "flattentree()"
     },
     {
@@ -2000,7 +2000,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "kategori_merek_kategori_list_tab_page_size_options",
-      "community": 3,
+      "community": 44,
       "norm_label": "page_size_options"
     },
     {
@@ -2020,7 +2020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "kategori_merek_kategori_mapping_tab",
-      "community": 62,
+      "community": 44,
       "norm_label": "kategori-mapping-tab.tsx"
     },
     {
@@ -2030,7 +2030,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "kategori_merek_kategori_mapping_tab_kategorimappingtab",
-      "community": 62,
+      "community": 44,
       "norm_label": "kategorimappingtab()"
     },
     {
@@ -2090,7 +2090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "kategori_merek_petakan_kategori_dialog",
-      "community": 3,
+      "community": 85,
       "norm_label": "petakan-kategori-dialog.tsx"
     },
     {
@@ -2100,7 +2100,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "kategori_merek_petakan_kategori_dialog_flatchannelcategory",
-      "community": 3,
+      "community": 85,
       "norm_label": "flatchannelcategory"
     },
     {
@@ -2110,7 +2110,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "kategori_merek_petakan_kategori_dialog_buildtree",
-      "community": 3,
+      "community": 85,
       "norm_label": "buildtree()"
     },
     {
@@ -2120,7 +2120,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "kategori_merek_petakan_kategori_dialog_flattentree",
-      "community": 3,
+      "community": 85,
       "norm_label": "flattentree()"
     },
     {
@@ -2130,7 +2130,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "kategori_merek_petakan_kategori_dialog_column",
-      "community": 3,
+      "community": 85,
       "norm_label": "column()"
     },
     {
@@ -2140,7 +2140,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "kategori_merek_petakan_kategori_dialog_petakankategoridialogprops",
-      "community": 3,
+      "community": 85,
       "norm_label": "petakankategoridialogprops"
     },
     {
@@ -2150,7 +2150,7 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "kategori_merek_petakan_kategori_dialog_petakankategoridialog",
-      "community": 3,
+      "community": 85,
       "norm_label": "petakankategoridialog()"
     },
     {
@@ -2160,7 +2160,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "kategori_merek_tambah_atribut_dialog",
-      "community": 96,
+      "community": 58,
       "norm_label": "tambah-atribut-dialog.tsx"
     },
     {
@@ -2170,7 +2170,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "kategori_merek_tambah_atribut_dialog_tambahatributdialogprops",
-      "community": 96,
+      "community": 58,
       "norm_label": "tambahatributdialogprops"
     },
     {
@@ -2180,7 +2180,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "kategori_merek_tambah_atribut_dialog_tambahatributdialog",
-      "community": 96,
+      "community": 62,
       "norm_label": "tambahatributdialog()"
     },
     {
@@ -2190,7 +2190,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "kategori_merek_tambah_kategori_dialog",
-      "community": 3,
+      "community": 80,
       "norm_label": "tambah-kategori-dialog.tsx"
     },
     {
@@ -2200,7 +2200,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "kategori_merek_tambah_kategori_dialog_mode",
-      "community": 3,
+      "community": 80,
       "norm_label": "mode"
     },
     {
@@ -2210,7 +2210,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "kategori_merek_tambah_kategori_dialog_buildpath",
-      "community": 3,
+      "community": 80,
       "norm_label": "buildpath()"
     },
     {
@@ -2220,7 +2220,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "kategori_merek_tambah_kategori_dialog_findnode",
-      "community": 3,
+      "community": 80,
       "norm_label": "findnode()"
     },
     {
@@ -2230,7 +2230,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "kategori_merek_tambah_kategori_dialog_columnitem",
-      "community": 44,
+      "community": 72,
       "norm_label": "columnitem()"
     },
     {
@@ -2240,7 +2240,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "kategori_merek_tambah_kategori_dialog_column",
-      "community": 3,
+      "community": 80,
       "norm_label": "column()"
     },
     {
@@ -2250,7 +2250,7 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "kategori_merek_tambah_kategori_dialog_tambahkategoridialogprops",
-      "community": 3,
+      "community": 80,
       "norm_label": "tambahkategoridialogprops"
     },
     {
@@ -2270,7 +2270,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "kategori_merek_tambah_merek_dialog",
-      "community": 39,
+      "community": 58,
       "norm_label": "tambah-merek-dialog.tsx"
     },
     {
@@ -2280,7 +2280,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "kategori_merek_tambah_merek_dialog_tambahmerekdialogprops",
-      "community": 39,
+      "community": 58,
       "norm_label": "tambahmerekdialogprops"
     },
     {
@@ -2320,7 +2320,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "lokasi_delete_location_dialog_deletelocationdialog",
-      "community": 55,
+      "community": 78,
       "norm_label": "deletelocationdialog()"
     },
     {
@@ -2330,7 +2330,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lokasi_informasi_tab",
-      "community": 6,
+      "community": 82,
       "norm_label": "informasi-tab.tsx"
     },
     {
@@ -2340,7 +2340,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "lokasi_informasi_tab_tooptions",
-      "community": 6,
+      "community": 82,
       "norm_label": "tooptions()"
     },
     {
@@ -2350,7 +2350,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "lokasi_informasi_tab_req",
-      "community": 6,
+      "community": 82,
       "norm_label": "req()"
     },
     {
@@ -2360,7 +2360,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "lokasi_informasi_tab_informasitab",
-      "community": 6,
+      "community": 82,
       "norm_label": "informasitab()"
     },
     {
@@ -2370,7 +2370,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lokasi_layout_gudang_tab",
-      "community": 55,
+      "community": 40,
       "norm_label": "layout-gudang-tab.tsx"
     },
     {
@@ -2380,7 +2380,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "lokasi_layout_gudang_tab_dimensionrowprops",
-      "community": 55,
+      "community": 40,
       "norm_label": "dimensionrowprops"
     },
     {
@@ -2390,7 +2390,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "lokasi_layout_gudang_tab_dimensionrow",
-      "community": 55,
+      "community": 40,
       "norm_label": "dimensionrow()"
     },
     {
@@ -2400,7 +2400,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "lokasi_layout_gudang_tab_uniformdialogprops",
-      "community": 55,
+      "community": 40,
       "norm_label": "uniformdialogprops"
     },
     {
@@ -2410,7 +2410,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "lokasi_layout_gudang_tab_uniformdialog",
-      "community": 55,
+      "community": 40,
       "norm_label": "uniformdialog()"
     },
     {
@@ -2420,7 +2420,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "lokasi_layout_gudang_tab_warehousevisualprops",
-      "community": 55,
+      "community": 40,
       "norm_label": "warehousevisualprops"
     },
     {
@@ -2430,7 +2430,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "lokasi_layout_gudang_tab_warehousevisual",
-      "community": 55,
+      "community": 40,
       "norm_label": "warehousevisual()"
     },
     {
@@ -2440,7 +2440,7 @@
       "source_location": "L375",
       "_origin": "ast",
       "id": "lokasi_layout_gudang_tab_binrow",
-      "community": 55,
+      "community": 40,
       "norm_label": "binrow"
     },
     {
@@ -2450,7 +2450,7 @@
       "source_location": "L378",
       "_origin": "ast",
       "id": "lokasi_layout_gudang_tab_withid",
-      "community": 55,
+      "community": 40,
       "norm_label": "withid()"
     },
     {
@@ -2460,7 +2460,7 @@
       "source_location": "L386",
       "_origin": "ast",
       "id": "lokasi_layout_gudang_tab_layoutgudangtabprops",
-      "community": 55,
+      "community": 40,
       "norm_label": "layoutgudangtabprops"
     },
     {
@@ -2470,7 +2470,7 @@
       "source_location": "L392",
       "_origin": "ast",
       "id": "lokasi_layout_gudang_tab_layoutgudangtab",
-      "community": 55,
+      "community": 40,
       "norm_label": "layoutgudangtab()"
     },
     {
@@ -2480,7 +2480,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lokasi_location_form_page",
-      "community": 55,
+      "community": 34,
       "norm_label": "location-form-page.tsx"
     },
     {
@@ -2490,7 +2490,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "lokasi_location_form_page_section",
-      "community": 55,
+      "community": 34,
       "norm_label": "section"
     },
     {
@@ -2500,7 +2500,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "lokasi_location_form_page_geterrormessage",
-      "community": 55,
+      "community": 34,
       "norm_label": "geterrormessage()"
     },
     {
@@ -2510,7 +2510,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "lokasi_location_form_page_createdefaults",
-      "community": 55,
+      "community": 34,
       "norm_label": "createdefaults"
     },
     {
@@ -2520,7 +2520,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "lokasi_location_form_page_toformvalues",
-      "community": 55,
+      "community": 34,
       "norm_label": "toformvalues()"
     },
     {
@@ -2530,7 +2530,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "lokasi_location_form_page_buildpayload",
-      "community": 55,
+      "community": 34,
       "norm_label": "buildpayload()"
     },
     {
@@ -2540,7 +2540,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "lokasi_location_form_page_locationformpageprops",
-      "community": 55,
+      "community": 34,
       "norm_label": "locationformpageprops"
     },
     {
@@ -2550,7 +2550,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "lokasi_location_form_page_locationformpage",
-      "community": 55,
+      "community": 34,
       "norm_label": "locationformpage()"
     },
     {
@@ -2560,7 +2560,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lokasi_location_list_view",
-      "community": 55,
+      "community": 78,
       "norm_label": "location-list-view.tsx"
     },
     {
@@ -2570,7 +2570,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "lokasi_location_list_view_geterrormessage",
-      "community": 55,
+      "community": 78,
       "norm_label": "geterrormessage()"
     },
     {
@@ -2580,7 +2580,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "lokasi_location_list_view_locationlistview",
-      "community": 55,
+      "community": 78,
       "norm_label": "locationlistview()"
     },
     {
@@ -2690,7 +2690,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lokasi_location_table",
-      "community": 62,
+      "community": 44,
       "norm_label": "location-table.tsx"
     },
     {
@@ -2700,7 +2700,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "lokasi_location_table_locationtableprops",
-      "community": 55,
+      "community": 44,
       "norm_label": "locationtableprops"
     },
     {
@@ -2710,7 +2710,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "lokasi_location_table_locationtable",
-      "community": 55,
+      "community": 78,
       "norm_label": "locationtable()"
     },
     {
@@ -2780,7 +2780,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "buat_buat_bundle_form",
-      "community": 7,
+      "community": 74,
       "norm_label": "buat-bundle-form.tsx"
     },
     {
@@ -2790,7 +2790,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "buat_buat_bundle_form_buatbundleform",
-      "community": 7,
+      "community": 74,
       "norm_label": "buatbundleform()"
     },
     {
@@ -2820,7 +2820,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "buat_bundle_builder",
-      "community": 13,
+      "community": 92,
       "norm_label": "bundle-builder.tsx"
     },
     {
@@ -2830,7 +2830,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "buat_bundle_builder_bundlecomponentvalue",
-      "community": 13,
+      "community": 92,
       "norm_label": "bundlecomponentvalue"
     },
     {
@@ -2840,7 +2840,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "buat_bundle_builder_bundlebuilder",
-      "community": 75,
+      "community": 92,
       "norm_label": "bundlebuilder()"
     },
     {
@@ -2850,7 +2850,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "buat_category_picker",
-      "community": 74,
+      "community": 13,
       "norm_label": "category-picker.tsx"
     },
     {
@@ -2870,7 +2870,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "buat_category_picker_flattentree",
-      "community": 74,
+      "community": 13,
       "norm_label": "flattentree()"
     },
     {
@@ -2880,7 +2880,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "buat_category_picker_column",
-      "community": 74,
+      "community": 13,
       "norm_label": "column()"
     },
     {
@@ -2890,7 +2890,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "buat_category_picker_categorypicker",
-      "community": 74,
+      "community": 13,
       "norm_label": "categorypicker()"
     },
     {
@@ -2940,7 +2940,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "buat_form_detail_section",
-      "community": 88,
+      "community": 6,
       "norm_label": "form-detail-section.tsx"
     },
     {
@@ -2950,7 +2950,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "buat_form_detail_section_formdetailsection",
-      "community": 88,
+      "community": 61,
       "norm_label": "formdetailsection()"
     },
     {
@@ -3000,7 +3000,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "buat_form_shipping_section_formshippingsection",
-      "community": 6,
+      "community": 7,
       "norm_label": "formshippingsection()"
     },
     {
@@ -3020,7 +3020,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "buat_form_specification_section_creatablecombobox",
-      "community": 44,
+      "community": 41,
       "norm_label": "creatablecombobox()"
     },
     {
@@ -3120,7 +3120,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "buat_product_media_manager",
-      "community": 7,
+      "community": 93,
       "norm_label": "product-media-manager.tsx"
     },
     {
@@ -3140,7 +3140,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "buat_product_media_manager_nextid",
-      "community": 7,
+      "community": 93,
       "norm_label": "nextid()"
     },
     {
@@ -3150,7 +3150,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "buat_product_media_manager_ensureprimary",
-      "community": 7,
+      "community": 93,
       "norm_label": "ensureprimary()"
     },
     {
@@ -3160,7 +3160,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "buat_product_media_manager_mediaitemsfromdetail",
-      "community": 7,
+      "community": 93,
       "norm_label": "mediaitemsfromdetail()"
     },
     {
@@ -3170,7 +3170,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "buat_product_media_manager_productmediamanager",
-      "community": 7,
+      "community": 93,
       "norm_label": "productmediamanager()"
     },
     {
@@ -3300,7 +3300,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "detail_channel_listing",
-      "community": 93,
+      "community": 47,
       "norm_label": "channel-listing.tsx"
     },
     {
@@ -3310,7 +3310,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "detail_channel_listing_sync_style",
-      "community": 93,
+      "community": 47,
       "norm_label": "sync_style"
     },
     {
@@ -3320,7 +3320,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "detail_channel_listing_fmtdate",
-      "community": 93,
+      "community": 47,
       "norm_label": "fmtdate()"
     },
     {
@@ -3330,7 +3330,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "detail_channel_listing_channellisting",
-      "community": 93,
+      "community": 47,
       "norm_label": "channellisting()"
     },
     {
@@ -3530,7 +3530,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "detail_tab_buku_harga_sortheader",
-      "community": 91,
+      "community": 72,
       "norm_label": "sortheader()"
     },
     {
@@ -3590,7 +3590,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "detail_tab_komposisi",
-      "community": 95,
+      "community": 49,
       "norm_label": "tab-komposisi.tsx"
     },
     {
@@ -3600,7 +3600,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "detail_tab_komposisi_bundlestock",
-      "community": 95,
+      "community": 49,
       "norm_label": "bundlestock"
     },
     {
@@ -3610,7 +3610,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "detail_tab_komposisi_tabkomposisi",
-      "community": 95,
+      "community": 49,
       "norm_label": "tabkomposisi()"
     },
     {
@@ -3670,7 +3670,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "detail_tab_pagination_syncstatusbadge",
-      "community": 52,
+      "community": 64,
       "norm_label": "syncstatusbadge()"
     },
     {
@@ -3680,7 +3680,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "detail_tab_riwayat",
-      "community": 52,
+      "community": 9,
       "norm_label": "tab-riwayat.tsx"
     },
     {
@@ -3690,7 +3690,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "detail_tab_riwayat_status_options",
-      "community": 52,
+      "community": 9,
       "norm_label": "status_options"
     },
     {
@@ -3700,7 +3700,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "detail_tab_riwayat_fmtdate",
-      "community": 52,
+      "community": 9,
       "norm_label": "fmtdate()"
     },
     {
@@ -3750,7 +3750,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "detail_tab_variasi_sortheader",
-      "community": 44,
+      "community": 72,
       "norm_label": "sortheader()"
     },
     {
@@ -3760,7 +3760,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "detail_tab_variasi_tabvariasi",
-      "community": 78,
+      "community": 52,
       "norm_label": "tabvariasi()"
     },
     {
@@ -3770,7 +3770,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "detail_variant_table",
-      "community": 76,
+      "community": 47,
       "norm_label": "variant-table.tsx"
     },
     {
@@ -3780,7 +3780,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "detail_variant_table_num",
-      "community": 76,
+      "community": 47,
       "norm_label": "num()"
     },
     {
@@ -3790,7 +3790,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "detail_variant_table_varianttable",
-      "community": 76,
+      "community": 47,
       "norm_label": "varianttable()"
     },
     {
@@ -3810,7 +3810,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "download_download_massal_dialog_downloadmassaldialog",
-      "community": 80,
+      "community": 79,
       "norm_label": "downloadmassaldialog()"
     },
     {
@@ -3820,7 +3820,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "download_download_satuan_dialog",
-      "community": 11,
+      "community": 79,
       "norm_label": "download-satuan-dialog.tsx"
     },
     {
@@ -3830,7 +3830,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "download_download_satuan_dialog_supported",
-      "community": 11,
+      "community": 79,
       "norm_label": "supported"
     },
     {
@@ -3840,7 +3840,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "download_download_satuan_dialog_storemultiselect",
-      "community": 11,
+      "community": 72,
       "norm_label": "storemultiselect()"
     },
     {
@@ -3850,7 +3850,7 @@
       "source_location": "L157",
       "_origin": "ast",
       "id": "download_download_satuan_dialog_downloadsatuandialog",
-      "community": 11,
+      "community": 79,
       "norm_label": "downloadsatuandialog()"
     },
     {
@@ -3860,7 +3860,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "download_download_view",
-      "community": 65,
+      "community": 83,
       "norm_label": "download-view.tsx"
     },
     {
@@ -3870,7 +3870,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "download_download_view_tabs",
-      "community": 65,
+      "community": 83,
       "norm_label": "tabs"
     },
     {
@@ -3880,7 +3880,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "download_download_view_downloadview",
-      "community": 65,
+      "community": 51,
       "norm_label": "downloadview()"
     },
     {
@@ -3890,7 +3890,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "download_hasil_tab",
-      "community": 74,
+      "community": 13,
       "norm_label": "hasil-tab.tsx"
     },
     {
@@ -3900,7 +3900,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "download_hasil_tab_view",
-      "community": 74,
+      "community": 13,
       "norm_label": "view"
     },
     {
@@ -3910,7 +3910,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "download_hasil_tab_type_options",
-      "community": 74,
+      "community": 13,
       "norm_label": "type_options"
     },
     {
@@ -3920,7 +3920,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "download_hasil_tab_hasiltab",
-      "community": 88,
+      "community": 92,
       "norm_label": "hasiltab()"
     },
     {
@@ -4020,7 +4020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "download_transaction_detail_sheet",
-      "community": 33,
+      "community": 79,
       "norm_label": "transaction-detail-sheet.tsx"
     },
     {
@@ -4030,7 +4030,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "download_transaction_detail_sheet_master_filter",
-      "community": 33,
+      "community": 79,
       "norm_label": "master_filter"
     },
     {
@@ -4040,7 +4040,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "download_transaction_detail_sheet_transactiondetailsheet",
-      "community": 11,
+      "community": 79,
       "norm_label": "transactiondetailsheet()"
     },
     {
@@ -4110,7 +4110,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "import_import_dialog_importdialog",
-      "community": 74,
+      "community": 80,
       "norm_label": "importdialog()"
     },
     {
@@ -4160,7 +4160,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "import_import_view",
-      "community": 13,
+      "community": 33,
       "norm_label": "import-view.tsx"
     },
     {
@@ -4170,7 +4170,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "import_import_view_statelabel",
-      "community": 13,
+      "community": 33,
       "norm_label": "statelabel()"
     },
     {
@@ -4180,7 +4180,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "import_import_view_stateicon",
-      "community": 13,
+      "community": 33,
       "norm_label": "stateicon()"
     },
     {
@@ -4190,7 +4190,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "import_import_view_progressbar",
-      "community": 44,
+      "community": 33,
       "norm_label": "progressbar()"
     },
     {
@@ -4200,7 +4200,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "import_import_view_buildcolumns",
-      "community": 13,
+      "community": 33,
       "norm_label": "buildcolumns()"
     },
     {
@@ -4270,7 +4270,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "listing_marketplace_listing_view_listingmarketplaceview",
-      "community": 11,
+      "community": 67,
       "norm_label": "listingmarketplaceview()"
     },
     {
@@ -4280,7 +4280,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "naikkan_countdown_timer",
-      "community": 92,
+      "community": 60,
       "norm_label": "countdown-timer.tsx"
     },
     {
@@ -4290,7 +4290,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "naikkan_countdown_timer_formatduration",
-      "community": 92,
+      "community": 60,
       "norm_label": "formatduration()"
     },
     {
@@ -4300,7 +4300,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "naikkan_countdown_timer_countdowntimer",
-      "community": 92,
+      "community": 60,
       "norm_label": "countdowntimer()"
     },
     {
@@ -4370,7 +4370,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "naikkan_naikkan_produk_columns",
-      "community": 92,
+      "community": 60,
       "norm_label": "naikkan-produk-columns.tsx"
     },
     {
@@ -4380,7 +4380,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "naikkan_naikkan_produk_columns_statusbadge",
-      "community": 92,
+      "community": 60,
       "norm_label": "statusbadge()"
     },
     {
@@ -4390,7 +4390,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "naikkan_naikkan_produk_columns_resultbadge",
-      "community": 92,
+      "community": 60,
       "norm_label": "resultbadge()"
     },
     {
@@ -4400,7 +4400,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "naikkan_naikkan_produk_columns_buildprodukcolumns",
-      "community": 92,
+      "community": 60,
       "norm_label": "buildprodukcolumns()"
     },
     {
@@ -4450,7 +4450,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "naikkan_naikkan_store_columns_buildstorecolumns",
-      "community": 64,
+      "community": 60,
       "norm_label": "buildstorecolumns()"
     },
     {
@@ -4460,7 +4460,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "naikkan_naikkan_store_view",
-      "community": 13,
+      "community": 60,
       "norm_label": "naikkan-store-view.tsx"
     },
     {
@@ -4500,7 +4500,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "naikkan_naikkan_tambah_dialog_naikkantambahdialog",
-      "community": 80,
+      "community": 60,
       "norm_label": "naikkantambahdialog()"
     },
     {
@@ -4560,7 +4560,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pantauan_pantauan_view",
-      "community": 52,
+      "community": 59,
       "norm_label": "pantauan-view.tsx"
     },
     {
@@ -4570,7 +4570,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "pantauan_pantauan_view_lenses",
-      "community": 52,
+      "community": 59,
       "norm_label": "lenses"
     },
     {
@@ -4580,7 +4580,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "pantauan_pantauan_view_types",
-      "community": 52,
+      "community": 59,
       "norm_label": "types"
     },
     {
@@ -4620,7 +4620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_product_card_view",
-      "community": 74,
+      "community": 70,
       "norm_label": "product-card-view.tsx"
     },
     {
@@ -4630,7 +4630,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "master_produk_product_card_view_productcardview",
-      "community": 74,
+      "community": 13,
       "norm_label": "productcardview()"
     },
     {
@@ -4660,7 +4660,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "master_produk_product_card_productcard",
-      "community": 76,
+      "community": 70,
       "norm_label": "productcard()"
     },
     {
@@ -4670,7 +4670,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_product_channel_badges",
-      "community": 85,
+      "community": 10,
       "norm_label": "product-channel-badges.tsx"
     },
     {
@@ -4680,7 +4680,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "master_produk_product_channel_badges_channel_bg",
-      "community": 85,
+      "community": 10,
       "norm_label": "channel_bg"
     },
     {
@@ -4690,7 +4690,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "master_produk_product_channel_badges_channeldot",
-      "community": 85,
+      "community": 10,
       "norm_label": "channeldot()"
     },
     {
@@ -4720,7 +4720,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "master_produk_product_columns_formatidr",
-      "community": 76,
+      "community": 52,
       "norm_label": "formatidr()"
     },
     {
@@ -4740,7 +4740,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "master_produk_product_columns_productcolumns",
-      "community": 74,
+      "community": 70,
       "norm_label": "productcolumns"
     },
     {
@@ -4760,7 +4760,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_product_explorer",
-      "community": 74,
+      "community": 13,
       "norm_label": "product-explorer.tsx"
     },
     {
@@ -4770,7 +4770,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "master_produk_product_explorer_view",
-      "community": 74,
+      "community": 13,
       "norm_label": "view"
     },
     {
@@ -4780,7 +4780,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "master_produk_product_explorer_query",
-      "community": 74,
+      "community": 13,
       "norm_label": "query"
     },
     {
@@ -4790,7 +4790,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "master_produk_product_explorer_productexplorer",
-      "community": 88,
+      "community": 61,
       "norm_label": "productexplorer()"
     },
     {
@@ -4820,7 +4820,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_product_row_actions",
-      "community": 4,
+      "community": 68,
       "norm_label": "product-row-actions.tsx"
     },
     {
@@ -4830,7 +4830,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "master_produk_product_row_actions_productrowactions",
-      "community": 4,
+      "community": 68,
       "norm_label": "productrowactions()"
     },
     {
@@ -4860,7 +4860,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_product_status_badge",
-      "community": 85,
+      "community": 57,
       "norm_label": "product-status-badge.tsx"
     },
     {
@@ -4880,7 +4880,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_product_table",
-      "community": 74,
+      "community": 70,
       "norm_label": "product-table.tsx"
     },
     {
@@ -4890,7 +4890,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "master_produk_product_table_productlistviewprops",
-      "community": 74,
+      "community": 70,
       "norm_label": "productlistviewprops"
     },
     {
@@ -4900,7 +4900,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "master_produk_product_table_producttable",
-      "community": 74,
+      "community": 13,
       "norm_label": "producttable()"
     },
     {
@@ -4930,7 +4930,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_product_variant_popover",
-      "community": 57,
+      "community": 41,
       "norm_label": "product-variant-popover.tsx"
     },
     {
@@ -4940,7 +4940,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "master_produk_product_variant_popover_variantname",
-      "community": 57,
+      "community": 41,
       "norm_label": "variantname()"
     },
     {
@@ -4980,7 +4980,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "upload_to_channel_attribute_selection_dialog_attributeselectiondialog",
-      "community": 80,
+      "community": 12,
       "norm_label": "attributeselectiondialog()"
     },
     {
@@ -4990,7 +4990,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "upload_to_channel_category_rules_card",
-      "community": 90,
+      "community": 12,
       "norm_label": "category-rules-card.tsx"
     },
     {
@@ -5000,7 +5000,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "upload_to_channel_category_rules_card_categoryrulescardprops",
-      "community": 90,
+      "community": 12,
       "norm_label": "categoryrulescardprops"
     },
     {
@@ -5010,7 +5010,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "upload_to_channel_category_rules_card_categoryrulescard",
-      "community": 90,
+      "community": 12,
       "norm_label": "categoryrulescard()"
     },
     {
@@ -5020,7 +5020,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "upload_to_channel_category_rules_card_ruleitem",
-      "community": 90,
+      "community": 12,
       "norm_label": "ruleitem()"
     },
     {
@@ -5030,7 +5030,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "upload_to_channel_destination_table",
-      "community": 80,
+      "community": 64,
       "norm_label": "destination-table.tsx"
     },
     {
@@ -5040,7 +5040,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "upload_to_channel_destination_table_matchstate",
-      "community": 80,
+      "community": 64,
       "norm_label": "matchstate"
     },
     {
@@ -5050,7 +5050,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "upload_to_channel_destination_table_aggregatematches",
-      "community": 80,
+      "community": 64,
       "norm_label": "aggregatematches()"
     },
     {
@@ -5060,7 +5060,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "upload_to_channel_destination_table_destinationtable",
-      "community": 40,
+      "community": 12,
       "norm_label": "destinationtable()"
     },
     {
@@ -5110,7 +5110,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "upload_to_channel_upload_to_channel_view_uploadtochannelview",
-      "community": 49,
+      "community": 65,
       "norm_label": "uploadtochannelview()"
     },
     {
@@ -5150,7 +5150,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "upload_draft_tab_drafttab",
-      "community": 40,
+      "community": 12,
       "norm_label": "drafttab()"
     },
     {
@@ -5160,7 +5160,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "upload_hasil_tab",
-      "community": 79,
+      "community": 13,
       "norm_label": "hasil-tab.tsx"
     },
     {
@@ -5170,7 +5170,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "upload_hasil_tab_status_options",
-      "community": 79,
+      "community": 13,
       "norm_label": "status_options"
     },
     {
@@ -5180,7 +5180,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "upload_hasil_tab_fmtdate",
-      "community": 79,
+      "community": 13,
       "norm_label": "fmtdate()"
     },
     {
@@ -5190,7 +5190,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "upload_hasil_tab_historystatus",
-      "community": 79,
+      "community": 13,
       "norm_label": "historystatus()"
     },
     {
@@ -5200,7 +5200,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "upload_hasil_tab_hasiltab",
-      "community": 79,
+      "community": 13,
       "norm_label": "hasiltab()"
     },
     {
@@ -5220,7 +5220,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "upload_product_picker_dialog_productpickerdialog",
-      "community": 75,
+      "community": 92,
       "norm_label": "productpickerdialog()"
     },
     {
@@ -5640,7 +5640,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "packing_packlist_table_packlisttable",
-      "community": 83,
+      "community": 66,
       "norm_label": "packlisttable()"
     },
     {
@@ -5710,7 +5710,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "picking_doc_actions",
-      "community": 66,
+      "community": 21,
       "norm_label": "doc-actions.ts"
     },
     {
@@ -5720,7 +5720,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "picking_doc_actions_errmsg",
-      "community": 66,
+      "community": 21,
       "norm_label": "errmsg()"
     },
     {
@@ -5730,7 +5730,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "picking_doc_actions_run",
-      "community": 66,
+      "community": 21,
       "norm_label": "run()"
     },
     {
@@ -5750,7 +5750,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "picking_picklist_table",
-      "community": 21,
+      "community": 83,
       "norm_label": "picklist-table.tsx"
     },
     {
@@ -5760,7 +5760,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "picking_picklist_table_progresscell",
-      "community": 21,
+      "community": 72,
       "norm_label": "progresscell()"
     },
     {
@@ -5770,7 +5770,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "picking_picklist_table_picklisttable",
-      "community": 21,
+      "community": 66,
       "norm_label": "picklisttable()"
     },
     {
@@ -5810,27 +5810,27 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "proses_pesanan_proses_pesanan_view",
-      "community": 67,
+      "community": 66,
       "norm_label": "proses-pesanan-view.tsx"
     },
     {
       "label": "ComingSoon()",
       "file_type": "code",
       "source_file": "src/components/dashboard/proses-pesanan/proses-pesanan-view.tsx",
-      "source_location": "L20",
+      "source_location": "L25",
       "_origin": "ast",
       "id": "proses_pesanan_proses_pesanan_view_comingsoon",
-      "community": 67,
+      "community": 66,
       "norm_label": "comingsoon()"
     },
     {
       "label": "ProsesPesananView()",
       "file_type": "code",
       "source_file": "src/components/dashboard/proses-pesanan/proses-pesanan-view.tsx",
-      "source_location": "L31",
+      "source_location": "L36",
       "_origin": "ast",
       "id": "proses_pesanan_proses_pesanan_view_prosespesananview",
-      "community": 67,
+      "community": 66,
       "norm_label": "prosespesananview()"
     },
     {
@@ -5847,7 +5847,7 @@
       "label": "OrderTableActions",
       "file_type": "code",
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
-      "source_location": "L34",
+      "source_location": "L35",
       "_origin": "ast",
       "id": "shared_fulfillment_orders_table_ordertableactions",
       "community": 66,
@@ -5857,7 +5857,7 @@
       "label": "formatDate()",
       "file_type": "code",
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
-      "source_location": "L44",
+      "source_location": "L46",
       "_origin": "ast",
       "id": "shared_fulfillment_orders_table_formatdate",
       "community": 66,
@@ -5867,11 +5867,81 @@
       "label": "FulfillmentOrdersTable()",
       "file_type": "code",
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
-      "source_location": "L51",
+      "source_location": "L53",
       "_origin": "ast",
       "id": "shared_fulfillment_orders_table_fulfillmentorderstable",
       "community": 66,
       "norm_label": "fulfillmentorderstable()"
+    },
+    {
+      "label": "buat-pengiriman-dialog.tsx",
+      "file_type": "code",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "shipping_buat_pengiriman_dialog",
+      "community": 66,
+      "norm_label": "buat-pengiriman-dialog.tsx"
+    },
+    {
+      "label": "today()",
+      "file_type": "code",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L20",
+      "_origin": "ast",
+      "id": "shipping_buat_pengiriman_dialog_today",
+      "community": 66,
+      "norm_label": "today()"
+    },
+    {
+      "label": "BuatPengirimanDialogProps",
+      "file_type": "code",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L24",
+      "_origin": "ast",
+      "id": "shipping_buat_pengiriman_dialog_buatpengirimandialogprops",
+      "community": 66,
+      "norm_label": "buatpengirimandialogprops"
+    },
+    {
+      "label": "BuatPengirimanDialog()",
+      "file_type": "code",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L34",
+      "_origin": "ast",
+      "id": "shipping_buat_pengiriman_dialog_buatpengirimandialog",
+      "community": 66,
+      "norm_label": "buatpengirimandialog()"
+    },
+    {
+      "label": "shipment-table.tsx",
+      "file_type": "code",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "shipping_shipment_table",
+      "community": 66,
+      "norm_label": "shipment-table.tsx"
+    },
+    {
+      "label": "formatDate()",
+      "file_type": "code",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L35",
+      "_origin": "ast",
+      "id": "shipping_shipment_table_formatdate",
+      "community": 66,
+      "norm_label": "formatdate()"
+    },
+    {
+      "label": "ShipmentTable()",
+      "file_type": "code",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "shipping_shipment_table_shipmenttable",
+      "community": 66,
+      "norm_label": "shipmenttable()"
     },
     {
       "label": "stage-tabs.tsx",
@@ -5880,7 +5950,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "proses_pesanan_stage_tabs",
-      "community": 67,
+      "community": 21,
       "norm_label": "stage-tabs.tsx"
     },
     {
@@ -5890,7 +5960,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "proses_pesanan_stage_tabs_stagetabs",
-      "community": 67,
+      "community": 21,
       "norm_label": "stagetabs()"
     },
     {
@@ -5900,7 +5970,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "proses_pesanan_sub_status_pills",
-      "community": 67,
+      "community": 21,
       "norm_label": "sub-status-pills.tsx"
     },
     {
@@ -5910,7 +5980,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "proses_pesanan_sub_status_pills_substatuspills",
-      "community": 67,
+      "community": 21,
       "norm_label": "substatuspills()"
     },
     {
@@ -5920,7 +5990,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "sidebar_app_sidebar",
-      "community": 84,
+      "community": 8,
       "norm_label": "app-sidebar.tsx"
     },
     {
@@ -6080,7 +6150,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "sidebar_nav_main",
-      "community": 10,
+      "community": 4,
       "norm_label": "nav-main.tsx"
     },
     {
@@ -6090,7 +6160,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "sidebar_nav_main_subroute",
-      "community": 10,
+      "community": 4,
       "norm_label": "subroute"
     },
     {
@@ -6110,7 +6180,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "sidebar_nav_main_dashboardnavigation",
-      "community": 10,
+      "community": 4,
       "norm_label": "dashboardnavigation()"
     },
     {
@@ -6120,7 +6190,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "sidebar_nav_notifications",
-      "community": 4,
+      "community": 8,
       "norm_label": "nav-notifications.tsx"
     },
     {
@@ -6130,7 +6200,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "sidebar_nav_notifications_notification",
-      "community": 4,
+      "community": 8,
       "norm_label": "notification"
     },
     {
@@ -6360,7 +6430,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "sidebar_05_team_switcher_teamswitcher",
-      "community": 10,
+      "community": 4,
       "norm_label": "teamswitcher()"
     },
     {
@@ -6370,7 +6440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_avatar",
-      "community": 84,
+      "community": 8,
       "norm_label": "avatar.tsx"
     },
     {
@@ -6380,7 +6450,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "ui_avatar_avatar",
-      "community": 84,
+      "community": 8,
       "norm_label": "avatar()"
     },
     {
@@ -6390,7 +6460,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "ui_avatar_avatarimage",
-      "community": 84,
+      "community": 8,
       "norm_label": "avatarimage()"
     },
     {
@@ -6400,7 +6470,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "ui_avatar_avatarfallback",
-      "community": 84,
+      "community": 8,
       "norm_label": "avatarfallback()"
     },
     {
@@ -6410,7 +6480,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "ui_avatar_avatarbadge",
-      "community": 44,
+      "community": 8,
       "norm_label": "avatarbadge()"
     },
     {
@@ -6420,7 +6490,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "ui_avatar_avatargroup",
-      "community": 44,
+      "community": 8,
       "norm_label": "avatargroup()"
     },
     {
@@ -6430,7 +6500,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "ui_avatar_avatargroupcount",
-      "community": 44,
+      "community": 8,
       "norm_label": "avatargroupcount()"
     },
     {
@@ -6440,7 +6510,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_badge",
-      "community": 83,
+      "community": 57,
       "norm_label": "badge.tsx"
     },
     {
@@ -6450,7 +6520,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "ui_badge_badgevariants",
-      "community": 83,
+      "community": 57,
       "norm_label": "badgevariants"
     },
     {
@@ -6460,7 +6530,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "ui_badge_badge",
-      "community": 83,
+      "community": 57,
       "norm_label": "badge()"
     },
     {
@@ -6550,7 +6620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_button",
-      "community": 80,
+      "community": 83,
       "norm_label": "button.tsx"
     },
     {
@@ -6560,7 +6630,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "ui_button_buttonvariants",
-      "community": 80,
+      "community": 41,
       "norm_label": "buttonvariants"
     },
     {
@@ -6570,7 +6640,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "ui_button_button",
-      "community": 80,
+      "community": 83,
       "norm_label": "button()"
     },
     {
@@ -6580,7 +6650,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_calendar",
-      "community": 80,
+      "community": 41,
       "norm_label": "calendar.tsx"
     },
     {
@@ -6590,7 +6660,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "ui_calendar_calendar",
-      "community": 80,
+      "community": 41,
       "norm_label": "calendar()"
     },
     {
@@ -6770,7 +6840,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "ui_combobox_combobox",
-      "community": 41,
+      "community": 13,
       "norm_label": "combobox()"
     },
     {
@@ -6800,7 +6870,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "ui_confirm_dialog_confirmdialog",
-      "community": 68,
+      "community": 74,
       "norm_label": "confirmdialog()"
     },
     {
@@ -6810,7 +6880,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "data_table_data_table_column_header",
-      "community": 4,
+      "community": 83,
       "norm_label": "data-table-column-header.tsx"
     },
     {
@@ -6820,7 +6890,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "data_table_data_table_column_header_datatablecolumnheaderprops",
-      "community": 4,
+      "community": 83,
       "norm_label": "datatablecolumnheaderprops"
     },
     {
@@ -6840,7 +6910,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "data_table_data_table_faceted_filter",
-      "community": 4,
+      "community": 86,
       "norm_label": "data-table-faceted-filter.tsx"
     },
     {
@@ -6850,7 +6920,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "data_table_data_table_faceted_filter_datatablefacetedfilterprops",
-      "community": 4,
+      "community": 86,
       "norm_label": "datatablefacetedfilterprops"
     },
     {
@@ -6890,7 +6960,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "data_table_data_table_pagination_datatablepagination",
-      "community": 74,
+      "community": 86,
       "norm_label": "datatablepagination()"
     },
     {
@@ -6930,7 +7000,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "data_table_data_table_view_options",
-      "community": 4,
+      "community": 83,
       "norm_label": "data-table-view-options.tsx"
     },
     {
@@ -6940,7 +7010,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "data_table_data_table_view_options_datatableviewoptionsprops",
-      "community": 4,
+      "community": 83,
       "norm_label": "datatableviewoptionsprops"
     },
     {
@@ -6960,7 +7030,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "data_table_data_table",
-      "community": 62,
+      "community": 86,
       "norm_label": "data-table.tsx"
     },
     {
@@ -6980,7 +7050,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "data_table_data_table_datatable",
-      "community": 13,
+      "community": 86,
       "norm_label": "datatable()"
     },
     {
@@ -7010,7 +7080,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "data_table_types_facetedfilteroption",
-      "community": 4,
+      "community": 86,
       "norm_label": "facetedfilteroption"
     },
     {
@@ -7120,7 +7190,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "ui_dialog_dialogclose",
-      "community": 39,
+      "community": 58,
       "norm_label": "dialogclose()"
     },
     {
@@ -7130,7 +7200,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "ui_dialog_dialogoverlay",
-      "community": 44,
+      "community": 72,
       "norm_label": "dialogoverlay()"
     },
     {
@@ -7200,7 +7270,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "ui_dropdown_menu_dropdownmenu",
-      "community": 4,
+      "community": 83,
       "norm_label": "dropdownmenu()"
     },
     {
@@ -7220,7 +7290,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "ui_dropdown_menu_dropdownmenutrigger",
-      "community": 4,
+      "community": 83,
       "norm_label": "dropdownmenutrigger()"
     },
     {
@@ -7230,7 +7300,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "ui_dropdown_menu_dropdownmenucontent",
-      "community": 4,
+      "community": 83,
       "norm_label": "dropdownmenucontent()"
     },
     {
@@ -7250,7 +7320,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "ui_dropdown_menu_dropdownmenuitem",
-      "community": 4,
+      "community": 83,
       "norm_label": "dropdownmenuitem()"
     },
     {
@@ -7300,7 +7370,7 @@
       "source_location": "L181",
       "_origin": "ast",
       "id": "ui_dropdown_menu_dropdownmenuseparator",
-      "community": 4,
+      "community": 83,
       "norm_label": "dropdownmenuseparator()"
     },
     {
@@ -8200,7 +8270,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "ui_popover_popoverheader",
-      "community": 44,
+      "community": 41,
       "norm_label": "popoverheader()"
     },
     {
@@ -8210,7 +8280,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "ui_popover_popovertitle",
-      "community": 44,
+      "community": 41,
       "norm_label": "popovertitle()"
     },
     {
@@ -8220,7 +8290,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "ui_popover_popoverdescription",
-      "community": 44,
+      "community": 41,
       "norm_label": "popoverdescription()"
     },
     {
@@ -8300,7 +8370,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_scroll_area",
-      "community": 3,
+      "community": 41,
       "norm_label": "scroll-area.tsx"
     },
     {
@@ -8310,7 +8380,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "ui_scroll_area_scrollarea",
-      "community": 3,
+      "community": 41,
       "norm_label": "scrollarea()"
     },
     {
@@ -8320,7 +8390,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "ui_scroll_area_scrollbar",
-      "community": 44,
+      "community": 41,
       "norm_label": "scrollbar()"
     },
     {
@@ -8350,7 +8420,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "ui_select_selectgroup",
-      "community": 44,
+      "community": 72,
       "norm_label": "selectgroup()"
     },
     {
@@ -8390,7 +8460,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "ui_select_selectlabel",
-      "community": 44,
+      "community": 72,
       "norm_label": "selectlabel()"
     },
     {
@@ -8410,7 +8480,7 @@
       "source_location": "L130",
       "_origin": "ast",
       "id": "ui_select_selectseparator",
-      "community": 44,
+      "community": 72,
       "norm_label": "selectseparator()"
     },
     {
@@ -8420,7 +8490,7 @@
       "source_location": "L146",
       "_origin": "ast",
       "id": "ui_select_selectscrollupbutton",
-      "community": 44,
+      "community": 72,
       "norm_label": "selectscrollupbutton()"
     },
     {
@@ -8430,7 +8500,7 @@
       "source_location": "L165",
       "_origin": "ast",
       "id": "ui_select_selectscrolldownbutton",
-      "community": 44,
+      "community": 72,
       "norm_label": "selectscrolldownbutton()"
     },
     {
@@ -8460,7 +8530,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_sheet",
-      "community": 33,
+      "community": 72,
       "norm_label": "sheet.tsx"
     },
     {
@@ -8480,7 +8550,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "ui_sheet_sheettrigger",
-      "community": 33,
+      "community": 72,
       "norm_label": "sheettrigger()"
     },
     {
@@ -8490,7 +8560,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "ui_sheet_sheetclose",
-      "community": 33,
+      "community": 72,
       "norm_label": "sheetclose()"
     },
     {
@@ -8500,7 +8570,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "ui_sheet_sheetportal",
-      "community": 33,
+      "community": 72,
       "norm_label": "sheetportal()"
     },
     {
@@ -8510,7 +8580,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "ui_sheet_sheetoverlay",
-      "community": 33,
+      "community": 72,
       "norm_label": "sheetoverlay()"
     },
     {
@@ -8520,7 +8590,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "ui_sheet_sheetcontent",
-      "community": 33,
+      "community": 72,
       "norm_label": "sheetcontent()"
     },
     {
@@ -8530,7 +8600,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "ui_sheet_sheetheader",
-      "community": 33,
+      "community": 72,
       "norm_label": "sheetheader()"
     },
     {
@@ -8540,7 +8610,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "ui_sheet_sheetfooter",
-      "community": 33,
+      "community": 72,
       "norm_label": "sheetfooter()"
     },
     {
@@ -8560,7 +8630,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "ui_sheet_sheetdescription",
-      "community": 33,
+      "community": 72,
       "norm_label": "sheetdescription()"
     },
     {
@@ -8610,7 +8680,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "ui_sidebar_usesidebar",
-      "community": 10,
+      "community": 4,
       "norm_label": "usesidebar()"
     },
     {
@@ -8630,7 +8700,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "ui_sidebar_sidebar",
-      "community": 84,
+      "community": 4,
       "norm_label": "sidebar()"
     },
     {
@@ -8650,7 +8720,7 @@
       "source_location": "L388",
       "_origin": "ast",
       "id": "ui_sidebar_sidebarrail",
-      "community": 10,
+      "community": 4,
       "norm_label": "sidebarrail()"
     },
     {
@@ -8730,7 +8800,7 @@
       "source_location": "L504",
       "_origin": "ast",
       "id": "ui_sidebar_sidebargrouplabel",
-      "community": 10,
+      "community": 4,
       "norm_label": "sidebargrouplabel()"
     },
     {
@@ -8760,7 +8830,7 @@
       "source_location": "L571",
       "_origin": "ast",
       "id": "ui_sidebar_sidebarmenu",
-      "community": 10,
+      "community": 4,
       "norm_label": "sidebarmenu()"
     },
     {
@@ -8770,7 +8840,7 @@
       "source_location": "L582",
       "_origin": "ast",
       "id": "ui_sidebar_sidebarmenuitem",
-      "community": 10,
+      "community": 4,
       "norm_label": "sidebarmenuitem()"
     },
     {
@@ -8780,7 +8850,7 @@
       "source_location": "L593",
       "_origin": "ast",
       "id": "ui_sidebar_sidebarmenubuttonvariants",
-      "community": 10,
+      "community": 4,
       "norm_label": "sidebarmenubuttonvariants"
     },
     {
@@ -8790,7 +8860,7 @@
       "source_location": "L615",
       "_origin": "ast",
       "id": "ui_sidebar_sidebarmenubutton",
-      "community": 10,
+      "community": 4,
       "norm_label": "sidebarmenubutton()"
     },
     {
@@ -8810,7 +8880,7 @@
       "source_location": "L691",
       "_origin": "ast",
       "id": "ui_sidebar_sidebarmenubadge",
-      "community": 10,
+      "community": 84,
       "norm_label": "sidebarmenubadge()"
     },
     {
@@ -8830,7 +8900,7 @@
       "source_location": "L746",
       "_origin": "ast",
       "id": "ui_sidebar_sidebarmenusub",
-      "community": 10,
+      "community": 4,
       "norm_label": "sidebarmenusub()"
     },
     {
@@ -8850,7 +8920,7 @@
       "source_location": "L774",
       "_origin": "ast",
       "id": "ui_sidebar_sidebarmenusubbutton",
-      "community": 10,
+      "community": 4,
       "norm_label": "sidebarmenusubbutton()"
     },
     {
@@ -8900,7 +8970,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_skeleton",
-      "community": 63,
+      "community": 70,
       "norm_label": "skeleton.tsx"
     },
     {
@@ -8910,7 +8980,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "ui_skeleton_skeleton",
-      "community": 63,
+      "community": 70,
       "norm_label": "skeleton()"
     },
     {
@@ -8940,7 +9010,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_switch",
-      "community": 55,
+      "community": 60,
       "norm_label": "switch.tsx"
     },
     {
@@ -8950,7 +9020,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "ui_switch_switch",
-      "community": 55,
+      "community": 60,
       "norm_label": "switch()"
     },
     {
@@ -8960,7 +9030,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_table",
-      "community": 62,
+      "community": 44,
       "norm_label": "table.tsx"
     },
     {
@@ -8970,7 +9040,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "ui_table_table",
-      "community": 62,
+      "community": 44,
       "norm_label": "table()"
     },
     {
@@ -8980,7 +9050,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "ui_table_tableheader",
-      "community": 62,
+      "community": 44,
       "norm_label": "tableheader()"
     },
     {
@@ -8990,7 +9060,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "ui_table_tablebody",
-      "community": 62,
+      "community": 44,
       "norm_label": "tablebody()"
     },
     {
@@ -9000,7 +9070,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "ui_table_tablefooter",
-      "community": 62,
+      "community": 44,
       "norm_label": "tablefooter()"
     },
     {
@@ -9010,7 +9080,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "ui_table_tablerow",
-      "community": 62,
+      "community": 44,
       "norm_label": "tablerow()"
     },
     {
@@ -9020,7 +9090,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "ui_table_tablehead",
-      "community": 62,
+      "community": 44,
       "norm_label": "tablehead()"
     },
     {
@@ -9030,7 +9100,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "ui_table_tablecell",
-      "community": 62,
+      "community": 44,
       "norm_label": "tablecell()"
     },
     {
@@ -9040,7 +9110,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "ui_table_tablecaption",
-      "community": 62,
+      "community": 44,
       "norm_label": "tablecaption()"
     },
     {
@@ -9110,7 +9180,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_textarea",
-      "community": 6,
+      "community": 68,
       "norm_label": "textarea.tsx"
     },
     {
@@ -9120,7 +9190,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "ui_textarea_textarea",
-      "community": 6,
+      "community": 68,
       "norm_label": "textarea()"
     },
     {
@@ -9130,7 +9200,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_tooltip",
-      "community": 8,
+      "community": 10,
       "norm_label": "tooltip.tsx"
     },
     {
@@ -9150,7 +9220,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "ui_tooltip_tooltip",
-      "community": 8,
+      "community": 10,
       "norm_label": "tooltip()"
     },
     {
@@ -9160,7 +9230,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "ui_tooltip_tooltiptrigger",
-      "community": 8,
+      "community": 10,
       "norm_label": "tooltiptrigger()"
     },
     {
@@ -9170,7 +9240,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "ui_tooltip_tooltipcontent",
-      "community": 8,
+      "community": 10,
       "norm_label": "tooltipcontent()"
     },
     {
@@ -9180,7 +9250,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_video_player",
-      "community": 44,
+      "community": 76,
       "norm_label": "video-player.tsx"
     },
     {
@@ -9190,7 +9260,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "ui_video_player_videoplayerprops",
-      "community": 44,
+      "community": 76,
       "norm_label": "videoplayerprops"
     },
     {
@@ -9200,7 +9270,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "ui_video_player_videoplayer",
-      "community": 44,
+      "community": 76,
       "norm_label": "videoplayer()"
     },
     {
@@ -9210,7 +9280,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "ui_video_player_videothumbnail",
-      "community": 44,
+      "community": 76,
       "norm_label": "videothumbnail()"
     },
     {
@@ -9280,7 +9350,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "channel_use_connected_stores",
-      "community": 79,
+      "community": 42,
       "norm_label": "use-connected-stores.ts"
     },
     {
@@ -9410,7 +9480,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "kategori_merek_use_kategori_usekategorimapping",
-      "community": 62,
+      "community": 44,
       "norm_label": "usekategorimapping()"
     },
     {
@@ -9440,7 +9510,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "kategori_merek_use_kategori_usecreatecategoryattribute",
-      "community": 96,
+      "community": 62,
       "norm_label": "usecreatecategoryattribute()"
     },
     {
@@ -9460,7 +9530,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "kategori_merek_use_kategori_usechannelcategories",
-      "community": 3,
+      "community": 85,
       "norm_label": "usechannelcategories()"
     },
     {
@@ -9470,7 +9540,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "kategori_merek_use_kategori_usemapcategorytochannel",
-      "community": 3,
+      "community": 85,
       "norm_label": "usemapcategorytochannel()"
     },
     {
@@ -9480,7 +9550,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "kategori_merek_use_kategori_usesyncchannelcategories",
-      "community": 3,
+      "community": 85,
       "norm_label": "usesyncchannelcategories()"
     },
     {
@@ -9620,7 +9690,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "manajemen_rak_use_bulk_update_bins",
-      "community": 55,
+      "community": 94,
       "norm_label": "use-bulk-update-bins.ts"
     },
     {
@@ -9630,7 +9700,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "manajemen_rak_use_bulk_update_bins_bulkupdatebin",
-      "community": 55,
+      "community": 94,
       "norm_label": "bulkupdatebin"
     },
     {
@@ -9640,7 +9710,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "manajemen_rak_use_bulk_update_bins_usebulkupdatebins",
-      "community": 55,
+      "community": 94,
       "norm_label": "usebulkupdatebins()"
     },
     {
@@ -9660,7 +9730,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "manajemen_rak_use_create_location_usecreatelocation",
-      "community": 55,
+      "community": 34,
       "norm_label": "usecreatelocation()"
     },
     {
@@ -9680,7 +9750,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "manajemen_rak_use_delete_location_usedeletelocation",
-      "community": 55,
+      "community": 78,
       "norm_label": "usedeletelocation()"
     },
     {
@@ -9690,7 +9760,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "manajemen_rak_use_generate_bins",
-      "community": 55,
+      "community": 40,
       "norm_label": "use-generate-bins.ts"
     },
     {
@@ -9700,7 +9770,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "manajemen_rak_use_generate_bins_generatebinsvars",
-      "community": 55,
+      "community": 40,
       "norm_label": "generatebinsvars"
     },
     {
@@ -9710,7 +9780,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "manajemen_rak_use_generate_bins_usegeneratebins",
-      "community": 55,
+      "community": 34,
       "norm_label": "usegeneratebins()"
     },
     {
@@ -9730,7 +9800,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "manajemen_rak_use_location_detail_uselocationdetail",
-      "community": 55,
+      "community": 34,
       "norm_label": "uselocationdetail()"
     },
     {
@@ -9770,7 +9840,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "manajemen_rak_use_regions",
-      "community": 6,
+      "community": 82,
       "norm_label": "use-regions.ts"
     },
     {
@@ -9780,7 +9850,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "manajemen_rak_use_regions_regionkeys",
-      "community": 6,
+      "community": 82,
       "norm_label": "regionkeys"
     },
     {
@@ -9790,7 +9860,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "manajemen_rak_use_regions_useprovinces",
-      "community": 6,
+      "community": 82,
       "norm_label": "useprovinces()"
     },
     {
@@ -9800,7 +9870,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "manajemen_rak_use_regions_usecities",
-      "community": 6,
+      "community": 82,
       "norm_label": "usecities()"
     },
     {
@@ -9810,7 +9880,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "manajemen_rak_use_regions_usedistricts",
-      "community": 6,
+      "community": 82,
       "norm_label": "usedistricts()"
     },
     {
@@ -9820,7 +9890,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "manajemen_rak_use_regions_usevillages",
-      "community": 6,
+      "community": 82,
       "norm_label": "usevillages()"
     },
     {
@@ -9850,7 +9920,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "manajemen_rak_use_toggle_location_active_usetogglelocationactive",
-      "community": 55,
+      "community": 78,
       "norm_label": "usetogglelocationactive()"
     },
     {
@@ -9880,7 +9950,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "manajemen_rak_use_update_location_useupdatelocation",
-      "community": 55,
+      "community": 34,
       "norm_label": "useupdatelocation()"
     },
     {
@@ -9890,7 +9960,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "manajemen_rak_use_warehouse_layout_setting",
-      "community": 55,
+      "community": 78,
       "norm_label": "use-warehouse-layout-setting.ts"
     },
     {
@@ -9900,7 +9970,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "manajemen_rak_use_warehouse_layout_setting_settingkey",
-      "community": 55,
+      "community": 78,
       "norm_label": "settingkey"
     },
     {
@@ -9910,7 +9980,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "manajemen_rak_use_warehouse_layout_setting_usewarehouselayoutsetting",
-      "community": 55,
+      "community": 78,
       "norm_label": "usewarehouselayoutsetting()"
     },
     {
@@ -9920,7 +9990,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "manajemen_rak_use_warehouse_layout_setting_usesavewarehouselayoutsetting",
-      "community": 55,
+      "community": 78,
       "norm_label": "usesavewarehouselayoutsetting()"
     },
     {
@@ -9930,7 +10000,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "manajemen_rak_use_warehouse_users",
-      "community": 82,
+      "community": 50,
       "norm_label": "use-warehouse-users.ts"
     },
     {
@@ -9980,7 +10050,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "master_produk_use_archived_products_userestoreproduct",
-      "community": 77,
+      "community": 68,
       "norm_label": "userestoreproduct()"
     },
     {
@@ -9990,7 +10060,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_use_channel_products",
-      "community": 11,
+      "community": 67,
       "norm_label": "use-channel-products.ts"
     },
     {
@@ -10000,7 +10070,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "master_produk_use_channel_products_channelproductskey",
-      "community": 11,
+      "community": 67,
       "norm_label": "channelproductskey()"
     },
     {
@@ -10010,7 +10080,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "master_produk_use_channel_products_usechannelproducts",
-      "community": 11,
+      "community": 67,
       "norm_label": "usechannelproducts()"
     },
     {
@@ -10020,7 +10090,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "master_produk_use_channel_products_useinvalidatechannelproducts",
-      "community": 11,
+      "community": 67,
       "norm_label": "useinvalidatechannelproducts()"
     },
     {
@@ -10030,7 +10100,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "master_produk_use_channel_products_unlinkinput",
-      "community": 11,
+      "community": 67,
       "norm_label": "unlinkinput"
     },
     {
@@ -10040,7 +10110,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "master_produk_use_channel_products_useunlinklisting",
-      "community": 11,
+      "community": 67,
       "norm_label": "useunlinklisting()"
     },
     {
@@ -10050,7 +10120,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "master_produk_use_channel_products_usebulkunlinklisting",
-      "community": 11,
+      "community": 67,
       "norm_label": "usebulkunlinklisting()"
     },
     {
@@ -10060,7 +10130,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "master_produk_use_channel_products_usedownloadchannel",
-      "community": 11,
+      "community": 67,
       "norm_label": "usedownloadchannel()"
     },
     {
@@ -10070,7 +10140,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "master_produk_use_channel_products_actionerror",
-      "community": 11,
+      "community": 67,
       "norm_label": "actionerror()"
     },
     {
@@ -10080,7 +10150,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "master_produk_use_channel_products_uselistingmutations",
-      "community": 11,
+      "community": 67,
       "norm_label": "uselistingmutations()"
     },
     {
@@ -10090,7 +10160,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_use_create_bundle",
-      "community": 50,
+      "community": 7,
       "norm_label": "use-create-bundle.ts"
     },
     {
@@ -10140,7 +10210,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_use_download",
-      "community": 11,
+      "community": 79,
       "norm_label": "use-download.ts"
     },
     {
@@ -10150,7 +10220,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "master_produk_use_download_downloadtrxkey",
-      "community": 11,
+      "community": 79,
       "norm_label": "downloadtrxkey()"
     },
     {
@@ -10160,7 +10230,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "master_produk_use_download_downloadtrxdetailkey",
-      "community": 11,
+      "community": 79,
       "norm_label": "downloadtrxdetailkey()"
     },
     {
@@ -10170,7 +10240,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "master_produk_use_download_usedownloadtransactions",
-      "community": 11,
+      "community": 79,
       "norm_label": "usedownloadtransactions()"
     },
     {
@@ -10180,7 +10250,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "master_produk_use_download_usedownloadtransactiondetail",
-      "community": 11,
+      "community": 79,
       "norm_label": "usedownloadtransactiondetail()"
     },
     {
@@ -10190,7 +10260,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "master_produk_use_download_useinvalidatedownloads",
-      "community": 11,
+      "community": 79,
       "norm_label": "useinvalidatedownloads()"
     },
     {
@@ -10200,7 +10270,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "master_produk_use_download_useapproveproduct",
-      "community": 11,
+      "community": 79,
       "norm_label": "useapproveproduct()"
     },
     {
@@ -10210,7 +10280,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "master_produk_use_download_usestartdownload",
-      "community": 80,
+      "community": 79,
       "norm_label": "usestartdownload()"
     },
     {
@@ -10220,7 +10290,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "master_produk_use_download_usechannelsearch",
-      "community": 11,
+      "community": 79,
       "norm_label": "usechannelsearch()"
     },
     {
@@ -10230,7 +10300,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "master_produk_use_download_usedownloadproduct",
-      "community": 11,
+      "community": 79,
       "norm_label": "usedownloadproduct()"
     },
     {
@@ -10290,7 +10360,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "master_produk_use_import_useimportfile",
-      "community": 33,
+      "community": 80,
       "norm_label": "useimportfile()"
     },
     {
@@ -10380,7 +10450,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "master_produk_use_master_data_usebrandoptions",
-      "community": 88,
+      "community": 61,
       "norm_label": "usebrandoptions()"
     },
     {
@@ -10400,7 +10470,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "master_produk_use_master_data_usecategorytree",
-      "community": 88,
+      "community": 61,
       "norm_label": "usecategorytree()"
     },
     {
@@ -10430,7 +10500,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "master_produk_use_master_products_usemasterproducts",
-      "community": 75,
+      "community": 92,
       "norm_label": "usemasterproducts()"
     },
     {
@@ -10640,7 +10710,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "master_produk_use_product_actions_usedeleteproduct",
-      "community": 4,
+      "community": 68,
       "norm_label": "usedeleteproduct()"
     },
     {
@@ -10650,7 +10720,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "master_produk_use_product_actions_usearchiveproduct",
-      "community": 4,
+      "community": 68,
       "norm_label": "usearchiveproduct()"
     },
     {
@@ -10780,7 +10850,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "master_produk_use_product_tabs_useproductvariants",
-      "community": 78,
+      "community": 52,
       "norm_label": "useproductvariants()"
     },
     {
@@ -10840,7 +10910,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "master_produk_use_product_tabs_usebulkvariants",
-      "community": 78,
+      "community": 52,
       "norm_label": "usebulkvariants()"
     },
     {
@@ -10880,7 +10950,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_use_upload",
-      "community": 40,
+      "community": 12,
       "norm_label": "use-upload.ts"
     },
     {
@@ -10890,7 +10960,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "master_produk_use_upload_uploadlistingkey",
-      "community": 40,
+      "community": 12,
       "norm_label": "uploadlistingkey()"
     },
     {
@@ -10900,7 +10970,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "master_produk_use_upload_channeldraftskey",
-      "community": 40,
+      "community": 12,
       "norm_label": "channeldraftskey()"
     },
     {
@@ -10910,7 +10980,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "master_produk_use_upload_uploadhistorieskey",
-      "community": 40,
+      "community": 12,
       "norm_label": "uploadhistorieskey()"
     },
     {
@@ -10920,7 +10990,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "master_produk_use_upload_useuploadlisting",
-      "community": 40,
+      "community": 12,
       "norm_label": "useuploadlisting()"
     },
     {
@@ -10930,7 +11000,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "master_produk_use_upload_usematchlisting",
-      "community": 40,
+      "community": 12,
       "norm_label": "usematchlisting()"
     },
     {
@@ -10940,7 +11010,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "master_produk_use_upload_useinvalidateupload",
-      "community": 40,
+      "community": 12,
       "norm_label": "useinvalidateupload()"
     },
     {
@@ -10950,7 +11020,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "master_produk_use_upload_useuploadtostores",
-      "community": 40,
+      "community": 12,
       "norm_label": "useuploadtostores()"
     },
     {
@@ -10960,7 +11030,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "master_produk_use_upload_requiredattributeskey",
-      "community": 40,
+      "community": 12,
       "norm_label": "requiredattributeskey()"
     },
     {
@@ -10970,7 +11040,7 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "master_produk_use_upload_userequiredattributes",
-      "community": 40,
+      "community": 12,
       "norm_label": "userequiredattributes()"
     },
     {
@@ -10980,7 +11050,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "master_produk_use_upload_useuploadwithattributes",
-      "community": 40,
+      "community": 12,
       "norm_label": "useuploadwithattributes()"
     },
     {
@@ -10990,7 +11060,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "master_produk_use_upload_usechanneldrafts",
-      "community": 40,
+      "community": 12,
       "norm_label": "usechanneldrafts()"
     },
     {
@@ -11000,7 +11070,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "master_produk_use_upload_useuploaddraft",
-      "community": 40,
+      "community": 12,
       "norm_label": "useuploaddraft()"
     },
     {
@@ -11010,7 +11080,7 @@
       "source_location": "L155",
       "_origin": "ast",
       "id": "master_produk_use_upload_usedeletedraft",
-      "community": 40,
+      "community": 12,
       "norm_label": "usedeletedraft()"
     },
     {
@@ -11020,7 +11090,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "master_produk_use_upload_useuploadhistories",
-      "community": 40,
+      "community": 12,
       "norm_label": "useuploadhistories()"
     },
     {
@@ -11030,7 +11100,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "master_produk_use_upload_usereuploadhistory",
-      "community": 79,
+      "community": 13,
       "norm_label": "usereuploadhistory()"
     },
     {
@@ -11040,7 +11110,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "master_produk_use_upload_usebulkdeletehistories",
-      "community": 79,
+      "community": 13,
       "norm_label": "usebulkdeletehistories()"
     },
     {
@@ -11050,7 +11120,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_use_variant_stocks",
-      "community": 94,
+      "community": 70,
       "norm_label": "use-variant-stocks.ts"
     },
     {
@@ -11190,34 +11260,34 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "proses_pesanan_use_fulfillment",
-      "community": 58,
+      "community": 66,
       "norm_label": "use-fulfillment.ts"
     },
     {
       "label": "all",
       "file_type": "code",
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
-      "source_location": "L9",
+      "source_location": "L12",
       "_origin": "ast",
       "id": "proses_pesanan_use_fulfillment_all",
-      "community": 58,
+      "community": 66,
       "norm_label": "all"
     },
     {
       "label": "fulfillmentKeys",
       "file_type": "code",
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
-      "source_location": "L11",
+      "source_location": "L14",
       "_origin": "ast",
       "id": "proses_pesanan_use_fulfillment_fulfillmentkeys",
-      "community": 58,
+      "community": 66,
       "norm_label": "fulfillmentkeys"
     },
     {
       "label": "useOrdersByStage()",
       "file_type": "code",
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
-      "source_location": "L23",
+      "source_location": "L26",
       "_origin": "ast",
       "id": "proses_pesanan_use_fulfillment_useordersbystage",
       "community": 66,
@@ -11227,67 +11297,77 @@
       "label": "usePicklists()",
       "file_type": "code",
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
-      "source_location": "L36",
+      "source_location": "L39",
       "_origin": "ast",
       "id": "proses_pesanan_use_fulfillment_usepicklists",
-      "community": 21,
+      "community": 66,
       "norm_label": "usepicklists()"
     },
     {
       "label": "usePacklists()",
       "file_type": "code",
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
-      "source_location": "L45",
+      "source_location": "L48",
       "_origin": "ast",
       "id": "proses_pesanan_use_fulfillment_usepacklists",
-      "community": 83,
+      "community": 66,
       "norm_label": "usepacklists()"
     },
     {
       "label": "useShipments()",
       "file_type": "code",
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
-      "source_location": "L54",
+      "source_location": "L57",
       "_origin": "ast",
       "id": "proses_pesanan_use_fulfillment_useshipments",
-      "community": 58,
+      "community": 66,
       "norm_label": "useshipments()"
     },
     {
       "label": "usePickers()",
       "file_type": "code",
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
-      "source_location": "L63",
+      "source_location": "L66",
       "_origin": "ast",
       "id": "proses_pesanan_use_fulfillment_usepickers",
       "community": 58,
       "norm_label": "usepickers()"
     },
     {
+      "label": "useCouriers()",
+      "file_type": "code",
+      "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
+      "source_location": "L75",
+      "_origin": "ast",
+      "id": "proses_pesanan_use_fulfillment_usecouriers",
+      "community": 66,
+      "norm_label": "usecouriers()"
+    },
+    {
       "label": "usePickingCounts()",
       "file_type": "code",
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
-      "source_location": "L73",
+      "source_location": "L85",
       "_origin": "ast",
       "id": "proses_pesanan_use_fulfillment_usepickingcounts",
-      "community": 67,
+      "community": 66,
       "norm_label": "usepickingcounts()"
     },
     {
       "label": "usePackingCounts()",
       "file_type": "code",
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
-      "source_location": "L98",
+      "source_location": "L110",
       "_origin": "ast",
       "id": "proses_pesanan_use_fulfillment_usepackingcounts",
-      "community": 67,
+      "community": 66,
       "norm_label": "usepackingcounts()"
     },
     {
       "label": "useCreatePicklist()",
       "file_type": "code",
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
-      "source_location": "L124",
+      "source_location": "L136",
       "_origin": "ast",
       "id": "proses_pesanan_use_fulfillment_usecreatepicklist",
       "community": 58,
@@ -11297,7 +11377,7 @@
       "label": "useAssignPicker()",
       "file_type": "code",
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
-      "source_location": "L137",
+      "source_location": "L149",
       "_origin": "ast",
       "id": "proses_pesanan_use_fulfillment_useassignpicker",
       "community": 58,
@@ -11307,7 +11387,7 @@
       "label": "useAssignPacker()",
       "file_type": "code",
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
-      "source_location": "L146",
+      "source_location": "L158",
       "_origin": "ast",
       "id": "proses_pesanan_use_fulfillment_useassignpacker",
       "community": 58,
@@ -11317,11 +11397,51 @@
       "label": "useReadyToShip()",
       "file_type": "code",
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
-      "source_location": "L155",
+      "source_location": "L167",
       "_origin": "ast",
       "id": "proses_pesanan_use_fulfillment_usereadytoship",
       "community": 66,
       "norm_label": "usereadytoship()"
+    },
+    {
+      "label": "useCreateShipment()",
+      "file_type": "code",
+      "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
+      "source_location": "L175",
+      "_origin": "ast",
+      "id": "proses_pesanan_use_fulfillment_usecreateshipment",
+      "community": 66,
+      "norm_label": "usecreateshipment()"
+    },
+    {
+      "label": "useHandOverShipment()",
+      "file_type": "code",
+      "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
+      "source_location": "L184",
+      "_origin": "ast",
+      "id": "proses_pesanan_use_fulfillment_usehandovershipment",
+      "community": 66,
+      "norm_label": "usehandovershipment()"
+    },
+    {
+      "label": "useCancelShipment()",
+      "file_type": "code",
+      "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
+      "source_location": "L192",
+      "_origin": "ast",
+      "id": "proses_pesanan_use_fulfillment_usecancelshipment",
+      "community": 66,
+      "norm_label": "usecancelshipment()"
+    },
+    {
+      "label": "useShippingCounts()",
+      "file_type": "code",
+      "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
+      "source_location": "L200",
+      "_origin": "ast",
+      "id": "proses_pesanan_use_fulfillment_useshippingcounts",
+      "community": 66,
+      "norm_label": "useshippingcounts()"
     },
     {
       "label": "use-glass-specular.ts",
@@ -11480,7 +11600,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "manajemen_rak_bin_preview",
-      "community": 55,
+      "community": 40,
       "norm_label": "bin-preview.ts"
     },
     {
@@ -11490,7 +11610,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "manajemen_rak_bin_preview_buildbinpreview",
-      "community": 55,
+      "community": 40,
       "norm_label": "buildbinpreview()"
     },
     {
@@ -11500,7 +11620,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "manajemen_rak_bin_preview_bincombinationcount",
-      "community": 55,
+      "community": 40,
       "norm_label": "bincombinationcount()"
     },
     {
@@ -11510,7 +11630,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "manajemen_rak_location_schema",
-      "community": 55,
+      "community": 34,
       "norm_label": "location-schema.ts"
     },
     {
@@ -11520,7 +11640,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "manajemen_rak_location_schema_locationformschema",
-      "community": 55,
+      "community": 34,
       "norm_label": "locationformschema"
     },
     {
@@ -11530,7 +11650,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "manajemen_rak_location_schema_locationformvalues",
-      "community": 55,
+      "community": 34,
       "norm_label": "locationformvalues"
     },
     {
@@ -11540,7 +11660,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "manajemen_rak_location_schema_layoutbuilderschema",
-      "community": 55,
+      "community": 34,
       "norm_label": "layoutbuilderschema"
     },
     {
@@ -11550,7 +11670,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "manajemen_rak_location_schema_layoutbuildervalues",
-      "community": 55,
+      "community": 34,
       "norm_label": "layoutbuildervalues"
     },
     {
@@ -11660,7 +11780,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_constants",
-      "community": 85,
+      "community": 57,
       "norm_label": "constants.ts"
     },
     {
@@ -11670,7 +11790,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "master_produk_constants_statusbadgevariant",
-      "community": 85,
+      "community": 57,
       "norm_label": "statusbadgevariant"
     },
     {
@@ -11680,7 +11800,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "master_produk_constants_product_status_meta",
-      "community": 85,
+      "community": 57,
       "norm_label": "product_status_meta"
     },
     {
@@ -11690,7 +11810,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "master_produk_constants_product_status_options",
-      "community": 85,
+      "community": 57,
       "norm_label": "product_status_options"
     },
     {
@@ -11700,7 +11820,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "master_produk_constants_channel_colors",
-      "community": 85,
+      "community": 57,
       "norm_label": "channel_colors"
     },
     {
@@ -11840,7 +11960,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "proses_pesanan_print",
-      "community": 66,
+      "community": 21,
       "norm_label": "print.ts"
     },
     {
@@ -11850,7 +11970,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "proses_pesanan_print_esc",
-      "community": 66,
+      "community": 21,
       "norm_label": "esc()"
     },
     {
@@ -11860,7 +11980,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "proses_pesanan_print_rendervalue",
-      "community": 66,
+      "community": 21,
       "norm_label": "rendervalue()"
     },
     {
@@ -11870,7 +11990,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "proses_pesanan_print_renderkeyvalue",
-      "community": 66,
+      "community": 21,
       "norm_label": "renderkeyvalue()"
     },
     {
@@ -11880,7 +12000,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "proses_pesanan_print_rendertable",
-      "community": 66,
+      "community": 21,
       "norm_label": "rendertable()"
     },
     {
@@ -11890,7 +12010,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "proses_pesanan_print_printreport",
-      "community": 66,
+      "community": 21,
       "norm_label": "printreport()"
     },
     {
@@ -11910,7 +12030,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "lib_utils_cn",
-      "community": 44,
+      "community": 72,
       "norm_label": "cn()"
     },
     {
@@ -11990,7 +12110,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "schemas_master_produk",
-      "community": 7,
+      "community": 74,
       "norm_label": "master-produk.ts"
     },
     {
@@ -12000,7 +12120,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "schemas_master_produk_buatprodukschema",
-      "community": 7,
+      "community": 74,
       "norm_label": "buatprodukschema"
     },
     {
@@ -12010,7 +12130,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "schemas_master_produk_buatbundleschema",
-      "community": 7,
+      "community": 74,
       "norm_label": "buatbundleschema"
     },
     {
@@ -12070,7 +12190,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "kategori_merek_brand_service",
-      "community": 50,
+      "community": 54,
       "norm_label": "brand.service.ts"
     },
     {
@@ -12080,7 +12200,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "kategori_merek_brand_service_brandservice",
-      "community": 39,
+      "community": 54,
       "norm_label": "brandservice"
     },
     {
@@ -12090,7 +12210,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "kategori_merek_kategori_service",
-      "community": 3,
+      "community": 90,
       "norm_label": "kategori.service.ts"
     },
     {
@@ -12100,7 +12220,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "kategori_merek_kategori_service_kategoriservice",
-      "community": 3,
+      "community": 90,
       "norm_label": "kategoriservice"
     },
     {
@@ -12110,7 +12230,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "manajemen_rak_location_bin_service",
-      "community": 55,
+      "community": 40,
       "norm_label": "location-bin.service.ts"
     },
     {
@@ -12120,7 +12240,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "manajemen_rak_location_bin_service_locationbinservice",
-      "community": 55,
+      "community": 40,
       "norm_label": "locationbinservice"
     },
     {
@@ -12180,7 +12300,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "manajemen_rak_region_service",
-      "community": 50,
+      "community": 82,
       "norm_label": "region.service.ts"
     },
     {
@@ -12190,7 +12310,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "manajemen_rak_region_service_rawregion",
-      "community": 50,
+      "community": 82,
       "norm_label": "rawregion"
     },
     {
@@ -12200,7 +12320,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "manajemen_rak_region_service_tonumber",
-      "community": 50,
+      "community": 82,
       "norm_label": "tonumber()"
     },
     {
@@ -12210,7 +12330,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "manajemen_rak_region_service_mapregion",
-      "community": 50,
+      "community": 82,
       "norm_label": "mapregion()"
     },
     {
@@ -12220,7 +12340,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "manajemen_rak_region_service_regionservice",
-      "community": 6,
+      "community": 82,
       "norm_label": "regionservice"
     },
     {
@@ -12250,7 +12370,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "manajemen_rak_warehouse_setting_service_warehousesettingservice",
-      "community": 55,
+      "community": 50,
       "norm_label": "warehousesettingservice"
     },
     {
@@ -12260,7 +12380,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "manajemen_rak_warehouse_user_service",
-      "community": 82,
+      "community": 50,
       "norm_label": "warehouse-user.service.ts"
     },
     {
@@ -12270,7 +12390,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "manajemen_rak_warehouse_user_service_rawuser",
-      "community": 82,
+      "community": 50,
       "norm_label": "rawuser"
     },
     {
@@ -12280,7 +12400,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "manajemen_rak_warehouse_user_service_lookupresponse",
-      "community": 82,
+      "community": 50,
       "norm_label": "lookupresponse"
     },
     {
@@ -12290,7 +12410,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "manajemen_rak_warehouse_user_service_warehouseuserservice",
-      "community": 82,
+      "community": 50,
       "norm_label": "warehouseuserservice"
     },
     {
@@ -12360,7 +12480,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "master_produk_channel_product_service_channellistingparams",
-      "community": 11,
+      "community": 67,
       "norm_label": "channellistingparams"
     },
     {
@@ -12420,7 +12540,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "master_produk_channel_product_service_channelproductservice",
-      "community": 11,
+      "community": 67,
       "norm_label": "channelproductservice"
     },
     {
@@ -12450,7 +12570,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "master_produk_download_service_downloadtransaction",
-      "community": 11,
+      "community": 79,
       "norm_label": "downloadtransaction"
     },
     {
@@ -12580,7 +12700,7 @@
       "source_location": "L188",
       "_origin": "ast",
       "id": "master_produk_download_service_downloadservice",
-      "community": 11,
+      "community": 79,
       "norm_label": "downloadservice"
     },
     {
@@ -12710,7 +12830,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_inventory_service",
-      "community": 94,
+      "community": 50,
       "norm_label": "inventory.service.ts"
     },
     {
@@ -12720,7 +12840,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "master_produk_inventory_service_rawstockrow",
-      "community": 94,
+      "community": 50,
       "norm_label": "rawstockrow"
     },
     {
@@ -12730,7 +12850,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "master_produk_inventory_service_variantstock",
-      "community": 94,
+      "community": 50,
       "norm_label": "variantstock"
     },
     {
@@ -12740,7 +12860,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "master_produk_inventory_service_inventoryservice",
-      "community": 94,
+      "community": 70,
       "norm_label": "inventoryservice"
     },
     {
@@ -13120,7 +13240,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_product_detail_service",
-      "community": 68,
+      "community": 76,
       "norm_label": "product-detail.service.ts"
     },
     {
@@ -13130,7 +13250,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "master_produk_product_detail_service_mapdetail",
-      "community": 68,
+      "community": 76,
       "norm_label": "mapdetail()"
     },
     {
@@ -13140,7 +13260,7 @@
       "source_location": "L130",
       "_origin": "ast",
       "id": "master_produk_product_detail_service_lifecycleaction",
-      "community": 68,
+      "community": 76,
       "norm_label": "lifecycleaction"
     },
     {
@@ -13150,7 +13270,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "master_produk_product_detail_service_bulkresult",
-      "community": 68,
+      "community": 76,
       "norm_label": "bulkresult"
     },
     {
@@ -13500,7 +13620,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "master_produk_upload_service_uploadlistingparams",
-      "community": 40,
+      "community": 12,
       "norm_label": "uploadlistingparams"
     },
     {
@@ -13580,7 +13700,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "master_produk_upload_service_draftparams",
-      "community": 40,
+      "community": 12,
       "norm_label": "draftparams"
     },
     {
@@ -13620,7 +13740,7 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "master_produk_upload_service_historyparams",
-      "community": 40,
+      "community": 12,
       "norm_label": "historyparams"
     },
     {
@@ -13660,7 +13780,7 @@
       "source_location": "L221",
       "_origin": "ast",
       "id": "master_produk_upload_service_bulkuploadresult",
-      "community": 40,
+      "community": 12,
       "norm_label": "bulkuploadresult"
     },
     {
@@ -13740,7 +13860,7 @@
       "source_location": "L282",
       "_origin": "ast",
       "id": "master_produk_upload_service_categoryrules",
-      "community": 90,
+      "community": 12,
       "norm_label": "categoryrules"
     },
     {
@@ -13854,10 +13974,20 @@
       "norm_label": "outbound.service.ts"
     },
     {
+      "label": "CreateShipmentPayload",
+      "file_type": "code",
+      "source_file": "src/services/proses-pesanan/outbound.service.ts",
+      "source_location": "L21",
+      "_origin": "ast",
+      "id": "proses_pesanan_outbound_service_createshipmentpayload",
+      "community": 21,
+      "norm_label": "createshipmentpayload"
+    },
+    {
       "label": "Meta",
       "file_type": "code",
       "source_file": "src/services/proses-pesanan/outbound.service.ts",
-      "source_location": "L22",
+      "source_location": "L33",
       "_origin": "ast",
       "id": "proses_pesanan_outbound_service_meta",
       "community": 21,
@@ -13867,7 +13997,7 @@
       "label": "ListResult",
       "file_type": "code",
       "source_file": "src/services/proses-pesanan/outbound.service.ts",
-      "source_location": "L24",
+      "source_location": "L35",
       "_origin": "ast",
       "id": "proses_pesanan_outbound_service_listresult",
       "community": 21,
@@ -13877,7 +14007,7 @@
       "label": "FALLBACK_META",
       "file_type": "code",
       "source_file": "src/services/proses-pesanan/outbound.service.ts",
-      "source_location": "L29",
+      "source_location": "L40",
       "_origin": "ast",
       "id": "proses_pesanan_outbound_service_fallback_meta",
       "community": 21,
@@ -13887,7 +14017,7 @@
       "label": "buildQuery()",
       "file_type": "code",
       "source_file": "src/services/proses-pesanan/outbound.service.ts",
-      "source_location": "L31",
+      "source_location": "L42",
       "_origin": "ast",
       "id": "proses_pesanan_outbound_service_buildquery",
       "community": 21,
@@ -13897,7 +14027,7 @@
       "label": "mapOrder()",
       "file_type": "code",
       "source_file": "src/services/proses-pesanan/outbound.service.ts",
-      "source_location": "L44",
+      "source_location": "L55",
       "_origin": "ast",
       "id": "proses_pesanan_outbound_service_maporder",
       "community": 21,
@@ -13907,7 +14037,7 @@
       "label": "mapPicklist()",
       "file_type": "code",
       "source_file": "src/services/proses-pesanan/outbound.service.ts",
-      "source_location": "L64",
+      "source_location": "L75",
       "_origin": "ast",
       "id": "proses_pesanan_outbound_service_mappicklist",
       "community": 21,
@@ -13917,7 +14047,7 @@
       "label": "mapPacklist()",
       "file_type": "code",
       "source_file": "src/services/proses-pesanan/outbound.service.ts",
-      "source_location": "L83",
+      "source_location": "L94",
       "_origin": "ast",
       "id": "proses_pesanan_outbound_service_mappacklist",
       "community": 21,
@@ -13927,17 +14057,27 @@
       "label": "mapShipment()",
       "file_type": "code",
       "source_file": "src/services/proses-pesanan/outbound.service.ts",
-      "source_location": "L98",
+      "source_location": "L109",
       "_origin": "ast",
       "id": "proses_pesanan_outbound_service_mapshipment",
       "community": 21,
       "norm_label": "mapshipment()"
     },
     {
+      "label": "mapCourier()",
+      "file_type": "code",
+      "source_file": "src/services/proses-pesanan/outbound.service.ts",
+      "source_location": "L125",
+      "_origin": "ast",
+      "id": "proses_pesanan_outbound_service_mapcourier",
+      "community": 21,
+      "norm_label": "mapcourier()"
+    },
+    {
       "label": "mapPicker()",
       "file_type": "code",
       "source_file": "src/services/proses-pesanan/outbound.service.ts",
-      "source_location": "L108",
+      "source_location": "L136",
       "_origin": "ast",
       "id": "proses_pesanan_outbound_service_mappicker",
       "community": 21,
@@ -13947,7 +14087,7 @@
       "label": "mapShipResult()",
       "file_type": "code",
       "source_file": "src/services/proses-pesanan/outbound.service.ts",
-      "source_location": "L112",
+      "source_location": "L140",
       "_origin": "ast",
       "id": "proses_pesanan_outbound_service_mapshipresult",
       "community": 21,
@@ -13957,7 +14097,7 @@
       "label": "RawPaginator",
       "file_type": "code",
       "source_file": "src/services/proses-pesanan/outbound.service.ts",
-      "source_location": "L123",
+      "source_location": "L151",
       "_origin": "ast",
       "id": "proses_pesanan_outbound_service_rawpaginator",
       "community": 21,
@@ -13967,7 +14107,7 @@
       "label": "paginatorMeta()",
       "file_type": "code",
       "source_file": "src/services/proses-pesanan/outbound.service.ts",
-      "source_location": "L131",
+      "source_location": "L159",
       "_origin": "ast",
       "id": "proses_pesanan_outbound_service_paginatormeta",
       "community": 21,
@@ -13977,10 +14117,10 @@
       "label": "OutboundService",
       "file_type": "code",
       "source_file": "src/services/proses-pesanan/outbound.service.ts",
-      "source_location": "L140",
+      "source_location": "L168",
       "_origin": "ast",
       "id": "proses_pesanan_outbound_service_outboundservice",
-      "community": 66,
+      "community": 21,
       "norm_label": "outboundservice"
     },
     {
@@ -14050,7 +14190,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "types_api_types",
-      "community": 82,
+      "community": 50,
       "norm_label": "api.types.ts"
     },
     {
@@ -14060,7 +14200,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "types_api_types_apiresponse",
-      "community": 50,
+      "community": 54,
       "norm_label": "apiresponse"
     },
     {
@@ -14070,7 +14210,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "types_api_types_apilist",
-      "community": 82,
+      "community": 50,
       "norm_label": "apilist"
     },
     {
@@ -14090,7 +14230,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "types_api_types_apivalidationerror",
-      "community": 82,
+      "community": 50,
       "norm_label": "apivalidationerror"
     },
     {
@@ -14150,7 +14290,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "channel_channel_types",
-      "community": 42,
+      "community": 64,
       "norm_label": "channel.types.ts"
     },
     {
@@ -14170,7 +14310,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "channel_channel_types_integrationstatus",
-      "community": 42,
+      "community": 64,
       "norm_label": "integrationstatus"
     },
     {
@@ -14180,7 +14320,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "channel_channel_types_storeintegration",
-      "community": 42,
+      "community": 64,
       "norm_label": "storeintegration"
     },
     {
@@ -14230,7 +14370,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "channel_channel_types_rawchannel",
-      "community": 42,
+      "community": 64,
       "norm_label": "rawchannel"
     },
     {
@@ -14270,7 +14410,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "kategori_merek_brand",
-      "community": 50,
+      "community": 54,
       "norm_label": "brand.ts"
     },
     {
@@ -14280,7 +14420,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "kategori_merek_brand_branditem",
-      "community": 50,
+      "community": 54,
       "norm_label": "branditem"
     },
     {
@@ -14290,7 +14430,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "kategori_merek_kategori",
-      "community": 3,
+      "community": 90,
       "norm_label": "kategori.ts"
     },
     {
@@ -14300,7 +14440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "kategori_merek_kategori_kategoriitem",
-      "community": 3,
+      "community": 90,
       "norm_label": "kategoriitem"
     },
     {
@@ -14310,7 +14450,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "kategori_merek_kategori_channelinfo",
-      "community": 3,
+      "community": 44,
       "norm_label": "channelinfo"
     },
     {
@@ -14320,7 +14460,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "kategori_merek_kategori_channelcategorynode",
-      "community": 3,
+      "community": 85,
       "norm_label": "channelcategorynode"
     },
     {
@@ -14330,7 +14470,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "kategori_merek_kategori_kategorimappingitem",
-      "community": 3,
+      "community": 90,
       "norm_label": "kategorimappingitem"
     },
     {
@@ -14340,7 +14480,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "kategori_merek_kategori_flatkategori",
-      "community": 3,
+      "community": 44,
       "norm_label": "flatkategori"
     },
     {
@@ -14350,7 +14490,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "kategori_merek_kategori_categoryformattributes",
-      "community": 3,
+      "community": 90,
       "norm_label": "categoryformattributes"
     },
     {
@@ -14360,7 +14500,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "kategori_merek_kategori_categoryattributeitem",
-      "community": 3,
+      "community": 90,
       "norm_label": "categoryattributeitem"
     },
     {
@@ -14370,7 +14510,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "kategori_merek_kategori_channelattributeitem",
-      "community": 3,
+      "community": 90,
       "norm_label": "channelattributeitem"
     },
     {
@@ -14390,7 +14530,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "manajemen_rak_location_regionoption",
-      "community": 50,
+      "community": 82,
       "norm_label": "regionoption"
     },
     {
@@ -14460,7 +14600,7 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "manajemen_rak_location_warehouseuser",
-      "community": 82,
+      "community": 50,
       "norm_label": "warehouseuser"
     },
     {
@@ -14480,7 +14620,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "manajemen_rak_location_generatebinspayload",
-      "community": 55,
+      "community": 40,
       "norm_label": "generatebinspayload"
     },
     {
@@ -14490,7 +14630,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "manajemen_rak_location_binpreviewitem",
-      "community": 55,
+      "community": 40,
       "norm_label": "binpreviewitem"
     },
     {
@@ -14540,7 +14680,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_category_attributes",
-      "community": 34,
+      "community": 74,
       "norm_label": "category-attributes.ts"
     },
     {
@@ -14550,7 +14690,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "master_produk_category_attributes_formattributeoption",
-      "community": 34,
+      "community": 74,
       "norm_label": "formattributeoption"
     },
     {
@@ -14560,7 +14700,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "master_produk_category_attributes_formattributechannelstatus",
-      "community": 34,
+      "community": 74,
       "norm_label": "formattributechannelstatus"
     },
     {
@@ -14570,7 +14710,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "master_produk_category_attributes_formattribute",
-      "community": 34,
+      "community": 74,
       "norm_label": "formattribute"
     },
     {
@@ -14580,7 +14720,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "master_produk_category_attributes_categoryformattributes",
-      "community": 34,
+      "community": 74,
       "norm_label": "categoryformattributes"
     },
     {
@@ -14720,7 +14860,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_form",
-      "community": 7,
+      "community": 74,
       "norm_label": "form.ts"
     },
     {
@@ -14740,7 +14880,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "master_produk_form_buatbundleformvalues",
-      "community": 7,
+      "community": 74,
       "norm_label": "buatbundleformvalues"
     },
     {
@@ -14750,7 +14890,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_index",
-      "community": 85,
+      "community": 74,
       "norm_label": "index.ts"
     },
     {
@@ -14850,7 +14990,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "master_produk_product_detail_detailmedia",
-      "community": 47,
+      "community": 93,
       "norm_label": "detailmedia"
     },
     {
@@ -14900,7 +15040,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "master_produk_product_detail_detailvariant",
-      "community": 76,
+      "community": 47,
       "norm_label": "detailvariant"
     },
     {
@@ -14910,7 +15050,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "master_produk_product_detail_bundlecomponent",
-      "community": 95,
+      "community": 49,
       "norm_label": "bundlecomponent"
     },
     {
@@ -14920,7 +15060,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "master_produk_product_detail_detailchannelmapping",
-      "community": 93,
+      "community": 47,
       "norm_label": "detailchannelmapping"
     },
     {
@@ -14960,7 +15100,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "master_produk_product",
-      "community": 47,
+      "community": 56,
       "norm_label": "product.ts"
     },
     {
@@ -14980,7 +15120,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "master_produk_product_productvariant",
-      "community": 47,
+      "community": 56,
       "norm_label": "productvariant"
     },
     {
@@ -14990,7 +15130,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "master_produk_product_productchannelstatus",
-      "community": 47,
+      "community": 56,
       "norm_label": "productchannelstatus"
     },
     {
@@ -15000,7 +15140,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "master_produk_product_product",
-      "community": 57,
+      "community": 70,
       "norm_label": "product"
     },
     {
@@ -15010,7 +15150,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "master_produk_product_rawmastervariant",
-      "community": 47,
+      "community": 56,
       "norm_label": "rawmastervariant"
     },
     {
@@ -15020,7 +15160,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "master_produk_product_rawmasteronlinestatus",
-      "community": 47,
+      "community": 56,
       "norm_label": "rawmasteronlinestatus"
     },
     {
@@ -15220,7 +15360,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "proses_pesanan_fulfillment_fulfillmentstage",
-      "community": 67,
+      "community": 21,
       "norm_label": "fulfillmentstage"
     },
     {
@@ -15230,7 +15370,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "proses_pesanan_fulfillment_stagesub",
-      "community": 67,
+      "community": 21,
       "norm_label": "stagesub"
     },
     {
@@ -15250,7 +15390,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "proses_pesanan_fulfillment_stage_config",
-      "community": 67,
+      "community": 21,
       "norm_label": "stage_config"
     },
     {
@@ -15260,7 +15400,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "proses_pesanan_fulfillment_stageconfig",
-      "community": 67,
+      "community": 66,
       "norm_label": "stageconfig()"
     },
     {
@@ -15270,7 +15410,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "proses_pesanan_fulfillment_defaultsubfor",
-      "community": 67,
+      "community": 66,
       "norm_label": "defaultsubfor()"
     },
     {
@@ -15310,7 +15450,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "proses_pesanan_fulfillment_fulfillmentorder",
-      "community": 66,
+      "community": 21,
       "norm_label": "fulfillmentorder"
     },
     {
@@ -15420,7 +15560,7 @@
       "source_location": "L213",
       "_origin": "ast",
       "id": "proses_pesanan_fulfillment_packlist",
-      "community": 83,
+      "community": 21,
       "norm_label": "packlist"
     },
     {
@@ -15430,14 +15570,44 @@
       "source_location": "L226",
       "_origin": "ast",
       "id": "proses_pesanan_fulfillment_packlist_status_label",
-      "community": 83,
+      "community": 21,
       "norm_label": "packlist_status_label"
+    },
+    {
+      "label": "ShipmentStatus",
+      "file_type": "code",
+      "source_file": "src/types/proses-pesanan/fulfillment.ts",
+      "source_location": "L234",
+      "_origin": "ast",
+      "id": "proses_pesanan_fulfillment_shipmentstatus",
+      "community": 21,
+      "norm_label": "shipmentstatus"
+    },
+    {
+      "label": "ShipmentType",
+      "file_type": "code",
+      "source_file": "src/types/proses-pesanan/fulfillment.ts",
+      "source_location": "L241",
+      "_origin": "ast",
+      "id": "proses_pesanan_fulfillment_shipmenttype",
+      "community": 21,
+      "norm_label": "shipmenttype"
+    },
+    {
+      "label": "SHIPMENT_TYPES",
+      "file_type": "code",
+      "source_file": "src/types/proses-pesanan/fulfillment.ts",
+      "source_location": "L243",
+      "_origin": "ast",
+      "id": "proses_pesanan_fulfillment_shipment_types",
+      "community": 21,
+      "norm_label": "shipment_types"
     },
     {
       "label": "RawShipment",
       "file_type": "code",
       "source_file": "src/types/proses-pesanan/fulfillment.ts",
-      "source_location": "L233",
+      "source_location": "L251",
       "_origin": "ast",
       "id": "proses_pesanan_fulfillment_rawshipment",
       "community": 21,
@@ -15447,11 +15617,41 @@
       "label": "Shipment",
       "file_type": "code",
       "source_file": "src/types/proses-pesanan/fulfillment.ts",
-      "source_location": "L241",
+      "source_location": "L265",
       "_origin": "ast",
       "id": "proses_pesanan_fulfillment_shipment",
       "community": 21,
       "norm_label": "shipment"
+    },
+    {
+      "label": "SHIPMENT_STATUS_LABEL",
+      "file_type": "code",
+      "source_file": "src/types/proses-pesanan/fulfillment.ts",
+      "source_location": "L279",
+      "_origin": "ast",
+      "id": "proses_pesanan_fulfillment_shipment_status_label",
+      "community": 21,
+      "norm_label": "shipment_status_label"
+    },
+    {
+      "label": "RawCourier",
+      "file_type": "code",
+      "source_file": "src/types/proses-pesanan/fulfillment.ts",
+      "source_location": "L288",
+      "_origin": "ast",
+      "id": "proses_pesanan_fulfillment_rawcourier",
+      "community": 21,
+      "norm_label": "rawcourier"
+    },
+    {
+      "label": "Courier",
+      "file_type": "code",
+      "source_file": "src/types/proses-pesanan/fulfillment.ts",
+      "source_location": "L297",
+      "_origin": "ast",
+      "id": "proses_pesanan_fulfillment_courier",
+      "community": 21,
+      "norm_label": "courier"
     },
     {
       "label": "tsconfig.json",
@@ -45349,9 +45549,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "proses_pesanan_channel_badge",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_channel_badge"
     },
     {
       "relation": "imports",
@@ -45360,9 +45560,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "proses_pesanan_channel_badge_channelbadge",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_channel_badge_channelbadge"
     },
     {
       "relation": "calls",
@@ -45382,9 +45582,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "proses_pesanan_channel_badge_orderstatusbadge",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_channel_badge_orderstatusbadge"
     },
     {
       "relation": "imports_from",
@@ -45393,9 +45593,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "lib_utils",
-      "confidence_score": 1.0
+      "target": "lib_utils"
     },
     {
       "relation": "imports",
@@ -45404,9 +45604,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "lib_utils_cn",
-      "confidence_score": 1.0
+      "target": "lib_utils_cn"
     },
     {
       "relation": "contains",
@@ -45414,9 +45614,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "packing_packlist_table_packlisttable",
-      "confidence_score": 1.0
+      "target": "packing_packlist_table_packlisttable"
     },
     {
       "relation": "imports_from",
@@ -45425,9 +45625,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "packing_ubah_packer_dialog",
-      "confidence_score": 1.0
+      "target": "packing_ubah_packer_dialog"
     },
     {
       "relation": "imports",
@@ -45436,9 +45636,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "packing_ubah_packer_dialog_ubahpackerdialog",
-      "confidence_score": 1.0
+      "target": "packing_ubah_packer_dialog_ubahpackerdialog"
     },
     {
       "relation": "imports_from",
@@ -45447,9 +45647,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "proses_pesanan_fulfillment",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_fulfillment"
     },
     {
       "relation": "imports",
@@ -45458,9 +45658,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "proses_pesanan_fulfillment_packlist",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_fulfillment_packlist"
     },
     {
       "relation": "imports",
@@ -45469,9 +45669,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "proses_pesanan_fulfillment_packlist_status_label",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_fulfillment_packlist_status_label"
     },
     {
       "relation": "imports_from",
@@ -45480,9 +45680,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "proses_pesanan_use_fulfillment",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_use_fulfillment"
     },
     {
       "relation": "imports",
@@ -45491,9 +45691,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "proses_pesanan_use_fulfillment_usepacklists",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_use_fulfillment_usepacklists"
     },
     {
       "relation": "imports_from",
@@ -45502,9 +45702,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "ui_badge",
-      "confidence_score": 1.0
+      "target": "ui_badge"
     },
     {
       "relation": "imports",
@@ -45513,9 +45713,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "ui_badge_badge",
-      "confidence_score": 1.0
+      "target": "ui_badge_badge"
     },
     {
       "relation": "imports_from",
@@ -45524,9 +45724,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "ui_button",
-      "confidence_score": 1.0
+      "target": "ui_button"
     },
     {
       "relation": "imports",
@@ -45535,9 +45735,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "ui_button_button",
-      "confidence_score": 1.0
+      "target": "ui_button_button"
     },
     {
       "relation": "imports_from",
@@ -45546,9 +45746,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "ui_dropdown_menu",
-      "confidence_score": 1.0
+      "target": "ui_dropdown_menu"
     },
     {
       "relation": "imports",
@@ -45557,9 +45757,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "ui_dropdown_menu_dropdownmenu",
-      "confidence_score": 1.0
+      "target": "ui_dropdown_menu_dropdownmenu"
     },
     {
       "relation": "imports",
@@ -45568,9 +45768,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "ui_dropdown_menu_dropdownmenucontent",
-      "confidence_score": 1.0
+      "target": "ui_dropdown_menu_dropdownmenucontent"
     },
     {
       "relation": "imports",
@@ -45579,9 +45779,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "ui_dropdown_menu_dropdownmenuitem",
-      "confidence_score": 1.0
+      "target": "ui_dropdown_menu_dropdownmenuitem"
     },
     {
       "relation": "imports",
@@ -45590,9 +45790,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "ui_dropdown_menu_dropdownmenutrigger",
-      "confidence_score": 1.0
+      "target": "ui_dropdown_menu_dropdownmenutrigger"
     },
     {
       "relation": "imports_from",
@@ -45601,9 +45801,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "ui_input",
-      "confidence_score": 1.0
+      "target": "ui_input"
     },
     {
       "relation": "imports",
@@ -45612,9 +45812,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "ui_input_input",
-      "confidence_score": 1.0
+      "target": "ui_input_input"
     },
     {
       "relation": "imports_from",
@@ -45623,9 +45823,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L17",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "ui_liquid_glass",
-      "confidence_score": 1.0
+      "target": "ui_liquid_glass"
     },
     {
       "relation": "imports",
@@ -45634,9 +45834,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/packlist-table.tsx",
       "source_location": "L17",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_packlist_table",
-      "target": "ui_liquid_glass_liquidglass",
-      "confidence_score": 1.0
+      "target": "ui_liquid_glass_liquidglass"
     },
     {
       "relation": "imports_from",
@@ -45645,9 +45845,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/proses-pesanan-view.tsx",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "proses_pesanan_proses_pesanan_view",
-      "target": "packing_packlist_table",
-      "confidence_score": 1.0
+      "target": "packing_packlist_table"
     },
     {
       "relation": "calls",
@@ -45678,9 +45878,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/proses-pesanan-view.tsx",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "proses_pesanan_proses_pesanan_view",
-      "target": "packing_packlist_table_packlisttable",
-      "confidence_score": 1.0
+      "target": "packing_packlist_table_packlisttable"
     },
     {
       "relation": "contains",
@@ -45688,9 +45888,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/ubah-packer-dialog.tsx",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_ubah_packer_dialog",
-      "target": "packing_ubah_packer_dialog_ubahpackerdialog",
-      "confidence_score": 1.0
+      "target": "packing_ubah_packer_dialog_ubahpackerdialog"
     },
     {
       "relation": "contains",
@@ -45698,9 +45898,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/ubah-packer-dialog.tsx",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_ubah_packer_dialog",
-      "target": "packing_ubah_packer_dialog_ubahpackerdialogprops",
-      "confidence_score": 1.0
+      "target": "packing_ubah_packer_dialog_ubahpackerdialogprops"
     },
     {
       "relation": "imports_from",
@@ -45709,9 +45909,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/ubah-packer-dialog.tsx",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_ubah_packer_dialog",
-      "target": "proses_pesanan_use_fulfillment",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_use_fulfillment"
     },
     {
       "relation": "imports",
@@ -45720,9 +45920,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/ubah-packer-dialog.tsx",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_ubah_packer_dialog",
-      "target": "proses_pesanan_use_fulfillment_useassignpacker",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_use_fulfillment_useassignpacker"
     },
     {
       "relation": "imports",
@@ -45731,9 +45931,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/ubah-packer-dialog.tsx",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_ubah_packer_dialog",
-      "target": "proses_pesanan_use_fulfillment_usepickers",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_use_fulfillment_usepickers"
     },
     {
       "relation": "imports_from",
@@ -45742,9 +45942,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/ubah-packer-dialog.tsx",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_ubah_packer_dialog",
-      "target": "ui_button",
-      "confidence_score": 1.0
+      "target": "ui_button"
     },
     {
       "relation": "imports",
@@ -45753,9 +45953,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/ubah-packer-dialog.tsx",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_ubah_packer_dialog",
-      "target": "ui_button_button",
-      "confidence_score": 1.0
+      "target": "ui_button_button"
     },
     {
       "relation": "imports_from",
@@ -45764,9 +45964,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/ubah-packer-dialog.tsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_ubah_packer_dialog",
-      "target": "ui_dialog",
-      "confidence_score": 1.0
+      "target": "ui_dialog"
     },
     {
       "relation": "imports",
@@ -45775,9 +45975,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/ubah-packer-dialog.tsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_ubah_packer_dialog",
-      "target": "ui_dialog_dialog",
-      "confidence_score": 1.0
+      "target": "ui_dialog_dialog"
     },
     {
       "relation": "imports",
@@ -45786,9 +45986,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/ubah-packer-dialog.tsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_ubah_packer_dialog",
-      "target": "ui_dialog_dialogclose",
-      "confidence_score": 1.0
+      "target": "ui_dialog_dialogclose"
     },
     {
       "relation": "imports",
@@ -45797,9 +45997,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/ubah-packer-dialog.tsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_ubah_packer_dialog",
-      "target": "ui_dialog_dialogcontent",
-      "confidence_score": 1.0
+      "target": "ui_dialog_dialogcontent"
     },
     {
       "relation": "imports",
@@ -45808,9 +46008,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/ubah-packer-dialog.tsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_ubah_packer_dialog",
-      "target": "ui_dialog_dialogheader",
-      "confidence_score": 1.0
+      "target": "ui_dialog_dialogheader"
     },
     {
       "relation": "imports",
@@ -45819,9 +46019,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/ubah-packer-dialog.tsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_ubah_packer_dialog",
-      "target": "ui_dialog_dialogtitle",
-      "confidence_score": 1.0
+      "target": "ui_dialog_dialogtitle"
     },
     {
       "relation": "imports_from",
@@ -45830,9 +46030,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/ubah-packer-dialog.tsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_ubah_packer_dialog",
-      "target": "ui_label",
-      "confidence_score": 1.0
+      "target": "ui_label"
     },
     {
       "relation": "imports",
@@ -45841,9 +46041,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/packing/ubah-packer-dialog.tsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "packing_ubah_packer_dialog",
-      "target": "ui_label_label",
-      "confidence_score": 1.0
+      "target": "ui_label_label"
     },
     {
       "relation": "calls",
@@ -46037,9 +46237,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L31",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "picking_buat_picklist_dialog",
-      "confidence_score": 1.0
+      "target": "picking_buat_picklist_dialog"
     },
     {
       "relation": "calls",
@@ -46070,9 +46270,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L31",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "picking_buat_picklist_dialog_buatpicklistdialog",
-      "confidence_score": 1.0
+      "target": "picking_buat_picklist_dialog_buatpicklistdialog"
     },
     {
       "relation": "contains",
@@ -46166,7 +46366,18 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
+      "target": "picking_doc_actions"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L33",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
       "target": "picking_doc_actions",
       "confidence_score": 1.0
     },
@@ -46210,7 +46421,18 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
+      "target": "picking_doc_actions_docactions"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L33",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
       "target": "picking_doc_actions_docactions",
       "confidence_score": 1.0
     },
@@ -46777,9 +46999,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/proses-pesanan-view.tsx",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "proses_pesanan_proses_pesanan_view",
-      "target": "proses_pesanan_proses_pesanan_view_comingsoon",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_proses_pesanan_view_comingsoon"
     },
     {
       "relation": "contains",
@@ -46853,9 +47075,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/proses-pesanan-view.tsx",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "proses_pesanan_proses_pesanan_view",
-      "target": "proses_pesanan_use_fulfillment_usepackingcounts",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_use_fulfillment_usepackingcounts"
     },
     {
       "relation": "imports",
@@ -46869,15 +47091,26 @@
       "target": "proses_pesanan_use_fulfillment_usepickingcounts"
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/proses-pesanan-view.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "proses_pesanan_proses_pesanan_view",
+      "target": "proses_pesanan_use_fulfillment_useshippingcounts",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/dashboard/proses-pesanan/proses-pesanan-view.tsx",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "proses_pesanan_proses_pesanan_view",
-      "target": "shared_fulfillment_orders_table",
-      "confidence_score": 1.0
+      "target": "shared_fulfillment_orders_table"
     },
     {
       "relation": "imports",
@@ -46886,8 +47119,30 @@
       "source_file": "src/components/dashboard/proses-pesanan/proses-pesanan-view.tsx",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "proses_pesanan_proses_pesanan_view",
-      "target": "shared_fulfillment_orders_table_fulfillmentorderstable",
+      "target": "shared_fulfillment_orders_table_fulfillmentorderstable"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/proses-pesanan-view.tsx",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "proses_pesanan_proses_pesanan_view",
+      "target": "shipping_shipment_table",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/proses-pesanan-view.tsx",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "proses_pesanan_proses_pesanan_view",
+      "target": "shipping_shipment_table_shipmenttable",
       "confidence_score": 1.0
     },
     {
@@ -46968,15 +47223,26 @@
       "target": "proses_pesanan_use_fulfillment_usepickingcounts"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/dashboard/proses-pesanan/proses-pesanan-view.tsx",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "proses_pesanan_proses_pesanan_view_prosespesananview",
+      "target": "proses_pesanan_use_fulfillment_useshippingcounts"
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "lib_utils",
-      "confidence_score": 1.0
+      "target": "lib_utils"
     },
     {
       "relation": "imports",
@@ -46985,9 +47251,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "lib_utils_cn",
-      "confidence_score": 1.0
+      "target": "lib_utils_cn"
     },
     {
       "relation": "imports_from",
@@ -46996,9 +47262,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "proses_pesanan_fulfillment",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_fulfillment"
     },
     {
       "relation": "imports",
@@ -47007,9 +47273,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "proses_pesanan_fulfillment_fulfillmentorder",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_fulfillment_fulfillmentorder"
     },
     {
       "relation": "imports_from",
@@ -47018,9 +47284,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "proses_pesanan_use_fulfillment",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_use_fulfillment"
     },
     {
       "relation": "imports",
@@ -47029,9 +47295,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "proses_pesanan_use_fulfillment_useordersbystage",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_use_fulfillment_useordersbystage"
     },
     {
       "relation": "imports",
@@ -47040,9 +47306,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "proses_pesanan_use_fulfillment_usereadytoship",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_use_fulfillment_usereadytoship"
     },
     {
       "relation": "contains",
@@ -47050,9 +47316,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L44",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "shared_fulfillment_orders_table_formatdate",
-      "confidence_score": 1.0
+      "target": "shared_fulfillment_orders_table_formatdate"
     },
     {
       "relation": "contains",
@@ -47060,9 +47326,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "shared_fulfillment_orders_table_fulfillmentorderstable",
-      "confidence_score": 1.0
+      "target": "shared_fulfillment_orders_table_fulfillmentorderstable"
     },
     {
       "relation": "contains",
@@ -47070,8 +47336,30 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L34",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "shared_fulfillment_orders_table_ordertableactions",
+      "target": "shared_fulfillment_orders_table_ordertableactions"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "shared_fulfillment_orders_table",
+      "target": "shipping_buat_pengiriman_dialog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "shared_fulfillment_orders_table",
+      "target": "shipping_buat_pengiriman_dialog_buatpengirimandialog",
       "confidence_score": 1.0
     },
     {
@@ -47081,9 +47369,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "ui_badge",
-      "confidence_score": 1.0
+      "target": "ui_badge"
     },
     {
       "relation": "imports",
@@ -47092,9 +47380,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "ui_badge_badge",
-      "confidence_score": 1.0
+      "target": "ui_badge_badge"
     },
     {
       "relation": "imports_from",
@@ -47103,9 +47391,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L17",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "ui_button",
-      "confidence_score": 1.0
+      "target": "ui_button"
     },
     {
       "relation": "imports",
@@ -47114,9 +47402,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L17",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "ui_button_button",
-      "confidence_score": 1.0
+      "target": "ui_button_button"
     },
     {
       "relation": "imports_from",
@@ -47125,9 +47413,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "ui_checkbox",
-      "confidence_score": 1.0
+      "target": "ui_checkbox"
     },
     {
       "relation": "imports",
@@ -47136,9 +47424,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "ui_checkbox_checkbox",
-      "confidence_score": 1.0
+      "target": "ui_checkbox_checkbox"
     },
     {
       "relation": "imports_from",
@@ -47147,9 +47435,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "ui_dropdown_menu",
-      "confidence_score": 1.0
+      "target": "ui_dropdown_menu"
     },
     {
       "relation": "imports",
@@ -47158,9 +47446,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "ui_dropdown_menu_dropdownmenu",
-      "confidence_score": 1.0
+      "target": "ui_dropdown_menu_dropdownmenu"
     },
     {
       "relation": "imports",
@@ -47169,9 +47457,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "ui_dropdown_menu_dropdownmenucontent",
-      "confidence_score": 1.0
+      "target": "ui_dropdown_menu_dropdownmenucontent"
     },
     {
       "relation": "imports",
@@ -47180,9 +47468,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "ui_dropdown_menu_dropdownmenuitem",
-      "confidence_score": 1.0
+      "target": "ui_dropdown_menu_dropdownmenuitem"
     },
     {
       "relation": "imports",
@@ -47191,9 +47479,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "ui_dropdown_menu_dropdownmenuseparator",
-      "confidence_score": 1.0
+      "target": "ui_dropdown_menu_dropdownmenuseparator"
     },
     {
       "relation": "imports",
@@ -47202,9 +47490,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "ui_dropdown_menu_dropdownmenutrigger",
-      "confidence_score": 1.0
+      "target": "ui_dropdown_menu_dropdownmenutrigger"
     },
     {
       "relation": "imports_from",
@@ -47213,9 +47501,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "ui_input",
-      "confidence_score": 1.0
+      "target": "ui_input"
     },
     {
       "relation": "imports",
@@ -47224,9 +47512,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "ui_input_input",
-      "confidence_score": 1.0
+      "target": "ui_input_input"
     },
     {
       "relation": "imports_from",
@@ -47235,9 +47523,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "ui_liquid_glass",
-      "confidence_score": 1.0
+      "target": "ui_liquid_glass"
     },
     {
       "relation": "imports",
@@ -47246,9 +47534,9 @@
       "source_file": "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "shared_fulfillment_orders_table",
-      "target": "ui_liquid_glass_liquidglass",
-      "confidence_score": 1.0
+      "target": "ui_liquid_glass_liquidglass"
     },
     {
       "relation": "calls",
@@ -47282,6 +47570,573 @@
       "weight": 1.0,
       "source": "shared_fulfillment_orders_table_fulfillmentorderstable",
       "target": "proses_pesanan_use_fulfillment_usereadytoship"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "proses_pesanan_fulfillment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "proses_pesanan_fulfillment_shipment_types",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "proses_pesanan_fulfillment_shipmenttype",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "proses_pesanan_use_fulfillment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "proses_pesanan_use_fulfillment_usecouriers",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "proses_pesanan_use_fulfillment_usecreateshipment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "shipping_buat_pengiriman_dialog_buatpengirimandialog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "shipping_buat_pengiriman_dialog_buatpengirimandialogprops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "shipping_buat_pengiriman_dialog_today",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "ui_button",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "ui_button_button",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "ui_dialog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "ui_dialog_dialog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "ui_dialog_dialogclose",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "ui_dialog_dialogcontent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "ui_dialog_dialogheader",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "ui_dialog_dialogtitle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "ui_input",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "ui_input_input",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "ui_label",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog",
+      "target": "ui_label_label",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L48",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog_buatpengirimandialog",
+      "target": "proses_pesanan_use_fulfillment_usecouriers"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "shipping_buat_pengiriman_dialog_buatpengirimandialog",
+      "target": "proses_pesanan_use_fulfillment_usecreateshipment"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "lib_utils",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "lib_utils_cn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "proses_pesanan_fulfillment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "proses_pesanan_fulfillment_shipment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "proses_pesanan_fulfillment_shipment_status_label",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "proses_pesanan_use_fulfillment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "proses_pesanan_use_fulfillment_usecancelshipment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "proses_pesanan_use_fulfillment_usehandovershipment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "proses_pesanan_use_fulfillment_useshipments",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "shipping_shipment_table_formatdate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "shipping_shipment_table_shipmenttable",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "ui_badge",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "ui_badge_badge",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "ui_button",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "ui_button_button",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "ui_dropdown_menu",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "ui_dropdown_menu_dropdownmenu",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "ui_dropdown_menu_dropdownmenucontent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "ui_dropdown_menu_dropdownmenuitem",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "ui_dropdown_menu_dropdownmenuseparator",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "ui_dropdown_menu_dropdownmenutrigger",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "ui_input",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "ui_input_input",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "ui_liquid_glass",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "shipping_shipment_table",
+      "target": "ui_liquid_glass_liquidglass",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L106",
+      "weight": 1.0,
+      "source": "shipping_shipment_table_shipmenttable",
+      "target": "lib_utils_cn"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L58",
+      "weight": 1.0,
+      "source": "shipping_shipment_table_shipmenttable",
+      "target": "proses_pesanan_use_fulfillment_usecancelshipment"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L57",
+      "weight": 1.0,
+      "source": "shipping_shipment_table_shipmenttable",
+      "target": "proses_pesanan_use_fulfillment_usehandovershipment"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx",
+      "source_location": "L56",
+      "weight": 1.0,
+      "source": "shipping_shipment_table_shipmenttable",
+      "target": "proses_pesanan_use_fulfillment_useshipments"
     },
     {
       "relation": "imports_from",
@@ -59591,6 +60446,17 @@
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
       "source_location": "L5",
       "weight": 1.0,
+      "source": "proses_pesanan_use_fulfillment",
+      "target": "proses_pesanan_outbound_service_createshipmentpayload",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
+      "source_location": "L5",
+      "weight": 1.0,
       "confidence_score": 1.0,
       "source": "proses_pesanan_use_fulfillment",
       "target": "proses_pesanan_outbound_service_outboundservice"
@@ -59621,9 +60487,9 @@
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
       "source_location": "L146",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "proses_pesanan_use_fulfillment",
-      "target": "proses_pesanan_use_fulfillment_useassignpacker",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_use_fulfillment_useassignpacker"
     },
     {
       "relation": "contains",
@@ -59639,11 +60505,51 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
+      "source_location": "L192",
+      "weight": 1.0,
+      "source": "proses_pesanan_use_fulfillment",
+      "target": "proses_pesanan_use_fulfillment_usecancelshipment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
+      "source_location": "L75",
+      "weight": 1.0,
+      "source": "proses_pesanan_use_fulfillment",
+      "target": "proses_pesanan_use_fulfillment_usecouriers",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
       "source_location": "L99",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "proses_pesanan_use_fulfillment",
       "target": "proses_pesanan_use_fulfillment_usecreatepicklist"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
+      "source_location": "L175",
+      "weight": 1.0,
+      "source": "proses_pesanan_use_fulfillment",
+      "target": "proses_pesanan_use_fulfillment_usecreateshipment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
+      "source_location": "L184",
+      "weight": 1.0,
+      "source": "proses_pesanan_use_fulfillment",
+      "target": "proses_pesanan_use_fulfillment_usehandovershipment",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -59661,9 +60567,9 @@
       "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
       "source_location": "L98",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "proses_pesanan_use_fulfillment",
-      "target": "proses_pesanan_use_fulfillment_usepackingcounts",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_use_fulfillment_usepackingcounts"
     },
     {
       "relation": "contains",
@@ -59724,6 +60630,16 @@
       "confidence_score": 1.0,
       "source": "proses_pesanan_use_fulfillment",
       "target": "proses_pesanan_use_fulfillment_useshipments"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/hooks/proses-pesanan/use-fulfillment.ts",
+      "source_location": "L200",
+      "weight": 1.0,
+      "source": "proses_pesanan_use_fulfillment",
+      "target": "proses_pesanan_use_fulfillment_useshippingcounts",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -64540,6 +65456,17 @@
       "source_file": "src/services/proses-pesanan/outbound.service.ts",
       "source_location": "L3",
       "weight": 1.0,
+      "source": "proses_pesanan_outbound_service",
+      "target": "proses_pesanan_fulfillment_courier",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/proses-pesanan/outbound.service.ts",
+      "source_location": "L3",
+      "weight": 1.0,
       "confidence_score": 1.0,
       "source": "proses_pesanan_outbound_service",
       "target": "proses_pesanan_fulfillment_fulfillmentlistparams"
@@ -64587,6 +65514,17 @@
       "confidence_score": 1.0,
       "source": "proses_pesanan_outbound_service",
       "target": "proses_pesanan_fulfillment_picklist"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/proses-pesanan/outbound.service.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "proses_pesanan_outbound_service",
+      "target": "proses_pesanan_fulfillment_rawcourier",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -64690,6 +65628,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/services/proses-pesanan/outbound.service.ts",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "proses_pesanan_outbound_service",
+      "target": "proses_pesanan_outbound_service_createshipmentpayload",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/proses-pesanan/outbound.service.ts",
       "source_location": "L79",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -64705,6 +65653,16 @@
       "confidence_score": 1.0,
       "source": "proses_pesanan_outbound_service",
       "target": "proses_pesanan_outbound_service_listresult"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/proses-pesanan/outbound.service.ts",
+      "source_location": "L125",
+      "weight": 1.0,
+      "source": "proses_pesanan_outbound_service",
+      "target": "proses_pesanan_outbound_service_mapcourier",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -64792,9 +65750,9 @@
       "source_file": "src/services/proses-pesanan/outbound.service.ts",
       "source_location": "L131",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "proses_pesanan_outbound_service",
-      "target": "proses_pesanan_outbound_service_paginatormeta",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_outbound_service_paginatormeta"
     },
     {
       "relation": "contains",
@@ -66138,6 +67096,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/proses-pesanan/fulfillment.ts",
+      "source_location": "L297",
+      "weight": 1.0,
+      "source": "proses_pesanan_fulfillment",
+      "target": "proses_pesanan_fulfillment_courier",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types/proses-pesanan/fulfillment.ts",
       "source_location": "L57",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -66190,9 +67158,9 @@
       "source_file": "src/types/proses-pesanan/fulfillment.ts",
       "source_location": "L226",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "proses_pesanan_fulfillment",
-      "target": "proses_pesanan_fulfillment_packlist_status_label",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_fulfillment_packlist_status_label"
     },
     {
       "relation": "contains",
@@ -66200,9 +67168,9 @@
       "source_file": "src/types/proses-pesanan/fulfillment.ts",
       "source_location": "L198",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "proses_pesanan_fulfillment",
-      "target": "proses_pesanan_fulfillment_packliststatus",
-      "confidence_score": 1.0
+      "target": "proses_pesanan_fulfillment_packliststatus"
     },
     {
       "relation": "contains",
@@ -66253,6 +67221,16 @@
       "confidence_score": 1.0,
       "source": "proses_pesanan_fulfillment",
       "target": "proses_pesanan_fulfillment_pickliststatus"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types/proses-pesanan/fulfillment.ts",
+      "source_location": "L288",
+      "weight": 1.0,
+      "source": "proses_pesanan_fulfillment",
+      "target": "proses_pesanan_fulfillment_rawcourier",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -66333,6 +67311,46 @@
       "confidence_score": 1.0,
       "source": "proses_pesanan_fulfillment",
       "target": "proses_pesanan_fulfillment_shipment"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types/proses-pesanan/fulfillment.ts",
+      "source_location": "L279",
+      "weight": 1.0,
+      "source": "proses_pesanan_fulfillment",
+      "target": "proses_pesanan_fulfillment_shipment_status_label",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types/proses-pesanan/fulfillment.ts",
+      "source_location": "L243",
+      "weight": 1.0,
+      "source": "proses_pesanan_fulfillment",
+      "target": "proses_pesanan_fulfillment_shipment_types",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types/proses-pesanan/fulfillment.ts",
+      "source_location": "L234",
+      "weight": 1.0,
+      "source": "proses_pesanan_fulfillment",
+      "target": "proses_pesanan_fulfillment_shipmentstatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types/proses-pesanan/fulfillment.ts",
+      "source_location": "L241",
+      "weight": 1.0,
+      "source": "proses_pesanan_fulfillment",
+      "target": "proses_pesanan_fulfillment_shipmenttype",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -67397,5 +68415,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "7baf0b27dfeb7836e3299a87a3e5b9b5ebfb0c1b"
+  "built_at_commit": "5ae583578594d202bc810f68bd7e335ca7ba2b0f"
 }

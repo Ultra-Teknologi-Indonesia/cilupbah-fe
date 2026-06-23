@@ -1520,8 +1520,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/proses-pesanan-view.tsx": {
-    "mtime": 1782178942.767618,
-    "ast_hash": "15a60e6c9078ea02873e25c0be04723f",
+    "mtime": 1782179531.0512424,
+    "ast_hash": "08fccdc9a120dc39035e25cd2834e6ae",
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/stage-tabs.tsx": {
@@ -1600,8 +1600,8 @@
     "semantic_hash": ""
   },
   "src/hooks/proses-pesanan/use-fulfillment.ts": {
-    "mtime": 1782178878.2256842,
-    "ast_hash": "2d0b8fb491b4ccbaa1a6e9edb3312266",
+    "mtime": 1782179381.5819304,
+    "ast_hash": "941940261eb4120a5661fc2fbc30b8fd",
     "semantic_hash": ""
   },
   "src/services/kategori-merek/brand.service.ts": {
@@ -1635,8 +1635,8 @@
     "semantic_hash": ""
   },
   "src/services/proses-pesanan/outbound.service.ts": {
-    "mtime": 1782178868.3212497,
-    "ast_hash": "de54fe375bba7c1f17c1315f58ba78d1",
+    "mtime": 1782179355.8382194,
+    "ast_hash": "71c9b9a2223841cdbf6e6a63f7d374c2",
     "semantic_hash": ""
   },
   "src/types/kategori-merek/brand.ts": {
@@ -1655,8 +1655,8 @@
     "semantic_hash": ""
   },
   "src/types/proses-pesanan/fulfillment.ts": {
-    "mtime": 1782178843.9474597,
-    "ast_hash": "04469bf1c6978b1a0f21ad8f8eca4b54",
+    "mtime": 1782179309.382314,
+    "ast_hash": "fdb6c013ab12efd540bb165efea438d0",
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/channel-badge.tsx": {
@@ -1670,8 +1670,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/picking/doc-actions.ts": {
-    "mtime": 1782178368.0362794,
-    "ast_hash": "5c710e43c91bc9e498bcbfee98e3d6b6",
+    "mtime": 1782179406.365192,
+    "ast_hash": "5a7caebd29c7240ad25895abd831761a",
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/picking/picklist-table.tsx": {
@@ -1700,8 +1700,18 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx": {
-    "mtime": 1782178749.2786264,
-    "ast_hash": "1613f5a0e8965ab4788aefc539c795a2",
+    "mtime": 1782179506.4475875,
+    "ast_hash": "36d71d2bc86ba581e4cb4cc1af3bd4af",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx": {
+    "mtime": 1782179431.9522228,
+    "ast_hash": "5c7bd201fdfbba65112af9a339800b4a",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx": {
+    "mtime": 1782179462.3410933,
+    "ast_hash": "be16f462974ecfdf762790478d0d6378",
     "semantic_hash": ""
   }
 }
