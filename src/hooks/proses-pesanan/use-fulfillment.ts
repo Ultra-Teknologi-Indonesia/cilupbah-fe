@@ -95,6 +95,31 @@ export function usePickingCounts() {
   }
 }
 
+export function usePackingCounts() {
+  const belum = useQuery({
+    queryKey: fulfillmentKeys.count("packing-belum"),
+    queryFn: () =>
+      OutboundService.ordersByStage("finish-pick", { per_page: 1 }).then((r) => r.meta.total),
+    staleTime: STALE,
+  })
+  const diproses = useQuery({
+    queryKey: fulfillmentKeys.count("packing-diproses"),
+    queryFn: () => OutboundService.packlists({ per_page: 1 }).then((r) => r.meta.total),
+    staleTime: STALE,
+  })
+  const selesai = useQuery({
+    queryKey: fulfillmentKeys.count("packing-selesai"),
+    queryFn: () =>
+      OutboundService.ordersByStage("finish-pack", { per_page: 1 }).then((r) => r.meta.total),
+    staleTime: STALE,
+  })
+  return {
+    belum: belum.data,
+    diproses: diproses.data,
+    selesai: selesai.data,
+  }
+}
+
 // ── Mutations ────────────────────────────────────────────────────────────────
 export function useCreatePicklist() {
   const qc = useQueryClient()
@@ -114,6 +139,15 @@ export function useAssignPicker() {
   return useMutation({
     mutationFn: ({ picklistId, pickerId }: { picklistId: string; pickerId: string }) =>
       OutboundService.assignPicker(picklistId, pickerId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+  })
+}
+
+export function useAssignPacker() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ packlistId, packerId }: { packlistId: string; packerId: string }) =>
+      OutboundService.assignPacker(packlistId, packerId),
     onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
   })
 }

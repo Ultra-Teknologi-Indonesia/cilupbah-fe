@@ -194,23 +194,40 @@ export interface ReadyToShipResult {
   message: string | null
 }
 
-// ── Packlist & Shipment (fondasi untuk fase berikutnya) ──────────────────────
+// ── Packlist (per-order; envelope {success, data: paginator}) ────────────────
+export type PacklistStatus = "DRAFT" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED"
+
 export interface RawPacklist {
   id: string
   packlist_no: string
-  location?: { location_name?: string | null } | null
-  packer?: { name?: string | null } | null
+  location_id?: string | null
+  packer_id?: string | null
+  order_id?: string | null
   status?: string | null
-  items_count?: number
+  package_count?: number
+  location?: { id: string; location_name?: string | null } | null
+  packer?: { id: string; name?: string | null; email?: string | null } | null
+  order?: { id: string; salesorder_no?: string | null; customer_name?: string | null } | null
 }
 
 export interface Packlist {
   id: string
   packlistNo: string
+  locationId: string | null
   locationName: string | null
+  packerId: string | null
   packerName: string | null
-  status: string | null
-  itemsCount: number
+  orderNo: string | null
+  customerName: string | null
+  status: PacklistStatus
+  packageCount: number
+}
+
+export const PACKLIST_STATUS_LABEL: Record<PacklistStatus, { label: string; className: string }> = {
+  DRAFT: { label: "Draft", className: "bg-muted text-muted-foreground" },
+  IN_PROGRESS: { label: "Diproses", className: "bg-blue-500/10 text-blue-600" },
+  COMPLETED: { label: "Selesai", className: "bg-emerald-500/10 text-emerald-600" },
+  CANCELLED: { label: "Dibatalkan", className: "bg-muted text-muted-foreground" },
 }
 
 export interface RawShipment {

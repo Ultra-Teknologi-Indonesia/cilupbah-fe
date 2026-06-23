@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react"
 
 import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { usePickingCounts } from "@/hooks/proses-pesanan/use-fulfillment"
+import { usePackingCounts, usePickingCounts } from "@/hooks/proses-pesanan/use-fulfillment"
 import {
   STAGE_CONFIG,
   defaultSubFor,
@@ -13,8 +13,20 @@ import {
 
 import { StageTabs } from "./stage-tabs"
 import { SubStatusPills } from "./sub-status-pills"
-import { PickingOrdersTable } from "./picking/picking-orders-table"
+import { FulfillmentOrdersTable, ORDER_ACTION_PRESET } from "./shared/fulfillment-orders-table"
 import { PicklistTable } from "./picking/picklist-table"
+import { PacklistTable } from "./packing/packlist-table"
+
+function ComingSoon({ label }: { label: string }) {
+  return (
+    <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
+      <div className="px-4 py-16 text-center text-sm text-muted-foreground sm:px-5">
+        Tahap <span className="font-medium text-foreground">{label}</span> — akan tersedia pada
+        fase berikutnya.
+      </div>
+    </LiquidGlass>
+  )
+}
 
 export function ProsesPesananView() {
   const [stage, setStage] = useState<FulfillmentStage>("picking")
@@ -22,23 +34,34 @@ export function ProsesPesananView() {
 
   const subs = useMemo(() => stageConfig(stage)?.subs ?? [], [stage])
   const pickingCounts = usePickingCounts()
+  const packingCounts = usePackingCounts()
 
   const handleStageChange = useCallback((s: FulfillmentStage) => {
     setStage(s)
     setSub(defaultSubFor(s))
   }, [])
 
-  const isPicking = stage === "picking"
-  const countsMap = isPicking
-    ? {
-        belum: pickingCounts.belum,
-        diproses: pickingCounts.diproses,
-        selesai: pickingCounts.selesai,
-      }
-    : undefined
+  const countsMap =
+    stage === "picking" ? pickingCounts : stage === "packing" ? packingCounts : undefined
 
   const stageLabel = STAGE_CONFIG.find((s) => s.key === stage)?.label ?? ""
   const subLabel = subs.find((s) => s.key === sub)?.label
+
+  function renderContent() {
+    if (stage === "picking") {
+      if (sub === "belum")
+        return <FulfillmentOrdersTable stage="ready-to-process" actions={ORDER_ACTION_PRESET.pickingBelum} />
+      if (sub === "diproses") return <PicklistTable />
+      return <FulfillmentOrdersTable stage="finish-pick" actions={ORDER_ACTION_PRESET.docSet} />
+    }
+    if (stage === "packing") {
+      if (sub === "belum")
+        return <FulfillmentOrdersTable stage="finish-pick" actions={ORDER_ACTION_PRESET.docSet} />
+      if (sub === "diproses") return <PacklistTable />
+      return <FulfillmentOrdersTable stage="finish-pack" actions={ORDER_ACTION_PRESET.docSet} />
+    }
+    return <ComingSoon label={`${stageLabel}${subLabel ? ` · ${subLabel}` : ""}`} />
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -48,24 +71,7 @@ export function ProsesPesananView() {
         <SubStatusPills subs={subs} active={sub} onChange={setSub} counts={countsMap} />
       )}
 
-      {isPicking ? (
-        sub === "diproses" ? (
-          <PicklistTable />
-        ) : (
-          <PickingOrdersTable sub={(sub as "belum" | "selesai") ?? "belum"} />
-        )
-      ) : (
-        <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
-          <div className="px-4 py-16 text-center text-sm text-muted-foreground sm:px-5">
-            Tahap{" "}
-            <span className="font-medium text-foreground">
-              {stageLabel}
-              {subLabel ? ` · ${subLabel}` : ""}
-            </span>{" "}
-            — akan tersedia pada fase berikutnya.
-          </div>
-        </LiquidGlass>
-      )}
+      {renderContent()}
     </div>
   )
 }

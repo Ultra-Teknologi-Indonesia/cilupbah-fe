@@ -25,11 +25,21 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { useOrdersByStage, useReadyToShip } from "@/hooks/proses-pesanan/use-fulfillment"
-import { PICKING_ORDER_STAGE, type FulfillmentOrder } from "@/types/proses-pesanan/fulfillment"
+import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment"
 
 import { ChannelBadge, OrderStatusBadge } from "../channel-badge"
-import { BuatPicklistDialog } from "./buat-picklist-dialog"
-import { DocActions } from "./doc-actions"
+import { BuatPicklistDialog } from "../picking/buat-picklist-dialog"
+import { DocActions } from "../picking/doc-actions"
+
+export interface OrderTableActions {
+  buatPicklist?: boolean
+  cetakLabel?: boolean
+  cetakPicklist?: boolean
+  cetakFaktur?: boolean
+  fakturLabel?: boolean
+  suratJalan?: boolean
+  siapDikirim?: boolean
+}
 
 function formatDate(iso: string | null): string {
   if (!iso) return "—"
@@ -38,14 +48,28 @@ function formatDate(iso: string | null): string {
   return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
 }
 
-export function PickingOrdersTable({ sub }: { sub: "belum" | "selesai" }) {
-  const stage = sub === "belum" ? PICKING_ORDER_STAGE.belum : PICKING_ORDER_STAGE.selesai
-
+export function FulfillmentOrdersTable({
+  stage,
+  actions,
+  searchPlaceholder = "Cari no. pesanan…",
+}: {
+  stage: string
+  actions: OrderTableActions
+  searchPlaceholder?: string
+}) {
   const [search, setSearch] = React.useState("")
   const [debounced, setDebounced] = React.useState("")
   const [page, setPage] = React.useState(1)
   const [selected, setSelected] = React.useState<Set<string>>(new Set())
   const [picklistOpen, setPicklistOpen] = React.useState(false)
+
+  // Reset saat stage berubah (pindah sub/tahap).
+  React.useEffect(() => {
+    setSelected(new Set())
+    setPage(1)
+    setSearch("")
+    setDebounced("")
+  }, [stage])
 
   React.useEffect(() => {
     const t = setTimeout(() => setDebounced(search.trim()), 350)
@@ -68,11 +92,7 @@ export function PickingOrdersTable({ sub }: { sub: "belum" | "selesai" }) {
   const selectedIds = React.useMemo(() => Array.from(selected), [selected])
 
   const clearSelection = () => setSelected(new Set())
-
-  const toggleAll = () => {
-    if (allSelected) clearSelection()
-    else setSelected(new Set(pageIds))
-  }
+  const toggleAll = () => (allSelected ? clearSelection() : setSelected(new Set(pageIds)))
   const toggleOne = (id: string) =>
     setSelected((prev) => {
       const next = new Set(prev)
@@ -81,7 +101,6 @@ export function PickingOrdersTable({ sub }: { sub: "belum" | "selesai" }) {
       return next
     })
 
-  // Lokasi untuk Buat Picklist (harus satu lokasi).
   const selectedOrders = orders.filter((o) => selected.has(o.id))
   const distinctLocations = Array.from(
     new Set(selectedOrders.map((o) => o.locationId).filter(Boolean))
@@ -125,36 +144,43 @@ export function PickingOrdersTable({ sub }: { sub: "belum" | "selesai" }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-52">
-        {sub === "selesai" && (
-          <>
-            <DropdownMenuItem onSelect={() => DocActions.invoice([o.id])}>
-              Cetak Faktur
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => DocActions.invoiceAndLabel([o.id])}>
-              Cetak Faktur & Label
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => DocActions.suratJalanAndInvoice([o.id])}>
-              Surat Jalan + Faktur
-            </DropdownMenuItem>
-          </>
+        {actions.cetakFaktur && (
+          <DropdownMenuItem onSelect={() => DocActions.invoice([o.id])}>
+            Cetak Faktur
+          </DropdownMenuItem>
         )}
-        <DropdownMenuItem onSelect={() => DocActions.shippingLabel([o.id])}>
-          Cetak Label Pengiriman
-        </DropdownMenuItem>
-        {sub === "belum" && (
+        {actions.cetakLabel && (
+          <DropdownMenuItem onSelect={() => DocActions.shippingLabel([o.id])}>
+            Cetak Label Pengiriman
+          </DropdownMenuItem>
+        )}
+        {actions.fakturLabel && (
+          <DropdownMenuItem onSelect={() => DocActions.invoiceAndLabel([o.id])}>
+            Cetak Faktur & Label
+          </DropdownMenuItem>
+        )}
+        {actions.suratJalan && (
+          <DropdownMenuItem onSelect={() => DocActions.suratJalanAndInvoice([o.id])}>
+            Surat Jalan + Faktur
+          </DropdownMenuItem>
+        )}
+        {actions.cetakPicklist && (
           <DropdownMenuItem onSelect={() => DocActions.pickList([o.id])}>
             Cetak Picklist
           </DropdownMenuItem>
         )}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={() => handleShip([o.id])}>Siap Dikirim</DropdownMenuItem>
+        {actions.siapDikirim && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => handleShip([o.id])}>Siap Dikirim</DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )
 
   return (
     <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
-      {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
         <div className="relative w-full max-w-xs">
           <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -164,7 +190,7 @@ export function PickingOrdersTable({ sub }: { sub: "belum" | "selesai" }) {
               setSearch(e.target.value)
               setPage(1)
             }}
-            placeholder="Cari no. pesanan…"
+            placeholder={searchPlaceholder}
             className="pl-9"
           />
         </div>
@@ -183,54 +209,56 @@ export function PickingOrdersTable({ sub }: { sub: "belum" | "selesai" }) {
         </div>
       </div>
 
-      {/* Bulk action bar */}
       {selected.size > 0 && (
         <div className="flex flex-wrap items-center gap-2 border-y border-primary/20 bg-primary/5 px-4 py-2.5 sm:px-5">
           <span className="mr-1 text-sm font-medium">{selected.size} pesanan dipilih</span>
-          {sub === "belum" ? (
-            <>
-              <Button size="sm" variant="primary" onClick={() => setPicklistOpen(true)}>
-                Buat Picklist
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => DocActions.shippingLabel(selectedIds)}>
-                Cetak Label
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => DocActions.pickList(selectedIds)}>
-                Cetak Picklist
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button size="sm" variant="outline" onClick={() => DocActions.invoice(selectedIds)}>
-                Cetak Faktur
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => DocActions.shippingLabel(selectedIds)}>
-                Cetak Label
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => DocActions.invoiceAndLabel(selectedIds)}>
-                Faktur & Label
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => DocActions.suratJalanAndInvoice(selectedIds)}>
-                Surat Jalan + Faktur
-              </Button>
-            </>
+          {actions.buatPicklist && (
+            <Button size="sm" variant="primary" onClick={() => setPicklistOpen(true)}>
+              Buat Picklist
+            </Button>
           )}
-          <Button
-            size="sm"
-            variant="primary"
-            onClick={() => handleShip(selectedIds)}
-            disabled={readyToShip.isPending}
-          >
-            {readyToShip.isPending && <Loader2Icon className="animate-spin" />}
-            Siap Dikirim
-          </Button>
+          {actions.cetakFaktur && (
+            <Button size="sm" variant="outline" onClick={() => DocActions.invoice(selectedIds)}>
+              Cetak Faktur
+            </Button>
+          )}
+          {actions.cetakLabel && (
+            <Button size="sm" variant="outline" onClick={() => DocActions.shippingLabel(selectedIds)}>
+              Cetak Label
+            </Button>
+          )}
+          {actions.cetakPicklist && (
+            <Button size="sm" variant="outline" onClick={() => DocActions.pickList(selectedIds)}>
+              Cetak Picklist
+            </Button>
+          )}
+          {actions.fakturLabel && (
+            <Button size="sm" variant="outline" onClick={() => DocActions.invoiceAndLabel(selectedIds)}>
+              Faktur & Label
+            </Button>
+          )}
+          {actions.suratJalan && (
+            <Button size="sm" variant="outline" onClick={() => DocActions.suratJalanAndInvoice(selectedIds)}>
+              Surat Jalan + Faktur
+            </Button>
+          )}
+          {actions.siapDikirim && (
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => handleShip(selectedIds)}
+              disabled={readyToShip.isPending}
+            >
+              {readyToShip.isPending && <Loader2Icon className="animate-spin" />}
+              Siap Dikirim
+            </Button>
+          )}
           <Button size="sm" variant="ghost" onClick={clearSelection} className="ml-auto">
             Batal
           </Button>
         </div>
       )}
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full min-w-[920px] border-collapse text-sm">
           <thead>
@@ -307,7 +335,6 @@ export function PickingOrdersTable({ sub }: { sub: "belum" | "selesai" }) {
         </table>
       </div>
 
-      {/* Pagination */}
       <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
         <span className="text-xs text-muted-foreground">
           Halaman {meta.current_page} dari {meta.last_page}
@@ -334,15 +361,23 @@ export function PickingOrdersTable({ sub }: { sub: "belum" | "selesai" }) {
         </div>
       </div>
 
-      <BuatPicklistDialog
-        open={picklistOpen}
-        onOpenChange={setPicklistOpen}
-        orderIds={selectedIds}
-        locationId={picklistLocationId}
-        locationName={picklistLocationName}
-        multiLocation={distinctLocations.length > 1}
-        onCreated={clearSelection}
-      />
+      {actions.buatPicklist && (
+        <BuatPicklistDialog
+          open={picklistOpen}
+          onOpenChange={setPicklistOpen}
+          orderIds={selectedIds}
+          locationId={picklistLocationId}
+          locationName={picklistLocationName}
+          multiLocation={distinctLocations.length > 1}
+          onCreated={clearSelection}
+        />
+      )}
     </LiquidGlass>
   )
 }
+
+// Preset aksi per sub-status.
+export const ORDER_ACTION_PRESET = {
+  pickingBelum: { buatPicklist: true, cetakLabel: true, cetakPicklist: true, siapDikirim: true },
+  docSet: { cetakFaktur: true, cetakLabel: true, fakturLabel: true, suratJalan: true, siapDikirim: true },
+} satisfies Record<string, OrderTableActions>

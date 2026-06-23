@@ -84,10 +84,14 @@ function mapPacklist(raw: RawPacklist): Packlist {
   return {
     id: raw.id,
     packlistNo: raw.packlist_no,
+    locationId: raw.location_id ?? raw.location?.id ?? null,
     locationName: raw.location?.location_name ?? null,
+    packerId: raw.packer_id ?? raw.packer?.id ?? null,
     packerName: raw.packer?.name ?? null,
-    status: raw.status ?? null,
-    itemsCount: raw.items_count ?? 0,
+    orderNo: raw.order?.salesorder_no ?? null,
+    customerName: raw.order?.customer_name ?? null,
+    status: (raw.status ?? "DRAFT") as Packlist["status"],
+    packageCount: raw.package_count ?? 1,
   }
 }
 
@@ -115,7 +119,7 @@ function mapShipResult(raw: RawReadyToShipResult): ReadyToShipResult {
   }
 }
 
-// Envelope paginator Laravel (dipakai /outbound/orders/{stage}).
+// Envelope paginator Laravel (dipakai /outbound/orders/{stage} dan /outbound/packlists).
 interface RawPaginator<T> {
   data: T[]
   current_page: number
@@ -124,8 +128,17 @@ interface RawPaginator<T> {
   total: number
 }
 
+function paginatorMeta<T>(p: RawPaginator<T> | undefined, perPage?: number): Meta {
+  return {
+    current_page: p?.current_page ?? 1,
+    last_page: p?.last_page ?? 1,
+    per_page: p?.per_page ?? perPage ?? 20,
+    total: p?.total ?? 0,
+  }
+}
+
 export const OutboundService = {
-  // Order per-stage (belum/selesai picking, dll). Envelope: {success, data: paginator}.
+  // Order per-stage (belum/selesai picking & packing). Envelope: {success, data: paginator}.
   ordersByStage: async (
     stage: string,
     params: FulfillmentListParams
@@ -133,16 +146,7 @@ export const OutboundService = {
     const res = await fetchClient<{ success?: boolean; data: RawPaginator<RawFulfillmentOrder> }>(
       `/outbound/orders/${stage}?${buildQuery(params)}`
     )
-    const p = res.data
-    return {
-      items: (p?.data ?? []).map(mapOrder),
-      meta: {
-        current_page: p?.current_page ?? 1,
-        last_page: p?.last_page ?? 1,
-        per_page: p?.per_page ?? params.per_page ?? 20,
-        total: p?.total ?? 0,
-      },
-    }
+    return { items: (res.data?.data ?? []).map(mapOrder), meta: paginatorMeta(res.data, params.per_page) }
   },
 
   // Picklist. Envelope: {status, message, data[], meta}.
@@ -153,11 +157,12 @@ export const OutboundService = {
     return { items: (res.data ?? []).map(mapPicklist), meta: res.meta ?? FALLBACK_META }
   },
 
+  // Packlist. Envelope: {success, data: paginator}.
   packlists: async (params: FulfillmentListParams): Promise<ListResult<Packlist>> => {
-    const res = await fetchClient<ApiPaginated<RawPacklist>>(
+    const res = await fetchClient<{ success?: boolean; data: RawPaginator<RawPacklist> }>(
       `/outbound/packlists?${buildQuery(params)}`
     )
-    return { items: (res.data ?? []).map(mapPacklist), meta: res.meta ?? FALLBACK_META }
+    return { items: (res.data?.data ?? []).map(mapPacklist), meta: paginatorMeta(res.data, params.per_page) }
   },
 
   shipments: async (params: FulfillmentListParams): Promise<ListResult<Shipment>> => {
@@ -194,6 +199,14 @@ export const OutboundService = {
       { method: "POST", data: { picker_id: pickerId } }
     )
     return mapPicklist(res.data)
+  },
+
+  assignPacker: async (packlistId: string, packerId: string): Promise<Packlist> => {
+    const res = await fetchClient<{ data: RawPacklist }>(
+      `/outbound/packlists/${packlistId}/assign-packer`,
+      { method: "POST", data: { packer_id: packerId } }
+    )
+    return mapPacklist(res.data)
   },
 
   // Omnichannel "Siap Dikirim" — dispatcher BE merutekan per source (Shopee/TikTok/Lazada).
