@@ -72,7 +72,7 @@ function mapOrder(raw: RawFulfillmentOrder): FulfillmentOrder {
     transactionDate: raw.transaction_date ?? null,
     grandTotal: raw.grand_total ?? 0,
     locationId: raw.location_id ?? null,
-    locationName: raw.location_name ?? null,
+    locationName: raw.location_name ?? raw.location?.location_name ?? null,
     trackingNumber: raw.tracking_number ?? null,
     shippingProvider: raw.shipping_provider ?? null,
     totalQty: raw.total_qty ?? null,
