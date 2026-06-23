@@ -1,11 +1,13 @@
 import { fetchClient } from "@/lib/api-client"
 import type { ApiPaginated, ApiResponse } from "@/types/api.types"
 import type {
+  Courier,
   FulfillmentListParams,
   FulfillmentOrder,
   Packlist,
   Picker,
   Picklist,
+  RawCourier,
   RawFulfillmentOrder,
   RawPacklist,
   RawPicker,
@@ -15,6 +17,15 @@ import type {
   ReadyToShipResult,
   Shipment,
 } from "@/types/proses-pesanan/fulfillment"
+
+export interface CreateShipmentPayload {
+  location_id: string
+  courier_name?: string | null
+  courier_code?: string | null
+  shipment_type: string
+  shipment_date: string
+  notes?: string | null
+}
 
 // Proxy FE memetakan /api/app/* -> /api/v1/*. Endpoint outbound diakses lewat
 // prefix "/outbound/...", endpoint dokumen lewat "/reports/...".
@@ -99,9 +110,26 @@ function mapShipment(raw: RawShipment): Shipment {
   return {
     id: raw.id,
     shipmentNo: raw.shipment_no,
+    locationId: raw.location_id ?? raw.location?.id ?? null,
+    locationName: raw.location?.location_name ?? null,
     courierCode: raw.courier_code ?? null,
     courierName: raw.courier_name ?? null,
-    status: raw.status ?? null,
+    shipmentType: raw.shipment_type ?? null,
+    shipmentDate: raw.shipment_date ?? null,
+    status: (raw.status ?? "SCHEDULED") as Shipment["status"],
+    handedOverAt: raw.handed_over_at ?? null,
+    ordersCount: raw.orders_count ?? 0,
+  }
+}
+
+function mapCourier(raw: RawCourier): Courier {
+  return {
+    id: raw.id,
+    name: raw.name ?? raw.code ?? raw.id,
+    code: raw.code ?? null,
+    type: raw.type ?? null,
+    logoUrl: raw.logo_url ?? null,
+    isActive: raw.is_active ?? true,
   }
 }
 
@@ -165,11 +193,18 @@ export const OutboundService = {
     return { items: (res.data?.data ?? []).map(mapPacklist), meta: paginatorMeta(res.data, params.per_page) }
   },
 
+  // Shipment. Envelope: {success, data: paginator}.
   shipments: async (params: FulfillmentListParams): Promise<ListResult<Shipment>> => {
-    const res = await fetchClient<ApiPaginated<RawShipment>>(
+    const res = await fetchClient<{ success?: boolean; data: RawPaginator<RawShipment> }>(
       `/outbound/shipments?${buildQuery(params)}`
     )
-    return { items: (res.data ?? []).map(mapShipment), meta: res.meta ?? FALLBACK_META }
+    return { items: (res.data?.data ?? []).map(mapShipment), meta: paginatorMeta(res.data, params.per_page) }
+  },
+
+  // Courier aktif (untuk pilih kurir saat Buat Pengiriman). Envelope: {success, data: []}.
+  couriersAll: async (): Promise<Courier[]> => {
+    const res = await fetchClient<{ success?: boolean; data: RawCourier[] }>(`/outbound/couriers/all`)
+    return (res.data ?? []).map(mapCourier)
   },
 
   // Daftar picker (warehouse user). Defensif terhadap envelope {status,data} / {success,data}.
@@ -207,6 +242,49 @@ export const OutboundService = {
       { method: "POST", data: { packer_id: packerId } }
     )
     return mapPacklist(res.data)
+  },
+
+  // Buat Pengiriman: header dulu (SCHEDULED), lalu tautkan order (add-orders).
+  createShipmentWithOrders: async (
+    payload: CreateShipmentPayload,
+    orderIds: string[]
+  ): Promise<Shipment> => {
+    const created = await fetchClient<{ data: RawShipment }>(`/outbound/shipments`, {
+      method: "POST",
+      data: payload,
+    })
+    const shipment = mapShipment(created.data)
+    if (orderIds.length) {
+      await fetchClient<{ data: RawShipment }>(`/outbound/shipments/${shipment.id}/add-orders`, {
+        method: "POST",
+        data: { order_ids: orderIds },
+      })
+    }
+    return shipment
+  },
+
+  handOverShipment: async (shipmentId: string): Promise<Shipment> => {
+    const res = await fetchClient<{ data: RawShipment }>(
+      `/outbound/shipments/${shipmentId}/hand-over`,
+      { method: "POST" }
+    )
+    return mapShipment(res.data)
+  },
+
+  cancelShipment: async (shipmentId: string): Promise<Shipment> => {
+    const res = await fetchClient<{ data: RawShipment }>(
+      `/outbound/shipments/${shipmentId}/cancel`,
+      { method: "POST" }
+    )
+    return mapShipment(res.data)
+  },
+
+  // Manifest (envelope berbeda: {status, message, data: {report_type, generated_at, data}}).
+  manifestDoc: async (shipmentId: string): Promise<unknown> => {
+    const res = await fetchClient<ApiResponse<unknown>>(
+      `/reports/wms/shipping-manifest?id=${encodeURIComponent(shipmentId)}`
+    )
+    return res.data
   },
 
   // Omnichannel "Siap Dikirim" — dispatcher BE merutekan per source (Shopee/TikTok/Lazada).

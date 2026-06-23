@@ -2,7 +2,10 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
-import { OutboundService } from "@/services/proses-pesanan/outbound.service"
+import {
+  OutboundService,
+  type CreateShipmentPayload,
+} from "@/services/proses-pesanan/outbound.service"
 import type { FulfillmentListParams } from "@/types/proses-pesanan/fulfillment"
 
 const STALE = 30_000
@@ -65,6 +68,15 @@ export function usePickers(locationId?: string, enabled = true) {
     queryKey: fulfillmentKeys.pickers(locationId),
     queryFn: () => OutboundService.pickers(locationId),
     staleTime: 60_000,
+    enabled,
+  })
+}
+
+export function useCouriers(enabled = true) {
+  return useQuery({
+    queryKey: [...all, "couriers"],
+    queryFn: () => OutboundService.couriersAll(),
+    staleTime: 5 * 60_000,
     enabled,
   })
 }
@@ -158,4 +170,45 @@ export function useReadyToShip() {
     mutationFn: (orderIds: string[]) => OutboundService.readyToShip(orderIds),
     onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
   })
+}
+
+export function useCreateShipment() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ payload, orderIds }: { payload: CreateShipmentPayload; orderIds: string[] }) =>
+      OutboundService.createShipmentWithOrders(payload, orderIds),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+  })
+}
+
+export function useHandOverShipment() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (shipmentId: string) => OutboundService.handOverShipment(shipmentId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+  })
+}
+
+export function useCancelShipment() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (shipmentId: string) => OutboundService.cancelShipment(shipmentId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+  })
+}
+
+export function useShippingCounts() {
+  const siapKirim = useQuery({
+    queryKey: fulfillmentKeys.count("shipping-siap-kirim"),
+    queryFn: () =>
+      OutboundService.ordersByStage("finish-pack", { per_page: 1 }).then((r) => r.meta.total),
+    staleTime: STALE,
+  })
+  const jadwal = useQuery({
+    queryKey: fulfillmentKeys.count("shipping-jadwal"),
+    queryFn: () =>
+      OutboundService.shipments({ status: "SCHEDULED", per_page: 1 }).then((r) => r.meta.total),
+    staleTime: STALE,
+  })
+  return { "siap-kirim": siapKirim.data, jadwal: jadwal.data }
 }

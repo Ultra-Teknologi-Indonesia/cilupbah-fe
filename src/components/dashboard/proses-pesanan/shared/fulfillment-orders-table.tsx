@@ -29,10 +29,12 @@ import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment"
 
 import { ChannelBadge, OrderStatusBadge } from "../channel-badge"
 import { BuatPicklistDialog } from "../picking/buat-picklist-dialog"
+import { BuatPengirimanDialog } from "../shipping/buat-pengiriman-dialog"
 import { DocActions } from "../picking/doc-actions"
 
 export interface OrderTableActions {
   buatPicklist?: boolean
+  buatPengiriman?: boolean
   cetakLabel?: boolean
   cetakPicklist?: boolean
   cetakFaktur?: boolean
@@ -62,6 +64,7 @@ export function FulfillmentOrdersTable({
   const [page, setPage] = React.useState(1)
   const [selected, setSelected] = React.useState<Set<string>>(new Set())
   const [picklistOpen, setPicklistOpen] = React.useState(false)
+  const [pengirimanOpen, setPengirimanOpen] = React.useState(false)
 
   // Reset saat stage berubah (pindah sub/tahap).
   React.useEffect(() => {
@@ -215,6 +218,11 @@ export function FulfillmentOrdersTable({
           {actions.buatPicklist && (
             <Button size="sm" variant="primary" onClick={() => setPicklistOpen(true)}>
               Buat Picklist
+            </Button>
+          )}
+          {actions.buatPengiriman && (
+            <Button size="sm" variant="primary" onClick={() => setPengirimanOpen(true)}>
+              Buat Pengiriman
             </Button>
           )}
           {actions.cetakFaktur && (
@@ -372,6 +380,18 @@ export function FulfillmentOrdersTable({
           onCreated={clearSelection}
         />
       )}
+
+      {actions.buatPengiriman && (
+        <BuatPengirimanDialog
+          open={pengirimanOpen}
+          onOpenChange={setPengirimanOpen}
+          orderIds={selectedIds}
+          locationId={picklistLocationId}
+          locationName={picklistLocationName}
+          multiLocation={distinctLocations.length > 1}
+          onCreated={clearSelection}
+        />
+      )}
     </LiquidGlass>
   )
 }
@@ -380,4 +400,5 @@ export function FulfillmentOrdersTable({
 export const ORDER_ACTION_PRESET = {
   pickingBelum: { buatPicklist: true, cetakLabel: true, cetakPicklist: true, siapDikirim: true },
   docSet: { cetakFaktur: true, cetakLabel: true, fakturLabel: true, suratJalan: true, siapDikirim: true },
+  shippingSiapKirim: { buatPengiriman: true, cetakLabel: true, cetakFaktur: true },
 } satisfies Record<string, OrderTableActions>

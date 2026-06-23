@@ -3,7 +3,11 @@
 import { useCallback, useMemo, useState } from "react"
 
 import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { usePackingCounts, usePickingCounts } from "@/hooks/proses-pesanan/use-fulfillment"
+import {
+  usePackingCounts,
+  usePickingCounts,
+  useShippingCounts,
+} from "@/hooks/proses-pesanan/use-fulfillment"
 import {
   STAGE_CONFIG,
   defaultSubFor,
@@ -16,6 +20,7 @@ import { SubStatusPills } from "./sub-status-pills"
 import { FulfillmentOrdersTable, ORDER_ACTION_PRESET } from "./shared/fulfillment-orders-table"
 import { PicklistTable } from "./picking/picklist-table"
 import { PacklistTable } from "./packing/packlist-table"
+import { ShipmentTable } from "./shipping/shipment-table"
 
 function ComingSoon({ label }: { label: string }) {
   return (
@@ -35,6 +40,7 @@ export function ProsesPesananView() {
   const subs = useMemo(() => stageConfig(stage)?.subs ?? [], [stage])
   const pickingCounts = usePickingCounts()
   const packingCounts = usePackingCounts()
+  const shippingCounts = useShippingCounts()
 
   const handleStageChange = useCallback((s: FulfillmentStage) => {
     setStage(s)
@@ -42,7 +48,13 @@ export function ProsesPesananView() {
   }, [])
 
   const countsMap =
-    stage === "picking" ? pickingCounts : stage === "packing" ? packingCounts : undefined
+    stage === "picking"
+      ? pickingCounts
+      : stage === "packing"
+        ? packingCounts
+        : stage === "shipping"
+          ? shippingCounts
+          : undefined
 
   const stageLabel = STAGE_CONFIG.find((s) => s.key === stage)?.label ?? ""
   const subLabel = subs.find((s) => s.key === sub)?.label
@@ -60,6 +72,10 @@ export function ProsesPesananView() {
       if (sub === "diproses") return <PacklistTable />
       return <FulfillmentOrdersTable stage="finish-pack" actions={ORDER_ACTION_PRESET.docSet} />
     }
+    if (stage === "shipping") {
+      if (sub === "jadwal") return <ShipmentTable />
+      return <FulfillmentOrdersTable stage="finish-pack" actions={ORDER_ACTION_PRESET.shippingSiapKirim} />
+    }
     return <ComingSoon label={`${stageLabel}${subLabel ? ` · ${subLabel}` : ""}`} />
   }
 
@@ -71,7 +87,7 @@ export function ProsesPesananView() {
         <SubStatusPills subs={subs} active={sub} onChange={setSub} counts={countsMap} />
       )}
 
-      {renderContent()}
+      <div key={`${stage}-${sub}`}>{renderContent()}</div>
     </div>
   )
 }

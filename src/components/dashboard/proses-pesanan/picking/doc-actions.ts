@@ -38,6 +38,8 @@ export const DocActions = {
     run("Faktur", "Menyiapkan faktur…", () => OutboundService.invoiceDoc(ids)),
   suratJalan: (ids: string[]) =>
     run("Surat Jalan", "Menyiapkan surat jalan…", () => OutboundService.suratJalanDoc(ids)),
+  manifest: (shipmentId: string) =>
+    run("Manifest Pengiriman", "Menyiapkan manifest…", () => OutboundService.manifestDoc(shipmentId)),
   invoiceAndLabel: async (ids: string[]) => {
     await DocActions.invoice(ids)
     await DocActions.shippingLabel(ids)

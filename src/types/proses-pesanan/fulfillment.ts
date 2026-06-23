@@ -230,18 +230,75 @@ export const PACKLIST_STATUS_LABEL: Record<PacklistStatus, { label: string; clas
   CANCELLED: { label: "Dibatalkan", className: "bg-muted text-muted-foreground" },
 }
 
+// ── Shipment (envelope {success, data: paginator}) ───────────────────────────
+export type ShipmentStatus =
+  | "SCHEDULED"
+  | "HANDED_OVER"
+  | "IN_TRANSIT"
+  | "DELIVERED"
+  | "CANCELLED"
+
+export type ShipmentType = "REGULAR" | "EXPRESS" | "SAME_DAY" | "CARGO" | "INSTANT"
+
+export const SHIPMENT_TYPES: { value: ShipmentType; label: string }[] = [
+  { value: "REGULAR", label: "Reguler" },
+  { value: "EXPRESS", label: "Express" },
+  { value: "SAME_DAY", label: "Same Day" },
+  { value: "CARGO", label: "Cargo" },
+  { value: "INSTANT", label: "Instant" },
+]
+
 export interface RawShipment {
   id: string
   shipment_no: string
+  location_id?: string | null
+  location?: { id: string; location_name?: string | null } | null
   courier_code?: string | null
   courier_name?: string | null
+  shipment_type?: string | null
+  shipment_date?: string | null
   status?: string | null
+  handed_over_at?: string | null
+  orders_count?: number
 }
 
 export interface Shipment {
   id: string
   shipmentNo: string
+  locationId: string | null
+  locationName: string | null
   courierCode: string | null
   courierName: string | null
-  status: string | null
+  shipmentType: string | null
+  shipmentDate: string | null
+  status: ShipmentStatus
+  handedOverAt: string | null
+  ordersCount: number
+}
+
+export const SHIPMENT_STATUS_LABEL: Record<ShipmentStatus, { label: string; className: string }> = {
+  SCHEDULED: { label: "Terjadwal", className: "bg-blue-500/10 text-blue-600" },
+  HANDED_OVER: { label: "Diserahkan", className: "bg-amber-500/10 text-amber-600" },
+  IN_TRANSIT: { label: "Dikirim", className: "bg-indigo-500/10 text-indigo-600" },
+  DELIVERED: { label: "Terkirim", className: "bg-emerald-500/10 text-emerald-600" },
+  CANCELLED: { label: "Dibatalkan", className: "bg-muted text-muted-foreground" },
+}
+
+// ── Courier ──────────────────────────────────────────────────────────────────
+export interface RawCourier {
+  id: string
+  name?: string | null
+  code?: string | null
+  type?: string | null
+  logo_url?: string | null
+  is_active?: boolean
+}
+
+export interface Courier {
+  id: string
+  name: string
+  code: string | null
+  type: string | null
+  logoUrl: string | null
+  isActive: boolean
 }
