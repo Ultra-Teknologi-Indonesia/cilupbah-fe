@@ -171,6 +171,17 @@ function OrderCard({
         <span className="text-border select-none">|</span>
         <ChannelIcon source={order.source} />
 
+        {order.isCod && (
+          <Badge variant="outline" className="border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[10px] px-1.5 py-0">
+            COD
+          </Badge>
+        )}
+        {order.priorityFulfillment && (
+          <Badge variant="outline" className="border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-400 text-[10px] px-1.5 py-0">
+            Prioritas
+          </Badge>
+        )}
+
         <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
             <UserIcon className="h-3.5 w-3.5" />

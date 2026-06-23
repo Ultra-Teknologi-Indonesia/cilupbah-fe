@@ -89,6 +89,7 @@ export interface RawFulfillmentOrder {
   id: string
   salesorder_no: string
   channel_order_no?: string | null
+  channel_buyer_id?: string | null
   customer_name?: string | null
   shipping_full_name?: string | null
   source?: string | null
@@ -96,11 +97,23 @@ export interface RawFulfillmentOrder {
   is_paid?: boolean
   transaction_date?: string | null
   grand_total?: number | null
+  actual_shipping_fee?: number | null
+  order_weight_gram?: number | null
   location_id?: string | null
   location_name?: string | null
   location?: { id: string; location_name: string; location_code: string } | null
   tracking_number?: string | null
   shipping_provider?: string | null
+  is_cod?: boolean
+  priority_fulfillment?: boolean
+  is_split_order?: boolean
+  cancel_by?: string | null
+  fulfillment_flag?: string | null
+  days_to_ship?: number | null
+  ship_by_date?: string | null
+  pickup_done_time?: string | null
+  dropshipper_name?: string | null
+  dropshipper_phone?: string | null
   total_qty?: number | null
   total_sku?: number | null
   items?: RawFulfillmentOrderItem[] | null
@@ -118,16 +131,29 @@ export interface FulfillmentOrder {
   id: string
   salesorderNo: string
   channelOrderNo: string | null
+  channelBuyerId: string | null
   customerName: string | null
   source: string | null
   status: string | null
   isPaid: boolean
   transactionDate: string | null
   grandTotal: number
+  actualShippingFee: number | null
+  orderWeightGram: number | null
   locationId: string | null
   locationName: string | null
   trackingNumber: string | null
   shippingProvider: string | null
+  isCod: boolean
+  priorityFulfillment: boolean
+  isSplitOrder: boolean
+  cancelBy: string | null
+  fulfillmentFlag: string | null
+  daysToShip: number | null
+  shipByDate: string | null
+  pickupDoneTime: string | null
+  dropshipperName: string | null
+  dropshipperPhone: string | null
   totalQty: number | null
   totalSku: number | null
   items: FulfillmentOrderItem[]
