@@ -1,8 +1,12 @@
+"use client"
+
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { LocationService } from "@/services/manajemen-rak/location.service"
+import { locationKeys } from "@/hooks/manajemen-rak/use-locations"
 
 interface BulkUpdateBin {
   id: string
+  bin_final_code: string
   max_qty: number
   is_stock_acknowledged: boolean
   is_large_bin: boolean
@@ -19,7 +23,7 @@ export function useBulkUpdateBins(locationId?: string) {
     },
     onSuccess: () => {
       if (locationId) {
-        qc.invalidateQueries({ queryKey: ["location", locationId] })
+        qc.invalidateQueries({ queryKey: locationKeys.detail(locationId) })
       }
     },
   })

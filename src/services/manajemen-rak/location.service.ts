@@ -99,6 +99,7 @@ export const LocationService = {
     locationId: string,
     bins: {
       id: string
+      bin_final_code: string
       max_qty: number
       is_stock_acknowledged: boolean
       is_large_bin: boolean

@@ -153,6 +153,10 @@ export interface BinPreviewItem {
   category: string
 }
 
+// Bin di tabel Layout Gudang. `id` = id bin di BE (ada bila bin sudah
+// tersimpan); undefined untuk bin baru hasil generate yang belum disimpan.
+export type BinDraft = BinPreviewItem & { id?: string }
+
 export interface LocationListParams {
   search?: string
   page?: number

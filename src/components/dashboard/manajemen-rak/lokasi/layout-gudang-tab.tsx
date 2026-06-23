@@ -23,7 +23,7 @@ import {
   binCombinationCount,
   MAX_BIN_COMBINATIONS,
 } from "@/lib/manajemen-rak/bin-preview"
-import type { BinPreviewItem, GenerateBinsPayload } from "@/types/manajemen-rak/location"
+import type { BinDraft, BinPreviewItem, GenerateBinsPayload } from "@/types/manajemen-rak/location"
 
 interface DimensionRowProps {
   label: string
@@ -370,29 +370,40 @@ function WarehouseVisual({ floors, rows, columns, bins }: WarehouseVisualProps) 
   )
 }
 
-// Identitas baris stabil, terpisah dari binFinalCode agar kode rak bisa diedit
-// tanpa merusak pemetaan update/hapus/pilih.
-type BinRow = BinPreviewItem & { id: string }
+// Identitas baris stabil (`id`, untuk React key & pemetaan update/hapus/pilih),
+// terpisah dari `binFinalCode` agar kode rak bisa diedit tanpa merusaknya.
+// `binId` = id bin di BE (ada bila bin sudah tersimpan) untuk keperluan simpan.
+type BinRow = BinPreviewItem & { id: string; binId?: string }
 
 let binRowSeq = 0
-function withId(item: BinPreviewItem): BinRow {
-  const id =
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
-      : `bin-${Date.now()}-${binRowSeq++}`
-  return { ...item, id }
+function clientId(): string {
+  return typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `bin-${Date.now()}-${binRowSeq++}`
+}
+
+function toRow(item: BinDraft): BinRow {
+  return { ...item, id: clientId(), binId: item.id }
+}
+
+function toDraft(row: BinRow): BinDraft {
+  const { id: _clientId, binId, ...rest } = row
+  return { ...rest, id: binId }
 }
 
 interface LayoutGudangTabProps {
   disabled?: boolean
-  initialBins?: BinPreviewItem[]
+  initialBins?: BinDraft[]
   onApply: (payload: GenerateBinsPayload | null) => void
+  // Dipanggil tiap daftar rak berubah agar parent bisa menyimpan via bulk-update.
+  onBinsChange?: (bins: BinDraft[]) => void
 }
 
 export function LayoutGudangTab({
   disabled = false,
   initialBins,
   onApply,
+  onBinsChange,
 }: LayoutGudangTabProps) {
   const [floorCode, setFloorCode] = React.useState("L")
   const [rowCode, setRowCode] = React.useState("B")
@@ -404,11 +415,18 @@ export function LayoutGudangTab({
   const [qtyBin, setQtyBin] = React.useState("")
 
   const [bins, setBins] = React.useState<BinRow[]>(() =>
-    (initialBins ?? []).map(withId)
+    (initialBins ?? []).map(toRow)
   )
   const [search, setSearch] = React.useState("")
   const [selected, setSelected] = React.useState<Set<string>>(new Set())
   const [uniformOpen, setUniformOpen] = React.useState(false)
+
+  // Sinkronkan daftar rak ke parent tanpa memicu render (disimpan via ref di parent).
+  const onBinsChangeRef = React.useRef(onBinsChange)
+  onBinsChangeRef.current = onBinsChange
+  React.useEffect(() => {
+    onBinsChangeRef.current?.(bins.map(toDraft))
+  }, [bins])
 
   function handleGenerate() {
     const payload: GenerateBinsPayload = {
@@ -440,7 +458,7 @@ export function LayoutGudangTab({
       return
     }
 
-    const generated = buildBinPreview(payload).map(withId)
+    const generated = buildBinPreview(payload).map(toRow)
     setBins(generated)
     setSelected(new Set())
     onApply(payload)

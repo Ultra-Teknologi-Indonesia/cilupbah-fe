@@ -20,9 +20,10 @@ import { useLocationDetail } from "@/hooks/manajemen-rak/use-location-detail"
 import { useCreateLocation } from "@/hooks/manajemen-rak/use-create-location"
 import { useUpdateLocation } from "@/hooks/manajemen-rak/use-update-location"
 import { useGenerateBins } from "@/hooks/manajemen-rak/use-generate-bins"
+import { useBulkUpdateBins } from "@/hooks/manajemen-rak/use-bulk-update-bins"
 import { useWarehouseLayoutSetting } from "@/hooks/manajemen-rak/use-warehouse-layout-setting"
 import type {
-  BinPreviewItem,
+  BinDraft,
   GenerateBinsPayload,
   Location,
   LocationPayload,
