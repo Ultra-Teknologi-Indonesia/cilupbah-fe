@@ -97,6 +97,7 @@ export interface RawFulfillmentOrder {
   grand_total?: number | null
   location_id?: string | null
   location_name?: string | null
+  location?: { id: string; location_name: string; location_code: string } | null
   tracking_number?: string | null
   shipping_provider?: string | null
   total_qty?: number | null
