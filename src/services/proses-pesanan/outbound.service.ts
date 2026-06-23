@@ -411,6 +411,16 @@ export const OutboundService = {
     return (res.data ?? []).map(mapShipResult)
   },
 
+  // ── Marketplace shipping label (AWB dari Shopee/TikTok/Lazada) ───────────────
+  marketplaceLabel: async (
+    orderId: string
+  ): Promise<{ type: string; url?: string; document_base64?: string; content_type?: string; source?: string }> => {
+    const res = await fetchClient<
+      ApiResponse<{ type: string; url?: string; document_base64?: string; content_type?: string; source?: string }>
+    >(`/sales/${orderId}/shipping-label`)
+    return res.data
+  },
+
   // ── Dokumen (JSON dari modul Report) ─────────────────────────────────────────
   shippingLabel: async (orderIds: string[]): Promise<unknown> => {
     const res = await fetchClient<ApiResponse<unknown>>(

@@ -27,9 +27,64 @@ async function run(
   }
 }
 
+function openMarketplaceLabel(result: {
+  type: string
+  url?: string
+  document_base64?: string
+  content_type?: string
+  source?: string
+}) {
+  if (result.type === "url" && result.url) {
+    window.open(result.url, "_blank")
+    return true
+  }
+  if (result.type === "base64" && result.document_base64) {
+    const ct = result.content_type || "application/pdf"
+    const dataUrl = `data:${ct};base64,${result.document_base64}`
+    const win = window.open("", "_blank")
+    if (win) {
+      win.document.write(
+        `<!doctype html><html><head><title>Label Pengiriman</title></head>` +
+          `<body style="margin:0"><iframe src="${dataUrl}" style="width:100%;height:100vh;border:none"></iframe></body></html>`
+      )
+      win.document.close()
+    }
+    return true
+  }
+  return false
+}
+
 export const DocActions = {
-  shippingLabel: (ids: string[]) =>
-    run("Label Pengiriman", "Menyiapkan label…", () => OutboundService.shippingLabel(ids)),
+  shippingLabel: async (ids: string[]) => {
+    const toastId = toast.loading("Menyiapkan label…")
+    const fallbackIds: string[] = []
+
+    try {
+      // Try marketplace label for each order
+      const results = await Promise.allSettled(
+        ids.map((id) => OutboundService.marketplaceLabel(id))
+      )
+
+      for (let i = 0; i < results.length; i++) {
+        const r = results[i]
+        if (r.status === "fulfilled" && openMarketplaceLabel(r.value)) {
+          continue
+        }
+        fallbackIds.push(ids[i])
+      }
+
+      toast.dismiss(toastId)
+
+      // Fallback to local label for non-marketplace orders
+      if (fallbackIds.length > 0) {
+        const data = await OutboundService.shippingLabel(fallbackIds)
+        printReport("Label Pengiriman", data)
+      }
+    } catch (err) {
+      toast.dismiss(toastId)
+      toast.error(errMsg(err, "Gagal menyiapkan label."))
+    }
+  },
   pickList: (ids: string[]) =>
     run("Picklist", "Menyiapkan picklist…", () => OutboundService.pickListDoc(ids)),
   pickListById: (picklistId: string) =>

@@ -21,6 +21,8 @@ function today(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
+const MARKETPLACE_SOURCES = ["shopee", "tiktok", "lazada", "tokopedia"]
+
 interface BuatPengirimanDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -29,6 +31,10 @@ interface BuatPengirimanDialogProps {
   locationName: string | null
   multiLocation: boolean
   onCreated: () => void
+  /** When all selected orders share same marketplace source */
+  marketplaceSource?: string | null
+  /** Courier name from marketplace order (e.g. "J&T Express") */
+  shippingProvider?: string | null
 }
 
 export function BuatPengirimanDialog({
@@ -39,13 +45,16 @@ export function BuatPengirimanDialog({
   locationName,
   multiLocation,
   onCreated,
+  marketplaceSource,
+  shippingProvider,
 }: BuatPengirimanDialogProps) {
   const [courierId, setCourierId] = React.useState("")
   const [shipmentType, setShipmentType] = React.useState<ShipmentType>("REGULAR")
   const [shipmentDate, setShipmentDate] = React.useState(today)
   const [notes, setNotes] = React.useState("")
 
-  const couriers = useCouriers(open)
+  const isMarketplace = !!marketplaceSource && MARKETPLACE_SOURCES.includes(marketplaceSource)
+  const couriers = useCouriers(open && !isMarketplace)
   const createShipment = useCreateShipment()
 
   React.useEffect(() => {
@@ -67,16 +76,32 @@ export function BuatPengirimanDialog({
     }
   }
 
-  const canSubmit = orderIds.length > 0 && !!locationId && !multiLocation && !!courierId
+  const canSubmit = isMarketplace
+    ? orderIds.length > 0 && !!locationId && !multiLocation
+    : orderIds.length > 0 && !!locationId && !multiLocation && !!courierId
 
   const handleSubmit = async () => {
-    if (!locationId || !selectedCourier) return
+    if (!locationId) return
+
+    let courierName: string
+    let courierCode: string | null
+
+    if (isMarketplace && shippingProvider) {
+      courierName = shippingProvider
+      courierCode = shippingProvider.toLowerCase().replace(/\s+/g, "-")
+    } else if (selectedCourier) {
+      courierName = selectedCourier.name
+      courierCode = selectedCourier.code
+    } else {
+      return
+    }
+
     try {
       await createShipment.mutateAsync({
         payload: {
           location_id: locationId,
-          courier_name: selectedCourier.name,
-          courier_code: selectedCourier.code,
+          courier_name: courierName,
+          courier_code: courierCode,
           shipment_type: shipmentType,
           shipment_date: shipmentDate,
           notes: notes || null,
@@ -106,6 +131,11 @@ export function BuatPengirimanDialog({
         <div className="flex flex-col gap-4 py-2">
           <div className="rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-sm">
             <span className="font-medium">{orderIds.length}</span> pesanan terpilih
+            {isMarketplace && (
+              <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary capitalize">
+                {marketplaceSource}
+              </span>
+            )}
           </div>
 
           {multiLocation && (
@@ -121,28 +151,40 @@ export function BuatPengirimanDialog({
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="shipment-courier">
-              Kurir<span className="text-destructive"> *</span>
-            </Label>
-            <select
-              id="shipment-courier"
-              value={courierId}
-              onChange={(e) => handleCourierChange(e.target.value)}
-              className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-            >
-              <option value="">— Pilih kurir —</option>
-              {couriers.data?.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                  {c.type ? ` (${c.type})` : ""}
-                </option>
-              ))}
-            </select>
-            {couriers.isLoading && (
-              <p className="text-xs text-muted-foreground">Memuat daftar kurir…</p>
-            )}
-          </div>
+          {isMarketplace ? (
+            <div className="space-y-1.5">
+              <Label>Kurir</Label>
+              <div className="rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm font-medium">
+                {shippingProvider || "Dari marketplace"}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Kurir otomatis dari {marketplaceSource} — tidak perlu dipilih manual.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              <Label htmlFor="shipment-courier">
+                Kurir<span className="text-destructive"> *</span>
+              </Label>
+              <select
+                id="shipment-courier"
+                value={courierId}
+                onChange={(e) => handleCourierChange(e.target.value)}
+                className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+              >
+                <option value="">— Pilih kurir —</option>
+                {couriers.data?.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                    {c.type ? ` (${c.type})` : ""}
+                  </option>
+                ))}
+              </select>
+              {couriers.isLoading && (
+                <p className="text-xs text-muted-foreground">Memuat daftar kurir…</p>
+              )}
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">

@@ -109,6 +109,7 @@ function OrderCard({
   onToggle,
   onShip,
   onComplete,
+  onBuatPengiriman,
   shipPending,
   completePending,
 }: {
@@ -118,6 +119,7 @@ function OrderCard({
   onToggle: () => void
   onShip: (ids: string[]) => void
   onComplete: (ids: string[]) => void
+  onBuatPengiriman?: (order: FulfillmentOrder) => void
   shipPending: boolean
   completePending: boolean
 }) {
@@ -293,6 +295,11 @@ function OrderCard({
               Buat Picklist
             </Button>
           )}
+          {actions.buatPengiriman && onBuatPengiriman && (
+            <Button size="sm" variant="primary" onClick={() => onBuatPengiriman(order)}>
+              Buat Pengiriman
+            </Button>
+          )}
           {actions.siapDikirim && (
             <Button
               size="sm"
@@ -370,6 +377,7 @@ export function FulfillmentOrdersTable({
   const [selected, setSelected] = React.useState<Set<string>>(new Set())
   const [picklistOpen, setPicklistOpen] = React.useState(false)
   const [pengirimanOpen, setPengirimanOpen] = React.useState(false)
+  const [singlePengirimanOrder, setSinglePengirimanOrder] = React.useState<FulfillmentOrder | null>(null)
 
   React.useEffect(() => {
     setSelected(new Set())
@@ -593,6 +601,9 @@ export function FulfillmentOrdersTable({
                 onToggle={() => toggleOne(o.id)}
                 onShip={handleShip}
                 onComplete={handleComplete}
+                onBuatPengiriman={actions.buatPengiriman ? (order) => {
+                  setSinglePengirimanOrder(order)
+                } : undefined}
                 shipPending={readyToShip.isPending}
                 completePending={markComplete.isPending}
               />
@@ -640,15 +651,38 @@ export function FulfillmentOrdersTable({
         />
       )}
 
-      {actions.buatPengiriman && (
+      {actions.buatPengiriman && (() => {
+        const bulkSources = Array.from(new Set(selectedOrders.map((o) => o.source).filter(Boolean)))
+        const bulkSource = bulkSources.length === 1 ? bulkSources[0] : null
+        const bulkProviders = Array.from(new Set(selectedOrders.map((o) => o.shippingProvider).filter(Boolean)))
+        const bulkProvider = bulkProviders.length === 1 ? bulkProviders[0] : null
+        return (
+          <BuatPengirimanDialog
+            open={pengirimanOpen}
+            onOpenChange={setPengirimanOpen}
+            orderIds={selectedIds}
+            locationId={picklistLocationId}
+            locationName={picklistLocationName}
+            multiLocation={distinctLocations.length > 1}
+            onCreated={clearSelection}
+            marketplaceSource={bulkSource}
+            shippingProvider={bulkProvider}
+          />
+        )
+      })()}
+
+      {/* Single-order Buat Pengiriman */}
+      {singlePengirimanOrder && (
         <BuatPengirimanDialog
-          open={pengirimanOpen}
-          onOpenChange={setPengirimanOpen}
-          orderIds={selectedIds}
-          locationId={picklistLocationId}
-          locationName={picklistLocationName}
-          multiLocation={distinctLocations.length > 1}
-          onCreated={clearSelection}
+          open={true}
+          onOpenChange={(open) => { if (!open) setSinglePengirimanOrder(null) }}
+          orderIds={[singlePengirimanOrder.id]}
+          locationId={singlePengirimanOrder.locationId}
+          locationName={singlePengirimanOrder.locationName}
+          multiLocation={false}
+          onCreated={() => setSinglePengirimanOrder(null)}
+          marketplaceSource={singlePengirimanOrder.source}
+          shippingProvider={singlePengirimanOrder.shippingProvider}
         />
       )}
     </LiquidGlass>
