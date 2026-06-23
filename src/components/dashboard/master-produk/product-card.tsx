@@ -81,7 +81,7 @@ export function ProductCard({
             <h3 className="truncate text-sm font-medium leading-tight">
               <Link
                 href={`/dashboard/produk/${product.itemGroupId}`}
-                prefetch={false}
+               
                 className="hover:text-primary hover:underline"
               >
                 {product.itemName}

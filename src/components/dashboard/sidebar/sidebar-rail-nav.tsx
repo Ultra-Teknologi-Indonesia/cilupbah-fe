@@ -68,8 +68,7 @@ function RailItem({
         {isLeafGroup(group) ? (
           <Link
             href={group.items[0].link}
-            prefetch={false}
-            aria-label={group.title}
+                       aria-label={group.title}
             onClick={() => onSelect(group.id)}
           >
             {inner}
@@ -97,8 +96,7 @@ function RailLink({ route }: { route: Route }) {
       <TooltipTrigger asChild>
         <Link
           href={route.link}
-          prefetch={false}
-          aria-label={route.title}
+                   aria-label={route.title}
           className="grid size-10 place-items-center rounded-xl text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
         >
           {Icon && <Icon className="size-5" />}
@@ -133,7 +131,7 @@ export function SidebarRailNav({
       aria-label="Navigasi utama"
       className="sidebar-glass glass-elevation liquid-glass-subtle relative flex h-full w-[68px] flex-col items-center rounded-2xl py-3"
     >
-      <Link href="/dashboard" prefetch={false} aria-label="Beranda" className="mb-1 grid size-10 place-items-center">
+      <Link href="/dashboard" aria-label="Beranda" className="mb-1 grid size-10 place-items-center">
         <Logo className="size-7 text-primary" />
       </Link>
 
@@ -194,7 +192,7 @@ export function SidebarRailNav({
           <DropdownMenuContent side="right" align="end" className="w-52">
             <DropdownMenuLabel>Akun</DropdownMenuLabel>
             <DropdownMenuItem asChild>
-              <Link href="/dashboard/pengaturan" prefetch={false}>
+              <Link href="/dashboard/pengaturan">
                 <SettingsIcon className="size-4 text-muted-foreground" />
                 Pengaturan
               </Link>

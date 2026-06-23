@@ -3,6 +3,7 @@ import { Suspense } from "react"
 import { PageTitle } from "@/components/dashboard/page-title"
 import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar"
 import { NaikkanDetailView } from "@/components/dashboard/master-produk/naikkan/naikkan-detail-view"
+import { TabBarSkeleton, TableSkeleton } from "@/components/ui/page-skeleton"
 
 export default async function NaikkanDetailPage({
   params,
@@ -23,11 +24,11 @@ export default async function NaikkanDetailPage({
         ]}
       />
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<TabBarSkeleton />}>
         <ProdukTabBar />
       </Suspense>
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<TableSkeleton rows={6} cols={4} />}>
         <NaikkanDetailView id={id} />
       </Suspense>
     </div>

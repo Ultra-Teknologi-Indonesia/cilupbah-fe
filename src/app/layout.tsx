@@ -6,6 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { LiquidGlassFilter } from "@/components/ui/liquid-glass-filter";
+import { PhantomProvider } from "@/components/providers/phantom-provider";
 
 const sfPro = localFont({
   src: [
@@ -39,6 +40,7 @@ export default function RootLayout({
         <QueryProvider>
           {children}
         </QueryProvider>
+        <PhantomProvider />
         <Toaster />
         <SpeedInsights />
       </body>

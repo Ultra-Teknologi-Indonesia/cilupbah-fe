@@ -157,7 +157,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" asChild disabled={busy}>
-              <Link href={detailHref} prefetch={false}>
+              <Link href={detailHref}>
                 <ArrowLeftIcon /> Kembali
               </Link>
             </Button>

@@ -1,0 +1,19 @@
+"use client"
+
+import {
+  PageHeaderSkeleton,
+  TabBarSkeleton,
+  TableSkeleton,
+} from "@/components/ui/page-skeleton"
+
+export default function ProdukLoading() {
+  return (
+    <phantom-ui loading animation="pulse">
+      <div className="flex flex-col gap-6">
+        <PageHeaderSkeleton />
+        <TabBarSkeleton />
+        <TableSkeleton rows={6} cols={5} />
+      </div>
+    </phantom-ui>
+  )
+}

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { PageTitle } from "@/components/dashboard/page-title"
 import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar"
 import { ProductMasterView } from "@/components/dashboard/master-produk/product-master-view"
+import { TabBarSkeleton, TableSkeleton } from "@/components/ui/page-skeleton"
 
 export default function ProdukMasterPage() {
   return (
@@ -20,7 +21,7 @@ export default function ProdukMasterPage() {
         ]}
         actions={
           <Button variant="outline" asChild>
-            <Link href="/dashboard/produk/arsip" prefetch={false}>
+            <Link href="/dashboard/produk/arsip">
               <ArchiveIcon />
               Arsip
             </Link>
@@ -28,11 +29,11 @@ export default function ProdukMasterPage() {
         }
       />
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<TabBarSkeleton />}>
         <ProdukTabBar />
       </Suspense>
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<TableSkeleton rows={6} cols={5} />}>
         <ProductMasterView />
       </Suspense>
     </div>

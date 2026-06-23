@@ -3,6 +3,7 @@ import { Suspense } from "react"
 import { PageTitle } from "@/components/dashboard/page-title"
 import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar"
 import { ArchiveView } from "@/components/dashboard/master-produk/arsip/archive-view"
+import { TabBarSkeleton } from "@/components/ui/page-skeleton"
 
 export default function ArsipProdukPage() {
   return (
@@ -17,7 +18,7 @@ export default function ArsipProdukPage() {
         ]}
       />
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<TabBarSkeleton />}>
         <ProdukTabBar />
       </Suspense>
 

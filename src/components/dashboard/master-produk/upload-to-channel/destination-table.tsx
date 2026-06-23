@@ -288,7 +288,7 @@ export function DestinationTable({
               </span>
               <Link
                 href={`/dashboard/produk/${productId}/edit`}
-                prefetch={false}
+               
                 onClick={(e) => e.stopPropagation()}
                 className="ml-[22px] text-xs font-medium text-primary hover:underline"
               >
@@ -392,7 +392,7 @@ export function DestinationTable({
             </p>
             <Link
               href={`/dashboard/produk/${productId}/edit`}
-              prefetch={false}
+             
               className="mt-1 inline-block font-medium underline underline-offset-2 hover:text-amber-800 dark:hover:text-amber-300"
             >
               Edit Produk

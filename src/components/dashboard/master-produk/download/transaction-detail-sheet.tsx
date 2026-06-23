@@ -132,7 +132,7 @@ export function TransactionDetailSheet({
                       <p className="truncate text-sm font-medium">
                         <Link
                           href={`/dashboard/produk/${p.itemId}`}
-                          prefetch={false}
+                         
                           className="hover:text-primary hover:underline"
                         >
                           {p.itemName}

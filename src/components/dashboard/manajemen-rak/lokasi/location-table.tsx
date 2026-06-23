@@ -70,7 +70,7 @@ export function LocationTable({
                   {editable ? (
                     <Link
                       href={editHref}
-                      prefetch={false}
+                     
                       className="font-medium text-primary hover:underline"
                     >
                       {location.locationName}

@@ -170,7 +170,7 @@ export function PackingDetailView({ id }: { id: string }) {
         ]}
         actions={
           <Button variant="outline" asChild>
-            <Link href={LIST_HREF} prefetch={false}>
+            <Link href={LIST_HREF}>
               <ArrowLeftIcon /> Kembali
             </Link>
           </Button>

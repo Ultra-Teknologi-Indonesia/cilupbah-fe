@@ -220,7 +220,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
           actions={
             <div className="flex items-center gap-2">
               <Button variant="outline" asChild>
-                <Link href={LIST_HREF} prefetch={false}>Batal</Link>
+                <Link href={LIST_HREF}>Batal</Link>
               </Button>
               {!locked && (
                 <Button type="submit" variant="primary" disabled={saving}>

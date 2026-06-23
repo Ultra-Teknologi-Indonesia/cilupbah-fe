@@ -2,6 +2,7 @@ import { Suspense } from "react"
 
 import { PageTitle } from "@/components/dashboard/page-title"
 import { PesananView } from "@/components/dashboard/pesanan/pesanan-view"
+import { TableSkeleton } from "@/components/ui/page-skeleton"
 
 export default function PesananPage() {
   return (
@@ -16,7 +17,7 @@ export default function PesananPage() {
         ]}
       />
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<TableSkeleton rows={6} cols={6} />}>
         <PesananView />
       </Suspense>
     </div>

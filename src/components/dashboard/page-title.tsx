@@ -42,8 +42,7 @@ export function PageTitle({
       {backHref && (
         <Link
           href={backHref}
-          prefetch={false}
-          className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                   className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeftIcon className="size-4" />
           Kembali
@@ -66,7 +65,7 @@ export function PageTitle({
                       <BreadcrumbItem>
                         {item.href && !isLast ? (
                           <BreadcrumbLink asChild>
-                            <Link href={item.href} prefetch={false}>{item.label}</Link>
+                            <Link href={item.href}>{item.label}</Link>
                           </BreadcrumbLink>
                         ) : (
                           <BreadcrumbPage>{item.label}</BreadcrumbPage>

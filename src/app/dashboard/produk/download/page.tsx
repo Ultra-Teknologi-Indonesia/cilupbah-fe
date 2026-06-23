@@ -3,6 +3,7 @@ import { Suspense } from "react"
 import { PageTitle } from "@/components/dashboard/page-title"
 import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar"
 import { DownloadView } from "@/components/dashboard/master-produk/download/download-view"
+import { TabBarSkeleton, TableSkeleton } from "@/components/ui/page-skeleton"
 
 export default function DownloadPage() {
   return (
@@ -18,11 +19,11 @@ export default function DownloadPage() {
         ]}
       />
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<TabBarSkeleton />}>
         <ProdukTabBar />
       </Suspense>
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<TableSkeleton rows={6} cols={5} />}>
         <DownloadView />
       </Suspense>
     </div>

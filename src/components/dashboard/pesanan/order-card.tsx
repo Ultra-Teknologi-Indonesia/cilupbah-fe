@@ -775,7 +775,7 @@ export function OrderCard({
           className="h-8 gap-1.5 text-xs"
           asChild
         >
-          <Link href={`/dashboard/pesanan/${order.id}`} prefetch={false}>
+          <Link href={`/dashboard/pesanan/${order.id}`}>
             <EyeIcon className="h-3.5 w-3.5" />
             Lihat Detail
           </Link>
