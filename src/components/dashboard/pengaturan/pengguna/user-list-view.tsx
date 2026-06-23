@@ -103,39 +103,38 @@ export function UserListView() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="relative w-full max-w-xs">
-          <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Cari pengguna"
-            className="pl-9"
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          {selectedIds.size > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-destructive hover:text-destructive"
-              onClick={handleBulkDelete}
-            >
-              <Trash2Icon className="mr-1 size-4" />
-              Hapus ({selectedIds.size})
-            </Button>
-          )}
-          <Button size="sm" onClick={() => setShowCreate(true)}>
-            <PlusIcon className="mr-1 size-4" />
-            Tambah Pengguna
-          </Button>
-        </div>
-      </div>
-
-      {/* Table */}
       <LiquidGlass radius={24} className="bg-white/40 dark:bg-white/[0.06]">
+        {/* Toolbar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 pt-4">
+          <div className="relative w-full max-w-xs">
+            <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Cari pengguna"
+              className="pl-9"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            {selectedIds.size > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-destructive hover:text-destructive"
+                onClick={handleBulkDelete}
+              >
+                <Trash2Icon className="mr-1 size-4" />
+                Hapus ({selectedIds.size})
+              </Button>
+            )}
+            <Button size="sm" onClick={() => setShowCreate(true)}>
+              <PlusIcon className="mr-1 size-4" />
+              Tambah Pengguna
+            </Button>
+          </div>
+        </div>
+
         <div className="flex items-center justify-end px-5 py-3 text-sm text-muted-foreground">
           Total <Badge className="ml-2">{total}</Badge>
         </div>
