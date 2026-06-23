@@ -51,7 +51,7 @@ export function LocationTable({
           const locked = location.isSystem || location.isLocked
           // Pusat (is_system) tetap bisa diedit; Transit (is_locked) tidak.
           const editable = !location.isLocked
-          const editHref = `/dashboard/manajemen-rak/lokasi/${location.id}/edit`
+          const editHref = `/dashboard/lokasi/${location.id}/edit`
 
           return (
             <TableRow key={location.id}>

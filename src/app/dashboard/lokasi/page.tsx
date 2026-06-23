@@ -19,7 +19,7 @@ export default function LokasiPage() {
         ]}
         actions={
           <Button variant="primary" asChild>
-            <Link href="/dashboard/manajemen-rak/lokasi/buat" prefetch={false}>
+            <Link href="/dashboard/lokasi/buat" prefetch={false}>
               <PlusIcon />
               Tambah baru
             </Link>

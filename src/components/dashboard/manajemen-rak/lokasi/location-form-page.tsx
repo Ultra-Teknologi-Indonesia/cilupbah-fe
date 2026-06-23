@@ -31,7 +31,7 @@ import type {
 import { InformasiTab } from "./informasi-tab"
 import { LayoutGudangTab } from "./layout-gudang-tab"
 
-const LIST_HREF = "/dashboard/manajemen-rak/lokasi"
+const LIST_HREF = "/dashboard/lokasi"
 
 type Section = "informasi" | "layout"
 
