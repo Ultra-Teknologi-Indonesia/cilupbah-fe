@@ -24,7 +24,7 @@ import { useWarehouseUsers } from "@/hooks/manajemen-rak/use-warehouse-users"
 import type { LocationFormValues } from "@/lib/manajemen-rak/location-schema"
 import type { RegionOption } from "@/types/manajemen-rak/location"
 
-import { LocationMapPicker } from "./location-map-picker"
+import { LocationMapPicker, formatCoordinate } from "./location-map-picker"
 
 function toOptions(items: RegionOption[] | undefined) {
   return (items ?? []).map((r) => ({ value: r.id, label: r.nama }))
@@ -195,7 +195,17 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
                 <Combobox
                   options={toOptions(villages.data)}
                   value={field.value}
-                  onChange={(v) => field.onChange(v ?? "")}
+                  onChange={(v) => {
+                    field.onChange(v ?? "")
+                    const village = villages.data?.find((x) => x.id === v)
+                    if (village?.latitude != null && village?.longitude != null) {
+                      form.setValue(
+                        "coordinate",
+                        formatCoordinate(village.latitude, village.longitude),
+                        { shouldDirty: true, shouldValidate: true }
+                      )
+                    }
+                  }}
                   placeholder="Pilih kelurahan"
                   disabled={disabled || !districtId || villages.isLoading}
                   invalid={!!form.formState.errors.villageId}

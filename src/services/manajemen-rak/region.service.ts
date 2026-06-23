@@ -2,11 +2,27 @@ import { fetchClient } from "@/lib/api-client"
 import type { ApiResponse } from "@/types/api.types"
 import type { RegionOption } from "@/types/manajemen-rak/location"
 
-// Region API mengembalikan baris mentah { id, nama, ... }.
-type RawRegion = { id: string | number; nama: string }
+// Region API mengembalikan baris mentah { id, nama, latitude?, longitude?, ... }.
+type RawRegion = {
+  id: string | number
+  nama: string
+  latitude?: string | number | null
+  longitude?: string | number | null
+}
+
+function toNumber(value: string | number | null | undefined): number | null {
+  if (value == null) return null
+  const n = Number(value)
+  return Number.isNaN(n) ? null : n
+}
 
 function mapRegion(raw: RawRegion): RegionOption {
-  return { id: String(raw.id), nama: raw.nama }
+  return {
+    id: String(raw.id),
+    nama: raw.nama,
+    latitude: toNumber(raw.latitude),
+    longitude: toNumber(raw.longitude),
+  }
 }
 
 export const RegionService = {

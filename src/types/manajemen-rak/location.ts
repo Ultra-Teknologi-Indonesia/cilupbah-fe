@@ -3,6 +3,8 @@
 export interface RegionOption {
   id: string
   nama: string
+  latitude?: number | null
+  longitude?: number | null
 }
 
 export interface LocationVillage {

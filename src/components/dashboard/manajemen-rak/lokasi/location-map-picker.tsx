@@ -88,6 +88,32 @@ function AutoLocate({
   return null
 }
 
+// Arahkan peta ke koordinat saat nilai berubah dari luar (mis. pilih kelurahan).
+// Hanya fly bila titik baru di luar viewport agar klik/seret marker tidak
+// memicu recenter yang mengganggu.
+function RecenterOnValue({
+  coord,
+}: {
+  coord: { lat: number; lng: number } | null
+}) {
+  const { map } = useMap()
+  const lastKeyRef = React.useRef<string | null>(null)
+
+  React.useEffect(() => {
+    if (!map || !coord) return
+    const key = `${coord.lat},${coord.lng}`
+    if (lastKeyRef.current === key) return
+    lastKeyRef.current = key
+
+    const center: [number, number] = [coord.lng, coord.lat]
+    if (!map.getBounds().contains(center)) {
+      map.flyTo({ center, zoom: 15, duration: 1200 })
+    }
+  }, [map, coord])
+
+  return null
+}
+
 interface LocationMapPickerProps {
   value?: string | null
   onChange: (coordinate: string) => void
@@ -117,6 +143,7 @@ export function LocationMapPicker({
           <MapControls showZoom showLocate onLocate={(c) => handlePick(c.latitude, c.longitude)} />
           {!disabled && <MapClickHandler onPick={handlePick} />}
           {!disabled && <AutoLocate enabled={!coord} onPick={handlePick} />}
+          <RecenterOnValue coord={coord} />
           {coord && (
             <MapMarker
               longitude={coord.lng}
