@@ -137,6 +137,194 @@ function UniformDialog({ open, onOpenChange, onApply }: UniformDialogProps) {
   )
 }
 
+function WarehouseVisual({
+  floors,
+  rows,
+  columns,
+  bins,
+}: {
+  floors: number
+  rows: number
+  columns: number
+  bins: number
+}) {
+  const f = Math.min(Math.max(floors || 1, 1), 3)
+  const r = Math.min(Math.max(rows || 1, 1), 3)
+  const c = Math.min(Math.max(columns || 1, 1), 4)
+  const b = Math.min(Math.max(bins || 1, 1), 4)
+
+  const COS = 0.866
+  const SIN = 0.5
+  const U = 22
+  const BH = 11
+  const FGAP = 14
+  const SW = 0.72
+  const SD = 0.55
+
+  const shelfH = b * BH
+  const floorStep = shelfH + FGAP
+  const maxZ = (f - 1) * floorStep + shelfH
+
+  const hL = r * COS * U
+  const hR = c * COS * U
+
+  const pad = { t: 20, r: 50, b: 42, l: 58 }
+  const W = pad.l + hL + hR + pad.r
+  const H = pad.t + maxZ + (c + r) * SIN * U + pad.b
+
+  const ox = pad.l + hL
+  const oy = pad.t + maxZ
+
+  const ix = (gx: number, gy: number, gz: number) => ox + (gx - gy) * COS * U
+  const iy = (gx: number, gy: number, gz: number) => oy + (gx + gy) * SIN * U - gz
+
+  const CL = { l: "#3B82F6", b: "#10B981", k: "#F59E0B", r: "#EF4444" }
+
+  const shelves: React.ReactNode[] = []
+
+  for (let fi = 0; fi < f; fi++) {
+    const z = fi * floorStep
+
+    shelves.push(
+      <polygon
+        key={`fp${fi}`}
+        points={`${ix(0,0,z)},${iy(0,0,z)} ${ix(c,0,z)},${iy(c,0,z)} ${ix(c,r,z)},${iy(c,r,z)} ${ix(0,r,z)},${iy(0,r,z)}`}
+        fill={`${CL.l}0C`}
+        stroke={CL.l}
+        strokeWidth={0.8}
+        strokeOpacity={0.25}
+      />
+    )
+
+    for (let rowI = 0; rowI < r; rowI++) {
+      const ri = r - 1 - rowI
+      for (let ci = 0; ci < c; ci++) {
+        const gx = ci + (1 - SW) / 2
+        const gy = ri + (1 - SD) / 2
+
+        shelves.push(
+          <g key={`sh${fi}${ri}${ci}`}>
+            <polygon
+              points={`${ix(gx,gy,z)},${iy(gx,gy,z)} ${ix(gx+SW,gy,z)},${iy(gx+SW,gy,z)} ${ix(gx+SW,gy,z+shelfH)},${iy(gx+SW,gy,z+shelfH)} ${ix(gx,gy,z+shelfH)},${iy(gx,gy,z+shelfH)}`}
+              fill="#e8ecf1" stroke="#94a3b8" strokeWidth={0.5}
+            />
+            <polygon
+              points={`${ix(gx+SW,gy,z)},${iy(gx+SW,gy,z)} ${ix(gx+SW,gy+SD,z)},${iy(gx+SW,gy+SD,z)} ${ix(gx+SW,gy+SD,z+shelfH)},${iy(gx+SW,gy+SD,z+shelfH)} ${ix(gx+SW,gy,z+shelfH)},${iy(gx+SW,gy,z+shelfH)}`}
+              fill="#cbd5e1" stroke="#94a3b8" strokeWidth={0.5}
+            />
+            <polygon
+              points={`${ix(gx,gy,z+shelfH)},${iy(gx,gy,z+shelfH)} ${ix(gx+SW,gy,z+shelfH)},${iy(gx+SW,gy,z+shelfH)} ${ix(gx+SW,gy+SD,z+shelfH)},${iy(gx+SW,gy+SD,z+shelfH)} ${ix(gx,gy+SD,z+shelfH)},${iy(gx,gy+SD,z+shelfH)}`}
+              fill="#f1f5f9" stroke="#94a3b8" strokeWidth={0.5}
+            />
+            {Array.from({ length: b - 1 }, (_, bi) => {
+              const bz = z + (bi + 1) * BH
+              return (
+                <line key={`d${bi}`}
+                  x1={ix(gx,gy,bz)} y1={iy(gx,gy,bz)}
+                  x2={ix(gx+SW,gy,bz)} y2={iy(gx+SW,gy,bz)}
+                  stroke="#94a3b8" strokeWidth={0.4}
+                />
+              )
+            })}
+          </g>
+        )
+      }
+    }
+  }
+
+  const kx0 = ix(0, 0, 0)
+  const kx1 = ix(c, 0, 0)
+  const ky0 = iy(0, 0, 0) + 20
+  const ky1 = iy(c, 0, 0) + 20
+
+  const bx0 = ix(0, 0, 0) - 20
+  const bx1 = ix(0, r, 0) - 20
+  const by0 = iy(0, 0, 0)
+  const by1 = iy(0, r, 0)
+
+  const rakGx = (1 - SW) / 2 + SW
+  const rakGy = (1 - SD) / 2
+  const rakX = ix(rakGx, rakGy, 0) + 10
+  const rakY0 = iy(rakGx, rakGy, 0)
+  const rakY1 = iy(rakGx, rakGy, shelfH)
+
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <svg
+        viewBox={`0 0 ${Math.ceil(W)} ${Math.ceil(H)}`}
+        className="w-full max-w-[280px]"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <marker id="wv-ak" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M0 1L8 4L0 7z" fill={CL.k} />
+          </marker>
+          <marker id="wv-ab" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M0 1L8 4L0 7z" fill={CL.b} />
+          </marker>
+        </defs>
+
+        {shelves}
+
+        {/* Kolom: arrow along front edge */}
+        <line x1={ix(0,0,0)} y1={iy(0,0,0)+5} x2={kx0} y2={ky0} stroke={CL.k} strokeWidth={0.5} strokeDasharray="2,2" />
+        <line x1={ix(c,0,0)} y1={iy(c,0,0)+5} x2={kx1} y2={ky1} stroke={CL.k} strokeWidth={0.5} strokeDasharray="2,2" />
+        <line x1={kx0} y1={ky0} x2={kx1} y2={ky1} stroke={CL.k} strokeWidth={1.5} markerEnd="url(#wv-ak)" />
+        <text x={(kx0+kx1)/2} y={(ky0+ky1)/2+14} textAnchor="middle" fill={CL.k} fontSize={10} fontWeight="600">Kolom</text>
+
+        {/* Baris: arrow along left edge */}
+        <line x1={ix(0,0,0)-5} y1={iy(0,0,0)} x2={bx0} y2={by0} stroke={CL.b} strokeWidth={0.5} strokeDasharray="2,2" />
+        <line x1={ix(0,r,0)-5} y1={iy(0,r,0)} x2={bx1} y2={by1} stroke={CL.b} strokeWidth={0.5} strokeDasharray="2,2" />
+        <line x1={bx0} y1={by0} x2={bx1} y2={by1} stroke={CL.b} strokeWidth={1.5} markerEnd="url(#wv-ab)" />
+        <text x={(bx0+bx1)/2-14} y={(by0+by1)/2-6} textAnchor="middle" fill={CL.b} fontSize={10} fontWeight="600">Baris</text>
+
+        {/* Lantai: bracket on far-left */}
+        {f > 1 ? (() => {
+          const lx = ix(0, r, 0) - 16
+          const ly0 = iy(0, r, 0)
+          const ly1 = iy(0, r, (f - 1) * floorStep)
+          const mid = (ly0 + ly1) / 2
+          return (
+            <>
+              <line x1={lx} y1={ly0} x2={lx} y2={ly1} stroke={CL.l} strokeWidth={1.5} />
+              <line x1={lx-3} y1={ly0} x2={lx+3} y2={ly0} stroke={CL.l} strokeWidth={1.5} />
+              <line x1={lx-3} y1={ly1} x2={lx+3} y2={ly1} stroke={CL.l} strokeWidth={1.5} />
+              <text x={lx} y={mid-8} textAnchor="middle" fill={CL.l} fontSize={10} fontWeight="600"
+                transform={`rotate(-90,${lx},${mid-8})`}>Lantai</text>
+            </>
+          )
+        })() : (
+          <>
+            <line x1={ix(0,r,0)-5} y1={iy(0,r,0)} x2={ix(0,r,0)-18} y2={iy(0,r,0)} stroke={CL.l} strokeWidth={0.8} strokeDasharray="2,2" />
+            <text x={ix(0,r,0)-22} y={iy(0,r,0)+3} textAnchor="end" fill={CL.l} fontSize={9} fontWeight="600">Lantai</text>
+          </>
+        )}
+
+        {/* Rak: bracket on first shelf */}
+        <line x1={rakX} y1={rakY0} x2={rakX} y2={rakY1} stroke={CL.r} strokeWidth={1.5} />
+        <line x1={rakX-3} y1={rakY0} x2={rakX+3} y2={rakY0} stroke={CL.r} strokeWidth={1.5} />
+        <line x1={rakX-3} y1={rakY1} x2={rakX+3} y2={rakY1} stroke={CL.r} strokeWidth={1.5} />
+        <text x={rakX+8} y={(rakY0+rakY1)/2+3} fill={CL.r} fontSize={10} fontWeight="600">Rak</text>
+      </svg>
+
+      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
+        <span className="flex items-center gap-1.5">
+          <span className="size-2 rounded-full" style={{ background: CL.l }} /> Lantai ({floors || 0})
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-2 rounded-full" style={{ background: CL.b }} /> Baris ({rows || 0})
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-2 rounded-full" style={{ background: CL.k }} /> Kolom ({columns || 0})
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-2 rounded-full" style={{ background: CL.r }} /> Rak ({bins || 0})
+        </span>
+      </div>
+    </div>
+  )
+}
+
 interface LayoutGudangTabProps {
   disabled?: boolean
   initialBins?: BinPreviewItem[]
@@ -286,6 +474,15 @@ export function LayoutGudangTab({
               * Maksimum kombinasi rak adalah {MAX_BIN_COMBINATIONS}
             </p>
           </div>
+        </div>
+
+        <div className="hidden lg:flex items-center justify-center">
+          <WarehouseVisual
+            floors={Number.parseInt(qtyFloor, 10) || 0}
+            rows={Number.parseInt(qtyRow, 10) || 0}
+            columns={Number.parseInt(qtyColumn, 10) || 0}
+            bins={Number.parseInt(qtyBin, 10) || 0}
+          />
         </div>
       </div>
 
