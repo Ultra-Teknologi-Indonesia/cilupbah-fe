@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import {
   SearchIcon,
   RefreshCwIcon,
@@ -27,6 +28,7 @@ import { PACKLIST_STATUS_LABEL, type Packlist } from "@/types/proses-pesanan/ful
 import { UbahPackerDialog } from "./ubah-packer-dialog"
 
 export function PacklistTable() {
+  const router = useRouter()
   const [search, setSearch] = React.useState("")
   const [debounced, setDebounced] = React.useState("")
   const [page, setPage] = React.useState(1)
@@ -130,6 +132,11 @@ export function PacklistTable() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="min-w-44">
+                          <DropdownMenuItem
+                            onSelect={() => router.push(`/dashboard/proses-pesanan/packing/${p.id}`)}
+                          >
+                            Proses Packing
+                          </DropdownMenuItem>
                           <DropdownMenuItem onSelect={() => setEditPacker(p)}>
                             Ubah Packer
                           </DropdownMenuItem>

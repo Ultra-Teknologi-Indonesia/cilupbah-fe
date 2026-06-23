@@ -5,13 +5,21 @@ import type {
   FulfillmentListParams,
   FulfillmentOrder,
   Packlist,
+  PacklistDetail,
+  PacklistItem,
   Picker,
   Picklist,
+  PicklistDetail,
+  PicklistItem,
   RawCourier,
   RawFulfillmentOrder,
   RawPacklist,
+  RawPacklistDetail,
+  RawPacklistItem,
   RawPicker,
   RawPicklist,
+  RawPicklistDetail,
+  RawPicklistItem,
   RawReadyToShipResult,
   RawShipment,
   ReadyToShipResult,
@@ -137,6 +145,37 @@ function mapPicker(raw: RawPicker): Picker {
   return { id: raw.id, name: raw.name ?? raw.email ?? raw.id, email: raw.email ?? null }
 }
 
+function mapPicklistItem(raw: RawPicklistItem): PicklistItem {
+  return {
+    id: raw.id,
+    sku: raw.sku,
+    name: raw.product?.product?.name ?? null,
+    binCode: raw.bin?.bin_final_code ?? null,
+    orderNo: raw.order?.salesorder_no ?? null,
+    qtyOrdered: raw.qty_ordered ?? 0,
+    qtyPicked: raw.qty_picked ?? 0,
+  }
+}
+
+function mapPicklistDetail(raw: RawPicklistDetail): PicklistDetail {
+  return { ...mapPicklist(raw), items: (raw.items ?? []).map(mapPicklistItem) }
+}
+
+function mapPacklistItem(raw: RawPacklistItem): PacklistItem {
+  return {
+    id: raw.id,
+    sku: raw.sku,
+    description: raw.orderItem?.description ?? null,
+    qtyOrdered: raw.qty_ordered ?? 0,
+    qtyPacked: raw.qty_packed ?? 0,
+    barcodeVerified: Boolean(raw.barcode_verified),
+  }
+}
+
+function mapPacklistDetail(raw: RawPacklistDetail): PacklistDetail {
+  return { ...mapPacklist(raw), items: (raw.items ?? []).map(mapPacklistItem) }
+}
+
 function mapShipResult(raw: RawReadyToShipResult): ReadyToShipResult {
   return {
     orderId: raw.order_id,
@@ -234,6 +273,66 @@ export const OutboundService = {
       { method: "POST", data: { picker_id: pickerId } }
     )
     return mapPicklist(res.data)
+  },
+
+  // ── Picking scan/pick detail ─────────────────────────────────────────────
+  picklistDetail: async (id: string): Promise<PicklistDetail> => {
+    const res = await fetchClient<{ data: RawPicklistDetail }>(`/outbound/picklists/${id}`)
+    return mapPicklistDetail(res.data)
+  },
+  startPicklist: async (id: string): Promise<void> => {
+    await fetchClient(`/outbound/picklists/${id}/start`, { method: "POST" })
+  },
+  pickItem: async (
+    picklistId: string,
+    itemId: string,
+    payload: { qty_picked: number; bin_id?: string | null }
+  ): Promise<void> => {
+    await fetchClient(`/outbound/picklists/${picklistId}/items/${itemId}/pick`, {
+      method: "POST",
+      data: payload,
+    })
+  },
+  completePicklist: async (id: string): Promise<void> => {
+    await fetchClient(`/outbound/picklists/${id}/complete`, { method: "POST" })
+  },
+  failPicklist: async (id: string, reason?: string): Promise<void> => {
+    await fetchClient(`/outbound/picklists/${id}/fail`, {
+      method: "POST",
+      data: { reason: reason ?? null },
+    })
+  },
+
+  // ── Packing scan/pack detail ─────────────────────────────────────────────
+  packlistDetail: async (id: string): Promise<PacklistDetail> => {
+    const res = await fetchClient<{ data: RawPacklistDetail }>(`/outbound/packlists/${id}`)
+    return mapPacklistDetail(res.data)
+  },
+  startPacklist: async (id: string): Promise<void> => {
+    await fetchClient(`/outbound/packlists/${id}/start`, { method: "POST" })
+  },
+  verifyBarcode: async (
+    packlistId: string,
+    barcode: string
+  ): Promise<{ itemId: string; sku: string } | null> => {
+    const res = await fetchClient<{ data?: { item_id?: string; sku?: string } }>(
+      `/outbound/packlists/${packlistId}/verify-barcode`,
+      { method: "POST", data: { barcode } }
+    )
+    return res.data?.item_id ? { itemId: res.data.item_id, sku: res.data.sku ?? barcode } : null
+  },
+  packItem: async (
+    packlistId: string,
+    itemId: string,
+    payload: { qty_packed: number; barcode_verified?: boolean }
+  ): Promise<void> => {
+    await fetchClient(`/outbound/packlists/${packlistId}/items/${itemId}/pack`, {
+      method: "POST",
+      data: payload,
+    })
+  },
+  completePacklist: async (id: string): Promise<void> => {
+    await fetchClient(`/outbound/packlists/${id}/complete`, { method: "POST" })
   },
 
   assignPacker: async (packlistId: string, packerId: string): Promise<Packlist> => {

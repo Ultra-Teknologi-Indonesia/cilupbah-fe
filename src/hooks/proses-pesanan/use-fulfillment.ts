@@ -20,6 +20,8 @@ export const fulfillmentKeys = {
   shipments: (p: FulfillmentListParams) => [...all, "shipments", p] as const,
   pickers: (locationId?: string) => [...all, "pickers", locationId ?? ""] as const,
   count: (key: string) => [...all, "count", key] as const,
+  picklistDetail: (id: string) => [...all, "picklist-detail", id] as const,
+  packlistDetail: (id: string) => [...all, "packlist-detail", id] as const,
 }
 
 // ── Queries ──────────────────────────────────────────────────────────────────
@@ -168,6 +170,117 @@ export function useReadyToShip() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (orderIds: string[]) => OutboundService.readyToShip(orderIds),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+  })
+}
+
+// ── Scan/pick detail (Picking) ───────────────────────────────────────────────
+export function usePicklistDetail(id: string, enabled = true) {
+  return useQuery({
+    queryKey: fulfillmentKeys.picklistDetail(id),
+    queryFn: () => OutboundService.picklistDetail(id),
+    enabled: enabled && !!id,
+  })
+}
+
+export function useStartPicklist() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => OutboundService.startPicklist(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+  })
+}
+
+export function usePickItem() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      picklistId,
+      itemId,
+      qtyPicked,
+      binId,
+    }: {
+      picklistId: string
+      itemId: string
+      qtyPicked: number
+      binId?: string | null
+    }) => OutboundService.pickItem(picklistId, itemId, { qty_picked: qtyPicked, bin_id: binId }),
+    onSuccess: (_d, v) =>
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.picklistDetail(v.picklistId) }),
+  })
+}
+
+export function useCompletePicklist() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => OutboundService.completePicklist(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+  })
+}
+
+export function useFailPicklist() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
+      OutboundService.failPicklist(id, reason),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+  })
+}
+
+// ── Scan/pack detail (Packing) ───────────────────────────────────────────────
+export function usePacklistDetail(id: string, enabled = true) {
+  return useQuery({
+    queryKey: fulfillmentKeys.packlistDetail(id),
+    queryFn: () => OutboundService.packlistDetail(id),
+    enabled: enabled && !!id,
+  })
+}
+
+export function useStartPacklist() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => OutboundService.startPacklist(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+  })
+}
+
+export function useVerifyBarcode() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ packlistId, barcode }: { packlistId: string; barcode: string }) =>
+      OutboundService.verifyBarcode(packlistId, barcode),
+    onSuccess: (_d, v) =>
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.packlistDetail(v.packlistId) }),
+  })
+}
+
+export function usePackItem() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      packlistId,
+      itemId,
+      qtyPacked,
+      barcodeVerified,
+    }: {
+      packlistId: string
+      itemId: string
+      qtyPacked: number
+      barcodeVerified?: boolean
+    }) =>
+      OutboundService.packItem(packlistId, itemId, {
+        qty_packed: qtyPacked,
+        barcode_verified: barcodeVerified,
+      }),
+    onSuccess: (_d, v) =>
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.packlistDetail(v.packlistId) }),
+  })
+}
+
+export function useCompletePacklist() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => OutboundService.completePacklist(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
   })
 }

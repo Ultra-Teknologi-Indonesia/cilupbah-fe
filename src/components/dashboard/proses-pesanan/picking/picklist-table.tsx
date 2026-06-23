@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import {
   SearchIcon,
   RefreshCwIcon,
@@ -45,6 +46,7 @@ function ProgressCell({ done, total }: { done: number; total: number }) {
 }
 
 export function PicklistTable() {
+  const router = useRouter()
   const [search, setSearch] = React.useState("")
   const [debounced, setDebounced] = React.useState("")
   const [page, setPage] = React.useState(1)
@@ -150,6 +152,11 @@ export function PicklistTable() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="min-w-44">
+                          <DropdownMenuItem
+                            onSelect={() => router.push(`/dashboard/proses-pesanan/picking/${p.id}`)}
+                          >
+                            Proses Picking
+                          </DropdownMenuItem>
                           <DropdownMenuItem onSelect={() => setEditPicker(p)}>
                             Ubah Picker
                           </DropdownMenuItem>

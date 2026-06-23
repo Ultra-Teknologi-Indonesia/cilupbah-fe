@@ -194,6 +194,38 @@ export interface ReadyToShipResult {
   message: string | null
 }
 
+// ── Picklist detail + item (untuk layar scan/pick) ───────────────────────────
+export interface RawPicklistItem {
+  id: string
+  sku: string
+  item_id?: string | null
+  order_id?: string | null
+  bin_id?: string | null
+  qty_ordered?: number
+  qty_picked?: number
+  product?: { sku?: string | null; product?: { name?: string | null } | null } | null
+  bin?: { bin_final_code?: string | null } | null
+  order?: { salesorder_no?: string | null } | null
+}
+
+export interface PicklistItem {
+  id: string
+  sku: string
+  name: string | null
+  binCode: string | null
+  orderNo: string | null
+  qtyOrdered: number
+  qtyPicked: number
+}
+
+export interface RawPicklistDetail extends RawPicklist {
+  items?: RawPicklistItem[]
+}
+
+export interface PicklistDetail extends Picklist {
+  items: PicklistItem[]
+}
+
 // ── Packlist (per-order; envelope {success, data: paginator}) ────────────────
 export type PacklistStatus = "DRAFT" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED"
 
@@ -221,6 +253,34 @@ export interface Packlist {
   customerName: string | null
   status: PacklistStatus
   packageCount: number
+}
+
+export interface RawPacklistItem {
+  id: string
+  sku: string
+  item_id?: string | null
+  qty_ordered?: number
+  qty_packed?: number
+  barcode_verified?: boolean
+  product?: { sku?: string | null } | null
+  orderItem?: { sku?: string | null; description?: string | null } | null
+}
+
+export interface PacklistItem {
+  id: string
+  sku: string
+  description: string | null
+  qtyOrdered: number
+  qtyPacked: number
+  barcodeVerified: boolean
+}
+
+export interface RawPacklistDetail extends RawPacklist {
+  items?: RawPacklistItem[]
+}
+
+export interface PacklistDetail extends Packlist {
+  items: PacklistItem[]
 }
 
 export const PACKLIST_STATUS_LABEL: Record<PacklistStatus, { label: string; className: string }> = {
