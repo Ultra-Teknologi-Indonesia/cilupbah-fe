@@ -46,6 +46,16 @@ import {
   STATUS_LABELS,
   CHANNEL_MAP,
 } from "@/types/pesanan/order"
+import {
+  useCancelOrder,
+  useMarkComplete,
+  useRequestAwb,
+  useMoveToReady,
+  useAcceptCancelRequest,
+  useRejectCancelRequest,
+  useAcceptReturn,
+  useRejectReturn,
+} from "@/hooks/pesanan/use-order-actions"
 
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("id-ID", {
@@ -134,37 +144,87 @@ function OrderActions({
   subFilter: SubFilter
 }) {
   const [cancelOpen, setCancelOpen] = React.useState(false)
-  const placeholder = (label: string) => () => toast.info(`${label} akan segera tersedia`)
+  const [completeOpen, setCompleteOpen] = React.useState(false)
+
+  const cancelOrder = useCancelOrder()
+  const markComplete = useMarkComplete()
+  const requestAwb = useRequestAwb()
+  const moveToReady = useMoveToReady()
+  const acceptCancel = useAcceptCancelRequest()
+  const rejectCancel = useRejectCancelRequest()
+  const acceptReturn = useAcceptReturn()
+  const rejectReturn = useRejectReturn()
+
+  const printPlaceholder = (label: string) => () => toast.info(`Fitur ${label} akan segera tersedia`)
+
+  const busy =
+    cancelOrder.isPending ||
+    markComplete.isPending ||
+    requestAwb.isPending ||
+    moveToReady.isPending ||
+    acceptCancel.isPending ||
+    rejectCancel.isPending ||
+    acceptReturn.isPending ||
+    rejectReturn.isPending
 
   if (tab === "unpaid") return null
 
   if (tab === "ready-to-process") {
     return (
       <>
-        <Button size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Proses Pesanan")}>
+        <Button
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          disabled={busy}
+          onClick={() => requestAwb.mutate({ orderId: order.id })}
+        >
           <PlayIcon className="h-3.5 w-3.5" />
-          Proses Pesanan
+          {requestAwb.isPending ? "Memproses..." : "Proses Pesanan"}
         </Button>
-        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Edit Gudang")}>
+        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={printPlaceholder("Edit Gudang")}>
           <WarehouseIcon className="h-3.5 w-3.5" />
           Edit Gudang
         </Button>
         {!order.shipping?.tracking_number && (
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Atur Pengiriman")}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            disabled={busy}
+            onClick={() => requestAwb.mutate({ orderId: order.id })}
+          >
             <TruckIcon className="h-3.5 w-3.5" />
             Atur Pengiriman
           </Button>
         )}
         {order.shipping?.tracking_number && (
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Cetak Label")}>
+          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={printPlaceholder("Cetak Label")}>
             <PrinterIcon className="h-3.5 w-3.5" />
             Cetak Label
           </Button>
         )}
-        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Selesaikan")}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          disabled={busy}
+          onClick={() => setCompleteOpen(true)}
+        >
           <CheckCircleIcon className="h-3.5 w-3.5" />
           Selesaikan
         </Button>
+        <ConfirmDialog
+          open={completeOpen}
+          onOpenChange={setCompleteOpen}
+          title="Selesaikan pesanan ini?"
+          description={`Pesanan ${order.salesorder_no} akan ditandai selesai.`}
+          confirmLabel="Ya, Selesaikan"
+          cancelLabel="Batal"
+          onConfirm={() => {
+            setCompleteOpen(false)
+            markComplete.mutate([order.id])
+          }}
+        />
       </>
     )
   }
@@ -173,15 +233,32 @@ function OrderActions({
     return (
       <>
         {order.shipping?.tracking_number && (
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Cetak Resi")}>
+          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={printPlaceholder("Cetak Resi")}>
             <PrinterIcon className="h-3.5 w-3.5" />
             Cetak Resi
           </Button>
         )}
-        <Button size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Selesaikan")}>
+        <Button
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          disabled={busy}
+          onClick={() => setCompleteOpen(true)}
+        >
           <CheckCircleIcon className="h-3.5 w-3.5" />
-          Selesaikan
+          {markComplete.isPending ? "Memproses..." : "Selesaikan"}
         </Button>
+        <ConfirmDialog
+          open={completeOpen}
+          onOpenChange={setCompleteOpen}
+          title="Selesaikan pesanan ini?"
+          description={`Pesanan ${order.salesorder_no} akan ditandai selesai.`}
+          confirmLabel="Ya, Selesaikan"
+          cancelLabel="Batal"
+          onConfirm={() => {
+            setCompleteOpen(false)
+            markComplete.mutate([order.id])
+          }}
+        />
       </>
     )
   }
@@ -189,12 +266,12 @@ function OrderActions({
   if (tab === "completed") {
     return (
       <>
-        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Cetak Faktur")}>
+        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={printPlaceholder("Cetak Faktur")}>
           <FileTextIcon className="h-3.5 w-3.5" />
           Cetak Faktur
         </Button>
         {order.shipping?.tracking_number && (
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Cetak Resi")}>
+          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={printPlaceholder("Cetak Resi")}>
             <PrinterIcon className="h-3.5 w-3.5" />
             Cetak Resi
           </Button>
@@ -205,9 +282,14 @@ function OrderActions({
 
   if (tab === "empty-stock" || tab === "failed-pick") {
     return (
-      <Button size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Pindahkan ke Perlu Dikirim")}>
+      <Button
+        size="sm"
+        className="h-8 gap-1.5 text-xs"
+        disabled={busy}
+        onClick={() => moveToReady.mutate([order.id])}
+      >
         <ArrowRightIcon className="h-3.5 w-3.5" />
-        Pindahkan ke Perlu Dikirim
+        {moveToReady.isPending ? "Memindahkan..." : "Pindahkan ke Perlu Dikirim"}
       </Button>
     )
   }
@@ -217,13 +299,24 @@ function OrderActions({
 
     return (
       <>
-        <Button size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Terima Pembatalan")}>
+        <Button
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          disabled={busy}
+          onClick={() => acceptCancel.mutate(order.id)}
+        >
           <CheckIcon className="h-3.5 w-3.5" />
-          Terima
+          {acceptCancel.isPending ? "Memproses..." : "Terima"}
         </Button>
-        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Tolak Pembatalan")}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          disabled={busy}
+          onClick={() => rejectCancel.mutate(order.id)}
+        >
           <XIcon className="h-3.5 w-3.5" />
-          Tolak
+          {rejectCancel.isPending ? "Memproses..." : "Tolak"}
         </Button>
       </>
     )
@@ -232,7 +325,7 @@ function OrderActions({
   if (tab === "returned") {
     if (subFilter === "accepted" || subFilter === "rejected") {
       return (
-        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Cetak Faktur")}>
+        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={printPlaceholder("Cetak Faktur")}>
           <FileTextIcon className="h-3.5 w-3.5" />
           Cetak Faktur
         </Button>
@@ -241,15 +334,26 @@ function OrderActions({
 
     return (
       <>
-        <Button size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Terima Retur")}>
+        <Button
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          disabled={busy}
+          onClick={() => acceptReturn.mutate(order.id)}
+        >
           <CheckIcon className="h-3.5 w-3.5" />
-          Terima
+          {acceptReturn.isPending ? "Memproses..." : "Terima"}
         </Button>
-        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Tolak Retur")}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          disabled={busy}
+          onClick={() => rejectReturn.mutate({ returnId: order.id })}
+        >
           <XIcon className="h-3.5 w-3.5" />
-          Tolak
+          {rejectReturn.isPending ? "Memproses..." : "Tolak"}
         </Button>
-        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Cetak Faktur")}>
+        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={printPlaceholder("Cetak Faktur")}>
           <FileTextIcon className="h-3.5 w-3.5" />
           Cetak Faktur
         </Button>
@@ -262,15 +366,21 @@ function OrderActions({
 
     if (order.status === "packed" && !order.is_canceled) {
       actions.push(
-        <Button key="ship" size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Kirim")}>
+        <Button
+          key="ship"
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          disabled={busy}
+          onClick={() => requestAwb.mutate({ orderId: order.id })}
+        >
           <TruckIcon className="h-3.5 w-3.5" />
-          Kirim
+          {requestAwb.isPending ? "Memproses..." : "Kirim"}
         </Button>
       )
     }
     if (order.shipping?.tracking_number && !order.is_canceled) {
       actions.push(
-        <Button key="print-resi" variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={placeholder("Cetak Resi")}>
+        <Button key="print-resi" variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={printPlaceholder("Cetak Resi")}>
           <PrinterIcon className="h-3.5 w-3.5" />
           Cetak Resi
         </Button>
@@ -291,6 +401,7 @@ function OrderActions({
               variant="ghost"
               size="sm"
               className="h-8 gap-1.5 text-xs text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10"
+              disabled={busy}
               onClick={() => setCancelOpen(true)}
             >
               <BanIcon className="h-3.5 w-3.5" />
@@ -314,7 +425,7 @@ function OrderActions({
             variant="destructive"
             onConfirm={() => {
               setCancelOpen(false)
-              toast.info("Fitur pembatalan akan segera tersedia")
+              cancelOrder.mutate({ orderId: order.id })
             }}
           >
             <div className="flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50 p-3 dark:border-orange-500/20 dark:bg-orange-500/10">
