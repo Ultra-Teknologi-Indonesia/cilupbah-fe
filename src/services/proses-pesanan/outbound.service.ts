@@ -65,7 +65,7 @@ function mapOrder(raw: RawFulfillmentOrder): FulfillmentOrder {
     id: raw.id,
     salesorderNo: raw.salesorder_no,
     channelOrderNo: raw.channel_order_no ?? null,
-    customerName: raw.customer_name ?? null,
+    customerName: raw.shipping_full_name ?? raw.customer_name ?? null,
     source: raw.source ?? null,
     status: raw.status ?? null,
     isPaid: Boolean(raw.is_paid),

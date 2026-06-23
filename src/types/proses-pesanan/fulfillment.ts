@@ -90,6 +90,7 @@ export interface RawFulfillmentOrder {
   salesorder_no: string
   channel_order_no?: string | null
   customer_name?: string | null
+  shipping_full_name?: string | null
   source?: string | null
   status?: string | null
   is_paid?: boolean
