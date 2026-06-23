@@ -82,6 +82,7 @@ function mapOrder(raw: RawFulfillmentOrder): FulfillmentOrder {
       sku: i.sku,
       description: i.description,
       qty: i.qty_in_base,
+      imageUrl: i.image_url ?? null,
     })),
   }
 }

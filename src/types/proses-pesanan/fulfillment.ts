@@ -82,6 +82,7 @@ export interface RawFulfillmentOrderItem {
   sku: string
   description: string
   qty_in_base: number
+  image_url?: string | null
 }
 
 export interface RawFulfillmentOrder {
@@ -108,6 +109,7 @@ export interface FulfillmentOrderItem {
   sku: string
   description: string
   qty: number
+  imageUrl: string | null
 }
 
 export interface FulfillmentOrder {

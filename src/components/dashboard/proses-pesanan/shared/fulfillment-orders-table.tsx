@@ -190,12 +190,24 @@ function OrderCard({
       {/* Items */}
       {order.items.length > 0 && (
         <div className="border-b border-border/40 px-4 py-2.5 sm:px-5">
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             {order.items.map((item) => (
               <div key={item.id} className="flex items-center gap-3 text-sm">
-                <PackageIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                <span className="min-w-0 flex-1 truncate">{item.description || item.sku}</span>
-                <span className="shrink-0 text-xs text-muted-foreground">SKU: {item.sku}</span>
+                {item.imageUrl ? (
+                  <img
+                    src={item.imageUrl}
+                    alt={item.description || item.sku}
+                    className="h-10 w-10 shrink-0 rounded-lg border border-border/60 object-cover"
+                  />
+                ) : (
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-muted/50">
+                    <PackageIcon className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium">{item.description || item.sku}</p>
+                  <p className="text-xs text-muted-foreground">SKU: {item.sku}</p>
+                </div>
                 <span className="shrink-0 font-medium tabular-nums">×{item.qty}</span>
               </div>
             ))}

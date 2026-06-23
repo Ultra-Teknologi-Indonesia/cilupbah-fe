@@ -99,6 +99,7 @@ export interface OrderItem {
   disc_amount: number
   tax_amount: number
   amount: number
+  image_url: string | null
 }
 
 export interface OrderTabCounts {
