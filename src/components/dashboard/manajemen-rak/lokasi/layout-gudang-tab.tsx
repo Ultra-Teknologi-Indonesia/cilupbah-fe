@@ -151,6 +151,14 @@ function WarehouseVisual({ floors, rows, columns, bins }: WarehouseVisualProps) 
   const empty =
     floors < 1 && rows < 1 && columns < 1 && bins < 1
 
+  if (empty) {
+    return (
+      <div className="flex h-full min-h-[240px] w-full items-center justify-center rounded-2xl border border-dashed border-border px-6 text-center text-xs text-muted-foreground">
+        Isi jumlah lantai, baris, kolom, dan rak untuk melihat pratinjau gudang 3D.
+      </div>
+    )
+  }
+
   // Batasi agar tetap terbaca (visual ilustratif, bukan 1:1).
   const F = Math.min(Math.max(floors, 1), 3)
   const R = Math.min(Math.max(rows, 1), 3)
@@ -204,10 +212,15 @@ function WarehouseVisual({ floors, rows, columns, bins }: WarehouseVisualProps) 
   const FACE_STK = "#b7c0cc"
   const POST = "#334155"
 
-  const els: React.ReactNode[] = []
   let kid = 0
-  const poly = (arr: [number, number][], fill: string, stroke = "none", sw = 0) =>
-    els.push(
+  const poly = (
+    target: React.ReactNode[],
+    arr: [number, number][],
+    fill: string,
+    stroke = "none",
+    sw = 0
+  ) =>
+    target.push(
       <polygon
         key={`p${kid++}`}
         points={ptsOf(arr)}
@@ -217,8 +230,14 @@ function WarehouseVisual({ floors, rows, columns, bins }: WarehouseVisualProps) 
         strokeLinejoin="round"
       />
     )
-  const line = (a: [number, number], b: [number, number], stroke: string, sw: number) =>
-    els.push(
+  const line = (
+    target: React.ReactNode[],
+    a: [number, number],
+    b: [number, number],
+    stroke: string,
+    sw: number
+  ) =>
+    target.push(
       <line
         key={`l${kid++}`}
         x1={a[0].toFixed(1)}
@@ -231,11 +250,13 @@ function WarehouseVisual({ floors, rows, columns, bins }: WarehouseVisualProps) 
       />
     )
 
-  // Dinding ruangan (sudut belakang).
-  poly([pt(0, 0, 0), pt(0, GY, 0), pt(0, GY, maxZ), pt(0, 0, maxZ)], WALL_BACK)
-  poly([pt(0, 0, 0), pt(GX, 0, 0), pt(GX, 0, maxZ), pt(0, 0, maxZ)], WALL_SIDE)
+  // Dinding ruangan (sudut belakang) — statis, tidak ikut beranimasi.
+  const wallEls: React.ReactNode[] = []
+  poly(wallEls, [pt(0, 0, 0), pt(0, GY, 0), pt(0, GY, maxZ), pt(0, 0, maxZ)], WALL_BACK)
+  poly(wallEls, [pt(0, 0, 0), pt(GX, 0, 0), pt(GX, 0, maxZ), pt(0, 0, maxZ)], WALL_SIDE)
 
   const drawRack = (
+    target: React.ReactNode[],
     x0: number,
     x1: number,
     y0: number,
@@ -244,11 +265,11 @@ function WarehouseVisual({ floors, rows, columns, bins }: WarehouseVisualProps) 
   ) => {
     const zt = zb + shelfH
     // Permukaan atas.
-    poly([pt(x0, y0, zt), pt(x1, y0, zt), pt(x1, y1, zt), pt(x0, y1, zt)], SHELF_TOP, FACE_STK, 0.5)
+    poly(target, [pt(x0, y0, zt), pt(x1, y0, zt), pt(x1, y1, zt), pt(x0, y1, zt)], SHELF_TOP, FACE_STK, 0.5)
     // Sisi ujung (x = x1).
-    poly([pt(x1, y0, zb), pt(x1, y1, zb), pt(x1, y1, zt), pt(x1, y0, zt)], SHELF_END, FACE_STK, 0.5)
+    poly(target, [pt(x1, y0, zb), pt(x1, y1, zb), pt(x1, y1, zt), pt(x1, y0, zt)], SHELF_END, FACE_STK, 0.5)
     // Muka depan (y = y1).
-    poly([pt(x0, y1, zb), pt(x1, y1, zb), pt(x1, y1, zt), pt(x0, y1, zt)], SHELF_FRONT, FACE_STK, 0.5)
+    poly(target, [pt(x0, y1, zb), pt(x1, y1, zb), pt(x1, y1, zt), pt(x0, y1, zt)], SHELF_FRONT, FACE_STK, 0.5)
 
     // Barang tersimpan: kotak per bay (kolom) per level (rak) di muka depan.
     const bw = (x1 - x0) / C
@@ -259,6 +280,7 @@ function WarehouseVisual({ floors, rows, columns, bins }: WarehouseVisualProps) 
         const cz0 = zb + kk * LH + 1.6
         const cz1 = zb + (kk + 1) * LH - 1.6
         poly(
+          target,
           [pt(cx0, y1, cz0), pt(cx1, y1, cz0), pt(cx1, y1, cz1), pt(cx0, y1, cz1)],
           ITEM,
           ITEM_STK,
@@ -269,7 +291,7 @@ function WarehouseVisual({ floors, rows, columns, bins }: WarehouseVisualProps) 
 
     // Garis level (rak) di muka depan.
     for (let kk = 0; kk <= B; kk++) {
-      line(pt(x0, y1, zb + kk * LH), pt(x1, y1, zb + kk * LH), "#aab4c0", 0.6)
+      line(target, pt(x0, y1, zb + kk * LH), pt(x1, y1, zb + kk * LH), "#aab4c0", 0.6)
     }
 
     // Tiang vertikal: sudut + pembatas bay.
@@ -280,45 +302,54 @@ function WarehouseVisual({ floors, rows, columns, bins }: WarehouseVisualProps) 
       [x1, y1],
     ]
     for (let i = 1; i < C; i++) posts.push([x0 + i * bw, y1])
-    for (const [vx, vy] of posts) line(pt(vx, vy, zb), pt(vx, vy, zt), POST, 1.7)
+    for (const [vx, vy] of posts) line(target, pt(vx, vy, zb), pt(vx, vy, zt), POST, 1.7)
   }
 
-  // Lantai dari bawah ke atas; tiap lantai: slab biru lalu rak (belakang→depan).
+  // Tiap lantai dikelompokkan agar bisa beranimasi terpisah (bawah → atas).
+  const floorEls: React.ReactNode[][] = []
   for (let f = 0; f < F; f++) {
     const base = f * floorH
     const ST = 4 // tebal slab
+    const fe: React.ReactNode[] = []
 
     // Permukaan slab (atas).
-    poly([pt(0, 0, base), pt(GX, 0, base), pt(GX, GY, base), pt(0, GY, base)], BLUE_TOP)
+    poly(fe, [pt(0, 0, base), pt(GX, 0, base), pt(GX, GY, base), pt(0, GY, base)], BLUE_TOP)
     // Sisi tebal slab (depan & kanan).
-    poly([pt(0, GY, base), pt(GX, GY, base), pt(GX, GY, base - ST), pt(0, GY, base - ST)], BLUE_S1)
-    poly([pt(GX, 0, base), pt(GX, GY, base), pt(GX, GY, base - ST), pt(GX, 0, base - ST)], BLUE_S2)
+    poly(fe, [pt(0, GY, base), pt(GX, GY, base), pt(GX, GY, base - ST), pt(0, GY, base - ST)], BLUE_S1)
+    poly(fe, [pt(GX, 0, base), pt(GX, GY, base), pt(GX, GY, base - ST), pt(GX, 0, base - ST)], BLUE_S2)
 
     for (let r = 0; r < R; r++) {
       const y0 = M_BACK + r * (RD + AISLE)
       const y1 = y0 + RD
-      drawRack(M_SIDE, GX - M_SIDE, y0, y1, base)
+      drawRack(fe, M_SIDE, GX - M_SIDE, y0, y1, base)
     }
+    floorEls.push(fe)
   }
 
-  if (empty) {
-    return (
-      <div className="flex h-full min-h-[240px] w-full items-center justify-center rounded-2xl border border-dashed border-border px-6 text-center text-xs text-muted-foreground">
-        Isi jumlah lantai, baris, kolom, dan rak untuk melihat pratinjau gudang 3D.
-      </div>
-    )
-  }
+  // Tanda tangan struktur: animasi hanya dipicu saat bentuk berubah.
+  const sig = `${F}-${R}-${C}-${B}`
 
   return (
     <div className="flex flex-col items-center gap-3">
+      <style>{
+        "@keyframes wvFloorIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}" +
+        ".wv-floor{animation:wvFloorIn .45s cubic-bezier(.22,.61,.36,1) both}" +
+        "@media (prefers-reduced-motion:reduce){.wv-floor{animation:none}}"
+      }</style>
       <svg
+        key={sig}
         viewBox={`0 0 ${Math.ceil(W)} ${Math.ceil(H)}`}
         className="w-full max-w-[300px]"
         xmlns="http://www.w3.org/2000/svg"
         role="img"
         aria-label={`Pratinjau gudang ${floors} lantai, ${rows} baris, ${columns} kolom, ${bins} rak`}
       >
-        {els}
+        {wallEls}
+        {floorEls.map((fe, i) => (
+          <g key={i} className="wv-floor" style={{ animationDelay: `${i * 90}ms` }}>
+            {fe}
+          </g>
+        ))}
       </svg>
 
       <div className="grid grid-cols-2 gap-x-5 gap-y-1 text-[11px] text-muted-foreground">
