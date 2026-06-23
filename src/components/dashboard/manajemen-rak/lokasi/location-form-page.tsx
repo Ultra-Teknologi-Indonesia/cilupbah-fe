@@ -24,6 +24,7 @@ import { useBulkUpdateBins } from "@/hooks/manajemen-rak/use-bulk-update-bins"
 import { useWarehouseLayoutSetting } from "@/hooks/manajemen-rak/use-warehouse-layout-setting"
 import type {
   BinDraft,
+  BinPreviewItem,
   GenerateBinsPayload,
   Location,
   LocationPayload,
