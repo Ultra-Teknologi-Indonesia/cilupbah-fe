@@ -4,7 +4,6 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PanelLeft, SettingsIcon, LogOutIcon } from "lucide-react";
-import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 import {
@@ -128,10 +127,8 @@ export function SidebarRailNav({
     try {
       await AuthService.logout();
     } catch {}
-    toast.success("Berhasil keluar.");
-    setTimeout(() => {
-      window.location.href = "/login";
-    }, 600);
+    await clearLoginSession();
+    window.location.href = "/login?logout=success";
   };
 
   return (
