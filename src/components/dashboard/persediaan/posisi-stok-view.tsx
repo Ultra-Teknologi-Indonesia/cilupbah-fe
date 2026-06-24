@@ -14,6 +14,7 @@ import Image from "next/image"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination } from "@/components/ui/simple-pagination"
@@ -38,6 +39,21 @@ const STOCK_FILTER_TABS: { key: StockFilter; label: string; icon: typeof Package
   { key: "all", label: "Semua", icon: PackageIcon },
   { key: "single", label: "Satuan", icon: BoxIcon },
   { key: "bundle", label: "Bundle", icon: BoxesIcon },
+]
+
+interface FilterState {
+  location_id: string
+  channel: string
+}
+
+const EMPTY_FILTERS: FilterState = { location_id: "", channel: "" }
+
+const CHANNEL_OPTIONS = [
+  { value: "", label: "Semua Channel" },
+  { value: "tiktok", label: "TikTok" },
+  { value: "shopee", label: "Shopee" },
+  { value: "tokopedia", label: "Tokopedia" },
+  { value: "lazada", label: "Lazada" },
 ]
 
 function SortHeader({
@@ -127,6 +143,7 @@ export function PosisiStokView() {
   const [sortField, setSortField] = useState<SortField | null>(null)
   const [sortDir, setSortDir] = useState<SortDir>("asc")
   const [stockFilter, setStockFilter] = useState<StockFilter>("all")
+  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
 
   const resetPage = useCallback(() => setPage(1), [])
 
@@ -149,6 +166,11 @@ export function PosisiStokView() {
 
   const handleStockFilter = useCallback((f: StockFilter) => {
     setStockFilter(f)
+    resetPage()
+  }, [resetPage])
+
+  const handleFilterChange = useCallback((f: FilterState) => {
+    setFilters(f)
     resetPage()
   }, [resetPage])
 
@@ -175,7 +197,9 @@ export function PosisiStokView() {
     per_page: perPage,
     sort: sortParam,
     "filter[is_bundle]": bundleFilter,
-  }), [search, page, perPage, sortParam, bundleFilter])
+    "filter[location_id]": filters.location_id || undefined,
+    "filter[channel]": filters.channel || undefined,
+  }), [search, page, perPage, sortParam, bundleFilter, filters.location_id, filters.channel])
 
   const { data, isLoading, isFetching } = useStockPosition(params)
 
@@ -193,7 +217,16 @@ export function PosisiStokView() {
       return sortDir === "asc" ? av - bv : bv - av
     })
   }, [data?.data, sortField, sortDir])
+
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0, channels: [], locations: [] }
+
+  const locationOptions = useMemo(() => [
+    { value: "", label: "Semua Lokasi" },
+    ...meta.locations.map((l) => ({ value: l.location_id, label: l.location_name })),
+  ], [meta.locations])
+
+  const hasActiveFilter = Object.values(filters).some(Boolean)
+  const activeCount = [filters.location_id, filters.channel].filter(Boolean).length
 
   const filterTabs = (
     <div className="flex items-center gap-1">
@@ -228,7 +261,29 @@ export function PosisiStokView() {
           searchPlaceholder="Cari produk, SKU, atau merek..."
           align="end"
           leading={filterTabs}
-        />
+          onReset={hasActiveFilter ? () => handleFilterChange(EMPTY_FILTERS) : undefined}
+          hasFilter={hasActiveFilter}
+          activeCount={activeCount}
+          gridCols={2}
+        >
+          <Combobox
+            options={locationOptions}
+            value={filters.location_id}
+            onChange={(v) => handleFilterChange({ ...filters, location_id: v ?? "" })}
+            placeholder="Lokasi"
+            searchPlaceholder="Cari lokasi"
+            className="h-9 bg-background"
+          />
+
+          <Combobox
+            options={CHANNEL_OPTIONS}
+            value={filters.channel}
+            onChange={(v) => handleFilterChange({ ...filters, channel: v ?? "" })}
+            placeholder="Channel"
+            searchPlaceholder="Cari channel"
+            className="h-9 bg-background"
+          />
+        </FilterToolbar>
 
         {isFetching && !isLoading && (
           <div className="flex justify-center py-1">

@@ -23,6 +23,7 @@ export const InventoryStockService = {
     if (params["filter[brand_id]"]) sp.set("filter[brand_id]", params["filter[brand_id]"])
     if (params["filter[location_id]"]) sp.set("filter[location_id]", params["filter[location_id]"])
     if (params["filter[is_bundle]"]) sp.set("filter[is_bundle]", params["filter[is_bundle]"])
+    if (params["filter[channel]"]) sp.set("filter[channel]", params["filter[channel]"])
     if (params.sort) sp.set("sort", params.sort)
 
     return fetchClient<StockListResponse>(`/inventory?${sp}`)
