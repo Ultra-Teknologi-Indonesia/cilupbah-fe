@@ -1,5 +1,6 @@
 export interface ContactCategory {
   id: string
+  code: string | null
   name: string
   description: string | null
 }
@@ -17,13 +18,22 @@ export interface ContactItem {
   email: string | null
   phone: string | null
   mobile: string | null
+  fax: string | null
   address: string | null
   city: string | null
   province: string | null
   postal_code: string | null
+  shipping_address: string | null
+  shipping_province: string | null
+  shipping_postal_code: string | null
+  shipping_same_as_billing: boolean
+  latitude: number | null
+  longitude: number | null
   tax_id: string | null
+  nik: string | null
   contact_person: string | null
-  payment_term: string
+  pic_title: string | null
+  payment_term: number | null
   notes: string | null
   status: "active" | "inactive"
   type: "CUSTOMER" | "SUPPLIER" | "BOTH"
@@ -51,13 +61,22 @@ export interface ContactFormData {
   email?: string
   phone?: string
   mobile?: string
+  fax?: string
   address?: string
   city?: string
   province?: string
   postal_code?: string
+  shipping_address?: string
+  shipping_province?: string
+  shipping_postal_code?: string
+  shipping_same_as_billing?: boolean
+  latitude?: number | null
+  longitude?: number | null
   tax_id?: string
+  nik?: string
   contact_person?: string
-  payment_term?: string
+  pic_title?: string
+  payment_term?: number | null
   notes?: string
   type: "SUPPLIER" | "BOTH"
   category_id?: string

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo, useCallback, useEffect } from "react"
+import Link from "next/link"
 import {
   PlusIcon,
   PencilIcon,
@@ -20,9 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination } from "@/components/ui/simple-pagination"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
-import { useContacts, useContactCategories, useAccountPayableOptions, useDeleteContact } from "@/hooks/kontak-pemasok/use-contacts"
-import { TambahKontakDialog } from "./tambah-kontak-dialog"
-import { EditKontakDialog } from "./edit-kontak-dialog"
+import { useContacts, useContactCategories, useDeleteContact } from "@/hooks/kontak-pemasok/use-contacts"
 import type { ContactItem, ContactListParams } from "@/types/kontak-pemasok/contact"
 
 type TypeFilter = "all" | "SUPPLIER" | "BOTH"
@@ -51,7 +50,7 @@ function TableSkeleton() {
     <div className="flex flex-col">
       <div className="border-b border-border/40 px-3 py-3">
         <div className="flex gap-4">
-          {Array.from({ length: 7 }).map((_, i) => (
+          {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-4 flex-1" />
           ))}
         </div>
@@ -59,7 +58,6 @@ function TableSkeleton() {
       {Array.from({ length: 8 }).map((_, i) => (
         <div key={i} className="border-b border-border/20 px-3 py-3.5">
           <div className="flex gap-4">
-            <Skeleton className="h-4 w-24" />
             <Skeleton className="h-4 flex-1" />
             <Skeleton className="h-4 w-32" />
             <Skeleton className="h-4 w-28" />
@@ -80,8 +78,6 @@ export function KontakPemasokView() {
   const [perPage, setPerPage] = useState(15)
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all")
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
-  const [tambahOpen, setTambahOpen] = useState(false)
-  const [editTarget, setEditTarget] = useState<ContactItem | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<ContactItem | null>(null)
 
   const resetPage = useCallback(() => setPage(1), [])
@@ -115,7 +111,6 @@ export function KontakPemasokView() {
 
   const { data, isLoading, isFetching } = useContacts(params)
   const { data: categories = [] } = useContactCategories()
-  const { data: accountPayableOptions = [] } = useAccountPayableOptions()
   const deleteMut = useDeleteContact()
 
   const items = data?.items ?? []
@@ -123,7 +118,7 @@ export function KontakPemasokView() {
 
   const categoryOptions = useMemo(() => [
     { value: "", label: "Semua Kategori" },
-    ...categories.map((c) => ({ value: c.id, label: c.name })),
+    ...categories.map((c) => ({ value: c.id, label: c.code ? `${c.code} - ${c.name}` : c.name })),
   ], [categories])
 
   const statusOptions = [
@@ -169,9 +164,11 @@ export function KontakPemasokView() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-end">
-        <Button variant="primary" onClick={() => setTambahOpen(true)}>
-          <PlusIcon className="h-4 w-4" />
-          Tambah Pemasok
+        <Button variant="primary" asChild>
+          <Link href="/dashboard/kontak-pemasok/tambah">
+            <PlusIcon className="h-4 w-4" />
+            Tambah Pemasok
+          </Link>
         </Button>
       </div>
 
@@ -179,7 +176,7 @@ export function KontakPemasokView() {
         <FilterToolbar
           search={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Cari nama, perusahaan, kode, email..."
+          searchPlaceholder="Cari nama, perusahaan, email..."
           align="end"
           leading={filterTabs}
           onReset={hasActiveFilter ? () => handleFilterChange(EMPTY_FILTERS) : undefined}
@@ -229,13 +226,7 @@ export function KontakPemasokView() {
                   <thead>
                     <tr className="border-b border-border/60 bg-muted/30">
                       <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Kode
-                      </th>
-                      <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                         Nama
-                      </th>
-                      <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Perusahaan
                       </th>
                       <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                         Email
@@ -244,10 +235,10 @@ export function KontakPemasokView() {
                         Telepon
                       </th>
                       <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Tipe
+                        Kategori
                       </th>
                       <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Kategori
+                        Tipe
                       </th>
                       <th className="whitespace-nowrap px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                         Aksi
@@ -260,25 +251,29 @@ export function KontakPemasokView() {
                         key={item.id}
                         className="border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
                       >
-                        <td className="whitespace-nowrap px-3 py-3 font-mono text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1.5">
+                        <td className="whitespace-nowrap px-3 py-3 font-medium">
+                          <Link
+                            href={`/dashboard/kontak-pemasok/${item.id}`}
+                            className="inline-flex items-center gap-1.5 hover:text-primary hover:underline"
+                          >
                             {item.is_system && (
                               <LockIcon className="h-3 w-3 text-amber-500" />
                             )}
-                            {item.code}
-                          </div>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 font-medium">
-                          {item.name}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                          {item.company_name || "—"}
+                            {item.name}
+                          </Link>
                         </td>
                         <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
                           {item.email || "—"}
                         </td>
                         <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
                           {item.phone || item.mobile || "—"}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
+                          {item.category
+                            ? item.category.code
+                              ? `${item.category.code} - ${item.category.name}`
+                              : item.category.name
+                            : "—"}
                         </td>
                         <td className="whitespace-nowrap px-3 py-3">
                           <Badge
@@ -293,18 +288,16 @@ export function KontakPemasokView() {
                             {TYPE_LABELS[item.type] ?? item.type}
                           </Badge>
                         </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                          {item.category?.name || "—"}
-                        </td>
                         <td className="whitespace-nowrap px-3 py-3 text-right">
                           <div className="flex items-center justify-end gap-1">
                             <Button
                               variant="ghost"
                               size="icon-sm"
-                              onClick={() => setEditTarget(item)}
-                              aria-label="Edit"
+                              asChild
                             >
-                              <PencilIcon className="h-3.5 w-3.5" />
+                              <Link href={`/dashboard/kontak-pemasok/${item.id}/edit`} aria-label="Edit">
+                                <PencilIcon className="h-3.5 w-3.5" />
+                              </Link>
                             </Button>
                             {!item.is_system && (
                               <Button
@@ -339,21 +332,6 @@ export function KontakPemasokView() {
           )}
         </div>
       </LiquidGlass>
-
-      <TambahKontakDialog
-        open={tambahOpen}
-        onOpenChange={setTambahOpen}
-        categories={categories}
-        accountPayableOptions={accountPayableOptions}
-      />
-
-      <EditKontakDialog
-        open={!!editTarget}
-        onOpenChange={(v) => !v && setEditTarget(null)}
-        contact={editTarget}
-        categories={categories}
-        accountPayableOptions={accountPayableOptions}
-      />
 
       <ConfirmDialog
         open={!!deleteTarget}

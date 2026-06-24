@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { ContactService } from "@/services/kontak-pemasok/contact.service"
-import type { ContactListParams } from "@/types/kontak-pemasok/contact"
+import type { ContactListParams, ContactFormData } from "@/types/kontak-pemasok/contact"
 
 const STALE = 60 * 1000
 
@@ -11,6 +11,15 @@ export function useContacts(params: ContactListParams = {}) {
   return useQuery({
     queryKey: ["contact", "list", params],
     queryFn: () => ContactService.list(params),
+    staleTime: STALE,
+  })
+}
+
+export function useContactDetail(id?: string) {
+  return useQuery({
+    queryKey: ["contact", "detail", id],
+    queryFn: () => ContactService.getById(id!),
+    enabled: !!id,
     staleTime: STALE,
   })
 }
@@ -47,7 +56,7 @@ export function useCreateContact() {
 export function useUpdateContact() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Parameters<typeof ContactService.update>[1] }) =>
+    mutationFn: ({ id, data }: { id: string; data: ContactFormData }) =>
       ContactService.update(id, data),
     onSuccess: () => {
       toast.success("Kontak berhasil diperbarui")
