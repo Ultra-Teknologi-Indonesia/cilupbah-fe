@@ -77,6 +77,7 @@ export interface StockListParams {
   "filter[product_id]"?: string
   "filter[brand_id]"?: string
   "filter[location_id]"?: string
+  "filter[is_bundle]"?: string
   sort?: string
 }
 

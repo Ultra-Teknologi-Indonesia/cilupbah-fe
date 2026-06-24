@@ -3,20 +3,21 @@
 import { useState, useMemo, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import {
-  SearchIcon,
   PackageIcon,
   ArrowUpDown,
   ChevronUpIcon,
   ChevronDownIcon,
+  BoxesIcon,
+  BoxIcon,
 } from "lucide-react"
 import Image from "next/image"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination } from "@/components/ui/simple-pagination"
+import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { useStockPosition } from "@/hooks/persediaan/use-stock-position"
 import type { StockItem, StockListParams } from "@/types/persediaan/stock"
 
@@ -31,6 +32,13 @@ function formatCurrency(value: number) {
 
 type SortField = "item_code" | "average_cost" | "on_hand" | "available"
 type SortDir = "asc" | "desc"
+type StockFilter = "all" | "single" | "bundle"
+
+const STOCK_FILTER_TABS: { key: StockFilter; label: string; icon: typeof PackageIcon }[] = [
+  { key: "all", label: "Semua", icon: PackageIcon },
+  { key: "single", label: "Satuan", icon: BoxIcon },
+  { key: "bundle", label: "Bundle", icon: BoxesIcon },
+]
 
 function SortHeader({
   label,
@@ -118,6 +126,7 @@ export function PosisiStokView() {
   const [perPage, setPerPage] = useState(15)
   const [sortField, setSortField] = useState<SortField | null>(null)
   const [sortDir, setSortDir] = useState<SortDir>("asc")
+  const [stockFilter, setStockFilter] = useState<StockFilter>("all")
 
   const resetPage = useCallback(() => setPage(1), [])
 
@@ -138,6 +147,11 @@ export function PosisiStokView() {
     resetPage()
   }, [resetPage])
 
+  const handleStockFilter = useCallback((f: StockFilter) => {
+    setStockFilter(f)
+    resetPage()
+  }, [resetPage])
+
   const SERVER_SORT_MAP: Partial<Record<SortField, string>> = {
     item_code: "product_variants.sku",
   }
@@ -149,12 +163,19 @@ export function PosisiStokView() {
     return sortDir === "desc" ? `-${mapped}` : mapped
   }, [sortField, sortDir])
 
+  const bundleFilter = useMemo(() => {
+    if (stockFilter === "bundle") return "1"
+    if (stockFilter === "single") return "0"
+    return undefined
+  }, [stockFilter])
+
   const params = useMemo<StockListParams>(() => ({
     search: search || undefined,
     page,
     per_page: perPage,
     sort: sortParam,
-  }), [search, page, perPage, sortParam])
+    "filter[is_bundle]": bundleFilter,
+  }), [search, page, perPage, sortParam, bundleFilter])
 
   const { data, isLoading, isFetching } = useStockPosition(params)
 
@@ -174,26 +195,47 @@ export function PosisiStokView() {
   }, [data?.data, sortField, sortDir])
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0, channels: [], locations: [] }
 
+  const filterTabs = (
+    <div className="flex items-center gap-1">
+      {STOCK_FILTER_TABS.map(({ key, label, icon: Icon }) => {
+        const isActive = stockFilter === key
+        return (
+          <button
+            key={key}
+            type="button"
+            onClick={() => handleStockFilter(key)}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+              isActive
+                ? "bg-foreground text-background shadow-sm"
+                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+            )}
+          >
+            <Icon className="h-3.5 w-3.5" />
+            {label}
+          </button>
+        )
+      })}
+    </div>
+  )
+
   return (
     <div className="flex flex-col gap-4">
       <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
-        {/* Search Bar */}
-        <div className="flex items-center gap-3 border-b border-border/40 px-4 py-3 sm:px-5">
-          <div className="relative flex-1">
-            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Cari produk, SKU, atau merek..."
-              value={search}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="h-9 pl-9 text-sm"
-            />
-          </div>
-          {isFetching && !isLoading && (
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          )}
-        </div>
+        <FilterToolbar
+          search={search}
+          onSearchChange={handleSearch}
+          searchPlaceholder="Cari produk, SKU, atau merek..."
+          align="end"
+          leading={filterTabs}
+        />
 
-        {/* Table */}
+        {isFetching && !isLoading && (
+          <div className="flex justify-center py-1">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          </div>
+        )}
+
         <div className="px-4 py-3 sm:px-5">
           {isLoading ? (
             <StockSkeleton />
@@ -246,9 +288,16 @@ export function PosisiStokView() {
                               </div>
                             )}
                             <div className="min-w-0">
-                              <p className="truncate text-sm font-medium leading-tight">
-                                {item.item_name || item.item_code}
-                              </p>
+                              <div className="flex items-center gap-1.5">
+                                <p className="truncate text-sm font-medium leading-tight">
+                                  {item.item_name || item.item_code}
+                                </p>
+                                {item.is_bundle && (
+                                  <Badge variant="outline" className="shrink-0 text-[10px] leading-tight border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400">
+                                    Bundle
+                                  </Badge>
+                                )}
+                              </div>
                               <p className="mt-0.5 truncate text-xs text-muted-foreground">
                                 {item.item_code}
                                 {item.brand_name && ` · ${item.brand_name}`}
