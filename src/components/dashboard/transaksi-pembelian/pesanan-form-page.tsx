@@ -84,7 +84,7 @@ export function PesananFormPage({ mode, id }: Props) {
   const [refNo, setRefNo] = useState("")
   const [paymentTerm, setPaymentTerm] = useState("0")
   const [notes, setNotes] = useState("")
-  const [items, setItems] = useState<(PurchaseOrderItemFormData & { thumbnail?: string | null })[]>([])
+  const [items, setItems] = useState<(PurchaseOrderItemFormData & { thumbnail?: string | null; variant_label?: string })[]>([])
   const [pickerOpen, setPickerOpen] = useState(false)
 
   const { data: contactsData } = useContacts({ per_page: 100, "filter[type]": "SUPPLIER" })
@@ -146,6 +146,7 @@ export function PesananFormPage({ mode, id }: Props) {
             unit_price: p.sellPrice ?? 0,
             disc: 0,
             thumbnail: p.thumbnail,
+            variant_label: p.variantLabel,
           })
         }
       }
@@ -329,7 +330,12 @@ export function PesananFormPage({ mode, id }: Props) {
                             <ProductImage src={item.thumbnail} alt={item.product_name ?? ""} />
                             <div className="min-w-0">
                               <div className="truncate font-medium">{item.product_name}</div>
-                              <div className="truncate font-mono text-xs text-muted-foreground">{item.product_sku}</div>
+                              <div className="flex items-center gap-2">
+                                <span className="truncate font-mono text-xs text-muted-foreground">{item.product_sku}</span>
+                                {item.variant_label && (
+                                  <span className="shrink-0 text-xs text-muted-foreground">· {item.variant_label}</span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </td>

@@ -21,6 +21,7 @@ export interface PickedProduct {
   itemId: string
   sku: string
   name: string
+  variantLabel: string
   thumbnail: string | null
   sellPrice: number | null
 }
@@ -30,6 +31,10 @@ interface ProductPickerDialogProps {
   onOpenChange: (open: boolean) => void
   onPick: (products: PickedProduct[]) => void
   excludeIds?: string[]
+}
+
+function formatCurrency(val: number) {
+  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(val)
 }
 
 export function ProductPickerDialog({
@@ -61,37 +66,54 @@ export function ProductPickerDialog({
     perPage: 20,
   })
 
-  const variants = React.useMemo(() => {
-    const result: (PickedProduct & { productName: string; thumbnail: string | null; isBundle: boolean })[] = []
+  const products = React.useMemo(() => {
+    const result: {
+      itemGroupId: string
+      itemName: string
+      thumbnail: string | null
+      isBundle: boolean
+      categoryName: string
+      variants: {
+        itemId: string
+        sku: string
+        sellPrice: number | null
+        variationValues: { label: string; value: string }[]
+      }[]
+    }[] = []
+
     for (const p of data?.items ?? []) {
-      for (const v of p.variants) {
-        if (excludeIds.includes(v.itemId)) continue
-        result.push({
+      const filteredVariants = p.variants.filter((v) => !excludeIds.includes(v.itemId))
+      if (filteredVariants.length === 0) continue
+      result.push({
+        itemGroupId: p.itemGroupId,
+        itemName: p.itemName,
+        thumbnail: p.thumbnail,
+        isBundle: p.isBundle,
+        categoryName: p.categoryName,
+        variants: filteredVariants.map((v) => ({
           itemId: v.itemId,
           sku: v.sku,
-          name: p.itemName,
-          productName: p.itemName,
-          thumbnail: p.thumbnail,
           sellPrice: v.sellPrice,
-          isBundle: p.isBundle,
-        })
-      }
+          variationValues: v.variationValues,
+        })),
+      })
     }
     return result
   }, [data, excludeIds])
 
-  const toggleSelect = (v: (typeof variants)[0]) => {
+  const toggleSelect = (product: (typeof products)[0], variant: (typeof products)[0]["variants"][0]) => {
     setSelected((prev) => {
       const next = new Map(prev)
-      if (next.has(v.itemId)) {
-        next.delete(v.itemId)
+      if (next.has(variant.itemId)) {
+        next.delete(variant.itemId)
       } else {
-        next.set(v.itemId, {
-          itemId: v.itemId,
-          sku: v.sku,
-          name: v.productName,
-          thumbnail: v.thumbnail,
-          sellPrice: v.sellPrice,
+        next.set(variant.itemId, {
+          itemId: variant.itemId,
+          sku: variant.sku,
+          name: product.itemName,
+          variantLabel: variant.variationValues.map((v) => v.value).join(", "),
+          thumbnail: product.thumbnail,
+          sellPrice: variant.sellPrice,
         })
       }
       return next
@@ -105,7 +127,7 @@ export function ProductPickerDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Pilih Produk</DialogTitle>
           <DialogDescription>
@@ -119,75 +141,116 @@ export function ProductPickerDialog({
             autoFocus
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Cari nama / SKU…"
-            className="h-9 rounded-full border-border bg-background pl-9"
+            placeholder="Cari nama produk / SKU…"
+            className="h-10 rounded-full border-border bg-background pl-9"
           />
         </div>
 
-        <div className="max-h-80 overflow-y-auto overscroll-contain">
+        <div className="max-h-[28rem] overflow-y-auto overscroll-contain -mx-1 px-1">
           {isLoading ? (
-            <div className="flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
+            <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
               <Loader2Icon className="size-4 animate-spin" />
               Memuat produk…
             </div>
-          ) : variants.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 py-12 text-center">
-              <SearchXIcon className="size-7 text-muted-foreground" />
+          ) : products.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 py-16 text-center">
+              <SearchXIcon className="size-8 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">Produk tidak ditemukan</p>
             </div>
           ) : (
-            <ul className="flex flex-col gap-1">
-              {variants.map((v) => {
-                const isSelected = selected.has(v.itemId)
-                return (
-                  <li key={v.itemId}>
-                    <button
-                      type="button"
-                      onClick={() => toggleSelect(v)}
-                      className={cn(
-                        "flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors",
-                        isSelected ? "bg-primary/10 ring-1 ring-primary/30" : "hover:bg-muted/60"
-                      )}
-                    >
-                      <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
-                        {v.thumbnail ? (
-                          <img
-                            src={v.thumbnail}
-                            alt={v.productName}
-                            className="size-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.style.display = "none"
-                              e.currentTarget.nextElementSibling?.classList.remove("hidden")
-                            }}
-                          />
-                        ) : null}
-                        <ImageIcon className={cn("size-4 text-muted-foreground", v.thumbnail && "hidden")} />
+            <div className="flex flex-col gap-3">
+              {products.map((p) => (
+                <div key={p.itemGroupId} className="rounded-xl border border-border/50 bg-background/50">
+                  <div className="flex items-center gap-3 border-b border-border/30 px-4 py-3">
+                    <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
+                      {p.thumbnail ? (
+                        <img
+                          src={p.thumbnail}
+                          alt={p.itemName}
+                          className="size-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none"
+                            e.currentTarget.nextElementSibling?.classList.remove("hidden")
+                          }}
+                        />
+                      ) : null}
+                      <ImageIcon className={cn("size-4 text-muted-foreground", p.thumbnail && "hidden")} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="truncate font-medium">{p.itemName}</span>
+                        {p.isBundle && (
+                          <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">Bundle</Badge>
+                        )}
                       </div>
+                      {p.categoryName && (
+                        <div className="text-xs text-muted-foreground">{p.categoryName}</div>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {p.variants.length} varian
+                    </div>
+                  </div>
 
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
-                          <span className="truncate font-medium">{v.productName}</span>
-                          {v.isBundle && (
-                            <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">Bundle</Badge>
+                  <div className="divide-y divide-border/20">
+                    {p.variants.map((v) => {
+                      const isSelected = selected.has(v.itemId)
+                      const variantLabel = v.variationValues.map((vv) => vv.value).join(" / ")
+                      return (
+                        <button
+                          key={v.itemId}
+                          type="button"
+                          onClick={() => toggleSelect(p, v)}
+                          className={cn(
+                            "flex w-full items-center gap-4 px-4 py-2.5 text-left transition-colors",
+                            isSelected ? "bg-primary/8" : "hover:bg-muted/40"
                           )}
-                        </div>
-                        <div className="truncate font-mono text-xs text-muted-foreground">{v.sku}</div>
-                      </div>
-
-                      {isSelected && (
-                        <div className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                          <CheckIcon className="size-3" />
-                        </div>
-                      )}
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
+                        >
+                          <div className="w-11 shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              {variantLabel && (
+                                <span className="text-sm font-medium">{variantLabel}</span>
+                              )}
+                              {!variantLabel && (
+                                <span className="text-sm text-muted-foreground">Default</span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                              <span className="font-mono">{v.sku}</span>
+                              {v.variationValues.map((vv) => (
+                                <Badge key={vv.label} variant="outline" className="px-1.5 py-0 text-[10px] font-normal">
+                                  {vv.label}: {vv.value}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="shrink-0 text-right text-sm tabular-nums">
+                            {v.sellPrice != null ? formatCurrency(v.sellPrice) : "—"}
+                          </div>
+                          <div className="flex size-5 shrink-0 items-center justify-center">
+                            {isSelected ? (
+                              <div className="flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                                <CheckIcon className="size-3" />
+                              </div>
+                            ) : (
+                              <div className="size-4 rounded-full border-2 border-muted-foreground/30" />
+                            )}
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="gap-2 sm:gap-0">
+          <div className="flex-1 text-sm text-muted-foreground">
+            {selected.size > 0 && `${selected.size} varian dipilih`}
+          </div>
           <Button variant="outline" onClick={() => handleOpenChange(false)}>
             Batal
           </Button>

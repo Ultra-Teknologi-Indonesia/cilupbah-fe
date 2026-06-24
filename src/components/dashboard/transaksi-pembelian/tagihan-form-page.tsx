@@ -87,7 +87,7 @@ export function TagihanFormPage({ mode, id }: Props) {
   const [tag, setTag] = useState("")
   const [notes, setNotes] = useState("")
   const [paymentAmount, setPaymentAmount] = useState("")
-  const [items, setItems] = useState<(PurchaseBillItemFormData & { thumbnail?: string | null })[]>([])
+  const [items, setItems] = useState<(PurchaseBillItemFormData & { thumbnail?: string | null; variant_label?: string })[]>([])
   const [pickerOpen, setPickerOpen] = useState(false)
 
   const { data: contactsData } = useContacts({ per_page: 100, "filter[type]": "SUPPLIER" })
@@ -158,6 +158,7 @@ export function TagihanFormPage({ mode, id }: Props) {
             unit_price: p.sellPrice ?? 0,
             disc: 0,
             thumbnail: p.thumbnail,
+            variant_label: p.variantLabel,
           })
         }
       }
@@ -351,7 +352,12 @@ export function TagihanFormPage({ mode, id }: Props) {
                             <ProductImage src={item.thumbnail} alt={item.product_name ?? ""} />
                             <div className="min-w-0">
                               <div className="truncate font-medium">{item.product_name}</div>
-                              <div className="truncate font-mono text-xs text-muted-foreground">{item.product_sku}</div>
+                              <div className="flex items-center gap-2">
+                                <span className="truncate font-mono text-xs text-muted-foreground">{item.product_sku}</span>
+                                {item.variant_label && (
+                                  <span className="shrink-0 text-xs text-muted-foreground">· {item.variant_label}</span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </td>
