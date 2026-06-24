@@ -348,8 +348,8 @@ export default function PosisiStokDetailPage() {
                 {item.variation_values.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1">
                     {item.variation_values.map((v) => (
-                      <Badge key={v} variant="secondary" className="text-xs">
-                        {v}
+                      <Badge key={`${v.label}-${v.value}`} variant="secondary" className="text-xs">
+                        {v.value}
                       </Badge>
                     ))}
                   </div>
@@ -363,7 +363,7 @@ export default function PosisiStokDetailPage() {
             onOrder={item.total_stocks.on_order}
             reserved={item.total_stocks.reserved}
             available={item.total_stocks.available}
-            avgCost={item.average_cost}
+            avgCost={Number(item.average_cost)}
           />
         </>
       ) : (

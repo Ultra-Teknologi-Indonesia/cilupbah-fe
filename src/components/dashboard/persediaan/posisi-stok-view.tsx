@@ -236,8 +236,8 @@ export function PosisiStokView() {
                               {item.variation_values.length > 0 && (
                                 <div className="mt-1 flex flex-wrap gap-1">
                                   {item.variation_values.map((v) => (
-                                    <Badge key={v} variant="secondary" className="text-[10px] leading-tight">
-                                      {v}
+                                    <Badge key={`${v.label}-${v.value}`} variant="secondary" className="text-[10px] leading-tight">
+                                      {v.value}
                                     </Badge>
                                   ))}
                                 </div>
@@ -246,7 +246,7 @@ export function PosisiStokView() {
                           </div>
                         </td>
                         <td className="whitespace-nowrap px-3 py-3 text-right text-sm text-muted-foreground">
-                          {formatCurrency(item.average_cost)}
+                          {formatCurrency(Number(item.average_cost))}
                         </td>
                         <td className="whitespace-nowrap px-3 py-3 text-right">
                           <StockQtyBadge value={item.total_stocks.on_hand} variant="default" />

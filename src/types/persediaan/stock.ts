@@ -1,11 +1,11 @@
 export interface LocationStock {
+  item_id: string
   location_id: string
   location_name: string
   on_hand: number
   on_order: number
   reserved: number
   available: number
-  avg_cost: number
 }
 
 export interface TotalStocks {
@@ -15,16 +15,21 @@ export interface TotalStocks {
   available: number
 }
 
+export interface VariationValue {
+  label: string
+  value: string
+}
+
 export interface StockItem {
   item_id: string
   item_code: string
   item_name: string
   item_group_id: string
   is_bundle: boolean
-  variation_values: string[]
+  variation_values: VariationValue[]
   brand_name: string | null
   stock_this: boolean
-  average_cost: number
+  average_cost: string | number
   location_stocks: LocationStock[]
   total_stocks: TotalStocks
   thumbnail: string | null
@@ -87,13 +92,15 @@ export interface StockMovementParams {
 }
 
 export interface StockChannel {
-  id: string
-  name: string
+  channel_id: string
+  channel_name: string
+  store_name: string
+  store_id: string
 }
 
 export interface StockLocation {
-  id: string
-  name: string
+  location_id: string
+  location_name: string
 }
 
 export interface StockListMeta {
