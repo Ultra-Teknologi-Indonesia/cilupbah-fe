@@ -95,6 +95,7 @@ export interface StockMovementParams {
 
 export interface StockChannel {
   channel_id: string
+  channel_code: string
   channel_name: string
   store_name: string
   store_id: string

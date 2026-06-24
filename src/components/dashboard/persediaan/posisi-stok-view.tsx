@@ -48,14 +48,6 @@ interface FilterState {
 
 const EMPTY_FILTERS: FilterState = { location_id: "", channel: "" }
 
-const CHANNEL_OPTIONS = [
-  { value: "", label: "Semua Channel" },
-  { value: "tiktok", label: "TikTok" },
-  { value: "shopee", label: "Shopee" },
-  { value: "tokopedia", label: "Tokopedia" },
-  { value: "lazada", label: "Lazada" },
-]
-
 function SortHeader({
   label,
   field,
@@ -225,6 +217,19 @@ export function PosisiStokView() {
     ...meta.locations.map((l) => ({ value: l.location_id, label: l.location_name })),
   ], [meta.locations])
 
+  const channelOptions = useMemo(() => {
+    const seen = new Map<string, string>()
+    for (const c of meta.channels) {
+      if (c.channel_code && !seen.has(c.channel_code)) {
+        seen.set(c.channel_code, c.channel_name)
+      }
+    }
+    return [
+      { value: "", label: "Semua Channel" },
+      ...Array.from(seen, ([value, label]) => ({ value, label })),
+    ]
+  }, [meta.channels])
+
   const hasActiveFilter = Object.values(filters).some(Boolean)
   const activeCount = [filters.location_id, filters.channel].filter(Boolean).length
 
@@ -276,7 +281,7 @@ export function PosisiStokView() {
           />
 
           <Combobox
-            options={CHANNEL_OPTIONS}
+            options={channelOptions}
             value={filters.channel}
             onChange={(v) => handleFilterChange({ ...filters, channel: v ?? "" })}
             placeholder="Channel"
