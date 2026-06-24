@@ -12,9 +12,10 @@ export default function EditPenggunaPage({
   const { id } = use(params)
 
   return (
-    <>
+    <div className="flex flex-col gap-6">
       <PageTitle
         title="Edit Pengguna"
+        backHref={`/dashboard/pengaturan/pengguna/${id}`}
         breadcrumb={[
           { label: "Pengaturan", href: "/dashboard/pengaturan" },
           { label: "Daftar Pengguna", href: "/dashboard/pengaturan/pengguna" },
@@ -22,6 +23,6 @@ export default function EditPenggunaPage({
         ]}
       />
       <UserFormPage userId={id} />
-    </>
+    </div>
   )
 }

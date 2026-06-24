@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { ArrowLeftIcon, CheckIcon, Loader2Icon, XIcon } from "lucide-react"
+import { CheckIcon, DicesIcon, Loader2Icon, XIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -95,6 +95,32 @@ type FormValues = {
   roles: string[]
   password: string
   password_confirmation: string
+}
+
+function generatePassword(length = 14): string {
+  const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  const lower = "abcdefghijklmnopqrstuvwxyz"
+  const digits = "0123456789"
+  const special = "!@#$%^&*()_+-="
+  const all = upper + lower + digits + special
+
+  const required = [
+    upper[Math.floor(Math.random() * upper.length)],
+    lower[Math.floor(Math.random() * lower.length)],
+    digits[Math.floor(Math.random() * digits.length)],
+    special[Math.floor(Math.random() * special.length)],
+  ]
+
+  for (let i = required.length; i < length; i++) {
+    required.push(all[Math.floor(Math.random() * all.length)])
+  }
+
+  for (let i = required.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[required[i], required[j]] = [required[j], required[i]]
+  }
+
+  return required.join("")
 }
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -210,19 +236,8 @@ export function UserFormPage({ userId }: UserFormPageProps) {
     <div className="flex flex-col gap-4">
       <LiquidGlass radius={24} className="bg-white/40 dark:bg-white/[0.06]">
         <div className="p-6">
-          <div className="mb-6 flex items-center justify-between">
-            <Button variant="ghost" size="sm" onClick={() => router.back()}>
-              <ArrowLeftIcon className="mr-1 size-4" />
-              Kembali
-            </Button>
-            <h2 className="text-lg font-semibold">
-              {isEdit ? "Edit Pengguna" : "Tambah Pengguna"}
-            </h2>
-            <div className="w-20" />
-          </div>
-
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-lg space-y-5">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-lg space-y-5">
               <FormField
                 control={form.control}
                 name="name"
@@ -275,9 +290,26 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      Password {!isEdit && <span className="text-destructive">*</span>}
-                    </FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>
+                        Password {!isEdit && <span className="text-destructive">*</span>}
+                      </FormLabel>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-auto gap-1 px-2 py-0.5 text-xs text-muted-foreground"
+                        onClick={() => {
+                          const pwd = generatePassword()
+                          form.setValue("password", pwd, { shouldValidate: true })
+                          form.setValue("password_confirmation", pwd, { shouldValidate: true })
+                          toast.success("Password berhasil di-generate dan disalin ke kedua field.")
+                        }}
+                      >
+                        <DicesIcon className="size-3" />
+                        Generate
+                      </Button>
+                    </div>
                     <FormControl>
                       <Input
                         type="password"
@@ -368,7 +400,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                       onValueChange={handleAddRole}
                       disabled={rolesLoading || availableRoles.length === 0}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue
                           placeholder={
                             rolesLoading

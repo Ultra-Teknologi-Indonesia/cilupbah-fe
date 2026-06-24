@@ -3,7 +3,7 @@ import { UserListView } from "@/components/dashboard/pengaturan/pengguna/user-li
 
 export default function PenggunaPage() {
   return (
-    <>
+    <div className="flex flex-col gap-6">
       <PageTitle
         title="Daftar Pengguna"
         breadcrumb={[
@@ -12,6 +12,6 @@ export default function PenggunaPage() {
         ]}
       />
       <UserListView />
-    </>
+    </div>
   )
 }

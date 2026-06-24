@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { PanelLeft, SettingsIcon, LogOutIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 import {
@@ -89,7 +91,7 @@ function RailItem({
   );
 }
 
-function RailLink({ route }: { route: Route }) {
+function RailLink({ route, active }: { route: Route; active?: boolean }) {
   const Icon = route.icon;
   return (
     <Tooltip>
@@ -97,7 +99,12 @@ function RailLink({ route }: { route: Route }) {
         <Link
           href={route.link}
                    aria-label={route.title}
-          className="grid size-10 place-items-center rounded-xl text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
+          className={cn(
+            "grid size-10 place-items-center rounded-xl transition-colors",
+            active
+              ? "bg-primary/10 text-primary"
+              : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+          )}
         >
           {Icon && <Icon className="size-5" />}
         </Link>
@@ -116,14 +123,17 @@ export function SidebarRailNav({
   onSelect: (id: string) => void;
   onTogglePanel: () => void;
 }) {
+  const pathname = usePathname();
+
   const handleLogout = async () => {
     try {
       await AuthService.logout();
-    } catch {
-      
-    }
+    } catch {}
     await clearLoginSession();
-    window.location.href = "/login";
+    toast.success("Berhasil keluar.");
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 600);
   };
 
   return (
@@ -158,9 +168,18 @@ export function SidebarRailNav({
       <div className="flex w-full flex-col items-center gap-1 pt-1">
         <RailDivider />
         <NotificationsPopover notifications={sampleNotifications} />
-        {settingsRoutes.map((route) => (
-          <RailLink key={route.id} route={route} />
-        ))}
+        {settingsRoutes.map((route) => {
+          const isActive =
+            pathname === route.link ||
+            pathname.startsWith(route.link + "/") ||
+            route.subs?.some(
+              (s) =>
+                pathname === s.link || pathname.startsWith(s.link + "/")
+            );
+          return (
+            <RailLink key={route.id} route={route} active={isActive} />
+          );
+        })}
         <Tooltip>
           <TooltipTrigger asChild>
             <button

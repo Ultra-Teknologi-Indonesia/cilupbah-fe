@@ -19,6 +19,18 @@ async function proxyRequest(
     headers.set("content-type", contentType);
   }
 
+  const userAgent = request.headers.get("user-agent");
+  if (userAgent) {
+    headers.set("user-agent", userAgent);
+  }
+
+  const forwardedFor =
+    request.headers.get("x-forwarded-for") ||
+    request.headers.get("x-real-ip");
+  if (forwardedFor) {
+    headers.set("x-forwarded-for", forwardedFor);
+  }
+
   const cookieStore = await cookies();
   const token =
     cookieStore.get("token")?.value || cookieStore.get("session")?.value;
