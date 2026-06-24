@@ -10,7 +10,6 @@ import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import {
   Form,
@@ -214,20 +213,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
     )
   }
 
-  function handleAddRole(roleName: string) {
-    const current = form.getValues("roles")
-    if (!current.includes(roleName)) {
-      form.setValue("roles", [...current, roleName], { shouldValidate: true })
-    }
-  }
-
-  function handleRemoveRole(roleName: string) {
-    const current = form.getValues("roles")
-    form.setValue("roles", current.filter((r) => r !== roleName), { shouldValidate: true })
-  }
-
   const selectedRoles = form.watch("roles")
-  const availableRoles = (roles ?? []).filter((r) => !selectedRoles.includes(r.name))
 
   return (
     <div className="flex flex-col gap-4">
@@ -290,28 +276,11 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                       <FormLabel>
                         Peran Pengguna <span className="text-destructive">*</span>
                       </FormLabel>
-                      {selectedRoles.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                          {selectedRoles.map((roleName) => (
-                            <Badge key={roleName} variant="secondary" className="gap-1 capitalize">
-                              {roleName}
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveRole(roleName)}
-                                className="ml-0.5 rounded-full hover:bg-muted"
-                              >
-                                <XIcon className="size-3" />
-                              </button>
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
                       <Combobox
-                        value={null}
-                        onChange={(val) => {
-                          if (val) handleAddRole(val)
-                        }}
-                        options={availableRoles.map((r) => ({
+                        multiple
+                        value={selectedRoles}
+                        onChange={(vals) => form.setValue("roles", vals, { shouldValidate: true })}
+                        options={(roles ?? []).map((r) => ({
                           value: r.name,
                           label: r.name,
                         }))}
@@ -319,6 +288,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                         searchPlaceholder="Cari peran…"
                         emptyText="Peran tidak ditemukan."
                         disabled={rolesLoading}
+                        maxVisible={2}
                       />
                       <FormMessage />
                     </FormItem>

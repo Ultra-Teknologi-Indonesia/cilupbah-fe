@@ -1,9 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { CheckIcon, ChevronsUpDownIcon, PlusIcon, SearchIcon } from "lucide-react";
+import { CheckIcon, ChevronsUpDownIcon, PlusIcon, SearchIcon, XIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -15,10 +16,8 @@ import type { LookupOption } from "@/types/common";
 
 export type ComboboxOption = LookupOption;
 
-interface ComboboxProps {
+interface ComboboxBaseProps {
   options: ComboboxOption[];
-  value?: string | null;
-  onChange: (value: string | null) => void;
   placeholder?: string;
   searchPlaceholder?: string;
   emptyText?: string;
@@ -29,6 +28,22 @@ interface ComboboxProps {
   onCreateOption?: (query: string) => void;
   createLabel?: (query: string) => string;
 }
+
+interface SingleComboboxProps extends ComboboxBaseProps {
+  multiple?: false;
+  value?: string | null;
+  onChange: (value: string | null) => void;
+  maxVisible?: never;
+}
+
+interface MultiComboboxProps extends ComboboxBaseProps {
+  multiple: true;
+  value?: string[];
+  onChange: (value: string[]) => void;
+  maxVisible?: number;
+}
+
+type ComboboxProps = SingleComboboxProps | MultiComboboxProps;
 
 export function Combobox({
   options,
@@ -43,11 +58,21 @@ export function Combobox({
   className,
   onCreateOption,
   createLabel = (q) => `Buat "${q}"`,
+  multiple,
+  maxVisible = 2,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
 
-  const selected = options.find((o) => o.value === value) ?? null;
+  const isMulti = multiple === true;
+  const selectedValues: string[] = isMulti
+    ? (value as string[]) ?? []
+    : (value as string | null | undefined) ? [value as string] : [];
+
+  const selected = isMulti
+    ? null
+    : options.find((o) => o.value === (value as string | null)) ?? null;
+
   const trimmed = query.trim();
   const filtered = trimmed
     ? options.filter((o) =>
@@ -58,6 +83,37 @@ export function Combobox({
   const exactMatch = options.some(
     (o) => o.label.toLowerCase() === trimmed.toLowerCase(),
   );
+
+  function isSelected(optValue: string) {
+    return selectedValues.includes(optValue);
+  }
+
+  function handleSelect(optValue: string) {
+    if (isMulti) {
+      const multiOnChange = onChange as (value: string[]) => void;
+      if (isSelected(optValue)) {
+        multiOnChange(selectedValues.filter((v) => v !== optValue));
+      } else {
+        multiOnChange([...selectedValues, optValue]);
+      }
+    } else {
+      const singleOnChange = onChange as (value: string | null) => void;
+      singleOnChange(isSelected(optValue) ? null : optValue);
+      setOpen(false);
+    }
+  }
+
+  function handleRemove(optValue: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    e.preventDefault();
+    if (isMulti) {
+      const multiOnChange = onChange as (value: string[]) => void;
+      multiOnChange(selectedValues.filter((v) => v !== optValue));
+    }
+  }
+
+  const visibleBadges = selectedValues.slice(0, maxVisible);
+  const hiddenCount = selectedValues.length - maxVisible;
 
   return (
     <Popover
@@ -80,11 +136,46 @@ export function Combobox({
             className,
           )}
         >
-          <span
-            className={cn("truncate", !selected && "text-muted-foreground")}
-          >
-            {selected ? selected.label : placeholder}
-          </span>
+          {isMulti && selectedValues.length > 0 ? (
+            <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
+              {visibleBadges.map((val) => {
+                const opt = options.find((o) => o.value === val);
+                return (
+                  <Badge
+                    key={val}
+                    variant="secondary"
+                    className="shrink-0 gap-1 capitalize"
+                  >
+                    {opt?.label ?? val}
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => handleRemove(val, e)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          handleRemove(val, e as unknown as React.MouseEvent);
+                        }
+                      }}
+                      className="ml-0.5 cursor-pointer rounded-full hover:bg-muted"
+                    >
+                      <XIcon className="size-3" />
+                    </span>
+                  </Badge>
+                );
+              })}
+              {hiddenCount > 0 && (
+                <Badge variant="outline" className="shrink-0">
+                  +{hiddenCount}
+                </Badge>
+              )}
+            </div>
+          ) : (
+            <span
+              className={cn("truncate", !selected && "text-muted-foreground")}
+            >
+              {!isMulti && selected ? selected.label : placeholder}
+            </span>
+          )}
           <ChevronsUpDownIcon className="size-4 shrink-0 text-muted-foreground" />
         </button>
       </PopoverTrigger>
@@ -107,10 +198,10 @@ export function Combobox({
                   const match = options.find(
                     (o) => o.label.toLowerCase() === trimmed.toLowerCase(),
                   );
-                  if (match) onChange(match.value);
+                  if (match) handleSelect(match.value);
                 }
                 setQuery("");
-                setOpen(false);
+                if (!isMulti) setOpen(false);
               }
             }}
             placeholder={searchPlaceholder}
@@ -125,18 +216,15 @@ export function Combobox({
               </li>
             )}
             {filtered.map((opt) => {
-              const isSelected = opt.value === value;
+              const active = isSelected(opt.value);
               return (
                 <li key={opt.value}>
                   <button
                     type="button"
-                    onClick={() => {
-                      onChange(isSelected ? null : opt.value);
-                      setOpen(false);
-                    }}
+                    onClick={() => handleSelect(opt.value)}
                     className={cn(
                       "flex w-full items-center justify-between gap-2 rounded-full px-2.5 py-2 text-left text-sm transition-colors",
-                      isSelected
+                      active
                         ? "bg-primary/10 text-primary"
                         : "hover:bg-muted/60",
                     )}
@@ -145,7 +233,7 @@ export function Combobox({
                       <CheckIcon
                         className={cn(
                           "size-4",
-                          isSelected ? "opacity-100" : "opacity-0",
+                          active ? "opacity-100" : "opacity-0",
                         )}
                       />
                       <span className="truncate">{opt.label}</span>
@@ -166,7 +254,7 @@ export function Combobox({
                   onClick={() => {
                     onCreateOption!(trimmed);
                     setQuery("");
-                    setOpen(false);
+                    if (!isMulti) setOpen(false);
                   }}
                   className="flex w-full items-center gap-2 rounded-full px-2.5 py-2 text-left text-sm text-primary transition-colors hover:bg-primary/10"
                 >
