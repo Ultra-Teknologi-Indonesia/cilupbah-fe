@@ -88,7 +88,14 @@ const editSchema = baseSchema.extend({
   path: ["password_confirmation"],
 })
 
-type FormValues = z.infer<typeof createSchema> | z.infer<typeof editSchema>
+type FormValues = {
+  name: string
+  email: string
+  nik?: string
+  roles: string[]
+  password: string
+  password_confirmation: string
+}
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (error && typeof error === "object" && "message" in error) {
@@ -111,7 +118,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
   const createUser = useCreateUser()
   const updateUser = useUpdateUser()
 
-  const form = useForm({
+  const form = useForm<FormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(isEdit ? editSchema : createSchema) as any,
     defaultValues: {
