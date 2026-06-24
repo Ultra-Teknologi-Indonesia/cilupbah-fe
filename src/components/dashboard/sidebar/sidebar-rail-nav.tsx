@@ -129,9 +129,9 @@ export function SidebarRailNav({
     try {
       await AuthService.logout();
     } catch {}
-    await clearLoginSession();
     toast.success("Berhasil keluar.");
-    setTimeout(() => {
+    setTimeout(async () => {
+      await clearLoginSession();
       window.location.href = "/login";
     }, 600);
   };
