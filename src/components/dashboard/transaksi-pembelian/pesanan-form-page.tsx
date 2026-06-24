@@ -221,6 +221,7 @@ export function PesananFormPage({ mode, id }: Props) {
     <div className="flex flex-col gap-6">
       <PageTitle
         title={mode === "create" ? "Tambah Pesanan" : `Edit ${existingPO?.po_number ?? ""}`}
+        backHref="/dashboard/transaksi-pembelian"
         breadcrumb={[
           { label: "Pembelian" },
           { label: "Transaksi Pembelian", href: "/dashboard/transaksi-pembelian" },
@@ -292,7 +293,7 @@ export function PesananFormPage({ mode, id }: Props) {
               <FieldRow label="No. Ref">
                 <Input value={refNo} onChange={(e) => setRefNo(e.target.value)} placeholder="No. ref" className="bg-background" />
               </FieldRow>
-              <div className="flex items-start gap-4 sm:col-span-2 sm:col-start-2 sm:row-span-2 sm:row-start-3">
+              <div className="flex items-start gap-4 sm:col-start-2 sm:row-span-2 sm:row-start-3">
                 <Label className="w-28 shrink-0 pt-2 text-sm text-muted-foreground">Keterangan</Label>
                 <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Masukkan keterangan" rows={3} className="flex-1 bg-background" />
               </div>
@@ -406,6 +407,10 @@ export function PesananFormPage({ mode, id }: Props) {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Diskon</span>
                 <span className="tabular-nums">{formatCurrency(totals.totalDisc)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Pajak</span>
+                <span className="tabular-nums">{formatCurrency(0)}</span>
               </div>
               <div className="border-t border-border/40 pt-3">
                 <div className="flex justify-between text-base font-semibold">

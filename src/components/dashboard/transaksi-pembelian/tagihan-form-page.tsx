@@ -239,6 +239,7 @@ export function TagihanFormPage({ mode, id }: Props) {
     <div className="flex flex-col gap-6">
       <PageTitle
         title={mode === "create" ? "Tambah Tagihan" : `Edit ${existingBill?.bill_number ?? ""}`}
+        backHref="/dashboard/transaksi-pembelian"
         breadcrumb={[
           { label: "Pembelian" },
           { label: "Transaksi Pembelian", href: "/dashboard/transaksi-pembelian" },
@@ -265,7 +266,7 @@ export function TagihanFormPage({ mode, id }: Props) {
           {/* Header fields */}
           <LiquidGlass radius={16} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04] p-5">
             <div className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
-              <FieldRow label="Pesanan" >
+              <FieldRow label="No. Tagihan" required>
                 <Combobox
                   options={poOptions}
                   value={purchaseOrderId}
@@ -295,6 +296,12 @@ export function TagihanFormPage({ mode, id }: Props) {
                   className="bg-background"
                 />
               </FieldRow>
+              <FieldRow label="Jatuh Tempo" required>
+                <DatePicker value={dueDate} onChange={setDueDate} placeholder="Pilih tanggal" className="bg-background" />
+              </FieldRow>
+              <FieldRow label="No. Ref">
+                <Input value={refNo} onChange={(e) => setRefNo(e.target.value)} placeholder="No. ref" className="bg-background" />
+              </FieldRow>
               <FieldRow label="Lokasi" required>
                 <Combobox
                   options={locationOptions}
@@ -305,21 +312,15 @@ export function TagihanFormPage({ mode, id }: Props) {
                   className="bg-background"
                 />
               </FieldRow>
-              <FieldRow label="No. Ref">
-                <Input value={refNo} onChange={(e) => setRefNo(e.target.value)} placeholder="No. ref" className="bg-background" />
+              <FieldRow label="Tanggal" required>
+                <DatePicker value={billDate} onChange={setBillDate} placeholder="Pilih tanggal" className="bg-background" />
               </FieldRow>
               <FieldRow label="Tag">
                 <Input value={tag} onChange={(e) => setTag(e.target.value)} placeholder="Tag" className="bg-background" />
               </FieldRow>
-              <FieldRow label="Tgl Tagihan" required>
-                <DatePicker value={billDate} onChange={setBillDate} placeholder="Pilih tanggal" className="bg-background" />
-              </FieldRow>
-              <FieldRow label="Jatuh Tempo">
-                <DatePicker value={dueDate} onChange={setDueDate} placeholder="Pilih tanggal" className="bg-background" />
-              </FieldRow>
-              <div className="flex items-start gap-4 sm:col-span-2">
+              <div className="flex items-start gap-4 sm:col-start-2">
                 <Label className="w-28 shrink-0 pt-2 text-sm text-muted-foreground">Keterangan</Label>
-                <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Catatan tagihan..." rows={2} className="flex-1 bg-background" />
+                <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Masukkan keterangan disini" rows={3} className="flex-1 bg-background" />
               </div>
             </div>
           </LiquidGlass>
@@ -428,6 +429,14 @@ export function TagihanFormPage({ mode, id }: Props) {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Diskon</span>
                 <span className="tabular-nums">{formatCurrency(totals.totalDisc)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Pajak</span>
+                <span className="tabular-nums">{formatCurrency(0)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Biaya Tambahan</span>
+                <span className="tabular-nums text-primary">{formatCurrency(0)}</span>
               </div>
               <div className="border-t border-border/40 pt-3">
                 <div className="flex justify-between text-base font-semibold">

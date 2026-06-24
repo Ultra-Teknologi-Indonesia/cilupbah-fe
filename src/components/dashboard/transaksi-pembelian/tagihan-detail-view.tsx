@@ -4,7 +4,6 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
-  ArrowLeftIcon,
   PencilIcon,
   Trash2Icon,
   ReceiptIcon,
@@ -16,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { PageTitle } from "@/components/dashboard/page-title"
 import {
   usePurchaseBillDetail,
   useDeletePurchaseBill,
@@ -98,35 +98,37 @@ export function TagihanDetailView({ id }: { id: string }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon-sm" asChild>
-            <Link href="/dashboard/transaksi-pembelian">
-              <ArrowLeftIcon className="h-4 w-4" />
-            </Link>
-          </Button>
-          <h1 className="text-lg font-semibold">{bill.bill_number}</h1>
-          <Badge variant="outline" className={cn("text-xs", STATUS_STYLE[bill.status])}>
-            {STATUS_LABEL[bill.status]}
-          </Badge>
-        </div>
-        <div className="flex items-center gap-2">
-          {isDraft && (
-            <>
-              <Button variant="outline" size="sm" asChild>
-                <Link href={`/dashboard/transaksi-pembelian/tagihan/${bill.id}/edit`}>
-                  <PencilIcon className="mr-1.5 h-3.5 w-3.5" />
-                  Edit
-                </Link>
-              </Button>
-              <Button variant="destructive" size="sm" onClick={() => setShowDelete(true)} disabled={deleteMut.isPending}>
-                <Trash2Icon className="mr-1.5 h-3.5 w-3.5" />
-                Hapus
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
+      <PageTitle
+        title={bill.bill_number}
+        backHref="/dashboard/transaksi-pembelian"
+        breadcrumb={[
+          { label: "Pembelian" },
+          { label: "Transaksi Pembelian", href: "/dashboard/transaksi-pembelian" },
+          { label: "Tagihan", href: "/dashboard/transaksi-pembelian" },
+          { label: bill.bill_number },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className={cn("text-xs", STATUS_STYLE[bill.status])}>
+              {STATUS_LABEL[bill.status]}
+            </Badge>
+            {isDraft && (
+              <>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/dashboard/transaksi-pembelian/tagihan/${bill.id}/edit`}>
+                    <PencilIcon className="mr-1.5 h-3.5 w-3.5" />
+                    Edit
+                  </Link>
+                </Button>
+                <Button variant="destructive" size="sm" onClick={() => setShowDelete(true)} disabled={deleteMut.isPending}>
+                  <Trash2Icon className="mr-1.5 h-3.5 w-3.5" />
+                  Hapus
+                </Button>
+              </>
+            )}
+          </div>
+        }
+      />
 
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-4">
