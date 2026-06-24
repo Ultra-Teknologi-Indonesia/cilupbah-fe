@@ -291,54 +291,70 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                 <FormField
                   control={form.control}
                   name="roles"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>
-                        Peran Pengguna <span className="text-destructive">*</span>
-                      </FormLabel>
-                      {selectedRoles.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                          {selectedRoles.map((roleName) => (
-                            <Badge key={roleName} variant="secondary" className="gap-1 capitalize">
-                              {roleName}
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveRole(roleName)}
-                                className="ml-0.5 rounded-full hover:bg-muted"
-                              >
-                                <XIcon className="size-3" />
-                              </button>
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                      <Select
-                        value=""
-                        onValueChange={handleAddRole}
-                        disabled={rolesLoading || availableRoles.length === 0}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue
-                            placeholder={
-                              rolesLoading
-                                ? "Memuat peran…"
-                                : availableRoles.length === 0
-                                  ? "Semua peran telah dipilih"
-                                  : "Pilih peran…"
-                            }
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableRoles.map((role) => (
-                            <SelectItem key={role.id} value={role.name} className="capitalize">
-                              {role.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={() => {
+                    const MAX_VISIBLE = 2
+                    const visibleRoles = selectedRoles.slice(0, MAX_VISIBLE)
+                    const hiddenCount = selectedRoles.length - MAX_VISIBLE
+                    return (
+                      <FormItem>
+                        <FormLabel>
+                          Peran Pengguna <span className="text-destructive">*</span>
+                        </FormLabel>
+                        <Select
+                          value=""
+                          onValueChange={handleAddRole}
+                          disabled={rolesLoading || availableRoles.length === 0}
+                        >
+                          <SelectTrigger className="w-full">
+                            {selectedRoles.length > 0 ? (
+                              <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
+                                {visibleRoles.map((roleName) => (
+                                  <Badge
+                                    key={roleName}
+                                    variant="secondary"
+                                    className="shrink-0 gap-1 capitalize"
+                                  >
+                                    {roleName}
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleRemoveRole(roleName)
+                                      }}
+                                      className="ml-0.5 rounded-full hover:bg-muted"
+                                    >
+                                      <XIcon className="size-3" />
+                                    </button>
+                                  </Badge>
+                                ))}
+                                {hiddenCount > 0 && (
+                                  <Badge variant="outline" className="shrink-0">
+                                    +{hiddenCount}
+                                  </Badge>
+                                )}
+                              </div>
+                            ) : (
+                              <SelectValue
+                                placeholder={
+                                  rolesLoading
+                                    ? "Memuat peran…"
+                                    : "Pilih peran…"
+                                }
+                              />
+                            )}
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableRoles.map((role) => (
+                              <SelectItem key={role.id} value={role.name} className="capitalize">
+                                {role.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )
+                  }}
                 />
 
                 <FormField
@@ -389,6 +405,38 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                         </div>
                       </FormControl>
                       <FormMessage />
+                      {passwordValue && (
+                        <div className="space-y-2 pt-1">
+                          <div className="flex items-center gap-2">
+                            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                              <div
+                                className={`h-full transition-all ${strength?.color}`}
+                                style={{ width: `${strength?.percent}%` }}
+                              />
+                            </div>
+                            <span className="text-xs font-medium text-muted-foreground">
+                              {strength?.level}
+                            </span>
+                          </div>
+                          <ul className="grid grid-cols-2 gap-x-4 gap-y-1">
+                            {PASSWORD_RULES.map((rule) => {
+                              const ok = rule.test(passwordValue)
+                              return (
+                                <li key={rule.key} className="flex items-center gap-1.5 text-xs">
+                                  {ok ? (
+                                    <CheckIcon className="size-3 text-emerald-500" />
+                                  ) : (
+                                    <XIcon className="size-3 text-muted-foreground" />
+                                  )}
+                                  <span className={ok ? "text-emerald-600" : "text-muted-foreground"}>
+                                    {rule.label}
+                                  </span>
+                                </li>
+                              )
+                            })}
+                          </ul>
+                        </div>
+                      )}
                     </FormItem>
                   )}
                 />
@@ -426,40 +474,6 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                   )}
                 />
               </div>
-
-              {passwordValue && (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className={`h-full transition-all ${strength?.color}`}
-                        style={{ width: `${strength?.percent}%` }}
-                      />
-                    </div>
-                    <span className="text-xs font-medium text-muted-foreground">
-                      {strength?.level}
-                    </span>
-                  </div>
-                  <ul className="grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-3 md:grid-cols-5">
-                    {PASSWORD_RULES.map((rule) => {
-                      const ok = rule.test(passwordValue)
-                      return (
-                        <li key={rule.key} className="flex items-center gap-1.5 text-xs">
-                          {ok ? (
-                            <CheckIcon className="size-3 text-emerald-500" />
-                          ) : (
-                            <XIcon className="size-3 text-muted-foreground" />
-                          )}
-                          <span className={ok ? "text-emerald-600" : "text-muted-foreground"}>
-                            {rule.label}
-                          </span>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                </div>
-              )}
-
 
               <div className="flex justify-end gap-2 pt-4">
                 <Button
