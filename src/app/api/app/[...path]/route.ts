@@ -24,6 +24,11 @@ async function proxyRequest(
     headers.set("user-agent", userAgent);
   }
 
+  const cfConnectingIp = request.headers.get("cf-connecting-ip");
+  if (cfConnectingIp) {
+    headers.set("cf-connecting-ip", cfConnectingIp);
+  }
+
   const forwardedFor =
     request.headers.get("x-forwarded-for") ||
     request.headers.get("x-real-ip");
