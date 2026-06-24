@@ -119,8 +119,18 @@ export const dashboardGroups: NavGroup[] = [
     icon: ClipboardList,
     zone: "ops",
     items: [
-      { id: "purchase-order", title: "Purchase Order", icon: ClipboardList, link: "/dashboard/purchase-order", comingSoon: true },
-      { id: "retur-pembelian", title: "Retur Pembelian", icon: CornerUpLeft, link: "/dashboard/retur-pembelian", comingSoon: true },
+      {
+        id: "transaksi-pembelian",
+        title: "Transaksi Pembelian",
+        icon: ClipboardList,
+        link: "/dashboard/transaksi-pembelian/pesanan",
+        match: ["/dashboard/transaksi-pembelian"],
+        subs: [
+          { title: "Pesanan", link: "/dashboard/transaksi-pembelian/pesanan" },
+          { title: "Tagihan", link: "/dashboard/transaksi-pembelian/tagihan" },
+          { title: "Retur", link: "/dashboard/transaksi-pembelian/retur" },
+        ],
+      },
       { id: "kontak-pemasok", title: "Kontak Pemasok", icon: Truck, link: "/dashboard/kontak-pemasok" },
     ],
   },
