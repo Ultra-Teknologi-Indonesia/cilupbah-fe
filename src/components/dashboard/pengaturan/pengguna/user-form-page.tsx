@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { CheckIcon, CopyIcon, DicesIcon, EyeIcon, EyeOffIcon, Loader2Icon, XIcon } from "lucide-react"
+import { CheckIcon, ChevronDownIcon, CopyIcon, DicesIcon, EyeIcon, EyeOffIcon, Loader2Icon, XIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -21,12 +21,10 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   useRoles,
   useCreateUser,
@@ -300,57 +298,79 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                         <FormLabel>
                           Peran Pengguna <span className="text-destructive">*</span>
                         </FormLabel>
-                        <Select
-                          value=""
-                          onValueChange={handleAddRole}
-                          disabled={rolesLoading || availableRoles.length === 0}
-                        >
-                          <SelectTrigger className="w-full">
-                            {selectedRoles.length > 0 ? (
-                              <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
-                                {visibleRoles.map((roleName) => (
-                                  <Badge
-                                    key={roleName}
-                                    variant="secondary"
-                                    className="shrink-0 gap-1 capitalize"
-                                  >
-                                    {roleName}
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        handleRemoveRole(roleName)
-                                      }}
-                                      className="ml-0.5 rounded-full hover:bg-muted"
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button
+                              type="button"
+                              className="flex h-9 w-full items-center justify-between gap-1.5 rounded-full border border-transparent bg-background px-3 py-2 text-sm transition-[color,box-shadow,background-color] outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-50"
+                              disabled={rolesLoading}
+                            >
+                              {selectedRoles.length > 0 ? (
+                                <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
+                                  {visibleRoles.map((roleName) => (
+                                    <Badge
+                                      key={roleName}
+                                      variant="secondary"
+                                      className="shrink-0 gap-1 capitalize"
                                     >
-                                      <XIcon className="size-3" />
-                                    </button>
-                                  </Badge>
-                                ))}
-                                {hiddenCount > 0 && (
-                                  <Badge variant="outline" className="shrink-0">
-                                    +{hiddenCount}
-                                  </Badge>
-                                )}
-                              </div>
+                                      {roleName}
+                                      <span
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          e.preventDefault()
+                                          handleRemoveRole(roleName)
+                                        }}
+                                        onKeyDown={(e) => {
+                                          if (e.key === "Enter" || e.key === " ") {
+                                            e.stopPropagation()
+                                            e.preventDefault()
+                                            handleRemoveRole(roleName)
+                                          }
+                                        }}
+                                        className="ml-0.5 cursor-pointer rounded-full hover:bg-muted"
+                                      >
+                                        <XIcon className="size-3" />
+                                      </span>
+                                    </Badge>
+                                  ))}
+                                  {hiddenCount > 0 && (
+                                    <Badge variant="outline" className="shrink-0">
+                                      +{hiddenCount}
+                                    </Badge>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground">
+                                  {rolesLoading ? "Memuat peran…" : "Pilih peran…"}
+                                </span>
+                              )}
+                              <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            align="start"
+                            className="w-(--radix-popover-trigger-width) gap-0 p-1.5"
+                          >
+                            {availableRoles.length === 0 ? (
+                              <p className="px-3 py-2 text-sm text-muted-foreground">
+                                Semua peran telah dipilih
+                              </p>
                             ) : (
-                              <SelectValue
-                                placeholder={
-                                  rolesLoading
-                                    ? "Memuat peran…"
-                                    : "Pilih peran…"
-                                }
-                              />
+                              availableRoles.map((role) => (
+                                <button
+                                  key={role.id}
+                                  type="button"
+                                  className="flex w-full cursor-default items-center rounded-full px-3 py-2 text-sm font-medium capitalize outline-hidden hover:bg-accent hover:text-accent-foreground"
+                                  onClick={() => handleAddRole(role.name)}
+                                >
+                                  {role.name}
+                                </button>
+                              ))
                             )}
-                          </SelectTrigger>
-                          <SelectContent>
-                            {availableRoles.map((role) => (
-                              <SelectItem key={role.id} value={role.name} className="capitalize">
-                                {role.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          </PopoverContent>
+                        </Popover>
                         <FormMessage />
                       </FormItem>
                     )
