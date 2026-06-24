@@ -237,192 +237,192 @@ export function UserFormPage({ userId }: UserFormPageProps) {
       <LiquidGlass radius={24} className="bg-white/40 dark:bg-white/[0.06]">
         <div className="p-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-lg space-y-5">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Nama Pengguna <span className="text-destructive">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Masukkan nama lengkap" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="nik"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>NIK</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nomor Induk Karyawan" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Email <span className="text-destructive">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="email@example.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Password */}
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center justify-between">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
                       <FormLabel>
-                        Password {!isEdit && <span className="text-destructive">*</span>}
+                        Nama Pengguna <span className="text-destructive">*</span>
                       </FormLabel>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-auto gap-1 px-2 py-0.5 text-xs text-muted-foreground"
-                        onClick={() => {
-                          const pwd = generatePassword()
-                          form.setValue("password", pwd, { shouldValidate: true })
-                          form.setValue("password_confirmation", pwd, { shouldValidate: true })
-                          toast.success("Password berhasil di-generate dan disalin ke kedua field.")
-                        }}
-                      >
-                        <DicesIcon className="size-3" />
-                        Generate
-                      </Button>
-                    </div>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder={isEdit ? "Kosongkan jika tidak diubah" : "Masukkan password"}
-                        {...field}
-                      />
-                    </FormControl>
-                    {passwordValue && (
-                      <div className="space-y-2 pt-1">
-                        <div className="flex items-center gap-2">
-                          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                            <div
-                              className={`h-full transition-all ${strength?.color}`}
-                              style={{ width: `${strength?.percent}%` }}
-                            />
-                          </div>
-                          <span className="text-xs font-medium text-muted-foreground">
-                            {strength?.level}
-                          </span>
+                      <FormControl>
+                        <Input placeholder="Masukkan nama lengkap" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Email <span className="text-destructive">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="email@example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="nik"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>NIK</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nomor Induk Karyawan" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="roles"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel>
+                        Peran Pengguna <span className="text-destructive">*</span>
+                      </FormLabel>
+                      {selectedRoles.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {selectedRoles.map((roleName) => (
+                            <Badge key={roleName} variant="secondary" className="gap-1 capitalize">
+                              {roleName}
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveRole(roleName)}
+                                className="ml-0.5 rounded-full hover:bg-muted"
+                              >
+                                <XIcon className="size-3" />
+                              </button>
+                            </Badge>
+                          ))}
                         </div>
-                        <ul className="grid grid-cols-2 gap-x-4 gap-y-1">
-                          {PASSWORD_RULES.map((rule) => {
-                            const ok = rule.test(passwordValue)
-                            return (
-                              <li key={rule.key} className="flex items-center gap-1.5 text-xs">
-                                {ok ? (
-                                  <CheckIcon className="size-3 text-emerald-500" />
-                                ) : (
-                                  <XIcon className="size-3 text-muted-foreground" />
-                                )}
-                                <span className={ok ? "text-emerald-600" : "text-muted-foreground"}>
-                                  {rule.label}
-                                </span>
-                              </li>
-                            )
-                          })}
-                        </ul>
-                      </div>
-                    )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      )}
+                      <Select
+                        value=""
+                        onValueChange={handleAddRole}
+                        disabled={rolesLoading || availableRoles.length === 0}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue
+                            placeholder={
+                              rolesLoading
+                                ? "Memuat peran…"
+                                : availableRoles.length === 0
+                                  ? "Semua peran telah dipilih"
+                                  : "Pilih peran…"
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableRoles.map((role) => (
+                            <SelectItem key={role.id} value={role.name} className="capitalize">
+                              {role.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="password_confirmation"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Konfirmasi Password {!isEdit && <span className="text-destructive">*</span>}
-                    </FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="Ulangi password" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Roles */}
-              <FormField
-                control={form.control}
-                name="roles"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>
-                      Peran Pengguna <span className="text-destructive">*</span>
-                    </FormLabel>
-                    {selectedRoles.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {selectedRoles.map((roleName) => (
-                          <Badge key={roleName} variant="secondary" className="gap-1 capitalize">
-                            {roleName}
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveRole(roleName)}
-                              className="ml-0.5 rounded-full hover:bg-muted"
-                            >
-                              <XIcon className="size-3" />
-                            </button>
-                          </Badge>
-                        ))}
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center justify-between">
+                        <FormLabel>
+                          Password {!isEdit && <span className="text-destructive">*</span>}
+                        </FormLabel>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-auto gap-1 px-2 py-0.5 text-xs text-muted-foreground"
+                          onClick={() => {
+                            const pwd = generatePassword()
+                            form.setValue("password", pwd, { shouldValidate: true })
+                            form.setValue("password_confirmation", pwd, { shouldValidate: true })
+                            toast.success("Password berhasil di-generate dan disalin ke kedua field.")
+                          }}
+                        >
+                          <DicesIcon className="size-3" />
+                          Generate
+                        </Button>
                       </div>
-                    )}
-                    <Select
-                      value=""
-                      onValueChange={handleAddRole}
-                      disabled={rolesLoading || availableRoles.length === 0}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue
-                          placeholder={
-                            rolesLoading
-                              ? "Memuat peran…"
-                              : availableRoles.length === 0
-                                ? "Semua peran telah dipilih"
-                                : "Pilih peran…"
-                          }
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder={isEdit ? "Kosongkan jika tidak diubah" : "Masukkan password"}
+                          {...field}
                         />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableRoles.map((role) => (
-                          <SelectItem key={role.id} value={role.name} className="capitalize">
-                            {role.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      {passwordValue && (
+                        <div className="space-y-2 pt-1">
+                          <div className="flex items-center gap-2">
+                            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                              <div
+                                className={`h-full transition-all ${strength?.color}`}
+                                style={{ width: `${strength?.percent}%` }}
+                              />
+                            </div>
+                            <span className="text-xs font-medium text-muted-foreground">
+                              {strength?.level}
+                            </span>
+                          </div>
+                          <ul className="grid grid-cols-2 gap-x-4 gap-y-1">
+                            {PASSWORD_RULES.map((rule) => {
+                              const ok = rule.test(passwordValue)
+                              return (
+                                <li key={rule.key} className="flex items-center gap-1.5 text-xs">
+                                  {ok ? (
+                                    <CheckIcon className="size-3 text-emerald-500" />
+                                  ) : (
+                                    <XIcon className="size-3 text-muted-foreground" />
+                                  )}
+                                  <span className={ok ? "text-emerald-600" : "text-muted-foreground"}>
+                                    {rule.label}
+                                  </span>
+                                </li>
+                              )
+                            })}
+                          </ul>
+                        </div>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password_confirmation"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Konfirmasi Password {!isEdit && <span className="text-destructive">*</span>}
+                      </FormLabel>
+                      <FormControl>
+                        <Input type="password" placeholder="Ulangi password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <div className="flex justify-end gap-2 pt-4">
                 <Button

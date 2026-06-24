@@ -6,6 +6,7 @@ import {
   Loader2Icon,
   PencilIcon,
   Trash2Icon,
+  MapPinIcon,
   MonitorIcon,
   SmartphoneIcon,
   TabletIcon,
@@ -183,6 +184,7 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
                       <th className="pb-2 pr-4 font-medium">Perangkat</th>
                       <th className="pb-2 pr-4 font-medium">Browser</th>
                       <th className="pb-2 pr-4 font-medium">OS</th>
+                      <th className="pb-2 pr-4 font-medium">Lokasi</th>
                       <th className="pb-2 font-medium">IP Address</th>
                     </tr>
                   </thead>
@@ -205,6 +207,18 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
                           </div>
                         </td>
                         <td className="py-2.5 pr-4">{entry.os}</td>
+                        <td className="py-2.5 pr-4">
+                          {entry.city && entry.city !== "-" ? (
+                            <div className="flex items-center gap-1.5">
+                              <MapPinIcon className="size-3.5 text-muted-foreground" />
+                              <span className="whitespace-nowrap">
+                                {[entry.city, entry.country].filter((v) => v && v !== "-").join(", ") || "-"}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </td>
                         <td className="py-2.5 font-mono text-xs">
                           {entry.ipAddress || "-"}
                         </td>
