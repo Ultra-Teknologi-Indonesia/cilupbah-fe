@@ -42,7 +42,7 @@ export const UserService = {
     if (params.search) qs.set("search", params.search)
 
     const res = await fetchClient<ApiPaginated<RawUser>>(
-      `/v1/users?${qs.toString()}`
+      `/users?${qs.toString()}`
     )
     return {
       items: (res.data ?? []).map(mapUser),
@@ -51,12 +51,12 @@ export const UserService = {
   },
 
   detail: async (id: string) => {
-    const res = await fetchClient<ApiResponse<RawUser>>(`/v1/users/${id}`)
+    const res = await fetchClient<ApiResponse<RawUser>>(`/users/${id}`)
     return mapUser(res.data)
   },
 
   create: async (payload: UserFormPayload) => {
-    const res = await fetchClient<ApiResponse<RawUser>>("/v1/users", {
+    const res = await fetchClient<ApiResponse<RawUser>>("/users", {
       method: "POST",
       data: payload,
     })
@@ -64,7 +64,7 @@ export const UserService = {
   },
 
   update: async (id: string, payload: UserFormPayload) => {
-    const res = await fetchClient<ApiResponse<RawUser>>(`/v1/users/${id}`, {
+    const res = await fetchClient<ApiResponse<RawUser>>(`/users/${id}`, {
       method: "PUT",
       data: payload,
     })
@@ -72,12 +72,12 @@ export const UserService = {
   },
 
   delete: async (id: string) => {
-    await fetchClient<ApiResponse<null>>(`/v1/users/${id}`, { method: "DELETE" })
+    await fetchClient<ApiResponse<null>>(`/users/${id}`, { method: "DELETE" })
   },
 
   roles: async (): Promise<Role[]> => {
     const res = await fetchClient<ApiPaginated<RawRole>>(
-      "/v1/roles?per_page=100"
+      "/roles?per_page=100"
     )
     return (res.data ?? [])
       .map(mapRole)
