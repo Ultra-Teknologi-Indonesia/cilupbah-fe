@@ -138,9 +138,15 @@ export function PosisiStokView() {
     resetPage()
   }, [resetPage])
 
+  const SERVER_SORT_MAP: Partial<Record<SortField, string>> = {
+    item_code: "product_variants.sku",
+  }
+
   const sortParam = useMemo(() => {
     if (!sortField) return undefined
-    return sortDir === "desc" ? `-${sortField}` : sortField
+    const mapped = SERVER_SORT_MAP[sortField]
+    if (!mapped) return undefined
+    return sortDir === "desc" ? `-${mapped}` : mapped
   }, [sortField, sortDir])
 
   const params = useMemo<StockListParams>(() => ({
@@ -151,7 +157,21 @@ export function PosisiStokView() {
   }), [search, page, perPage, sortParam])
 
   const { data, isLoading, isFetching } = useStockPosition(params)
-  const items = data?.data ?? []
+
+  const items = useMemo(() => {
+    const raw = data?.data ?? []
+    if (!sortField || SERVER_SORT_MAP[sortField]) return raw
+    return [...raw].sort((a, b) => {
+      let av: number, bv: number
+      switch (sortField) {
+        case "average_cost": av = Number(a.average_cost); bv = Number(b.average_cost); break
+        case "on_hand": av = a.total_stocks.on_hand; bv = b.total_stocks.on_hand; break
+        case "available": av = a.total_stocks.available; bv = b.total_stocks.available; break
+        default: return 0
+      }
+      return sortDir === "asc" ? av - bv : bv - av
+    })
+  }, [data?.data, sortField, sortDir])
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0, channels: [], locations: [] }
 
   return (
