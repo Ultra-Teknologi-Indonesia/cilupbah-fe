@@ -44,6 +44,7 @@ export interface Order {
   channel_order_no: string | null
   source: string | null
   channel_shop_id: string | null
+  shop_name: string | null
   customer_name: string
   transaction_date: string | null
   status: OrderStatus

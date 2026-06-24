@@ -676,6 +676,11 @@ export function OrderCard({
 
         <span className="text-border select-none">|</span>
         <ChannelIcon source={order.source} />
+        {order.shop_name && (
+          <span className="truncate text-xs text-muted-foreground max-w-[160px]">
+            {order.shop_name}
+          </span>
+        )}
 
         <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
