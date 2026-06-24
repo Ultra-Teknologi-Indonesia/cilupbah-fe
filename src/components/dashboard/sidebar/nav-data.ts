@@ -121,7 +121,7 @@ export const dashboardGroups: NavGroup[] = [
     items: [
       { id: "purchase-order", title: "Purchase Order", icon: ClipboardList, link: "/dashboard/purchase-order", comingSoon: true },
       { id: "retur-pembelian", title: "Retur Pembelian", icon: CornerUpLeft, link: "/dashboard/retur-pembelian", comingSoon: true },
-      { id: "kontak-pemasok", title: "Kontak Pemasok", icon: Truck, link: "/dashboard/kontak-pemasok", comingSoon: true },
+      { id: "kontak-pemasok", title: "Kontak Pemasok", icon: Truck, link: "/dashboard/kontak-pemasok" },
     ],
   },
   {
