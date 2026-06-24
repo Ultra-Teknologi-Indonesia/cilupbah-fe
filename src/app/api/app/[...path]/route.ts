@@ -24,16 +24,12 @@ async function proxyRequest(
     headers.set("user-agent", userAgent);
   }
 
-  const cfConnectingIp = request.headers.get("cf-connecting-ip");
-  if (cfConnectingIp) {
-    headers.set("cf-connecting-ip", cfConnectingIp);
-  }
-
-  const forwardedFor =
-    request.headers.get("x-forwarded-for") ||
-    request.headers.get("x-real-ip");
-  if (forwardedFor) {
-    headers.set("x-forwarded-for", forwardedFor);
+  const clientIp =
+    request.headers.get("cf-connecting-ip") ||
+    request.headers.get("x-real-ip") ||
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  if (clientIp) {
+    headers.set("x-client-ip", clientIp);
   }
 
   const cookieStore = await cookies();

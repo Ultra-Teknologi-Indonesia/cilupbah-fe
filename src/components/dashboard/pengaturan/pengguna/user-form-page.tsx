@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { CheckIcon, DicesIcon, Loader2Icon, XIcon } from "lucide-react"
+import { CheckIcon, CopyIcon, DicesIcon, EyeIcon, EyeOffIcon, Loader2Icon, XIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -169,6 +169,9 @@ export function UserFormPage({ userId }: UserFormPageProps) {
       })
     }
   }, [user, isEdit, form])
+
+  const [showPassword, setShowPassword] = React.useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false)
 
   const passwordValue = form.watch("password") ?? ""
   const strength = passwordValue ? getPasswordStrength(passwordValue) : null
@@ -343,65 +346,48 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="flex items-center justify-between">
-                        <FormLabel>
-                          Password {!isEdit && <span className="text-destructive">*</span>}
-                        </FormLabel>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-auto gap-1 px-2 py-0.5 text-xs text-muted-foreground"
-                          onClick={() => {
-                            const pwd = generatePassword()
-                            form.setValue("password", pwd, { shouldValidate: true })
-                            form.setValue("password_confirmation", pwd, { shouldValidate: true })
-                            toast.success("Password berhasil di-generate dan disalin ke kedua field.")
-                          }}
-                        >
-                          <DicesIcon className="size-3" />
-                          Generate
-                        </Button>
-                      </div>
+                      <FormLabel>
+                        Password {!isEdit && <span className="text-destructive">*</span>}
+                      </FormLabel>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder={isEdit ? "Kosongkan jika tidak diubah" : "Masukkan password"}
-                          {...field}
-                        />
-                      </FormControl>
-                      {passwordValue && (
-                        <div className="space-y-2 pt-1">
-                          <div className="flex items-center gap-2">
-                            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                              <div
-                                className={`h-full transition-all ${strength?.color}`}
-                                style={{ width: `${strength?.percent}%` }}
-                              />
-                            </div>
-                            <span className="text-xs font-medium text-muted-foreground">
-                              {strength?.level}
-                            </span>
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder={isEdit ? "Kosongkan jika tidak diubah" : "Masukkan password"}
+                            className="pr-24"
+                            {...field}
+                          />
+                          <div className="absolute inset-y-0 right-0 flex items-center gap-0.5 pr-1.5">
+                            <button
+                              type="button"
+                              tabIndex={-1}
+                              className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                              onClick={() => setShowPassword((v) => !v)}
+                            >
+                              {showPassword ? <EyeOffIcon className="size-3.5" /> : <EyeIcon className="size-3.5" />}
+                            </button>
+                            <button
+                              type="button"
+                              tabIndex={-1}
+                              className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                              onClick={async () => {
+                                const pwd = generatePassword()
+                                form.setValue("password", pwd, { shouldValidate: true })
+                                form.setValue("password_confirmation", pwd, { shouldValidate: true })
+                                setShowPassword(true)
+                                try {
+                                  await navigator.clipboard.writeText(pwd)
+                                  toast.success("Password di-generate dan disalin ke clipboard.")
+                                } catch {
+                                  toast.success("Password berhasil di-generate.")
+                                }
+                              }}
+                            >
+                              <DicesIcon className="size-3.5" />
+                            </button>
                           </div>
-                          <ul className="grid grid-cols-2 gap-x-4 gap-y-1">
-                            {PASSWORD_RULES.map((rule) => {
-                              const ok = rule.test(passwordValue)
-                              return (
-                                <li key={rule.key} className="flex items-center gap-1.5 text-xs">
-                                  {ok ? (
-                                    <CheckIcon className="size-3 text-emerald-500" />
-                                  ) : (
-                                    <XIcon className="size-3 text-muted-foreground" />
-                                  )}
-                                  <span className={ok ? "text-emerald-600" : "text-muted-foreground"}>
-                                    {rule.label}
-                                  </span>
-                                </li>
-                              )
-                            })}
-                          </ul>
                         </div>
-                      )}
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -416,12 +402,63 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                         Konfirmasi Password {!isEdit && <span className="text-destructive">*</span>}
                       </FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Ulangi password" {...field} />
+                        <div className="relative">
+                          <Input
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="Ulangi password"
+                            className="pr-10"
+                            {...field}
+                          />
+                          <div className="absolute inset-y-0 right-0 flex items-center pr-1.5">
+                            <button
+                              type="button"
+                              tabIndex={-1}
+                              className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                              onClick={() => setShowConfirmPassword((v) => !v)}
+                            >
+                              {showConfirmPassword ? <EyeOffIcon className="size-3.5" /> : <EyeIcon className="size-3.5" />}
+                            </button>
+                          </div>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+              </div>
+
+              {passwordValue && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className={`h-full transition-all ${strength?.color}`}
+                        style={{ width: `${strength?.percent}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {strength?.level}
+                    </span>
+                  </div>
+                  <ul className="grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-3 md:grid-cols-5">
+                    {PASSWORD_RULES.map((rule) => {
+                      const ok = rule.test(passwordValue)
+                      return (
+                        <li key={rule.key} className="flex items-center gap-1.5 text-xs">
+                          {ok ? (
+                            <CheckIcon className="size-3 text-emerald-500" />
+                          ) : (
+                            <XIcon className="size-3 text-muted-foreground" />
+                          )}
+                          <span className={ok ? "text-emerald-600" : "text-muted-foreground"}>
+                            {rule.label}
+                          </span>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              )
               </div>
 
               <div className="flex justify-end gap-2 pt-4">

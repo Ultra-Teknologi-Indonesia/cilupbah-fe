@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AuthService } from "@/services/auth/auth.service";
+import { clearLoginSession } from "@/app/actions/auth.actions";
 import { Logo } from "./logo";
 import { NotificationsPopover } from "./nav-notifications";
 import {
