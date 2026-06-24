@@ -56,6 +56,41 @@ export type UserListParams = {
   perPage?: number
 }
 
+export type RawLoginHistory = {
+  id: number
+  user_id: string
+  agent_device: string
+  agent_os: string
+  agent_browser: string
+  ip_address: string | null
+  location_country: string
+  location_region: string
+  location_city: string
+  location_district: string
+  location_village: string
+  location_lat: number | null
+  location_lon: number | null
+  created_at: string | null
+}
+
+export type LoginHistory = {
+  id: number
+  userId: string
+  device: string
+  os: string
+  browser: string
+  ipAddress: string | null
+  country: string
+  region: string
+  city: string
+  createdAt: string | null
+}
+
+export type LoginHistoryParams = {
+  page?: number
+  pageSize?: number
+}
+
 export type UserFormPayload = {
   name: string
   email: string

@@ -3,10 +3,13 @@ import type { ApiPaginated, ApiResponse } from "@/types/api.types"
 import type {
   RawUser,
   RawRole,
+  RawLoginHistory,
   User,
   Role,
+  LoginHistory,
   UserFormPayload,
   UserListParams,
+  LoginHistoryParams,
 } from "@/types/pengaturan/user"
 
 function mapUser(raw: RawUser): User {
@@ -23,6 +26,21 @@ function mapUser(raw: RawUser): User {
     })),
     avatarUrl: raw.avatar_url,
     lastLoginAt: raw.last_login_at,
+  }
+}
+
+function mapLoginHistory(raw: RawLoginHistory): LoginHistory {
+  return {
+    id: raw.id,
+    userId: raw.user_id,
+    device: raw.agent_device,
+    os: raw.agent_os,
+    browser: raw.agent_browser,
+    ipAddress: raw.ip_address,
+    country: raw.location_country,
+    region: raw.location_region,
+    city: raw.location_city,
+    createdAt: raw.created_at,
   }
 }
 
@@ -73,6 +91,20 @@ export const UserService = {
 
   delete: async (id: string) => {
     await fetchClient<ApiResponse<null>>(`/users/${id}`, { method: "DELETE" })
+  },
+
+  loginHistory: async (userId: string, params: LoginHistoryParams = {}) => {
+    const qs = new URLSearchParams()
+    qs.set("page", String(params.page ?? 1))
+    qs.set("page_size", String(params.pageSize ?? 25))
+
+    const res = await fetchClient<ApiPaginated<RawLoginHistory>>(
+      `/users/${userId}/login-history?${qs.toString()}`
+    )
+    return {
+      items: (res.data ?? []).map(mapLoginHistory),
+      meta: res.meta,
+    }
   },
 
   roles: async (): Promise<Role[]> => {

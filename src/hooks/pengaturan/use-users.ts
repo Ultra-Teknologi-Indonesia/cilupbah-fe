@@ -3,12 +3,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { UserService } from "@/services/pengaturan/user.service"
-import type { UserListParams, UserFormPayload } from "@/types/pengaturan/user"
+import type { UserListParams, UserFormPayload, LoginHistoryParams } from "@/types/pengaturan/user"
 
 export const userKeys = {
   all: ["pengaturan", "pengguna"] as const,
   list: (params: UserListParams) => [...userKeys.all, "list", params] as const,
   detail: (id: string) => [...userKeys.all, "detail", id] as const,
+  loginHistory: (id: string, params: LoginHistoryParams) =>
+    [...userKeys.all, "login-history", id, params] as const,
   roles: ["pengaturan", "roles"] as const,
 }
 
@@ -25,6 +27,14 @@ export function useUserDetail(id: string) {
     queryKey: userKeys.detail(id),
     queryFn: () => UserService.detail(id),
     enabled: !!id,
+  })
+}
+
+export function useLoginHistory(userId: string, params: LoginHistoryParams = {}) {
+  return useQuery({
+    queryKey: userKeys.loginHistory(userId, params),
+    queryFn: () => UserService.loginHistory(userId, params),
+    enabled: !!userId,
   })
 }
 
