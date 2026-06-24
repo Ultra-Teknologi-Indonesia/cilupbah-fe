@@ -596,6 +596,26 @@ export function OrderCard({
   selected?: boolean
   onSelectedChange?: (v: boolean) => void
 }) {
+  const groupedItems = React.useMemo(() => {
+    const map = new Map<string, OrderItem>()
+    for (const item of order.items) {
+      const key = `${item.channel_product_id ?? ""}|${item.sku}|${item.price}`
+      const existing = map.get(key)
+      if (existing) {
+        map.set(key, {
+          ...existing,
+          qty_in_base: existing.qty_in_base + item.qty_in_base,
+          disc_amount: existing.disc_amount + item.disc_amount,
+          tax_amount: existing.tax_amount + item.tax_amount,
+          amount: existing.amount + item.amount,
+        })
+      } else {
+        map.set(key, { ...item })
+      }
+    }
+    return Array.from(map.values())
+  }, [order.items])
+
   const statusInfo =
     STATUS_LABELS[order.status] ?? {
       label: order.status,
@@ -683,8 +703,8 @@ export function OrderCard({
       {/* Body */}
       <div className="flex flex-col gap-4 px-4 py-3.5 sm:px-5 lg:flex-row lg:gap-6">
         <div className="flex-1 space-y-2.5 lg:max-w-[360px]">
-          {order.items.length > 0 ? (
-            order.items.map((item) => (
+          {groupedItems.length > 0 ? (
+            groupedItems.map((item) => (
               <ItemRow key={item.id} item={item} />
             ))
           ) : (
