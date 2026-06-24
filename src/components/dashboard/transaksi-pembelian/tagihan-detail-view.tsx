@@ -67,7 +67,7 @@ export function TagihanDetailView({ id }: { id: string }) {
     deleteMut.mutate(bill.id, {
       onSuccess: () => {
         setShowDelete(false)
-        router.push("/dashboard/transaksi-pembelian/tagihan")
+        router.push("/dashboard/transaksi-pembelian")
       },
     })
   }
@@ -87,7 +87,7 @@ export function TagihanDetailView({ id }: { id: string }) {
         <ReceiptIcon className="h-10 w-10" />
         <p className="text-sm">Tagihan tidak ditemukan.</p>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/transaksi-pembelian/tagihan">Kembali</Link>
+          <Link href="/dashboard/transaksi-pembelian">Kembali</Link>
         </Button>
       </div>
     )
@@ -101,7 +101,7 @@ export function TagihanDetailView({ id }: { id: string }) {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon-sm" asChild>
-            <Link href="/dashboard/transaksi-pembelian/tagihan">
+            <Link href="/dashboard/transaksi-pembelian">
               <ArrowLeftIcon className="h-4 w-4" />
             </Link>
           </Button>

@@ -193,7 +193,7 @@ export function PesananFormPage({ mode, id }: Props) {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon-sm" asChild>
-          <Link href="/dashboard/transaksi-pembelian/pesanan">
+          <Link href="/dashboard/transaksi-pembelian">
             <ArrowLeftIcon className="h-4 w-4" />
           </Link>
         </Button>
@@ -383,7 +383,7 @@ export function PesananFormPage({ mode, id }: Props) {
                 {isPending ? "Menyimpan..." : mode === "create" ? "Simpan Pesanan" : "Perbarui Pesanan"}
               </Button>
               <Button variant="outline" asChild className="w-full">
-                <Link href="/dashboard/transaksi-pembelian/pesanan">Batal</Link>
+                <Link href="/dashboard/transaksi-pembelian">Batal</Link>
               </Button>
             </div>
           </LiquidGlass>

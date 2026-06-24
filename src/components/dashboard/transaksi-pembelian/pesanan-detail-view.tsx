@@ -73,7 +73,7 @@ export function PesananDetailView({ id }: { id: string }) {
     const opts = {
       onSuccess: () => {
         setConfirmAction(null)
-        if (confirmAction === "delete") router.push("/dashboard/transaksi-pembelian/pesanan")
+        if (confirmAction === "delete") router.push("/dashboard/transaksi-pembelian")
       },
     }
     if (confirmAction === "approve") approveMut.mutate(po.id, opts)
@@ -96,7 +96,7 @@ export function PesananDetailView({ id }: { id: string }) {
         <PackageIcon className="h-10 w-10" />
         <p className="text-sm">Pesanan tidak ditemukan.</p>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/transaksi-pembelian/pesanan">Kembali</Link>
+          <Link href="/dashboard/transaksi-pembelian">Kembali</Link>
         </Button>
       </div>
     )
@@ -110,7 +110,7 @@ export function PesananDetailView({ id }: { id: string }) {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon-sm" asChild>
-            <Link href="/dashboard/transaksi-pembelian/pesanan">
+            <Link href="/dashboard/transaksi-pembelian">
               <ArrowLeftIcon className="h-4 w-4" />
             </Link>
           </Button>

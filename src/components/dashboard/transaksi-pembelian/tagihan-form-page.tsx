@@ -214,7 +214,7 @@ export function TagihanFormPage({ mode, id }: Props) {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon-sm" asChild>
-          <Link href="/dashboard/transaksi-pembelian/tagihan">
+          <Link href="/dashboard/transaksi-pembelian">
             <ArrowLeftIcon className="h-4 w-4" />
           </Link>
         </Button>
@@ -441,7 +441,7 @@ export function TagihanFormPage({ mode, id }: Props) {
                 {isPending ? "Menyimpan..." : mode === "create" ? "Simpan Tagihan" : "Perbarui Tagihan"}
               </Button>
               <Button variant="outline" asChild className="w-full">
-                <Link href="/dashboard/transaksi-pembelian/tagihan">Batal</Link>
+                <Link href="/dashboard/transaksi-pembelian">Batal</Link>
               </Button>
             </div>
           </LiquidGlass>
