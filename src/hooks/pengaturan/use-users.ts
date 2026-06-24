@@ -9,6 +9,7 @@ export const userKeys = {
   all: ["pengaturan", "pengguna"] as const,
   list: (params: UserListParams) => [...userKeys.all, "list", params] as const,
   detail: (id: string) => [...userKeys.all, "detail", id] as const,
+  roles: ["pengaturan", "roles"] as const,
 }
 
 export function useUsers(params: UserListParams = {}) {
@@ -24,6 +25,14 @@ export function useUserDetail(id: string) {
     queryKey: userKeys.detail(id),
     queryFn: () => UserService.detail(id),
     enabled: !!id,
+  })
+}
+
+export function useRoles() {
+  return useQuery({
+    queryKey: userKeys.roles,
+    queryFn: () => UserService.roles(),
+    staleTime: 5 * 60 * 1000,
   })
 }
 

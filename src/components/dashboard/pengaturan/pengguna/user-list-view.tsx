@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { Loader2Icon, PlusIcon, SearchIcon, Trash2Icon } from "lucide-react"
 import { toast } from "sonner"
 
@@ -10,11 +11,10 @@ import { Button } from "@/components/ui/button"
 import { SimplePagination } from "@/components/ui/simple-pagination"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { useUsers, useCreateUser, useDeleteUser } from "@/hooks/pengaturan/use-users"
-import type { User, UserFormPayload } from "@/types/pengaturan/user"
+import { useUsers, useDeleteUser } from "@/hooks/pengaturan/use-users"
+import type { User } from "@/types/pengaturan/user"
 
 import { UserTable } from "./user-table"
-import { UserFormDialog } from "./user-form-dialog"
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (error && typeof error === "object" && "message" in error) {
@@ -30,7 +30,6 @@ export function UserListView() {
   const [page, setPage] = React.useState(1)
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
   const [deleteTarget, setDeleteTarget] = React.useState<User | null>(null)
-  const [showCreate, setShowCreate] = React.useState(false)
 
   const perPage = 10
 
@@ -43,12 +42,11 @@ export function UserListView() {
   }, [searchInput])
 
   const { data, isLoading, isError, isFetching } = useUsers({ search, page, perPage })
-  const createUser = useCreateUser()
   const deleteUser = useDeleteUser()
 
   const users = data?.items ?? []
-  const total = data?.totalCount ?? 0
-  const lastPage = Math.max(1, Math.ceil(total / perPage))
+  const total = data?.meta?.total ?? 0
+  const lastPage = data?.meta?.last_page ?? 1
 
   function handleToggleSelect(id: string) {
     setSelectedIds((prev) => {
@@ -90,17 +88,6 @@ export function UserListView() {
     })
   }
 
-  function handleCreate(payload: UserFormPayload) {
-    createUser.mutate(payload, {
-      onSuccess: () => {
-        toast.success("Pengguna berhasil ditambahkan.")
-        setShowCreate(false)
-      },
-      onError: (err) =>
-        toast.error(getErrorMessage(err, "Gagal menambahkan pengguna.")),
-    })
-  }
-
   return (
     <div className="flex flex-col gap-4">
       <LiquidGlass radius={24} className="bg-white/40 dark:bg-white/[0.06]">
@@ -128,9 +115,11 @@ export function UserListView() {
                 Hapus ({selectedIds.size})
               </Button>
             )}
-            <Button size="sm" onClick={() => setShowCreate(true)}>
-              <PlusIcon className="mr-1 size-4" />
-              Tambah Pengguna
+            <Button size="sm" asChild>
+              <Link href="/dashboard/pengaturan/pengguna/buat">
+                <PlusIcon className="mr-1 size-4" />
+                Tambah Pengguna
+              </Link>
             </Button>
           </div>
         </div>
@@ -175,22 +164,13 @@ export function UserListView() {
         )}
       </LiquidGlass>
 
-      {/* Create Dialog */}
-      <UserFormDialog
-        open={showCreate}
-        onOpenChange={setShowCreate}
-        loading={createUser.isPending}
-        onSubmit={handleCreate}
-      />
-
-      {/* Delete Dialog */}
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => {
           if (!open && !deleteUser.isPending) setDeleteTarget(null)
         }}
         title="Hapus Pengguna"
-        description={`Apakah Anda yakin ingin menghapus pengguna ${deleteTarget?.fullName}? Tindakan ini tidak dapat dibatalkan.`}
+        description={`Apakah Anda yakin ingin menghapus pengguna ${deleteTarget?.name}? Tindakan ini tidak dapat dibatalkan.`}
         confirmLabel="Hapus"
         variant="destructive"
         loading={deleteUser.isPending}

@@ -1,81 +1,86 @@
 import { fetchClient } from "@/lib/api-client"
+import type { ApiPaginated, ApiResponse } from "@/types/api.types"
 import type {
   RawUser,
-  RawUserListResponse,
+  RawRole,
   User,
+  Role,
   UserFormPayload,
   UserListParams,
-  UserRole,
-  UserLocation,
 } from "@/types/pengaturan/user"
-
-function mapRole(raw: { role_id: number; role_name: string }): UserRole {
-  return {
-    roleId: raw.role_id,
-    roleName: raw.role_name.trim(),
-  }
-}
-
-function mapLocation(raw: { location_id: number; location_name: string }): UserLocation {
-  return {
-    locationId: raw.location_id,
-    locationName: raw.location_name,
-  }
-}
 
 function mapUser(raw: RawUser): User {
   return {
-    id: String(raw.user_id),
+    id: raw.id,
+    name: raw.name,
     email: raw.email,
-    fullName: raw.full_name,
-    lastLogin: raw.last_login,
-    isOwner: raw.is_owner,
-    roles: (raw.roles ?? []).map(mapRole),
-    locations: (raw.locations ?? []).map(mapLocation),
+    roles: raw.roles,
+    nik: raw.nik,
+    warehouseId: raw.warehouse_id,
+    locations: (raw.locations ?? []).map((l) => ({
+      locationId: l.location_id,
+      locationName: l.location_name,
+    })),
+    avatarUrl: raw.avatar_url,
+    lastLoginAt: raw.last_login_at,
+  }
+}
+
+function mapRole(raw: RawRole): Role {
+  return {
+    id: raw.id,
+    name: raw.name,
+    description: raw.description,
   }
 }
 
 export const UserService = {
   list: async (params: UserListParams = {}) => {
-    const qs = new URLSearchParams({
-      pageSize: String(params.perPage ?? 10),
-      page: String(params.page ?? 1),
-    })
-    if (params.search) qs.set("q", params.search)
+    const qs = new URLSearchParams()
+    qs.set("page", String(params.page ?? 1))
+    qs.set("per_page", String(params.perPage ?? 10))
+    if (params.search) qs.set("search", params.search)
 
-    const res = await fetchClient<RawUserListResponse>(
-      `/systemsetting/users?${qs.toString()}`
+    const res = await fetchClient<ApiPaginated<RawUser>>(
+      `/v1/users?${qs.toString()}`
     )
     return {
       items: (res.data ?? []).map(mapUser),
-      totalCount: res.totalCount ?? 0,
+      meta: res.meta,
     }
   },
 
   detail: async (id: string) => {
-    const res = await fetchClient<RawUserListResponse>(
-      `/systemsetting/users?pageSize=200&page=1`
-    )
-    const raw = (res.data ?? []).find((u) => String(u.user_id) === id)
-    if (!raw) throw new Error("Pengguna tidak ditemukan")
-    return mapUser(raw)
+    const res = await fetchClient<ApiResponse<RawUser>>(`/v1/users/${id}`)
+    return mapUser(res.data)
   },
 
   create: async (payload: UserFormPayload) => {
-    return fetchClient<{ data: RawUser }>("/systemsetting/users", {
+    const res = await fetchClient<ApiResponse<RawUser>>("/v1/users", {
       method: "POST",
       data: payload,
     })
+    return mapUser(res.data)
   },
 
   update: async (id: string, payload: UserFormPayload) => {
-    return fetchClient<{ data: RawUser }>(`/systemsetting/users/${id}`, {
+    const res = await fetchClient<ApiResponse<RawUser>>(`/v1/users/${id}`, {
       method: "PUT",
       data: payload,
     })
+    return mapUser(res.data)
   },
 
   delete: async (id: string) => {
-    return fetchClient(`/systemsetting/users/${id}`, { method: "DELETE" })
+    await fetchClient<ApiResponse<null>>(`/v1/users/${id}`, { method: "DELETE" })
+  },
+
+  roles: async (): Promise<Role[]> => {
+    const res = await fetchClient<ApiPaginated<RawRole>>(
+      "/v1/roles?per_page=100"
+    )
+    return (res.data ?? [])
+      .map(mapRole)
+      .filter((r) => r.name !== "owner")
   },
 }

@@ -15,11 +15,11 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import type { User } from "@/types/pengaturan/user"
 
-function formatRoles(user: User): string {
-  if (user.roles.length === 0) return "-"
-  const first = user.roles[0].roleName
-  if (user.roles.length === 1) return first
-  return `${first} dan ${user.roles.length - 1} peran lainnya`
+function formatRoles(roles: string[]): string {
+  if (roles.length === 0) return "-"
+  const first = roles[0].charAt(0).toUpperCase() + roles[0].slice(1)
+  if (roles.length === 1) return first
+  return `${first} dan ${roles.length - 1} peran lainnya`
 }
 
 function formatDate(iso: string | null): string {
@@ -79,7 +79,7 @@ export function UserTable({
               <Checkbox
                 checked={selectedIds.has(user.id)}
                 onCheckedChange={() => onToggleSelect(user.id)}
-                aria-label={`Pilih ${user.fullName}`}
+                aria-label={`Pilih ${user.name}`}
               />
             </TableCell>
             <TableCell>
@@ -87,20 +87,20 @@ export function UserTable({
                 href={`/dashboard/pengaturan/pengguna/${user.id}`}
                 className="font-medium text-primary hover:underline"
               >
-                {user.fullName || user.email}
+                {user.name || user.email}
               </Link>
             </TableCell>
             <TableCell className="text-muted-foreground">{user.email}</TableCell>
-            <TableCell className="text-muted-foreground">{formatRoles(user)}</TableCell>
-            <TableCell className="text-muted-foreground">{formatDate(user.lastLogin)}</TableCell>
+            <TableCell className="text-muted-foreground">{formatRoles(user.roles)}</TableCell>
+            <TableCell className="text-muted-foreground">{formatDate(user.lastLoginAt)}</TableCell>
             <TableCell className="text-right">
-              {!user.isOwner && (
+              {!user.roles.includes("owner") && (
                 <Button
                   variant="ghost"
                   size="icon-sm"
                   className="text-destructive hover:text-destructive"
                   onClick={() => onDelete(user)}
-                  aria-label={`Hapus ${user.fullName}`}
+                  aria-label={`Hapus ${user.name}`}
                 >
                   <Trash2Icon />
                 </Button>

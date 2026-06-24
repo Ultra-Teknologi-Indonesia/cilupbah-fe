@@ -1,50 +1,53 @@
-export type RawUserRole = {
-  user_id: number
-  company_id: number
-  role_id: number
-  role_name: string
-}
-
 export type RawUserLocation = {
-  user_loc_id: number
-  user_id: number
-  location_id: number
+  location_id: string
   location_name: string
+  zones: { id: string; zone_code: string; zone_name: string }[] | null
 }
 
 export type RawUser = {
-  user_id: number
+  id: string
+  name: string
   email: string
-  last_login: string | null
-  full_name: string
-  is_owner: boolean
-  roles: RawUserRole[]
-  locations: RawUserLocation[] | null
+  roles: string[]
+  permissions: string[]
+  nik: string | null
+  warehouse_id: string | null
+  locations: RawUserLocation[]
+  avatar_media_id: string | null
+  avatar_url: string | null
+  last_login_at: string | null
 }
 
-export type RawUserListResponse = {
-  data: RawUser[]
-  totalCount: number
-}
-
-export type UserRole = {
-  roleId: number
-  roleName: string
-}
-
-export type UserLocation = {
-  locationId: number
-  locationName: string
+export type RawRole = {
+  id: string
+  name: string
+  description: string | null
+  users_count?: number
+  created_at: string
+  updated_at: string
 }
 
 export type User = {
   id: string
+  name: string
   email: string
-  fullName: string
-  lastLogin: string | null
-  isOwner: boolean
-  roles: UserRole[]
+  roles: string[]
+  nik: string | null
+  warehouseId: string | null
   locations: UserLocation[]
+  avatarUrl: string | null
+  lastLoginAt: string | null
+}
+
+export type UserLocation = {
+  locationId: string
+  locationName: string
+}
+
+export type Role = {
+  id: string
+  name: string
+  description: string | null
 }
 
 export type UserListParams = {
@@ -54,9 +57,11 @@ export type UserListParams = {
 }
 
 export type UserFormPayload = {
-  full_name: string
+  name: string
   email: string
   password?: string
-  role_ids: number[]
-  location_ids: number[]
+  password_confirmation?: string
+  roles: string[]
+  nik?: string | null
+  warehouse_id?: string | null
 }
