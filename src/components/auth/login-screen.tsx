@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Sparkles } from "lucide-react";
 
 import {
@@ -62,7 +63,9 @@ export function LoginScreen() {
             </CardHeader>
 
             <CardContent>
-              <LoginForm />
+              <Suspense>
+                <LoginForm />
+              </Suspense>
             </CardContent>
 
           </Card>
