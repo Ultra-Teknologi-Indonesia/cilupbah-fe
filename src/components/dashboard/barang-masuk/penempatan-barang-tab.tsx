@@ -1,17 +1,23 @@
 "use client"
 
 import { useState, useMemo, useCallback, useEffect } from "react"
-import { ArchiveIcon } from "lucide-react"
+import Link from "next/link"
+import { ArchiveIcon, PlayIcon, CheckCircleIcon, UserPlusIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Combobox } from "@/components/ui/combobox"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination } from "@/components/ui/simple-pagination"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { usePutaways } from "@/hooks/barang-masuk/use-putaway"
+import { useAssignPutawayStaff, useStartPutaway, useCompletePutaway } from "@/hooks/barang-masuk/use-putaway-actions"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
+import { useUsers } from "@/hooks/pengaturan/use-users"
 import type { Putaway, PutawayStatus } from "@/types/barang-masuk/putaway"
 
 const STATUS_OPTIONS = [
@@ -91,6 +97,17 @@ export function PenempatanBarangTab() {
   const [perPage, setPerPage] = useState(15)
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
 
+  const [assignTarget, setAssignTarget] = useState<Putaway | null>(null)
+  const [assignUserId, setAssignUserId] = useState("")
+  const [assignPerformedBy, setAssignPerformedBy] = useState("")
+  const [startTarget, setStartTarget] = useState<Putaway | null>(null)
+  const [completeTarget, setCompleteTarget] = useState<Putaway | null>(null)
+
+  const assignMutation = useAssignPutawayStaff()
+  const startMutation = useStartPutaway()
+  const completeMutation = useCompletePutaway()
+  const { data: userData } = useUsers({ perPage: 100 })
+
   const resetPage = useCallback(() => setPage(1), [])
 
   useEffect(() => {
@@ -125,10 +142,16 @@ export function PenempatanBarangTab() {
     ...(locData?.items ?? []).map((l) => ({ value: l.id, label: l.locationName })),
   ], [locData])
 
+  const userOptions = useMemo(() =>
+    (userData?.items ?? []).map((u) => ({ value: u.id, label: u.name })),
+    [userData]
+  )
+
   const hasActiveFilter = Object.values(filters).some(Boolean)
   const activeCount = Object.values(filters).filter(Boolean).length
 
   return (
+    <>
     <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
       <FilterToolbar
         search={search}
@@ -181,7 +204,7 @@ export function PenempatanBarangTab() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border/60 bg-muted/30">
-                    {["No. Penempatan", "Tgl. Penempatan", "Lokasi", "Dibuat Oleh", "Dikerjakan Oleh", "Progress", "Status"].map((h) => (
+                    {["No. Penempatan", "Tgl. Penempatan", "Lokasi", "Dibuat Oleh", "Dikerjakan Oleh", "Progress", "Status", "Aksi"].map((h) => (
                       <th key={h} className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                         {h}
                       </th>
@@ -217,6 +240,41 @@ export function PenempatanBarangTab() {
                             {STATUS_LABEL[item.status] ?? item.status}
                           </Badge>
                         </td>
+                        <td className="whitespace-nowrap px-3 py-3">
+                          <div className="flex items-center gap-1.5">
+                            {item.status === "NOT_STARTED" && !item.assignee && (
+                              <button
+                                type="button"
+                                onClick={() => { setAssignTarget(item); setAssignUserId(""); setAssignPerformedBy("") }}
+                                className="inline-flex items-center gap-1 rounded-md bg-indigo-500/10 px-2 py-1 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-500/20 dark:text-indigo-400"
+                              >
+                                <UserPlusIcon className="h-3.5 w-3.5" />
+                                Assign
+                              </button>
+                            )}
+                            {(item.status === "NOT_STARTED" || item.status === "IN_PROGRESS") && (
+                              <Link href={`/dashboard/barang-masuk/putaway/${item.id}`}>
+                                <button
+                                  type="button"
+                                  className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+                                >
+                                  <PlayIcon className="h-3.5 w-3.5" />
+                                  {item.status === "NOT_STARTED" ? "Mulai" : "Lanjut"}
+                                </button>
+                              </Link>
+                            )}
+                            {item.status === "IN_PROGRESS" && (
+                              <button
+                                type="button"
+                                onClick={() => setCompleteTarget(item)}
+                                className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-500/20 dark:text-emerald-400"
+                              >
+                                <CheckCircleIcon className="h-3.5 w-3.5" />
+                                Selesai
+                              </button>
+                            )}
+                          </div>
+                        </td>
                       </tr>
                     )
                   })}
@@ -238,5 +296,68 @@ export function PenempatanBarangTab() {
         )}
       </div>
     </LiquidGlass>
+
+      <ConfirmDialog
+        open={!!assignTarget}
+        onOpenChange={(open) => { if (!open) setAssignTarget(null) }}
+        title="Assign Petugas"
+        description={`Assign petugas untuk ${assignTarget?.putaway_no ?? ""}`}
+        confirmLabel="Assign"
+        loading={assignMutation.isPending}
+        onConfirm={() => {
+          if (!assignTarget || !assignUserId || !assignPerformedBy.trim()) return
+          assignMutation.mutate(
+            {
+              data: [{ putaway_id: assignTarget.id, assigned_to: Number(assignUserId) }],
+              performed_by: assignPerformedBy.trim(),
+            },
+            { onSuccess: () => setAssignTarget(null) }
+          )
+        }}
+      >
+        <div className="flex flex-col gap-3 px-1 py-2">
+          <div>
+            <Label htmlFor="assign-user" className="text-sm font-medium">
+              Petugas <span className="text-red-500">*</span>
+            </Label>
+            <Combobox
+              options={userOptions}
+              value={assignUserId}
+              onChange={(v) => setAssignUserId(v ?? "")}
+              placeholder="Pilih petugas"
+              searchPlaceholder="Cari petugas"
+              className="mt-1.5 h-9 bg-background"
+            />
+          </div>
+          <div>
+            <Label htmlFor="assign-by" className="text-sm font-medium">
+              Ditugaskan oleh <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="assign-by"
+              placeholder="Nama penugasan"
+              value={assignPerformedBy}
+              onChange={(e) => setAssignPerformedBy(e.target.value)}
+              className="mt-1.5"
+            />
+          </div>
+        </div>
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        open={!!completeTarget}
+        onOpenChange={(open) => { if (!open) setCompleteTarget(null) }}
+        title="Selesaikan Putaway"
+        description={`Tandai ${completeTarget?.putaway_no ?? ""} sebagai selesai?`}
+        confirmLabel="Selesai"
+        loading={completeMutation.isPending}
+        onConfirm={() => {
+          if (!completeTarget) return
+          completeMutation.mutate(completeTarget.id, {
+            onSuccess: () => setCompleteTarget(null),
+          })
+        }}
+      />
+    </>
   )
 }
