@@ -1,12 +1,14 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { MonitorStockService } from "@/services/monitor-stok/monitor-stok.service"
 import type {
   MonitorListParams,
   MonitorAnalyticsParams,
+  FailedSyncParams,
   MonitorStockRow,
   MonitorAnalyticsRow,
+  MonitorSyncFailedRow,
   MonitorTab,
   OutOfStockMode,
 } from "@/types/monitor-stok/monitor"
@@ -30,9 +32,13 @@ export function isAnalyticsTab(tab: MonitorTab): boolean {
   return ANALYTICS_TABS.includes(tab)
 }
 
-/** Tab yang sudah punya data E2E. Sisanya (gagal-sync) placeholder Fase 4. */
+export function isSyncTab(tab: MonitorTab): boolean {
+  return tab === "gagal-sync"
+}
+
+/** Semua tab yang sudah punya data E2E. */
 export function isLiveTab(tab: MonitorTab): boolean {
-  return isStockTab(tab) || isAnalyticsTab(tab)
+  return isStockTab(tab) || isAnalyticsTab(tab) || isSyncTab(tab)
 }
 
 export function useMonitorList(
@@ -87,5 +93,33 @@ export function useMonitorSummary(params: MonitorListParams) {
     queryFn: () => MonitorStockService.summary(params),
     staleTime: STALE,
     placeholderData: (prev) => prev,
+  })
+}
+
+const EMPTY_SYNC = { items: [] as MonitorSyncFailedRow[], meta: EMPTY_META }
+
+export function useFailedSync(tab: MonitorTab, params: FailedSyncParams) {
+  return useQuery({
+    queryKey: ["monitor-stok", "failed-sync", params],
+    queryFn: () => MonitorStockService.failedSync(params),
+    enabled: isSyncTab(tab),
+    staleTime: STALE,
+    placeholderData: (prev) => prev,
+  })
+}
+
+export function useRetrySync() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => MonitorStockService.retrySync(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["monitor-stok", "failed-sync"] }),
+  })
+}
+
+export function useRetryBulkSync() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (ids: string[]) => MonitorStockService.retryBulkSync(ids),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["monitor-stok", "failed-sync"] }),
   })
 }

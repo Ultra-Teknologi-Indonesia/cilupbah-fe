@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { DownloadIcon, RefreshCwIcon, ConstructionIcon } from "lucide-react"
+import { DownloadIcon, RefreshCwIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -10,15 +10,18 @@ import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { MonitorStockTable } from "@/components/dashboard/monitor-stok/monitor-stock-table"
 import { MonitorAnalyticsTable, type AnalyticsKind } from "@/components/dashboard/monitor-stok/monitor-analytics-table"
+import { MonitorSyncFailedTable } from "@/components/dashboard/monitor-stok/monitor-sync-failed-table"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import { useAllBrands } from "@/hooks/kategori-merek/use-brand"
 import {
   useMonitorList,
   useMonitorAnalytics,
   useMonitorSummary,
+  useFailedSync,
   isLiveTab,
   isStockTab,
   isAnalyticsTab,
+  isSyncTab,
 } from "@/hooks/monitor-stok/use-monitor-stok"
 import type { MonitorTab, OutOfStockMode } from "@/types/monitor-stok/monitor"
 
@@ -130,13 +133,19 @@ export function MonitorStokView() {
     return { ...base, days: period }
   }, [baseFilters, page, perPage, tab, period])
 
+  const syncParams = useMemo(
+    () => ({ search: debouncedSearch || undefined, page, per_page: perPage }),
+    [debouncedSearch, page, perPage]
+  )
+
   const listQuery = useMonitorList(tab, subMode, listParams)
   const analyticsQuery = useMonitorAnalytics(tab, analyticsParams)
+  const failedSyncQuery = useFailedSync(tab, syncParams)
   const { data: summary } = useMonitorSummary(baseFilters)
   const { data: locData } = useLocations({ perPage: 100 })
   const { data: brands } = useAllBrands()
 
-  const active = isAnalyticsTab(tab) ? analyticsQuery : listQuery
+  const active = isSyncTab(tab) ? failedSyncQuery : isAnalyticsTab(tab) ? analyticsQuery : listQuery
   const rows = active.data?.items ?? []
   const meta = active.data?.meta ?? EMPTY_META
 
@@ -193,8 +202,8 @@ export function MonitorStokView() {
       <div className="flex items-center justify-end gap-2">
         <button
           type="button"
-          onClick={() => downloadCsv(rows, `monitor-${tab}${tab === "stok-kosong" ? `-${subMode}` : ""}.csv`)}
-          disabled={rows.length === 0}
+          onClick={() => downloadCsv(rows as CsvRow[], `monitor-${tab}${tab === "stok-kosong" ? `-${subMode}` : ""}.csv`)}
+          disabled={rows.length === 0 || isSyncTab(tab)}
           className="inline-flex items-center gap-1.5 rounded-md border border-border/60 px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
         >
           <DownloadIcon className="h-4 w-4" /> Export
@@ -221,131 +230,148 @@ export function MonitorStokView() {
             )}
           >
             {label}
-            {!isLiveTab(key) && <span className="text-[9px] uppercase opacity-60">soon</span>}
           </button>
         ))}
       </div>
 
-      {!isLiveTab(tab) ? (
-        <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
-          <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-            <ConstructionIcon className="h-10 w-10" />
-            <div className="text-center">
-              <p className="text-sm font-medium">Tab ini menyusul di fase berikutnya</p>
-              <p className="mt-1 text-xs">Gagal Sync (retry sinkronisasi channel) dijadwalkan Fase 4.</p>
+      <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
+        {/* Sub-tabs Stok Kosong / Periode analitik + Total */}
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-4 sm:px-5">
+          {tab === "stok-kosong" ? (
+            <div className="flex flex-wrap gap-1.5">
+              {SUB_TABS.map(({ key, label }) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => changeSub(key)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                    subMode === key ? "border-primary text-primary" : "border-border/60 text-muted-foreground hover:bg-muted"
+                  )}
+                >
+                  {label}
+                  {subTotal(key) !== undefined && (
+                    <span className="rounded-full bg-muted px-1.5 text-[10px] tabular-nums">{subTotal(key)}</span>
+                  )}
+                </button>
+              ))}
             </div>
+          ) : isAnalyticsTab(tab) ? (
+            <div className="w-52">
+              <Combobox
+                options={PERIOD_OPTIONS[tab] ?? []}
+                value={String(period)}
+                onChange={(v) => onFilter(() => setPeriod(Number(v) || PERIOD_DEFAULT[tab]))}
+                placeholder="Periode"
+                searchPlaceholder="Pilih periode"
+                className="h-9 bg-background"
+              />
+            </div>
+          ) : (
+            <div />
+          )}
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            Total <Badge variant="secondary" className="tabular-nums">{totalBadge ?? meta.total}</Badge>
           </div>
-        </LiquidGlass>
-      ) : (
-        <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
-          {/* Sub-tabs Stok Kosong / Periode analitik + Total */}
-          <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-4 sm:px-5">
-            {tab === "stok-kosong" ? (
-              <div className="flex flex-wrap gap-1.5">
-                {SUB_TABS.map(({ key, label }) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => changeSub(key)}
-                    className={cn(
-                      "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-                      subMode === key ? "border-primary text-primary" : "border-border/60 text-muted-foreground hover:bg-muted"
-                    )}
-                  >
-                    {label}
-                    {subTotal(key) !== undefined && (
-                      <span className="rounded-full bg-muted px-1.5 text-[10px] tabular-nums">{subTotal(key)}</span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            ) : isAnalyticsTab(tab) ? (
-              <div className="w-52">
-                <Combobox
-                  options={PERIOD_OPTIONS[tab] ?? []}
-                  value={String(period)}
-                  onChange={(v) => onFilter(() => setPeriod(Number(v) || PERIOD_DEFAULT[tab]))}
-                  placeholder="Periode"
-                  searchPlaceholder="Pilih periode"
-                  className="h-9 bg-background"
-                />
-              </div>
-            ) : (
+        </div>
+
+        {isSyncTab(tab) ? (
+          <>
+            <FilterToolbar
+              search={search}
+              onSearchChange={setSearch}
+              searchPlaceholder="Cari produk (SKU / nama)..."
+              align="end"
+              hasFilter={false}
+              activeCount={0}
+              gridCols={2}
+            >
               <div />
-            )}
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              Total <Badge variant="secondary" className="tabular-nums">{totalBadge ?? meta.total}</Badge>
+              <div />
+            </FilterToolbar>
+
+            <div className="px-4 py-3 sm:px-5">
+              <MonitorSyncFailedTable
+                rows={failedSyncQuery.data?.items ?? []}
+                meta={failedSyncQuery.data?.meta ?? EMPTY_META}
+                isLoading={failedSyncQuery.isLoading}
+                isFetching={failedSyncQuery.isFetching && !failedSyncQuery.isLoading}
+                onPageChange={setPage}
+                onPerPageChange={(s) => { setPerPage(s); resetPage() }}
+              />
             </div>
-          </div>
-
-          <FilterToolbar
-            search={search}
-            onSearchChange={setSearch}
-            searchPlaceholder="Cari produk (SKU / nama)..."
-            align="end"
-            onReset={hasFilter ? () => onFilter(() => { setLocationId(""); setBrandId("") }) : undefined}
-            hasFilter={hasFilter}
-            activeCount={activeCount}
-            gridCols={2}
-          >
-            <Combobox
-              options={locationOptions}
-              value={locationId}
-              onChange={(v) => onFilter(() => setLocationId(v ?? ""))}
-              placeholder="Lokasi"
-              searchPlaceholder="Cari lokasi"
-              className="h-9 bg-background"
-            />
-            <Combobox
-              options={brandOptions}
-              value={brandId}
-              onChange={(v) => onFilter(() => setBrandId(v ?? ""))}
-              placeholder="Merk"
-              searchPlaceholder="Cari merk"
-              className="h-9 bg-background"
-            />
-          </FilterToolbar>
-
-          <div className="px-4 py-3 sm:px-5">
-            {isStockTab(tab) ? (
-              <MonitorStockTable
-                rows={listQuery.data?.items ?? []}
-                meta={listQuery.data?.meta ?? EMPTY_META}
-                isLoading={listQuery.isLoading}
-                isFetching={listQuery.isFetching && !listQuery.isLoading}
-                locationLabel={locationLabel}
-                showRestock={tab === "menipis"}
-                emptyText={
-                  tab === "menipis"
-                    ? "Tidak ada produk menipis."
-                    : tab === "sedang-dibeli"
-                      ? "Tidak ada produk yang sedang dibeli."
-                      : "Tidak ada produk pada kategori ini."
-                }
-                onPageChange={setPage}
-                onPerPageChange={(s) => { setPerPage(s); resetPage() }}
+          </>
+        ) : (
+          <>
+            <FilterToolbar
+              search={search}
+              onSearchChange={setSearch}
+              searchPlaceholder="Cari produk (SKU / nama)..."
+              align="end"
+              onReset={hasFilter ? () => onFilter(() => { setLocationId(""); setBrandId("") }) : undefined}
+              hasFilter={hasFilter}
+              activeCount={activeCount}
+              gridCols={2}
+            >
+              <Combobox
+                options={locationOptions}
+                value={locationId}
+                onChange={(v) => onFilter(() => setLocationId(v ?? ""))}
+                placeholder="Lokasi"
+                searchPlaceholder="Cari lokasi"
+                className="h-9 bg-background"
               />
-            ) : (
-              <MonitorAnalyticsTable
-                kind={tab as AnalyticsKind}
-                rows={analyticsQuery.data?.items ?? []}
-                meta={analyticsQuery.data?.meta ?? EMPTY_META}
-                isLoading={analyticsQuery.isLoading}
-                isFetching={analyticsQuery.isFetching && !analyticsQuery.isLoading}
-                emptyText={
-                  tab === "tidak-laku"
-                    ? "Tidak ada produk tidak laku pada periode ini."
-                    : tab === "paling-laku"
-                      ? "Belum ada penjualan pada periode ini."
-                      : "Tidak ada produk yang diperkirakan habis pada periode ini."
-                }
-                onPageChange={setPage}
-                onPerPageChange={(s) => { setPerPage(s); resetPage() }}
+              <Combobox
+                options={brandOptions}
+                value={brandId}
+                onChange={(v) => onFilter(() => setBrandId(v ?? ""))}
+                placeholder="Merk"
+                searchPlaceholder="Cari merk"
+                className="h-9 bg-background"
               />
-            )}
-          </div>
-        </LiquidGlass>
-      )}
+            </FilterToolbar>
+
+            <div className="px-4 py-3 sm:px-5">
+              {isStockTab(tab) ? (
+                <MonitorStockTable
+                  rows={listQuery.data?.items ?? []}
+                  meta={listQuery.data?.meta ?? EMPTY_META}
+                  isLoading={listQuery.isLoading}
+                  isFetching={listQuery.isFetching && !listQuery.isLoading}
+                  locationLabel={locationLabel}
+                  showRestock={tab === "menipis"}
+                  emptyText={
+                    tab === "menipis"
+                      ? "Tidak ada produk menipis."
+                      : tab === "sedang-dibeli"
+                        ? "Tidak ada produk yang sedang dibeli."
+                        : "Tidak ada produk pada kategori ini."
+                  }
+                  onPageChange={setPage}
+                  onPerPageChange={(s) => { setPerPage(s); resetPage() }}
+                />
+              ) : (
+                <MonitorAnalyticsTable
+                  kind={tab as AnalyticsKind}
+                  rows={analyticsQuery.data?.items ?? []}
+                  meta={analyticsQuery.data?.meta ?? EMPTY_META}
+                  isLoading={analyticsQuery.isLoading}
+                  isFetching={analyticsQuery.isFetching && !analyticsQuery.isLoading}
+                  emptyText={
+                    tab === "tidak-laku"
+                      ? "Tidak ada produk tidak laku pada periode ini."
+                      : tab === "paling-laku"
+                        ? "Belum ada penjualan pada periode ini."
+                        : "Tidak ada produk yang diperkirakan habis pada periode ini."
+                  }
+                  onPageChange={setPage}
+                  onPerPageChange={(s) => { setPerPage(s); resetPage() }}
+                />
+              )}
+            </div>
+          </>
+        )}
+      </LiquidGlass>
     </div>
   )
 }

@@ -3,8 +3,10 @@ import type { ApiPaginated, ApiResponse } from "@/types/api.types"
 import type {
   MonitorStockRow,
   MonitorAnalyticsRow,
+  MonitorSyncFailedRow,
   MonitorListParams,
   MonitorAnalyticsParams,
+  FailedSyncParams,
   MonitorSummary,
   OutOfStockMode,
 } from "@/types/monitor-stok/monitor"
@@ -64,4 +66,32 @@ export const MonitorStockService = {
 
   estimatedStockOut: (params: MonitorAnalyticsParams = {}) =>
     analyticsFrom(`/v1/inventory/monitor/estimated-stock-out?${analyticsQuery(params)}`),
+
+  failedSync: async (params: FailedSyncParams = {}) => {
+    const sp = new URLSearchParams()
+    if (params.search) sp.set("search", params.search)
+    if (params.channel_shop_id) sp.set("channel_shop_id", params.channel_shop_id)
+    if (params.page) sp.set("page", String(params.page))
+    if (params.per_page) sp.set("per_page", String(params.per_page))
+    const res = await fetchClient<ApiPaginated<MonitorSyncFailedRow>>(
+      `/v1/inventory/monitor/failed-sync?${sp.toString()}`
+    )
+    return { items: res.data ?? [], meta: res.meta }
+  },
+
+  retrySync: async (id: string) => {
+    const res = await fetchClient<ApiResponse<MonitorSyncFailedRow>>(
+      `/v1/inventory/monitor/failed-sync/${id}/retry`,
+      { method: "POST", data: {} }
+    )
+    return res.data
+  },
+
+  retryBulkSync: async (ids: string[]) => {
+    const res = await fetchClient<ApiResponse<{ retried: number }>>(
+      `/v1/inventory/monitor/failed-sync/retry-bulk`,
+      { method: "POST", data: { ids } }
+    )
+    return res.data
+  },
 }

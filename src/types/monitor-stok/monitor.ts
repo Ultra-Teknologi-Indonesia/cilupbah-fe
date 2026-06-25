@@ -65,6 +65,29 @@ export interface MonitorSummary {
   on_order: number
 }
 
+/** Baris tab Gagal Sync (ProductChannelMapping failed). */
+export interface MonitorSyncFailedRow {
+  id: string
+  product_id: string
+  channel_shop_id: string
+  product_name: string | null
+  sku: string | null
+  thumbnail: string | null
+  channel_name: string | null
+  shop_name: string | null
+  sync_status: string
+  error_message: string | null
+  last_synced_at: string | null
+  external_product_id: string | null
+}
+
+export interface FailedSyncParams {
+  search?: string
+  channel_shop_id?: string
+  page?: number
+  per_page?: number
+}
+
 /** Tab utama Monitor Stok. */
 export type MonitorTab =
   | "stok-kosong"
