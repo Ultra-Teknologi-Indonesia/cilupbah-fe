@@ -43,45 +43,45 @@ function analyticsQuery(params: MonitorAnalyticsParams): string {
 
 export const MonitorStockService = {
   outOfStock: (mode: OutOfStockMode, params: MonitorListParams = {}) =>
-    listFrom(`/v1/inventory/monitor/out-of-stock?${toQuery(params, { mode })}`),
+    listFrom(`/inventory/monitor/out-of-stock?${toQuery(params, { mode })}`),
 
   lowStock: (params: MonitorListParams = {}) =>
-    listFrom(`/v1/inventory/monitor/low-stock?${toQuery(params)}`),
+    listFrom(`/inventory/monitor/low-stock?${toQuery(params)}`),
 
   onOrder: (params: MonitorListParams = {}) =>
-    listFrom(`/v1/inventory/monitor/on-order?${toQuery(params)}`),
+    listFrom(`/inventory/monitor/on-order?${toQuery(params)}`),
 
   summary: async (params: MonitorListParams = {}): Promise<MonitorSummary> => {
     const res = await fetchClient<ApiResponse<MonitorSummary>>(
-      `/v1/inventory/monitor/summary?${toQuery(params)}`
+      `/inventory/monitor/summary?${toQuery(params)}`
     )
     return res.data
   },
 
   deadStock: (params: MonitorAnalyticsParams = {}) =>
-    analyticsFrom(`/v1/inventory/monitor/dead-stock?${analyticsQuery(params)}`),
+    analyticsFrom(`/inventory/monitor/dead-stock?${analyticsQuery(params)}`),
 
   fastMoving: (params: MonitorAnalyticsParams = {}) =>
-    analyticsFrom(`/v1/inventory/monitor/fast-moving?${analyticsQuery(params)}`),
+    analyticsFrom(`/inventory/monitor/fast-moving?${analyticsQuery(params)}`),
 
   estimatedStockOut: (params: MonitorAnalyticsParams = {}) =>
-    analyticsFrom(`/v1/inventory/monitor/estimated-stock-out?${analyticsQuery(params)}`),
+    analyticsFrom(`/inventory/monitor/estimated-stock-out?${analyticsQuery(params)}`),
 
   failedSync: async (params: FailedSyncParams = {}) => {
     const sp = new URLSearchParams()
     if (params.search) sp.set("search", params.search)
-    if (params.channel_shop_id) sp.set("channel_shop_id", params.channel_shop_id)
+    if (params.channel_shop_id) sp.set("filter[channel_shop_id]", params.channel_shop_id)
     if (params.page) sp.set("page", String(params.page))
     if (params.per_page) sp.set("per_page", String(params.per_page))
     const res = await fetchClient<ApiPaginated<MonitorSyncFailedRow>>(
-      `/v1/inventory/monitor/failed-sync?${sp.toString()}`
+      `/inventory/monitor/failed-sync?${sp.toString()}`
     )
     return { items: res.data ?? [], meta: res.meta }
   },
 
   retrySync: async (id: string) => {
     const res = await fetchClient<ApiResponse<MonitorSyncFailedRow>>(
-      `/v1/inventory/monitor/failed-sync/${id}/retry`,
+      `/inventory/monitor/failed-sync/${id}/retry`,
       { method: "POST", data: {} }
     )
     return res.data
@@ -89,7 +89,7 @@ export const MonitorStockService = {
 
   retryBulkSync: async (ids: string[]) => {
     const res = await fetchClient<ApiResponse<{ retried: number }>>(
-      `/v1/inventory/monitor/failed-sync/retry-bulk`,
+      `/inventory/monitor/failed-sync/retry-bulk`,
       { method: "POST", data: { ids } }
     )
     return res.data
