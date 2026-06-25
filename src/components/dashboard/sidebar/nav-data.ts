@@ -95,7 +95,7 @@ export const dashboardGroups: NavGroup[] = [
     zone: "ops",
     items: [
       { id: "posisi-stok", title: "Posisi Stok", icon: BarChart2, link: "/dashboard/posisi-stok" },
-      { id: "transaksi-stok", title: "Transaksi Stok", icon: RefreshCw, link: "/dashboard/transaksi-stok", comingSoon: true },
+      { id: "transaksi-stok", title: "Transaksi Stok", icon: RefreshCw, link: "/dashboard/transaksi-stok" },
       { id: "monitor-stok", title: "Monitor Stok", icon: Eye, link: "/dashboard/monitor-stok", comingSoon: true },
       { id: "stok-terpesan", title: "Stok Terpesan", icon: PackageCheck, link: "/dashboard/stok-terpesan", comingSoon: true },
     ],

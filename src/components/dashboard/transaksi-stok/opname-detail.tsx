@@ -1,0 +1,486 @@
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import {
+  ArrowLeftIcon,
+  DownloadIcon,
+  PlayIcon,
+  CheckCircle2Icon,
+  XCircleIcon,
+  Trash2Icon,
+  ClipboardCheckIcon,
+  CalculatorIcon,
+} from "lucide-react"
+
+import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { LiquidGlass } from "@/components/ui/liquid-glass"
+import { Skeleton } from "@/components/ui/skeleton"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { PageTitle } from "@/components/dashboard/page-title"
+import {
+  useStockOpnameDetail,
+  useStartStockOpname,
+  useFinalizeStockOpname,
+  useCancelStockOpname,
+  useDeleteStockOpname,
+  useCountOpnameItem,
+} from "@/hooks/transaksi-stok/use-stock-opname"
+import { exportCsv } from "@/lib/export-csv"
+
+const STATUS_STYLE: Record<string, string> = {
+  DRAFT: "border-slate-300 text-slate-600 dark:border-slate-500/30 dark:text-slate-400",
+  IN_PROGRESS: "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400",
+  FINALIZED: "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
+  CANCELLED: "border-red-300 text-red-600 dark:border-red-500/30 dark:text-red-400",
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  DRAFT: "Draft",
+  IN_PROGRESS: "Sedang Berjalan",
+  FINALIZED: "Selesai",
+  CANCELLED: "Dibatalkan",
+}
+
+function formatDate(d: string) {
+  return new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
+}
+
+function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="w-40 shrink-0 text-xs text-muted-foreground">{label}</span>
+      <span className="text-sm font-medium">{value || "—"}</span>
+    </div>
+  )
+}
+
+interface CountDialogState {
+  open: boolean
+  itemId: string
+  productName: string
+  qtyActual: string
+  reason: string
+  countedBy: string
+}
+
+const EMPTY_COUNT: CountDialogState = {
+  open: false,
+  itemId: "",
+  productName: "",
+  qtyActual: "",
+  reason: "",
+  countedBy: "",
+}
+
+export function OpnameDetail({ id }: { id: string }) {
+  const router = useRouter()
+  const { data: opname, isLoading } = useStockOpnameDetail(id)
+  const startMut = useStartStockOpname()
+  const finalizeMut = useFinalizeStockOpname()
+  const cancelMut = useCancelStockOpname()
+  const deleteMut = useDeleteStockOpname()
+  const countMut = useCountOpnameItem()
+
+  const [startOpen, setStartOpen] = useState(false)
+  const [startBy, setStartBy] = useState("")
+  const [finalizeOpen, setFinalizeOpen] = useState(false)
+  const [finalizeBy, setFinalizeBy] = useState("")
+  const [cancelOpen, setCancelOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [countDialog, setCountDialog] = useState<CountDialogState>(EMPTY_COUNT)
+
+  const actionPending = startMut.isPending || finalizeMut.isPending || cancelMut.isPending || deleteMut.isPending
+
+  const hasUncounted = opname?.items?.some((i) => i.qty_actual == null) ?? false
+
+  const handleExport = () => {
+    if (!opname || !opname.items?.length) return
+    exportCsv(
+      `opname-${opname.opname_no}.csv`,
+      ["SKU", "Nama Produk", "Bin", "Batch", "Serial", "Stok Sistem", "Stok Aktual", "Selisih", "Alasan", "Dihitung Oleh"],
+      opname.items.map((item) => [
+        item.item?.sku ?? "",
+        item.item?.item_name ?? "",
+        item.bin?.code ?? "",
+        item.batch_no ?? "",
+        item.serial_no ?? "",
+        String(item.qty_system ?? 0),
+        item.qty_actual != null ? String(item.qty_actual) : "",
+        item.qty_actual != null ? String(item.qty_actual - (item.qty_system ?? 0)) : "",
+        item.reason ?? "",
+        item.counted_by ?? "",
+      ])
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-[400px] w-full" />
+      </div>
+    )
+  }
+
+  if (!opname) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
+        <ClipboardCheckIcon className="h-10 w-10" />
+        <p className="text-sm">Dokumen tidak ditemukan.</p>
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/dashboard/transaksi-stok">Kembali</Link>
+        </Button>
+      </div>
+    )
+  }
+
+  const isDraft = opname.status === "DRAFT"
+  const isInProgress = opname.status === "IN_PROGRESS"
+  const isFinalized = opname.status === "FINALIZED"
+
+  return (
+    <div className="flex flex-col gap-4">
+      <PageTitle
+        title={opname.opname_no}
+        backHref="/dashboard/transaksi-stok"
+        breadcrumb={[
+          { label: "Persediaan" },
+          { label: "Transaksi Stok", href: "/dashboard/transaksi-stok" },
+          { label: opname.opname_no },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleExport} disabled={!opname.items?.length}>
+              <DownloadIcon className="mr-1.5 h-3.5 w-3.5" />
+              Export CSV
+            </Button>
+            {isDraft && (
+              <>
+                <Button
+                  size="sm"
+                  onClick={() => { setStartOpen(true); setStartBy("") }}
+                  disabled={actionPending}
+                  className="bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  <PlayIcon className="mr-1.5 h-3.5 w-3.5" />
+                  Mulai
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setDeleteOpen(true)}
+                  disabled={actionPending}
+                >
+                  <Trash2Icon className="mr-1.5 h-3.5 w-3.5" />
+                  Hapus
+                </Button>
+              </>
+            )}
+            {isInProgress && (
+              <Button
+                size="sm"
+                onClick={() => { setFinalizeOpen(true); setFinalizeBy("") }}
+                disabled={actionPending || hasUncounted}
+                className="bg-emerald-600 text-white hover:bg-emerald-700"
+              >
+                <CheckCircle2Icon className="mr-1.5 h-3.5 w-3.5" />
+                Finalisasi
+              </Button>
+            )}
+            {!isFinalized && !isDraft && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCancelOpen(true)}
+                disabled={actionPending}
+                className="border-red-300 text-red-600 hover:bg-red-50"
+              >
+                <XCircleIcon className="mr-1.5 h-3.5 w-3.5" />
+                Batalkan
+              </Button>
+            )}
+          </div>
+        }
+      />
+
+      <LiquidGlass radius={16} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04] p-5">
+        <h3 className="mb-4 font-semibold">Informasi Opname</h3>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <InfoRow label="No. Opname" value={opname.opname_no} />
+          <InfoRow label="Lokasi" value={opname.location?.location_name} />
+          <InfoRow
+            label="Status"
+            value={
+              <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[opname.status] ?? "")}>
+                {STATUS_LABEL[opname.status] ?? opname.status}
+              </Badge>
+            }
+          />
+          <InfoRow label="Dibuat Oleh" value={opname.created_by} />
+          <InfoRow label="Diproses Oleh" value={opname.process_by} />
+          <InfoRow label="Difinalisasi Oleh" value={opname.finalized_by} />
+          <InfoRow label="Tgl. Finalisasi" value={opname.finalized_at ? formatDate(opname.finalized_at) : null} />
+          <InfoRow label="Catatan" value={opname.notes} />
+        </div>
+      </LiquidGlass>
+
+      <LiquidGlass radius={16} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04] p-5">
+        <h3 className="mb-4 font-semibold">Daftar Item</h3>
+        <div className="overflow-x-auto rounded-lg border border-border/40">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border/60 bg-muted/30">
+                {["SKU", "Nama Produk", "Bin", "Batch", "Serial", "Stok Sistem", "Stok Aktual", "Selisih", "Alasan", "Dihitung Oleh", ...(isInProgress ? [""] : [])].map((h, i) => (
+                  <th key={`${h}-${i}`} className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {(opname.items ?? []).map((item) => {
+                const isCounted = item.qty_actual != null
+                const diff = isCounted ? (item.qty_actual! - (item.qty_system ?? 0)) : null
+                return (
+                  <tr key={item.id} className="border-b border-border/20 last:border-0">
+                    <td className="whitespace-nowrap px-3 py-2.5 font-mono text-xs">
+                      {item.item?.sku ?? "—"}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2.5">
+                      {item.item?.item_name ?? "—"}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
+                      {item.bin?.code ?? "—"}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
+                      {item.batch_no ?? "—"}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
+                      {item.serial_no ?? "—"}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums">
+                      {item.qty_system ?? 0}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums">
+                      {isCounted ? item.qty_actual : (
+                        <Badge variant="outline" className="text-[10px] leading-tight border-slate-300 text-slate-500">
+                          Belum dihitung
+                        </Badge>
+                      )}
+                    </td>
+                    <td className={cn(
+                      "whitespace-nowrap px-3 py-2.5 text-right tabular-nums font-medium",
+                      diff != null && diff > 0 ? "text-emerald-600" : diff != null && diff < 0 ? "text-red-600" : "text-muted-foreground"
+                    )}>
+                      {diff != null ? (diff > 0 ? `+${diff}` : diff) : "—"}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
+                      {item.reason ?? "—"}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
+                      {item.counted_by ?? "—"}
+                    </td>
+                    {isInProgress && (
+                      <td className="whitespace-nowrap px-3 py-2.5">
+                        {!isCounted && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setCountDialog({
+                                open: true,
+                                itemId: item.id,
+                                productName: item.item?.item_name ?? "",
+                                qtyActual: "",
+                                reason: "",
+                                countedBy: "",
+                              })
+                            }
+                            className="inline-flex items-center gap-1 rounded-md bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-500/20"
+                          >
+                            <CalculatorIcon className="h-3.5 w-3.5" />
+                            Hitung
+                          </button>
+                        )}
+                      </td>
+                    )}
+                  </tr>
+                )
+              })}
+              {(!opname.items || opname.items.length === 0) && (
+                <tr>
+                  <td colSpan={isInProgress ? 11 : 10} className="px-3 py-8 text-center text-muted-foreground">
+                    Belum ada item.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </LiquidGlass>
+
+      {/* Start Dialog */}
+      <ConfirmDialog
+        open={startOpen}
+        onOpenChange={(open) => { if (!open) setStartOpen(false) }}
+        title="Mulai Opname"
+        description={`Mulai opname "${opname.opname_no}"? Status akan berubah menjadi Sedang Berjalan.`}
+        confirmLabel="Mulai"
+        loading={startMut.isPending}
+        onConfirm={() => {
+          if (!startBy.trim()) return
+          startMut.mutate(
+            { id: opname.id, processBy: startBy.trim() },
+            { onSuccess: () => setStartOpen(false) }
+          )
+        }}
+      >
+        <div className="px-1 py-2">
+          <Label htmlFor="opname-start-by" className="text-sm font-medium">
+            Diproses oleh <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="opname-start-by"
+            placeholder="Nama penanggung jawab"
+            value={startBy}
+            onChange={(e) => setStartBy(e.target.value)}
+            className="mt-1.5"
+          />
+        </div>
+      </ConfirmDialog>
+
+      {/* Finalize Dialog */}
+      <ConfirmDialog
+        open={finalizeOpen}
+        onOpenChange={(open) => { if (!open) setFinalizeOpen(false) }}
+        title="Finalisasi Opname"
+        description={`Finalisasi opname "${opname.opname_no}"? Stok akan disesuaikan sesuai hasil penghitungan.`}
+        confirmLabel="Finalisasi"
+        loading={finalizeMut.isPending}
+        onConfirm={() => {
+          if (!finalizeBy.trim()) return
+          finalizeMut.mutate(
+            { id: opname.id, finalizedBy: finalizeBy.trim() },
+            { onSuccess: () => setFinalizeOpen(false) }
+          )
+        }}
+      >
+        <div className="space-y-3 px-1 py-2">
+          <div>
+            <Label htmlFor="opname-finalize-by" className="text-sm font-medium">
+              Difinalisasi oleh <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="opname-finalize-by"
+              placeholder="Nama penanggung jawab"
+              value={finalizeBy}
+              onChange={(e) => setFinalizeBy(e.target.value)}
+              className="mt-1.5"
+            />
+          </div>
+          <p className="text-xs text-amber-600">Pastikan semua item sudah dihitung.</p>
+        </div>
+      </ConfirmDialog>
+
+      {/* Cancel Dialog */}
+      <ConfirmDialog
+        open={cancelOpen}
+        onOpenChange={(open) => { if (!open) setCancelOpen(false) }}
+        title="Batalkan Opname"
+        description={`Batalkan opname "${opname.opname_no}"? Tindakan ini tidak dapat dibatalkan.`}
+        confirmLabel="Batalkan"
+        variant="destructive"
+        loading={cancelMut.isPending}
+        onConfirm={() => {
+          cancelMut.mutate(opname.id, { onSuccess: () => setCancelOpen(false) })
+        }}
+      />
+
+      {/* Delete Dialog */}
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={(open) => { if (!open) setDeleteOpen(false) }}
+        title="Hapus Opname"
+        description={`Hapus opname "${opname.opname_no}"? Tindakan ini tidak dapat dibatalkan.`}
+        confirmLabel="Hapus"
+        variant="destructive"
+        loading={deleteMut.isPending}
+        onConfirm={() => {
+          deleteMut.mutate(opname.id, {
+            onSuccess: () => {
+              setDeleteOpen(false)
+              router.push("/dashboard/transaksi-stok")
+            },
+          })
+        }}
+      />
+
+      {/* Count Dialog */}
+      <ConfirmDialog
+        open={countDialog.open}
+        onOpenChange={(open) => { if (!open) setCountDialog(EMPTY_COUNT) }}
+        title="Hitung Item"
+        description={`Input jumlah aktual untuk "${countDialog.productName}".`}
+        confirmLabel="Simpan"
+        loading={countMut.isPending}
+        onConfirm={() => {
+          if (countDialog.qtyActual === "") return
+          countMut.mutate(
+            {
+              opnameId: opname.id,
+              itemId: countDialog.itemId,
+              data: {
+                qty_actual: Number(countDialog.qtyActual),
+                reason: countDialog.reason.trim() || undefined,
+                counted_by: countDialog.countedBy.trim() || "",
+              },
+            },
+            { onSuccess: () => setCountDialog(EMPTY_COUNT) }
+          )
+        }}
+      >
+        <div className="space-y-3 px-1 py-2">
+          <div>
+            <Label htmlFor="count-qty" className="text-sm font-medium">
+              Stok Aktual <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="count-qty"
+              type="number"
+              min={0}
+              placeholder="0"
+              value={countDialog.qtyActual}
+              onChange={(e) => setCountDialog((p) => ({ ...p, qtyActual: e.target.value }))}
+              className="mt-1.5"
+            />
+          </div>
+          <div>
+            <Label htmlFor="count-reason" className="text-sm font-medium">Alasan</Label>
+            <Input
+              id="count-reason"
+              placeholder="Opsional"
+              value={countDialog.reason}
+              onChange={(e) => setCountDialog((p) => ({ ...p, reason: e.target.value }))}
+              className="mt-1.5"
+            />
+          </div>
+          <div>
+            <Label htmlFor="count-by" className="text-sm font-medium">Dihitung Oleh</Label>
+            <Input
+              id="count-by"
+              placeholder="Nama penghitung"
+              value={countDialog.countedBy}
+              onChange={(e) => setCountDialog((p) => ({ ...p, countedBy: e.target.value }))}
+              className="mt-1.5"
+            />
+          </div>
+        </div>
+      </ConfirmDialog>
+    </div>
+  )
+}
