@@ -1,6 +1,12 @@
 import { fetchClient } from "@/lib/api-client"
-import type { ApiPaginated } from "@/types/api.types"
+import type { ApiResponse, ApiPaginated } from "@/types/api.types"
 import type { Inbound, InboundListParams } from "@/types/barang-masuk/inbound"
+
+export interface ScanPutawayPayload {
+  inbound_item_id: string
+  bin_id: string
+  qty: number
+}
 
 export const InboundService = {
   list: async (params: InboundListParams = {}) => {
@@ -18,5 +24,18 @@ export const InboundService = {
 
     const res = await fetchClient<ApiPaginated<Inbound>>(`/v1/inbounds?${sp}`)
     return { items: res.data ?? [], meta: res.meta }
+  },
+
+  getById: async (id: string) => {
+    const res = await fetchClient<ApiResponse<Inbound>>(`/v1/inbounds/${id}`)
+    return res.data
+  },
+
+  scanPutaway: async (payload: ScanPutawayPayload) => {
+    const res = await fetchClient<ApiResponse<unknown>>("/v1/inbounds/scan-putaway", {
+      method: "POST",
+      data: payload,
+    })
+    return res.data
   },
 }

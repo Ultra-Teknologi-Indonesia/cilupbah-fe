@@ -1,10 +1,12 @@
 "use client"
 
 import { useState, useMemo, useCallback, useEffect } from "react"
-import { PackageCheckIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { PackageCheckIcon, DownloadIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -12,6 +14,7 @@ import { SimplePagination } from "@/components/ui/simple-pagination"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { useInbounds } from "@/hooks/barang-masuk/use-inbound"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
+import { exportCsv } from "@/lib/export-csv"
 import type { Inbound, InboundStatus, InboundType } from "@/types/barang-masuk/inbound"
 
 const STATUS_OPTIONS = [
@@ -88,7 +91,26 @@ interface FilterState {
 
 const EMPTY_FILTERS: FilterState = { status: "", location_id: "" }
 
+function handleExportList(items: Inbound[]) {
+  const headers = ["No. Penerimaan", "Sumber", "No. Referensi", "Tanggal", "Lokasi", "Dibuat Oleh", "Qty Diterima", "Status"]
+  const rows = items.map((item) => {
+    const totalRecv = item.items?.reduce((s, i) => s + i.received_qty, 0) ?? 0
+    return [
+      item.transaction_number,
+      TYPE_LABEL[item.type] ?? item.type,
+      item.reference_number ?? "",
+      item.expected_date ?? item.created_at,
+      item.location?.location_name ?? "",
+      item.created_by,
+      String(totalRecv),
+      STATUS_LABEL[item.status] ?? item.status,
+    ]
+  })
+  exportCsv(`penerimaan-barang-${new Date().toISOString().slice(0, 10)}.csv`, headers, rows)
+}
+
 export function PenerimaanBarangTab() {
+  const router = useRouter()
   const [search, setSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [page, setPage] = useState(1)
@@ -134,6 +156,14 @@ export function PenerimaanBarangTab() {
 
   return (
     <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
+      {items.length > 0 && (
+        <div className="flex justify-end px-4 pt-3 sm:px-5">
+          <Button variant="outline" size="sm" onClick={() => handleExportList(items)}>
+            <DownloadIcon className="mr-1.5 h-4 w-4" />
+            Export CSV
+          </Button>
+        </div>
+      )}
       <FilterToolbar
         search={search}
         onSearchChange={setSearch}
@@ -196,8 +226,12 @@ export function PenerimaanBarangTab() {
                   {items.map((item: Inbound) => {
                     const totalRecv = item.items?.reduce((s, i) => s + i.received_qty, 0) ?? 0
                     return (
-                      <tr key={item.id} className="border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40">
-                        <td className="whitespace-nowrap px-3 py-3 font-medium">
+                      <tr
+                        key={item.id}
+                        className="cursor-pointer border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
+                        onClick={() => router.push(`/dashboard/barang-masuk/penerimaan/${item.id}`)}
+                      >
+                        <td className="whitespace-nowrap px-3 py-3 font-medium text-primary underline-offset-2 hover:underline">
                           {item.transaction_number}
                         </td>
                         <td className="whitespace-nowrap px-3 py-3">

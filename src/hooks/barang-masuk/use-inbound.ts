@@ -13,3 +13,12 @@ export function useInbounds(params: InboundListParams = {}) {
     staleTime: STALE,
   })
 }
+
+export function useInboundDetail(id?: string) {
+  return useQuery({
+    queryKey: ["inbound", "detail", id],
+    queryFn: () => InboundService.getById(id!),
+    enabled: !!id,
+    staleTime: STALE,
+  })
+}

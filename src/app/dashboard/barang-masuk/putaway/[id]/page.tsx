@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeftIcon, Loader2Icon, CheckCircleIcon, SearchIcon } from "lucide-react"
+import { ArrowLeftIcon, Loader2Icon, CheckCircleIcon, SearchIcon, ScanLineIcon, UploadIcon } from "lucide-react"
 import Link from "next/link"
 
 import { cn } from "@/lib/utils"
@@ -16,6 +16,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { PageTitle } from "@/components/dashboard/page-title"
 import { usePutawayDetail, usePutawayItems, useStartPutaway, useProcessPutawayItem, useCompletePutaway } from "@/hooks/barang-masuk/use-putaway-actions"
 import { PutawayService } from "@/services/barang-masuk/putaway.service"
+import { ImportPutawayDialog } from "@/components/dashboard/barang-masuk/import-putaway-dialog"
 import type { PutawayItem } from "@/types/barang-masuk/putaway"
 import type { BinLookupResult } from "@/services/barang-masuk/putaway.service"
 
@@ -38,6 +39,8 @@ export default function PutawayProcessPage() {
   const [binLoading, setBinLoading] = useState(false)
   const [placeQty, setPlaceQty] = useState(0)
   const [completeOpen, setCompleteOpen] = useState(false)
+  const [scanMode, setScanMode] = useState(false)
+  const [importOpen, setImportOpen] = useState(false)
 
   const locationId = putaway?.location_id ?? ""
 
@@ -258,11 +261,39 @@ export default function PutawayProcessPage() {
 
             <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
               <div className="px-5 py-4">
-                <h3 className="mb-3 text-sm font-semibold">Tempatkan ke Rak</h3>
-                {!activeItem ? (
-                  <div className="flex flex-col items-center gap-2 py-12 text-muted-foreground">
-                    <p className="text-xs">Pilih item dari daftar di sebelah kiri</p>
+                <div className="mb-3 flex items-center justify-between">
+                  <h3 className="text-sm font-semibold">Tempatkan ke Rak</h3>
+                  {isInProgress && (
+                    <button
+                      type="button"
+                      onClick={() => setScanMode(!scanMode)}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                        scanMode
+                          ? "bg-emerald-500/15 text-emerald-600 ring-1 ring-emerald-500/30 dark:text-emerald-400"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      )}
+                    >
+                      <ScanLineIcon className="h-3.5 w-3.5" />
+                      {scanMode ? "Scan Aktif" : "Mode Scan"}
+                    </button>
+                  )}
+                </div>
+                {scanMode && !activeItem && (
+                  <div className="mb-3 rounded-lg border-2 border-dashed border-emerald-300 bg-emerald-50/50 px-4 py-6 text-center dark:border-emerald-700 dark:bg-emerald-900/10">
+                    <ScanLineIcon className="mx-auto mb-2 h-8 w-8 text-emerald-500" />
+                    <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Scan QR / Barcode</p>
+                    <p className="mt-1 text-xs text-emerald-600/70 dark:text-emerald-500/70">
+                      Pilih item dari daftar, lalu scan kode rak dengan barcode scanner
+                    </p>
                   </div>
+                )}
+                {!activeItem ? (
+                  !scanMode && (
+                    <div className="flex flex-col items-center gap-2 py-12 text-muted-foreground">
+                      <p className="text-xs">Pilih item dari daftar di sebelah kiri</p>
+                    </div>
+                  )
                 ) : (
                   <div className="flex flex-col gap-4">
                     <div className="rounded-lg border border-border/40 bg-muted/20 px-3 py-2.5">
@@ -278,14 +309,20 @@ export default function PutawayProcessPage() {
                         Kode Rak <span className="text-red-500">*</span>
                       </Label>
                       <div className="mt-1.5 flex gap-2">
-                        <Input
-                          id="bin-code"
-                          placeholder="Scan / ketik kode rak"
-                          value={binCode}
-                          onChange={(e) => { setBinCode(e.target.value); setBinResult(null); setBinError("") }}
-                          onKeyDown={(e) => { if (e.key === "Enter") handleLookupBin() }}
-                          className="flex-1"
-                        />
+                        <div className="relative flex-1">
+                          {scanMode && (
+                            <ScanLineIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-500" />
+                          )}
+                          <Input
+                            id="bin-code"
+                            placeholder={scanMode ? "Arahkan scanner ke barcode rak..." : "Scan / ketik kode rak"}
+                            value={binCode}
+                            onChange={(e) => { setBinCode(e.target.value); setBinResult(null); setBinError("") }}
+                            onKeyDown={(e) => { if (e.key === "Enter") handleLookupBin() }}
+                            autoFocus={scanMode}
+                            className={cn("w-full", scanMode && "border-emerald-300 pl-9 ring-1 ring-emerald-200 dark:border-emerald-700 dark:ring-emerald-800")}
+                          />
+                        </div>
                         <Button
                           variant="outline"
                           size="sm"
@@ -346,15 +383,23 @@ export default function PutawayProcessPage() {
                 Kembali
               </Button>
             </Link>
-            {isInProgress && (
-              <Button
-                variant="primary"
-                onClick={() => setCompleteOpen(true)}
-              >
-                <CheckCircleIcon className="mr-1.5 h-4 w-4" />
-                Selesaikan Putaway
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {isInProgress && (
+                <Button variant="outline" onClick={() => setImportOpen(true)}>
+                  <UploadIcon className="mr-1.5 h-4 w-4" />
+                  Import CSV
+                </Button>
+              )}
+              {isInProgress && (
+                <Button
+                  variant="primary"
+                  onClick={() => setCompleteOpen(true)}
+                >
+                  <CheckCircleIcon className="mr-1.5 h-4 w-4" />
+                  Selesaikan Putaway
+                </Button>
+              )}
+            </div>
           </div>
 
           <ConfirmDialog
@@ -365,6 +410,14 @@ export default function PutawayProcessPage() {
             confirmLabel="Selesaikan"
             loading={completeMutation.isPending}
             onConfirm={handleComplete}
+          />
+
+          <ImportPutawayDialog
+            open={importOpen}
+            onOpenChange={setImportOpen}
+            putawayId={id}
+            locationId={locationId}
+            onComplete={() => { refetchItems(); refetchDetail() }}
           />
         </div>
       )}

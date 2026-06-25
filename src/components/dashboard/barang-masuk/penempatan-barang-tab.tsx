@@ -2,10 +2,11 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react"
 import Link from "next/link"
-import { ArchiveIcon, PlayIcon, CheckCircleIcon, UserPlusIcon } from "lucide-react"
+import { ArchiveIcon, PlayIcon, CheckCircleIcon, UserPlusIcon, DownloadIcon, UploadIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,10 +15,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination } from "@/components/ui/simple-pagination"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
+import { ImportPutawayDialog } from "@/components/dashboard/barang-masuk/import-putaway-dialog"
 import { usePutaways } from "@/hooks/barang-masuk/use-putaway"
 import { useAssignPutawayStaff, useStartPutaway, useCompletePutaway } from "@/hooks/barang-masuk/use-putaway-actions"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import { useUsers } from "@/hooks/pengaturan/use-users"
+import { exportCsv } from "@/lib/export-csv"
 import type { Putaway, PutawayStatus } from "@/types/barang-masuk/putaway"
 
 const STATUS_OPTIONS = [
@@ -90,6 +93,25 @@ interface FilterState {
 
 const EMPTY_FILTERS: FilterState = { status: "", location_id: "" }
 
+function handleExportPutaway(items: Putaway[]) {
+  const headers = ["No. Penempatan", "Tgl. Penempatan", "Lokasi", "Dibuat Oleh", "Dikerjakan Oleh", "Total Qty", "Qty Placed", "Status"]
+  const rows = items.map((item) => {
+    const totalQty = item.items?.reduce((s, i) => s + i.qty, 0) ?? 0
+    const placedQty = item.items?.reduce((s, i) => s + i.putaway_qty, 0) ?? 0
+    return [
+      item.putaway_no,
+      item.started_at ?? item.created_at,
+      item.location?.location_name ?? "",
+      item.created_by,
+      item.assignee?.name ?? "",
+      String(totalQty),
+      String(placedQty),
+      STATUS_LABEL[item.status] ?? item.status,
+    ]
+  })
+  exportCsv(`penempatan-barang-${new Date().toISOString().slice(0, 10)}.csv`, headers, rows)
+}
+
 export function PenempatanBarangTab() {
   const [search, setSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
@@ -102,6 +124,7 @@ export function PenempatanBarangTab() {
   const [assignPerformedBy, setAssignPerformedBy] = useState("")
   const [startTarget, setStartTarget] = useState<Putaway | null>(null)
   const [completeTarget, setCompleteTarget] = useState<Putaway | null>(null)
+  const [importTarget, setImportTarget] = useState<Putaway | null>(null)
 
   const assignMutation = useAssignPutawayStaff()
   const startMutation = useStartPutaway()
@@ -153,6 +176,14 @@ export function PenempatanBarangTab() {
   return (
     <>
     <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
+      {items.length > 0 && (
+        <div className="flex justify-end px-4 pt-3 sm:px-5">
+          <Button variant="outline" size="sm" onClick={() => handleExportPutaway(items)}>
+            <DownloadIcon className="mr-1.5 h-4 w-4" />
+            Export CSV
+          </Button>
+        </div>
+      )}
       <FilterToolbar
         search={search}
         onSearchChange={setSearch}
@@ -266,6 +297,16 @@ export function PenempatanBarangTab() {
                             {item.status === "IN_PROGRESS" && (
                               <button
                                 type="button"
+                                onClick={() => setImportTarget(item)}
+                                className="inline-flex items-center gap-1 rounded-md bg-violet-500/10 px-2 py-1 text-xs font-medium text-violet-600 transition-colors hover:bg-violet-500/20 dark:text-violet-400"
+                              >
+                                <UploadIcon className="h-3.5 w-3.5" />
+                                Import
+                              </button>
+                            )}
+                            {item.status === "IN_PROGRESS" && (
+                              <button
+                                type="button"
                                 onClick={() => setCompleteTarget(item)}
                                 className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-500/20 dark:text-emerald-400"
                               >
@@ -358,6 +399,16 @@ export function PenempatanBarangTab() {
           })
         }}
       />
+
+      {importTarget && (
+        <ImportPutawayDialog
+          open={!!importTarget}
+          onOpenChange={(open) => { if (!open) setImportTarget(null) }}
+          putawayId={importTarget.id}
+          locationId={importTarget.location_id}
+          onComplete={() => {}}
+        />
+      )}
     </>
   )
 }
