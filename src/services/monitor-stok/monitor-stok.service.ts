@@ -1,0 +1,67 @@
+import { fetchClient } from "@/lib/api-client"
+import type { ApiPaginated, ApiResponse } from "@/types/api.types"
+import type {
+  MonitorStockRow,
+  MonitorAnalyticsRow,
+  MonitorListParams,
+  MonitorAnalyticsParams,
+  MonitorSummary,
+  OutOfStockMode,
+} from "@/types/monitor-stok/monitor"
+
+function toQuery(params: MonitorListParams, extra: Record<string, string> = {}): string {
+  const sp = new URLSearchParams()
+  if (params.search) sp.set("search", params.search)
+  if (params.location_id) sp.set("location_id", params.location_id)
+  if (params.brand_id) sp.set("brand_id", params.brand_id)
+  if (params.category_id) sp.set("category_id", params.category_id)
+  if (params.page) sp.set("page", String(params.page))
+  if (params.per_page) sp.set("per_page", String(params.per_page))
+  for (const [k, v] of Object.entries(extra)) sp.set(k, v)
+  return sp.toString()
+}
+
+async function listFrom(path: string) {
+  const res = await fetchClient<ApiPaginated<MonitorStockRow>>(path)
+  return { items: res.data ?? [], meta: res.meta }
+}
+
+async function analyticsFrom(path: string) {
+  const res = await fetchClient<ApiPaginated<MonitorAnalyticsRow>>(path)
+  return { items: res.data ?? [], meta: res.meta }
+}
+
+function analyticsQuery(params: MonitorAnalyticsParams): string {
+  const extra: Record<string, string> = {}
+  if (params.days) extra.days = String(params.days)
+  if (params.window) extra.window = String(params.window)
+  if (params.threshold) extra.threshold = String(params.threshold)
+  return toQuery(params, extra)
+}
+
+export const MonitorStockService = {
+  outOfStock: (mode: OutOfStockMode, params: MonitorListParams = {}) =>
+    listFrom(`/v1/inventory/monitor/out-of-stock?${toQuery(params, { mode })}`),
+
+  lowStock: (params: MonitorListParams = {}) =>
+    listFrom(`/v1/inventory/monitor/low-stock?${toQuery(params)}`),
+
+  onOrder: (params: MonitorListParams = {}) =>
+    listFrom(`/v1/inventory/monitor/on-order?${toQuery(params)}`),
+
+  summary: async (params: MonitorListParams = {}): Promise<MonitorSummary> => {
+    const res = await fetchClient<ApiResponse<MonitorSummary>>(
+      `/v1/inventory/monitor/summary?${toQuery(params)}`
+    )
+    return res.data
+  },
+
+  deadStock: (params: MonitorAnalyticsParams = {}) =>
+    analyticsFrom(`/v1/inventory/monitor/dead-stock?${analyticsQuery(params)}`),
+
+  fastMoving: (params: MonitorAnalyticsParams = {}) =>
+    analyticsFrom(`/v1/inventory/monitor/fast-moving?${analyticsQuery(params)}`),
+
+  estimatedStockOut: (params: MonitorAnalyticsParams = {}) =>
+    analyticsFrom(`/v1/inventory/monitor/estimated-stock-out?${analyticsQuery(params)}`),
+}

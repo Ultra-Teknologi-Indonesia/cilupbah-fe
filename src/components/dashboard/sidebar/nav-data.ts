@@ -96,7 +96,7 @@ export const dashboardGroups: NavGroup[] = [
     items: [
       { id: "posisi-stok", title: "Posisi Stok", icon: BarChart2, link: "/dashboard/posisi-stok" },
       { id: "transaksi-stok", title: "Transaksi Stok", icon: RefreshCw, link: "/dashboard/transaksi-stok" },
-      { id: "monitor-stok", title: "Monitor Stok", icon: Eye, link: "/dashboard/monitor-stok", comingSoon: true },
+      { id: "monitor-stok", title: "Monitor Stok", icon: Eye, link: "/dashboard/monitor-stok" },
       { id: "stok-terpesan", title: "Stok Terpesan", icon: PackageCheck, link: "/dashboard/stok-terpesan", comingSoon: true },
     ],
   },
