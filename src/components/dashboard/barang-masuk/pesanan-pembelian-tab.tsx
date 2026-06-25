@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react"
 import Link from "next/link"
-import { ClipboardListIcon } from "lucide-react"
+import { ClipboardListIcon, PackageCheckIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -180,7 +180,7 @@ export function PesananPembelianTab() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border/60 bg-muted/30">
-                    {["No. PO", "Pemasok", "Tgl. Pesanan", "Lokasi", "Dibuat Oleh", "Progress", "Status"].map((h) => (
+                    {["No. PO", "Pemasok", "Tgl. Pesanan", "Lokasi", "Dibuat Oleh", "Progress", "Status", "Aksi"].map((h) => (
                       <th key={h} className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                         {h}
                       </th>
@@ -217,6 +217,19 @@ export function PesananPembelianTab() {
                           <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[item.status] ?? "")}>
                             {STATUS_LABEL[item.status] ?? item.status}
                           </Badge>
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-3">
+                          {(item.status === "OPEN" || item.status === "PARTIAL_RECEIVED") && (
+                            <Link href={`/dashboard/barang-masuk/terima-po/${item.id}`}>
+                              <button
+                                type="button"
+                                className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+                              >
+                                <PackageCheckIcon className="h-3.5 w-3.5" />
+                                Terima
+                              </button>
+                            </Link>
+                          )}
                         </td>
                       </tr>
                     )

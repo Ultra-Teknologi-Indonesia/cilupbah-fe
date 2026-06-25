@@ -1,16 +1,20 @@
 "use client"
 
 import { useState, useMemo, useCallback, useEffect } from "react"
-import { ArrowRightLeftIcon } from "lucide-react"
+import { ArrowRightLeftIcon, PackageCheckIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Combobox } from "@/components/ui/combobox"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination } from "@/components/ui/simple-pagination"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { useIncomingTransfers } from "@/hooks/barang-masuk/use-inventory-transfers"
+import { useReceiveTransfer } from "@/hooks/barang-masuk/use-receive-transfer"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import type { InventoryTransfer, InventoryTransferStatus } from "@/types/barang-masuk/inventory-transfer"
 
@@ -88,6 +92,10 @@ export function TransferMasukTab() {
   const [perPage, setPerPage] = useState(15)
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
 
+  const [receiveTarget, setReceiveTarget] = useState<InventoryTransfer | null>(null)
+  const [receivedBy, setReceivedBy] = useState("")
+  const receiveMutation = useReceiveTransfer()
+
   const resetPage = useCallback(() => setPage(1), [])
 
   useEffect(() => {
@@ -126,6 +134,7 @@ export function TransferMasukTab() {
   const activeCount = Object.values(filters).filter(Boolean).length
 
   return (
+    <>
     <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
       <FilterToolbar
         search={search}
@@ -178,7 +187,7 @@ export function TransferMasukTab() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border/60 bg-muted/30">
-                    {["No. Transfer", "Tgl. Pengiriman", "Lokasi Asal", "Lokasi Tujuan", "Dibuat Oleh", "Progress", "Status"].map((h) => (
+                    {["No. Transfer", "Tgl. Pengiriman", "Lokasi Asal", "Lokasi Tujuan", "Dibuat Oleh", "Progress", "Status", "Aksi"].map((h) => (
                       <th key={h} className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                         {h}
                       </th>
@@ -214,6 +223,18 @@ export function TransferMasukTab() {
                             {STATUS_LABEL[item.status] ?? item.status}
                           </Badge>
                         </td>
+                        <td className="whitespace-nowrap px-3 py-3">
+                          {item.status === "IN_TRANSIT" && (
+                            <button
+                              type="button"
+                              onClick={() => { setReceiveTarget(item); setReceivedBy("") }}
+                              className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+                            >
+                              <PackageCheckIcon className="h-3.5 w-3.5" />
+                              Terima
+                            </button>
+                          )}
+                        </td>
                       </tr>
                     )
                   })}
@@ -235,5 +256,35 @@ export function TransferMasukTab() {
         )}
       </div>
     </LiquidGlass>
+
+      <ConfirmDialog
+        open={!!receiveTarget}
+        onOpenChange={(open) => { if (!open) setReceiveTarget(null) }}
+        title="Terima Transfer"
+        description={`Terima transfer ${receiveTarget?.transfer_number ?? ""}?`}
+        confirmLabel="Terima"
+        loading={receiveMutation.isPending}
+        onConfirm={() => {
+          if (!receiveTarget || !receivedBy.trim()) return
+          receiveMutation.mutate(
+            { id: receiveTarget.id, data: { received_by: receivedBy.trim() } },
+            { onSuccess: () => setReceiveTarget(null) }
+          )
+        }}
+      >
+        <div className="px-1 py-2">
+          <Label htmlFor="transfer-received-by" className="text-sm font-medium">
+            Diterima oleh <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="transfer-received-by"
+            placeholder="Nama penerima"
+            value={receivedBy}
+            onChange={(e) => setReceivedBy(e.target.value)}
+            className="mt-1.5"
+          />
+        </div>
+      </ConfirmDialog>
+    </>
   )
 }

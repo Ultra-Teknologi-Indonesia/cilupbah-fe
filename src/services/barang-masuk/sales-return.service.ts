@@ -1,5 +1,5 @@
 import { fetchClient } from "@/lib/api-client"
-import type { ApiPaginated } from "@/types/api.types"
+import type { ApiResponse, ApiPaginated } from "@/types/api.types"
 import type { SalesReturn, SalesReturnListParams } from "@/types/barang-masuk/sales-return"
 
 export const SalesReturnService = {
@@ -31,5 +31,21 @@ export const SalesReturnService = {
 
     const res = await fetchClient<ApiPaginated<SalesReturn>>(`/v1/sales/returns?${sp}`)
     return { items: res.data ?? [], meta: res.meta }
+  },
+
+  accept: async (id: string, data: { processed_by: string }) => {
+    const res = await fetchClient<ApiResponse<SalesReturn>>(`/v1/sales/returns/${id}/accept`, {
+      method: "POST",
+      data,
+    })
+    return res.data
+  },
+
+  reject: async (id: string, data: { processed_by: string; reason?: string }) => {
+    const res = await fetchClient<ApiResponse<SalesReturn>>(`/v1/sales/returns/${id}/reject`, {
+      method: "POST",
+      data,
+    })
+    return res.data
   },
 }

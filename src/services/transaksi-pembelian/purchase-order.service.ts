@@ -6,6 +6,11 @@ import type {
   PurchaseOrderFormData,
 } from "@/types/transaksi-pembelian/purchase-order"
 
+export interface ReceivePOPayload {
+  received_by: string
+  items: { purchase_order_item_id: string; qty: number }[]
+}
+
 export const PurchaseOrderService = {
   list: async (params: PurchaseOrderListParams = {}) => {
     const sp = new URLSearchParams()
@@ -54,6 +59,14 @@ export const PurchaseOrderService = {
   cancel: async (id: string) => {
     const res = await fetchClient<ApiResponse<PurchaseOrder>>(`/purchase/orders/${id}/cancel`, {
       method: "POST",
+    })
+    return res.data
+  },
+
+  receive: async (id: string, data: { received_by: string; items: { purchase_order_item_id: string; qty: number }[] }) => {
+    const res = await fetchClient<ApiResponse<unknown>>(`/purchase/orders/${id}/receive`, {
+      method: "POST",
+      data,
     })
     return res.data
   },

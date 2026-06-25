@@ -1,16 +1,21 @@
 "use client"
 
 import { useState, useMemo, useCallback, useEffect } from "react"
-import { CornerDownLeftIcon } from "lucide-react"
+import { CornerDownLeftIcon, CheckCircleIcon, XCircleIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination } from "@/components/ui/simple-pagination"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { useSalesReturnsUnprocessed, useSalesReturns } from "@/hooks/barang-masuk/use-sales-returns"
+import { useAcceptSalesReturn, useRejectSalesReturn } from "@/hooks/barang-masuk/use-sales-return-actions"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import type { SalesReturn, SalesReturnStatus } from "@/types/barang-masuk/sales-return"
 
@@ -84,6 +89,14 @@ export function ReturChannelTab() {
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(15)
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
+
+  const [acceptTarget, setAcceptTarget] = useState<SalesReturn | null>(null)
+  const [rejectTarget, setRejectTarget] = useState<SalesReturn | null>(null)
+  const [processedBy, setProcessedBy] = useState("")
+  const [rejectReason, setRejectReason] = useState("")
+
+  const acceptMutation = useAcceptSalesReturn()
+  const rejectMutation = useRejectSalesReturn()
 
   const resetPage = useCallback(() => setPage(1), [])
 
@@ -198,7 +211,7 @@ export function ReturChannelTab() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border/60 bg-muted/30">
-                      {["No. Retur", "Sumber", "Pelanggan", "Alasan", "Lokasi", "Qty", "Tgl. Retur", "Status"].map((h) => (
+                      {["No. Retur", "Sumber", "Pelanggan", "Alasan", "Lokasi", "Qty", "Tgl. Retur", "Status", ...(isUnprocessed ? ["Aksi"] : [])].map((h) => (
                         <th key={h} className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                           {h}
                         </th>
@@ -238,6 +251,28 @@ export function ReturChannelTab() {
                               {STATUS_LABEL[item.status] ?? item.status}
                             </Badge>
                           </td>
+                          {isUnprocessed && (
+                            <td className="whitespace-nowrap px-3 py-3">
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => { setAcceptTarget(item); setProcessedBy("") }}
+                                  className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-500/20 dark:text-emerald-400"
+                                >
+                                  <CheckCircleIcon className="h-3.5 w-3.5" />
+                                  Setujui
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => { setRejectTarget(item); setProcessedBy(""); setRejectReason("") }}
+                                  className="inline-flex items-center gap-1 rounded-md bg-red-500/10 px-2 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-500/20 dark:text-red-400"
+                                >
+                                  <XCircleIcon className="h-3.5 w-3.5" />
+                                  Tolak
+                                </button>
+                              </div>
+                            </td>
+                          )}
                         </tr>
                       )
                     })}
@@ -259,6 +294,79 @@ export function ReturChannelTab() {
           )}
         </div>
       </LiquidGlass>
+
+      <ConfirmDialog
+        open={!!acceptTarget}
+        onOpenChange={(open) => { if (!open) setAcceptTarget(null) }}
+        title="Setujui Retur"
+        description={`Setujui retur ${acceptTarget?.return_number ?? ""}?`}
+        confirmLabel="Setujui"
+        loading={acceptMutation.isPending}
+        onConfirm={() => {
+          if (!acceptTarget || !processedBy.trim()) return
+          acceptMutation.mutate(
+            { id: acceptTarget.id, processed_by: processedBy.trim() },
+            { onSuccess: () => setAcceptTarget(null) }
+          )
+        }}
+      >
+        <div className="px-1 py-2">
+          <Label htmlFor="accept-by" className="text-sm font-medium">
+            Diproses oleh <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="accept-by"
+            placeholder="Nama petugas"
+            value={processedBy}
+            onChange={(e) => setProcessedBy(e.target.value)}
+            className="mt-1.5"
+          />
+        </div>
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        open={!!rejectTarget}
+        onOpenChange={(open) => { if (!open) setRejectTarget(null) }}
+        title="Tolak Retur"
+        description={`Tolak retur ${rejectTarget?.return_number ?? ""}?`}
+        confirmLabel="Tolak"
+        variant="destructive"
+        loading={rejectMutation.isPending}
+        onConfirm={() => {
+          if (!rejectTarget || !processedBy.trim()) return
+          rejectMutation.mutate(
+            { id: rejectTarget.id, processed_by: processedBy.trim(), reason: rejectReason.trim() || undefined },
+            { onSuccess: () => setRejectTarget(null) }
+          )
+        }}
+      >
+        <div className="flex flex-col gap-3 px-1 py-2">
+          <div>
+            <Label htmlFor="reject-by" className="text-sm font-medium">
+              Diproses oleh <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="reject-by"
+              placeholder="Nama petugas"
+              value={processedBy}
+              onChange={(e) => setProcessedBy(e.target.value)}
+              className="mt-1.5"
+            />
+          </div>
+          <div>
+            <Label htmlFor="reject-reason" className="text-sm font-medium">
+              Alasan penolakan
+            </Label>
+            <Input
+              id="reject-reason"
+              placeholder="Alasan (opsional)"
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              className="mt-1.5"
+            />
+          </div>
+        </div>
+      </ConfirmDialog>
     </div>
   )
 }

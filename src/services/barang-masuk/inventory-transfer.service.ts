@@ -1,5 +1,5 @@
 import { fetchClient } from "@/lib/api-client"
-import type { ApiPaginated } from "@/types/api.types"
+import type { ApiResponse, ApiPaginated } from "@/types/api.types"
 import type { InventoryTransfer, InventoryTransferListParams } from "@/types/barang-masuk/inventory-transfer"
 
 export const InventoryTransferService = {
@@ -16,5 +16,16 @@ export const InventoryTransferService = {
 
     const res = await fetchClient<ApiPaginated<InventoryTransfer>>(`/v1/inventory/transfers/in?${sp}`)
     return { items: res.data ?? [], meta: res.meta }
+  },
+
+  receive: async (id: string, data: {
+    received_by: string
+    items?: { item_id: string; received_qty: number; rejected_qty?: number; condition?: string; notes?: string }[]
+  }) => {
+    const res = await fetchClient<ApiResponse<unknown>>(`/v1/inventory/transfers/${id}/receive`, {
+      method: "POST",
+      data,
+    })
+    return res.data
   },
 }
