@@ -135,7 +135,7 @@ export const dashboardGroups: NavGroup[] = [
     icon: Warehouse,
     zone: "ops",
     items: [
-      { id: "barang-masuk", title: "Barang Masuk (Inbound)", icon: Inbox, link: "/dashboard/barang-masuk", comingSoon: true },
+      { id: "barang-masuk", title: "Barang Masuk (Inbound)", icon: Inbox, link: "/dashboard/barang-masuk" },
       { id: "barang-keluar", title: "Barang Keluar (Outbound)", icon: Send, link: "/dashboard/barang-keluar", comingSoon: true },
       { id: "proses-pesanan", title: "Proses Pesanan", icon: PackageCheck, link: "/dashboard/proses-pesanan" },
       {
