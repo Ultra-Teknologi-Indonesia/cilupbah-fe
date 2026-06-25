@@ -5,6 +5,7 @@ import type {
   ContactCategory,
   ContactListParams,
   ContactFormData,
+  CategoryFormData,
   AccountPayableOption,
 } from "@/types/kontak-pemasok/contact"
 
@@ -59,5 +60,28 @@ export const ContactService = {
   getAccountPayableOptions: async () => {
     const res = await fetchClient<ApiResponse<AccountPayableOption[]>>("/contact/account-payable")
     return res.data ?? []
+  },
+
+  createCategory: async (data: CategoryFormData) => {
+    const res = await fetchClient<ApiResponse<ContactCategory>>("/contact/category", {
+      method: "POST",
+      data,
+    })
+    return res.data
+  },
+
+  updateCategory: async (id: string, data: CategoryFormData) => {
+    const res = await fetchClient<ApiResponse<ContactCategory>>(`/contact/category/${id}`, {
+      method: "PUT",
+      data,
+    })
+    return res.data
+  },
+
+  deleteCategory: async (id: string) => {
+    await fetchClient("/contact/category", {
+      method: "DELETE",
+      data: { id },
+    })
   },
 }

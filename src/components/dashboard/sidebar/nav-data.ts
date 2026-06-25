@@ -108,7 +108,7 @@ export const dashboardGroups: NavGroup[] = [
     items: [
       { id: "pesanan", title: "Pesanan", icon: ShoppingBag, link: "/dashboard/pesanan" },
       { id: "retur-penjualan", title: "Retur Penjualan", icon: CornerDownLeft, link: "/dashboard/retur-penjualan", comingSoon: true },
-      { id: "kontak-pelanggan", title: "Kontak Pelanggan", icon: Users, link: "/dashboard/kontak-pelanggan", comingSoon: true },
+      { id: "kontak-pelanggan", title: "Kontak Pelanggan", icon: Users, link: "/dashboard/kontak-pelanggan" },
       { id: "kasir-pos", title: "Kasir (POS)", icon: MonitorSmartphone, link: "/dashboard/kasir-pos", comingSoon: true },
       { id: "integrasi-channel", title: "Integrasi Channel", icon: LinkIcon, link: "/dashboard/integrasi-channel" },
     ],

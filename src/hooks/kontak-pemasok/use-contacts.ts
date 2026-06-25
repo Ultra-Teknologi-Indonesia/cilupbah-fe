@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { ContactService } from "@/services/kontak-pemasok/contact.service"
-import type { ContactListParams, ContactFormData } from "@/types/kontak-pemasok/contact"
+import type { ContactListParams, ContactFormData, CategoryFormData } from "@/types/kontak-pemasok/contact"
 
 const STALE = 60 * 1000
 
@@ -77,5 +77,45 @@ export function useDeleteContact() {
     },
     onError: (err) =>
       toast.error((err as { message?: string })?.message || "Gagal menghapus kontak"),
+  })
+}
+
+export function useCreateCategory() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ContactService.createCategory,
+    onSuccess: () => {
+      toast.success("Kategori berhasil ditambahkan")
+      qc.invalidateQueries({ queryKey: ["contact", "categories"] })
+    },
+    onError: (err) =>
+      toast.error((err as { message?: string })?.message || "Gagal menambahkan kategori"),
+  })
+}
+
+export function useUpdateCategory() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: CategoryFormData }) =>
+      ContactService.updateCategory(id, data),
+    onSuccess: () => {
+      toast.success("Kategori berhasil diperbarui")
+      qc.invalidateQueries({ queryKey: ["contact", "categories"] })
+    },
+    onError: (err) =>
+      toast.error((err as { message?: string })?.message || "Gagal memperbarui kategori"),
+  })
+}
+
+export function useDeleteCategory() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ContactService.deleteCategory,
+    onSuccess: () => {
+      toast.success("Kategori berhasil dihapus")
+      qc.invalidateQueries({ queryKey: ["contact", "categories"] })
+    },
+    onError: (err) =>
+      toast.error((err as { message?: string })?.message || "Gagal menghapus kategori"),
   })
 }

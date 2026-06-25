@@ -3,6 +3,7 @@ export interface ContactCategory {
   code: string | null
   name: string
   description: string | null
+  type?: "CUSTOMER" | "SUPPLIER" | "BOTH"
 }
 
 export interface AccountPayableOption {
@@ -41,6 +42,19 @@ export interface ContactItem {
   is_company: boolean
   account_payable: string | null
   category: ContactCategory | null
+  salesman: { id: string; name: string; code: string } | null
+  source: string | null
+  nationality: string | null
+  birth_date: string | null
+  is_dropshipper: boolean
+  is_reseller: boolean
+  tax_type: "PKP" | "NON_PKP" | null
+  nik_photo_path: string | null
+  npwp_photo_path: string | null
+  npwp_use_different: boolean
+  npwp_name: string | null
+  npwp_address: string | null
+  salesman_id: string | null
   created_at: string
   updated_at: string
 }
@@ -78,8 +92,27 @@ export interface ContactFormData {
   pic_title?: string
   payment_term?: number | null
   notes?: string
-  type: "SUPPLIER" | "BOTH"
+  type: "CUSTOMER" | "SUPPLIER" | "BOTH"
   category_id?: string
   is_company?: boolean
   account_payable?: string
+  source?: string
+  nationality?: string
+  birth_date?: string
+  is_dropshipper?: boolean
+  is_reseller?: boolean
+  tax_type?: "PKP" | "NON_PKP"
+  nik_photo_path?: string
+  npwp_photo_path?: string
+  npwp_use_different?: boolean
+  npwp_name?: string
+  npwp_address?: string
+  salesman_id?: string
+}
+
+export interface CategoryFormData {
+  code: string
+  name: string
+  description?: string
+  type?: "CUSTOMER" | "SUPPLIER" | "BOTH"
 }
