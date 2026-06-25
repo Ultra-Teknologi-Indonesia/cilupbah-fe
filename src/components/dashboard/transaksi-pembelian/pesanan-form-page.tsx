@@ -4,7 +4,6 @@ import { useState, useCallback, useMemo, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
-  XIcon,
   PlusIcon,
   Trash2Icon,
   ImageIcon,
@@ -235,10 +234,8 @@ export function PesananFormPage({ mode, id }: Props) {
               {isPending ? <Loader2Icon className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <SaveIcon className="mr-1.5 h-3.5 w-3.5" />}
               Simpan
             </Button>
-            <Button variant="ghost" size="icon-sm" asChild>
-              <Link href="/dashboard/transaksi-pembelian">
-                <XIcon className="h-4 w-4" />
-              </Link>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/dashboard/transaksi-pembelian">Batal</Link>
             </Button>
           </div>
         }
@@ -248,7 +245,7 @@ export function PesananFormPage({ mode, id }: Props) {
         <div className="flex flex-col gap-6">
           {/* Header fields */}
           <LiquidGlass radius={16} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04] p-5">
-            <div className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+            <div className="grid items-start gap-x-8 gap-y-4 sm:grid-cols-2">
               <FieldRow label="No. Pesanan" required>
                 <Input
                   value={poNumberAuto ? "[auto]" : poNumber}
