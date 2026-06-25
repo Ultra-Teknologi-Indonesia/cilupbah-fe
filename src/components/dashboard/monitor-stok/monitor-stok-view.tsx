@@ -1,7 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
-import { DownloadIcon, RefreshCwIcon } from "lucide-react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { DownloadIcon, RefreshCwIcon, TimerIcon, TimerOffIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -13,6 +13,7 @@ import { MonitorAnalyticsTable, type AnalyticsKind } from "@/components/dashboar
 import { MonitorSyncFailedTable } from "@/components/dashboard/monitor-stok/monitor-sync-failed-table"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import { useAllBrands } from "@/hooks/kategori-merek/use-brand"
+import { useEnabledCategories } from "@/hooks/kategori-merek/use-kategori"
 import {
   useMonitorList,
   useMonitorAnalytics,
@@ -23,7 +24,8 @@ import {
   isAnalyticsTab,
   isSyncTab,
 } from "@/hooks/monitor-stok/use-monitor-stok"
-import type { MonitorTab, OutOfStockMode } from "@/types/monitor-stok/monitor"
+import type { MonitorTab, MonitorStockRow, MonitorAnalyticsRow, MonitorSyncFailedRow, OutOfStockMode } from "@/types/monitor-stok/monitor"
+import type { KategoriItem } from "@/types/kategori-merek/kategori"
 
 const TABS: { key: MonitorTab; label: string }[] = [
   { key: "stok-kosong", label: "Stok Kosong" },
@@ -68,21 +70,39 @@ const PERIOD_OPTIONS: Record<string, { value: string; label: string }[]> = {
   ],
 }
 
-interface CsvRow {
-  sku: string
-  product_name: string | null
-  on_hand: number
-  on_order: number
-  available: number
+function flattenCategories(items: KategoriItem[], prefix = ""): { value: string; label: string }[] {
+  const result: { value: string; label: string }[] = []
+  for (const item of items) {
+    const label = prefix ? `${prefix} / ${item.name}` : item.name
+    result.push({ value: String(item.id), label })
+    if (item.children?.length) result.push(...flattenCategories(item.children, label))
+  }
+  return result
 }
 
-function downloadCsv(rows: CsvRow[], filename: string) {
-  const header = ["SKU", "Produk", "On Hand", "On Order", "Tersedia"]
-  const lines = rows.map((r) =>
-    [r.sku, r.product_name ?? "", r.on_hand, r.on_order, r.available]
-      .map((c) => `"${String(c).replace(/"/g, '""')}"`)
-      .join(",")
-  )
+function csvEncode(cells: (string | number | null | undefined)[]): string {
+  return cells.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")
+}
+
+function exportTabCsv(tab: MonitorTab, rows: MonitorStockRow[] | MonitorAnalyticsRow[] | MonitorSyncFailedRow[], subMode?: string) {
+  let header: string[]
+  let lines: string[]
+  const filename = `monitor-${tab}${tab === "stok-kosong" && subMode ? `-${subMode}` : ""}.csv`
+
+  if (isSyncTab(tab)) {
+    const data = rows as MonitorSyncFailedRow[]
+    header = ["SKU", "Produk", "Channel", "Toko", "Status", "Error", "Terakhir Sync"]
+    lines = data.map((r) => csvEncode([r.sku, r.product_name, r.channel_name, r.shop_name, r.sync_status, r.error_message, r.last_synced_at]))
+  } else if (isAnalyticsTab(tab)) {
+    const data = rows as MonitorAnalyticsRow[]
+    header = ["SKU", "Produk", "On Hand", "Tersedia", "Qty Terjual", "Avg/Hari", "Last Sold", "Idle (hari)", "Estimasi Hari", "Tanggal Habis"]
+    lines = data.map((r) => csvEncode([r.sku, r.product_name, r.on_hand, r.available, r.qty_sold, r.avg_per_day, r.last_sold, r.days_idle, r.days_to_out, r.estimated_date]))
+  } else {
+    const data = rows as MonitorStockRow[]
+    header = ["SKU", "Produk", "On Hand", "On Order", "Tersedia", "Perlu Restock"]
+    lines = data.map((r) => csvEncode([r.sku, r.product_name, r.on_hand, r.on_order, r.available, r.qty_to_restock]))
+  }
+
   const blob = new Blob([[header.join(","), ...lines].join("\n")], { type: "text/csv;charset=utf-8;" })
   const url = URL.createObjectURL(blob)
   const a = document.createElement("a")
@@ -92,6 +112,13 @@ function downloadCsv(rows: CsvRow[], filename: string) {
   URL.revokeObjectURL(url)
 }
 
+const AUTO_REFRESH_OPTIONS = [
+  { value: "0", label: "Mati" },
+  { value: "30", label: "30 detik" },
+  { value: "60", label: "1 menit" },
+  { value: "300", label: "5 menit" },
+]
+
 export function MonitorStokView() {
   const [tab, setTab] = useState<MonitorTab>("stok-kosong")
   const [subMode, setSubMode] = useState<OutOfStockMode>("habis")
@@ -100,6 +127,8 @@ export function MonitorStokView() {
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [locationId, setLocationId] = useState("")
   const [brandId, setBrandId] = useState("")
+  const [categoryId, setCategoryId] = useState("")
+  const [autoRefresh, setAutoRefresh] = useState(0)
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(15)
 
@@ -118,8 +147,9 @@ export function MonitorStokView() {
       search: debouncedSearch || undefined,
       location_id: locationId || undefined,
       brand_id: brandId || undefined,
+      category_id: categoryId || undefined,
     }),
-    [debouncedSearch, locationId, brandId]
+    [debouncedSearch, locationId, brandId, categoryId]
   )
 
   const listParams = useMemo(
@@ -144,6 +174,7 @@ export function MonitorStokView() {
   const { data: summary } = useMonitorSummary(baseFilters)
   const { data: locData } = useLocations({ perPage: 100 })
   const { data: brands } = useAllBrands()
+  const { data: categoryTree } = useEnabledCategories()
 
   const active = isSyncTab(tab) ? failedSyncQuery : isAnalyticsTab(tab) ? analyticsQuery : listQuery
   const rows = active.data?.items ?? []
@@ -163,6 +194,11 @@ export function MonitorStokView() {
       ...(brands ?? []).map((b) => ({ value: String(b.id), label: b.name })),
     ],
     [brands]
+  )
+
+  const categoryOptions = useMemo(
+    () => [{ value: "", label: "Semua Kategori" }, ...flattenCategories(categoryTree ?? [])],
+    [categoryTree]
   )
 
   const locationLabel = useMemo(() => {
@@ -186,8 +222,16 @@ export function MonitorStokView() {
     resetPage()
   }, [resetPage])
 
-  const hasFilter = Boolean(locationId || brandId)
-  const activeCount = [locationId, brandId].filter(Boolean).length
+  const autoRefreshRef = useRef(active)
+  autoRefreshRef.current = active
+  useEffect(() => {
+    if (!autoRefresh) return
+    const id = setInterval(() => autoRefreshRef.current.refetch(), autoRefresh * 1000)
+    return () => clearInterval(id)
+  }, [autoRefresh])
+
+  const hasFilter = Boolean(locationId || brandId || categoryId)
+  const activeCount = [locationId, brandId, categoryId].filter(Boolean).length
 
   const subTotal = (key: OutOfStockMode): number | undefined => {
     if (!summary) return undefined
@@ -202,12 +246,36 @@ export function MonitorStokView() {
       <div className="flex items-center justify-end gap-2">
         <button
           type="button"
-          onClick={() => downloadCsv(rows as CsvRow[], `monitor-${tab}${tab === "stok-kosong" ? `-${subMode}` : ""}.csv`)}
-          disabled={rows.length === 0 || isSyncTab(tab)}
+          onClick={() => exportTabCsv(tab, rows, subMode)}
+          disabled={rows.length === 0}
           className="inline-flex items-center gap-1.5 rounded-md border border-border/60 px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
         >
           <DownloadIcon className="h-4 w-4" /> Export
         </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setAutoRefresh((v) => (v ? 0 : 60))}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors",
+              autoRefresh ? "border-primary/40 bg-primary/10 text-primary" : "border-border/60 text-foreground hover:bg-muted"
+            )}
+            title={autoRefresh ? `Auto-refresh setiap ${autoRefresh}s` : "Auto-refresh mati"}
+          >
+            {autoRefresh ? <TimerIcon className="h-4 w-4" /> : <TimerOffIcon className="h-4 w-4" />}
+            {autoRefresh ? `${autoRefresh}s` : "Auto"}
+          </button>
+          {autoRefresh > 0 && (
+            <Combobox
+              options={AUTO_REFRESH_OPTIONS.filter((o) => o.value !== "0")}
+              value={String(autoRefresh)}
+              onChange={(v) => setAutoRefresh(Number(v) || 0)}
+              placeholder="Interval"
+              searchPlaceholder="Pilih interval"
+              className="h-9 w-28 bg-background"
+            />
+          )}
+        </div>
         <button
           type="button"
           onClick={() => active.refetch()}
@@ -284,8 +352,9 @@ export function MonitorStokView() {
               align="end"
               hasFilter={false}
               activeCount={0}
-              gridCols={2}
+              gridCols={3}
             >
+              <div />
               <div />
               <div />
             </FilterToolbar>
@@ -308,10 +377,10 @@ export function MonitorStokView() {
               onSearchChange={setSearch}
               searchPlaceholder="Cari produk (SKU / nama)..."
               align="end"
-              onReset={hasFilter ? () => onFilter(() => { setLocationId(""); setBrandId("") }) : undefined}
+              onReset={hasFilter ? () => onFilter(() => { setLocationId(""); setBrandId(""); setCategoryId("") }) : undefined}
               hasFilter={hasFilter}
               activeCount={activeCount}
-              gridCols={2}
+              gridCols={3}
             >
               <Combobox
                 options={locationOptions}
@@ -327,6 +396,14 @@ export function MonitorStokView() {
                 onChange={(v) => onFilter(() => setBrandId(v ?? ""))}
                 placeholder="Merk"
                 searchPlaceholder="Cari merk"
+                className="h-9 bg-background"
+              />
+              <Combobox
+                options={categoryOptions}
+                value={categoryId}
+                onChange={(v) => onFilter(() => setCategoryId(v ?? ""))}
+                placeholder="Kategori"
+                searchPlaceholder="Cari kategori"
                 className="h-9 bg-background"
               />
             </FilterToolbar>
