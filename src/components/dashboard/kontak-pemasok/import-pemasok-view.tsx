@@ -6,10 +6,9 @@ import {
   FileSpreadsheetIcon,
   CheckCircle2Icon,
   XCircleIcon,
-  DownloadIcon,
-  Trash2Icon,
   SaveIcon,
   AlertTriangleIcon,
+  FileDownIcon,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -69,7 +68,7 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
     setSaved(false)
   }, [])
 
-  const handleValidate = useCallback(() => {
+  const handleImport = useCallback(() => {
     if (!file) return
     validateMut.mutate(file, {
       onSuccess: (data) => {
@@ -86,87 +85,73 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
     })
   }, [result, saveMut])
 
+  const showUploadStep = !result
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="flex max-h-[90vh] max-w-6xl flex-col gap-0 p-0">
+      <DialogContent className={cn(
+        "flex max-h-[90vh] flex-col gap-0 p-0",
+        result ? "max-w-6xl" : "max-w-lg"
+      )}>
         <DialogHeader className="shrink-0 border-b px-6 py-4">
-          <div className="flex items-center justify-between">
-            <DialogTitle>Import Kontak dari Excel</DialogTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => ContactImportService.downloadTemplate()}
-            >
-              <DownloadIcon className="mr-1.5 h-3.5 w-3.5" />
-              Download Template
-            </Button>
-          </div>
+          <DialogTitle>Import</DialogTitle>
         </DialogHeader>
 
         <ScrollArea className="flex-1" style={{ maxHeight: "calc(90vh - 73px)" }}>
           <div className="flex flex-col gap-4 p-6">
-            {/* Upload area */}
-            <div
-              className={cn(
-                "relative flex flex-col items-center gap-3 rounded-xl border-2 border-dashed p-6 transition-colors cursor-pointer",
-                file
-                  ? "border-primary/40 bg-primary/5"
-                  : "border-border/60 bg-muted/20 hover:border-primary/30"
-              )}
-              onClick={() => !file && fileRef.current?.click()}
-              role="button"
-              tabIndex={0}
-            >
-              <input
-                ref={fileRef}
-                type="file"
-                accept=".xlsx,.xls"
-                onChange={handleFileChange}
-                className="hidden"
-              />
+            {showUploadStep && (
+              <>
+                {/* File input */}
+                <div
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg border px-4 py-3 transition-colors cursor-pointer",
+                    file
+                      ? "border-primary/40 bg-primary/5"
+                      : "border-border hover:border-primary/30"
+                  )}
+                  onClick={() => fileRef.current?.click()}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept=".xlsx,.xls"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <span className={cn(
+                    "flex-1 text-sm truncate",
+                    file ? "text-foreground font-medium" : "text-muted-foreground"
+                  )}>
+                    {file ? file.name : "Pilih file yang akan di import"}
+                  </span>
+                  <UploadIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                </div>
 
-              {file ? (
-                <>
-                  <FileSpreadsheetIcon className="h-8 w-8 text-primary" />
-                  <div className="text-center">
-                    <p className="text-sm font-medium">{file.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {(file.size / 1024).toFixed(1)} KB
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={(e) => { e.stopPropagation(); handleValidate() }}
-                      disabled={validateMut.isPending}
-                    >
-                      {validateMut.isPending ? (
-                        <div className="mr-1.5 h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                      ) : (
-                        <UploadIcon className="mr-1.5 h-3.5 w-3.5" />
-                      )}
-                      {validateMut.isPending ? "Memvalidasi..." : "Validasi"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => { e.stopPropagation(); handleReset() }}
-                    >
-                      <Trash2Icon className="mr-1.5 h-3.5 w-3.5" />
-                      Hapus
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <UploadIcon className="h-8 w-8 text-muted-foreground" />
-                  <div className="text-center">
-                    <p className="text-sm font-medium">Klik atau seret file Excel ke sini</p>
-                    <p className="text-xs text-muted-foreground">Format: .xlsx, .xls (maks 5MB)</p>
-                  </div>
-                </>
-              )}
-            </div>
+                {/* Description */}
+                <div className="space-y-3 text-sm text-muted-foreground">
+                  <p>
+                    Import menggunakan file *.xlsx yang diexport dari excel.
+                    <br />
+                    Dengan melakukan import kontak, data kontak baru akan ditambahkan sesuai dengan data dari file yang Anda unggah.
+                  </p>
+                  <p>
+                    Untuk mempermudah pengisian data, gunakan template yang telah kami sediakan :
+                  </p>
+                </div>
+
+                {/* Template download link */}
+                <button
+                  type="button"
+                  onClick={() => ContactImportService.downloadTemplate()}
+                  className="inline-flex items-center gap-2 text-sm text-primary hover:underline w-fit"
+                >
+                  <FileDownIcon className="h-4 w-4" />
+                  Template Kontak
+                </button>
+              </>
+            )}
 
             {/* Results */}
             {result && (
@@ -298,6 +283,23 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
             )}
           </div>
         </ScrollArea>
+
+        {/* Footer with Import button */}
+        {showUploadStep && (
+          <div className="shrink-0 border-t px-6 py-4 flex justify-end">
+            <Button
+              onClick={handleImport}
+              disabled={!file || validateMut.isPending}
+            >
+              {validateMut.isPending ? (
+                <div className="mr-1.5 h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              ) : (
+                <FileSpreadsheetIcon className="mr-1.5 h-3.5 w-3.5" />
+              )}
+              {validateMut.isPending ? "Memproses..." : "Import"}
+            </Button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   )
