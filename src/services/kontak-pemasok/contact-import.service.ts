@@ -1,3 +1,4 @@
+import axios from "axios"
 import { fetchClient } from "@/lib/api-client"
 import type { ApiResponse } from "@/types/api.types"
 import type {
@@ -10,11 +11,13 @@ const BASE = "/contacts/import"
 
 export const ContactImportService = {
   downloadTemplate: async () => {
-    const res = await fetchClient<Blob>(`${BASE}/template`, {
-      method: "GET",
+    const res = await axios.get(`/api/app${BASE}/template`, {
       responseType: "blob",
     })
-    const url = URL.createObjectURL(res)
+    const blob = new Blob([res.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    })
+    const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
     a.download = "template-import-kontak.xlsx"
