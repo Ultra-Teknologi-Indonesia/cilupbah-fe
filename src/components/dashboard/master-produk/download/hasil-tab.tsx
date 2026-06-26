@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input"
 import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import {
-  useBrandOptions,
   useCategoryTree,
 } from "@/hooks/master-produk/use-master-data"
 import { useDownloadedProducts } from "@/hooks/master-produk/use-master-products"
@@ -38,7 +37,6 @@ export function HasilTab({
   actionButton?: React.ReactNode
 }) {
   const [view, setView] = React.useState<View>("card")
-  const { data: brandOptions = [] } = useBrandOptions()
   const { data: categoryTree = [] } = useCategoryTree()
   const { data: stores = [] } = useConnectedStores()
   const channelOptions = React.useMemo(() => {
@@ -51,7 +49,6 @@ export function HasilTab({
 
   const [search, setSearch] = React.useState("")
   const [debounced, setDebounced] = React.useState("")
-  const [brandId, setBrandId] = React.useState<string | null>(null)
   const [category, setCategory] = React.useState<SelectedCategory | null>(null)
   const [type, setType] = React.useState<string | null>(null)
   const [channel, setChannel] = React.useState<string | null>(null)
@@ -77,7 +74,6 @@ export function HasilTab({
 
   const query = useDownloadedProducts({
     search: debounced || undefined,
-    brandId: brandId || undefined,
     categoryId: category?.id || undefined,
     type: type || undefined,
     channel: channel || undefined,
@@ -92,7 +88,7 @@ export function HasilTab({
   const total = query.data?.meta?.total ?? 0
   const isLoading = query.isLoading
   const hasFilter = Boolean(
-    search || brandId || category || type || channel || price.min != null || price.max != null || sorting.length
+    search || category || type || channel || price.min != null || price.max != null || sorting.length
   )
 
   const applyPrice = () => {
@@ -108,7 +104,6 @@ export function HasilTab({
   const reset = () => {
     setSearch("")
     setDebounced("")
-    setBrandId(null)
     setCategory(null)
     setType(null)
     setChannel(null)
@@ -169,7 +164,7 @@ export function HasilTab({
         searchPlaceholder="Cari nama / SKU…"
         onReset={hasFilter ? reset : undefined}
         hasFilter={hasFilter}
-        activeCount={[type, brandId, channel, category, price.min != null, price.max != null].filter(Boolean).length}
+        activeCount={[type, channel, category, price.min != null, price.max != null].filter(Boolean).length}
       >
         <Combobox
           options={TYPE_OPTIONS}
@@ -180,17 +175,6 @@ export function HasilTab({
           }}
           placeholder="Semua tipe"
           searchPlaceholder="Cari tipe"
-          className="h-9 bg-background"
-        />
-        <Combobox
-          options={brandOptions}
-          value={brandId}
-          onChange={(v) => {
-            setBrandId(v)
-            resetPage()
-          }}
-          placeholder="Semua merek"
-          searchPlaceholder="Cari merek"
           className="h-9 bg-background"
         />
         <Combobox

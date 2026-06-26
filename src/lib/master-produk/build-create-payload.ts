@@ -66,7 +66,6 @@ export function buildCreatePayload(
     name: values.name.trim(),
     sku: sku || null,
     category_id: Number(values.category!.id),
-    brand_id: values.brandId ? Number(values.brandId) : null,
     description: values.description?.trim() || null,
     is_bundle: values.isBundle,
     is_consignment: values.isConsignment,

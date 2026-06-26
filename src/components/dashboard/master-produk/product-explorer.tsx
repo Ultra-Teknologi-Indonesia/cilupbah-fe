@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { PRODUCT_STATUS_OPTIONS } from "@/lib/master-produk/constants"
 import {
-  useBrandOptions,
   useCategoryTree,
 } from "@/hooks/master-produk/use-master-data"
 import type { useProductListQuery } from "@/hooks/master-produk/use-product-list-query"
@@ -42,7 +41,6 @@ export function ProductExplorer({ query }: { query: Query }) {
   const router = useRouter()
   const [view, setView] = React.useState<View>("card")
   const [importType, setImportType] = React.useState<ImportBatchType | null>(null)
-  const { data: brandOptions = [] } = useBrandOptions()
   const { data: categoryTree = [] } = useCategoryTree()
 
   const items = query.result.data?.items ?? []
@@ -176,7 +174,7 @@ export function ProductExplorer({ query }: { query: Query }) {
           searchPlaceholder="Cari nama / SKU…"
           onReset={query.hasFilter ? query.reset : undefined}
           hasFilter={query.hasFilter}
-          activeCount={[query.status, query.brandId, query.category].filter(Boolean).length}
+          activeCount={[query.status, query.category].filter(Boolean).length}
           align="end"
           gridCols={2}
         >
@@ -186,14 +184,6 @@ export function ProductExplorer({ query }: { query: Query }) {
             onChange={query.setStatus}
             placeholder="Semua status"
             searchPlaceholder="Cari status"
-            className="h-9 bg-background"
-          />
-          <Combobox
-            options={brandOptions}
-            value={query.brandId}
-            onChange={query.setBrandId}
-            placeholder="Semua merek"
-            searchPlaceholder="Cari merek"
             className="h-9 bg-background"
           />
           <CategoryPicker

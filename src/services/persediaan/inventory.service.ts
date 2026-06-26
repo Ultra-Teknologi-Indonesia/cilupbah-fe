@@ -20,7 +20,6 @@ export const InventoryStockService = {
     if (params.page) sp.set("page", String(params.page))
     if (params.per_page) sp.set("per_page", String(params.per_page))
     if (params["filter[product_id]"]) sp.set("filter[product_id]", params["filter[product_id]"])
-    if (params["filter[brand_id]"]) sp.set("filter[brand_id]", params["filter[brand_id]"])
     if (params["filter[location_id]"]) sp.set("filter[location_id]", params["filter[location_id]"])
     if (params["filter[is_bundle]"]) sp.set("filter[is_bundle]", params["filter[is_bundle]"])
     if (params["filter[channel]"]) sp.set("filter[channel]", params["filter[channel]"])

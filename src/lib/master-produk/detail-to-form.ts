@@ -71,8 +71,6 @@ export function detailToFormValues(p: ProductDetail): BuatProdukFormValues {
     category: p.category
       ? { id: String(p.category.id), name: p.category.name, path: [p.category.name] }
       : null,
-    brandId: p.brand ? String(p.brand.id) : null,
-    brandOther: "",
     description: p.description ?? "",
     isBundle: p.isBundle,
     isConsignment: p.isConsignment,

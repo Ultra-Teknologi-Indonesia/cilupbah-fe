@@ -7,7 +7,6 @@ export interface CreateBundlePayload {
   name: string
   sku?: string | null
   category_id: number
-  brand_id?: number | null
   components: { variant_id: string; qty: number }[]
 }
 

@@ -6,7 +6,6 @@ export const SERVER_FIELD_MAP: Record<string, keyof BuatProdukFormValues> = {
   sku: "sku",
   "variants.0.sku": "sku",
   category_id: "category",
-  brand_id: "brandId",
   description: "description",
   "variants.0.sell_price": "sellPrice",
   "variants.0.buy_price": "buyPrice",

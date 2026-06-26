@@ -263,7 +263,7 @@ export function PosisiStokView() {
         <FilterToolbar
           search={search}
           onSearchChange={handleSearch}
-          searchPlaceholder="Cari produk, SKU, atau merek..."
+          searchPlaceholder="Cari produk atau SKU..."
           align="end"
           leading={filterTabs}
           onReset={hasActiveFilter ? () => handleFilterChange(EMPTY_FILTERS) : undefined}
@@ -360,7 +360,6 @@ export function PosisiStokView() {
                               </div>
                               <p className="mt-0.5 truncate text-xs text-muted-foreground">
                                 {item.item_code}
-                                {item.brand_name && ` · ${item.brand_name}`}
                               </p>
                               {item.variation_values.length > 0 && (
                                 <div className="mt-1 flex flex-wrap gap-1">

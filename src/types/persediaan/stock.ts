@@ -27,7 +27,6 @@ export interface StockItem {
   item_group_id: string
   is_bundle: boolean
   variation_values: VariationValue[]
-  brand_name: string | null
   stock_this: boolean
   average_cost: string | number
   location_stocks: LocationStock[]
@@ -75,7 +74,6 @@ export interface StockListParams {
   page?: number
   per_page?: number
   "filter[product_id]"?: string
-  "filter[brand_id]"?: string
   "filter[location_id]"?: string
   "filter[is_bundle]"?: string
   "filter[channel]"?: string

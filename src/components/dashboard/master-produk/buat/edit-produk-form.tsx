@@ -86,7 +86,6 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
           name: data.name,
           sku: data.sku?.trim() || null,
           category_id: Number(data.category!.id),
-          brand_id: data.brandId ? Number(data.brandId) : null,
           components: (data.bundleComponents ?? []).map((c) => ({
             variant_id: c.variantId,
             qty: c.qty,

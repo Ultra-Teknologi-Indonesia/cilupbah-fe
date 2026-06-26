@@ -12,7 +12,6 @@ import { MonitorStockTable } from "@/components/dashboard/monitor-stok/monitor-s
 import { MonitorAnalyticsTable, type AnalyticsKind } from "@/components/dashboard/monitor-stok/monitor-analytics-table"
 import { MonitorSyncFailedTable } from "@/components/dashboard/monitor-stok/monitor-sync-failed-table"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
-import { useAllBrands } from "@/hooks/kategori-merek/use-brand"
 import { useEnabledCategories } from "@/hooks/kategori-merek/use-kategori"
 import {
   useMonitorList,
@@ -126,7 +125,6 @@ export function MonitorStokView() {
   const [search, setSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [locationId, setLocationId] = useState("")
-  const [brandId, setBrandId] = useState("")
   const [categoryId, setCategoryId] = useState("")
   const [autoRefresh, setAutoRefresh] = useState(0)
   const [page, setPage] = useState(1)
@@ -146,10 +144,9 @@ export function MonitorStokView() {
     () => ({
       search: debouncedSearch || undefined,
       location_id: locationId || undefined,
-      brand_id: brandId || undefined,
       category_id: categoryId || undefined,
     }),
-    [debouncedSearch, locationId, brandId, categoryId]
+    [debouncedSearch, locationId, categoryId]
   )
 
   const listParams = useMemo(
@@ -173,7 +170,6 @@ export function MonitorStokView() {
   const failedSyncQuery = useFailedSync(tab, syncParams)
   const { data: summary } = useMonitorSummary(baseFilters)
   const { data: locData } = useLocations({ perPage: 100 })
-  const { data: brands } = useAllBrands()
   const { data: categoryTree } = useEnabledCategories()
 
   const active = isSyncTab(tab) ? failedSyncQuery : isAnalyticsTab(tab) ? analyticsQuery : listQuery
@@ -186,14 +182,6 @@ export function MonitorStokView() {
       ...(locData?.items ?? []).map((l) => ({ value: l.id, label: l.locationName })),
     ],
     [locData]
-  )
-
-  const brandOptions = useMemo(
-    () => [
-      { value: "", label: "Semua Merk" },
-      ...(brands ?? []).map((b) => ({ value: String(b.id), label: b.name })),
-    ],
-    [brands]
   )
 
   const categoryOptions = useMemo(
@@ -230,8 +218,8 @@ export function MonitorStokView() {
     return () => clearInterval(id)
   }, [autoRefresh])
 
-  const hasFilter = Boolean(locationId || brandId || categoryId)
-  const activeCount = [locationId, brandId, categoryId].filter(Boolean).length
+  const hasFilter = Boolean(locationId || categoryId)
+  const activeCount = [locationId, categoryId].filter(Boolean).length
 
   const subTotal = (key: OutOfStockMode): number | undefined => {
     if (!summary) return undefined
@@ -377,10 +365,10 @@ export function MonitorStokView() {
               onSearchChange={setSearch}
               searchPlaceholder="Cari produk (SKU / nama)..."
               align="end"
-              onReset={hasFilter ? () => onFilter(() => { setLocationId(""); setBrandId(""); setCategoryId("") }) : undefined}
+              onReset={hasFilter ? () => onFilter(() => { setLocationId(""); setCategoryId("") }) : undefined}
               hasFilter={hasFilter}
               activeCount={activeCount}
-              gridCols={3}
+              gridCols={2}
             >
               <Combobox
                 options={locationOptions}
@@ -388,14 +376,6 @@ export function MonitorStokView() {
                 onChange={(v) => onFilter(() => setLocationId(v ?? ""))}
                 placeholder="Lokasi"
                 searchPlaceholder="Cari lokasi"
-                className="h-9 bg-background"
-              />
-              <Combobox
-                options={brandOptions}
-                value={brandId}
-                onChange={(v) => onFilter(() => setBrandId(v ?? ""))}
-                placeholder="Merk"
-                searchPlaceholder="Cari merk"
                 className="h-9 bg-background"
               />
               <Combobox

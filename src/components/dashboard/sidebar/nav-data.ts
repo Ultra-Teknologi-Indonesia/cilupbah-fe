@@ -78,13 +78,9 @@ export const dashboardGroups: NavGroup[] = [
       },
       {
         id: "kategori-merek",
-        title: "Kategori & Merek",
+        title: "Kategori",
         icon: FolderTree,
-        link: "/dashboard/kategori-merek",
-        subs: [
-          { title: "Kategori", link: "/dashboard/kategori-merek/kategori" },
-          { title: "Merek", link: "/dashboard/kategori-merek/merek" },
-        ],
+        link: "/dashboard/kategori-merek/kategori",
       },
     ],
   },

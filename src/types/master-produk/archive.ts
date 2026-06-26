@@ -11,7 +11,6 @@ export interface ArchivedProduct {
   itemName: string
   sku: string | null
   categoryName: string
-  brandName: string
   thumbnail: string | null
   totalVariants: number
   archivedAt: string | null

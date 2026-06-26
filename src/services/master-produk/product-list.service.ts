@@ -5,7 +5,6 @@ import type { Product, RawMasterItem } from "@/types/master-produk"
 export interface MasterProductsParams {
   search?: string
   status?: string
-  brandId?: string
   categoryId?: string
   /** satuan | bundle | konsinyasi | pre_order */
   type?: string
@@ -34,7 +33,6 @@ function mapMasterItem(raw: RawMasterItem): Product {
     isConsignment: raw.is_consignment,
     isBundle: raw.is_bundle,
     categoryName: raw.category_name ?? "—",
-    brandName: raw.brand_name ?? "—",
     sellPrice: raw.sell_price,
     totalVariants: raw.total_variants,
     lastModified: raw.last_modified,
@@ -67,7 +65,6 @@ export const ProductListService = {
     const q = new URLSearchParams()
     if (params.search) q.set("search", params.search)
     if (params.status) q.set("status", params.status)
-    if (params.brandId) q.set("filter[brand_id]", params.brandId)
     if (params.categoryId) q.set("filter[category_id]", params.categoryId)
     if (params.type) q.set("filter[type]", params.type)
     if (params.minPrice != null) q.set("filter[min_price]", String(params.minPrice))
@@ -88,7 +85,6 @@ export const ProductListService = {
   ): Promise<MasterProductsResult> => {
     const q = new URLSearchParams()
     if (params.search) q.set("search", params.search)
-    if (params.brandId) q.set("filter[brand_id]", params.brandId)
     if (params.categoryId) q.set("filter[category_id]", params.categoryId)
     if (params.type) q.set("filter[type]", params.type)
     if (params.minPrice != null) q.set("filter[min_price]", String(params.minPrice))

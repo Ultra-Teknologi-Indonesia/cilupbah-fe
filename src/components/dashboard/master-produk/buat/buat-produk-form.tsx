@@ -47,8 +47,6 @@ export function BuatProdukForm() {
       name: "",
       sku: "",
       category: null,
-      brandId: null,
-      brandOther: "",
       description: "",
       isBundle: false,
       isConsignment: false,

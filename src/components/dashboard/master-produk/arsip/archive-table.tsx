@@ -75,7 +75,6 @@ export function ArchiveTable({
           <tr className="border-b border-border/60 text-left text-xs font-medium text-muted-foreground">
             <th className="px-4 py-3">Produk</th>
             <th className="px-4 py-3">Kategori</th>
-            <th className="px-4 py-3">Merek</th>
             <th className="px-4 py-3">Diarsipkan</th>
             <th className="px-4 py-3">Alasan</th>
             <th className="px-4 py-3 text-right">Aksi</th>
@@ -109,7 +108,6 @@ export function ArchiveTable({
                 </div>
               </td>
               <td className="px-4 py-3 text-muted-foreground">{item.categoryName}</td>
-              <td className="px-4 py-3 text-muted-foreground">{item.brandName}</td>
               <td className="px-4 py-3 text-muted-foreground">
                 {fmtDate(item.archivedAt)}
                 {item.archivedBy && <div className="text-xs">oleh {item.archivedBy}</div>}

@@ -25,7 +25,6 @@ export function useProductListQuery() {
   const [debouncedSearch, setDebouncedSearch] = React.useState("")
   const [status, setStatusRaw] = React.useState<string | null>(urlStatus)
   const [prevUrlStatus, setPrevUrlStatus] = React.useState<string | null>(urlStatus)
-  const [brandId, setBrandIdRaw] = React.useState<string | null>(null)
   const [category, setCategoryRaw] = React.useState<SelectedCategory | null>(null)
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -64,13 +63,6 @@ export function useProductListQuery() {
     },
     [router, pathname, searchParams]
   )
-  const setBrandId = React.useCallback(
-    (v: string | null) => {
-      setBrandIdRaw(v)
-      resetPage()
-    },
-    [resetPage]
-  )
   const setCategory = React.useCallback(
     (v: SelectedCategory | null) => {
       setCategoryRaw(v)
@@ -82,7 +74,6 @@ export function useProductListQuery() {
   const reset = React.useCallback(() => {
     setSearch("")
     setDebouncedSearch("")
-    setBrandIdRaw(null)
     setCategoryRaw(null)
     setSorting([])
     resetPage()
@@ -101,7 +92,6 @@ export function useProductListQuery() {
   const result = useMasterProducts({
     search: debouncedSearch || undefined,
     status: status || undefined,
-    brandId: brandId || undefined,
     categoryId: category?.id || undefined,
     sort,
     page: pagination.pageIndex + 1,
@@ -109,7 +99,7 @@ export function useProductListQuery() {
   })
 
   const hasFilter = Boolean(
-    search || status || brandId || category || sorting.length
+    search || status || category || sorting.length
   )
 
   return {
@@ -117,8 +107,6 @@ export function useProductListQuery() {
     setSearch,
     status,
     setStatus,
-    brandId,
-    setBrandId,
     category,
     setCategory,
     sorting,

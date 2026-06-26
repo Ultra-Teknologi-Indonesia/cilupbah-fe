@@ -22,7 +22,6 @@ function mapDetail(raw: RawProductDetail): ProductDetail {
     priceRange: raw.price_range,
     channelsCount: raw.channels_count ?? null,
     category: raw.category,
-    brand: raw.brand,
     isBundle: raw.is_bundle,
     productType:
       raw.product_type ??

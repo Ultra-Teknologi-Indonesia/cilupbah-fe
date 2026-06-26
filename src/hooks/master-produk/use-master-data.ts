@@ -24,8 +24,6 @@ export const useInventoryAccounts = () =>
   useMasterDataQuery("inventory-accounts", MasterDataService.inventoryAccounts)
 export const useCogsAccounts = () =>
   useMasterDataQuery("cogs-accounts", MasterDataService.cogsAccounts)
-export const useBrandOptions = () =>
-  useMasterDataQuery("brands", MasterDataService.brands)
 export const useShopOptions = () =>
   useMasterDataQuery("shops", MasterDataService.shops)
 export const useCategoryTree = () =>

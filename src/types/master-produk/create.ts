@@ -49,7 +49,6 @@ export interface CreateProductPayload {
   name: string
   sku?: string | null
   category_id: number
-  brand_id?: number | null
   description?: string | null
   is_bundle?: boolean
   is_consignment?: boolean

@@ -193,7 +193,6 @@ export function DetailHeader({
 
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               <InfoRow label="SKU" value={product.sku ?? "—"} />
-              <InfoRow label="Merek" value={product.brand?.name ?? "Tidak ada merek"} />
               <InfoRow label="Kategori" value={product.category?.name ?? "—"} />
             </div>
 

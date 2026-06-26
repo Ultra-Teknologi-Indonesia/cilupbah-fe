@@ -343,7 +343,6 @@ export default function PosisiStokDetailPage() {
                 <h2 className="text-lg font-semibold leading-tight">{item.item_name || item.item_code}</h2>
                 <p className="mt-0.5 text-sm text-muted-foreground">
                   {item.item_code}
-                  {item.brand_name && ` · ${item.brand_name}`}
                 </p>
                 {item.variation_values.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1">

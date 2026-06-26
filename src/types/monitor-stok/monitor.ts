@@ -7,7 +7,6 @@ export interface MonitorStockRow {
   item_id: string
   sku: string
   product_name: string | null
-  brand_name: string | null
   variation_values: MonitorVariationValue[]
   thumbnail: string | null
   min_stock: number
@@ -21,7 +20,6 @@ export interface MonitorStockRow {
 export interface MonitorListParams {
   search?: string
   location_id?: string
-  brand_id?: string
   category_id?: string
   page?: number
   per_page?: number
@@ -32,7 +30,6 @@ export interface MonitorAnalyticsRow {
   item_id: string
   sku: string
   product_name: string | null
-  brand_name: string | null
   variation_values: MonitorVariationValue[]
   thumbnail: string | null
   on_hand: number

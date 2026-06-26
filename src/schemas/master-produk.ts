@@ -12,8 +12,6 @@ export const buatProdukSchema = z
     category: z
       .object({ id: z.string(), name: z.string(), path: z.array(z.string()) })
       .nullable(),
-    brandId: z.string().nullable(),
-    brandOther: z.string().max(255).optional(),
     description: z.string().min(30, "Deskripsi minimal 30 karakter").max(10000),
     isBundle: z.boolean(),
     isConsignment: z.boolean(),
@@ -117,8 +115,6 @@ export const buatBundleSchema = z
     category: z
       .object({ id: z.string(), name: z.string(), path: z.array(z.string()) })
       .nullable(),
-    brandId: z.string().nullable(),
-    brandOther: z.string().max(255).optional(),
     description: z.string().min(30, "Deskripsi minimal 30 karakter").max(10000),
     bundleComponents: z
       .array(

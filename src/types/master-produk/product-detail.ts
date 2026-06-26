@@ -91,7 +91,6 @@ export interface ProductDetail {
   priceRange: { min: number; max: number } | null
   channelsCount: number | null
   category: { id: number; name: string } | null
-  brand: { id: number; name: string } | null
   isBundle: boolean
   productType: ProductTypeKind
   totalVariants: number
@@ -146,7 +145,6 @@ export interface RawProductDetail {
   price_range: { min: number; max: number } | null
   channels_count?: number
   category: { id: number; name: string } | null
-  brand: { id: number; name: string } | null
   is_bundle: boolean
   product_type?: ProductTypeKind
   total_variants?: number

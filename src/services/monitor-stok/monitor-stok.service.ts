@@ -15,7 +15,6 @@ function toQuery(params: MonitorListParams, extra: Record<string, string> = {}):
   const sp = new URLSearchParams()
   if (params.search) sp.set("search", params.search)
   if (params.location_id) sp.set("location_id", params.location_id)
-  if (params.brand_id) sp.set("brand_id", params.brand_id)
   if (params.category_id) sp.set("category_id", params.category_id)
   if (params.page) sp.set("page", String(params.page))
   if (params.per_page) sp.set("per_page", String(params.per_page))

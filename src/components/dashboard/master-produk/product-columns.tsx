@@ -144,17 +144,6 @@ export const productColumns: ColumnDef<Product>[] = [
       value.includes(row.getValue(id) as string),
   },
   {
-    accessorKey: "brandName",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Merek" />
-    ),
-    cell: ({ row }) => (
-      <span className="text-sm">{row.original.brandName}</span>
-    ),
-    filterFn: (row, id, value: string[]) =>
-      value.includes(row.getValue(id) as string),
-  },
-  {
     accessorKey: "status",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />
@@ -208,7 +197,6 @@ export const productColumns: ColumnDef<Product>[] = [
 export const productColumnLabels: Record<string, string> = {
   itemName: "Produk",
   categoryName: "Kategori",
-  brandName: "Merek",
   status: "Status",
   sellPrice: "Harga",
   channels: "Channel",

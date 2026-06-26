@@ -5,7 +5,6 @@ import type {
   CategoryFormAttributes,
   CategoryNode,
   RawAccount,
-  RawBrand,
   RawCategory,
   RawShop,
   RawTax,
@@ -64,11 +63,6 @@ export const MasterDataService = {
   salesReturnAccounts: () => accountOptions("/products/master-data/sales-return-accounts"),
   inventoryAccounts: () => accountOptions("/products/master-data/inventory-accounts"),
   cogsAccounts: () => accountOptions("/products/master-data/cogs-accounts"),
-
-  brands: async (): Promise<LookupOption[]> => {
-    const res = await fetchClient<ApiList<RawBrand>>("/brands?all=1")
-    return (res.data ?? []).map((b) => ({ value: String(b.id), label: b.name }))
-  },
 
   shops: async (): Promise<LookupOption[]> => {
     const res = await fetchClient<ApiList<RawShop>>("/marketplace/store")

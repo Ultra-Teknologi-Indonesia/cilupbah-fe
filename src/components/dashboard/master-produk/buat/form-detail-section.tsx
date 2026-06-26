@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { RichTextEditor } from "@/components/ui/rich-text-editor"
-import { Combobox } from "@/components/ui/combobox"
 import { Switch } from "@/components/ui/switch"
 
 import { FormSectionCard } from "@/components/ui/form-section-card"
@@ -19,7 +18,6 @@ import { CategoryPicker } from "./category-picker"
 import { BundleBuilder } from "./bundle-builder"
 import type { BuatProdukFormValues, SelectedCategory } from "@/types/master-produk"
 import {
-  useBrandOptions,
   useCategoryTree,
 } from "@/hooks/master-produk/use-master-data"
 
@@ -33,7 +31,6 @@ export function FormDetailSection({
   const { control, watch } = useFormContext()
   const isPreorder = mode === "full" ? watch("isPreorder") : false
   const isBundle = mode === "bundle"
-  const { data: brandOptions = [] } = useBrandOptions()
   const { data: categoryTree = [] } = useCategoryTree()
 
   return (
@@ -57,25 +54,6 @@ export function FormDetailSection({
         />
         <FormField
           control={control}
-          name="brandId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Merek</FormLabel>
-              <FormControl>
-                <Combobox
-                  options={brandOptions}
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="Pilih merek"
-                />
-              </FormControl>
-              <FormDescription>Pilih merek, atau isi kolom Merek Lainnya</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
           name="category"
           render={({ field, fieldState }) => (
             <FormItem>
@@ -88,20 +66,6 @@ export function FormDetailSection({
                   invalid={fieldState.invalid}
                 />
               </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="brandOther"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Merek Lainnya</FormLabel>
-              <FormControl>
-                <Input placeholder="Nama merek baru" {...field} />
-              </FormControl>
-              <FormDescription>Opsional — buat merek baru</FormDescription>
               <FormMessage />
             </FormItem>
           )}

@@ -19,7 +19,6 @@ function mapArchived(raw: RawArchivedItem): ArchivedProduct {
     itemName: raw.item_name,
     sku: raw.sku ?? null,
     categoryName: raw.category_name ?? "—",
-    brandName: raw.brand_name ?? "—",
     thumbnail: raw.thumbnail,
     totalVariants: raw.total_variants,
     archivedAt: raw.archived_at,

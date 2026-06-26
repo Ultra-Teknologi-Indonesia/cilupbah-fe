@@ -31,7 +31,6 @@ export interface Product {
   isConsignment: boolean
   isBundle: boolean
   categoryName: string
-  brandName: string
   sellPrice: number | null
   totalVariants: number
   lastModified: string
@@ -71,7 +70,6 @@ export interface RawMasterItem {
   last_modified: string
   sell_price: number | null
   category_name: string | null
-  brand_name: string | null
   total_variants: number
   thumbnail: string | null
   variations: { label: string; values: string[] }[]
