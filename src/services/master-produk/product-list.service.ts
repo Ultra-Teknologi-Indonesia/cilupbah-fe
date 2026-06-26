@@ -13,8 +13,6 @@ export interface MasterProductsParams {
   maxPrice?: number
   /** channel code (mis. tiktok, lazada) */
   channel?: string
-  /** Filter produk hasil download dari channel */
-  isDownload?: boolean
   sort?: string
   page?: number
   perPage?: number
@@ -75,13 +73,33 @@ export const ProductListService = {
     if (params.minPrice != null) q.set("filter[min_price]", String(params.minPrice))
     if (params.maxPrice != null) q.set("filter[max_price]", String(params.maxPrice))
     if (params.channel) q.set("filter[channel]", params.channel)
-    if (params.isDownload) q.set("filter[is_download]", "1")
     if (params.sort) q.set("sort", params.sort)
     q.set("page", String(params.page ?? 1))
     q.set("per_page", String(params.perPage ?? 20))
 
     const res = await fetchClient<ApiPaginated<RawMasterItem>>(
       `/products/master?${q.toString()}`
+    )
+    return { items: (res.data ?? []).map(mapMasterItem), meta: res.meta }
+  },
+
+  getDownloadedProducts: async (
+    params: Omit<MasterProductsParams, "status"> = {}
+  ): Promise<MasterProductsResult> => {
+    const q = new URLSearchParams()
+    if (params.search) q.set("search", params.search)
+    if (params.brandId) q.set("filter[brand_id]", params.brandId)
+    if (params.categoryId) q.set("filter[category_id]", params.categoryId)
+    if (params.type) q.set("filter[type]", params.type)
+    if (params.minPrice != null) q.set("filter[min_price]", String(params.minPrice))
+    if (params.maxPrice != null) q.set("filter[max_price]", String(params.maxPrice))
+    if (params.channel) q.set("filter[channel]", params.channel)
+    if (params.sort) q.set("sort", params.sort)
+    q.set("page", String(params.page ?? 1))
+    q.set("per_page", String(params.perPage ?? 20))
+
+    const res = await fetchClient<ApiPaginated<RawMasterItem>>(
+      `/products/downloaded?${q.toString()}`
     )
     return { items: (res.data ?? []).map(mapMasterItem), meta: res.meta }
   },

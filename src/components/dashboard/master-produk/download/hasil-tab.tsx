@@ -13,7 +13,7 @@ import {
   useBrandOptions,
   useCategoryTree,
 } from "@/hooks/master-produk/use-master-data"
-import { useMasterProducts } from "@/hooks/master-produk/use-master-products"
+import { useDownloadedProducts } from "@/hooks/master-produk/use-master-products"
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
 import type { SelectedCategory } from "@/types/master-produk"
 import { CategoryPicker } from "../buat/category-picker"
@@ -75,8 +75,7 @@ export function HasilTab({
     ? `${sorting[0].desc ? "-" : ""}${sorting[0].id === "itemName" ? "name" : sorting[0].id === "lastModified" ? "updated_at" : sorting[0].id}`
     : undefined
 
-  const query = useMasterProducts({
-    isDownload: true,
+  const query = useDownloadedProducts({
     search: debounced || undefined,
     brandId: brandId || undefined,
     categoryId: category?.id || undefined,

@@ -14,3 +14,11 @@ export function useMasterProducts(params: MasterProductsParams = {}) {
     staleTime: 30 * 1000,
   })
 }
+
+export function useDownloadedProducts(params: Omit<MasterProductsParams, "status"> = {}) {
+  return useQuery({
+    queryKey: ["master-produk", "downloaded", params],
+    queryFn: () => ProductListService.getDownloadedProducts(params),
+    staleTime: 30 * 1000,
+  })
+}
