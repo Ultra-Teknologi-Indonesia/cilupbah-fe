@@ -163,3 +163,19 @@ export interface LocationListParams {
   perPage?: number
   sort?: string
 }
+
+export interface LocationZone {
+  id: string
+  location_id: string
+  zone_code: string
+  zone_name: string | null
+  bins_count: number
+  created_at: string
+  updated_at: string
+}
+
+export interface LocationZoneFormData {
+  zone_code: string
+  zone_name?: string | null
+  bin_ids?: string[]
+}

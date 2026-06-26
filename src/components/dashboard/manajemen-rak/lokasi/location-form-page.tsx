@@ -32,10 +32,11 @@ import type {
 
 import { InformasiTab } from "./informasi-tab"
 import { LayoutGudangTab } from "./layout-gudang-tab"
+import { ZonaTab } from "./zona-tab"
 
 const LIST_HREF = "/dashboard/lokasi"
 
-type Section = "informasi" | "layout"
+type Section = "informasi" | "layout" | "zona"
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (error && typeof error === "object" && "message" in error) {
@@ -223,6 +224,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
   const navItems: { key: Section; label: string; show: boolean }[] = [
     { key: "informasi", label: "Informasi Lokasi", show: true },
     { key: "layout", label: "Layout Gudang", show: layoutEnabled },
+    { key: "zona", label: "Zona", show: mode === "edit" },
   ]
 
   return (
@@ -284,12 +286,18 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
           <div className="rounded-2xl border border-border bg-card p-6">
             {section === "informasi" ? (
               <InformasiTab disabled={locked} />
-            ) : (
+            ) : section === "layout" ? (
               <LayoutGudangTab
                 disabled={locked}
                 initialBins={initialBins}
                 onApply={setAppliedPayload}
                 onBinsChange={(bins) => { binsRef.current = bins }}
+              />
+            ) : (
+              <ZonaTab
+                locationId={id}
+                bins={detail.data?.bins ?? []}
+                disabled={locked}
               />
             )}
           </div>
