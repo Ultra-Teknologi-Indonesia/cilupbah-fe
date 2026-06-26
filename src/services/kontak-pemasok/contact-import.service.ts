@@ -1,5 +1,4 @@
-import axios from "axios"
-import { fetchClient } from "@/lib/api-client"
+import { fetchClient, fetchBlob } from "@/lib/api-client"
 import type { ApiResponse } from "@/types/api.types"
 import type {
   ImportValidateResult,
@@ -9,23 +8,11 @@ import type {
 
 const BASE = "/contacts/import"
 
+const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
 export const ContactImportService = {
-  downloadTemplate: async () => {
-    const res = await axios.get(`/api/app${BASE}/template`, {
-      responseType: "blob",
-    })
-    const blob = new Blob([res.data], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "template-import-kontak.xlsx"
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    URL.revokeObjectURL(url)
-  },
+  downloadTemplate: () =>
+    fetchBlob(`${BASE}/template`, "template-import-kontak.xlsx", XLSX_MIME),
 
   validate: async (file: File) => {
     const formData = new FormData()

@@ -25,3 +25,31 @@ export async function fetchClient<T>(
     throw error;
   }
 }
+
+export async function fetchBlob(
+  endpoint: string,
+  filename: string,
+  mimeType?: string
+): Promise<void> {
+  const formattedEndpoint = endpoint.startsWith("/")
+    ? endpoint
+    : `/${endpoint}`;
+
+  const response = await apiClient(formattedEndpoint, {
+    responseType: "blob",
+    headers: { Accept: "*/*" },
+  });
+
+  const blob = mimeType
+    ? new Blob([response.data], { type: mimeType })
+    : response.data;
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
