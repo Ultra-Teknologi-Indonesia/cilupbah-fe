@@ -9,10 +9,19 @@ import type {
 const BASE = "/contacts/import"
 
 export const ContactImportService = {
-  downloadTemplate: () => {
-    const baseUrl =
-      typeof window !== "undefined" ? window.location.origin : ""
-    window.open(`${baseUrl}/api/app${BASE}/template`, "_blank")
+  downloadTemplate: async () => {
+    const res = await fetchClient<Blob>(`${BASE}/template`, {
+      method: "GET",
+      responseType: "blob",
+    })
+    const url = URL.createObjectURL(res)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "template-import-kontak.xlsx"
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
   },
 
   validate: async (file: File) => {
