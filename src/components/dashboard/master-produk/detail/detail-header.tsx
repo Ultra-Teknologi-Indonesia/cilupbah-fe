@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { ProductStatusBadge } from "../product-status-badge"
 import { formatIDR } from "../product-columns"
 import { StatusActions } from "./status-actions"
@@ -82,42 +83,45 @@ function Gallery({
         )}
       </div>
       {items.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
-          {items.map((item, i) => (
-            <button
-              key={`${item.url}-${i}`}
-              type="button"
-              onClick={() => setIdx(i)}
-              aria-label={item.type === "video" ? "Video" : `Gambar ${i + 1}`}
-              className={cn(
-                "relative size-14 shrink-0 overflow-hidden rounded-lg border transition",
-                i === idx
-                  ? "border-primary ring-2 ring-primary/30"
-                  : "border-border hover:border-primary/50"
-              )}
-            >
-              {item.type === "video" ? (
-                <div className="relative size-full bg-muted/60">
-                  {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                  <video
-                    src={item.url}
-                    muted
-                    playsInline
-                    preload="metadata"
-                    className="size-full object-cover"
-                    onLoadedData={(e) => { e.currentTarget.currentTime = 0.5 }}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/10">
-                    <PlayIcon className="size-4 fill-current text-white drop-shadow" />
+        <ScrollArea className="w-full">
+          <div className="flex gap-2 pb-1">
+            {items.map((item, i) => (
+              <button
+                key={`${item.url}-${i}`}
+                type="button"
+                onClick={() => setIdx(i)}
+                aria-label={item.type === "video" ? "Video" : `Gambar ${i + 1}`}
+                className={cn(
+                  "relative size-14 shrink-0 overflow-hidden rounded-lg border transition",
+                  i === idx
+                    ? "border-primary ring-2 ring-primary/30"
+                    : "border-border hover:border-primary/50"
+                )}
+              >
+                {item.type === "video" ? (
+                  <div className="relative size-full bg-muted/60">
+                    {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+                    <video
+                      src={item.url}
+                      muted
+                      playsInline
+                      preload="metadata"
+                      className="size-full object-cover"
+                      onLoadedData={(e) => { e.currentTarget.currentTime = 0.5 }}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                      <PlayIcon className="size-4 fill-current text-white drop-shadow" />
+                    </div>
                   </div>
-                </div>
-              ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={item.url} alt={`${name} ${i + 1}`} className="size-full object-cover" />
-              )}
-            </button>
-          ))}
-        </div>
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.url} alt={`${name} ${i + 1}`} className="size-full object-cover" />
+                )}
+              </button>
+            ))}
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       )}
     </div>
   )
@@ -211,14 +215,18 @@ export function DetailHeader({
                   Lihat selengkapnya
                 </button>
                 <Dialog open={descOpen} onOpenChange={setDescOpen}>
-                  <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto">
-                    <DialogHeader>
+                  <DialogContent className="flex max-h-[85vh] max-w-5xl flex-col gap-0 p-0">
+                    <DialogHeader className="shrink-0 border-b px-6 py-4">
                       <DialogTitle>Deskripsi Produk</DialogTitle>
                     </DialogHeader>
-                    <div
-                      className="prose-sm max-w-none text-sm leading-relaxed text-foreground/90 [&_a]:text-primary [&_a]:underline"
-                      dangerouslySetInnerHTML={{ __html: product.description }}
-                    />
+                    <ScrollArea className="flex-1" style={{ maxHeight: "calc(85vh - 65px)" }}>
+                      <div className="px-6 py-5">
+                        <div
+                          className="prose-sm max-w-none text-sm leading-relaxed text-foreground/90 [&_a]:text-primary [&_a]:underline"
+                          dangerouslySetInnerHTML={{ __html: product.description }}
+                        />
+                      </div>
+                    </ScrollArea>
                   </DialogContent>
                 </Dialog>
               </div>
