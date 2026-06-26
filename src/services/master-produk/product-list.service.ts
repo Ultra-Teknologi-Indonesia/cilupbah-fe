@@ -13,6 +13,8 @@ export interface MasterProductsParams {
   maxPrice?: number
   /** channel code (mis. tiktok, lazada) */
   channel?: string
+  /** Filter produk hasil download dari channel */
+  isDownload?: boolean
   sort?: string
   page?: number
   perPage?: number
@@ -73,6 +75,7 @@ export const ProductListService = {
     if (params.minPrice != null) q.set("filter[min_price]", String(params.minPrice))
     if (params.maxPrice != null) q.set("filter[max_price]", String(params.maxPrice))
     if (params.channel) q.set("filter[channel]", params.channel)
+    if (params.isDownload) q.set("is_download", "1")
     if (params.sort) q.set("sort", params.sort)
     q.set("page", String(params.page ?? 1))
     q.set("per_page", String(params.perPage ?? 20))
