@@ -10,6 +10,7 @@ import {
   UsersIcon,
   TruckIcon,
   ArrowLeftRightIcon,
+  UploadIcon,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -163,7 +164,13 @@ export function KontakPemasokView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" asChild>
+          <Link href="/dashboard/kontak-pemasok/import">
+            <UploadIcon className="h-4 w-4" />
+            Import
+          </Link>
+        </Button>
         <Button variant="primary" asChild>
           <Link href="/dashboard/kontak-pemasok/tambah">
             <PlusIcon className="h-4 w-4" />
