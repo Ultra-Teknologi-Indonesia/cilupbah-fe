@@ -22,6 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination } from "@/components/ui/simple-pagination"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
+import { ImportPemasokDialog } from "@/components/dashboard/kontak-pemasok/import-pemasok-view"
 import { useContacts, useContactCategories, useDeleteContact } from "@/hooks/kontak-pemasok/use-contacts"
 import type { ContactItem, ContactListParams } from "@/types/kontak-pemasok/contact"
 
@@ -80,6 +81,7 @@ export function KontakPemasokView() {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all")
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
   const [deleteTarget, setDeleteTarget] = useState<ContactItem | null>(null)
+  const [importOpen, setImportOpen] = useState(false)
 
   const resetPage = useCallback(() => setPage(1), [])
 
@@ -165,11 +167,9 @@ export function KontakPemasokView() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-end gap-2">
-        <Button variant="outline" asChild>
-          <Link href="/dashboard/kontak-pemasok/import">
-            <UploadIcon className="h-4 w-4" />
-            Import
-          </Link>
+        <Button variant="outline" onClick={() => setImportOpen(true)}>
+          <UploadIcon className="h-4 w-4" />
+          Import
         </Button>
         <Button variant="primary" asChild>
           <Link href="/dashboard/kontak-pemasok/tambah">
@@ -350,6 +350,8 @@ export function KontakPemasokView() {
         loading={deleteMut.isPending}
         onConfirm={handleDelete}
       />
+
+      <ImportPemasokDialog open={importOpen} onOpenChange={setImportOpen} />
     </div>
   )
 }
