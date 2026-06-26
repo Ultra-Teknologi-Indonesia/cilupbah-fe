@@ -51,6 +51,29 @@ async function proxyRequest(
   try {
     const response = await fetch(targetUrl, fetchOptions);
 
+    // Non-JSON responses (file downloads, etc.) must be streamed through
+    // untouched. Reading them with response.text() decodes the bytes as
+    // UTF-8 and irreversibly corrupts binary payloads like .xlsx files.
+    const responseContentType = response.headers.get("content-type") || "";
+    if (!responseContentType.includes("application/json")) {
+      const passthroughHeaders = new Headers();
+      for (const header of [
+        "content-type",
+        "content-disposition",
+        "content-length",
+        "cache-control",
+      ]) {
+        const value = response.headers.get(header);
+        if (value) passthroughHeaders.set(header, value);
+      }
+
+      return new NextResponse(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: passthroughHeaders,
+      });
+    }
+
     const textData = await response.text();
     let jsonData;
 
