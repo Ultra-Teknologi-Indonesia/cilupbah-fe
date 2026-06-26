@@ -68,13 +68,11 @@ export function PenyesuaianDetail({ id }: { id: string }) {
     if (!adj || !adj.items?.length) return
     exportCsv(
       `penyesuaian-${adj.adjustment_no}.csv`,
-      ["SKU", "Nama Produk", "Bin", "Batch", "Serial", "Stok Sistem", "Stok Aktual", "Selisih", "Catatan"],
+      ["SKU", "Nama Produk", "Bin", "Stok Sistem", "Stok Aktual", "Selisih", "Catatan"],
       adj.items.map((item) => [
         item.item?.sku ?? "",
         item.item?.item_name ?? "",
         item.bin?.code ?? "",
-        item.batch_no ?? "",
-        item.serial_no ?? "",
         String(item.system_qty ?? 0),
         String(item.actual_qty ?? 0),
         String((item.actual_qty ?? 0) - (item.system_qty ?? 0)),
@@ -175,7 +173,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border/60 bg-muted/30">
-                {["SKU", "Nama Produk", "Bin", "Batch", "Serial", "Stok Sistem", "Stok Aktual", "Selisih", "Catatan"].map((h) => (
+                {["SKU", "Nama Produk", "Bin", "Stok Sistem", "Stok Aktual", "Selisih", "Catatan"].map((h) => (
                   <th key={h} className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     {h}
                   </th>
@@ -195,12 +193,6 @@ export function PenyesuaianDetail({ id }: { id: string }) {
                     </td>
                     <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
                       {item.bin?.code ?? "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
-                      {item.batch_no ?? "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
-                      {item.serial_no ?? "—"}
                     </td>
                     <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums">
                       {item.system_qty ?? 0}
@@ -222,7 +214,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
               })}
               {(!adj.items || adj.items.length === 0) && (
                 <tr>
-                  <td colSpan={9} className="px-3 py-8 text-center text-muted-foreground">
+                  <td colSpan={7} className="px-3 py-8 text-center text-muted-foreground">
                     Belum ada item.
                   </td>
                 </tr>

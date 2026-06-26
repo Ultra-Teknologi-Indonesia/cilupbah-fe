@@ -3,8 +3,6 @@ export interface StockAdjustmentItem {
   stock_adjustment_id: string
   item_id: string
   bin_id: string | null
-  batch_no: string | null
-  serial_no: string | null
   system_qty: number
   actual_qty: number
   difference_qty: number
@@ -52,8 +50,6 @@ export interface StockAdjustmentListParams {
 export interface StockAdjustmentItemInput {
   item_id: string
   bin_id?: string
-  batch_no?: string
-  serial_no?: string
   actual_qty: number
   notes?: string
 }
