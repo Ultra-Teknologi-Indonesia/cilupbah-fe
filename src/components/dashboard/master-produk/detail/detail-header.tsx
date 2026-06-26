@@ -84,7 +84,7 @@ function Gallery({
       </div>
       {items.length > 1 && (
         <ScrollArea className="w-full">
-          <div className="flex gap-2 pb-1">
+          <div className="flex gap-2 pb-3">
             {items.map((item, i) => (
               <button
                 key={`${item.url}-${i}`}
@@ -215,7 +215,7 @@ export function DetailHeader({
                   Lihat selengkapnya
                 </button>
                 <Dialog open={descOpen} onOpenChange={setDescOpen}>
-                  <DialogContent className="flex max-h-[85vh] max-w-5xl flex-col gap-0 p-0">
+                  <DialogContent className="flex max-h-[85vh] max-w-7xl flex-col gap-0 p-0">
                     <DialogHeader className="shrink-0 border-b px-6 py-4">
                       <DialogTitle>Deskripsi Produk</DialogTitle>
                     </DialogHeader>
