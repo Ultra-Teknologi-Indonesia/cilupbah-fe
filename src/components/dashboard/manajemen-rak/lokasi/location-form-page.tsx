@@ -116,6 +116,8 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
   const createLocation = useCreateLocation()
   const updateLocation = useUpdateLocation()
   const generateBins = useGenerateBins()
+  const bulkUpdate = useBulkUpdateBins(id)
+  const binsRef = React.useRef<BinDraft[]>([])
 
   const form = useForm<LocationFormValues>({
     resolver: zodResolver(locationFormSchema),
@@ -134,13 +136,14 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
   const locked = mode === "edit" && Boolean(detail.data?.isLocked)
   const layoutEnabled = layoutSetting.data?.useWarehouseLayout ?? false
   const saving =
-    createLocation.isPending || updateLocation.isPending || generateBins.isPending
+    createLocation.isPending || updateLocation.isPending || generateBins.isPending || bulkUpdate.isPending
 
-  const initialBins: BinPreviewItem[] = React.useMemo(
+  const initialBins: BinDraft[] = React.useMemo(
     () =>
       (detail.data?.bins ?? [])
         .filter((b) => !b.isInbound && b.binFinalCode !== "DEFAULT")
         .map((b) => ({
+          id: b.id,
           floorCode: b.floorCode ?? "",
           rowCode: b.rowCode ?? "",
           columnCode: b.columnCode ?? "",
@@ -168,6 +171,22 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
 
       if (layoutEnabled && appliedPayload && locationId) {
         await generateBins.mutateAsync({ locationId, payload: appliedPayload })
+      }
+
+      if (layoutEnabled && !appliedPayload && locationId && binsRef.current.length > 0) {
+        const existingBins = binsRef.current
+          .filter((b) => b.id)
+          .map((b) => ({
+            id: b.id!,
+            bin_final_code: b.binFinalCode,
+            max_qty: b.maxQty,
+            is_stock_acknowledged: b.isStockAcknowledged,
+            is_large_bin: b.isLargeBin,
+            category: b.category || null,
+          }))
+        if (existingBins.length > 0) {
+          await bulkUpdate.mutateAsync(existingBins)
+        }
       }
 
       toast.success(
@@ -270,6 +289,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
                 disabled={locked}
                 initialBins={initialBins}
                 onApply={setAppliedPayload}
+                onBinsChange={(bins) => { binsRef.current = bins }}
               />
             )}
           </div>
