@@ -98,14 +98,14 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className={cn(
-        "flex max-h-[90vh] w-[95vw] flex-col gap-0 p-0",
-        result ? "sm:max-w-[95vw]" : "sm:max-w-lg"
+        "flex max-h-[90vh] flex-col gap-0 p-0",
+        result ? "w-fit max-w-[95vw] sm:max-w-[95vw]" : "w-full sm:max-w-lg"
       )}>
         <DialogHeader className="shrink-0 border-b px-6 py-4">
           <DialogTitle>Import</DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="min-h-0 min-w-0 flex-1">
+        <ScrollArea className="min-h-0 flex-1">
           <div className="flex flex-col gap-4 p-6">
             {showUploadStep && (
               <>
