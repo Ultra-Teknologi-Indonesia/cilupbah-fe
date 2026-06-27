@@ -10,6 +10,7 @@ import {
   PackageIcon,
   SaveIcon,
   Loader2Icon,
+  AlertCircleIcon,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -185,6 +186,14 @@ export function PesananFormPage({ mode, id }: Props) {
 
   const canSubmit = Boolean(contactId && locationId && orderDate && itemsValid)
   const isPending = createMut.isPending || updateMut.isPending
+  const mutationError = (createMut.error || updateMut.error) as any
+  const validationErrors = mutationError?.errors as Record<string, string[]> | undefined
+  const itemErrors = useMemo(() => {
+    if (!validationErrors) return []
+    return Object.entries(validationErrors)
+      .filter(([k]) => k.startsWith("items."))
+      .flatMap(([, v]) => v)
+  }, [validationErrors])
 
   function handleSubmit() {
     if (!canSubmit) return
@@ -198,6 +207,8 @@ export function PesananFormPage({ mode, id }: Props) {
       po_number: poNumberAuto ? undefined : poNumber || undefined,
       items: items.map((it) => ({
         item_id: it.item_id,
+        sku: it.product_sku,
+        name: it.product_name,
         description: it.description,
         unit: it.unit,
         qty: it.qty,
@@ -314,6 +325,19 @@ export function PesananFormPage({ mode, id }: Props) {
 
           {/* Product table */}
           <LiquidGlass radius={16} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04] p-5">
+            {itemErrors.length > 0 && (
+              <div className="mb-4 flex items-start gap-3 rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">
+                <AlertCircleIcon className="mt-0.5 h-5 w-5 shrink-0" />
+                <div>
+                  <div className="mb-1 font-semibold">Terdapat kesalahan pada produk:</div>
+                  <ul className="list-disc pl-5 space-y-1">
+                    {itemErrors.map((msg, i) => (
+                      <li key={i}>{msg}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
             <div className="overflow-x-auto rounded-lg border border-border/40">
               <table className="w-full text-sm">
                 <thead>
