@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
+import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination } from "@/components/ui/simple-pagination"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
@@ -220,15 +221,12 @@ export function PesananPembelianTab() {
                         </td>
                         <td className="whitespace-nowrap px-3 py-3">
                           {(item.status === "OPEN" || item.status === "PARTIAL_RECEIVED") && (
-                            <Link href={`/dashboard/barang-masuk/terima-po/${item.id}`}>
-                              <button
-                                type="button"
-                                className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
-                              >
-                                <PackageCheckIcon className="h-3.5 w-3.5" />
+                            <Button variant="outline" size="sm" className="h-8 gap-1.5 text-primary hover:text-primary" asChild>
+                              <Link href={`/dashboard/barang-masuk/terima-po/${item.id}`}>
+                                <PackageCheckIcon className="h-4 w-4" />
                                 Terima
-                              </button>
-                            </Link>
+                              </Link>
+                            </Button>
                           )}
                         </td>
                       </tr>

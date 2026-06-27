@@ -9,6 +9,7 @@ import { Combobox } from "@/components/ui/combobox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
+import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination } from "@/components/ui/simple-pagination"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
@@ -225,14 +226,15 @@ export function TransferMasukTab() {
                         </td>
                         <td className="whitespace-nowrap px-3 py-3">
                           {item.status === "IN_TRANSIT" && (
-                            <button
-                              type="button"
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="h-8 gap-1.5 text-primary hover:text-primary"
                               onClick={() => { setReceiveTarget(item); setReceivedBy("") }}
-                              className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
                             >
-                              <PackageCheckIcon className="h-3.5 w-3.5" />
+                              <PackageCheckIcon className="h-4 w-4" />
                               Terima
-                            </button>
+                            </Button>
                           )}
                         </td>
                       </tr>
