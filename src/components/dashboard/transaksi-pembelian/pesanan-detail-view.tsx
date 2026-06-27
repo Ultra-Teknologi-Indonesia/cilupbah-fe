@@ -121,28 +121,6 @@ export function PesananDetailView({ id }: { id: string }) {
             <Badge variant="outline" className={cn("text-xs", STATUS_STYLE[po.status])}>
               {STATUS_LABEL[po.status]}
             </Badge>
-            {isDraft && (
-              <>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/dashboard/transaksi-pembelian/pesanan/${po.id}/edit`}>
-                    <PencilIcon className="mr-1.5 h-3.5 w-3.5" />
-                    Edit
-                  </Link>
-                </Button>
-                <Button variant="primary" size="sm" onClick={() => setConfirmAction("approve")} disabled={actionPending}>
-                  <CheckCircle2Icon className="mr-1.5 h-3.5 w-3.5" />
-                  Approve
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setConfirmAction("cancel")} disabled={actionPending}>
-                  <XCircleIcon className="mr-1.5 h-3.5 w-3.5" />
-                  Batalkan
-                </Button>
-                <Button variant="destructive" size="sm" onClick={() => setConfirmAction("delete")} disabled={actionPending}>
-                  <Trash2Icon className="mr-1.5 h-3.5 w-3.5" />
-                  Hapus
-                </Button>
-              </>
-            )}
           </div>
         }
       />

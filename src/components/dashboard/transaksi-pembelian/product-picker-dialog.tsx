@@ -17,16 +17,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from "@/components/ui/table"
-import { useInfiniteMasterProducts } from "@/hooks/master-produk/use-master-products"
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
+import { SimplePagination } from "@/components/ui/simple-pagination"
+import { useMasterProducts } from "@/hooks/master-produk/use-master-products"
 
 export interface PickedProduct {
   itemId: string
@@ -59,24 +52,25 @@ export function ProductPickerDialog({
     return () => clearTimeout(t)
   }, [searchInput])
 
+  const [page, setPage] = React.useState(1)
+  const [perPage, setPerPage] = React.useState(20)
+
   const handleOpenChange = (next: boolean) => {
     if (!next) {
       setSearchInput("")
       setSearch("")
       setSelected(new Map())
+      setPage(1)
     }
     onOpenChange(next)
   }
 
-  const {
-    data,
-    isLoading,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteMasterProducts(
-    { search: search || undefined, perPage: 20 },
-    { enabled: open }
+  React.useEffect(() => {
+    setPage(1)
+  }, [search])
+
+  const { data, isLoading, isFetching } = useMasterProducts(
+    { search: search || undefined, page, perPage },
   )
 
   const products = React.useMemo(() => {
@@ -94,7 +88,7 @@ export function ProductPickerDialog({
       }[]
     }[] = []
 
-    for (const p of data?.pages.flatMap((pg) => pg.items) ?? []) {
+    for (const p of data?.items ?? []) {
       const filteredVariants = p.variants.filter((v) => !excludeIds.includes(v.itemId))
       if (filteredVariants.length === 0) continue
       result.push({
@@ -114,28 +108,7 @@ export function ProductPickerDialog({
     return result
   }, [data, excludeIds])
 
-  // Infinite scroll: amati sentinel di dasar viewport ScrollArea
-  const scrollWrapRef = React.useRef<HTMLDivElement>(null)
-  const sentinelRef = React.useRef<HTMLDivElement>(null)
 
-  React.useEffect(() => {
-    const root = scrollWrapRef.current?.querySelector<HTMLElement>(
-      '[data-slot="scroll-area-viewport"]'
-    )
-    const sentinel = sentinelRef.current
-    if (!root || !sentinel) return
-
-    const obs = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage()
-        }
-      },
-      { root, rootMargin: "300px" }
-    )
-    obs.observe(sentinel)
-    return () => obs.disconnect()
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, products.length])
 
   const toggleSelect = (product: (typeof products)[0], variant: (typeof products)[0]["variants"][0]) => {
     setSelected((prev) => {
@@ -184,7 +157,7 @@ export function ProductPickerDialog({
           </div>
         </div>
 
-        <div ref={scrollWrapRef} className="flex min-h-0 flex-1 flex-col border-t">
+        <div className="flex min-h-0 flex-1 flex-col border-t">
           {isLoading ? (
             <div className="flex flex-1 items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
               <Loader2Icon className="size-4 animate-spin" />
@@ -289,16 +262,23 @@ export function ProductPickerDialog({
                 </TableBody>
               </Table>
 
-              {/* Sentinel + indikator lazy-load */}
-              <div ref={sentinelRef} className="h-px w-full" />
-              {isFetchingNextPage && (
-                <div className="flex items-center justify-center gap-2 py-4 text-xs text-muted-foreground">
-                  <Loader2Icon className="size-3.5 animate-spin" />
-                  Memuat lebih banyak…
-                </div>
-              )}
               <ScrollBar orientation="horizontal" />
             </ScrollArea>
+          )}
+
+          {data?.meta && !isLoading && (
+            <div className="border-t px-6 pb-4 pt-1">
+              <SimplePagination
+                page={data.meta.current_page}
+                lastPage={data.meta.last_page}
+                onPageChange={setPage}
+                perPage={perPage}
+                onPerPageChange={setPerPage}
+                isFetching={isFetching}
+                total={data.meta.total}
+                label="produk"
+              />
+            </div>
           )}
         </div>
 
