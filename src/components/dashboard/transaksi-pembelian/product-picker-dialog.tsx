@@ -1,11 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { ImageIcon, Loader2Icon, SearchIcon, SearchXIcon, CheckIcon } from "lucide-react"
+import { ImageIcon, Loader2Icon, SearchIcon, SearchXIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import {
   Dialog,
@@ -15,7 +16,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { useMasterProducts } from "@/hooks/master-produk/use-master-products"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table"
+import { useInfiniteMasterProducts } from "@/hooks/master-produk/use-master-products"
 
 export interface PickedProduct {
   itemId: string
@@ -61,10 +71,16 @@ export function ProductPickerDialog({
     onOpenChange(next)
   }
 
-  const { data, isLoading } = useMasterProducts({
-    search: search || undefined,
-    perPage: 20,
-  })
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteMasterProducts(
+    { search: search || undefined, perPage: 20 },
+    { enabled: open }
+  )
 
   const products = React.useMemo(() => {
     const result: {
@@ -81,7 +97,7 @@ export function ProductPickerDialog({
       }[]
     }[] = []
 
-    for (const p of data?.items ?? []) {
+    for (const p of data?.pages.flatMap((pg) => pg.items) ?? []) {
       const filteredVariants = p.variants.filter((v) => !excludeIds.includes(v.itemId))
       if (filteredVariants.length === 0) continue
       result.push({
@@ -100,6 +116,29 @@ export function ProductPickerDialog({
     }
     return result
   }, [data, excludeIds])
+
+  // Infinite scroll: amati sentinel di dasar viewport ScrollArea
+  const scrollWrapRef = React.useRef<HTMLDivElement>(null)
+  const sentinelRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    const root = scrollWrapRef.current?.querySelector<HTMLElement>(
+      '[data-slot="scroll-area-viewport"]'
+    )
+    const sentinel = sentinelRef.current
+    if (!root || !sentinel) return
+
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage()
+        }
+      },
+      { root, rootMargin: "300px" }
+    )
+    obs.observe(sentinel)
+    return () => obs.disconnect()
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, products.length])
 
   const toggleSelect = (product: (typeof products)[0], variant: (typeof products)[0]["variants"][0]) => {
     setSelected((prev) => {
@@ -127,127 +166,148 @@ export function ProductPickerDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
+      <DialogContent className="flex h-[85vh] max-h-[90vh] w-[95vw] flex-col gap-0 p-0 sm:max-w-5xl">
+        <DialogHeader className="shrink-0 border-b px-6 py-4">
           <DialogTitle>Pilih Produk</DialogTitle>
           <DialogDescription>
             Cari dan pilih produk untuk ditambahkan ke pesanan.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="relative">
-          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            autoFocus
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Cari nama produk / SKU…"
-            className="h-10 rounded-full border-border bg-background pl-9"
-          />
+        <div className="shrink-0 px-6 py-4">
+          <div className="relative">
+            <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              autoFocus
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Cari nama produk / SKU…"
+              className="h-10 rounded-full border-border bg-background pl-9"
+            />
+          </div>
         </div>
 
-        <div className="max-h-[28rem] overflow-y-auto overscroll-contain -mx-1 px-1">
+        <div ref={scrollWrapRef} className="flex min-h-0 flex-1 flex-col border-t">
           {isLoading ? (
-            <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
+            <div className="flex flex-1 items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
               <Loader2Icon className="size-4 animate-spin" />
               Memuat produk…
             </div>
           ) : products.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 py-16 text-center">
+            <div className="flex flex-1 flex-col items-center justify-center gap-2 py-16 text-center">
               <SearchXIcon className="size-8 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">Produk tidak ditemukan</p>
             </div>
           ) : (
-            <div className="flex flex-col gap-3">
-              {products.map((p) => (
-                <div key={p.itemGroupId} className="rounded-xl border border-border/50 bg-background/50">
-                  <div className="flex items-center gap-3 border-b border-border/30 px-4 py-3">
-                    <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
-                      {p.thumbnail ? (
-                        <img
-                          src={p.thumbnail}
-                          alt={p.itemName}
-                          className="size-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.style.display = "none"
-                            e.currentTarget.nextElementSibling?.classList.remove("hidden")
-                          }}
-                        />
-                      ) : null}
-                      <ImageIcon className={cn("size-4 text-muted-foreground", p.thumbnail && "hidden")} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="truncate font-medium">{p.itemName}</span>
-                        {p.isBundle && (
-                          <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">Bundle</Badge>
-                        )}
-                      </div>
-                      {p.categoryName && (
-                        <div className="text-xs text-muted-foreground">{p.categoryName}</div>
-                      )}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {p.variants.length} varian
-                    </div>
-                  </div>
-
-                  <div className="divide-y divide-border/20">
-                    {p.variants.map((v) => {
-                      const isSelected = selected.has(v.itemId)
-                      const variantLabel = v.variationValues.map((vv) => vv.value).join(" / ")
-                      return (
-                        <button
-                          key={v.itemId}
-                          type="button"
-                          onClick={() => toggleSelect(p, v)}
-                          className={cn(
-                            "flex w-full items-center gap-4 px-4 py-2.5 text-left transition-colors",
-                            isSelected ? "bg-primary/8" : "hover:bg-muted/40"
-                          )}
-                        >
-                          <div className="w-11 shrink-0" />
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              {variantLabel && (
-                                <span className="text-sm font-medium">{variantLabel}</span>
-                              )}
-                              {!variantLabel && (
-                                <span className="text-sm text-muted-foreground">Default</span>
-                              )}
+            <ScrollArea className="min-h-0 flex-1">
+              <Table className="min-w-max">
+                <TableHeader className="sticky top-0 z-10 bg-background">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="h-9 w-10" />
+                    <TableHead className="h-9">Varian</TableHead>
+                    <TableHead className="h-9">SKU</TableHead>
+                    <TableHead className="h-9">Atribut</TableHead>
+                    <TableHead className="h-9 text-right">Harga</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {products.map((p) => (
+                    <React.Fragment key={p.itemGroupId}>
+                      <TableRow className="bg-muted/40 hover:bg-muted/40">
+                        <TableCell colSpan={5} className="py-2">
+                          <div className="flex items-center gap-3">
+                            <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
+                              {p.thumbnail ? (
+                                <img
+                                  src={p.thumbnail}
+                                  alt={p.itemName}
+                                  className="size-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = "none"
+                                    e.currentTarget.nextElementSibling?.classList.remove("hidden")
+                                  }}
+                                />
+                              ) : null}
+                              <ImageIcon className={cn("size-4 text-muted-foreground", p.thumbnail && "hidden")} />
                             </div>
-                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                              <span className="font-mono">{v.sku}</span>
-                              {v.variationValues.map((vv) => (
-                                <Badge key={vv.label} variant="outline" className="px-1.5 py-0 text-[10px] font-normal">
-                                  {vv.label}: {vv.value}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="shrink-0 text-right text-sm tabular-nums">
-                            {v.sellPrice != null ? formatCurrency(v.sellPrice) : "—"}
-                          </div>
-                          <div className="flex size-5 shrink-0 items-center justify-center">
-                            {isSelected ? (
-                              <div className="flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                                <CheckIcon className="size-3" />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="truncate font-medium">{p.itemName}</span>
+                                {p.isBundle && (
+                                  <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">Bundle</Badge>
+                                )}
                               </div>
-                            ) : (
-                              <div className="size-4 rounded-full border-2 border-muted-foreground/30" />
-                            )}
+                              {p.categoryName && (
+                                <div className="text-xs text-muted-foreground">{p.categoryName}</div>
+                              )}
+                            </div>
+                            <span className="shrink-0 text-xs text-muted-foreground">
+                              {p.variants.length} varian
+                            </span>
                           </div>
-                        </button>
-                      )
-                    })}
-                  </div>
+                        </TableCell>
+                      </TableRow>
+
+                      {p.variants.map((v) => {
+                        const isSelected = selected.has(v.itemId)
+                        const variantLabel = v.variationValues.map((vv) => vv.value).join(" / ")
+                        return (
+                          <TableRow
+                            key={v.itemId}
+                            data-state={isSelected ? "selected" : undefined}
+                            onClick={() => toggleSelect(p, v)}
+                            className="cursor-pointer"
+                          >
+                            <TableCell className="py-2">
+                              <Checkbox
+                                checked={isSelected}
+                                aria-hidden
+                                tabIndex={-1}
+                                className="pointer-events-none"
+                              />
+                            </TableCell>
+                            <TableCell className="py-2">
+                              <span className="text-sm font-medium">
+                                {variantLabel || "Default"}
+                              </span>
+                            </TableCell>
+                            <TableCell className="py-2 font-mono text-xs text-muted-foreground">
+                              {v.sku || "—"}
+                            </TableCell>
+                            <TableCell className="py-2">
+                              <div className="flex flex-wrap gap-1">
+                                {v.variationValues.map((vv) => (
+                                  <Badge key={vv.label} variant="outline" className="px-1.5 py-0 text-[10px] font-normal">
+                                    {vv.label}: {vv.value}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </TableCell>
+                            <TableCell className="py-2 text-right text-sm tabular-nums">
+                              {v.sellPrice != null ? formatCurrency(v.sellPrice) : "—"}
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </React.Fragment>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {/* Sentinel + indikator lazy-load */}
+              <div ref={sentinelRef} className="h-px w-full" />
+              {isFetchingNextPage && (
+                <div className="flex items-center justify-center gap-2 py-4 text-xs text-muted-foreground">
+                  <Loader2Icon className="size-3.5 animate-spin" />
+                  Memuat lebih banyak…
                 </div>
-              ))}
-            </div>
+              )}
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
           )}
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter className="shrink-0 items-center gap-2 border-t px-6 py-4 sm:gap-0">
           <div className="flex-1 text-sm text-muted-foreground">
             {selected.size > 0 && `${selected.size} varian dipilih`}
           </div>
