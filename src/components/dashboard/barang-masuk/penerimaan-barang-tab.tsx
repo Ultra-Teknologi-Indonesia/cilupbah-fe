@@ -114,7 +114,7 @@ export function PenerimaanBarangTab() {
   const [search, setSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [page, setPage] = useState(1)
-  const [perPage, setPerPage] = useState(15)
+  const [perPage, setPerPage] = useState(10)
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
 
   const resetPage = useCallback(() => setPage(1), [])

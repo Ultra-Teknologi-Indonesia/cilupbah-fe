@@ -24,7 +24,7 @@ export function usePurchaseOrderDetail(id?: string) {
   })
 }
 
-export function usePurchaseOrderItems(id?: string, params: { page: number; perPage: number } = { page: 1, perPage: 15 }) {
+export function usePurchaseOrderItems(id?: string, params: { page: number; perPage: number } = { page: 1, perPage: 10 }) {
   return useQuery({
     queryKey: ["purchase-order", "items", id, params],
     queryFn: () => PurchaseOrderService.getItems(id!, params),

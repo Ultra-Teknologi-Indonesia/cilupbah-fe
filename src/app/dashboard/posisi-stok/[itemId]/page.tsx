@@ -107,7 +107,7 @@ function StockSummaryCards({ onHand, onOrder, reserved, available, avgCost }: {
 
 function MovementsSection({ itemId }: { itemId: string }) {
   const [page, setPage] = useState(1)
-  const [perPage, setPerPage] = useState(15)
+  const [perPage, setPerPage] = useState(10)
 
   const params = useMemo(() => ({
     "filter[item_id]": itemId,

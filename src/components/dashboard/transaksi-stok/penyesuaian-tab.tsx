@@ -88,7 +88,7 @@ export function PenyesuaianTab() {
   const [search, setSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [page, setPage] = useState(1)
-  const [perPage, setPerPage] = useState(15)
+  const [perPage, setPerPage] = useState(10)
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
   const [deleteTarget, setDeleteTarget] = useState<StockAdjustment | null>(null)
   const [approveTarget, setApproveTarget] = useState<StockAdjustment | null>(null)

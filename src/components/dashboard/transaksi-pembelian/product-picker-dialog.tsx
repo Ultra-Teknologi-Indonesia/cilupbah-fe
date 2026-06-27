@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Image from "next/image"
-import { ImageIcon, Loader2Icon, SearchIcon, SearchXIcon } from "lucide-react"
+import * as React from "react";
+import Image from "next/image";
+import { ImageIcon, Loader2Icon, SearchIcon, SearchXIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -16,25 +16,33 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
-import { SimplePagination } from "@/components/ui/simple-pagination"
-import { useMasterProducts } from "@/hooks/master-produk/use-master-products"
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import { SimplePagination } from "@/components/ui/simple-pagination";
+import { useMasterProducts } from "@/hooks/master-produk/use-master-products";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export interface PickedProduct {
-  itemId: string
-  sku: string
-  name: string
-  variantLabel: string
-  thumbnail: string | null
-  sellPrice: number | null
+  itemId: string;
+  sku: string;
+  name: string;
+  variantLabel: string;
+  thumbnail: string | null;
+  sellPrice: number | null;
 }
 
 interface ProductPickerDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onPick: (products: PickedProduct[]) => void
-  excludeIds?: string[]
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onPick: (products: PickedProduct[]) => void;
+  excludeIds?: string[];
 }
 
 export function ProductPickerDialog({
@@ -43,54 +51,60 @@ export function ProductPickerDialog({
   onPick,
   excludeIds = [],
 }: ProductPickerDialogProps) {
-  const [searchInput, setSearchInput] = React.useState("")
-  const [search, setSearch] = React.useState("")
-  const [selected, setSelected] = React.useState<Map<string, PickedProduct>>(new Map())
+  const [searchInput, setSearchInput] = React.useState("");
+  const [search, setSearch] = React.useState("");
+  const [selected, setSelected] = React.useState<Map<string, PickedProduct>>(
+    new Map(),
+  );
 
   React.useEffect(() => {
-    const t = setTimeout(() => setSearch(searchInput), 350)
-    return () => clearTimeout(t)
-  }, [searchInput])
+    const t = setTimeout(() => setSearch(searchInput), 350);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
-  const [page, setPage] = React.useState(1)
-  const [perPage, setPerPage] = React.useState(20)
+  const [page, setPage] = React.useState(1);
+  const [perPage, setPerPage] = React.useState(10);
 
   const handleOpenChange = (next: boolean) => {
     if (!next) {
-      setSearchInput("")
-      setSearch("")
-      setSelected(new Map())
-      setPage(1)
+      setSearchInput("");
+      setSearch("");
+      setSelected(new Map());
+      setPage(1);
     }
-    onOpenChange(next)
-  }
+    onOpenChange(next);
+  };
 
   React.useEffect(() => {
-    setPage(1)
-  }, [search])
+    setPage(1);
+  }, [search]);
 
-  const { data, isLoading, isFetching } = useMasterProducts(
-    { search: search || undefined, page, perPage },
-  )
+  const { data, isLoading, isFetching } = useMasterProducts({
+    search: search || undefined,
+    page,
+    perPage,
+  });
 
   const products = React.useMemo(() => {
     const result: {
-      itemGroupId: string
-      itemName: string
-      thumbnail: string | null
-      isBundle: boolean
-      categoryName: string
+      itemGroupId: string;
+      itemName: string;
+      thumbnail: string | null;
+      isBundle: boolean;
+      categoryName: string;
       variants: {
-        itemId: string
-        sku: string
-        sellPrice: number | null
-        variationValues: { label: string; value: string }[]
-      }[]
-    }[] = []
+        itemId: string;
+        sku: string;
+        sellPrice: number | null;
+        variationValues: { label: string; value: string }[];
+      }[];
+    }[] = [];
 
     for (const p of data?.items ?? []) {
-      const filteredVariants = p.variants.filter((v) => !excludeIds.includes(v.itemId))
-      if (filteredVariants.length === 0) continue
+      const filteredVariants = p.variants.filter(
+        (v) => !excludeIds.includes(v.itemId),
+      );
+      if (filteredVariants.length === 0) continue;
       result.push({
         itemGroupId: p.itemGroupId,
         itemName: p.itemName,
@@ -103,18 +117,19 @@ export function ProductPickerDialog({
           sellPrice: v.sellPrice,
           variationValues: v.variationValues,
         })),
-      })
+      });
     }
-    return result
-  }, [data, excludeIds])
+    return result;
+  }, [data, excludeIds]);
 
-
-
-  const toggleSelect = (product: (typeof products)[0], variant: (typeof products)[0]["variants"][0]) => {
+  const toggleSelect = (
+    product: (typeof products)[0],
+    variant: (typeof products)[0]["variants"][0],
+  ) => {
     setSelected((prev) => {
-      const next = new Map(prev)
+      const next = new Map(prev);
       if (next.has(variant.itemId)) {
-        next.delete(variant.itemId)
+        next.delete(variant.itemId);
       } else {
         next.set(variant.itemId, {
           itemId: variant.itemId,
@@ -123,16 +138,16 @@ export function ProductPickerDialog({
           variantLabel: variant.variationValues.map((v) => v.value).join(", "),
           thumbnail: product.thumbnail,
           sellPrice: variant.sellPrice,
-        })
+        });
       }
-      return next
-    })
-  }
+      return next;
+    });
+  };
 
   const handleConfirm = () => {
-    onPick(Array.from(selected.values()))
-    handleOpenChange(false)
-  }
+    onPick(Array.from(selected.values()));
+    handleOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -166,7 +181,9 @@ export function ProductPickerDialog({
           ) : products.length === 0 ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-2 py-16 text-center">
               <SearchXIcon className="size-8 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">Produk tidak ditemukan</p>
+              <p className="text-sm text-muted-foreground">
+                Produk tidak ditemukan
+              </p>
             </div>
           ) : (
             <ScrollArea className="min-h-0 flex-1">
@@ -194,22 +211,38 @@ export function ProductPickerDialog({
                                   height={40}
                                   className="size-full object-cover"
                                   onError={(e) => {
-                                    e.currentTarget.style.display = "none"
-                                    e.currentTarget.nextElementSibling?.classList.remove("hidden")
+                                    e.currentTarget.style.display = "none";
+                                    e.currentTarget.nextElementSibling?.classList.remove(
+                                      "hidden",
+                                    );
                                   }}
                                 />
                               ) : null}
-                              <ImageIcon className={cn("size-4 text-muted-foreground", p.thumbnail && "hidden")} />
+                              <ImageIcon
+                                className={cn(
+                                  "size-4 text-muted-foreground",
+                                  p.thumbnail && "hidden",
+                                )}
+                              />
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
-                                <span className="truncate font-medium">{p.itemName}</span>
+                                <span className="truncate font-medium">
+                                  {p.itemName}
+                                </span>
                                 {p.isBundle && (
-                                  <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">Bundle</Badge>
+                                  <Badge
+                                    variant="secondary"
+                                    className="px-1.5 py-0 text-[10px]"
+                                  >
+                                    Bundle
+                                  </Badge>
                                 )}
                               </div>
                               {p.categoryName && (
-                                <div className="text-xs text-muted-foreground">{p.categoryName}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {p.categoryName}
+                                </div>
                               )}
                             </div>
                             <span className="shrink-0 text-xs text-muted-foreground">
@@ -220,8 +253,10 @@ export function ProductPickerDialog({
                       </TableRow>
 
                       {p.variants.map((v) => {
-                        const isSelected = selected.has(v.itemId)
-                        const variantLabel = v.variationValues.map((vv) => vv.value).join(" / ")
+                        const isSelected = selected.has(v.itemId);
+                        const variantLabel = v.variationValues
+                          .map((vv) => vv.value)
+                          .join(" / ");
                         return (
                           <TableRow
                             key={v.itemId}
@@ -248,14 +283,18 @@ export function ProductPickerDialog({
                             <TableCell className="py-2">
                               <div className="flex flex-wrap gap-1">
                                 {v.variationValues.map((vv) => (
-                                  <Badge key={vv.label} variant="outline" className="px-1.5 py-0 text-[10px] font-normal">
+                                  <Badge
+                                    key={vv.label}
+                                    variant="outline"
+                                    className="px-1.5 py-0 text-[10px] font-normal"
+                                  >
                                     {vv.label}: {vv.value}
                                   </Badge>
                                 ))}
                               </div>
                             </TableCell>
                           </TableRow>
-                        )
+                        );
                       })}
                     </React.Fragment>
                   ))}
@@ -289,11 +328,15 @@ export function ProductPickerDialog({
           <Button variant="outline" onClick={() => handleOpenChange(false)}>
             Batal
           </Button>
-          <Button variant="primary" onClick={handleConfirm} disabled={selected.size === 0}>
+          <Button
+            variant="primary"
+            onClick={handleConfirm}
+            disabled={selected.size === 0}
+          >
             Tambah {selected.size > 0 ? `(${selected.size})` : ""}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

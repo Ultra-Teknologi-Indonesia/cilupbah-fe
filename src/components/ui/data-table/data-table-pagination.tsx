@@ -26,7 +26,7 @@ interface DataTablePaginationProps<TData> {
 
 export function DataTablePagination<TData>({
   table,
-  pageSizeOptions = [10, 20, 50, 100],
+  pageSizeOptions = [10, 20, 50, 100, 200],
   showSelectionCount = true,
 }: DataTablePaginationProps<TData>) {
   const pageIndex = table.getState().pagination.pageIndex
