@@ -117,17 +117,17 @@ export function PesananListView() {
     {
       id: "pemasok",
       header: "Pemasok",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.contact?.name ?? "—"}</span>,
+      cell: ({ row }) => <span>{row.original.contact?.name ?? "—"}</span>,
     },
     {
       id: "lokasi",
       header: "Lokasi",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.location?.location_name ?? "—"}</span>,
+      cell: ({ row }) => <span>{row.original.location?.location_name ?? "—"}</span>,
     },
     {
       accessorKey: "order_date",
       header: "Tgl. Pesanan",
-      cell: ({ row }) => <span className="text-muted-foreground">{formatDate(row.original.order_date)}</span>,
+      cell: ({ row }) => <span>{formatDate(row.original.order_date)}</span>,
     },
     {
       accessorKey: "total_amount",
@@ -138,7 +138,7 @@ export function PesananListView() {
       accessorKey: "notes",
       header: "Keterangan",
       cell: ({ row }) => (
-        <div className="max-w-[160px] truncate text-muted-foreground">
+        <div className="max-w-[160px] truncate">
           {row.original.notes || "—"}
         </div>
       ),
@@ -146,7 +146,7 @@ export function PesananListView() {
     {
       id: "bills",
       header: "No. Tagihan",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.bills?.[0]?.bill_number ?? "—"}</span>,
+      cell: ({ row }) => <span>{row.original.bills?.[0]?.bill_number ?? "—"}</span>,
     },
     {
       id: "actions",
