@@ -267,11 +267,11 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {tab === "valid" && result.valid.map((item) => (
-                      <ValidRow key={item.row} item={item} />
+                    {tab === "valid" && result.valid.map((item, i) => (
+                      <ValidRow key={item.row} item={item} index={i} />
                     ))}
-                    {tab === "invalid" && result.invalid.map((item) => (
-                      <InvalidRow key={item.row} item={item} />
+                    {tab === "invalid" && result.invalid.map((item, i) => (
+                      <InvalidRow key={item.row} item={item} index={i} />
                     ))}
                     {((tab === "valid" && result.valid_count === 0) ||
                       (tab === "invalid" && result.invalid_count === 0)) && (
@@ -314,10 +314,10 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
   )
 }
 
-function ValidRow({ item }: { item: ImportValidRow }) {
+function ValidRow({ item, index }: { item: ImportValidRow; index: number }) {
   return (
     <TableRow>
-      <TableCell className="py-2 text-xs text-muted-foreground">{item.row}</TableCell>
+      <TableCell className="py-2 text-xs text-muted-foreground">{index + 1}</TableCell>
       {COLUMNS.map((col) => (
         <TableCell key={col} className="py-2 text-xs">
           {item.raw[col as keyof typeof item.raw] || "—"}
@@ -327,10 +327,10 @@ function ValidRow({ item }: { item: ImportValidRow }) {
   )
 }
 
-function InvalidRow({ item }: { item: ImportInvalidRow }) {
+function InvalidRow({ item, index }: { item: ImportInvalidRow; index: number }) {
   return (
     <TableRow className="bg-red-50/50 hover:bg-red-50 dark:bg-red-500/5 dark:hover:bg-red-500/10">
-      <TableCell className="py-2 text-xs text-muted-foreground">{item.row}</TableCell>
+      <TableCell className="py-2 text-xs text-muted-foreground">{index + 1}</TableCell>
       {COLUMNS.map((col) => {
         const isInvalid = item.error_fields?.includes(col)
         return (
