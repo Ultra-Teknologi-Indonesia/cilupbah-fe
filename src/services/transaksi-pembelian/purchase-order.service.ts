@@ -2,6 +2,7 @@ import { fetchClient } from "@/lib/api-client"
 import type { ApiResponse, ApiPaginated } from "@/types/api.types"
 import type {
   PurchaseOrder,
+  PurchaseOrderItem,
   PurchaseOrderListParams,
   PurchaseOrderFormData,
 } from "@/types/transaksi-pembelian/purchase-order"
@@ -31,6 +32,16 @@ export const PurchaseOrderService = {
   getById: async (id: string) => {
     const res = await fetchClient<ApiResponse<PurchaseOrder>>(`/purchase/orders/${id}`)
     return res.data
+  },
+
+  getItems: async (id: string, params: { page: number; perPage: number }) => {
+    const res = await fetchClient<ApiPaginated<PurchaseOrderItem>>(`/purchase/orders/${id}/items`, {
+      params: {
+        page: params.page,
+        per_page: params.perPage,
+      },
+    })
+    return res
   },
 
   create: async (data: PurchaseOrderFormData) => {

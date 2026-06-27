@@ -24,6 +24,15 @@ export function usePurchaseOrderDetail(id?: string) {
   })
 }
 
+export function usePurchaseOrderItems(id?: string, params: { page: number; perPage: number } = { page: 1, perPage: 15 }) {
+  return useQuery({
+    queryKey: ["purchase-order", "items", id, params],
+    queryFn: () => PurchaseOrderService.getItems(id!, params),
+    enabled: !!id,
+    staleTime: STALE,
+  })
+}
+
 export function useCreatePurchaseOrder() {
   const qc = useQueryClient()
   return useMutation({

@@ -20,10 +20,12 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { PageTitle } from "@/components/dashboard/page-title"
 import {
   usePurchaseOrderDetail,
+  usePurchaseOrderItems,
   useApprovePurchaseOrder,
   useCancelPurchaseOrder,
   useDeletePurchaseOrder,
 } from "@/hooks/transaksi-pembelian/use-purchase-orders"
+import { SimplePagination } from "@/components/ui/simple-pagination"
 import type { PurchaseOrderStatus } from "@/types/transaksi-pembelian/purchase-order"
 
 const STATUS_STYLE: Record<PurchaseOrderStatus, string> = {
@@ -62,6 +64,12 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
 export function PesananDetailView({ id }: { id: string }) {
   const router = useRouter()
   const { data: po, isLoading } = usePurchaseOrderDetail(id)
+  
+  const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(15)
+  const { data: itemsRes, isFetching: isFetchingItems } = usePurchaseOrderItems(id, { page, perPage })
+  const items = itemsRes?.data ?? []
+  const itemsMeta = itemsRes?.meta
   const approveMut = useApprovePurchaseOrder()
   const cancelMut = useCancelPurchaseOrder()
   const deleteMut = useDeletePurchaseOrder()
@@ -154,7 +162,7 @@ export function PesananDetailView({ id }: { id: string }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {po.items.map((item) => (
+                  {items.map((item) => (
                     <tr key={item.id} className="border-b border-border/20 last:border-0">
                       <td className="px-3 py-2.5">
                         <div className="font-medium">{item.product?.name ?? "—"}</div>
@@ -173,8 +181,29 @@ export function PesananDetailView({ id }: { id: string }) {
                       <td className="px-3 py-2.5 text-right font-medium tabular-nums">{formatCurrency(item.amount)}</td>
                     </tr>
                   ))}
+                  {items.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
+                        Belum ada produk.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
+              {itemsMeta && (
+                <div className="px-4 py-3 border-t border-border/20">
+                  <SimplePagination
+                    page={itemsMeta.current_page}
+                    lastPage={itemsMeta.last_page}
+                    onPageChange={setPage}
+                    perPage={perPage}
+                    onPerPageChange={setPerPage}
+                    isFetching={isFetchingItems}
+                    total={itemsMeta.total}
+                    label="produk"
+                  />
+                </div>
+              )}
             </div>
           </LiquidGlass>
         </div>
@@ -185,7 +214,7 @@ export function PesananDetailView({ id }: { id: string }) {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Jumlah Produk</span>
-                <span className="font-medium">{po.items.length}</span>
+                <span className="font-medium">{itemsMeta?.total ?? 0}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>

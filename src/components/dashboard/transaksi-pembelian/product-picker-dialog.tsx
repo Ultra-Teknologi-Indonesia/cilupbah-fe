@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/dialog"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { SimplePagination } from "@/components/ui/simple-pagination"
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { useMasterProducts } from "@/hooks/master-produk/use-master-products"
 
 export interface PickedProduct {
