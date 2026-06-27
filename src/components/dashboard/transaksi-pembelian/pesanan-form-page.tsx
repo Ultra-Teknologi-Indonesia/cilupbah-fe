@@ -177,7 +177,13 @@ export function PesananFormPage({ mode, id }: Props) {
     return { subTotal, totalDisc, grandTotal: subTotal - totalDisc, count, totalQty }
   }, [items])
 
-  const canSubmit = contactId && locationId && orderDate && items.length > 0
+  // Wajib: minimal 1 varian terupload, dan tiap baris punya qty > 0 & harga pokok > 0
+  const validItems = useMemo(() => items.filter((it) => it.item_id), [items])
+  const itemsValid =
+    validItems.length > 0 &&
+    validItems.every((it) => it.qty > 0 && it.unit_price > 0)
+
+  const canSubmit = Boolean(contactId && locationId && orderDate && itemsValid)
   const isPending = createMut.isPending || updateMut.isPending
 
   function handleSubmit() {
@@ -345,9 +351,16 @@ export function PesananFormPage({ mode, id }: Props) {
                           <Input
                             type="number"
                             min={0}
+                            required
                             value={item.unit_price || ""}
                             onChange={(e) => updateItem(idx, "unit_price", Number(e.target.value))}
-                            className="h-8 text-right bg-background tabular-nums"
+                            placeholder="0"
+                            aria-invalid={item.item_id ? item.unit_price <= 0 : undefined}
+                            className={cn(
+                              "h-8 text-right bg-background tabular-nums",
+                              item.item_id && item.unit_price <= 0 &&
+                                "border-destructive focus-visible:ring-destructive/30"
+                            )}
                           />
                         </td>
                         <td className="px-3 py-2">

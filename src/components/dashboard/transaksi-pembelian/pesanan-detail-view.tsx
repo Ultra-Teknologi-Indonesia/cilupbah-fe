@@ -233,19 +233,6 @@ export function PesananDetailView({ id }: { id: string }) {
               </div>
             </div>
 
-            {po.bills && po.bills.length > 0 && (
-              <div className="mt-5 border-t border-border/40 pt-4">
-                <h4 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Tagihan Terkait</h4>
-                <div className="space-y-1">
-                  {po.bills.map((b) => (
-                    <Link key={b.id} href={`/dashboard/transaksi-pembelian/tagihan/${b.id}`} className="block text-sm font-medium text-primary hover:underline">
-                      {b.bill_number}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-
             <div className="mt-5 border-t border-border/40 pt-4 text-xs text-muted-foreground">
               <p>Dibuat oleh: {po.created_by}</p>
               <p>Pada: {formatDate(po.created_at)}</p>
