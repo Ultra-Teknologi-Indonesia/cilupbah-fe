@@ -82,6 +82,14 @@ export const PurchaseOrderService = {
     return res.data
   },
 
+  bulkDelete: async (ids: string[]) => {
+    const res = await fetchClient<ApiResponse<unknown>>("/purchase/orders/bulk-delete", {
+      method: "POST",
+      data: { ids },
+    })
+    return res.data
+  },
+
   delete: async (id: string) => {
     await fetchClient(`/purchase/orders/${id}`, {
       method: "DELETE",

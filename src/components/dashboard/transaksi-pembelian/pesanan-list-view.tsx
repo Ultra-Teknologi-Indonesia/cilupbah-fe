@@ -5,6 +5,7 @@ import Link from "next/link"
 import {
   PlusIcon,
   ClipboardListIcon,
+  Trash2Icon,
 } from "lucide-react"
 import { format } from "date-fns"
 import type { DateRange } from "react-day-picker"
@@ -13,13 +14,14 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { DateRangePicker } from "@/components/ui/date-picker"
 import type { ColumnDef } from "@tanstack/react-table"
 
-import { usePurchaseOrders } from "@/hooks/transaksi-pembelian/use-purchase-orders"
+import { usePurchaseOrders, useDeletePurchaseOrder, useBulkDeletePurchaseOrder } from "@/hooks/transaksi-pembelian/use-purchase-orders"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import type { PurchaseOrder, PurchaseOrderListParams } from "@/types/transaksi-pembelian/purchase-order"
 
@@ -44,6 +46,29 @@ export function PesananListView() {
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(10)
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
+
+  const [deleteTarget, setDeleteTarget] = useState<PurchaseOrder | null>(null)
+  const [bulkDeleteTarget, setBulkDeleteTarget] = useState<PurchaseOrder[] | null>(null)
+  const deleteMut = useDeletePurchaseOrder()
+  const bulkDeleteMut = useBulkDeletePurchaseOrder()
+
+  function handleDelete() {
+    if (!deleteTarget) return
+    deleteMut.mutate(deleteTarget.id, {
+      onSuccess: () => setDeleteTarget(null),
+    })
+  }
+
+  function handleBulkDelete(table: any) {
+    if (!bulkDeleteTarget) return
+    const ids = bulkDeleteTarget.map(p => p.id)
+    bulkDeleteMut.mutate(ids, {
+      onSuccess: () => {
+        setBulkDeleteTarget(null)
+        table.toggleAllPageRowsSelected(false)
+      }
+    })
+  }
 
   const resetPage = useCallback(() => setPage(1), [])
 
@@ -140,6 +165,22 @@ export function PesananListView() {
       header: "No. Tagihan",
       cell: ({ row }) => <span>{row.original.bills?.[0]?.bill_number ?? "—"}</span>,
     },
+    {
+      id: "actions",
+      header: "",
+      cell: ({ row }) => {
+        if (row.original.status === "OPEN" || row.original.status === "DRAFT") {
+          return (
+            <div className="flex justify-end">
+              <Button variant="ghost" size="icon-sm" onClick={() => setDeleteTarget(row.original)} className="text-destructive hover:bg-destructive/10 hover:text-destructive">
+                <Trash2Icon className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          )
+        }
+        return null
+      },
+    },
   ], [])
 
   return (
@@ -191,6 +232,18 @@ export function PesananListView() {
             columns={columns}
             data={items}
             isLoading={isLoading}
+            enableRowSelection
+            bulkActions={(selected, table) => (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setBulkDeleteTarget(selected)}
+                className="gap-2"
+              >
+                <Trash2Icon className="h-4 w-4" />
+                Hapus ({selected.length})
+              </Button>
+            )}
             hideToolbar
             manualPagination
             pagination={{
@@ -215,6 +268,29 @@ export function PesananListView() {
           />
         </div>
       </LiquidGlass>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(v) => !v && setDeleteTarget(null)}
+        title="Hapus Pesanan"
+        description={`Apakah Anda yakin ingin menghapus pesanan "${deleteTarget?.po_number}"? Tindakan ini tidak dapat dibatalkan.`}
+        confirmLabel="Hapus"
+        variant="destructive"
+        loading={deleteMut.isPending}
+        onConfirm={handleDelete}
+      />
+
+      <ConfirmDialog
+        open={!!bulkDeleteTarget}
+        onOpenChange={(v) => !v && setBulkDeleteTarget(null)}
+        title="Hapus Pesanan (Bulk)"
+        description={`Apakah Anda yakin ingin menghapus ${bulkDeleteTarget?.length} pesanan yang dipilih? Tindakan ini tidak dapat dibatalkan.`}
+        confirmLabel="Hapus"
+        variant="destructive"
+        loading={bulkDeleteMut.isPending}
+        // @ts-ignore
+        onConfirm={(table) => handleBulkDelete({ toggleAllPageRowsSelected: () => {} })}
+      />
     </div>
   )
 }

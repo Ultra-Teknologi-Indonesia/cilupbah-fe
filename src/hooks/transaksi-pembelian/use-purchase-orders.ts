@@ -86,6 +86,19 @@ export function useCancelPurchaseOrder() {
   })
 }
 
+export function useBulkDeletePurchaseOrder() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: PurchaseOrderService.bulkDelete,
+    onSuccess: () => {
+      toast.success("Pesanan terpilih berhasil dihapus")
+      qc.invalidateQueries({ queryKey: ["purchase-order"] })
+    },
+    onError: (err) =>
+      toast.error((err as { message?: string })?.message || "Gagal menghapus pesanan"),
+  })
+}
+
 export function useDeletePurchaseOrder() {
   const qc = useQueryClient()
   return useMutation({

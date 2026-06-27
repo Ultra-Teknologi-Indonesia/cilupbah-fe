@@ -6,6 +6,7 @@ import Link from "next/link"
 import {
 
   PackageIcon,
+  Trash2Icon,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -13,12 +14,14 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 import { PageTitle } from "@/components/dashboard/page-title"
 import {
 
   usePurchaseOrderDetail,
   usePurchaseOrderItems,
+  useDeletePurchaseOrder,
 } from "@/hooks/transaksi-pembelian/use-purchase-orders"
 import { SimplePagination } from "@/components/ui/simple-pagination"
 import type { PurchaseOrderStatus } from "@/types/transaksi-pembelian/purchase-order"
@@ -65,6 +68,19 @@ export function PesananDetailView({ id }: { id: string }) {
   const { data: itemsRes, isFetching: isFetchingItems } = usePurchaseOrderItems(id, { page, perPage })
   const items = itemsRes?.data ?? []
   const itemsMeta = itemsRes?.meta
+  const deleteMut = useDeletePurchaseOrder()
+
+  const [confirmAction, setConfirmAction] = useState<"delete" | null>(null)
+
+  function handleDelete() {
+    if (!po) return
+    deleteMut.mutate(po.id, {
+      onSuccess: () => {
+        setConfirmAction(null)
+        router.push("/dashboard/transaksi-pembelian")
+      }
+    })
+  }
 
 
   if (isLoading) {
@@ -103,6 +119,12 @@ export function PesananDetailView({ id }: { id: string }) {
         ]}
         actions={
           <div className="flex items-center gap-2">
+            {(po.status === "OPEN" || po.status === "DRAFT") && (
+              <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => setConfirmAction("delete")}>
+                <Trash2Icon className="mr-2 h-4 w-4" />
+                Hapus
+              </Button>
+            )}
             <Badge variant="outline" className={cn("text-xs", STATUS_STYLE[po.status])}>
               {STATUS_LABEL[po.status]}
             </Badge>
@@ -225,6 +247,16 @@ export function PesananDetailView({ id }: { id: string }) {
         </div>
       </div>
 
+      <ConfirmDialog
+        open={confirmAction === "delete"}
+        onOpenChange={(v) => !v && setConfirmAction(null)}
+        title="Hapus Pesanan"
+        description={`Apakah Anda yakin ingin menghapus pesanan "${po.po_number}"? Tindakan ini tidak dapat dibatalkan.`}
+        confirmLabel="Hapus"
+        variant="destructive"
+        loading={deleteMut.isPending}
+        onConfirm={handleDelete}
+      />
     </div>
   )
 }
