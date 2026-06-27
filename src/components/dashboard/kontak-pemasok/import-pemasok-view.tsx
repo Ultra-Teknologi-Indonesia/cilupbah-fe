@@ -20,6 +20,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table"
 import { useValidateImport, useSaveImport } from "@/hooks/kontak-pemasok/use-contact-import"
 import { ContactImportService } from "@/services/kontak-pemasok/contact-import.service"
 import type { ImportValidateResult, ImportValidRow, ImportInvalidRow } from "@/types/kontak-pemasok/import"
@@ -238,46 +246,44 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
                 )}
 
                 {/* Table */}
-                <div className="w-full overflow-x-auto rounded-lg border border-border/40">
-                  <table className="w-full min-w-max text-sm">
-                      <thead>
-                        <tr className="border-b border-border/60 bg-muted/30">
-                          <th className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                            #
-                          </th>
-                          {COLUMNS.map((h) => (
-                            <th key={h} className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                              {h}
-                            </th>
-                          ))}
-                          {tab === "invalid" && (
-                            <th className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                              Error
-                            </th>
-                          )}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {tab === "valid" && result.valid.map((item) => (
-                          <ValidRow key={item.row} item={item} />
-                        ))}
-                        {tab === "invalid" && result.invalid.map((item) => (
-                          <InvalidRow key={item.row} item={item} />
-                        ))}
-                        {((tab === "valid" && result.valid_count === 0) ||
-                          (tab === "invalid" && result.invalid_count === 0)) && (
-                          <tr>
-                            <td
-                              colSpan={COLUMNS.length + 2}
-                              className="px-3 py-8 text-center text-muted-foreground text-sm"
-                            >
-                              Tidak ada data.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                </div>
+                <Table containerClassName="min-w-0 rounded-lg border border-border/40" className="min-w-max">
+                  <TableHeader>
+                    <TableRow className="bg-muted/30 hover:bg-muted/30">
+                      <TableHead className="h-9 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+                        #
+                      </TableHead>
+                      {COLUMNS.map((h) => (
+                        <TableHead key={h} className="h-9 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+                          {h}
+                        </TableHead>
+                      ))}
+                      {tab === "invalid" && (
+                        <TableHead className="h-9 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+                          Error
+                        </TableHead>
+                      )}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {tab === "valid" && result.valid.map((item) => (
+                      <ValidRow key={item.row} item={item} />
+                    ))}
+                    {tab === "invalid" && result.invalid.map((item) => (
+                      <InvalidRow key={item.row} item={item} />
+                    ))}
+                    {((tab === "valid" && result.valid_count === 0) ||
+                      (tab === "invalid" && result.invalid_count === 0)) && (
+                      <TableRow className="hover:bg-transparent">
+                        <TableCell
+                          colSpan={COLUMNS.length + 2}
+                          className="py-8 text-center text-muted-foreground text-sm"
+                        >
+                          Tidak ada data.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
               </>
             )}
           </div>
@@ -306,37 +312,37 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
 
 function ValidRow({ item }: { item: ImportValidRow }) {
   return (
-    <tr className="border-b border-border/20 last:border-0">
-      <td className="whitespace-nowrap px-3 py-2 text-xs text-muted-foreground">{item.row}</td>
+    <TableRow>
+      <TableCell className="py-2 text-xs text-muted-foreground">{item.row}</TableCell>
       {COLUMNS.map((col) => (
-        <td key={col} className="whitespace-nowrap px-3 py-2 text-xs">
+        <TableCell key={col} className="py-2 text-xs">
           {item.raw[col as keyof typeof item.raw] || "—"}
-        </td>
+        </TableCell>
       ))}
-    </tr>
+    </TableRow>
   )
 }
 
 function InvalidRow({ item }: { item: ImportInvalidRow }) {
   return (
-    <tr className="border-b border-border/20 bg-red-50/50 last:border-0 dark:bg-red-500/5">
-      <td className="whitespace-nowrap px-3 py-2 text-xs text-muted-foreground">{item.row}</td>
+    <TableRow className="bg-red-50/50 hover:bg-red-50 dark:bg-red-500/5 dark:hover:bg-red-500/10">
+      <TableCell className="py-2 text-xs text-muted-foreground">{item.row}</TableCell>
       {COLUMNS.map((col) => {
         const isInvalid = item.error_fields?.includes(col)
         return (
-          <td
+          <TableCell
             key={col}
             className={cn(
-              "whitespace-nowrap px-3 py-2 text-xs",
+              "py-2 text-xs",
               isInvalid && "bg-red-100 font-semibold text-red-700 dark:bg-red-500/25 dark:text-red-300"
             )}
             title={isInvalid ? "Nilai tidak valid" : undefined}
           >
             {item.raw[col as keyof typeof item.raw] || "—"}
-          </td>
+          </TableCell>
         )
       })}
-      <td className="px-3 py-2">
+      <TableCell className="py-2 align-top">
         <div className="flex flex-col gap-0.5">
           {item.errors.map((err, i) => (
             <span key={i} className="whitespace-nowrap text-[11px] text-red-600 dark:text-red-400">
@@ -344,7 +350,7 @@ function InvalidRow({ item }: { item: ImportInvalidRow }) {
             </span>
           ))}
         </div>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   )
 }
