@@ -44,10 +44,6 @@ interface ProductPickerDialogProps {
   excludeIds?: string[]
 }
 
-function formatCurrency(val: number) {
-  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(val)
-}
-
 export function ProductPickerDialog({
   open,
   onOpenChange,
@@ -208,14 +204,13 @@ export function ProductPickerDialog({
                     <TableHead className="h-9">Varian</TableHead>
                     <TableHead className="h-9">SKU</TableHead>
                     <TableHead className="h-9">Atribut</TableHead>
-                    <TableHead className="h-9 text-right">Harga</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {products.map((p) => (
                     <React.Fragment key={p.itemGroupId}>
                       <TableRow className="bg-muted/40 hover:bg-muted/40">
-                        <TableCell colSpan={5} className="py-2">
+                        <TableCell colSpan={4} className="py-2">
                           <div className="flex items-center gap-3">
                             <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
                               {p.thumbnail ? (
@@ -285,9 +280,6 @@ export function ProductPickerDialog({
                                   </Badge>
                                 ))}
                               </div>
-                            </TableCell>
-                            <TableCell className="py-2 text-right text-sm tabular-nums">
-                              {v.sellPrice != null ? formatCurrency(v.sellPrice) : "—"}
                             </TableCell>
                           </TableRow>
                         )
