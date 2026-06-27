@@ -27,7 +27,7 @@ type Tab = {
 // dibangun → tampil disabled "Segera".
 const TABS: Tab[] = [
   { id: "pantauan", label: "Pantauan", icon: ActivityIcon, href: "/dashboard/produk/pantauan" },
-  { id: "master", label: "Master", icon: Package2Icon, href: "/dashboard/produk" },
+  { id: "master", label: "Master", icon: Package2Icon, href: "/dashboard/produk/master" },
   { id: "upload", label: "Upload", icon: UploadCloudIcon, href: "/dashboard/produk/upload" },
   { id: "download", label: "Download", icon: CloudDownloadIcon, href: "/dashboard/produk/download" },
   { id: "import", label: "Import", icon: ImportIcon, href: "/dashboard/produk/import" },
@@ -44,7 +44,7 @@ function activeId(pathname: string, status: string | null): string {
   if (pathname.startsWith("/dashboard/produk/import")) return "import"
   if (pathname.startsWith("/dashboard/produk/listing-marketplace")) return "channel"
   if (pathname.startsWith("/dashboard/produk/naikkan")) return "naikkan"
-  if (pathname.startsWith("/dashboard/produk")) return "master"
+  if (pathname.startsWith("/dashboard/produk/master")) return "master"
   return ""
 }
 

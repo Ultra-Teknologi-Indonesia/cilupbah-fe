@@ -21,7 +21,7 @@ type Tab = {
 }
 
 const TABS: Tab[] = [
-  { id: "pesanan", label: "Pesanan Pembelian", icon: ShoppingCartIcon, href: "/dashboard/barang-masuk" },
+  { id: "pesanan", label: "Pesanan Pembelian", icon: ShoppingCartIcon, href: "/dashboard/barang-masuk/pesanan" },
   { id: "transfer", label: "Transfer Masuk", icon: ArrowRightLeftIcon, href: "/dashboard/barang-masuk/transfer" },
   { id: "retur", label: "Retur dari Channel Online", icon: Undo2Icon, href: "/dashboard/barang-masuk/retur" },
   { id: "penerimaan", label: "Penerimaan Barang", icon: PackageIcon, href: "/dashboard/barang-masuk/penerimaan" },
@@ -34,7 +34,9 @@ function activeId(pathname: string): string {
   // Needs strict check for penerimaan because it might have /penerimaan/[id] but we want it to be active
   if (pathname.startsWith("/dashboard/barang-masuk/penerimaan")) return "penerimaan"
   if (pathname.startsWith("/dashboard/barang-masuk/penempatan")) return "penempatan"
-  // Default for /dashboard/barang-masuk (including /terima-po)
+  if (pathname.startsWith("/dashboard/barang-masuk/pesanan")) return "pesanan"
+  if (pathname.startsWith("/dashboard/barang-masuk/terima-po")) return "pesanan"
+  // Default fallback
   return "pesanan"
 }
 
