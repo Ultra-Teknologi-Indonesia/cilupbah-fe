@@ -2,18 +2,19 @@ import { Suspense } from "react"
 import { PageTitle } from "@/components/dashboard/page-title"
 import { TableSkeleton, TabBarSkeleton } from "@/components/ui/page-skeleton"
 import { BarangMasukTabBar } from "@/components/dashboard/barang-masuk/barang-masuk-tab-bar"
-import { PesananPembelianTab } from "@/components/dashboard/barang-masuk/pesanan-pembelian-tab"
+import { ReturChannelTab } from "@/components/dashboard/barang-masuk/retur-channel-tab"
 
-export default function BarangMasukPesananPage() {
+export default function BarangMasukReturPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageTitle
-        title="Barang Masuk"
-        description="Kelola penerimaan barang dari pembelian, transfer, dan retur channel."
+        title="Retur dari Channel Online"
+        description="Kelola penerimaan barang dari retur pelanggan channel online."
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Gudang" },
-          { label: "Barang Masuk" },
+          { label: "Barang Masuk", href: "/dashboard/barang-masuk" },
+          { label: "Retur dari Channel" },
         ]}
       />
 
@@ -22,7 +23,7 @@ export default function BarangMasukPesananPage() {
       </Suspense>
 
       <Suspense fallback={<TableSkeleton rows={6} cols={7} />}>
-        <PesananPembelianTab />
+        <ReturChannelTab />
       </Suspense>
     </div>
   )
