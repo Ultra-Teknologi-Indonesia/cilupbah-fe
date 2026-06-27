@@ -12,7 +12,6 @@ import {
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -51,7 +50,6 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
   const [file, setFile] = useState<File | null>(null)
   const [result, setResult] = useState<ImportValidateResult | null>(null)
   const [tab, setTab] = useState<ViewTab>("valid")
-  const [saved, setSaved] = useState(false)
 
   const validateMut = useValidateImport()
   const saveMut = useSaveImport()
@@ -59,7 +57,6 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
   const handleReset = useCallback(() => {
     setFile(null)
     setResult(null)
-    setSaved(false)
     if (fileRef.current) fileRef.current.value = ""
   }, [])
 
@@ -73,7 +70,6 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
     if (!f) return
     setFile(f)
     setResult(null)
-    setSaved(false)
   }, [])
 
   const handleImport = useCallback(() => {
@@ -89,9 +85,10 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
   const handleSave = useCallback(() => {
     if (!result || result.valid_count === 0) return
     saveMut.mutate(result.valid, {
-      onSuccess: () => setSaved(true),
+      // Sukses simpan: tutup modal; list ikut ter-refresh via invalidateQueries
+      onSuccess: () => handleClose(false),
     })
-  }, [result, saveMut])
+  }, [result, saveMut, handleClose])
 
   const showUploadStep = !result
 
@@ -215,7 +212,7 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
                     </button>
                   </div>
 
-                  {!saved && result.valid_count > 0 && (
+                  {result.valid_count > 0 && (
                     <Button
                       size="sm"
                       onClick={handleSave}
@@ -229,13 +226,6 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
                       )}
                       {saveMut.isPending ? "Menyimpan..." : `Simpan ${result.valid_count} Data Valid`}
                     </Button>
-                  )}
-
-                  {saved && (
-                    <Badge className="border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400">
-                      <CheckCircle2Icon className="mr-1 h-3 w-3" />
-                      Berhasil Disimpan
-                    </Badge>
                   )}
                 </div>
 

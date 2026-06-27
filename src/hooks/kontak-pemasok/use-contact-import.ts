@@ -19,7 +19,7 @@ export function useSaveImport() {
     mutationFn: (rows: ImportValidRow[]) => ContactImportService.save(rows),
     onSuccess: (data) => {
       toast.success(`${data.created} kontak berhasil diimport`)
-      qc.invalidateQueries({ queryKey: ["contacts"] })
+      qc.invalidateQueries({ queryKey: ["contact"] })
     },
     onError: (err: any) => {
       toast.error(err?.message ?? "Gagal menyimpan data import")
