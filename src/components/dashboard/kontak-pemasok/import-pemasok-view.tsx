@@ -90,8 +90,8 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className={cn(
-        "flex max-h-[90vh] flex-col gap-0 p-0",
-        result ? "max-w-6xl" : "max-w-lg"
+        "flex max-h-[90vh] w-full flex-col gap-0 p-0",
+        result ? "sm:max-w-6xl" : "sm:max-w-lg"
       )}>
         <DialogHeader className="shrink-0 border-b px-6 py-4">
           <DialogTitle>Import</DialogTitle>
