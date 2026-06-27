@@ -22,6 +22,14 @@ import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { DatePicker } from "@/components/ui/date-picker"
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table"
 import { PageTitle } from "@/components/dashboard/page-title"
 import { useContacts } from "@/hooks/kontak-pemasok/use-contacts"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
@@ -338,26 +346,26 @@ export function PesananFormPage({ mode, id }: Props) {
                 </div>
               </div>
             )}
-            <div className="overflow-x-auto rounded-lg border border-border/40">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border/60 bg-muted/30">
-                    <th className="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Produk</th>
-                    <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground w-32">Harga</th>
-                    <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground w-24">Qty</th>
-                    <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground w-24">Diskon %</th>
-                    <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground w-32">Total</th>
-                    <th className="px-3 py-2.5 w-10" />
-                  </tr>
-                </thead>
-                <tbody>
+            <div className="rounded-lg border border-border/40 bg-background/50">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/30 hover:bg-muted/30">
+                    <TableHead className="min-w-[200px]">Produk</TableHead>
+                    <TableHead className="w-32 text-right">Harga</TableHead>
+                    <TableHead className="w-24 text-right">Qty</TableHead>
+                    <TableHead className="w-24 text-right">Diskon %</TableHead>
+                    <TableHead className="w-32 text-right">Total</TableHead>
+                    <TableHead className="w-10" />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {activeItems.map((item, idx) => {
                     const lineTotal = item.qty * item.unit_price
                     const discAmount = lineTotal * (item.disc / 100)
                     const total = lineTotal - discAmount
                     return (
-                      <tr key={item.item_id} className="border-b border-border/20 last:border-0">
-                        <td className="px-3 py-2">
+                      <TableRow key={item.item_id}>
+                        <TableCell>
                           <div className="flex items-center gap-3">
                             <ProductImage src={item.thumbnail} alt={item.product_name ?? ""} />
                             <div className="min-w-0 max-w-[360px]">
@@ -370,8 +378,8 @@ export function PesananFormPage({ mode, id }: Props) {
                               </div>
                             </div>
                           </div>
-                        </td>
-                        <td className="px-3 py-2">
+                        </TableCell>
+                        <TableCell>
                           <Input
                             type="text"
                             inputMode="numeric"
@@ -386,8 +394,8 @@ export function PesananFormPage({ mode, id }: Props) {
                                 "border-destructive focus-visible:ring-destructive/30"
                             )}
                           />
-                        </td>
-                        <td className="px-3 py-2">
+                        </TableCell>
+                        <TableCell>
                           <Input
                             type="text"
                             inputMode="numeric"
@@ -398,8 +406,8 @@ export function PesananFormPage({ mode, id }: Props) {
                             }}
                             className="h-8 text-right bg-background tabular-nums"
                           />
-                        </td>
-                        <td className="px-3 py-2">
+                        </TableCell>
+                        <TableCell>
                           <Input
                             type="number"
                             min={0}
@@ -408,28 +416,28 @@ export function PesananFormPage({ mode, id }: Props) {
                             onChange={(e) => updateItem(idx, "disc", Number(e.target.value))}
                             className="h-8 text-right bg-background tabular-nums"
                           />
-                        </td>
-                        <td className="px-3 py-2 text-right font-medium tabular-nums">
+                        </TableCell>
+                        <TableCell className="text-right font-medium tabular-nums">
                           {formatCurrency(total)}
-                        </td>
-                        <td className="px-3 py-2">
-                          <Button variant="ghost" size="icon-sm" onClick={() => removeItem(idx)} className="text-destructive hover:text-destructive">
+                        </TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="icon-sm" onClick={() => removeItem(idx)} className="text-destructive hover:text-destructive hover:bg-destructive/10">
                             <Trash2Icon className="h-3.5 w-3.5" />
                           </Button>
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     )
                   })}
                   {activeItems.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="px-3 py-12 text-center text-muted-foreground">
-                        <PackageIcon className="mx-auto mb-2 h-8 w-8" />
+                    <TableRow>
+                      <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                        <PackageIcon className="mx-auto mb-2 h-8 w-8 opacity-50" />
                         <p className="text-sm">Belum ada produk. Klik tombol di bawah untuk menambahkan.</p>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   )}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
 
             <div className="mt-4">
