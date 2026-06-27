@@ -320,7 +320,7 @@ export function PesananFormPage({ mode, id }: Props) {
                   <tr className="border-b border-border/60 bg-muted/30">
                     <th className="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Produk</th>
                     <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground w-32">Harga</th>
-                    <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground w-20">Qty</th>
+                    <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground w-24">Qty</th>
                     <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground w-24">Diskon %</th>
                     <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground w-32">Total</th>
                     <th className="px-3 py-2.5 w-10" />
@@ -336,24 +336,24 @@ export function PesananFormPage({ mode, id }: Props) {
                         <td className="px-3 py-2">
                           <div className="flex items-center gap-3">
                             <ProductImage src={item.thumbnail} alt={item.product_name ?? ""} />
-                            <div className="min-w-0">
-                              <div className="truncate font-medium">{item.product_name}</div>
-                              <div className="flex items-center gap-2">
-                                <span className="truncate font-mono text-xs text-muted-foreground">{item.product_sku}</span>
-                                {item.variant_label && (
-                                  <span className="shrink-0 text-xs text-muted-foreground">· {item.variant_label}</span>
-                                )}
+                            <div className="min-w-0 max-w-[360px]">
+                              <div className="font-medium break-words">
+                                {item.product_name}
+                                {item.variant_label ? ` - ${item.variant_label}` : ""}
+                              </div>
+                              <div className="break-all font-mono text-xs text-muted-foreground">
+                                {item.product_sku}
                               </div>
                             </div>
                           </div>
                         </td>
                         <td className="px-3 py-2">
                           <Input
-                            type="number"
-                            min={0}
+                            type="text"
+                            inputMode="numeric"
                             required
-                            value={item.unit_price || ""}
-                            onChange={(e) => updateItem(idx, "unit_price", Number(e.target.value))}
+                            value={item.unit_price ? item.unit_price.toLocaleString("id-ID") : ""}
+                            onChange={(e) => updateItem(idx, "unit_price", Number(e.target.value.replace(/\D/g, "")))}
                             placeholder="0"
                             aria-invalid={item.item_id ? item.unit_price <= 0 : undefined}
                             className={cn(
@@ -365,10 +365,13 @@ export function PesananFormPage({ mode, id }: Props) {
                         </td>
                         <td className="px-3 py-2">
                           <Input
-                            type="number"
-                            min={1}
+                            type="text"
+                            inputMode="numeric"
                             value={item.qty}
-                            onChange={(e) => updateItem(idx, "qty", Math.max(1, Number(e.target.value)))}
+                            onChange={(e) => {
+                              const n = Number(e.target.value.replace(/\D/g, ""))
+                              updateItem(idx, "qty", n < 1 ? 1 : n)
+                            }}
                             className="h-8 text-right bg-background tabular-nums"
                           />
                         </td>
