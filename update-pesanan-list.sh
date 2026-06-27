@@ -1,3 +1,4 @@
+cat << 'INNER_EOF' > src/components/dashboard/transaksi-pembelian/pesanan-list-view.tsx
 "use client"
 
 import { useState, useMemo, useCallback, useEffect } from "react"
@@ -229,3 +230,4 @@ export function PesananListView() {
     </div>
   )
 }
+INNER_EOF

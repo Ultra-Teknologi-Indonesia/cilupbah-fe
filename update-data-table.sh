@@ -1,0 +1,1 @@
+sed -i '' 's/import { Skeleton } from "@/components\/ui\/skeleton"/import { Skeleton } from "@/components\/ui\/skeleton"\nimport { ScrollArea, ScrollBar } from "@/components\/ui\/scroll-area"/g' src/components/ui/data-table/data-table.tsx

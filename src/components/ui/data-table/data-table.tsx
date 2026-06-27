@@ -1,3 +1,4 @@
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 "use client"
 
 import * as React from "react"
@@ -213,80 +214,83 @@ export function DataTable<TData, TValue>({
           tableContainerClassName
         )}
       >
-        <Table>
-          <TableHeader className="bg-muted/40">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent">
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-
-          <TableBody>
-            {isLoading ? (
-              Array.from({ length: loadingRows }).map((_, i) => (
-                <TableRow key={`skeleton-${i}`} className="hover:bg-transparent">
-                  {table.getVisibleLeafColumns().map((col) => (
-                    <TableCell key={col.id}>
-                      <Skeleton className="h-5 w-full max-w-[160px]" />
-                    </TableCell>
+        <ScrollArea className="w-full whitespace-nowrap">
+          <Table>
+            <TableHeader className="bg-muted/40">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))
-            ) : errorState ? (
-              <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={colSpan} className="h-32 text-center">
-                  {errorState}
-                </TableCell>
-              </TableRow>
-            ) : table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <React.Fragment key={row.id}>
-                  <TableRow
-                    data-state={row.getIsSelected() && "selected"}
-                    onClick={onRowClick ? () => onRowClick(row.original) : undefined}
-                    className={cn(onRowClick && "cursor-pointer")}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+              ))}
+            </TableHeader>
+
+            <TableBody>
+              {isLoading ? (
+                Array.from({ length: loadingRows }).map((_, i) => (
+                  <TableRow key={`skeleton-${i}`} className="hover:bg-transparent">
+                    {table.getVisibleLeafColumns().map((col) => (
+                      <TableCell key={col.id}>
+                        <Skeleton className="h-5 w-full max-w-[160px]" />
                       </TableCell>
                     ))}
                   </TableRow>
-                  {renderSubRow && row.getIsExpanded() && (
-                    <TableRow className="hover:bg-transparent">
-                      <TableCell colSpan={colSpan} className="bg-muted/20 p-0">
-                        {renderSubRow(row.original, row)}
-                      </TableCell>
+                ))
+              ) : errorState ? (
+                <TableRow className="hover:bg-transparent">
+                  <TableCell colSpan={colSpan} className="h-32 text-center">
+                    {errorState}
+                  </TableCell>
+                </TableRow>
+              ) : table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <React.Fragment key={row.id}>
+                    <TableRow
+                      data-state={row.getIsSelected() && "selected"}
+                      onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                      className={cn(onRowClick && "cursor-pointer")}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
                     </TableRow>
-                  )}
-                </React.Fragment>
-              ))
-            ) : (
-              <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={colSpan} className="h-32 text-center">
-                  {emptyState ?? (
-                    <span className="text-muted-foreground">
-                      Tidak ada data.
-                    </span>
-                  )}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                    {renderSubRow && row.getIsExpanded() && (
+                      <TableRow className="hover:bg-transparent">
+                        <TableCell colSpan={colSpan} className="bg-muted/20 p-0">
+                          {renderSubRow(row.original, row)}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
+                ))
+              ) : (
+                <TableRow className="hover:bg-transparent">
+                  <TableCell colSpan={colSpan} className="h-32 text-center">
+                    {emptyState ?? (
+                      <span className="text-muted-foreground">
+                        Tidak ada data.
+                      </span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       </div>
 
       {!hidePagination && (
