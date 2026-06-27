@@ -1,6 +1,6 @@
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 "use client"
 
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import * as React from "react"
 import {
   type ColumnDef,
