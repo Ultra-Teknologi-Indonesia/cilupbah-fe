@@ -40,6 +40,8 @@ export interface ImportInvalidRow {
   row: number
   raw: ImportRowRaw
   errors: string[]
+  /** Nama kolom yang nilainya tidak valid, untuk disorot di tabel preview. */
+  error_fields: string[]
 }
 
 export interface ImportValidateResult {

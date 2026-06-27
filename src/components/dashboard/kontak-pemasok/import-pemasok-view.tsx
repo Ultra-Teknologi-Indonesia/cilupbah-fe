@@ -20,7 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { useValidateImport, useSaveImport } from "@/hooks/kontak-pemasok/use-contact-import"
 import { ContactImportService } from "@/services/kontak-pemasok/contact-import.service"
 import type { ImportValidateResult, ImportValidRow, ImportInvalidRow } from "@/types/kontak-pemasok/import"
@@ -90,14 +89,14 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className={cn(
-        "flex max-h-[90vh] w-full flex-col gap-0 p-0",
-        result ? "sm:max-w-6xl" : "sm:max-w-lg"
+        "flex max-h-[90vh] w-[95vw] flex-col gap-0 p-0",
+        result ? "sm:max-w-[95vw]" : "sm:max-w-lg"
       )}>
         <DialogHeader className="shrink-0 border-b px-6 py-4">
           <DialogTitle>Import</DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1" style={{ maxHeight: "calc(90vh - 73px)" }}>
+        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
           <div className="flex flex-col gap-4 p-6">
             {showUploadStep && (
               <>
@@ -239,9 +238,8 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
                 )}
 
                 {/* Table */}
-                <ScrollArea className="rounded-lg border border-border/40">
-                  <div className="min-w-max">
-                    <table className="min-w-full text-sm">
+                <div className="w-full overflow-x-auto rounded-lg border border-border/40">
+                  <table className="w-full min-w-max text-sm">
                       <thead>
                         <tr className="border-b border-border/60 bg-muted/30">
                           <th className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -279,13 +277,11 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
                         )}
                       </tbody>
                     </table>
-                  </div>
-                  <ScrollBar orientation="horizontal" />
-                </ScrollArea>
+                </div>
               </>
             )}
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Footer with Import button */}
         {showUploadStep && (
@@ -325,11 +321,21 @@ function InvalidRow({ item }: { item: ImportInvalidRow }) {
   return (
     <tr className="border-b border-border/20 bg-red-50/50 last:border-0 dark:bg-red-500/5">
       <td className="whitespace-nowrap px-3 py-2 text-xs text-muted-foreground">{item.row}</td>
-      {COLUMNS.map((col) => (
-        <td key={col} className="whitespace-nowrap px-3 py-2 text-xs">
-          {item.raw[col as keyof typeof item.raw] || "—"}
-        </td>
-      ))}
+      {COLUMNS.map((col) => {
+        const isInvalid = item.error_fields?.includes(col)
+        return (
+          <td
+            key={col}
+            className={cn(
+              "whitespace-nowrap px-3 py-2 text-xs",
+              isInvalid && "bg-red-100 font-semibold text-red-700 dark:bg-red-500/25 dark:text-red-300"
+            )}
+            title={isInvalid ? "Nilai tidak valid" : undefined}
+          >
+            {item.raw[col as keyof typeof item.raw] || "—"}
+          </td>
+        )
+      })}
       <td className="px-3 py-2">
         <div className="flex flex-col gap-0.5">
           {item.errors.map((err, i) => (
