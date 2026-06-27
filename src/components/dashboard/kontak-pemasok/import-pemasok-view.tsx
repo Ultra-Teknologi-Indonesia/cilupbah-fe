@@ -28,6 +28,7 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { useValidateImport, useSaveImport } from "@/hooks/kontak-pemasok/use-contact-import"
 import { ContactImportService } from "@/services/kontak-pemasok/contact-import.service"
 import type { ImportValidateResult, ImportValidRow, ImportInvalidRow } from "@/types/kontak-pemasok/import"
@@ -104,7 +105,7 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
           <DialogTitle>Import</DialogTitle>
         </DialogHeader>
 
-        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
+        <ScrollArea className="min-h-0 min-w-0 flex-1">
           <div className="flex flex-col gap-4 p-6">
             {showUploadStep && (
               <>
@@ -246,8 +247,9 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
                 )}
 
                 {/* Table */}
-                <Table containerClassName="min-w-0 rounded-lg border border-border/40" className="min-w-max">
-                  <TableHeader>
+                <ScrollArea className="w-full rounded-lg border border-border/40">
+                  <Table containerClassName="w-max overflow-visible" className="min-w-max">
+                    <TableHeader>
                     <TableRow className="bg-muted/30 hover:bg-muted/30">
                       <TableHead className="h-9 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
                         #
@@ -283,11 +285,13 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
                       </TableRow>
                     )}
                   </TableBody>
-                </Table>
+                  </Table>
+                  <ScrollBar orientation="horizontal" />
+                </ScrollArea>
               </>
             )}
           </div>
-        </div>
+        </ScrollArea>
 
         {/* Footer with Import button */}
         {showUploadStep && (
