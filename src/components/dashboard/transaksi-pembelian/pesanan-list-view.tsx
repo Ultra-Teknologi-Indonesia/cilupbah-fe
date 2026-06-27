@@ -4,7 +4,6 @@ import { useState, useMemo, useCallback, useEffect } from "react"
 import Link from "next/link"
 import {
   PlusIcon,
-  Trash2Icon,
   ClipboardListIcon,
 } from "lucide-react"
 import { format } from "date-fns"
@@ -14,13 +13,13 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { DateRangePicker } from "@/components/ui/date-picker"
 import type { ColumnDef } from "@tanstack/react-table"
 
-import { usePurchaseOrders, useDeletePurchaseOrder } from "@/hooks/transaksi-pembelian/use-purchase-orders"
+import { usePurchaseOrders } from "@/hooks/transaksi-pembelian/use-purchase-orders"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import type { PurchaseOrder, PurchaseOrderListParams } from "@/types/transaksi-pembelian/purchase-order"
 
@@ -45,7 +44,6 @@ export function PesananListView() {
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(10)
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
-  const [deleteTarget, setDeleteTarget] = useState<PurchaseOrder | null>(null)
 
   const resetPage = useCallback(() => setPage(1), [])
 
@@ -82,10 +80,11 @@ export function PesananListView() {
 
   const { data, isLoading, isFetching } = usePurchaseOrders(params)
   const { data: locData } = useLocations({ perPage: 100 })
-  const deleteMut = useDeletePurchaseOrder()
 
   const items = data?.items ?? []
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
+  const activeCount = [filters.location_id, filters.dateRange?.from].filter(Boolean).length
+
 
   const locationOptions = useMemo(() => [
     { value: "", label: "Semua Lokasi" },
@@ -95,14 +94,7 @@ export function PesananListView() {
   ], [locData])
 
   const hasActiveFilter = Boolean(filters.location_id || filters.dateRange?.from)
-  const activeCount = [filters.location_id, filters.dateRange?.from].filter(Boolean).length
 
-  function handleDelete() {
-    if (!deleteTarget) return
-    deleteMut.mutate(deleteTarget.id, {
-      onSuccess: () => setDeleteTarget(null),
-    })
-  }
 
   const columns = useMemo<ColumnDef<PurchaseOrder>[]>(() => [
     {
@@ -147,22 +139,6 @@ export function PesananListView() {
       id: "bills",
       header: "No. Tagihan",
       cell: ({ row }) => <span>{row.original.bills?.[0]?.bill_number ?? "—"}</span>,
-    },
-    {
-      id: "actions",
-      header: "",
-      cell: ({ row }) => {
-        if (row.original.status === "DRAFT") {
-          return (
-            <div className="flex justify-end">
-              <Button variant="ghost" size="icon-sm" onClick={() => setDeleteTarget(row.original)} className="text-destructive hover:bg-destructive/10 hover:text-destructive">
-                <Trash2Icon className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          )
-        }
-        return null
-      },
     },
   ], [])
 
@@ -239,17 +215,6 @@ export function PesananListView() {
           />
         </div>
       </LiquidGlass>
-
-      <ConfirmDialog
-        open={!!deleteTarget}
-        onOpenChange={(v) => !v && setDeleteTarget(null)}
-        title="Hapus Pesanan"
-        description={`Apakah Anda yakin ingin menghapus pesanan "${deleteTarget?.po_number}"? Tindakan ini tidak dapat dibatalkan.`}
-        confirmLabel="Hapus"
-        variant="destructive"
-        loading={deleteMut.isPending}
-        onConfirm={handleDelete}
-      />
     </div>
   )
 }

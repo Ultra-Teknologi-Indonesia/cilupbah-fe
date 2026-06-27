@@ -4,10 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
-  PencilIcon,
-  CheckCircle2Icon,
-  XCircleIcon,
-  Trash2Icon,
+
   PackageIcon,
 } from "lucide-react"
 
@@ -16,14 +13,12 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+
 import { PageTitle } from "@/components/dashboard/page-title"
 import {
+
   usePurchaseOrderDetail,
   usePurchaseOrderItems,
-  useApprovePurchaseOrder,
-  useCancelPurchaseOrder,
-  useDeletePurchaseOrder,
 } from "@/hooks/transaksi-pembelian/use-purchase-orders"
 import { SimplePagination } from "@/components/ui/simple-pagination"
 import type { PurchaseOrderStatus } from "@/types/transaksi-pembelian/purchase-order"
@@ -70,24 +65,7 @@ export function PesananDetailView({ id }: { id: string }) {
   const { data: itemsRes, isFetching: isFetchingItems } = usePurchaseOrderItems(id, { page, perPage })
   const items = itemsRes?.data ?? []
   const itemsMeta = itemsRes?.meta
-  const approveMut = useApprovePurchaseOrder()
-  const cancelMut = useCancelPurchaseOrder()
-  const deleteMut = useDeletePurchaseOrder()
 
-  const [confirmAction, setConfirmAction] = useState<"approve" | "cancel" | "delete" | null>(null)
-
-  function handleConfirm() {
-    if (!po || !confirmAction) return
-    const opts = {
-      onSuccess: () => {
-        setConfirmAction(null)
-        if (confirmAction === "delete") router.push("/dashboard/transaksi-pembelian")
-      },
-    }
-    if (confirmAction === "approve") approveMut.mutate(po.id, opts)
-    else if (confirmAction === "cancel") cancelMut.mutate(po.id, opts)
-    else deleteMut.mutate(po.id, opts)
-  }
 
   if (isLoading) {
     return (
@@ -111,7 +89,6 @@ export function PesananDetailView({ id }: { id: string }) {
   }
 
   const isDraft = po.status === "DRAFT"
-  const actionPending = approveMut.isPending || cancelMut.isPending || deleteMut.isPending
 
   return (
     <div className="flex flex-col gap-4">
@@ -248,26 +225,6 @@ export function PesananDetailView({ id }: { id: string }) {
         </div>
       </div>
 
-      <ConfirmDialog
-        open={!!confirmAction}
-        onOpenChange={(v) => !v && setConfirmAction(null)}
-        title={
-          confirmAction === "approve" ? "Approve Pesanan"
-          : confirmAction === "cancel" ? "Batalkan Pesanan"
-          : "Hapus Pesanan"
-        }
-        description={
-          confirmAction === "approve"
-            ? `Approve pesanan "${po.po_number}"? Status akan berubah menjadi Open.`
-            : confirmAction === "cancel"
-            ? `Batalkan pesanan "${po.po_number}"? Tindakan ini tidak dapat dibatalkan.`
-            : `Hapus pesanan "${po.po_number}"? Tindakan ini tidak dapat dibatalkan.`
-        }
-        confirmLabel={confirmAction === "approve" ? "Approve" : confirmAction === "cancel" ? "Batalkan" : "Hapus"}
-        variant={confirmAction === "approve" ? "default" : "destructive"}
-        loading={actionPending}
-        onConfirm={handleConfirm}
-      />
     </div>
   )
 }
