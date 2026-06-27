@@ -129,7 +129,7 @@ export function PesananFormPage({ mode, id }: Props) {
   const locationOptions = useMemo(() =>
     (locData?.items ?? [])
       // Hanya gudang yang bisa dipilih; lokasi non-gudang (mis. Transit) dikecualikan
-      .filter((l) => l.isWarehouse)
+      .filter((l) => l.isWarehouse && l.locationType !== "TRANSIT")
       .map((l) => ({ value: l.id, label: l.locationName })),
   [locData])
 
