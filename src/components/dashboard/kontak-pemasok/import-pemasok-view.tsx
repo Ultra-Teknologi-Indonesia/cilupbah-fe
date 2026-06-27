@@ -239,46 +239,49 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
                 )}
 
                 {/* Table */}
-                <div className="overflow-x-auto rounded-lg border border-border/40">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-border/60 bg-muted/30">
-                        <th className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                          #
-                        </th>
-                        {COLUMNS.map((h) => (
-                          <th key={h} className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                            {h}
-                          </th>
-                        ))}
-                        {tab === "invalid" && (
+                <ScrollArea className="rounded-lg border border-border/40">
+                  <div className="min-w-max">
+                    <table className="min-w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-border/60 bg-muted/30">
                           <th className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                            Error
+                            #
                           </th>
-                        )}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {tab === "valid" && result.valid.map((item) => (
-                        <ValidRow key={item.row} item={item} />
-                      ))}
-                      {tab === "invalid" && result.invalid.map((item) => (
-                        <InvalidRow key={item.row} item={item} />
-                      ))}
-                      {((tab === "valid" && result.valid_count === 0) ||
-                        (tab === "invalid" && result.invalid_count === 0)) && (
-                        <tr>
-                          <td
-                            colSpan={COLUMNS.length + 2}
-                            className="px-3 py-8 text-center text-muted-foreground text-sm"
-                          >
-                            Tidak ada data.
-                          </td>
+                          {COLUMNS.map((h) => (
+                            <th key={h} className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                              {h}
+                            </th>
+                          ))}
+                          {tab === "invalid" && (
+                            <th className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                              Error
+                            </th>
+                          )}
                         </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {tab === "valid" && result.valid.map((item) => (
+                          <ValidRow key={item.row} item={item} />
+                        ))}
+                        {tab === "invalid" && result.invalid.map((item) => (
+                          <InvalidRow key={item.row} item={item} />
+                        ))}
+                        {((tab === "valid" && result.valid_count === 0) ||
+                          (tab === "invalid" && result.invalid_count === 0)) && (
+                          <tr>
+                            <td
+                              colSpan={COLUMNS.length + 2}
+                              className="px-3 py-8 text-center text-muted-foreground text-sm"
+                            >
+                              Tidak ada data.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                  <ScrollBar orientation="horizontal" />
+                </ScrollArea>
               </>
             )}
           </div>
