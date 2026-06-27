@@ -350,7 +350,7 @@ export function PesananFormPage({ mode, id }: Props) {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/30 hover:bg-muted/30">
-                    <TableHead className="min-w-[200px]">Produk</TableHead>
+                    <TableHead className="w-[280px] min-w-[200px] max-w-[320px]">Produk</TableHead>
                     <TableHead className="w-32 text-right">Harga</TableHead>
                     <TableHead className="w-24 text-right">Qty</TableHead>
                     <TableHead className="w-24 text-right">Diskon %</TableHead>
@@ -365,15 +365,15 @@ export function PesananFormPage({ mode, id }: Props) {
                     const total = lineTotal - discAmount
                     return (
                       <TableRow key={item.item_id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
+                        <TableCell className="w-[280px] min-w-[200px] max-w-[320px] whitespace-normal">
+                          <div className="flex items-start gap-3">
                             <ProductImage src={item.thumbnail} alt={item.product_name ?? ""} />
-                            <div className="min-w-0 max-w-[360px]">
-                              <div className="font-medium break-words">
+                            <div className="min-w-0 flex-1">
+                              <div className="font-medium break-words line-clamp-3">
                                 {item.product_name}
                                 {item.variant_label ? ` - ${item.variant_label}` : ""}
                               </div>
-                              <div className="break-all font-mono text-xs text-muted-foreground">
+                              <div className="break-all font-mono text-xs text-muted-foreground mt-1">
                                 {item.product_sku}
                               </div>
                             </div>
