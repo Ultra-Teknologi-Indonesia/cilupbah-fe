@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { ImageIcon, Loader2Icon, SearchIcon, SearchXIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -218,9 +219,11 @@ export function ProductPickerDialog({
                           <div className="flex items-center gap-3">
                             <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
                               {p.thumbnail ? (
-                                <img
+                                <Image
                                   src={p.thumbnail}
                                   alt={p.itemName}
+                                  width={40}
+                                  height={40}
                                   className="size-full object-cover"
                                   onError={(e) => {
                                     e.currentTarget.style.display = "none"

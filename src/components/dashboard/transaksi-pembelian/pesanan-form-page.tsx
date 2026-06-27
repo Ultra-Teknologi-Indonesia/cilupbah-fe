@@ -118,7 +118,10 @@ export function PesananFormPage({ mode, id }: Props) {
   [contactsData])
 
   const locationOptions = useMemo(() =>
-    (locData?.items ?? []).map((l) => ({ value: l.id, label: l.locationName })),
+    (locData?.items ?? [])
+      // Hanya gudang yang bisa dipilih; lokasi non-gudang (mis. Transit) dikecualikan
+      .filter((l) => l.isWarehouse)
+      .map((l) => ({ value: l.id, label: l.locationName })),
   [locData])
 
   const updateItem = useCallback((index: number, field: string, value: string | number) => {
@@ -142,7 +145,9 @@ export function PesananFormPage({ mode, id }: Props) {
             product_name: p.name,
             product_sku: p.sku,
             qty: 1,
-            unit_price: p.sellPrice ?? 0,
+            // Harga = harga pembelian dari pemasok, diisi manual oleh user.
+            // Jangan auto-isi dari harga jual produk.
+            unit_price: 0,
             disc: 0,
             thumbnail: p.thumbnail,
             variant_label: p.variantLabel,
