@@ -4,10 +4,10 @@ import { useState } from "react"
 import { useQueryClient, useMutation } from "@tanstack/react-query"
 import { UsersIcon, Loader2Icon } from "lucide-react"
 
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Combobox } from "@/components/ui/combobox"
+import { Input } from "@/components/ui/input"
 import { useUsers } from "@/hooks/pengaturan/use-users"
 import { fetchClient } from "@/lib/api-client"
 import { toast } from "sonner"
@@ -24,21 +24,24 @@ export function BuatPenempatanManualDialog({ inbound, open, onOpenChange }: Buat
   const queryClient = useQueryClient()
   const router = useRouter()
   const { data: usersData, isLoading: usersLoading } = useUsers({ perPage: 100 })
-  const [assignedTo, setAssignedTo] = useState("")
+  const [scanQuery, setScanQuery] = useState("")
 
-  const userOptions = (usersData?.items ?? []).map((u) => ({
-    value: u.id,
-    label: `${u.name}`,
-  }))
+  const totalSku = inbound?.items?.length ?? 0
+  const totalQty = inbound?.items?.reduce((acc, i) => acc + i.received_qty, 0) ?? 0
+
+  const matchedUser = usersData?.items?.find((u) => 
+    (u.nik && u.nik.toLowerCase() === scanQuery.toLowerCase()) || 
+    (u.email && u.email.toLowerCase() === scanQuery.toLowerCase())
+  )
 
   const mutation = useMutation({
     mutationFn: async () => {
       if (!inbound) throw new Error("Inbound required")
-      const res = await fetchClient<{ data: any, error?: string }>("/putaway", {
+      const assignedToId = matchedUser?.id
+      const res = await fetchClient<{ data: any, error?: string }>(`/inbounds/${inbound.id}/assign`, {
         method: "POST",
         data: {
-          inbound_id: inbound.id,
-          assigned_to: assignedTo || undefined,
+          assigned_to: assignedToId || undefined,
         },
       })
       if (res.error) throw new Error(res.error)
@@ -49,7 +52,7 @@ export function BuatPenempatanManualDialog({ inbound, open, onOpenChange }: Buat
       queryClient.invalidateQueries({ queryKey: ["putaways"] })
       queryClient.invalidateQueries({ queryKey: ["inbounds"] })
       onOpenChange(false)
-      setAssignedTo("")
+      setScanQuery("")
       router.push("/dashboard/barang-masuk/penempatan")
     },
     onError: (error: any) => {
@@ -61,39 +64,41 @@ export function BuatPenempatanManualDialog({ inbound, open, onOpenChange }: Buat
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Buat Penempatan Manual</DialogTitle>
-          <DialogDescription>
-            Pilih pengguna yang akan melakukan penempatan barang ke rak untuk Inbound {inbound?.transaction_number}.
-          </DialogDescription>
+          <DialogTitle>Penempatan Manual</DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label>Tugaskan Kepada (Opsional)</Label>
-            <div className="flex gap-2">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-input bg-muted/50">
-                <UsersIcon className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <Combobox
-                options={userOptions}
-                value={assignedTo}
-                onChange={(v) => setAssignedTo(v ?? "")}
-                placeholder={usersLoading ? "Memuat..." : "Pilih pengguna..."}
-                searchPlaceholder="Cari pengguna..."
-                className="flex-1"
-                disabled={usersLoading}
-              />
-            </div>
+          <div className="grid grid-cols-[120px_1fr] items-center gap-4">
+            <Label className="text-sm font-medium text-muted-foreground">Total SKU</Label>
+            <Input value={totalSku} disabled className="bg-white/50 dark:bg-white/[0.02]" />
+          </div>
+          
+          <div className="grid grid-cols-[120px_1fr] items-center gap-4">
+            <Label className="text-sm font-medium text-muted-foreground">Total Qty</Label>
+            <Input value={totalQty} disabled className="bg-white/50 dark:bg-white/[0.02]" />
+          </div>
+
+          <div className="grid grid-cols-[120px_1fr] items-center gap-4">
+            <Label className="text-sm font-medium text-muted-foreground">NIK/Email</Label>
+            <Input 
+              value={scanQuery} 
+              onChange={(e) => setScanQuery(e.target.value)} 
+              placeholder="Scan NIK/Email" 
+            />
+          </div>
+
+          <div className="grid grid-cols-[120px_1fr] items-center gap-4">
+            <Label className="text-sm font-medium text-muted-foreground">Dikerjakan oleh</Label>
+            <span className="text-sm font-medium">
+              {matchedUser ? matchedUser.name : "-"}
+            </span>
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={mutation.isPending}>
-            Batal
-          </Button>
-          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending || !matchedUser} className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white">
             {mutation.isPending && <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />}
-            Buat Penempatan
+            Simpan
           </Button>
         </DialogFooter>
       </DialogContent>
