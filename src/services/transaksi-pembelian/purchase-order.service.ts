@@ -8,7 +8,6 @@ import type {
 } from "@/types/transaksi-pembelian/purchase-order"
 
 export interface ReceivePOPayload {
-  received_by?: string
   reference_number?: string
   location_id?: string
   receive_date?: string
