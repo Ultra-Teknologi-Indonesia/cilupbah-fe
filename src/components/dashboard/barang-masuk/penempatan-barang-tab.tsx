@@ -32,11 +32,11 @@ const STATUS_OPTIONS = [
   { value: "COMPLETED", label: "Selesai" },
 ]
 
-const STATUS_STYLE: Record<string, string> = {
-  NOT_STARTED: "border-slate-300 text-slate-600 dark:border-slate-500/30 dark:text-slate-400",
-  IN_PROGRESS: "border-amber-300 text-amber-600 dark:border-amber-500/30 dark:text-amber-400",
-  COMPLETED: "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
-  CANCELLED: "border-red-300 text-red-600 dark:border-red-500/30 dark:text-red-400",
+const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "muted" | "info" | "indigo"> = {
+  NOT_STARTED: "muted",
+  IN_PROGRESS: "warning",
+  COMPLETED: "success",
+  CANCELLED: "destructive",
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -181,7 +181,7 @@ export function PenempatanBarangTab() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (
-        <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[row.original.status] ?? "")}>
+        <Badge variant={STATUS_VARIANT[row.original.status] ?? "default"}>
           {STATUS_LABEL[row.original.status] ?? row.original.status}
         </Badge>
       ),

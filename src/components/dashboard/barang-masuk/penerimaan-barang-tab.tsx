@@ -32,19 +32,13 @@ const STATUS_OPTIONS = [
   { value: "COMPLETED", label: "Selesai" },
 ];
 
-const STATUS_STYLE: Record<string, string> = {
-  DRAFT:
-    "border-slate-300 text-slate-600 dark:border-slate-500/30 dark:text-slate-400",
-  PARTIAL:
-    "border-amber-300 text-amber-600 dark:border-amber-500/30 dark:text-amber-400",
-  RECEIVED:
-    "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400",
-  PUTAWAY_IN_PROGRESS:
-    "border-indigo-300 text-indigo-600 dark:border-indigo-500/30 dark:text-indigo-400",
-  COMPLETED:
-    "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
-  CANCELLED:
-    "border-red-300 text-red-600 dark:border-red-500/30 dark:text-red-400",
+const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "muted" | "info" | "indigo"> = {
+  DRAFT: "muted",
+  PARTIAL: "warning",
+  RECEIVED: "info",
+  PUTAWAY_IN_PROGRESS: "indigo",
+  COMPLETED: "success",
+  CANCELLED: "destructive",
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -63,15 +57,11 @@ const TYPE_LABEL: Record<string, string> = {
   CONSIGNMENT: "Konsinyasi",
 };
 
-const TYPE_STYLE: Record<string, string> = {
-  PURCHASE_ORDER:
-    "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400",
-  TRANSIT_IN:
-    "border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-500/20 dark:bg-purple-500/10 dark:text-purple-400",
-  SALES_RETURN:
-    "border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-400",
-  CONSIGNMENT:
-    "border-teal-200 bg-teal-50 text-teal-700 dark:border-teal-500/20 dark:bg-teal-500/10 dark:text-teal-400",
+const TYPE_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "muted" | "info" | "indigo" | "purple" | "orange" | "teal"> = {
+  PURCHASE_ORDER: "info",
+  TRANSIT_IN: "purple",
+  SALES_RETURN: "orange",
+  CONSIGNMENT: "teal",
 };
 
 function formatDate(d: string) {
@@ -189,13 +179,7 @@ export function PenerimaanBarangTab() {
         accessorKey: "type",
         header: "Sumber",
         cell: ({ row }) => (
-          <Badge
-            variant="outline"
-            className={cn(
-              "text-[10px] leading-tight",
-              TYPE_STYLE[row.original.type] ?? "",
-            )}
-          >
+          <Badge variant={TYPE_VARIANT[row.original.type] ?? "default"}>
             {TYPE_LABEL[row.original.type] ?? row.original.type}
           </Badge>
         ),
@@ -254,13 +238,7 @@ export function PenerimaanBarangTab() {
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => (
-          <Badge
-            variant="outline"
-            className={cn(
-              "text-[10px] leading-tight",
-              STATUS_STYLE[row.original.status] ?? "",
-            )}
-          >
+          <Badge variant={STATUS_VARIANT[row.original.status] ?? "default"}>
             {STATUS_LABEL[row.original.status] ?? row.original.status}
           </Badge>
         ),

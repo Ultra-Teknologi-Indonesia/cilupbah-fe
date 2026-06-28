@@ -26,11 +26,11 @@ const STATUS_OPTIONS = [
   { value: "FULLY_RECEIVED", label: "Selesai" },
 ]
 
-const STATUS_STYLE: Record<string, string> = {
-  OPEN: "border-transparent bg-amber-500/10 text-amber-600 dark:text-amber-400",
-  PARTIAL_RECEIVED: "border-transparent bg-blue-500/10 text-blue-600 dark:text-blue-400",
-  CLOSED: "border-transparent bg-slate-500/10 text-slate-600 dark:text-slate-400",
-  FULLY_RECEIVED: "border-transparent bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "muted" | "info" | "indigo" | "purple" | "orange" | "teal"> = {
+  OPEN: "warning",
+  PARTIAL_RECEIVED: "info",
+  CLOSED: "muted",
+  FULLY_RECEIVED: "success",
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -138,7 +138,7 @@ export function PesananPembelianTab() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (
-        <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[row.original.status] ?? "")}>
+        <Badge variant={STATUS_VARIANT[row.original.status] ?? "default"}>
           {STATUS_LABEL[row.original.status] ?? row.original.status}
         </Badge>
       ),

@@ -26,10 +26,10 @@ const STATUS_OPTIONS = [
   { value: "RECEIVED", label: "Diterima" },
 ]
 
-const STATUS_STYLE: Record<string, string> = {
-  IN_TRANSIT: "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400",
-  RECEIVED: "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
-  CANCELLED: "border-red-300 text-red-600 dark:border-red-500/30 dark:text-red-400",
+const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "muted" | "info" | "indigo" | "purple" | "orange" | "teal"> = {
+  IN_TRANSIT: "info",
+  RECEIVED: "success",
+  CANCELLED: "destructive",
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -141,7 +141,7 @@ export function TransferMasukTab() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (
-        <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[row.original.status] ?? "")}>
+        <Badge variant={STATUS_VARIANT[row.original.status] ?? "default"}>
           {STATUS_LABEL[row.original.status] ?? row.original.status}
         </Badge>
       ),
