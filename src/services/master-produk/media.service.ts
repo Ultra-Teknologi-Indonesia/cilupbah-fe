@@ -1,3 +1,4 @@
+import { fetchClient } from "@/lib/api-client"
 import type { ApiResponse } from "@/types/api.types"
 
 export interface UploadedMedia {
@@ -15,19 +16,11 @@ export const MediaService = {
     const form = new FormData()
     form.append("file", file)
 
-    const res = await fetch("/api/app/media/upload", {
+    const res = await fetchClient<ApiResponse<RawMedia>>("/media/upload", {
       method: "POST",
-      body: form,
+      data: form,
     })
 
-    const body: ApiResponse<RawMedia> | null = await res
-      .json()
-      .catch(() => null)
-
-    if (!res.ok || !body) {
-      throw body ?? { message: "Gagal mengunggah media" }
-    }
-
-    return { uuid: body.data.uuid, url: body.data.url }
+    return { uuid: res.data.uuid, url: res.data.url }
   },
 }
