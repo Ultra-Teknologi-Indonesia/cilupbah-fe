@@ -1,15 +1,14 @@
 "use client"
 
 import { useState, useCallback, useMemo, useEffect, useRef } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 import {
   ArrowLeftIcon,
   Loader2Icon,
   CheckCircleIcon,
   SearchIcon,
   ScanLineIcon,
-  UploadIcon,
-  BarcodeIcon,
+  QrCodeIcon,
   PackageIcon,
   Trash2Icon,
   PlusIcon,
@@ -34,30 +33,25 @@ import {
 } from "@/components/ui/table"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { PageTitle } from "@/components/dashboard/page-title"
 import {
   usePutawayDetail,
   usePutawayItems,
   useStartPutaway,
   useProcessPutawayItem,
-  useCompletePutaway,
 } from "@/hooks/barang-masuk/use-putaway-actions"
 import { PutawayService } from "@/services/barang-masuk/putaway.service"
-import { ImportPutawayDialog } from "@/components/dashboard/barang-masuk/import-putaway-dialog"
 import type { PutawayItem } from "@/types/barang-masuk/putaway"
 import type { BinLookupResult } from "@/services/barang-masuk/putaway.service"
 
 export default function PutawayProcessPage() {
   const params = useParams()
-  const router = useRouter()
   const id = params.id as string
 
   const { data: putaway, isLoading, refetch: refetchDetail } = usePutawayDetail(id)
   const { data: items, refetch: refetchItems } = usePutawayItems(id)
 
   const startMutation = useStartPutaway()
-  const completeMutation = useCompletePutaway()
 
   const [activeRack, setActiveRack] = useState<BinLookupResult | null>(null)
   const [rackInput, setRackInput] = useState("")
@@ -70,8 +64,7 @@ export default function PutawayProcessPage() {
   const [scanError, setScanError] = useState("")
   const [focusItemId, setFocusItemId] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [completeOpen, setCompleteOpen] = useState(false)
-  const [importOpen, setImportOpen] = useState(false)
+  const [scannedItemIds, setScannedItemIds] = useState<Set<string>>(new Set())
 
   const locationId = putaway?.location_id ?? ""
 
@@ -128,6 +121,7 @@ export default function PutawayProcessPage() {
       return
     }
     setScanError("")
+    setScannedItemIds((prev) => new Set(prev).add(match.id))
     setFocusItemId(match.id)
     setScanCode("")
   }, [scanCode, list])
@@ -136,23 +130,18 @@ export default function PutawayProcessPage() {
     startMutation.mutate(id, { onSuccess: () => refetchDetail() })
   }, [id, startMutation, refetchDetail])
 
-  const handleComplete = useCallback(() => {
-    completeMutation.mutate(id, {
-      onSuccess: () => {
-        setCompleteOpen(false)
-        router.push("/dashboard/barang-masuk")
-      },
-    })
-  }, [id, completeMutation, router])
-
   const onProcessed = useCallback(() => {
     refetchItems()
     refetchDetail()
   }, [refetchItems, refetchDetail])
 
+  const visibleList = useMemo(() => {
+    return list.filter((item) => item.putaway_qty > 0 || scannedItemIds.has(item.id))
+  }, [list, scannedItemIds])
+
   const allSelectable = useMemo(
-    () => list.filter((it) => it.qty - it.putaway_qty > 0).map((it) => it.id),
-    [list]
+    () => visibleList.filter((it) => it.qty - it.putaway_qty > 0).map((it) => it.id),
+    [visibleList]
   )
   const allChecked = allSelectable.length > 0 && allSelectable.every((i) => selectedIds.has(i))
   const someChecked = allSelectable.some((i) => selectedIds.has(i))
@@ -236,9 +225,9 @@ export default function PutawayProcessPage() {
               className="flex h-auto flex-col items-center gap-2 whitespace-normal rounded-2xl border border-primary/20 bg-primary/5 px-4 py-5 text-center hover:bg-primary/10"
             >
               <span className="text-sm font-semibold text-foreground">Ganti Rak</span>
-              <BarcodeIcon className="h-12! w-full! text-foreground/80" strokeWidth={1.2} />
+              <QrCodeIcon className="h-12! w-full! text-foreground/80" strokeWidth={1.2} />
               <span className="text-[11px] font-normal text-muted-foreground">
-                Scan barcode rak tersedia segera
+                Scan QR rak tersedia segera
               </span>
             </Button>
 
@@ -301,7 +290,7 @@ export default function PutawayProcessPage() {
                   <div className="relative flex-1">
                     <ScanLineIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      placeholder="Masukkan SKU/Barcode/Serial/Batch"
+                      placeholder="Masukkan SKU/QR/Serial/Batch"
                       value={scanCode}
                       onChange={(e) => {
                         setScanCode(e.target.value)
@@ -349,16 +338,13 @@ export default function PutawayProcessPage() {
                     <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Qty
                     </TableHead>
-                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Expired Date
-                    </TableHead>
                     <TableHead className="w-12 pr-5" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {list.length === 0 ? (
+                  {visibleList.length === 0 ? (
                     <TableRow className="hover:bg-transparent">
-                      <TableCell colSpan={6} className="py-16 text-center">
+                      <TableCell colSpan={5} className="py-16 text-center">
                         {isNotStarted ? (
                           <div className="flex flex-col items-center gap-3">
                             <Button
@@ -375,16 +361,16 @@ export default function PutawayProcessPage() {
                               Mulai Penempatan
                             </Button>
                             <p className="text-xs text-muted-foreground">
-                              Mulai penempatan untuk menampilkan daftar barang.
+                              Mulai penempatan untuk memproses barang.
                             </p>
                           </div>
                         ) : (
-                          <p className="text-sm text-muted-foreground">Tidak ada item</p>
+                          <p className="text-sm text-muted-foreground">Silakan scan produk untuk memulai penempatan.</p>
                         )}
                       </TableCell>
                     </TableRow>
                   ) : (
-                    list.map((item) => (
+                    visibleList.map((item) => (
                       <PutawayItemRow
                         key={item.id}
                         item={item}
@@ -417,42 +403,10 @@ export default function PutawayProcessPage() {
                     Mulai Penempatan
                   </Button>
                 )}
-                {isInProgress && (
-                  <Button variant="outline" onClick={() => setImportOpen(true)}>
-                    <UploadIcon className="mr-1.5 h-4 w-4" />
-                    Import CSV
-                  </Button>
-                )}
-                {isInProgress && (
-                  <Button variant="primary" onClick={() => setCompleteOpen(true)}>
-                    <CheckCircleIcon className="mr-1.5 h-4 w-4" />
-                    Selesaikan Putaway
-                  </Button>
-                )}
               </div>
             </div>
           </div>
 
-          <ConfirmDialog
-            open={completeOpen}
-            onOpenChange={setCompleteOpen}
-            title="Selesaikan Putaway"
-            description={`Tandai ${putaway.putaway_no} sebagai selesai? Stok akan dipindahkan ke rak tujuan.`}
-            confirmLabel="Selesaikan"
-            loading={completeMutation.isPending}
-            onConfirm={handleComplete}
-          />
-
-          <ImportPutawayDialog
-            open={importOpen}
-            onOpenChange={setImportOpen}
-            putawayId={id}
-            locationId={locationId}
-            onComplete={() => {
-              refetchItems()
-              refetchDetail()
-            }}
-          />
         </div>
       )}
     </div>
@@ -652,13 +606,6 @@ function PutawayItemRow({
         ) : (
           <span className="tabular-nums text-sm">{item.qty}</span>
         )}
-        {!done && editable && (
-          <span className="ml-2 text-[11px] text-muted-foreground">/ {remaining}</span>
-        )}
-      </TableCell>
-
-      <TableCell>
-        <span className="text-sm text-muted-foreground">—</span>
       </TableCell>
 
       <TableCell className="pr-5">
