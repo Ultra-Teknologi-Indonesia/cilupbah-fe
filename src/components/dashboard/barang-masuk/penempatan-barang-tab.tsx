@@ -151,9 +151,14 @@ export function PenempatanBarangTab() {
       cell: ({ row }) => <span className="font-medium">{row.original.putaway_no}</span>,
     },
     {
+      id: "no_pembelian",
+      header: "No. Pembelian",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.inbound?.reference_number ?? "—"}</span>,
+    },
+    {
       id: "tanggal",
-      header: "Tgl. Penempatan",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.started_at ? formatDate(row.original.started_at) : formatDate(row.original.created_at)}</span>,
+      header: "Tgl. Pembelian",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.inbound?.created_at ? formatDate(row.original.inbound.created_at) : "—"}</span>,
     },
     {
       id: "location",

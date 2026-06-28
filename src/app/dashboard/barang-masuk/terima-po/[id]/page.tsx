@@ -20,6 +20,7 @@ interface ItemQty {
   purchase_order_item_id: string
   qty: number
   max: number
+  notes: string
 }
 
 export default function TerimaPOPage() {
@@ -31,6 +32,9 @@ export default function TerimaPOPage() {
   const receiveMutation = useReceivePurchaseOrder()
 
   const [receivedBy, setReceivedBy] = useState("")
+  const [referenceNumber, setReferenceNumber] = useState("")
+  const [receiveDate, setReceiveDate] = useState(() => new Date().toISOString().split("T")[0])
+  const [notes, setNotes] = useState("")
   const [itemQtys, setItemQtys] = useState<ItemQty[]>([])
   const [initialized, setInitialized] = useState(false)
 
@@ -40,6 +44,7 @@ export default function TerimaPOPage() {
         purchase_order_item_id: item.id,
         qty: item.qty - item.received_qty,
         max: item.qty - item.received_qty,
+        notes: "",
       }))
     )
     setInitialized(true)
@@ -61,6 +66,14 @@ export default function TerimaPOPage() {
     )
   }
 
+  function handleNoteChange(index: number, value: string) {
+    setItemQtys((prev) =>
+      prev.map((item, i) =>
+        i === index ? { ...item, notes: value } : item
+      )
+    )
+  }
+
   function handleSubmit() {
     if (!canSubmit) return
     receiveMutation.mutate(
@@ -68,16 +81,21 @@ export default function TerimaPOPage() {
         id,
         data: {
           received_by: receivedBy.trim(),
+          reference_number: referenceNumber.trim() || undefined,
+          receive_date: receiveDate,
+          location_id: po?.location_id,
+          notes: notes.trim() || undefined,
           items: itemQtys
             .filter((i) => i.qty > 0)
             .map((i) => ({
               purchase_order_item_id: i.purchase_order_item_id,
               qty: i.qty,
+              notes: i.notes.trim() || undefined,
             })),
         },
       },
       {
-        onSuccess: () => router.push("/dashboard/barang-masuk"),
+        onSuccess: () => router.push("/dashboard/barang-masuk/penerimaan"),
       }
     )
   }
@@ -117,19 +135,44 @@ export default function TerimaPOPage() {
       ) : (
         <div className="flex flex-col gap-4">
           <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
-            <div className="px-5 py-4">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">No. PO</p>
-                  <p className="mt-1 text-sm font-semibold">{po.po_number}</p>
+            <div className="px-5 py-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                <div className="flex flex-col gap-4">
+                  <div className="grid grid-cols-[120px_1fr] items-center gap-4">
+                    <Label className="text-sm font-medium text-muted-foreground">Pemasok</Label>
+                    <Input value={po.contact?.name ?? "—"} readOnly className="bg-muted/50" />
+                  </div>
+                  <div className="grid grid-cols-[120px_1fr] items-center gap-4">
+                    <Label className="text-sm font-medium text-muted-foreground">No. Ref</Label>
+                    <Input value={referenceNumber} onChange={(e) => setReferenceNumber(e.target.value)} placeholder="Masukkan no. ref" />
+                  </div>
+                  <div className="grid grid-cols-[120px_1fr] items-center gap-4">
+                    <Label className="text-sm font-medium text-muted-foreground">Diterima Oleh <span className="text-red-500">*</span></Label>
+                    <Input value={receivedBy} onChange={(e) => setReceivedBy(e.target.value)} placeholder="Nama penerima" />
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Pemasok</p>
-                  <p className="mt-1 text-sm">{po.contact?.name ?? "—"}</p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Lokasi</p>
-                  <p className="mt-1 text-sm">{po.location?.location_name ?? "—"}</p>
+                <div className="flex flex-col gap-4">
+                  <div className="grid grid-cols-[140px_1fr] items-center gap-4">
+                    <Label className="text-sm font-medium text-muted-foreground">Tanggal <span className="text-red-500">*</span></Label>
+                    <Input type="date" value={receiveDate} onChange={(e) => setReceiveDate(e.target.value)} />
+                  </div>
+                  <div className="grid grid-cols-[140px_1fr] items-center gap-4">
+                    <Label className="text-sm font-medium text-muted-foreground">Pesanan Pembelian</Label>
+                    <Input value={po.po_number} readOnly className="bg-muted/50" />
+                  </div>
+                  <div className="grid grid-cols-[140px_1fr] items-center gap-4">
+                    <Label className="text-sm font-medium text-muted-foreground">Lokasi</Label>
+                    <Input value={po.location?.location_name ?? "—"} readOnly className="bg-muted/50" />
+                  </div>
+                  <div className="grid grid-cols-[140px_1fr] items-start gap-4">
+                    <Label className="text-sm font-medium text-muted-foreground mt-2">Keterangan</Label>
+                    <textarea 
+                      value={notes} 
+                      onChange={(e) => setNotes(e.target.value)} 
+                      placeholder="Masukkan keterangan disini" 
+                      className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" 
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -137,24 +180,11 @@ export default function TerimaPOPage() {
 
           <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
             <div className="px-5 py-4">
-              <div className="mb-4 max-w-xs">
-                <Label htmlFor="received_by" className="text-sm font-medium">
-                  Diterima oleh <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="received_by"
-                  placeholder="Nama penerima"
-                  value={receivedBy}
-                  onChange={(e) => setReceivedBy(e.target.value)}
-                  className="mt-1.5"
-                />
-              </div>
-
               <div className="overflow-x-auto rounded-lg border border-border/40">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border/60 bg-muted/30">
-                      {["SKU", "Produk", "Qty Pesanan", "Sudah Diterima", "Sisa", "Qty Terima"].map((h) => (
+                      {["SKU", "Produk", "Qty Pesanan", "Sudah Diterima", "Sisa", "Qty Terima", "Keterangan"].map((h) => (
                         <th key={h} className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                           {h}
                         </th>
@@ -206,6 +236,18 @@ export default function TerimaPOPage() {
                               <span className="text-xs text-muted-foreground">Lengkap</span>
                             )}
                           </td>
+                          <td className="whitespace-nowrap px-3 py-3">
+                            {remaining > 0 ? (
+                              <Input
+                                value={itemQtys[index]?.notes ?? ""}
+                                onChange={(e) => handleNoteChange(index, e.target.value)}
+                                placeholder="Ket..."
+                                className="h-8 w-32"
+                              />
+                            ) : (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            )}
+                          </td>
                         </tr>
                       )
                     })}
@@ -216,7 +258,7 @@ export default function TerimaPOPage() {
           </LiquidGlass>
 
           <div className="flex items-center justify-end gap-3">
-            <Link href="/dashboard/barang-masuk">
+            <Link href="/dashboard/barang-masuk/pesanan">
               <Button variant="outline">
                 <ArrowLeftIcon className="mr-1.5 h-4 w-4" />
                 Batal
