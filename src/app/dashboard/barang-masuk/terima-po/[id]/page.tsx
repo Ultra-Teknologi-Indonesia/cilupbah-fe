@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
@@ -69,13 +70,11 @@ export default function TerimaPOPage() {
     }))
   }
 
-  function handleNoteChange(itemId: string, maxQty: number, value: string) {
+  function handleNoteChange(itemId: string, value: string) {
     setItemQtys((prev) => ({
       ...prev,
       [itemId]: {
-        purchase_order_item_id: itemId,
-        max: maxQty,
-        qty: prev[itemId]?.qty ?? 0,
+        ...prev[itemId],
         notes: value
       }
     }))
@@ -182,21 +181,21 @@ export default function TerimaPOPage() {
           <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
             <div className="px-5 py-4">
               <div className="overflow-x-auto rounded-lg border border-border/40">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border/60 bg-muted/30">
-                      <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground w-12">
+                <Table className="w-full text-sm">
+                  <TableHeader>
+                    <TableRow className="border-b border-border/60 bg-muted/30">
+                      <TableHead className="whitespace-nowrap w-12 text-muted-foreground">
                         {/* Gambar */}
-                      </th>
-                      <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Produk</th>
-                      <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Qty Pesanan</th>
-                      <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Sudah Diterima</th>
-                      <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Sisa</th>
-                      <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Qty Terima</th>
-                      <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Keterangan</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap text-muted-foreground">Produk</TableHead>
+                      <TableHead className="whitespace-nowrap text-muted-foreground">Qty Pesanan</TableHead>
+                      <TableHead className="whitespace-nowrap text-muted-foreground">Sudah Diterima</TableHead>
+                      <TableHead className="whitespace-nowrap text-muted-foreground">Sisa</TableHead>
+                      <TableHead className="whitespace-nowrap text-muted-foreground">Qty Terima</TableHead>
+                      <TableHead className="whitespace-nowrap text-muted-foreground">Keterangan</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {items.map((item) => {
                       const remaining = item.qty - item.received_qty
                       const currentQty = itemQtys[item.id]?.qty ?? 0
@@ -205,8 +204,8 @@ export default function TerimaPOPage() {
                       const imageUrl = item.variant?.media?.[0]?.url ?? item.product?.media?.[0]?.url ?? item.product?.image_url
                       
                       return (
-                        <tr key={item.id} className="border-b border-border/20 last:border-0">
-                          <td className="px-3 py-3">
+                        <TableRow key={item.id} className="border-b border-border/20 last:border-0">
+                          <TableCell className="px-3 py-3">
                             <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted/50">
                               {imageUrl ? (
                                 <img src={imageUrl} alt={productName} className="h-full w-full object-cover" />
@@ -216,18 +215,18 @@ export default function TerimaPOPage() {
                                 </div>
                               )}
                             </div>
-                          </td>
-                          <td className="px-3 py-3">
+                          </TableCell>
+                          <TableCell className="px-3 py-3">
                             <div className="font-medium">{productName}</div>
                             <div className="text-xs text-muted-foreground">{item.product?.sku ?? "—"}</div>
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-3 tabular-nums text-muted-foreground">
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-3 py-3 tabular-nums text-muted-foreground">
                             {item.qty} {item.unit ?? ""}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-3 tabular-nums text-muted-foreground">
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-3 py-3 tabular-nums text-muted-foreground">
                             {item.received_qty}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-3 tabular-nums">
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-3 py-3 tabular-nums">
                             <Badge
                               variant="outline"
                               className={cn(
@@ -239,8 +238,8 @@ export default function TerimaPOPage() {
                             >
                               {remaining}
                             </Badge>
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-3">
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-3 py-3">
                             {remaining > 0 ? (
                               <Input
                                 type="number"
@@ -253,31 +252,31 @@ export default function TerimaPOPage() {
                             ) : (
                               <span className="text-xs text-muted-foreground">Lengkap</span>
                             )}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-3">
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-3 py-3">
                             {remaining > 0 ? (
                               <Input
                                 value={itemQtys[item.id]?.notes ?? ""}
-                                onChange={(e) => handleNoteChange(item.id, remaining, e.target.value)}
-                                placeholder="Ket..."
-                                className="h-8 w-32"
+                                onChange={(e) => handleNoteChange(item.id, e.target.value)}
+                                placeholder="Opsional"
+                                className="h-8 w-40"
                               />
                             ) : (
                               <span className="text-xs text-muted-foreground">—</span>
                             )}
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       )
                     })}
                     {items.length === 0 && !isFetchingItems && (
-                      <tr>
-                        <td colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
+                      <TableRow>
+                        <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
                           Belum ada produk.
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     )}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
                 {itemsMeta && (
                   <div className="px-4 py-3 border-t border-border/20">
                     <SimplePagination

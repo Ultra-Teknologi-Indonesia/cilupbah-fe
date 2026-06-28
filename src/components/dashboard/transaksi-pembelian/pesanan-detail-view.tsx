@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 import { PageTitle } from "@/components/dashboard/page-title"
@@ -150,26 +151,26 @@ export function PesananDetailView({ id }: { id: string }) {
           <LiquidGlass radius={16} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04] p-5">
             <h3 className="mb-4 font-semibold">Daftar Produk</h3>
             <div className="overflow-x-auto rounded-lg border border-border/40">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border/60 bg-muted/30">
-                    <th className="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground w-12"></th>
-                    <th className="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Produk</th>
-                    <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Harga</th>
-                    <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Qty</th>
-                    <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Diterima</th>
-                    <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Diskon</th>
-                    <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Total</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table className="w-full text-sm">
+                <TableHeader>
+                  <TableRow className="border-b border-border/60 bg-muted/30">
+                    <TableHead className="whitespace-nowrap w-12 text-muted-foreground"></TableHead>
+                    <TableHead className="whitespace-nowrap text-muted-foreground">Produk</TableHead>
+                    <TableHead className="whitespace-nowrap text-right text-muted-foreground">Harga</TableHead>
+                    <TableHead className="whitespace-nowrap text-right text-muted-foreground">Qty</TableHead>
+                    <TableHead className="whitespace-nowrap text-right text-muted-foreground">Diterima</TableHead>
+                    <TableHead className="whitespace-nowrap text-right text-muted-foreground">Diskon</TableHead>
+                    <TableHead className="whitespace-nowrap text-right text-muted-foreground">Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {items.map((item) => {
                     const variantName = item.variant?.options?.length ? item.variant.options.map(o => o.value).join(", ") : item.variant?.name
                     const productName = variantName ? `${item.product?.name} - ${variantName}` : (item.product?.name ?? item.description ?? "—")
                     const imageUrl = item.variant?.media?.[0]?.url ?? item.product?.media?.[0]?.url ?? item.product?.image_url
                     return (
-                    <tr key={item.id} className="border-b border-border/20 last:border-0">
-                      <td className="px-3 py-2.5">
+                    <TableRow key={item.id} className="border-b border-border/20 last:border-0">
+                      <TableCell className="px-3 py-2.5">
                         <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted/50">
                           {imageUrl ? (
                             <img src={imageUrl} alt={productName} className="h-full w-full object-cover" />
@@ -179,34 +180,34 @@ export function PesananDetailView({ id }: { id: string }) {
                             </div>
                           )}
                         </div>
-                      </td>
-                      <td className="px-3 py-2.5">
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5">
                         <div className="font-medium">{productName}</div>
                         <div className="text-xs text-muted-foreground">{item.product?.sku}</div>
-                      </td>
-                      <td className="px-3 py-2.5 text-right tabular-nums">{formatCurrency(item.unit_price)}</td>
-                      <td className="px-3 py-2.5 text-right tabular-nums">{item.qty}</td>
-                      <td className="px-3 py-2.5 text-right tabular-nums">
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-right tabular-nums">{formatCurrency(item.unit_price)}</TableCell>
+                      <TableCell className="px-3 py-2.5 text-right tabular-nums">{item.qty}</TableCell>
+                      <TableCell className="px-3 py-2.5 text-right tabular-nums">
                         <span className={cn(item.received_qty >= item.qty ? "text-emerald-600" : item.received_qty > 0 ? "text-amber-600" : "text-muted-foreground")}>
                           {item.received_qty}
                         </span>
-                      </td>
-                      <td className="px-3 py-2.5 text-right tabular-nums">
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-right tabular-nums">
                         {item.disc > 0 ? `${item.disc}%` : "—"}
-                      </td>
-                      <td className="px-3 py-2.5 text-right font-medium tabular-nums">{formatCurrency(item.amount)}</td>
-                    </tr>
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-right font-medium tabular-nums">{formatCurrency(item.amount)}</TableCell>
+                    </TableRow>
                     )
                   })}
                   {items.length === 0 && (
-                    <tr>
-                      <td colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
+                    <TableRow>
+                      <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
                         Belum ada produk.
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   )}
-                </tbody>
-              </table>
+                  </TableBody>
+                </Table>
               {itemsMeta && (
                 <div className="px-4 py-3 border-t border-border/20">
                   <SimplePagination
