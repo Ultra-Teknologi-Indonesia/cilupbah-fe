@@ -14,7 +14,7 @@ export const InventoryTransferService = {
     if (params["filter[date_to]"]) sp.set("filter[date_to]", params["filter[date_to]"])
     if (params.sort) sp.set("sort", params.sort)
 
-    const res = await fetchClient<ApiPaginated<InventoryTransfer>>(`/v1/inventory/transfers/in?${sp}`)
+    const res = await fetchClient<ApiPaginated<InventoryTransfer>>(`/inventory/transfers/in?${sp}`)
     return { items: res.data ?? [], meta: res.meta }
   },
 
@@ -22,7 +22,7 @@ export const InventoryTransferService = {
     received_by: string
     items?: { item_id: string; received_qty: number; rejected_qty?: number; condition?: string; notes?: string }[]
   }) => {
-    const res = await fetchClient<ApiResponse<unknown>>(`/v1/inventory/transfers/${id}/receive`, {
+    const res = await fetchClient<ApiResponse<unknown>>(`/inventory/transfers/${id}/receive`, {
       method: "POST",
       data,
     })

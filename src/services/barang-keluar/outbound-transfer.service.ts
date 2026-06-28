@@ -20,35 +20,35 @@ export interface AddTransferItemPayload {
 export const OutboundTransferService = {
   listDrafts: async (params: InventoryTransferListParams = {}) => {
     const sp = buildParams(params)
-    const res = await fetchClient<ApiPaginated<InventoryTransfer>>(`/v1/inventory/transfers/drafts?${sp}`)
+    const res = await fetchClient<ApiPaginated<InventoryTransfer>>(`/inventory/transfers/drafts?${sp}`)
     return { items: res.data ?? [], meta: res.meta }
   },
 
   listApproved: async (params: InventoryTransferListParams = {}) => {
     const sp = buildParams(params)
-    const res = await fetchClient<ApiPaginated<InventoryTransfer>>(`/v1/inventory/transfers/approved?${sp}`)
+    const res = await fetchClient<ApiPaginated<InventoryTransfer>>(`/inventory/transfers/approved?${sp}`)
     return { items: res.data ?? [], meta: res.meta }
   },
 
   listTransit: async (params: InventoryTransferListParams = {}) => {
     const sp = buildParams(params)
-    const res = await fetchClient<ApiPaginated<InventoryTransfer>>(`/v1/inventory/transfers/transit?${sp}`)
+    const res = await fetchClient<ApiPaginated<InventoryTransfer>>(`/inventory/transfers/transit?${sp}`)
     return { items: res.data ?? [], meta: res.meta }
   },
 
   listFinished: async (params: InventoryTransferListParams = {}) => {
     const sp = buildParams(params)
-    const res = await fetchClient<ApiPaginated<InventoryTransfer>>(`/v1/inventory/transfers/out-finished?${sp}`)
+    const res = await fetchClient<ApiPaginated<InventoryTransfer>>(`/inventory/transfers/out-finished?${sp}`)
     return { items: res.data ?? [], meta: res.meta }
   },
 
   getById: async (id: string) => {
-    const res = await fetchClient<ApiResponse<InventoryTransfer>>(`/v1/inventory/transfers/${id}`)
+    const res = await fetchClient<ApiResponse<InventoryTransfer>>(`/inventory/transfers/${id}`)
     return res.data
   },
 
   createDraft: async (data: CreateTransferDraftPayload) => {
-    const res = await fetchClient<ApiResponse<InventoryTransfer>>("/v1/inventory/transfers/draft", {
+    const res = await fetchClient<ApiResponse<InventoryTransfer>>("/inventory/transfers/draft", {
       method: "POST",
       data,
     })
@@ -56,7 +56,7 @@ export const OutboundTransferService = {
   },
 
   updateDraft: async (id: string, data: Partial<CreateTransferDraftPayload>) => {
-    const res = await fetchClient<ApiResponse<InventoryTransfer>>(`/v1/inventory/transfers/${id}`, {
+    const res = await fetchClient<ApiResponse<InventoryTransfer>>(`/inventory/transfers/${id}`, {
       method: "PATCH",
       data,
     })
@@ -64,7 +64,7 @@ export const OutboundTransferService = {
   },
 
   addItem: async (id: string, data: AddTransferItemPayload) => {
-    const res = await fetchClient<ApiResponse<unknown>>(`/v1/inventory/transfers/${id}/items`, {
+    const res = await fetchClient<ApiResponse<unknown>>(`/inventory/transfers/${id}/items`, {
       method: "POST",
       data,
     })
@@ -72,7 +72,7 @@ export const OutboundTransferService = {
   },
 
   updateItem: async (id: string, itemId: string, data: { qty: number }) => {
-    const res = await fetchClient<ApiResponse<unknown>>(`/v1/inventory/transfers/${id}/items/${itemId}`, {
+    const res = await fetchClient<ApiResponse<unknown>>(`/inventory/transfers/${id}/items/${itemId}`, {
       method: "PATCH",
       data,
     })
@@ -80,14 +80,14 @@ export const OutboundTransferService = {
   },
 
   removeItem: async (id: string, itemId: string) => {
-    const res = await fetchClient<ApiResponse<unknown>>(`/v1/inventory/transfers/${id}/items/${itemId}`, {
+    const res = await fetchClient<ApiResponse<unknown>>(`/inventory/transfers/${id}/items/${itemId}`, {
       method: "DELETE",
     })
     return res.data
   },
 
   approve: async (id: string, data: { approved_by: string; assigned_to?: number }) => {
-    const res = await fetchClient<ApiResponse<InventoryTransfer>>(`/v1/inventory/transfers/${id}/approve`, {
+    const res = await fetchClient<ApiResponse<InventoryTransfer>>(`/inventory/transfers/${id}/approve`, {
       method: "POST",
       data,
     })
@@ -95,7 +95,7 @@ export const OutboundTransferService = {
   },
 
   ship: async (id: string, data: { shipped_by: string }) => {
-    const res = await fetchClient<ApiResponse<InventoryTransfer>>(`/v1/inventory/transfers/${id}/ship`, {
+    const res = await fetchClient<ApiResponse<InventoryTransfer>>(`/inventory/transfers/${id}/ship`, {
       method: "POST",
       data,
     })
@@ -103,7 +103,7 @@ export const OutboundTransferService = {
   },
 
   cancel: async (id: string, data: { cancelled_by: string; cancel_reason?: string }) => {
-    const res = await fetchClient<ApiResponse<InventoryTransfer>>(`/v1/inventory/transfers/${id}/cancel`, {
+    const res = await fetchClient<ApiResponse<InventoryTransfer>>(`/inventory/transfers/${id}/cancel`, {
       method: "POST",
       data,
     })
@@ -111,14 +111,14 @@ export const OutboundTransferService = {
   },
 
   delete: async (id: string) => {
-    const res = await fetchClient<ApiResponse<unknown>>(`/v1/inventory/transfers/${id}`, {
+    const res = await fetchClient<ApiResponse<unknown>>(`/inventory/transfers/${id}`, {
       method: "DELETE",
     })
     return res.data
   },
 
   markPrinted: async (data: { transfer_id: string; printed_by: string }) => {
-    const res = await fetchClient<ApiResponse<unknown>>("/v1/inventory/transfer/mark-printed", {
+    const res = await fetchClient<ApiResponse<unknown>>("/inventory/transfer/mark-printed", {
       method: "POST",
       data,
     })
@@ -126,7 +126,7 @@ export const OutboundTransferService = {
   },
 
   getDeliveryNote: async (transferId: string) => {
-    const res = await fetchClient<ApiResponse<unknown>>(`/v1/inventory/transfer/delivery?transfer_id=${transferId}`)
+    const res = await fetchClient<ApiResponse<unknown>>(`/inventory/transfer/delivery?transfer_id=${transferId}`)
     return res.data
   },
 }

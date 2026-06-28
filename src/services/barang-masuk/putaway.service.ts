@@ -31,12 +31,12 @@ export const PutawayService = {
     if (params["filter[date_to]"]) sp.set("filter[date_to]", params["filter[date_to]"])
     if (params.sort) sp.set("sort", params.sort)
 
-    let endpoint = "/v1/putaway"
+    let endpoint = "/putaway"
     if (params["filter[status]"]) {
       const statusMap: Record<string, string> = {
-        NOT_STARTED: "/v1/putaway/not-started",
-        IN_PROGRESS: "/v1/putaway/in-progress",
-        COMPLETED: "/v1/putaway/completed",
+        NOT_STARTED: "/putaway/not-started",
+        IN_PROGRESS: "/putaway/in-progress",
+        COMPLETED: "/putaway/completed",
       }
       endpoint = statusMap[params["filter[status]"]] ?? endpoint
     }
@@ -46,17 +46,17 @@ export const PutawayService = {
   },
 
   getById: async (id: string) => {
-    const res = await fetchClient<ApiResponse<Putaway>>(`/v1/putaway/${id}`)
+    const res = await fetchClient<ApiResponse<Putaway>>(`/putaway/${id}`)
     return res.data
   },
 
   getItems: async (id: string, limit = 50) => {
-    const res = await fetchClient<ApiPaginated<PutawayItem>>(`/v1/putaway/${id}/items?limit=${limit}`)
+    const res = await fetchClient<ApiPaginated<PutawayItem>>(`/putaway/${id}/items?limit=${limit}`)
     return res.data ?? []
   },
 
   assignStaff: async (payload: AssignStaffPayload) => {
-    const res = await fetchClient<ApiResponse<unknown>>("/v1/putaway/assign-staff", {
+    const res = await fetchClient<ApiResponse<unknown>>("/putaway/assign-staff", {
       method: "POST",
       data: payload,
     })
@@ -64,14 +64,14 @@ export const PutawayService = {
   },
 
   start: async (id: string) => {
-    const res = await fetchClient<ApiResponse<Putaway>>(`/v1/putaway/${id}/start`, {
+    const res = await fetchClient<ApiResponse<Putaway>>(`/putaway/${id}/start`, {
       method: "POST",
     })
     return res.data
   },
 
   processItem: async (id: string, itemId: string, payload: ProcessItemPayload) => {
-    const res = await fetchClient<ApiResponse<unknown>>(`/v1/putaway/${id}/items/${itemId}/process`, {
+    const res = await fetchClient<ApiResponse<unknown>>(`/putaway/${id}/items/${itemId}/process`, {
       method: "POST",
       data: payload,
     })
@@ -79,14 +79,14 @@ export const PutawayService = {
   },
 
   complete: async (id: string) => {
-    const res = await fetchClient<ApiResponse<Putaway>>(`/v1/putaway/${id}/complete`, {
+    const res = await fetchClient<ApiResponse<Putaway>>(`/putaway/${id}/complete`, {
       method: "POST",
     })
     return res.data
   },
 
   lookupBin: async (code: string, locationId: string) => {
-    const res = await fetchClient<ApiResponse<BinLookupResult>>(`/v1/putaway/bins/lookup?code=${encodeURIComponent(code)}&location_id=${encodeURIComponent(locationId)}`)
+    const res = await fetchClient<ApiResponse<BinLookupResult>>(`/putaway/bins/lookup?code=${encodeURIComponent(code)}&location_id=${encodeURIComponent(locationId)}`)
     return res.data
   },
 }

@@ -15,17 +15,17 @@ export const PurchaseReturnService = {
     if (params["filter[date_to]"]) sp.set("filter[date_to]", params["filter[date_to]"])
     if (params.sort) sp.set("sort", params.sort)
 
-    const res = await fetchClient<ApiPaginated<PurchaseReturn>>(`/v1/purchase/purchase-returns?${sp}`)
+    const res = await fetchClient<ApiPaginated<PurchaseReturn>>(`/purchase/purchase-returns?${sp}`)
     return { items: res.data ?? [], meta: res.meta }
   },
 
   getById: async (id: string) => {
-    const res = await fetchClient<ApiResponse<PurchaseReturn>>(`/v1/purchase/purchase-returns/${id}`)
+    const res = await fetchClient<ApiResponse<PurchaseReturn>>(`/purchase/purchase-returns/${id}`)
     return res.data
   },
 
   create: async (data: CreatePurchaseReturnPayload) => {
-    const res = await fetchClient<ApiResponse<PurchaseReturn>>("/v1/purchase/purchase-returns", {
+    const res = await fetchClient<ApiResponse<PurchaseReturn>>("/purchase/purchase-returns", {
       method: "POST",
       data,
     })
@@ -33,7 +33,7 @@ export const PurchaseReturnService = {
   },
 
   process: async (id: string, data: { processed_by: string }) => {
-    const res = await fetchClient<ApiResponse<PurchaseReturn>>(`/v1/purchase/purchase-returns/${id}/process`, {
+    const res = await fetchClient<ApiResponse<PurchaseReturn>>(`/purchase/purchase-returns/${id}/process`, {
       method: "POST",
       data,
     })
@@ -41,7 +41,7 @@ export const PurchaseReturnService = {
   },
 
   delete: async (id: string) => {
-    const res = await fetchClient<ApiResponse<unknown>>("/v1/purchase", {
+    const res = await fetchClient<ApiResponse<unknown>>("/purchase", {
       method: "DELETE",
       data: { id },
     })

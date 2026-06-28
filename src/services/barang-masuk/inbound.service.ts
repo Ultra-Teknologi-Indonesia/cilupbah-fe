@@ -22,17 +22,17 @@ export const InboundService = {
     if (params["filter[date_to]"]) sp.set("filter[date_to]", params["filter[date_to]"])
     if (params.sort) sp.set("sort", params.sort)
 
-    const res = await fetchClient<ApiPaginated<Inbound>>(`/v1/inbounds?${sp}`)
+    const res = await fetchClient<ApiPaginated<Inbound>>(`/inbounds?${sp}`)
     return { items: res.data ?? [], meta: res.meta }
   },
 
   getById: async (id: string) => {
-    const res = await fetchClient<ApiResponse<Inbound>>(`/v1/inbounds/${id}`)
+    const res = await fetchClient<ApiResponse<Inbound>>(`/inbounds/${id}`)
     return res.data
   },
 
   scanPutaway: async (payload: ScanPutawayPayload) => {
-    const res = await fetchClient<ApiResponse<unknown>>("/v1/inbounds/scan-putaway", {
+    const res = await fetchClient<ApiResponse<unknown>>("/inbounds/scan-putaway", {
       method: "POST",
       data: payload,
     })

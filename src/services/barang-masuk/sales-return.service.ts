@@ -13,7 +13,7 @@ export const SalesReturnService = {
     if (params["filter[date_to]"]) sp.set("filter[date_to]", params["filter[date_to]"])
     if (params.sort) sp.set("sort", params.sort)
 
-    const res = await fetchClient<ApiPaginated<SalesReturn>>(`/v1/sales/returns/unprocessed?${sp}`)
+    const res = await fetchClient<ApiPaginated<SalesReturn>>(`/sales/returns/unprocessed?${sp}`)
     return { items: res.data ?? [], meta: res.meta }
   },
 
@@ -29,12 +29,12 @@ export const SalesReturnService = {
     if (params["filter[date_to]"]) sp.set("filter[date_to]", params["filter[date_to]"])
     if (params.sort) sp.set("sort", params.sort)
 
-    const res = await fetchClient<ApiPaginated<SalesReturn>>(`/v1/sales/returns?${sp}`)
+    const res = await fetchClient<ApiPaginated<SalesReturn>>(`/sales/returns?${sp}`)
     return { items: res.data ?? [], meta: res.meta }
   },
 
   accept: async (id: string, data: { processed_by: string }) => {
-    const res = await fetchClient<ApiResponse<SalesReturn>>(`/v1/sales/returns/${id}/accept`, {
+    const res = await fetchClient<ApiResponse<SalesReturn>>(`/sales/returns/${id}/accept`, {
       method: "POST",
       data,
     })
@@ -42,7 +42,7 @@ export const SalesReturnService = {
   },
 
   reject: async (id: string, data: { processed_by: string; reason?: string }) => {
-    const res = await fetchClient<ApiResponse<SalesReturn>>(`/v1/sales/returns/${id}/reject`, {
+    const res = await fetchClient<ApiResponse<SalesReturn>>(`/sales/returns/${id}/reject`, {
       method: "POST",
       data,
     })
