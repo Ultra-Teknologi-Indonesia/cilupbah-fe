@@ -65,16 +65,4 @@ export function useProcessPutawayItem() {
   })
 }
 
-export function useCompletePutaway() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (id: string) => PutawayService.complete(id),
-    onSuccess: () => {
-      toast.success("Putaway berhasil diselesaikan")
-      qc.invalidateQueries({ queryKey: ["putaway"] })
-      qc.invalidateQueries({ queryKey: ["inbound"] })
-    },
-    onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal menyelesaikan putaway"),
-  })
-}
+

@@ -78,12 +78,7 @@ export const PutawayService = {
     return res.data
   },
 
-  complete: async (id: string) => {
-    const res = await fetchClient<ApiResponse<Putaway>>(`/putaway/${id}/complete`, {
-      method: "POST",
-    })
-    return res.data
-  },
+
 
   lookupBin: async (code: string, locationId: string) => {
     const res = await fetchClient<ApiResponse<BinLookupResult>>(`/putaway/bins/lookup?code=${encodeURIComponent(code)}&location_id=${encodeURIComponent(locationId)}`)
