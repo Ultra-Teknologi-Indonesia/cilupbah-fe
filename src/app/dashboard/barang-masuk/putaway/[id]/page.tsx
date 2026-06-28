@@ -228,21 +228,19 @@ export default function PutawayProcessPage() {
             </div>
 
             {/* Ganti Rak card */}
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => isInProgress && setRackOpen((o) => !o)}
               disabled={!isInProgress}
-              className={cn(
-                "group flex flex-col items-center gap-2 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-5 text-center transition-colors",
-                isInProgress ? "cursor-pointer hover:bg-primary/10" : "cursor-not-allowed opacity-60"
-              )}
+              className="flex h-auto flex-col items-center gap-2 whitespace-normal rounded-2xl border border-primary/20 bg-primary/5 px-4 py-5 text-center hover:bg-primary/10"
             >
               <span className="text-sm font-semibold text-foreground">Ganti Rak</span>
-              <BarcodeIcon className="h-12 w-full text-foreground/80" strokeWidth={1.2} />
-              <span className="text-[11px] text-muted-foreground">
+              <BarcodeIcon className="h-12! w-full! text-foreground/80" strokeWidth={1.2} />
+              <span className="text-[11px] font-normal text-muted-foreground">
                 Scan barcode rak tersedia segera
               </span>
-            </button>
+            </Button>
 
             {rackOpen && isInProgress && (
               <div className="-mt-2 flex flex-col gap-1.5">
@@ -682,19 +680,21 @@ function PutawayItemRow({
               )}
             </Button>
           ) : (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon-sm"
               onClick={() => {
                 setBinCode("")
                 setBinResult(null)
                 setBinError("")
               }}
-              className="text-muted-foreground transition-colors hover:text-red-500"
+              className="text-muted-foreground hover:text-red-500"
               aria-label="Bersihkan"
               title="Bersihkan baris"
             >
               <Trash2Icon className="h-4 w-4" />
-            </button>
+            </Button>
           )
         )}
       </TableCell>
