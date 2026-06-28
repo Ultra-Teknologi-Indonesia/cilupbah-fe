@@ -54,6 +54,7 @@ export type UserListParams = {
   search?: string
   page?: number
   perPage?: number
+  "filter[role]"?: string | string[]
 }
 
 export type RawLoginHistory = {
