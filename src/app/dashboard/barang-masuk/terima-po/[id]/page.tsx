@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { ArrowLeftIcon, Loader2Icon, PackageCheckIcon, ImageIcon } from "lucide-react"
 import Link from "next/link"
+import { format } from "date-fns"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -14,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
+import { DatePicker } from "@/components/ui/date-picker"
 import { PageTitle } from "@/components/dashboard/page-title"
 import { SimplePagination } from "@/components/ui/simple-pagination"
 import { usePurchaseOrderDetail, usePurchaseOrderItems } from "@/hooks/transaksi-pembelian/use-purchase-orders"
@@ -42,7 +44,7 @@ export default function TerimaPOPage() {
   const receiveMutation = useReceivePurchaseOrder()
 
   const [referenceNumber, setReferenceNumber] = useState("")
-  const [receiveDate, setReceiveDate] = useState(() => new Date().toISOString().split("T")[0])
+  const [receiveDate, setReceiveDate] = useState<Date>(() => new Date())
   const [notes, setNotes] = useState("")
   
   // Use a record keyed by purchase_order_item_id to maintain state across pages
@@ -112,7 +114,7 @@ export default function TerimaPOPage() {
         id,
         data: {
           reference_number: referenceNumber.trim() || undefined,
-          receive_date: receiveDate,
+          receive_date: format(receiveDate, "yyyy-MM-dd"),
           location_id: po?.location_id,
           notes: notes.trim() || undefined,
           items: Object.values(itemQtys)
@@ -135,6 +137,7 @@ export default function TerimaPOPage() {
       <PageTitle
         title="Terima Barang — PO"
         description={po ? `Penerimaan untuk ${po.po_number}` : "Memuat..."}
+        backHref="/dashboard/barang-masuk"
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Barang Masuk", href: "/dashboard/barang-masuk" },
@@ -178,7 +181,11 @@ export default function TerimaPOPage() {
                   </div>
                   <div className="grid grid-cols-[120px_1fr] items-center gap-4">
                     <Label className="text-sm font-medium text-muted-foreground">Tanggal <span className="text-red-500">*</span></Label>
-                    <Input type="date" value={receiveDate} onChange={(e) => setReceiveDate(e.target.value)} />
+                    <DatePicker 
+                      value={receiveDate} 
+                      onChange={(date) => date && setReceiveDate(date)} 
+                      className="w-full"
+                    />
                   </div>
                 </div>
                 <div className="flex flex-col gap-4">
