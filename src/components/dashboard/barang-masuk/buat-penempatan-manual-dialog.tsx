@@ -52,9 +52,9 @@ export function BuatPenempatanManualDialog({ inbound, open, onOpenChange }: Buat
       toast.success("Dokumen penempatan berhasil dibuat")
       queryClient.invalidateQueries({ queryKey: ["putaways"] })
       queryClient.invalidateQueries({ queryKey: ["inbounds"] })
+      queryClient.invalidateQueries({ queryKey: ["purchase-order"] })
       onOpenChange(false)
       setAssignedTo("")
-      router.push("/dashboard/barang-masuk/penempatan")
     },
     onError: (error: any) => {
       toast.error(error.message || "Gagal membuat penempatan")

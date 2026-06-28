@@ -296,7 +296,8 @@ export function PenerimaanBarangTab() {
         header: "Aksi",
         cell: ({ row }) => {
           const item = row.original;
-          if (!["COMPLETED", "CANCELLED"].includes(item.status)) {
+          const isAssigned = item.assignments && item.assignments.length > 0;
+          if (!["COMPLETED", "CANCELLED"].includes(item.status) && !isAssigned) {
             return (
               <Button
                 size="sm"
