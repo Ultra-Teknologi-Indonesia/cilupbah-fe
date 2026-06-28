@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeftIcon, Loader2Icon, PackageCheckIcon } from "lucide-react"
+import { ArrowLeftIcon, Loader2Icon, PackageCheckIcon, ImageIcon } from "lucide-react"
 import Link from "next/link"
 
 import { cn } from "@/lib/utils"
@@ -209,8 +209,8 @@ export default function TerimaPOPage() {
                               {item.product?.image_url ? (
                                 <img src={item.product.image_url} alt={productName} className="h-full w-full object-cover" />
                               ) : (
-                                <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                                  No img
+                                <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+                                  <ImageIcon className="h-4 w-4 opacity-50" />
                                 </div>
                               )}
                             </div>
