@@ -216,7 +216,6 @@ export function PenempatanBarangTab() {
                 </Link>
               </Button>
             )}
-            )}
           </div>
         )
       },
