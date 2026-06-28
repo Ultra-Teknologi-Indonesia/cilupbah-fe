@@ -62,6 +62,7 @@ export interface Inbound {
   source_type: string | null
   source_id: string | null
   status: InboundStatus
+  notes: string | null
   expected_date: string | null
   created_by: string
   created_at: string

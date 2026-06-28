@@ -244,6 +244,19 @@ export function PenerimaanBarangTab() {
         },
       },
       {
+        id: "progress_penempatan",
+        header: "Progress Penempatan",
+        cell: ({ row }) => {
+          const totalRecv = row.original.items?.reduce((s, i) => s + i.received_qty, 0) ?? 0;
+          const totalPutaway = row.original.items?.reduce((s, i) => s + i.putaway_qty, 0) ?? 0;
+          return (
+            <span className="text-muted-foreground">
+              {totalPutaway} / {totalRecv}
+            </span>
+          );
+        },
+      },
+      {
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => (
@@ -259,15 +272,33 @@ export function PenerimaanBarangTab() {
         ),
       },
       {
+        id: "dikerjakan",
+        header: "Dikerjakan",
+        cell: ({ row }) => {
+          const worker = row.original.assignments?.[0]?.worker?.name;
+          return <span className="text-muted-foreground">{worker ?? "—"}</span>;
+        }
+      },
+      {
+        accessorKey: "notes",
+        header: "Keterangan",
+        cell: ({ row }) => (
+          <span className="text-muted-foreground">{row.original.notes ?? "—"}</span>
+        )
+      },
+      {
         id: "actions",
         header: "Aksi",
         cell: ({ row }) => {
           const item = row.original;
-          if (item.status === "RECEIVED") {
+          if (!["COMPLETED", "CANCELLED"].includes(item.status)) {
             return (
               <button
                 type="button"
-                onClick={() => setPenempatanTarget(item)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPenempatanTarget(item);
+                }}
                 className="inline-flex items-center gap-1 rounded-md bg-indigo-500/10 px-2 py-1 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-500/20 dark:text-indigo-400"
               >
                 <LayersIcon className="h-3.5 w-3.5" />
