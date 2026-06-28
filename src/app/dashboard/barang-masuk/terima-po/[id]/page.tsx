@@ -201,13 +201,14 @@ export default function TerimaPOPage() {
                       const remaining = item.qty - item.received_qty
                       const currentQty = itemQtys[item.id]?.qty ?? 0
                       const productName = item.variant?.name ? `${item.product?.name} - ${item.variant.name}` : (item.product?.name ?? item.description ?? "—")
+                      const imageUrl = item.variant?.media?.[0]?.url ?? item.product?.media?.[0]?.url ?? item.product?.image_url
                       
                       return (
                         <tr key={item.id} className="border-b border-border/20 last:border-0">
                           <td className="px-3 py-3">
                             <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted/50">
-                              {item.product?.image_url ? (
-                                <img src={item.product.image_url} alt={productName} className="h-full w-full object-cover" />
+                              {imageUrl ? (
+                                <img src={imageUrl} alt={productName} className="h-full w-full object-cover" />
                               ) : (
                                 <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
                                   <ImageIcon className="h-4 w-4 opacity-50" />
