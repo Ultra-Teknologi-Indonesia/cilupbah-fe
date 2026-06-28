@@ -20,19 +20,22 @@ import type { PurchaseOrder, PurchaseOrderStatus } from "@/types/transaksi-pembe
 const STATUS_OPTIONS = [
   { value: "", label: "Semua" },
   { value: "OPEN", label: "Belum Diterima" },
-  { value: "PARTIAL_RECEIVED", label: "Sebagian" },
+  { value: "PARTIAL_RECEIVED", label: "Diterima Sebagian" },
+  { value: "CLOSED", label: "Ditutup" },
   { value: "FULLY_RECEIVED", label: "Selesai" },
 ]
 
 const STATUS_STYLE: Record<string, string> = {
-  OPEN: "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400",
-  PARTIAL_RECEIVED: "border-amber-300 text-amber-600 dark:border-amber-500/30 dark:text-amber-400",
-  FULLY_RECEIVED: "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
+  OPEN: "border-transparent bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  PARTIAL_RECEIVED: "border-transparent bg-blue-500/10 text-blue-600 dark:text-blue-400",
+  CLOSED: "border-transparent bg-slate-500/10 text-slate-600 dark:text-slate-400",
+  FULLY_RECEIVED: "border-transparent bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
 }
 
 const STATUS_LABEL: Record<string, string> = {
   OPEN: "Belum Diterima",
-  PARTIAL_RECEIVED: "Sebagian",
+  PARTIAL_RECEIVED: "Diterima Sebagian",
+  CLOSED: "Ditutup",
   FULLY_RECEIVED: "Selesai",
 }
 
