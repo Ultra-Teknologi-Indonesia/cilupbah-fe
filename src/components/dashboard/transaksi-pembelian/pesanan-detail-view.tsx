@@ -7,6 +7,7 @@ import {
 
   PackageIcon,
   Trash2Icon,
+  ImageIcon,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -152,6 +153,7 @@ export function PesananDetailView({ id }: { id: string }) {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border/60 bg-muted/30">
+                    <th className="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground w-12"></th>
                     <th className="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Produk</th>
                     <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Harga</th>
                     <th className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Qty</th>
@@ -161,10 +163,24 @@ export function PesananDetailView({ id }: { id: string }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map((item) => (
+                  {items.map((item) => {
+                    const productName = item.variant?.name ? `${item.product?.name} - ${item.variant.name}` : (item.product?.name ?? item.description ?? "—")
+                    const imageUrl = item.variant?.media?.[0]?.url ?? item.product?.media?.[0]?.url ?? item.product?.image_url
+                    return (
                     <tr key={item.id} className="border-b border-border/20 last:border-0">
                       <td className="px-3 py-2.5">
-                        <div className="font-medium">{item.product?.name ?? "—"}</div>
+                        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted/50">
+                          {imageUrl ? (
+                            <img src={imageUrl} alt={productName} className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+                              <ImageIcon className="h-4 w-4 opacity-50" />
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <div className="font-medium">{productName}</div>
                         <div className="text-xs text-muted-foreground">{item.product?.sku}</div>
                       </td>
                       <td className="px-3 py-2.5 text-right tabular-nums">{formatCurrency(item.unit_price)}</td>
@@ -179,10 +195,11 @@ export function PesananDetailView({ id }: { id: string }) {
                       </td>
                       <td className="px-3 py-2.5 text-right font-medium tabular-nums">{formatCurrency(item.amount)}</td>
                     </tr>
-                  ))}
+                    )
+                  })}
                   {items.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
+                      <td colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
                         Belum ada produk.
                       </td>
                     </tr>
