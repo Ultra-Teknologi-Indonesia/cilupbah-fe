@@ -171,6 +171,7 @@ export default function PutawayProcessPage() {
     <div className="flex flex-col gap-6">
       <PageTitle
         title={putaway ? `Penempatan - ${putaway.putaway_no}` : "Penempatan Barang"}
+        backHref="/dashboard/barang-masuk"
         breadcrumb={[
           { label: "Gudang", href: "/dashboard" },
           { label: "Barang Masuk", href: "/dashboard/barang-masuk" },
@@ -389,13 +390,7 @@ export default function PutawayProcessPage() {
               </Table>
             </LiquidGlass>
 
-            <div className="flex items-center justify-between">
-              <Link href="/dashboard/barang-masuk">
-                <Button variant="outline">
-                  <ArrowLeftIcon className="mr-1.5 h-4 w-4" />
-                  Kembali
-                </Button>
-              </Link>
+            <div className="flex items-center justify-end">
               <div className="flex items-center gap-2">
                 {isNotStarted && list.length > 0 && (
                   <Button variant="primary" onClick={handleStart} disabled={startMutation.isPending}>
