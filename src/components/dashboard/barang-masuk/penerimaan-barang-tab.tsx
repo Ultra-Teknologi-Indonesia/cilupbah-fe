@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
@@ -79,6 +80,16 @@ function formatDate(d: string) {
     month: "short",
     year: "numeric",
   });
+}
+
+function ProgressBar({ value, total }: { value: number; total: number }) {
+  const pct = total > 0 ? Math.round((value / total) * 100) : 0
+  return (
+    <div className="flex items-center gap-2">
+      <Progress value={pct} className="h-1.5 w-16" />
+      <span className="text-xs tabular-nums text-muted-foreground">{value} / {total}</span>
+    </div>
+  )
 }
 
 interface FilterState {
@@ -242,9 +253,7 @@ export function PenerimaanBarangTab() {
               0,
             ) ?? 0;
           return (
-            <span className="tabular-nums text-muted-foreground">
-              {totalRecv} / {totalExpected}
-            </span>
+            <ProgressBar value={totalRecv} total={totalExpected} />
           );
         },
       },
@@ -255,9 +264,7 @@ export function PenerimaanBarangTab() {
           const totalRecv = row.original.items?.reduce((s, i) => s + i.received_qty, 0) ?? 0;
           const totalPutaway = row.original.items?.reduce((s, i) => s + i.putaway_qty, 0) ?? 0;
           return (
-            <span className="text-muted-foreground">
-              {totalPutaway} / {totalRecv}
-            </span>
+            <ProgressBar value={totalPutaway} total={totalRecv} />
           );
         },
       },

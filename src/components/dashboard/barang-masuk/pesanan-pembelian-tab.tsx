@@ -10,6 +10,7 @@ import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Progress } from "@/components/ui/progress"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
@@ -47,12 +48,7 @@ function ProgressBar({ received, total }: { received: number; total: number }) {
   const pct = total > 0 ? Math.round((received / total) * 100) : 0
   return (
     <div className="flex items-center gap-2">
-      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
-        <div
-          className={cn("h-full rounded-full transition-all", pct >= 100 ? "bg-emerald-500" : "bg-amber-500")}
-          style={{ width: `${Math.min(pct, 100)}%` }}
-        />
-      </div>
+      <Progress value={pct} className="h-1.5 w-16" />
       <span className="text-xs tabular-nums text-muted-foreground">{received} / {total}</span>
     </div>
   )

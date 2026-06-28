@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Progress } from "@/components/ui/progress"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
@@ -53,12 +54,7 @@ function ProgressBar({ placed, total }: { placed: number; total: number }) {
   const pct = total > 0 ? Math.round((placed / total) * 100) : 0
   return (
     <div className="flex items-center gap-2">
-      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
-        <div
-          className={cn("h-full rounded-full transition-all", pct >= 100 ? "bg-emerald-500" : "bg-amber-500")}
-          style={{ width: `${Math.min(pct, 100)}%` }}
-        />
-      </div>
+      <Progress value={pct} className="h-1.5 w-16" />
       <span className="text-xs tabular-nums text-muted-foreground">{placed} / {total}</span>
     </div>
   )
