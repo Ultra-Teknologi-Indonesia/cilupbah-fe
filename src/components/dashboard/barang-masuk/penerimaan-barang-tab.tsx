@@ -238,25 +238,7 @@ export function PenerimaanBarangTab() {
           </span>
         ),
       },
-      {
-        id: "qty",
-        header: "Qty Diterima",
-        cell: ({ row }) => {
-          const totalExpected =
-            row.original.items?.reduce(
-              (s: number, i: any) => s + (i.expected_qty || 0),
-              0,
-            ) ?? 0;
-          const totalRecv =
-            row.original.items?.reduce(
-              (s: number, i: any) => s + (i.received_qty || 0),
-              0,
-            ) ?? 0;
-          return (
-            <ProgressBar value={totalRecv} total={totalExpected} />
-          );
-        },
-      },
+
       {
         id: "progress_penempatan",
         header: "Progress Penempatan",
@@ -287,7 +269,7 @@ export function PenerimaanBarangTab() {
         id: "dikerjakan",
         header: "Dikerjakan",
         cell: ({ row }) => {
-          const worker = row.original.assignments?.[0]?.worker?.name;
+          const worker = row.original.putaways?.[0]?.assignee?.name;
           return <span className="text-muted-foreground">{worker ?? "—"}</span>;
         }
       },

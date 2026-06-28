@@ -72,7 +72,12 @@ export interface Inbound {
   assignments?: InboundAssignment[]
   putaways?: {
     id: string
+    source_id: string
     status: string
+    assignee?: {
+      id: string
+      name: string
+    }
   }[]
 }
 
