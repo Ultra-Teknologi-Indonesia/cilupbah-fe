@@ -53,7 +53,7 @@ function ProgressBar({ received, total }: { received: number; total: number }) {
           style={{ width: `${Math.min(pct, 100)}%` }}
         />
       </div>
-      <span className="text-xs tabular-nums text-muted-foreground">{pct}%</span>
+      <span className="text-xs tabular-nums text-muted-foreground">{received} / {total}</span>
     </div>
   )
 }

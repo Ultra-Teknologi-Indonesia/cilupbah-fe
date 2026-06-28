@@ -231,14 +231,19 @@ export function PenerimaanBarangTab() {
         id: "qty",
         header: "Qty Diterima",
         cell: ({ row }) => {
+          const totalExpected =
+            row.original.items?.reduce(
+              (s: number, i: any) => s + (i.expected_qty || 0),
+              0,
+            ) ?? 0;
           const totalRecv =
             row.original.items?.reduce(
-              (s: number, i: any) => s + i.received_qty,
+              (s: number, i: any) => s + (i.received_qty || 0),
               0,
             ) ?? 0;
           return (
             <span className="tabular-nums text-muted-foreground">
-              {totalRecv}
+              {totalRecv} / {totalExpected}
             </span>
           );
         },
