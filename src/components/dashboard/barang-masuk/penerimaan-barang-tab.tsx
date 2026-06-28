@@ -293,17 +293,17 @@ export function PenerimaanBarangTab() {
           const item = row.original;
           if (!["COMPLETED", "CANCELLED"].includes(item.status)) {
             return (
-              <button
-                type="button"
+              <Button
+                size="sm"
+                className="h-8 gap-1.5"
                 onClick={(e) => {
                   e.stopPropagation();
                   setPenempatanTarget(item);
                 }}
-                className="inline-flex items-center gap-1 rounded-md bg-indigo-500/10 px-2 py-1 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-500/20 dark:text-indigo-400"
               >
-                <LayersIcon className="h-3.5 w-3.5" />
+                <LayersIcon className="h-4 w-4" />
                 Penempatan
-              </button>
+              </Button>
             );
           }
           return null;
