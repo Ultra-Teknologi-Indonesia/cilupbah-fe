@@ -28,7 +28,7 @@ export function FilterToolbar({
   activeCount?: number
   align?: "start" | "end"
   leading?: React.ReactNode
-  gridCols?: 2 | 3
+  gridCols?: 1 | 2 | 3 | 4
   children?: React.ReactNode
   className?: string
 }) {
@@ -108,7 +108,14 @@ export function FilterToolbar({
         >
           <div className="overflow-hidden">
             <div className="px-4 pb-4 pt-1 sm:px-5">
-              <div className={gridCols === 2 ? "grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2" : "grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-3"}>
+              <div
+                className={cn(
+                  "grid grid-cols-1 gap-x-4 gap-y-3",
+                  gridCols === 2 && "sm:grid-cols-2",
+                  gridCols === 3 && "sm:grid-cols-2 lg:grid-cols-3",
+                  gridCols === 4 && "sm:grid-cols-2 lg:grid-cols-4"
+                )}
+              >
                 {children}
               </div>
             </div>
