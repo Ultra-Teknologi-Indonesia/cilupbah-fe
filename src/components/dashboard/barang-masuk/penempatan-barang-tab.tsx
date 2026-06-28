@@ -7,6 +7,7 @@ import { ArchiveIcon, PlayIcon, CheckCircleIcon, UserPlusIcon, DownloadIcon, Upl
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Combobox } from "@/components/ui/combobox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -259,13 +260,42 @@ export function PenempatanBarangTab() {
     <>
     <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
       {items.length > 0 && (
-        <div className="flex justify-end px-4 pt-3 sm:px-5">
+        <div className="flex justify-between items-center px-4 pt-3 sm:px-5">
+          <Tabs
+            value={filters.status || "ALL"}
+            onValueChange={(val) => handleFilterChange({ ...filters, status: val === "ALL" ? "" : val })}
+          >
+            <TabsList className="bg-muted/50 h-9">
+              <TabsTrigger value="ALL" className="text-xs px-4">Semua</TabsTrigger>
+              <TabsTrigger value="NOT_STARTED" className="text-xs px-4">Belum Mulai</TabsTrigger>
+              <TabsTrigger value="IN_PROGRESS" className="text-xs px-4">Proses</TabsTrigger>
+              <TabsTrigger value="COMPLETED" className="text-xs px-4">Selesai</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
           <Button variant="outline" size="sm" onClick={() => handleExportPutaway(items)}>
             <DownloadIcon className="mr-1.5 h-4 w-4" />
             Export CSV
           </Button>
         </div>
       )}
+      
+      {items.length === 0 && (
+        <div className="flex justify-start px-4 pt-4 sm:px-5">
+          <Tabs
+            value={filters.status || "ALL"}
+            onValueChange={(val) => handleFilterChange({ ...filters, status: val === "ALL" ? "" : val })}
+          >
+            <TabsList className="bg-muted/50 h-9">
+              <TabsTrigger value="ALL" className="text-xs px-4">Semua</TabsTrigger>
+              <TabsTrigger value="NOT_STARTED" className="text-xs px-4">Belum Mulai</TabsTrigger>
+              <TabsTrigger value="IN_PROGRESS" className="text-xs px-4">Proses</TabsTrigger>
+              <TabsTrigger value="COMPLETED" className="text-xs px-4">Selesai</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      )}
+
       <FilterToolbar
         search={search}
         onSearchChange={setSearch}
@@ -274,16 +304,8 @@ export function PenempatanBarangTab() {
         onReset={hasActiveFilter ? () => handleFilterChange(EMPTY_FILTERS) : undefined}
         hasFilter={hasActiveFilter}
         activeCount={activeCount}
-        gridCols={2}
+        gridCols={1}
       >
-        <Combobox
-          options={STATUS_OPTIONS}
-          value={filters.status}
-          onChange={(v) => handleFilterChange({ ...filters, status: v ?? "" })}
-          placeholder="Status"
-          searchPlaceholder="Cari status"
-          className="h-9 bg-background"
-        />
         <Combobox
           options={locationOptions}
           value={filters.location_id}
