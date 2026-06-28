@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { ArrowLeftIcon, Loader2Icon, PackageCheckIcon, ImageIcon } from "lucide-react"
 import Link from "next/link"
@@ -47,6 +47,31 @@ export default function TerimaPOPage() {
   
   // Use a record keyed by purchase_order_item_id to maintain state across pages
   const [itemQtys, setItemQtys] = useState<Record<string, ItemQty>>({})
+
+  // Pre-fill item quantities with remaining amount
+  useEffect(() => {
+    if (items.length > 0) {
+      setItemQtys((prev) => {
+        const next = { ...prev }
+        let hasChanges = false
+        items.forEach((item) => {
+          if (!next[item.id]) {
+            const remaining = item.qty - item.received_qty
+            if (remaining > 0) {
+              next[item.id] = {
+                purchase_order_item_id: item.id,
+                qty: remaining,
+                max: remaining,
+                notes: ""
+              }
+              hasChanges = true
+            }
+          }
+        })
+        return hasChanges ? next : prev
+      })
+    }
+  }, [items])
 
   // Compute hasValidQty by checking the values in itemQtys
   const hasValidQty = useMemo(
