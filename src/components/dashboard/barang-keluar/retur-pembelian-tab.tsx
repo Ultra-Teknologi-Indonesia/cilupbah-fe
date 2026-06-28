@@ -12,7 +12,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
-import { SimplePagination } from "@/components/ui/simple-pagination"
+import type { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table/data-table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { usePurchaseReturns, useProcessPurchaseReturn, useDeletePurchaseReturn } from "@/hooks/barang-keluar/use-purchase-returns"
@@ -50,28 +51,6 @@ function formatCurrency(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n)
 }
 
-function TableSkeleton() {
-  return (
-    <div className="flex flex-col">
-      <div className="border-b border-border/40 px-3 py-3">
-        <div className="flex gap-4">
-          {Array.from({ length: 7 }).map((_, i) => (
-            <Skeleton key={i} className="h-4 flex-1" />
-          ))}
-        </div>
-      </div>
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="border-b border-border/20 px-3 py-3.5">
-          <div className="flex gap-4">
-            {Array.from({ length: 7 }).map((_, j) => (
-              <Skeleton key={j} className="h-4 flex-1" />
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 interface FilterState {
   status: string
@@ -120,6 +99,75 @@ export function ReturPembelianTab() {
 
   const { data, isLoading, isFetching } = usePurchaseReturns(params)
   const { data: locData } = useLocations({ perPage: 100 })
+
+  const columns = useMemo<ColumnDef<PurchaseReturn>[]>(() => [
+    {
+      accessorKey: "return_number",
+      header: "No. Retur",
+      cell: ({ row }) => <span className="font-medium">{row.original.return_number}</span>,
+    },
+    {
+      id: "supplier",
+      header: "Pemasok",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.supplier?.name ?? "—"}</span>,
+    },
+    {
+      id: "location",
+      header: "Lokasi",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.location?.location_name ?? "—"}</span>,
+    },
+    {
+      accessorKey: "return_date",
+      header: "Tgl. Retur",
+      cell: ({ row }) => <span className="text-muted-foreground">{formatDate(row.original.return_date)}</span>,
+    },
+    {
+      accessorKey: "total_amount",
+      header: "Total",
+      cell: ({ row }) => <span className="tabular-nums text-muted-foreground">{formatCurrency(row.original.total_amount)}</span>,
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => (
+        <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[row.original.status] ?? "")}>
+          {STATUS_LABEL[row.original.status] ?? row.original.status}
+        </Badge>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Aksi",
+      cell: ({ row }) => {
+        const item = row.original;
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-1">
+              {item.status === "DRAFT" && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => { setProcessTarget(item); setProcessedBy("") }}
+                    className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-500/20"
+                  >
+                    <PlayIcon className="h-3.5 w-3.5" />
+                    Proses
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteTarget(item)}
+                    className="inline-flex items-center gap-1 rounded-md bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-500/20"
+                  >
+                    <Trash2Icon className="h-3.5 w-3.5" />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )
+      },
+    },
+  ], [])
 
   const items = data?.items ?? []
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
@@ -192,98 +240,34 @@ export function ReturPembelianTab() {
           </div>
         )}
 
-        <div className="px-4 py-3 sm:px-5">
-          {isLoading ? (
-            <TableSkeleton />
-          ) : items.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-              <CornerUpLeftIcon className="h-10 w-10" />
-              <div className="text-center">
-                <p className="text-sm font-medium">Belum ada retur pembelian</p>
-                <p className="mt-1 text-xs">Retur pembelian ke pemasok akan tampil di sini.</p>
+                <div className="px-5 py-5 sm:px-6">
+          <DataTable
+            columns={columns}
+            data={items}
+            isLoading={isLoading}
+            hideToolbar
+            manualPagination
+            onRowClick={(row) => router.push(`/dashboard/barang-keluar/retur/${row.id}`)}
+            pagination={{
+              pageIndex: page - 1,
+              pageSize: perPage,
+            }}
+            rowCount={meta.total}
+            onPaginationChange={(p) => {
+              setPage(p.pageIndex + 1)
+              setPerPage(p.pageSize)
+            }}
+            tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+            emptyState={
+              <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
+                <CornerUpLeftIcon className="h-10 w-10 opacity-20" />
+                <div className="text-center">
+                  <p className="text-sm font-medium">Belum ada retur pembelian</p>
+                  <p className="mt-1 text-xs">Retur pembelian ke pemasok akan tampil di sini.</p>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3">
-              <div className="overflow-x-auto rounded-lg border border-border/40">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border/60 bg-muted/30">
-                      {["No. Retur", "Pemasok", "Lokasi", "Tgl. Retur", "Total", "Status", "Aksi"].map((h) => (
-                        <th key={h} className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((item: PurchaseReturn) => (
-                      <tr
-                        key={item.id}
-                        className="cursor-pointer border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
-                        onClick={() => router.push(`/dashboard/barang-keluar/retur/${item.id}`)}
-                      >
-                        <td className="whitespace-nowrap px-3 py-3 font-medium">
-                          {item.return_number}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                          {item.supplier?.name ?? "—"}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                          {item.location?.location_name ?? "—"}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                          {formatDate(item.return_date)}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 tabular-nums text-muted-foreground">
-                          {formatCurrency(item.total_amount)}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3">
-                          <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[item.status] ?? "")}>
-                            {STATUS_LABEL[item.status] ?? item.status}
-                          </Badge>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center gap-1">
-                            {item.status === "DRAFT" && (
-                              <>
-                                <button
-                                  type="button"
-                                  onClick={() => { setProcessTarget(item); setProcessedBy("") }}
-                                  className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-500/20"
-                                >
-                                  <PlayIcon className="h-3.5 w-3.5" />
-                                  Proses
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setDeleteTarget(item)}
-                                  className="inline-flex items-center gap-1 rounded-md bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-500/20"
-                                >
-                                  <Trash2Icon className="h-3.5 w-3.5" />
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <SimplePagination
-                page={meta.current_page}
-                lastPage={meta.last_page}
-                onPageChange={setPage}
-                perPage={meta.per_page}
-                onPerPageChange={(s) => { setPerPage(s); resetPage() }}
-                pageSizeOptions={[15, 30, 50]}
-                total={meta.total}
-                label="retur"
-              />
-            </div>
-          )}
+            }
+          />
         </div>
       </LiquidGlass>
 

@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
-import { SimplePagination } from "@/components/ui/simple-pagination"
+import type { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table/data-table"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { useInbounds } from "@/hooks/barang-masuk/use-inbound"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
@@ -61,28 +62,6 @@ function formatDate(d: string) {
   return new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
 }
 
-function TableSkeleton() {
-  return (
-    <div className="flex flex-col">
-      <div className="border-b border-border/40 px-3 py-3">
-        <div className="flex gap-4">
-          {Array.from({ length: 7 }).map((_, i) => (
-            <Skeleton key={i} className="h-4 flex-1" />
-          ))}
-        </div>
-      </div>
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="border-b border-border/20 px-3 py-3.5">
-          <div className="flex gap-4">
-            {Array.from({ length: 7 }).map((_, j) => (
-              <Skeleton key={j} className="h-4 flex-1" />
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 interface FilterState {
   status: string
@@ -143,6 +122,64 @@ export function PenerimaanBarangTab() {
   const { data, isLoading, isFetching } = useInbounds(params)
   const { data: locData } = useLocations({ perPage: 100 })
 
+  const columns = useMemo<ColumnDef<Inbound>[]>(() => [
+    {
+      accessorKey: "transaction_number",
+      header: "No. Penerimaan",
+      cell: ({ row }) => (
+        <span className="font-medium text-primary underline-offset-2 hover:underline">
+          {row.original.transaction_number}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "type",
+      header: "Sumber",
+      cell: ({ row }) => (
+        <Badge variant="outline" className={cn("text-[10px] leading-tight", TYPE_STYLE[row.original.type] ?? "")}>
+          {TYPE_LABEL[row.original.type] ?? row.original.type}
+        </Badge>
+      ),
+    },
+    {
+      accessorKey: "reference_number",
+      header: "No. Referensi",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.reference_number ?? "—"}</span>,
+    },
+    {
+      id: "tanggal",
+      header: "Tanggal",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.expected_date ? formatDate(row.original.expected_date) : formatDate(row.original.created_at)}</span>,
+    },
+    {
+      id: "location",
+      header: "Lokasi",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.location?.location_name ?? "—"}</span>,
+    },
+    {
+      accessorKey: "created_by",
+      header: "Dibuat Oleh",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.created_by}</span>,
+    },
+    {
+      id: "qty",
+      header: "Qty Diterima",
+      cell: ({ row }) => {
+        const totalRecv = row.original.items?.reduce((s: number, i: any) => s + i.received_qty, 0) ?? 0
+        return <span className="tabular-nums text-muted-foreground">{totalRecv}</span>
+      },
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => (
+        <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[row.original.status] ?? "")}>
+          {STATUS_LABEL[row.original.status] ?? row.original.status}
+        </Badge>
+      ),
+    },
+  ], [])
+
   const items = data?.items ?? []
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
 
@@ -198,86 +235,34 @@ export function PenerimaanBarangTab() {
         </div>
       )}
 
-      <div className="px-4 py-3 sm:px-5">
-        {isLoading ? (
-          <TableSkeleton />
-        ) : items.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-            <PackageCheckIcon className="h-10 w-10" />
-            <div className="text-center">
-              <p className="text-sm font-medium">Belum ada penerimaan barang</p>
-              <p className="mt-1 text-xs">Dokumen penerimaan dari PO, Transfer, atau Retur akan tampil di sini.</p>
+            <div className="px-5 py-5 sm:px-6">
+        <DataTable
+          columns={columns}
+          data={items}
+          isLoading={isLoading}
+          hideToolbar
+          manualPagination
+          onRowClick={(row) => router.push(`/dashboard/barang-masuk/penerimaan/${row.id}`)}
+          pagination={{
+            pageIndex: page - 1,
+            pageSize: perPage,
+          }}
+          rowCount={meta.total}
+          onPaginationChange={(p) => {
+            setPage(p.pageIndex + 1)
+            setPerPage(p.pageSize)
+          }}
+          tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+          emptyState={
+            <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
+              <PackageCheckIcon className="h-10 w-10 opacity-20" />
+              <div className="text-center">
+                <p className="text-sm font-medium">Belum ada penerimaan barang</p>
+                <p className="mt-1 text-xs">Dokumen penerimaan dari PO, Transfer, atau Retur akan tampil di sini.</p>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            <div className="overflow-x-auto rounded-lg border border-border/40">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border/60 bg-muted/30">
-                    {["No. Penerimaan", "Sumber", "No. Referensi", "Tanggal", "Lokasi", "Dibuat Oleh", "Qty Diterima", "Status"].map((h) => (
-                      <th key={h} className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item: Inbound) => {
-                    const totalRecv = item.items?.reduce((s, i) => s + i.received_qty, 0) ?? 0
-                    return (
-                      <tr
-                        key={item.id}
-                        className="cursor-pointer border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
-                        onClick={() => router.push(`/dashboard/barang-masuk/penerimaan/${item.id}`)}
-                      >
-                        <td className="whitespace-nowrap px-3 py-3 font-medium text-primary underline-offset-2 hover:underline">
-                          {item.transaction_number}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3">
-                          <Badge variant="outline" className={cn("text-[10px] leading-tight", TYPE_STYLE[item.type] ?? "")}>
-                            {TYPE_LABEL[item.type] ?? item.type}
-                          </Badge>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                          {item.reference_number ?? "—"}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                          {item.expected_date ? formatDate(item.expected_date) : formatDate(item.created_at)}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                          {item.location?.location_name ?? "—"}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                          {item.created_by}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 tabular-nums text-muted-foreground">
-                          {totalRecv}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3">
-                          <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[item.status] ?? "")}>
-                            {STATUS_LABEL[item.status] ?? item.status}
-                          </Badge>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            <SimplePagination
-              page={meta.current_page}
-              lastPage={meta.last_page}
-              onPageChange={setPage}
-              perPage={meta.per_page}
-              onPerPageChange={(s) => { setPerPage(s); resetPage() }}
-              pageSizeOptions={[15, 30, 50]}
-              total={meta.total}
-              label="penerimaan"
-            />
-          </div>
-        )}
+          }
+        />
       </div>
     </LiquidGlass>
   )

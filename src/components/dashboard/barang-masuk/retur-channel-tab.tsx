@@ -11,7 +11,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
-import { SimplePagination } from "@/components/ui/simple-pagination"
+import type { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table/data-table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { useSalesReturnsUnprocessed, useSalesReturns } from "@/hooks/barang-masuk/use-sales-returns"
@@ -53,28 +54,6 @@ function formatDate(d: string) {
   return new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
 }
 
-function TableSkeleton() {
-  return (
-    <div className="flex flex-col">
-      <div className="border-b border-border/40 px-3 py-3">
-        <div className="flex gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-4 flex-1" />
-          ))}
-        </div>
-      </div>
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="border-b border-border/20 px-3 py-3.5">
-          <div className="flex gap-4">
-            {Array.from({ length: 6 }).map((_, j) => (
-              <Skeleton key={j} className="h-4 flex-1" />
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 interface FilterState {
   location_id: string
@@ -136,6 +115,94 @@ export function ReturChannelTab() {
   const { data, isLoading, isFetching } = activeQuery
   const { data: locData } = useLocations({ perPage: 100 })
 
+  const columns = useMemo<ColumnDef<SalesReturn>[]>(() => {
+    const cols: ColumnDef<SalesReturn>[] = [
+      {
+        accessorKey: "return_number",
+        header: "No. Retur",
+        cell: ({ row }) => <span className="font-medium">{row.original.return_number}</span>,
+      },
+      {
+        accessorKey: "source",
+        header: "Sumber",
+        cell: ({ row }) => (
+          <Badge variant="outline" className="text-[10px] leading-tight">
+            {row.original.source === "marketplace" ? "Marketplace" : "Manual"}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: "customer_name",
+        header: "Pelanggan",
+        cell: ({ row }) => <span className="text-muted-foreground">{row.original.customer_name ?? "—"}</span>,
+      },
+      {
+        accessorKey: "reason",
+        header: "Alasan",
+        cell: ({ row }) => <div className="max-w-[160px] truncate text-muted-foreground">{row.original.reason ?? "—"}</div>,
+      },
+      {
+        id: "location",
+        header: "Lokasi",
+        cell: ({ row }) => <span className="text-muted-foreground">{row.original.location?.location_name ?? "—"}</span>,
+      },
+      {
+        id: "qty",
+        header: "Qty",
+        cell: ({ row }) => {
+          const totalQty = row.original.items?.reduce((s: number, i: any) => s + i.qty, 0) ?? 0
+          return <span className="tabular-nums text-muted-foreground">{totalQty}</span>
+        },
+      },
+      {
+        accessorKey: "created_at",
+        header: "Tgl. Retur",
+        cell: ({ row }) => <span className="text-muted-foreground">{formatDate(row.original.created_at)}</span>,
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => (
+          <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[row.original.status] ?? "")}>
+            {STATUS_LABEL[row.original.status] ?? row.original.status}
+          </Badge>
+        ),
+      },
+    ]
+
+    if (isUnprocessed) {
+      cols.push({
+        id: "actions",
+        header: "Aksi",
+        cell: ({ row }) => {
+          const item = row.original
+          return (
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => { setAcceptTarget(item); setProcessedBy("") }}
+                className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-500/20 dark:text-emerald-400"
+              >
+                <CheckCircleIcon className="h-3.5 w-3.5" />
+                Setujui
+              </button>
+              <button
+                type="button"
+                onClick={() => { setRejectTarget(item); setProcessedBy(""); setRejectReason("") }}
+                className="inline-flex items-center gap-1 rounded-md bg-red-500/10 px-2 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-500/20 dark:text-red-400"
+              >
+                <XCircleIcon className="h-3.5 w-3.5" />
+                Tolak
+              </button>
+            </div>
+          )
+        },
+      })
+    }
+
+    return cols
+  }, [isUnprocessed])
+
   const items = data?.items ?? []
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
 
@@ -194,104 +261,33 @@ export function ReturChannelTab() {
           </div>
         )}
 
-        <div className="px-4 py-3 sm:px-5">
-          {isLoading ? (
-            <TableSkeleton />
-          ) : items.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-              <CornerDownLeftIcon className="h-10 w-10" />
-              <div className="text-center">
-                <p className="text-sm font-medium">Belum ada retur</p>
-                <p className="mt-1 text-xs">Retur dari channel online akan tampil di sini.</p>
+                <div className="px-5 py-5 sm:px-6">
+          <DataTable
+            columns={columns}
+            data={items}
+            isLoading={isLoading}
+            hideToolbar
+            manualPagination
+            pagination={{
+              pageIndex: page - 1,
+              pageSize: perPage,
+            }}
+            rowCount={meta.total}
+            onPaginationChange={(p) => {
+              setPage(p.pageIndex + 1)
+              setPerPage(p.pageSize)
+            }}
+            tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+            emptyState={
+              <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
+                <CornerDownLeftIcon className="h-10 w-10 opacity-20" />
+                <div className="text-center">
+                  <p className="text-sm font-medium">Belum ada retur</p>
+                  <p className="mt-1 text-xs">Retur dari channel online akan tampil di sini.</p>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3">
-              <div className="overflow-x-auto rounded-lg border border-border/40">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border/60 bg-muted/30">
-                      {["No. Retur", "Sumber", "Pelanggan", "Alasan", "Lokasi", "Qty", "Tgl. Retur", "Status", ...(isUnprocessed ? ["Aksi"] : [])].map((h) => (
-                        <th key={h} className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((item: SalesReturn) => {
-                      const totalQty = item.items?.reduce((s, i) => s + i.qty, 0) ?? 0
-                      return (
-                        <tr key={item.id} className="border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40">
-                          <td className="whitespace-nowrap px-3 py-3 font-medium">
-                            {item.return_number}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-3">
-                            <Badge variant="outline" className="text-[10px] leading-tight">
-                              {item.source === "marketplace" ? "Marketplace" : "Manual"}
-                            </Badge>
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                            {item.customer_name ?? "—"}
-                          </td>
-                          <td className="max-w-[160px] truncate px-3 py-3 text-muted-foreground">
-                            {item.reason ?? "—"}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                            {item.location?.location_name ?? "—"}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-3 tabular-nums text-muted-foreground">
-                            {totalQty}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                            {formatDate(item.created_at)}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-3">
-                            <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[item.status] ?? "")}>
-                              {STATUS_LABEL[item.status] ?? item.status}
-                            </Badge>
-                          </td>
-                          {isUnprocessed && (
-                            <td className="whitespace-nowrap px-3 py-3">
-                              <div className="flex items-center gap-1.5">
-                                <button
-                                  type="button"
-                                  onClick={() => { setAcceptTarget(item); setProcessedBy("") }}
-                                  className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-500/20 dark:text-emerald-400"
-                                >
-                                  <CheckCircleIcon className="h-3.5 w-3.5" />
-                                  Setujui
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => { setRejectTarget(item); setProcessedBy(""); setRejectReason("") }}
-                                  className="inline-flex items-center gap-1 rounded-md bg-red-500/10 px-2 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-500/20 dark:text-red-400"
-                                >
-                                  <XCircleIcon className="h-3.5 w-3.5" />
-                                  Tolak
-                                </button>
-                              </div>
-                            </td>
-                          )}
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              <SimplePagination
-                page={meta.current_page}
-                lastPage={meta.last_page}
-                onPageChange={setPage}
-                perPage={meta.per_page}
-                onPerPageChange={(s) => { setPerPage(s); resetPage() }}
-                pageSizeOptions={[15, 30, 50]}
-                total={meta.total}
-                label="retur"
-              />
-            </div>
-          )}
+            }
+          />
         </div>
       </LiquidGlass>
 

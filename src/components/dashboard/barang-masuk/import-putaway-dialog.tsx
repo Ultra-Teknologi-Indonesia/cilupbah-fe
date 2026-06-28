@@ -1,8 +1,11 @@
 "use client"
 
+import * as React from "react"
 import { useState, useRef, useCallback } from "react"
 import { UploadIcon, DownloadIcon, Loader2Icon, CheckCircleIcon, XCircleIcon } from "lucide-react"
 
+import type { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table/data-table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -144,6 +147,51 @@ export function ImportPutawayDialog({ open, onOpenChange, putawayId, locationId,
     onOpenChange(o)
   }, [processing, onOpenChange])
 
+  const columns = React.useMemo<ColumnDef<ProcessedRow>[]>(() => [
+    {
+      accessorKey: "sku",
+      header: "SKU",
+      cell: ({ row }) => <span className="font-mono text-xs">{row.original.sku}</span>,
+    },
+    {
+      accessorKey: "bin_code",
+      header: "Rak",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.bin_code}</span>,
+    },
+    {
+      accessorKey: "qty",
+      header: "Qty",
+      cell: ({ row }) => <span className="tabular-nums text-muted-foreground">{row.original.qty}</span>,
+    },
+    {
+      accessorKey: "sn",
+      header: "SN",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.sn || "—"}</span>,
+    },
+    {
+      accessorKey: "batch_no",
+      header: "Batch",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.batch_no || "—"}</span>,
+    },
+    {
+      id: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const r = row.original;
+        if (r.status === "pending") return <Badge variant="outline" className="text-[10px] border-slate-300 text-slate-600">Menunggu</Badge>;
+        if (r.status === "processing") return <Loader2Icon className="h-4 w-4 animate-spin text-primary" />;
+        if (r.status === "success") return <CheckCircleIcon className="h-4 w-4 text-emerald-500" />;
+        if (r.status === "error") return (
+          <span className="flex items-center gap-1">
+            <XCircleIcon className="h-4 w-4 text-red-500" />
+            <span className="text-xs text-red-500">{r.message}</span>
+          </span>
+        );
+        return null;
+      },
+    },
+  ], [])
+
   const successCount = rows.filter((r) => r.status === "success").length
   const errorCount = rows.filter((r) => r.status === "error").length
 
@@ -177,40 +225,14 @@ export function ImportPutawayDialog({ open, onOpenChange, putawayId, locationId,
           </div>
 
           {rows.length > 0 && (
-            <div className="max-h-64 overflow-auto rounded-lg border border-border/40">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border/60 bg-muted/30">
-                    {["SKU", "Rak", "Qty", "SN", "Batch", "Status"].map((h) => (
-                      <th key={h} className="whitespace-nowrap px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row, idx) => (
-                    <tr key={idx} className="border-b border-border/20 last:border-0">
-                      <td className="whitespace-nowrap px-3 py-2 font-mono text-xs">{row.sku}</td>
-                      <td className="whitespace-nowrap px-3 py-2 text-muted-foreground">{row.bin_code}</td>
-                      <td className="whitespace-nowrap px-3 py-2 tabular-nums text-muted-foreground">{row.qty}</td>
-                      <td className="whitespace-nowrap px-3 py-2 text-muted-foreground">{row.sn || "—"}</td>
-                      <td className="whitespace-nowrap px-3 py-2 text-muted-foreground">{row.batch_no || "—"}</td>
-                      <td className="whitespace-nowrap px-3 py-2">
-                        {row.status === "pending" && <Badge variant="outline" className="text-[10px] border-slate-300 text-slate-600">Menunggu</Badge>}
-                        {row.status === "processing" && <Loader2Icon className="h-4 w-4 animate-spin text-primary" />}
-                        {row.status === "success" && <CheckCircleIcon className="h-4 w-4 text-emerald-500" />}
-                        {row.status === "error" && (
-                          <span className="flex items-center gap-1">
-                            <XCircleIcon className="h-4 w-4 text-red-500" />
-                            <span className="text-xs text-red-500">{row.message}</span>
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        <div className="max-h-64 border border-border/40 rounded-lg overflow-hidden">
+              <DataTable
+                columns={columns}
+                data={rows}
+                hideToolbar
+                manualPagination={false}
+                tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+              />
             </div>
           )}
 

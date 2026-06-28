@@ -10,7 +10,8 @@ import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { SimplePagination } from "@/components/ui/simple-pagination"
+import type { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table/data-table"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { useReceivablePurchaseOrders } from "@/hooks/barang-masuk/use-purchase-orders-inbound"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
@@ -54,28 +55,6 @@ function ProgressBar({ received, total }: { received: number; total: number }) {
   )
 }
 
-function TableSkeleton() {
-  return (
-    <div className="flex flex-col">
-      <div className="border-b border-border/40 px-3 py-3">
-        <div className="flex gap-4">
-          {Array.from({ length: 7 }).map((_, i) => (
-            <Skeleton key={i} className="h-4 flex-1" />
-          ))}
-        </div>
-      </div>
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="border-b border-border/20 px-3 py-3.5">
-          <div className="flex gap-4">
-            {Array.from({ length: 7 }).map((_, j) => (
-              <Skeleton key={j} className="h-4 flex-1" />
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 interface FilterState {
   status: string
@@ -116,6 +95,74 @@ export function PesananPembelianTab() {
 
   const { data, isLoading, isFetching } = useReceivablePurchaseOrders(params)
   const { data: locData } = useLocations({ perPage: 100 })
+
+  const columns = useMemo<ColumnDef<PurchaseOrder>[]>(() => [
+    {
+      accessorKey: "po_number",
+      header: "No. PO",
+      cell: ({ row }) => (
+        <Link href={`/dashboard/transaksi-pembelian/pesanan/${row.original.id}`} className="font-medium hover:text-primary hover:underline">
+          {row.original.po_number}
+        </Link>
+      ),
+    },
+    {
+      id: "pemasok",
+      header: "Pemasok",
+      cell: ({ row }) => <span>{row.original.contact?.name ?? "—"}</span>,
+    },
+    {
+      accessorKey: "order_date",
+      header: "Tgl. Pesanan",
+      cell: ({ row }) => <span>{formatDate(row.original.order_date)}</span>,
+    },
+    {
+      id: "lokasi",
+      header: "Lokasi",
+      cell: ({ row }) => <span>{row.original.location?.location_name ?? "—"}</span>,
+    },
+    {
+      accessorKey: "created_by",
+      header: "Dibuat Oleh",
+      cell: ({ row }) => <span>{row.original.created_by}</span>,
+    },
+    {
+      id: "progress",
+      header: "Progress",
+      cell: ({ row }) => {
+        const totalQty = row.original.items?.reduce((s: number, i: any) => s + i.qty, 0) ?? 0
+        const recvQty = row.original.items?.reduce((s: number, i: any) => s + i.received_qty, 0) ?? 0
+        return <ProgressBar received={recvQty} total={totalQty} />
+      },
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => (
+        <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[row.original.status] ?? "")}>
+          {STATUS_LABEL[row.original.status] ?? row.original.status}
+        </Badge>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Aksi",
+      cell: ({ row }) => {
+        const item = row.original;
+        if (item.status === "OPEN" || item.status === "PARTIAL_RECEIVED") {
+          return (
+            <Button variant="outline" size="sm" className="h-8 gap-1.5 text-primary hover:text-primary" asChild>
+              <Link href={`/dashboard/barang-masuk/terima-po/${item.id}`}>
+                <PackageCheckIcon className="h-4 w-4" />
+                Terima
+              </Link>
+            </Button>
+          )
+        }
+        return null;
+      },
+    },
+  ], [])
 
   const items = data?.items ?? []
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
@@ -164,90 +211,33 @@ export function PesananPembelianTab() {
         </div>
       )}
 
-      <div className="px-4 py-3 sm:px-5">
-        {isLoading ? (
-          <TableSkeleton />
-        ) : items.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-            <ClipboardListIcon className="h-10 w-10" />
-            <div className="text-center">
-              <p className="text-sm font-medium">Belum ada pesanan pembelian</p>
-              <p className="mt-1 text-xs">Pesanan yang bisa diterima akan tampil di sini.</p>
+            <div className="px-5 py-5 sm:px-6">
+        <DataTable
+          columns={columns}
+          data={items}
+          isLoading={isLoading}
+          hideToolbar
+          manualPagination
+          pagination={{
+            pageIndex: page - 1,
+            pageSize: perPage,
+          }}
+          rowCount={meta.total}
+          onPaginationChange={(p) => {
+            setPage(p.pageIndex + 1)
+            setPerPage(p.pageSize)
+          }}
+          tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+          emptyState={
+            <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
+              <ClipboardListIcon className="h-10 w-10 opacity-20" />
+              <div className="text-center">
+                <p className="text-sm font-medium">Belum ada pesanan pembelian</p>
+                <p className="mt-1 text-xs">Pesanan yang bisa diterima akan tampil di sini.</p>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            <div className="overflow-x-auto rounded-lg border border-border/40">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border/60 bg-muted/30">
-                    {["No. PO", "Pemasok", "Tgl. Pesanan", "Lokasi", "Dibuat Oleh", "Progress", "Status", "Aksi"].map((h) => (
-                      <th key={h} className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item: PurchaseOrder) => {
-                    const totalQty = item.items?.reduce((s, i) => s + i.qty, 0) ?? 0
-                    const recvQty = item.items?.reduce((s, i) => s + i.received_qty, 0) ?? 0
-                    return (
-                      <tr key={item.id} className="border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40">
-                        <td className="whitespace-nowrap px-3 py-3 font-medium">
-                          <Link href={`/dashboard/transaksi-pembelian/pesanan/${item.id}`} className="hover:text-primary hover:underline">
-                            {item.po_number}
-                          </Link>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                          {item.contact?.name ?? "—"}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                          {formatDate(item.order_date)}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                          {item.location?.location_name ?? "—"}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                          {item.created_by}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3">
-                          <ProgressBar received={recvQty} total={totalQty} />
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3">
-                          <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[item.status] ?? "")}>
-                            {STATUS_LABEL[item.status] ?? item.status}
-                          </Badge>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3">
-                          {(item.status === "OPEN" || item.status === "PARTIAL_RECEIVED") && (
-                            <Button variant="outline" size="sm" className="h-8 gap-1.5 text-primary hover:text-primary" asChild>
-                              <Link href={`/dashboard/barang-masuk/terima-po/${item.id}`}>
-                                <PackageCheckIcon className="h-4 w-4" />
-                                Terima
-                              </Link>
-                            </Button>
-                          )}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            <SimplePagination
-              page={meta.current_page}
-              lastPage={meta.last_page}
-              onPageChange={setPage}
-              perPage={meta.per_page}
-              onPerPageChange={(s) => { setPerPage(s); resetPage() }}
-              pageSizeOptions={[15, 30, 50]}
-              total={meta.total}
-              label="pesanan"
-            />
-          </div>
-        )}
+          }
+        />
       </div>
     </LiquidGlass>
   )
