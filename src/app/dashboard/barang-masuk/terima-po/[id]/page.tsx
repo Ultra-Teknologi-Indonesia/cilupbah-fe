@@ -217,8 +217,10 @@ export default function TerimaPOPage() {
                             </div>
                           </TableCell>
                           <TableCell className="px-3 py-3">
-                            <div className="font-medium">{productName}</div>
-                            <div className="text-xs text-muted-foreground">{item.product?.sku ?? "—"}</div>
+                            <div className="max-w-[250px] sm:max-w-[300px] xl:max-w-[400px]">
+                              <div className="font-medium whitespace-normal break-words">{productName}</div>
+                              <div className="text-xs text-muted-foreground">{item.product?.sku ?? "—"}</div>
+                            </div>
                           </TableCell>
                           <TableCell className="whitespace-nowrap px-3 py-3 tabular-nums text-muted-foreground">
                             {item.qty} {item.unit ?? ""}

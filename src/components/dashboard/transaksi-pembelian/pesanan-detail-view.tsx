@@ -182,8 +182,10 @@ export function PesananDetailView({ id }: { id: string }) {
                         </div>
                       </TableCell>
                       <TableCell className="px-3 py-2.5">
-                        <div className="font-medium">{productName}</div>
-                        <div className="text-xs text-muted-foreground">{item.product?.sku}</div>
+                        <div className="max-w-[250px] sm:max-w-[300px] xl:max-w-[400px]">
+                          <div className="font-medium whitespace-normal break-words">{productName}</div>
+                          <div className="text-xs text-muted-foreground">{item.product?.sku}</div>
+                        </div>
                       </TableCell>
                       <TableCell className="px-3 py-2.5 text-right tabular-nums">{formatCurrency(item.unit_price)}</TableCell>
                       <TableCell className="px-3 py-2.5 text-right tabular-nums">{item.qty}</TableCell>
