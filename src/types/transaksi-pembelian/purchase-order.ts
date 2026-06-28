@@ -1,7 +1,8 @@
 export interface PurchaseOrderItem {
   id: string
   item_id: string
-  product?: { id: string; name: string; sku: string }
+  product?: { id: string; name: string; sku: string; image_url?: string }
+  variant?: { id: string; name: string }
   description: string | null
   unit: string | null
   qty: number

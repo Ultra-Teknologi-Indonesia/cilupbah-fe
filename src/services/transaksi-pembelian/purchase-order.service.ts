@@ -8,7 +8,7 @@ import type {
 } from "@/types/transaksi-pembelian/purchase-order"
 
 export interface ReceivePOPayload {
-  received_by: string
+  received_by?: string
   reference_number?: string
   location_id?: string
   receive_date?: string
@@ -78,7 +78,7 @@ export const PurchaseOrderService = {
     return res.data
   },
 
-  receive: async (id: string, data: { received_by: string; items: { purchase_order_item_id: string; qty: number }[] }) => {
+  receive: async (id: string, data: ReceivePOPayload) => {
     const res = await fetchClient<ApiResponse<unknown>>(`/purchase/orders/${id}/receive`, {
       method: "POST",
       data,

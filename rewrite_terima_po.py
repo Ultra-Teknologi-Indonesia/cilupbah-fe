@@ -1,4 +1,8 @@
-"use client"
+import os
+
+filepath = 'src/app/dashboard/barang-masuk/terima-po/[id]/page.tsx'
+
+new_content = """"use client"
 
 import { useState, useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
@@ -316,3 +320,8 @@ export default function TerimaPOPage() {
     </div>
   )
 }
+"""
+
+with open(filepath, 'w') as f:
+    f.write(new_content)
+
