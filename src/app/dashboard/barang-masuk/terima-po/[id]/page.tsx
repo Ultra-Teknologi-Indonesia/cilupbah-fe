@@ -200,7 +200,8 @@ export default function TerimaPOPage() {
                     {items.map((item) => {
                       const remaining = item.qty - item.received_qty
                       const currentQty = itemQtys[item.id]?.qty ?? 0
-                      const productName = item.variant?.name ? `${item.product?.name} - ${item.variant.name}` : (item.product?.name ?? item.description ?? "—")
+                      const variantName = item.variant?.options?.length ? item.variant.options.map(o => o.value).join(", ") : item.variant?.name
+                      const productName = variantName ? `${item.product?.name} - ${variantName}` : (item.product?.name ?? item.description ?? "—")
                       const imageUrl = item.variant?.media?.[0]?.url ?? item.product?.media?.[0]?.url ?? item.product?.image_url
                       
                       return (

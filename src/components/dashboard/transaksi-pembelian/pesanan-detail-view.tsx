@@ -164,7 +164,8 @@ export function PesananDetailView({ id }: { id: string }) {
                 </thead>
                 <tbody>
                   {items.map((item) => {
-                    const productName = item.variant?.name ? `${item.product?.name} - ${item.variant.name}` : (item.product?.name ?? item.description ?? "—")
+                    const variantName = item.variant?.options?.length ? item.variant.options.map(o => o.value).join(", ") : item.variant?.name
+                    const productName = variantName ? `${item.product?.name} - ${variantName}` : (item.product?.name ?? item.description ?? "—")
                     const imageUrl = item.variant?.media?.[0]?.url ?? item.product?.media?.[0]?.url ?? item.product?.image_url
                     return (
                     <tr key={item.id} className="border-b border-border/20 last:border-0">
