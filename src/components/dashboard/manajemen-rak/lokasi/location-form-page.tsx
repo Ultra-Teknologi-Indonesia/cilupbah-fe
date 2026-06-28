@@ -289,6 +289,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
             ) : section === "layout" ? (
               <LayoutGudangTab
                 disabled={locked}
+                locationId={mode === "edit" ? id : undefined}
                 initialBins={initialBins}
                 onApply={setAppliedPayload}
                 onBinsChange={(bins) => { binsRef.current = bins }}

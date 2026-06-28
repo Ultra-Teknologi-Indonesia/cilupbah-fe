@@ -141,6 +141,36 @@ export interface GenerateBinsPayload {
   max_qty?: number
 }
 
+// Parameter pagination + filter untuk listing bin (sesuai Spatie QueryBuilder).
+export interface BinListParams {
+  page?: number
+  perPage?: number
+  search?: string
+  sort?: string  // contoh: "bin_final_code" atau "-max_qty"
+  filter?: {
+    is_inbound?: boolean
+    is_stock_acknowledged?: boolean
+    is_large_bin?: boolean
+    category?: string
+    zone_id?: string
+  }
+}
+
+// Payload "Seragamkan": apply nilai ke baris terpilih atau seluruh data filter aktif.
+export interface UniformApplyPayload {
+  scope: "selected" | "all"
+  ids?: string[]
+  values: {
+    max_qty?: number
+    is_stock_acknowledged?: boolean
+    is_large_bin?: boolean
+    category?: string | null
+  }
+  // hanya dipakai ketika scope === "all" → diteruskan ke server sebagai query string
+  filter?: BinListParams["filter"]
+  search?: string
+}
+
 export interface BinPreviewItem {
   floorCode: string
   rowCode: string
