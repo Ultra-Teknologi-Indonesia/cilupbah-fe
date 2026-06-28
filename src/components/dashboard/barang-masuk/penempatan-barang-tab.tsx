@@ -197,45 +197,49 @@ export function PenempatanBarangTab() {
         return (
           <div className="flex items-center gap-1.5">
             {item.status === "NOT_STARTED" && !item.assignee && (
-              <button
-                type="button"
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1.5 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-950/50"
                 onClick={() => { setAssignTarget(item); setAssignUserId(""); setAssignPerformedBy("") }}
-                className="inline-flex items-center gap-1 rounded-md bg-indigo-500/10 px-2 py-1 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-500/20 dark:text-indigo-400"
               >
-                <UserPlusIcon className="h-3.5 w-3.5" />
+                <UserPlusIcon className="h-4 w-4" />
                 Assign
-              </button>
+              </Button>
             )}
             {(item.status === "NOT_STARTED" || item.status === "IN_PROGRESS") && (
-              <Link href={`/dashboard/barang-masuk/putaway/${item.id}`}>
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
-                >
-                  <PlayIcon className="h-3.5 w-3.5" />
+              <Button
+                size="sm"
+                className="h-8 gap-1.5"
+                asChild
+              >
+                <Link href={`/dashboard/barang-masuk/putaway/${item.id}`}>
+                  <PlayIcon className="h-4 w-4" />
                   {item.status === "NOT_STARTED" ? "Mulai" : "Lanjut"}
-                </button>
-              </Link>
+                </Link>
+              </Button>
             )}
             {item.status === "IN_PROGRESS" && (
-              <button
-                type="button"
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1.5 text-violet-600 dark:text-violet-400 hover:text-violet-700 hover:bg-violet-50 dark:hover:bg-violet-950/50"
                 onClick={() => setImportTarget(item)}
-                className="inline-flex items-center gap-1 rounded-md bg-violet-500/10 px-2 py-1 text-xs font-medium text-violet-600 transition-colors hover:bg-violet-500/20 dark:text-violet-400"
               >
-                <UploadIcon className="h-3.5 w-3.5" />
+                <UploadIcon className="h-4 w-4" />
                 Import
-              </button>
+              </Button>
             )}
             {item.status === "IN_PROGRESS" && (
-              <button
-                type="button"
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1.5 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/50"
                 onClick={() => setCompleteTarget(item)}
-                className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-500/20 dark:text-emerald-400"
               >
-                <CheckCircleIcon className="h-3.5 w-3.5" />
+                <CheckCircleIcon className="h-4 w-4" />
                 Selesai
-              </button>
+              </Button>
             )}
           </div>
         )
