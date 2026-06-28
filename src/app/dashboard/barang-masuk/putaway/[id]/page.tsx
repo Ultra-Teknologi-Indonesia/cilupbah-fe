@@ -171,11 +171,11 @@ export default function PutawayProcessPage() {
     <div className="flex flex-col gap-6">
       <PageTitle
         title={putaway ? `Penempatan - ${putaway.putaway_no}` : "Penempatan Barang"}
-        backHref="/dashboard/barang-masuk"
+        backHref="/dashboard/barang-masuk/penempatan"
         breadcrumb={[
           { label: "Gudang", href: "/dashboard" },
           { label: "Barang Masuk", href: "/dashboard/barang-masuk" },
-          { label: "Penempatan Barang", href: "/dashboard/barang-masuk" },
+          { label: "Penempatan Barang", href: "/dashboard/barang-masuk/penempatan" },
           ...(statusLabel ? [{ label: statusLabel }] : []),
           { label: putaway ? `Penempatan - ${putaway.putaway_no}` : "Memuat..." },
         ]}
@@ -193,7 +193,7 @@ export default function PutawayProcessPage() {
         <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 p-6 dark:bg-white/[0.04]">
           <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
             <p className="text-sm font-medium">Putaway tidak ditemukan</p>
-            <Link href="/dashboard/barang-masuk">
+            <Link href="/dashboard/barang-masuk/penempatan">
               <Button variant="outline" size="sm">
                 <ArrowLeftIcon className="mr-1.5 h-4 w-4" />
                 Kembali
