@@ -18,14 +18,14 @@ const Toaster = ({ ...props }: ToasterProps) => {
       closeButton
       icons={{
         success: (
-          <CircleCheckIcon className="size-4 text-emerald-600 dark:text-emerald-400" />
+          <CircleCheckIcon className="size-5 text-emerald-600 dark:text-emerald-400" />
         ),
-        info: <InfoIcon className="size-4 text-primary" />,
+        info: <InfoIcon className="size-5 text-primary" />,
         warning: (
-          <TriangleAlertIcon className="size-4 text-amber-600 dark:text-amber-400" />
+          <TriangleAlertIcon className="size-5 text-amber-600 dark:text-amber-400" />
         ),
-        error: <OctagonXIcon className="size-4 text-destructive" />,
-        loading: <Loader2Icon className="size-4 animate-spin text-muted-foreground" />,
+        error: <OctagonXIcon className="size-5 text-destructive" />,
+        loading: <Loader2Icon className="size-5 animate-spin text-muted-foreground" />,
       }}
       style={
         {
@@ -39,8 +39,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "cn-toast shadow-lg ring-1 ring-foreground/5 dark:ring-foreground/10 backdrop-blur-xl backdrop-saturate-150",
-          title: "text-sm font-semibold",
+            "cn-toast p-5 w-[400px] max-w-[90vw] shadow-lg ring-1 ring-foreground/5 dark:ring-foreground/10 backdrop-blur-xl backdrop-saturate-150",
+          title: "text-base font-semibold",
           description: "text-sm opacity-90",
           icon: "flex items-center",
           content: "gap-0.5",
