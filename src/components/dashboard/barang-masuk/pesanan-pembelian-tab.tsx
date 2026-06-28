@@ -151,7 +151,7 @@ export function PesananPembelianTab() {
         const item = row.original;
         if (item.status === "OPEN" || item.status === "PARTIAL_RECEIVED") {
           return (
-            <Button variant="outline" size="sm" className="h-8 gap-1.5 text-primary hover:text-primary" asChild>
+            <Button size="sm" className="h-8 gap-1.5" asChild>
               <Link href={`/dashboard/barang-masuk/terima-po/${item.id}`}>
                 <PackageCheckIcon className="h-4 w-4" />
                 Terima

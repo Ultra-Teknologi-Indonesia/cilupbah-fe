@@ -154,9 +154,8 @@ export function TransferMasukTab() {
         if (item.status === "IN_TRANSIT") {
           return (
             <Button 
-              variant="outline" 
               size="sm" 
-              className="h-8 gap-1.5 text-primary hover:text-primary"
+              className="h-8 gap-1.5"
               onClick={() => { setReceiveTarget(item); setReceivedBy("") }}
             >
               <PackageCheckIcon className="h-4 w-4" />

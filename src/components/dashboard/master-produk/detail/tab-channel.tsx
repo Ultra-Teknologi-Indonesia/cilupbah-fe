@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/select"
 import { useProductChannelListings } from "@/hooks/master-produk/use-product-tabs"
 import { TabPagination, SyncStatusBadge } from "./tab-pagination"
+import type { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table/data-table"
+import type { ChannelListingRow } from "@/services/master-produk/product-tabs.service"
 
 export function TabChannel({ productId }: { productId: string }) {
   const [channel, setChannel] = React.useState("")
@@ -65,87 +68,79 @@ export function TabChannel({ productId }: { productId: string }) {
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-border/60 bg-card">
-        <table className="w-full min-w-[640px] border-collapse text-sm">
-          <thead>
-            <tr className="border-b border-border/60 bg-muted/40 text-left text-xs text-muted-foreground">
-              <th className="px-3 py-2.5">SKU</th>
-              <th className="px-3 py-2.5">Opsi</th>
-              <th className="px-3 py-2.5">Listing channel</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <tr key={i} className="border-b border-border/40">
-                  <td colSpan={3} className="px-3 py-3">
-                    <div className="h-5 w-full animate-pulse rounded bg-muted/60" />
-                  </td>
-                </tr>
-              ))
-            ) : isError ? (
-              <tr>
-                <td colSpan={3} className="px-3 py-10 text-center text-sm text-muted-foreground">
-                  Gagal memuat.{" "}
-                  <button className="font-medium text-primary hover:underline" onClick={() => refetch()}>
-                    Coba lagi
-                  </button>
-                </td>
-              </tr>
-            ) : rows.length === 0 ? (
-              <tr>
-                <td colSpan={3} className="px-3 py-10 text-center text-sm text-muted-foreground">
-                  Belum ada listing channel.
-                </td>
-              </tr>
+        <DataTable
+          columns={React.useMemo<ColumnDef<ChannelListingRow>[]>(() => [
+            {
+              accessorKey: "sku",
+              header: "SKU",
+              cell: ({ row }) => <span className="font-mono text-xs text-primary">{row.original.sku}</span>,
+            },
+            {
+              accessorKey: "options",
+              header: "Opsi",
+              cell: ({ row }) => (
+                <div className="flex flex-wrap gap-1">
+                  {row.original.options.length === 0 ? (
+                    <span className="text-xs text-muted-foreground">—</span>
+                  ) : (
+                    row.original.options.map((o, i) => (
+                      <span key={i} className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-foreground/80">
+                        {o.value}
+                      </span>
+                    ))
+                  )}
+                </div>
+              ),
+            },
+            {
+              accessorKey: "listings",
+              header: "Listing channel",
+              cell: ({ row }) => (
+                <div className="flex flex-wrap gap-1.5">
+                  {row.original.listings.map((l, i) => (
+                    <span
+                      key={i}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-background px-2 py-1 text-xs"
+                      title={l.channelName ?? undefined}
+                    >
+                      <span className="truncate max-w-[160px]">{l.shopName ?? l.channelCode}</span>
+                      <SyncStatusBadge status={l.syncStatus} reason={l.errorMessage} />
+                    </span>
+                  ))}
+                </div>
+              ),
+            },
+          ], [])}
+          data={rows}
+          isLoading={isLoading}
+          hideToolbar
+          manualPagination
+          pagination={{
+            pageIndex: page - 1,
+            pageSize: perPage,
+          }}
+          rowCount={total}
+          onPaginationChange={(p) => {
+            setPage(p.pageIndex + 1)
+            setPerPage(p.pageSize)
+          }}
+          tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+          emptyState={
+            isError ? (
+              <div className="py-10 text-center text-sm text-muted-foreground">
+                Gagal memuat.{" "}
+                <button className="font-medium text-primary hover:underline" onClick={() => refetch()}>
+                  Coba lagi
+                </button>
+              </div>
             ) : (
-              rows.map((r) => (
-                <tr key={r.variantId} className="border-b border-border/40 last:border-0 align-top hover:bg-muted/30">
-                  <td className="px-3 py-2.5 font-mono text-xs text-primary">{r.sku}</td>
-                  <td className="px-3 py-2.5">
-                    <div className="flex flex-wrap gap-1">
-                      {r.options.length === 0 ? (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      ) : (
-                        r.options.map((o, i) => (
-                          <span key={i} className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-foreground/80">
-                            {o.value}
-                          </span>
-                        ))
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <div className="flex flex-wrap gap-1.5">
-                      {r.listings.map((l, i) => (
-                        <span
-                          key={i}
-                          className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-background px-2 py-1 text-xs"
-                          title={l.channelName ?? undefined}
-                        >
-                          <span className="truncate max-w-[160px]">{l.shopName ?? l.channelCode}</span>
-                          <SyncStatusBadge status={l.syncStatus} reason={l.errorMessage} />
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              <div className="py-10 text-center text-sm text-muted-foreground">
+                Belum ada listing channel.
+              </div>
+            )
+          }
+        />
       </div>
-
-      <TabPagination
-        page={page}
-        perPage={perPage}
-        lastPage={lastPage}
-        isFetching={isFetching}
-        onPage={(p) => setPage(Math.max(1, Math.min(lastPage, p)))}
-        onPerPage={(n) => {
-          setPerPage(n)
-          setPage(1)
-        }}
-      />
     </div>
   )
 }

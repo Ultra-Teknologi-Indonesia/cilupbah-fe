@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -19,6 +20,8 @@ import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import type { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table/data-table"
 import { PageTitle } from "@/components/dashboard/page-title"
 import {
   useStockAdjustmentDetail,
@@ -102,6 +105,54 @@ export function PenyesuaianDetail({ id }: { id: string }) {
     )
   }
 
+    const columns = React.useMemo<ColumnDef<any>[]>(() => [
+    {
+      accessorKey: "sku",
+      header: "SKU",
+      cell: ({ row }) => <span className="font-mono text-xs">{row.original.item?.sku ?? "—"}</span>,
+    },
+    {
+      accessorKey: "item_name",
+      header: "Nama Produk",
+      cell: ({ row }) => <span>{row.original.item?.item_name ?? "—"}</span>,
+    },
+    {
+      accessorKey: "bin",
+      header: "Bin",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.bin?.code ?? "—"}</span>,
+    },
+    {
+      accessorKey: "system_qty",
+      header: () => <div className="text-right">Stok Sistem</div>,
+      cell: ({ row }) => <div className="text-right tabular-nums">{row.original.system_qty ?? 0}</div>,
+    },
+    {
+      accessorKey: "actual_qty",
+      header: () => <div className="text-right">Stok Aktual</div>,
+      cell: ({ row }) => <div className="text-right tabular-nums">{row.original.actual_qty ?? 0}</div>,
+    },
+    {
+      id: "diff",
+      header: () => <div className="text-right">Selisih</div>,
+      cell: ({ row }) => {
+        const diff = (row.original.actual_qty ?? 0) - (row.original.system_qty ?? 0);
+        return (
+          <div className={cn(
+            "text-right tabular-nums font-medium",
+            diff > 0 ? "text-emerald-600" : diff < 0 ? "text-red-600" : "text-muted-foreground"
+          )}>
+            {diff > 0 ? `+${diff}` : diff}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: "notes",
+      header: "Catatan",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.notes ?? "—"}</span>,
+    },
+  ], [])
+
   const isDraft = adj.status === "DRAFT"
 
   return (
@@ -169,58 +220,19 @@ export function PenyesuaianDetail({ id }: { id: string }) {
 
       <LiquidGlass radius={16} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04] p-5">
         <h3 className="mb-4 font-semibold">Daftar Item</h3>
-        <div className="overflow-x-auto rounded-lg border border-border/40">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border/60 bg-muted/30">
-                {["SKU", "Nama Produk", "Bin", "Stok Sistem", "Stok Aktual", "Selisih", "Catatan"].map((h) => (
-                  <th key={h} className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {(adj.items ?? []).map((item) => {
-                const diff = (item.actual_qty ?? 0) - (item.system_qty ?? 0)
-                return (
-                  <tr key={item.id} className="border-b border-border/20 last:border-0">
-                    <td className="whitespace-nowrap px-3 py-2.5 font-mono text-xs">
-                      {item.item?.sku ?? "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5">
-                      {item.item?.item_name ?? "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
-                      {item.bin?.code ?? "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums">
-                      {item.system_qty ?? 0}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums">
-                      {item.actual_qty ?? 0}
-                    </td>
-                    <td className={cn(
-                      "whitespace-nowrap px-3 py-2.5 text-right tabular-nums font-medium",
-                      diff > 0 ? "text-emerald-600" : diff < 0 ? "text-red-600" : "text-muted-foreground"
-                    )}>
-                      {diff > 0 ? `+${diff}` : diff}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
-                      {item.notes ?? "—"}
-                    </td>
-                  </tr>
-                )
-              })}
-              {(!adj.items || adj.items.length === 0) && (
-                <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-muted-foreground">
-                    Belum ada item.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                <div className="border border-border/40 rounded-lg overflow-hidden">
+          <DataTable
+            columns={columns}
+            data={adj.items ?? []}
+            hideToolbar
+            manualPagination={false}
+            tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+            emptyState={
+              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                <p>Belum ada item.</p>
+              </div>
+            }
+          />
         </div>
       </LiquidGlass>
 

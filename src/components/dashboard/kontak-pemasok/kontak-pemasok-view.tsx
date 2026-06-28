@@ -19,7 +19,8 @@ import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
-import { SimplePagination } from "@/components/ui/simple-pagination"
+import type { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table/data-table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { ImportPemasokDialog } from "@/components/dashboard/kontak-pemasok/import-pemasok-view"
@@ -47,31 +48,6 @@ interface FilterState {
 
 const EMPTY_FILTERS: FilterState = { category_id: "", status: "" }
 
-function TableSkeleton() {
-  return (
-    <div className="flex flex-col">
-      <div className="border-b border-border/40 px-3 py-3">
-        <div className="flex gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-4 flex-1" />
-          ))}
-        </div>
-      </div>
-      {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="border-b border-border/20 px-3 py-3.5">
-          <div className="flex gap-4">
-            <Skeleton className="h-4 flex-1" />
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-4 w-28" />
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-4 w-16" />
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 export function KontakPemasokView() {
   const [search, setSearch] = useState("")
@@ -118,6 +94,92 @@ export function KontakPemasokView() {
 
   const items = data?.items ?? []
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
+
+    const columns = useMemo<ColumnDef<ContactItem>[]>(() => [
+    {
+      accessorKey: "name",
+      header: "Nama",
+      cell: ({ row }) => (
+        <span className="font-medium">
+          <Link
+            href={`/dashboard/kontak-pemasok/${row.original.id}`}
+            className="inline-flex items-center gap-1.5 hover:text-primary hover:underline"
+          >
+            {row.original.is_system && (
+              <LockIcon className="h-3 w-3 text-amber-500" />
+            )}
+            {row.original.name}
+          </Link>
+        </span>
+      ),
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.email || "—"}</span>,
+    },
+    {
+      id: "phone",
+      header: "Telepon",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.phone || row.original.mobile || "—"}</span>,
+    },
+    {
+      id: "category",
+      header: "Kategori",
+      cell: ({ row }) => {
+        const cat = row.original.category;
+        return <span className="text-muted-foreground">{cat ? (cat.code ? `${cat.code} - ${cat.name}` : cat.name) : "—"}</span>;
+      },
+    },
+    {
+      accessorKey: "type",
+      header: "Tipe",
+      cell: ({ row }) => (
+        <Badge
+          variant="outline"
+          className={cn(
+            "text-[10px] leading-tight",
+            row.original.type === "BOTH"
+              ? "border-purple-300 text-purple-600 dark:border-purple-500/30 dark:text-purple-400"
+              : "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400"
+          )}
+        >
+          {TYPE_LABELS[row.original.type] ?? row.original.type}
+        </Badge>
+      ),
+    },
+    {
+      id: "actions",
+      header: () => <div className="text-right">Aksi</div>,
+      cell: ({ row }) => {
+        const item = row.original;
+        return (
+          <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              asChild
+            >
+              <Link href={`/dashboard/kontak-pemasok/${item.id}/edit`} aria-label="Edit">
+                <PencilIcon className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
+            {!item.is_system && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setDeleteTarget(item)}
+                aria-label="Hapus"
+                className="text-destructive hover:text-destructive"
+              >
+                <Trash2Icon className="h-3.5 w-3.5" />
+              </Button>
+            )}
+          </div>
+        )
+      },
+    },
+  ], [])
 
   const categoryOptions = useMemo(() => [
     { value: "", label: "Semua Kategori" },
@@ -215,128 +277,33 @@ export function KontakPemasokView() {
           </div>
         )}
 
-        <div className="px-4 py-3 sm:px-5">
-          {isLoading ? (
-            <TableSkeleton />
-          ) : items.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-              <TruckIcon className="h-10 w-10" />
-              <div className="text-center">
-                <p className="text-sm font-medium">Belum ada kontak pemasok</p>
-                <p className="mt-1 text-xs">Tambah pemasok baru untuk mulai mengelola kontak.</p>
+                <div className="px-5 py-5 sm:px-6">
+          <DataTable
+            columns={columns}
+            data={items}
+            isLoading={isLoading}
+            hideToolbar
+            manualPagination
+            pagination={{
+              pageIndex: page - 1,
+              pageSize: perPage,
+            }}
+            rowCount={meta.total}
+            onPaginationChange={(p) => {
+              setPage(p.pageIndex + 1)
+              setPerPage(p.pageSize)
+            }}
+            tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+            emptyState={
+              <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
+                <TruckIcon className="h-10 w-10 opacity-20" />
+                <div className="text-center">
+                  <p className="text-sm font-medium">Belum ada kontak pemasok</p>
+                  <p className="mt-1 text-xs">Tambah pemasok baru untuk mulai mengelola kontak.</p>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3">
-              <div className="overflow-x-auto rounded-lg border border-border/40">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border/60 bg-muted/30">
-                      <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Nama
-                      </th>
-                      <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Email
-                      </th>
-                      <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Telepon
-                      </th>
-                      <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Kategori
-                      </th>
-                      <th className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Tipe
-                      </th>
-                      <th className="whitespace-nowrap px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Aksi
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((item: ContactItem) => (
-                      <tr
-                        key={item.id}
-                        className="border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
-                      >
-                        <td className="whitespace-nowrap px-3 py-3 font-medium">
-                          <Link
-                            href={`/dashboard/kontak-pemasok/${item.id}`}
-                            className="inline-flex items-center gap-1.5 hover:text-primary hover:underline"
-                          >
-                            {item.is_system && (
-                              <LockIcon className="h-3 w-3 text-amber-500" />
-                            )}
-                            {item.name}
-                          </Link>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                          {item.email || "—"}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                          {item.phone || item.mobile || "—"}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                          {item.category
-                            ? item.category.code
-                              ? `${item.category.code} - ${item.category.name}`
-                              : item.category.name
-                            : "—"}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3">
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              "text-[10px] leading-tight",
-                              item.type === "BOTH"
-                                ? "border-purple-300 text-purple-600 dark:border-purple-500/30 dark:text-purple-400"
-                                : "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400"
-                            )}
-                          >
-                            {TYPE_LABELS[item.type] ?? item.type}
-                          </Badge>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              asChild
-                            >
-                              <Link href={`/dashboard/kontak-pemasok/${item.id}/edit`} aria-label="Edit">
-                                <PencilIcon className="h-3.5 w-3.5" />
-                              </Link>
-                            </Button>
-                            {!item.is_system && (
-                              <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                onClick={() => setDeleteTarget(item)}
-                                aria-label="Hapus"
-                                className="text-destructive hover:text-destructive"
-                              >
-                                <Trash2Icon className="h-3.5 w-3.5" />
-                              </Button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <SimplePagination
-                page={meta.current_page}
-                lastPage={meta.last_page}
-                onPageChange={setPage}
-                perPage={meta.per_page}
-                onPerPageChange={(s) => { setPerPage(s); resetPage() }}
-                pageSizeOptions={[15, 30, 50]}
-                total={meta.total}
-                label="kontak"
-              />
-            </div>
-          )}
+            }
+          />
         </div>
       </LiquidGlass>
 

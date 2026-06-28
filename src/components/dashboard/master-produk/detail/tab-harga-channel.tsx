@@ -13,6 +13,9 @@ import {
 import { formatIDR } from "../product-columns"
 import { useProductChannelPrices } from "@/hooks/master-produk/use-product-tabs"
 import { TabPagination } from "./tab-pagination"
+import type { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table/data-table"
+import type { ChannelPriceRow } from "@/services/master-produk/product-tabs.service"
 
 export function TabHargaChannel({ productId }: { productId: string }) {
   const [view, setView] = React.useState<"daftar" | "matriks">("daftar")
@@ -118,6 +121,69 @@ export function TabHargaChannel({ productId }: { productId: string }) {
     )
   }
 
+  const matriksColumns = React.useMemo<ColumnDef<ChannelPriceRow>[]>(() => {
+    const cols: ColumnDef<ChannelPriceRow>[] = [
+      {
+        accessorKey: "sku",
+        header: "Produk",
+        cell: ({ row }) => <span className="font-mono text-xs text-primary">{row.original.sku}</span>,
+      },
+      {
+        accessorKey: "internalPrice",
+        header: () => <div className="text-right">Internal</div>,
+        cell: ({ row }) => <div className="text-right tabular-nums">{formatIDR(row.original.internalPrice)}</div>,
+      },
+    ]
+
+    stores.forEach(([key, name]) => {
+      cols.push({
+        id: `store_${key}`,
+        header: () => <div className="text-right">{name}</div>,
+        cell: ({ row }) => {
+          const cell = row.original.prices.find((p) => (p.channelShopId ?? p.channelCode) === key)
+          return (
+            <div className="text-right tabular-nums">
+              {cell ? formatIDR(cell.price) : <span className="text-muted-foreground">—</span>}
+            </div>
+          )
+        },
+      })
+    })
+
+    return cols
+  }, [stores])
+
+  const daftarColumns = React.useMemo<ColumnDef<ChannelPriceRow>[]>(() => [
+    {
+      accessorKey: "sku",
+      header: "SKU",
+      cell: ({ row }) => <span className="font-mono text-xs text-primary">{row.original.sku}</span>,
+    },
+    {
+      accessorKey: "internalPrice",
+      header: () => <div className="text-right">Harga internal</div>,
+      cell: ({ row }) => <div className="text-right tabular-nums">{formatIDR(row.original.internalPrice)}</div>,
+    },
+    {
+      accessorKey: "prices",
+      header: "Harga per toko",
+      cell: ({ row }) => (
+        <div className="flex flex-wrap gap-1.5">
+          {row.original.prices.length === 0 ? (
+            <span className="text-xs text-muted-foreground">Belum di-set</span>
+          ) : (
+            row.original.prices.map((p, i) => (
+              <span key={i} className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-background px-2 py-1 text-xs">
+                <span className="truncate max-w-[140px] text-muted-foreground">{p.shopName ?? p.channelCode}</span>
+                <span className="font-medium tabular-nums">{formatIDR(p.price)}</span>
+              </span>
+            ))
+          )}
+        </div>
+      ),
+    },
+  ], [])
+
   return (
     <div className="flex flex-col gap-3">
       {toolbar}
@@ -128,35 +194,24 @@ export function TabHargaChannel({ productId }: { productId: string }) {
         <>
           {/* Desktop: table matrix */}
           <div className="hidden sm:block overflow-x-auto rounded-lg border border-border/60 bg-card">
-            <table className="w-full min-w-[640px] border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-border/60 bg-muted/40 text-left text-xs text-muted-foreground">
-                  <th className="sticky left-0 z-10 bg-muted/40 px-3 py-2.5">Produk</th>
-                  <th className="px-3 py-2.5 text-right">Internal</th>
-                  {stores.map(([key, name]) => (
-                    <th key={key} className="px-3 py-2.5 text-right">
-                      {name}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr key={r.variantId} className="border-b border-border/40 last:border-0 hover:bg-muted/30">
-                    <td className="sticky left-0 z-10 bg-card px-3 py-2.5 font-mono text-xs text-primary">{r.sku}</td>
-                    <td className="px-3 py-2.5 text-right tabular-nums">{formatIDR(r.internalPrice)}</td>
-                    {stores.map(([key]) => {
-                      const cell = r.prices.find((p) => (p.channelShopId ?? p.channelCode) === key)
-                      return (
-                        <td key={key} className="px-3 py-2.5 text-right tabular-nums">
-                          {cell ? formatIDR(cell.price) : <span className="text-muted-foreground">—</span>}
-                        </td>
-                      )
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              columns={matriksColumns}
+              data={rows}
+              isLoading={false}
+              hideToolbar
+              manualPagination
+              pagination={{
+                pageIndex: page - 1,
+                pageSize: perPage,
+              }}
+              rowCount={meta?.total ?? 0}
+              onPaginationChange={(p) => {
+                setPage(p.pageIndex + 1)
+                setPerPage(p.pageSize)
+              }}
+              tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+              emptyState={null}
+            />
           </div>
           {/* Mobile: stacked card layout */}
           <div className="flex flex-col gap-3 sm:hidden">
@@ -190,37 +245,24 @@ export function TabHargaChannel({ productId }: { productId: string }) {
         <>
           {/* Desktop: table list */}
           <div className="hidden sm:block overflow-x-auto rounded-lg border border-border/60 bg-card">
-            <table className="w-full min-w-[560px] border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-border/60 bg-muted/40 text-left text-xs text-muted-foreground">
-                  <th className="px-3 py-2.5">SKU</th>
-                  <th className="px-3 py-2.5 text-right">Harga internal</th>
-                  <th className="px-3 py-2.5">Harga per toko</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr key={r.variantId} className="border-b border-border/40 last:border-0 align-top hover:bg-muted/30">
-                    <td className="px-3 py-2.5 font-mono text-xs text-primary">{r.sku}</td>
-                    <td className="px-3 py-2.5 text-right tabular-nums">{formatIDR(r.internalPrice)}</td>
-                    <td className="px-3 py-2.5">
-                      <div className="flex flex-wrap gap-1.5">
-                        {r.prices.length === 0 ? (
-                          <span className="text-xs text-muted-foreground">Belum di-set</span>
-                        ) : (
-                          r.prices.map((p, i) => (
-                            <span key={i} className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-background px-2 py-1 text-xs">
-                              <span className="truncate max-w-[140px] text-muted-foreground">{p.shopName ?? p.channelCode}</span>
-                              <span className="font-medium tabular-nums">{formatIDR(p.price)}</span>
-                            </span>
-                          ))
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              columns={daftarColumns}
+              data={rows}
+              isLoading={false}
+              hideToolbar
+              manualPagination
+              pagination={{
+                pageIndex: page - 1,
+                pageSize: perPage,
+              }}
+              rowCount={meta?.total ?? 0}
+              onPaginationChange={(p) => {
+                setPage(p.pageIndex + 1)
+                setPerPage(p.pageSize)
+              }}
+              tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+              emptyState={null}
+            />
           </div>
           {/* Mobile: stacked card layout */}
           <div className="flex flex-col gap-3 sm:hidden">
@@ -248,17 +290,7 @@ export function TabHargaChannel({ productId }: { productId: string }) {
         </>
       )}
 
-      <TabPagination
-        page={page}
-        perPage={perPage}
-        lastPage={lastPage}
-        isFetching={isFetching}
-        onPage={(p) => setPage(Math.max(1, Math.min(lastPage, p)))}
-        onPerPage={(n) => {
-          setPerPage(n)
-          setPage(1)
-        }}
-      />
+
     </div>
   )
 }

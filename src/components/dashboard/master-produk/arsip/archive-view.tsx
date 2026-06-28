@@ -1,18 +1,71 @@
 "use client"
 
 import * as React from "react"
-import { ArchiveIcon } from "lucide-react"
+import Link from "next/link"
+import { ArchiveIcon, ImageIcon, Loader2Icon, RotateCcwIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { SimplePagination } from "@/components/ui/simple-pagination"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import type { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table/data-table"
 import {
   useArchivedProducts,
   useRestoreProduct,
 } from "@/hooks/master-produk/use-archived-products"
 import type { ArchivedProduct } from "@/types/master-produk"
 import { FilterToolbar } from "../filter-toolbar"
-import { ArchiveTable } from "./archive-table"
+
+const fmtDate = (iso: string | null) =>
+  iso ? new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" }).format(new Date(iso)) : "—"
+
+function RestoreButton({
+  item,
+  pending,
+  onRestore,
+}: {
+  item: ArchivedProduct
+  pending: boolean
+  onRestore: (item: ArchivedProduct) => void
+}) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" disabled={pending}>
+          {pending ? <Loader2Icon className="animate-spin motion-reduce:animate-none" /> : <RotateCcwIcon className="mr-1.5 h-4 w-4" />}
+          Pulihkan
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Pulihkan produk?</DialogTitle>
+          <DialogDescription>
+            {item.itemName} akan dikembalikan ke status Master dan tampil kembali di katalog aktif.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Batal</Button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Button variant="primary" onClick={() => onRestore(item)}>
+              Pulihkan
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
 
 export function ArchiveView() {
   const [search, setSearch] = React.useState("")
@@ -37,6 +90,72 @@ export function ArchiveView() {
 
   const meta = data?.meta
   const items = data?.items ?? []
+
+    const columns = React.useMemo<ColumnDef<ArchivedProduct>[]>(() => [
+    {
+      accessorKey: "itemName",
+      header: "Produk",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2.5">
+          <div className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-border bg-muted/40">
+            {row.original.thumbnail ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={row.original.thumbnail} alt={row.original.itemName} className="size-full object-cover" />
+            ) : (
+              <ImageIcon className="size-4 text-muted-foreground" />
+            )}
+          </div>
+          <div className="min-w-0">
+            <Link
+              href={`/dashboard/produk/${row.original.itemGroupId}`}
+              className="truncate font-medium hover:text-primary hover:underline"
+            >
+              {row.original.itemName}
+            </Link>
+            <div className="font-mono text-xs text-muted-foreground">
+              {row.original.sku ?? "—"} · {row.original.totalVariants} varian
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "categoryName",
+      header: "Kategori",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.categoryName}</span>,
+    },
+    {
+      accessorKey: "archivedAt",
+      header: "Diarsipkan",
+      cell: ({ row }) => (
+        <div className="text-muted-foreground">
+          {fmtDate(row.original.archivedAt)}
+          {row.original.archivedBy && <div className="text-xs">oleh {row.original.archivedBy}</div>}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "archiveReason",
+      header: "Alasan",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.archiveReason || "—"}</span>,
+    },
+    {
+      id: "actions",
+      header: () => <div className="text-right">Aksi</div>,
+      cell: ({ row }) => {
+        const item = row.original;
+        return (
+          <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
+            <RestoreButton
+              item={item}
+              pending={pendingId === item.itemGroupId}
+              onRestore={(it) => restore.mutate(it.itemGroupId)}
+            />
+          </div>
+        )
+      },
+    },
+  ], [pendingId, restore])
 
   const hasFilter = search.length > 0
 
@@ -79,20 +198,27 @@ export function ArchiveView() {
           </div>
         ) : (
           <>
-            <ArchiveTable
-              items={items}
-              pendingId={pendingId}
-              onRestore={(item: ArchivedProduct) => restore.mutate(item.itemGroupId)}
-            />
-            {meta && (
-              <SimplePagination
-                page={meta.current_page}
-                lastPage={meta.last_page}
-                onPageChange={setPage}
-                total={meta.total}
-                label="arsip"
-              />
-            )}
+                      <DataTable
+            columns={columns}
+            data={items}
+            hideToolbar
+            manualPagination
+            pagination={meta ? {
+              pageIndex: meta.current_page - 1,
+              pageSize: meta.per_page,
+            } : undefined}
+            rowCount={meta?.total ?? 0}
+            onPaginationChange={(p) => {
+              setPage(p.pageIndex + 1)
+            }}
+            tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+            emptyState={
+              <div className="flex flex-col items-center gap-2 py-14 text-center">
+                <ArchiveIcon className="size-6 text-muted-foreground opacity-20" />
+                <p className="text-sm font-medium">Belum ada produk diarsipkan</p>
+              </div>
+            }
+          />
           </>
         )}
       </div>

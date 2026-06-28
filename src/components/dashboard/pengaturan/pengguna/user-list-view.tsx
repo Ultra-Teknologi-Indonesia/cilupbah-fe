@@ -8,13 +8,35 @@ import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { SimplePagination } from "@/components/ui/simple-pagination"
+import { Checkbox } from "@/components/ui/checkbox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import type { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table/data-table"
 import { useUsers, useDeleteUser } from "@/hooks/pengaturan/use-users"
 import type { User } from "@/types/pengaturan/user"
 
-import { UserTable } from "./user-table"
+function formatRoles(roles: string[]): string {
+  if (roles.length === 0) return "-"
+  const first = roles[0].charAt(0).toUpperCase() + roles[0].slice(1)
+  if (roles.length === 1) return first
+  return `${first} dan ${roles.length - 1} peran lainnya`
+}
+
+function formatDate(iso: string | null): string {
+  if (!iso) return "-"
+  try {
+    return new Intl.DateTimeFormat("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date(iso))
+  } catch {
+    return "-"
+  }
+}
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (error && typeof error === "object" && "message" in error) {
@@ -70,6 +92,80 @@ export function UserListView() {
     const first = users.find((u) => selectedIds.has(u.id))
     if (first) setDeleteTarget(first)
   }
+
+  const columns = React.useMemo<ColumnDef<User>[]>(() => [
+    {
+      id: "select",
+      header: ({ table }) => {
+        const allSelected = users.length > 0 && users.every((u) => selectedIds.has(u.id));
+        return (
+          <Checkbox
+            checked={allSelected}
+            onCheckedChange={handleToggleAll}
+            aria-label="Pilih semua"
+          />
+        );
+      },
+      cell: ({ row }) => (
+        <Checkbox
+          checked={selectedIds.has(row.original.id)}
+          onCheckedChange={() => handleToggleSelect(row.original.id)}
+          aria-label={`Pilih ${row.original.name}`}
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "name",
+      header: "Nama Pengguna",
+      cell: ({ row }) => (
+        <Link
+          href={`/dashboard/pengaturan/pengguna/${row.original.id}`}
+          className="font-medium text-primary hover:underline"
+        >
+          {row.original.name || row.original.email}
+        </Link>
+      ),
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.email}</span>,
+    },
+    {
+      accessorKey: "roles",
+      header: "Peran Pengguna",
+      cell: ({ row }) => <span className="text-muted-foreground">{formatRoles(row.original.roles)}</span>,
+    },
+    {
+      accessorKey: "lastLoginAt",
+      header: "Login Terakhir",
+      cell: ({ row }) => <span className="text-muted-foreground">{formatDate(row.original.lastLoginAt)}</span>,
+    },
+    {
+      id: "actions",
+      header: () => null,
+      cell: ({ row }) => {
+        const user = row.original;
+        return (
+          <div className="flex justify-end">
+            {!user.roles.includes("owner") && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="text-destructive hover:text-destructive"
+                onClick={() => setDeleteTarget(user)}
+                aria-label={`Hapus ${user.name}`}
+              >
+                <Trash2Icon className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        )
+      },
+    },
+  ], [selectedIds, users])
 
   function handleConfirmDelete() {
     if (!deleteTarget) return
@@ -141,24 +237,26 @@ export function UserListView() {
             {search ? "Tidak ada pengguna yang cocok." : "Belum ada pengguna."}
           </div>
         ) : (
-          <UserTable
-            users={users}
-            selectedIds={selectedIds}
-            onToggleSelect={handleToggleSelect}
-            onToggleAll={handleToggleAll}
-            onDelete={(user) => setDeleteTarget(user)}
-          />
-        )}
-
-        {!isLoading && !isError && (
-          <div className="px-5 pb-3">
-            <SimplePagination
-              page={page}
-              lastPage={lastPage}
-              onPageChange={setPage}
-              total={total}
-              label="pengguna"
-              isFetching={isFetching}
+                    <div className="px-5 pb-5">
+            <DataTable
+              columns={columns}
+              data={users}
+              hideToolbar
+              manualPagination
+              pagination={{
+                pageIndex: page - 1,
+                pageSize: perPage,
+              }}
+              rowCount={total}
+              onPaginationChange={(p) => {
+                setPage(p.pageIndex + 1)
+              }}
+              tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+              emptyState={
+                <div className="py-16 text-center text-sm text-muted-foreground">
+                  {search ? "Tidak ada pengguna yang cocok." : "Belum ada pengguna."}
+                </div>
+              }
             />
           </div>
         )}

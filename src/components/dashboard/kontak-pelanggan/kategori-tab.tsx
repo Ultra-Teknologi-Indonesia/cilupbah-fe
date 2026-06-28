@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { useState, useCallback } from "react"
 import {
   PlusIcon,
@@ -18,6 +19,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
+import type { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table/data-table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import {
   Dialog,
@@ -96,6 +99,66 @@ export function KategoriTab() {
     } catch {}
   }
 
+    const columns = React.useMemo<ColumnDef<ContactCategory>[]>(() => [
+    {
+      accessorKey: "code",
+      header: "Kode",
+      cell: ({ row }) => <span className="font-mono text-xs text-muted-foreground">{row.original.code ?? "—"}</span>,
+    },
+    {
+      accessorKey: "name",
+      header: "Nama",
+      cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+    },
+    {
+      accessorKey: "type",
+      header: "Tipe",
+      cell: ({ row }) => (
+        <Badge
+          variant="outline"
+          className={cn(
+            "text-[10px] leading-tight",
+            row.original.type === "CUSTOMER"
+              ? "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400"
+              : row.original.type === "SUPPLIER"
+                ? "border-orange-300 text-orange-600 dark:border-orange-500/30 dark:text-orange-400"
+                : "border-purple-300 text-purple-600 dark:border-purple-500/30 dark:text-purple-400"
+          )}
+        >
+          {TYPE_LABELS[row.original.type ?? "BOTH"] ?? "Semua"}
+        </Badge>
+      ),
+    },
+    {
+      accessorKey: "description",
+      header: "Deskripsi",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.description || "—"}</span>,
+    },
+    {
+      id: "actions",
+      header: () => <div className="text-right">Aksi</div>,
+      cell: ({ row }) => {
+        const cat = row.original;
+        return (
+          <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+            <Button variant="ghost" size="icon-sm" onClick={() => openEdit(cat)} aria-label="Edit">
+              <PencilIcon className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setDeleteTarget(cat)}
+              aria-label="Hapus"
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash2Icon className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        )
+      },
+    },
+  ], [])
+
   const saving = createMut.isPending || updateMut.isPending
 
   return (
@@ -108,85 +171,24 @@ export function KategoriTab() {
       </div>
 
       <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
-        <div className="px-4 py-3 sm:px-5">
-          {isLoading ? (
-            <div className="flex flex-col gap-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
-            </div>
-          ) : categories.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-              <TagIcon className="h-10 w-10" />
-              <div className="text-center">
-                <p className="text-sm font-medium">Belum ada kategori</p>
-                <p className="mt-1 text-xs">Tambah kategori untuk mengelompokkan kontak.</p>
+                <div className="px-5 py-5 sm:px-6">
+          <DataTable
+            columns={columns}
+            data={categories}
+            isLoading={isLoading}
+            hideToolbar
+            manualPagination={false}
+            tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+            emptyState={
+              <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
+                <TagIcon className="h-10 w-10 opacity-20" />
+                <div className="text-center">
+                  <p className="text-sm font-medium">Belum ada kategori</p>
+                  <p className="mt-1 text-xs">Tambah kategori untuk mengelompokkan kontak.</p>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="overflow-x-auto rounded-lg border border-border/40">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border/60 bg-muted/30">
-                    {["Kode", "Nama", "Tipe", "Deskripsi", "Aksi"].map((h) => (
-                      <th key={h} className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {categories.map((cat) => (
-                    <tr
-                      key={cat.id}
-                      className="border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
-                    >
-                      <td className="whitespace-nowrap px-3 py-3 font-mono text-xs text-muted-foreground">
-                        {cat.code ?? "—"}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3 font-medium">
-                        {cat.name}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3">
-                        <Badge
-                          variant="outline"
-                          className={cn(
-                            "text-[10px] leading-tight",
-                            cat.type === "CUSTOMER"
-                              ? "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400"
-                              : cat.type === "SUPPLIER"
-                                ? "border-orange-300 text-orange-600 dark:border-orange-500/30 dark:text-orange-400"
-                                : "border-purple-300 text-purple-600 dark:border-purple-500/30 dark:text-purple-400"
-                          )}
-                        >
-                          {TYPE_LABELS[cat.type ?? "BOTH"] ?? "Semua"}
-                        </Badge>
-                      </td>
-                      <td className="px-3 py-3 text-muted-foreground">
-                        {cat.description || "—"}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="icon-sm" onClick={() => openEdit(cat)} aria-label="Edit">
-                            <PencilIcon className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => setDeleteTarget(cat)}
-                            aria-label="Hapus"
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2Icon className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+            }
+          />
         </div>
       </LiquidGlass>
 

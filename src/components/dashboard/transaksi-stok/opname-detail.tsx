@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -22,6 +23,8 @@ import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import type { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table/data-table"
 import { PageTitle } from "@/components/dashboard/page-title"
 import {
   useStockOpnameDetail,
@@ -87,6 +90,10 @@ export function OpnameDetail({ id }: { id: string }) {
   const deleteMut = useDeleteStockOpname()
   const countMut = useCountOpnameItem()
 
+  const isDraft = opname?.status === "DRAFT"
+  const isInProgress = opname?.status === "IN_PROGRESS"
+  const isFinalized = opname?.status === "FINALIZED"
+
   const [startOpen, setStartOpen] = useState(false)
   const [startBy, setStartBy] = useState("")
   const [finalizeOpen, setFinalizeOpen] = useState(false)
@@ -96,6 +103,120 @@ export function OpnameDetail({ id }: { id: string }) {
   const [countDialog, setCountDialog] = useState<CountDialogState>(EMPTY_COUNT)
 
   const actionPending = startMut.isPending || finalizeMut.isPending || cancelMut.isPending || deleteMut.isPending
+
+    const columns = React.useMemo<ColumnDef<any>[]>(() => {
+    const cols: ColumnDef<any>[] = [
+      {
+        accessorKey: "sku",
+        header: "SKU",
+        cell: ({ row }) => <span className="font-mono text-xs">{row.original.item?.sku ?? "—"}</span>,
+      },
+      {
+        accessorKey: "item_name",
+        header: "Nama Produk",
+        cell: ({ row }) => <span>{row.original.item?.item_name ?? "—"}</span>,
+      },
+      {
+        accessorKey: "bin",
+        header: "Bin",
+        cell: ({ row }) => <span className="text-muted-foreground">{row.original.bin?.code ?? "—"}</span>,
+      },
+      {
+        accessorKey: "batch_no",
+        header: "Batch",
+        cell: ({ row }) => <span className="text-muted-foreground">{row.original.batch_no ?? "—"}</span>,
+      },
+      {
+        accessorKey: "serial_no",
+        header: "Serial",
+        cell: ({ row }) => <span className="text-muted-foreground">{row.original.serial_no ?? "—"}</span>,
+      },
+      {
+        accessorKey: "qty_system",
+        header: () => <div className="text-right">Stok Sistem</div>,
+        cell: ({ row }) => <div className="text-right tabular-nums">{row.original.qty_system ?? 0}</div>,
+      },
+      {
+        accessorKey: "qty_actual",
+        header: () => <div className="text-right">Stok Aktual</div>,
+        cell: ({ row }) => {
+          const isCounted = row.original.qty_actual != null;
+          return (
+            <div className="text-right tabular-nums">
+              {isCounted ? row.original.qty_actual : (
+                <Badge variant="outline" className="text-[10px] leading-tight border-slate-300 text-slate-500">
+                  Belum dihitung
+                </Badge>
+              )}
+            </div>
+          )
+        },
+      },
+      {
+        id: "diff",
+        header: () => <div className="text-right">Selisih</div>,
+        cell: ({ row }) => {
+          const isCounted = row.original.qty_actual != null;
+          const diff = isCounted ? (row.original.qty_actual! - (row.original.qty_system ?? 0)) : null;
+          return (
+            <div className={cn(
+              "text-right tabular-nums font-medium",
+              diff != null && diff > 0 ? "text-emerald-600" : diff != null && diff < 0 ? "text-red-600" : "text-muted-foreground"
+            )}>
+              {diff != null ? (diff > 0 ? `+${diff}` : diff) : "—"}
+            </div>
+          )
+        },
+      },
+      {
+        accessorKey: "reason",
+        header: "Alasan",
+        cell: ({ row }) => <span className="text-muted-foreground">{row.original.reason ?? "—"}</span>,
+      },
+      {
+        accessorKey: "counted_by",
+        header: "Dihitung Oleh",
+        cell: ({ row }) => <span className="text-muted-foreground">{row.original.counted_by ?? "—"}</span>,
+      },
+    ]
+
+    if (isInProgress) {
+      cols.push({
+        id: "actions",
+        header: "",
+        cell: ({ row }) => {
+          const item = row.original
+          const isCounted = item.qty_actual != null
+          if (!isCounted) {
+            return (
+              <button
+                type="button"
+                onClick={() =>
+                  setCountDialog({
+                    open: true,
+                    itemId: item.id,
+                    productName: item.item?.item_name ?? "",
+                    qtyActual: "",
+                    reason: "",
+                    countedBy: "",
+                  })
+                }
+                className="inline-flex items-center gap-1 rounded-md bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-500/20"
+              >
+                <CalculatorIcon className="h-3.5 w-3.5" />
+                Hitung
+              </button>
+            )
+          }
+          return null
+        },
+      })
+    }
+    return cols
+  }, [isInProgress])
+
+
+
 
   const hasUncounted = opname?.items?.some((i) => i.qty_actual == null) ?? false
 
@@ -140,9 +261,7 @@ export function OpnameDetail({ id }: { id: string }) {
     )
   }
 
-  const isDraft = opname.status === "DRAFT"
-  const isInProgress = opname.status === "IN_PROGRESS"
-  const isFinalized = opname.status === "FINALIZED"
+
 
   return (
     <div className="flex flex-col gap-4">
@@ -232,95 +351,19 @@ export function OpnameDetail({ id }: { id: string }) {
 
       <LiquidGlass radius={16} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04] p-5">
         <h3 className="mb-4 font-semibold">Daftar Item</h3>
-        <div className="overflow-x-auto rounded-lg border border-border/40">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border/60 bg-muted/30">
-                {["SKU", "Nama Produk", "Bin", "Batch", "Serial", "Stok Sistem", "Stok Aktual", "Selisih", "Alasan", "Dihitung Oleh", ...(isInProgress ? [""] : [])].map((h, i) => (
-                  <th key={`${h}-${i}`} className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {(opname.items ?? []).map((item) => {
-                const isCounted = item.qty_actual != null
-                const diff = isCounted ? (item.qty_actual! - (item.qty_system ?? 0)) : null
-                return (
-                  <tr key={item.id} className="border-b border-border/20 last:border-0">
-                    <td className="whitespace-nowrap px-3 py-2.5 font-mono text-xs">
-                      {item.item?.sku ?? "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5">
-                      {item.item?.item_name ?? "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
-                      {item.bin?.code ?? "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
-                      {item.batch_no ?? "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
-                      {item.serial_no ?? "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums">
-                      {item.qty_system ?? 0}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums">
-                      {isCounted ? item.qty_actual : (
-                        <Badge variant="outline" className="text-[10px] leading-tight border-slate-300 text-slate-500">
-                          Belum dihitung
-                        </Badge>
-                      )}
-                    </td>
-                    <td className={cn(
-                      "whitespace-nowrap px-3 py-2.5 text-right tabular-nums font-medium",
-                      diff != null && diff > 0 ? "text-emerald-600" : diff != null && diff < 0 ? "text-red-600" : "text-muted-foreground"
-                    )}>
-                      {diff != null ? (diff > 0 ? `+${diff}` : diff) : "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
-                      {item.reason ?? "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
-                      {item.counted_by ?? "—"}
-                    </td>
-                    {isInProgress && (
-                      <td className="whitespace-nowrap px-3 py-2.5">
-                        {!isCounted && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setCountDialog({
-                                open: true,
-                                itemId: item.id,
-                                productName: item.item?.item_name ?? "",
-                                qtyActual: "",
-                                reason: "",
-                                countedBy: "",
-                              })
-                            }
-                            className="inline-flex items-center gap-1 rounded-md bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-500/20"
-                          >
-                            <CalculatorIcon className="h-3.5 w-3.5" />
-                            Hitung
-                          </button>
-                        )}
-                      </td>
-                    )}
-                  </tr>
-                )
-              })}
-              {(!opname.items || opname.items.length === 0) && (
-                <tr>
-                  <td colSpan={isInProgress ? 11 : 10} className="px-3 py-8 text-center text-muted-foreground">
-                    Belum ada item.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                <div className="border border-border/40 rounded-lg overflow-hidden">
+          <DataTable
+            columns={columns}
+            data={opname.items ?? []}
+            hideToolbar
+            manualPagination={false}
+            tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+            emptyState={
+              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                <p>Belum ada item.</p>
+              </div>
+            }
+          />
         </div>
       </LiquidGlass>
 

@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
-import { SimplePagination } from "@/components/ui/simple-pagination"
+import type { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table/data-table"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { useQuery } from "@tanstack/react-query"
 import { fetchClient } from "@/lib/api-client"
@@ -78,28 +79,6 @@ function useInternalTransfers(params: InventoryTransferListParams = {}) {
   })
 }
 
-function TableSkeleton() {
-  return (
-    <div className="flex flex-col">
-      <div className="border-b border-border/40 px-3 py-3">
-        <div className="flex gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-4 flex-1" />
-          ))}
-        </div>
-      </div>
-      {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="border-b border-border/20 px-3 py-3.5">
-          <div className="flex gap-4">
-            {Array.from({ length: 6 }).map((_, j) => (
-              <Skeleton key={j} className="h-4 flex-1" />
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 export function TransferTab() {
   const [search, setSearch] = useState("")
@@ -145,6 +124,68 @@ export function TransferTab() {
     per_page: perPage,
     total: 0,
   }
+
+    const columns = useMemo<ColumnDef<InventoryTransfer>[]>(() => [
+    {
+      accessorKey: "transfer_number",
+      header: "No. Transfer",
+      cell: ({ row }) => (
+        <span className="font-medium">
+          <Link
+            href={`/dashboard/barang-keluar/transfer/${row.original.id}`}
+            className="hover:text-primary hover:underline"
+          >
+            {row.original.transfer_number}
+          </Link>
+        </span>
+      ),
+    },
+    {
+      id: "source_location",
+      header: "Asal",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.source_location?.location_name ?? "—"}</span>,
+    },
+    {
+      id: "destination_location",
+      header: "Tujuan",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.destination_location?.location_name ?? "—"}</span>,
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const st = STATUS_MAP[row.original.status]
+        return (
+          <Badge
+            variant="outline"
+            className={cn("text-[10px] leading-tight", st?.className)}
+          >
+            {st?.label ?? row.original.status}
+          </Badge>
+        )
+      },
+    },
+    {
+      accessorKey: "created_at",
+      header: "Tgl. Dibuat",
+      cell: ({ row }) => <span className="text-muted-foreground">{formatDate(row.original.created_at)}</span>,
+    },
+    {
+      id: "actions",
+      header: () => <div className="text-right">Aksi</div>,
+      cell: ({ row }) => {
+        return (
+          <div className="flex justify-end">
+            <Button variant="ghost" size="sm" asChild>
+              <Link href={`/dashboard/barang-keluar/transfer/${row.original.id}`}>
+                Lihat
+              </Link>
+            </Button>
+          </div>
+        )
+      },
+    },
+  ], [])
 
   const statusOptions = [
     { value: "", label: "Semua Status" },
@@ -231,111 +272,37 @@ export function TransferTab() {
           </div>
         )}
 
-        <div className="px-4 py-3 sm:px-5">
-          {isLoading ? (
-            <TableSkeleton />
-          ) : items.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-              <ArrowLeftRightIcon className="h-10 w-10" />
-              <div className="text-center">
-                <p className="text-sm font-medium">
-                  Belum ada internal transfer
-                </p>
-                <p className="mt-1 text-xs">
-                  Data transfer internal akan muncul di sini.
-                </p>
+                <div className="px-5 py-5 sm:px-6">
+          <DataTable
+            columns={columns}
+            data={items}
+            isLoading={isLoading}
+            hideToolbar
+            manualPagination
+            pagination={{
+              pageIndex: page - 1,
+              pageSize: perPage,
+            }}
+            rowCount={meta.total}
+            onPaginationChange={(p) => {
+              setPage(p.pageIndex + 1)
+              setPerPage(p.pageSize)
+            }}
+            tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+            emptyState={
+              <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
+                <ArrowLeftRightIcon className="h-10 w-10 opacity-20" />
+                <div className="text-center">
+                  <p className="text-sm font-medium">
+                    Belum ada internal transfer
+                  </p>
+                  <p className="mt-1 text-xs">
+                    Data transfer internal akan muncul di sini.
+                  </p>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3">
-              <div className="overflow-x-auto rounded-lg border border-border/40">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border/60 bg-muted/30">
-                      {[
-                        "No. Transfer",
-                        "Asal",
-                        "Tujuan",
-                        "Status",
-                        "Tgl. Dibuat",
-                        "Aksi",
-                      ].map((h) => (
-                        <th
-                          key={h}
-                          className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground"
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((item: InventoryTransfer) => {
-                      const st = STATUS_MAP[item.status]
-                      return (
-                        <tr
-                          key={item.id}
-                          className="border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
-                        >
-                          <td className="whitespace-nowrap px-3 py-3 font-medium">
-                            <Link
-                              href={`/dashboard/barang-keluar/transfer/${item.id}`}
-                              className="hover:text-primary hover:underline"
-                            >
-                              {item.transfer_number}
-                            </Link>
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                            {item.source_location?.location_name ?? "—"}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                            {item.destination_location?.location_name ?? "—"}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-3">
-                            <Badge
-                              variant="outline"
-                              className={cn(
-                                "text-[10px] leading-tight",
-                                st?.className
-                              )}
-                            >
-                              {st?.label ?? item.status}
-                            </Badge>
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                            {formatDate(item.created_at)}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-3 text-right">
-                            <Button variant="ghost" size="sm" asChild>
-                              <Link
-                                href={`/dashboard/barang-keluar/transfer/${item.id}`}
-                              >
-                                Lihat
-                              </Link>
-                            </Button>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              <SimplePagination
-                page={meta.current_page}
-                lastPage={meta.last_page}
-                onPageChange={setPage}
-                perPage={meta.per_page}
-                onPerPageChange={(s) => {
-                  setPerPage(s)
-                  resetPage()
-                }}
-                pageSizeOptions={[15, 30, 50]}
-                total={meta.total}
-                label="transfer"
-              />
-            </div>
-          )}
+            }
+          />
         </div>
       </LiquidGlass>
     </div>

@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
+import type { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table/data-table"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -66,6 +68,79 @@ export function PicklistTable() {
   const picklists = data?.items ?? []
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: 20, total: 0 }
 
+  const columns = React.useMemo<ColumnDef<Picklist>[]>(() => [
+    {
+      accessorKey: "picklistNo",
+      header: "No. Picklist",
+      cell: ({ row }) => <span className="font-medium text-foreground">{row.original.picklistNo}</span>,
+    },
+    {
+      accessorKey: "locationName",
+      header: "Lokasi",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.locationName ?? "—"}</span>,
+    },
+    {
+      accessorKey: "pickerName",
+      header: "Picker",
+      cell: ({ row }) => <span>{row.original.pickerName ?? "—"}</span>,
+    },
+    {
+      accessorKey: "itemsCount",
+      header: "Total Item",
+      cell: ({ row }) => <span className="tabular-nums">{row.original.itemsCount}</span>,
+    },
+    {
+      id: "progress",
+      header: "Progress",
+      cell: ({ row }) => <ProgressCell done={row.original.qtyPicked} total={row.original.qtyOrdered} />,
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const st = PICKLIST_STATUS_LABEL[row.original.status];
+        return (
+          <span
+            className={cn(
+              "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+              st?.className
+            )}
+          >
+            {st?.label}
+          </span>
+        )
+      },
+    },
+    {
+      id: "actions",
+      header: () => null,
+      cell: ({ row }) => (
+        <div className="flex justify-end">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon-sm" aria-label="Aksi">
+                <MoreHorizontalIcon className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-44">
+              <DropdownMenuItem
+                onSelect={() => router.push(`/dashboard/proses-pesanan/picking/${row.original.id}`)}
+              >
+                Proses Picking
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setEditPicker(row.original)}>
+                Ubah Picker
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => DocActions.pickListById(row.original.id)}>
+                Cetak Picklist
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ),
+    },
+  ], [router]);
+
   return (
     <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
@@ -96,108 +171,28 @@ export function PicklistTable() {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[820px] border-collapse text-sm">
-          <thead>
-            <tr className="border-b border-border bg-muted/30 text-left text-muted-foreground">
-              <th className="px-3 py-3 font-medium">No. Picklist</th>
-              <th className="px-3 py-3 font-medium">Lokasi</th>
-              <th className="px-3 py-3 font-medium">Picker</th>
-              <th className="px-3 py-3 font-medium">Total Item</th>
-              <th className="px-3 py-3 font-medium">Progress</th>
-              <th className="px-3 py-3 font-medium">Status</th>
-              <th className="w-12 px-3 py-3" />
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan={7} className="py-16 text-center text-muted-foreground">
-                  <Loader2Icon className="mx-auto size-5 animate-spin" />
-                </td>
-              </tr>
-            ) : picklists.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="py-16 text-center text-sm text-muted-foreground">
-                  Tidak ada picklist.
-                </td>
-              </tr>
-            ) : (
-              picklists.map((p) => {
-                const st = PICKLIST_STATUS_LABEL[p.status]
-                return (
-                  <tr key={p.id} className="border-b border-border/60 last:border-0">
-                    <td className="px-3 py-2.5 font-medium text-foreground">{p.picklistNo}</td>
-                    <td className="px-3 py-2.5 text-muted-foreground">{p.locationName ?? "—"}</td>
-                    <td className="px-3 py-2.5">{p.pickerName ?? "—"}</td>
-                    <td className="px-3 py-2.5 tabular-nums">{p.itemsCount}</td>
-                    <td className="px-3 py-2.5">
-                      <ProgressCell done={p.qtyPicked} total={p.qtyOrdered} />
-                    </td>
-                    <td className="px-3 py-2.5">
-                      <span
-                        className={cn(
-                          "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-                          st.className
-                        )}
-                      >
-                        {st.label}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2.5 text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon-sm" aria-label="Aksi">
-                            <MoreHorizontalIcon className="size-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="min-w-44">
-                          <DropdownMenuItem
-                            onSelect={() => router.push(`/dashboard/proses-pesanan/picking/${p.id}`)}
-                          >
-                            Proses Picking
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => setEditPicker(p)}>
-                            Ubah Picker
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => DocActions.pickListById(p.id)}>
-                            Cetak Picklist
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </td>
-                  </tr>
-                )
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
-        <span className="text-xs text-muted-foreground">
-          Halaman {meta.current_page} dari {meta.last_page}
-        </span>
-        <div className="flex items-center gap-1.5">
-          <Button
-            variant="outline"
-            size="icon-sm"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            aria-label="Sebelumnya"
-          >
-            <ChevronLeftIcon className="size-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon-sm"
-            disabled={meta.current_page >= meta.last_page}
-            onClick={() => setPage((p) => p + 1)}
-            aria-label="Berikutnya"
-          >
-            <ChevronRightIcon className="size-4" />
-          </Button>
-        </div>
+      <div className="px-4 pb-4 sm:px-5">
+        <DataTable
+          columns={columns}
+          data={picklists}
+          isLoading={isLoading}
+          hideToolbar
+          manualPagination
+          pagination={{
+            pageIndex: meta.current_page - 1,
+            pageSize: meta.per_page,
+          }}
+          rowCount={meta.total}
+          onPaginationChange={(p) => {
+            setPage(p.pageIndex + 1)
+          }}
+          tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+          emptyState={
+            <div className="py-16 text-center text-sm text-muted-foreground">
+              Tidak ada picklist.
+            </div>
+          }
+        />
       </div>
 
       <UbahPickerDialog

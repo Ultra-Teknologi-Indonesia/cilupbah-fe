@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -11,6 +12,8 @@ import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import type { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table/data-table"
 import { PageTitle } from "@/components/dashboard/page-title"
 import {
   useStockRevaluationDetail,
@@ -95,6 +98,54 @@ export function RevaluasiDetail({ id }: { id: string }) {
 
   const isApproved = reval.status === "APPROVED"
 
+    const columns = React.useMemo<ColumnDef<any>[]>(() => [
+    {
+      accessorKey: "sku",
+      header: "SKU",
+      cell: ({ row }) => <span className="font-mono text-xs">{row.original.item?.sku ?? "—"}</span>,
+    },
+    {
+      accessorKey: "item_name",
+      header: "Nama Produk",
+      cell: ({ row }) => <span>{row.original.item?.item_name ?? "—"}</span>,
+    },
+    {
+      accessorKey: "bin",
+      header: "Bin",
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.bin?.code ?? "—"}</span>,
+    },
+    {
+      accessorKey: "qty",
+      header: () => <div className="text-right">Qty</div>,
+      cell: ({ row }) => <div className="text-right tabular-nums">{row.original.qty ?? 0}</div>,
+    },
+    {
+      accessorKey: "old_cost",
+      header: () => <div className="text-right">HPP Lama</div>,
+      cell: ({ row }) => <div className="text-right tabular-nums text-muted-foreground">{formatCurrency(row.original.old_cost ?? 0)}</div>,
+    },
+    {
+      accessorKey: "new_cost",
+      header: () => <div className="text-right">HPP Baru</div>,
+      cell: ({ row }) => <div className="text-right tabular-nums">{formatCurrency(row.original.new_cost ?? 0)}</div>,
+    },
+    {
+      id: "diff",
+      header: () => <div className="text-right">Selisih</div>,
+      cell: ({ row }) => {
+        const diff = (row.original.new_cost ?? 0) - (row.original.old_cost ?? 0);
+        return (
+          <div className={cn(
+            "text-right tabular-nums font-medium",
+            diff > 0 ? "text-emerald-600" : diff < 0 ? "text-red-600" : "text-muted-foreground"
+          )}>
+            {diff > 0 ? `+${formatCurrency(diff)}` : formatCurrency(diff)}
+          </div>
+        )
+      },
+    },
+  ], [])
+
   const totalSelisih = (reval.items ?? []).reduce((sum, item) => {
     return sum + ((item.new_cost ?? 0) - (item.old_cost ?? 0)) * (item.qty ?? 0)
   }, 0)
@@ -152,73 +203,32 @@ export function RevaluasiDetail({ id }: { id: string }) {
 
       <LiquidGlass radius={16} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04] p-5">
         <h3 className="mb-4 font-semibold">Daftar Item</h3>
-        <div className="overflow-x-auto rounded-lg border border-border/40">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border/60 bg-muted/30">
-                {["SKU", "Nama Produk", "Bin", "Qty", "HPP Lama", "HPP Baru", "Selisih"].map((h) => (
-                  <th key={h} className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {(reval.items ?? []).map((item) => {
-                const diff = (item.new_cost ?? 0) - (item.old_cost ?? 0)
-                return (
-                  <tr key={item.id} className="border-b border-border/20 last:border-0">
-                    <td className="whitespace-nowrap px-3 py-2.5 font-mono text-xs">
-                      {item.item?.sku ?? "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5">
-                      {item.item?.item_name ?? "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
-                      {item.bin?.code ?? "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums">
-                      {item.qty ?? 0}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums text-muted-foreground">
-                      {formatCurrency(item.old_cost ?? 0)}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums">
-                      {formatCurrency(item.new_cost ?? 0)}
-                    </td>
-                    <td className={cn(
-                      "whitespace-nowrap px-3 py-2.5 text-right tabular-nums font-medium",
-                      diff > 0 ? "text-emerald-600" : diff < 0 ? "text-red-600" : "text-muted-foreground"
-                    )}>
-                      {diff > 0 ? `+${formatCurrency(diff)}` : formatCurrency(diff)}
-                    </td>
-                  </tr>
-                )
-              })}
-              {(!reval.items || reval.items.length === 0) && (
-                <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-muted-foreground">
-                    Belum ada item.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-            {reval.items && reval.items.length > 0 && (
-              <tfoot>
-                <tr className="border-t border-border/60 bg-muted/20">
-                  <td colSpan={6} className="whitespace-nowrap px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Total Selisih
-                  </td>
-                  <td className={cn(
-                    "whitespace-nowrap px-3 py-2.5 text-right tabular-nums font-semibold",
-                    totalSelisih > 0 ? "text-emerald-600" : totalSelisih < 0 ? "text-red-600" : "text-muted-foreground"
-                  )}>
-                    {totalSelisih > 0 ? `+${formatCurrency(totalSelisih)}` : formatCurrency(totalSelisih)}
-                  </td>
-                </tr>
-              </tfoot>
-            )}
-          </table>
+                <div className="border border-border/40 rounded-lg overflow-hidden">
+          <DataTable
+            columns={columns}
+            data={reval.items ?? []}
+            hideToolbar
+            manualPagination={false}
+            tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+            emptyState={
+              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                <p>Belum ada item.</p>
+              </div>
+            }
+          />
+          {reval.items && reval.items.length > 0 && (
+            <div className="flex items-center justify-end gap-6 border-t border-border/60 bg-muted/20 px-3 py-3">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Total Selisih
+              </span>
+              <span className={cn(
+                "tabular-nums font-semibold",
+                totalSelisih > 0 ? "text-emerald-600" : totalSelisih < 0 ? "text-red-600" : "text-muted-foreground"
+              )}>
+                {totalSelisih > 0 ? `+${formatCurrency(totalSelisih)}` : formatCurrency(totalSelisih)}
+              </span>
+            </div>
+          )}
         </div>
       </LiquidGlass>
 
