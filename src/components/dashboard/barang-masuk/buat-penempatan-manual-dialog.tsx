@@ -28,7 +28,7 @@ export function BuatPenempatanManualDialog({ inbound, open, onOpenChange }: Buat
   const [assignedTo, setAssignedTo] = useState("")
 
   const totalSku = inbound?.items?.length ?? 0
-  const totalQty = inbound?.items?.reduce((acc, i) => acc + i.received_qty, 0) ?? 0
+  const totalQty = inbound?.items?.reduce((acc, i) => acc + i.expected_qty, 0) ?? 0
 
   const userOptions = (usersData?.items ?? []).map((u) => ({
     value: u.id,
