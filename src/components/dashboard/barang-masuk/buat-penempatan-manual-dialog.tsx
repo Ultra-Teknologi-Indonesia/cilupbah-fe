@@ -39,9 +39,10 @@ export function BuatPenempatanManualDialog({ inbound, open, onOpenChange }: Buat
     mutationFn: async () => {
       if (!inbound) throw new Error("Inbound required")
       const assignedToId = assignedTo
-      const res = await fetchClient<{ data: any, error?: string }>(`/inbounds/${inbound.id}/assign`, {
+      const res = await fetchClient<{ data: any, error?: string }>(`/putaway`, {
         method: "POST",
         data: {
+          inbound_id: inbound.id,
           assigned_to: assignedToId || undefined,
         },
       })

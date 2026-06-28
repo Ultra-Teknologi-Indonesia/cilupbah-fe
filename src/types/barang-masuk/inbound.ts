@@ -70,6 +70,10 @@ export interface Inbound {
   location?: { id: string; location_name: string }
   items: InboundItem[]
   assignments?: InboundAssignment[]
+  putaways?: {
+    id: string
+    status: string
+  }[]
 }
 
 export interface InboundListParams {
