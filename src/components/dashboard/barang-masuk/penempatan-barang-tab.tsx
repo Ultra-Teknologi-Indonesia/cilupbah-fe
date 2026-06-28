@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react"
 import Link from "next/link"
-import { ArchiveIcon, PlayIcon, CheckCircleIcon, UserPlusIcon, DownloadIcon, UploadIcon } from "lucide-react"
+import { ArchiveIcon, PlayIcon, UserPlusIcon, DownloadIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -18,9 +18,8 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
-import { ImportPutawayDialog } from "@/components/dashboard/barang-masuk/import-putaway-dialog"
 import { usePutaways } from "@/hooks/barang-masuk/use-putaway"
-import { useAssignPutawayStaff, useStartPutaway, useCompletePutaway } from "@/hooks/barang-masuk/use-putaway-actions"
+import { useAssignPutawayStaff, useStartPutaway } from "@/hooks/barang-masuk/use-putaway-actions"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import { useUsers } from "@/hooks/pengaturan/use-users"
 import { exportCsv } from "@/lib/export-csv"
@@ -99,12 +98,9 @@ export function PenempatanBarangTab() {
   const [assignUserId, setAssignUserId] = useState("")
   const [assignPerformedBy, setAssignPerformedBy] = useState("")
   const [startTarget, setStartTarget] = useState<Putaway | null>(null)
-  const [completeTarget, setCompleteTarget] = useState<Putaway | null>(null)
-  const [importTarget, setImportTarget] = useState<Putaway | null>(null)
 
   const assignMutation = useAssignPutawayStaff()
   const startMutation = useStartPutaway()
-  const completeMutation = useCompletePutaway()
   const { data: userData } = useUsers({ perPage: 100 })
 
   const resetPage = useCallback(() => setPage(1), [])
@@ -220,27 +216,6 @@ export function PenempatanBarangTab() {
                 </Link>
               </Button>
             )}
-            {item.status === "IN_PROGRESS" && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 gap-1.5 text-violet-600 dark:text-violet-400 hover:text-violet-700 hover:bg-violet-50 dark:hover:bg-violet-950/50"
-                onClick={() => setImportTarget(item)}
-              >
-                <UploadIcon className="h-4 w-4" />
-                Import
-              </Button>
-            )}
-            {item.status === "IN_PROGRESS" && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 gap-1.5 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/50"
-                onClick={() => setCompleteTarget(item)}
-              >
-                <CheckCircleIcon className="h-4 w-4" />
-                Selesai
-              </Button>
             )}
           </div>
         )
@@ -398,31 +373,6 @@ export function PenempatanBarangTab() {
           </div>
         </div>
       </ConfirmDialog>
-
-      <ConfirmDialog
-        open={!!completeTarget}
-        onOpenChange={(open) => { if (!open) setCompleteTarget(null) }}
-        title="Selesaikan Putaway"
-        description={`Tandai ${completeTarget?.putaway_no ?? ""} sebagai selesai?`}
-        confirmLabel="Selesai"
-        loading={completeMutation.isPending}
-        onConfirm={() => {
-          if (!completeTarget) return
-          completeMutation.mutate(completeTarget.id, {
-            onSuccess: () => setCompleteTarget(null),
-          })
-        }}
-      />
-
-      {importTarget && (
-        <ImportPutawayDialog
-          open={!!importTarget}
-          onOpenChange={(open) => { if (!open) setImportTarget(null) }}
-          putawayId={importTarget.id}
-          locationId={importTarget.location_id}
-          onComplete={() => {}}
-        />
-      )}
     </>
   )
 }
