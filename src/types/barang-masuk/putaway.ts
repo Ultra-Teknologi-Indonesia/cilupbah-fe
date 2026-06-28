@@ -35,6 +35,7 @@ export interface Putaway {
   updated_at: string
   location?: { id: string; location_name: string }
   assignee?: { id: string; name: string }
+  creator?: { id: string; name: string }
   inbound?: { id: string; reference_number: string; created_at: string }
   items: PutawayItem[]
 }

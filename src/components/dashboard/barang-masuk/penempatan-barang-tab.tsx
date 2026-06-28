@@ -161,7 +161,7 @@ export function PenempatanBarangTab() {
     {
       accessorKey: "created_by",
       header: "Dibuat Oleh",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.created_by}</span>,
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.creator?.name ?? row.original.created_by}</span>,
     },
     {
       id: "assignee",
