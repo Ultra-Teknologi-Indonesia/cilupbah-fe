@@ -20,6 +20,7 @@ import {
 
   CheckIcon,
   XIcon,
+  ClipboardListIcon,
 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
@@ -29,6 +30,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { BuatPicklistDialog } from "@/components/dashboard/proses-pesanan/picking/buat-picklist-dialog"
 import {
   Tooltip,
   TooltipContent,
@@ -546,6 +548,55 @@ function OrderActions({
 
 export type OrderCardVariant = "sales" | "outbound-ready"
 
+function OutboundReadyActions({ order }: { order: Order }) {
+  const [picklistOpen, setPicklistOpen] = React.useState(false)
+  const getLabel = useGetShippingLabel()
+  const isMarketplace = !!order.source && order.source !== "manual"
+
+  const handlePrintLabel = () => {
+    if (isMarketplace) {
+      getLabel.mutate({ orderId: order.id })
+    } else {
+      toast.info("Cetak label hanya tersedia untuk pesanan marketplace")
+    }
+  }
+
+  return (
+    <>
+      {order.shipping?.tracking_number && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          disabled={getLabel.isPending}
+          onClick={handlePrintLabel}
+        >
+          <PrinterIcon className="h-3.5 w-3.5" />
+          {getLabel.isPending ? "Mengambil..." : "Cetak Label"}
+        </Button>
+      )}
+      <Button
+        variant="outline"
+        size="sm"
+        className="h-8 gap-1.5 text-xs"
+        onClick={() => setPicklistOpen(true)}
+      >
+        <ClipboardListIcon className="h-3.5 w-3.5" />
+        Buat Picklist
+      </Button>
+      <BuatPicklistDialog
+        open={picklistOpen}
+        onOpenChange={setPicklistOpen}
+        orderIds={[order.id]}
+        locationId={order.location_id ?? null}
+        locationName={order.location_name ?? null}
+        multiLocation={false}
+        onCreated={() => setPicklistOpen(false)}
+      />
+    </>
+  )
+}
+
 export function OrderCard({
   order,
   tab = "all",
@@ -775,6 +826,7 @@ export function OrderCard({
           {variant === "sales" && (
             <OrderActions order={order} tab={tab} subFilter={subFilter} />
           )}
+          {variant === "outbound-ready" && <OutboundReadyActions order={order} />}
         </div>
       </div>
     </div>
