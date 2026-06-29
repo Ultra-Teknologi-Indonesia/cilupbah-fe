@@ -141,7 +141,7 @@ export function useCreatePicklist() {
     mutationFn: (payload: {
       order_ids: string[]
       location_id: string
-      picker_id?: string | null
+      picker_id: string
       notes?: string | null
     }) => OutboundService.createPicklist(payload),
     onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),

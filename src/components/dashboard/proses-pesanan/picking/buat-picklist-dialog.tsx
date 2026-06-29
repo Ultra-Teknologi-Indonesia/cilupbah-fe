@@ -47,15 +47,19 @@ export function BuatPicklistDialog({
     }
   }, [open])
 
-  const canSubmit = orderIds.length > 0 && !!locationId && !multiLocation
+  const canSubmit = orderIds.length > 0 && !!locationId && !multiLocation && !!pickerId
 
   const handleSubmit = async () => {
     if (!locationId) return
+    if (!pickerId) {
+      toast.error("Pilih picker terlebih dahulu")
+      return
+    }
     try {
       await createPicklist.mutateAsync({
         order_ids: orderIds,
         location_id: locationId,
-        picker_id: pickerId || null,
+        picker_id: pickerId,
         notes: notes || null,
       })
       toast.success(`Picklist dibuat untuk ${orderIds.length} pesanan.`)
@@ -97,14 +101,14 @@ export function BuatPicklistDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="picklist-picker">Picker (opsional)</Label>
+            <Label htmlFor="picklist-picker">Picker</Label>
             <select
               id="picklist-picker"
               value={pickerId}
               onChange={(e) => setPickerId(e.target.value)}
               className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
             >
-              <option value="">— Tanpa picker —</option>
+              <option value="">— Pilih picker —</option>
               {pickers.data?.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name}

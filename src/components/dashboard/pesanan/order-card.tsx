@@ -544,18 +544,22 @@ function OrderActions({
   return null
 }
 
+export type OrderCardVariant = "sales" | "outbound-ready"
+
 export function OrderCard({
   order,
   tab = "all",
   subFilter = null,
   selected,
   onSelectedChange,
+  variant = "sales",
 }: {
   order: Order
   tab?: OrderTab
   subFilter?: SubFilter
   selected?: boolean
   onSelectedChange?: (v: boolean) => void
+  variant?: OrderCardVariant
 }) {
   const groupedItems = React.useMemo(() => {
     const map = new Map<string, OrderItem>()
@@ -768,7 +772,9 @@ export function OrderCard({
         </Button>
 
         <div className="ml-auto flex items-center gap-2">
-          <OrderActions order={order} tab={tab} subFilter={subFilter} />
+          {variant === "sales" && (
+            <OrderActions order={order} tab={tab} subFilter={subFilter} />
+          )}
         </div>
       </div>
     </div>

@@ -19,6 +19,7 @@ import { StageTabs } from "./stage-tabs"
 import { SubStatusPills } from "./sub-status-pills"
 import { FulfillmentOrdersTable, ORDER_ACTION_PRESET } from "./shared/fulfillment-orders-table"
 import { PicklistTable } from "./picking/picklist-table"
+import { ReadyToProcessCardList } from "./picking/ready-to-process-card-list"
 import { PacklistTable } from "./packing/packlist-table"
 import { ShipmentTable } from "./shipping/shipment-table"
 
@@ -61,8 +62,7 @@ export function ProsesPesananView() {
 
   function renderContent() {
     if (stage === "picking") {
-      if (sub === "belum")
-        return <FulfillmentOrdersTable stage="ready-to-process" actions={ORDER_ACTION_PRESET.pickingBelum} />
+      if (sub === "belum") return <ReadyToProcessCardList />
       if (sub === "diproses") return <PicklistTable />
       return <FulfillmentOrdersTable stage="finish-pick" actions={ORDER_ACTION_PRESET.docSet} />
     }

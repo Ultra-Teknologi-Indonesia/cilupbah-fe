@@ -277,7 +277,7 @@ export const OutboundService = {
   createPicklist: async (payload: {
     order_ids: string[]
     location_id: string
-    picker_id?: string | null
+    picker_id: string
     notes?: string | null
   }): Promise<Picklist> => {
     const res = await fetchClient<{ data: RawPicklist }>(`/outbound/picklists`, {
