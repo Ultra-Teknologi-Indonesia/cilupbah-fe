@@ -35,6 +35,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { DataTableToolbar } from "./data-table-toolbar"
 import { DataTablePagination } from "./data-table-pagination"
 import type { FacetedFilter } from "./types"
+import { BulkActionBar } from "@/components/ui/bulk-action-bar"
 
 export interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -196,15 +197,11 @@ export function DataTable<TData, TValue>({
         />
       )}
 
-      {bulkActions && selectedRows.length > 0 && (
-        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-muted/40 px-4 py-2.5 text-sm">
-          <span className="font-medium">
-            {selectedRows.length} dipilih
-          </span>
-          <div className="ml-auto flex items-center gap-2">
-            {bulkActions(selectedRows, table)}
-          </div>
-        </div>
+      {bulkActions && (
+        <BulkActionBar
+          count={selectedRows.length}
+          actions={bulkActions(selectedRows, table)}
+        />
       )}
 
       <div

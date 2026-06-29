@@ -12,6 +12,7 @@ import {
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
+import { BulkActionBar } from "@/components/ui/bulk-action-bar"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
@@ -182,7 +183,7 @@ export function ReadyToProcessCardList() {
       </div>
 
       {/* List */}
-      <div className="px-4 pb-24 sm:px-5">
+      <div className="px-4 pb-4 sm:px-5">
         {isLoading ? (
           <div className="flex flex-col gap-3 py-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -207,6 +208,59 @@ export function ReadyToProcessCardList() {
                 Pilih Semua di halaman ini
               </span>
             </div>
+
+            <BulkActionBar
+              count={selected.size}
+              onClear={clearSelection}
+              label={(n) => `${n} pesanan dipilih`}
+              message={
+                multiLocation ? (
+                  <span className="text-xs text-destructive">
+                    Pesanan dari lokasi berbeda — pilih dari satu lokasi saja
+                  </span>
+                ) : null
+              }
+              actions={
+                multiLocation ? null : (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">Picker</span>
+                      <Select
+                        value={pickerId}
+                        onValueChange={setPickerId}
+                        disabled={!locationId || pickers.isLoading}
+                      >
+                        <SelectTrigger className="h-9 w-56">
+                          <SelectValue
+                            placeholder={
+                              pickers.isLoading ? "Memuat…" : "Pilih picker…"
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {pickers.data?.map((p) => (
+                            <SelectItem key={p.id} value={p.id}>
+                              {p.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={handleCreatePicklist}
+                      disabled={createPicklist.isPending || !pickerId}
+                    >
+                      {createPicklist.isPending && (
+                        <Loader2Icon className="animate-spin" />
+                      )}
+                      Buat Picklist
+                    </Button>
+                  </>
+                )
+              }
+            />
 
             {mappedOrders.map(({ raw, ui }) => (
               <OrderCard
@@ -269,67 +323,6 @@ export function ReadyToProcessCardList() {
         </div>
       </div>
 
-      {/* Sticky bottom action bar */}
-      {selected.size > 0 && (
-        <div className="sticky bottom-0 z-10 flex flex-wrap items-center gap-3 border-t border-primary/20 bg-background/95 px-4 py-3 backdrop-blur-md sm:px-5">
-          <span className="text-sm font-medium">
-            {selected.size} pesanan dipilih
-          </span>
-
-          {multiLocation ? (
-            <span className="text-xs text-destructive">
-              Pesanan dari lokasi berbeda — pilih dari satu lokasi saja
-            </span>
-          ) : (
-            <>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">Picker</span>
-                <Select
-                  value={pickerId}
-                  onValueChange={setPickerId}
-                  disabled={!locationId || pickers.isLoading}
-                >
-                  <SelectTrigger className="h-9 w-56">
-                    <SelectValue
-                      placeholder={
-                        pickers.isLoading ? "Memuat…" : "Pilih picker…"
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {pickers.data?.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>
-                        {p.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleCreatePicklist}
-                disabled={createPicklist.isPending || !pickerId}
-              >
-                {createPicklist.isPending && (
-                  <Loader2Icon className="animate-spin" />
-                )}
-                Buat Picklist
-              </Button>
-            </>
-          )}
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearSelection}
-            className="ml-auto"
-          >
-            Batal
-          </Button>
-        </div>
-      )}
     </LiquidGlass>
   )
 }
