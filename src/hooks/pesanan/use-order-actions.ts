@@ -145,7 +145,7 @@ export function useRejectReturn() {
 
 function openShippingLabel(result: ShippingLabelResult) {
   if (result.type === "url" && result.url) {
-    window.open(result.url, "_blank")
+    triggerDownload(result.url, "shipping-label.pdf")
     return
   }
   if (result.type === "base64" && result.document_base64) {
@@ -157,10 +157,23 @@ function openShippingLabel(result: ShippingLabelResult) {
     }
     const blob = new Blob([byteArray], { type: contentType })
     const url = URL.createObjectURL(blob)
-    window.open(url, "_blank")
+    const ext = contentType.includes("pdf") ? "pdf" : "bin"
+    triggerDownload(url, `shipping-label.${ext}`)
+    setTimeout(() => URL.revokeObjectURL(url), 10_000)
     return
   }
   toast.info("Format label tidak dikenali")
+}
+
+function triggerDownload(url: string, filename: string) {
+  const a = document.createElement("a")
+  a.href = url
+  a.download = filename
+  a.target = "_blank"
+  a.rel = "noopener"
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
 }
 
 export function useGetShippingLabel() {
