@@ -1,6 +1,6 @@
 import type { BinPreviewItem, GenerateBinsPayload } from "@/types/manajemen-rak/location"
 
-export const MAX_BIN_COMBINATIONS = 2000
+export const MAX_BIN_COMBINATIONS = 10000
 
 // Hasilkan kombinasi kode rak secara lokal (mirror massGenerate di BE):
 // floor "L1", row "B1", column "K1", bin "R1" -> final "L1-B1-K1-R1".
