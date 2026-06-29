@@ -53,3 +53,21 @@ export async function fetchBlob(
   a.remove();
   URL.revokeObjectURL(url);
 }
+
+export async function fetchBlobRaw(
+  endpoint: string,
+  mimeType?: string
+): Promise<Blob> {
+  const formattedEndpoint = endpoint.startsWith("/")
+    ? endpoint
+    : `/${endpoint}`;
+
+  const response = await apiClient(formattedEndpoint, {
+    responseType: "blob",
+    headers: { Accept: "*/*" },
+  });
+
+  return mimeType
+    ? new Blob([response.data], { type: mimeType })
+    : response.data;
+}

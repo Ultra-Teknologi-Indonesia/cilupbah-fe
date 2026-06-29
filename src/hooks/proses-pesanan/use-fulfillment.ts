@@ -1,6 +1,7 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 import {
   OutboundService,
@@ -215,6 +216,38 @@ export function useCompletePicklist() {
   return useMutation({
     mutationFn: (id: string) => OutboundService.completePicklist(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+  })
+}
+
+// Download PDF picklist sebagai file (filename pakai picklistNo bila tersedia,
+// fallback ke `PICK-{id}.pdf`). Trigger anchor click programmatic.
+export function useDownloadPicklistPdf() {
+  return useMutation({
+    mutationFn: async ({
+      picklistId,
+      picklistNo,
+    }: {
+      picklistId: string
+      picklistNo?: string | null
+    }) => {
+      const blob = await OutboundService.picklistPdf(picklistId)
+      const filename = picklistNo ? `${picklistNo}.pdf` : `PICK-${picklistId}.pdf`
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    },
+    onError: (err: unknown) => {
+      const msg =
+        err && typeof err === "object" && "message" in err && typeof (err as { message?: unknown }).message === "string"
+          ? (err as { message: string }).message
+          : "Gagal mengunduh PDF picklist."
+      toast.error(msg)
+    },
   })
 }
 

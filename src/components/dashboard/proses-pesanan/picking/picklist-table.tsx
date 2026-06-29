@@ -9,6 +9,7 @@ import {
   Loader2Icon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  PrinterIcon,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -24,11 +25,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
-import { usePicklists } from "@/hooks/proses-pesanan/use-fulfillment"
+import {
+  useDownloadPicklistPdf,
+  usePicklists,
+} from "@/hooks/proses-pesanan/use-fulfillment"
 import { PICKLIST_STATUS_LABEL, type Picklist } from "@/types/proses-pesanan/fulfillment"
 
 import { UbahPickerDialog } from "./ubah-picker-dialog"
-import { DocActions } from "./doc-actions"
 
 function ProgressCell({ done, total }: { done: number; total: number }) {
   const pct = total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0
@@ -53,6 +56,7 @@ export function PicklistTable() {
   const [debounced, setDebounced] = React.useState("")
   const [page, setPage] = React.useState(1)
   const [editPicker, setEditPicker] = React.useState<Picklist | null>(null)
+  const downloadPdf = useDownloadPicklistPdf()
 
   React.useEffect(() => {
     const t = setTimeout(() => setDebounced(search.trim()), 350)
@@ -131,7 +135,16 @@ export function PicklistTable() {
               <DropdownMenuItem onSelect={() => setEditPicker(row.original)}>
                 Ubah Picker
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => DocActions.pickListById(row.original.id)}>
+              <DropdownMenuItem
+                disabled={downloadPdf.isPending}
+                onSelect={() =>
+                  downloadPdf.mutate({
+                    picklistId: row.original.id,
+                    picklistNo: row.original.picklistNo,
+                  })
+                }
+              >
+                <PrinterIcon className="size-4" />
                 Cetak Picklist
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -139,7 +152,7 @@ export function PicklistTable() {
         </div>
       ),
     },
-  ], [router]);
+  ], [router, downloadPdf]);
 
   return (
     <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">

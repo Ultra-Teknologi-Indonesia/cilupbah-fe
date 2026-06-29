@@ -1,4 +1,4 @@
-import { fetchClient } from "@/lib/api-client"
+import { fetchBlobRaw, fetchClient } from "@/lib/api-client"
 import type { ApiPaginated, ApiResponse } from "@/types/api.types"
 import type {
   Courier,
@@ -456,6 +456,15 @@ export const OutboundService = {
       `/reports/wms/pick-list?picklist_id=${encodeURIComponent(picklistId)}`
     )
     return res.data
+  },
+
+  // PDF Picklist (binary stream dari BE Outbound module). Caller mengatur filename
+  // berdasarkan picklist_no yang sudah dimuat di FE.
+  picklistPdf: async (picklistId: string): Promise<Blob> => {
+    return fetchBlobRaw(
+      `/outbound/picklists/${encodeURIComponent(picklistId)}/pdf`,
+      "application/pdf"
+    )
   },
 
   invoiceDoc: async (orderIds: string[]): Promise<unknown> => {
