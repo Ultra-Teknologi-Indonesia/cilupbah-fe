@@ -117,6 +117,8 @@ export function PesananFormPage({ mode, id }: Props) {
         qty: it.qty,
         unit_price: Number(it.unit_price),
         disc: Number(it.disc),
+        disc_amount: Number(it.disc_amount ?? 0),
+        shipping_cost: Number(it.shipping_cost ?? 0),
         thumbnail: null,
       })))
     }
@@ -158,6 +160,8 @@ export function PesananFormPage({ mode, id }: Props) {
             // Jangan auto-isi dari harga jual produk.
             unit_price: 0,
             disc: 0,
+            disc_amount: 0,
+            shipping_cost: 0,
             thumbnail: p.thumbnail,
             variant_label: p.variantLabel,
           })
@@ -172,18 +176,28 @@ export function PesananFormPage({ mode, id }: Props) {
   const totals = useMemo(() => {
     let subTotal = 0
     let totalDisc = 0
+    let totalShipping = 0
     let totalQty = 0
     let count = 0
     for (const it of items) {
       if (!it.item_id) continue
       const line = it.qty * it.unit_price
-      const disc = line * (it.disc / 100)
+      const discPct = line * (it.disc / 100)
+      const discAmt = Number(it.disc_amount ?? 0)
       subTotal += line
-      totalDisc += disc
+      totalDisc += discPct + discAmt
+      totalShipping += Number(it.shipping_cost ?? 0)
       totalQty += it.qty
       count++
     }
-    return { subTotal, totalDisc, grandTotal: subTotal - totalDisc, count, totalQty }
+    return {
+      subTotal,
+      totalDisc,
+      totalShipping,
+      grandTotal: subTotal - totalDisc + totalShipping,
+      count,
+      totalQty,
+    }
   }, [items])
 
   // Wajib: minimal 1 varian terupload, dan tiap baris punya qty > 0 & harga pokok > 0
@@ -222,6 +236,8 @@ export function PesananFormPage({ mode, id }: Props) {
         qty: it.qty,
         unit_price: it.unit_price,
         disc: it.disc,
+        disc_amount: Number(it.disc_amount ?? 0),
+        shipping_cost: Number(it.shipping_cost ?? 0),
       })),
     }
 
@@ -350,10 +366,12 @@ export function PesananFormPage({ mode, id }: Props) {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/30 hover:bg-muted/30">
-                    <TableHead className="w-[280px] min-w-[200px] max-w-[320px]">Produk</TableHead>
-                    <TableHead className="w-32 text-right">Harga</TableHead>
-                    <TableHead className="w-24 text-right">Qty</TableHead>
-                    <TableHead className="w-24 text-right">Diskon %</TableHead>
+                    <TableHead className="w-[260px] min-w-[200px] max-w-[300px]">Produk</TableHead>
+                    <TableHead className="w-28 text-right">Harga</TableHead>
+                    <TableHead className="w-20 text-right">Qty</TableHead>
+                    <TableHead className="w-20 text-right">Diskon %</TableHead>
+                    <TableHead className="w-28 text-right">Diskon (Rp)</TableHead>
+                    <TableHead className="w-28 text-right">Ongkos Angkut</TableHead>
                     <TableHead className="w-32 text-right">Total</TableHead>
                     <TableHead className="w-10" />
                   </TableRow>
@@ -361,12 +379,18 @@ export function PesananFormPage({ mode, id }: Props) {
                 <TableBody>
                   {activeItems.map((item, idx) => {
                     const lineTotal = item.qty * item.unit_price
-                    const discAmount = lineTotal * (item.disc / 100)
-                    const total = lineTotal - discAmount
+                    const discPct = lineTotal * (item.disc / 100)
+                    const discAmt = Number(item.disc_amount ?? 0)
+                    const ship = Number(item.shipping_cost ?? 0)
+                    const total = lineTotal - discPct - discAmt + ship
+                    const landed =
+                      item.qty > 0
+                        ? item.unit_price - discAmt / item.qty + ship / item.qty
+                        : item.unit_price
                     return (
                       <TableRow key={item.item_id}>
-                        <TableCell className="w-[280px] min-w-[200px] max-w-[320px] whitespace-normal">
-                          <div className="flex items-start gap-3" style={{ maxWidth: 280 }}>
+                        <TableCell className="w-[260px] min-w-[200px] max-w-[300px] whitespace-normal">
+                          <div className="flex items-start gap-3" style={{ maxWidth: 260 }}>
                             <ProductImage src={item.thumbnail} alt={item.product_name ?? ""} />
                             <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                               <span className="font-medium whitespace-normal break-words text-foreground">
@@ -380,6 +404,11 @@ export function PesananFormPage({ mode, id }: Props) {
                               {item.product_sku && (
                                 <span className="break-all font-mono text-[11px] text-foreground/80">
                                   {item.product_sku}
+                                </span>
+                              )}
+                              {(discAmt > 0 || ship > 0) && (
+                                <span className="mt-0.5 text-[11px] tabular-nums text-foreground">
+                                  Landed: {formatCurrency(landed)}/unit
                                 </span>
                               )}
                             </div>
@@ -423,6 +452,38 @@ export function PesananFormPage({ mode, id }: Props) {
                             className="h-8 text-right bg-background tabular-nums"
                           />
                         </TableCell>
+                        <TableCell>
+                          <Input
+                            type="text"
+                            inputMode="numeric"
+                            value={discAmt ? discAmt.toLocaleString("id-ID") : ""}
+                            onChange={(e) =>
+                              updateItem(
+                                idx,
+                                "disc_amount",
+                                Number(e.target.value.replace(/\D/g, "")),
+                              )
+                            }
+                            placeholder="0"
+                            className="h-8 text-right bg-background tabular-nums"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            type="text"
+                            inputMode="numeric"
+                            value={ship ? ship.toLocaleString("id-ID") : ""}
+                            onChange={(e) =>
+                              updateItem(
+                                idx,
+                                "shipping_cost",
+                                Number(e.target.value.replace(/\D/g, "")),
+                              )
+                            }
+                            placeholder="0"
+                            className="h-8 text-right bg-background tabular-nums"
+                          />
+                        </TableCell>
                         <TableCell className="text-right font-medium tabular-nums text-foreground">
                           {formatCurrency(total)}
                         </TableCell>
@@ -436,7 +497,7 @@ export function PesananFormPage({ mode, id }: Props) {
                   })}
                   {activeItems.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                      <TableCell colSpan={8} className="h-32 text-center text-muted-foreground">
                         <PackageIcon className="mx-auto mb-2 h-8 w-8 opacity-50" />
                         <p className="text-sm">Belum ada produk. Klik tombol di bawah untuk menambahkan.</p>
                       </TableCell>
@@ -469,6 +530,10 @@ export function PesananFormPage({ mode, id }: Props) {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Diskon</span>
                 <span className="tabular-nums">{formatCurrency(totals.totalDisc)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Ongkos Angkut</span>
+                <span className="tabular-nums">{formatCurrency(totals.totalShipping)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Pajak</span>

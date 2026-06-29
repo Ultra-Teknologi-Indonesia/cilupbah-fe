@@ -192,7 +192,30 @@ export function PesananDetailView({ id }: { id: string }) {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">{formatCurrency(item.unit_price)}</TableCell>
+                      <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
+                        <div className="flex flex-col items-end gap-0.5">
+                          <span>{formatCurrency(item.unit_price)}</span>
+                          {(Number(item.shipping_cost ?? 0) > 0 ||
+                            Number(item.disc_amount ?? 0) > 0) && (
+                            <span className="text-[11px] text-foreground">
+                              {Number(item.shipping_cost ?? 0) > 0 &&
+                                `Ongkos: ${formatCurrency(Number(item.shipping_cost))}`}
+                              {Number(item.shipping_cost ?? 0) > 0 &&
+                                Number(item.disc_amount ?? 0) > 0 &&
+                                " · "}
+                              {Number(item.disc_amount ?? 0) > 0 &&
+                                `Diskon: ${formatCurrency(Number(item.disc_amount))}`}
+                            </span>
+                          )}
+                          {item.landed_cost_per_unit !== undefined &&
+                            Number(item.landed_cost_per_unit) !==
+                              Number(item.unit_price) && (
+                              <span className="text-[11px] text-foreground">
+                                Landed: {formatCurrency(Number(item.landed_cost_per_unit))}/unit
+                              </span>
+                            )}
+                        </div>
+                      </TableCell>
                       <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">{item.qty}</TableCell>
                       <TableCell className="px-3 py-2.5 text-right tabular-nums">
                         <span className={cn(item.received_qty >= item.qty ? "text-emerald-600" : item.received_qty > 0 ? "text-amber-600" : "text-foreground")}>

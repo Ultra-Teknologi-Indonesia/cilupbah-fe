@@ -10,6 +10,8 @@ export interface PurchaseOrderItem {
   unit_price: number
   disc: number
   disc_amount: number
+  shipping_cost: number
+  landed_cost_per_unit?: number
   tax_id: string | null
   tax_amount: number
   amount: number
@@ -68,6 +70,8 @@ export interface PurchaseOrderItemFormData {
   qty: number
   unit_price: number
   disc: number
+  disc_amount?: number
+  shipping_cost?: number
   tax_id?: string
   tax_amount?: number
 }

@@ -18,6 +18,12 @@ import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination } from "@/components/ui/simple-pagination"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { InfoIcon } from "lucide-react"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { useStockPosition } from "@/hooks/persediaan/use-stock-position"
 import type { StockItem, StockListParams } from "@/types/persediaan/stock"
@@ -314,7 +320,38 @@ export function PosisiStokView() {
                   <thead>
                     <tr className="border-b border-border/60 bg-muted/30">
                       <SortHeader label="Produk" field="item_code" activeField={sortField} dir={sortDir} onSort={handleSort} />
-                      <SortHeader label="Harga Pokok" field="average_cost" activeField={sortField} dir={sortDir} onSort={handleSort} align="right" />
+                      <th
+                        className={cn(
+                          "whitespace-nowrap px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground",
+                          "cursor-pointer select-none transition-colors hover:text-foreground",
+                        )}
+                        onClick={() => handleSort("average_cost")}
+                      >
+                        <span className="inline-flex items-center justify-end gap-1">
+                          Harga Pokok
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <InfoIcon
+                                className="h-3 w-3 opacity-60"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </TooltipTrigger>
+                            <TooltipContent side="top">
+                              Metode valuasi: Moving Average (rata-rata
+                              tertimbang).
+                            </TooltipContent>
+                          </Tooltip>
+                          {sortField === "average_cost" ? (
+                            sortDir === "asc" ? (
+                              <ChevronUpIcon className="h-3 w-3" />
+                            ) : (
+                              <ChevronDownIcon className="h-3 w-3" />
+                            )
+                          ) : (
+                            <ArrowUpDown className="h-3 w-3 opacity-40" />
+                          )}
+                        </span>
+                      </th>
                       <SortHeader label="On Hand" field="on_hand" activeField={sortField} dir={sortDir} onSort={handleSort} align="right" />
                       <th className="whitespace-nowrap px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                         On Order

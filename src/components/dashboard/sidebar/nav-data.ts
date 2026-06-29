@@ -162,11 +162,11 @@ export const dashboardGroups: NavGroup[] = [
     icon: BarChart3,
     zone: "fin",
     items: [
+      { id: "laporan-hpp", title: "Laporan HPP", icon: CircleDollarSign, link: "/dashboard/laporan/hpp" },
       { id: "laporan-penjualan", title: "Laporan Penjualan", icon: TrendingUp, link: "/dashboard/laporan/penjualan", comingSoon: true },
       { id: "laporan-pembelian", title: "Laporan Pembelian", icon: TrendingDown, link: "/dashboard/laporan/pembelian", comingSoon: true },
       { id: "laporan-inventori", title: "Laporan Inventori", icon: PackageOpen, link: "/dashboard/laporan/inventori", comingSoon: true },
       { id: "laporan-gudang", title: "Laporan Gudang", icon: Factory, link: "/dashboard/laporan/gudang", comingSoon: true },
-      { id: "laporan-keuangan", title: "Laporan Keuangan", icon: CircleDollarSign, link: "/dashboard/laporan/keuangan", comingSoon: true },
     ],
   },
 ];
