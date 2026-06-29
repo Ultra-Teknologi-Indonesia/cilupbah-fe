@@ -74,7 +74,7 @@ export function useMoveToReady() {
   return useMutation({
     mutationFn: (orderIds: string[]) => OrderService.moveToReadyToProcess(orderIds),
     onSuccess: () => {
-      toast.success("Pesanan berhasil dipindahkan ke Perlu Dikirim")
+      toast.success("Pesanan mulai diproses. Picklist sudah dibuat.")
       qc.invalidateQueries({ queryKey: orderKeys.all })
     },
     onError: (err: Error) => toast.error(err.message || "Gagal memindahkan pesanan"),
