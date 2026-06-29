@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { OrderCard } from "@/components/dashboard/pesanan/order-card"
+import { BulkBuatPicklistConfirmDialog } from "@/components/dashboard/proses-pesanan/picking/bulk-buat-picklist-confirm-dialog"
 import {
   fulfillmentKeys,
   useCreatePicklist,
@@ -45,6 +46,7 @@ export function ReadyToProcessCardList() {
   const [perPage, setPerPage] = React.useState(20)
   const [selected, setSelected] = React.useState<Set<string>>(new Set())
   const [pickerId, setPickerId] = React.useState<string>("")
+  const [confirmOpen, setConfirmOpen] = React.useState(false)
 
   React.useEffect(() => {
     const t = setTimeout(() => setDebounced(search.trim()), 350)
@@ -80,9 +82,11 @@ export function ReadyToProcessCardList() {
   ) as string[]
   const locationId = distinctLocations[0] ?? null
   const multiLocation = distinctLocations.length > 1
+  const locationName = selectedOrders[0]?.locationName ?? null
 
   const pickers = usePickers(locationId ?? undefined, !!locationId)
   const createPicklist = useCreatePicklist()
+  const selectedPicker = pickers.data?.find((p) => p.id === pickerId) ?? null
 
   const prevLocationRef = React.useRef<string | null>(locationId)
   if (prevLocationRef.current !== locationId) {
@@ -136,6 +140,7 @@ export function ReadyToProcessCardList() {
         no ? `Picklist ${no} berhasil dibuat` : "Picklist berhasil dibuat"
       )
       clearSelection()
+      setConfirmOpen(false)
       qc.invalidateQueries({ queryKey: fulfillmentKeys.all })
       qc.invalidateQueries({ queryKey: orderKeys.all })
     } catch (err) {
@@ -249,7 +254,7 @@ export function ReadyToProcessCardList() {
                     <Button
                       variant="primary"
                       size="sm"
-                      onClick={handleCreatePicklist}
+                      onClick={() => setConfirmOpen(true)}
                       disabled={createPicklist.isPending || !pickerId}
                     >
                       {createPicklist.isPending && (
@@ -323,6 +328,16 @@ export function ReadyToProcessCardList() {
         </div>
       </div>
 
+      <BulkBuatPicklistConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        selectedOrders={selectedOrders}
+        pickerName={selectedPicker?.name ?? null}
+        pickerEmail={selectedPicker?.email ?? null}
+        locationName={locationName}
+        loading={createPicklist.isPending}
+        onConfirm={handleCreatePicklist}
+      />
     </LiquidGlass>
   )
 }
