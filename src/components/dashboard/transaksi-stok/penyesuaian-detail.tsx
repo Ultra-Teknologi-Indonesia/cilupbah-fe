@@ -107,29 +107,35 @@ export function PenyesuaianDetail({ id }: { id: string }) {
 
     const columns = React.useMemo<ColumnDef<any>[]>(() => [
     {
-      accessorKey: "sku",
-      header: "SKU",
-      cell: ({ row }) => <span className="font-mono text-xs">{row.original.item?.sku ?? "—"}</span>,
-    },
-    {
       accessorKey: "item_name",
       header: "Nama Produk",
-      cell: ({ row }) => <span>{row.original.item?.item_name ?? "—"}</span>,
+      cell: ({ row }) => (
+        <div className="flex min-w-0 flex-col gap-0.5" style={{ maxWidth: 280 }}>
+          <span className="font-medium whitespace-normal break-words text-foreground">
+            {row.original.item?.item_name ?? "—"}
+          </span>
+          {row.original.item?.sku && (
+            <span className="font-mono text-[11px] text-foreground/80">
+              {row.original.item.sku}
+            </span>
+          )}
+        </div>
+      ),
     },
     {
       accessorKey: "bin",
       header: "Bin",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.bin?.code ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.bin?.code ?? "—"}</span>,
     },
     {
       accessorKey: "system_qty",
       header: () => <div className="text-right">Stok Sistem</div>,
-      cell: ({ row }) => <div className="text-right tabular-nums">{row.original.system_qty ?? 0}</div>,
+      cell: ({ row }) => <div className="text-right tabular-nums text-foreground">{row.original.system_qty ?? 0}</div>,
     },
     {
       accessorKey: "actual_qty",
       header: () => <div className="text-right">Stok Aktual</div>,
-      cell: ({ row }) => <div className="text-right tabular-nums">{row.original.actual_qty ?? 0}</div>,
+      cell: ({ row }) => <div className="text-right tabular-nums text-foreground">{row.original.actual_qty ?? 0}</div>,
     },
     {
       id: "diff",
@@ -139,7 +145,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
         return (
           <div className={cn(
             "text-right tabular-nums font-medium",
-            diff > 0 ? "text-emerald-600" : diff < 0 ? "text-red-600" : "text-muted-foreground"
+            diff > 0 ? "text-emerald-600" : diff < 0 ? "text-red-600" : "text-foreground"
           )}>
             {diff > 0 ? `+${diff}` : diff}
           </div>
@@ -149,7 +155,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
     {
       accessorKey: "notes",
       header: "Catatan",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.notes ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.notes ?? "—"}</span>,
     },
   ], [])
 

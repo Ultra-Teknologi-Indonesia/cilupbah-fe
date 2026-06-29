@@ -100,34 +100,40 @@ export function RevaluasiDetail({ id }: { id: string }) {
 
     const columns = React.useMemo<ColumnDef<any>[]>(() => [
     {
-      accessorKey: "sku",
-      header: "SKU",
-      cell: ({ row }) => <span className="font-mono text-xs">{row.original.item?.sku ?? "—"}</span>,
-    },
-    {
       accessorKey: "item_name",
       header: "Nama Produk",
-      cell: ({ row }) => <span>{row.original.item?.item_name ?? "—"}</span>,
+      cell: ({ row }) => (
+        <div className="flex min-w-0 flex-col gap-0.5" style={{ maxWidth: 280 }}>
+          <span className="font-medium whitespace-normal break-words text-foreground">
+            {row.original.item?.item_name ?? "—"}
+          </span>
+          {row.original.item?.sku && (
+            <span className="font-mono text-[11px] text-foreground/80">
+              {row.original.item.sku}
+            </span>
+          )}
+        </div>
+      ),
     },
     {
       accessorKey: "bin",
       header: "Bin",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.bin?.code ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.bin?.code ?? "—"}</span>,
     },
     {
       accessorKey: "qty",
       header: () => <div className="text-right">Qty</div>,
-      cell: ({ row }) => <div className="text-right tabular-nums">{row.original.qty ?? 0}</div>,
+      cell: ({ row }) => <div className="text-right tabular-nums text-foreground">{row.original.qty ?? 0}</div>,
     },
     {
       accessorKey: "old_cost",
       header: () => <div className="text-right">HPP Lama</div>,
-      cell: ({ row }) => <div className="text-right tabular-nums text-muted-foreground">{formatCurrency(row.original.old_cost ?? 0)}</div>,
+      cell: ({ row }) => <div className="text-right tabular-nums text-foreground">{formatCurrency(row.original.old_cost ?? 0)}</div>,
     },
     {
       accessorKey: "new_cost",
       header: () => <div className="text-right">HPP Baru</div>,
-      cell: ({ row }) => <div className="text-right tabular-nums">{formatCurrency(row.original.new_cost ?? 0)}</div>,
+      cell: ({ row }) => <div className="text-right tabular-nums text-foreground">{formatCurrency(row.original.new_cost ?? 0)}</div>,
     },
     {
       id: "diff",
@@ -137,7 +143,7 @@ export function RevaluasiDetail({ id }: { id: string }) {
         return (
           <div className={cn(
             "text-right tabular-nums font-medium",
-            diff > 0 ? "text-emerald-600" : diff < 0 ? "text-red-600" : "text-muted-foreground"
+            diff > 0 ? "text-emerald-600" : diff < 0 ? "text-red-600" : "text-foreground"
           )}>
             {diff > 0 ? `+${formatCurrency(diff)}` : formatCurrency(diff)}
           </div>

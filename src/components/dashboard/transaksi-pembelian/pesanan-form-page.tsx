@@ -366,16 +366,22 @@ export function PesananFormPage({ mode, id }: Props) {
                     return (
                       <TableRow key={item.item_id}>
                         <TableCell className="w-[280px] min-w-[200px] max-w-[320px] whitespace-normal">
-                          <div className="flex items-start gap-3">
+                          <div className="flex items-start gap-3" style={{ maxWidth: 280 }}>
                             <ProductImage src={item.thumbnail} alt={item.product_name ?? ""} />
-                            <div className="min-w-0 flex-1">
-                              <div className="font-medium break-words line-clamp-3">
+                            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                              <span className="font-medium whitespace-normal break-words text-foreground">
                                 {item.product_name}
-                                {item.variant_label ? ` - ${item.variant_label}` : ""}
-                              </div>
-                              <div className="break-all font-mono text-xs text-muted-foreground mt-1">
-                                {item.product_sku}
-                              </div>
+                              </span>
+                              {item.variant_label && (
+                                <span className="whitespace-normal break-words text-xs text-foreground">
+                                  {item.variant_label}
+                                </span>
+                              )}
+                              {item.product_sku && (
+                                <span className="break-all font-mono text-[11px] text-foreground/80">
+                                  {item.product_sku}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </TableCell>
@@ -417,7 +423,7 @@ export function PesananFormPage({ mode, id }: Props) {
                             className="h-8 text-right bg-background tabular-nums"
                           />
                         </TableCell>
-                        <TableCell className="text-right font-medium tabular-nums">
+                        <TableCell className="text-right font-medium tabular-nums text-foreground">
                           {formatCurrency(total)}
                         </TableCell>
                         <TableCell>

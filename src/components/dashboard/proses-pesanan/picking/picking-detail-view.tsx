@@ -49,11 +49,17 @@ function PickRow({
   return (
     <tr className={cn("border-b border-border/60 last:border-0", done && "bg-emerald-500/[0.04]")}>
       <td className="px-3 py-2.5">
-        <div className="font-medium text-foreground">{item.sku}</div>
-        {item.name && <div className="text-xs text-muted-foreground">{item.name}</div>}
+        <div className="flex min-w-0 flex-col gap-0.5" style={{ maxWidth: 280 }}>
+          <span className="font-medium whitespace-normal break-words text-foreground">
+            {item.name ?? item.sku}
+          </span>
+          {item.name && (
+            <span className="font-mono text-[11px] text-foreground/80">{item.sku}</span>
+          )}
+        </div>
       </td>
-      <td className="px-3 py-2.5 text-muted-foreground">{item.binCode ?? "—"}</td>
-      <td className="px-3 py-2.5 tabular-nums">{item.qtyOrdered}</td>
+      <td className="px-3 py-2.5 text-foreground">{item.binCode ?? "—"}</td>
+      <td className="px-3 py-2.5 tabular-nums text-foreground">{item.qtyOrdered}</td>
       <td className="px-3 py-2.5">
         <Input
           type="number"
@@ -72,7 +78,7 @@ function PickRow({
             <CheckIcon className="size-3.5" /> Selesai
           </span>
         ) : (
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-foreground">
             Kurang {item.qtyOrdered - item.qtyPicked}
           </span>
         )}

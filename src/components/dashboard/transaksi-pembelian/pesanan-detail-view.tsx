@@ -166,14 +166,14 @@ export function PesananDetailView({ id }: { id: string }) {
                 <TableBody>
                   {items.map((item) => {
                     const variantName = item.variant?.options?.length ? item.variant.options.map(o => o.value).join(", ") : item.variant?.name
-                    const productName = variantName ? `${item.product?.name} - ${variantName}` : (item.product?.name ?? item.description ?? "—")
+                    const productDisplayName = item.product?.name ?? item.description ?? "—"
                     const imageUrl = item.variant?.media?.[0]?.url ?? item.product?.media?.[0]?.url ?? item.product?.image_url
                     return (
                     <TableRow key={item.id} className="border-b border-border/20 last:border-0">
                       <TableCell className="px-3 py-2.5">
                         <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted/50">
                           {imageUrl ? (
-                            <img src={imageUrl} alt={productName} className="h-full w-full object-cover" />
+                            <img src={imageUrl} alt={productDisplayName} className="h-full w-full object-cover" />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
                               <ImageIcon className="h-4 w-4 opacity-50" />
@@ -182,22 +182,27 @@ export function PesananDetailView({ id }: { id: string }) {
                         </div>
                       </TableCell>
                       <TableCell className="px-3 py-2.5">
-                        <div className="max-w-[250px] sm:max-w-[300px] xl:max-w-[400px]">
-                          <div className="font-medium whitespace-normal break-words">{productName}</div>
-                          <div className="text-xs text-muted-foreground">{item.product?.sku}</div>
+                        <div className="flex min-w-0 flex-col gap-0.5" style={{ maxWidth: 280 }}>
+                          <span className="font-medium whitespace-normal break-words text-foreground">{productDisplayName}</span>
+                          {variantName && (
+                            <span className="whitespace-normal break-words text-xs text-foreground">{variantName}</span>
+                          )}
+                          {item.product?.sku && (
+                            <span className="font-mono text-[11px] text-foreground/80">{item.product.sku}</span>
+                          )}
                         </div>
                       </TableCell>
-                      <TableCell className="px-3 py-2.5 text-right tabular-nums">{formatCurrency(item.unit_price)}</TableCell>
-                      <TableCell className="px-3 py-2.5 text-right tabular-nums">{item.qty}</TableCell>
+                      <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">{formatCurrency(item.unit_price)}</TableCell>
+                      <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">{item.qty}</TableCell>
                       <TableCell className="px-3 py-2.5 text-right tabular-nums">
-                        <span className={cn(item.received_qty >= item.qty ? "text-emerald-600" : item.received_qty > 0 ? "text-amber-600" : "text-muted-foreground")}>
+                        <span className={cn(item.received_qty >= item.qty ? "text-emerald-600" : item.received_qty > 0 ? "text-amber-600" : "text-foreground")}>
                           {item.received_qty}
                         </span>
                       </TableCell>
-                      <TableCell className="px-3 py-2.5 text-right tabular-nums">
+                      <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
                         {item.disc > 0 ? `${item.disc}%` : "—"}
                       </TableCell>
-                      <TableCell className="px-3 py-2.5 text-right font-medium tabular-nums">{formatCurrency(item.amount)}</TableCell>
+                      <TableCell className="px-3 py-2.5 text-right font-medium tabular-nums text-foreground">{formatCurrency(item.amount)}</TableCell>
                     </TableRow>
                     )
                   })}

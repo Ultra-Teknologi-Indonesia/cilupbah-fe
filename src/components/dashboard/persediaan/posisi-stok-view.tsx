@@ -347,33 +347,29 @@ export function PosisiStokView() {
                                 <PackageIcon className="h-5 w-5 text-muted-foreground/60" />
                               </div>
                             )}
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-1.5">
-                                <p className="truncate text-sm font-medium leading-tight">
+                            <div className="flex min-w-0 flex-col gap-0.5" style={{ maxWidth: 320 }}>
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                <span className="whitespace-normal break-words text-sm font-medium text-foreground">
                                   {item.item_name || item.item_code}
-                                </p>
+                                </span>
                                 {item.is_bundle && (
                                   <Badge variant="outline" className="shrink-0 text-[10px] leading-tight border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400">
                                     Bundle
                                   </Badge>
                                 )}
                               </div>
-                              <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                                {item.item_code}
-                              </p>
                               {item.variation_values.length > 0 && (
-                                <div className="mt-1 flex flex-wrap gap-1">
-                                  {item.variation_values.map((v) => (
-                                    <Badge key={`${v.label}-${v.value}`} variant="secondary" className="text-[10px] leading-tight">
-                                      {v.value}
-                                    </Badge>
-                                  ))}
-                                </div>
+                                <span className="whitespace-normal break-words text-xs text-foreground">
+                                  {item.variation_values.map((v) => v.value).join(", ")}
+                                </span>
                               )}
+                              <span className="font-mono text-[11px] text-foreground/80">
+                                {item.item_code}
+                              </span>
                             </div>
                           </div>
                         </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-right text-sm text-muted-foreground">
+                        <td className="whitespace-nowrap px-3 py-3 text-right text-sm text-foreground">
                           {formatCurrency(Number(item.average_cost))}
                         </td>
                         <td className="whitespace-nowrap px-3 py-3 text-right">

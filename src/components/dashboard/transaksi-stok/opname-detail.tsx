@@ -107,34 +107,40 @@ export function OpnameDetail({ id }: { id: string }) {
     const columns = React.useMemo<ColumnDef<any>[]>(() => {
     const cols: ColumnDef<any>[] = [
       {
-        accessorKey: "sku",
-        header: "SKU",
-        cell: ({ row }) => <span className="font-mono text-xs">{row.original.item?.sku ?? "—"}</span>,
-      },
-      {
         accessorKey: "item_name",
         header: "Nama Produk",
-        cell: ({ row }) => <span>{row.original.item?.item_name ?? "—"}</span>,
+        cell: ({ row }) => (
+          <div className="flex min-w-0 flex-col gap-0.5" style={{ maxWidth: 280 }}>
+            <span className="font-medium whitespace-normal break-words text-foreground">
+              {row.original.item?.item_name ?? "—"}
+            </span>
+            {row.original.item?.sku && (
+              <span className="font-mono text-[11px] text-foreground/80">
+                {row.original.item.sku}
+              </span>
+            )}
+          </div>
+        ),
       },
       {
         accessorKey: "bin",
         header: "Bin",
-        cell: ({ row }) => <span className="text-muted-foreground">{row.original.bin?.code ?? "—"}</span>,
+        cell: ({ row }) => <span className="text-foreground">{row.original.bin?.code ?? "—"}</span>,
       },
       {
         accessorKey: "batch_no",
         header: "Batch",
-        cell: ({ row }) => <span className="text-muted-foreground">{row.original.batch_no ?? "—"}</span>,
+        cell: ({ row }) => <span className="text-foreground">{row.original.batch_no ?? "—"}</span>,
       },
       {
         accessorKey: "serial_no",
         header: "Serial",
-        cell: ({ row }) => <span className="text-muted-foreground">{row.original.serial_no ?? "—"}</span>,
+        cell: ({ row }) => <span className="text-foreground">{row.original.serial_no ?? "—"}</span>,
       },
       {
         accessorKey: "qty_system",
         header: () => <div className="text-right">Stok Sistem</div>,
-        cell: ({ row }) => <div className="text-right tabular-nums">{row.original.qty_system ?? 0}</div>,
+        cell: ({ row }) => <div className="text-right tabular-nums text-foreground">{row.original.qty_system ?? 0}</div>,
       },
       {
         accessorKey: "qty_actual",
@@ -142,7 +148,7 @@ export function OpnameDetail({ id }: { id: string }) {
         cell: ({ row }) => {
           const isCounted = row.original.qty_actual != null;
           return (
-            <div className="text-right tabular-nums">
+            <div className="text-right tabular-nums text-foreground">
               {isCounted ? row.original.qty_actual : (
                 <Badge variant="outline" className="text-[10px] leading-tight border-slate-300 text-slate-500">
                   Belum dihitung
@@ -161,7 +167,7 @@ export function OpnameDetail({ id }: { id: string }) {
           return (
             <div className={cn(
               "text-right tabular-nums font-medium",
-              diff != null && diff > 0 ? "text-emerald-600" : diff != null && diff < 0 ? "text-red-600" : "text-muted-foreground"
+              diff != null && diff > 0 ? "text-emerald-600" : diff != null && diff < 0 ? "text-red-600" : "text-foreground"
             )}>
               {diff != null ? (diff > 0 ? `+${diff}` : diff) : "—"}
             </div>
@@ -171,12 +177,12 @@ export function OpnameDetail({ id }: { id: string }) {
       {
         accessorKey: "reason",
         header: "Alasan",
-        cell: ({ row }) => <span className="text-muted-foreground">{row.original.reason ?? "—"}</span>,
+        cell: ({ row }) => <span className="text-foreground">{row.original.reason ?? "—"}</span>,
       },
       {
         accessorKey: "counted_by",
         header: "Dihitung Oleh",
-        cell: ({ row }) => <span className="text-muted-foreground">{row.original.counted_by ?? "—"}</span>,
+        cell: ({ row }) => <span className="text-foreground">{row.original.counted_by ?? "—"}</span>,
       },
     ]
 
