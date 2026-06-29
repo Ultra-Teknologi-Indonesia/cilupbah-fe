@@ -13,10 +13,7 @@ import {
   EyeIcon,
   PrinterIcon,
   PackageIcon,
-  BanIcon,
   CheckCircleIcon,
-  PlayIcon,
-  AlertTriangleIcon,
   WarehouseIcon,
   ArrowRightIcon,
   FileTextIcon,
@@ -32,7 +29,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { Separator } from "@/components/ui/separator"
 import {
   Tooltip,
   TooltipContent,
@@ -62,7 +58,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
-  useCancelOrder,
   useMarkComplete,
   useRequestAwb,
   useMoveToReady,
@@ -221,11 +216,9 @@ function OrderActions({
   tab: OrderTab
   subFilter: SubFilter
 }) {
-  const [cancelOpen, setCancelOpen] = React.useState(false)
   const [completeOpen, setCompleteOpen] = React.useState(false)
   const [relocateOpen, setRelocateOpen] = React.useState(false)
 
-  const cancelOrder = useCancelOrder()
   const markComplete = useMarkComplete()
   const requestAwb = useRequestAwb()
   const moveToReady = useMoveToReady()
@@ -250,7 +243,6 @@ function OrderActions({
   }
 
   const busy =
-    cancelOrder.isPending ||
     markComplete.isPending ||
     requestAwb.isPending ||
     moveToReady.isPending ||
@@ -265,15 +257,6 @@ function OrderActions({
   if (tab === "ready-to-process") {
     return (
       <>
-        <Button
-          size="sm"
-          className="h-8 gap-1.5 text-xs"
-          disabled={busy}
-          onClick={() => requestAwb.mutate({ orderId: order.id })}
-        >
-          <PlayIcon className="h-3.5 w-3.5" />
-          {requestAwb.isPending ? "Memproses..." : "Proses Pesanan"}
-        </Button>
         <Button
           variant="outline"
           size="sm"
@@ -316,6 +299,15 @@ function OrderActions({
         >
           <CheckCircleIcon className="h-3.5 w-3.5" />
           Selesaikan
+        </Button>
+        <Button
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          disabled={busy}
+          onClick={() => moveToReady.mutate([order.id])}
+        >
+          <ArrowRightIcon className="h-3.5 w-3.5" />
+          {moveToReady.isPending ? "Memproses..." : "Proses Pesanan"}
         </Button>
         <ConfirmDialog
           open={completeOpen}
@@ -494,24 +486,11 @@ function OrderActions({
   }
 
   if (tab === "all") {
-    const actions: React.ReactNode[] = []
+    const secondaryActions: React.ReactNode[] = []
+    let primaryAction: React.ReactNode = null
 
-    if (order.status === "packed" && !order.is_canceled) {
-      actions.push(
-        <Button
-          key="ship"
-          size="sm"
-          className="h-8 gap-1.5 text-xs"
-          disabled={busy}
-          onClick={() => requestAwb.mutate({ orderId: order.id })}
-        >
-          <TruckIcon className="h-3.5 w-3.5" />
-          {requestAwb.isPending ? "Memproses..." : "Kirim"}
-        </Button>
-      )
-    }
     if (order.shipping?.tracking_number && !order.is_canceled) {
-      actions.push(
+      secondaryActions.push(
         <Button
           key="print-resi"
           variant="outline"
@@ -526,56 +505,38 @@ function OrderActions({
       )
     }
 
-    const showCancel =
-      !order.is_canceled &&
-      !order.cancel_requested_at &&
-      order.status !== "shipped" &&
-      order.status !== "cancelled"
+    if (order.status === "packed" && !order.is_canceled) {
+      primaryAction = (
+        <Button
+          key="ship"
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          disabled={busy}
+          onClick={() => requestAwb.mutate({ orderId: order.id })}
+        >
+          <TruckIcon className="h-3.5 w-3.5" />
+          {requestAwb.isPending ? "Memproses..." : "Kirim"}
+        </Button>
+      )
+    } else if (order.status === "reserved" && !order.is_canceled) {
+      primaryAction = (
+        <Button
+          key="process"
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          disabled={busy}
+          onClick={() => moveToReady.mutate([order.id])}
+        >
+          <ArrowRightIcon className="h-3.5 w-3.5" />
+          {moveToReady.isPending ? "Memproses..." : "Proses Pesanan"}
+        </Button>
+      )
+    }
 
     return (
       <>
-        {showCancel && (
-          <>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 gap-1.5 text-xs text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10"
-              disabled={busy}
-              onClick={() => setCancelOpen(true)}
-            >
-              <BanIcon className="h-3.5 w-3.5" />
-              Batalkan
-            </Button>
-            {actions.length > 0 && (
-              <Separator orientation="vertical" className="!h-5" />
-            )}
-          </>
-        )}
-        {actions}
-
-        {showCancel && (
-          <ConfirmDialog
-            open={cancelOpen}
-            onOpenChange={setCancelOpen}
-            title="Batalkan pesanan ini?"
-            description={`Pesanan ${order.salesorder_no} akan dibatalkan. Stok yang sudah direservasi akan dikembalikan. Tindakan ini tidak dapat dibatalkan.`}
-            confirmLabel="Ya, Batalkan Pesanan"
-            cancelLabel="Tidak, Kembali"
-            variant="destructive"
-            onConfirm={() => {
-              setCancelOpen(false)
-              cancelOrder.mutate({ orderId: order.id })
-            }}
-          >
-            <div className="flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50 p-3 dark:border-orange-500/20 dark:bg-orange-500/10">
-              <AlertTriangleIcon className="mt-0.5 h-4 w-4 shrink-0 text-orange-600 dark:text-orange-400" />
-              <p className="text-sm text-orange-700 dark:text-orange-300">
-                Jika pesanan ini berasal dari marketplace, pembatalan juga akan
-                dikirim ke channel terkait.
-              </p>
-            </div>
-          </ConfirmDialog>
-        )}
+        {secondaryActions}
+        {primaryAction}
       </>
     )
   }
