@@ -74,10 +74,23 @@ export function useMoveToReady() {
   return useMutation({
     mutationFn: (orderIds: string[]) => OrderService.moveToReadyToProcess(orderIds),
     onSuccess: () => {
-      toast.success("Pesanan mulai diproses. Picklist sudah dibuat.")
+      toast.success("Pesanan dikembalikan ke siap proses.")
       qc.invalidateQueries({ queryKey: orderKeys.all })
     },
     onError: (err: Error) => toast.error(err.message || "Gagal memindahkan pesanan"),
+  })
+}
+
+export function useMoveToReadyToPick() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: { orderId: string; locationId: string }) =>
+      OrderService.moveToReadyToPick(data.orderId, data.locationId),
+    onSuccess: () => {
+      toast.success("Pesanan mulai diproses. Picklist DRAFT sudah dibuat.")
+      qc.invalidateQueries({ queryKey: orderKeys.all })
+    },
+    onError: (err: Error) => toast.error(err.message || "Gagal memproses pesanan"),
   })
 }
 
