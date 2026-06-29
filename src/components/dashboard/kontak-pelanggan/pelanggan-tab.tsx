@@ -37,7 +37,7 @@ export function PelangganTab() {
   const [search, setSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [page, setPage] = useState(1)
-  const [perPage, setPerPage] = useState(10)
+  const [perPage, setPerPage] = useState(20)
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
   const [deleteTarget, setDeleteTarget] = useState<ContactItem | null>(null)
 

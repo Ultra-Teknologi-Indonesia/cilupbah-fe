@@ -9,6 +9,7 @@ import {
 import { SearchXIcon } from "lucide-react"
 
 import { DataTablePagination } from "@/components/ui/data-table"
+import { GRID_PAGE_SIZES } from "@/components/ui/simple-pagination"
 import { Skeleton } from "@/components/ui/skeleton"
 import { productColumns } from "./product-columns"
 import { ProductBulkActions } from "./product-bulk-actions"
@@ -92,7 +93,7 @@ export function ProductCardView({
         </div>
       )}
 
-      <DataTablePagination table={table} pageSizeOptions={[8, 12, 16, 24, 48]} />
+      <DataTablePagination table={table} pageSizeOptions={GRID_PAGE_SIZES} />
     </div>
   )
 }

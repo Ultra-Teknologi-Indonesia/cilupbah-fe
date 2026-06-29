@@ -42,7 +42,7 @@ function fmtDate(iso: string | null) {
 export function TabRiwayat({ productId }: { productId: string }) {
   const [status, setStatus] = React.useState("")
   const [page, setPage] = React.useState(1)
-  const [perPage, setPerPage] = React.useState(10)
+  const [perPage, setPerPage] = React.useState(20)
 
   const { data, isLoading, isError, refetch, isFetching } = useProductUploadHistories(
     productId,

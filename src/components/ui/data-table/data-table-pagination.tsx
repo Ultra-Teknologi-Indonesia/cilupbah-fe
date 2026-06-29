@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { TABLE_PAGE_SIZES } from "@/components/ui/simple-pagination"
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>
@@ -26,7 +27,7 @@ interface DataTablePaginationProps<TData> {
 
 export function DataTablePagination<TData>({
   table,
-  pageSizeOptions = [10, 20, 50, 100, 200],
+  pageSizeOptions = TABLE_PAGE_SIZES,
   showSelectionCount = true,
 }: DataTablePaginationProps<TData>) {
   const pageIndex = table.getState().pagination.pageIndex

@@ -33,7 +33,7 @@ export function BundleBuilder({
     return () => clearTimeout(t)
   }, [search])
 
-  const { data, isFetching } = useMasterProducts({ search: debounced || undefined, perPage: 10 })
+  const { data, isFetching } = useMasterProducts({ search: debounced || undefined, perPage: 20 })
   
   const results = (data?.items ?? []).filter((p) => !p.isBundle)
 

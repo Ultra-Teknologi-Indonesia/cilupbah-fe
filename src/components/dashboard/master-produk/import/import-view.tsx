@@ -212,7 +212,7 @@ export function ImportView() {
   const [stateFilter, setStateFilter] = React.useState<"all" | ImportBatchState>("all")
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 20,
   })
 
   const query = useImportBatches({

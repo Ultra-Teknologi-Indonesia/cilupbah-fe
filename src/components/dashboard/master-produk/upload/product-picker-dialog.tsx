@@ -43,7 +43,7 @@ export function ProductPickerDialog({
 
   const { data, isLoading } = useMasterProducts({
     search: search || undefined,
-    perPage: 10,
+    perPage: 20,
   })
   const items = data?.items ?? []
 

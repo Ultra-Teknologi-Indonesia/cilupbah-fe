@@ -53,7 +53,7 @@ export function UserListView() {
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
   const [deleteTarget, setDeleteTarget] = React.useState<User | null>(null)
 
-  const perPage = 10
+  const perPage = 20
 
   React.useEffect(() => {
     const t = setTimeout(() => {

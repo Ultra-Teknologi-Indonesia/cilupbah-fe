@@ -49,7 +49,7 @@ const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const
 
 export function KategoriListTab({ search }: { search: string }) {
   const [page, setPage] = React.useState(1)
-  const [perPage, setPerPage] = React.useState(10)
+  const [perPage, setPerPage] = React.useState(20)
   const [deleteTarget, setDeleteTarget] = React.useState<FlatKategori | null>(null)
   const [editTarget, setEditTarget] = React.useState<FlatKategori | null>(null)
 

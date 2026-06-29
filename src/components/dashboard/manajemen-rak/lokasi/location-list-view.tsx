@@ -59,7 +59,7 @@ export function LocationListView() {
   const { data, isLoading, isError, isFetching } = useLocations({
     search,
     page,
-    perPage: 10,
+    perPage: 20,
   })
   const setting = useWarehouseLayoutSetting()
   const saveSetting = useSaveWarehouseLayoutSetting()

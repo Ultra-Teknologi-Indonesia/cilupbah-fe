@@ -66,7 +66,7 @@ export function PesananDetailView({ id }: { id: string }) {
   const { data: po, isLoading } = usePurchaseOrderDetail(id)
   
   const [page, setPage] = useState(1)
-  const [perPage, setPerPage] = useState(10)
+  const [perPage, setPerPage] = useState(20)
   const { data: itemsRes, isFetching: isFetchingItems } = usePurchaseOrderItems(id, { page, perPage })
   const items = itemsRes?.data ?? []
   const itemsMeta = itemsRes?.meta

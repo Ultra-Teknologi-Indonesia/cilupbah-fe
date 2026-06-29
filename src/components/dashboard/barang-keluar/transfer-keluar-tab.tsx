@@ -183,7 +183,7 @@ export function TransferKeluarTab() {
   const [search, setSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [page, setPage] = useState(1)
-  const [perPage, setPerPage] = useState(10)
+  const [perPage, setPerPage] = useState(20)
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
 
   const [approveTarget, setApproveTarget] = useState<InventoryTransfer | null>(null)

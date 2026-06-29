@@ -51,7 +51,7 @@ export function NaikkanProdukPickerDialog({
         shopId: shopId!,
         search: appliedSearch || undefined,
         page,
-        perPage: 10,
+        perPage: 20,
       }),
     enabled: open && !!shopId,
   })

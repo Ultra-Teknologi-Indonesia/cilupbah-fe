@@ -63,7 +63,7 @@ export function ProductPickerDialog({
   }, [searchInput]);
 
   const [page, setPage] = React.useState(1);
-  const [perPage, setPerPage] = React.useState(10);
+  const [perPage, setPerPage] = React.useState(20);
 
   const handleOpenChange = (next: boolean) => {
     if (!next) {

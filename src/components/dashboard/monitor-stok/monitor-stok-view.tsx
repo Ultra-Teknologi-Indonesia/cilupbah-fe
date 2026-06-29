@@ -128,7 +128,7 @@ export function MonitorStokView() {
   const [categoryId, setCategoryId] = useState("")
   const [autoRefresh, setAutoRefresh] = useState(0)
   const [page, setPage] = useState(1)
-  const [perPage, setPerPage] = useState(10)
+  const [perPage, setPerPage] = useState(20)
 
   const resetPage = useCallback(() => setPage(1), [])
 

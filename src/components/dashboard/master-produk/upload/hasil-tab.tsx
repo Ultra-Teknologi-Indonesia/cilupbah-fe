@@ -107,7 +107,7 @@ export function HasilTab({
   const [dateTo, setDateTo] = React.useState("")
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 20,
   })
 
   React.useEffect(() => {

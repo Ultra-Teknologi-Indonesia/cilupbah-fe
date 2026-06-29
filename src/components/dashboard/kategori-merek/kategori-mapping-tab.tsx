@@ -30,7 +30,7 @@ import { PetakanKategoriDialog } from "./petakan-kategori-dialog"
 
 export function KategoriMappingTab({ search }: { search: string }) {
   const [page, setPage] = React.useState(1)
-  const [perPage, setPerPage] = React.useState(10)
+  const [perPage, setPerPage] = React.useState(20)
 
   const prevSearch = React.useRef(search)
   if (prevSearch.current !== search) {

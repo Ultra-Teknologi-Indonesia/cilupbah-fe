@@ -21,7 +21,7 @@ export function TabHargaChannel({ productId }: { productId: string }) {
   const [view, setView] = React.useState<"daftar" | "matriks">("daftar")
   const [channel, setChannel] = React.useState("")
   const [page, setPage] = React.useState(1)
-  const [perPage, setPerPage] = React.useState(10)
+  const [perPage, setPerPage] = React.useState(20)
 
   const { data, isLoading, isError, refetch, isFetching } = useProductChannelPrices(
     productId,

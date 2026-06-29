@@ -137,7 +137,7 @@ export function PosisiStokView() {
   const router = useRouter()
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
-  const [perPage, setPerPage] = useState(10)
+  const [perPage, setPerPage] = useState(20)
   const [sortField, setSortField] = useState<SortField | null>(null)
   const [sortDir, setSortDir] = useState<SortDir>("asc")
   const [stockFilter, setStockFilter] = useState<StockFilter>("all")

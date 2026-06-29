@@ -82,7 +82,7 @@ export function DestinationTable({
   channel?: string
 }) {
   const router = useRouter()
-  const [pagination, setPagination] = React.useState({ pageIndex: 0, pageSize: 10 })
+  const [pagination, setPagination] = React.useState({ pageIndex: 0, pageSize: 20 })
 
   // Reset to first page whenever the filters change (render-phase adjustment).
   const filterKey = `${search}|${channel ?? ""}`

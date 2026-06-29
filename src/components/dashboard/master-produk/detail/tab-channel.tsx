@@ -18,7 +18,7 @@ import type { ChannelListingRow } from "@/services/master-produk/product-tabs.se
 export function TabChannel({ productId }: { productId: string }) {
   const [channel, setChannel] = React.useState("")
   const [page, setPage] = React.useState(1)
-  const [perPage, setPerPage] = React.useState(10)
+  const [perPage, setPerPage] = React.useState(20)
 
   const { data, isLoading, isError, refetch, isFetching } = useProductChannelListings(
     productId,
