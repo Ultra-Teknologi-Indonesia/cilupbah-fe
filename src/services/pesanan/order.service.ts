@@ -81,13 +81,6 @@ export const OrderService = {
     })
   },
 
-  moveToReadyToPick: (orderId: string, locationId: string) => {
-    return fetchClient<ApiResponse>("/outbound/orders/move-to-ready-to-pick", {
-      method: "POST",
-      data: { order_id: orderId, location_id: locationId },
-    })
-  },
-
   relocateOrder: (orderId: string, locationId: string) => {
     return fetchClient<ApiResponse>(`/sales/${orderId}/relocate`, {
       method: "PUT",

@@ -61,7 +61,6 @@ import {
   useMarkComplete,
   useRequestAwb,
   useMoveToReady,
-  useMoveToReadyToPick,
   useAcceptCancelRequest,
   useRejectCancelRequest,
   useAcceptReturn,
@@ -223,7 +222,6 @@ function OrderActions({
   const markComplete = useMarkComplete()
   const requestAwb = useRequestAwb()
   const moveToReady = useMoveToReady()
-  const moveToReadyToPick = useMoveToReadyToPick()
   const acceptCancel = useAcceptCancelRequest()
   const rejectCancel = useRejectCancelRequest()
   const acceptReturn = useAcceptReturn()
@@ -248,7 +246,6 @@ function OrderActions({
     markComplete.isPending ||
     requestAwb.isPending ||
     moveToReady.isPending ||
-    moveToReadyToPick.isPending ||
     acceptCancel.isPending ||
     rejectCancel.isPending ||
     acceptReturn.isPending ||
@@ -306,11 +303,11 @@ function OrderActions({
         <Button
           size="sm"
           className="h-8 gap-1.5 text-xs"
-          disabled={busy || !order.location_id}
-          onClick={() => order.location_id && moveToReadyToPick.mutate({ orderId: order.id, locationId: order.location_id })}
+          disabled={busy}
+          onClick={() => moveToReady.mutate([order.id])}
         >
           <ArrowRightIcon className="h-3.5 w-3.5" />
-          {moveToReadyToPick.isPending ? "Memproses..." : "Proses Pesanan"}
+          {moveToReady.isPending ? "Memproses..." : "Proses Pesanan"}
         </Button>
         <ConfirmDialog
           open={completeOpen}
@@ -527,11 +524,11 @@ function OrderActions({
           key="process"
           size="sm"
           className="h-8 gap-1.5 text-xs"
-          disabled={busy || !order.location_id}
-          onClick={() => order.location_id && moveToReadyToPick.mutate({ orderId: order.id, locationId: order.location_id })}
+          disabled={busy}
+          onClick={() => moveToReady.mutate([order.id])}
         >
           <ArrowRightIcon className="h-3.5 w-3.5" />
-          {moveToReadyToPick.isPending ? "Memproses..." : "Proses Pesanan"}
+          {moveToReady.isPending ? "Memproses..." : "Proses Pesanan"}
         </Button>
       )
     }
