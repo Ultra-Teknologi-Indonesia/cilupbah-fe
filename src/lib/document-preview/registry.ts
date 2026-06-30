@@ -36,7 +36,8 @@ export interface DocumentTypeConfig {
   // Optional supaya entry lama tetap kompatibel tanpa perlu inspect query.
   fetchPdf: (
     id: string,
-    query?: URLSearchParams
+    query?: URLSearchParams,
+    onProgress?: (msg: string) => void
   ) => Promise<DocumentFetchResult>
   // Function supaya bisa balik ke detail/edit page per-entity, bukan list statis.
   backUrl: (id: string) => string
@@ -91,7 +92,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       if (name) return count ? `${name} • ${count} rak` : name
       return `Lokasi ${id.slice(0, 8)}…`
     },
-    fetchPdf: async (id, query) => {
+    fetchPdf: async (id, query, onProgress) => {
       const binIdsRaw = query?.get("bin_ids") ?? ""
       const binIds = binIdsRaw
         .split(",")
@@ -99,10 +100,33 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
         .filter(Boolean)
       const paperRaw = query?.get("paper")
       const paper: BinQrPaper = isBinQrPaper(paperRaw) ? paperRaw : BIN_QR_PAPER_DEFAULT
-      const blob = await LocationService.binsPrintQrPdf(id, {
+
+      const { job_id } = await LocationService.createBinQrJob(id, {
         binIds: binIds.length > 0 ? binIds : undefined,
         paper,
       })
+
+      let blob: Blob | null = null
+      while (true) {
+        const statusData = await LocationService.getBinQrJobStatus(job_id)
+        
+        if (statusData.status === "failed") {
+          throw new Error(statusData.error_message || "Job gagal diproses.")
+        }
+        
+        if (statusData.status === "ready") {
+          blob = await LocationService.downloadBinQrJobPdf(job_id)
+          break
+        }
+        
+        if (onProgress) {
+          const p = statusData.progress
+          onProgress(`Memproses... ${p.percent}% (${p.processed}/${p.total})`)
+        }
+        
+        await new Promise((resolve) => setTimeout(resolve, 3000))
+      }
+
       return {
         blob,
         meta: {

@@ -42,7 +42,7 @@ export interface DocumentPreviewViewProps {
 }
 
 type LoadState =
-  | { kind: "loading" }
+  | { kind: "loading"; progress?: string }
   | { kind: "ready"; blob: Blob; objectUrl: string; meta?: DocumentMeta }
   | { kind: "error"; message: string }
 
@@ -98,7 +98,9 @@ function KnownDocumentPreview({
 
     const query = new URLSearchParams(queryString)
     config
-      .fetchPdf(id, query)
+      .fetchPdf(id, query, (msg) => {
+        if (!cancelled) setState({ kind: "loading", progress: msg })
+      })
       .then(({ blob, meta }) => {
         if (cancelled) return
         createdUrl = URL.createObjectURL(blob)
@@ -256,7 +258,7 @@ function KnownDocumentPreview({
 
       {/* Body */}
       <main className="flex-1">
-        {state.kind === "loading" && <LoadingState />}
+        {state.kind === "loading" && <LoadingState message={state.progress} />}
         {state.kind === "error" && (
           <ErrorState
             message={state.message}
@@ -285,9 +287,14 @@ function KnownDocumentPreview({
   )
 }
 
-function LoadingState() {
+function LoadingState({ message }: { message?: string }) {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 px-4 py-10">
+      {message && (
+        <div className="mb-4 flex items-center justify-center rounded-lg bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+          {message}
+        </div>
+      )}
       <Skeleton className="aspect-[1/1.414] w-full max-w-[820px] rounded-xl" />
       <Skeleton className="aspect-[1/1.414] w-full max-w-[820px] rounded-xl" />
     </div>

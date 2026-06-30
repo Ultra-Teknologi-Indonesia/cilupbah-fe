@@ -138,4 +138,45 @@ export const LocationService = {
       "application/pdf"
     )
   },
+  createBinQrJob: async (
+    locationId: string,
+    options?: { binIds?: string[]; paper?: BinQrPaper }
+  ): Promise<{ job_id: string; status: string }> => {
+    const data: Record<string, string> = {}
+    if (options?.binIds && options.binIds.length > 0) {
+      data.bin_ids = options.binIds.join(",")
+    }
+    if (options?.paper) data.paper = options.paper
+
+    const res = await fetchClient<ApiResponse<{ job_id: string; status: string }>>(
+      `/locations/${locationId}/bins/print-qr-job`,
+      { method: "POST", data }
+    )
+    return res.data
+  },
+
+  getBinQrJobStatus: async (
+    jobId: string
+  ): Promise<{
+    id: string
+    status: string
+    progress: { processed: number; total: number; percent: number }
+    error_message?: string
+    download_url?: string
+  }> => {
+    const res = await fetchClient<
+      ApiResponse<{
+        id: string
+        status: string
+        progress: { processed: number; total: number; percent: number }
+        error_message?: string
+        download_url?: string
+      }>
+    >(`/qr-jobs/${jobId}`)
+    return res.data
+  },
+
+  downloadBinQrJobPdf: async (jobId: string): Promise<Blob> => {
+    return fetchBlobRaw(`/qr-jobs/${jobId}/download`, "application/pdf")
+  },
 }
