@@ -143,12 +143,12 @@ export function TransferTab() {
     {
       id: "source_location",
       header: "Asal",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.source_location?.location_name ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.source_location?.location_name ?? "—"}</span>,
     },
     {
       id: "destination_location",
       header: "Tujuan",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.destination_location?.location_name ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.destination_location?.location_name ?? "—"}</span>,
     },
     {
       accessorKey: "status",
@@ -168,7 +168,7 @@ export function TransferTab() {
     {
       accessorKey: "created_at",
       header: "Tgl. Dibuat",
-      cell: ({ row }) => <span className="text-muted-foreground">{formatDate(row.original.created_at)}</span>,
+      cell: ({ row }) => <span className="text-foreground">{formatDate(row.original.created_at)}</span>,
     },
     {
       id: "actions",

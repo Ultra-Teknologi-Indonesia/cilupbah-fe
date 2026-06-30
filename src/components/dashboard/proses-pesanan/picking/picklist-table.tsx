@@ -116,7 +116,7 @@ export function PicklistTable() {
     {
       accessorKey: "locationName",
       header: "Lokasi",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.locationName ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.locationName ?? "—"}</span>,
     },
     {
       accessorKey: "pickerName",

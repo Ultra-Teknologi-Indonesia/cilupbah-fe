@@ -146,27 +146,27 @@ export function PenempatanBarangTab() {
     {
       id: "no_pembelian",
       header: "No. Pembelian",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.inbound?.reference_number ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.inbound?.reference_number ?? "—"}</span>,
     },
     {
       id: "tanggal",
       header: "Tgl. Pembelian",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.inbound?.created_at ? formatDate(row.original.inbound.created_at) : "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.inbound?.created_at ? formatDate(row.original.inbound.created_at) : "—"}</span>,
     },
     {
       id: "location",
       header: "Lokasi",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.location?.location_name ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.location?.location_name ?? "—"}</span>,
     },
     {
       accessorKey: "created_by",
       header: "Dibuat Oleh",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.creator?.name ?? row.original.created_by}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.creator?.name ?? row.original.created_by}</span>,
     },
     {
       id: "assignee",
       header: "Dikerjakan Oleh",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.assignee?.name ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.assignee?.name ?? "—"}</span>,
     },
     {
       id: "progress",

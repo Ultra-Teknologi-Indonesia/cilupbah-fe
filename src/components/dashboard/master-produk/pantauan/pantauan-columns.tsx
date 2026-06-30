@@ -32,7 +32,7 @@ function produkCell(p: PantauanProduct) {
         >
           {p.productName}
         </Link>
-        <div className="font-mono text-xs text-muted-foreground">{p.sku ?? "—"}</div>
+        <div className="font-mono text-xs text-foreground">{p.sku ?? "—"}</div>
       </div>
     </div>
   )
@@ -58,7 +58,7 @@ function reviewChannelsCell(row: PantauanProduct, showReason: boolean) {
               className="size-5 rounded text-[9px]"
             />
           )}
-          <span className="text-xs text-muted-foreground">{rc.shopName}</span>
+          <span className="text-xs text-foreground">{rc.shopName}</span>
           <SyncStatusBadge status={rc.syncStatus} reason={rc.errorMessage} />
           {showReason && rc.errorMessage && (
             <span

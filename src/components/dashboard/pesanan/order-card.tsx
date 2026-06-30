@@ -141,7 +141,7 @@ function ItemRow({ item }: { item: OrderItem }) {
         </p>
         <p className="text-xs text-muted-foreground">SKU: {item.sku}</p>
       </div>
-      <span className="shrink-0 text-sm text-muted-foreground tabular-nums">
+      <span className="shrink-0 text-sm text-foreground tabular-nums">
         x {item.qty_in_base}
       </span>
     </div>
@@ -711,12 +711,12 @@ export function OrderCard({
         <span className="text-border select-none">|</span>
         <ChannelIcon source={order.source} />
         {order.shop_name && (
-          <span className="truncate text-xs text-muted-foreground max-w-[160px]">
+          <span className="truncate text-xs text-foreground max-w-[160px]">
             {order.shop_name}
           </span>
         )}
 
-        <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
+        <div className="ml-auto flex items-center gap-3 text-sm text-foreground">
           <span className="inline-flex items-center gap-1.5">
             <UserIcon className="h-3.5 w-3.5" />
             <span className="max-w-[180px] truncate font-medium text-foreground">

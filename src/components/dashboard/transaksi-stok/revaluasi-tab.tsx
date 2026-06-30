@@ -132,7 +132,7 @@ export function RevaluasiTab() {
     {
       id: "location",
       header: "Lokasi",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.location?.location_name ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.location?.location_name ?? "—"}</span>,
     },
     {
       accessorKey: "status",
@@ -152,17 +152,17 @@ export function RevaluasiTab() {
     {
       accessorKey: "created_by",
       header: "Dibuat Oleh",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.created_by}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.created_by}</span>,
     },
     {
       accessorKey: "approved_by",
       header: "Disetujui Oleh",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.approved_by ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.approved_by ?? "—"}</span>,
     },
     {
       accessorKey: "approved_at",
       header: "Tgl. Disetujui",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.approved_at ? formatDate(row.original.approved_at) : "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.approved_at ? formatDate(row.original.approved_at) : "—"}</span>,
     },
   ], [])
 

@@ -55,10 +55,10 @@ export function ProductVariantDetail({ product }: { product: Product }) {
               >
                 {isLoading ? "…" : (st?.available ?? "—")}
               </td>
-              <td className="py-2 pr-4 text-right tabular-nums text-muted-foreground">
+              <td className="py-2 pr-4 text-right tabular-nums text-foreground">
                 {isLoading ? "…" : (st?.onHand ?? "—")}
               </td>
-              <td className="py-2 text-xs text-muted-foreground">
+              <td className="py-2 text-xs text-foreground">
                 {v.storeNames.length
                   ? v.storeNames.map((s) => s.storeName).join(", ")
                   : "—"}

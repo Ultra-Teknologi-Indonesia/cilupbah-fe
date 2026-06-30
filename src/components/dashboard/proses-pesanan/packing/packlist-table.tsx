@@ -63,12 +63,12 @@ export function PacklistTable() {
     {
       accessorKey: "customerName",
       header: "Pelanggan",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.customerName ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.customerName ?? "—"}</span>,
     },
     {
       accessorKey: "locationName",
       header: "Lokasi",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.locationName ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.locationName ?? "—"}</span>,
     },
     {
       accessorKey: "packerName",

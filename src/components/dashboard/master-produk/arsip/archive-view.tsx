@@ -112,7 +112,7 @@ export function ArchiveView() {
             >
               {row.original.itemName}
             </Link>
-            <div className="font-mono text-xs text-muted-foreground">
+            <div className="font-mono text-xs text-foreground">
               {row.original.sku ?? "—"} · {row.original.totalVariants} varian
             </div>
           </div>
@@ -122,22 +122,22 @@ export function ArchiveView() {
     {
       accessorKey: "categoryName",
       header: "Kategori",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.categoryName}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.categoryName}</span>,
     },
     {
       accessorKey: "archivedAt",
       header: "Diarsipkan",
       cell: ({ row }) => (
-        <div className="text-muted-foreground">
+        <div className="text-foreground">
           {fmtDate(row.original.archivedAt)}
-          {row.original.archivedBy && <div className="text-xs">oleh {row.original.archivedBy}</div>}
+          {row.original.archivedBy && <div className="text-xs text-muted-foreground">oleh {row.original.archivedBy}</div>}
         </div>
       ),
     },
     {
       accessorKey: "archiveReason",
       header: "Alasan",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.archiveReason || "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.archiveReason || "—"}</span>,
     },
     {
       id: "actions",

@@ -181,7 +181,7 @@ function OrderCard({
           </Badge>
         )}
 
-        <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
+        <div className="ml-auto flex items-center gap-3 text-sm text-foreground">
           <span className="inline-flex items-center gap-1.5">
             <UserIcon className="h-3.5 w-3.5" />
             <span className="max-w-[180px] truncate font-medium text-foreground">

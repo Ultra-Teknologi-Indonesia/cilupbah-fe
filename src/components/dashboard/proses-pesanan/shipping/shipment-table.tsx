@@ -96,12 +96,12 @@ export function ShipmentTable() {
     {
       accessorKey: "shipmentType",
       header: "Tipe",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.shipmentType ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.shipmentType ?? "—"}</span>,
     },
     {
       accessorKey: "shipmentDate",
       header: "Tgl. Pengiriman",
-      cell: ({ row }) => <span className="text-muted-foreground">{formatDate(row.original.shipmentDate)}</span>,
+      cell: ({ row }) => <span className="text-foreground">{formatDate(row.original.shipmentDate)}</span>,
     },
     {
       accessorKey: "ordersCount",

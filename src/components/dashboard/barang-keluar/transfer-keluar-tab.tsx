@@ -98,22 +98,22 @@ function TransferTable({
     {
       accessorKey: "created_at",
       header: "Tanggal",
-      cell: ({ row }) => <span className="text-muted-foreground">{formatDate(row.original.created_at)}</span>,
+      cell: ({ row }) => <span className="text-foreground">{formatDate(row.original.created_at)}</span>,
     },
     {
       id: "source_location",
       header: "Lokasi Asal",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.source_location?.location_name ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.source_location?.location_name ?? "—"}</span>,
     },
     {
       id: "destination_location",
       header: "Lokasi Tujuan",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.destination_location?.location_name ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.destination_location?.location_name ?? "—"}</span>,
     },
     {
       id: "items_count",
       header: "Jumlah Item",
-      cell: ({ row }) => <span className="tabular-nums text-muted-foreground">{row.original.items?.length ?? 0} item</span>,
+      cell: ({ row }) => <span className="tabular-nums text-foreground">{row.original.items?.length ?? 0} item</span>,
     },
     {
       accessorKey: "status",

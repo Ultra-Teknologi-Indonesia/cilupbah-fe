@@ -134,7 +134,7 @@ export function ReturChannelTab() {
       {
         accessorKey: "customer_name",
         header: "Pelanggan",
-        cell: ({ row }) => <span className="text-muted-foreground">{row.original.customer_name ?? "—"}</span>,
+        cell: ({ row }) => <span className="text-foreground">{row.original.customer_name ?? "—"}</span>,
       },
       {
         accessorKey: "reason",
@@ -144,7 +144,7 @@ export function ReturChannelTab() {
       {
         id: "location",
         header: "Lokasi",
-        cell: ({ row }) => <span className="text-muted-foreground">{row.original.location?.location_name ?? "—"}</span>,
+        cell: ({ row }) => <span className="text-foreground">{row.original.location?.location_name ?? "—"}</span>,
       },
       {
         id: "qty",
@@ -157,7 +157,7 @@ export function ReturChannelTab() {
       {
         accessorKey: "created_at",
         header: "Tgl. Retur",
-        cell: ({ row }) => <span className="text-muted-foreground">{formatDate(row.original.created_at)}</span>,
+        cell: ({ row }) => <span className="text-foreground">{formatDate(row.original.created_at)}</span>,
       },
       {
         accessorKey: "status",

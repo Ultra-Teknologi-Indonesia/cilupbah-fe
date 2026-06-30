@@ -130,17 +130,17 @@ export function CadangTab() {
     {
       id: "location",
       header: "Lokasi",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.location?.location_name ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.location?.location_name ?? "—"}</span>,
     },
     {
       accessorKey: "start_date",
       header: "Tgl. Mulai",
-      cell: ({ row }) => <span className="text-muted-foreground">{formatDate(row.original.start_date)}</span>,
+      cell: ({ row }) => <span className="text-foreground">{formatDate(row.original.start_date)}</span>,
     },
     {
       accessorKey: "end_date",
       header: "Tgl. Selesai",
-      cell: ({ row }) => <span className="text-muted-foreground">{formatDate(row.original.end_date)}</span>,
+      cell: ({ row }) => <span className="text-foreground">{formatDate(row.original.end_date)}</span>,
     },
     {
       accessorKey: "status",
@@ -160,7 +160,7 @@ export function CadangTab() {
     {
       accessorKey: "created_by",
       header: "Dibuat Oleh",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.created_by}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.created_by}</span>,
     },
     {
       id: "actions",

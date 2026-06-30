@@ -109,22 +109,22 @@ export function ReturPembelianTab() {
     {
       id: "supplier",
       header: "Pemasok",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.supplier?.name ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.supplier?.name ?? "—"}</span>,
     },
     {
       id: "location",
       header: "Lokasi",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.location?.location_name ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.location?.location_name ?? "—"}</span>,
     },
     {
       accessorKey: "return_date",
       header: "Tgl. Retur",
-      cell: ({ row }) => <span className="text-muted-foreground">{formatDate(row.original.return_date)}</span>,
+      cell: ({ row }) => <span className="text-foreground">{formatDate(row.original.return_date)}</span>,
     },
     {
       accessorKey: "total_amount",
       header: "Total",
-      cell: ({ row }) => <span className="tabular-nums text-muted-foreground">{formatCurrency(row.original.total_amount)}</span>,
+      cell: ({ row }) => <span className="tabular-nums text-foreground">{formatCurrency(row.original.total_amount)}</span>,
     },
     {
       accessorKey: "status",

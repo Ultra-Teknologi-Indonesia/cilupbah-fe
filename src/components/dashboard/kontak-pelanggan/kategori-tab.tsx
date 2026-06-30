@@ -132,7 +132,7 @@ export function KategoriTab() {
     {
       accessorKey: "description",
       header: "Deskripsi",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.description || "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.description || "—"}</span>,
     },
     {
       id: "actions",

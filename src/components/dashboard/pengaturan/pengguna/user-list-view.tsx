@@ -131,17 +131,17 @@ export function UserListView() {
     {
       accessorKey: "email",
       header: "Email",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.email}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.email}</span>,
     },
     {
       accessorKey: "roles",
       header: "Peran Pengguna",
-      cell: ({ row }) => <span className="text-muted-foreground">{formatRoles(row.original.roles)}</span>,
+      cell: ({ row }) => <span className="text-foreground">{formatRoles(row.original.roles)}</span>,
     },
     {
       accessorKey: "lastLoginAt",
       header: "Login Terakhir",
-      cell: ({ row }) => <span className="text-muted-foreground">{formatDate(row.original.lastLoginAt)}</span>,
+      cell: ({ row }) => <span className="text-foreground">{formatDate(row.original.lastLoginAt)}</span>,
     },
     {
       id: "actions",

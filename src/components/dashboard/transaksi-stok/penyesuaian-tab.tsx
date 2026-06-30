@@ -144,12 +144,12 @@ export function PenyesuaianTab() {
     {
       accessorKey: "transaction_date",
       header: "Tgl. Transaksi",
-      cell: ({ row }) => <span className="text-muted-foreground">{formatDate(row.original.transaction_date)}</span>,
+      cell: ({ row }) => <span className="text-foreground">{formatDate(row.original.transaction_date)}</span>,
     },
     {
       id: "location",
       header: "Lokasi",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.location?.location_name ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.location?.location_name ?? "—"}</span>,
     },
     {
       accessorKey: "status",
@@ -169,7 +169,7 @@ export function PenyesuaianTab() {
     {
       accessorKey: "created_by",
       header: "Dibuat Oleh",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.created_by}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.created_by}</span>,
     },
     {
       id: "actions",

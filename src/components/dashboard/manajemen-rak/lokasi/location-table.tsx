@@ -76,14 +76,14 @@ export function LocationTable({
                       {location.locationName}
                     </Link>
                   ) : (
-                    <span className="font-medium text-muted-foreground">
+                    <span className="font-medium text-foreground">
                       {location.locationName}
                     </span>
                   )}
                 </div>
               </TableCell>
 
-              <TableCell className="text-muted-foreground">
+              <TableCell className="text-foreground">
                 {location.locationType ?? "Lokasi Sendiri"}
               </TableCell>
 

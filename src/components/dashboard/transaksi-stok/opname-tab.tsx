@@ -148,7 +148,7 @@ export function OpnameTab() {
     {
       id: "location",
       header: "Lokasi",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.location?.location_name ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.location?.location_name ?? "—"}</span>,
     },
     {
       accessorKey: "status",
@@ -168,12 +168,12 @@ export function OpnameTab() {
     {
       accessorKey: "created_by",
       header: "Dibuat Oleh",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.created_by}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.created_by}</span>,
     },
     {
       accessorKey: "finalized_by",
       header: "Difinalisasi",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.finalized_by ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.finalized_by ?? "—"}</span>,
     },
     {
       id: "actions",

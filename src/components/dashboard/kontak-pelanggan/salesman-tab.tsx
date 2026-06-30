@@ -170,12 +170,12 @@ export function SalesmanTab() {
     {
       accessorKey: "phone",
       header: "Telepon",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.phone || "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.phone || "—"}</span>,
     },
     {
       accessorKey: "email",
       header: "Email",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.email || "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.email || "—"}</span>,
     },
     {
       accessorKey: "status",

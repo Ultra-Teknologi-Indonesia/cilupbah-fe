@@ -106,17 +106,17 @@ export function PelangganTab() {
     {
       id: "phone",
       header: "Telepon",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.phone || row.original.mobile || "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.phone || row.original.mobile || "—"}</span>,
     },
     {
       accessorKey: "email",
       header: "Email",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.email || "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.email || "—"}</span>,
     },
     {
       id: "salesman",
       header: "Salesman",
-      cell: ({ row }) => <span className="text-muted-foreground">{row.original.salesman?.name ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.salesman?.name ?? "—"}</span>,
     },
     {
       id: "actions",
