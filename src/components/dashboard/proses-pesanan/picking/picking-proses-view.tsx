@@ -188,6 +188,13 @@ export function PickingProsesView({ id }: { id: string }) {
   const handleScanBin = () => {
     const code = binScan.trim()
     if (!code) return
+    const isSku = items.some((i) => i.sku.toLowerCase() === code.toLowerCase())
+    if (isSku) {
+      toast.error(`"${code}" adalah SKU produk, bukan kode rak.`)
+      setBinScan("")
+      binScanRef.current?.focus()
+      return
+    }
     setBinScan("")
     setScannedBinCode(code)
     toast.success(`Rak ${code} aktif.`)
