@@ -7,8 +7,6 @@ import {
   RefreshCwIcon,
   MoreHorizontalIcon,
   Loader2Icon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   CopyIcon,
   UserIcon,
   CalendarIcon,
@@ -42,6 +40,7 @@ import {
 } from "@/hooks/proses-pesanan/use-fulfillment"
 import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment"
 import { CHANNEL_MAP, STATUS_LABELS } from "@/types/pesanan/order"
+import { SimplePagination } from "@/components/ui/simple-pagination"
 
 import { ChannelBadge, OrderStatusBadge } from "../channel-badge"
 import { BuatPicklistDialog } from "../picking/buat-picklist-dialog"
@@ -384,6 +383,7 @@ export function FulfillmentOrdersTable({
   const [search, setSearch] = React.useState("")
   const [debounced, setDebounced] = React.useState("")
   const [page, setPage] = React.useState(1)
+  const [perPage, setPerPage] = React.useState(20)
   const [selected, setSelected] = React.useState<Set<string>>(new Set())
   const [picklistOpen, setPicklistOpen] = React.useState(false)
   const [pengirimanOpen, setPengirimanOpen] = React.useState(false)
@@ -402,15 +402,15 @@ export function FulfillmentOrdersTable({
   }, [search])
 
   const params = React.useMemo(
-    () => ({ q: debounced || undefined, page, per_page: 20 }),
-    [debounced, page]
+    () => ({ q: debounced || undefined, page, per_page: perPage }),
+    [debounced, page, perPage]
   )
   const { data, isLoading, isFetching, refetch } = useOrdersByStage(stage, params)
   const readyToShip = useReadyToShip()
   const markComplete = useMarkComplete()
 
   const orders = data?.items ?? []
-  const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: 20, total: 0 }
+  const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
 
   const pageIds = orders.map((o) => o.id)
   const allSelected = pageIds.length > 0 && pageIds.every((id) => selected.has(id))
@@ -623,30 +623,21 @@ export function FulfillmentOrdersTable({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between gap-3 border-t border-border/40 px-4 py-3 sm:px-5">
-        <span className="text-xs text-muted-foreground">
-          Halaman {meta.current_page} dari {meta.last_page}
-        </span>
-        <div className="flex items-center gap-1.5">
-          <Button
-            variant="outline"
-            size="icon-sm"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            aria-label="Sebelumnya"
-          >
-            <ChevronLeftIcon className="size-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon-sm"
-            disabled={meta.current_page >= meta.last_page}
-            onClick={() => setPage((p) => p + 1)}
-            aria-label="Berikutnya"
-          >
-            <ChevronRightIcon className="size-4" />
-          </Button>
-        </div>
+      <div className="px-4 pb-4 sm:px-5">
+        <SimplePagination
+          page={meta.current_page}
+          lastPage={meta.last_page}
+          onPageChange={setPage}
+          perPage={perPage}
+          onPerPageChange={(s) => {
+            setPerPage(s)
+            setPage(1)
+          }}
+          pageSizeOptions={[10, 20, 50]}
+          isFetching={isFetching}
+          label="pesanan"
+          total={meta.total}
+        />
       </div>
 
       {actions.buatPicklist && (
