@@ -143,6 +143,8 @@ export function PickingProsesView({ id }: { id: string }) {
     )
   }
 
+  const BIN_CODE_PATTERN = /^L\d+-B\d+-K\d+-R\d+$/i
+
   const handleScanSku = () => {
     const code = skuScan.trim()
     if (!code) return
@@ -151,6 +153,12 @@ export function PickingProsesView({ id }: { id: string }) {
       toast.warning("Scan kode rak dulu sebelum scan SKU.")
       setSkuScan("")
       binScanRef.current?.focus()
+      return
+    }
+    if (BIN_CODE_PATTERN.test(code) || code === scannedBinCode) {
+      toast.error(`"${code}" adalah kode rak, bukan SKU produk.`)
+      setSkuScan("")
+      skuScanRef.current?.focus()
       return
     }
     const item = findItemForSku(code)
