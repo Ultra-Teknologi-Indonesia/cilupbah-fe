@@ -181,6 +181,17 @@ export function useGetShippingLabel() {
     mutationFn: (data: { orderId: string; docType?: string }) =>
       OrderService.getShippingLabel(data.orderId, data.docType),
     onSuccess: (res) => {
+      // BE returns HTTP 202 with { success:false, status:'preparing', message }
+      // when PrepareShopeeShippingLabelJob masih jalan di background.
+      const maybeStatus = (res as unknown as { status?: string })?.status
+      if (maybeStatus === "preparing") {
+        toast.warning(
+          (res as unknown as { message?: string })?.message
+            || "Label sedang disiapkan oleh Shopee, coba lagi 1-2 menit."
+        )
+        return
+      }
+
       const result = res.data
       if (result) {
         openShippingLabel(result)
