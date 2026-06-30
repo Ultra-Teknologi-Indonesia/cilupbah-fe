@@ -9,7 +9,6 @@ import {
   Loader2Icon,
   PackageIcon,
   ScanBarcodeIcon,
-  UserIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -24,19 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { Combobox } from "@/components/ui/combobox"
 import { PageTitle } from "@/components/dashboard/page-title"
 import {
   useAssignPacker,
@@ -120,8 +107,7 @@ export function PackingProsesView() {
   const skuScanRef = React.useRef<HTMLInputElement>(null)
   const qtyInputRef = React.useRef<HTMLInputElement>(null)
 
-  const [pickerId, setPickerId] = React.useState("")
-  const [pickerOpen, setPickerOpen] = React.useState(false)
+  const [pickerId, setPickerId] = React.useState<string | null>(null)
   const [orderScan, setOrderScan] = React.useState("")
   const [skuScan, setSkuScan] = React.useState("")
   const [activeItemId, setActiveItemId] = React.useState<string | null>(null)
@@ -129,7 +115,7 @@ export function PackingProsesView() {
 
   const [packlistId, setPacklistId] = React.useState<string | null>(null)
 
-  const pickers = usePickers(undefined, true)
+  const pickers = usePickers(undefined, "packer")
   const scanOrder = useScanOrder()
   const assignPacker = useAssignPacker()
   const startPacklist = useStartPacklist()
@@ -179,9 +165,9 @@ export function PackingProsesView() {
       return
     }
 
-    if (!result.packerId && pickerId) {
+    if (!result.packerId && pickerId != null) {
       try {
-        await assignPacker.mutateAsync({ packlistId: result.id, packerId: pickerId })
+        await assignPacker.mutateAsync({ packlistId: result.id, packerId })
       } catch {
         // packer assignment optional, continue
       }
@@ -309,45 +295,21 @@ export function PackingProsesView() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Packer</label>
-                <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={pickerOpen}
-                      className="mt-1.5 w-full justify-start gap-2 font-normal"
-                      disabled={!!packlistId}
-                    >
-                      <UserIcon className="size-4 text-muted-foreground" />
-                      {selectedPicker ? selectedPicker.name : "Pilih packer…"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Cari packer…" />
-                      <CommandList>
-                        <CommandEmpty>Tidak ditemukan.</CommandEmpty>
-                        <CommandGroup>
-                          {pickers.data?.map((p) => (
-                            <CommandItem
-                              key={p.id}
-                              value={p.name}
-                              onSelect={() => {
-                                setPickerId(p.id)
-                                setPickerOpen(false)
-                              }}
-                            >
-                              <div className="flex flex-col">
-                                <span className="font-medium">{p.name}</span>
-                                <span className="text-xs text-muted-foreground">{p.email}</span>
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <div className="mt-1.5">
+                  <Combobox
+                    options={(pickers.data ?? []).map((p) => ({
+                      value: p.id,
+                      label: p.name,
+                      hint: p.email ?? undefined,
+                    }))}
+                    value={pickerId}
+                    onChange={setPickerId}
+                    placeholder="Pilih packer…"
+                    searchPlaceholder="Cari packer…"
+                    emptyText="Packer tidak ditemukan."
+                    disabled={!!packlistId}
+                  />
+                </div>
               </div>
 
               <div>

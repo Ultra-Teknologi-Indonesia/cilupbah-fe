@@ -19,7 +19,7 @@ export const fulfillmentKeys = {
   picklists: (p: FulfillmentListParams) => [...all, "picklists", p] as const,
   packlists: (p: FulfillmentListParams) => [...all, "packlists", p] as const,
   shipments: (p: FulfillmentListParams) => [...all, "shipments", p] as const,
-  pickers: (locationId?: string) => [...all, "pickers", locationId ?? ""] as const,
+  pickers: (locationId?: string, role?: string) => [...all, "pickers", locationId ?? "", role ?? ""] as const,
   count: (key: string) => [...all, "count", key] as const,
   picklistDetail: (id: string) => [...all, "picklist-detail", id] as const,
   packlistDetail: (id: string) => [...all, "packlist-detail", id] as const,
@@ -66,10 +66,10 @@ export function useShipments(params: FulfillmentListParams, enabled = true) {
   })
 }
 
-export function usePickers(locationId?: string, enabled = true) {
+export function usePickers(locationId?: string, role?: string, enabled = true) {
   return useQuery({
-    queryKey: fulfillmentKeys.pickers(locationId),
-    queryFn: () => OutboundService.pickers(locationId),
+    queryKey: fulfillmentKeys.pickers(locationId, role),
+    queryFn: () => OutboundService.pickers(locationId, role),
     staleTime: 60_000,
     enabled,
   })

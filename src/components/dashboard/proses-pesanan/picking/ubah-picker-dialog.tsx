@@ -52,7 +52,7 @@ function UbahPickerDialogInner({
 }: UbahPickerDialogProps) {
   const [pickerId, setPickerId] = React.useState(currentPickerId ?? "")
 
-  const pickers = usePickers(locationId ?? undefined, open)
+  const pickers = usePickers(locationId ?? undefined, undefined, open)
   const assignPicker = useAssignPicker()
 
   const handleSubmit = async () => {

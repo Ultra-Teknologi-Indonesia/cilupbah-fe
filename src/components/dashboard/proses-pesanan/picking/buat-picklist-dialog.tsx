@@ -37,7 +37,7 @@ export function BuatPicklistDialog({
   const [pickerId, setPickerId] = React.useState("")
   const [notes, setNotes] = React.useState("")
 
-  const pickers = usePickers(locationId ?? undefined, open && !!locationId)
+  const pickers = usePickers(locationId ?? undefined, undefined, open && !!locationId)
   const createPicklist = useCreatePicklist()
 
   React.useEffect(() => {

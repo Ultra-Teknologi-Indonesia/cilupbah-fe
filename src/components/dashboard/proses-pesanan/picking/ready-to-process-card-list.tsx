@@ -118,7 +118,7 @@ export function ReadyToProcessCardList() {
   const multiLocation = distinctLocations.length > 1
   const locationName = selectedOrders[0]?.locationName ?? null
 
-  const pickers = usePickers(locationId ?? undefined, !!locationId)
+  const pickers = usePickers(locationId ?? undefined, undefined, !!locationId)
   const createPicklist = useCreatePicklist()
   const selectedPicker = pickers.data?.find((p) => p.id === pickerId) ?? null
 

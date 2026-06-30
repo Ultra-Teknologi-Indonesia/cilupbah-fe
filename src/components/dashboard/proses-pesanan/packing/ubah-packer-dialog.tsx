@@ -34,8 +34,7 @@ export function UbahPackerDialog({
 }: UbahPackerDialogProps) {
   const [packerId, setPackerId] = React.useState("")
 
-  // Packer = warehouse user yang sama dengan picker (endpoint /outbound/pickers).
-  const pickers = usePickers(locationId ?? undefined, open)
+  const pickers = usePickers(locationId ?? undefined, "packer", open)
   const assignPacker = useAssignPacker()
 
   React.useEffect(() => {

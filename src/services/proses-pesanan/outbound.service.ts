@@ -298,8 +298,11 @@ export const OutboundService = {
   },
 
   // Daftar picker (warehouse user). Defensif terhadap envelope {status,data} / {success,data}.
-  pickers: async (locationId?: string): Promise<Picker[]> => {
-    const q = locationId ? `?location_id=${encodeURIComponent(locationId)}` : ""
+  pickers: async (locationId?: string, role?: string): Promise<Picker[]> => {
+    const params = new URLSearchParams()
+    if (locationId) params.set("location_id", locationId)
+    if (role) params.set("role", role)
+    const q = params.toString() ? `?${params}` : ""
     const res = await fetchClient<{ data: RawPicker[] }>(`/outbound/pickers${q}`)
     return (res.data ?? []).map(mapPicker)
   },
