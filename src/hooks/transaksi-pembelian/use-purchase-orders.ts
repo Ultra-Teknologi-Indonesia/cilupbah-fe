@@ -60,18 +60,6 @@ export function useUpdatePurchaseOrder() {
   })
 }
 
-export function useApprovePurchaseOrder() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: PurchaseOrderService.approve,
-    onSuccess: () => {
-      toast.success("Pesanan berhasil diapprove")
-      qc.invalidateQueries({ queryKey: ["purchase-order"] })
-    },
-    onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal approve pesanan"),
-  })
-}
 
 export function useCancelPurchaseOrder() {
   const qc = useQueryClient()

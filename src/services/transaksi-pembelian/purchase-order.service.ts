@@ -63,12 +63,6 @@ export const PurchaseOrderService = {
     return res.data
   },
 
-  approve: async (id: string) => {
-    const res = await fetchClient<ApiResponse<PurchaseOrder>>(`/purchase/orders/${id}/approve`, {
-      method: "POST",
-    })
-    return res.data
-  },
 
   cancel: async (id: string) => {
     const res = await fetchClient<ApiResponse<PurchaseOrder>>(`/purchase/orders/${id}/cancel`, {
