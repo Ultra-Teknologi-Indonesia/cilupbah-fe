@@ -37,11 +37,13 @@ function PickRow({
 }: {
   item: PicklistItem
   disabled: boolean
-  onSave: (itemId: string, qty: number) => void
+  onSave: (itemId: string, qty: number, binCode: string) => void
   saving: boolean
 }) {
   const [qty, setQty] = React.useState(String(item.qtyPicked))
+  const [bin, setBin] = React.useState(item.binCode ?? "")
   React.useEffect(() => setQty(String(item.qtyPicked)), [item.qtyPicked])
+  React.useEffect(() => setBin(item.binCode ?? ""), [item.binCode])
 
   const done = item.qtyPicked >= item.qtyOrdered
   const changed = (Number.parseInt(qty, 10) || 0) !== item.qtyPicked
@@ -58,7 +60,15 @@ function PickRow({
           )}
         </div>
       </td>
-      <td className="px-3 py-2.5 text-foreground">{item.binCode ?? "—"}</td>
+      <td className="px-3 py-2.5">
+        <Input
+          value={bin}
+          onChange={(e) => setBin(e.target.value)}
+          disabled={disabled}
+          placeholder="Kode rak"
+          className="h-9 w-28"
+        />
+      </td>
       <td className="px-3 py-2.5 tabular-nums text-foreground">{item.qtyOrdered}</td>
       <td className="px-3 py-2.5">
         <Input
@@ -87,8 +97,8 @@ function PickRow({
         <Button
           size="sm"
           variant="outline"
-          disabled={disabled || !changed || saving}
-          onClick={() => onSave(item.id, Math.min(item.qtyOrdered, Number.parseInt(qty, 10) || 0))}
+          disabled={disabled || !changed || !bin.trim() || saving}
+          onClick={() => onSave(item.id, Math.min(item.qtyOrdered, Number.parseInt(qty, 10) || 0), bin.trim())}
         >
           Simpan
         </Button>
@@ -115,9 +125,9 @@ export function PickingDetailView({ id }: { id: string }) {
   const isTerminal = pl ? ["COMPLETED", "FAILED", "CANCELLED"].includes(pl.status) : false
   const editable = !!pl && !isTerminal
 
-  const savePick = (itemId: string, qty: number) => {
+  const savePick = (itemId: string, qty: number, binCode: string) => {
     pickItem.mutate(
-      { picklistId: id, itemId, qtyPicked: qty },
+      { picklistId: id, itemId, qtyPicked: qty, binCode },
       {
         onSuccess: () => toast.success("Qty pick tersimpan."),
         onError: (e) => toast.error(errMsg(e, "Gagal menyimpan pick.")),
@@ -139,7 +149,11 @@ export function PickingDetailView({ id }: { id: string }) {
       toast.info(`${item.sku} sudah lengkap.`)
       return
     }
-    savePick(item.id, item.qtyPicked + 1)
+    if (!item.binCode) {
+      toast.error(`Isi kode rak untuk ${item.sku} terlebih dahulu.`)
+      return
+    }
+    savePick(item.id, item.qtyPicked + 1, item.binCode)
   }
 
   const handleComplete = () => {
