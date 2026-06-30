@@ -291,6 +291,15 @@ export function useFailPicklist() {
   })
 }
 
+// ── Scan order for packing ──────────────────────────────────────────────────
+export function useScanOrder() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (orderNo: string) => OutboundService.scanOrder(orderNo),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+  })
+}
+
 // ── Scan/pack detail (Packing) ───────────────────────────────────────────────
 export function usePacklistDetail(id: string, enabled = true) {
   return useQuery({

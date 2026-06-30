@@ -215,7 +215,8 @@ function mapPacklistItem(raw: RawPacklistItem): PacklistItem {
   return {
     id: raw.id,
     sku: raw.sku,
-    description: raw.orderItem?.description ?? null,
+    description: raw.orderItem?.description ?? raw.product?.product?.product_name ?? null,
+    imageUrl: raw.orderItem?.image_url ?? null,
     qtyOrdered: raw.qty_ordered ?? 0,
     qtyPacked: raw.qty_packed ?? 0,
     barcodeVerified: Boolean(raw.barcode_verified),
@@ -402,6 +403,17 @@ export const OutboundService = {
       data: payload,
     })
     return res.data
+  },
+
+  scanOrder: async (orderNo: string): Promise<PacklistDetail | null> => {
+    try {
+      const res = await fetchClient<{ data: RawPacklistDetail }>(
+        `/outbound/packlists/scan-order?order_no=${encodeURIComponent(orderNo)}`
+      )
+      return res.data ? mapPacklistDetail(res.data) : null
+    } catch {
+      return null
+    }
   },
 
   // ── Packing scan/pack detail ─────────────────────────────────────────────

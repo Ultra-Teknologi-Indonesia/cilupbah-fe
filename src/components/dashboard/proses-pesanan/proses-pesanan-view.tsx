@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react"
 import Link from "next/link"
-import { ScanBarcodeIcon } from "lucide-react"
+import { PackageIcon, ScanBarcodeIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
@@ -85,6 +85,7 @@ export function ProsesPesananView() {
   }
 
   const showAdHocPickingButton = stage === "picking" && sub === "diproses"
+  const showPackingButton = stage === "packing" && sub === "diproses"
 
   return (
     <div className="flex flex-col gap-4">
@@ -110,13 +111,22 @@ export function ProsesPesananView() {
             )}
           </div>
 
-          {showAdHocPickingButton && (
-            <Button asChild variant="primary" size="sm" className="h-9">
-              <Link href="/dashboard/proses-pesanan/picking/proses-pesanan">
-                <ScanBarcodeIcon className="size-4" /> Proses Picking
-              </Link>
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {showAdHocPickingButton && (
+              <Button asChild variant="primary" size="sm" className="h-9">
+                <Link href="/dashboard/proses-pesanan/picking/proses-pesanan">
+                  <ScanBarcodeIcon className="size-4" /> Proses Picking
+                </Link>
+              </Button>
+            )}
+            {showPackingButton && (
+              <Button asChild variant="primary" size="sm" className="h-9">
+                <Link href="/dashboard/proses-pesanan/packing/proses-packing">
+                  <PackageIcon className="size-4" /> Mulai Packing
+                </Link>
+              </Button>
+            )}
+          </div>
         </div>
 
         <div key={`${stage}-${sub}`}>{renderContent()}</div>
