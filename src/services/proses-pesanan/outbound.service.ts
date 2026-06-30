@@ -227,7 +227,7 @@ function mapPacklistItem(raw: RawPacklistItem): PacklistItem {
   return {
     id: raw.id,
     sku: raw.sku,
-    description: raw.orderItem?.description ?? variant?.product?.product_name ?? null,
+    description: raw.orderItem?.description ?? variant?.product?.name ?? null,
     imageUrl,
     qtyOrdered: raw.qty_ordered ?? 0,
     qtyPacked: raw.qty_packed ?? 0,

@@ -348,7 +348,7 @@ export interface RawPacklistItem {
     sku?: string | null
     product_id?: string | null
     media?: RawPicklistMedia[] | null
-    product?: { product_name?: string | null; media?: RawPicklistMedia[] | null } | null
+    product?: { name?: string | null; media?: RawPicklistMedia[] | null } | null
   } | null
   orderItem?: {
     sku?: string | null
@@ -357,7 +357,7 @@ export interface RawPacklistItem {
       sku?: string | null
       product_id?: string | null
       media?: RawPicklistMedia[] | null
-      product?: { product_name?: string | null; media?: RawPicklistMedia[] | null } | null
+      product?: { name?: string | null; media?: RawPicklistMedia[] | null } | null
     } | null
   } | null
 }
