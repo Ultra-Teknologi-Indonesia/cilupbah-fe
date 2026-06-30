@@ -67,7 +67,6 @@ import {
   useRejectCancelRequest,
   useAcceptReturn,
   useRejectReturn,
-  useGetShippingLabel,
   useRelocateOrder,
 } from "@/hooks/pesanan/use-order-actions"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
@@ -228,13 +227,16 @@ function OrderActions({
   const rejectCancel = useRejectCancelRequest()
   const acceptReturn = useAcceptReturn()
   const rejectReturn = useRejectReturn()
-  const getLabel = useGetShippingLabel()
 
   const isMarketplace = !!order.source && order.source !== "manual"
 
   const handlePrintLabel = () => {
     if (isMarketplace) {
-      getLabel.mutate({ orderId: order.id })
+      window.open(
+        `/dashboard/document-preview/shipping-label/${order.id}`,
+        "_blank",
+        "noopener,noreferrer",
+      )
     } else {
       toast.info("Cetak resi hanya tersedia untuk pesanan marketplace")
     }
@@ -251,8 +253,7 @@ function OrderActions({
     acceptCancel.isPending ||
     rejectCancel.isPending ||
     acceptReturn.isPending ||
-    rejectReturn.isPending ||
-    getLabel.isPending
+    rejectReturn.isPending
 
   if (tab === "unpaid") return null
 
@@ -289,7 +290,7 @@ function OrderActions({
             onClick={handlePrintLabel}
           >
             <PrinterIcon className="h-3.5 w-3.5" />
-            {getLabel.isPending ? "Mengambil..." : "Cetak Label"}
+            Cetak Label
           </Button>
         )}
         <Button
@@ -340,7 +341,7 @@ function OrderActions({
             onClick={handlePrintLabel}
           >
             <PrinterIcon className="h-3.5 w-3.5" />
-            {getLabel.isPending ? "Mengambil..." : "Cetak Resi"}
+            Cetak Resi
           </Button>
         )}
         <Button
@@ -389,7 +390,7 @@ function OrderActions({
             onClick={handlePrintLabel}
           >
             <PrinterIcon className="h-3.5 w-3.5" />
-            {getLabel.isPending ? "Mengambil..." : "Cetak Resi"}
+            Cetak Resi
           </Button>
         )}
       </>
@@ -502,7 +503,7 @@ function OrderActions({
           onClick={handlePrintLabel}
         >
           <PrinterIcon className="h-3.5 w-3.5" />
-          {getLabel.isPending ? "Mengambil..." : "Cetak Resi"}
+          Cetak Resi
         </Button>
       )
     }
@@ -550,12 +551,15 @@ export type OrderCardVariant = "sales" | "outbound-ready"
 
 function OutboundReadyActions({ order }: { order: Order }) {
   const [picklistOpen, setPicklistOpen] = React.useState(false)
-  const getLabel = useGetShippingLabel()
   const isMarketplace = !!order.source && order.source !== "manual"
 
   const handlePrintLabel = () => {
     if (isMarketplace) {
-      getLabel.mutate({ orderId: order.id })
+      window.open(
+        `/dashboard/document-preview/shipping-label/${order.id}`,
+        "_blank",
+        "noopener,noreferrer",
+      )
     } else {
       toast.info("Cetak label hanya tersedia untuk pesanan marketplace")
     }
@@ -567,11 +571,11 @@ function OutboundReadyActions({ order }: { order: Order }) {
       variant="outline"
       size="sm"
       className="h-8 gap-1.5 text-xs"
-      disabled={getLabel.isPending || !hasTracking}
+      disabled={!hasTracking}
       onClick={handlePrintLabel}
     >
       <PrinterIcon className="h-3.5 w-3.5" />
-      {getLabel.isPending ? "Mengambil..." : "Cetak Label"}
+      Cetak Label
     </Button>
   )
 

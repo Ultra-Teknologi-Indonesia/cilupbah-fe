@@ -5,7 +5,6 @@ import Link from "next/link"
 import {
   ClipboardListIcon,
   FilterIcon,
-  Loader2Icon,
   MoreHorizontalIcon,
   PrinterIcon,
   RefreshCwIcon,
@@ -16,7 +15,6 @@ import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
 import {
   Popover,
   PopoverContent,
@@ -43,10 +41,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import {
-  useDownloadPicklistPdf,
-  usePicklists,
-} from "@/hooks/proses-pesanan/use-fulfillment"
+import { usePicklists } from "@/hooks/proses-pesanan/use-fulfillment"
 import { PICKLIST_STATUS_LABEL, type Picklist } from "@/types/proses-pesanan/fulfillment"
 
 import { UbahPickerDialog } from "./ubah-picker-dialog"
@@ -83,7 +78,6 @@ export function PicklistTable() {
   const [page, setPage] = React.useState(1)
   const [status, setStatus] = React.useState<string>("")
   const [editPicker, setEditPicker] = React.useState<Picklist | null>(null)
-  const downloadPdf = useDownloadPicklistPdf()
 
   React.useEffect(() => {
     const t = setTimeout(() => setDebounced(search.trim()), 350)
@@ -165,25 +159,21 @@ export function PicklistTable() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
+                  asChild
                   variant="ghost"
                   size="icon-sm"
                   aria-label="Cetak Picklist"
-                  disabled={downloadPdf.isPending}
-                  onClick={() =>
-                    downloadPdf.mutate({
-                      picklistId: row.original.id,
-                      picklistNo: row.original.picklistNo,
-                    })
-                  }
                 >
-                  {downloadPdf.isPending && downloadPdf.variables?.picklistId === row.original.id ? (
-                    <Loader2Icon className="size-4 animate-spin" />
-                  ) : (
+                  <Link
+                    href={`/dashboard/document-preview/picklist/${row.original.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <PrinterIcon className="size-4" />
-                  )}
+                  </Link>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Cetak Picklist</TooltipContent>
+              <TooltipContent>Pratinjau & Cetak Picklist</TooltipContent>
             </Tooltip>
           </TooltipProvider>
           <DropdownMenu>
@@ -201,10 +191,10 @@ export function PicklistTable() {
         </div>
       ),
     },
-  ], [downloadPdf]);
+  ], []);
 
   return (
-    <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
+    <div>
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative w-full max-w-xs">
@@ -333,6 +323,6 @@ export function PicklistTable() {
         locationId={editPicker?.locationId ?? null}
         currentPickerId={editPicker?.pickerId ?? null}
       />
-    </LiquidGlass>
+    </div>
   )
 }

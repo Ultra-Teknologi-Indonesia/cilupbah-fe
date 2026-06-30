@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // PDF.js worker disalin dari pdfjs-dist; bukan source kita.
+    "public/pdf.worker.min.mjs",
   ]),
 ]);
 
