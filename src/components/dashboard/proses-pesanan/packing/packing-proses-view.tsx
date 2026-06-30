@@ -181,7 +181,7 @@ export function PackingProsesView() {
 
     if (!result.packerId && pickerId) {
       try {
-        await assignPacker.mutateAsync({ packlistId: result.id, packerId })
+        await assignPacker.mutateAsync({ packlistId: result.id, packerId: pickerId })
       } catch {
         // packer assignment optional, continue
       }
