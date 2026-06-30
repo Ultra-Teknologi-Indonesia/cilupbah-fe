@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import dynamic from "next/dynamic"
 import {
   ArrowLeftIcon,
@@ -79,11 +79,16 @@ function KnownDocumentPreview({
   onRetry: () => void
 }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const config = DOCUMENT_TYPES[type]
   const [state, setState] = React.useState<LoadState>({ kind: "loading" })
   const [pageNumber, setPageNumber] = React.useState(1)
   const [numPages, setNumPages] = React.useState(0)
   const [scale, setScale] = React.useState(1)
+
+  // Stable string identity dipakai sebagai effect dep supaya tidak re-fetch
+  // saat parent re-render dengan instance ReadonlyURLSearchParams baru.
+  const queryString = searchParams.toString()
 
   // Fetch dokumen + cleanup object URL. Tidak ada setState sinkronus di sini —
   // initial value sudah "loading" lewat useState.
@@ -91,8 +96,9 @@ function KnownDocumentPreview({
     let cancelled = false
     let createdUrl: string | null = null
 
+    const query = new URLSearchParams(queryString)
     config
-      .fetchPdf(id)
+      .fetchPdf(id, query)
       .then(({ blob, meta }) => {
         if (cancelled) return
         createdUrl = URL.createObjectURL(blob)
@@ -109,7 +115,7 @@ function KnownDocumentPreview({
       cancelled = true
       if (createdUrl) URL.revokeObjectURL(createdUrl)
     }
-  }, [config, id])
+  }, [config, id, queryString])
 
   // Keyboard nav: PgUp / PgDn / Arrow keys.
   React.useEffect(() => {
@@ -167,16 +173,18 @@ function KnownDocumentPreview({
     setTimeout(() => iframe.remove(), 30_000)
   }
 
+  const backUrl = config.backUrl(id)
+
   const handleClose = () => {
     // Coba router.back() bila history ada, fallback ke backUrl.
     if (typeof window !== "undefined" && window.history.length > 1) {
       router.back()
     } else {
-      router.push(config.backUrl)
+      router.push(backUrl)
     }
   }
 
-  const handleBack = () => router.push(config.backUrl)
+  const handleBack = () => router.push(backUrl)
 
   // Fixed inset-0 supaya halaman preview menutupi semua layout dashboard
   // (sidebar/header) tanpa harus pakai route group.

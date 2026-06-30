@@ -8,6 +8,7 @@ import {
   ArrowUpIcon,
   ArrowDownIcon,
   Loader2Icon,
+  PrinterIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -26,6 +27,12 @@ import {
   DialogClose,
 } from "@/components/ui/dialog"
 import { SimplePagination } from "@/components/ui/simple-pagination"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { BIN_QR_PAPER_DEFAULT } from "@/services/manajemen-rak/location.service"
 import {
   buildBinPreview,
   binCombinationCount,
@@ -669,6 +676,35 @@ export function LayoutGudangTab({
 
   const handleUniformApply = serverMode ? handleUniformApplyServer : handleUniformApplyLocal
 
+  // ── Cetak QR ──────────────────────────────────────────────────────────────
+  // Hanya tersedia di server-mode (butuh locationId + binId yang sudah tersimpan).
+  const canPrintQr = serverMode && Boolean(locationId)
+
+  const openQrPreview = (binIds: string[]) => {
+    if (!canPrintQr || !locationId) return
+    const params = new URLSearchParams({ paper: BIN_QR_PAPER_DEFAULT })
+    // Strip falsy supaya tidak mengirim "" yang lolos filter Boolean.
+    const cleanIds = binIds.filter((s) => typeof s === "string" && s.length > 0)
+    if (cleanIds.length > 0) params.set("bin_ids", cleanIds.join(","))
+    const url = `/dashboard/document-preview/bin-qr/${locationId}?${params.toString()}`
+    window.open(url, "_blank", "noopener,noreferrer")
+  }
+
+  const printQrSelected = () => {
+    if (selectAllAcrossPages) {
+      // BE tanpa bin_ids = cetak semua bin di lokasi (sesuai kontrak).
+      openQrPreview([])
+      return
+    }
+    if (selectedIds.size === 0) {
+      toast.error("Pilih minimal satu rak.")
+      return
+    }
+    openQrPreview(Array.from(selectedIds))
+  }
+
+  const printQrAll = () => openQrPreview([])
+
   const selectionScopeLabel = selectAllAcrossPages
     ? `semua ${totalAll} rak`
     : `${selectedIds.size} rak terpilih`
@@ -713,9 +749,24 @@ export function LayoutGudangTab({
               className="pl-9"
             />
           </div>
-          <span className="text-sm text-muted-foreground">
-            Total <Badge className="ml-1">{totalAll.toLocaleString("id-ID")}</Badge>
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground">
+              Total <Badge className="ml-1">{totalAll.toLocaleString("id-ID")}</Badge>
+            </span>
+            {canPrintQr && totalAll > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={printQrAll}
+                disabled={disabled}
+              >
+                <PrinterIcon className="size-4" />
+                Cetak Semua QR
+              </Button>
+            )}
+          </div>
         </div>
 
         {serverMode && binsQuery.isLoading ? (
@@ -747,7 +798,7 @@ export function LayoutGudangTab({
                   <th className="px-3 py-3 text-center font-medium text-muted-foreground">Akui Stok</th>
                   <th className="px-3 py-3 text-center font-medium text-muted-foreground">Gudang Besar</th>
                   <th className="px-3 py-3 text-left font-medium text-muted-foreground">Kategori</th>
-                  <th className="w-12 px-3 py-3" />
+                  <th className="w-24 px-3 py-3" />
                 </tr>
 
                 {/* Banner: select-all on this page (mirip Gmail) */}
@@ -808,6 +859,19 @@ export function LayoutGudangTab({
                         >
                           Seragamkan
                         </Button>
+                        {canPrintQr && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="gap-1.5"
+                            onClick={printQrSelected}
+                            disabled={disabled}
+                          >
+                            <PrinterIcon className="size-4" />
+                            Cetak QR
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -896,17 +960,36 @@ export function LayoutGudangTab({
                         />
                       </td>
                       <td className="px-3 py-2.5">
-                        {!disabled && !serverMode && (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon-sm"
-                            className="text-destructive hover:text-destructive"
-                            onClick={() => deleteLocalBin(b.id)}
-                          >
-                            <Trash2Icon className="size-4" />
-                          </Button>
-                        )}
+                        <div className="flex items-center justify-end gap-1">
+                          {canPrintQr && b.binId && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  onClick={() => openQrPreview([b.binId!])}
+                                  aria-label="Cetak QR Rak"
+                                  disabled={disabled}
+                                >
+                                  <PrinterIcon className="size-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Cetak QR Rak</TooltipContent>
+                            </Tooltip>
+                          )}
+                          {!disabled && !serverMode && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon-sm"
+                              className="text-destructive hover:text-destructive"
+                              onClick={() => deleteLocalBin(b.id)}
+                            >
+                              <Trash2Icon className="size-4" />
+                            </Button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   )

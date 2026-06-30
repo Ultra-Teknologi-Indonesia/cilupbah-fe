@@ -1,3 +1,8 @@
+import {
+  BIN_QR_PAPER_DEFAULT,
+  LocationService,
+  type BinQrPaper,
+} from "@/services/manajemen-rak/location.service"
 import { OutboundService } from "@/services/proses-pesanan/outbound.service"
 
 // Konversi base64 string → Blob (untuk dokumen yang dikembalikan BE sebagai base64,
@@ -27,12 +32,18 @@ export interface DocumentTypeConfig {
   title: string
   // Subtitle bisa pakai id mentah (sebelum dokumen ready) lalu update setelah meta tersedia.
   subtitle: (id: string, meta?: DocumentMeta) => string
-  fetchPdf: (id: string) => Promise<DocumentFetchResult>
-  backUrl: string
+  // `query` adalah read-only snapshot dari search params route preview (mis. ?bin_ids=…&paper=…).
+  // Optional supaya entry lama tetap kompatibel tanpa perlu inspect query.
+  fetchPdf: (
+    id: string,
+    query?: URLSearchParams
+  ) => Promise<DocumentFetchResult>
+  // Function supaya bisa balik ke detail/edit page per-entity, bukan list statis.
+  backUrl: (id: string) => string
   filename: (id: string, meta?: DocumentMeta) => string
 }
 
-export type DocumentTypeKey = "picklist" | "shipping-label"
+export type DocumentTypeKey = "picklist" | "shipping-label" | "bin-qr"
 
 export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
   picklist: {
@@ -42,7 +53,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const blob = await OutboundService.picklistPdf(id)
       return { blob }
     },
-    backUrl: "/dashboard/proses-pesanan",
+    backUrl: () => "/dashboard/proses-pesanan",
     filename: (id, meta) =>
       `${(meta?.picklist_no as string | undefined) ?? `PICK-${id}`}.pdf`,
   },
@@ -65,9 +76,56 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       }
       throw new Error("Format label tidak dikenali")
     },
-    backUrl: "/dashboard/proses-pesanan",
+    backUrl: () => "/dashboard/proses-pesanan",
     filename: (id) => `shipping-label-${id.slice(0, 8)}.pdf`,
   },
+
+  // QR rak per-lokasi. `id` = locationId. Query optional:
+  //   bin_ids=<csv>  → subset rak (kalau kosong, BE cetak semua bin lokasi).
+  //   paper=<variant>→ ukuran kertas. Default thermal_50x40.
+  "bin-qr": {
+    title: "QR Rak",
+    subtitle: (id, meta) => {
+      const name = meta?.location_name as string | undefined
+      const count = meta?.bin_count as number | undefined
+      if (name) return count ? `${name} • ${count} rak` : name
+      return `Lokasi ${id.slice(0, 8)}…`
+    },
+    fetchPdf: async (id, query) => {
+      const binIdsRaw = query?.get("bin_ids") ?? ""
+      const binIds = binIdsRaw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+      const paperRaw = query?.get("paper")
+      const paper: BinQrPaper = isBinQrPaper(paperRaw) ? paperRaw : BIN_QR_PAPER_DEFAULT
+      const blob = await LocationService.binsPrintQrPdf(id, {
+        binIds: binIds.length > 0 ? binIds : undefined,
+        paper,
+      })
+      return {
+        blob,
+        meta: {
+          bin_count: binIds.length || undefined,
+          paper,
+        },
+      }
+    },
+    backUrl: (id) => `/dashboard/lokasi/${id}/edit`,
+    filename: (id, meta) => {
+      const code = (meta?.location_code as string | undefined) ?? id.slice(0, 8)
+      return `qr-rak-${code}.pdf`
+    },
+  },
+}
+
+function isBinQrPaper(value: string | null | undefined): value is BinQrPaper {
+  return (
+    value === "thermal_50x40" ||
+    value === "thermal_80x40" ||
+    value === "a4_single" ||
+    value === "a4_multi"
+  )
 }
 
 export function isDocumentType(value: string): value is DocumentTypeKey {

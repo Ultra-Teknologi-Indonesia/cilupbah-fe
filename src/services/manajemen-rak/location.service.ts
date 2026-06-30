@@ -1,4 +1,4 @@
-import { fetchClient } from "@/lib/api-client"
+import { fetchBlobRaw, fetchClient } from "@/lib/api-client"
 import type { ApiPaginated, ApiResponse } from "@/types/api.types"
 import type {
   Location,
@@ -56,6 +56,14 @@ export interface LocationListResult {
   meta: ApiPaginated<RawLocation>["meta"]
 }
 
+export type BinQrPaper =
+  | "thermal_50x40"
+  | "thermal_80x40"
+  | "a4_single"
+  | "a4_multi"
+
+export const BIN_QR_PAPER_DEFAULT: BinQrPaper = "thermal_50x40"
+
 export const LocationService = {
   list: async (params: LocationListParams = {}): Promise<LocationListResult> => {
     const q = new URLSearchParams()
@@ -111,5 +119,23 @@ export const LocationService = {
       { method: "PUT", data: { bins } }
     )
     return res.data
+  },
+
+  // GET /api/v1/locations/{locationId}/bins/print-qr?bin_ids=<csv>&paper=<variant>
+  // Default paper di BE: thermal_50x40. Tanpa bin_ids = semua bin di lokasi.
+  binsPrintQrPdf: async (
+    locationId: string,
+    options?: { binIds?: string[]; paper?: BinQrPaper }
+  ): Promise<Blob> => {
+    const params = new URLSearchParams()
+    if (options?.binIds && options.binIds.length > 0) {
+      params.set("bin_ids", options.binIds.join(","))
+    }
+    if (options?.paper) params.set("paper", options.paper)
+    const qs = params.toString()
+    return fetchBlobRaw(
+      `/locations/${locationId}/bins/print-qr${qs ? `?${qs}` : ""}`,
+      "application/pdf"
+    )
   },
 }
