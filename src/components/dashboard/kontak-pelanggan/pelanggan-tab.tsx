@@ -100,7 +100,7 @@ export function PelangganTab() {
       header: "Kategori",
       cell: ({ row }) => {
         const cat = row.original.category;
-        return <span className="text-muted-foreground">{cat ? (cat.code ? `${cat.code} - ${cat.name}` : cat.name) : "—"}</span>;
+        return <span className="text-foreground">{cat ? (cat.code ? `${cat.code} - ${cat.name}` : cat.name) : "—"}</span>;
       },
     },
     {

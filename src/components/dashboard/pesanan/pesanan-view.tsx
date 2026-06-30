@@ -6,9 +6,9 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { useOrders } from "@/hooks/pesanan/use-orders"
 import type { OrderTab, OrderListParams, SubFilter } from "@/types/pesanan/order"
-import { SUB_PILL_CONFIG, TABS_WITH_ACTIONS } from "@/types/pesanan/order"
+import { SUB_PILL_CONFIG, TABS_WITH_ACTIONS, TAB_CONFIG } from "@/types/pesanan/order"
 
-import { OrderStatusTabs } from "./order-status-tabs"
+import { OrderStatusTabs, OrderSubStatusPills } from "./order-status-tabs"
 import { OrderFilters, EMPTY_FILTERS, type FilterState } from "./order-filters"
 import { OrderCardList } from "./order-card-list"
 import { BulkActionBar } from "./bulk-action-bar"
@@ -91,16 +91,29 @@ export function PesananView() {
     </div>
   ) : null
 
+  const tabLabel = TAB_CONFIG.find((t) => t.key === tab)?.label ?? ""
+  const hasSubPills = !!SUB_PILL_CONFIG[tab]
+
   return (
     <div className="flex flex-col gap-4">
-      <OrderStatusTabs
-        active={tab}
-        onChange={handleTabChange}
-        subFilter={subFilter}
-        onSubFilterChange={handleSubFilterChange}
-      />
+      <OrderStatusTabs active={tab} onChange={handleTabChange} />
 
-      <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
+      <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6 sm:py-5">
+          <div className="min-w-0">
+            <h2 className="text-base font-medium">{tabLabel}</h2>
+            {hasSubPills && (
+              <div className="mt-3">
+                <OrderSubStatusPills
+                  active={tab}
+                  subFilter={subFilter}
+                  onSubFilterChange={handleSubFilterChange}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
         <OrderFilters
           query={query}
           onQueryChange={handleQueryChange}

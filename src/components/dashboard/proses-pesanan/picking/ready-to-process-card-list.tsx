@@ -4,8 +4,6 @@ import * as React from "react"
 import Link from "next/link"
 import { useQueryClient } from "@tanstack/react-query"
 import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
   Loader2Icon,
   PackageOpenIcon,
   RefreshCwIcon,
@@ -30,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { SimplePagination } from "@/components/ui/simple-pagination"
 import { OrderCard } from "@/components/dashboard/pesanan/order-card"
 import { BulkBuatPicklistConfirmDialog } from "@/components/dashboard/proses-pesanan/picking/bulk-buat-picklist-confirm-dialog"
 import {
@@ -42,8 +41,6 @@ import { orderKeys } from "@/hooks/pesanan/use-orders"
 import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper"
 import { cn } from "@/lib/utils"
 import { FilterIcon } from "lucide-react"
-
-const PER_PAGE_OPTIONS = [10, 20, 50]
 
 const SOURCE_OPTIONS = [
   { value: "", label: "Semua Channel" },
@@ -411,52 +408,21 @@ export function ReadyToProcessCardList() {
         )}
       </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-between gap-3 border-t border-border/40 px-4 py-3 sm:px-5">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>Per halaman</span>
-          <Select
-            value={String(perPage)}
-            onValueChange={(v) => {
-              setPerPage(Number(v))
-              setPage(1)
-            }}
-          >
-            <SelectTrigger className="h-8 w-20">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {PER_PAGE_OPTIONS.map((n) => (
-                <SelectItem key={n} value={String(n)}>
-                  {n}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <span className="ml-2">
-            Halaman {meta.current_page} dari {meta.last_page}
-          </span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Button
-            variant="outline"
-            size="icon-sm"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            aria-label="Sebelumnya"
-          >
-            <ChevronLeftIcon className="size-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon-sm"
-            disabled={meta.current_page >= meta.last_page}
-            onClick={() => setPage((p) => p + 1)}
-            aria-label="Berikutnya"
-          >
-            <ChevronRightIcon className="size-4" />
-          </Button>
-        </div>
+      <div className="px-4 pb-4 sm:px-5">
+        <SimplePagination
+          page={meta.current_page}
+          lastPage={meta.last_page}
+          onPageChange={setPage}
+          perPage={perPage}
+          onPerPageChange={(s) => {
+            setPerPage(s)
+            setPage(1)
+          }}
+          pageSizeOptions={[10, 20, 50]}
+          isFetching={isFetching}
+          label="pesanan"
+          total={meta.total}
+        />
       </div>
 
       <BulkBuatPicklistConfirmDialog
