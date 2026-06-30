@@ -77,10 +77,13 @@ export function PickingProsesView({ id }: { id: string }) {
 
   const skuScanRef = React.useRef<HTMLInputElement>(null)
   const binScanRef = React.useRef<HTMLInputElement>(null)
+  const qtyInputRef = React.useRef<HTMLInputElement>(null)
 
   const [skuScan, setSkuScan] = React.useState("")
   const [binScan, setBinScan] = React.useState("")
   const [scannedBinCode, setScannedBinCode] = React.useState<string | null>(null)
+  const [activeItemId, setActiveItemId] = React.useState<string | null>(null)
+  const [pickQty, setPickQty] = React.useState("")
   const [notes, setNotes] = React.useState("")
 
   const { data: pl, isLoading, isError } = usePicklistDetail(id)
@@ -143,6 +146,8 @@ export function PickingProsesView({ id }: { id: string }) {
     )
   }
 
+  const activeItem = activeItemId ? items.find((i) => i.id === activeItemId) ?? null : null
+
   const BIN_CODE_PATTERN = /^L\d+-B\d+-K\d+-R\d+$/i
 
   const handleScanSku = () => {
@@ -173,24 +178,49 @@ export function PickingProsesView({ id }: { id: string }) {
       skuScanRef.current?.focus()
       return
     }
+    const remaining = item.qtyOrdered - item.qtyPicked
+    setActiveItemId(item.id)
+    setPickQty(String(remaining))
+    setTimeout(() => qtyInputRef.current?.select(), 50)
+  }
+
+  const handleConfirmPick = () => {
+    if (!activeItem || !scannedBinCode) return
+    const qty = Number.parseInt(pickQty, 10)
+    const remaining = activeItem.qtyOrdered - activeItem.qtyPicked
+    if (Number.isNaN(qty) || qty <= 0) {
+      toast.error("Masukkan qty yang valid.")
+      return
+    }
+    if (qty > remaining) {
+      toast.error(`Qty melebihi sisa yang harus di-pick (${remaining}).`)
+      return
+    }
     pickItem.mutate(
       {
         picklistId: id,
-        itemId: item.id,
-        qtyPicked: item.qtyPicked + 1,
-        binCode: scannedBinCode!,
+        itemId: activeItem.id,
+        qtyPicked: activeItem.qtyPicked + qty,
+        binCode: scannedBinCode,
       },
       {
         onSuccess: () => {
-          toast.success(`${item.sku} berhasil di-pick (${item.qtyPicked + 1}/${item.qtyOrdered}).`)
+          toast.success(`${activeItem.sku} berhasil di-pick (${activeItem.qtyPicked + qty}/${activeItem.qtyOrdered}).`)
+          setActiveItemId(null)
+          setPickQty("")
           skuScanRef.current?.focus()
         },
         onError: (e) => {
-          toast.error(errMsg(e, `Gagal pick ${item.sku}.`))
-          skuScanRef.current?.focus()
+          toast.error(errMsg(e, `Gagal pick ${activeItem.sku}.`))
         },
       }
     )
+  }
+
+  const handleCancelPick = () => {
+    setActiveItemId(null)
+    setPickQty("")
+    skuScanRef.current?.focus()
   }
 
   const handleScanBin = () => {
@@ -386,6 +416,51 @@ export function PickingProsesView({ id }: { id: string }) {
               </div>
             </div>
 
+            {activeItem && (
+              <div className="rounded-2xl border-2 border-primary bg-primary/[0.04] p-4">
+                <div className="flex items-start gap-4">
+                  <ItemImage src={activeItem.imageUrl} alt={activeItem.name ?? activeItem.sku} />
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-foreground">{activeItem.name ?? activeItem.sku}</div>
+                    <div className="font-mono text-xs text-muted-foreground">{activeItem.sku}</div>
+                    <div className="mt-1 flex flex-wrap gap-x-4 text-xs text-muted-foreground">
+                      <span>Pesanan: <span className="font-medium text-foreground">{activeItem.orderNo ?? "—"}</span></span>
+                      <span>Dipesan: <span className="font-medium text-foreground">{activeItem.qtyOrdered}</span></span>
+                      <span>Sudah pick: <span className="font-medium text-foreground">{activeItem.qtyPicked}</span></span>
+                      <span>Sisa: <span className="font-semibold text-primary">{activeItem.qtyOrdered - activeItem.qtyPicked}</span></span>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-3">
+                  <label className="text-sm text-muted-foreground">Qty ambil:</label>
+                  <Input
+                    ref={qtyInputRef}
+                    type="number"
+                    min={1}
+                    max={activeItem.qtyOrdered - activeItem.qtyPicked}
+                    inputMode="numeric"
+                    value={pickQty}
+                    onChange={(e) => setPickQty(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault()
+                        handleConfirmPick()
+                      }
+                    }}
+                    className="h-9 w-24"
+                    disabled={pickItem.isPending}
+                  />
+                  <Button onClick={handleConfirmPick} disabled={pickItem.isPending}>
+                    {pickItem.isPending && <Loader2Icon className="size-4 animate-spin" />}
+                    Konfirmasi
+                  </Button>
+                  <Button variant="ghost" onClick={handleCancelPick} disabled={pickItem.isPending}>
+                    Batal
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <div className="overflow-x-auto rounded-2xl border border-border bg-card">
               <table className="w-full min-w-[1100px] border-collapse text-sm">
                 <thead>
@@ -416,7 +491,8 @@ export function PickingProsesView({ id }: { id: string }) {
                           key={it.id}
                           className={cn(
                             "border-b border-border/60 last:border-0",
-                            done && "bg-emerald-500/[0.04]"
+                            done && "bg-emerald-500/[0.04]",
+                            activeItemId === it.id && "bg-primary/[0.06] ring-1 ring-inset ring-primary/20"
                           )}
                         >
                           <td className="px-3 py-3">
