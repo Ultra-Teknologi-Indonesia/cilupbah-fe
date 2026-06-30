@@ -28,12 +28,10 @@ import { ShipmentTable } from "./shipping/shipment-table"
 
 function ComingSoon({ label }: { label: string }) {
   return (
-    <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
-      <div className="px-4 py-16 text-center text-sm text-muted-foreground sm:px-5">
-        Tahap <span className="font-medium text-foreground">{label}</span> — akan tersedia pada
-        fase berikutnya.
-      </div>
-    </LiquidGlass>
+    <div className="px-4 py-16 text-center text-sm text-muted-foreground sm:px-5">
+      Tahap <span className="font-medium text-foreground">{label}</span> — akan tersedia pada
+      fase berikutnya.
+    </div>
   )
 }
 
@@ -90,22 +88,39 @@ export function ProsesPesananView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <StageTabs active={stage} onChange={handleStageChange} />
-        {showAdHocPickingButton && (
-          <Button asChild variant="primary">
-            <Link href="/dashboard/proses-pesanan/picking/proses-pesanan">
-              <ScanBarcodeIcon className="size-4" /> Proses Picking
-            </Link>
-          </Button>
-        )}
-      </div>
+      <StageTabs active={stage} onChange={handleStageChange} />
 
-      {subs.length > 0 && (
-        <SubStatusPills subs={subs} active={sub} onChange={setSub} counts={countsMap} />
-      )}
+      <LiquidGlass
+        radius={24}
+        intensity="default"
+        className="bg-white/40 dark:bg-white/[0.06]"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6 sm:py-5">
+          <div className="min-w-0">
+            <h2 className="text-base font-medium">{stageLabel}</h2>
+            {subs.length > 0 && (
+              <div className="mt-3">
+                <SubStatusPills
+                  subs={subs}
+                  active={sub}
+                  onChange={setSub}
+                  counts={countsMap}
+                />
+              </div>
+            )}
+          </div>
 
-      <div key={`${stage}-${sub}`}>{renderContent()}</div>
+          {showAdHocPickingButton && (
+            <Button asChild variant="primary" size="sm" className="h-9">
+              <Link href="/dashboard/proses-pesanan/picking/proses-pesanan">
+                <ScanBarcodeIcon className="size-4" /> Proses Picking
+              </Link>
+            </Button>
+          )}
+        </div>
+
+        <div key={`${stage}-${sub}`}>{renderContent()}</div>
+      </LiquidGlass>
     </div>
   )
 }

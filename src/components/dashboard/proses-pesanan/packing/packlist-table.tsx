@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import {
@@ -121,7 +120,7 @@ export function PacklistTable() {
   ], [router]);
 
   return (
-    <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
+    <div>
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
         <div className="relative w-full max-w-xs">
           <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -182,6 +181,6 @@ export function PacklistTable() {
         locationId={editPacker?.locationId ?? null}
         currentPackerId={editPacker?.packerId ?? null}
       />
-    </LiquidGlass>
+    </div>
   )
 }

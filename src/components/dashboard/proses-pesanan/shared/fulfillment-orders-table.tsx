@@ -23,7 +23,6 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
 import {
   Tooltip,
   TooltipContent,
@@ -479,7 +478,7 @@ export function FulfillmentOrdersTable({
   }
 
   return (
-    <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
+    <div>
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
         <div className="relative w-full max-w-xs">
@@ -696,7 +695,7 @@ export function FulfillmentOrdersTable({
           shippingProvider={singlePengirimanOrder.shippingProvider}
         />
       )}
-    </LiquidGlass>
+    </div>
   )
 }
 

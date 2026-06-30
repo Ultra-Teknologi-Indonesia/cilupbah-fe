@@ -18,7 +18,6 @@ import { BulkActionBar } from "@/components/ui/bulk-action-bar"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
 import {
   Popover,
   PopoverContent,
@@ -201,11 +200,7 @@ export function ReadyToProcessCardList() {
   }
 
   return (
-    <LiquidGlass
-      radius={20}
-      intensity="subtle"
-      className="bg-white/30 dark:bg-white/[0.04]"
-    >
+    <div>
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
         <div className="flex flex-wrap items-center gap-2">
@@ -474,6 +469,6 @@ export function ReadyToProcessCardList() {
         loading={createPicklist.isPending}
         onConfirm={handleCreatePicklist}
       />
-    </LiquidGlass>
+    </div>
   )
 }
