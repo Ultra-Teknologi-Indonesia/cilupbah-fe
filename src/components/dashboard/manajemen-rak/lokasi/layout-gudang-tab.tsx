@@ -32,7 +32,24 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { BIN_QR_PAPER_DEFAULT } from "@/services/manajemen-rak/location.service"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  BIN_QR_PAPER_DEFAULT,
+  type BinQrPaper,
+} from "@/services/manajemen-rak/location.service"
+
+const PAPER_OPTIONS: { value: BinQrPaper; label: string }[] = [
+  { value: "thermal_50x40", label: "Thermal 50x40mm" },
+  { value: "thermal_80x40", label: "Thermal 80x40mm" },
+  { value: "a4_single", label: "A4 (1 QR per halaman)" },
+  { value: "a4_multi", label: "A4 (8 QR per halaman)" },
+]
 import {
   buildBinPreview,
   binCombinationCount,
@@ -431,6 +448,7 @@ export function LayoutGudangTab({
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
   const [selectAllAcrossPages, setSelectAllAcrossPages] = React.useState(false)
   const [uniformOpen, setUniformOpen] = React.useState(false)
+  const [paperSize, setPaperSize] = React.useState<BinQrPaper>(BIN_QR_PAPER_DEFAULT)
 
   // Debounce search input → query
   React.useEffect(() => {
@@ -682,7 +700,7 @@ export function LayoutGudangTab({
 
   const openQrPreview = (binIds: string[]) => {
     if (!canPrintQr || !locationId) return
-    const params = new URLSearchParams({ paper: BIN_QR_PAPER_DEFAULT })
+    const params = new URLSearchParams({ paper: paperSize })
     // Strip falsy supaya tidak mengirim "" yang lolos filter Boolean.
     const cleanIds = binIds.filter((s) => typeof s === "string" && s.length > 0)
     if (cleanIds.length > 0) params.set("bin_ids", cleanIds.join(","))
@@ -754,17 +772,38 @@ export function LayoutGudangTab({
               Total <Badge className="ml-1">{totalAll.toLocaleString("id-ID")}</Badge>
             </span>
             {canPrintQr && totalAll > 0 && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="gap-1.5"
-                onClick={printQrAll}
-                disabled={disabled}
-              >
-                <PrinterIcon className="size-4" />
-                Cetak Semua QR
-              </Button>
+              <>
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs text-muted-foreground">Ukuran QR:</Label>
+                  <Select
+                    value={paperSize}
+                    onValueChange={(v) => setPaperSize(v as BinQrPaper)}
+                    disabled={disabled}
+                  >
+                    <SelectTrigger className="h-9 w-52">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PAPER_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={printQrAll}
+                  disabled={disabled}
+                >
+                  <PrinterIcon className="size-4" />
+                  Cetak Semua QR
+                </Button>
+              </>
             )}
           </div>
         </div>
