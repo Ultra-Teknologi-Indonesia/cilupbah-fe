@@ -1,23 +1,36 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { ArrowLeftIcon, CheckIcon, Loader2Icon, ScanLineIcon } from "lucide-react"
+import {
+  ArrowLeftIcon,
+  CheckCircle2Icon,
+  Loader2Icon,
+  PackageIcon,
+  ScanBarcodeIcon,
+} from "lucide-react"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { PageTitle } from "@/components/dashboard/page-title"
 import {
+  useCompletePacklist,
+  usePackItem,
   usePacklistDetail,
   useStartPacklist,
   useVerifyBarcode,
-  usePackItem,
-  useCompletePacklist,
 } from "@/hooks/proses-pesanan/use-fulfillment"
-import { PACKLIST_STATUS_LABEL, type PacklistItem } from "@/types/proses-pesanan/fulfillment"
 
 const LIST_HREF = "/dashboard/proses-pesanan"
 
@@ -29,87 +42,73 @@ function errMsg(err: unknown, fallback: string): string {
   return fallback
 }
 
-function PackRow({
-  item,
-  disabled,
-  onSave,
-}: {
-  item: PacklistItem
-  disabled: boolean
-  onSave: (itemId: string, qty: number) => void
-}) {
-  const [qty, setQty] = React.useState(String(item.qtyPacked))
-  React.useEffect(() => setQty(String(item.qtyPacked)), [item.qtyPacked])
-
-  const done = item.qtyPacked >= item.qtyOrdered
-  const changed = (Number.parseInt(qty, 10) || 0) !== item.qtyPacked
-
+function ItemImage({ src, alt, size = 48 }: { src: string | null; alt: string; size?: number }) {
+  const [errored, setErrored] = React.useState(false)
+  if (!src || errored) {
+    return (
+      <div
+        className="flex shrink-0 items-center justify-center rounded-xl border border-border bg-muted text-muted-foreground"
+        style={{ width: size, height: size }}
+      >
+        <PackageIcon className="size-5" />
+      </div>
+    )
+  }
   return (
-    <tr className={cn("border-b border-border/60 last:border-0", done && "bg-emerald-500/[0.04]")}>
-      <td className="px-3 py-2.5">
-        <div className="flex min-w-0 flex-col gap-0.5" style={{ maxWidth: 280 }}>
-          <span className="font-medium whitespace-normal break-words text-foreground">
-            {item.description ?? item.sku}
-          </span>
-          {item.description && (
-            <span className="font-mono text-[11px] text-foreground/80">{item.sku}</span>
+    <div
+      className="relative shrink-0 overflow-hidden rounded-xl border border-border bg-muted"
+      style={{ width: size, height: size }}
+    >
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes={`${size}px`}
+        className="object-cover"
+        onError={() => setErrored(true)}
+      />
+    </div>
+  )
+}
+
+function ProgressBar({ packed, total }: { packed: number; total: number }) {
+  const pct = total > 0 ? Math.min(100, Math.round((packed / total) * 100)) : 0
+  const done = packed >= total && total > 0
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-baseline justify-between">
+        <span className="text-sm font-semibold tabular-nums text-foreground">
+          {packed} / {total}
+        </span>
+        <span className="text-xs text-muted-foreground">{pct}%</span>
+      </div>
+      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className={cn(
+            "h-full rounded-full transition-all duration-500",
+            done ? "bg-emerald-500" : "bg-primary"
           )}
-        </div>
-      </td>
-      <td className="px-3 py-2.5 tabular-nums text-foreground">{item.qtyOrdered}</td>
-      <td className="px-3 py-2.5">
-        <Input
-          type="number"
-          min={0}
-          max={item.qtyOrdered}
-          inputMode="numeric"
-          value={qty}
-          onChange={(e) => setQty(e.target.value)}
-          disabled={disabled}
-          className="h-9 w-20"
+          style={{ width: `${pct}%` }}
         />
-      </td>
-      <td className="px-3 py-2.5 text-center">
-        {item.barcodeVerified ? (
-          <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600">
-            <CheckIcon className="size-3.5" /> Terverifikasi
-          </span>
-        ) : (
-          <span className="text-xs text-foreground">Belum</span>
-        )}
-      </td>
-      <td className="px-3 py-2.5">
-        {done ? (
-          <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600">
-            <CheckIcon className="size-3.5" /> Selesai
-          </span>
-        ) : (
-          <span className="text-xs text-foreground">Kurang {item.qtyOrdered - item.qtyPacked}</span>
-        )}
-      </td>
-      <td className="px-3 py-2.5 text-right">
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={disabled || !changed}
-          onClick={() => onSave(item.id, Math.min(item.qtyOrdered, Number.parseInt(qty, 10) || 0))}
-        >
-          Simpan
-        </Button>
-      </td>
-    </tr>
+      </div>
+    </div>
   )
 }
 
 export function PackingDetailView({ id }: { id: string }) {
   const router = useRouter()
-  const scanRef = React.useRef<HTMLInputElement>(null)
-  const [scan, setScan] = React.useState("")
+
+  const skuScanRef = React.useRef<HTMLInputElement>(null)
+  const qtyInputRef = React.useRef<HTMLInputElement>(null)
+
+  const [skuScan, setSkuScan] = React.useState("")
+  const [activeItemId, setActiveItemId] = React.useState<string | null>(null)
+  const [packQty, setPackQty] = React.useState("")
 
   const { data: pk, isLoading, isError } = usePacklistDetail(id)
   const startPacklist = useStartPacklist()
-  const verifyBarcode = useVerifyBarcode()
   const packItem = usePackItem()
+  const verifyBarcode = useVerifyBarcode()
   const completePacklist = useCompletePacklist()
 
   const items = pk?.items ?? []
@@ -119,180 +118,407 @@ export function PackingDetailView({ id }: { id: string }) {
   const isTerminal = pk ? ["COMPLETED", "CANCELLED"].includes(pk.status) : false
   const editable = !!pk && !isTerminal
 
-  const savePack = (itemId: string, qty: number) => {
-    packItem.mutate(
-      { packlistId: id, itemId, qtyPacked: qty },
-      {
-        onSuccess: () => toast.success("Qty kemas tersimpan."),
-        onError: (e) => toast.error(errMsg(e, "Gagal menyimpan kemas.")),
-      }
-    )
-  }
-
-  const handleScan = () => {
-    const code = scan.trim()
-    if (!code) return
-    setScan("")
-    scanRef.current?.focus()
-    verifyBarcode.mutate(
-      { packlistId: id, barcode: code },
-      {
-        onSuccess: (res) => {
-          if (!res) {
-            toast.error(`Barcode "${code}" tidak cocok.`)
-            return
-          }
-          const item = items.find((i) => i.id === res.itemId)
-          // Verifikasi sekaligus tambah 1 kemasan bila masih kurang.
-          if (item && item.qtyPacked < item.qtyOrdered) {
-            savePack(item.id, item.qtyPacked + 1)
-          } else {
-            toast.success(`${res.sku} terverifikasi.`)
-          }
+  const didAutoComplete = React.useRef(false)
+  React.useEffect(() => {
+    if (!pk || didAutoComplete.current) return
+    if (allPacked && pk.status !== "COMPLETED") {
+      didAutoComplete.current = true
+      completePacklist.mutate(id, {
+        onSuccess: () => {
+          toast.success("Semua item sudah dikemas. Packing selesai!")
+          router.push(LIST_HREF)
         },
-        onError: (e) => toast.error(errMsg(e, "Barcode tidak valid.")),
+        onError: (e) => {
+          didAutoComplete.current = false
+          toast.error(errMsg(e, "Gagal menyelesaikan packing."))
+        },
+      })
+    }
+  }, [pk, allPacked, id, completePacklist, router])
+
+  React.useEffect(() => {
+    if (pk && pk.status === "DRAFT") {
+      startPacklist.mutate(id, {
+        onError: () => {},
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pk?.id])
+
+  const activeItem = activeItemId ? items.find((i) => i.id === activeItemId) ?? null : null
+
+  const handleScanSku = () => {
+    const code = skuScan.trim()
+    if (!code || !id) return
+    setSkuScan("")
+
+    const item = items.find(
+      (i) => i.sku.toLowerCase() === code.toLowerCase() && i.qtyPacked < i.qtyOrdered
+    ) ?? items.find((i) => i.sku.toLowerCase() === code.toLowerCase())
+
+    if (!item) {
+      verifyBarcode.mutate(
+        { packlistId: id, barcode: code },
+        {
+          onSuccess: (res) => {
+            if (!res) {
+              toast.error(`SKU/Barcode "${code}" tidak ditemukan.`)
+              return
+            }
+            const matched = items.find((i) => i.id === res.itemId)
+            if (matched && matched.qtyPacked < matched.qtyOrdered) {
+              setActiveItemId(matched.id)
+              setPackQty("")
+              setTimeout(() => qtyInputRef.current?.focus(), 50)
+            } else {
+              toast.info(`${res.sku} sudah lengkap.`)
+            }
+          },
+          onError: (e) => toast.error(errMsg(e, "Barcode tidak valid.")),
+        }
+      )
+      return
+    }
+
+    if (item.qtyPacked >= item.qtyOrdered) {
+      toast.info(`${item.sku} sudah lengkap.`)
+      skuScanRef.current?.focus()
+      return
+    }
+
+    setActiveItemId(item.id)
+    setPackQty("")
+    setTimeout(() => qtyInputRef.current?.focus(), 50)
+  }
+
+  const handleConfirmPack = () => {
+    if (!activeItem) return
+    const qty = Number.parseInt(packQty, 10)
+    const remaining = activeItem.qtyOrdered - activeItem.qtyPacked
+    if (Number.isNaN(qty) || qty <= 0) {
+      toast.error("Masukkan qty yang valid.")
+      return
+    }
+    if (qty > remaining) {
+      toast.error(`Qty melebihi sisa (${remaining}).`)
+      return
+    }
+    packItem.mutate(
+      {
+        packlistId: id,
+        itemId: activeItem.id,
+        qtyPacked: activeItem.qtyPacked + qty,
+        barcodeVerified: true,
+      },
+      {
+        onSuccess: () => {
+          toast.success(`${activeItem.sku} dikemas (${activeItem.qtyPacked + qty}/${activeItem.qtyOrdered}).`)
+          setActiveItemId(null)
+          setPackQty("")
+          skuScanRef.current?.focus()
+        },
+        onError: (e) => toast.error(errMsg(e, `Gagal pack ${activeItem.sku}.`)),
       }
     )
   }
 
-  const handleComplete = () => {
-    completePacklist.mutate(id, {
-      onSuccess: () => {
-        toast.success("Packing selesai.")
-        router.push(LIST_HREF)
-      },
-      onError: (e) => toast.error(errMsg(e, "Gagal menyelesaikan packing.")),
-    })
+  const handleCancelPack = () => {
+    setActiveItemId(null)
+    setPackQty("")
+    skuScanRef.current?.focus()
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-6">
+        <PageTitle
+          title="Proses Packing"
+          breadcrumb={[
+            { label: "Gudang" },
+            { label: "Proses Pesanan", href: LIST_HREF },
+            { label: "Packing" },
+            { label: "Proses Packing" },
+          ]}
+          actions={
+            <Button variant="outline" onClick={() => router.push(LIST_HREF)}>
+              <ArrowLeftIcon /> Kembali
+            </Button>
+          }
+        />
+        <div className="flex items-center justify-center gap-2 py-24 text-muted-foreground">
+          <Loader2Icon className="size-4 animate-spin" /> Memuat packlist…
+        </div>
+      </div>
+    )
+  }
+
+  if (isError || !pk) {
+    return (
+      <div className="flex flex-col gap-6">
+        <PageTitle
+          title="Proses Packing"
+          breadcrumb={[
+            { label: "Gudang" },
+            { label: "Proses Pesanan", href: LIST_HREF },
+            { label: "Packing" },
+            { label: "Proses Packing" },
+          ]}
+          actions={
+            <Button variant="outline" onClick={() => router.push(LIST_HREF)}>
+              <ArrowLeftIcon /> Kembali
+            </Button>
+          }
+        />
+        <div className="py-24 text-center text-sm text-destructive">Gagal memuat packlist.</div>
+      </div>
+    )
   }
 
   return (
     <div className="flex flex-col gap-6">
       <PageTitle
-        title={pk ? `Packing ${pk.packlistNo}` : "Packing"}
+        title="Proses Packing"
         breadcrumb={[
           { label: "Gudang" },
           { label: "Proses Pesanan", href: LIST_HREF },
           { label: "Packing" },
+          { label: "Proses Packing" },
         ]}
         actions={
-          <Button variant="outline" asChild>
-            <Link href={LIST_HREF}>
-              <ArrowLeftIcon /> Kembali
-            </Link>
+          <Button variant="outline" onClick={() => router.push(LIST_HREF)}>
+            <ArrowLeftIcon /> Kembali
           </Button>
         }
       />
 
-      {isLoading ? (
-        <div className="flex items-center justify-center gap-2 py-24 text-muted-foreground">
-          <Loader2Icon className="size-4 animate-spin" /> Memuat packlist…
-        </div>
-      ) : isError || !pk ? (
-        <div className="py-24 text-center text-sm text-destructive">Gagal memuat packlist.</div>
-      ) : (
-        <>
-          <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-card p-4">
-            <div className="flex flex-wrap items-center gap-x-8 gap-y-2 text-sm">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
+        {/* ── Main content ─────────────────────────────────── */}
+        <div className="flex flex-col gap-4">
+          {/* Packlist info */}
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
               <div>
-                <div className="text-xs text-muted-foreground">Status</div>
-                <span
-                  className={cn(
-                    "mt-0.5 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-                    PACKLIST_STATUS_LABEL[pk.status].className
-                  )}
-                >
-                  {PACKLIST_STATUS_LABEL[pk.status].label}
-                </span>
+                <span className="text-xs text-muted-foreground">No. Packing</span>
+                <div className="font-mono font-semibold">{pk.packlistNo}</div>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground">No. Pesanan</div>
+                <span className="text-xs text-muted-foreground">Pesanan</span>
                 <div className="font-medium">{pk.orderNo ?? "—"}</div>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground">Packer</div>
-                <div className="font-medium">{pk.packerName ?? "—"}</div>
+                <span className="text-xs text-muted-foreground">Customer</span>
+                <div className="font-medium">{pk.customerName ?? "—"}</div>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground">Progress</div>
-                <div className="font-medium tabular-nums">
-                  {totalPacked} / {totalOrdered}
-                </div>
+                <span className="text-xs text-muted-foreground">Packer</span>
+                <div className="font-medium">{pk.packerName ?? "—"}</div>
               </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {pk.status === "DRAFT" && (
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    startPacklist.mutate(id, {
-                      onSuccess: () => toast.success("Packing dimulai."),
-                      onError: (e) => toast.error(errMsg(e, "Gagal memulai packing.")),
-                    })
-                  }
-                  disabled={startPacklist.isPending}
-                >
-                  Mulai Packing
-                </Button>
-              )}
-              {editable && (
-                <Button variant="primary" onClick={handleComplete} disabled={!allPacked || completePacklist.isPending}>
-                  {completePacklist.isPending && <Loader2Icon className="animate-spin" />}
-                  Selesaikan
-                </Button>
-              )}
             </div>
           </div>
 
+          {/* SKU scan */}
           {editable && (
-            <div className="relative max-w-md">
-              <ScanLineIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                ref={scanRef}
-                value={scan}
-                onChange={(e) => setScan(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault()
-                    handleScan()
-                  }
-                }}
-                placeholder="Scan barcode / SKU lalu Enter…"
-                className="pl-9"
-                autoFocus
-              />
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <label className="text-xs font-medium text-muted-foreground">
+                Scan SKU / Barcode Produk
+              </label>
+              <div className="relative mt-1.5">
+                <ScanBarcodeIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  ref={skuScanRef}
+                  value={skuScan}
+                  onChange={(e) => setSkuScan(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault()
+                      handleScanSku()
+                    }
+                  }}
+                  placeholder="Scan SKU / barcode lalu Enter…"
+                  className="pl-9"
+                  disabled={packItem.isPending}
+                  autoFocus
+                />
+              </div>
             </div>
           )}
 
-          <div className="overflow-x-auto rounded-2xl border border-border">
-            <table className="w-full min-w-[720px] border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/40 text-left text-muted-foreground">
-                  <th className="px-3 py-3 font-medium">SKU / Produk</th>
-                  <th className="px-3 py-3 font-medium">Qty Dipesan</th>
-                  <th className="px-3 py-3 font-medium">Qty Dikemas</th>
-                  <th className="px-3 py-3 text-center font-medium">Barcode</th>
-                  <th className="px-3 py-3 font-medium">Status</th>
-                  <th className="w-24 px-3 py-3" />
-                </tr>
-              </thead>
-              <tbody>
-                {items.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-12 text-center text-sm text-muted-foreground">
-                      Tidak ada item.
-                    </td>
+          {/* Modal konfirmasi qty pack */}
+          <Dialog open={!!activeItem} onOpenChange={(open) => { if (!open) handleCancelPack() }}>
+            <DialogContent className="sm:max-w-md" onOpenAutoFocus={(e) => { e.preventDefault(); setTimeout(() => qtyInputRef.current?.focus(), 50) }}>
+              {activeItem && (
+                <>
+                  <DialogHeader>
+                    <DialogTitle>Konfirmasi Pack</DialogTitle>
+                    <DialogDescription>Masukkan jumlah yang dikemas</DialogDescription>
+                  </DialogHeader>
+                  <div className="flex items-start gap-4 py-2">
+                    <ItemImage src={activeItem.imageUrl} alt={activeItem.description ?? activeItem.sku} size={56} />
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-foreground">{activeItem.description ?? activeItem.sku}</div>
+                      <div className="font-mono text-xs text-muted-foreground">{activeItem.sku}</div>
+                      <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                        <span>Qty dipesan</span>
+                        <span className="font-medium text-foreground">{activeItem.qtyOrdered}</span>
+                        <span>Sudah pack</span>
+                        <span className="font-medium text-foreground">{activeItem.qtyPacked}</span>
+                        <span>Sisa</span>
+                        <span className="font-semibold text-primary">{activeItem.qtyOrdered - activeItem.qtyPacked}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 pt-2">
+                    <label className="shrink-0 text-sm font-medium text-foreground">Qty kemas</label>
+                    <Input
+                      ref={qtyInputRef}
+                      type="number"
+                      min={1}
+                      max={activeItem.qtyOrdered - activeItem.qtyPacked}
+                      inputMode="numeric"
+                      value={packQty}
+                      onChange={(e) => setPackQty(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault()
+                          handleConfirmPack()
+                        }
+                      }}
+                      placeholder={`maks ${activeItem.qtyOrdered - activeItem.qtyPacked}`}
+                      className="h-10"
+                      disabled={packItem.isPending}
+                    />
+                  </div>
+                  <DialogFooter className="gap-2 sm:gap-0">
+                    <Button variant="ghost" onClick={handleCancelPack} disabled={packItem.isPending}>
+                      Batal
+                    </Button>
+                    <Button onClick={handleConfirmPack} disabled={packItem.isPending || !packQty.trim()}>
+                      {packItem.isPending && <Loader2Icon className="size-4 animate-spin" />}
+                      Konfirmasi Pack
+                    </Button>
+                  </DialogFooter>
+                </>
+              )}
+            </DialogContent>
+          </Dialog>
+
+          {/* Items table */}
+          <div className="overflow-x-auto rounded-2xl border border-border bg-card">
+            {items.length === 0 ? (
+              <div className="py-16 text-center text-sm text-muted-foreground">
+                Tidak ada item dalam packlist ini.
+              </div>
+            ) : (
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/40 text-left text-muted-foreground">
+                    <th className="px-4 py-3 font-medium">Produk</th>
+                    <th className="px-4 py-3 font-medium text-center">QTY Pesanan</th>
+                    <th className="px-4 py-3 font-medium text-center">QTY Pack</th>
+                    <th className="px-4 py-3 font-medium text-center">Status</th>
                   </tr>
-                ) : (
-                  items.map((item) => (
-                    <PackRow key={item.id} item={item} disabled={!editable} onSave={savePack} />
-                  ))
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {items.map((item) => {
+                    const done = item.qtyPacked >= item.qtyOrdered
+                    return (
+                      <tr
+                        key={item.id}
+                        className={cn(
+                          "border-b border-border/60 last:border-0 transition-colors",
+                          done && "bg-emerald-500/[0.04]",
+                          activeItemId === item.id && "bg-primary/[0.06] ring-1 ring-inset ring-primary/20"
+                        )}
+                      >
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <ItemImage src={item.imageUrl} alt={item.description ?? item.sku} />
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-foreground truncate">
+                                {item.description ?? item.sku}
+                              </p>
+                              <p className="font-mono text-[11px] text-muted-foreground">{item.sku}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-center tabular-nums font-medium text-foreground">
+                          {item.qtyOrdered}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <span
+                            className={cn(
+                              "inline-flex h-7 min-w-12 items-center justify-center rounded-lg px-2.5 text-sm font-semibold tabular-nums",
+                              done
+                                ? "bg-emerald-500/10 text-emerald-600"
+                                : item.qtyPacked > 0
+                                  ? "bg-amber-500/10 text-amber-600"
+                                  : "bg-muted text-muted-foreground"
+                            )}
+                          >
+                            {item.qtyPacked}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {done ? (
+                            <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600">
+                              <CheckCircle2Icon className="size-3.5" /> Selesai
+                            </span>
+                          ) : item.qtyPacked > 0 ? (
+                            <span className="text-xs font-medium text-amber-600">
+                              Sisa {item.qtyOrdered - item.qtyPacked}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">Belum</span>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            )}
           </div>
-        </>
-      )}
+        </div>
+
+        {/* ── Sidebar: progress + images ──────────────────── */}
+        <aside className="flex flex-col gap-4">
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <ProgressBar packed={totalPacked} total={totalOrdered} />
+          </div>
+
+          {items.length > 0 && (
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <p className="mb-3 text-xs font-medium text-muted-foreground">Produk dalam paket</p>
+              <div className="grid grid-cols-3 gap-2">
+                {items.map((item) => {
+                  const done = item.qtyPacked >= item.qtyOrdered
+                  return (
+                    <div
+                      key={item.id}
+                      className={cn(
+                        "relative overflow-hidden rounded-xl border-2 transition-colors",
+                        done ? "border-emerald-500/40" : "border-border/60"
+                      )}
+                    >
+                      <ItemImage src={item.imageUrl} alt={item.description ?? item.sku} size={96} />
+                      {done && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-emerald-500/20">
+                          <CheckCircle2Icon className="size-6 text-emerald-600" />
+                        </div>
+                      )}
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-1.5">
+                        <p className="truncate text-[10px] font-medium text-white">
+                          {item.qtyPacked}/{item.qtyOrdered}
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+        </aside>
+      </div>
     </div>
   )
 }
