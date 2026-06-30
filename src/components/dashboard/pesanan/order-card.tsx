@@ -561,19 +561,33 @@ function OutboundReadyActions({ order }: { order: Order }) {
     }
   }
 
+  const hasTracking = !!order.shipping?.tracking_number
+  const cetakLabelBtn = (
+    <Button
+      variant="outline"
+      size="sm"
+      className="h-8 gap-1.5 text-xs"
+      disabled={getLabel.isPending || !hasTracking}
+      onClick={handlePrintLabel}
+    >
+      <PrinterIcon className="h-3.5 w-3.5" />
+      {getLabel.isPending ? "Mengambil..." : "Cetak Label"}
+    </Button>
+  )
+
   return (
     <>
-      {order.shipping?.tracking_number && (
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 gap-1.5 text-xs"
-          disabled={getLabel.isPending}
-          onClick={handlePrintLabel}
-        >
-          <PrinterIcon className="h-3.5 w-3.5" />
-          {getLabel.isPending ? "Mengambil..." : "Cetak Label"}
-        </Button>
+      {hasTracking ? (
+        cetakLabelBtn
+      ) : (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span tabIndex={0}>{cetakLabelBtn}</span>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-xs">
+            Belum ada AWB dari marketplace, coba beberapa saat lagi atau klik Proses Pesanan ulang untuk request manual
+          </TooltipContent>
+        </Tooltip>
       )}
       <Button
         variant="outline"
@@ -791,9 +805,10 @@ export function OrderCard({
                           onClick={() =>
                             copyToClipboard(order.shipping.tracking_number!)
                           }
-                          className="font-mono text-xs text-muted-foreground hover:text-foreground transition-colors"
+                          className="mt-1 inline-flex items-center gap-1 rounded-md bg-muted/60 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-foreground tabular-nums hover:bg-muted transition-colors"
                         >
-                          ({order.shipping.tracking_number})
+                          <span className="text-muted-foreground">AWB:</span>
+                          {order.shipping.tracking_number}
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>Klik untuk salin resi</TooltipContent>

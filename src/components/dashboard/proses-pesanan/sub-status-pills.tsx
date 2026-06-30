@@ -27,7 +27,7 @@ export function SubStatusPills({
             type="button"
             onClick={() => onChange(key)}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
+              "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors",
               isActive
                 ? "border-primary/40 bg-primary/10 text-primary"
                 : "border-border bg-background text-muted-foreground hover:bg-muted"

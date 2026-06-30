@@ -86,7 +86,7 @@ export function ProsesPesananView() {
     return <ComingSoon label={`${stageLabel}${subLabel ? ` · ${subLabel}` : ""}`} />
   }
 
-  const showAdHocPickingButton = stage === "picking" && sub === "belum"
+  const showAdHocPickingButton = stage === "picking" && sub === "diproses"
 
   return (
     <div className="flex flex-col gap-4">

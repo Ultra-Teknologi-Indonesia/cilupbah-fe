@@ -1,11 +1,13 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { useQueryClient } from "@tanstack/react-query"
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Loader2Icon,
+  PackageOpenIcon,
   RefreshCwIcon,
   SearchIcon,
 } from "lucide-react"
@@ -17,6 +19,11 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   Select,
   SelectContent,
@@ -35,8 +42,23 @@ import {
 import { orderKeys } from "@/hooks/pesanan/use-orders"
 import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper"
 import { cn } from "@/lib/utils"
+import { FilterIcon } from "lucide-react"
 
 const PER_PAGE_OPTIONS = [10, 20, 50]
+
+const SOURCE_OPTIONS = [
+  { value: "", label: "Semua Channel" },
+  { value: "shopee", label: "Shopee" },
+  { value: "tiktok", label: "TikTok" },
+  { value: "lazada", label: "Lazada" },
+]
+
+function isOverdue(shipByDate: string | null): boolean {
+  if (!shipByDate) return false
+  const d = new Date(shipByDate)
+  if (Number.isNaN(d.getTime())) return false
+  return d.getTime() < Date.now()
+}
 
 export function ReadyToProcessCardList() {
   const qc = useQueryClient()
@@ -47,6 +69,9 @@ export function ReadyToProcessCardList() {
   const [selected, setSelected] = React.useState<Set<string>>(new Set())
   const [pickerId, setPickerId] = React.useState<string>("")
   const [confirmOpen, setConfirmOpen] = React.useState(false)
+  const [source, setSource] = React.useState<string>("")
+  const [onlyPriority, setOnlyPriority] = React.useState(false)
+  const [onlyOverdue, setOnlyOverdue] = React.useState(false)
 
   React.useEffect(() => {
     const t = setTimeout(() => setDebounced(search.trim()), 350)
@@ -54,17 +79,30 @@ export function ReadyToProcessCardList() {
   }, [search])
 
   const params = React.useMemo(
-    () => ({ q: debounced || undefined, page, per_page: perPage }),
-    [debounced, page, perPage]
+    () => ({
+      q: debounced || undefined,
+      source: source || undefined,
+      page,
+      per_page: perPage,
+    }),
+    [debounced, source, page, perPage]
   )
 
   const { data, isLoading, isFetching, refetch } = useOrdersByStage(
     "ready-to-process",
     params
   )
-  const orders = React.useMemo(() => data?.items ?? [], [data])
+  const rawOrders = React.useMemo(() => data?.items ?? [], [data])
   const meta =
     data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
+
+  const orders = React.useMemo(() => {
+    return rawOrders.filter((o) => {
+      if (onlyPriority && !o.priorityFulfillment) return false
+      if (onlyOverdue && !isOverdue(o.shipByDate)) return false
+      return true
+    })
+  }, [rawOrders, onlyPriority, onlyOverdue])
 
   const mappedOrders = React.useMemo(
     () => orders.map((o) => ({ raw: o, ui: fulfillmentToOrder(o) })),
@@ -94,9 +132,19 @@ export function ReadyToProcessCardList() {
     if (pickerId !== "") setPickerId("")
   }
 
+  const activeFilterCount =
+    (source ? 1 : 0) + (onlyPriority ? 1 : 0) + (onlyOverdue ? 1 : 0)
+
   const clearSelection = () => {
     setSelected(new Set())
     setPickerId("")
+  }
+
+  const resetFilters = () => {
+    setSource("")
+    setOnlyPriority(false)
+    setOnlyOverdue(false)
+    setPage(1)
   }
 
   const toggleAll = () => {
@@ -160,18 +208,94 @@ export function ReadyToProcessCardList() {
     >
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
-        <div className="relative w-full max-w-xs">
-          <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value)
-              setPage(1)
-            }}
-            placeholder="Cari no. pesanan…"
-            className="pl-9"
-          />
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative w-full max-w-xs">
+            <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value)
+                setPage(1)
+              }}
+              placeholder="Cari no. pesanan…"
+              className="pl-9"
+            />
+          </div>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={activeFilterCount > 0 ? "secondary" : "outline"}
+                size="sm"
+                className={cn(
+                  "h-9 gap-2 rounded-full",
+                  activeFilterCount > 0 && "border-primary/40 text-primary"
+                )}
+              >
+                <FilterIcon className="size-4" />
+                Filter
+                {activeFilterCount > 0 && (
+                  <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-72 space-y-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Channel
+                </label>
+                <Select
+                  value={source || "__all"}
+                  onValueChange={(v) => {
+                    setSource(v === "__all" ? "" : v)
+                    setPage(1)
+                  }}
+                >
+                  <SelectTrigger className="h-9 w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SOURCE_OPTIONS.map((o) => (
+                      <SelectItem key={o.value || "__all"} value={o.value || "__all"}>
+                        {o.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <label className="flex cursor-pointer items-center gap-2 text-sm">
+                <Checkbox
+                  checked={onlyPriority}
+                  onCheckedChange={(v) => setOnlyPriority(!!v)}
+                />
+                <span>Hanya prioritas (FBT/dipromosikan)</span>
+              </label>
+
+              <label className="flex cursor-pointer items-center gap-2 text-sm">
+                <Checkbox
+                  checked={onlyOverdue}
+                  onCheckedChange={(v) => setOnlyOverdue(!!v)}
+                />
+                <span>Hanya overdue ship-by-date</span>
+              </label>
+
+              {activeFilterCount > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-destructive hover:text-destructive"
+                  onClick={resetFilters}
+                >
+                  Reset Filter
+                </Button>
+              )}
+            </PopoverContent>
+          </Popover>
         </div>
+
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
           <button
             type="button"
@@ -199,8 +323,20 @@ export function ReadyToProcessCardList() {
             ))}
           </div>
         ) : orders.length === 0 ? (
-          <div className="py-16 text-center text-sm text-muted-foreground">
-            Belum ada pesanan yang siap dipick
+          <div className="flex flex-col items-center gap-3 py-16 text-center">
+            <div className="flex size-16 items-center justify-center rounded-full bg-muted/60">
+              <PackageOpenIcon className="size-8 text-muted-foreground/70" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-semibold">Belum ada pesanan siap dipick</p>
+              <p className="text-xs text-muted-foreground">
+                Pesanan akan muncul di sini setelah klik &quot;Proses Pesanan&quot; di
+                halaman Pesanan.
+              </p>
+            </div>
+            <Button asChild size="sm" variant="outline">
+              <Link href="/dashboard/pesanan">Buka Halaman Pesanan</Link>
+            </Button>
           </div>
         ) : (
           <div className="flex flex-col gap-3 py-2">
