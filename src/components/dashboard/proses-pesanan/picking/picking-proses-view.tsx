@@ -178,10 +178,9 @@ export function PickingProsesView({ id }: { id: string }) {
       skuScanRef.current?.focus()
       return
     }
-    const remaining = item.qtyOrdered - item.qtyPicked
     setActiveItemId(item.id)
-    setPickQty(String(remaining))
-    setTimeout(() => qtyInputRef.current?.select(), 50)
+    setPickQty("")
+    setTimeout(() => qtyInputRef.current?.focus(), 50)
   }
 
   const handleConfirmPick = () => {
@@ -447,10 +446,11 @@ export function PickingProsesView({ id }: { id: string }) {
                         handleConfirmPick()
                       }
                     }}
-                    className="h-9 w-24"
+                    placeholder={`maks ${activeItem.qtyOrdered - activeItem.qtyPicked}`}
+                    className="h-9 w-28"
                     disabled={pickItem.isPending}
                   />
-                  <Button onClick={handleConfirmPick} disabled={pickItem.isPending}>
+                  <Button onClick={handleConfirmPick} disabled={pickItem.isPending || !pickQty.trim()}>
                     {pickItem.isPending && <Loader2Icon className="size-4 animate-spin" />}
                     Konfirmasi
                   </Button>
