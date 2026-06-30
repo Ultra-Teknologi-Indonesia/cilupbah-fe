@@ -41,7 +41,7 @@ export function PacklistTable() {
   }, [search])
 
   const params = React.useMemo(
-    () => ({ q: debounced || undefined, page, per_page: 20 }),
+    () => ({ q: debounced || undefined, page, per_page: 20, status: "DRAFT,IN_PROGRESS" }),
     [debounced, page]
   )
   const { data, isLoading, isFetching, refetch } = usePacklists(params)
@@ -53,7 +53,15 @@ export function PacklistTable() {
     {
       accessorKey: "packlistNo",
       header: "No. Packing",
-      cell: ({ row }) => <span className="font-medium text-foreground">{row.original.packlistNo}</span>,
+      cell: ({ row }) => (
+        <button
+          type="button"
+          className="font-medium text-primary underline-offset-4 hover:underline"
+          onClick={() => router.push(`/dashboard/proses-pesanan/packing/${row.original.id}`)}
+        >
+          {row.original.packlistNo}
+        </button>
+      ),
     },
     {
       accessorKey: "orderNo",
