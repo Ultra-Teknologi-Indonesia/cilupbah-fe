@@ -334,6 +334,57 @@ export const OutboundService = {
     })
   },
 
+  // ── Ad-hoc pick (tanpa picklist) ─────────────────────────────────────────
+  getOrderByNo: async (orderNo: string): Promise<RawFulfillmentOrder | null> => {
+    try {
+      const res = await fetchClient<{ data: RawFulfillmentOrder }>(`/outbound/orders/get-by-no`, {
+        method: "POST",
+        data: { order_no: orderNo },
+      })
+      return res.data ?? null
+    } catch {
+      return null
+    }
+  },
+  adHocPick: async (payload: {
+    order_id: string
+    items?: Array<{ order_item_id: string; qty_picked: number; bin_id?: string | null }>
+  }): Promise<unknown> => {
+    const res = await fetchClient<{ data: unknown }>(`/outbound/orders/ad-hoc-pick`, {
+      method: "POST",
+      data: payload,
+    })
+    return res.data
+  },
+  adHocPickScan: async (payload: {
+    order_id: string
+    sku: string
+    qty?: number
+    bin_id?: string | null
+  }): Promise<{
+    completed: boolean
+    matched_item_id: string
+    qty_picked: number
+    qty_ordered: number
+    progress: Record<string, number>
+    order: unknown
+  }> => {
+    const res = await fetchClient<{
+      data: {
+        completed: boolean
+        matched_item_id: string
+        qty_picked: number
+        qty_ordered: number
+        progress: Record<string, number>
+        order: unknown
+      }
+    }>(`/outbound/orders/ad-hoc-pick/scan`, {
+      method: "POST",
+      data: payload,
+    })
+    return res.data
+  },
+
   // ── Packing scan/pack detail ─────────────────────────────────────────────
   packlistDetail: async (id: string): Promise<PacklistDetail> => {
     const res = await fetchClient<{ data: RawPacklistDetail }>(`/outbound/packlists/${id}`)

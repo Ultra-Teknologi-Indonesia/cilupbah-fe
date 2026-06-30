@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   SearchIcon,
@@ -80,7 +81,15 @@ export function PicklistTable() {
     {
       accessorKey: "picklistNo",
       header: "No. Picklist",
-      cell: ({ row }) => <span className="font-medium text-foreground">{row.original.picklistNo}</span>,
+      cell: ({ row }) => (
+        <Link
+          href={`/dashboard/proses-pesanan/picking/proses/${row.original.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className="cursor-pointer font-medium text-primary hover:underline"
+        >
+          {row.original.picklistNo}
+        </Link>
+      ),
     },
     {
       accessorKey: "locationName",

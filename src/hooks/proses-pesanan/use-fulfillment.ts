@@ -255,6 +255,33 @@ export function useDownloadPicklistPdf() {
   })
 }
 
+// ── Ad-hoc pick (tanpa picklist) ────────────────────────────────────────────
+export function useAdHocPick() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: {
+      order_id: string
+      items?: Array<{ order_item_id: string; qty_picked: number; bin_id?: string | null }>
+    }) => OutboundService.adHocPick(payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+  })
+}
+
+export function useAdHocPickScan() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: {
+      order_id: string
+      sku: string
+      qty?: number
+      bin_id?: string | null
+    }) => OutboundService.adHocPickScan(payload),
+    onSuccess: (_d, _v) => {
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.all })
+    },
+  })
+}
+
 export function useFailPicklist() {
   const qc = useQueryClient()
   return useMutation({

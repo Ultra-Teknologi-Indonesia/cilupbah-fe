@@ -1,7 +1,10 @@
 "use client"
 
 import { useCallback, useMemo, useState } from "react"
+import Link from "next/link"
+import { ScanBarcodeIcon } from "lucide-react"
 
+import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import {
   usePackingCounts,
@@ -83,9 +86,20 @@ export function ProsesPesananView() {
     return <ComingSoon label={`${stageLabel}${subLabel ? ` · ${subLabel}` : ""}`} />
   }
 
+  const showAdHocPickingButton = stage === "picking" && sub === "belum"
+
   return (
     <div className="flex flex-col gap-4">
-      <StageTabs active={stage} onChange={handleStageChange} />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <StageTabs active={stage} onChange={handleStageChange} />
+        {showAdHocPickingButton && (
+          <Button asChild variant="primary">
+            <Link href="/dashboard/proses-pesanan/picking/proses-pesanan">
+              <ScanBarcodeIcon className="size-4" /> Proses Picking
+            </Link>
+          </Button>
+        )}
+      </div>
 
       {subs.length > 0 && (
         <SubStatusPills subs={subs} active={sub} onChange={setSub} counts={countsMap} />
