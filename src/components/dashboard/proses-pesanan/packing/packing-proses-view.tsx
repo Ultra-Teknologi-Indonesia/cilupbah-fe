@@ -156,25 +156,25 @@ export function PackingProsesView() {
     }
     setOrderScan("")
 
-    const result = await scanOrder.mutateAsync({ orderNo: code, packerId: pickerId })
-    if (!result) {
-      toast.error(`Pesanan "${code}" tidak ditemukan atau belum siap packing.`)
-      orderScanRef.current?.focus()
-      return
-    }
+    try {
+      const result = await scanOrder.mutateAsync({ orderNo: code, packerId: pickerId })
 
-    if (result.status !== "IN_PROGRESS") {
-      try {
-        await startPacklist.mutateAsync(result.id)
-      } catch {
-        // start optional, continue
+      if (result.status !== "IN_PROGRESS") {
+        try {
+          await startPacklist.mutateAsync(result.id)
+        } catch {
+          // start optional, continue
+        }
       }
-    }
 
-    setPacklistId(result.id)
-    didAutoComplete.current = false
-    toast.success(`Packing ${result.packlistNo} dimulai.`)
-    setTimeout(() => skuScanRef.current?.focus(), 100)
+      setPacklistId(result.id)
+      didAutoComplete.current = false
+      toast.success(`Packing ${result.packlistNo} dimulai.`)
+      setTimeout(() => skuScanRef.current?.focus(), 100)
+    } catch (err) {
+      toast.error(errMsg(err, `Pesanan "${code}" tidak ditemukan atau belum siap packing.`))
+      orderScanRef.current?.focus()
+    }
   }
 
   const activeItem = activeItemId ? items.find((i) => i.id === activeItemId) ?? null : null

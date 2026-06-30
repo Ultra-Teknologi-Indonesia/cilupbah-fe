@@ -420,17 +420,13 @@ export const OutboundService = {
     return res.data
   },
 
-  scanOrder: async (orderNo: string, packerId?: string | null): Promise<PacklistDetail | null> => {
-    try {
-      const params = new URLSearchParams({ order_no: orderNo })
-      if (packerId) params.set("packer_id", packerId)
-      const res = await fetchClient<{ data: RawPacklistDetail }>(
-        `/outbound/packlists/scan-order?${params}`
-      )
-      return res.data ? mapPacklistDetail(res.data) : null
-    } catch {
-      return null
-    }
+  scanOrder: async (orderNo: string, packerId?: string | null): Promise<PacklistDetail> => {
+    const params = new URLSearchParams({ order_no: orderNo })
+    if (packerId) params.set("packer_id", packerId)
+    const res = await fetchClient<{ data: RawPacklistDetail }>(
+      `/outbound/packlists/scan-order?${params}`
+    )
+    return mapPacklistDetail(res.data)
   },
 
   // ── Packing scan/pack detail ─────────────────────────────────────────────
