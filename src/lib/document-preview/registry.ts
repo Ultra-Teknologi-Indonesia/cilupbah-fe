@@ -5,6 +5,14 @@ import {
 } from "@/services/manajemen-rak/location.service"
 import { OutboundService } from "@/services/proses-pesanan/outbound.service"
 
+function extractApiMessage(err: unknown): string | null {
+  if (err && typeof err === "object" && "message" in err) {
+    const msg = (err as { message?: unknown }).message
+    if (typeof msg === "string" && msg) return msg
+  }
+  return null
+}
+
 // Konversi base64 string → Blob (untuk dokumen yang dikembalikan BE sebagai base64,
 // mis. shipping label dari marketplace).
 function base64ToBlob(base64: string, contentType = "application/pdf"): Blob {
@@ -42,6 +50,9 @@ export interface DocumentTypeConfig {
   // Function supaya bisa balik ke detail/edit page per-entity, bukan list statis.
   backUrl: (id: string) => string
   filename: (id: string, meta?: DocumentMeta) => string
+  // Optional: dipanggil sebelum re-fetch ketika user klik "Coba lagi" dari error state.
+  // Dipakai mis. untuk reset status label Shopee sebelum fetch ulang.
+  resetBeforeRetry?: (id: string) => Promise<void>
 }
 
 export type DocumentTypeKey = "picklist" | "shipping-label" | "bin-qr"
@@ -63,7 +74,14 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     title: "Label Pengiriman",
     subtitle: (id) => `Order ${id.slice(0, 8)}…`,
     fetchPdf: async (id) => {
-      const res = await OutboundService.marketplaceLabel(id)
+      let res: Awaited<ReturnType<typeof OutboundService.marketplaceLabel>>
+      try {
+        res = await OutboundService.marketplaceLabel(id)
+      } catch (err: unknown) {
+        // Propagate the actual BE error message instead of swallowing it.
+        const msg = extractApiMessage(err)
+        throw new Error(msg ?? "Label tidak dapat dimuat dari marketplace.")
+      }
       // BE bisa kembalikan `url` (langsung PDF dari marketplace) atau `document_base64`.
       if (res.type === "url" && res.url) {
         const r = await fetch(res.url, { credentials: "omit" })
@@ -76,6 +94,9 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
         return { blob, meta: { source: res.source } }
       }
       throw new Error("Format label tidak dikenali")
+    },
+    resetBeforeRetry: async (id) => {
+      await OutboundService.retryMarketplaceLabel(id)
     },
     backUrl: () => "/dashboard/proses-pesanan",
     filename: (id) => `shipping-label-${id.slice(0, 8)}.pdf`,

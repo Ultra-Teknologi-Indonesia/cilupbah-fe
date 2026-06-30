@@ -9,7 +9,6 @@ import {
   Loader2Icon,
   PackageIcon,
   ScanBarcodeIcon,
-  ScanLineIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -73,24 +72,16 @@ function statusBadge(s: string | null, picked: number, ordered: number): { label
   return { label: "Belum", className: "bg-muted text-muted-foreground" }
 }
 
-interface ScanContext {
-  orderNo: string
-  trackingNumber: string | null
-}
-
 export function PickingProsesView({ id }: { id: string }) {
   const router = useRouter()
 
-  const orderScanRef = React.useRef<HTMLInputElement>(null)
   const skuScanRef = React.useRef<HTMLInputElement>(null)
   const binScanRef = React.useRef<HTMLInputElement>(null)
 
-  const [orderScan, setOrderScan] = React.useState("")
   const [skuScan, setSkuScan] = React.useState("")
   const [binScan, setBinScan] = React.useState("")
   const [scannedBinCode, setScannedBinCode] = React.useState<string | null>(null)
   const [scannedBinId, setScannedBinId] = React.useState<string | null>(null)
-  const [scanContext, setScanContext] = React.useState<ScanContext | null>(null)
   const [notes, setNotes] = React.useState("")
 
   const { data: pl, isLoading, isError } = usePicklistDetail(id)
@@ -106,7 +97,6 @@ export function PickingProsesView({ id }: { id: string }) {
   const isTerminal = pl ? ["COMPLETED", "FAILED", "CANCELLED"].includes(pl.status) : false
   const editable = !!pl && !isTerminal
 
-  // Redirect away kalau picklist sudah selesai/cancelled.
   React.useEffect(() => {
     if (pl && pl.status === "COMPLETED") {
       toast.info(`Picklist ${pl.picklistNo} sudah selesai.`)
@@ -114,7 +104,6 @@ export function PickingProsesView({ id }: { id: string }) {
     }
   }, [pl, router])
 
-  // Auto-start picklist kalau status masih DRAFT (operator buka langsung scan).
   const didAutoStart = React.useRef(false)
   React.useEffect(() => {
     if (!pl || didAutoStart.current) return
@@ -126,70 +115,33 @@ export function PickingProsesView({ id }: { id: string }) {
     }
   }, [pl, id, startPicklist])
 
-  // Unique daftar (orderNo, trackingNumber) untuk pesanan-counter.
-  const uniqueOrders = React.useMemo(() => {
-    const set = new Map<string, ScanContext>()
-    for (const it of items) {
-      const key = it.orderNo ?? it.trackingNumber ?? it.id
-      if (!set.has(key)) {
-        set.set(key, {
-          orderNo: it.orderNo ?? key,
-          trackingNumber: it.trackingNumber,
-        })
-      }
+  // Auto-complete ketika semua item sudah di-pick
+  const didAutoComplete = React.useRef(false)
+  React.useEffect(() => {
+    if (!pl || didAutoComplete.current || !editable) return
+    if (allPicked) {
+      didAutoComplete.current = true
+      completePicklist.mutate(id, {
+        onSuccess: () => {
+          toast.success("Semua item sudah di-pick. Picking selesai!")
+          router.push(LIST_HREF)
+        },
+        onError: (e) => {
+          didAutoComplete.current = false
+          toast.error(errMsg(e, "Gagal menyelesaikan picking."))
+        },
+      })
     }
-    return Array.from(set.values())
-  }, [items])
-
-  // Filter item berdasarkan context yang sudah di-scan (no pesanan / resi).
-  const visibleItems = React.useMemo(() => {
-    if (!scanContext) return items
-    return items.filter((it) => {
-      if (scanContext.trackingNumber && it.trackingNumber === scanContext.trackingNumber) return true
-      if (it.orderNo === scanContext.orderNo) return true
-      return false
-    })
-  }, [items, scanContext])
-
-  const ctxQty = React.useMemo(() => {
-    const ordered = visibleItems.reduce((s, i) => s + i.qtyOrdered, 0)
-    const picked = visibleItems.reduce((s, i) => s + i.qtyPicked, 0)
-    return { ordered, picked }
-  }, [visibleItems])
+  }, [pl, allPicked, editable, id, completePicklist, router])
 
   function findItemForSku(code: string): PicklistItem | null {
     const lower = code.toLowerCase()
-    const pool = scanContext ? visibleItems : items
     return (
-      pool.find((it) => it.sku.toLowerCase() === lower) ??
-      pool.find((it) => (it.sku ?? "").toLowerCase().includes(lower)) ??
+      items.find((it) => it.sku.toLowerCase() === lower && it.qtyPicked < it.qtyOrdered) ??
+      items.find((it) => it.sku.toLowerCase() === lower) ??
+      items.find((it) => (it.sku ?? "").toLowerCase().includes(lower) && it.qtyPicked < it.qtyOrdered) ??
       null
     )
-  }
-
-  const handleScanOrder = () => {
-    const code = orderScan.trim()
-    if (!code) return
-    const lower = code.toLowerCase()
-    const match = items.find(
-      (it) =>
-        (it.trackingNumber && it.trackingNumber.toLowerCase() === lower) ||
-        (it.orderNo && it.orderNo.toLowerCase() === lower) ||
-        (it.packageNo && it.packageNo.toLowerCase() === lower)
-    )
-    setOrderScan("")
-    if (!match) {
-      toast.error(`No. Pesanan / Resi "${code}" tidak ada di picklist ini.`)
-      orderScanRef.current?.focus()
-      return
-    }
-    setScanContext({
-      orderNo: match.orderNo ?? code,
-      trackingNumber: match.trackingNumber,
-    })
-    toast.success(`Pesanan ${match.orderNo ?? code} dipilih.`)
-    // Pindah fokus ke input SKU
-    setTimeout(() => skuScanRef.current?.focus(), 50)
   }
 
   const handleScanSku = () => {
@@ -238,8 +190,6 @@ export function PickingProsesView({ id }: { id: string }) {
     const code = binScan.trim()
     if (!code) return
     setBinScan("")
-    // Pure-scan: terima kode rak apa adanya, BE memvalidasi saat pick.
-    // bin_id tidak resolvable dari kode di FE; kirim null & biarkan BE pakai default.
     setScannedBinCode(code)
     setScannedBinId(null)
     toast.success(`Rak ${code} aktif.`)
@@ -254,11 +204,6 @@ export function PickingProsesView({ id }: { id: string }) {
       },
       onError: (e) => toast.error(errMsg(e, "Gagal menyelesaikan picking.")),
     })
-  }
-
-  const handleResetContext = () => {
-    setScanContext(null)
-    setTimeout(() => orderScanRef.current?.focus(), 50)
   }
 
   return (
@@ -396,93 +341,37 @@ export function PickingProsesView({ id }: { id: string }) {
           <section className="flex flex-col gap-4">
             <div className="flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-card p-4">
               <div className="flex-1 min-w-[240px]">
-                <label htmlFor="scan-order" className="text-xs text-muted-foreground">
-                  Scan No. Pesanan / Resi
+                <label htmlFor="scan-sku" className="text-xs text-muted-foreground">
+                  Scan SKU / Barcode
                 </label>
                 <div className="relative mt-1.5">
-                  <ScanLineIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <ScanBarcodeIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
-                    id="scan-order"
-                    ref={orderScanRef}
-                    value={orderScan}
-                    onChange={(e) => setOrderScan(e.target.value)}
+                    id="scan-sku"
+                    ref={skuScanRef}
+                    value={skuScan}
+                    onChange={(e) => setSkuScan(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault()
-                        handleScanOrder()
+                        handleScanSku()
                       }
                     }}
-                    placeholder="Scan no pesanan / resi…"
+                    placeholder="Scan SKU / barcode barang…"
                     className="pl-9"
-                    disabled={!editable}
+                    disabled={!editable || pickItem.isPending}
                     autoFocus
                   />
                 </div>
               </div>
 
-              {scanContext && (
-                <div className="flex-1 min-w-[240px]">
-                  <label htmlFor="scan-sku" className="text-xs text-muted-foreground">
-                    Masukkan SKU / Barcode / Serial / Batch
-                  </label>
-                  <div className="relative mt-1.5">
-                    <ScanBarcodeIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="scan-sku"
-                      ref={skuScanRef}
-                      value={skuScan}
-                      onChange={(e) => setSkuScan(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault()
-                          handleScanSku()
-                        }
-                      }}
-                      placeholder="Scan SKU / barcode…"
-                      className="pl-9"
-                      disabled={!editable || pickItem.isPending}
-                      autoFocus
-                    />
-                  </div>
-                </div>
-              )}
-
               <div className="flex flex-col items-end gap-1 pl-1">
-                <span className="text-xs text-muted-foreground">Pesanan</span>
+                <span className="text-xs text-muted-foreground">Progress</span>
                 <span className="text-sm font-semibold tabular-nums text-foreground">
-                  {uniqueOrders.length}
+                  {totalPicked} / {totalOrdered}
                 </span>
               </div>
-              {scanContext && (
-                <div className="flex flex-col items-end gap-1 pl-1">
-                  <span className="text-xs text-muted-foreground">Qty</span>
-                  <span className="text-sm font-semibold tabular-nums text-foreground">
-                    {ctxQty.picked} / {ctxQty.ordered}
-                  </span>
-                </div>
-              )}
-              {scanContext && (
-                <Button variant="outline" size="sm" onClick={handleResetContext}>
-                  Reset Pesanan
-                </Button>
-              )}
             </div>
-
-            {scanContext && (
-              <div className="rounded-xl border border-border bg-muted/20 px-3 py-2 text-sm">
-                <span className="text-muted-foreground">Pesanan aktif: </span>
-                <span className="font-mono font-medium text-foreground">{scanContext.orderNo}</span>
-                {scanContext.trackingNumber && (
-                  <>
-                    <span className="mx-2 text-muted-foreground">·</span>
-                    <span className="text-muted-foreground">Resi: </span>
-                    <span className="font-mono font-medium text-foreground">
-                      {scanContext.trackingNumber}
-                    </span>
-                  </>
-                )}
-              </div>
-            )}
 
             <div className="overflow-x-auto rounded-2xl border border-border bg-card">
               <table className="w-full min-w-[1100px] border-collapse text-sm">
@@ -499,16 +388,14 @@ export function PickingProsesView({ id }: { id: string }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {visibleItems.length === 0 ? (
+                  {items.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="py-12 text-center text-sm text-muted-foreground">
-                        {scanContext
-                          ? "Tidak ada item untuk pesanan yang di-scan."
-                          : "Scan No. Pesanan / Resi untuk menampilkan item."}
+                        Tidak ada item dalam picklist ini.
                       </td>
                     </tr>
                   ) : (
-                    visibleItems.map((it) => {
+                    items.map((it) => {
                       const done = it.qtyPicked >= it.qtyOrdered
                       const badge = statusBadge(it.itemStatus, it.qtyPicked, it.qtyOrdered)
                       return (

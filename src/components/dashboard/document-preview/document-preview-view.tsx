@@ -85,6 +85,22 @@ function KnownDocumentPreview({
   const [pageNumber, setPageNumber] = React.useState(1)
   const [numPages, setNumPages] = React.useState(0)
   const [scale, setScale] = React.useState(1)
+  const [isResetting, setIsResetting] = React.useState(false)
+
+  const handleRetry = React.useCallback(async () => {
+    if (config.resetBeforeRetry) {
+      setIsResetting(true)
+      setState({ kind: "loading", progress: "Mereset status label, harap tunggu…" })
+      try {
+        await config.resetBeforeRetry(id)
+      } catch {
+        // Lanjut retry fetch meski reset gagal
+      } finally {
+        setIsResetting(false)
+      }
+    }
+    onRetry()
+  }, [config, id, onRetry])
 
   // Stable string identity dipakai sebagai effect dep supaya tidak re-fetch
   // saat parent re-render dengan instance ReadonlyURLSearchParams baru.
@@ -262,7 +278,8 @@ function KnownDocumentPreview({
         {state.kind === "error" && (
           <ErrorState
             message={state.message}
-            onRetry={onRetry}
+            onRetry={handleRetry}
+            retrying={isResetting}
             onBack={handleBack}
           />
         )}
@@ -304,10 +321,12 @@ function LoadingState({ message }: { message?: string }) {
 function ErrorState({
   message,
   onRetry,
+  retrying = false,
   onBack,
 }: {
   message: string
   onRetry: () => void
+  retrying?: boolean
   onBack: () => void
 }) {
   return (
@@ -320,12 +339,12 @@ function ErrorState({
         <p className="text-xs text-muted-foreground">{message}</p>
       </div>
       <div className="flex gap-2">
-        <Button variant="outline" size="sm" onClick={onBack}>
+        <Button variant="outline" size="sm" onClick={onBack} disabled={retrying}>
           Kembali
         </Button>
-        <Button size="sm" className="gap-1.5" onClick={onRetry}>
-          <RefreshCwIcon className="size-4" />
-          Coba lagi
+        <Button size="sm" className="gap-1.5" onClick={onRetry} disabled={retrying}>
+          <RefreshCwIcon className={`size-4 ${retrying ? "animate-spin" : ""}`} />
+          {retrying ? "Mereset…" : "Coba lagi"}
         </Button>
       </div>
     </div>

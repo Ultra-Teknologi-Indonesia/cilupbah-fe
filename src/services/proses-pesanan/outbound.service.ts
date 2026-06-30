@@ -515,6 +515,10 @@ export const OutboundService = {
     return res.data
   },
 
+  retryMarketplaceLabel: async (orderId: string): Promise<void> => {
+    await fetchClient(`/sales/${orderId}/shipping-label/retry`, { method: "POST" })
+  },
+
   // ── Dokumen (JSON dari modul Report) ─────────────────────────────────────────
   shippingLabel: async (orderIds: string[]): Promise<unknown> => {
     const res = await fetchClient<ApiResponse<unknown>>(
