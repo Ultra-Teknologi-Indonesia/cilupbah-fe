@@ -1,0 +1,131 @@
+"use client"
+
+import * as React from "react"
+import {
+  Loader2Icon,
+  PackageCheckIcon,
+  RefreshCwIcon,
+  SearchIcon,
+} from "lucide-react"
+
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { SimplePagination } from "@/components/ui/simple-pagination"
+import { OrderCard } from "@/components/dashboard/pesanan/order-card"
+import { useOrdersByStage } from "@/hooks/proses-pesanan/use-fulfillment"
+import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper"
+import { cn } from "@/lib/utils"
+
+export function CompletedOrderCardList() {
+  const [search, setSearch] = React.useState("")
+  const [debounced, setDebounced] = React.useState("")
+  const [page, setPage] = React.useState(1)
+  const [perPage, setPerPage] = React.useState(20)
+
+  React.useEffect(() => {
+    const t = setTimeout(() => setDebounced(search.trim()), 350)
+    return () => clearTimeout(t)
+  }, [search])
+
+  const params = React.useMemo(
+    () => ({ q: debounced || undefined, page, per_page: perPage }),
+    [debounced, page, perPage]
+  )
+
+  const { data, isLoading, isFetching, refetch } = useOrdersByStage("shipped", params)
+  const orders = React.useMemo(() => data?.items ?? [], [data])
+  const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
+
+  const mappedOrders = React.useMemo(
+    () => orders.map((o) => ({ raw: o, ui: fulfillmentToOrder(o) })),
+    [orders]
+  )
+
+  return (
+    <div>
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
+        <div className="relative w-full max-w-xs">
+          <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              setPage(1)
+            }}
+            placeholder="Cari no. pesanan…"
+            className="pl-9"
+          />
+        </div>
+
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="rounded-full p-1.5 transition-colors hover:bg-muted"
+            aria-label="Muat ulang"
+          >
+            <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
+          </button>
+          <span className="flex items-center gap-1.5">
+            Total <Badge>{meta.total}</Badge>
+          </span>
+        </div>
+      </div>
+
+      {/* List */}
+      <div className="px-4 pb-4 sm:px-5">
+        {isLoading ? (
+          <div className="flex flex-col gap-3 py-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-44 animate-pulse rounded-xl border border-border/60 bg-muted/30"
+              />
+            ))}
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 py-16 text-center">
+            <div className="flex size-16 items-center justify-center rounded-full bg-muted/60">
+              <PackageCheckIcon className="size-8 text-muted-foreground/70" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-semibold">Belum ada pesanan selesai</p>
+              <p className="text-xs text-muted-foreground">
+                Pesanan yang sudah terkirim akan muncul di sini.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3 py-2">
+            {mappedOrders.map(({ raw, ui }) => (
+              <OrderCard
+                key={raw.id}
+                order={ui}
+                tab="completed"
+                variant="sales"
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="px-4 pb-4 sm:px-5">
+        <SimplePagination
+          page={meta.current_page}
+          lastPage={meta.last_page}
+          onPageChange={setPage}
+          perPage={perPage}
+          onPerPageChange={(s) => {
+            setPerPage(s)
+            setPage(1)
+          }}
+          pageSizeOptions={[10, 20, 50]}
+          isFetching={isFetching}
+          label="pesanan"
+          total={meta.total}
+        />
+      </div>
+    </div>
+  )
+}

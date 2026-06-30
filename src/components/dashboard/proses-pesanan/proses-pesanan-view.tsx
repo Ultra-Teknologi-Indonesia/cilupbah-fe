@@ -25,6 +25,7 @@ import { PicklistTable } from "./picking/picklist-table"
 import { ReadyToProcessCardList } from "./picking/ready-to-process-card-list"
 import { PacklistTable } from "./packing/packlist-table"
 import { ShipmentTable } from "./shipping/shipment-table"
+import { CompletedOrderCardList } from "./shared/completed-order-card-list"
 
 function ComingSoon({ label }: { label: string }) {
   return (
@@ -80,7 +81,7 @@ export function ProsesPesananView() {
     if (stage === "delivered")
       return <FulfillmentOrdersTable stage="ready-to-ship" actions={ORDER_ACTION_PRESET.sudahDikirim} />
     if (stage === "done")
-      return <FulfillmentOrdersTable stage="shipped" actions={ORDER_ACTION_PRESET.selesai} />
+      return <CompletedOrderCardList />
     return <ComingSoon label={`${stageLabel}${subLabel ? ` · ${subLabel}` : ""}`} />
   }
 
