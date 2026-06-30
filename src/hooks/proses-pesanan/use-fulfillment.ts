@@ -199,13 +199,13 @@ export function usePickItem() {
       picklistId,
       itemId,
       qtyPicked,
-      binId,
+      binCode,
     }: {
       picklistId: string
       itemId: string
       qtyPicked: number
-      binId?: string | null
-    }) => OutboundService.pickItem(picklistId, itemId, { qty_picked: qtyPicked, bin_id: binId }),
+      binCode: string
+    }) => OutboundService.pickItem(picklistId, itemId, { qty_picked: qtyPicked, bin_code: binCode }),
     onSuccess: (_d, v) =>
       qc.invalidateQueries({ queryKey: fulfillmentKeys.picklistDetail(v.picklistId) }),
   })

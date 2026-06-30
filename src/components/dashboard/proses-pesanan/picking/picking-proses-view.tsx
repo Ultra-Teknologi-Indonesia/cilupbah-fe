@@ -81,7 +81,6 @@ export function PickingProsesView({ id }: { id: string }) {
   const [skuScan, setSkuScan] = React.useState("")
   const [binScan, setBinScan] = React.useState("")
   const [scannedBinCode, setScannedBinCode] = React.useState<string | null>(null)
-  const [scannedBinId, setScannedBinId] = React.useState<string | null>(null)
   const [notes, setNotes] = React.useState("")
 
   const { data: pl, isLoading, isError } = usePicklistDetail(id)
@@ -171,7 +170,7 @@ export function PickingProsesView({ id }: { id: string }) {
         picklistId: id,
         itemId: item.id,
         qtyPicked: item.qtyPicked + 1,
-        binId: scannedBinId,
+        binCode: scannedBinCode!,
       },
       {
         onSuccess: () => {
@@ -191,7 +190,6 @@ export function PickingProsesView({ id }: { id: string }) {
     if (!code) return
     setBinScan("")
     setScannedBinCode(code)
-    setScannedBinId(null)
     toast.success(`Rak ${code} aktif.`)
     setTimeout(() => skuScanRef.current?.focus(), 50)
   }

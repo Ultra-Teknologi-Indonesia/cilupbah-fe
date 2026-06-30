@@ -336,7 +336,7 @@ export const OutboundService = {
   pickItem: async (
     picklistId: string,
     itemId: string,
-    payload: { qty_picked: number; bin_id?: string | null }
+    payload: { qty_picked: number; bin_code: string }
   ): Promise<void> => {
     await fetchClient(`/outbound/picklists/${picklistId}/items/${itemId}/pick`, {
       method: "POST",
