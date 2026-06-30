@@ -295,7 +295,8 @@ export function useFailPicklist() {
 export function useScanOrder() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (orderNo: string) => OutboundService.scanOrder(orderNo),
+    mutationFn: ({ orderNo, packerId }: { orderNo: string; packerId?: string | null }) =>
+      OutboundService.scanOrder(orderNo, packerId),
     onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
   })
 }

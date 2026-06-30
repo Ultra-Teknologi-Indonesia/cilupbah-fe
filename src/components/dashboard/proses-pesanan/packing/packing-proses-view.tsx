@@ -26,7 +26,6 @@ import {
 import { Combobox } from "@/components/ui/combobox"
 import { PageTitle } from "@/components/dashboard/page-title"
 import {
-  useAssignPacker,
   useCompletePacklist,
   usePackItem,
   usePacklistDetail,
@@ -117,7 +116,6 @@ export function PackingProsesView() {
 
   const pickers = usePickers(undefined, "packer")
   const scanOrder = useScanOrder()
-  const assignPacker = useAssignPacker()
   const startPacklist = useStartPacklist()
   const packItem = usePackItem()
   const verifyBarcode = useVerifyBarcode()
@@ -158,19 +156,11 @@ export function PackingProsesView() {
     }
     setOrderScan("")
 
-    const result = await scanOrder.mutateAsync(code)
+    const result = await scanOrder.mutateAsync({ orderNo: code, packerId: pickerId })
     if (!result) {
-      toast.error(`Packlist aktif tidak ditemukan untuk "${code}".`)
+      toast.error(`Pesanan "${code}" tidak ditemukan atau belum siap packing.`)
       orderScanRef.current?.focus()
       return
-    }
-
-    if (!result.packerId && pickerId != null) {
-      try {
-        await assignPacker.mutateAsync({ packlistId: result.id, packerId: pickerId })
-      } catch {
-        // packer assignment optional, continue
-      }
     }
 
     if (result.status === "DRAFT") {
