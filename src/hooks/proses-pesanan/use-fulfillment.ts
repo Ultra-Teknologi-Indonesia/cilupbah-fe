@@ -240,6 +240,10 @@ export function useDownloadPicklistPdf() {
       a.click()
       a.remove()
       URL.revokeObjectURL(url)
+      return filename
+    },
+    onSuccess: (filename) => {
+      toast.success(`Picklist ${filename} berhasil diunduh`)
     },
     onError: (err: unknown) => {
       const msg =

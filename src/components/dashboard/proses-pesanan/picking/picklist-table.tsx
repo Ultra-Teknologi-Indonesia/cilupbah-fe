@@ -26,6 +26,12 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
   useDownloadPicklistPdf,
   usePicklists,
 } from "@/hooks/proses-pesanan/use-fulfillment"
@@ -119,7 +125,32 @@ export function PicklistTable() {
       id: "actions",
       header: () => null,
       cell: ({ row }) => (
-        <div className="flex justify-end">
+        <div className="flex items-center justify-end gap-1">
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label="Cetak Picklist"
+                  disabled={downloadPdf.isPending}
+                  onClick={() =>
+                    downloadPdf.mutate({
+                      picklistId: row.original.id,
+                      picklistNo: row.original.picklistNo,
+                    })
+                  }
+                >
+                  {downloadPdf.isPending && downloadPdf.variables?.picklistId === row.original.id ? (
+                    <Loader2Icon className="size-4 animate-spin" />
+                  ) : (
+                    <PrinterIcon className="size-4" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Cetak Picklist</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon-sm" aria-label="Aksi">
@@ -134,18 +165,6 @@ export function PicklistTable() {
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setEditPicker(row.original)}>
                 Ubah Picker
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                disabled={downloadPdf.isPending}
-                onSelect={() =>
-                  downloadPdf.mutate({
-                    picklistId: row.original.id,
-                    picklistNo: row.original.picklistNo,
-                  })
-                }
-              >
-                <PrinterIcon className="size-4" />
-                Cetak Picklist
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
