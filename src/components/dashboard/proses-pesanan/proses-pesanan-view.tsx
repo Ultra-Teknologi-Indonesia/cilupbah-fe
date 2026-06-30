@@ -20,12 +20,11 @@ import {
 
 import { StageTabs } from "./stage-tabs"
 import { SubStatusPills } from "./sub-status-pills"
-import { FulfillmentOrdersTable, ORDER_ACTION_PRESET } from "./shared/fulfillment-orders-table"
 import { PicklistTable } from "./picking/picklist-table"
 import { ReadyToProcessCardList } from "./picking/ready-to-process-card-list"
 import { PacklistTable } from "./packing/packlist-table"
 import { ShipmentTable } from "./shipping/shipment-table"
-import { CompletedOrderCardList } from "./shared/completed-order-card-list"
+import { FulfillmentCardList } from "./shared/completed-order-card-list"
 
 function ComingSoon({ label }: { label: string }) {
   return (
@@ -66,22 +65,22 @@ export function ProsesPesananView() {
     if (stage === "picking") {
       if (sub === "belum") return <ReadyToProcessCardList />
       if (sub === "diproses") return <PicklistTable />
-      return <FulfillmentOrdersTable stage="finish-pick" actions={ORDER_ACTION_PRESET.docSet} />
+      return <FulfillmentCardList stage="finish-pick" tab="all" emptyTitle="Belum ada pesanan selesai pick" emptyDescription="Pesanan yang sudah selesai dipick akan muncul di sini." />
     }
     if (stage === "packing") {
       if (sub === "belum")
-        return <FulfillmentOrdersTable stage="finish-pick" actions={ORDER_ACTION_PRESET.docSet} />
+        return <FulfillmentCardList stage="finish-pick" tab="all" emptyTitle="Belum ada pesanan siap packing" emptyDescription="Pesanan yang sudah selesai dipick akan muncul di sini." />
       if (sub === "diproses") return <PacklistTable />
-      return <FulfillmentOrdersTable stage="finish-pack" actions={ORDER_ACTION_PRESET.docSet} />
+      return <FulfillmentCardList stage="finish-pack" tab="all" emptyTitle="Belum ada pesanan selesai packing" emptyDescription="Pesanan yang sudah selesai dipacking akan muncul di sini." />
     }
     if (stage === "shipping") {
       if (sub === "jadwal") return <ShipmentTable />
-      return <FulfillmentOrdersTable stage="finish-pack" actions={ORDER_ACTION_PRESET.shippingSiapKirim} />
+      return <FulfillmentCardList stage="finish-pack" tab="all" emptyTitle="Belum ada pesanan siap kirim" emptyDescription="Pesanan yang sudah dipacking akan muncul di sini." />
     }
     if (stage === "delivered")
-      return <FulfillmentOrdersTable stage="ready-to-ship" actions={ORDER_ACTION_PRESET.sudahDikirim} />
+      return <FulfillmentCardList stage="ready-to-ship" tab="in-transit" emptyTitle="Belum ada pesanan dikirim" emptyDescription="Pesanan yang sudah dikirim akan muncul di sini." />
     if (stage === "done")
-      return <CompletedOrderCardList />
+      return <FulfillmentCardList stage="shipped" tab="completed" emptyTitle="Belum ada pesanan selesai" emptyDescription="Pesanan yang sudah terkirim akan muncul di sini." />
     return <ComingSoon label={`${stageLabel}${subLabel ? ` · ${subLabel}` : ""}`} />
   }
 

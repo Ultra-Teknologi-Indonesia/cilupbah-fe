@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import {
-  Loader2Icon,
   PackageCheckIcon,
   RefreshCwIcon,
   SearchIcon,
@@ -12,11 +11,22 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { SimplePagination } from "@/components/ui/simple-pagination"
 import { OrderCard } from "@/components/dashboard/pesanan/order-card"
+import type { OrderTab } from "@/types/pesanan/order"
 import { useOrdersByStage } from "@/hooks/proses-pesanan/use-fulfillment"
 import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper"
 import { cn } from "@/lib/utils"
 
-export function CompletedOrderCardList() {
+export function FulfillmentCardList({
+  stage,
+  tab = "all",
+  emptyTitle = "Belum ada pesanan",
+  emptyDescription = "Pesanan akan muncul di sini.",
+}: {
+  stage: string
+  tab?: OrderTab
+  emptyTitle?: string
+  emptyDescription?: string
+}) {
   const [search, setSearch] = React.useState("")
   const [debounced, setDebounced] = React.useState("")
   const [page, setPage] = React.useState(1)
@@ -32,7 +42,7 @@ export function CompletedOrderCardList() {
     [debounced, page, perPage]
   )
 
-  const { data, isLoading, isFetching, refetch } = useOrdersByStage("shipped", params)
+  const { data, isLoading, isFetching, refetch } = useOrdersByStage(stage, params)
   const orders = React.useMemo(() => data?.items ?? [], [data])
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
 
@@ -90,10 +100,8 @@ export function CompletedOrderCardList() {
               <PackageCheckIcon className="size-8 text-muted-foreground/70" />
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-semibold">Belum ada pesanan selesai</p>
-              <p className="text-xs text-muted-foreground">
-                Pesanan yang sudah terkirim akan muncul di sini.
-              </p>
+              <p className="text-sm font-semibold">{emptyTitle}</p>
+              <p className="text-xs text-muted-foreground">{emptyDescription}</p>
             </div>
           </div>
         ) : (
@@ -102,7 +110,7 @@ export function CompletedOrderCardList() {
               <OrderCard
                 key={raw.id}
                 order={ui}
-                tab="completed"
+                tab={tab}
                 variant="sales"
               />
             ))}
