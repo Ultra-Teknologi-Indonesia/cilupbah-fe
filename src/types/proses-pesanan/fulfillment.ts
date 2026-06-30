@@ -344,8 +344,22 @@ export interface RawPacklistItem {
   qty_ordered?: number
   qty_packed?: number
   barcode_verified?: boolean
-  product?: { sku?: string | null; product_id?: string | null; product?: { product_name?: string | null } | null } | null
-  orderItem?: { sku?: string | null; description?: string | null; image_url?: string | null } | null
+  product?: {
+    sku?: string | null
+    product_id?: string | null
+    media?: RawPicklistMedia[] | null
+    product?: { product_name?: string | null; media?: RawPicklistMedia[] | null } | null
+  } | null
+  orderItem?: {
+    sku?: string | null
+    description?: string | null
+    product?: {
+      sku?: string | null
+      product_id?: string | null
+      media?: RawPicklistMedia[] | null
+      product?: { product_name?: string | null; media?: RawPicklistMedia[] | null } | null
+    } | null
+  } | null
 }
 
 export interface PacklistItem {

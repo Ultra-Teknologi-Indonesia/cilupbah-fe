@@ -211,12 +211,24 @@ function mapPicklistDetail(raw: RawPicklistDetail): PicklistDetail {
   return { ...mapPicklist(raw), items: (raw.items ?? []).map(mapPicklistItem) }
 }
 
+function resolveMediaUrl(media?: Array<{ url?: string | null; is_primary?: boolean | null }> | null): string | null {
+  if (!media || media.length === 0) return null
+  const primary = media.find((m) => m.is_primary)
+  return primary?.url ?? media[0]?.url ?? null
+}
+
 function mapPacklistItem(raw: RawPacklistItem): PacklistItem {
+  const variant = raw.orderItem?.product ?? raw.product
+  const imageUrl =
+    resolveMediaUrl(variant?.media) ??
+    resolveMediaUrl(variant?.product?.media) ??
+    null
+
   return {
     id: raw.id,
     sku: raw.sku,
-    description: raw.orderItem?.description ?? raw.product?.product?.product_name ?? null,
-    imageUrl: raw.orderItem?.image_url ?? null,
+    description: raw.orderItem?.description ?? variant?.product?.product_name ?? null,
+    imageUrl,
     qtyOrdered: raw.qty_ordered ?? 0,
     qtyPacked: raw.qty_packed ?? 0,
     barcodeVerified: Boolean(raw.barcode_verified),
