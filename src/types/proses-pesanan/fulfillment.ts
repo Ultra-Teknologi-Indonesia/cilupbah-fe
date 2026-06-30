@@ -249,17 +249,42 @@ export interface RawPicklistItem {
   bin_id?: string | null
   qty_ordered?: number
   qty_picked?: number
-  product?: { sku?: string | null; product?: { name?: string | null } | null } | null
-  bin?: { bin_final_code?: string | null } | null
-  order?: { salesorder_no?: string | null } | null
+  status?: string | null
+  product?: {
+    sku?: string | null
+    barcode?: string | null
+    variant_name?: string | null
+    image_url?: string | null
+    product?: {
+      name?: string | null
+      image_url?: string | null
+    } | null
+  } | null
+  bin?: { bin_final_code?: string | null; bin_code?: string | null } | null
+  order?: {
+    salesorder_no?: string | null
+    tracking_number?: string | null
+    package_no?: string | null
+    shipment_no?: string | null
+  } | null
+  orderItem?: {
+    description?: string | null
+    image_url?: string | null
+    variant_name?: string | null
+  } | null
 }
 
 export interface PicklistItem {
   id: string
   sku: string
   name: string | null
+  variantName: string | null
+  imageUrl: string | null
   binCode: string | null
   orderNo: string | null
+  trackingNumber: string | null
+  packageNo: string | null
+  itemStatus: string | null
   qtyOrdered: number
   qtyPicked: number
 }

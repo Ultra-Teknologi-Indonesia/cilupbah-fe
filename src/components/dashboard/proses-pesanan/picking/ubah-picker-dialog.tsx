@@ -13,6 +13,13 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useAssignPicker, usePickers } from "@/hooks/proses-pesanan/use-fulfillment"
 
 interface UbahPickerDialogProps {
@@ -24,7 +31,18 @@ interface UbahPickerDialogProps {
   currentPickerId: string | null
 }
 
-export function UbahPickerDialog({
+export function UbahPickerDialog(props: UbahPickerDialogProps) {
+  // Remount internal body setiap dialog dibuka pada picklist berbeda — bikin state
+  // initial value selalu mencerminkan currentPickerId terbaru tanpa setState-in-effect.
+  return (
+    <UbahPickerDialogInner
+      key={props.open ? `open:${props.picklistId ?? "-"}` : "closed"}
+      {...props}
+    />
+  )
+}
+
+function UbahPickerDialogInner({
   open,
   onOpenChange,
   picklistId,
@@ -32,14 +50,10 @@ export function UbahPickerDialog({
   locationId,
   currentPickerId,
 }: UbahPickerDialogProps) {
-  const [pickerId, setPickerId] = React.useState("")
+  const [pickerId, setPickerId] = React.useState(currentPickerId ?? "")
 
   const pickers = usePickers(locationId ?? undefined, open)
   const assignPicker = useAssignPicker()
-
-  React.useEffect(() => {
-    if (open) setPickerId(currentPickerId ?? "")
-  }, [open, currentPickerId])
 
   const handleSubmit = async () => {
     if (!picklistId || !pickerId) return
@@ -73,19 +87,25 @@ export function UbahPickerDialog({
 
           <div className="space-y-1.5">
             <Label htmlFor="assign-picker">Picker</Label>
-            <select
-              id="assign-picker"
-              value={pickerId}
-              onChange={(e) => setPickerId(e.target.value)}
-              className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            <Select
+              value={pickerId || undefined}
+              onValueChange={(v) => setPickerId(v)}
+              disabled={pickers.isLoading}
             >
-              <option value="">— Pilih picker —</option>
-              {pickers.data?.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger
+                id="assign-picker"
+                className="w-full justify-between rounded-lg border-border bg-background"
+              >
+                <SelectValue placeholder="— Pilih picker —" />
+              </SelectTrigger>
+              <SelectContent position="popper" align="start" className="w-[var(--radix-select-trigger-width)]">
+                {(pickers.data ?? []).map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {pickers.isLoading && (
               <p className="text-xs text-muted-foreground">Memuat daftar picker…</p>
             )}

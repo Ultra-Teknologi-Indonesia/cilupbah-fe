@@ -7,8 +7,6 @@ import {
   RefreshCwIcon,
   MoreHorizontalIcon,
   Loader2Icon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   PrinterIcon,
 } from "lucide-react"
 
@@ -125,7 +123,16 @@ export function PicklistTable() {
       id: "actions",
       header: () => null,
       cell: ({ row }) => (
-        <div className="flex items-center justify-end gap-1">
+        <div className="flex items-center justify-end gap-1.5">
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() =>
+              router.push(`/dashboard/proses-pesanan/picking/proses/${row.original.id}`)
+            }
+          >
+            Proses Picking
+          </Button>
           <TooltipProvider delayDuration={200}>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -158,11 +165,6 @@ export function PicklistTable() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-44">
-              <DropdownMenuItem
-                onSelect={() => router.push(`/dashboard/proses-pesanan/picking/${row.original.id}`)}
-              >
-                Proses Picking
-              </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setEditPicker(row.original)}>
                 Ubah Picker
               </DropdownMenuItem>

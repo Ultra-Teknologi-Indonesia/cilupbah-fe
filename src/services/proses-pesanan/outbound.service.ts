@@ -171,9 +171,18 @@ function mapPicklistItem(raw: RawPicklistItem): PicklistItem {
   return {
     id: raw.id,
     sku: raw.sku,
-    name: raw.product?.product?.name ?? null,
-    binCode: raw.bin?.bin_final_code ?? null,
+    name: raw.product?.product?.name ?? raw.orderItem?.description ?? null,
+    variantName: raw.product?.variant_name ?? raw.orderItem?.variant_name ?? null,
+    imageUrl:
+      raw.product?.image_url ??
+      raw.product?.product?.image_url ??
+      raw.orderItem?.image_url ??
+      null,
+    binCode: raw.bin?.bin_final_code ?? raw.bin?.bin_code ?? null,
     orderNo: raw.order?.salesorder_no ?? null,
+    trackingNumber: raw.order?.tracking_number ?? null,
+    packageNo: raw.order?.package_no ?? raw.order?.shipment_no ?? null,
+    itemStatus: raw.status ?? null,
     qtyOrdered: raw.qty_ordered ?? 0,
     qtyPicked: raw.qty_picked ?? 0,
   }
