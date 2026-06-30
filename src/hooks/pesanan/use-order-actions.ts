@@ -195,7 +195,14 @@ export function useGetShippingLabel() {
       const result = res.data
       if (result) {
         openShippingLabel(result)
-        toast.success("Shipping label berhasil diambil")
+        if (result.requires_self_design) {
+          toast.info(
+            "Label custom (self-design) — marketplace tidak menyediakan PDF, "
+              + "dibuat oleh sistem."
+          )
+        } else {
+          toast.success("Shipping label berhasil diambil")
+        }
       }
     },
     onError: (err: Error) => toast.error(err.message || "Gagal mengambil shipping label"),

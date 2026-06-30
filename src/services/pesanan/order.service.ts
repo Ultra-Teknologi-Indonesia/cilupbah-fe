@@ -9,6 +9,12 @@ export interface ShippingLabelResult {
   document_base64?: string
   source: string
   data?: unknown
+  /**
+   * True when the PDF was rendered by BE itself (Self-Design AWB) because
+   * the marketplace channel (e.g. Shopee dummy J&T, SPX Instant) doesn't
+   * provide a label PDF.
+   */
+  requires_self_design?: boolean
 }
 
 export const OrderService = {
