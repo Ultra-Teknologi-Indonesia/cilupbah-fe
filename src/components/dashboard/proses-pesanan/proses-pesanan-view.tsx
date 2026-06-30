@@ -85,7 +85,7 @@ export function ProsesPesananView() {
   }
 
   const showAdHocPickingButton = stage === "picking" && sub === "diproses"
-  const showPackingButton = stage === "packing" && sub === "diproses"
+  const showPackingButton = stage === "packing" && sub === "belum"
 
   return (
     <div className="flex flex-col gap-4">
