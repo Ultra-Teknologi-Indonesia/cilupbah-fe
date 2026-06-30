@@ -350,9 +350,10 @@ export interface RawPacklistItem {
     media?: RawPicklistMedia[] | null
     product?: { name?: string | null; media?: RawPicklistMedia[] | null } | null
   } | null
-  orderItem?: {
+  order_item?: {
     sku?: string | null
     description?: string | null
+    image_url?: string | null
     product?: {
       sku?: string | null
       product_id?: string | null

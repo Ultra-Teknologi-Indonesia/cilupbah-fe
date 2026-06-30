@@ -218,16 +218,17 @@ function resolveMediaUrl(media?: Array<{ url?: string | null; is_primary?: boole
 }
 
 function mapPacklistItem(raw: RawPacklistItem): PacklistItem {
-  const variant = raw.orderItem?.product ?? raw.product
+  const variant = raw.order_item?.product ?? raw.product
   const imageUrl =
     resolveMediaUrl(variant?.media) ??
     resolveMediaUrl(variant?.product?.media) ??
+    raw.order_item?.image_url ??
     null
 
   return {
     id: raw.id,
     sku: raw.sku,
-    description: raw.orderItem?.description ?? variant?.product?.name ?? null,
+    description: raw.order_item?.description ?? variant?.product?.name ?? null,
     imageUrl,
     qtyOrdered: raw.qty_ordered ?? 0,
     qtyPacked: raw.qty_packed ?? 0,
