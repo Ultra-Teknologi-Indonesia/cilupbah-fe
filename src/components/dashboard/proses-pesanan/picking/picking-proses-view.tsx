@@ -16,6 +16,14 @@ import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog"
 import { PageTitle } from "@/components/dashboard/page-title"
 import {
   usePicklistDetail,
@@ -415,51 +423,65 @@ export function PickingProsesView({ id }: { id: string }) {
               </div>
             </div>
 
-            {activeItem && (
-              <div className="rounded-2xl border-2 border-primary bg-primary/[0.04] p-4">
-                <div className="flex items-start gap-4">
-                  <ItemImage src={activeItem.imageUrl} alt={activeItem.name ?? activeItem.sku} />
-                  <div className="min-w-0 flex-1">
-                    <div className="font-medium text-foreground">{activeItem.name ?? activeItem.sku}</div>
-                    <div className="font-mono text-xs text-muted-foreground">{activeItem.sku}</div>
-                    <div className="mt-1 flex flex-wrap gap-x-4 text-xs text-muted-foreground">
-                      <span>Pesanan: <span className="font-medium text-foreground">{activeItem.orderNo ?? "—"}</span></span>
-                      <span>Dipesan: <span className="font-medium text-foreground">{activeItem.qtyOrdered}</span></span>
-                      <span>Sudah pick: <span className="font-medium text-foreground">{activeItem.qtyPicked}</span></span>
-                      <span>Sisa: <span className="font-semibold text-primary">{activeItem.qtyOrdered - activeItem.qtyPicked}</span></span>
+            <Dialog open={!!activeItem} onOpenChange={(open) => { if (!open) handleCancelPick() }}>
+              <DialogContent className="sm:max-w-md" onOpenAutoFocus={(e) => { e.preventDefault(); setTimeout(() => qtyInputRef.current?.focus(), 50) }}>
+                {activeItem && (
+                  <>
+                    <DialogHeader>
+                      <DialogTitle>Konfirmasi Pick</DialogTitle>
+                      <DialogDescription>Masukkan jumlah yang diambil dari rak <span className="font-semibold">{scannedBinCode}</span></DialogDescription>
+                    </DialogHeader>
+                    <div className="flex items-start gap-4 py-2">
+                      <ItemImage src={activeItem.imageUrl} alt={activeItem.name ?? activeItem.sku} />
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium text-foreground">{activeItem.name ?? activeItem.sku}</div>
+                        <div className="font-mono text-xs text-muted-foreground">{activeItem.sku}</div>
+                        <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                          <span>Pesanan</span>
+                          <span className="font-medium text-foreground">{activeItem.orderNo ?? "—"}</span>
+                          <span>Qty dipesan</span>
+                          <span className="font-medium text-foreground">{activeItem.qtyOrdered}</span>
+                          <span>Sudah pick</span>
+                          <span className="font-medium text-foreground">{activeItem.qtyPicked}</span>
+                          <span>Sisa</span>
+                          <span className="font-semibold text-primary">{activeItem.qtyOrdered - activeItem.qtyPicked}</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <div className="mt-3 flex items-center gap-3">
-                  <label className="text-sm text-muted-foreground">Qty ambil:</label>
-                  <Input
-                    ref={qtyInputRef}
-                    type="number"
-                    min={1}
-                    max={activeItem.qtyOrdered - activeItem.qtyPicked}
-                    inputMode="numeric"
-                    value={pickQty}
-                    onChange={(e) => setPickQty(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault()
-                        handleConfirmPick()
-                      }
-                    }}
-                    placeholder={`maks ${activeItem.qtyOrdered - activeItem.qtyPicked}`}
-                    className="h-9 w-28"
-                    disabled={pickItem.isPending}
-                  />
-                  <Button onClick={handleConfirmPick} disabled={pickItem.isPending || !pickQty.trim()}>
-                    {pickItem.isPending && <Loader2Icon className="size-4 animate-spin" />}
-                    Konfirmasi
-                  </Button>
-                  <Button variant="ghost" onClick={handleCancelPick} disabled={pickItem.isPending}>
-                    Batal
-                  </Button>
-                </div>
-              </div>
-            )}
+                    <div className="flex items-center gap-3 pt-2">
+                      <label className="shrink-0 text-sm font-medium text-foreground">Qty ambil</label>
+                      <Input
+                        ref={qtyInputRef}
+                        type="number"
+                        min={1}
+                        max={activeItem.qtyOrdered - activeItem.qtyPicked}
+                        inputMode="numeric"
+                        value={pickQty}
+                        onChange={(e) => setPickQty(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault()
+                            handleConfirmPick()
+                          }
+                        }}
+                        placeholder={`maks ${activeItem.qtyOrdered - activeItem.qtyPicked}`}
+                        className="h-10"
+                        disabled={pickItem.isPending}
+                      />
+                    </div>
+                    <DialogFooter className="gap-2 sm:gap-0">
+                      <Button variant="ghost" onClick={handleCancelPick} disabled={pickItem.isPending}>
+                        Batal
+                      </Button>
+                      <Button onClick={handleConfirmPick} disabled={pickItem.isPending || !pickQty.trim()}>
+                        {pickItem.isPending && <Loader2Icon className="size-4 animate-spin" />}
+                        Konfirmasi Pick
+                      </Button>
+                    </DialogFooter>
+                  </>
+                )}
+              </DialogContent>
+            </Dialog>
 
             <div className="overflow-x-auto rounded-2xl border border-border bg-card">
               <table className="w-full min-w-[1100px] border-collapse text-sm">
