@@ -52,7 +52,7 @@ export function PacklistTable() {
   const columns = React.useMemo<ColumnDef<Packlist>[]>(() => [
     {
       accessorKey: "packlistNo",
-      header: "No. Packlist",
+      header: "No. Packing",
       cell: ({ row }) => <span className="font-medium text-foreground">{row.original.packlistNo}</span>,
     },
     {
@@ -130,7 +130,7 @@ export function PacklistTable() {
               setSearch(e.target.value)
               setPage(1)
             }}
-            placeholder="Cari no. packlist…"
+            placeholder="Cari no. packing…"
             className="pl-9"
           />
         </div>

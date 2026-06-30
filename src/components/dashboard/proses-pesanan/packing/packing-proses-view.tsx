@@ -163,7 +163,7 @@ export function PackingProsesView() {
       return
     }
 
-    if (result.status === "DRAFT") {
+    if (result.status !== "IN_PROGRESS") {
       try {
         await startPacklist.mutateAsync(result.id)
       } catch {
@@ -173,7 +173,7 @@ export function PackingProsesView() {
 
     setPacklistId(result.id)
     didAutoComplete.current = false
-    toast.success(`Packlist ${result.packlistNo} dimuat.`)
+    toast.success(`Packing ${result.packlistNo} dimulai.`)
     setTimeout(() => skuScanRef.current?.focus(), 100)
   }
 
@@ -319,7 +319,7 @@ export function PackingProsesView() {
                       }
                     }}
                     placeholder="Scan atau ketik no. pesanan…"
-                    className="pl-9"
+                    className="h-10 pl-9"
                     disabled={!pickerId || scanOrder.isPending || !!packlistId}
                   />
                 </div>
@@ -329,7 +329,7 @@ export function PackingProsesView() {
             {pk && (
               <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-border/60 pt-4 text-sm">
                 <div>
-                  <span className="text-xs text-muted-foreground">Packlist</span>
+                  <span className="text-xs text-muted-foreground">No. Packing</span>
                   <div className="font-mono font-semibold">{pk.packlistNo}</div>
                 </div>
                 <div>
