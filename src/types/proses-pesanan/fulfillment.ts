@@ -241,6 +241,13 @@ export interface ReadyToShipResult {
 }
 
 // ── Picklist detail + item (untuk layar scan/pick) ───────────────────────────
+export interface RawPicklistMedia {
+  id?: string
+  url?: string | null
+  is_primary?: boolean | null
+  sort_order?: number | null
+}
+
 export interface RawPicklistItem {
   id: string
   sku: string
@@ -250,14 +257,18 @@ export interface RawPicklistItem {
   qty_ordered?: number
   qty_picked?: number
   status?: string | null
+  /** Accessor `image_url` di-append oleh PicklistItem model (BE). */
+  image_url?: string | null
   product?: {
     sku?: string | null
     barcode?: string | null
     variant_name?: string | null
     image_url?: string | null
+    media?: RawPicklistMedia[] | null
     product?: {
       name?: string | null
       image_url?: string | null
+      media?: RawPicklistMedia[] | null
     } | null
   } | null
   bin?: { bin_final_code?: string | null; bin_code?: string | null } | null

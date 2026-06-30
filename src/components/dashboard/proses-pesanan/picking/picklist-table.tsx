@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import {
   SearchIcon,
   RefreshCwIcon,
@@ -56,7 +55,6 @@ function ProgressCell({ done, total }: { done: number; total: number }) {
 }
 
 export function PicklistTable() {
-  const router = useRouter()
   const [search, setSearch] = React.useState("")
   const [debounced, setDebounced] = React.useState("")
   const [page, setPage] = React.useState(1)
@@ -133,15 +131,6 @@ export function PicklistTable() {
       header: () => null,
       cell: ({ row }) => (
         <div className="flex items-center justify-end gap-1.5">
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() =>
-              router.push(`/dashboard/proses-pesanan/picking/proses/${row.original.id}`)
-            }
-          >
-            Proses Picking
-          </Button>
           <TooltipProvider delayDuration={200}>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -182,7 +171,7 @@ export function PicklistTable() {
         </div>
       ),
     },
-  ], [router, downloadPdf]);
+  ], [downloadPdf]);
 
   return (
     <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">

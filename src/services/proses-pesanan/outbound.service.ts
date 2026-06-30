@@ -167,18 +167,37 @@ function mapPicker(raw: RawPicker): Picker {
   return { id: raw.id, name: raw.name ?? raw.email ?? raw.id, email: raw.email ?? null }
 }
 
+function pickMediaUrl(media?: { url?: string | null; is_primary?: boolean | null; sort_order?: number | null }[] | null): string | null {
+  if (!media || media.length === 0) return null
+  const primary = media.find((m) => m?.is_primary)
+  if (primary?.url) return primary.url
+  // Fallback: ambil yang sort_order paling kecil (lalu first).
+  const sorted = [...media].sort((a, b) => (a?.sort_order ?? 999) - (b?.sort_order ?? 999))
+  return sorted[0]?.url ?? media[0]?.url ?? null
+}
+
 function mapPicklistItem(raw: RawPicklistItem): PicklistItem {
+  // Prioritas image: accessor BE (image_url) > variant media > product media > legacy fields.
+  const imageUrl =
+    raw.image_url ??
+    pickMediaUrl(raw.product?.media) ??
+    pickMediaUrl(raw.product?.product?.media) ??
+    raw.product?.image_url ??
+    raw.product?.product?.image_url ??
+    raw.orderItem?.image_url ??
+    null
+
   return {
     id: raw.id,
     sku: raw.sku,
     name: raw.product?.product?.name ?? raw.orderItem?.description ?? null,
     variantName: raw.product?.variant_name ?? raw.orderItem?.variant_name ?? null,
-    imageUrl:
-      raw.product?.image_url ??
-      raw.product?.product?.image_url ??
-      raw.orderItem?.image_url ??
-      null,
-    binCode: raw.bin?.bin_final_code ?? raw.bin?.bin_code ?? null,
+    imageUrl,
+    // Pure-scan: kode rak hanya ditampilkan setelah benar-benar di-pick (qty_picked > 0).
+    // Sebelum scan, kolom rak per item harus kosong.
+    binCode: (raw.qty_picked ?? 0) > 0
+      ? (raw.bin?.bin_final_code ?? raw.bin?.bin_code ?? null)
+      : null,
     orderNo: raw.order?.salesorder_no ?? null,
     trackingNumber: raw.order?.tracking_number ?? null,
     packageNo: raw.order?.package_no ?? raw.order?.shipment_no ?? null,

@@ -196,6 +196,12 @@ export function PickingProsesView({ id }: { id: string }) {
     const code = skuScan.trim()
     if (!code) return
     if (!editable) return
+    if (!scannedBinCode) {
+      toast.warning("Scan kode rak dulu sebelum scan SKU.")
+      setSkuScan("")
+      binScanRef.current?.focus()
+      return
+    }
     const item = findItemForSku(code)
     setSkuScan("")
     if (!item) {
@@ -231,20 +237,12 @@ export function PickingProsesView({ id }: { id: string }) {
   const handleScanBin = () => {
     const code = binScan.trim()
     if (!code) return
-    const match = items.find(
-      (it) => it.binCode && it.binCode.toLowerCase() === code.toLowerCase()
-    )
     setBinScan("")
-    if (!match) {
-      toast.error(`Kode rak "${code}" tidak ada di picklist ini.`)
-      binScanRef.current?.focus()
-      return
-    }
-    setScannedBinCode(match.binCode)
-    // Cari bin_id dari raw — gunakan first item dgn binCode yg sama
-    // Karena PicklistItem typed tidak expose bin_id, kita pass null & biarkan BE pakai default
+    // Pure-scan: terima kode rak apa adanya, BE memvalidasi saat pick.
+    // bin_id tidak resolvable dari kode di FE; kirim null & biarkan BE pakai default.
+    setScannedBinCode(code)
     setScannedBinId(null)
-    toast.success(`Rak ${match.binCode} aktif.`)
+    toast.success(`Rak ${code} aktif.`)
     setTimeout(() => skuScanRef.current?.focus(), 50)
   }
 
@@ -493,7 +491,7 @@ export function PickingProsesView({ id }: { id: string }) {
                     <th className="px-3 py-3 font-medium">Produk</th>
                     <th className="px-3 py-3 font-medium">Qty Pesan</th>
                     <th className="px-3 py-3 font-medium">Kode Rak</th>
-                    <th className="px-3 py-3 font-medium">Qty Ambil</th>
+                    <th className="px-3 py-3 font-medium">Qty Ambil / Pesan</th>
                     <th className="px-3 py-3 font-medium">No. Pesanan</th>
                     <th className="px-3 py-3 font-medium">No. Paket</th>
                     <th className="px-3 py-3 font-medium">Status</th>
@@ -543,21 +541,23 @@ export function PickingProsesView({ id }: { id: string }) {
                             {it.qtyOrdered}
                           </td>
                           <td className="px-3 py-3">
-                            <Input
-                              value={it.binCode ?? ""}
-                              readOnly
-                              className="h-8 w-28 bg-muted/40 font-mono text-xs"
-                            />
+                            <span className="font-mono text-xs text-foreground">
+                              {it.binCode ?? "—"}
+                            </span>
                           </td>
                           <td className="px-3 py-3">
-                            <Input
-                              value={String(it.qtyPicked)}
-                              readOnly
+                            <span
                               className={cn(
-                                "h-8 w-16 tabular-nums",
-                                done && "border-emerald-500/40 bg-emerald-500/10"
+                                "inline-flex h-6 min-w-10 items-center justify-center rounded-md px-2 text-xs font-medium tabular-nums",
+                                done
+                                  ? "bg-emerald-500/10 text-emerald-600"
+                                  : it.qtyPicked > 0
+                                    ? "bg-amber-500/10 text-amber-600"
+                                    : "text-muted-foreground"
                               )}
-                            />
+                            >
+                              {it.qtyPicked} / {it.qtyOrdered}
+                            </span>
                           </td>
                           <td className="px-3 py-3 font-mono text-xs text-foreground">
                             {it.orderNo ?? "—"}

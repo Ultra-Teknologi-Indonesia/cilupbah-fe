@@ -123,9 +123,13 @@ export function AdHocPickingView() {
 
   const orderScanRef = React.useRef<HTMLInputElement>(null)
   const skuScanRef = React.useRef<HTMLInputElement>(null)
+  const binScanRef = React.useRef<HTMLInputElement>(null)
 
   const [orderScan, setOrderScan] = React.useState("")
   const [skuScan, setSkuScan] = React.useState("")
+  const [binScan, setBinScan] = React.useState("")
+  const [scannedBinCode, setScannedBinCode] = React.useState<string | null>(null)
+  const [pickedBinByItem, setPickedBinByItem] = React.useState<Record<string, string>>({})
   const [order, setOrder] = React.useState<AdHocOrder | null>(null)
   const [loadingOrder, setLoadingOrder] = React.useState(false)
   const [notes, setNotes] = React.useState("")
@@ -177,16 +181,36 @@ export function AdHocPickingView() {
     }
   }
 
+  const handleScanBin = () => {
+    const code = binScan.trim()
+    if (!code) return
+    setBinScan("")
+    setScannedBinCode(code)
+    toast.success(`Rak ${code} aktif.`)
+    setTimeout(() => skuScanRef.current?.focus(), 50)
+  }
+
   const handleScanSku = () => {
     const code = skuScan.trim()
     if (!code) return
     if (!order) return
+    if (!scannedBinCode) {
+      toast.warning("Scan kode rak dulu sebelum scan SKU.")
+      setSkuScan("")
+      binScanRef.current?.focus()
+      return
+    }
     setSkuScan("")
+    const activeBin = scannedBinCode
 
     scanMutation.mutate(
       { order_id: order.id, sku: code, qty: 1 },
       {
         onSuccess: (res) => {
+          // Catat bin yang dipakai untuk item yang baru di-pick.
+          if (res.matched_item_id) {
+            setPickedBinByItem((prev) => ({ ...prev, [res.matched_item_id]: activeBin }))
+          }
           // Update local state berdasarkan progress dari BE.
           setOrder((prev) => {
             if (!prev) return prev
@@ -203,6 +227,8 @@ export function AdHocPickingView() {
             // Reset untuk scan order berikutnya.
             setOrder(null)
             setNotes("")
+            setScannedBinCode(null)
+            setPickedBinByItem({})
             setTimeout(() => orderScanRef.current?.focus(), 50)
           } else {
             const item = order.items.find((it) => it.id === res.matched_item_id)
@@ -223,6 +249,8 @@ export function AdHocPickingView() {
   const handleReset = () => {
     setOrder(null)
     setNotes("")
+    setScannedBinCode(null)
+    setPickedBinByItem({})
     setTimeout(() => orderScanRef.current?.focus(), 50)
   }
 
@@ -291,6 +319,37 @@ export function AdHocPickingView() {
                 </Button>
               </>
             )}
+          </div>
+
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className="text-xs text-muted-foreground">Kode Rak Aktif</div>
+            <div className="mt-1 font-mono text-base font-semibold text-foreground">
+              {scannedBinCode ?? "—"}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className="flex items-center gap-2">
+              <ScanBarcodeIcon className="size-4 text-muted-foreground" />
+              <div className="text-sm font-medium">Ganti Rak</div>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Scan kode rak sumber pengambilan sebelum scan SKU.
+            </p>
+            <Input
+              ref={binScanRef}
+              value={binScan}
+              onChange={(e) => setBinScan(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault()
+                  handleScanBin()
+                }
+              }}
+              placeholder="Scan kode rak…"
+              className="mt-3"
+              disabled={!order}
+            />
           </div>
 
           <div className="rounded-2xl border border-border bg-card p-4">
@@ -378,14 +437,15 @@ export function AdHocPickingView() {
                   <tr className="border-b border-border bg-muted/40 text-left text-muted-foreground">
                     <th className="px-3 py-3 font-medium">Produk</th>
                     <th className="px-3 py-3 font-medium">Qty Pesan</th>
-                    <th className="px-3 py-3 font-medium">Qty Ambil</th>
+                    <th className="px-3 py-3 font-medium">Kode Rak</th>
+                    <th className="px-3 py-3 font-medium">Qty Ambil / Pesan</th>
                     <th className="px-3 py-3 font-medium">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {order.items.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="py-12 text-center text-sm text-muted-foreground">
+                      <td colSpan={5} className="py-12 text-center text-sm text-muted-foreground">
                         Order ini tidak memiliki item.
                       </td>
                     </tr>
@@ -393,6 +453,7 @@ export function AdHocPickingView() {
                     order.items.map((it) => {
                       const done = it.qtyPicked >= it.qtyOrdered
                       const badge = itemBadge(it.qtyPicked, it.qtyOrdered)
+                      const itemBin = pickedBinByItem[it.id] ?? null
                       return (
                         <tr
                           key={it.id}
@@ -416,14 +477,23 @@ export function AdHocPickingView() {
                           </td>
                           <td className="px-3 py-3 tabular-nums text-foreground">{it.qtyOrdered}</td>
                           <td className="px-3 py-3">
-                            <Input
-                              value={String(it.qtyPicked)}
-                              readOnly
+                            <span className="font-mono text-xs text-foreground">
+                              {itemBin ?? "—"}
+                            </span>
+                          </td>
+                          <td className="px-3 py-3">
+                            <span
                               className={cn(
-                                "h-8 w-16 tabular-nums",
-                                done && "border-emerald-500/40 bg-emerald-500/10"
+                                "inline-flex h-6 min-w-10 items-center justify-center rounded-md px-2 text-xs font-medium tabular-nums",
+                                done
+                                  ? "bg-emerald-500/10 text-emerald-600"
+                                  : it.qtyPicked > 0
+                                    ? "bg-amber-500/10 text-amber-600"
+                                    : "text-muted-foreground"
                               )}
-                            />
+                            >
+                              {it.qtyPicked} / {it.qtyOrdered}
+                            </span>
                           </td>
                           <td className="px-3 py-3">
                             <span
