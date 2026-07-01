@@ -7,10 +7,28 @@ const apiClient = axios.create({
   },
 });
 
+// Transport override untuk lingkungan server (RSC prefetch). Axios di sini
+// pakai baseURL relatif "/api/app" yang tidak valid di server, jadi saat
+// prefetch di Server Component kita alihkan ke fetcher server (lihat
+// api-server.ts) yang memanggil backend langsung + auth cookie. Global di
+// server aman: fetchClient praktis tak pernah dipanggil lewat axios di server.
+type ServerFetcher = <T>(
+  endpoint: string,
+  options?: AxiosRequestConfig
+) => Promise<T>;
+let serverFetcher: ServerFetcher | null = null;
+export function setServerFetcher(fetcher: ServerFetcher | null): void {
+  serverFetcher = fetcher;
+}
+
 export async function fetchClient<T>(
   endpoint: string,
   options?: AxiosRequestConfig
 ): Promise<T> {
+  if (serverFetcher) {
+    return serverFetcher<T>(endpoint, options);
+  }
+
   const formattedEndpoint = endpoint.startsWith("/")
     ? endpoint
     : `/${endpoint}`;
