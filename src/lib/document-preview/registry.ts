@@ -4,6 +4,7 @@ import {
   type BinQrPaper,
 } from "@/services/manajemen-rak/location.service"
 import { OutboundService } from "@/services/proses-pesanan/outbound.service"
+import { PutawayService } from "@/services/barang-masuk/putaway.service"
 
 function extractApiMessage(err: unknown): string | null {
   if (err && typeof err === "object" && "message" in err) {
@@ -55,7 +56,7 @@ export interface DocumentTypeConfig {
   resetBeforeRetry?: (id: string) => Promise<void>
 }
 
-export type DocumentTypeKey = "picklist" | "shipping-label" | "bin-qr"
+export type DocumentTypeKey = "picklist" | "shipping-label" | "bin-qr" | "putaway"
 
 export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
   picklist: {
@@ -161,6 +162,19 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const code = (meta?.location_code as string | undefined) ?? id.slice(0, 8)
       return `qr-rak-${code}.pdf`
     },
+  },
+
+  putaway: {
+    title: "Laporan Putaway",
+    subtitle: (id, meta) =>
+      (meta?.putaway_no as string | undefined) ?? `PUT-${id.slice(0, 8)}…`,
+    fetchPdf: async (id) => {
+      const blob = await PutawayService.pdf(id)
+      return { blob }
+    },
+    backUrl: () => "/dashboard/barang-masuk/penempatan",
+    filename: (id, meta) =>
+      `${(meta?.putaway_no as string | undefined) ?? `PUTAWAY-${id}`}.pdf`,
   },
 }
 

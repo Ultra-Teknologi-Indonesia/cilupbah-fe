@@ -16,6 +16,12 @@ export interface PutawayItem {
     item_name: string
     variation_values: { label: string; value: string }[]
   }
+  product?: {
+    id: string
+    sku: string
+    product_id: string
+    item_name?: string
+  }
   source_bin?: { id: string; bin_final_code: string } | null
   destination_bin?: { id: string; bin_final_code: string } | null
 }

@@ -111,7 +111,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     const match = allItems.find((it) => {
       const remaining = it.qty - it.putaway_qty
       if (remaining <= 0) return false
-      return [it.variant?.sku, it.serial_no, it.batch_no]
+      return [it.variant?.sku, it.product?.sku, it.serial_no, it.batch_no]
         .filter(Boolean)
         .some((v) => v!.toLowerCase() === code)
     })
@@ -463,6 +463,8 @@ function PutawayItemRow({
     )
   }, [binResult, lookupBin, qty, processMutation, putawayId, item.id, remaining, onProcessed])
 
+  const displayName = item.variant?.item_name ?? item.product?.item_name ?? "—"
+  const displaySku = item.variant?.sku ?? item.product?.sku ?? "—"
   const variationLabel = item.variant?.variation_values?.map((v) => v.value).join(" / ")
 
   return (
@@ -489,11 +491,11 @@ function PutawayItemRow({
             <PackageIcon className="h-5 w-5" />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-foreground" title={item.variant?.item_name}>
-              {item.variant?.item_name ?? "—"}
+            <p className="truncate text-sm font-medium text-foreground" title={displayName}>
+              {displayName}
             </p>
             <p className="truncate font-mono text-xs text-muted-foreground">
-              {item.variant?.sku ?? "—"}
+              {displaySku}
             </p>
             {variationLabel && (
               <p className="truncate text-[11px] text-muted-foreground">{variationLabel}</p>
