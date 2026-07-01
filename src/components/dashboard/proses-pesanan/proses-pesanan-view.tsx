@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { PackageIcon, PlusIcon, ScanBarcodeIcon } from "lucide-react"
@@ -33,16 +33,24 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const sub = useMemo<string | null>(() => {
+  const initialSub = useMemo(() => {
     const cfg = stageConfig(stage)
     const subs = cfg?.subs ?? []
     const s = searchParams.get("sub")
     if (s && subs.some((c) => c.key === s)) return s
     return defaultSubFor(stage)
-  }, [searchParams, stage])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage])
+
+  const [sub, setSub] = useState<string | null>(initialSub)
+
+  useEffect(() => {
+    setSub(initialSub)
+  }, [initialSub])
 
   const handleSubChange = useCallback(
     (s: string) => {
+      setSub(s)
       const params = new URLSearchParams(searchParams.toString())
       params.set("sub", s)
       router.replace(`${pathname}?${params.toString()}`, { scroll: false })
