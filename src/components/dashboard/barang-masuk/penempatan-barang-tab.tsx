@@ -101,7 +101,7 @@ export function PenempatanBarangTab() {
 
   const assignMutation = useAssignPutawayStaff()
   const startMutation = useStartPutaway()
-  const { data: userData } = useUsers({ perPage: 100 })
+  const { data: userData } = useUsers({ perPage: 100, "filter[role]": "putaway" })
 
   const resetPage = useCallback(() => setPage(1), [])
 

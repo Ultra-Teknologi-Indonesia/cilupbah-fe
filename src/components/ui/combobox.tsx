@@ -208,7 +208,7 @@ export function Combobox({
             className="h-10 border-0 bg-transparent px-0 focus-visible:ring-0"
           />
         </div>
-        <div className="max-h-64 overflow-y-auto overscroll-contain">
+        <div className="max-h-64 overflow-y-auto overscroll-contain" onWheel={(e) => e.stopPropagation()} onTouchMove={(e) => e.stopPropagation()}>
           <ul className="p-1.5">
             {filtered.length === 0 && (
               <li className="px-3 py-6 text-center text-sm text-muted-foreground">

@@ -58,6 +58,14 @@ export const UserService = {
     qs.set("page", String(params.page ?? 1))
     qs.set("per_page", String(params.perPage ?? 10))
     if (params.search) qs.set("search", params.search)
+    if (params["filter[role]"]) {
+      const roles = params["filter[role]"]
+      if (Array.isArray(roles)) {
+        roles.forEach((r) => qs.append("filter[role]", r))
+      } else {
+        qs.set("filter[role]", roles)
+      }
+    }
 
     const res = await fetchClient<ApiPaginated<RawUser>>(
       `/users?${qs.toString()}`
