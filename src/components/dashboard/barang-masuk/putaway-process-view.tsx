@@ -412,7 +412,7 @@ function PutawayItemRow({
 
   const rowRef = useRef<HTMLTableRowElement>(null)
   const binInputRef = useRef<HTMLInputElement>(null)
-  const autoSaveTimer = useRef<ReturnType<typeof setTimeout>>()
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const lastSavedQty = useRef(item.putaway_qty)
 
   useEffect(() => {
