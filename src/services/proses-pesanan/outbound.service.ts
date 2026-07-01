@@ -88,6 +88,7 @@ function mapOrder(raw: RawFulfillmentOrder): FulfillmentOrder {
     isCod: Boolean(raw.is_cod),
     priorityFulfillment: Boolean(raw.priority_fulfillment),
     isSplitOrder: Boolean(raw.is_split_order),
+    channelStatus: raw.channel_status ?? null,
     cancelBy: raw.cancel_by ?? null,
     fulfillmentFlag: raw.fulfillment_flag ?? null,
     daysToShip: raw.days_to_ship ?? null,
@@ -576,6 +577,14 @@ export const OutboundService = {
 
   retryMarketplaceLabel: async (orderId: string): Promise<void> => {
     await fetchClient(`/sales/${orderId}/shipping-label/retry`, { method: "POST" })
+  },
+
+  retryPickup: async (orderIds: string[]): Promise<ReadyToShipResult[]> => {
+    const res = await fetchClient<{ data: RawReadyToShipResult[] }>(
+      `/outbound/orders/retry-pickup`,
+      { method: "POST", data: { order_ids: orderIds } }
+    )
+    return (res.data ?? []).map(mapShipResult)
   },
 
   // ── Dokumen (JSON dari modul Report) ─────────────────────────────────────────

@@ -37,6 +37,7 @@ import {
   useMarkComplete,
   useOrdersByStage,
   useReadyToShip,
+  useRetryPickup,
 } from "@/hooks/proses-pesanan/use-fulfillment"
 import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment"
 import { CHANNEL_MAP, STATUS_LABELS } from "@/types/pesanan/order"
@@ -108,8 +109,10 @@ function OrderCard({
   onShip,
   onComplete,
   onBuatPengiriman,
+  onRetryPickup,
   shipPending,
   completePending,
+  retryPickupPending,
 }: {
   order: FulfillmentOrder
   actions: OrderTableActions
@@ -118,8 +121,10 @@ function OrderCard({
   onShip: (ids: string[]) => void
   onComplete: (ids: string[]) => void
   onBuatPengiriman?: (order: FulfillmentOrder) => void
+  onRetryPickup?: (ids: string[]) => void
   shipPending: boolean
   completePending: boolean
+  retryPickupPending?: boolean
 }) {
   return (
     <div
@@ -331,6 +336,18 @@ function OrderCard({
               Selesaikan Pesanan
             </Button>
           )}
+          {order.channelStatus === "RETRY_SHIP" && onRetryPickup && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950"
+              onClick={() => onRetryPickup([order.id])}
+              disabled={retryPickupPending}
+            >
+              {retryPickupPending && <Loader2Icon className="animate-spin" />}
+              Atur Ulang Pickup
+            </Button>
+          )}
           {actions.cetakFaktur && (
             <Button size="sm" variant="outline" onClick={() => DocActions.invoice([order.id])}>
               Cetak Faktur
@@ -407,6 +424,7 @@ export function FulfillmentOrdersTable({
   )
   const { data, isLoading, isFetching, refetch } = useOrdersByStage(stage, params)
   const readyToShip = useReadyToShip()
+  const retryPickup = useRetryPickup()
   const markComplete = useMarkComplete()
 
   const orders = data?.items ?? []
@@ -473,6 +491,30 @@ export function FulfillmentOrdersTable({
         err && typeof err === "object" && "message" in err
           ? String((err as { message?: unknown }).message)
           : "Gagal menyelesaikan pesanan."
+      toast.error(msg)
+    }
+  }
+
+  const handleRetryPickup = async (ids: string[]) => {
+    if (!ids.length) return
+    try {
+      const results = await retryPickup.mutateAsync(ids)
+      const ok = results.filter((r) => r.status === "success").length
+      const failed = results.filter((r) => r.status === "failed")
+      if (failed.length) {
+        toast.error(
+          `${ok} berhasil, ${failed.length} gagal atur ulang pickup.` +
+            (failed[0].message ? ` (${failed[0].message})` : "")
+        )
+      } else {
+        toast.success(`${ok} pesanan berhasil diatur ulang pickup.`)
+      }
+      clearSelection()
+    } catch (err) {
+      const msg =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message?: unknown }).message)
+          : "Gagal mengatur ulang pickup."
       toast.error(msg)
     }
   }
@@ -614,8 +656,10 @@ export function FulfillmentOrdersTable({
                 onBuatPengiriman={actions.buatPengiriman ? (order) => {
                   setSinglePengirimanOrder(order)
                 } : undefined}
+                onRetryPickup={handleRetryPickup}
                 shipPending={readyToShip.isPending}
                 completePending={markComplete.isPending}
+                retryPickupPending={retryPickup.isPending}
               />
             ))}
           </div>

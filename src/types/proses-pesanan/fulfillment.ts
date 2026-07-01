@@ -107,6 +107,7 @@ export interface RawFulfillmentOrder {
   is_cod?: boolean
   priority_fulfillment?: boolean
   is_split_order?: boolean
+  channel_status?: string | null
   cancel_by?: string | null
   fulfillment_flag?: string | null
   days_to_ship?: number | null
@@ -147,6 +148,7 @@ export interface FulfillmentOrder {
   isCod: boolean
   priorityFulfillment: boolean
   isSplitOrder: boolean
+  channelStatus: string | null
   cancelBy: string | null
   fulfillmentFlag: string | null
   daysToShip: number | null

@@ -185,6 +185,14 @@ export function useReadyToShip() {
   })
 }
 
+export function useRetryPickup() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (orderIds: string[]) => OutboundService.retryPickup(orderIds),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
+  })
+}
+
 // ── Scan/pick detail (Picking) ───────────────────────────────────────────────
 export function usePicklistDetail(id: string, enabled = true) {
   return useQuery({
