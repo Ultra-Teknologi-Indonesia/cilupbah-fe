@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react"
 import Link from "next/link"
-import { PackageIcon, ScanBarcodeIcon } from "lucide-react"
+import { PackageIcon, PlusIcon, ScanBarcodeIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
@@ -24,6 +24,7 @@ import { PicklistTable } from "./picking/picklist-table"
 import { ReadyToProcessCardList } from "./picking/ready-to-process-card-list"
 import { PacklistTable } from "./packing/packlist-table"
 import { ShipmentTable } from "./shipping/shipment-table"
+import { TambahPengirimanDialog } from "./shipping/tambah-pengiriman-dialog"
 import { FulfillmentCardList } from "./shared/completed-order-card-list"
 
 function ComingSoon({ label }: { label: string }) {
@@ -84,8 +85,11 @@ export function ProsesPesananView() {
     return <ComingSoon label={`${stageLabel}${subLabel ? ` · ${subLabel}` : ""}`} />
   }
 
+  const [showTambahPengiriman, setShowTambahPengiriman] = useState(false)
+
   const showAdHocPickingButton = stage === "picking" && sub === "diproses"
   const showPackingButton = stage === "packing" && sub === "belum"
+  const showTambahPengirimanButton = stage === "shipping" && sub === "siap-kirim"
 
   return (
     <div className="flex flex-col gap-4">
@@ -126,11 +130,26 @@ export function ProsesPesananView() {
                 </Link>
               </Button>
             )}
+            {showTambahPengirimanButton && (
+              <Button
+                variant="primary"
+                size="sm"
+                className="h-9"
+                onClick={() => setShowTambahPengiriman(true)}
+              >
+                <PlusIcon className="size-4" /> Tambah Pengiriman Baru
+              </Button>
+            )}
           </div>
         </div>
 
         <div key={`${stage}-${sub}`}>{renderContent()}</div>
       </LiquidGlass>
+
+      <TambahPengirimanDialog
+        open={showTambahPengiriman}
+        onOpenChange={setShowTambahPengiriman}
+      />
     </div>
   )
 }
