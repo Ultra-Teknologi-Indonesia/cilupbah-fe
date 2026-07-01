@@ -13,6 +13,7 @@ import {
   ChevronRightIcon,
   PlusIcon,
 } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
@@ -411,7 +412,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                     <ScanLineIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       ref={scanInputRef}
-                      placeholder="Masukkan SKU/QR/Serial/Batch"
+                      placeholder="Scan SKU / Barcode"
                       value={scanCode}
                       onChange={(e) => {
                         setScanCode(e.target.value)
@@ -616,9 +617,9 @@ function PutawayItemRow({
 
         <TableCell className="max-w-xs">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/50 bg-muted/40 text-muted-foreground">
+            <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/50 bg-muted/40 text-muted-foreground">
               {imageUrl ? (
-                <img src={imageUrl} alt={displayName} className="h-full w-full object-cover" />
+                <Image src={imageUrl} alt={displayName} fill sizes="44px" className="object-cover" />
               ) : (
                 <PackageIcon className="h-5 w-5" />
               )}
@@ -819,7 +820,7 @@ function PlacementRow({
           emptyText="Tidak ada rak."
           disabled={!editable}
           className={cn(
-            "h-8 w-40 rounded-lg text-xs",
+            "h-8 w-52 rounded-lg text-xs",
             selectedBin && "border-emerald-300 ring-1 ring-emerald-200 dark:border-emerald-700 dark:ring-emerald-800"
           )}
         />
