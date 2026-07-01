@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Sparkles } from "lucide-react";
+import Image from "next/image";
 
 import {
   Card,
@@ -49,9 +49,14 @@ export function LoginScreen() {
           <Card className="border-0 bg-transparent shadow-none ring-0">
             <CardHeader>
               <div className="flex flex-col items-center text-center">
-                <div className="liquid-glass-glow mb-5 grid size-14 place-items-center rounded-2xl border border-white/30 bg-gradient-to-br from-white/60 to-white/10 shadow-lg backdrop-blur-md dark:border-white/10 dark:from-white/15 dark:to-white/0">
-                  <Sparkles className="size-6 text-primary" />
-                </div>
+                <Image
+                  src="/logo-mark.png"
+                  alt="Cilupbah Superapps"
+                  width={56}
+                  height={56}
+                  priority
+                  className="liquid-glass-glow mb-5 size-14 rounded-2xl shadow-lg"
+                />
                 <CardTitle className="text-2xl tracking-tight">
                   Selamat datang kembali
                 </CardTitle>
