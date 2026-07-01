@@ -72,10 +72,15 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const isInProgress = putaway?.status === "IN_PROGRESS"
   const isCompleted = putaway?.status === "COMPLETED"
 
-  const list = useMemo<PutawayItem[]>(() => items ?? [], [items])
+  const allItems = useMemo<PutawayItem[]>(() => items ?? [], [items])
+
+  const visibleList = useMemo<PutawayItem[]>(
+    () => allItems.filter((it) => scannedItemIds.has(it.id) || it.putaway_qty > 0),
+    [allItems, scannedItemIds]
+  )
 
   const { totalQty, placedQty } = useMemo(() => {
-    return list.reduce(
+    return allItems.reduce(
       (acc, it) => {
         acc.totalQty += it.qty
         acc.placedQty += it.putaway_qty
@@ -83,7 +88,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
       },
       { totalQty: 0, placedQty: 0 }
     )
-  }, [list])
+  }, [allItems])
   const progressPct = totalQty > 0 ? Math.round((placedQty / totalQty) * 100) : 0
 
   const handleLookupRack = useCallback(async () => {
@@ -104,7 +109,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const handleScan = useCallback(() => {
     const code = scanCode.trim().toLowerCase()
     if (!code) return
-    const match = list.find((it) => {
+    const match = allItems.find((it) => {
       const remaining = it.qty - it.putaway_qty
       if (remaining <= 0) return false
       return [it.variant?.sku, it.serial_no, it.batch_no]
@@ -119,7 +124,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     setScannedItemIds((prev) => new Set(prev).add(match.id))
     setFocusItemId(match.id)
     setScanCode("")
-  }, [scanCode, list])
+  }, [scanCode, allItems])
 
   const handleStart = useCallback(() => {
     startMutation.mutate(id, { onSuccess: () => refetchDetail() })
@@ -138,8 +143,8 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   }, [refetchItems, refetchDetail])
 
   const allSelectable = useMemo(
-    () => list.filter((it) => it.qty - it.putaway_qty > 0).map((it) => it.id),
-    [list]
+    () => visibleList.filter((it) => it.qty - it.putaway_qty > 0).map((it) => it.id),
+    [visibleList]
   )
   const allChecked = allSelectable.length > 0 && allSelectable.every((i) => selectedIds.has(i))
   const someChecked = allSelectable.some((i) => selectedIds.has(i))
@@ -309,6 +314,9 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                       Produk
                     </TableHead>
                     <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Sumber
+                    </TableHead>
+                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Kode Rak
                     </TableHead>
                     <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -318,9 +326,9 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {list.length === 0 ? (
+                  {visibleList.length === 0 ? (
                     <TableRow className="hover:bg-transparent">
-                      <TableCell colSpan={5} className="py-16 text-center">
+                      <TableCell colSpan={6} className="py-16 text-center">
                         {startMutation.isPending ? (
                           <div className="flex flex-col items-center gap-3">
                             <Loader2Icon className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -332,7 +340,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    list.map((item) => (
+                    visibleList.map((item) => (
                       <PutawayItemRow
                         key={item.id}
                         item={item}
@@ -493,6 +501,12 @@ function PutawayItemRow({
             )}
           </div>
         </div>
+      </TableCell>
+
+      <TableCell>
+        <span className="font-mono text-xs text-muted-foreground">
+          {item.source_bin?.bin_final_code ?? "—"}
+        </span>
       </TableCell>
 
       <TableCell>
