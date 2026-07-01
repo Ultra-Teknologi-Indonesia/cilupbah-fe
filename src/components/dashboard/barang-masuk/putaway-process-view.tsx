@@ -784,11 +784,11 @@ function PlacementRow({
     if (delta <= 0 || !binResult || processMutation.isPending) return
 
     autoSaveTimer.current = setTimeout(() => {
-      saveNow(binResult, qtyNum)
+      saveNow(binResult, qtyNum, onSaved)
     }, 800)
 
     return () => clearTimeout(autoSaveTimer.current)
-  }, [qty, binResult, processMutation.isPending, saveNow])
+  }, [qty, binResult, processMutation.isPending, saveNow, onSaved])
 
   const lookupBin = useCallback(async () => {
     const code = binCode.trim()
