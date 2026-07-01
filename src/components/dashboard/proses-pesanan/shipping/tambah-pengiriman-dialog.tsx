@@ -15,6 +15,13 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { DateTimePicker } from "@/components/ui/date-picker"
 import { useCouriers, useCreateShipment } from "@/hooks/proses-pesanan/use-fulfillment"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
@@ -129,45 +136,43 @@ export function TambahPengirimanDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="new-shipment-courier">
+            <Label>
               Kurir<span className="text-destructive"> *</span>
             </Label>
-            <select
-              id="new-shipment-courier"
-              value={courierId}
-              onChange={(e) => handleCourierChange(e.target.value)}
-              className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-            >
-              <option value="">Pilih Kurir</option>
-              {couriers.data?.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                  {c.type ? ` (${c.type})` : ""}
-                </option>
-              ))}
-            </select>
+            <Select value={courierId} onValueChange={handleCourierChange}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Pilih Kurir" />
+              </SelectTrigger>
+              <SelectContent>
+                {couriers.data?.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                    {c.type ? ` (${c.type})` : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {couriers.isLoading && (
               <p className="text-xs text-muted-foreground">Memuat daftar kurir…</p>
             )}
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="new-shipment-location">
+            <Label>
               Lokasi<span className="text-destructive"> *</span>
             </Label>
-            <select
-              id="new-shipment-location"
-              value={locationId}
-              onChange={(e) => setLocationId(e.target.value)}
-              className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-            >
-              <option value="">Pilih Lokasi</option>
-              {locations.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.locationName}
-                </option>
-              ))}
-            </select>
+            <Select value={locationId} onValueChange={setLocationId}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Pilih Lokasi" />
+              </SelectTrigger>
+              <SelectContent>
+                {locations.map((l) => (
+                  <SelectItem key={l.id} value={l.id}>
+                    {l.locationName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1.5">

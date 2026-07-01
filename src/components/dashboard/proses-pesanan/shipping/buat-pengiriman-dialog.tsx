@@ -14,6 +14,13 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useCouriers, useCreateShipment } from "@/hooks/proses-pesanan/use-fulfillment"
 import { SHIPMENT_TYPES, type ShipmentType } from "@/types/proses-pesanan/fulfillment"
 
@@ -163,23 +170,22 @@ export function BuatPengirimanDialog({
             </div>
           ) : (
             <div className="space-y-1.5">
-              <Label htmlFor="shipment-courier">
+              <Label>
                 Kurir<span className="text-destructive"> *</span>
               </Label>
-              <select
-                id="shipment-courier"
-                value={courierId}
-                onChange={(e) => handleCourierChange(e.target.value)}
-                className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-              >
-                <option value="">— Pilih kurir —</option>
-                {couriers.data?.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                    {c.type ? ` (${c.type})` : ""}
-                  </option>
-                ))}
-              </select>
+              <Select value={courierId} onValueChange={handleCourierChange}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Pilih Kurir" />
+                </SelectTrigger>
+                <SelectContent>
+                  {couriers.data?.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                      {c.type ? ` (${c.type})` : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {couriers.isLoading && (
                 <p className="text-xs text-muted-foreground">Memuat daftar kurir…</p>
               )}
@@ -188,19 +194,19 @@ export function BuatPengirimanDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="shipment-type">Tipe</Label>
-              <select
-                id="shipment-type"
-                value={shipmentType}
-                onChange={(e) => setShipmentType(e.target.value as ShipmentType)}
-                className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-              >
-                {SHIPMENT_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
+              <Label>Tipe</Label>
+              <Select value={shipmentType} onValueChange={(v) => setShipmentType(v as ShipmentType)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SHIPMENT_TYPES.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>
+                      {t.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="shipment-date">Tgl. Pengiriman</Label>
