@@ -148,35 +148,105 @@ function pickListDoc(picklists: Row[]): string {
 function manifestDoc(shipments: Row[]): string {
   return shipments
     .map((s) => {
-      const loc = get(s, "location") as Row | null
-      const rows = asArray(get(s, "orders")).map((so, i) => {
+      const orders = asArray(get(s, "orders"))
+      const rows = orders.map((so, i) => {
         const o = (get(so, "order") as Row | null) ?? {}
+        const wg = Number(o.order_weight_gram ?? 0)
         return {
           no: i + 1,
           salesorder_no: o.salesorder_no,
-          customer: o.customer_name,
-          resi: o.tracking_number,
-          kurir: o.shipping_provider,
-          alamat: `${esc(o.shipping_full_name)} — ${esc(o.shipping_address)}, ${esc(o.shipping_city)}`,
+          qty: Number(o.total_qty ?? 1),
+          weight: wg ? (wg / 1000).toFixed(2) : "0",
+          resi: so.tracking_number ?? o.tracking_number,
+          status_channel: o.status ?? "",
         }
       })
-      return docWrap(`
-      <div class="doc-head"><h2>Manifest Pengiriman</h2><span class="chip">${esc(get(s, "status"))}</span></div>
-      <div class="grid2">
-        ${field("Kurir", get(s, "courier_code"))}
-        ${field("Tgl. Pengiriman", get(s, "shipment_date"))}
-        ${field("Lokasi", get(loc, "location_name"))}
-        ${field("Jumlah", rows.length)}
-      </div>
-      ${itemTable(rows, [
-        { key: "no", label: "#" },
-        { key: "salesorder_no", label: "No. Pesanan" },
-        { key: "customer", label: "Pelanggan" },
-        { key: "resi", label: "No. Resi" },
-        { key: "kurir", label: "Kurir" },
-        { key: "alamat", label: "Penerima" },
-      ])}
-    `)
+      const totalPaket = rows.length
+      const cancelled = orders.filter((so) => {
+        const o = (get(so, "order") as Row | null) ?? {}
+        return String(o.status ?? "").toLowerCase().includes("cancel")
+      }).length
+      const courierName = get(s, "courier_name") ?? get(s, "courier_code") ?? ""
+      const shipmentNo = get(s, "shipment_no") ?? ""
+      const createdBy = get(s, "created_by") ?? ""
+      const shipmentDate = get(s, "shipment_date")
+      const fmtDate = shipmentDate
+        ? new Date(String(shipmentDate)).toLocaleDateString("id-ID", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "—"
+
+      const head = `<tr>
+        <th style="width:36px">No</th>
+        <th style="text-align:left">No Pesanan</th>
+        <th>Paket</th>
+        <th>Quantity</th>
+        <th>Berat</th>
+        <th>No Resi</th>
+        <th>Status Channel</th>
+      </tr>`
+      const body = rows
+        .map(
+          (r) => `<tr>
+            <td style="text-align:center">${r.no}</td>
+            <td>${esc(r.salesorder_no)}</td>
+            <td style="text-align:center"></td>
+            <td style="text-align:center">${r.qty}</td>
+            <td style="text-align:center">${r.weight}</td>
+            <td>${esc(r.resi)}</td>
+            <td>${esc(r.status_channel)}</td>
+          </tr>`
+        )
+        .join("")
+
+      return `<section class="manifest">
+        <h1 class="manifest-title">Laporan Bukti Pengiriman</h1>
+        <div class="manifest-header">
+          <div class="manifest-left">
+            <div class="manifest-barcode">*${esc(shipmentNo)}*</div>
+            <div class="manifest-info">
+              <span class="manifest-label">No Pengiriman</span>
+              <span class="manifest-sep">:</span>
+              <span class="manifest-value">${esc(shipmentNo)}</span>
+            </div>
+            <div class="manifest-info">
+              <span class="manifest-label">Nama Penanggung Jawab</span>
+              <span class="manifest-sep">:</span>
+              <span class="manifest-value">${esc(createdBy)}</span>
+            </div>
+          </div>
+          <div class="manifest-right">
+            <div class="manifest-info">
+              <span class="manifest-label">Total Paket</span>
+              <span class="manifest-sep">:</span>
+              <span class="manifest-value">${totalPaket} Paket</span>
+            </div>
+            <div class="manifest-info">
+              <span class="manifest-label">Total Paket Cancel</span>
+              <span class="manifest-sep">:</span>
+              <span class="manifest-value">${cancelled || ""}</span>
+            </div>
+            <div class="manifest-info">
+              <span class="manifest-label">Kurir</span>
+              <span class="manifest-sep">:</span>
+              <span class="manifest-value">${esc(courierName)}</span>
+            </div>
+            <div class="manifest-info">
+              <span class="manifest-label">Tanggal Pengiriman</span>
+              <span class="manifest-sep">:</span>
+              <span class="manifest-value">${fmtDate}</span>
+            </div>
+          </div>
+        </div>
+        <table class="manifest-table">
+          <thead>${head}</thead>
+          <tbody>${body}</tbody>
+        </table>
+      </section>`
     })
     .join("")
 }
@@ -233,8 +303,23 @@ export function printReport(title: string, payload: unknown) {
     .totals{display:flex;justify-content:flex-end;gap:24px;margin-top:10px}
     .totals .fld{min-width:200px;border:0}
     .muted{color:#9ca3af}
-    @media print{ body{padding:0} .doc{break-inside:avoid;page-break-after:always;border:0;border-radius:0;padding:24px} .doc:last-child{page-break-after:auto} button{display:none} }
-  </style></head><body>
+    .manifest{padding:20px;margin:0 0 18px}
+    .manifest-title{font-size:20px;font-weight:700;text-align:right;margin:0 0 16px}
+    .manifest-header{display:flex;gap:32px;margin-bottom:20px}
+    .manifest-left{flex:1}
+    .manifest-right{flex:1}
+    .manifest-barcode{font-family:'Libre Barcode 39',monospace;font-size:48px;line-height:1.1;margin-bottom:8px;letter-spacing:2px}
+    .manifest-info{display:flex;gap:4px;padding:2px 0;font-size:12px}
+    .manifest-label{min-width:160px;font-weight:600}
+    .manifest-sep{width:12px}
+    .manifest-value{font-weight:400}
+    .manifest-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+    .manifest-table th{text-align:left;border:1px solid #000;padding:6px 8px;font-weight:600;background:#f3f4f6}
+    .manifest-table td{border:1px solid #d1d5db;padding:5px 8px;vertical-align:top}
+    @media print{ body{padding:0} .doc{break-inside:avoid;page-break-after:always;border:0;border-radius:0;padding:24px} .doc:last-child{page-break-after:auto} .manifest{page-break-after:always} .manifest:last-child{page-break-after:auto} button{display:none} }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&display=swap" rel="stylesheet">
+  </head><body>
     ${body}
     <div style="margin-top:8px"><button onclick="window.print()" style="padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;background:#fff;cursor:pointer">Cetak / Simpan PDF</button></div>
   </body></html>`)

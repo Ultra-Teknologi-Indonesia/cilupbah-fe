@@ -1,9 +1,12 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import {
   RefreshCwIcon,
   MoreHorizontalIcon,
+  PrinterIcon,
+  XCircleIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -22,26 +25,37 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {
   useCancelShipment,
-  useHandOverShipment,
   useShipments,
 } from "@/hooks/proses-pesanan/use-fulfillment"
-import { SHIPMENT_STATUS_LABEL, type Shipment } from "@/types/proses-pesanan/fulfillment"
+import type { Shipment } from "@/types/proses-pesanan/fulfillment"
 
 import { DocActions } from "../picking/doc-actions"
-import { ShipmentDetailDialog } from "./shipment-detail-dialog"
 
-function formatDate(iso: string | null): string {
+function formatDateTime(iso: string | null): string {
   if (!iso) return "—"
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return "—"
-  return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
+  return d.toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
+
+function formatWeight(gram: number): string {
+  if (!gram) return "—"
+  const kg = gram / 1000
+  return kg < 1
+    ? `${gram} g`
+    : `${kg.toLocaleString("id-ID", { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`
 }
 
 export function ShipmentTable() {
   const [search, setSearch] = React.useState("")
   const [debounced, setDebounced] = React.useState("")
   const [page, setPage] = React.useState(1)
-  const [detailId, setDetailId] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     const t = setTimeout(() => setDebounced(search.trim()), 350)
@@ -53,7 +67,6 @@ export function ShipmentTable() {
     [debounced, page]
   )
   const { data, isLoading, isFetching, refetch } = useShipments(params)
-  const handOver = useHandOverShipment()
   const cancel = useCancelShipment()
 
   const shipments = data?.items ?? []
@@ -63,14 +76,6 @@ export function ShipmentTable() {
     err && typeof err === "object" && "message" in err
       ? String((err as { message?: unknown }).message)
       : fallback
-
-  const onHandOver = (s: Shipment) => {
-    if (!window.confirm(`Serahkan ${s.shipmentNo} (${s.ordersCount} pesanan) ke kurir?`)) return
-    handOver.mutate(s.id, {
-      onSuccess: () => toast.success(`${s.shipmentNo} diserahkan ke kurir.`),
-      onError: (e) => toast.error(errMsg(e, "Gagal serah terima.")),
-    })
-  }
 
   const onCancel = (s: Shipment) => {
     if (!window.confirm(`Batalkan pengiriman ${s.shipmentNo}?`)) return
@@ -85,13 +90,12 @@ export function ShipmentTable() {
       accessorKey: "shipmentNo",
       header: "No. Pengiriman",
       cell: ({ row }) => (
-        <button
-          type="button"
-          onClick={() => setDetailId(row.original.id)}
-          className="font-medium text-primary hover:underline text-left"
+        <Link
+          href={`/dashboard/proses-pesanan/shipping/${row.original.id}`}
+          className="font-medium text-primary hover:underline"
         >
           {row.original.shipmentNo}
-        </button>
+        </Link>
       ),
     },
     {
@@ -105,31 +109,23 @@ export function ShipmentTable() {
       cell: ({ row }) => <span className="text-foreground">{row.original.shipmentType ?? "—"}</span>,
     },
     {
-      accessorKey: "shipmentDate",
-      header: "Tgl. Pengiriman",
-      cell: ({ row }) => <span className="text-foreground">{formatDate(row.original.shipmentDate)}</span>,
-    },
-    {
       accessorKey: "ordersCount",
       header: "Jml. Pesanan",
       cell: ({ row }) => <span className="tabular-nums">{row.original.ordersCount}</span>,
     },
     {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const st = SHIPMENT_STATUS_LABEL[row.original.status];
-        return (
-          <span
-            className={cn(
-              "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-              st?.className
-            )}
-          >
-            {st?.label}
-          </span>
-        )
-      },
+      accessorKey: "totalWeightGram",
+      header: "Total Berat",
+      cell: ({ row }) => (
+        <span className="tabular-nums">{formatWeight(row.original.totalWeightGram)}</span>
+      ),
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Dibuat",
+      cell: ({ row }) => (
+        <span className="text-foreground text-xs">{formatDateTime(row.original.createdAt)}</span>
+      ),
     },
     {
       id: "actions",
@@ -144,13 +140,12 @@ export function ShipmentTable() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-44">
               <DropdownMenuItem onSelect={() => DocActions.manifest(row.original.id)}>
+                <PrinterIcon className="size-4 mr-2" />
                 Cetak Manifest
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => onHandOver(row.original)}>
-                Serah Terima
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem variant="destructive" onSelect={() => onCancel(row.original)}>
+                <XCircleIcon className="size-4 mr-2" />
                 Batalkan
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -209,12 +204,6 @@ export function ShipmentTable() {
           }
         />
       </div>
-
-      <ShipmentDetailDialog
-        open={!!detailId}
-        onOpenChange={(v) => { if (!v) setDetailId(null) }}
-        shipmentId={detailId}
-      />
     </div>
   )
 }

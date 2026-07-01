@@ -418,6 +418,8 @@ export interface RawShipment {
   status?: string | null
   handed_over_at?: string | null
   orders_count?: number
+  total_weight_gram?: number | null
+  created_at?: string | null
 }
 
 export interface Shipment {
@@ -432,6 +434,8 @@ export interface Shipment {
   status: ShipmentStatus
   handedOverAt: string | null
   ordersCount: number
+  totalWeightGram: number
+  createdAt: string | null
 }
 
 export const SHIPMENT_STATUS_LABEL: Record<ShipmentStatus, { label: string; className: string }> = {
@@ -460,6 +464,7 @@ export interface RawShipmentOrder {
     tracking_number?: string | null
     source?: string | null
     channel_order_no?: string | null
+    order_weight_gram?: number | null
   } | null
   packlist?: {
     id: string
@@ -482,6 +487,7 @@ export interface ShipmentOrderItem {
   shippingProvider: string | null
   source: string | null
   grandTotal: number
+  weightGram: number
   status: string | null
   packlistNo: string | null
 }

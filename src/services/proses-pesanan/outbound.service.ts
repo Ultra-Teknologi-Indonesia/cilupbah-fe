@@ -154,6 +154,8 @@ function mapShipment(raw: RawShipment): Shipment {
     status: (raw.status ?? "SCHEDULED") as Shipment["status"],
     handedOverAt: raw.handed_over_at ?? null,
     ordersCount: raw.orders_count ?? 0,
+    totalWeightGram: Number(raw.total_weight_gram ?? 0),
+    createdAt: raw.created_at ?? null,
   }
 }
 
@@ -168,6 +170,7 @@ function mapShipmentOrderItem(raw: RawShipmentOrder): ShipmentOrderItem {
     shippingProvider: o?.shipping_provider ?? null,
     source: o?.source ?? null,
     grandTotal: Number(o?.grand_total ?? 0),
+    weightGram: Number(o?.order_weight_gram ?? 0),
     status: o?.status ?? null,
     packlistNo: raw.packlist?.packlist_no ?? null,
   }
