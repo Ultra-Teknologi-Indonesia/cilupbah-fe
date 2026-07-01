@@ -14,6 +14,7 @@ import {
   PlusIcon,
 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 import { QRCodeSVG } from "qrcode.react"
 import { cn } from "@/lib/utils"
@@ -58,6 +59,7 @@ interface PlacementEntry {
 }
 
 export function PutawayProcessView({ id }: PutawayProcessViewProps) {
+  const router = useRouter()
   const { data: putaway, isLoading, refetch: refetchDetail } = usePutawayDetail(id)
   const { data: items, refetch: refetchItems } = usePutawayItems(id)
 
@@ -91,8 +93,8 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const allItems = useMemo<PutawayItem[]>(() => items ?? [], [items])
 
   const visibleList = useMemo<PutawayItem[]>(
-    () => allItems.filter((it) => scannedItemIds.has(it.id) || it.putaway_qty > 0),
-    [allItems, scannedItemIds]
+    () => isCompleted ? allItems : allItems.filter((it) => scannedItemIds.has(it.id) || it.putaway_qty > 0),
+    [allItems, scannedItemIds, isCompleted]
   )
 
   const { totalQty, placedQty } = useMemo(() => {
@@ -199,9 +201,16 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNotStarted, putaway?.id])
 
+  useEffect(() => {
+    if (isCompleted) {
+      router.push("/dashboard/barang-masuk/penempatan")
+    }
+  }, [isCompleted, router])
+
   const onProcessed = useCallback(() => {
     refetchItems()
     refetchDetail()
+    setTimeout(() => refetchDetail(), 1500)
   }, [refetchItems, refetchDetail])
 
   const handleScanSaved = useCallback(() => {
