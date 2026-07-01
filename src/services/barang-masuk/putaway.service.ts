@@ -12,6 +12,14 @@ export interface ProcessItemPayload {
   qty: number
 }
 
+export interface BinListItem {
+  id: string
+  bin_final_code: string
+  max_qty: number | null
+  current_qty: number
+  remaining_capacity: number | null
+}
+
 export interface BinLookupResult {
   id: string
   location_id: string
@@ -82,6 +90,11 @@ export const PutawayService = {
   },
 
 
+
+  listBins: async (locationId: string) => {
+    const res = await fetchClient<ApiResponse<BinListItem[]>>(`/putaway/bins?location_id=${encodeURIComponent(locationId)}`)
+    return res.data ?? []
+  },
 
   lookupBin: async (code: string, locationId: string) => {
     const res = await fetchClient<ApiResponse<BinLookupResult>>(`/putaway/bins/lookup?code=${encodeURIComponent(code)}&location_id=${encodeURIComponent(locationId)}`)

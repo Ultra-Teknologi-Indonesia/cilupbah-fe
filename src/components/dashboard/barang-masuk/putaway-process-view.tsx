@@ -43,7 +43,7 @@ import {
 } from "@/hooks/barang-masuk/use-putaway-actions"
 import { PutawayService } from "@/services/barang-masuk/putaway.service"
 import type { PutawayItem } from "@/types/barang-masuk/putaway"
-import type { BinLookupResult } from "@/services/barang-masuk/putaway.service"
+import type { BinListItem } from "@/services/barang-masuk/putaway.service"
 
 interface PutawayProcessViewProps {
   id: string
@@ -63,10 +63,8 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
 
   const startMutation = useStartPutaway()
 
-  const [activeRack, setActiveRack] = useState<BinLookupResult | null>(null)
-  const [rackInput, setRackInput] = useState("")
-  const [rackLoading, setRackLoading] = useState(false)
-  const [rackError, setRackError] = useState("")
+  const [activeRack, setActiveRack] = useState<BinListItem | null>(null)
+  const [availableBins, setAvailableBins] = useState<BinListItem[]>([])
 
   const [notes, setNotes] = useState("")
   const [scanCode, setScanCode] = useState("")
@@ -79,7 +77,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const [focusPlacementId, setFocusPlacementId] = useState<string | null>(null)
 
   const scanInputRef = useRef<HTMLInputElement>(null)
-  const rackInputRef = useRef<HTMLInputElement>(null)
 
   const locationId = putaway?.location_id ?? ""
 
@@ -110,21 +107,25 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   }, [allItems])
   const progressPct = totalQty > 0 ? Math.round((placedQty / totalQty) * 100) : 0
 
-  const handleLookupRack = useCallback(async () => {
-    if (!rackInput.trim() || !locationId) return
-    setRackLoading(true)
-    setRackError("")
-    try {
-      const result = await PutawayService.lookupBin(rackInput.trim(), locationId)
-      setActiveRack(result)
-      setRackInput("")
-      setTimeout(() => scanInputRef.current?.focus(), 50)
-    } catch (err) {
-      setRackError((err as { message?: string })?.message || "Rak tidak ditemukan")
-    } finally {
-      setRackLoading(false)
-    }
-  }, [rackInput, locationId])
+  useEffect(() => {
+    if (!locationId) return
+    PutawayService.listBins(locationId).then(setAvailableBins).catch(() => {})
+  }, [locationId])
+
+  const binOptions = useMemo(() =>
+    availableBins.map((b) => ({
+      value: b.id,
+      label: b.bin_final_code,
+      hint: b.remaining_capacity != null ? `sisa ${b.remaining_capacity}` : undefined,
+    })),
+    [availableBins]
+  )
+
+  const handleSelectRack = useCallback((binId: string | null) => {
+    const bin = binId ? availableBins.find((b) => b.id === binId) ?? null : null
+    setActiveRack(bin)
+    if (bin) setTimeout(() => scanInputRef.current?.focus(), 50)
+  }, [availableBins])
 
   const handleScan = useCallback(() => {
     const code = scanCode.trim().replace(/\s+/g, "").toLowerCase()
@@ -204,7 +205,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   }, [refetchItems, refetchDetail])
 
   const handleScanSaved = useCallback(() => {
-    setTimeout(() => rackInputRef.current?.focus(), 50)
+    setTimeout(() => scanInputRef.current?.focus(), 50)
   }, [])
 
   const toggleExpand = useCallback((itemId: string) => {
@@ -343,9 +344,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
               <p className="mt-1.5 text-lg font-bold text-foreground">
                 {activeRack ? activeRack.bin_final_code : "Belum dipilih"}
               </p>
-              {activeRack?.bin_label && (
-                <p className="text-xs text-muted-foreground">{activeRack.bin_label}</p>
-              )}
               {activeRack && activeRack.max_qty != null && (
                 <p className="mt-1 text-xs text-muted-foreground">
                   Kapasitas: {activeRack.current_qty}/{activeRack.max_qty} (sisa {activeRack.remaining_capacity})
@@ -356,10 +354,10 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
             <div className="rounded-2xl border border-border bg-card p-4">
               <div className="flex items-center gap-2">
                 <ScanLineIcon className="h-4 w-4 text-muted-foreground" />
-                <div className="text-sm font-medium">Ganti Rak</div>
+                <div className="text-sm font-medium">Pilih Rak</div>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                Scan kode rak tujuan penempatan berikutnya.
+                Pilih rak tujuan penempatan berikutnya.
               </p>
               <div className="mt-3 flex items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 p-3">
                 {activeRack ? (
@@ -368,21 +366,16 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                   <QrCodeIcon className="h-8 w-8 text-muted-foreground/60" strokeWidth={1.2} />
                 )}
               </div>
-              <Input
-                ref={rackInputRef}
-                placeholder="Scan kode rak…"
-                value={rackInput}
-                onChange={(e) => {
-                  setRackInput(e.target.value)
-                  setRackError("")
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleLookupRack()
-                }}
+              <Combobox
+                options={binOptions}
+                value={activeRack?.id ?? null}
+                onChange={handleSelectRack}
+                placeholder="Pilih rak…"
+                searchPlaceholder="Cari kode rak…"
+                emptyText="Tidak ada rak tersedia."
                 disabled={!isInProgress}
-                className="mt-3"
+                className="mt-3 rounded-xl"
               />
-              {rackError && <p className="mt-1 text-xs text-red-500">{rackError}</p>}
             </div>
 
             <div>
@@ -494,6 +487,8 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                         locationId={locationId}
                         editable={isInProgress}
                         defaultRack={activeRack}
+                        binOptions={binOptions}
+                        availableBins={availableBins}
                         selected={selectedIds.has(item.id)}
                         onToggleSelect={() => toggleOne(item.id)}
                         onProcessed={onProcessed}
@@ -524,7 +519,9 @@ interface PutawayItemRowProps {
   putawayId: string
   locationId: string
   editable: boolean
-  defaultRack: BinLookupResult | null
+  defaultRack: BinListItem | null
+  binOptions: { value: string; label: string; hint?: string }[]
+  availableBins: BinListItem[]
   selected: boolean
   onToggleSelect: () => void
   onProcessed: () => void
@@ -543,6 +540,8 @@ function PutawayItemRow({
   locationId,
   editable,
   defaultRack,
+  binOptions,
+  availableBins,
   selected,
   onToggleSelect,
   onProcessed,
@@ -675,12 +674,13 @@ function PutawayItemRow({
                   key={entry.id}
                   item={item}
                   putawayId={putawayId}
-                  locationId={locationId}
                   defaultRack={defaultRack}
+                  binOptions={binOptions}
+                  availableBins={availableBins}
                   editable={editable}
                   onProcessed={onProcessed}
                   entry={entry}
-                  focusTarget={focusPlacementId === entry.id ? (defaultRack ? "qty" : "bin") : null}
+                  focusTarget={focusPlacementId === entry.id ? (defaultRack ? "qty" : null) : null}
                   onSaved={onSaved}
                   onRemove={
                     placements.length > 0 && !entry.id.endsWith("-existing") && entry.id !== "auto"
@@ -702,12 +702,13 @@ function PutawayItemRow({
 interface PlacementRowProps {
   item: PutawayItem
   putawayId: string
-  locationId: string
-  defaultRack: BinLookupResult | null
+  defaultRack: BinListItem | null
+  binOptions: { value: string; label: string; hint?: string }[]
+  availableBins: BinListItem[]
   editable: boolean
   onProcessed: () => void
   entry: PlacementEntry
-  focusTarget: "bin" | "qty" | null
+  focusTarget: "qty" | null
   onSaved?: () => void
   onRemove?: () => void
 }
@@ -715,8 +716,9 @@ interface PlacementRowProps {
 function PlacementRow({
   item,
   putawayId,
-  locationId,
   defaultRack,
+  binOptions,
+  availableBins,
   editable,
   onProcessed,
   entry,
@@ -725,46 +727,47 @@ function PlacementRow({
   onRemove,
 }: PlacementRowProps) {
   const processMutation = useProcessPutawayItem()
-  const isExisting = entry.initialBinQty > 0
 
-  const [binCode, setBinCode] = useState(entry.initialBinCode)
-  const [binResult, setBinResult] = useState<BinLookupResult | null>(null)
-  const [binError, setBinError] = useState("")
-  const [binLoading, setBinLoading] = useState(false)
+  const initialBinId = useMemo(() => {
+    if (entry.initialBinCode) {
+      const match = availableBins.find((b) => b.bin_final_code === entry.initialBinCode)
+      if (match) return match.id
+    }
+    if (defaultRack) return defaultRack.id
+    return null
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const [selectedBinId, setSelectedBinId] = useState<string | null>(initialBinId)
   const [qty, setQty] = useState(entry.initialBinQty > 0 ? String(entry.initialBinQty) : "")
   const [hasSaved, setHasSaved] = useState(entry.initialBinQty > 0)
 
-  const binInputRef = useRef<HTMLInputElement>(null)
   const qtyInputRef = useRef<HTMLInputElement>(null)
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const lastSavedQty = useRef(entry.initialSavedQty)
 
+  const selectedBin = useMemo(
+    () => selectedBinId ? availableBins.find((b) => b.id === selectedBinId) ?? null : null,
+    [selectedBinId, availableBins]
+  )
+
   useEffect(() => {
-    if (focusTarget === "bin") {
-      setTimeout(() => binInputRef.current?.focus(), 50)
-    } else if (focusTarget === "qty") {
+    if (focusTarget === "qty") {
       setTimeout(() => qtyInputRef.current?.focus(), 50)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => {
-    if (!isExisting && defaultRack && !binResult && !binCode) {
-      setBinCode(defaultRack.bin_final_code)
-      setBinResult(defaultRack)
-    }
-  }, [defaultRack, binResult, binCode, isExisting])
-
   useEffect(() => () => clearTimeout(autoSaveTimer.current), [])
 
-  const saveNow = useCallback((bin: BinLookupResult, targetQty: number, afterSave?: () => void) => {
+  const saveNow = useCallback((binId: string, targetQty: number, afterSave?: () => void) => {
     const delta = targetQty - lastSavedQty.current
     if (delta <= 0 || processMutation.isPending) return
     processMutation.mutate(
       {
         putawayId,
         itemId: item.id,
-        payload: { destination_bin_id: bin.id, qty: delta },
+        payload: { destination_bin_id: binId, qty: delta },
       },
       {
         onSuccess: () => {
@@ -781,70 +784,39 @@ function PlacementRow({
     clearTimeout(autoSaveTimer.current)
     const qtyNum = parseInt(qty) || 0
     const delta = qtyNum - lastSavedQty.current
-    if (delta <= 0 || !binResult || processMutation.isPending) return
+    if (delta <= 0 || !selectedBinId || processMutation.isPending) return
 
     autoSaveTimer.current = setTimeout(() => {
-      saveNow(binResult, qtyNum, onSaved)
+      saveNow(selectedBinId, qtyNum, onSaved)
     }, 800)
 
     return () => clearTimeout(autoSaveTimer.current)
-  }, [qty, binResult, processMutation.isPending, saveNow, onSaved])
+  }, [qty, selectedBinId, processMutation.isPending, saveNow, onSaved])
 
-  const lookupBin = useCallback(async () => {
-    const code = binCode.trim()
-    if (!code || !locationId) return
-    if (defaultRack && code.toLowerCase() === defaultRack.bin_final_code.toLowerCase()) {
-      setBinResult(defaultRack)
-      return
-    }
-    setBinLoading(true)
-    setBinError("")
-    try {
-      const result = await PutawayService.lookupBin(code, locationId)
-      setBinResult(result)
-    } catch (err) {
-      setBinResult(null)
-      setBinError((err as { message?: string })?.message || "Rak tidak ditemukan")
-    } finally {
-      setBinLoading(false)
-    }
-  }, [binCode, locationId, defaultRack])
+  const handleSelectBin = useCallback((binId: string | null) => {
+    setSelectedBinId(binId)
+    if (binId) setTimeout(() => qtyInputRef.current?.focus(), 50)
+  }, [])
 
   return (
     <div className="flex items-start gap-3">
       <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-1.5">
-          <Input
-            ref={binInputRef}
-            value={binCode}
-            placeholder="Kode rak"
-            disabled={!editable}
-            onChange={(e) => {
-              setBinCode(e.target.value)
-              setBinResult(null)
-              setBinError("")
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault()
-                if (binResult) {
-                  clearTimeout(autoSaveTimer.current)
-                  const qtyNum = parseInt(qty) || 0
-                  if (qtyNum > lastSavedQty.current) saveNow(binResult, qtyNum, onSaved)
-                } else lookupBin()
-              }
-            }}
-            className={cn(
-              "h-8 w-36 font-mono text-xs",
-              binResult && "border-emerald-300 ring-1 ring-emerald-200 dark:border-emerald-700 dark:ring-emerald-800"
-            )}
-          />
-          {binLoading && <Loader2Icon className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
-        </div>
-        {binError && <p className="text-[10px] text-red-500">{binError}</p>}
-        {binResult && binResult.remaining_capacity != null && (
+        <Combobox
+          options={binOptions}
+          value={selectedBinId}
+          onChange={handleSelectBin}
+          placeholder="Pilih rak…"
+          searchPlaceholder="Cari kode rak…"
+          emptyText="Tidak ada rak."
+          disabled={!editable}
+          className={cn(
+            "h-8 w-40 rounded-lg text-xs",
+            selectedBin && "border-emerald-300 ring-1 ring-emerald-200 dark:border-emerald-700 dark:ring-emerald-800"
+          )}
+        />
+        {selectedBin && selectedBin.remaining_capacity != null && (
           <p className="text-[10px] text-muted-foreground">
-            Sisa kapasitas: {binResult.remaining_capacity}/{binResult.max_qty}
+            Sisa kapasitas: {selectedBin.remaining_capacity}/{selectedBin.max_qty}
           </p>
         )}
       </div>
@@ -865,11 +837,11 @@ function PlacementRow({
             setQty(String(Math.max(0, Math.min(entry.maxQty, n))))
           }}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && binResult) {
+            if (e.key === "Enter" && selectedBinId) {
               e.preventDefault()
               clearTimeout(autoSaveTimer.current)
               const qtyNum = parseInt(qty) || 0
-              if (qtyNum > lastSavedQty.current) saveNow(binResult, qtyNum, onSaved)
+              if (qtyNum > lastSavedQty.current) saveNow(selectedBinId, qtyNum, onSaved)
             }
           }}
           className="h-8 w-20 tabular-nums text-xs"
