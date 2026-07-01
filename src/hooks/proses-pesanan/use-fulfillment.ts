@@ -94,7 +94,7 @@ export function usePickingCounts() {
   })
   const diproses = useQuery({
     queryKey: fulfillmentKeys.count("picking-diproses"),
-    queryFn: () => OutboundService.picklists({ per_page: 1 }).then((r) => r.meta.total),
+    queryFn: () => OutboundService.picklists({ per_page: 1, status: "DRAFT,IN_PROGRESS" }).then((r) => r.meta.total),
     staleTime: STALE,
   })
   const selesai = useQuery({
@@ -119,7 +119,7 @@ export function usePackingCounts() {
   })
   const diproses = useQuery({
     queryKey: fulfillmentKeys.count("packing-diproses"),
-    queryFn: () => OutboundService.packlists({ per_page: 1 }).then((r) => r.meta.total),
+    queryFn: () => OutboundService.packlists({ per_page: 1, status: "DRAFT,IN_PROGRESS" }).then((r) => r.meta.total),
     staleTime: STALE,
   })
   const selesai = useQuery({
