@@ -463,9 +463,12 @@ function PutawayItemRow({
     )
   }, [binResult, lookupBin, qty, processMutation, putawayId, item.id, remaining, onProcessed])
 
-  const displayName = item.variant?.item_name ?? item.product?.item_name ?? "—"
+  const productName = item.product?.product?.name ?? item.variant?.item_name ?? "—"
+  const variantOptions = item.product?.options?.map((o) => o.value).join(" / ")
+    ?? item.variant?.variation_values?.map((v) => v.value).join(" / ")
+  const displayName = variantOptions ? `${productName} - ${variantOptions}` : productName
   const displaySku = item.variant?.sku ?? item.product?.sku ?? "—"
-  const variationLabel = item.variant?.variation_values?.map((v) => v.value).join(" / ")
+  const imageUrl = item.product?.media?.[0]?.url
 
   return (
     <TableRow
@@ -488,7 +491,11 @@ function PutawayItemRow({
       <TableCell className="max-w-xs">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/50 bg-muted/40 text-muted-foreground">
-            <PackageIcon className="h-5 w-5" />
+            {imageUrl ? (
+              <img src={imageUrl} alt={displayName} className="h-full w-full object-cover" />
+            ) : (
+              <PackageIcon className="h-5 w-5" />
+            )}
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-foreground" title={displayName}>
@@ -497,9 +504,6 @@ function PutawayItemRow({
             <p className="truncate font-mono text-xs text-muted-foreground">
               {displaySku}
             </p>
-            {variationLabel && (
-              <p className="truncate text-[11px] text-muted-foreground">{variationLabel}</p>
-            )}
           </div>
         </div>
       </TableCell>

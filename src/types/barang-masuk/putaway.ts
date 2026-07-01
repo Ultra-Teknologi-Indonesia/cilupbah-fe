@@ -20,7 +20,9 @@ export interface PutawayItem {
     id: string
     sku: string
     product_id: string
-    item_name?: string
+    product?: { id: string; name: string }
+    options?: { id: string; variant_id: string; value: string }[]
+    media?: { id: number; url: string }[]
   }
   source_bin?: { id: string; bin_final_code: string } | null
   destination_bin?: { id: string; bin_final_code: string } | null
