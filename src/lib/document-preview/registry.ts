@@ -85,7 +85,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       }
       // BE bisa kembalikan `url` (langsung PDF dari marketplace) atau `document_base64`.
       if (res.type === "url" && res.url) {
-        const r = await fetch(res.url, { credentials: "omit" })
+        const r = await fetch(`/api/proxy-download?url=${encodeURIComponent(res.url)}`)
         if (!r.ok) throw new Error("Gagal mengunduh label dari marketplace")
         const blob = await r.blob()
         return { blob, meta: { source: res.source } }
