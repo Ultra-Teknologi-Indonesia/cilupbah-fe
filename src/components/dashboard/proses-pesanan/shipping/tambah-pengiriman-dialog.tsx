@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Loader2Icon, PlusIcon } from "lucide-react"
+import { format } from "date-fns"
+import { Loader2Icon } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -14,15 +15,10 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog"
+import { DateTimePicker } from "@/components/ui/date-picker"
 import { useCouriers, useCreateShipment } from "@/hooks/proses-pesanan/use-fulfillment"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import { SHIPMENT_TYPES, type ShipmentType } from "@/types/proses-pesanan/fulfillment"
-
-function nowDatetime(): string {
-  const d = new Date()
-  d.setMinutes(d.getMinutes() - d.getTimezoneOffset())
-  return d.toISOString().slice(0, 16)
-}
 
 interface TambahPengirimanDialogProps {
   open: boolean
@@ -33,10 +29,14 @@ export function TambahPengirimanDialog({
   open,
   onOpenChange,
 }: TambahPengirimanDialogProps) {
+  const [shipmentNo, setShipmentNo] = React.useState("")
   const [courierId, setCourierId] = React.useState("")
   const [locationId, setLocationId] = React.useState("")
   const [shipmentType, setShipmentType] = React.useState<ShipmentType>("REGULAR")
-  const [shipmentDate, setShipmentDate] = React.useState(nowDatetime)
+  const [shipmentDate, setShipmentDate] = React.useState<Date | undefined>(
+    () => new Date()
+  )
+  const [dateError, setDateError] = React.useState("")
 
   const couriers = useCouriers(open)
   const { data: locData } = useLocations({ perPage: 100 })
@@ -45,10 +45,12 @@ export function TambahPengirimanDialog({
 
   React.useEffect(() => {
     if (open) {
+      setShipmentNo("")
       setCourierId("")
       setLocationId("")
       setShipmentType("REGULAR")
-      setShipmentDate(nowDatetime())
+      setShipmentDate(new Date())
+      setDateError("")
     }
   }, [open])
 
@@ -63,19 +65,35 @@ export function TambahPengirimanDialog({
     }
   }
 
-  const canSubmit = !!courierId && !!locationId
+  const handleDateChange = (date: Date | undefined) => {
+    setShipmentDate(date)
+    if (date && date < new Date()) {
+      setDateError("Tanggal & jam tidak boleh di masa lalu.")
+    } else {
+      setDateError("")
+    }
+  }
+
+  const canSubmit =
+    !!courierId && !!locationId && !!shipmentDate && !dateError
 
   const handleSubmit = async () => {
-    if (!selectedCourier || !locationId) return
+    if (!selectedCourier || !locationId || !shipmentDate) return
+
+    if (shipmentDate < new Date()) {
+      setDateError("Tanggal & jam tidak boleh di masa lalu.")
+      return
+    }
 
     try {
       await createShipment.mutateAsync({
         payload: {
+          shipment_no: shipmentNo.trim() || null,
           location_id: locationId,
           courier_name: selectedCourier.name,
           courier_code: selectedCourier.code,
           shipment_type: shipmentType,
-          shipment_date: shipmentDate,
+          shipment_date: format(shipmentDate, "yyyy-MM-dd HH:mm:ss"),
           notes: null,
         },
         orderIds: [],
@@ -101,10 +119,13 @@ export function TambahPengirimanDialog({
 
         <div className="flex flex-col gap-4 py-2">
           <div className="space-y-1.5">
-            <Label>No. Pengiriman</Label>
-            <div className="h-9 rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
-              [auto]
-            </div>
+            <Label htmlFor="new-shipment-no">No. Pengiriman</Label>
+            <Input
+              id="new-shipment-no"
+              value={shipmentNo}
+              onChange={(e) => setShipmentNo(e.target.value)}
+              placeholder="Kosongkan untuk auto-generate"
+            />
           </div>
 
           <div className="space-y-1.5">
@@ -150,15 +171,18 @@ export function TambahPengirimanDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="new-shipment-date">
+            <Label>
               Tanggal Pengiriman<span className="text-destructive"> *</span>
             </Label>
-            <Input
-              id="new-shipment-date"
-              type="datetime-local"
+            <DateTimePicker
               value={shipmentDate}
-              onChange={(e) => setShipmentDate(e.target.value)}
+              onChange={handleDateChange}
+              disablePast
+              placeholder="Pilih tanggal & jam"
             />
+            {dateError && (
+              <p className="text-xs text-destructive">{dateError}</p>
+            )}
           </div>
         </div>
 

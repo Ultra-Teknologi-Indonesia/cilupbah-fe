@@ -27,6 +27,7 @@ import type {
 } from "@/types/proses-pesanan/fulfillment"
 
 export interface CreateShipmentPayload {
+  shipment_no?: string | null
   location_id: string
   courier_name?: string | null
   courier_code?: string | null
