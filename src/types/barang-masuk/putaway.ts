@@ -26,6 +26,7 @@ export interface PutawayItem {
   }
   source_bin?: { id: string; bin_final_code: string } | null
   destination_bin?: { id: string; bin_final_code: string } | null
+  placements?: { id: string; putaway_item_id: string; bin_id: string; qty: number; bin?: { id: string; bin_final_code: string } }[]
 }
 
 export interface Putaway {

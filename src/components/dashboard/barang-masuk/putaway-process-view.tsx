@@ -151,7 +151,18 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
         return { ...prev, [match.id]: [...existing, newEntry] }
       }
       const entries: PlacementEntry[] = []
-      if (match.putaway_qty > 0 && match.destination_bin) {
+      const apiPlacements = match.placements ?? []
+      if (apiPlacements.length > 0) {
+        for (const p of apiPlacements) {
+          entries.push({
+            id: `${match.id}-existing-${p.bin_id}`,
+            initialSavedQty: p.qty,
+            initialBinCode: p.bin?.bin_final_code ?? "",
+            initialBinQty: p.qty,
+            maxQty: match.qty,
+          })
+        }
+      } else if (match.putaway_qty > 0 && match.destination_bin) {
         entries.push({
           id: `${match.id}-existing`,
           initialSavedQty: match.putaway_qty,
@@ -474,6 +485,16 @@ function PutawayItemRow({
 
   const effectivePlacements = useMemo(() => {
     if (placements.length > 0) return placements
+    const apiPlacements = item.placements ?? []
+    if (apiPlacements.length > 0) {
+      return apiPlacements.map((p) => ({
+        id: `auto-${p.bin_id}`,
+        initialSavedQty: p.qty,
+        initialBinCode: p.bin?.bin_final_code ?? "",
+        initialBinQty: p.qty,
+        maxQty: item.qty,
+      }))
+    }
     if (item.putaway_qty > 0 && item.destination_bin) {
       return [{
         id: "auto",
@@ -484,7 +505,7 @@ function PutawayItemRow({
       }]
     }
     return []
-  }, [placements, item.putaway_qty, item.destination_bin, item.qty])
+  }, [placements, item.placements, item.putaway_qty, item.destination_bin, item.qty])
 
   const productName = item.product?.product?.name ?? item.variant?.item_name ?? "—"
   const variantOptions = item.product?.options?.map((o) => o.value).join(" / ")
