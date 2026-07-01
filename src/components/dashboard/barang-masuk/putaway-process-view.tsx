@@ -204,7 +204,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   }, [refetchItems, refetchDetail])
 
   const handleScanSaved = useCallback(() => {
-    setTimeout(() => scanInputRef.current?.focus(), 50)
+    setTimeout(() => rackInputRef.current?.focus(), 50)
   }, [])
 
   const toggleExpand = useCallback((itemId: string) => {
