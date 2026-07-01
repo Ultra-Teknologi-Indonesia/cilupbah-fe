@@ -12,7 +12,7 @@ export interface ReceivePOPayload {
   location_id?: string
   receive_date?: string
   notes?: string
-  items: { purchase_order_item_id: string; qty: number; notes?: string }[]
+  items: { purchase_order_item_id: string; qty: number; rejected_qty?: number; rejection_note?: string; notes?: string }[]
 }
 
 export const PurchaseOrderService = {

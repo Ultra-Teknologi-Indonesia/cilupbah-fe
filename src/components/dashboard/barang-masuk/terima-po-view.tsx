@@ -24,8 +24,10 @@ import { useReceivePurchaseOrder } from "@/hooks/barang-masuk/use-receive-purcha
 interface ItemQty {
   purchase_order_item_id: string
   qty: number
+  rejected_qty: number
   max: number
   notes: string
+  rejection_note: string
 }
 
 export function TerimaPOView({ id }: { id: string }) {
@@ -60,8 +62,10 @@ export function TerimaPOView({ id }: { id: string }) {
               next[item.id] = {
                 purchase_order_item_id: item.id,
                 qty: remaining,
+                rejected_qty: 0,
                 max: remaining,
-                notes: ""
+                notes: "",
+                rejection_note: "",
               }
               hasChanges = true
             }
@@ -74,7 +78,7 @@ export function TerimaPOView({ id }: { id: string }) {
 
   // Compute hasValidQty by checking the values in itemQtys
   const hasValidQty = useMemo(
-    () => Object.values(itemQtys).some((i) => i.qty > 0),
+    () => Object.values(itemQtys).some((i) => i.qty > 0 || i.rejected_qty > 0),
     [itemQtys]
   )
 
@@ -82,16 +86,38 @@ export function TerimaPOView({ id }: { id: string }) {
 
   function handleQtyChange(itemId: string, maxQty: number, value: string) {
     const num = Math.max(0, parseInt(value) || 0)
-    const qty = Math.min(num, maxQty)
-    setItemQtys((prev) => ({
-      ...prev,
-      [itemId]: {
-        purchase_order_item_id: itemId,
-        max: maxQty,
-        qty: qty,
-        notes: prev[itemId]?.notes ?? ""
+    setItemQtys((prev) => {
+      const current = prev[itemId]
+      const rejected = current?.rejected_qty ?? 0
+      const qty = Math.min(num, maxQty - rejected)
+      return {
+        ...prev,
+        [itemId]: {
+          ...current,
+          purchase_order_item_id: itemId,
+          max: maxQty,
+          qty,
+        }
       }
-    }))
+    })
+  }
+
+  function handleRejectedQtyChange(itemId: string, maxQty: number, value: string) {
+    const num = Math.max(0, parseInt(value) || 0)
+    setItemQtys((prev) => {
+      const current = prev[itemId]
+      const accepted = current?.qty ?? 0
+      const rejected = Math.min(num, maxQty - accepted)
+      return {
+        ...prev,
+        [itemId]: {
+          ...current,
+          purchase_order_item_id: itemId,
+          max: maxQty,
+          rejected_qty: rejected,
+        }
+      }
+    })
   }
 
   function handleNoteChange(itemId: string, value: string) {
@@ -100,6 +126,16 @@ export function TerimaPOView({ id }: { id: string }) {
       [itemId]: {
         ...prev[itemId],
         notes: value
+      }
+    }))
+  }
+
+  function handleRejectionNoteChange(itemId: string, value: string) {
+    setItemQtys((prev) => ({
+      ...prev,
+      [itemId]: {
+        ...prev[itemId],
+        rejection_note: value
       }
     }))
   }
@@ -115,10 +151,12 @@ export function TerimaPOView({ id }: { id: string }) {
           location_id: po?.location_id,
           notes: notes.trim() || undefined,
           items: Object.values(itemQtys)
-            .filter((i) => i.qty > 0)
+            .filter((i) => i.qty > 0 || i.rejected_qty > 0)
             .map((i) => ({
               purchase_order_item_id: i.purchase_order_item_id,
               qty: i.qty,
+              rejected_qty: i.rejected_qty > 0 ? i.rejected_qty : undefined,
+              rejection_note: i.rejected_qty > 0 && i.rejection_note.trim() ? i.rejection_note.trim() : undefined,
               notes: i.notes.trim() || undefined,
             })),
         },
@@ -220,7 +258,9 @@ export function TerimaPOView({ id }: { id: string }) {
                       <TableHead className="whitespace-nowrap text-muted-foreground">Qty Pesanan</TableHead>
                       <TableHead className="whitespace-nowrap text-muted-foreground">Sudah Diterima</TableHead>
                       <TableHead className="whitespace-nowrap text-muted-foreground">Sisa</TableHead>
-                      <TableHead className="whitespace-nowrap text-muted-foreground">Qty Terima</TableHead>
+                      <TableHead className="whitespace-nowrap text-muted-foreground">Diterima</TableHead>
+                      <TableHead className="whitespace-nowrap text-muted-foreground">Ditolak</TableHead>
+                      <TableHead className="whitespace-nowrap text-muted-foreground">Alasan Ditolak</TableHead>
                       <TableHead className="whitespace-nowrap text-muted-foreground">Keterangan</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -287,6 +327,32 @@ export function TerimaPOView({ id }: { id: string }) {
                           <TableCell className="whitespace-nowrap px-3 py-3">
                             {remaining > 0 ? (
                               <Input
+                                type="number"
+                                min={0}
+                                max={remaining - currentQty}
+                                value={itemQtys[item.id]?.rejected_qty ?? 0}
+                                onChange={(e) => handleRejectedQtyChange(item.id, remaining, e.target.value)}
+                                className="h-8 w-20 tabular-nums"
+                              />
+                            ) : (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-3 py-3">
+                            {remaining > 0 && (itemQtys[item.id]?.rejected_qty ?? 0) > 0 ? (
+                              <Input
+                                value={itemQtys[item.id]?.rejection_note ?? ""}
+                                onChange={(e) => handleRejectionNoteChange(item.id, e.target.value)}
+                                placeholder="Opsional"
+                                className="h-8 w-40"
+                              />
+                            ) : (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-3 py-3">
+                            {remaining > 0 ? (
+                              <Input
                                 value={itemQtys[item.id]?.notes ?? ""}
                                 onChange={(e) => handleNoteChange(item.id, e.target.value)}
                                 placeholder="Opsional"
@@ -301,7 +367,7 @@ export function TerimaPOView({ id }: { id: string }) {
                     })}
                     {items.length === 0 && !isFetchingItems && (
                       <TableRow>
-                        <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
+                        <TableCell colSpan={9} className="py-8 text-center text-sm text-muted-foreground">
                           Belum ada produk.
                         </TableCell>
                       </TableRow>
