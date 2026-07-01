@@ -356,6 +356,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                         onToggleSelect={() => toggleOne(item.id)}
                         highlighted={focusItemId === item.id}
                         onProcessed={onProcessed}
+                        sourceRef={putaway?.inbound?.reference_number ?? putaway?.inbound?.transaction_number ?? "—"}
                       />
                     ))
                   )}
@@ -383,6 +384,7 @@ interface PutawayItemRowProps {
   onToggleSelect: () => void
   highlighted: boolean
   onProcessed: () => void
+  sourceRef: string
 }
 
 function PutawayItemRow({
@@ -395,6 +397,7 @@ function PutawayItemRow({
   onToggleSelect,
   highlighted,
   onProcessed,
+  sourceRef,
 }: PutawayItemRowProps) {
   const processMutation = useProcessPutawayItem()
   const remaining = item.qty - item.putaway_qty
@@ -514,14 +517,16 @@ function PutawayItemRow({
       </TableCell>
 
       <TableCell>
-        <span className="font-mono text-xs text-muted-foreground">
-          {item.source_bin?.bin_final_code ?? "—"}
+        <span className="font-mono text-xs font-medium text-foreground">
+          {sourceRef}
         </span>
       </TableCell>
 
       <TableCell>
         {done ? (
-          <span className="font-mono text-xs text-muted-foreground">Selesai</span>
+          <span className="font-mono text-xs font-medium text-foreground">
+            {item.destination_bin?.bin_final_code ?? "—"}
+          </span>
         ) : editable ? (
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-1.5">
