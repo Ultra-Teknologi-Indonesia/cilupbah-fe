@@ -9,7 +9,6 @@ import {
   QrCodeIcon,
   PackageIcon,
   Trash2Icon,
-  PlusIcon,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -125,6 +124,13 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const handleStart = useCallback(() => {
     startMutation.mutate(id, { onSuccess: () => refetchDetail() })
   }, [id, startMutation, refetchDetail])
+
+  useEffect(() => {
+    if (isNotStarted && putaway && !startMutation.isPending) {
+      handleStart()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isNotStarted, putaway?.id])
 
   const onProcessed = useCallback(() => {
     refetchItems()
@@ -315,27 +321,13 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                   {list.length === 0 ? (
                     <TableRow className="hover:bg-transparent">
                       <TableCell colSpan={5} className="py-16 text-center">
-                        {isNotStarted ? (
+                        {startMutation.isPending ? (
                           <div className="flex flex-col items-center gap-3">
-                            <Button
-                              variant="primary"
-                              onClick={handleStart}
-                              disabled={startMutation.isPending}
-                              className="rounded-xl"
-                            >
-                              {startMutation.isPending ? (
-                                <Loader2Icon className="mr-1.5 h-4 w-4 animate-spin" />
-                              ) : (
-                                <PlusIcon className="mr-1.5 h-4 w-4" />
-                              )}
-                              Mulai Penempatan
-                            </Button>
-                            <p className="text-xs text-muted-foreground">
-                              Mulai penempatan untuk memproses barang.
-                            </p>
+                            <Loader2Icon className="h-6 w-6 animate-spin text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground">Memulai penempatan...</p>
                           </div>
                         ) : (
-                          <p className="text-sm text-muted-foreground">Silakan scan produk untuk memulai penempatan.</p>
+                          <p className="text-sm text-muted-foreground">Scan kode rak terlebih dahulu, lalu scan SKU produk.</p>
                         )}
                       </TableCell>
                     </TableRow>
@@ -359,16 +351,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
               </Table>
             </LiquidGlass>
 
-            <div className="flex items-center justify-end">
-              <div className="flex items-center gap-2">
-                {isNotStarted && list.length > 0 && (
-                  <Button variant="primary" onClick={handleStart} disabled={startMutation.isPending}>
-                    {startMutation.isPending && <Loader2Icon className="mr-1.5 h-4 w-4 animate-spin" />}
-                    Mulai Penempatan
-                  </Button>
-                )}
-              </div>
-            </div>
           </div>
 
         </div>
