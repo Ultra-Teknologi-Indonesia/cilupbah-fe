@@ -265,8 +265,9 @@ export function PenerimaanBarangTab() {
           const item = row.original;
           const hasActivePutaway = item.putaways && item.putaways.some(p => !["COMPLETED", "CANCELLED"].includes(p.status));
           const totalRecv = item.items?.reduce((s, i) => s + (i.received_qty || 0), 0) ?? 0;
-          
-          if (!["COMPLETED", "CANCELLED"].includes(item.status) && !hasActivePutaway && totalRecv > 0) {
+          const totalPutaway = item.items?.reduce((s, i) => s + (i.putaway_qty || 0), 0) ?? 0;
+
+          if (!["COMPLETED", "CANCELLED"].includes(item.status) && !hasActivePutaway && totalRecv > 0 && totalPutaway < totalRecv) {
             return (
               <Button
                 size="sm"
