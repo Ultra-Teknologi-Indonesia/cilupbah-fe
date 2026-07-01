@@ -407,10 +407,19 @@ function PutawayItemRow({
   const [binResult, setBinResult] = useState<BinLookupResult | null>(null)
   const [binError, setBinError] = useState("")
   const [binLoading, setBinLoading] = useState(false)
-  const [qty, setQty] = useState("")
+  const [qty, setQty] = useState(item.putaway_qty > 0 ? String(item.putaway_qty) : "")
 
   const rowRef = useRef<HTMLTableRowElement>(null)
   const binInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (item.putaway_qty > 0) {
+      setQty(String(item.putaway_qty))
+    }
+    if (item.destination_bin?.bin_final_code && !binCode) {
+      setBinCode(item.destination_bin.bin_final_code)
+    }
+  }, [item.putaway_qty, item.destination_bin?.bin_final_code])
 
   useEffect(() => {
     if (defaultRack && !binResult && !binCode) {
@@ -459,11 +468,10 @@ function PutawayItemRow({
       {
         putawayId,
         itemId: item.id,
-        payload: { destination_bin_id: bin.id, qty: Math.min(qtyNum, remaining) },
+        payload: { destination_bin_id: bin.id, qty: remaining > 0 ? Math.min(qtyNum, remaining) : qtyNum },
       },
       {
         onSuccess: () => {
-          setQty("")
           onProcessed()
         },
       }
