@@ -51,47 +51,28 @@ async function proxyRequest(
   try {
     const response = await fetch(targetUrl, fetchOptions);
 
-    // Non-JSON responses (file downloads, etc.) must be streamed through
-    // untouched. Reading them with response.text() decodes the bytes as
-    // UTF-8 and irreversibly corrupts binary payloads like .xlsx files.
-    const responseContentType = response.headers.get("content-type") || "";
-    if (!responseContentType.includes("application/json")) {
-      const passthroughHeaders = new Headers();
-      for (const header of [
-        "content-type",
-        "content-disposition",
-        "content-length",
-        "cache-control",
-      ]) {
-        const value = response.headers.get(header);
-        if (value) passthroughHeaders.set(header, value);
-      }
-
-      return new NextResponse(response.body, {
-        status: response.status,
-        statusText: response.statusText,
-        headers: passthroughHeaders,
-      });
+    // Stream semua respons apa adanya — JSON maupun biner. Sebelumnya respons
+    // JSON di-buffer penuh (response.text() → JSON.parse → re-serialize), yang
+    // menambah latensi + memori untuk list besar dan mematikan streaming.
+    // Membaca .text() juga merusak payload biner (mis. .xlsx). Passthrough
+    // langsung dari response.body menjaga byte tetap utuh beserta status &
+    // header; error body (non-2xx) tetap diteruskan dengan status aslinya
+    // sehingga axios di client tetap menerima error.response.data seperti biasa.
+    const passthroughHeaders = new Headers();
+    for (const header of [
+      "content-type",
+      "content-disposition",
+      "content-length",
+      "cache-control",
+    ]) {
+      const value = response.headers.get(header);
+      if (value) passthroughHeaders.set(header, value);
     }
 
-    const textData = await response.text();
-    let jsonData;
-
-    try {
-      jsonData = JSON.parse(textData);
-    } catch {
-      jsonData = textData;
-    }
-
-    if (!response.ok) {
-      return NextResponse.json(jsonData, {
-        status: response.status,
-        statusText: response.statusText,
-      });
-    }
-
-    return NextResponse.json(jsonData, {
+    return new NextResponse(response.body, {
       status: response.status,
+      statusText: response.statusText,
+      headers: passthroughHeaders,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

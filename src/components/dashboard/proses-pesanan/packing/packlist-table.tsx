@@ -19,13 +19,16 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
-import { usePacklists } from "@/hooks/proses-pesanan/use-fulfillment"
+import { useQueryClient } from "@tanstack/react-query"
+import { usePacklists, fulfillmentKeys } from "@/hooks/proses-pesanan/use-fulfillment"
+import { OutboundService } from "@/services/proses-pesanan/outbound.service"
 import { PACKLIST_STATUS_LABEL, type Packlist } from "@/types/proses-pesanan/fulfillment"
 
 import { UbahPackerDialog } from "./ubah-packer-dialog"
 
 export function PacklistTable() {
   const router = useRouter()
+  const qc = useQueryClient()
   const [search, setSearch] = React.useState("")
   const [debounced, setDebounced] = React.useState("")
   const [page, setPage] = React.useState(1)
@@ -45,6 +48,18 @@ export function PacklistTable() {
   const packlists = data?.items ?? []
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: 20, total: 0 }
 
+  // Prefetch route + detail packlist saat hover → buka halaman packing instan.
+  const prefetchPacklist = React.useCallback(
+    (id: string) => {
+      router.prefetch(`/dashboard/proses-pesanan/packing/${id}`)
+      qc.prefetchQuery({
+        queryKey: fulfillmentKeys.packlistDetail(id),
+        queryFn: () => OutboundService.packlistDetail(id),
+      })
+    },
+    [router, qc]
+  )
+
   const columns = React.useMemo<ColumnDef<Packlist>[]>(() => [
     {
       accessorKey: "packlistNo",
@@ -54,6 +69,8 @@ export function PacklistTable() {
           type="button"
           className="font-medium text-primary underline-offset-4 hover:underline"
           onClick={() => router.push(`/dashboard/proses-pesanan/packing/${row.original.id}`)}
+          onMouseEnter={() => prefetchPacklist(row.original.id)}
+          onFocus={() => prefetchPacklist(row.original.id)}
         >
           {row.original.packlistNo}
         </button>
@@ -110,6 +127,7 @@ export function PacklistTable() {
             <DropdownMenuContent align="end" className="min-w-44">
               <DropdownMenuItem
                 onSelect={() => router.push(`/dashboard/proses-pesanan/packing/${row.original.id}`)}
+                onMouseEnter={() => prefetchPacklist(row.original.id)}
               >
                 Proses Packing
               </DropdownMenuItem>
@@ -121,7 +139,7 @@ export function PacklistTable() {
         </div>
       ),
     },
-  ], [router]);
+  ], [router, prefetchPacklist]);
 
   return (
     <div>

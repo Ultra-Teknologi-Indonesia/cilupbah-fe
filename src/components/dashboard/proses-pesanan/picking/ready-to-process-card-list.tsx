@@ -178,7 +178,7 @@ export function ReadyToProcessCardList() {
       )
       clearSelection()
       setConfirmOpen(false)
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.all })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
       qc.invalidateQueries({ queryKey: orderKeys.all })
     } catch (err) {
       const msg =

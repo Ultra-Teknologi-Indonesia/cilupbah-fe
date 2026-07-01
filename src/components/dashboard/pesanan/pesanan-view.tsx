@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback, useEffect } from "react"
 
 import { Checkbox } from "@/components/ui/checkbox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
@@ -17,6 +17,7 @@ export function PesananView() {
   const [tab, setTab] = useState<OrderTab>("all")
   const [subFilter, setSubFilter] = useState<SubFilter>(null)
   const [query, setQuery] = useState("")
+  const [debouncedQuery, setDebouncedQuery] = useState("")
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(12)
@@ -38,10 +39,21 @@ export function PesananView() {
     clearSelection()
   }, [resetPage, clearSelection])
 
+  // Ketikan pencarian responsif seketika di input, tapi hanya di-commit ke
+  // params (yang memicu fetch) setelah jeda 350ms — 1 request per jeda ketik,
+  // bukan 1 per karakter. Reset halaman ikut di-debounce agar tidak ada
+  // refetch dini dengan query lama.
   const handleQueryChange = useCallback((v: string) => {
     setQuery(v)
-    resetPage()
-  }, [resetPage])
+  }, [])
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedQuery(query)
+      resetPage()
+    }, 350)
+    return () => clearTimeout(t)
+  }, [query, resetPage])
 
   const handleFilterChange = useCallback((f: FilterState) => {
     setFilters(f)
@@ -51,7 +63,7 @@ export function PesananView() {
   const params = useMemo<OrderListParams>(() => ({
     tab,
     sub: subFilter || undefined,
-    q: query || undefined,
+    q: debouncedQuery || undefined,
     channel: filters.channel || undefined,
     store_id: filters.store_id || undefined,
     location_id: filters.location_id || undefined,
@@ -60,7 +72,7 @@ export function PesananView() {
     date_to: filters.date_to || undefined,
     page,
     per_page: perPage,
-  }), [tab, subFilter, query, filters, page, perPage])
+  }), [tab, subFilter, debouncedQuery, filters, page, perPage])
 
   const { data, isLoading, isFetching } = useOrders(params)
 

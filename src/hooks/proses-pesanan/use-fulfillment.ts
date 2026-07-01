@@ -7,22 +7,32 @@ import {
   OutboundService,
   type CreateShipmentPayload,
 } from "@/services/proses-pesanan/outbound.service"
-import type { FulfillmentListParams } from "@/types/proses-pesanan/fulfillment"
+import type {
+  FulfillmentListParams,
+  PicklistDetail,
+  PacklistDetail,
+} from "@/types/proses-pesanan/fulfillment"
 
 const STALE = 30_000
 const all = ["proses-pesanan"] as const
+// Data "papan kerja": list per-stage + badge count. Ini yang berubah tiap ada
+// mutasi status pesanan, jadi invalidasi mutasi cukup menyasar prefix ini —
+// bukan `all` yang juga menyeret data referensi (pickers/couriers) & detail.
+const board = [...all, "board"] as const
 
 export const fulfillmentKeys = {
   all,
+  board,
   ordersByStage: (stage: string, p: FulfillmentListParams) =>
-    [...all, "orders", stage, p] as const,
-  picklists: (p: FulfillmentListParams) => [...all, "picklists", p] as const,
-  packlists: (p: FulfillmentListParams) => [...all, "packlists", p] as const,
-  shipments: (p: FulfillmentListParams) => [...all, "shipments", p] as const,
+    [...board, "orders", stage, p] as const,
+  picklists: (p: FulfillmentListParams) => [...board, "picklists", p] as const,
+  packlists: (p: FulfillmentListParams) => [...board, "packlists", p] as const,
+  shipments: (p: FulfillmentListParams) => [...board, "shipments", p] as const,
+  count: (key: string) => [...board, "count", key] as const,
   pickers: (locationId?: string, role?: string) => [...all, "pickers", locationId ?? "", role ?? ""] as const,
-  count: (key: string) => [...all, "count", key] as const,
   picklistDetail: (id: string) => [...all, "picklist-detail", id] as const,
   packlistDetail: (id: string) => [...all, "packlist-detail", id] as const,
+  shipmentDetail: (id: string) => [...all, "shipment-detail", id] as const,
 }
 
 // ── Queries ──────────────────────────────────────────────────────────────────
@@ -145,7 +155,7 @@ export function useCreatePicklist() {
       picker_id: string
       notes?: string | null
     }) => OutboundService.createPicklist(payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
   })
 }
 
@@ -154,7 +164,7 @@ export function useAssignPicker() {
   return useMutation({
     mutationFn: ({ picklistId, pickerId }: { picklistId: string; pickerId: string }) =>
       OutboundService.assignPicker(picklistId, pickerId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
   })
 }
 
@@ -163,7 +173,7 @@ export function useAssignPacker() {
   return useMutation({
     mutationFn: ({ packlistId, packerId }: { packlistId: string; packerId: string }) =>
       OutboundService.assignPacker(packlistId, packerId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
   })
 }
 
@@ -171,7 +181,7 @@ export function useReadyToShip() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (orderIds: string[]) => OutboundService.readyToShip(orderIds),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
   })
 }
 
@@ -188,7 +198,10 @@ export function useStartPicklist() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => OutboundService.startPicklist(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+    onSuccess: (_d, id) => {
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.picklistDetail(id) })
+    },
   })
 }
 
@@ -206,7 +219,30 @@ export function usePickItem() {
       qtyPicked: number
       binCode: string
     }) => OutboundService.pickItem(picklistId, itemId, { qty_picked: qtyPicked, bin_code: binCode }),
-    onSuccess: (_d, v) =>
+    // Optimistic: qtyPicked adalah nilai absolut, jadi langsung patch item di
+    // cache detail → progress scan naik seketika tanpa nunggu POST + refetch.
+    // onSettled tetap invalidasi agar field turunan dari server (status item,
+    // dsb.) direkonsiliasi di background.
+    onMutate: async (v) => {
+      const key = fulfillmentKeys.picklistDetail(v.picklistId)
+      await qc.cancelQueries({ queryKey: key })
+      const prev = qc.getQueryData<PicklistDetail>(key)
+      if (prev) {
+        qc.setQueryData<PicklistDetail>(key, {
+          ...prev,
+          items: prev.items.map((it) =>
+            it.id === v.itemId
+              ? { ...it, qtyPicked: v.qtyPicked, binCode: v.binCode || it.binCode }
+              : it
+          ),
+        })
+      }
+      return { key, prev }
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) qc.setQueryData(ctx.key, ctx.prev)
+    },
+    onSettled: (_d, _e, v) =>
       qc.invalidateQueries({ queryKey: fulfillmentKeys.picklistDetail(v.picklistId) }),
   })
 }
@@ -215,7 +251,10 @@ export function useCompletePicklist() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => OutboundService.completePicklist(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+    onSuccess: (_d, id) => {
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.picklistDetail(id) })
+    },
   })
 }
 
@@ -263,7 +302,7 @@ export function useAdHocPick() {
       order_id: string
       items?: Array<{ order_item_id: string; qty_picked: number; bin_id?: string | null }>
     }) => OutboundService.adHocPick(payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
   })
 }
 
@@ -277,7 +316,7 @@ export function useAdHocPickScan() {
       bin_id?: string | null
     }) => OutboundService.adHocPickScan(payload),
     onSuccess: (_d, _v) => {
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.all })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
     },
   })
 }
@@ -287,7 +326,10 @@ export function useFailPicklist() {
   return useMutation({
     mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
       OutboundService.failPicklist(id, reason),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.picklistDetail(v.id) })
+    },
   })
 }
 
@@ -297,7 +339,7 @@ export function useScanOrder() {
   return useMutation({
     mutationFn: ({ orderNo, packerId }: { orderNo: string; packerId?: string | null }) =>
       OutboundService.scanOrder(orderNo, packerId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
   })
 }
 
@@ -314,7 +356,10 @@ export function useStartPacklist() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => OutboundService.startPacklist(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+    onSuccess: (_d, id) => {
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.packlistDetail(id) })
+    },
   })
 }
 
@@ -346,7 +391,31 @@ export function usePackItem() {
         qty_packed: qtyPacked,
         barcode_verified: barcodeVerified,
       }),
-    onSuccess: (_d, v) =>
+    // Optimistic sama seperti pickItem: qtyPacked absolut → patch seketika.
+    onMutate: async (v) => {
+      const key = fulfillmentKeys.packlistDetail(v.packlistId)
+      await qc.cancelQueries({ queryKey: key })
+      const prev = qc.getQueryData<PacklistDetail>(key)
+      if (prev) {
+        qc.setQueryData<PacklistDetail>(key, {
+          ...prev,
+          items: prev.items.map((it) =>
+            it.id === v.itemId
+              ? {
+                  ...it,
+                  qtyPacked: v.qtyPacked,
+                  barcodeVerified: v.barcodeVerified ?? it.barcodeVerified,
+                }
+              : it
+          ),
+        })
+      }
+      return { key, prev }
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) qc.setQueryData(ctx.key, ctx.prev)
+    },
+    onSettled: (_d, _e, v) =>
       qc.invalidateQueries({ queryKey: fulfillmentKeys.packlistDetail(v.packlistId) }),
   })
 }
@@ -355,7 +424,10 @@ export function useCompletePacklist() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => OutboundService.completePacklist(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+    onSuccess: (_d, id) => {
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.packlistDetail(id) })
+    },
   })
 }
 
@@ -363,7 +435,7 @@ export function useMarkComplete() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (orderIds: string[]) => OutboundService.markComplete(orderIds),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
   })
 }
 
@@ -372,7 +444,7 @@ export function useCreateShipment() {
   return useMutation({
     mutationFn: ({ payload, orderIds }: { payload: CreateShipmentPayload; orderIds: string[] }) =>
       OutboundService.createShipmentWithOrders(payload, orderIds),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
   })
 }
 
@@ -380,7 +452,7 @@ export function useHandOverShipment() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (shipmentId: string) => OutboundService.handOverShipment(shipmentId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
   })
 }
 
@@ -388,13 +460,13 @@ export function useCancelShipment() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (shipmentId: string) => OutboundService.cancelShipment(shipmentId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.all }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
   })
 }
 
 export function useShipmentDetail(id: string, enabled = true) {
   return useQuery({
-    queryKey: [...fulfillmentKeys.all, "shipment-detail", id],
+    queryKey: fulfillmentKeys.shipmentDetail(id),
     queryFn: () => OutboundService.shipmentDetail(id),
     enabled: enabled && !!id,
   })
@@ -406,8 +478,8 @@ export function useScanOrderToShipment() {
     mutationFn: ({ shipmentId, barcode }: { shipmentId: string; barcode: string }) =>
       OutboundService.scanOrderToShipment(shipmentId, barcode),
     onSuccess: (_d, v) => {
-      qc.invalidateQueries({ queryKey: [...fulfillmentKeys.all, "shipment-detail", v.shipmentId] })
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.all })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.shipmentDetail(v.shipmentId) })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
     },
   })
 }
@@ -418,8 +490,8 @@ export function useRemoveOrderFromShipment() {
     mutationFn: ({ shipmentId, orderIds }: { shipmentId: string; orderIds: string[] }) =>
       OutboundService.removeOrderFromShipment(shipmentId, orderIds),
     onSuccess: (_d, v) => {
-      qc.invalidateQueries({ queryKey: [...fulfillmentKeys.all, "shipment-detail", v.shipmentId] })
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.all })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.shipmentDetail(v.shipmentId) })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
     },
   })
 }

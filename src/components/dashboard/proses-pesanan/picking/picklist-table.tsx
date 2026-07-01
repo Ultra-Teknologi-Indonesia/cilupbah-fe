@@ -34,7 +34,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { usePicklists } from "@/hooks/proses-pesanan/use-fulfillment"
+import { useQueryClient } from "@tanstack/react-query"
+import { usePicklists, fulfillmentKeys } from "@/hooks/proses-pesanan/use-fulfillment"
+import { OutboundService } from "@/services/proses-pesanan/outbound.service"
 import { PICKLIST_STATUS_LABEL, type Picklist } from "@/types/proses-pesanan/fulfillment"
 
 import { UbahPickerDialog } from "./ubah-picker-dialog"
@@ -66,6 +68,7 @@ function ProgressCell({ done, total }: { done: number; total: number }) {
 }
 
 export function PicklistTable() {
+  const qc = useQueryClient()
   const [search, setSearch] = React.useState("")
   const [debounced, setDebounced] = React.useState("")
   const [page, setPage] = React.useState(1)
@@ -90,6 +93,17 @@ export function PicklistTable() {
   const activeFilterCount = status ? 1 : 0
 
   const picklists = data?.items ?? []
+
+  // Link sudah prefetch route; warmkan juga data detail picklist saat hover.
+  const prefetchPicklist = React.useCallback(
+    (id: string) => {
+      qc.prefetchQuery({
+        queryKey: fulfillmentKeys.picklistDetail(id),
+        queryFn: () => OutboundService.picklistDetail(id),
+      })
+    },
+    [qc]
+  )
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: 20, total: 0 }
 
   const columns = React.useMemo<ColumnDef<Picklist>[]>(() => [
@@ -100,6 +114,8 @@ export function PicklistTable() {
         <Link
           href={`/dashboard/proses-pesanan/picking/proses/${row.original.id}`}
           onClick={(e) => e.stopPropagation()}
+          onMouseEnter={() => prefetchPicklist(row.original.id)}
+          onFocus={() => prefetchPicklist(row.original.id)}
           className="cursor-pointer font-medium text-primary hover:underline"
         >
           {row.original.picklistNo}
@@ -184,7 +200,7 @@ export function PicklistTable() {
         </div>
       ),
     },
-  ], []);
+  ], [prefetchPicklist]);
 
   return (
     <div>

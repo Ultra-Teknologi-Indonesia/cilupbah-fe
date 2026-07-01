@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import {
   PackageIcon,
@@ -24,8 +24,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { InfoIcon } from "lucide-react"
+import { useQueryClient } from "@tanstack/react-query"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
-import { useStockPosition } from "@/hooks/persediaan/use-stock-position"
+import { useStockPosition, inventoryKeys } from "@/hooks/persediaan/use-stock-position"
+import { InventoryStockService } from "@/services/persediaan/inventory.service"
 import type { StockItem, StockListParams } from "@/types/persediaan/stock"
 
 function formatCurrency(value: number) {
@@ -135,7 +137,9 @@ function StockQtyBadge({ value, variant }: { value: number; variant: "default" |
 
 export function PosisiStokView() {
   const router = useRouter()
+  const qc = useQueryClient()
   const [search, setSearch] = useState("")
+  const [debouncedSearch, setDebouncedSearch] = useState("")
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(20)
   const [sortField, setSortField] = useState<SortField | null>(null)
@@ -145,10 +149,38 @@ export function PosisiStokView() {
 
   const resetPage = useCallback(() => setPage(1), [])
 
+  // Prefetch saat hover: hangatkan route (JS/RSC shell) + data entitas utama
+  // detail, jadi klik ke halaman detail terasa instan tanpa flash skeleton.
+  const prefetchDetail = useCallback(
+    (itemId: string) => {
+      router.prefetch(`/dashboard/posisi-stok/${itemId}`)
+      qc.prefetchQuery({
+        queryKey: inventoryKeys.item(itemId),
+        queryFn: () => InventoryStockService.getItem(itemId),
+        staleTime: 30_000,
+      })
+      qc.prefetchQuery({
+        queryKey: inventoryKeys.itemStock(itemId),
+        queryFn: () => InventoryStockService.getItemStock(itemId),
+        staleTime: 30_000,
+      })
+    },
+    [router, qc]
+  )
+
+  // Input responsif seketika; commit ke params (pemicu fetch) di-debounce 350ms
+  // agar tidak ada request per karakter.
   const handleSearch = useCallback((v: string) => {
     setSearch(v)
-    resetPage()
-  }, [resetPage])
+  }, [])
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(search)
+      resetPage()
+    }, 350)
+    return () => clearTimeout(t)
+  }, [search, resetPage])
 
   const handleSort = useCallback((field: SortField) => {
     setSortField((prev) => {
@@ -190,14 +222,14 @@ export function PosisiStokView() {
   }, [stockFilter])
 
   const params = useMemo<StockListParams>(() => ({
-    search: search || undefined,
+    search: debouncedSearch || undefined,
     page,
     per_page: perPage,
     sort: sortParam,
     "filter[is_bundle]": bundleFilter,
     "filter[location_id]": filters.location_id || undefined,
     "filter[channel]": filters.channel || undefined,
-  }), [search, page, perPage, sortParam, bundleFilter, filters.location_id, filters.channel])
+  }), [debouncedSearch, page, perPage, sortParam, bundleFilter, filters.location_id, filters.channel])
 
   const { data, isLoading, isFetching } = useStockPosition(params)
 
@@ -367,6 +399,8 @@ export function PosisiStokView() {
                       <tr
                         key={item.item_id}
                         onClick={() => router.push(`/dashboard/posisi-stok/${item.item_id}`)}
+                        onMouseEnter={() => prefetchDetail(item.item_id)}
+                        onFocus={() => prefetchDetail(item.item_id)}
                         className="cursor-pointer border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
                       >
                         <td className="px-3 py-3">
