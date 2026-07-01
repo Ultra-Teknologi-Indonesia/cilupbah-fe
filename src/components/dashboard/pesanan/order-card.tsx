@@ -243,7 +243,7 @@ function OrderActions({
   }
 
   const handlePrintInvoice = () => {
-    window.open(`/dashboard/pesanan/${order.id}/invoice`, "_blank")
+    window.open(`/api/app/sales/${order.id}/invoice`, "_blank")
   }
 
   const busy =
