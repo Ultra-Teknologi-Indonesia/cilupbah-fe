@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 
+import { QRCodeSVG } from "qrcode.react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -77,6 +78,9 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
   const [focusPlacementId, setFocusPlacementId] = useState<string | null>(null)
 
+  const scanInputRef = useRef<HTMLInputElement>(null)
+  const rackInputRef = useRef<HTMLInputElement>(null)
+
   const locationId = putaway?.location_id ?? ""
 
   useEffect(() => {
@@ -114,6 +118,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
       const result = await PutawayService.lookupBin(rackInput.trim(), locationId)
       setActiveRack(result)
       setRackInput("")
+      setTimeout(() => scanInputRef.current?.focus(), 50)
     } catch (err) {
       setRackError((err as { message?: string })?.message || "Rak tidak ditemukan")
     } finally {
@@ -197,6 +202,10 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     refetchItems()
     refetchDetail()
   }, [refetchItems, refetchDetail])
+
+  const handleScanSaved = useCallback(() => {
+    setTimeout(() => scanInputRef.current?.focus(), 50)
+  }, [])
 
   const toggleExpand = useCallback((itemId: string) => {
     setExpandedItems((prev) => {
@@ -352,10 +361,15 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
               <p className="mt-1 text-xs text-muted-foreground">
                 Scan kode rak tujuan penempatan berikutnya.
               </p>
-              <div className="mt-3 flex h-20 items-center justify-center rounded-xl border border-dashed border-border bg-muted/30">
-                <QrCodeIcon className="h-8 w-8 text-muted-foreground/60" strokeWidth={1.2} />
+              <div className="mt-3 flex items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 p-3">
+                {activeRack ? (
+                  <QRCodeSVG value={activeRack.bin_final_code} size={72} />
+                ) : (
+                  <QrCodeIcon className="h-8 w-8 text-muted-foreground/60" strokeWidth={1.2} />
+                )}
               </div>
               <Input
+                ref={rackInputRef}
                 placeholder="Scan kode rak…"
                 value={rackInput}
                 onChange={(e) => {
@@ -394,6 +408,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                   <div className="relative flex-1">
                     <ScanLineIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
+                      ref={scanInputRef}
                       placeholder="Masukkan SKU/QR/Serial/Batch"
                       value={scanCode}
                       onChange={(e) => {
@@ -488,6 +503,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                         onToggleExpand={() => toggleExpand(item.id)}
                         focusPlacementId={focusPlacementId}
                         onRemovePlacement={(pid) => removePlacement(item.id, pid)}
+                        onSaved={handleScanSaved}
                       />
                     ))
                   )}
@@ -518,6 +534,7 @@ interface PutawayItemRowProps {
   onToggleExpand: () => void
   focusPlacementId: string | null
   onRemovePlacement: (id: string) => void
+  onSaved?: () => void
 }
 
 function PutawayItemRow({
@@ -535,6 +552,7 @@ function PutawayItemRow({
   onToggleExpand,
   focusPlacementId,
   onRemovePlacement,
+  onSaved,
 }: PutawayItemRowProps) {
   const remaining = item.qty - item.putaway_qty
   const done = remaining <= 0
@@ -662,7 +680,8 @@ function PutawayItemRow({
                   editable={editable}
                   onProcessed={onProcessed}
                   entry={entry}
-                  focusOnMount={focusPlacementId === entry.id}
+                  focusTarget={focusPlacementId === entry.id ? (defaultRack ? "qty" : "bin") : null}
+                  onSaved={onSaved}
                   onRemove={
                     placements.length > 0 && !entry.id.endsWith("-existing") && entry.id !== "auto"
                       ? () => onRemovePlacement(entry.id)
@@ -688,7 +707,8 @@ interface PlacementRowProps {
   editable: boolean
   onProcessed: () => void
   entry: PlacementEntry
-  focusOnMount: boolean
+  focusTarget: "bin" | "qty" | null
+  onSaved?: () => void
   onRemove?: () => void
 }
 
@@ -700,7 +720,8 @@ function PlacementRow({
   editable,
   onProcessed,
   entry,
-  focusOnMount,
+  focusTarget,
+  onSaved,
   onRemove,
 }: PlacementRowProps) {
   const processMutation = useProcessPutawayItem()
@@ -714,12 +735,15 @@ function PlacementRow({
   const [hasSaved, setHasSaved] = useState(entry.initialBinQty > 0)
 
   const binInputRef = useRef<HTMLInputElement>(null)
+  const qtyInputRef = useRef<HTMLInputElement>(null)
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const lastSavedQty = useRef(entry.initialSavedQty)
 
   useEffect(() => {
-    if (focusOnMount) {
+    if (focusTarget === "bin") {
       setTimeout(() => binInputRef.current?.focus(), 50)
+    } else if (focusTarget === "qty") {
+      setTimeout(() => qtyInputRef.current?.focus(), 50)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -733,7 +757,7 @@ function PlacementRow({
 
   useEffect(() => () => clearTimeout(autoSaveTimer.current), [])
 
-  const saveNow = useCallback((bin: BinLookupResult, targetQty: number) => {
+  const saveNow = useCallback((bin: BinLookupResult, targetQty: number, afterSave?: () => void) => {
     const delta = targetQty - lastSavedQty.current
     if (delta <= 0 || processMutation.isPending) return
     processMutation.mutate(
@@ -747,6 +771,7 @@ function PlacementRow({
           lastSavedQty.current = targetQty
           setHasSaved(true)
           onProcessed()
+          afterSave?.()
         },
       }
     )
@@ -805,7 +830,7 @@ function PlacementRow({
                 if (binResult) {
                   clearTimeout(autoSaveTimer.current)
                   const qtyNum = parseInt(qty) || 0
-                  if (qtyNum > lastSavedQty.current) saveNow(binResult, qtyNum)
+                  if (qtyNum > lastSavedQty.current) saveNow(binResult, qtyNum, onSaved)
                 } else lookupBin()
               }
             }}
@@ -826,6 +851,7 @@ function PlacementRow({
 
       <div className="flex items-center gap-1.5">
         <Input
+          ref={qtyInputRef}
           type="number"
           min={1}
           max={entry.maxQty}
@@ -843,7 +869,7 @@ function PlacementRow({
               e.preventDefault()
               clearTimeout(autoSaveTimer.current)
               const qtyNum = parseInt(qty) || 0
-              if (qtyNum > lastSavedQty.current) saveNow(binResult, qtyNum)
+              if (qtyNum > lastSavedQty.current) saveNow(binResult, qtyNum, onSaved)
             }
           }}
           className="h-8 w-20 tabular-nums text-xs"
