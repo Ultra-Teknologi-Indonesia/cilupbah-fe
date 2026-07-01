@@ -20,7 +20,7 @@ import {
 } from "@/types/proses-pesanan/fulfillment"
 
 import { StageTabs } from "./stage-tabs"
-import { SubStatusPills } from "./sub-status-pills"
+import { SubStatusTabs } from "./sub-status-pills"
 import { PicklistTable } from "./picking/picklist-table"
 import { ReadyToProcessCardList } from "./picking/ready-to-process-card-list"
 import { PacklistTable } from "./packing/packlist-table"
@@ -28,24 +28,10 @@ import { ShipmentTable } from "./shipping/shipment-table"
 import { TambahPengirimanDialog } from "./shipping/tambah-pengiriman-dialog"
 import { FulfillmentCardList } from "./shared/completed-order-card-list"
 
-function ComingSoon({ label }: { label: string }) {
-  return (
-    <div className="px-4 py-16 text-center text-sm text-muted-foreground sm:px-5">
-      Tahap <span className="font-medium text-foreground">{label}</span> — akan tersedia pada
-      fase berikutnya.
-    </div>
-  )
-}
-
-export function ProsesPesananView() {
+export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-
-  const stage = useMemo<FulfillmentStage>(() => {
-    const s = searchParams.get("stage")
-    return STAGE_CONFIG.some((c) => c.key === s) ? (s as FulfillmentStage) : "picking"
-  }, [searchParams])
 
   const sub = useMemo<string | null>(() => {
     const cfg = stageConfig(stage)
@@ -55,13 +41,10 @@ export function ProsesPesananView() {
     return defaultSubFor(stage)
   }, [searchParams, stage])
 
-  const updateParams = useCallback(
-    (updates: Record<string, string | null>) => {
+  const handleSubChange = useCallback(
+    (s: string) => {
       const params = new URLSearchParams(searchParams.toString())
-      for (const [k, v] of Object.entries(updates)) {
-        if (v === null) params.delete(k)
-        else params.set(k, v)
-      }
+      params.set("sub", s)
       router.replace(`${pathname}?${params.toString()}`, { scroll: false })
     },
     [router, pathname, searchParams]
@@ -71,14 +54,6 @@ export function ProsesPesananView() {
   const pickingCounts = usePickingCounts()
   const packingCounts = usePackingCounts()
   const shippingCounts = useShippingCounts()
-
-  const handleStageChange = useCallback(
-    (s: FulfillmentStage) => {
-      const defaultSub = defaultSubFor(s)
-      updateParams({ stage: s, sub: defaultSub })
-    },
-    [updateParams]
-  )
 
   const countsMap =
     stage === "picking"
@@ -90,7 +65,6 @@ export function ProsesPesananView() {
           : undefined
 
   const stageLabel = STAGE_CONFIG.find((s) => s.key === stage)?.label ?? ""
-  const subLabel = subs.find((s) => s.key === sub)?.label
 
   function renderContent() {
     if (stage === "picking") {
@@ -112,7 +86,7 @@ export function ProsesPesananView() {
       return <FulfillmentCardList stage="ready-to-ship" tab="in-transit" emptyTitle="Belum ada pesanan dikirim" emptyDescription="Pesanan yang sudah dikirim akan muncul di sini." />
     if (stage === "done")
       return <FulfillmentCardList stage="shipped" tab="completed" emptyTitle="Belum ada pesanan selesai" emptyDescription="Pesanan yang sudah terkirim akan muncul di sini." />
-    return <ComingSoon label={`${stageLabel}${subLabel ? ` · ${subLabel}` : ""}`} />
+    return null
   }
 
   const [showTambahPengiriman, setShowTambahPengiriman] = useState(false)
@@ -123,7 +97,7 @@ export function ProsesPesananView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <StageTabs active={stage} onChange={handleStageChange} />
+      <StageTabs />
 
       <LiquidGlass
         radius={24}
@@ -135,10 +109,10 @@ export function ProsesPesananView() {
             <h2 className="text-base font-medium">{stageLabel}</h2>
             {subs.length > 0 && (
               <div className="mt-3">
-                <SubStatusPills
+                <SubStatusTabs
                   subs={subs}
                   active={sub}
-                  onChange={(s) => updateParams({ sub: s })}
+                  onChange={handleSubChange}
                   counts={countsMap}
                 />
               </div>

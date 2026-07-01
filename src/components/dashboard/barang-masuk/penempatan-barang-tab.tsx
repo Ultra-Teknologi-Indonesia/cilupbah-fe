@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react"
 import Link from "next/link"
-import { ArchiveIcon, PlayIcon, UserPlusIcon, DownloadIcon } from "lucide-react"
+import { ArchiveIcon, PlayIcon, UserPlusIcon, DownloadIcon, PrinterIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -18,7 +18,9 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { usePutaways } from "@/hooks/barang-masuk/use-putaway"
+import { PutawayService } from "@/services/barang-masuk/putaway.service"
 import { useAssignPutawayStaff, useStartPutaway } from "@/hooks/barang-masuk/use-putaway-actions"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import { useUsers } from "@/hooks/pengaturan/use-users"
@@ -193,6 +195,31 @@ export function PenempatanBarangTab() {
         const item = row.original;
         return (
           <div className="flex items-center gap-1.5">
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Cetak Putaway"
+                    onClick={async () => {
+                      try {
+                        const blob = await PutawayService.pdf(item.id)
+                        const url = URL.createObjectURL(blob)
+                        window.open(url, "_blank")
+                        setTimeout(() => URL.revokeObjectURL(url), 60_000)
+                      } catch {
+                        const { toast } = await import("sonner")
+                        toast.error("Gagal membuka PDF putaway.")
+                      }
+                    }}
+                  >
+                    <PrinterIcon className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Cetak Laporan Putaway</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             {item.status === "NOT_STARTED" && !item.assignee && (
               <Button
                 variant="outline"

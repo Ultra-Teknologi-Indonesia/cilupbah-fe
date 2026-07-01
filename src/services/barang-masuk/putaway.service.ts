@@ -1,4 +1,4 @@
-import { fetchClient } from "@/lib/api-client"
+import { fetchClient, fetchBlobRaw } from "@/lib/api-client"
 import type { ApiResponse, ApiPaginated } from "@/types/api.types"
 import type { Putaway, PutawayItem, PutawayListParams } from "@/types/barang-masuk/putaway"
 
@@ -83,5 +83,12 @@ export const PutawayService = {
   lookupBin: async (code: string, locationId: string) => {
     const res = await fetchClient<ApiResponse<BinLookupResult>>(`/putaway/bins/lookup?code=${encodeURIComponent(code)}&location_id=${encodeURIComponent(locationId)}`)
     return res.data
+  },
+
+  pdf: async (id: string): Promise<Blob> => {
+    return fetchBlobRaw(
+      `/putaway/${encodeURIComponent(id)}/pdf`,
+      "application/pdf"
+    )
   },
 }

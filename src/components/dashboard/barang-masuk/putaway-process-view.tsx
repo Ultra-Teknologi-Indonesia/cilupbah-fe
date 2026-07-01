@@ -5,7 +5,6 @@ import {
   ArrowLeftIcon,
   Loader2Icon,
   CheckCircleIcon,
-  SearchIcon,
   ScanLineIcon,
   QrCodeIcon,
   PackageIcon,
@@ -56,7 +55,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const [rackInput, setRackInput] = useState("")
   const [rackLoading, setRackLoading] = useState(false)
   const [rackError, setRackError] = useState("")
-  const [rackOpen, setRackOpen] = useState(false)
 
   const [notes, setNotes] = useState("")
   const [scanCode, setScanCode] = useState("")
@@ -97,7 +95,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
       const result = await PutawayService.lookupBin(rackInput.trim(), locationId)
       setActiveRack(result)
       setRackInput("")
-      setRackOpen(false)
     } catch (err) {
       setRackError((err as { message?: string })?.message || "Rak tidak ditemukan")
     } finally {
@@ -134,13 +131,9 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     refetchDetail()
   }, [refetchItems, refetchDetail])
 
-  const visibleList = useMemo(() => {
-    return list.filter((item) => item.putaway_qty > 0 || scannedItemIds.has(item.id))
-  }, [list, scannedItemIds])
-
   const allSelectable = useMemo(
-    () => visibleList.filter((it) => it.qty - it.putaway_qty > 0).map((it) => it.id),
-    [visibleList]
+    () => list.filter((it) => it.qty - it.putaway_qty > 0).map((it) => it.id),
+    [list]
   )
   const allChecked = allSelectable.length > 0 && allSelectable.every((i) => selectedIds.has(i))
   const someChecked = allSelectable.some((i) => selectedIds.has(i))
@@ -216,56 +209,33 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
               )}
             </div>
 
-            {/* Ganti Rak card */}
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => isInProgress && setRackOpen((o) => !o)}
-              disabled={!isInProgress}
-              className="flex h-auto flex-col items-center gap-2 whitespace-normal rounded-2xl border border-primary/20 bg-primary/5 px-4 py-5 text-center hover:bg-primary/10"
-            >
-              <span className="text-sm font-semibold text-foreground">Ganti Rak</span>
-              <QrCodeIcon className="h-12! w-full! text-foreground/80" strokeWidth={1.2} />
-              <span className="text-[11px] font-normal text-muted-foreground">
-                Scan QR rak tersedia segera
-              </span>
-            </Button>
-
-            {rackOpen && isInProgress && (
-              <div className="-mt-2 flex flex-col gap-1.5">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Ketik kode rak tujuan"
-                    value={rackInput}
-                    onChange={(e) => {
-                      setRackInput(e.target.value)
-                      setRackError("")
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleLookupRack()
-                    }}
-                    autoFocus
-                    className="h-9 flex-1"
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleLookupRack}
-                    disabled={rackLoading || !rackInput.trim()}
-                  >
-                    {rackLoading ? (
-                      <Loader2Icon className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <SearchIcon className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-                {rackError && <p className="text-xs text-red-500">{rackError}</p>}
-                <p className="text-[11px] text-muted-foreground">
-                  Rak ini akan terisi otomatis pada baris baru.
-                </p>
+            {/* Ganti Rak — always visible like picking */}
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <div className="flex items-center gap-2">
+                <ScanLineIcon className="h-4 w-4 text-muted-foreground" />
+                <div className="text-sm font-medium">Ganti Rak</div>
               </div>
-            )}
+              <p className="mt-1 text-xs text-muted-foreground">
+                Scan kode rak tujuan penempatan berikutnya.
+              </p>
+              <div className="mt-3 flex h-20 items-center justify-center rounded-xl border border-dashed border-border bg-muted/30">
+                <QrCodeIcon className="h-8 w-8 text-muted-foreground/60" strokeWidth={1.2} />
+              </div>
+              <Input
+                placeholder="Scan kode rak…"
+                value={rackInput}
+                onChange={(e) => {
+                  setRackInput(e.target.value)
+                  setRackError("")
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleLookupRack()
+                }}
+                disabled={!isInProgress}
+                className="mt-3"
+              />
+              {rackError && <p className="mt-1 text-xs text-red-500">{rackError}</p>}
+            </div>
 
             <div>
               <Label htmlFor="putaway-notes" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -342,7 +312,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {visibleList.length === 0 ? (
+                  {list.length === 0 ? (
                     <TableRow className="hover:bg-transparent">
                       <TableCell colSpan={5} className="py-16 text-center">
                         {isNotStarted ? (
@@ -370,7 +340,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    visibleList.map((item) => (
+                    list.map((item) => (
                       <PutawayItemRow
                         key={item.id}
                         item={item}

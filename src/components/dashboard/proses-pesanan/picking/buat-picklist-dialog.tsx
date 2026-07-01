@@ -5,6 +5,7 @@ import { Loader2Icon } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { Combobox } from "@/components/ui/combobox"
 import { Label } from "@/components/ui/label"
 import {
   Dialog,
@@ -102,19 +103,15 @@ export function BuatPicklistDialog({
 
           <div className="space-y-1.5">
             <Label htmlFor="picklist-picker">Picker</Label>
-            <select
+            <Combobox
               id="picklist-picker"
-              value={pickerId}
-              onChange={(e) => setPickerId(e.target.value)}
-              className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-            >
-              <option value="">— Pilih picker —</option>
-              {pickers.data?.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+              options={(pickers.data ?? []).map((p) => ({ value: p.id, label: p.name }))}
+              value={pickerId || null}
+              onChange={(v) => setPickerId(v ?? "")}
+              placeholder="— Pilih picker —"
+              searchPlaceholder="Cari picker"
+              className="h-9 bg-background"
+            />
             {pickers.isLoading && (
               <p className="text-xs text-muted-foreground">Memuat daftar picker…</p>
             )}
