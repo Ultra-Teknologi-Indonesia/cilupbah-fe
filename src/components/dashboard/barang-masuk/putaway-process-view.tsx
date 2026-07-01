@@ -8,6 +8,7 @@ import {
   QrCodeIcon,
   PackageIcon,
   Trash2Icon,
+  CheckCircle2Icon,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -411,11 +412,12 @@ function PutawayItemRow({
 
   const rowRef = useRef<HTMLTableRowElement>(null)
   const binInputRef = useRef<HTMLInputElement>(null)
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout>>()
+  const lastSavedQty = useRef(item.putaway_qty)
 
   useEffect(() => {
-    if (item.putaway_qty > 0) {
-      setQty(String(item.putaway_qty))
-    }
+    lastSavedQty.current = item.putaway_qty
+    if (item.putaway_qty > 0) setQty(String(item.putaway_qty))
     if (item.destination_bin?.bin_final_code && !binCode) {
       setBinCode(item.destination_bin.bin_final_code)
     }
@@ -428,13 +430,40 @@ function PutawayItemRow({
     }
   }, [defaultRack, binResult, binCode])
 
-  // When this row is targeted by a scan, scroll into view and focus the rack input.
   useEffect(() => {
     if (highlighted) {
       rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
       binInputRef.current?.focus()
     }
   }, [highlighted])
+
+  useEffect(() => () => clearTimeout(autoSaveTimer.current), [])
+
+  const saveNow = useCallback((bin: BinLookupResult, targetQty: number) => {
+    const delta = targetQty - lastSavedQty.current
+    if (delta <= 0 || processMutation.isPending) return
+    processMutation.mutate(
+      {
+        putawayId,
+        itemId: item.id,
+        payload: { destination_bin_id: bin.id, qty: delta },
+      },
+      { onSuccess: () => { lastSavedQty.current = targetQty; onProcessed() } }
+    )
+  }, [processMutation, putawayId, item.id, onProcessed])
+
+  useEffect(() => {
+    clearTimeout(autoSaveTimer.current)
+    const qtyNum = parseInt(qty) || 0
+    const delta = qtyNum - lastSavedQty.current
+    if (delta <= 0 || !binResult || processMutation.isPending) return
+
+    autoSaveTimer.current = setTimeout(() => {
+      saveNow(binResult, qtyNum)
+    }, 800)
+
+    return () => clearTimeout(autoSaveTimer.current)
+  }, [qty, binResult, processMutation.isPending, saveNow])
 
   const lookupBin = useCallback(async () => {
     const code = binCode.trim()
@@ -455,28 +484,6 @@ function PutawayItemRow({
       setBinLoading(false)
     }
   }, [binCode, locationId, defaultRack])
-
-  const place = useCallback(async () => {
-    let bin = binResult
-    if (!bin) {
-      await lookupBin()
-      return
-    }
-    const qtyNum = parseInt(qty) || 0
-    if (qtyNum <= 0) return
-    processMutation.mutate(
-      {
-        putawayId,
-        itemId: item.id,
-        payload: { destination_bin_id: bin.id, qty: remaining > 0 ? Math.min(qtyNum, remaining) : qtyNum },
-      },
-      {
-        onSuccess: () => {
-          onProcessed()
-        },
-      }
-    )
-  }, [binResult, lookupBin, qty, processMutation, putawayId, item.id, remaining, onProcessed])
 
   const productName = item.product?.product?.name ?? item.variant?.item_name ?? "—"
   const variantOptions = item.product?.options?.map((o) => o.value).join(" / ")
@@ -575,27 +582,30 @@ function PutawayItemRow({
               <Input
                 type="number"
                 min={1}
-                max={binResult?.remaining_capacity != null ? Math.min(remaining, binResult.remaining_capacity) : remaining}
+                max={item.qty}
                 value={qty}
                 placeholder="0"
                 onChange={(e) => {
                   const v = e.target.value
                   if (v === "") { setQty(""); return }
                   const n = parseInt(v) || 0
-                  const cap = binResult?.remaining_capacity != null ? Math.min(remaining, binResult.remaining_capacity) : remaining
-                  setQty(String(Math.max(0, Math.min(cap, n))))
+                  setQty(String(Math.max(0, Math.min(item.qty, n))))
                 }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && binResult) {
                     e.preventDefault()
-                    place()
+                    clearTimeout(autoSaveTimer.current)
+                    const qtyNum = parseInt(qty) || 0
+                    if (qtyNum > lastSavedQty.current) saveNow(binResult, qtyNum)
                   }
                 }}
                 className="h-9 w-20 tabular-nums"
               />
-              {processMutation.isPending && (
-                <Loader2Icon className="h-4 w-4 animate-spin text-muted-foreground" />
-              )}
+              {processMutation.isPending ? (
+                <Loader2Icon className="h-4 w-4 animate-spin text-amber-500" />
+              ) : item.putaway_qty > 0 ? (
+                <CheckCircle2Icon className="h-4 w-4 text-emerald-500" />
+              ) : null}
             </div>
             {item.putaway_qty > 0 && (
               <p className="text-[11px] text-emerald-600">
