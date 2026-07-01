@@ -9,6 +9,8 @@ import {
   PackageIcon,
   Trash2Icon,
   CheckCircle2Icon,
+  ChevronDownIcon,
+  ChevronRightIcon,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -44,10 +46,12 @@ interface PutawayProcessViewProps {
   id: string
 }
 
-interface VirtualRow {
-  virtualId: string
-  itemId: string
-  initialPutawayQty: number
+interface PlacementEntry {
+  id: string
+  initialSavedQty: number
+  initialBinCode: string
+  initialBinQty: number
+  maxQty: number
 }
 
 export function PutawayProcessView({ id }: PutawayProcessViewProps) {
@@ -64,10 +68,12 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const [notes, setNotes] = useState("")
   const [scanCode, setScanCode] = useState("")
   const [scanError, setScanError] = useState("")
-  const [focusItemId, setFocusItemId] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [scannedItemIds, setScannedItemIds] = useState<Set<string>>(new Set())
-  const [virtualRows, setVirtualRows] = useState<VirtualRow[]>([])
+
+  const [itemPlacements, setItemPlacements] = useState<Record<string, PlacementEntry[]>>({})
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
+  const [focusPlacementId, setFocusPlacementId] = useState<string | null>(null)
 
   const locationId = putaway?.location_id ?? ""
 
@@ -85,26 +91,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     () => allItems.filter((it) => scannedItemIds.has(it.id) || it.putaway_qty > 0),
     [allItems, scannedItemIds]
   )
-
-  const displayRows = useMemo(() => {
-    const rows: { item: PutawayItem; key: string; isVirtual: boolean; virtualMaxQty?: number }[] = []
-    for (const item of visibleList) {
-      rows.push({ item, key: item.id, isVirtual: false })
-      for (const vr of virtualRows.filter(v => v.itemId === item.id)) {
-        rows.push({
-          item,
-          key: vr.virtualId,
-          isVirtual: true,
-          virtualMaxQty: item.qty - vr.initialPutawayQty,
-        })
-      }
-    }
-    return rows
-  }, [visibleList, virtualRows])
-
-  const removeVirtualRow = useCallback((virtualId: string) => {
-    setVirtualRows(prev => prev.filter(v => v.virtualId !== virtualId))
-  }, [])
 
   const { totalQty, placedQty } = useMemo(() => {
     return allItems.reduce(
@@ -149,13 +135,37 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     }
     setScanError("")
     setScannedItemIds((prev) => new Set(prev).add(match.id))
-    if (match.putaway_qty > 0 && match.destination_bin_id) {
-      const virtualId = `${match.id}-v-${Date.now()}`
-      setVirtualRows(prev => [...prev, { virtualId, itemId: match.id, initialPutawayQty: match.putaway_qty }])
-      setFocusItemId(virtualId)
-    } else {
-      setFocusItemId(match.id)
+
+    const newId = `${match.id}-p-${Date.now()}`
+    const newEntry: PlacementEntry = {
+      id: newId,
+      initialSavedQty: 0,
+      initialBinCode: "",
+      initialBinQty: 0,
+      maxQty: match.qty - match.putaway_qty,
     }
+
+    setItemPlacements((prev) => {
+      const existing = prev[match.id]
+      if (existing) {
+        return { ...prev, [match.id]: [...existing, newEntry] }
+      }
+      const entries: PlacementEntry[] = []
+      if (match.putaway_qty > 0 && match.destination_bin) {
+        entries.push({
+          id: `${match.id}-existing`,
+          initialSavedQty: match.putaway_qty,
+          initialBinCode: match.destination_bin.bin_final_code,
+          initialBinQty: match.putaway_qty,
+          maxQty: match.qty,
+        })
+      }
+      entries.push(newEntry)
+      return { ...prev, [match.id]: entries }
+    })
+
+    setExpandedItems((prev) => new Set(prev).add(match.id))
+    setFocusPlacementId(newId)
     setScanCode("")
   }, [scanCode, allItems])
 
@@ -175,12 +185,25 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     refetchDetail()
   }, [refetchItems, refetchDetail])
 
-  useEffect(() => {
-    setVirtualRows(prev => prev.filter(vr => {
-      const item = allItems.find(it => it.id === vr.itemId)
-      return item != null && item.qty > item.putaway_qty
-    }))
-  }, [allItems])
+  const toggleExpand = useCallback((itemId: string) => {
+    setExpandedItems((prev) => {
+      const next = new Set(prev)
+      if (next.has(itemId)) next.delete(itemId)
+      else next.add(itemId)
+      return next
+    })
+  }, [])
+
+  const removePlacement = useCallback((itemId: string, placementId: string) => {
+    setItemPlacements((prev) => {
+      const list = prev[itemId]?.filter((p) => p.id !== placementId)
+      if (!list || list.length === 0) {
+        const { [itemId]: _, ...rest } = prev
+        return rest
+      }
+      return { ...prev, [itemId]: list }
+    })
+  }, [])
 
   const allSelectable = useMemo(
     () => visibleList.map((it) => it.id),
@@ -246,7 +269,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
         </LiquidGlass>
       ) : (
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
-          {/* ── Sidebar: Kode Rak / Ganti Rak / Keterangan ───────────────── */}
+          {/* ── Sidebar ─────────────────────────────────────────────────── */}
           <aside className="flex w-full flex-col gap-5 lg:sticky lg:top-4 lg:w-64 lg:shrink-0">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -265,7 +288,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
               )}
             </div>
 
-            {/* Ganti Rak — always visible like picking */}
             <div className="rounded-2xl border border-border bg-card p-4">
               <div className="flex items-center gap-2">
                 <ScanLineIcon className="h-4 w-4 text-muted-foreground" />
@@ -308,7 +330,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
             </div>
           </aside>
 
-          {/* ── Main: scan + progress + table ────────────────────────────── */}
+          {/* ── Main ────────────────────────────────────────────────────── */}
           <div className="flex min-w-0 flex-1 flex-col gap-4">
             <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
               <div className="flex flex-col gap-4 px-5 py-4">
@@ -362,18 +384,15 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                       Sumber
                     </TableHead>
                     <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Kode Rak
-                    </TableHead>
-                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Qty
                     </TableHead>
                     <TableHead className="w-12 pr-5" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {displayRows.length === 0 ? (
+                  {visibleList.length === 0 ? (
                     <TableRow className="hover:bg-transparent">
-                      <TableCell colSpan={6} className="py-16 text-center">
+                      <TableCell colSpan={5} className="py-16 text-center">
                         {startMutation.isPending ? (
                           <div className="flex flex-col items-center gap-3">
                             <Loader2Icon className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -385,38 +404,37 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    displayRows.map((row) => (
+                    visibleList.map((item) => (
                       <PutawayItemRow
-                        key={row.key}
-                        item={row.item}
+                        key={item.id}
+                        item={item}
                         putawayId={id}
                         locationId={locationId}
                         editable={isInProgress}
                         defaultRack={activeRack}
-                        selected={selectedIds.has(row.item.id)}
-                        onToggleSelect={() => toggleOne(row.item.id)}
-                        highlighted={focusItemId === row.key}
+                        selected={selectedIds.has(item.id)}
+                        onToggleSelect={() => toggleOne(item.id)}
                         onProcessed={onProcessed}
                         sourceRef={putaway?.inbound?.reference_number ?? putaway?.inbound?.transaction_number ?? "—"}
-                        isVirtual={row.isVirtual}
-                        virtualMaxQty={row.virtualMaxQty}
-                        onRemoveVirtual={row.isVirtual ? () => removeVirtualRow(row.key) : undefined}
+                        placements={itemPlacements[item.id] ?? []}
+                        expanded={expandedItems.has(item.id)}
+                        onToggleExpand={() => toggleExpand(item.id)}
+                        focusPlacementId={focusPlacementId}
+                        onRemovePlacement={(pid) => removePlacement(item.id, pid)}
                       />
                     ))
                   )}
                 </TableBody>
               </Table>
             </LiquidGlass>
-
           </div>
-
         </div>
       )}
     </div>
   )
 }
 
-/* ── Row ───────────────────────────────────────────────────────────────── */
+/* ── Accordion Row ────────────────────────────────────────────────────── */
 
 interface PutawayItemRowProps {
   item: PutawayItem
@@ -426,12 +444,13 @@ interface PutawayItemRowProps {
   defaultRack: BinLookupResult | null
   selected: boolean
   onToggleSelect: () => void
-  highlighted: boolean
   onProcessed: () => void
   sourceRef: string
-  isVirtual?: boolean
-  virtualMaxQty?: number
-  onRemoveVirtual?: () => void
+  placements: PlacementEntry[]
+  expanded: boolean
+  onToggleExpand: () => void
+  focusPlacementId: string | null
+  onRemovePlacement: (id: string) => void
 }
 
 function PutawayItemRow({
@@ -442,56 +461,198 @@ function PutawayItemRow({
   defaultRack,
   selected,
   onToggleSelect,
-  highlighted,
   onProcessed,
   sourceRef,
-  isVirtual = false,
-  virtualMaxQty,
-  onRemoveVirtual,
+  placements,
+  expanded,
+  onToggleExpand,
+  focusPlacementId,
+  onRemovePlacement,
 }: PutawayItemRowProps) {
-  const processMutation = useProcessPutawayItem()
   const remaining = item.qty - item.putaway_qty
-  const done = !isVirtual && remaining <= 0
-  const qtyMax = isVirtual && virtualMaxQty != null ? virtualMaxQty : item.qty
+  const done = remaining <= 0
 
-  const [binCode, setBinCode] = useState(isVirtual ? "" : (item.destination_bin?.bin_final_code ?? ""))
+  const effectivePlacements = useMemo(() => {
+    if (placements.length > 0) return placements
+    if (item.putaway_qty > 0 && item.destination_bin) {
+      return [{
+        id: "auto",
+        initialSavedQty: item.putaway_qty,
+        initialBinCode: item.destination_bin.bin_final_code,
+        initialBinQty: item.putaway_qty,
+        maxQty: item.qty,
+      }]
+    }
+    return []
+  }, [placements, item.putaway_qty, item.destination_bin, item.qty])
+
+  const productName = item.product?.product?.name ?? item.variant?.item_name ?? "—"
+  const variantOptions = item.product?.options?.map((o) => o.value).join(" / ")
+    ?? item.variant?.variation_values?.map((v) => v.value).join(" / ")
+  const displayName = variantOptions ? `${productName} - ${variantOptions}` : productName
+  const displaySku = item.variant?.sku ?? item.product?.sku ?? "—"
+  const imageUrl = item.product?.media?.[0]?.url
+
+  return (
+    <>
+      <TableRow
+        data-state={selected ? "selected" : undefined}
+        className={cn(
+          done && "bg-emerald-50/50 dark:bg-emerald-950/20",
+          expanded && effectivePlacements.length > 0 && "border-b-0"
+        )}
+      >
+        <TableCell className="pl-5">
+          <Checkbox
+            checked={selected}
+            onCheckedChange={onToggleSelect}
+            disabled={!editable}
+            aria-label="Pilih item"
+          />
+        </TableCell>
+
+        <TableCell className="max-w-xs">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/50 bg-muted/40 text-muted-foreground">
+              {imageUrl ? (
+                <img src={imageUrl} alt={displayName} className="h-full w-full object-cover" />
+              ) : (
+                <PackageIcon className="h-5 w-5" />
+              )}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-foreground" title={displayName}>
+                {displayName}
+              </p>
+              <p className="truncate font-mono text-xs text-muted-foreground">
+                {displaySku}
+              </p>
+            </div>
+          </div>
+        </TableCell>
+
+        <TableCell>
+          <span className="font-mono text-xs font-medium text-foreground">
+            {sourceRef}
+          </span>
+        </TableCell>
+
+        <TableCell>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-sm font-semibold tabular-nums">
+              {item.putaway_qty} / {item.qty}
+            </span>
+            <span className={cn("text-[11px]", done ? "text-emerald-600 font-medium" : "text-muted-foreground")}>
+              {done ? "Selesai" : item.putaway_qty > 0 ? "ditempatkan" : "belum ditempatkan"}
+            </span>
+          </div>
+        </TableCell>
+
+        <TableCell className="pr-5">
+          {effectivePlacements.length > 0 ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={onToggleExpand}
+              className="text-muted-foreground"
+              aria-label={expanded ? "Tutup detail" : "Lihat detail"}
+            >
+              {expanded ? (
+                <ChevronDownIcon className="h-4 w-4" />
+              ) : (
+                <ChevronRightIcon className="h-4 w-4" />
+              )}
+            </Button>
+          ) : null}
+        </TableCell>
+      </TableRow>
+
+      {expanded && effectivePlacements.length > 0 && (
+        <TableRow className="hover:bg-transparent">
+          <TableCell colSpan={5} className="border-t-0 pb-4 pl-16 pr-5 pt-0">
+            <div className="flex flex-col gap-2 rounded-xl border border-border/50 bg-muted/20 p-3">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                Detail Penempatan
+              </p>
+              {effectivePlacements.map((entry) => (
+                <PlacementRow
+                  key={entry.id}
+                  item={item}
+                  putawayId={putawayId}
+                  locationId={locationId}
+                  defaultRack={defaultRack}
+                  editable={editable && !done}
+                  onProcessed={onProcessed}
+                  entry={entry}
+                  focusOnMount={focusPlacementId === entry.id}
+                  onRemove={
+                    placements.length > 0 && !entry.id.endsWith("-existing") && entry.id !== "auto"
+                      ? () => onRemovePlacement(entry.id)
+                      : undefined
+                  }
+                />
+              ))}
+            </div>
+          </TableCell>
+        </TableRow>
+      )}
+    </>
+  )
+}
+
+/* ── Placement Row (bin + qty + auto-save) ────────────────────────────── */
+
+interface PlacementRowProps {
+  item: PutawayItem
+  putawayId: string
+  locationId: string
+  defaultRack: BinLookupResult | null
+  editable: boolean
+  onProcessed: () => void
+  entry: PlacementEntry
+  focusOnMount: boolean
+  onRemove?: () => void
+}
+
+function PlacementRow({
+  item,
+  putawayId,
+  locationId,
+  defaultRack,
+  editable,
+  onProcessed,
+  entry,
+  focusOnMount,
+  onRemove,
+}: PlacementRowProps) {
+  const processMutation = useProcessPutawayItem()
+  const isExisting = entry.initialBinQty > 0
+
+  const [binCode, setBinCode] = useState(entry.initialBinCode)
   const [binResult, setBinResult] = useState<BinLookupResult | null>(null)
   const [binError, setBinError] = useState("")
   const [binLoading, setBinLoading] = useState(false)
-  const [qty, setQty] = useState(isVirtual ? "" : (item.putaway_qty > 0 ? String(item.putaway_qty) : ""))
+  const [qty, setQty] = useState(entry.initialBinQty > 0 ? String(entry.initialBinQty) : "")
+  const [hasSaved, setHasSaved] = useState(entry.initialBinQty > 0)
 
-  const rowRef = useRef<HTMLTableRowElement>(null)
   const binInputRef = useRef<HTMLInputElement>(null)
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
-  const lastSavedQty = useRef(isVirtual ? 0 : item.putaway_qty)
+  const lastSavedQty = useRef(entry.initialSavedQty)
 
   useEffect(() => {
-    if (isVirtual) return
-    lastSavedQty.current = item.putaway_qty
-    if (item.putaway_qty > 0) setQty(String(item.putaway_qty))
-    if (item.destination_bin?.bin_final_code && !binCode) {
-      setBinCode(item.destination_bin.bin_final_code)
+    if (focusOnMount) {
+      setTimeout(() => binInputRef.current?.focus(), 50)
     }
-  }, [item.putaway_qty, item.destination_bin?.bin_final_code, isVirtual])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
-    if (isVirtual) {
-      if (defaultRack && !binResult) {
-        setBinCode(defaultRack.bin_final_code)
-        setBinResult(defaultRack)
-      }
-    } else if (defaultRack && !binResult && !binCode) {
+    if (!isExisting && defaultRack && !binResult && !binCode) {
       setBinCode(defaultRack.bin_final_code)
       setBinResult(defaultRack)
     }
-  }, [defaultRack, binResult, binCode, isVirtual])
-
-  useEffect(() => {
-    if (highlighted) {
-      rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
-      binInputRef.current?.focus()
-    }
-  }, [highlighted])
+  }, [defaultRack, binResult, binCode, isExisting])
 
   useEffect(() => () => clearTimeout(autoSaveTimer.current), [])
 
@@ -504,7 +665,13 @@ function PutawayItemRow({
         itemId: item.id,
         payload: { destination_bin_id: bin.id, qty: delta },
       },
-      { onSuccess: () => { lastSavedQty.current = targetQty; onProcessed() } }
+      {
+        onSuccess: () => {
+          lastSavedQty.current = targetQty
+          setHasSaved(true)
+          onProcessed()
+        },
+      }
     )
   }, [processMutation, putawayId, item.id, onProcessed])
 
@@ -541,171 +708,88 @@ function PutawayItemRow({
     }
   }, [binCode, locationId, defaultRack])
 
-  const productName = item.product?.product?.name ?? item.variant?.item_name ?? "—"
-  const variantOptions = item.product?.options?.map((o) => o.value).join(" / ")
-    ?? item.variant?.variation_values?.map((v) => v.value).join(" / ")
-  const displayName = variantOptions ? `${productName} - ${variantOptions}` : productName
-  const displaySku = item.variant?.sku ?? item.product?.sku ?? "—"
-  const imageUrl = item.product?.media?.[0]?.url
-
   return (
-    <TableRow
-      ref={rowRef}
-      data-state={selected ? "selected" : undefined}
-      className={cn(
-        highlighted && "bg-primary/5 ring-1 ring-inset ring-primary/30",
-        done && "bg-emerald-50/50 dark:bg-emerald-950/20"
-      )}
-    >
-      <TableCell className="pl-5">
-        <Checkbox
-          checked={selected}
-          onCheckedChange={onToggleSelect}
-          disabled={!editable}
-          aria-label="Pilih item"
-        />
-      </TableCell>
-
-      <TableCell className="max-w-xs">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/50 bg-muted/40 text-muted-foreground">
-            {imageUrl ? (
-              <img src={imageUrl} alt={displayName} className="h-full w-full object-cover" />
-            ) : (
-              <PackageIcon className="h-5 w-5" />
-            )}
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-foreground" title={displayName}>
-              {displayName}
-            </p>
-            <p className="truncate font-mono text-xs text-muted-foreground">
-              {displaySku}
-            </p>
-          </div>
-        </div>
-      </TableCell>
-
-      <TableCell>
-        <span className="font-mono text-xs font-medium text-foreground">
-          {sourceRef}
-        </span>
-      </TableCell>
-
-      <TableCell>
-        {editable ? (
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-1.5">
-              <Input
-                ref={binInputRef}
-                value={binCode}
-                placeholder="Kode rak"
-                onChange={(e) => {
-                  setBinCode(e.target.value)
-                  setBinResult(null)
-                  setBinError("")
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault()
-                    if (binResult) {
-                      clearTimeout(autoSaveTimer.current)
-                      const qtyNum = parseInt(qty) || 0
-                      if (qtyNum > lastSavedQty.current) saveNow(binResult, qtyNum)
-                    } else lookupBin()
-                  }
-                }}
-                className={cn(
-                  "h-9 w-40 font-mono text-xs",
-                  binResult && "border-emerald-300 ring-1 ring-emerald-200 dark:border-emerald-700 dark:ring-emerald-800"
-                )}
-              />
-              {binLoading && <Loader2Icon className="h-4 w-4 animate-spin text-muted-foreground" />}
-            </div>
-            {binError && <p className="text-[11px] text-red-500">{binError}</p>}
-            {binResult && binResult.remaining_capacity != null && (
-              <p className="text-[11px] text-muted-foreground">
-                Sisa: {binResult.remaining_capacity}/{binResult.max_qty}
-              </p>
-            )}
-          </div>
-        ) : (
-          <span className="font-mono text-xs text-muted-foreground">—</span>
-        )}
-      </TableCell>
-
-      <TableCell>
-        {editable ? (
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-1.5">
-              <Input
-                type="number"
-                min={1}
-                max={item.qty}
-                value={qty}
-                placeholder="0"
-                onChange={(e) => {
-                  const v = e.target.value
-                  if (v === "") { setQty(""); return }
-                  const n = parseInt(v) || 0
-                  setQty(String(Math.max(0, Math.min(qtyMax, n))))
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && binResult) {
-                    e.preventDefault()
-                    clearTimeout(autoSaveTimer.current)
-                    const qtyNum = parseInt(qty) || 0
-                    if (qtyNum > lastSavedQty.current) saveNow(binResult, qtyNum)
-                  }
-                }}
-                className="h-9 w-20 tabular-nums"
-              />
-              {processMutation.isPending ? (
-                <Loader2Icon className="h-4 w-4 animate-spin text-amber-500" />
-              ) : item.putaway_qty > 0 ? (
-                <CheckCircle2Icon className="h-4 w-4 text-emerald-500" />
-              ) : null}
-            </div>
-            {!isVirtual && item.putaway_qty > 0 && (
-              <p className="text-[11px] text-emerald-600">
-                {item.putaway_qty}/{item.qty} ditempatkan
-              </p>
-            )}
-            {isVirtual && virtualMaxQty != null && (
-              <p className="text-[11px] text-muted-foreground">
-                Sisa: {remaining > 0 ? remaining : 0}
-              </p>
-            )}
-          </div>
-        ) : (
-          <span className="tabular-nums text-sm">{item.qty}</span>
-        )}
-      </TableCell>
-
-      <TableCell className="pr-5">
-        {editable && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => {
-              if (isVirtual && onRemoveVirtual) {
-                onRemoveVirtual()
-              } else {
-                setBinCode("")
-                setBinResult(null)
-                setBinError("")
-                setQty("")
+    <div className="flex items-start gap-3">
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-1.5">
+          <Input
+            ref={binInputRef}
+            value={binCode}
+            placeholder="Kode rak"
+            disabled={!editable}
+            onChange={(e) => {
+              setBinCode(e.target.value)
+              setBinResult(null)
+              setBinError("")
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault()
+                if (binResult) {
+                  clearTimeout(autoSaveTimer.current)
+                  const qtyNum = parseInt(qty) || 0
+                  if (qtyNum > lastSavedQty.current) saveNow(binResult, qtyNum)
+                } else lookupBin()
               }
             }}
-            className="text-muted-foreground hover:text-red-500"
-            aria-label={isVirtual ? "Hapus baris" : "Bersihkan"}
-            title={isVirtual ? "Hapus baris" : "Bersihkan baris"}
-          >
-            <Trash2Icon className="h-4 w-4" />
-          </Button>
+            className={cn(
+              "h-8 w-36 font-mono text-xs",
+              binResult && "border-emerald-300 ring-1 ring-emerald-200 dark:border-emerald-700 dark:ring-emerald-800"
+            )}
+          />
+          {binLoading && <Loader2Icon className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
+        </div>
+        {binError && <p className="text-[10px] text-red-500">{binError}</p>}
+        {binResult && binResult.remaining_capacity != null && (
+          <p className="text-[10px] text-muted-foreground">
+            Sisa kapasitas: {binResult.remaining_capacity}/{binResult.max_qty}
+          </p>
         )}
-      </TableCell>
-    </TableRow>
+      </div>
+
+      <div className="flex items-center gap-1.5">
+        <Input
+          type="number"
+          min={1}
+          max={entry.maxQty}
+          value={qty}
+          placeholder="0"
+          disabled={!editable}
+          onChange={(e) => {
+            const v = e.target.value
+            if (v === "") { setQty(""); return }
+            const n = parseInt(v) || 0
+            setQty(String(Math.max(0, Math.min(entry.maxQty, n))))
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && binResult) {
+              e.preventDefault()
+              clearTimeout(autoSaveTimer.current)
+              const qtyNum = parseInt(qty) || 0
+              if (qtyNum > lastSavedQty.current) saveNow(binResult, qtyNum)
+            }
+          }}
+          className="h-8 w-20 tabular-nums text-xs"
+        />
+        {processMutation.isPending ? (
+          <Loader2Icon className="h-3.5 w-3.5 animate-spin text-amber-500" />
+        ) : hasSaved ? (
+          <CheckCircle2Icon className="h-3.5 w-3.5 text-emerald-500" />
+        ) : null}
+      </div>
+
+      {onRemove && editable && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          onClick={onRemove}
+          className="h-8 w-8 text-muted-foreground hover:text-red-500"
+          aria-label="Hapus penempatan"
+        >
+          <Trash2Icon className="h-3.5 w-3.5" />
+        </Button>
+      )}
+    </div>
   )
 }
