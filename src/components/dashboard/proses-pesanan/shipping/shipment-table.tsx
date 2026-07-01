@@ -28,6 +28,7 @@ import {
 import { SHIPMENT_STATUS_LABEL, type Shipment } from "@/types/proses-pesanan/fulfillment"
 
 import { DocActions } from "../picking/doc-actions"
+import { ShipmentDetailDialog } from "./shipment-detail-dialog"
 
 function formatDate(iso: string | null): string {
   if (!iso) return "—"
@@ -40,6 +41,7 @@ export function ShipmentTable() {
   const [search, setSearch] = React.useState("")
   const [debounced, setDebounced] = React.useState("")
   const [page, setPage] = React.useState(1)
+  const [detailId, setDetailId] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     const t = setTimeout(() => setDebounced(search.trim()), 350)
@@ -82,7 +84,15 @@ export function ShipmentTable() {
     {
       accessorKey: "shipmentNo",
       header: "No. Pengiriman",
-      cell: ({ row }) => <span className="font-medium text-foreground">{row.original.shipmentNo}</span>,
+      cell: ({ row }) => (
+        <button
+          type="button"
+          onClick={() => setDetailId(row.original.id)}
+          className="font-medium text-primary hover:underline text-left"
+        >
+          {row.original.shipmentNo}
+        </button>
+      ),
     },
     {
       accessorKey: "courierName",
@@ -199,6 +209,12 @@ export function ShipmentTable() {
           }
         />
       </div>
+
+      <ShipmentDetailDialog
+        open={!!detailId}
+        onOpenChange={(v) => { if (!v) setDetailId(null) }}
+        shipmentId={detailId}
+      />
     </div>
   )
 }

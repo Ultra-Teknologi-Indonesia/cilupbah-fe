@@ -22,8 +22,12 @@ import type {
   RawPicklistItem,
   RawReadyToShipResult,
   RawShipment,
+  RawShipmentDetail,
+  RawShipmentOrder,
   ReadyToShipResult,
   Shipment,
+  ShipmentDetail,
+  ShipmentOrderItem,
 } from "@/types/proses-pesanan/fulfillment"
 
 export interface CreateShipmentPayload {
@@ -150,6 +154,31 @@ function mapShipment(raw: RawShipment): Shipment {
     status: (raw.status ?? "SCHEDULED") as Shipment["status"],
     handedOverAt: raw.handed_over_at ?? null,
     ordersCount: raw.orders_count ?? 0,
+  }
+}
+
+function mapShipmentOrderItem(raw: RawShipmentOrder): ShipmentOrderItem {
+  const o = raw.order
+  return {
+    id: raw.id,
+    orderId: raw.order_id,
+    orderNo: o?.salesorder_no ?? null,
+    customerName: o?.customer_name ?? null,
+    trackingNumber: raw.tracking_number ?? o?.tracking_number ?? null,
+    shippingProvider: o?.shipping_provider ?? null,
+    source: o?.source ?? null,
+    grandTotal: Number(o?.grand_total ?? 0),
+    status: o?.status ?? null,
+    packlistNo: raw.packlist?.packlist_no ?? null,
+  }
+}
+
+function mapShipmentDetail(raw: RawShipmentDetail): ShipmentDetail {
+  return {
+    ...mapShipment(raw),
+    ordersCount: raw.orders?.length ?? raw.orders_count ?? 0,
+    orders: (raw.orders ?? []).map(mapShipmentOrderItem),
+    notes: raw.notes ?? null,
   }
 }
 
@@ -589,5 +618,34 @@ export const OutboundService = {
       `/reports/wms/shipping-manifest?order_ids=${orderIds.join(",")}`
     )
     return res.data
+  },
+
+  shipmentDetail: async (id: string): Promise<ShipmentDetail> => {
+    const res = await fetchClient<{ data: RawShipmentDetail }>(
+      `/outbound/shipments/${encodeURIComponent(id)}`
+    )
+    return mapShipmentDetail(res.data)
+  },
+
+  scanOrderToShipment: async (
+    shipmentId: string,
+    barcode: string
+  ): Promise<ShipmentDetail> => {
+    const res = await fetchClient<{ data: RawShipmentDetail }>(
+      `/outbound/shipments/${encodeURIComponent(shipmentId)}/scan-order`,
+      { method: "POST", data: { barcode } }
+    )
+    return mapShipmentDetail(res.data)
+  },
+
+  removeOrderFromShipment: async (
+    shipmentId: string,
+    orderIds: string[]
+  ): Promise<ShipmentDetail> => {
+    const res = await fetchClient<{ data: RawShipmentDetail }>(
+      `/outbound/shipments/${encodeURIComponent(shipmentId)}/remove-orders`,
+      { method: "POST", data: { order_ids: orderIds } }
+    )
+    return mapShipmentDetail(res.data)
   },
 }

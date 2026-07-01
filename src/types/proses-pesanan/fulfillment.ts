@@ -442,6 +442,55 @@ export const SHIPMENT_STATUS_LABEL: Record<ShipmentStatus, { label: string; clas
   CANCELLED: { label: "Dibatalkan", className: "bg-muted text-muted-foreground" },
 }
 
+// ── Shipment Detail ──────────────────────────────────────────────────────────
+export interface RawShipmentOrder {
+  id: string
+  shipment_id: string
+  order_id: string
+  packlist_id?: string | null
+  tracking_number?: string | null
+  qty_given?: number | null
+  order?: {
+    id: string
+    salesorder_no?: string | null
+    customer_name?: string | null
+    status?: string | null
+    grand_total?: string | number | null
+    shipping_provider?: string | null
+    tracking_number?: string | null
+    source?: string | null
+    channel_order_no?: string | null
+  } | null
+  packlist?: {
+    id: string
+    packlist_no?: string | null
+  } | null
+}
+
+export interface RawShipmentDetail extends RawShipment {
+  orders?: RawShipmentOrder[]
+  notes?: string | null
+  created_by?: string | null
+}
+
+export interface ShipmentOrderItem {
+  id: string
+  orderId: string
+  orderNo: string | null
+  customerName: string | null
+  trackingNumber: string | null
+  shippingProvider: string | null
+  source: string | null
+  grandTotal: number
+  status: string | null
+  packlistNo: string | null
+}
+
+export interface ShipmentDetail extends Shipment {
+  orders: ShipmentOrderItem[]
+  notes: string | null
+}
+
 // ── Courier ──────────────────────────────────────────────────────────────────
 export interface RawCourier {
   id: string

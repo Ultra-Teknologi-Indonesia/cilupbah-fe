@@ -392,6 +392,38 @@ export function useCancelShipment() {
   })
 }
 
+export function useShipmentDetail(id: string, enabled = true) {
+  return useQuery({
+    queryKey: [...fulfillmentKeys.all, "shipment-detail", id],
+    queryFn: () => OutboundService.shipmentDetail(id),
+    enabled: enabled && !!id,
+  })
+}
+
+export function useScanOrderToShipment() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ shipmentId, barcode }: { shipmentId: string; barcode: string }) =>
+      OutboundService.scanOrderToShipment(shipmentId, barcode),
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: [...fulfillmentKeys.all, "shipment-detail", v.shipmentId] })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.all })
+    },
+  })
+}
+
+export function useRemoveOrderFromShipment() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ shipmentId, orderIds }: { shipmentId: string; orderIds: string[] }) =>
+      OutboundService.removeOrderFromShipment(shipmentId, orderIds),
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: [...fulfillmentKeys.all, "shipment-detail", v.shipmentId] })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.all })
+    },
+  })
+}
+
 export function useShippingCounts() {
   const siapKirim = useQuery({
     queryKey: fulfillmentKeys.count("shipping-siap-kirim"),
