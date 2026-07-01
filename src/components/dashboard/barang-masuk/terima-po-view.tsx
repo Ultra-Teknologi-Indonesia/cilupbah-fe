@@ -91,36 +91,34 @@ export function TerimaPOView({ id }: { id: string }) {
   )
 
   function handleQtyChange(itemId: string, maxQty: number, value: string) {
-    const num = Math.max(0, parseInt(value) || 0)
+    const num = Math.max(0, Math.min(parseInt(value) || 0, maxQty))
     setItemQtys((prev) => {
       const current = prev[itemId]
-      const rejected = current?.rejected_qty ?? 0
-      const qty = Math.min(num, maxQty - rejected)
       return {
         ...prev,
         [itemId]: {
           ...current,
           purchase_order_item_id: itemId,
           max: maxQty,
-          qty,
+          qty: num,
+          rejected_qty: maxQty - num,
         }
       }
     })
   }
 
   function handleRejectedQtyChange(itemId: string, maxQty: number, value: string) {
-    const num = Math.max(0, parseInt(value) || 0)
+    const num = Math.max(0, Math.min(parseInt(value) || 0, maxQty))
     setItemQtys((prev) => {
       const current = prev[itemId]
-      const accepted = current?.qty ?? 0
-      const rejected = Math.min(num, maxQty - accepted)
       return {
         ...prev,
         [itemId]: {
           ...current,
           purchase_order_item_id: itemId,
           max: maxQty,
-          rejected_qty: rejected,
+          rejected_qty: num,
+          qty: maxQty - num,
         }
       }
     })
@@ -346,7 +344,7 @@ export function TerimaPOView({ id }: { id: string }) {
                                 <Input
                                   type="number"
                                   min={0}
-                                  max={remaining - currentQty}
+                                  max={remaining}
                                   value={currentRejected}
                                   onChange={(e) => handleRejectedQtyChange(item.id, remaining, e.target.value)}
                                   className={cn(
