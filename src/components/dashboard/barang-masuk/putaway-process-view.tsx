@@ -552,8 +552,11 @@ function PutawayItemRow({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault()
-                    if (binResult) place()
-                    else lookupBin()
+                    if (binResult) {
+                      clearTimeout(autoSaveTimer.current)
+                      const qtyNum = parseInt(qty) || 0
+                      if (qtyNum > lastSavedQty.current) saveNow(binResult, qtyNum)
+                    } else lookupBin()
                   }
                 }}
                 className={cn(
