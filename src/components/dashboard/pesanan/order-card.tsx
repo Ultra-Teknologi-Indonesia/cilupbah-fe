@@ -17,7 +17,7 @@ import {
   WarehouseIcon,
   ArrowRightIcon,
   FileTextIcon,
-
+  ClockIcon,
   CheckIcon,
   XIcon,
   ClipboardListIcon,
@@ -547,6 +547,56 @@ function OrderActions({
   return null
 }
 
+function ShipByDeadline({ date }: { date: string }) {
+  const deadline = new Date(date)
+  if (Number.isNaN(deadline.getTime())) return null
+
+  const now = Date.now()
+  const diffMs = deadline.getTime() - now
+  const isOverdue = diffMs < 0
+  const absDiff = Math.abs(diffMs)
+
+  const totalMinutes = Math.floor(absDiff / 60_000)
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+  const days = Math.floor(hours / 24)
+  const remainingHours = hours % 24
+
+  let label: string
+  if (days > 0) {
+    label = remainingHours > 0 ? `${days}h ${remainingHours}j` : `${days} hari`
+  } else if (hours > 0) {
+    label = `${hours}j ${minutes}m`
+  } else {
+    label = `${minutes} menit`
+  }
+
+  const colorClass = isOverdue
+    ? "text-destructive"
+    : hours < 12
+      ? "text-amber-600 dark:text-amber-400"
+      : "text-emerald-600 dark:text-emerald-500"
+
+  return (
+    <div className="min-w-0">
+      <p className="mb-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+        Batas Kirim
+      </p>
+      <div className="flex items-start gap-1 text-sm">
+        <ClockIcon className={cn("mt-0.5 h-3.5 w-3.5 shrink-0", colorClass)} />
+        <div className="min-w-0">
+          <p className="font-medium">
+            {format(deadline, "dd MMM HH:mm", { locale: idLocale })}
+          </p>
+          <p className={cn("text-xs font-semibold", colorClass)}>
+            {isOverdue ? `Terlambat ${label}` : `${label} lagi`}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export type OrderCardVariant = "sales" | "outbound-ready"
 
 function OutboundReadyActions({ order }: { order: Order }) {
@@ -753,7 +803,10 @@ export function OrderCard({
           )}
         </div>
 
-        <div className="grid flex-1 grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4 lg:items-start">
+        <div className={cn(
+          "grid flex-1 grid-cols-2 gap-x-6 gap-y-3 lg:items-start",
+          order.ship_by_date ? "sm:grid-cols-3 xl:grid-cols-5" : "sm:grid-cols-4"
+        )}>
           <div>
             <Badge
               variant="outline"
@@ -824,6 +877,10 @@ export function OrderCard({
               <p className="text-sm text-muted-foreground">—</p>
             )}
           </div>
+
+          {order.ship_by_date && (
+            <ShipByDeadline date={order.ship_by_date} />
+          )}
         </div>
       </div>
 

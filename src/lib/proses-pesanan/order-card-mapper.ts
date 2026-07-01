@@ -61,6 +61,7 @@ export function fulfillmentToOrder(f: FulfillmentOrder): Order {
     total_sku: f.totalSku ?? 0,
     items,
     received_date: null,
+    ship_by_date: f.shipByDate ?? null,
     created_at: f.transactionDate ?? "",
     updated_at: f.transactionDate ?? "",
   }

@@ -72,6 +72,7 @@ export interface Order {
   total_sku: number
   items: OrderItem[]
   received_date: string | null
+  ship_by_date: string | null
   created_at: string
   updated_at: string
 }
