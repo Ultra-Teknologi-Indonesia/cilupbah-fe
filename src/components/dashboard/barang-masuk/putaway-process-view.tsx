@@ -217,6 +217,11 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
               {activeRack?.bin_label && (
                 <p className="text-xs text-muted-foreground">{activeRack.bin_label}</p>
               )}
+              {activeRack && activeRack.max_qty != null && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Kapasitas: {activeRack.current_qty}/{activeRack.max_qty} (sisa {activeRack.remaining_capacity})
+                </p>
+              )}
             </div>
 
             {/* Ganti Rak — always visible like picking */}
@@ -544,6 +549,11 @@ function PutawayItemRow({
               {binLoading && <Loader2Icon className="h-4 w-4 animate-spin text-muted-foreground" />}
             </div>
             {binError && <p className="text-[11px] text-red-500">{binError}</p>}
+            {binResult && binResult.remaining_capacity != null && (
+              <p className="text-[11px] text-muted-foreground">
+                Sisa: {binResult.remaining_capacity}/{binResult.max_qty}
+              </p>
+            )}
           </div>
         ) : (
           <span className="font-mono text-xs text-muted-foreground">—</span>
@@ -558,14 +568,15 @@ function PutawayItemRow({
             <Input
               type="number"
               min={1}
-              max={remaining}
+              max={binResult?.remaining_capacity != null ? Math.min(remaining, binResult.remaining_capacity) : remaining}
               value={qty}
               placeholder="0"
               onChange={(e) => {
                 const v = e.target.value
                 if (v === "") { setQty(""); return }
                 const n = parseInt(v) || 0
-                setQty(String(Math.max(0, Math.min(remaining, n))))
+                const cap = binResult?.remaining_capacity != null ? Math.min(remaining, binResult.remaining_capacity) : remaining
+                setQty(String(Math.max(0, Math.min(cap, n))))
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && binResult) {

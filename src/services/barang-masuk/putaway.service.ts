@@ -18,6 +18,9 @@ export interface BinLookupResult {
   bin_final_code: string
   bin_label: string | null
   is_inbound: boolean
+  max_qty: number | null
+  current_qty: number
+  remaining_capacity: number | null
 }
 
 export const PutawayService = {
