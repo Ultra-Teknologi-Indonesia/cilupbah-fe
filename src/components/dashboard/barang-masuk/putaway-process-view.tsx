@@ -4,7 +4,6 @@ import { useState, useCallback, useMemo, useEffect, useRef } from "react"
 import {
   ArrowLeftIcon,
   Loader2Icon,
-  CheckCircleIcon,
   ScanLineIcon,
   QrCodeIcon,
   PackageIcon,
@@ -400,7 +399,7 @@ function PutawayItemRow({
   const [binResult, setBinResult] = useState<BinLookupResult | null>(null)
   const [binError, setBinError] = useState("")
   const [binLoading, setBinLoading] = useState(false)
-  const [qty, setQty] = useState(remaining > 0 ? remaining : item.putaway_qty)
+  const [qty, setQty] = useState("")
 
   const rowRef = useRef<HTMLTableRowElement>(null)
   const binInputRef = useRef<HTMLInputElement>(null)
@@ -447,17 +446,17 @@ function PutawayItemRow({
       await lookupBin()
       return
     }
-    if (qty <= 0) return
+    const qtyNum = parseInt(qty) || 0
+    if (qtyNum <= 0) return
     processMutation.mutate(
       {
         putawayId,
         itemId: item.id,
-        payload: { destination_bin_id: bin.id, qty: Math.min(qty, remaining) },
+        payload: { destination_bin_id: bin.id, qty: Math.min(qtyNum, remaining) },
       },
       {
         onSuccess: () => {
-          setBinCode("")
-          setBinResult(null)
+          setQty("")
           onProcessed()
         },
       }
@@ -549,20 +548,31 @@ function PutawayItemRow({
         {done ? (
           <span className="tabular-nums text-sm">{item.putaway_qty}</span>
         ) : editable ? (
-          <Input
-            type="number"
-            min={1}
-            max={remaining}
-            value={qty}
-            onChange={(e) => setQty(Math.max(0, Math.min(remaining, parseInt(e.target.value) || 0)))}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && binResult) {
-                e.preventDefault()
-                place()
-              }
-            }}
-            className="h-9 w-20 tabular-nums"
-          />
+          <div className="flex items-center gap-1.5">
+            <Input
+              type="number"
+              min={1}
+              max={remaining}
+              value={qty}
+              placeholder="0"
+              onChange={(e) => {
+                const v = e.target.value
+                if (v === "") { setQty(""); return }
+                const n = parseInt(v) || 0
+                setQty(String(Math.max(0, Math.min(remaining, n))))
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && binResult) {
+                  e.preventDefault()
+                  place()
+                }
+              }}
+              className="h-9 w-20 tabular-nums"
+            />
+            {processMutation.isPending && (
+              <Loader2Icon className="h-4 w-4 animate-spin text-muted-foreground" />
+            )}
+          </div>
         ) : (
           <span className="tabular-nums text-sm">{item.qty}</span>
         )}
@@ -570,39 +580,22 @@ function PutawayItemRow({
 
       <TableCell className="pr-5">
         {!done && editable && (
-          binResult && qty > 0 ? (
-            <Button
-              variant="primary"
-              size="sm"
-              className="h-8 rounded-lg px-2.5"
-              onClick={place}
-              disabled={processMutation.isPending}
-              aria-label="Tempatkan"
-              title="Tempatkan"
-            >
-              {processMutation.isPending ? (
-                <Loader2Icon className="h-4 w-4 animate-spin" />
-              ) : (
-                <CheckCircleIcon className="h-4 w-4" />
-              )}
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              onClick={() => {
-                setBinCode("")
-                setBinResult(null)
-                setBinError("")
-              }}
-              className="text-muted-foreground hover:text-red-500"
-              aria-label="Bersihkan"
-              title="Bersihkan baris"
-            >
-              <Trash2Icon className="h-4 w-4" />
-            </Button>
-          )
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => {
+              setBinCode("")
+              setBinResult(null)
+              setBinError("")
+              setQty("")
+            }}
+            className="text-muted-foreground hover:text-red-500"
+            aria-label="Bersihkan"
+            title="Bersihkan baris"
+          >
+            <Trash2Icon className="h-4 w-4" />
+          </Button>
         )}
       </TableCell>
     </TableRow>
