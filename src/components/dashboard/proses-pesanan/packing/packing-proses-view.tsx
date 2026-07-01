@@ -31,7 +31,6 @@ import {
   usePacklistDetail,
   usePickers,
   useScanOrder,
-  useStartPacklist,
   useVerifyBarcode,
 } from "@/hooks/proses-pesanan/use-fulfillment"
 import type { PacklistDetail, PacklistItem } from "@/types/proses-pesanan/fulfillment"
@@ -116,7 +115,6 @@ export function PackingProsesView() {
 
   const pickers = usePickers(undefined, "packer")
   const scanOrder = useScanOrder()
-  const startPacklist = useStartPacklist()
   const packItem = usePackItem()
   const verifyBarcode = useVerifyBarcode()
   const completePacklist = useCompletePacklist()
@@ -158,14 +156,6 @@ export function PackingProsesView() {
 
     try {
       const result = await scanOrder.mutateAsync({ orderNo: code, packerId: pickerId })
-
-      if (result.status !== "IN_PROGRESS") {
-        try {
-          await startPacklist.mutateAsync(result.id)
-        } catch {
-          // start optional, continue
-        }
-      }
 
       setPacklistId(result.id)
       didAutoComplete.current = false
