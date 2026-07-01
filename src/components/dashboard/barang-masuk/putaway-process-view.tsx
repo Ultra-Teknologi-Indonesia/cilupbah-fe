@@ -44,6 +44,12 @@ interface PutawayProcessViewProps {
   id: string
 }
 
+interface VirtualRow {
+  virtualId: string
+  itemId: string
+  initialPutawayQty: number
+}
+
 export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const { data: putaway, isLoading, refetch: refetchDetail } = usePutawayDetail(id)
   const { data: items, refetch: refetchItems } = usePutawayItems(id)
@@ -61,6 +67,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const [focusItemId, setFocusItemId] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [scannedItemIds, setScannedItemIds] = useState<Set<string>>(new Set())
+  const [virtualRows, setVirtualRows] = useState<VirtualRow[]>([])
 
   const locationId = putaway?.location_id ?? ""
 
@@ -78,6 +85,26 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     () => allItems.filter((it) => scannedItemIds.has(it.id) || it.putaway_qty > 0),
     [allItems, scannedItemIds]
   )
+
+  const displayRows = useMemo(() => {
+    const rows: { item: PutawayItem; key: string; isVirtual: boolean; virtualMaxQty?: number }[] = []
+    for (const item of visibleList) {
+      rows.push({ item, key: item.id, isVirtual: false })
+      for (const vr of virtualRows.filter(v => v.itemId === item.id)) {
+        rows.push({
+          item,
+          key: vr.virtualId,
+          isVirtual: true,
+          virtualMaxQty: item.qty - vr.initialPutawayQty,
+        })
+      }
+    }
+    return rows
+  }, [visibleList, virtualRows])
+
+  const removeVirtualRow = useCallback((virtualId: string) => {
+    setVirtualRows(prev => prev.filter(v => v.virtualId !== virtualId))
+  }, [])
 
   const { totalQty, placedQty } = useMemo(() => {
     return allItems.reduce(
@@ -122,7 +149,13 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     }
     setScanError("")
     setScannedItemIds((prev) => new Set(prev).add(match.id))
-    setFocusItemId(match.id)
+    if (match.putaway_qty > 0 && match.destination_bin_id) {
+      const virtualId = `${match.id}-v-${Date.now()}`
+      setVirtualRows(prev => [...prev, { virtualId, itemId: match.id, initialPutawayQty: match.putaway_qty }])
+      setFocusItemId(virtualId)
+    } else {
+      setFocusItemId(match.id)
+    }
     setScanCode("")
   }, [scanCode, allItems])
 
@@ -141,6 +174,13 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     refetchItems()
     refetchDetail()
   }, [refetchItems, refetchDetail])
+
+  useEffect(() => {
+    setVirtualRows(prev => prev.filter(vr => {
+      const item = allItems.find(it => it.id === vr.itemId)
+      return item != null && item.qty > item.putaway_qty
+    }))
+  }, [allItems])
 
   const allSelectable = useMemo(
     () => visibleList.map((it) => it.id),
@@ -331,7 +371,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {visibleList.length === 0 ? (
+                  {displayRows.length === 0 ? (
                     <TableRow className="hover:bg-transparent">
                       <TableCell colSpan={6} className="py-16 text-center">
                         {startMutation.isPending ? (
@@ -345,19 +385,22 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    visibleList.map((item) => (
+                    displayRows.map((row) => (
                       <PutawayItemRow
-                        key={item.id}
-                        item={item}
+                        key={row.key}
+                        item={row.item}
                         putawayId={id}
                         locationId={locationId}
                         editable={isInProgress}
                         defaultRack={activeRack}
-                        selected={selectedIds.has(item.id)}
-                        onToggleSelect={() => toggleOne(item.id)}
-                        highlighted={focusItemId === item.id}
+                        selected={selectedIds.has(row.item.id)}
+                        onToggleSelect={() => toggleOne(row.item.id)}
+                        highlighted={focusItemId === row.key}
                         onProcessed={onProcessed}
                         sourceRef={putaway?.inbound?.reference_number ?? putaway?.inbound?.transaction_number ?? "—"}
+                        isVirtual={row.isVirtual}
+                        virtualMaxQty={row.virtualMaxQty}
+                        onRemoveVirtual={row.isVirtual ? () => removeVirtualRow(row.key) : undefined}
                       />
                     ))
                   )}
@@ -386,6 +429,9 @@ interface PutawayItemRowProps {
   highlighted: boolean
   onProcessed: () => void
   sourceRef: string
+  isVirtual?: boolean
+  virtualMaxQty?: number
+  onRemoveVirtual?: () => void
 }
 
 function PutawayItemRow({
@@ -399,36 +445,46 @@ function PutawayItemRow({
   highlighted,
   onProcessed,
   sourceRef,
+  isVirtual = false,
+  virtualMaxQty,
+  onRemoveVirtual,
 }: PutawayItemRowProps) {
   const processMutation = useProcessPutawayItem()
   const remaining = item.qty - item.putaway_qty
-  const done = remaining <= 0
+  const done = !isVirtual && remaining <= 0
+  const qtyMax = isVirtual && virtualMaxQty != null ? virtualMaxQty : item.qty
 
-  const [binCode, setBinCode] = useState(item.destination_bin?.bin_final_code ?? "")
+  const [binCode, setBinCode] = useState(isVirtual ? "" : (item.destination_bin?.bin_final_code ?? ""))
   const [binResult, setBinResult] = useState<BinLookupResult | null>(null)
   const [binError, setBinError] = useState("")
   const [binLoading, setBinLoading] = useState(false)
-  const [qty, setQty] = useState(item.putaway_qty > 0 ? String(item.putaway_qty) : "")
+  const [qty, setQty] = useState(isVirtual ? "" : (item.putaway_qty > 0 ? String(item.putaway_qty) : ""))
 
   const rowRef = useRef<HTMLTableRowElement>(null)
   const binInputRef = useRef<HTMLInputElement>(null)
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
-  const lastSavedQty = useRef(item.putaway_qty)
+  const lastSavedQty = useRef(isVirtual ? 0 : item.putaway_qty)
 
   useEffect(() => {
+    if (isVirtual) return
     lastSavedQty.current = item.putaway_qty
     if (item.putaway_qty > 0) setQty(String(item.putaway_qty))
     if (item.destination_bin?.bin_final_code && !binCode) {
       setBinCode(item.destination_bin.bin_final_code)
     }
-  }, [item.putaway_qty, item.destination_bin?.bin_final_code])
+  }, [item.putaway_qty, item.destination_bin?.bin_final_code, isVirtual])
 
   useEffect(() => {
-    if (defaultRack && !binResult && !binCode) {
+    if (isVirtual) {
+      if (defaultRack && !binResult) {
+        setBinCode(defaultRack.bin_final_code)
+        setBinResult(defaultRack)
+      }
+    } else if (defaultRack && !binResult && !binCode) {
       setBinCode(defaultRack.bin_final_code)
       setBinResult(defaultRack)
     }
-  }, [defaultRack, binResult, binCode])
+  }, [defaultRack, binResult, binCode, isVirtual])
 
   useEffect(() => {
     if (highlighted) {
@@ -592,7 +648,7 @@ function PutawayItemRow({
                   const v = e.target.value
                   if (v === "") { setQty(""); return }
                   const n = parseInt(v) || 0
-                  setQty(String(Math.max(0, Math.min(item.qty, n))))
+                  setQty(String(Math.max(0, Math.min(qtyMax, n))))
                 }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && binResult) {
@@ -610,9 +666,14 @@ function PutawayItemRow({
                 <CheckCircle2Icon className="h-4 w-4 text-emerald-500" />
               ) : null}
             </div>
-            {item.putaway_qty > 0 && (
+            {!isVirtual && item.putaway_qty > 0 && (
               <p className="text-[11px] text-emerald-600">
                 {item.putaway_qty}/{item.qty} ditempatkan
+              </p>
+            )}
+            {isVirtual && virtualMaxQty != null && (
+              <p className="text-[11px] text-muted-foreground">
+                Sisa: {remaining > 0 ? remaining : 0}
               </p>
             )}
           </div>
@@ -628,14 +689,18 @@ function PutawayItemRow({
             variant="ghost"
             size="icon-sm"
             onClick={() => {
-              setBinCode("")
-              setBinResult(null)
-              setBinError("")
-              setQty("")
+              if (isVirtual && onRemoveVirtual) {
+                onRemoveVirtual()
+              } else {
+                setBinCode("")
+                setBinResult(null)
+                setBinError("")
+                setQty("")
+              }
             }}
             className="text-muted-foreground hover:text-red-500"
-            aria-label="Bersihkan"
-            title="Bersihkan baris"
+            aria-label={isVirtual ? "Hapus baris" : "Bersihkan"}
+            title={isVirtual ? "Hapus baris" : "Bersihkan baris"}
           >
             <Trash2Icon className="h-4 w-4" />
           </Button>
