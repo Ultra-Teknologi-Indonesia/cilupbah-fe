@@ -7,7 +7,6 @@ import {
   Loader2Icon,
   PackageOpenIcon,
   RefreshCwIcon,
-  SearchIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -15,12 +14,6 @@ import { Badge } from "@/components/ui/badge"
 import { BulkActionBar } from "@/components/ui/bulk-action-bar"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import {
   Select,
   SelectContent,
@@ -29,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { SimplePagination } from "@/components/ui/simple-pagination"
+import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { OrderCard } from "@/components/dashboard/pesanan/order-card"
 import { BulkBuatPicklistConfirmDialog } from "@/components/dashboard/proses-pesanan/picking/bulk-buat-picklist-confirm-dialog"
 import {
@@ -40,7 +34,6 @@ import {
 import { orderKeys } from "@/hooks/pesanan/use-orders"
 import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper"
 import { cn } from "@/lib/utils"
-import { FilterIcon } from "lucide-react"
 
 const SOURCE_OPTIONS = [
   { value: "", label: "Semua Channel" },
@@ -199,109 +192,75 @@ export function ReadyToProcessCardList() {
   return (
     <div>
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative w-full max-w-xs">
-            <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value)
-                setPage(1)
-              }}
-              placeholder="Cari no. pesanan…"
-              className="pl-9"
-            />
+      <FilterToolbar
+        search={search}
+        onSearchChange={(v) => {
+          setSearch(v)
+          setPage(1)
+        }}
+        searchPlaceholder="Cari no. pesanan…"
+        onReset={resetFilters}
+        hasFilter={activeFilterCount > 0}
+        activeCount={activeFilterCount}
+        gridCols={3}
+        leading={
+          <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="rounded-full p-1.5 transition-colors hover:bg-muted"
+              aria-label="Muat ulang"
+            >
+              <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
+            </button>
+            <span className="flex items-center gap-1.5">
+              Total <Badge>{meta.total}</Badge>
+            </span>
           </div>
-
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={activeFilterCount > 0 ? "secondary" : "outline"}
-                size="sm"
-                className={cn(
-                  "h-9 gap-2 rounded-full",
-                  activeFilterCount > 0 && "border-primary/40 text-primary"
-                )}
-              >
-                <FilterIcon className="size-4" />
-                Filter
-                {activeFilterCount > 0 && (
-                  <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-72 space-y-3">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">
-                  Channel
-                </label>
-                <Select
-                  value={source || "__all"}
-                  onValueChange={(v) => {
-                    setSource(v === "__all" ? "" : v)
-                    setPage(1)
-                  }}
-                >
-                  <SelectTrigger className="h-9 w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SOURCE_OPTIONS.map((o) => (
-                      <SelectItem key={o.value || "__all"} value={o.value || "__all"}>
-                        {o.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <label className="flex cursor-pointer items-center gap-2 text-sm">
-                <Checkbox
-                  checked={onlyPriority}
-                  onCheckedChange={(v) => setOnlyPriority(!!v)}
-                />
-                <span>Hanya prioritas (FBT/dipromosikan)</span>
-              </label>
-
-              <label className="flex cursor-pointer items-center gap-2 text-sm">
-                <Checkbox
-                  checked={onlyOverdue}
-                  onCheckedChange={(v) => setOnlyOverdue(!!v)}
-                />
-                <span>Hanya overdue ship-by-date</span>
-              </label>
-
-              {activeFilterCount > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full text-destructive hover:text-destructive"
-                  onClick={resetFilters}
-                >
-                  Reset Filter
-                </Button>
-              )}
-            </PopoverContent>
-          </Popover>
-        </div>
-
-        <div className="flex items-center gap-3 text-sm text-muted-foreground">
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="rounded-full p-1.5 transition-colors hover:bg-muted"
-            aria-label="Muat ulang"
+        }
+      >
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted-foreground">
+            Channel
+          </label>
+          <Select
+            value={source || "__all"}
+            onValueChange={(v) => {
+              setSource(v === "__all" ? "" : v)
+              setPage(1)
+            }}
           >
-            <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
-          </button>
-          <span className="flex items-center gap-1.5">
-            Total <Badge>{meta.total}</Badge>
-          </span>
+            <SelectTrigger className="h-9 w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {SOURCE_OPTIONS.map((o) => (
+                <SelectItem key={o.value || "__all"} value={o.value || "__all"}>
+                  {o.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      </div>
+
+        <div className="flex flex-col gap-3 pt-1">
+          <label className="flex cursor-pointer items-center gap-2 text-sm">
+            <Checkbox
+              checked={onlyPriority}
+              onCheckedChange={(v) => setOnlyPriority(!!v)}
+            />
+            <span>Hanya prioritas (FBT/dipromosikan)</span>
+          </label>
+
+          <label className="flex cursor-pointer items-center gap-2 text-sm">
+            <Checkbox
+              checked={onlyOverdue}
+              onCheckedChange={(v) => setOnlyOverdue(!!v)}
+            />
+            <span>Hanya overdue ship-by-date</span>
+          </label>
+        </div>
+      </FilterToolbar>
 
       {/* List */}
       <div className="px-4 pb-4 sm:px-5">

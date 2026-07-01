@@ -4,22 +4,14 @@ import * as React from "react"
 import Link from "next/link"
 import {
   ClipboardListIcon,
-  FilterIcon,
   MoreHorizontalIcon,
   PrinterIcon,
   RefreshCwIcon,
-  SearchIcon,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import {
   Select,
   SelectContent,
@@ -27,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import {
@@ -195,93 +188,59 @@ export function PicklistTable() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative w-full max-w-xs">
-            <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value)
-                setPage(1)
-              }}
-              placeholder="Cari no. picklist…"
-              className="pl-9"
-            />
+      <FilterToolbar
+        search={search}
+        onSearchChange={(v) => {
+          setSearch(v)
+          setPage(1)
+        }}
+        searchPlaceholder="Cari no. picklist…"
+        onReset={() => {
+          setStatus("")
+          setPage(1)
+        }}
+        hasFilter={!!status}
+        activeCount={activeFilterCount}
+        leading={
+          <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="rounded-full p-1.5 transition-colors hover:bg-muted"
+              aria-label="Muat ulang"
+            >
+              <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
+            </button>
+            <span className="flex items-center gap-1.5">
+              Total <Badge>{meta.total}</Badge>
+            </span>
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={activeFilterCount > 0 ? "secondary" : "outline"}
-                size="sm"
-                className={cn(
-                  "h-9 gap-2 rounded-full",
-                  activeFilterCount > 0 && "border-primary/40 text-primary"
-                )}
-              >
-                <FilterIcon className="size-4" />
-                Filter
-                {activeFilterCount > 0 && (
-                  <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-64 space-y-3">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">
-                  Status Picklist
-                </label>
-                <Select
-                  value={status || "__all"}
-                  onValueChange={(v) => {
-                    setStatus(v === "__all" ? "" : v)
-                    setPage(1)
-                  }}
-                >
-                  <SelectTrigger className="h-9 w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {STATUS_OPTIONS.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>
-                        {o.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              {activeFilterCount > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full text-destructive hover:text-destructive"
-                  onClick={() => {
-                    setStatus("")
-                    setPage(1)
-                  }}
-                >
-                  Reset Filter
-                </Button>
-              )}
-            </PopoverContent>
-          </Popover>
-        </div>
-        <div className="flex items-center gap-3 text-sm text-muted-foreground">
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="rounded-full p-1.5 transition-colors hover:bg-muted"
-            aria-label="Muat ulang"
+        }
+      >
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted-foreground">
+            Status Picklist
+          </label>
+          <Select
+            value={status || "__all"}
+            onValueChange={(v) => {
+              setStatus(v === "__all" ? "" : v)
+              setPage(1)
+            }}
           >
-            <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
-          </button>
-          <span className="flex items-center gap-1.5">
-            Total <Badge>{meta.total}</Badge>
-          </span>
+            <SelectTrigger className="h-9 w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {STATUS_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      </div>
+      </FilterToolbar>
 
       <div className="px-4 pb-4 sm:px-5">
         <DataTable

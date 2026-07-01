@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useMemo, useState } from "react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { PackageIcon, PlusIcon, ScanBarcodeIcon } from "lucide-react"
 
@@ -37,18 +38,47 @@ function ComingSoon({ label }: { label: string }) {
 }
 
 export function ProsesPesananView() {
-  const [stage, setStage] = useState<FulfillmentStage>("picking")
-  const [sub, setSub] = useState<string | null>(defaultSubFor("picking"))
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const stage = useMemo<FulfillmentStage>(() => {
+    const s = searchParams.get("stage")
+    return STAGE_CONFIG.some((c) => c.key === s) ? (s as FulfillmentStage) : "picking"
+  }, [searchParams])
+
+  const sub = useMemo<string | null>(() => {
+    const cfg = stageConfig(stage)
+    const subs = cfg?.subs ?? []
+    const s = searchParams.get("sub")
+    if (s && subs.some((c) => c.key === s)) return s
+    return defaultSubFor(stage)
+  }, [searchParams, stage])
+
+  const updateParams = useCallback(
+    (updates: Record<string, string | null>) => {
+      const params = new URLSearchParams(searchParams.toString())
+      for (const [k, v] of Object.entries(updates)) {
+        if (v === null) params.delete(k)
+        else params.set(k, v)
+      }
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+    },
+    [router, pathname, searchParams]
+  )
 
   const subs = useMemo(() => stageConfig(stage)?.subs ?? [], [stage])
   const pickingCounts = usePickingCounts()
   const packingCounts = usePackingCounts()
   const shippingCounts = useShippingCounts()
 
-  const handleStageChange = useCallback((s: FulfillmentStage) => {
-    setStage(s)
-    setSub(defaultSubFor(s))
-  }, [])
+  const handleStageChange = useCallback(
+    (s: FulfillmentStage) => {
+      const defaultSub = defaultSubFor(s)
+      updateParams({ stage: s, sub: defaultSub })
+    },
+    [updateParams]
+  )
 
   const countsMap =
     stage === "picking"
@@ -108,7 +138,7 @@ export function ProsesPesananView() {
                 <SubStatusPills
                   subs={subs}
                   active={sub}
-                  onChange={setSub}
+                  onChange={(s) => updateParams({ sub: s })}
                   counts={countsMap}
                 />
               </div>

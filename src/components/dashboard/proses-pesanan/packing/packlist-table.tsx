@@ -3,18 +3,14 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import {
-  SearchIcon,
   RefreshCwIcon,
   MoreHorizontalIcon,
-  Loader2Icon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import {
@@ -129,33 +125,29 @@ export function PacklistTable() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
-        <div className="relative w-full max-w-xs">
-          <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value)
-              setPage(1)
-            }}
-            placeholder="Cari no. packing…"
-            className="pl-9"
-          />
-        </div>
-        <div className="flex items-center gap-3 text-sm text-muted-foreground">
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="rounded-full p-1.5 transition-colors hover:bg-muted"
-            aria-label="Muat ulang"
-          >
-            <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
-          </button>
-          <span className="flex items-center gap-1.5">
-            Total <Badge>{meta.total}</Badge>
-          </span>
-        </div>
-      </div>
+      <FilterToolbar
+        search={search}
+        onSearchChange={(v) => {
+          setSearch(v)
+          setPage(1)
+        }}
+        searchPlaceholder="Cari no. packing…"
+        leading={
+          <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="rounded-full p-1.5 transition-colors hover:bg-muted"
+              aria-label="Muat ulang"
+            >
+              <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
+            </button>
+            <span className="flex items-center gap-1.5">
+              Total <Badge>{meta.total}</Badge>
+            </span>
+          </div>
+        }
+      />
 
       <div className="px-4 pb-4 sm:px-5">
         <DataTable
