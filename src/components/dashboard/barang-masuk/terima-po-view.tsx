@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, Fragment } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeftIcon, Loader2Icon, PackageCheckIcon, ImageIcon } from "lucide-react"
+import { ArrowLeftIcon, Loader2Icon, PackageCheckIcon, ImageIcon, CheckCircle2Icon, XCircleIcon } from "lucide-react"
 import Link from "next/link"
 import { format } from "date-fns"
 
@@ -33,7 +33,7 @@ interface ItemQty {
 export function TerimaPOView({ id }: { id: string }) {
   const router = useRouter()
   const { data: po, isLoading } = usePurchaseOrderDetail(id)
-  
+
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(20)
   const { data: itemsRes, isFetching: isFetchingItems } = usePurchaseOrderItems(id, { page, perPage })
@@ -45,11 +45,9 @@ export function TerimaPOView({ id }: { id: string }) {
   const [referenceNumber, setReferenceNumber] = useState("")
   const [receiveDate, setReceiveDate] = useState<Date>(() => new Date())
   const [notes, setNotes] = useState("")
-  
-  // Use a record keyed by purchase_order_item_id to maintain state across pages
+
   const [itemQtys, setItemQtys] = useState<Record<string, ItemQty>>({})
 
-  // Pre-fill item quantities with remaining amount
   useEffect(() => {
     if (items.length > 0) {
       setItemQtys((prev) => {
@@ -76,13 +74,21 @@ export function TerimaPOView({ id }: { id: string }) {
     }
   }, [items])
 
-  // Compute hasValidQty by checking the values in itemQtys
   const hasValidQty = useMemo(
     () => Object.values(itemQtys).some((i) => i.qty > 0 || i.rejected_qty > 0),
     [itemQtys]
   )
 
   const canSubmit = hasValidQty && !receiveMutation.isPending
+
+  const totalAccepted = useMemo(
+    () => Object.values(itemQtys).reduce((s, i) => s + i.qty, 0),
+    [itemQtys]
+  )
+  const totalRejected = useMemo(
+    () => Object.values(itemQtys).reduce((s, i) => s + i.rejected_qty, 0),
+    [itemQtys]
+  )
 
   function handleQtyChange(itemId: string, maxQty: number, value: string) {
     const num = Math.max(0, parseInt(value) || 0)
@@ -216,9 +222,9 @@ export function TerimaPOView({ id }: { id: string }) {
                   </div>
                   <div className="grid grid-cols-[120px_1fr] items-center gap-4">
                     <Label className="text-sm font-medium text-muted-foreground">Tanggal <span className="text-red-500">*</span></Label>
-                    <DatePicker 
-                      value={receiveDate} 
-                      onChange={(date) => date && setReceiveDate(date)} 
+                    <DatePicker
+                      value={receiveDate}
+                      onChange={(date) => date && setReceiveDate(date)}
                       className="w-full"
                     />
                   </div>
@@ -234,10 +240,10 @@ export function TerimaPOView({ id }: { id: string }) {
                   </div>
                   <div className="grid grid-cols-[140px_1fr] items-start gap-4">
                     <Label className="text-sm font-medium text-muted-foreground mt-2">Keterangan</Label>
-                    <Textarea 
-                      value={notes} 
-                      onChange={(e) => setNotes(e.target.value)} 
-                      placeholder="Masukkan keterangan disini" 
+                    <Textarea
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Masukkan keterangan disini"
                     />
                   </div>
                 </div>
@@ -251,129 +257,165 @@ export function TerimaPOView({ id }: { id: string }) {
                 <Table className="w-full text-sm">
                   <TableHeader>
                     <TableRow className="border-b border-border/60 bg-muted/30">
-                      <TableHead className="whitespace-nowrap w-12 text-muted-foreground">
-                        {/* Gambar */}
+                      <TableHead className="text-muted-foreground">Produk</TableHead>
+                      <TableHead className="whitespace-nowrap text-muted-foreground w-16 text-center">Sisa</TableHead>
+                      <TableHead className="whitespace-nowrap w-28">
+                        <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
+                          <CheckCircle2Icon className="h-3.5 w-3.5" />
+                          Diterima
+                        </span>
                       </TableHead>
-                      <TableHead className="whitespace-nowrap text-muted-foreground">Produk</TableHead>
-                      <TableHead className="whitespace-nowrap text-muted-foreground">Qty Pesanan</TableHead>
-                      <TableHead className="whitespace-nowrap text-muted-foreground">Sudah Diterima</TableHead>
-                      <TableHead className="whitespace-nowrap text-muted-foreground">Sisa</TableHead>
-                      <TableHead className="whitespace-nowrap text-muted-foreground">Diterima</TableHead>
-                      <TableHead className="whitespace-nowrap text-muted-foreground">Ditolak</TableHead>
-                      <TableHead className="whitespace-nowrap text-muted-foreground">Alasan Ditolak</TableHead>
-                      <TableHead className="whitespace-nowrap text-muted-foreground">Keterangan</TableHead>
+                      <TableHead className="whitespace-nowrap w-28">
+                        <span className="flex items-center gap-1.5 text-red-600 dark:text-red-400">
+                          <XCircleIcon className="h-3.5 w-3.5" />
+                          Ditolak
+                        </span>
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {items.map((item) => {
                       const remaining = item.qty - item.received_qty
                       const currentQty = itemQtys[item.id]?.qty ?? 0
+                      const currentRejected = itemQtys[item.id]?.rejected_qty ?? 0
                       const variantName = item.variant?.options?.length ? item.variant.options.map(o => o.value).join(", ") : item.variant?.name
                       const productName = variantName ? `${item.product?.name} - ${variantName}` : (item.product?.name ?? item.description ?? "—")
                       const imageUrl = item.variant?.media?.[0]?.url ?? item.product?.media?.[0]?.url ?? item.product?.image_url
-                      
+
                       return (
-                        <TableRow key={item.id} className="border-b border-border/20 last:border-0">
-                          <TableCell className="px-3 py-3">
-                            <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted/50">
-                              {imageUrl ? (
-                                <img src={imageUrl} alt={productName} className="h-full w-full object-cover" />
-                              ) : (
-                                <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
-                                  <ImageIcon className="h-4 w-4 opacity-50" />
+                        <Fragment key={item.id}>
+                          <TableRow className={cn(
+                            "border-b border-border/20",
+                            currentRejected > 0 && "border-b-0"
+                          )}>
+                            <TableCell className="px-3 py-3">
+                              <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted/50">
+                                  {imageUrl ? (
+                                    <img src={imageUrl} alt={productName} className="h-full w-full object-cover" />
+                                  ) : (
+                                    <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+                                      <ImageIcon className="h-4 w-4 opacity-50" />
+                                    </div>
+                                  )}
                                 </div>
+                                <div className="min-w-0">
+                                  <div className="font-medium whitespace-normal break-words leading-snug">{productName}</div>
+                                  <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                                    <span>{item.product?.sku ?? "—"}</span>
+                                    <span className="text-border">·</span>
+                                    <span>Pesanan: {item.qty}</span>
+                                    <span className="text-border">·</span>
+                                    <span>Sudah diterima: {item.received_qty}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="px-3 py-3 text-center">
+                              <Badge
+                                variant="outline"
+                                className={cn(
+                                  "text-[10px] tabular-nums",
+                                  remaining > 0
+                                    ? "border-amber-300 text-amber-600 dark:border-amber-500/30 dark:text-amber-400"
+                                    : "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400"
+                                )}
+                              >
+                                {remaining}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="px-3 py-3">
+                              {remaining > 0 ? (
+                                <Input
+                                  type="number"
+                                  min={0}
+                                  max={remaining}
+                                  value={currentQty}
+                                  onChange={(e) => handleQtyChange(item.id, remaining, e.target.value)}
+                                  className="h-9 w-20 tabular-nums border-emerald-200 bg-emerald-50/50 focus-visible:ring-emerald-500/30 dark:border-emerald-900 dark:bg-emerald-950/30"
+                                />
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+                                  <CheckCircle2Icon className="h-3.5 w-3.5" />
+                                  Lengkap
+                                </span>
                               )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="px-3 py-3">
-                            <div className="max-w-[250px] sm:max-w-[300px] xl:max-w-[400px]">
-                              <div className="font-medium whitespace-normal break-words">{productName}</div>
-                              <div className="text-xs text-muted-foreground">{item.product?.sku ?? "—"}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-3 py-3 tabular-nums text-muted-foreground">
-                            {item.qty} {item.unit ?? ""}
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-3 py-3 tabular-nums text-muted-foreground">
-                            {item.received_qty}
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-3 py-3 tabular-nums">
-                            <Badge
-                              variant="outline"
-                              className={cn(
-                                "text-[10px]",
-                                remaining > 0
-                                  ? "border-amber-300 text-amber-600 dark:border-amber-500/30 dark:text-amber-400"
-                                  : "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400"
+                            </TableCell>
+                            <TableCell className="px-3 py-3">
+                              {remaining > 0 ? (
+                                <Input
+                                  type="number"
+                                  min={0}
+                                  max={remaining - currentQty}
+                                  value={currentRejected}
+                                  onChange={(e) => handleRejectedQtyChange(item.id, remaining, e.target.value)}
+                                  className={cn(
+                                    "h-9 w-20 tabular-nums",
+                                    currentRejected > 0
+                                      ? "border-red-300 bg-red-50/50 text-red-700 focus-visible:ring-red-500/30 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300"
+                                      : "border-border"
+                                  )}
+                                />
+                              ) : (
+                                <span className="text-xs text-muted-foreground">—</span>
                               )}
-                            >
-                              {remaining}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-3 py-3">
-                            {remaining > 0 ? (
-                              <Input
-                                type="number"
-                                min={0}
-                                max={remaining}
-                                value={currentQty}
-                                onChange={(e) => handleQtyChange(item.id, remaining, e.target.value)}
-                                className="h-8 w-20 tabular-nums"
-                              />
-                            ) : (
-                              <span className="text-xs text-muted-foreground">Lengkap</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-3 py-3">
-                            {remaining > 0 ? (
-                              <Input
-                                type="number"
-                                min={0}
-                                max={remaining - currentQty}
-                                value={itemQtys[item.id]?.rejected_qty ?? 0}
-                                onChange={(e) => handleRejectedQtyChange(item.id, remaining, e.target.value)}
-                                className="h-8 w-20 tabular-nums"
-                              />
-                            ) : (
-                              <span className="text-xs text-muted-foreground">—</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-3 py-3">
-                            {remaining > 0 && (itemQtys[item.id]?.rejected_qty ?? 0) > 0 ? (
-                              <Input
-                                value={itemQtys[item.id]?.rejection_note ?? ""}
-                                onChange={(e) => handleRejectionNoteChange(item.id, e.target.value)}
-                                placeholder="Opsional"
-                                className="h-8 w-40"
-                              />
-                            ) : (
-                              <span className="text-xs text-muted-foreground">—</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-3 py-3">
-                            {remaining > 0 ? (
-                              <Input
-                                value={itemQtys[item.id]?.notes ?? ""}
-                                onChange={(e) => handleNoteChange(item.id, e.target.value)}
-                                placeholder="Opsional"
-                                className="h-8 w-40"
-                              />
-                            ) : (
-                              <span className="text-xs text-muted-foreground">—</span>
-                            )}
-                          </TableCell>
-                        </TableRow>
+                            </TableCell>
+                          </TableRow>
+
+                          {currentRejected > 0 && (
+                            <TableRow className="border-b border-border/20">
+                              <TableCell colSpan={4} className="px-3 pt-0 pb-3">
+                                <div className="ml-[52px] flex items-center gap-3 rounded-md bg-red-50/60 px-3 py-2 dark:bg-red-950/20">
+                                  <Label className="shrink-0 text-xs font-medium text-red-600 dark:text-red-400">
+                                    Alasan ditolak
+                                  </Label>
+                                  <Input
+                                    value={itemQtys[item.id]?.rejection_note ?? ""}
+                                    onChange={(e) => handleRejectionNoteChange(item.id, e.target.value)}
+                                    placeholder="Opsional — misal: kemasan rusak, barang cacat, jumlah kurang"
+                                    className="h-7 flex-1 border-red-200 bg-white/80 text-xs placeholder:text-red-300 dark:border-red-900 dark:bg-red-950/40 dark:placeholder:text-red-800"
+                                  />
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </Fragment>
                       )
                     })}
                     {items.length === 0 && !isFetchingItems && (
                       <TableRow>
-                        <TableCell colSpan={9} className="py-8 text-center text-sm text-muted-foreground">
+                        <TableCell colSpan={4} className="py-8 text-center text-sm text-muted-foreground">
                           Belum ada produk.
                         </TableCell>
                       </TableRow>
                     )}
                   </TableBody>
                 </Table>
+
+                {Object.keys(itemQtys).length > 0 && (
+                  <div className="flex items-center justify-between border-t border-border/30 bg-muted/20 px-4 py-2.5">
+                    <span className="text-xs font-medium text-muted-foreground">Ringkasan QC</span>
+                    <div className="flex items-center gap-5">
+                      <div className="flex items-center gap-1.5">
+                        <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                        <span className="text-xs tabular-nums">
+                          <span className="font-semibold text-emerald-700 dark:text-emerald-400">{totalAccepted}</span>
+                          <span className="ml-1 text-muted-foreground">diterima</span>
+                        </span>
+                      </div>
+                      {totalRejected > 0 && (
+                        <div className="flex items-center gap-1.5">
+                          <div className="h-2 w-2 rounded-full bg-red-500" />
+                          <span className="text-xs tabular-nums">
+                            <span className="font-semibold text-red-700 dark:text-red-400">{totalRejected}</span>
+                            <span className="ml-1 text-muted-foreground">ditolak</span>
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {itemsMeta && (
                   <div className="px-4 py-3 border-t border-border/20">
                     <SimplePagination
