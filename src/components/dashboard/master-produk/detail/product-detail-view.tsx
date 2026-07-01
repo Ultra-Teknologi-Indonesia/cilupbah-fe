@@ -45,9 +45,15 @@ export function ProductDetailView({ id }: { id: string }) {
 
   const tabs = React.useMemo(() => tabsFor(product?.productType ?? "single"), [product?.productType])
   const urlTab = searchParams.get("tab")
-  const active = tabs.some((t) => t.id === urlTab) ? (urlTab as string) : tabs[0].id
+  const initialTab = tabs.some((t) => t.id === urlTab) ? (urlTab as string) : tabs[0].id
+  const [active, setActive] = React.useState(initialTab)
+
+  React.useEffect(() => {
+    setActive(tabs.some((t) => t.id === urlTab) ? (urlTab as string) : tabs[0].id)
+  }, [urlTab, tabs])
 
   const setTab = (next: string) => {
+    setActive(next)
     const params = new URLSearchParams(searchParams.toString())
     params.set("tab", next)
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })

@@ -28,12 +28,14 @@ export function DownloadView() {
   const searchParams = useSearchParams()
 
   const urlTab = searchParams.get("tab")
-  const active = TABS.some((t) => t.id === urlTab) ? (urlTab as string) : "progress"
+  const initialTab = TABS.some((t) => t.id === urlTab) ? (urlTab as string) : "progress"
+  const [active, setActive] = React.useState(initialTab)
 
   const [massalOpen, setMassalOpen] = React.useState(false)
   const [satuanOpen, setSatuanOpen] = React.useState(false)
 
   const setTab = (next: string) => {
+    setActive(next)
     const params = new URLSearchParams(searchParams.toString())
     params.set("tab", next)
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })

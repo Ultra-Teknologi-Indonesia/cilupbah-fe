@@ -22,9 +22,11 @@ export function UploadMassalView() {
   const [pickerOpen, setPickerOpen] = React.useState(false)
 
   const urlTab = searchParams.get("tab")
-  const active = TABS.some((t) => t.id === urlTab) ? (urlTab as string) : "hasil"
+  const initialTab = TABS.some((t) => t.id === urlTab) ? (urlTab as string) : "hasil"
+  const [active, setActive] = React.useState(initialTab)
 
   const setTab = (next: string) => {
+    setActive(next)
     const params = new URLSearchParams(searchParams.toString())
     params.set("tab", next)
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })

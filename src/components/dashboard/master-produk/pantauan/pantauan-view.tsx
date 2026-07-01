@@ -51,7 +51,8 @@ export function PantauanView() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const urlLens = searchParams.get("lens")
-  const lens = (LENSES.some((l) => l.id === urlLens) ? urlLens : "belum_upload") as PantauanLens
+  const initialLens = (LENSES.some((l) => l.id === urlLens) ? urlLens : "belum_upload") as PantauanLens
+  const [lens, setLensState] = React.useState<PantauanLens>(initialLens)
 
   // Filters — applied immediately on change (no "Terapkan" button).
   const [search, setSearch] = React.useState("")
@@ -131,6 +132,7 @@ export function PantauanView() {
   }
 
   const setLens = (next: string) => {
+    setLensState(next as PantauanLens)
     const params = new URLSearchParams(searchParams.toString())
     params.set("lens", next)
     window.history.pushState(null, "", `${pathname}?${params.toString()}`)

@@ -39,9 +39,11 @@ export function UploadToChannelView({ id }: { id: string }) {
   const searchParams = useSearchParams()
 
   const urlTab = searchParams.get("tab")
-  const active: TabId = TABS.some((t) => t.id === urlTab) ? (urlTab as TabId) : "belum"
+  const initialTab: TabId = TABS.some((t) => t.id === urlTab) ? (urlTab as TabId) : "belum"
+  const [active, setActive] = React.useState<TabId>(initialTab)
 
   const setTab = (next: string) => {
+    setActive(next as TabId)
     const params = new URLSearchParams(searchParams.toString())
     params.set("tab", next)
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })
