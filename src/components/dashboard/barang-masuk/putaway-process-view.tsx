@@ -241,11 +241,16 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const unscannedOptions = useMemo(() => {
     return allItems
       .filter((it) => !scannedItemIds.has(it.id) && it.putaway_qty <= 0)
-      .map((it) => ({
-        value: it.id,
-        label: `${it.variant?.sku ?? it.product?.sku ?? "—"} — ${it.product?.product?.name ?? it.variant?.item_name ?? ""}`,
-        hint: `Qty: ${it.qty}`,
-      }))
+      .map((it) => {
+        const sku = it.variant?.sku ?? it.product?.sku ?? "—"
+        const opts = it.product?.options?.map((o) => o.value).join(" / ")
+          ?? it.variant?.variation_values?.map((v) => v.value).join(" / ")
+        return {
+          value: it.id,
+          label: opts ? `${sku} — ${opts}` : sku,
+          hint: `${it.qty}`,
+        }
+      })
   }, [allItems, scannedItemIds])
 
   const handleManualAdd = useCallback((itemId: string | null) => {
@@ -407,10 +412,10 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                       options={unscannedOptions}
                       value={null}
                       onChange={handleManualAdd}
-                      placeholder="Tambah item"
-                      searchPlaceholder="Cari SKU / nama produk…"
+                      placeholder="+ Tambah Item"
+                      searchPlaceholder="Cari SKU / varian…"
                       emptyText="Semua item sudah ditambahkan."
-                      className="h-11 w-auto min-w-40 shrink-0 rounded-xl sm:max-w-56"
+                      className="h-11 w-auto min-w-44 shrink-0 rounded-xl"
                     />
                   )}
                   <div className="flex min-w-44 flex-col gap-1.5 sm:w-56">
