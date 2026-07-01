@@ -11,6 +11,7 @@ import {
   CheckCircle2Icon,
   ChevronDownIcon,
   ChevronRightIcon,
+  PlusIcon,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -29,6 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { PageTitle } from "@/components/dashboard/page-title"
@@ -236,6 +238,44 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     })
   }, [])
 
+  const unscannedOptions = useMemo(() => {
+    return allItems
+      .filter((it) => !scannedItemIds.has(it.id) && it.putaway_qty <= 0)
+      .map((it) => ({
+        value: it.id,
+        label: `${it.variant?.sku ?? it.product?.sku ?? "—"} — ${it.product?.product?.name ?? it.variant?.item_name ?? ""}`,
+        hint: `Qty: ${it.qty}`,
+      }))
+  }, [allItems, scannedItemIds])
+
+  const handleManualAdd = useCallback((itemId: string | null) => {
+    if (!itemId) return
+    const match = allItems.find((it) => it.id === itemId)
+    if (!match) return
+
+    setScannedItemIds((prev) => new Set(prev).add(match.id))
+
+    const newId = `${match.id}-p-${Date.now()}`
+    const newEntry: PlacementEntry = {
+      id: newId,
+      initialSavedQty: 0,
+      initialBinCode: "",
+      initialBinQty: 0,
+      maxQty: match.qty - match.putaway_qty,
+    }
+
+    setItemPlacements((prev) => {
+      const existing = prev[match.id]
+      if (existing) {
+        return { ...prev, [match.id]: [...existing, newEntry] }
+      }
+      return { ...prev, [match.id]: [newEntry] }
+    })
+
+    setExpandedItems((prev) => new Set(prev).add(match.id))
+    setFocusPlacementId(newId)
+  }, [allItems])
+
   const statusLabel = isNotStarted
     ? "Belum Mulai"
     : isInProgress
@@ -362,6 +402,17 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                       className="h-11 rounded-xl pl-9"
                     />
                   </div>
+                  {unscannedOptions.length > 0 && isInProgress && (
+                    <Combobox
+                      options={unscannedOptions}
+                      value={null}
+                      onChange={handleManualAdd}
+                      placeholder="Tambah item"
+                      searchPlaceholder="Cari SKU / nama produk…"
+                      emptyText="Semua item sudah ditambahkan."
+                      className="h-11 w-auto min-w-40 shrink-0 rounded-xl sm:max-w-56"
+                    />
+                  )}
                   <div className="flex min-w-44 flex-col gap-1.5 sm:w-56">
                     <span className="text-sm font-semibold tabular-nums">
                       {placedQty} / {totalQty} Qty
@@ -603,7 +654,7 @@ function PutawayItemRow({
                   putawayId={putawayId}
                   locationId={locationId}
                   defaultRack={defaultRack}
-                  editable={editable && !done}
+                  editable={editable}
                   onProcessed={onProcessed}
                   entry={entry}
                   focusOnMount={focusPlacementId === entry.id}
