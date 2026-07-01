@@ -142,7 +142,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   }, [refetchItems, refetchDetail])
 
   const allSelectable = useMemo(
-    () => visibleList.filter((it) => it.qty - it.putaway_qty > 0).map((it) => it.id),
+    () => visibleList.map((it) => it.id),
     [visibleList]
   )
   const allChecked = allSelectable.length > 0 && allSelectable.every((i) => selectedIds.has(i))
@@ -403,7 +403,7 @@ function PutawayItemRow({
   const remaining = item.qty - item.putaway_qty
   const done = remaining <= 0
 
-  const [binCode, setBinCode] = useState("")
+  const [binCode, setBinCode] = useState(item.destination_bin?.bin_final_code ?? "")
   const [binResult, setBinResult] = useState<BinLookupResult | null>(null)
   const [binError, setBinError] = useState("")
   const [binLoading, setBinLoading] = useState(false)
@@ -412,13 +412,12 @@ function PutawayItemRow({
   const rowRef = useRef<HTMLTableRowElement>(null)
   const binInputRef = useRef<HTMLInputElement>(null)
 
-  // Prefill the default (active) rack on empty, still-pending rows.
   useEffect(() => {
-    if (defaultRack && !binResult && !binCode && !done) {
+    if (defaultRack && !binResult && !binCode) {
       setBinCode(defaultRack.bin_final_code)
       setBinResult(defaultRack)
     }
-  }, [defaultRack, binResult, binCode, done])
+  }, [defaultRack, binResult, binCode])
 
   // When this row is targeted by a scan, scroll into view and focus the rack input.
   useEffect(() => {
@@ -484,14 +483,14 @@ function PutawayItemRow({
       data-state={selected ? "selected" : undefined}
       className={cn(
         highlighted && "bg-primary/5 ring-1 ring-inset ring-primary/30",
-        done && "opacity-60"
+        done && "bg-emerald-50/50 dark:bg-emerald-950/20"
       )}
     >
       <TableCell className="pl-5">
         <Checkbox
           checked={selected}
           onCheckedChange={onToggleSelect}
-          disabled={!editable || done}
+          disabled={!editable}
           aria-label="Pilih item"
         />
       </TableCell>
@@ -523,11 +522,7 @@ function PutawayItemRow({
       </TableCell>
 
       <TableCell>
-        {done ? (
-          <span className="font-mono text-xs font-medium text-foreground">
-            {item.destination_bin?.bin_final_code ?? "—"}
-          </span>
-        ) : editable ? (
+        {editable ? (
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-1.5">
               <Input
@@ -566,33 +561,38 @@ function PutawayItemRow({
       </TableCell>
 
       <TableCell>
-        {done ? (
-          <span className="tabular-nums text-sm">{item.putaway_qty}</span>
-        ) : editable ? (
-          <div className="flex items-center gap-1.5">
-            <Input
-              type="number"
-              min={1}
-              max={binResult?.remaining_capacity != null ? Math.min(remaining, binResult.remaining_capacity) : remaining}
-              value={qty}
-              placeholder="0"
-              onChange={(e) => {
-                const v = e.target.value
-                if (v === "") { setQty(""); return }
-                const n = parseInt(v) || 0
-                const cap = binResult?.remaining_capacity != null ? Math.min(remaining, binResult.remaining_capacity) : remaining
-                setQty(String(Math.max(0, Math.min(cap, n))))
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && binResult) {
-                  e.preventDefault()
-                  place()
-                }
-              }}
-              className="h-9 w-20 tabular-nums"
-            />
-            {processMutation.isPending && (
-              <Loader2Icon className="h-4 w-4 animate-spin text-muted-foreground" />
+        {editable ? (
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-1.5">
+              <Input
+                type="number"
+                min={1}
+                max={binResult?.remaining_capacity != null ? Math.min(remaining, binResult.remaining_capacity) : remaining}
+                value={qty}
+                placeholder="0"
+                onChange={(e) => {
+                  const v = e.target.value
+                  if (v === "") { setQty(""); return }
+                  const n = parseInt(v) || 0
+                  const cap = binResult?.remaining_capacity != null ? Math.min(remaining, binResult.remaining_capacity) : remaining
+                  setQty(String(Math.max(0, Math.min(cap, n))))
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && binResult) {
+                    e.preventDefault()
+                    place()
+                  }
+                }}
+                className="h-9 w-20 tabular-nums"
+              />
+              {processMutation.isPending && (
+                <Loader2Icon className="h-4 w-4 animate-spin text-muted-foreground" />
+              )}
+            </div>
+            {item.putaway_qty > 0 && (
+              <p className="text-[11px] text-emerald-600">
+                {item.putaway_qty}/{item.qty} ditempatkan
+              </p>
             )}
           </div>
         ) : (
@@ -601,7 +601,7 @@ function PutawayItemRow({
       </TableCell>
 
       <TableCell className="pr-5">
-        {!done && editable && (
+        {editable && (
           <Button
             type="button"
             variant="ghost"
