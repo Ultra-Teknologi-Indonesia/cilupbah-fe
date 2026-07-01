@@ -122,14 +122,14 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   }, [rackInput, locationId])
 
   const handleScan = useCallback(() => {
-    const code = scanCode.trim().toLowerCase()
+    const code = scanCode.trim().replace(/\s+/g, "").toLowerCase()
     if (!code) return
     const match = allItems.find((it) => {
       const remaining = it.qty - it.putaway_qty
       if (remaining <= 0) return false
       return [it.variant?.sku, it.product?.sku, it.serial_no, it.batch_no]
         .filter(Boolean)
-        .some((v) => v!.toLowerCase() === code)
+        .some((v) => v!.replace(/\s+/g, "").toLowerCase() === code)
     })
     if (!match) {
       setScanError("Produk tidak ditemukan atau sudah selesai ditempatkan")
