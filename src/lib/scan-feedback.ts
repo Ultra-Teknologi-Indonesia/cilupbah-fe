@@ -65,4 +65,4 @@ export function playScanFeedback(kind: ScanFeedbackKind): void {
   ) {
     navigator.vibrate(kind === "ok" ? 35 : [60, 40, 60]);
   }
-}
+}g
