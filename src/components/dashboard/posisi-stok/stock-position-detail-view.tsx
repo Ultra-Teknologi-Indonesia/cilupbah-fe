@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
@@ -39,14 +40,45 @@ const CATEGORY_COLOR: Record<string, string> = {
   PURCHASE_RETURN: "text-rose-600 bg-rose-50 border-rose-200 dark:text-rose-400 dark:bg-rose-500/10 dark:border-rose-500/20",
   SALES_RETURN: "text-teal-600 bg-teal-50 border-teal-200 dark:text-teal-400 dark:bg-teal-500/10 dark:border-teal-500/20",
   INVOICE: "text-indigo-600 bg-indigo-50 border-indigo-200 dark:text-indigo-400 dark:bg-indigo-500/10 dark:border-indigo-500/20",
-  ORDER: "text-orange-600 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-500/10 dark:border-orange-500/20",
-  ORDER_CANCEL: "text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-500/10 dark:border-red-500/20",
-  RESERVE: "text-purple-600 bg-purple-50 border-purple-200 dark:text-purple-400 dark:bg-purple-500/10 dark:border-purple-500/20",
   TRANSFER: "text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20",
   REVALUATION: "text-violet-600 bg-violet-50 border-violet-200 dark:text-violet-400 dark:bg-violet-500/10 dark:border-violet-500/20",
 }
 
 const ALL_VALUE = "__all__"
+
+function resolveTransactionHref(source: string, trxNo: string): string | null {
+  const enc = encodeURIComponent(trxNo)
+  switch (source) {
+    case "BILL":
+      return `/dashboard/transaksi-pembelian/tagihan?q=${enc}`
+    case "ADJUSTMENT":
+    case "STOCK_OPNAME":
+      return `/dashboard/transaksi-stok/penyesuaian?q=${enc}`
+    case "PURCHASE_RETURN":
+      return `/dashboard/barang-keluar/retur-pembelian?q=${enc}`
+    case "SALES_RETURN":
+      return `/dashboard/barang-masuk/retur-channel?q=${enc}`
+    case "INVOICE":
+    case "ORDER_SHIP":
+    case "ORDER_PICK":
+    case "ORDER_RESTORE":
+      return `/dashboard/pesanan?q=${enc}`
+    case "TRANSFER_IN":
+      return `/dashboard/barang-masuk/transfer-masuk?q=${enc}`
+    case "TRANSFER_OUT":
+      return `/dashboard/barang-keluar/transfer-keluar?q=${enc}`
+    case "BIN_TRANSFER_IN":
+    case "BIN_TRANSFER_OUT":
+      return `/dashboard/transaksi-stok/transfer?q=${enc}`
+    case "PUTAWAY_IN":
+    case "PUTAWAY_OUT":
+      return `/dashboard/barang-masuk/penempatan?q=${enc}`
+    case "REVALUATION":
+      return `/dashboard/transaksi-stok/revaluasi?q=${enc}`
+    default:
+      return null
+  }
+}
 
 function SourceBadge({ category, label }: { category: string; label: string }) {
   const color = CATEGORY_COLOR[category] ?? "text-muted-foreground bg-muted border-border"
@@ -105,32 +137,41 @@ function MovementsSection({ itemId }: { itemId: string }) {
   const [perPage, setPerPage] = useState(20)
   const [source, setSource] = useState("")
   const [direction, setDirection] = useState<"" | "in" | "out">("")
+  const [locationId, setLocationId] = useState("")
+  const [storeId, setStoreId] = useState("")
 
   const { data: filterOptions } = useMovementFilters()
   const sourceOptions = filterOptions?.data?.sources ?? []
   const directionOptions = filterOptions?.data?.directions ?? []
+  const locationOptions = filterOptions?.data?.locations ?? []
+  const storeOptions = filterOptions?.data?.stores ?? []
 
   const params = useMemo(() => ({
     "filter[item_id]": itemId,
     "filter[source]": source || undefined,
     "filter[direction]": direction || undefined,
+    "filter[location_id]": locationId || undefined,
+    "filter[store_id]": storeId || undefined,
     page,
     per_page: perPage,
     sort: "-transaction_date",
-  }), [itemId, source, direction, page, perPage])
+  }), [itemId, source, direction, locationId, storeId, page, perPage])
 
   const { data, isLoading } = useStockMovements(params)
   const movements = data?.data ?? []
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
 
-  const activeCount = [source, direction].filter(Boolean).length
+  const activeCount = [source, direction, locationId, storeId].filter(Boolean).length
   const hasActiveFilter = activeCount > 0
 
   const filterBar = (
     <FilterToolbar
+      align="end"
       hasFilter={hasActiveFilter}
       activeCount={activeCount}
-      onReset={hasActiveFilter ? () => { setSource(""); setDirection(""); setPage(1) } : undefined}
+      onReset={hasActiveFilter ? () => {
+        setSource(""); setDirection(""); setLocationId(""); setStoreId(""); setPage(1)
+      } : undefined}
       gridCols={2}
     >
       <Select
@@ -157,6 +198,34 @@ function MovementsSection({ itemId }: { itemId: string }) {
         <SelectContent>
           <SelectItem value={ALL_VALUE}>Semua Mutasi</SelectItem>
           {directionOptions.map((o) => (
+            <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Select
+        value={locationId || ALL_VALUE}
+        onValueChange={(v) => { setLocationId(v === ALL_VALUE ? "" : v); setPage(1) }}
+      >
+        <SelectTrigger className="h-9 w-full rounded-full border-border bg-background">
+          <SelectValue placeholder="Pilih lokasi" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={ALL_VALUE}>Semua Lokasi</SelectItem>
+          {locationOptions.map((o) => (
+            <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Select
+        value={storeId || ALL_VALUE}
+        onValueChange={(v) => { setStoreId(v === ALL_VALUE ? "" : v); setPage(1) }}
+      >
+        <SelectTrigger className="h-9 w-full rounded-full border-border bg-background">
+          <SelectValue placeholder="Pilih toko" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={ALL_VALUE}>Semua Toko</SelectItem>
+          {storeOptions.map((o) => (
             <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
           ))}
         </SelectContent>
@@ -224,7 +293,19 @@ function MovementsSection({ itemId }: { itemId: string }) {
                 )}
               </TableCell>
               <TableCell className="px-3 py-2.5">
-                <span className="font-mono text-xs">{m.transaction_number}</span>
+                {(() => {
+                  const href = resolveTransactionHref(m.source, m.transaction_number)
+                  return href ? (
+                    <Link
+                      href={href}
+                      className="font-mono text-xs text-primary hover:underline"
+                    >
+                      {m.transaction_number}
+                    </Link>
+                  ) : (
+                    <span className="font-mono text-xs">{m.transaction_number}</span>
+                  )
+                })()}
               </TableCell>
               <TableCell className="px-3 py-2.5">
                 <SourceBadge category={m.source_category} label={m.source_label} />

@@ -88,6 +88,7 @@ export interface StockMovementParams {
   per_page?: number
   "filter[item_id]"?: string
   "filter[location_id]"?: string
+  "filter[store_id]"?: string
   "filter[source]"?: string
   "filter[direction]"?: "in" | "out"
   "filter[date_from]"?: string
@@ -119,9 +120,16 @@ export interface MovementDirectionOption {
   label: string
 }
 
+export interface MovementFilterOption {
+  value: string
+  label: string
+}
+
 export interface MovementFilterOptions {
   sources: MovementSourceOption[]
   directions: MovementDirectionOption[]
+  locations: MovementFilterOption[]
+  stores: MovementFilterOption[]
 }
 
 export interface StockListMeta {
