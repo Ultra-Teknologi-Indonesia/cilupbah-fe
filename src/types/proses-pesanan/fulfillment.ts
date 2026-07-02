@@ -456,6 +456,8 @@ export interface RawShipmentOrder {
   packlist_id?: string | null
   tracking_number?: string | null
   qty_given?: number | null
+  pickup_status?: string | null
+  pickup_message?: string | null
   order?: {
     id: string
     salesorder_no?: string | null
@@ -492,6 +494,8 @@ export interface ShipmentOrderItem {
   weightGram: number
   status: string | null
   packlistNo: string | null
+  pickupStatus: string | null
+  pickupMessage: string | null
 }
 
 export interface ShipmentDetail extends Shipment {

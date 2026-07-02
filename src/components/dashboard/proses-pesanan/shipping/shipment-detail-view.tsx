@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { PageTitle } from "@/components/dashboard/page-title"
 import {
   Table,
@@ -50,6 +51,23 @@ function errMsg(err: unknown, fallback: string): string {
     if (typeof m === "string" && m) return m
   }
   return fallback
+}
+
+const PICKUP_LABEL: Record<string, { label: string; className: string }> = {
+  success: { label: "Sudah", className: "bg-emerald-500/10 text-emerald-600" },
+  pending: { label: "Proses", className: "bg-amber-500/10 text-amber-600" },
+  failed: { label: "Gagal", className: "bg-red-500/10 text-red-600" },
+  skipped: { label: "Manual", className: "bg-muted text-muted-foreground" },
+}
+
+function PickupBadge({ status, message }: { status: string | null; message: string | null }) {
+  if (!status) return <span className="text-xs text-muted-foreground">—</span>
+  const cfg = PICKUP_LABEL[status] ?? { label: status, className: "bg-muted text-muted-foreground" }
+  return (
+    <Badge variant="secondary" className={cn("text-[10px] px-1.5 py-0", cfg.className)} title={message ?? undefined}>
+      {cfg.label}
+    </Badge>
+  )
 }
 
 export function ShipmentDetailView({ id }: { id: string }) {
@@ -233,83 +251,90 @@ export function ShipmentDetailView({ id }: { id: string }) {
             <Badge>{detail.orders.length}</Badge>
           </div>
 
-          <div className="rounded-lg border border-border overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/40">
-                  <TableHead className="w-10 text-center">No</TableHead>
-                  <TableHead>No. Pesanan</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>No. Resi</TableHead>
-                  <TableHead className="text-right">Berat</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  {isScheduled && <TableHead className="w-10" />}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {detail.orders.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={isScheduled ? 7 : 6}
-                      className="py-16 text-center text-sm text-muted-foreground"
-                    >
-                      Belum ada pesanan. Scan untuk menambahkan.
-                    </TableCell>
+          <ScrollArea className="rounded-lg border border-border">
+            <div className="min-w-[700px]">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/40">
+                    <TableHead className="w-10 text-center">No</TableHead>
+                    <TableHead>No. Pesanan</TableHead>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>No. Resi</TableHead>
+                    <TableHead className="text-center">Status Ambil</TableHead>
+                    <TableHead className="text-right">Berat</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                    {isScheduled && <TableHead className="w-10" />}
                   </TableRow>
-                ) : (
-                  detail.orders.map((o, idx) => (
-                    <TableRow key={o.id}>
-                      <TableCell className="text-center text-xs text-muted-foreground tabular-nums">
-                        {idx + 1}
+                </TableHeader>
+                <TableBody>
+                  {detail.orders.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={isScheduled ? 8 : 7}
+                        className="py-16 text-center text-sm text-muted-foreground"
+                      >
+                        Belum ada pesanan. Scan untuk menambahkan.
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1.5">
-                          {o.source && <ChannelBadge source={o.source} />}
-                          <span className="font-medium text-foreground text-xs">
-                            {o.orderNo ?? "—"}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-xs">
-                        {o.customerName ?? "—"}
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={cn(
-                            "text-xs tabular-nums",
-                            o.trackingNumber
-                              ? "text-foreground"
-                              : "text-muted-foreground italic"
-                          )}
-                        >
-                          {o.trackingNumber ?? "Belum ada"}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right text-xs tabular-nums">
-                        {formatWeight(o.weightGram)}
-                      </TableCell>
-                      <TableCell className="text-right text-xs tabular-nums">
-                        {o.grandTotal.toLocaleString("id-ID")}
-                      </TableCell>
-                      {isScheduled && (
-                        <TableCell>
-                          <button
-                            type="button"
-                            onClick={() => handleRemove(o.orderId, o.orderNo)}
-                            disabled={removeOrder.isPending}
-                            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                            aria-label="Hapus"
-                          >
-                            <Trash2Icon className="size-3.5" />
-                          </button>
-                        </TableCell>
-                      )}
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                  ) : (
+                    detail.orders.map((o, idx) => (
+                      <TableRow key={o.id}>
+                        <TableCell className="text-center text-xs text-muted-foreground tabular-nums">
+                          {idx + 1}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1.5">
+                            {o.source && <ChannelBadge source={o.source} />}
+                            <span className="font-medium text-foreground text-xs">
+                              {o.orderNo ?? "—"}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {o.customerName ?? "—"}
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={cn(
+                              "text-xs tabular-nums",
+                              o.trackingNumber
+                                ? "text-foreground"
+                                : "text-muted-foreground italic"
+                            )}
+                          >
+                            {o.trackingNumber ?? "Belum ada"}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <PickupBadge status={o.pickupStatus} message={o.pickupMessage} />
+                        </TableCell>
+                        <TableCell className="text-right text-xs tabular-nums">
+                          {formatWeight(o.weightGram)}
+                        </TableCell>
+                        <TableCell className="text-right text-xs tabular-nums">
+                          {o.grandTotal.toLocaleString("id-ID")}
+                        </TableCell>
+                        {isScheduled && (
+                          <TableCell>
+                            <button
+                              type="button"
+                              onClick={() => handleRemove(o.orderId, o.orderNo)}
+                              disabled={removeOrder.isPending}
+                              className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                              aria-label="Hapus"
+                            >
+                              <Trash2Icon className="size-3.5" />
+                            </button>
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
         </div>
       </LiquidGlass>
     </div>

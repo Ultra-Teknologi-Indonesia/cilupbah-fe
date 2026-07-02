@@ -174,6 +174,8 @@ function mapShipmentOrderItem(raw: RawShipmentOrder): ShipmentOrderItem {
     weightGram: Number(o?.order_weight_gram ?? 0),
     status: o?.status ?? null,
     packlistNo: raw.packlist?.packlist_no ?? null,
+    pickupStatus: raw.pickup_status ?? null,
+    pickupMessage: raw.pickup_message ?? null,
   }
 }
 
