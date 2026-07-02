@@ -29,15 +29,8 @@ import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolb
 import { useStockPosition, inventoryKeys } from "@/hooks/persediaan/use-stock-position"
 import { InventoryStockService } from "@/services/persediaan/inventory.service"
 import type { StockItem, StockListParams } from "@/types/persediaan/stock"
+import { formatCurrency } from "@/lib/format"
 
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)
-}
 
 type SortField = "item_code" | "average_cost" | "on_hand" | "available"
 type SortDir = "asc" | "desc"

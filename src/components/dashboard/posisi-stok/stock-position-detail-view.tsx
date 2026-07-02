@@ -27,6 +27,7 @@ import {
   useItemStock,
 } from "@/hooks/persediaan/use-stock-position"
 import type { StockMovement, BinInventory } from "@/types/persediaan/stock"
+import { formatCurrency } from "@/lib/format"
 
 const SOURCE_LABELS: Record<string, { label: string; color: string }> = {
   ADJUSTMENT: { label: "Penyesuaian", color: "text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20" },
@@ -67,14 +68,6 @@ function QtyCell({ qty }: { qty: number }) {
   )
 }
 
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)
-}
 
 function StockSummaryCards({ onHand, onOrder, reserved, available, avgCost }: {
   onHand: number

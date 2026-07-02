@@ -22,6 +22,7 @@ import {
 } from "@/hooks/barang-keluar/use-outbound-transfers"
 import { exportCsv } from "@/lib/export-csv"
 import { useState, useCallback } from "react"
+import { formatDate } from "@/lib/format"
 
 const STATUS_STYLE: Record<string, string> = {
   DRAFT: "border-slate-300 text-slate-600 dark:border-slate-500/30 dark:text-slate-400",
@@ -54,9 +55,6 @@ const STATUS_ORDER: Record<string, number> = {
   CANCELLED: -1,
 }
 
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
-}
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (

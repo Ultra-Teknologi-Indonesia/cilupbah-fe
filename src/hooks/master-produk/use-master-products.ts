@@ -1,6 +1,6 @@
 "use client"
 
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
+import { useInfiniteQuery, useQuery, keepPreviousData } from "@tanstack/react-query"
 
 import {
   ProductListService,
@@ -10,6 +10,7 @@ import {
 export function useMasterProducts(params: MasterProductsParams = {}) {
   return useQuery({
     queryKey: ["master-produk", "list", params],
+    placeholderData: keepPreviousData,
     queryFn: () => ProductListService.getMasterProducts(params),
     staleTime: 30 * 1000,
   })

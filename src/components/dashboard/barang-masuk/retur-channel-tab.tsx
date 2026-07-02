@@ -19,6 +19,7 @@ import { useSalesReturnsUnprocessed, useSalesReturns } from "@/hooks/barang-masu
 import { useAcceptSalesReturn, useRejectSalesReturn } from "@/hooks/barang-masuk/use-sales-return-actions"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import type { SalesReturn, SalesReturnStatus } from "@/types/barang-masuk/sales-return"
+import { formatDate } from "@/lib/format"
 
 type ReturSubTab = "unprocessed" | "rejected" | "accepted" | "completed"
 
@@ -50,9 +51,6 @@ const SUBTAB_TO_STATUS: Record<ReturSubTab, string> = {
   completed: "COMPLETED",
 }
 
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
-}
 
 
 interface FilterState {

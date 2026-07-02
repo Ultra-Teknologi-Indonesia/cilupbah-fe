@@ -1,6 +1,6 @@
 "use client"
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { PurchaseOrderService } from "@/services/transaksi-pembelian/purchase-order.service"
 import type { PurchaseOrderListParams, PurchaseOrderFormData } from "@/types/transaksi-pembelian/purchase-order"
@@ -10,6 +10,7 @@ const STALE = 30 * 1000
 export function usePurchaseOrders(params: PurchaseOrderListParams = {}) {
   return useQuery({
     queryKey: ["purchase-order", "list", params],
+    placeholderData: keepPreviousData,
     queryFn: () => PurchaseOrderService.list(params),
     staleTime: STALE,
   })

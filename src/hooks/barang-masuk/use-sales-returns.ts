@@ -1,6 +1,6 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, keepPreviousData } from "@tanstack/react-query"
 import { SalesReturnService } from "@/services/barang-masuk/sales-return.service"
 import type { SalesReturnListParams } from "@/types/barang-masuk/sales-return"
 
@@ -17,6 +17,7 @@ export function useSalesReturnsUnprocessed(params: SalesReturnListParams = {}) {
 export function useSalesReturns(params: SalesReturnListParams = {}) {
   return useQuery({
     queryKey: ["sales-return", "list", params],
+    placeholderData: keepPreviousData,
     queryFn: () => SalesReturnService.list(params),
     staleTime: STALE,
   })

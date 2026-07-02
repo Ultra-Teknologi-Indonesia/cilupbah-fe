@@ -49,14 +49,8 @@ import {
   useMarkComplete,
   useGetShippingLabel,
 } from "@/hooks/pesanan/use-order-actions"
+import { formatCurrency } from "@/lib/format"
 
-function formatCurrency(n: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(n)
-}
 
 function copyText(text: string) {
   navigator.clipboard.writeText(text)

@@ -24,14 +24,9 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { usePurchaseOrders, useDeletePurchaseOrder, useBulkDeletePurchaseOrder } from "@/hooks/transaksi-pembelian/use-purchase-orders"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import type { PurchaseOrder, PurchaseOrderListParams } from "@/types/transaksi-pembelian/purchase-order"
+import { formatDate, formatCurrency } from "@/lib/format"
 
-function formatCurrency(val: number) {
-  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(val)
-}
 
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
-}
 
 interface FilterState {
   location_id: string

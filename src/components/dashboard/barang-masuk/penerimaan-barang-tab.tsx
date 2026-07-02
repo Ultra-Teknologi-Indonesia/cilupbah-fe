@@ -23,6 +23,7 @@ import type {
   InboundStatus,
   InboundType,
 } from "@/types/barang-masuk/inbound";
+import { formatDate } from "@/lib/format"
 
 const STATUS_OPTIONS = [
   { value: "", label: "Semua" },
@@ -64,13 +65,6 @@ const TYPE_VARIANT: Record<string, "default" | "secondary" | "destructive" | "ou
   CONSIGNMENT: "teal",
 };
 
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-}
 
 function ProgressBar({ value, total }: { value: number; total: number }) {
   const pct = total > 0 ? Math.round((value / total) * 100) : 0

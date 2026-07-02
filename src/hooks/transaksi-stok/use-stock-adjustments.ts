@@ -1,6 +1,6 @@
 "use client"
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { StockAdjustmentService } from "@/services/transaksi-stok/stock-adjustment.service"
 import type { StockAdjustmentListParams, StockAdjustmentFormData } from "@/types/transaksi-stok/stock-adjustment"
@@ -10,6 +10,7 @@ const STALE = 30 * 1000
 export function useStockAdjustments(params: StockAdjustmentListParams = {}) {
   return useQuery({
     queryKey: ["stock-adjustment", "list", params],
+    placeholderData: keepPreviousData,
     queryFn: () => StockAdjustmentService.list(params),
     staleTime: STALE,
   })

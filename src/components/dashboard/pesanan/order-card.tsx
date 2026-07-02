@@ -70,14 +70,8 @@ import {
   useRelocateOrder,
 } from "@/hooks/pesanan/use-order-actions"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
+import { formatCurrency } from "@/lib/format"
 
-function formatCurrency(n: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(n)
-}
 
 function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text)

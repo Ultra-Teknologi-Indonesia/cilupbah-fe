@@ -25,6 +25,7 @@ import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import { useUsers } from "@/hooks/pengaturan/use-users"
 import { exportCsv } from "@/lib/export-csv"
 import type { Putaway, PutawayStatus } from "@/types/barang-masuk/putaway"
+import { formatDate } from "@/lib/format"
 
 const STATUS_OPTIONS = [
   { value: "", label: "Semua" },
@@ -47,9 +48,6 @@ const STATUS_LABEL: Record<string, string> = {
   CANCELLED: "Dibatalkan",
 }
 
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
-}
 
 function ProgressBar({ placed, total }: { placed: number; total: number }) {
   const pct = total > 0 ? Math.round((placed / total) * 100) : 0

@@ -1,6 +1,6 @@
 "use client"
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { PurchaseReturnService } from "@/services/barang-keluar/purchase-return.service"
 import type { PurchaseReturnListParams, CreatePurchaseReturnPayload } from "@/types/barang-keluar/purchase-return"
@@ -10,6 +10,7 @@ const STALE = 30 * 1000
 export function usePurchaseReturns(params: PurchaseReturnListParams = {}) {
   return useQuery({
     queryKey: ["purchase-return", "list", params],
+    placeholderData: keepPreviousData,
     queryFn: () => PurchaseReturnService.list(params),
     staleTime: STALE,
   })

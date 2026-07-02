@@ -17,6 +17,7 @@ import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolb
 import { useReceivablePurchaseOrders } from "@/hooks/barang-masuk/use-purchase-orders-inbound"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import type { PurchaseOrder, PurchaseOrderStatus } from "@/types/transaksi-pembelian/purchase-order"
+import { formatDate } from "@/lib/format"
 
 const STATUS_OPTIONS = [
   { value: "", label: "Semua" },
@@ -40,9 +41,6 @@ const STATUS_LABEL: Record<string, string> = {
   FULLY_RECEIVED: "Selesai",
 }
 
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
-}
 
 function ProgressBar({ received, total }: { received: number; total: number }) {
   const pct = total > 0 ? Math.round((received / total) * 100) : 0

@@ -21,6 +21,7 @@ import {
 import {
   useDownloadTransactionDetail,
 } from "@/hooks/master-produk/use-download"
+import { useDebouncedValue } from "@/hooks/use-debounced-value"
 import type { DownloadTransaction } from "@/services/master-produk/download.service"
 
 const MASTER_FILTER: { value: string; label: string }[] = [
@@ -51,9 +52,10 @@ export function TransactionDetailSheet({
   }
 
   const isMaster = masterFilter === "all" ? undefined : masterFilter === "master"
+  const debouncedSearch = useDebouncedValue(search)
 
   const query = useDownloadTransactionDetail(open ? trx?.trxId ?? null : null, {
-    search: search || undefined,
+    search: debouncedSearch || undefined,
     isMaster,
     perPage: 100,
   })

@@ -24,6 +24,7 @@ import type {
   StockRevaluation,
   StockRevaluationListParams,
 } from "@/types/transaksi-stok/stock-revaluation"
+import { formatDate } from "@/lib/format"
 
 interface FilterState {
   status: string
@@ -43,13 +44,6 @@ const STATUS_MAP: Record<string, { label: string; className: string }> = {
   },
 }
 
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  })
-}
 
 
 export function RevaluasiTab() {

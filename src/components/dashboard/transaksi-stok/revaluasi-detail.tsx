@@ -20,6 +20,7 @@ import {
   useCancelStockRevaluation,
 } from "@/hooks/transaksi-stok/use-stock-revaluations"
 import { exportCsv } from "@/lib/export-csv"
+import { formatDate, formatCurrency } from "@/lib/format"
 
 const STATUS_STYLE: Record<string, string> = {
   APPROVED: "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
@@ -31,13 +32,7 @@ const STATUS_LABEL: Record<string, string> = {
   CANCELLED: "Dibatalkan",
 }
 
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
-}
 
-function formatCurrency(n: number) {
-  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n)
-}
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (

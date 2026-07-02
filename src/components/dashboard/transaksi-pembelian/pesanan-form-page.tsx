@@ -40,15 +40,13 @@ import {
 } from "@/hooks/transaksi-pembelian/use-purchase-orders"
 import { ProductPickerDialog, type PickedProduct } from "./product-picker-dialog"
 import type { PurchaseOrderItemFormData } from "@/types/transaksi-pembelian/purchase-order"
+import { formatCurrency } from "@/lib/format"
 
 interface Props {
   mode: "create" | "edit"
   id?: string
 }
 
-function formatCurrency(val: number) {
-  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(val)
-}
 
 function RequiredStar() {
   return <span className="text-red-500">*</span>

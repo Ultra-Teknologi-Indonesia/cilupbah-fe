@@ -15,6 +15,7 @@ import { PageTitle } from "@/components/dashboard/page-title"
 import { usePurchaseReturnDetail, useProcessPurchaseReturn, useDeletePurchaseReturn } from "@/hooks/barang-keluar/use-purchase-returns"
 import { exportCsv } from "@/lib/export-csv"
 import { useState, useCallback } from "react"
+import { formatDate, formatCurrency } from "@/lib/format"
 
 const STATUS_STYLE: Record<string, string> = {
   DRAFT: "border-slate-300 text-slate-600 dark:border-slate-500/30 dark:text-slate-400",
@@ -32,13 +33,7 @@ const STATUS_LABEL: Record<string, string> = {
   CANCELLED: "Dibatalkan",
 }
 
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
-}
 
-function formatCurrency(n: number) {
-  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n)
-}
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (

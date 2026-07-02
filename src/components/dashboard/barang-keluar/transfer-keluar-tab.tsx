@@ -28,6 +28,7 @@ import {
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import { exportCsv } from "@/lib/export-csv"
 import type { InventoryTransfer } from "@/types/barang-masuk/inventory-transfer"
+import { formatDate } from "@/lib/format"
 
 type SubTab = "draft" | "transit" | "finished"
 
@@ -53,9 +54,6 @@ const STATUS_LABEL: Record<string, string> = {
   CANCELLED: "Dibatalkan",
 }
 
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
-}
 
 
 interface FilterState {

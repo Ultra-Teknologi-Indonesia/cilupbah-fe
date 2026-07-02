@@ -47,6 +47,7 @@ import { ChannelBadge, OrderStatusBadge } from "../channel-badge"
 import { BuatPicklistDialog } from "../picking/buat-picklist-dialog"
 import { BuatPengirimanDialog } from "../shipping/buat-pengiriman-dialog"
 import { DocActions } from "../picking/doc-actions"
+import { formatCurrency } from "@/lib/format"
 
 export interface OrderTableActions {
   buatPicklist?: boolean
@@ -67,13 +68,6 @@ function formatDate(iso: string | null): string {
   return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
 }
 
-function formatCurrency(n: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(n)
-}
 
 function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text)

@@ -19,6 +19,7 @@ import { useIncomingTransfers } from "@/hooks/barang-masuk/use-inventory-transfe
 import { useReceiveTransfer } from "@/hooks/barang-masuk/use-receive-transfer"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import type { InventoryTransfer, InventoryTransferStatus } from "@/types/barang-masuk/inventory-transfer"
+import { formatDate } from "@/lib/format"
 
 const STATUS_OPTIONS = [
   { value: "", label: "Semua" },
@@ -38,9 +39,6 @@ const STATUS_LABEL: Record<string, string> = {
   CANCELLED: "Dibatalkan",
 }
 
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
-}
 
 function ProgressBar({ received, total }: { received: number; total: number }) {
   const pct = total > 0 ? Math.round((received / total) * 100) : 0

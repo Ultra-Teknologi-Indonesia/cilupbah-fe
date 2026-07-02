@@ -1,10 +1,37 @@
 import axios, { AxiosRequestConfig } from "axios";
+import { clearLoginSession } from "@/app/actions/auth.actions";
 
 const apiClient = axios.create({
   baseURL: "/api/app",
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+// Sesi kedaluwarsa terdeteksi di sini (bukan di middleware) supaya navigasi
+// tidak perlu menunggu validasi token ke backend. Sekali 401: hapus cookie
+// token via server action lalu redirect ke login dengan callbackUrl.
+let sessionExpiredHandled = false;
+apiClient.interceptors.response.use(undefined, async (error) => {
+  if (
+    typeof window !== "undefined" &&
+    axios.isAxiosError(error) &&
+    error.response?.status === 401 &&
+    !window.location.pathname.startsWith("/login") &&
+    !sessionExpiredHandled
+  ) {
+    sessionExpiredHandled = true;
+    try {
+      await clearLoginSession();
+    } catch {
+      // Gagal hapus cookie bukan penghalang: halaman login tetap dimuat.
+    }
+    const callbackUrl = encodeURIComponent(
+      window.location.pathname + window.location.search
+    );
+    window.location.href = `/login?callbackUrl=${callbackUrl}`;
+  }
+  return Promise.reject(error);
 });
 
 // Transport override untuk lingkungan server (RSC prefetch). Axios di sini

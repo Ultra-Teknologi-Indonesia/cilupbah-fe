@@ -6,7 +6,12 @@ import { QueryClient } from "@tanstack/react-query";
 
 import { setServerFetcher } from "./api-client";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// URL backend hanya dipakai server-side; utamakan env non-publik agar
+// origin backend tidak perlu diekspos ke bundle klien.
+const BACKEND_URL =
+  process.env.API_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:8000";
 
 // Transport server: meniru route proxy (/api/app/* → BACKEND/api/v1/*) tapi
 // dipanggil langsung dari Server Component untuk prefetch. Auth via cookie

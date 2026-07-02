@@ -1,6 +1,6 @@
 "use client"
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { StockOpnameService } from "@/services/transaksi-stok/stock-opname.service"
 import type { StockOpnameListParams, StockOpnameFormData } from "@/types/transaksi-stok/stock-opname"
@@ -10,6 +10,7 @@ const STALE = 30 * 1000
 export function useStockOpnames(params: StockOpnameListParams = {}) {
   return useQuery({
     queryKey: ["stock-opname", "list", params],
+    placeholderData: keepPreviousData,
     queryFn: () => StockOpnameService.list(params),
     staleTime: STALE,
   })

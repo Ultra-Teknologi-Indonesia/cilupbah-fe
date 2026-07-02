@@ -1,6 +1,6 @@
 "use client"
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { SalesmanService } from "@/services/kontak-pemasok/salesman.service"
 import type { SalesmanListParams, SalesmanFormData } from "@/types/kontak-pemasok/salesman"
@@ -10,6 +10,7 @@ const STALE = 60 * 1000
 export function useSalesmen(params: SalesmanListParams = {}) {
   return useQuery({
     queryKey: ["salesman", "list", params],
+    placeholderData: keepPreviousData,
     queryFn: () => SalesmanService.list(params),
     staleTime: STALE,
   })

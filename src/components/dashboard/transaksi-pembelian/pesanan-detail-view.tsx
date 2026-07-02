@@ -27,6 +27,7 @@ import {
 } from "@/hooks/transaksi-pembelian/use-purchase-orders"
 import { SimplePagination } from "@/components/ui/simple-pagination"
 import type { PurchaseOrderStatus } from "@/types/transaksi-pembelian/purchase-order"
+import { formatCurrency } from "@/lib/format"
 
 const STATUS_STYLE: Record<PurchaseOrderStatus, string> = {
   DRAFT: "border-slate-300 text-slate-600 dark:border-slate-500/30 dark:text-slate-400",
@@ -44,9 +45,6 @@ const STATUS_LABEL: Record<PurchaseOrderStatus, string> = {
   CANCELLED: "Dibatalkan",
 }
 
-function formatCurrency(val: number) {
-  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(val)
-}
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })

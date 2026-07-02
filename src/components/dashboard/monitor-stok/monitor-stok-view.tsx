@@ -214,7 +214,10 @@ export function MonitorStokView() {
   autoRefreshRef.current = active
   useEffect(() => {
     if (!autoRefresh) return
-    const id = setInterval(() => autoRefreshRef.current.refetch(), autoRefresh * 1000)
+    // Jangan refetch saat tab tidak terlihat — hemat request backend.
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") autoRefreshRef.current.refetch()
+    }, autoRefresh * 1000)
     return () => clearInterval(id)
   }, [autoRefresh])
 
