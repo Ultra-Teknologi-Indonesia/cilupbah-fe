@@ -9,14 +9,14 @@ import {
   PlusIcon,
 } from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import type { ColumnDef } from "@tanstack/react-table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { Input } from "@/components/ui/input"
 import { ResourceListView } from "@/components/dashboard/shared/resource-list-view"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
+import { getStatusMeta } from "@/lib/status"
+import { UserSelect } from "@/components/dashboard/shared/user-select"
 import { useListState } from "@/hooks/use-list-state"
 import {
   useStockAdjustments,
@@ -37,21 +37,6 @@ interface FilterState {
 }
 
 const EMPTY_FILTERS: FilterState = { status: "", location_id: "" }
-
-const STATUS_MAP: Record<string, { label: string; className: string }> = {
-  DRAFT: {
-    label: "Draft",
-    className: "border-slate-300 text-slate-600 dark:border-slate-500/30 dark:text-slate-400",
-  },
-  APPROVED: {
-    label: "Approved",
-    className: "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
-  },
-  CANCELLED: {
-    label: "Dibatalkan",
-    className: "border-red-300 text-red-600 dark:border-red-500/30 dark:text-red-400",
-  },
-}
 
 const STATUS_OPTIONS = [
   { value: "", label: "Semua Status" },
@@ -124,17 +109,9 @@ export function PenyesuaianTab() {
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => {
-        const st = STATUS_MAP[row.original.status]
-        return (
-          <Badge
-            variant="outline"
-            className={cn("text-[10px] leading-tight", st?.className)}
-          >
-            {st?.label ?? row.original.status}
-          </Badge>
-        )
-      },
+      cell: ({ row }) => (
+        <StatusBadge domain="stock-adjustment" status={row.original.status} className="text-[10px] leading-tight" />
+      ),
     },
     {
       accessorKey: "created_by",
@@ -210,7 +187,7 @@ export function PenyesuaianTab() {
         item.adjustment_no,
         formatDate(item.transaction_date),
         item.location?.location_name ?? "",
-        STATUS_MAP[item.status]?.label ?? item.status,
+        getStatusMeta("stock-adjustment", item.status).label,
         item.created_by,
       ])
     )
@@ -283,9 +260,9 @@ export function PenyesuaianTab() {
       >
         <div className="flex flex-col gap-2 pt-2">
           <label className="text-sm font-medium">Disetujui oleh</label>
-          <Input
+          <UserSelect
             value={approvedBy}
-            onChange={(e) => setApprovedBy(e.target.value)}
+            onChange={setApprovedBy}
             placeholder="Nama penyetuju"
           />
         </div>

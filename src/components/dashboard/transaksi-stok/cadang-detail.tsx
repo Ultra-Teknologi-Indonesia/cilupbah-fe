@@ -7,7 +7,6 @@ import Link from "next/link"
 import { XCircleIcon, ShieldIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -15,22 +14,12 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { PageTitle } from "@/components/dashboard/page-title"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 import {
   useReservedStockDetail,
   useCancelReservedStock,
 } from "@/hooks/transaksi-stok/use-reserved-stocks"
 import { formatDate } from "@/lib/format"
-
-const STATUS_STYLE: Record<string, string> = {
-  ACTIVE: "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
-  CANCELLED: "border-red-300 text-red-600 dark:border-red-500/30 dark:text-red-400",
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  ACTIVE: "Aktif",
-  CANCELLED: "Dibatalkan",
-}
-
 
 function getRemainingDays(endDate: string): { label: string; className: string } {
   const now = new Date()
@@ -147,11 +136,7 @@ export function CadangDetail({ id }: { id: string }) {
           <InfoRow label="Berakhir" value={formatDate(stock.end_date)} />
           <InfoRow
             label="Status"
-            value={
-              <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[stock.status] ?? "")}>
-                {STATUS_LABEL[stock.status] ?? stock.status}
-              </Badge>
-            }
+            value={<StatusBadge domain="stock-reserve" status={stock.status} className="text-[10px] leading-tight" />}
           />
           <InfoRow label="Aktif" value={isActive ? "Ya" : "Tidak"} />
           <InfoRow

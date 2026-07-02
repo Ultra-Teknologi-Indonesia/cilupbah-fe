@@ -26,7 +26,6 @@ import Link from "next/link"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
@@ -41,9 +40,9 @@ import {
   type OrderItem,
   type OrderTab,
   type SubFilter,
-  STATUS_LABELS,
   CHANNEL_MAP,
 } from "@/types/pesanan/order"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 import {
   Dialog,
   DialogContent,
@@ -694,13 +693,6 @@ export function OrderCard({
     return Array.from(map.values())
   }, [order.items])
 
-  const statusInfo =
-    STATUS_LABELS[order.status] ?? {
-      label: order.status,
-      className:
-        "text-muted-foreground bg-muted border-border",
-    }
-
   return (
     <div
       className={cn(
@@ -802,15 +794,7 @@ export function OrderCard({
           order.ship_by_date ? "sm:grid-cols-3 xl:grid-cols-5" : "sm:grid-cols-4"
         )}>
           <div>
-            <Badge
-              variant="outline"
-              className={cn(
-                "text-xs font-semibold whitespace-nowrap",
-                statusInfo.className
-              )}
-            >
-              {statusInfo.label}
-            </Badge>
+            <StatusBadge domain="sales-order" status={order.status} className="text-xs font-semibold whitespace-nowrap" />
             {order.cancel_requested_at && !order.is_canceled && (
               <p className="mt-1 text-[11px] font-medium text-amber-600 dark:text-amber-400">
                 Pembatalan diminta

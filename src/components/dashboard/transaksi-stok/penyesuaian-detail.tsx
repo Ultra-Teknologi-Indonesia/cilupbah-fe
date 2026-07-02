@@ -13,9 +13,7 @@ import {
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -23,6 +21,8 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { PageTitle } from "@/components/dashboard/page-title"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
+import { UserSelect } from "@/components/dashboard/shared/user-select"
 import {
   useStockAdjustmentDetail,
   useApproveStockAdjustment,
@@ -30,19 +30,6 @@ import {
 } from "@/hooks/transaksi-stok/use-stock-adjustments"
 import { exportCsv } from "@/lib/export-csv"
 import { formatDate } from "@/lib/format"
-
-const STATUS_STYLE: Record<string, string> = {
-  DRAFT: "border-slate-300 text-slate-600 dark:border-slate-500/30 dark:text-slate-400",
-  APPROVED: "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
-  CANCELLED: "border-red-300 text-red-600 dark:border-red-500/30 dark:text-red-400",
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  DRAFT: "Draft",
-  APPROVED: "Disetujui",
-  CANCELLED: "Dibatalkan",
-}
-
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -209,11 +196,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
           <InfoRow label="Tgl. Transaksi" value={adj.transaction_date ? formatDate(adj.transaction_date) : null} />
           <InfoRow
             label="Status"
-            value={
-              <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[adj.status] ?? "")}>
-                {STATUS_LABEL[adj.status] ?? adj.status}
-              </Badge>
-            }
+            value={<StatusBadge domain="stock-adjustment" status={adj.status} className="text-[10px] leading-tight" />}
           />
           <InfoRow label="Dibuat Oleh" value={adj.created_by} />
           <InfoRow label="Disetujui Oleh" value={adj.approved_by} />
@@ -259,11 +242,10 @@ export function PenyesuaianDetail({ id }: { id: string }) {
           <Label htmlFor="adj-approved-by" className="text-sm font-medium">
             Disetujui oleh <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id="adj-approved-by"
-            placeholder="Nama penanggung jawab"
+          <UserSelect
             value={approvedBy}
-            onChange={(e) => setApprovedBy(e.target.value)}
+            onChange={setApprovedBy}
+            placeholder="Nama penanggung jawab"
             className="mt-1.5"
           />
         </div>

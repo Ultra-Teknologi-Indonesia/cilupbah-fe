@@ -11,7 +11,6 @@ import {
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -26,25 +25,8 @@ import {
   useDeletePurchaseOrder,
 } from "@/hooks/transaksi-pembelian/use-purchase-orders"
 import { SimplePagination } from "@/components/ui/simple-pagination"
-import type { PurchaseOrderStatus } from "@/types/transaksi-pembelian/purchase-order"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 import { formatCurrency } from "@/lib/format"
-
-const STATUS_STYLE: Record<PurchaseOrderStatus, string> = {
-  DRAFT: "border-slate-300 text-slate-600 dark:border-slate-500/30 dark:text-slate-400",
-  OPEN: "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400",
-  PARTIAL_RECEIVED: "border-amber-300 text-amber-600 dark:border-amber-500/30 dark:text-amber-400",
-  FULLY_RECEIVED: "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
-  CANCELLED: "border-red-300 text-red-600 dark:border-red-500/30 dark:text-red-400",
-}
-
-const STATUS_LABEL: Record<PurchaseOrderStatus, string> = {
-  DRAFT: "Draft",
-  OPEN: "Open",
-  PARTIAL_RECEIVED: "Diterima Sebagian",
-  FULLY_RECEIVED: "Diterima Penuh",
-  CANCELLED: "Dibatalkan",
-}
-
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })
@@ -125,9 +107,7 @@ export function PesananDetailView({ id }: { id: string }) {
                 Hapus
               </Button>
             )}
-            <Badge variant="outline" className={cn("text-xs", STATUS_STYLE[po.status])}>
-              {STATUS_LABEL[po.status]}
-            </Badge>
+            <StatusBadge domain="purchase-order" status={po.status} className="text-xs" />
           </div>
         }
       />

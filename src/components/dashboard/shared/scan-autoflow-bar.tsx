@@ -6,6 +6,7 @@ import { ScanBarcodeIcon, ListChecksIcon, CheckIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Combobox } from "@/components/ui/combobox"
+import { playScanFeedback } from "@/lib/scan-feedback"
 
 /**
  * Baris scan terpadu untuk semua flow gudang (picking / packing / putaway).
@@ -44,6 +45,13 @@ interface ScanAutoflowBarProps {
   className?: string
   /** ubah nilai ini untuk memaksa fokus balik ke input scan (mis. setelah modal qty ditutup). */
   refocusKey?: number | string
+  /** bunyi + getar feedback tiap scan (default true). */
+  sound?: boolean
+  /**
+   * Tangani kode SEBELUM pencocokan baris (mis. scan rak di picking → set rak aktif).
+   * Return true bila kode sudah ditangani (bar cukup beri feedback ok & bersihkan input).
+   */
+  interceptCode?: (code: string) => boolean
 }
 
 function normalize(code: string): string {
@@ -61,6 +69,8 @@ export function ScanAutoflowBar({
   hint = "Gunakan scanner, atau pilih manual lewat dropdown.",
   className,
   refocusKey,
+  sound = true,
+  interceptCode,
 }: ScanAutoflowBarProps) {
   const [code, setCode] = React.useState("")
   const [flash, setFlash] = React.useState<"ok" | "err" | null>(null)
@@ -85,13 +95,23 @@ export function ScanAutoflowBar({
 
   const flashState = React.useCallback((s: "ok" | "err") => {
     setFlash(s)
+    if (sound) playScanFeedback(s === "ok" ? "ok" : "error")
     setTimeout(() => setFlash(null), 350)
-  }, [])
+  }, [sound])
 
   const resolveByCode = React.useCallback(
     (raw: string) => {
       const n = normalize(raw)
       if (!n) return
+
+      // Kode ditangani parent lebih dulu (mis. scan rak → set rak aktif).
+      if (interceptCode?.(raw.trim())) {
+        flashState("ok")
+        setCode("")
+        focusScan()
+        return
+      }
+
       // Prioritaskan baris yang belum selesai, lalu baris apa pun yang cocok.
       const pending = lines.find(
         (l) => !l.done && l.codes.some((c) => normalize(c) === n)
@@ -109,7 +129,7 @@ export function ScanAutoflowBar({
       setCode("")
       focusScan()
     },
-    [lines, onResolve, onUnmatched, flashState, focusScan]
+    [lines, onResolve, onUnmatched, flashState, focusScan, interceptCode]
   )
 
   const manualOptions = React.useMemo(
@@ -155,27 +175,29 @@ export function ScanAutoflowBar({
           />
         </div>
 
-        <div className="flex items-center gap-2 sm:w-64">
-          <ListChecksIcon className="hidden size-4 shrink-0 text-muted-foreground sm:block" />
-          <Combobox
-            options={manualOptions}
-            value={null}
-            onChange={(v) => {
-              if (!v) return
-              const line = lines.find((l) => l.id === v)
-              if (line) {
-                onResolve(line)
-                flashState("ok")
-                focusScan()
-              }
-            }}
-            placeholder={manualPlaceholder}
-            searchPlaceholder="Cari produk / SKU…"
-            emptyText="Tidak ada item."
-            disabled={disabled}
-            className="h-11 flex-1"
-          />
-        </div>
+        {lines.length > 0 && (
+          <div className="flex items-center gap-2 sm:w-64">
+            <ListChecksIcon className="hidden size-4 shrink-0 text-muted-foreground sm:block" />
+            <Combobox
+              options={manualOptions}
+              value={null}
+              onChange={(v) => {
+                if (!v) return
+                const line = lines.find((l) => l.id === v)
+                if (line) {
+                  onResolve(line)
+                  flashState("ok")
+                  focusScan()
+                }
+              }}
+              placeholder={manualPlaceholder}
+              searchPlaceholder="Cari produk / SKU…"
+              emptyText="Tidak ada item."
+              disabled={disabled}
+              className="h-11 flex-1"
+            />
+          </div>
+        )}
       </div>
       {hint && (
         <p className="flex items-center gap-1 text-xs text-muted-foreground">

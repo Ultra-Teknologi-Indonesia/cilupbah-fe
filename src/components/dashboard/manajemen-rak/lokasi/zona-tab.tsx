@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import {
   Dialog,
   DialogContent,
@@ -385,67 +386,65 @@ export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-border">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-border bg-muted/40">
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                  Kode Zona
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                  Nama Zona
-                </th>
-                <th className="px-4 py-3 text-center font-medium text-muted-foreground">
-                  Jumlah Rak
-                </th>
+        <Table className="border-collapse" containerClassName="rounded-2xl border border-border">
+          <TableHeader>
+            <TableRow className="border-b border-border bg-muted/40">
+              <TableHead className="px-4 py-3 font-medium text-muted-foreground">
+                Kode Zona
+              </TableHead>
+              <TableHead className="px-4 py-3 font-medium text-muted-foreground">
+                Nama Zona
+              </TableHead>
+              <TableHead className="px-4 py-3 text-center font-medium text-muted-foreground">
+                Jumlah Rak
+              </TableHead>
+              {!disabled && (
+                <TableHead className="w-24 px-4 py-3 text-center font-medium text-muted-foreground">
+                  Aksi
+                </TableHead>
+              )}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.map((zone) => (
+              <TableRow
+                key={zone.id}
+                className="border-b border-border/60 transition-colors last:border-0 hover:bg-muted/40"
+              >
+                <TableCell className="px-4 py-3 font-mono font-medium">
+                  {zone.zone_code}
+                </TableCell>
+                <TableCell className="px-4 py-3 text-muted-foreground">
+                  {zone.zone_name || "—"}
+                </TableCell>
+                <TableCell className="px-4 py-3 text-center">
+                  <Badge variant="outline">{zone.bins_count}</Badge>
+                </TableCell>
                 {!disabled && (
-                  <th className="w-24 px-4 py-3 text-center font-medium text-muted-foreground">
-                    Aksi
-                  </th>
+                  <TableCell className="px-4 py-3">
+                    <div className="flex items-center justify-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => openEdit(zone)}
+                      >
+                        <PencilIcon className="size-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => setDeleteTarget(zone)}
+                      >
+                        <Trash2Icon className="size-3.5" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 )}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((zone) => (
-                <tr
-                  key={zone.id}
-                  className="border-b border-border/60 transition-colors last:border-0 hover:bg-muted/40"
-                >
-                  <td className="px-4 py-3 font-mono font-medium">
-                    {zone.zone_code}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {zone.zone_name || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <Badge variant="outline">{zone.bins_count}</Badge>
-                  </td>
-                  {!disabled && (
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => openEdit(zone)}
-                        >
-                          <PencilIcon className="size-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => setDeleteTarget(zone)}
-                        >
-                          <Trash2Icon className="size-3.5" />
-                        </Button>
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
 
       <ZoneFormDialog

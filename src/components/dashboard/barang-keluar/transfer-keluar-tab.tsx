@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { ArrowRightLeftIcon, DownloadIcon, CheckIcon, TruckIcon, XIcon, Trash2Icon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { Input } from "@/components/ui/input"
@@ -16,6 +15,9 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
+import { UserSelect } from "@/components/dashboard/shared/user-select"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
+import { getStatusMeta } from "@/lib/status"
 import {
   useOutboundDrafts,
   useOutboundTransit,
@@ -37,24 +39,6 @@ const SUB_TABS: { key: SubTab; label: string }[] = [
   { key: "transit", label: "Sedang Dikirim" },
   { key: "finished", label: "Selesai" },
 ]
-
-const STATUS_STYLE: Record<string, string> = {
-  DRAFT: "border-slate-300 text-slate-600 dark:border-slate-500/30 dark:text-slate-400",
-  APPROVED: "border-indigo-300 text-indigo-600 dark:border-indigo-500/30 dark:text-indigo-400",
-  IN_TRANSIT: "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400",
-  RECEIVED: "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
-  CANCELLED: "border-red-300 text-red-600 dark:border-red-500/30 dark:text-red-400",
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  DRAFT: "Draft",
-  APPROVED: "Disetujui",
-  IN_TRANSIT: "Dikirim",
-  RECEIVED: "Diterima",
-  CANCELLED: "Dibatalkan",
-}
-
-
 
 interface FilterState {
   location_id: string
@@ -117,9 +101,7 @@ function TransferTable({
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (
-        <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[row.original.status] ?? "")}>
-          {STATUS_LABEL[row.original.status] ?? row.original.status}
-        </Badge>
+        <StatusBadge domain="inventory-transfer" status={row.original.status} className="text-[10px] leading-tight" />
       ),
     },
     {
@@ -254,7 +236,7 @@ export function TransferKeluarTab() {
         t.source_location?.location_name ?? "",
         t.destination_location?.location_name ?? "",
         String(t.items?.length ?? 0),
-        STATUS_LABEL[t.status] ?? t.status,
+        getStatusMeta("inventory-transfer", t.status).label,
       ])
     )
   }, [items, subTab])
@@ -391,11 +373,10 @@ export function TransferKeluarTab() {
           <Label htmlFor="tf-approved-by" className="text-sm font-medium">
             Disetujui oleh <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id="tf-approved-by"
-            placeholder="Nama penyetuju"
+          <UserSelect
             value={approvedBy}
-            onChange={(e) => setApprovedBy(e.target.value)}
+            onChange={setApprovedBy}
+            placeholder="Nama penyetuju"
             className="mt-1.5"
           />
         </div>
@@ -420,11 +401,11 @@ export function TransferKeluarTab() {
           <Label htmlFor="tf-shipped-by" className="text-sm font-medium">
             Dikirim oleh <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id="tf-shipped-by"
-            placeholder="Nama pengirim"
+          <UserSelect
             value={shippedBy}
-            onChange={(e) => setShippedBy(e.target.value)}
+            onChange={setShippedBy}
+            defaultToSelf
+            placeholder="Nama pengirim"
             className="mt-1.5"
           />
         </div>

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeftIcon, CheckCircleIcon, FlagIcon, Loader2Icon, WalletIcon, XCircleIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,6 +12,9 @@ import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { PageTitle } from "@/components/dashboard/page-title"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { UserSelect } from "@/components/dashboard/shared/user-select"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 import { useSalesReturn } from "@/hooks/barang-masuk/use-sales-returns"
 import {
   useAcceptSalesReturn,
@@ -20,17 +22,8 @@ import {
   useCompleteSalesReturn,
 } from "@/hooks/barang-masuk/use-sales-return-actions"
 import { formatDate } from "@/lib/format"
-import type { SalesReturnStatus } from "@/types/barang-masuk/sales-return"
 
 const LIST_HREF = "/dashboard/barang-masuk/retur"
-
-const STATUS_MAP: Record<SalesReturnStatus, { label: string; className: string }> = {
-  PENDING: { label: "Menunggu", className: "bg-amber-500/10 text-amber-600" },
-  ACCEPTED: { label: "Disetujui", className: "bg-blue-500/10 text-blue-600" },
-  REJECTED: { label: "Ditolak", className: "bg-red-500/10 text-red-600" },
-  COMPLETED: { label: "Selesai", className: "bg-emerald-500/10 text-emerald-600" },
-  CANCELLED: { label: "Dibatalkan", className: "bg-muted text-muted-foreground" },
-}
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -64,7 +57,6 @@ export function SalesReturnDetailView({ id }: { id: string }) {
     return <div className="py-32 text-center text-sm text-muted-foreground">Retur tidak ditemukan.</div>
   }
 
-  const st = STATUS_MAP[ret.status]
   const totalQty = ret.items?.reduce((s, i) => s + i.qty, 0) ?? 0
 
   const closeAction = () => { setAction(null); setProcessedBy(""); setReason("") }
@@ -113,7 +105,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
 
       <LiquidGlass radius={16} intensity="subtle" className="bg-white/40 dark:bg-white/[0.06]">
         <div className="grid grid-cols-2 gap-x-8 gap-y-4 px-5 py-5 sm:grid-cols-3 lg:grid-cols-4">
-          <InfoRow label="Status" value={<Badge variant="secondary" className={cn("text-[11px]", st.className)}>{st.label}</Badge>} />
+          <InfoRow label="Status" value={<StatusBadge domain="sales-return" status={ret.status} className="text-[11px]" />} />
           <InfoRow label="Sumber" value={ret.source === "marketplace" ? "Marketplace" : "Manual"} />
           <InfoRow label="Pesanan" value={ret.order?.salesorder_no ?? "—"} />
           <InfoRow label="Pelanggan" value={ret.customer_name ?? ret.order?.customer_name ?? "—"} />
@@ -130,32 +122,34 @@ export function SalesReturnDetailView({ id }: { id: string }) {
         <div className="px-5 py-5">
           <p className="mb-3 text-sm font-medium">Item Retur</p>
           <div className="overflow-x-auto rounded-lg border border-border">
-            <table className="w-full min-w-[520px] text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/40 text-left text-muted-foreground">
-                  <th className="px-3 py-2.5 font-medium">Produk</th>
-                  <th className="px-3 py-2.5 font-medium">SKU</th>
-                  <th className="px-3 py-2.5 font-medium">Kondisi</th>
-                  <th className="px-3 py-2.5 text-right font-medium">Qty</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table className="min-w-[520px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Produk</TableHead>
+                  <TableHead>SKU</TableHead>
+                  <TableHead>Kondisi</TableHead>
+                  <TableHead className="text-right">Qty</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {(ret.items ?? []).length === 0 ? (
-                  <tr><td colSpan={4} className="py-10 text-center text-muted-foreground">Tidak ada item.</td></tr>
+                  <TableRow>
+                    <TableCell colSpan={4} className="py-10 text-center text-muted-foreground">Tidak ada item.</TableCell>
+                  </TableRow>
                 ) : (
                   ret.items.map((it) => (
-                    <tr key={it.id} className="border-b border-border/60 last:border-0">
-                      <td className="px-3 py-2.5">{it.product?.product?.name ?? it.product?.sku ?? "—"}</td>
-                      <td className="px-3 py-2.5 font-mono text-xs">{it.product?.sku ?? "—"}</td>
-                      <td className="px-3 py-2.5">
+                    <TableRow key={it.id}>
+                      <TableCell>{it.product?.product?.name ?? it.product?.sku ?? "—"}</TableCell>
+                      <TableCell className="font-mono text-xs">{it.product?.sku ?? "—"}</TableCell>
+                      <TableCell>
                         <Badge variant="secondary" className="text-[10px]">{it.condition ?? "GOOD"}</Badge>
-                      </td>
-                      <td className="px-3 py-2.5 text-right tabular-nums">{it.qty}</td>
-                    </tr>
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums">{it.qty}</TableCell>
+                    </TableRow>
                   ))
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         </div>
       </LiquidGlass>
@@ -175,7 +169,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
       >
         <div className="px-1 py-2">
           <Label className="text-sm font-medium">Diproses oleh <span className="text-red-500">*</span></Label>
-          <Input value={processedBy} onChange={(e) => setProcessedBy(e.target.value)} placeholder="Nama petugas" className="mt-1.5" />
+          <UserSelect value={processedBy} onChange={setProcessedBy} defaultToSelf placeholder="Nama petugas" className="mt-1.5" />
         </div>
       </ConfirmDialog>
 
@@ -195,7 +189,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
         <div className="flex flex-col gap-3 px-1 py-2">
           <div>
             <Label className="text-sm font-medium">Diproses oleh <span className="text-red-500">*</span></Label>
-            <Input value={processedBy} onChange={(e) => setProcessedBy(e.target.value)} placeholder="Nama petugas" className="mt-1.5" />
+            <UserSelect value={processedBy} onChange={setProcessedBy} defaultToSelf placeholder="Nama petugas" className="mt-1.5" />
           </div>
           <div>
             <Label className="text-sm font-medium">Alasan penolakan</Label>
@@ -218,7 +212,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
       >
         <div className="px-1 py-2">
           <Label className="text-sm font-medium">Diproses oleh <span className="text-red-500">*</span></Label>
-          <Input value={processedBy} onChange={(e) => setProcessedBy(e.target.value)} placeholder="Nama petugas" className="mt-1.5" />
+          <UserSelect value={processedBy} onChange={setProcessedBy} defaultToSelf placeholder="Nama petugas" className="mt-1.5" />
         </div>
       </ConfirmDialog>
     </div>

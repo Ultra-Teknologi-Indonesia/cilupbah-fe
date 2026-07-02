@@ -377,9 +377,17 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                   <ScanAutoflowBar
                     lines={scanLines}
                     onResolve={handleResolve}
+                    interceptCode={(code) => {
+                      const n = code.trim().toLowerCase().replace(/\s+/g, "")
+                      const rack = availableBins.find(
+                        (b) => b.bin_final_code.trim().toLowerCase().replace(/\s+/g, "") === n
+                      )
+                      if (rack) { handleSelectRack(rack.id); return true }
+                      return false
+                    }}
                     disabled={!isInProgress}
                     refocusKey={scanFocusKey}
-                    hint="Scan SKU/serial/batch untuk tambah penempatan, atau pilih manual. Pilih rak lalu isi qty."
+                    hint="Scan rak tujuan → scan SKU/serial/batch → isi qty (keyboard hanya qty)."
                     className="flex-1"
                   />
                   <div className="flex min-w-44 flex-col gap-1.5 lg:w-56">

@@ -120,7 +120,7 @@ export function TambahPengirimanDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Tambah Pengiriman Baru</DialogTitle>
+          <DialogTitle>Buat Pengiriman</DialogTitle>
           <DialogClose />
         </DialogHeader>
 

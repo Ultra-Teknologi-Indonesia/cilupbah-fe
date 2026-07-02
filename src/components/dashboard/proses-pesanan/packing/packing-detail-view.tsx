@@ -15,15 +15,9 @@ import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ScanAutoflowBar, type ScanAutoflowLine } from "@/components/dashboard/shared/scan-autoflow-bar"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import { PageTitle } from "@/components/dashboard/page-title"
+import { playScanFeedback } from "@/lib/scan-feedback"
+import { type PacklistItem } from "@/types/proses-pesanan/fulfillment"
 import {
   useCompletePacklist,
   usePackItem,
@@ -155,21 +149,39 @@ export function PackingDetailView({ id }: { id: string }) {
     done: i.qtyPacked >= i.qtyOrdered,
   }))
 
-  const openQtyFor = (itemId: string) => {
-    setActiveItemId(itemId)
-    setPackQty("")
-    setTimeout(() => qtyInputRef.current?.focus(), 50)
+  const packNow = (item: PacklistItem, absoluteQty: number) => {
+    packItem.mutate(
+      { packlistId: id, itemId: item.id, qtyPacked: absoluteQty, barcodeVerified: true },
+      {
+        onSuccess: () => {
+          toast.success(`${item.sku} dikemas (${absoluteQty}/${item.qtyOrdered}).`)
+          setActiveItemId(null)
+          setPackQty("")
+          refocusScan()
+        },
+        onError: (e) => { toast.error(errMsg(e, `Gagal pack ${item.sku}.`)); playScanFeedback("error") },
+      }
+    )
+  }
+
+  const openQtyFor = (item: PacklistItem) => {
+    const remaining = item.qtyOrdered - item.qtyPacked
+    setActiveItemId(item.id)
+    setPackQty(String(remaining))
+    setTimeout(() => { qtyInputRef.current?.focus(); qtyInputRef.current?.select() }, 50)
+  }
+
+  // qty=1 → pack otomatis (nol keyboard); qty>1 → input qty muncul default = sisa, Enter.
+  const packOrPrompt = (item: PacklistItem) => {
+    const remaining = item.qtyOrdered - item.qtyPacked
+    if (remaining <= 0) { toast.info(`${item.sku} sudah lengkap.`); refocusScan(); return }
+    if (remaining === 1) { packNow(item, item.qtyPacked + 1); return }
+    openQtyFor(item)
   }
 
   const handleResolve = (line: ScanAutoflowLine) => {
     const item = items.find((i) => i.id === line.id)
-    if (!item) return
-    if (item.qtyPacked >= item.qtyOrdered) {
-      toast.info(`${item.sku} sudah lengkap.`)
-      refocusScan()
-      return
-    }
-    openQtyFor(item.id)
+    if (item) packOrPrompt(item)
   }
 
   // Kode tak cocok lokal → verifikasi barcode ke BE (barcode ≠ SKU).
@@ -179,18 +191,12 @@ export function PackingDetailView({ id }: { id: string }) {
       { packlistId: id, barcode: code },
       {
         onSuccess: (res) => {
-          if (!res) {
-            toast.error(`SKU/Barcode "${code}" tidak ditemukan.`)
-            return
-          }
+          if (!res) { toast.error(`SKU/Barcode "${code}" tidak ditemukan.`); playScanFeedback("error"); return }
           const matched = items.find((i) => i.id === res.itemId)
-          if (matched && matched.qtyPacked < matched.qtyOrdered) {
-            openQtyFor(matched.id)
-          } else {
-            toast.info(`${res.sku} sudah lengkap.`)
-          }
+          if (matched) { playScanFeedback("ok"); packOrPrompt(matched) }
+          else { toast.info(`${res.sku} sudah lengkap.`); playScanFeedback("error") }
         },
-        onError: (e) => toast.error(errMsg(e, "Barcode tidak valid.")),
+        onError: (e) => { toast.error(errMsg(e, "Barcode tidak valid.")); playScanFeedback("error") },
       }
     )
   }
@@ -199,31 +205,9 @@ export function PackingDetailView({ id }: { id: string }) {
     if (!activeItem) return
     const qty = Number.parseInt(packQty, 10)
     const remaining = activeItem.qtyOrdered - activeItem.qtyPacked
-    if (Number.isNaN(qty) || qty <= 0) {
-      toast.error("Masukkan qty yang valid.")
-      return
-    }
-    if (qty > remaining) {
-      toast.error(`Qty melebihi sisa (${remaining}).`)
-      return
-    }
-    packItem.mutate(
-      {
-        packlistId: id,
-        itemId: activeItem.id,
-        qtyPacked: activeItem.qtyPacked + qty,
-        barcodeVerified: true,
-      },
-      {
-        onSuccess: () => {
-          toast.success(`${activeItem.sku} dikemas (${activeItem.qtyPacked + qty}/${activeItem.qtyOrdered}).`)
-          setActiveItemId(null)
-          setPackQty("")
-          refocusScan()
-        },
-        onError: (e) => toast.error(errMsg(e, `Gagal pack ${activeItem.sku}.`)),
-      }
-    )
+    if (Number.isNaN(qty) || qty <= 0) { toast.error("Masukkan qty yang valid."); return }
+    if (qty > remaining) { toast.error(`Qty melebihi sisa (${remaining}).`); return }
+    packNow(activeItem, activeItem.qtyPacked + qty)
   }
 
   const handleCancelPack = () => {
@@ -332,70 +316,45 @@ export function PackingDetailView({ id }: { id: string }) {
                 onUnmatched={handleUnmatched}
                 disabled={packItem.isPending}
                 refocusKey={scanFocusKey}
-                hint="Scan barcode/SKU untuk buka input qty, atau pilih manual dari daftar."
+                hint="Scan barcode/SKU — qty 1 otomatis; qty >1 masukkan jumlah lalu Enter."
                 className="mt-1.5"
               />
             </div>
           )}
 
-          {/* Modal konfirmasi qty pack */}
-          <Dialog open={!!activeItem} onOpenChange={(open) => { if (!open) handleCancelPack() }}>
-            <DialogContent className="sm:max-w-md" onOpenAutoFocus={(e) => { e.preventDefault(); setTimeout(() => qtyInputRef.current?.focus(), 50) }}>
-              {activeItem && (
-                <>
-                  <DialogHeader>
-                    <DialogTitle>Konfirmasi Pack</DialogTitle>
-                    <DialogDescription>Masukkan jumlah yang dikemas</DialogDescription>
-                  </DialogHeader>
-                  <div className="flex items-start gap-4 py-2">
-                    <ItemImage src={activeItem.imageUrl} alt={activeItem.description ?? activeItem.sku} size={56} />
-                    <div className="min-w-0 flex-1">
-                      <div className="font-medium text-foreground">{activeItem.description ?? activeItem.sku}</div>
-                      <div className="font-mono text-xs text-muted-foreground">{activeItem.sku}</div>
-                      <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                        <span>Qty dipesan</span>
-                        <span className="font-medium text-foreground">{activeItem.qtyOrdered}</span>
-                        <span>Sudah pack</span>
-                        <span className="font-medium text-foreground">{activeItem.qtyPacked}</span>
-                        <span>Sisa</span>
-                        <span className="font-semibold text-primary">{activeItem.qtyOrdered - activeItem.qtyPacked}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 pt-2">
-                    <label className="shrink-0 text-sm font-medium text-foreground">Qty kemas</label>
-                    <Input
-                      ref={qtyInputRef}
-                      type="number"
-                      min={1}
-                      max={activeItem.qtyOrdered - activeItem.qtyPacked}
-                      inputMode="numeric"
-                      value={packQty}
-                      onChange={(e) => setPackQty(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault()
-                          handleConfirmPack()
-                        }
-                      }}
-                      placeholder={`maks ${activeItem.qtyOrdered - activeItem.qtyPacked}`}
-                      className="h-10"
-                      disabled={packItem.isPending}
-                    />
-                  </div>
-                  <DialogFooter className="gap-2 sm:gap-0">
-                    <Button variant="ghost" onClick={handleCancelPack} disabled={packItem.isPending}>
-                      Batal
-                    </Button>
-                    <Button onClick={handleConfirmPack} disabled={packItem.isPending || !packQty.trim()}>
-                      {packItem.isPending && <Loader2Icon className="size-4 animate-spin" />}
-                      Konfirmasi Pack
-                    </Button>
-                  </DialogFooter>
-                </>
-              )}
-            </DialogContent>
-          </Dialog>
+          {/* Input qty inline untuk item qty > 1 (default = sisa, Enter = simpan) */}
+          {activeItem && (
+            <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+              <ItemImage src={activeItem.imageUrl} alt={activeItem.description ?? activeItem.sku} size={48} />
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-medium">{activeItem.description ?? activeItem.sku}</div>
+                <div className="font-mono text-xs text-muted-foreground">{activeItem.sku}</div>
+                <div className="text-xs text-muted-foreground">
+                  Sisa {activeItem.qtyOrdered - activeItem.qtyPacked} · sudah {activeItem.qtyPacked}/{activeItem.qtyOrdered}
+                </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium">Qty kemas</label>
+                <Input
+                  ref={qtyInputRef}
+                  type="number"
+                  min={1}
+                  max={activeItem.qtyOrdered - activeItem.qtyPacked}
+                  inputMode="numeric"
+                  value={packQty}
+                  onChange={(e) => setPackQty(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleConfirmPack() } }}
+                  className="h-10 w-28 text-base"
+                  disabled={packItem.isPending}
+                />
+              </div>
+              <Button onClick={handleConfirmPack} disabled={packItem.isPending || !packQty.trim()}>
+                {packItem.isPending && <Loader2Icon className="mr-1 size-4 animate-spin" />}
+                Simpan
+              </Button>
+              <Button variant="ghost" onClick={handleCancelPack} disabled={packItem.isPending}>Batal</Button>
+            </div>
+          )}
 
           {/* Items table */}
           <div className="overflow-x-auto rounded-2xl border border-border bg-card">

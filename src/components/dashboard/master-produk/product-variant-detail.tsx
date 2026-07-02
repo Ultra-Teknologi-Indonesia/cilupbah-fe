@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils"
 import type { Product } from "@/types/master-produk"
 import { useVariantStocks } from "@/hooks/master-produk/use-variant-stocks"
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { formatIDR } from "./product-columns"
 
 export function ProductVariantDetail({ product }: { product: Product }) {
@@ -11,24 +12,24 @@ export function ProductVariantDetail({ product }: { product: Product }) {
 
   return (
     <div className="px-14 py-3">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-left text-xs text-muted-foreground">
-            <th className="py-1.5 pr-4 font-medium">SKU</th>
-            <th className="py-1.5 pr-4 font-medium">Variasi</th>
-            <th className="py-1.5 pr-4 text-right font-medium">Harga</th>
-            <th className="py-1.5 pr-4 text-right font-medium">Tersedia</th>
-            <th className="py-1.5 pr-4 text-right font-medium">Stok Fisik</th>
-            <th className="py-1.5 font-medium">Toko</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table containerClassName="overflow-visible">
+        <TableHeader>
+          <TableRow className="text-left text-xs text-muted-foreground hover:bg-transparent">
+            <TableHead className="h-auto py-1.5 pr-4 px-0 text-xs font-medium text-muted-foreground">SKU</TableHead>
+            <TableHead className="h-auto py-1.5 pr-4 px-0 text-xs font-medium text-muted-foreground">Variasi</TableHead>
+            <TableHead className="h-auto py-1.5 pr-4 px-0 text-right text-xs font-medium text-muted-foreground">Harga</TableHead>
+            <TableHead className="h-auto py-1.5 pr-4 px-0 text-right text-xs font-medium text-muted-foreground">Tersedia</TableHead>
+            <TableHead className="h-auto py-1.5 pr-4 px-0 text-right text-xs font-medium text-muted-foreground">Stok Fisik</TableHead>
+            <TableHead className="h-auto py-1.5 px-0 text-xs font-medium text-muted-foreground">Toko</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {product.variants.map((v) => {
             const st = stocks[v.itemId]
             return (
-            <tr key={v.itemId} className="border-t border-border/60">
-              <td className="py-2 pr-4 font-mono text-xs">{v.sku}</td>
-              <td className="py-2 pr-4">
+            <TableRow key={v.itemId} className="border-t border-border/60 hover:bg-transparent">
+              <TableCell className="py-2 pr-4 px-0 font-mono text-xs">{v.sku}</TableCell>
+              <TableCell className="py-2 pr-4 px-0 whitespace-normal">
                 {v.variationValues.length ? (
                   <div className="flex flex-wrap gap-1">
                     {v.variationValues.map((vv) => (
@@ -43,31 +44,31 @@ export function ProductVariantDetail({ product }: { product: Product }) {
                 ) : (
                   <span className="text-xs text-muted-foreground">Default</span>
                 )}
-              </td>
-              <td className="py-2 pr-4 text-right tabular-nums">
+              </TableCell>
+              <TableCell className="py-2 pr-4 px-0 text-right tabular-nums">
                 {formatIDR(v.sellPrice)}
-              </td>
-              <td
+              </TableCell>
+              <TableCell
                 className={cn(
-                  "py-2 pr-4 text-right tabular-nums",
+                  "py-2 pr-4 px-0 text-right tabular-nums",
                   st?.available === 0 && "text-destructive font-medium"
                 )}
               >
                 {isLoading ? "…" : (st?.available ?? "—")}
-              </td>
-              <td className="py-2 pr-4 text-right tabular-nums text-foreground">
+              </TableCell>
+              <TableCell className="py-2 pr-4 px-0 text-right tabular-nums text-foreground">
                 {isLoading ? "…" : (st?.onHand ?? "—")}
-              </td>
-              <td className="py-2 text-xs text-foreground">
+              </TableCell>
+              <TableCell className="py-2 px-0 whitespace-normal text-xs text-foreground">
                 {v.storeNames.length
                   ? v.storeNames.map((s) => s.storeName).join(", ")
                   : "—"}
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
             )
           })}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   )
 }

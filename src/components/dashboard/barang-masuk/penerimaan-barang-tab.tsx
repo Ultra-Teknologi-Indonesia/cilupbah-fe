@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { PackageCheckIcon, DownloadIcon, LayersIcon } from "lucide-react";
 import { BuatPenempatanManualDialog } from "./buat-penempatan-manual-dialog";
 
-import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
@@ -15,6 +14,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { getStatusMeta } from "@/lib/status";
 import { useInbounds } from "@/hooks/barang-masuk/use-inbound";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { exportCsv } from "@/lib/export-csv";
@@ -32,24 +33,6 @@ const STATUS_OPTIONS = [
   { value: "RECEIVED", label: "Selesai Diterima" },
   { value: "COMPLETED", label: "Selesai" },
 ];
-
-const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "muted" | "info" | "indigo"> = {
-  DRAFT: "muted",
-  PARTIAL: "warning",
-  RECEIVED: "info",
-  PUTAWAY_IN_PROGRESS: "indigo",
-  COMPLETED: "success",
-  CANCELLED: "destructive",
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  DRAFT: "Belum Mulai",
-  PARTIAL: "Sebagian",
-  RECEIVED: "Selesai Diterima",
-  PUTAWAY_IN_PROGRESS: "Sedang Putaway",
-  COMPLETED: "Selesai",
-  CANCELLED: "Dibatalkan",
-};
 
 const TYPE_LABEL: Record<string, string> = {
   PURCHASE_ORDER: "PO",
@@ -104,7 +87,7 @@ function handleExportList(items: Inbound[]) {
       item.location?.location_name ?? "",
       item.created_by,
       String(totalRecv),
-      STATUS_LABEL[item.status] ?? item.status,
+      getStatusMeta("inbound", item.status).label,
     ];
   });
   exportCsv(
@@ -232,9 +215,7 @@ export function PenerimaanBarangTab() {
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => (
-          <Badge variant={STATUS_VARIANT[row.original.status] ?? "default"}>
-            {STATUS_LABEL[row.original.status] ?? row.original.status}
-          </Badge>
+          <StatusBadge domain="inbound" status={row.original.status} />
         ),
       },
       {

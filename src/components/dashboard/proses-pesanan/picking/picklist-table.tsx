@@ -35,7 +35,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { usePicklists, usePrefetchPicklistDetail } from "@/hooks/proses-pesanan/use-fulfillment"
-import { PICKLIST_STATUS_LABEL, type Picklist } from "@/types/proses-pesanan/fulfillment"
+import { type Picklist } from "@/types/proses-pesanan/fulfillment"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 
 import { UbahPickerDialog } from "./ubah-picker-dialog"
 
@@ -134,19 +135,7 @@ export function PicklistTable() {
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => {
-        const st = PICKLIST_STATUS_LABEL[row.original.status];
-        return (
-          <span
-            className={cn(
-              "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-              st?.className
-            )}
-          >
-            {st?.label}
-          </span>
-        )
-      },
+      cell: ({ row }) => <StatusBadge domain="picklist" status={row.original.status} />,
     },
     {
       id: "actions",

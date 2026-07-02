@@ -7,7 +7,6 @@ import Link from "next/link"
 import { DownloadIcon, XCircleIcon, DollarSignIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -15,24 +14,13 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { PageTitle } from "@/components/dashboard/page-title"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 import {
   useStockRevaluationDetail,
   useCancelStockRevaluation,
 } from "@/hooks/transaksi-stok/use-stock-revaluations"
 import { exportCsv } from "@/lib/export-csv"
 import { formatDate, formatCurrency } from "@/lib/format"
-
-const STATUS_STYLE: Record<string, string> = {
-  APPROVED: "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
-  CANCELLED: "border-red-300 text-red-600 dark:border-red-500/30 dark:text-red-400",
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  APPROVED: "Disetujui",
-  CANCELLED: "Dibatalkan",
-}
-
-
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -189,11 +177,7 @@ export function RevaluasiDetail({ id }: { id: string }) {
           <InfoRow label="Lokasi" value={reval.location?.location_name} />
           <InfoRow
             label="Status"
-            value={
-              <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[reval.status] ?? "")}>
-                {STATUS_LABEL[reval.status] ?? reval.status}
-              </Badge>
-            }
+            value={<StatusBadge domain="stock-revaluation" status={reval.status} className="text-[10px] leading-tight" />}
           />
           <InfoRow label="Dibuat Oleh" value={reval.created_by} />
           <InfoRow label="Disetujui Oleh" value={reval.approved_by} />

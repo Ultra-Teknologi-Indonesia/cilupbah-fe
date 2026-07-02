@@ -41,8 +41,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { PageTitle } from "@/components/dashboard/page-title"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 
-import { STATUS_LABELS, CHANNEL_MAP } from "@/types/pesanan/order"
+import { CHANNEL_MAP } from "@/types/pesanan/order"
 import { useOrder } from "@/hooks/pesanan/use-orders"
 import {
   useSetPaid,
@@ -280,12 +281,6 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
     )
   }
 
-  const statusInfo =
-    STATUS_LABELS[order.status] ?? {
-      label: order.status,
-      className: "text-muted-foreground bg-muted border-border",
-    }
-
   const shippingAddress = [
     order.shipping?.address,
     order.shipping?.city,
@@ -337,12 +332,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 {setPaid.isPending ? "Memproses..." : "Tandai Lunas"}
               </Button>
             )}
-            <Badge
-              variant="outline"
-              className={cn("text-xs font-semibold ml-1", statusInfo.className)}
-            >
-              {statusInfo.label}
-            </Badge>
+            <StatusBadge domain="sales-order" status={order.status} className="text-xs font-semibold ml-1" />
           </div>
         }
       />

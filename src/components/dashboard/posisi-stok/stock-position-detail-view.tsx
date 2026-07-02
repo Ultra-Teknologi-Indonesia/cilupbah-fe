@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination } from "@/components/ui/simple-pagination"
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { PageTitle } from "@/components/dashboard/page-title"
 import {
   useStockItem,
@@ -134,55 +135,53 @@ function MovementsSection({ itemId }: { itemId: string }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border/60 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              <th className="whitespace-nowrap px-3 py-2.5">Tanggal</th>
-              <th className="whitespace-nowrap px-3 py-2.5">Lokasi</th>
-              <th className="whitespace-nowrap px-3 py-2.5">Kode Rak</th>
-              <th className="whitespace-nowrap px-3 py-2.5">No. Transaksi</th>
-              <th className="whitespace-nowrap px-3 py-2.5">Sumber</th>
-              <th className="whitespace-nowrap px-3 py-2.5 text-right">Qty</th>
-              <th className="whitespace-nowrap px-3 py-2.5 text-right">Sisa</th>
-            </tr>
-          </thead>
-          <tbody>
-            {movements.map((m: StockMovement) => (
-              <tr key={m.id} className="border-b border-border/30 transition-colors hover:bg-muted/30">
-                <td className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">
-                  {format(new Date(m.transaction_date), "dd MMM yyyy HH:mm", { locale: idLocale })}
-                </td>
-                <td className="whitespace-nowrap px-3 py-2.5">
-                  <span className="inline-flex items-center gap-1">
-                    <MapPinIcon className="h-3 w-3 text-muted-foreground" />
-                    {m.location_name}
-                  </span>
-                </td>
-                <td className="whitespace-nowrap px-3 py-2.5">
-                  {m.bin_code ? (
-                    <code className="rounded bg-muted/60 px-1.5 py-0.5 text-xs font-medium">{m.bin_code}</code>
-                  ) : (
-                    <span className="text-muted-foreground">—</span>
-                  )}
-                </td>
-                <td className="whitespace-nowrap px-3 py-2.5">
-                  <span className="font-mono text-xs">{m.transaction_number}</span>
-                </td>
-                <td className="whitespace-nowrap px-3 py-2.5">
-                  <SourceBadge source={m.source} />
-                </td>
-                <td className="whitespace-nowrap px-3 py-2.5 text-right">
-                  <QtyCell qty={m.qty} />
-                </td>
-                <td className="whitespace-nowrap px-3 py-2.5 text-right font-mono text-sm tabular-nums">
-                  {m.balance}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Table>
+        <TableHeader>
+          <TableRow className="border-b border-border/60 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">Tanggal</TableHead>
+            <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">Lokasi</TableHead>
+            <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">Kode Rak</TableHead>
+            <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">No. Transaksi</TableHead>
+            <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">Sumber</TableHead>
+            <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">Qty</TableHead>
+            <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">Sisa</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {movements.map((m: StockMovement) => (
+            <TableRow key={m.id} className="border-b border-border/30 transition-colors hover:bg-muted/30">
+              <TableCell className="px-3 py-2.5 text-muted-foreground">
+                {format(new Date(m.transaction_date), "dd MMM yyyy HH:mm", { locale: idLocale })}
+              </TableCell>
+              <TableCell className="px-3 py-2.5">
+                <span className="inline-flex items-center gap-1">
+                  <MapPinIcon className="h-3 w-3 text-muted-foreground" />
+                  {m.location_name}
+                </span>
+              </TableCell>
+              <TableCell className="px-3 py-2.5">
+                {m.bin_code ? (
+                  <code className="rounded bg-muted/60 px-1.5 py-0.5 text-xs font-medium">{m.bin_code}</code>
+                ) : (
+                  <span className="text-muted-foreground">—</span>
+                )}
+              </TableCell>
+              <TableCell className="px-3 py-2.5">
+                <span className="font-mono text-xs">{m.transaction_number}</span>
+              </TableCell>
+              <TableCell className="px-3 py-2.5">
+                <SourceBadge source={m.source} />
+              </TableCell>
+              <TableCell className="px-3 py-2.5 text-right">
+                <QtyCell qty={m.qty} />
+              </TableCell>
+              <TableCell className="px-3 py-2.5 text-right font-mono text-sm tabular-nums">
+                {m.balance}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
 
       <div className="px-3">
         <SimplePagination
@@ -224,51 +223,49 @@ function BinSection({ itemId }: { itemId: string }) {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-border/60 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            <th className="whitespace-nowrap px-3 py-2.5">Lokasi</th>
-            <th className="whitespace-nowrap px-3 py-2.5">Kode Rak</th>
-            <th className="whitespace-nowrap px-3 py-2.5">Batch</th>
-            <th className="whitespace-nowrap px-3 py-2.5 text-right">On Hand</th>
-            <th className="whitespace-nowrap px-3 py-2.5 text-right">Reserved</th>
-            <th className="whitespace-nowrap px-3 py-2.5 text-right">Available</th>
-          </tr>
-        </thead>
-        <tbody>
-          {bins.map((b: BinInventory) => (
-            <tr key={b.id} className="border-b border-border/30 transition-colors hover:bg-muted/30">
-              <td className="whitespace-nowrap px-3 py-2.5">
-                <span className="inline-flex items-center gap-1">
-                  <MapPinIcon className="h-3 w-3 text-muted-foreground" />
-                  {b.location_name}
-                </span>
-              </td>
-              <td className="whitespace-nowrap px-3 py-2.5">
-                {b.bin_code ? (
-                  <code className="rounded bg-muted/60 px-1.5 py-0.5 text-xs font-medium">{b.bin_code}</code>
-                ) : (
-                  <span className="text-muted-foreground">—</span>
-                )}
-              </td>
-              <td className="whitespace-nowrap px-3 py-2.5 text-xs text-muted-foreground">
-                {b.batch_no || "—"}
-              </td>
-              <td className="whitespace-nowrap px-3 py-2.5 text-right font-semibold tabular-nums">
-                {b.on_hand}
-              </td>
-              <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums text-orange-600 dark:text-orange-400">
-                {b.reserved}
-              </td>
-              <td className="whitespace-nowrap px-3 py-2.5 text-right font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
-                {b.available}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Table>
+      <TableHeader>
+        <TableRow className="border-b border-border/60 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">Lokasi</TableHead>
+          <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">Kode Rak</TableHead>
+          <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">Batch</TableHead>
+          <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">On Hand</TableHead>
+          <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">Reserved</TableHead>
+          <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">Available</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {bins.map((b: BinInventory) => (
+          <TableRow key={b.id} className="border-b border-border/30 transition-colors hover:bg-muted/30">
+            <TableCell className="px-3 py-2.5">
+              <span className="inline-flex items-center gap-1">
+                <MapPinIcon className="h-3 w-3 text-muted-foreground" />
+                {b.location_name}
+              </span>
+            </TableCell>
+            <TableCell className="px-3 py-2.5">
+              {b.bin_code ? (
+                <code className="rounded bg-muted/60 px-1.5 py-0.5 text-xs font-medium">{b.bin_code}</code>
+              ) : (
+                <span className="text-muted-foreground">—</span>
+              )}
+            </TableCell>
+            <TableCell className="px-3 py-2.5 text-xs text-muted-foreground">
+              {b.batch_no || "—"}
+            </TableCell>
+            <TableCell className="px-3 py-2.5 text-right font-semibold tabular-nums">
+              {b.on_hand}
+            </TableCell>
+            <TableCell className="px-3 py-2.5 text-right tabular-nums text-orange-600 dark:text-orange-400">
+              {b.reserved}
+            </TableCell>
+            <TableCell className="px-3 py-2.5 text-right font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
+              {b.available}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   )
 }
 

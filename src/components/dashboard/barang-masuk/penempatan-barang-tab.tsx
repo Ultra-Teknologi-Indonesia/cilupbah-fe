@@ -4,8 +4,6 @@ import { useState, useMemo, useCallback, useEffect } from "react"
 import Link from "next/link"
 import { ArchiveIcon, PlayIcon, UserPlusIcon, DownloadIcon, PrinterIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Combobox } from "@/components/ui/combobox"
@@ -24,7 +22,9 @@ import { useAssignPutawayStaff, useStartPutaway } from "@/hooks/barang-masuk/use
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import { useUsers } from "@/hooks/pengaturan/use-users"
 import { exportCsv } from "@/lib/export-csv"
-import type { Putaway, PutawayStatus } from "@/types/barang-masuk/putaway"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
+import { getStatusMeta } from "@/lib/status"
+import type { Putaway } from "@/types/barang-masuk/putaway"
 import { formatDate } from "@/lib/format"
 
 const STATUS_OPTIONS = [
@@ -33,20 +33,6 @@ const STATUS_OPTIONS = [
   { value: "IN_PROGRESS", label: "Sedang Diproses" },
   { value: "COMPLETED", label: "Selesai" },
 ]
-
-const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "muted" | "info" | "indigo"> = {
-  NOT_STARTED: "muted",
-  IN_PROGRESS: "warning",
-  COMPLETED: "success",
-  CANCELLED: "destructive",
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  NOT_STARTED: "Belum Mulai",
-  IN_PROGRESS: "Sedang Diproses",
-  COMPLETED: "Selesai",
-  CANCELLED: "Dibatalkan",
-}
 
 
 function ProgressBar({ placed, total }: { placed: number; total: number }) {
@@ -80,7 +66,7 @@ function handleExportPutaway(items: Putaway[]) {
       item.assignee?.name ?? "",
       String(totalQty),
       String(placedQty),
-      STATUS_LABEL[item.status] ?? item.status,
+      getStatusMeta("putaway", item.status).label,
     ]
   })
   exportCsv(`penempatan-barang-${new Date().toISOString().slice(0, 10)}.csv`, headers, rows)
@@ -180,9 +166,7 @@ export function PenempatanBarangTab() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (
-        <Badge variant={STATUS_VARIANT[row.original.status] ?? "default"}>
-          {STATUS_LABEL[row.original.status] ?? row.original.status}
-        </Badge>
+        <StatusBadge domain="putaway" status={row.original.status} />
       ),
     },
     {

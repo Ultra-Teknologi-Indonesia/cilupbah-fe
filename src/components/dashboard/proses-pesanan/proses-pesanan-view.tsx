@@ -130,7 +130,7 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
                 className="h-9"
                 onClick={() => setShowTambahPengiriman(true)}
               >
-                <PlusIcon className="size-4" /> Tambah Pengiriman Baru
+                <PlusIcon className="size-4" /> Buat Pengiriman
               </Button>
             )}
           </div>

@@ -4,9 +4,7 @@ import { useState, useMemo, useCallback, useEffect } from "react"
 import { ArrowRightLeftIcon, PackageCheckIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Combobox } from "@/components/ui/combobox"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Button } from "@/components/ui/button"
@@ -15,10 +13,12 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
+import { UserSelect } from "@/components/dashboard/shared/user-select"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 import { useIncomingTransfers } from "@/hooks/barang-masuk/use-inventory-transfers"
 import { useReceiveTransfer } from "@/hooks/barang-masuk/use-receive-transfer"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
-import type { InventoryTransfer, InventoryTransferStatus } from "@/types/barang-masuk/inventory-transfer"
+import type { InventoryTransfer } from "@/types/barang-masuk/inventory-transfer"
 import { formatDate } from "@/lib/format"
 
 const STATUS_OPTIONS = [
@@ -26,18 +26,6 @@ const STATUS_OPTIONS = [
   { value: "IN_TRANSIT", label: "Dalam Perjalanan" },
   { value: "RECEIVED", label: "Diterima" },
 ]
-
-const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "muted" | "info" | "indigo" | "purple" | "orange" | "teal"> = {
-  IN_TRANSIT: "info",
-  RECEIVED: "success",
-  CANCELLED: "destructive",
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  IN_TRANSIT: "Dalam Perjalanan",
-  RECEIVED: "Diterima",
-  CANCELLED: "Dibatalkan",
-}
 
 
 function ProgressBar({ received, total }: { received: number; total: number }) {
@@ -139,9 +127,7 @@ export function TransferMasukTab() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (
-        <Badge variant={STATUS_VARIANT[row.original.status] ?? "default"}>
-          {STATUS_LABEL[row.original.status] ?? row.original.status}
-        </Badge>
+        <StatusBadge domain="inventory-transfer" status={row.original.status} />
       ),
     },
     {
@@ -263,11 +249,11 @@ export function TransferMasukTab() {
           <Label htmlFor="transfer-received-by" className="text-sm font-medium">
             Diterima oleh <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id="transfer-received-by"
-            placeholder="Nama penerima"
+          <UserSelect
             value={receivedBy}
-            onChange={(e) => setReceivedBy(e.target.value)}
+            onChange={setReceivedBy}
+            defaultToSelf
+            placeholder="Nama penerima"
             className="mt-1.5"
           />
         </div>

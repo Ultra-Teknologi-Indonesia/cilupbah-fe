@@ -15,6 +15,8 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
+import { UserSelect } from "@/components/dashboard/shared/user-select"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 import { useSalesReturnsUnprocessed, useSalesReturns } from "@/hooks/barang-masuk/use-sales-returns"
 import { useAcceptSalesReturn, useRejectSalesReturn, useCompleteSalesReturn } from "@/hooks/barang-masuk/use-sales-return-actions"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
@@ -29,20 +31,6 @@ const SUB_TABS: { key: ReturSubTab; label: string }[] = [
   { key: "accepted", label: "Disetujui" },
   { key: "completed", label: "Selesai" },
 ]
-
-const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "muted" | "info" | "indigo" | "purple" | "orange" | "teal"> = {
-  PENDING: "warning",
-  ACCEPTED: "info",
-  REJECTED: "destructive",
-  COMPLETED: "success",
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  PENDING: "Menunggu",
-  ACCEPTED: "Disetujui",
-  REJECTED: "Ditolak",
-  COMPLETED: "Selesai",
-}
 
 const SUBTAB_TO_STATUS: Record<ReturSubTab, string> = {
   unprocessed: "",
@@ -170,9 +158,7 @@ export function ReturChannelTab() {
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => (
-          <Badge variant={STATUS_VARIANT[row.original.status] ?? "default"}>
-            {STATUS_LABEL[row.original.status] ?? row.original.status}
-          </Badge>
+          <StatusBadge domain="sales-return" status={row.original.status} />
         ),
       },
     ]
@@ -343,11 +329,11 @@ export function ReturChannelTab() {
           <Label htmlFor="accept-by" className="text-sm font-medium">
             Diproses oleh <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id="accept-by"
-            placeholder="Nama petugas"
+          <UserSelect
             value={processedBy}
-            onChange={(e) => setProcessedBy(e.target.value)}
+            onChange={setProcessedBy}
+            defaultToSelf
+            placeholder="Nama petugas"
             className="mt-1.5"
           />
         </div>
@@ -372,11 +358,11 @@ export function ReturChannelTab() {
           <Label htmlFor="complete-by" className="text-sm font-medium">
             Diproses oleh <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id="complete-by"
-            placeholder="Nama petugas"
+          <UserSelect
             value={processedBy}
-            onChange={(e) => setProcessedBy(e.target.value)}
+            onChange={setProcessedBy}
+            defaultToSelf
+            placeholder="Nama petugas"
             className="mt-1.5"
           />
         </div>
@@ -403,11 +389,11 @@ export function ReturChannelTab() {
             <Label htmlFor="reject-by" className="text-sm font-medium">
               Diproses oleh <span className="text-red-500">*</span>
             </Label>
-            <Input
-              id="reject-by"
-              placeholder="Nama petugas"
+            <UserSelect
               value={processedBy}
-              onChange={(e) => setProcessedBy(e.target.value)}
+              onChange={setProcessedBy}
+              defaultToSelf
+              placeholder="Nama petugas"
               className="mt-1.5"
             />
           </div>

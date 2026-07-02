@@ -26,6 +26,8 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { PageTitle } from "@/components/dashboard/page-title"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
+import { UserSelect } from "@/components/dashboard/shared/user-select"
 import {
   useStockOpnameDetail,
   useStartStockOpname,
@@ -36,21 +38,6 @@ import {
 } from "@/hooks/transaksi-stok/use-stock-opname"
 import { exportCsv } from "@/lib/export-csv"
 import { formatDate } from "@/lib/format"
-
-const STATUS_STYLE: Record<string, string> = {
-  DRAFT: "border-slate-300 text-slate-600 dark:border-slate-500/30 dark:text-slate-400",
-  IN_PROGRESS: "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400",
-  FINALIZED: "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
-  CANCELLED: "border-red-300 text-red-600 dark:border-red-500/30 dark:text-red-400",
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  DRAFT: "Draft",
-  IN_PROGRESS: "Sedang Berjalan",
-  FINALIZED: "Selesai",
-  CANCELLED: "Dibatalkan",
-}
-
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -339,11 +326,7 @@ export function OpnameDetail({ id }: { id: string }) {
           <InfoRow label="Lokasi" value={opname.location?.location_name} />
           <InfoRow
             label="Status"
-            value={
-              <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[opname.status] ?? "")}>
-                {STATUS_LABEL[opname.status] ?? opname.status}
-              </Badge>
-            }
+            value={<StatusBadge domain="stock-opname" status={opname.status} className="text-[10px] leading-tight" />}
           />
           <InfoRow label="Dibuat Oleh" value={opname.created_by} />
           <InfoRow label="Diproses Oleh" value={opname.process_by} />
@@ -391,11 +374,11 @@ export function OpnameDetail({ id }: { id: string }) {
           <Label htmlFor="opname-start-by" className="text-sm font-medium">
             Diproses oleh <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id="opname-start-by"
-            placeholder="Nama penanggung jawab"
+          <UserSelect
             value={startBy}
-            onChange={(e) => setStartBy(e.target.value)}
+            onChange={setStartBy}
+            defaultToSelf
+            placeholder="Nama penanggung jawab"
             className="mt-1.5"
           />
         </div>
@@ -422,11 +405,11 @@ export function OpnameDetail({ id }: { id: string }) {
             <Label htmlFor="opname-finalize-by" className="text-sm font-medium">
               Difinalisasi oleh <span className="text-red-500">*</span>
             </Label>
-            <Input
-              id="opname-finalize-by"
-              placeholder="Nama penanggung jawab"
+            <UserSelect
               value={finalizeBy}
-              onChange={(e) => setFinalizeBy(e.target.value)}
+              onChange={setFinalizeBy}
+              defaultToSelf
+              placeholder="Nama penanggung jawab"
               className="mt-1.5"
             />
           </div>
@@ -518,11 +501,11 @@ export function OpnameDetail({ id }: { id: string }) {
           </div>
           <div>
             <Label htmlFor="count-by" className="text-sm font-medium">Dihitung Oleh</Label>
-            <Input
-              id="count-by"
-              placeholder="Nama penghitung"
+            <UserSelect
               value={countDialog.countedBy}
-              onChange={(e) => setCountDialog((p) => ({ ...p, countedBy: e.target.value }))}
+              onChange={(name) => setCountDialog((p) => ({ ...p, countedBy: name }))}
+              defaultToSelf
+              placeholder="Nama penghitung"
               className="mt-1.5"
             />
           </div>

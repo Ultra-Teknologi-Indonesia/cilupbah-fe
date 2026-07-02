@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { PageTitle } from "@/components/dashboard/page-title"
+import { UserSelect } from "@/components/dashboard/shared/user-select"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import { useCreateSalesReturn } from "@/hooks/barang-masuk/use-sales-return-actions"
 import { ProductPickerDialog, type PickedProduct } from "@/components/dashboard/transaksi-pembelian/product-picker-dialog"
@@ -115,7 +116,7 @@ export function SalesReturnFormPage() {
           </div>
           <div className="flex flex-col gap-1.5">
             <Label className="text-sm font-medium">Dibuat oleh <span className="text-red-500">*</span></Label>
-            <Input value={createdBy} onChange={(e) => setCreatedBy(e.target.value)} placeholder="Nama petugas" />
+            <UserSelect value={createdBy} onChange={setCreatedBy} defaultToSelf placeholder="Nama petugas" />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label className="text-sm font-medium">Nama Pelanggan</Label>

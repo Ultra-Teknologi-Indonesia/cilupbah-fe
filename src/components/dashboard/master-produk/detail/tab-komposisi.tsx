@@ -2,6 +2,7 @@
 
 import { AlertTriangleIcon, PackageIcon, LayersIcon } from "lucide-react"
 
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import type { BundleComponent } from "@/types/master-produk"
 
 type BundleStock = { onHand: number; reserved: number; onOrder: number; available: number } | null
@@ -57,23 +58,22 @@ export function TabKomposisi({
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-lg border border-border/60 bg-card">
-      <table className="w-full min-w-[640px] border-collapse text-sm">
-        <thead>
-          <tr className="border-b border-border/60 bg-muted/40 text-left text-xs text-muted-foreground">
-            <th className="px-3 py-2.5">Produk komponen</th>
-            <th className="px-3 py-2.5">SKU</th>
-            <th className="px-3 py-2.5 text-center">Qty</th>
-            <th className="px-3 py-2.5 text-right">Stok tersedia</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table className="min-w-[640px] border-collapse" containerClassName="rounded-lg border border-border/60 bg-card">
+        <TableHeader>
+          <TableRow className="border-b border-border/60 bg-muted/40 text-left text-xs text-muted-foreground">
+            <TableHead className="px-3 py-2.5 text-xs font-normal text-muted-foreground">Produk komponen</TableHead>
+            <TableHead className="px-3 py-2.5 text-xs font-normal text-muted-foreground">SKU</TableHead>
+            <TableHead className="px-3 py-2.5 text-center text-xs font-normal text-muted-foreground">Qty</TableHead>
+            <TableHead className="px-3 py-2.5 text-right text-xs font-normal text-muted-foreground">Stok tersedia</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {components.map((c) => (
-            <tr
+            <TableRow
               key={c.componentVariantId}
               className="border-b border-border/40 last:border-0 align-top hover:bg-muted/30"
             >
-              <td className="px-3 py-2.5">
+              <TableCell className="px-3 py-2.5 whitespace-normal">
                 <div className="font-medium text-foreground">{c.product?.name ?? "—"}</div>
                 {c.variationValues.length > 0 && (
                   <div className="mt-1 flex flex-wrap gap-1">
@@ -84,14 +84,14 @@ export function TabKomposisi({
                     ))}
                   </div>
                 )}
-              </td>
-              <td className="px-3 py-2.5 font-mono text-xs text-primary">{c.sku ?? "—"}</td>
-              <td className="px-3 py-2.5 text-center tabular-nums">
+              </TableCell>
+              <TableCell className="px-3 py-2.5 font-mono text-xs text-primary">{c.sku ?? "—"}</TableCell>
+              <TableCell className="px-3 py-2.5 text-center tabular-nums">
                 <span className="inline-flex min-w-7 items-center justify-center rounded-md bg-primary/10 px-1.5 py-0.5 font-medium text-primary">
                   ×{c.qty}
                 </span>
-              </td>
-              <td className="px-3 py-2.5 text-right tabular-nums">
+              </TableCell>
+              <TableCell className="px-3 py-2.5 text-right tabular-nums">
                 {c.stock ? (
                   <span
                     className={
@@ -106,12 +106,11 @@ export function TabKomposisi({
                 ) : (
                   <span className="text-muted-foreground">—</span>
                 )}
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
-      </div>
+        </TableBody>
+      </Table>
     </div>
   )
 }

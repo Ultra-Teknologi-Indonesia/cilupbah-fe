@@ -5,14 +5,16 @@ import { useRouter } from "next/navigation"
 import { ArrowLeftIcon, DownloadIcon, PrinterIcon, CheckIcon, TruckIcon, XIcon, Trash2Icon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { PageTitle } from "@/components/dashboard/page-title"
+import { UserSelect } from "@/components/dashboard/shared/user-select"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 import {
   useOutboundTransferDetail,
   useApproveTransfer,
@@ -23,22 +25,6 @@ import {
 import { exportCsv } from "@/lib/export-csv"
 import { useState, useCallback } from "react"
 import { formatDate } from "@/lib/format"
-
-const STATUS_STYLE: Record<string, string> = {
-  DRAFT: "border-slate-300 text-slate-600 dark:border-slate-500/30 dark:text-slate-400",
-  APPROVED: "border-indigo-300 text-indigo-600 dark:border-indigo-500/30 dark:text-indigo-400",
-  IN_TRANSIT: "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400",
-  RECEIVED: "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
-  CANCELLED: "border-red-300 text-red-600 dark:border-red-500/30 dark:text-red-400",
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  DRAFT: "Draft",
-  APPROVED: "Disetujui",
-  IN_TRANSIT: "Dikirim",
-  RECEIVED: "Diterima",
-  CANCELLED: "Dibatalkan",
-}
 
 const TIMELINE_STEPS = [
   { key: "DRAFT", label: "Draft" },
@@ -250,11 +236,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
             <InfoRow label="Lokasi Tujuan" value={transfer.destination_location?.location_name} />
             <InfoRow
               label="Status"
-              value={
-                <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[transfer.status] ?? "")}>
-                  {STATUS_LABEL[transfer.status] ?? transfer.status}
-                </Badge>
-              }
+              value={<StatusBadge domain="inventory-transfer" status={transfer.status} className="text-[10px] leading-tight" />}
             />
             <InfoRow label="Dibuat oleh" value={transfer.created_by} />
             <InfoRow label="Tgl. Dibuat" value={formatDate(transfer.created_at)} />
@@ -273,29 +255,27 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
         <div className="px-4 py-5 sm:px-6">
           <h3 className="mb-4 text-sm font-semibold text-foreground">Item Transfer</h3>
           {transfer.items?.length > 0 ? (
-            <div className="overflow-x-auto rounded-lg border border-border/40">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border/60 bg-muted/30">
-                    {["SKU", "Nama Produk", "Qty", "Qty Diterima"].map((h) => (
-                      <th key={h} className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {transfer.items.map((item) => (
-                    <tr key={item.id} className="border-b border-border/20 last:border-0">
-                      <td className="whitespace-nowrap px-3 py-3 font-mono text-xs">{item.variant?.sku ?? "—"}</td>
-                      <td className="whitespace-nowrap px-3 py-3">{item.variant?.item_name ?? "—"}</td>
-                      <td className="whitespace-nowrap px-3 py-3 tabular-nums">{item.qty}</td>
-                      <td className="whitespace-nowrap px-3 py-3 tabular-nums text-muted-foreground">{item.received_qty ?? 0}</td>
-                    </tr>
+            <Table containerClassName="rounded-lg border border-border/40">
+              <TableHeader>
+                <TableRow className="border-b border-border/60 bg-muted/30">
+                  {["SKU", "Nama Produk", "Qty", "Qty Diterima"].map((h) => (
+                    <TableHead key={h} className="px-3 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      {h}
+                    </TableHead>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {transfer.items.map((item) => (
+                  <TableRow key={item.id} className="border-b border-border/20 last:border-0">
+                    <TableCell className="px-3 py-3 font-mono text-xs">{item.variant?.sku ?? "—"}</TableCell>
+                    <TableCell className="px-3 py-3">{item.variant?.item_name ?? "—"}</TableCell>
+                    <TableCell className="px-3 py-3 tabular-nums">{item.qty}</TableCell>
+                    <TableCell className="px-3 py-3 tabular-nums text-muted-foreground">{item.received_qty ?? 0}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           ) : (
             <p className="py-8 text-center text-sm text-muted-foreground">Belum ada item</p>
           )}
@@ -321,11 +301,10 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
           <Label htmlFor="detail-approved-by" className="text-sm font-medium">
             Disetujui oleh <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id="detail-approved-by"
-            placeholder="Nama penyetuju"
+          <UserSelect
             value={approvedBy}
-            onChange={(e) => setApprovedBy(e.target.value)}
+            onChange={setApprovedBy}
+            placeholder="Nama penyetuju"
             className="mt-1.5"
           />
         </div>
@@ -350,11 +329,11 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
           <Label htmlFor="detail-shipped-by" className="text-sm font-medium">
             Dikirim oleh <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id="detail-shipped-by"
-            placeholder="Nama pengirim"
+          <UserSelect
             value={shippedBy}
-            onChange={(e) => setShippedBy(e.target.value)}
+            onChange={setShippedBy}
+            defaultToSelf
+            placeholder="Nama pengirim"
             className="mt-1.5"
           />
         </div>
@@ -381,11 +360,11 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
             <Label htmlFor="detail-cancelled-by" className="text-sm font-medium">
               Dibatalkan oleh <span className="text-red-500">*</span>
             </Label>
-            <Input
-              id="detail-cancelled-by"
-              placeholder="Nama pembatal"
+            <UserSelect
               value={cancelledBy}
-              onChange={(e) => setCancelledBy(e.target.value)}
+              onChange={setCancelledBy}
+              defaultToSelf
+              placeholder="Nama pembatal"
               className="mt-1.5"
             />
           </div>

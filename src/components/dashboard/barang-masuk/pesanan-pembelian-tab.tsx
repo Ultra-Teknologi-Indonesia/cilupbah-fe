@@ -4,8 +4,6 @@ import { useState, useMemo, useCallback, useEffect } from "react"
 import Link from "next/link"
 import { ClipboardListIcon, PackageCheckIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Button } from "@/components/ui/button"
@@ -14,9 +12,10 @@ import { Progress } from "@/components/ui/progress"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 import { useReceivablePurchaseOrders } from "@/hooks/barang-masuk/use-purchase-orders-inbound"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
-import type { PurchaseOrder, PurchaseOrderStatus } from "@/types/transaksi-pembelian/purchase-order"
+import type { PurchaseOrder } from "@/types/transaksi-pembelian/purchase-order"
 import { formatDate } from "@/lib/format"
 
 const STATUS_OPTIONS = [
@@ -26,21 +25,6 @@ const STATUS_OPTIONS = [
   { value: "CLOSED", label: "Ditutup" },
   { value: "FULLY_RECEIVED", label: "Selesai" },
 ]
-
-const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "muted" | "info" | "indigo" | "purple" | "orange" | "teal"> = {
-  OPEN: "warning",
-  PARTIAL_RECEIVED: "info",
-  CLOSED: "muted",
-  FULLY_RECEIVED: "success",
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  OPEN: "Belum Diterima",
-  PARTIAL_RECEIVED: "Diterima Sebagian",
-  CLOSED: "Ditutup",
-  FULLY_RECEIVED: "Selesai",
-}
-
 
 function ProgressBar({ received, total }: { received: number; total: number }) {
   const pct = total > 0 ? Math.round((received / total) * 100) : 0
@@ -136,9 +120,7 @@ export function PesananPembelianTab() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (
-        <Badge variant={STATUS_VARIANT[row.original.status] ?? "default"}>
-          {STATUS_LABEL[row.original.status] ?? row.original.status}
-        </Badge>
+        <StatusBadge domain="purchase-order" status={row.original.status} />
       ),
     },
     {

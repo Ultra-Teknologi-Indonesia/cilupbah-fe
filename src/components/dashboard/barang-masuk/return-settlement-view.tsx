@@ -4,14 +4,14 @@ import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeftIcon, Loader2Icon, PlusIcon, Trash2Icon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { PageTitle } from "@/components/dashboard/page-title"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 import { useSalesReturn } from "@/hooks/barang-masuk/use-sales-returns"
 import { useSalesReturnSetting } from "@/hooks/barang-masuk/use-sales-return-setting"
 import {
@@ -23,13 +23,6 @@ import {
   useAddRefund,
   useRemoveRefund,
 } from "@/hooks/barang-masuk/use-return-settlement"
-import type { ReturnSettlementStatus } from "@/types/barang-masuk/return-settlement"
-
-const STATUS_MAP: Record<ReturnSettlementStatus, { label: string; className: string }> = {
-  DRAFT: { label: "Draft", className: "bg-muted text-muted-foreground" },
-  CONFIRMED: { label: "Dikonfirmasi", className: "bg-blue-500/10 text-blue-600" },
-  COMPLETED: { label: "Selesai", className: "bg-emerald-500/10 text-emerald-600" },
-}
 
 const DEFAULT_METHODS = ["cash", "transfer", "store_credit"]
 
@@ -137,9 +130,7 @@ export function ReturnSettlementView({ returnId }: { returnId: string }) {
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground">Status</div>
-                  <Badge variant="secondary" className={cn("text-[11px]", STATUS_MAP[settlement.status]?.className)}>
-                    {STATUS_MAP[settlement.status]?.label ?? settlement.status}
-                  </Badge>
+                  <StatusBadge domain="return-settlement" status={settlement.status} className="text-[11px]" />
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground">Total</div>
@@ -171,38 +162,40 @@ export function ReturnSettlementView({ returnId }: { returnId: string }) {
             <div className="flex flex-col gap-3 px-5 py-5">
               <p className="text-sm font-medium">Refund Tunai</p>
               <div className="overflow-x-auto rounded-lg border border-border">
-                <table className="w-full min-w-[520px] text-sm">
-                  <thead>
-                    <tr className="border-b border-border bg-muted/40 text-left text-muted-foreground">
-                      <th className="px-3 py-2.5 font-medium">No. Refund</th>
-                      <th className="px-3 py-2.5 font-medium">Metode</th>
-                      <th className="px-3 py-2.5 font-medium">Tanggal</th>
-                      <th className="px-3 py-2.5 text-right font-medium">Jumlah</th>
-                      {isDraft && <th className="w-10 px-3 py-2.5" />}
-                    </tr>
-                  </thead>
-                  <tbody>
+                <Table className="min-w-[520px]">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>No. Refund</TableHead>
+                      <TableHead>Metode</TableHead>
+                      <TableHead>Tanggal</TableHead>
+                      <TableHead className="text-right">Jumlah</TableHead>
+                      {isDraft && <TableHead className="w-10" />}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {(settlement.refunds ?? []).length === 0 ? (
-                      <tr><td colSpan={isDraft ? 5 : 4} className="py-8 text-center text-muted-foreground">Belum ada refund.</td></tr>
+                      <TableRow>
+                        <TableCell colSpan={isDraft ? 5 : 4} className="py-8 text-center text-muted-foreground">Belum ada refund.</TableCell>
+                      </TableRow>
                     ) : (
                       settlement.refunds!.map((r) => (
-                        <tr key={r.id} className="border-b border-border/60 last:border-0">
-                          <td className="px-3 py-2.5 font-mono text-xs">{r.refund_number}</td>
-                          <td className="px-3 py-2.5">{r.refund_method}</td>
-                          <td className="px-3 py-2.5">{r.refund_date}</td>
-                          <td className="px-3 py-2.5 text-right tabular-nums">{money(r.amount)}</td>
+                        <TableRow key={r.id}>
+                          <TableCell className="font-mono text-xs">{r.refund_number}</TableCell>
+                          <TableCell>{r.refund_method}</TableCell>
+                          <TableCell>{r.refund_date}</TableCell>
+                          <TableCell className="text-right tabular-nums">{money(r.amount)}</TableCell>
                           {isDraft && (
-                            <td className="px-3 py-2.5">
+                            <TableCell>
                               <Button variant="ghost" size="icon-sm" className="text-destructive" onClick={() => removeRefundMut.mutate(r.id)} aria-label="Hapus">
                                 <Trash2Icon className="h-3.5 w-3.5" />
                               </Button>
-                            </td>
+                            </TableCell>
                           )}
-                        </tr>
+                        </TableRow>
                       ))
                     )}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
 
               {isDraft && (
@@ -237,22 +230,22 @@ export function ReturnSettlementView({ returnId }: { returnId: string }) {
               <div className="flex flex-col gap-3 px-5 py-5">
                 <p className="text-sm font-medium">Potong Faktur</p>
                 <div className="overflow-x-auto rounded-lg border border-border">
-                  <table className="w-full min-w-[360px] text-sm">
-                    <thead>
-                      <tr className="border-b border-border bg-muted/40 text-left text-muted-foreground">
-                        <th className="px-3 py-2.5 font-medium">Faktur</th>
-                        <th className="px-3 py-2.5 text-right font-medium">Jumlah</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                  <Table className="min-w-[360px]">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Faktur</TableHead>
+                        <TableHead className="text-right">Jumlah</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {settlement.invoices!.map((iv) => (
-                        <tr key={iv.id} className="border-b border-border/60 last:border-0">
-                          <td className="px-3 py-2.5 font-mono text-xs">{iv.invoice?.invoice_number ?? iv.invoice_id}</td>
-                          <td className="px-3 py-2.5 text-right tabular-nums">{money(iv.amount)}</td>
-                        </tr>
+                        <TableRow key={iv.id}>
+                          <TableCell className="font-mono text-xs">{iv.invoice?.invoice_number ?? iv.invoice_id}</TableCell>
+                          <TableCell className="text-right tabular-nums">{money(iv.amount)}</TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </TableBody>
+                  </Table>
                 </div>
               </div>
             </LiquidGlass>

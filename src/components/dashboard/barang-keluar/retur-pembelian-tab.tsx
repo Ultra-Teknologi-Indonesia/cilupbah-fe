@@ -4,11 +4,8 @@ import { useState, useMemo, useCallback, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { CornerUpLeftIcon, DownloadIcon, PlayIcon, Trash2Icon, PlusIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -16,6 +13,9 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
+import { UserSelect } from "@/components/dashboard/shared/user-select"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
+import { getStatusMeta } from "@/lib/status"
 import { usePurchaseReturns, useProcessPurchaseReturn, useDeletePurchaseReturn } from "@/hooks/barang-keluar/use-purchase-returns"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import { exportCsv } from "@/lib/export-csv"
@@ -27,25 +27,6 @@ const STATUS_OPTIONS = [
   { value: "DRAFT", label: "Draft" },
   { value: "COMPLETED", label: "Selesai" },
 ]
-
-const STATUS_STYLE: Record<string, string> = {
-  DRAFT: "border-slate-300 text-slate-600 dark:border-slate-500/30 dark:text-slate-400",
-  SUBMITTED: "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400",
-  APPROVED: "border-indigo-300 text-indigo-600 dark:border-indigo-500/30 dark:text-indigo-400",
-  COMPLETED: "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
-  CANCELLED: "border-red-300 text-red-600 dark:border-red-500/30 dark:text-red-400",
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  DRAFT: "Draft",
-  SUBMITTED: "Diajukan",
-  APPROVED: "Disetujui",
-  COMPLETED: "Selesai",
-  CANCELLED: "Dibatalkan",
-}
-
-
-
 
 interface FilterState {
   status: string
@@ -125,9 +106,7 @@ export function ReturPembelianTab() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (
-        <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[row.original.status] ?? "")}>
-          {STATUS_LABEL[row.original.status] ?? row.original.status}
-        </Badge>
+        <StatusBadge domain="purchase-return" status={row.original.status} className="text-[10px] leading-tight" />
       ),
     },
     {
@@ -186,7 +165,7 @@ export function ReturPembelianTab() {
         r.location?.location_name ?? "",
         r.return_date,
         String(r.total_amount),
-        STATUS_LABEL[r.status] ?? r.status,
+        getStatusMeta("purchase-return", r.status).label,
         r.created_by,
       ])
     )
@@ -285,11 +264,11 @@ export function ReturPembelianTab() {
           <Label htmlFor="retur-processed-by" className="text-sm font-medium">
             Diproses oleh <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id="retur-processed-by"
-            placeholder="Nama penanggung jawab"
+          <UserSelect
             value={processedBy}
-            onChange={(e) => setProcessedBy(e.target.value)}
+            onChange={setProcessedBy}
+            defaultToSelf
+            placeholder="Nama penanggung jawab"
             className="mt-1.5"
           />
         </div>

@@ -31,10 +31,8 @@ import {
   usePickItem,
   useCompletePicklist,
 } from "@/hooks/proses-pesanan/use-fulfillment"
-import {
-  PICKLIST_STATUS_LABEL,
-  type PicklistItem,
-} from "@/types/proses-pesanan/fulfillment"
+import { type PicklistItem } from "@/types/proses-pesanan/fulfillment"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 
 const LIST_HREF = "/dashboard/proses-pesanan"
 
@@ -296,14 +294,7 @@ export function PickingProsesView({ id }: { id: string }) {
             <div className="rounded-2xl border border-border bg-card p-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">No Picklist</span>
-                <span
-                  className={cn(
-                    "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-                    PICKLIST_STATUS_LABEL[pl.status].className
-                  )}
-                >
-                  {PICKLIST_STATUS_LABEL[pl.status].label}
-                </span>
+                <StatusBadge domain="picklist" status={pl.status} />
               </div>
               <div className="mt-1 font-mono text-sm font-semibold text-foreground">
                 {pl.picklistNo}

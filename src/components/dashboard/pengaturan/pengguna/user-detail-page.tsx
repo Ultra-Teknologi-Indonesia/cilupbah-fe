@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { SimplePagination } from "@/components/ui/simple-pagination"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import {
   useUserDetail,
   useDeleteUser,
@@ -176,57 +177,55 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b text-left text-muted-foreground">
-                      <th className="pb-2 pr-4 font-medium">Waktu</th>
-                      <th className="pb-2 pr-4 font-medium">Perangkat</th>
-                      <th className="pb-2 pr-4 font-medium">Browser</th>
-                      <th className="pb-2 pr-4 font-medium">OS</th>
-                      <th className="pb-2 pr-4 font-medium">Lokasi</th>
-                      <th className="pb-2 font-medium">IP Address</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loginHistoryData.items.map((entry) => (
-                      <tr key={entry.id} className="border-b last:border-0">
-                        <td className="py-2.5 pr-4 whitespace-nowrap">
-                          {formatDate(entry.createdAt)}
-                        </td>
-                        <td className="py-2.5 pr-4">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b text-left text-muted-foreground">
+                    <TableHead className="h-auto pb-2 pr-4 font-medium text-muted-foreground">Waktu</TableHead>
+                    <TableHead className="h-auto pb-2 pr-4 font-medium text-muted-foreground">Perangkat</TableHead>
+                    <TableHead className="h-auto pb-2 pr-4 font-medium text-muted-foreground">Browser</TableHead>
+                    <TableHead className="h-auto pb-2 pr-4 font-medium text-muted-foreground">OS</TableHead>
+                    <TableHead className="h-auto pb-2 pr-4 font-medium text-muted-foreground">Lokasi</TableHead>
+                    <TableHead className="h-auto pb-2 font-medium text-muted-foreground">IP Address</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loginHistoryData.items.map((entry) => (
+                    <TableRow key={entry.id} className="border-b last:border-0">
+                      <TableCell className="py-2.5 pr-4 whitespace-nowrap">
+                        {formatDate(entry.createdAt)}
+                      </TableCell>
+                      <TableCell className="py-2.5 pr-4">
+                        <div className="flex items-center gap-1.5">
+                          <DeviceIcon device={entry.device} />
+                          <span>{entry.device}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-2.5 pr-4">
+                        <div className="flex items-center gap-1.5">
+                          <GlobeIcon className="size-4" />
+                          <span>{entry.browser}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-2.5 pr-4">{entry.os}</TableCell>
+                      <TableCell className="py-2.5 pr-4">
+                        {entry.city && entry.city !== "-" ? (
                           <div className="flex items-center gap-1.5">
-                            <DeviceIcon device={entry.device} />
-                            <span>{entry.device}</span>
+                            <MapPinIcon className="size-3.5 text-muted-foreground" />
+                            <span className="whitespace-nowrap">
+                              {[entry.city, entry.country].filter((v) => v && v !== "-").join(", ") || "-"}
+                            </span>
                           </div>
-                        </td>
-                        <td className="py-2.5 pr-4">
-                          <div className="flex items-center gap-1.5">
-                            <GlobeIcon className="size-4" />
-                            <span>{entry.browser}</span>
-                          </div>
-                        </td>
-                        <td className="py-2.5 pr-4">{entry.os}</td>
-                        <td className="py-2.5 pr-4">
-                          {entry.city && entry.city !== "-" ? (
-                            <div className="flex items-center gap-1.5">
-                              <MapPinIcon className="size-3.5 text-muted-foreground" />
-                              <span className="whitespace-nowrap">
-                                {[entry.city, entry.country].filter((v) => v && v !== "-").join(", ") || "-"}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </td>
-                        <td className="py-2.5 font-mono text-xs">
-                          {entry.ipAddress || "-"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="py-2.5 font-mono text-xs">
+                        {entry.ipAddress || "-"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
 
               <div className="mt-3">
                 <SimplePagination

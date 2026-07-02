@@ -4,12 +4,12 @@ import { useMemo, useCallback } from "react"
 import Link from "next/link"
 import { ArrowLeftRightIcon, InfoIcon, MoveRightIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import type { ColumnDef } from "@tanstack/react-table"
 import { ResourceListView } from "@/components/dashboard/shared/resource-list-view"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
+import { getStatusMeta } from "@/lib/status"
 import { useListState } from "@/hooks/use-list-state"
 import { useQuery, keepPreviousData } from "@tanstack/react-query"
 import { fetchClient } from "@/lib/api-client"
@@ -26,29 +26,6 @@ interface FilterState {
 }
 
 const EMPTY_FILTERS: FilterState = { status: "" }
-
-const STATUS_MAP: Record<string, { label: string; className: string }> = {
-  DRAFT: {
-    label: "Draft",
-    className: "border-slate-300 text-slate-600 dark:border-slate-500/30 dark:text-slate-400",
-  },
-  APPROVED: {
-    label: "Disetujui",
-    className: "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400",
-  },
-  IN_TRANSIT: {
-    label: "Dalam Perjalanan",
-    className: "border-amber-300 text-amber-600 dark:border-amber-500/30 dark:text-amber-400",
-  },
-  RECEIVED: {
-    label: "Diterima",
-    className: "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
-  },
-  CANCELLED: {
-    label: "Dibatalkan",
-    className: "border-red-300 text-red-600 dark:border-red-500/30 dark:text-red-400",
-  },
-}
 
 const STATUS_OPTIONS = [
   { value: "", label: "Semua Status" },
@@ -126,17 +103,9 @@ export function TransferTab() {
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => {
-        const st = STATUS_MAP[row.original.status]
-        return (
-          <Badge
-            variant="outline"
-            className={cn("text-[10px] leading-tight", st?.className)}
-          >
-            {st?.label ?? row.original.status}
-          </Badge>
-        )
-      },
+      cell: ({ row }) => (
+        <StatusBadge domain="inventory-transfer" status={row.original.status} className="text-[10px] leading-tight" />
+      ),
     },
     {
       accessorKey: "created_at",
@@ -169,7 +138,7 @@ export function TransferTab() {
         item.transfer_number,
         item.source_location?.location_name ?? "",
         item.destination_location?.location_name ?? "",
-        STATUS_MAP[item.status]?.label ?? item.status,
+        getStatusMeta("inventory-transfer", item.status).label,
         formatDate(item.created_at),
       ])
     )

@@ -3,37 +3,20 @@
 import { useRouter } from "next/navigation"
 import { ArrowLeftIcon, DownloadIcon, PrinterIcon, PlayIcon, Trash2Icon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Table, TableHeader, TableBody, TableFooter, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { PageTitle } from "@/components/dashboard/page-title"
+import { UserSelect } from "@/components/dashboard/shared/user-select"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 import { usePurchaseReturnDetail, useProcessPurchaseReturn, useDeletePurchaseReturn } from "@/hooks/barang-keluar/use-purchase-returns"
 import { exportCsv } from "@/lib/export-csv"
 import { useState, useCallback } from "react"
 import { formatDate, formatCurrency } from "@/lib/format"
-
-const STATUS_STYLE: Record<string, string> = {
-  DRAFT: "border-slate-300 text-slate-600 dark:border-slate-500/30 dark:text-slate-400",
-  SUBMITTED: "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400",
-  APPROVED: "border-indigo-300 text-indigo-600 dark:border-indigo-500/30 dark:text-indigo-400",
-  COMPLETED: "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
-  CANCELLED: "border-red-300 text-red-600 dark:border-red-500/30 dark:text-red-400",
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  DRAFT: "Draft",
-  SUBMITTED: "Diajukan",
-  APPROVED: "Disetujui",
-  COMPLETED: "Selesai",
-  CANCELLED: "Dibatalkan",
-}
-
-
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -154,11 +137,7 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
             <InfoRow label="Total" value={formatCurrency(retur.total_amount)} />
             <InfoRow
               label="Status"
-              value={
-                <Badge variant="outline" className={cn("text-[10px] leading-tight", STATUS_STYLE[retur.status] ?? "")}>
-                  {STATUS_LABEL[retur.status] ?? retur.status}
-                </Badge>
-              }
+              value={<StatusBadge domain="purchase-return" status={retur.status} className="text-[10px] leading-tight" />}
             />
             <InfoRow label="Dibuat oleh" value={retur.created_by} />
             <InfoRow label="Tgl. Dibuat" value={formatDate(retur.created_at)} />
@@ -175,41 +154,39 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
         <div className="px-4 py-5 sm:px-6">
           <h3 className="mb-4 text-sm font-semibold text-foreground">Item Retur</h3>
           {retur.items?.length > 0 ? (
-            <div className="overflow-x-auto rounded-lg border border-border/40">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border/60 bg-muted/30">
-                    {["SKU", "Nama Produk", "Qty", "Harga Satuan", "Subtotal", "Kondisi", "Catatan"].map((h) => (
-                      <th key={h} className="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {retur.items.map((item) => (
-                    <tr key={item.id} className="border-b border-border/20 last:border-0">
-                      <td className="whitespace-nowrap px-3 py-3 font-mono text-xs">{item.product?.sku ?? "—"}</td>
-                      <td className="whitespace-nowrap px-3 py-3">{item.product?.name ?? "—"}</td>
-                      <td className="whitespace-nowrap px-3 py-3 tabular-nums">{item.qty}</td>
-                      <td className="whitespace-nowrap px-3 py-3 tabular-nums text-muted-foreground">{formatCurrency(item.unit_price)}</td>
-                      <td className="whitespace-nowrap px-3 py-3 tabular-nums font-medium">{formatCurrency(item.subtotal)}</td>
-                      <td className="whitespace-nowrap px-3 py-3">
-                        <Badge variant="outline" className="text-[10px]">{item.condition}</Badge>
-                      </td>
-                      <td className="px-3 py-3 text-muted-foreground">{item.notes ?? "—"}</td>
-                    </tr>
+            <Table containerClassName="rounded-lg border border-border/40">
+              <TableHeader>
+                <TableRow className="border-b border-border/60 bg-muted/30">
+                  {["SKU", "Nama Produk", "Qty", "Harga Satuan", "Subtotal", "Kondisi", "Catatan"].map((h) => (
+                    <TableHead key={h} className="px-3 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      {h}
+                    </TableHead>
                   ))}
-                </tbody>
-                <tfoot>
-                  <tr className="border-t border-border/40 bg-muted/20">
-                    <td colSpan={4} className="px-3 py-3 text-right text-xs font-medium uppercase text-muted-foreground">Total</td>
-                    <td className="whitespace-nowrap px-3 py-3 tabular-nums font-semibold">{formatCurrency(retur.total_amount)}</td>
-                    <td colSpan={2} />
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {retur.items.map((item) => (
+                  <TableRow key={item.id} className="border-b border-border/20 last:border-0">
+                    <TableCell className="px-3 py-3 font-mono text-xs">{item.product?.sku ?? "—"}</TableCell>
+                    <TableCell className="px-3 py-3">{item.product?.name ?? "—"}</TableCell>
+                    <TableCell className="px-3 py-3 tabular-nums">{item.qty}</TableCell>
+                    <TableCell className="px-3 py-3 tabular-nums text-muted-foreground">{formatCurrency(item.unit_price)}</TableCell>
+                    <TableCell className="px-3 py-3 tabular-nums font-medium">{formatCurrency(item.subtotal)}</TableCell>
+                    <TableCell className="px-3 py-3">
+                      <Badge variant="outline" className="text-[10px]">{item.condition}</Badge>
+                    </TableCell>
+                    <TableCell className="px-3 py-3 whitespace-normal text-muted-foreground">{item.notes ?? "—"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+              <TableFooter className="bg-transparent font-normal">
+                <TableRow className="border-t border-border/40 bg-muted/20">
+                  <TableCell colSpan={4} className="px-3 py-3 text-right text-xs font-medium uppercase text-muted-foreground">Total</TableCell>
+                  <TableCell className="px-3 py-3 tabular-nums font-semibold">{formatCurrency(retur.total_amount)}</TableCell>
+                  <TableCell colSpan={2} />
+                </TableRow>
+              </TableFooter>
+            </Table>
           ) : (
             <p className="py-8 text-center text-sm text-muted-foreground">Belum ada item</p>
           )}
@@ -235,11 +212,11 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
           <Label htmlFor="detail-processed-by" className="text-sm font-medium">
             Diproses oleh <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id="detail-processed-by"
-            placeholder="Nama penanggung jawab"
+          <UserSelect
             value={processedBy}
-            onChange={(e) => setProcessedBy(e.target.value)}
+            onChange={setProcessedBy}
+            defaultToSelf
+            placeholder="Nama penanggung jawab"
             className="mt-1.5"
           />
         </div>

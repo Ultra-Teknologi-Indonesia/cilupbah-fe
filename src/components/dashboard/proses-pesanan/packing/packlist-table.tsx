@@ -20,7 +20,8 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
 import { usePacklists, usePrefetchPacklistDetail } from "@/hooks/proses-pesanan/use-fulfillment"
-import { PACKLIST_STATUS_LABEL, type Packlist } from "@/types/proses-pesanan/fulfillment"
+import { type Packlist } from "@/types/proses-pesanan/fulfillment"
+import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 
 import { UbahPackerDialog } from "./ubah-packer-dialog"
 
@@ -94,19 +95,7 @@ export function PacklistTable() {
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => {
-        const st = PACKLIST_STATUS_LABEL[row.original.status];
-        return (
-          <span
-            className={cn(
-              "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-              st?.className
-            )}
-          >
-            {st?.label}
-          </span>
-        )
-      },
+      cell: ({ row }) => <StatusBadge domain="packlist" status={row.original.status} />,
     },
     {
       id: "actions",
