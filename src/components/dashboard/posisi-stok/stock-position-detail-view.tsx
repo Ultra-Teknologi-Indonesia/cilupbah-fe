@@ -228,7 +228,6 @@ function BinSection({ itemId }: { itemId: string }) {
         <TableRow className="border-b border-border/60 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
           <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">Lokasi</TableHead>
           <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">Kode Rak</TableHead>
-          <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">Batch</TableHead>
           <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">On Hand</TableHead>
           <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">Reserved</TableHead>
           <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">Available</TableHead>
@@ -249,9 +248,6 @@ function BinSection({ itemId }: { itemId: string }) {
               ) : (
                 <span className="text-muted-foreground">—</span>
               )}
-            </TableCell>
-            <TableCell className="px-3 py-2.5 text-xs text-muted-foreground">
-              {b.batch_no || "—"}
             </TableCell>
             <TableCell className="px-3 py-2.5 text-right font-semibold tabular-nums">
               {b.on_hand}
