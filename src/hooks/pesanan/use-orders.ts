@@ -4,33 +4,23 @@ import { useQuery } from "@tanstack/react-query"
 
 import { OrderService } from "@/services/pesanan/order.service"
 import type { OrderListParams } from "@/types/pesanan/order"
+import { createDetailHook, createListHook, createResourceKeys } from "@/hooks/create-crud-hooks"
 
 const STALE = 30_000
 
-const all = ["pesanan"] as const
-
+// Shape key dipertahankan (["pesanan","list",params] dst) — halaman prefetch
+// RSC (app/dashboard/pesanan/page.tsx) menulisnya literal.
 export const orderKeys = {
-  all,
-  list: (params: OrderListParams) => [...all, "list", params] as const,
-  detail: (id: string) => [...all, "detail", id] as const,
-  counts: [...all, "counts"] as const,
+  ...createResourceKeys("pesanan"),
+  counts: ["pesanan", "counts"] as const,
 }
 
-export function useOrders(params: OrderListParams) {
-  return useQuery({
-    queryKey: orderKeys.list(params),
-    queryFn: () => OrderService.list(params),
-    staleTime: STALE,
-  })
-}
+export const useOrders = createListHook(
+  orderKeys,
+  (params: OrderListParams) => OrderService.list(params)
+)
 
-export function useOrder(id: string) {
-  return useQuery({
-    queryKey: orderKeys.detail(id),
-    queryFn: () => OrderService.getById(id),
-    enabled: !!id,
-  })
-}
+export const useOrder = createDetailHook(orderKeys, (id: string) => OrderService.getById(id))
 
 export function useOrderCounts() {
   return useQuery({

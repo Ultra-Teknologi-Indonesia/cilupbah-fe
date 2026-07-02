@@ -13,7 +13,7 @@ import { useProductChannelListings } from "@/hooks/master-produk/use-product-tab
 import { TabPagination, SyncStatusBadge } from "./tab-pagination"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
-import type { ChannelListingRow } from "@/services/master-produk/product-tabs.service"
+import type { ChannelListingRow } from "@/hooks/master-produk/use-product-tabs"
 
 export function TabChannel({ productId }: { productId: string }) {
   const [channel, setChannel] = React.useState("")

@@ -15,6 +15,13 @@ import {
 } from "@/services/master-produk/channel-product.service"
 import { DownloadService } from "@/services/master-produk/download.service"
 
+export { channelListingRowId } from "@/services/master-produk/channel-product.service"
+export type {
+  ChannelListing,
+  ChannelListingParams,
+  ChannelListingVariant,
+} from "@/services/master-produk/channel-product.service"
+
 export const channelProductsKey = (params: ChannelListingParams) =>
   ["master-produk", "channel-products", params] as const
 

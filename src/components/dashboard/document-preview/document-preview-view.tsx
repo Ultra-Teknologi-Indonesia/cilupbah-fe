@@ -23,6 +23,7 @@ import {
 } from "@/lib/document-preview/registry"
 
 import { PreviewToolbar } from "./preview-toolbar"
+import { LabelPrintOptions } from "./label-print-options"
 
 // react-pdf bergantung pada Canvas + Worker DOM; render hanya di klien
 // supaya tidak meledak di SSR.
@@ -228,6 +229,9 @@ function KnownDocumentPreview({
             <div className="truncate text-sm font-semibold">{subtitle}</div>
           </div>
           <div className="flex items-center gap-1.5">
+            {type === "shipping-label" && state.kind === "ready" && (
+              <LabelPrintOptions source={(state.meta?.source as string | undefined) ?? null} />
+            )}
             <Button
               variant="outline"
               size="sm"

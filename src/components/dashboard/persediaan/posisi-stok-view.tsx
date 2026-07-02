@@ -24,10 +24,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { InfoIcon } from "lucide-react"
-import { useQueryClient } from "@tanstack/react-query"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
-import { useStockPosition, inventoryKeys } from "@/hooks/persediaan/use-stock-position"
-import { InventoryStockService } from "@/services/persediaan/inventory.service"
+import { useStockPosition, usePrefetchStockDetail } from "@/hooks/persediaan/use-stock-position"
 import type { StockItem, StockListParams } from "@/types/persediaan/stock"
 import { formatCurrency } from "@/lib/format"
 
@@ -130,7 +128,7 @@ function StockQtyBadge({ value, variant }: { value: number; variant: "default" |
 
 export function PosisiStokView() {
   const router = useRouter()
-  const qc = useQueryClient()
+  const prefetchStockDetail = usePrefetchStockDetail()
   const [search, setSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [page, setPage] = useState(1)
@@ -147,18 +145,9 @@ export function PosisiStokView() {
   const prefetchDetail = useCallback(
     (itemId: string) => {
       router.prefetch(`/dashboard/posisi-stok/${itemId}`)
-      qc.prefetchQuery({
-        queryKey: inventoryKeys.item(itemId),
-        queryFn: () => InventoryStockService.getItem(itemId),
-        staleTime: 30_000,
-      })
-      qc.prefetchQuery({
-        queryKey: inventoryKeys.itemStock(itemId),
-        queryFn: () => InventoryStockService.getItemStock(itemId),
-        staleTime: 30_000,
-      })
+      prefetchStockDetail(itemId)
     },
-    [router, qc]
+    [router, prefetchStockDetail]
   )
 
   // Input responsif seketika; commit ke params (pemicu fetch) di-debounce 350ms

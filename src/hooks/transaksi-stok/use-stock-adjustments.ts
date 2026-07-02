@@ -1,79 +1,51 @@
 "use client"
 
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query"
-import { toast } from "sonner"
 import { StockAdjustmentService } from "@/services/transaksi-stok/stock-adjustment.service"
 import type { StockAdjustmentListParams, StockAdjustmentFormData } from "@/types/transaksi-stok/stock-adjustment"
+import {
+  createDetailHook,
+  createListHook,
+  createMutationHook,
+  createResourceKeys,
+} from "@/hooks/create-crud-hooks"
 
-const STALE = 30 * 1000
+export const stockAdjustmentKeys = createResourceKeys("stock-adjustment")
 
-export function useStockAdjustments(params: StockAdjustmentListParams = {}) {
-  return useQuery({
-    queryKey: ["stock-adjustment", "list", params],
-    placeholderData: keepPreviousData,
-    queryFn: () => StockAdjustmentService.list(params),
-    staleTime: STALE,
-  })
-}
+export const useStockAdjustments = createListHook(
+  stockAdjustmentKeys,
+  (params: StockAdjustmentListParams = {}) => StockAdjustmentService.list(params)
+)
 
-export function useStockAdjustmentDetail(id?: string) {
-  return useQuery({
-    queryKey: ["stock-adjustment", "detail", id],
-    queryFn: () => StockAdjustmentService.getById(id!),
-    enabled: !!id,
-    staleTime: STALE,
-  })
-}
+export const useStockAdjustmentDetail = createDetailHook(
+  stockAdjustmentKeys,
+  (id: string) => StockAdjustmentService.getById(id)
+)
 
-export function useCreateStockAdjustment() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (data: StockAdjustmentFormData) => StockAdjustmentService.create(data),
-    onSuccess: () => {
-      toast.success("Penyesuaian stok berhasil dibuat")
-      qc.invalidateQueries({ queryKey: ["stock-adjustment"] })
-    },
-    onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal membuat penyesuaian stok"),
-  })
-}
+export const useCreateStockAdjustment = createMutationHook({
+  mutationFn: (data: StockAdjustmentFormData) => StockAdjustmentService.create(data),
+  successMessage: "Penyesuaian stok berhasil dibuat",
+  errorMessage: "Gagal membuat penyesuaian stok",
+  invalidates: () => [stockAdjustmentKeys.lists],
+})
 
-export function useApproveStockAdjustment() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: ({ id, approvedBy }: { id: string; approvedBy: string }) =>
-      StockAdjustmentService.approve(id, approvedBy),
-    onSuccess: () => {
-      toast.success("Penyesuaian stok berhasil disetujui")
-      qc.invalidateQueries({ queryKey: ["stock-adjustment"] })
-    },
-    onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal menyetujui penyesuaian stok"),
-  })
-}
+export const useApproveStockAdjustment = createMutationHook({
+  mutationFn: ({ id, approvedBy }: { id: string; approvedBy: string }) =>
+    StockAdjustmentService.approve(id, approvedBy),
+  successMessage: "Penyesuaian stok berhasil disetujui",
+  errorMessage: "Gagal menyetujui penyesuaian stok",
+  invalidates: ({ id }) => [stockAdjustmentKeys.lists, stockAdjustmentKeys.detail(id)],
+})
 
-export function useCancelStockAdjustment() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: StockAdjustmentService.cancel,
-    onSuccess: () => {
-      toast.success("Penyesuaian stok berhasil dibatalkan")
-      qc.invalidateQueries({ queryKey: ["stock-adjustment"] })
-    },
-    onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal membatalkan penyesuaian stok"),
-  })
-}
+export const useCancelStockAdjustment = createMutationHook({
+  mutationFn: (id: string) => StockAdjustmentService.cancel(id),
+  successMessage: "Penyesuaian stok berhasil dibatalkan",
+  errorMessage: "Gagal membatalkan penyesuaian stok",
+  invalidates: (id) => [stockAdjustmentKeys.lists, stockAdjustmentKeys.detail(id)],
+})
 
-export function useDeleteStockAdjustment() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: StockAdjustmentService.delete,
-    onSuccess: () => {
-      toast.success("Penyesuaian stok berhasil dihapus")
-      qc.invalidateQueries({ queryKey: ["stock-adjustment"] })
-    },
-    onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal menghapus penyesuaian stok"),
-  })
-}
+export const useDeleteStockAdjustment = createMutationHook({
+  mutationFn: (id: string) => StockAdjustmentService.delete(id),
+  successMessage: "Penyesuaian stok berhasil dihapus",
+  errorMessage: "Gagal menghapus penyesuaian stok",
+  invalidates: () => [stockAdjustmentKeys.lists],
+})

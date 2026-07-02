@@ -24,7 +24,7 @@ import { useDownloadTransactions } from "@/hooks/master-produk/use-download"
 import type {
   DownloadState,
   DownloadTransaction,
-} from "@/services/master-produk/download.service"
+} from "@/hooks/master-produk/use-download"
 import { FilterToolbar } from "../filter-toolbar"
 import { TransactionDetailSheet } from "./transaction-detail-sheet"
 import { buildProgressColumns } from "./progress-columns"

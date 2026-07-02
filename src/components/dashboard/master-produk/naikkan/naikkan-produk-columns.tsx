@@ -5,7 +5,7 @@ import { ExternalLinkIcon, ImageIcon, Trash2Icon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
-import type { RaiseProductDetail } from "@/services/master-produk/naikkan.service"
+import type { RaiseProductDetail } from "@/hooks/master-produk/use-naikkan"
 import { CountdownTimer } from "./countdown-timer"
 
 function statusBadge(isActive: boolean) {

@@ -8,6 +8,8 @@ import {
   type LifecycleAction,
 } from "@/services/master-produk/product-detail.service"
 
+export type { LifecycleAction } from "@/services/master-produk/product-detail.service"
+
 export const productDetailKey = (id: string) => ["master-produk", "detail", id]
 
 export function useProductDetail(id: string) {

@@ -6,7 +6,7 @@ import { EyeIcon, Trash2Icon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
-import type { RaiseProductStore } from "@/services/master-produk/naikkan.service"
+import type { RaiseProductStore } from "@/hooks/master-produk/use-naikkan"
 import type { ChannelCode } from "@/types/channel"
 
 export function buildStoreColumns(

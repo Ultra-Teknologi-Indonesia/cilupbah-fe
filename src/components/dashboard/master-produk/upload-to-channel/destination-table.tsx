@@ -40,7 +40,7 @@ import type {
   MatchRow,
   RulesSummary,
   UploadDestination,
-} from "@/services/master-produk/upload.service"
+} from "@/hooks/master-produk/use-upload"
 import type { ChannelCode } from "@/types/channel/channel.types"
 import { AttributeSelectionDialog } from "./attribute-selection-dialog"
 

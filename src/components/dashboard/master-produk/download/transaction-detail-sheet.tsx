@@ -22,7 +22,7 @@ import {
   useDownloadTransactionDetail,
 } from "@/hooks/master-produk/use-download"
 import { useDebouncedValue } from "@/hooks/use-debounced-value"
-import type { DownloadTransaction } from "@/services/master-produk/download.service"
+import type { DownloadTransaction } from "@/hooks/master-produk/use-download"
 
 const MASTER_FILTER: { value: string; label: string }[] = [
   { value: "all", label: "Semua" },

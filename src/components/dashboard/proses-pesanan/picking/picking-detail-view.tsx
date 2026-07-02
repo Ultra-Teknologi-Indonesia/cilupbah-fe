@@ -3,13 +3,14 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ArrowLeftIcon, CheckIcon, Loader2Icon, ScanLineIcon } from "lucide-react"
+import { ArrowLeftIcon, CheckIcon, Loader2Icon } from "lucide-react"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { PageTitle } from "@/components/dashboard/page-title"
+import { ScanAutoflowBar, type ScanAutoflowLine } from "@/components/dashboard/shared/scan-autoflow-bar"
 import {
   usePicklistDetail,
   useStartPicklist,
@@ -109,8 +110,6 @@ function PickRow({
 
 export function PickingDetailView({ id }: { id: string }) {
   const router = useRouter()
-  const scanRef = React.useRef<HTMLInputElement>(null)
-  const [scan, setScan] = React.useState("")
 
   const { data: pl, isLoading, isError } = usePicklistDetail(id)
   const startPicklist = useStartPicklist()
@@ -135,16 +134,17 @@ export function PickingDetailView({ id }: { id: string }) {
     )
   }
 
-  const handleScan = () => {
-    const code = scan.trim()
-    if (!code) return
-    const item = items.find((i) => i.sku.toLowerCase() === code.toLowerCase())
-    setScan("")
-    scanRef.current?.focus()
-    if (!item) {
-      toast.error(`SKU "${code}" tidak ada di picklist ini.`)
-      return
-    }
+  const scanLines: ScanAutoflowLine[] = items.map((i) => ({
+    id: i.id,
+    primary: i.name ?? i.sku,
+    secondary: i.sku,
+    codes: [i.sku],
+    done: i.qtyPicked >= i.qtyOrdered,
+  }))
+
+  const handleResolve = (line: ScanAutoflowLine) => {
+    const item = items.find((i) => i.id === line.id)
+    if (!item) return
     if (item.qtyPicked >= item.qtyOrdered) {
       toast.info(`${item.sku} sudah lengkap.`)
       return
@@ -265,25 +265,14 @@ export function PickingDetailView({ id }: { id: string }) {
             </div>
           </div>
 
-          {/* Scan */}
+          {/* Scan / pilih manual — unified autoflow */}
           {editable && (
-            <div className="relative max-w-md">
-              <ScanLineIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                ref={scanRef}
-                value={scan}
-                onChange={(e) => setScan(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault()
-                    handleScan()
-                  }
-                }}
-                placeholder="Scan / ketik SKU lalu Enter…"
-                className="pl-9"
-                autoFocus
-              />
-            </div>
+            <ScanAutoflowBar
+              lines={scanLines}
+              onResolve={handleResolve}
+              hint="Scan SKU (qty +1 otomatis), atau pilih manual. Isi kode rak dulu tiap item."
+              className="max-w-2xl"
+            />
           )}
 
           {/* Items */}

@@ -17,7 +17,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { ProductStatusBadge } from "../product-status-badge"
 import { formatIDR } from "../product-columns"
 import { StatusActions } from "./status-actions"
-import type { LifecycleAction } from "@/services/master-produk/product-detail.service"
+import type { LifecycleAction } from "@/hooks/master-produk/use-product-detail"
 import type { DetailMedia, ProductDetail, ProductTypeKind } from "@/types/master-produk"
 
 const TYPE_LABEL: Record<ProductTypeKind, string> = {

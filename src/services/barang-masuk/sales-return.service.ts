@@ -1,8 +1,21 @@
 import { fetchClient } from "@/lib/api-client"
 import type { ApiResponse, ApiPaginated } from "@/types/api.types"
-import type { SalesReturn, SalesReturnListParams } from "@/types/barang-masuk/sales-return"
+import type { SalesReturn, SalesReturnListParams, SalesReturnFormData } from "@/types/barang-masuk/sales-return"
 
 export const SalesReturnService = {
+  getById: async (id: string) => {
+    const res = await fetchClient<ApiResponse<SalesReturn>>(`/sales/returns/${id}`)
+    return res.data
+  },
+
+  create: async (data: SalesReturnFormData) => {
+    const res = await fetchClient<ApiResponse<SalesReturn>>(`/sales/returns`, {
+      method: "POST",
+      data,
+    })
+    return res.data
+  },
+
   unprocessed: async (params: SalesReturnListParams = {}) => {
     const sp = new URLSearchParams()
     if (params.search) sp.set("filter[search]", params.search)
@@ -43,6 +56,14 @@ export const SalesReturnService = {
 
   reject: async (id: string, data: { processed_by: string; reason?: string }) => {
     const res = await fetchClient<ApiResponse<SalesReturn>>(`/sales/returns/${id}/reject`, {
+      method: "POST",
+      data,
+    })
+    return res.data
+  },
+
+  complete: async (id: string, data: { processed_by: string }) => {
+    const res = await fetchClient<ApiResponse<SalesReturn>>(`/sales/returns/${id}/complete`, {
       method: "POST",
       data,
     })

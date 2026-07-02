@@ -12,6 +12,14 @@ import {
   DownloadService,
   type DownloadTransactionParams,
   type DownloadTransactionDetailParams,
+  type ChannelSearchItem,
+} from "@/services/master-produk/download.service"
+
+export { channelSearchRowId } from "@/services/master-produk/download.service"
+export type {
+  ChannelSearchItem,
+  DownloadState,
+  DownloadTransaction,
 } from "@/services/master-produk/download.service"
 
 export const downloadTrxKey = (params: DownloadTransactionParams) =>
@@ -110,6 +118,33 @@ export function useChannelSearch() {
       DownloadService.searchChannel(params),
     onError: (err) =>
       toast.error((err as { message?: string })?.message || "Gagal mencari produk"),
+  })
+}
+
+/**
+ * Download Satuan — cari produk di beberapa toko sekaligus.
+ * Gagal per-toko dikumpulkan (tidak melempar) agar hasil parsial tetap tampil.
+ */
+export function useChannelSearchMulti() {
+  return useMutation({
+    mutationFn: async ({
+      stores,
+      q,
+    }: {
+      stores: { channel: string; shopId: string; shopName: string }[]
+      q: string
+    }) => {
+      const failed: string[] = []
+      const batches = await Promise.all(
+        stores.map((s) =>
+          DownloadService.searchChannel({ channel: s.channel, shopId: s.shopId, q }).catch(() => {
+            failed.push(s.shopName)
+            return [] as ChannelSearchItem[]
+          })
+        )
+      )
+      return { results: batches.flat(), failed }
+    },
   })
 }
 

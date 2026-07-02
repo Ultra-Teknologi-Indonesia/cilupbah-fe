@@ -25,17 +25,15 @@ import {
 } from "@/components/ui/dialog"
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
 import {
+  channelListingRowId,
   useBulkUnlinkListing,
   useChannelProducts,
   useDownloadChannel,
   useListingMutations,
   useUnlinkListing,
+  type ChannelListing,
   type UnlinkInput,
 } from "@/hooks/master-produk/use-channel-products"
-import {
-  channelListingRowId,
-  type ChannelListing,
-} from "@/services/master-produk/channel-product.service"
 import { FilterToolbar } from "../filter-toolbar"
 import { buildChannelListingColumns } from "./listing-columns"
 

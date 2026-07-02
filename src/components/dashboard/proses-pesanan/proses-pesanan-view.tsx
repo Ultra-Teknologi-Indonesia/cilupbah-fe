@@ -1,9 +1,10 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useMemo, useState } from "react"
 import Link from "next/link"
 import { PackageIcon, PlusIcon, ScanBarcodeIcon } from "lucide-react"
+
+import { useUrlTab } from "@/hooks/use-url-tab"
 
 import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
@@ -29,36 +30,16 @@ import { TambahPengirimanDialog } from "./shipping/tambah-pengiriman-dialog"
 import { FulfillmentCardList } from "./shared/completed-order-card-list"
 
 export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
-  const initialSub = useMemo(() => {
-    const cfg = stageConfig(stage)
-    const subs = cfg?.subs ?? []
-    const s = searchParams.get("sub")
-    if (s && subs.some((c) => c.key === s)) return s
-    return defaultSubFor(stage)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stage])
-
-  const [sub, setSub] = useState<string | null>(initialSub)
-
-  useEffect(() => {
-    setSub(initialSub)
-  }, [initialSub])
-
-  const handleSubChange = useCallback(
-    (s: string) => {
-      setSub(s)
-      const params = new URLSearchParams(searchParams.toString())
-      params.set("sub", s)
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false })
-    },
-    [router, pathname, searchParams]
-  )
-
   const subs = useMemo(() => stageConfig(stage)?.subs ?? [], [stage])
+
+  // Sub-tab hidup di URL (?sub=) via hook bersama — bertahan saat
+  // refresh/back dan bisa dibagikan sebagai link.
+  const [subValue, handleSubChange] = useUrlTab(
+    "sub",
+    defaultSubFor(stage) ?? "",
+    { validValues: subs.map((s) => s.key) }
+  )
+  const sub: string | null = subValue || null
   const pickingCounts = usePickingCounts()
   const packingCounts = usePackingCounts()
   const shippingCounts = useShippingCounts()

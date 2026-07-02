@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { useQuery } from "@tanstack/react-query"
 import { CheckIcon, ImageIcon, Loader2Icon, PlusIcon, SearchIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -13,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { ChannelProductService } from "@/services/master-produk/channel-product.service"
+import { useNaikkanProductPicker } from "@/hooks/master-produk/use-naikkan"
 
 interface Props {
   open: boolean
@@ -44,17 +43,7 @@ export function NaikkanProdukPickerDialog({
     }
   }, [open])
 
-  const query = useQuery({
-    queryKey: ["naikkan", "picker", shopId, appliedSearch, page],
-    queryFn: () =>
-      ChannelProductService.list({
-        shopId: shopId!,
-        search: appliedSearch || undefined,
-        page,
-        perPage: 20,
-      }),
-    enabled: open && !!shopId,
-  })
+  const query = useNaikkanProductPicker(shopId, appliedSearch, page, open)
 
   const items = query.data?.items ?? []
   const total = query.data?.meta?.total ?? 0

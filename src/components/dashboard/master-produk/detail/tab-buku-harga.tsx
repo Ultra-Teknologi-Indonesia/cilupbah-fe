@@ -9,7 +9,7 @@ import { useProductPriceBook } from "@/hooks/master-produk/use-product-tabs"
 import { TabPagination } from "./tab-pagination"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
-import type { PriceBookRow } from "@/services/master-produk/product-tabs.service"
+import type { PriceBookRow } from "@/hooks/master-produk/use-product-tabs"
 
 const CUSTOMER_TYPE_LABEL: Record<string, string> = {
   retail: "Ritel",

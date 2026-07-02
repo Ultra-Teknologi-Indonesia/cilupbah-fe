@@ -12,8 +12,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { useImportFile } from "@/hooks/master-produk/use-import"
-import { ImportService, type ImportBatchType } from "@/services/master-produk/import.service"
+import {
+  importTemplateUrl,
+  useImportFile,
+  type ImportBatchType,
+} from "@/hooks/master-produk/use-import"
 
 const ACCEPT = ".xlsx,.xls,.csv"
 const MAX_SIZE = 20 * 1024 * 1024
@@ -87,7 +90,7 @@ export function ImportDialog({ type, open, onOpenChange, onQueued }: Props) {
         <div className="flex flex-col gap-4">
           {/* Template download */}
           <a
-            href={ImportService.templateUrl(type)}
+            href={importTemplateUrl(type)}
             download
             className="flex items-center gap-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 px-4 py-3 text-sm transition-colors hover:bg-primary/10"
           >

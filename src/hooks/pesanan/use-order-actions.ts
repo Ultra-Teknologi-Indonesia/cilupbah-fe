@@ -1,147 +1,109 @@
 "use client"
 
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 import { OrderService, type ShippingLabelResult } from "@/services/pesanan/order.service"
+import { createMutationHook } from "@/hooks/create-crud-hooks"
 import { orderKeys } from "./use-orders"
 
-export function useSetPaid() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (data: { orderId: string; paymentMethod?: string }) =>
-      OrderService.setPaid(data.orderId, { payment_method: data.paymentMethod }),
-    onSuccess: () => {
-      toast.success("Pesanan berhasil ditandai dibayar")
-      qc.invalidateQueries({ queryKey: orderKeys.all })
-    },
-    onError: (err: Error) => toast.error(err.message || "Gagal mengubah status pembayaran"),
-  })
-}
+// Invalidasi granular: mutasi status menyasar list + badge counts + detail
+// pesanan terdampak — bukan orderKeys.all yang menyeret semua query modul.
+const listAndCounts = [orderKeys.lists, orderKeys.counts] as const
 
-export function useCancelOrder() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (data: { orderId: string; reason?: string }) =>
-      OrderService.cancelOrder(data.orderId, data.reason),
-    onSuccess: () => {
-      toast.success("Pesanan berhasil dibatalkan")
-      qc.invalidateQueries({ queryKey: orderKeys.all })
-    },
-    onError: (err: Error) => toast.error(err.message || "Gagal membatalkan pesanan"),
-  })
-}
+const forOrder = (orderId: string) => [...listAndCounts, orderKeys.detail(orderId)]
+const forBulk = () => [...listAndCounts, orderKeys.details]
 
-export function useSaveAirwaybill() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (data: { orderId: string; trackingNumber: string; provider?: string }) =>
-      OrderService.saveAirwaybill(data.orderId, data.trackingNumber, data.provider),
-    onSuccess: () => {
-      toast.success("Nomor resi berhasil disimpan")
-      qc.invalidateQueries({ queryKey: orderKeys.all })
-    },
-    onError: (err: Error) => toast.error(err.message || "Gagal menyimpan nomor resi"),
-  })
-}
+export const useSetPaid = createMutationHook({
+  mutationFn: (data: { orderId: string; paymentMethod?: string }) =>
+    OrderService.setPaid(data.orderId, { payment_method: data.paymentMethod }),
+  successMessage: "Pesanan berhasil ditandai dibayar",
+  errorMessage: "Gagal mengubah status pembayaran",
+  invalidates: ({ orderId }) => forOrder(orderId),
+})
 
-export function useMarkComplete() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (orderIds: string[]) => OrderService.markAsComplete(orderIds),
-    onSuccess: () => {
-      toast.success("Pesanan berhasil diselesaikan")
-      qc.invalidateQueries({ queryKey: orderKeys.all })
-    },
-    onError: (err: Error) => toast.error(err.message || "Gagal menyelesaikan pesanan"),
-  })
-}
+export const useCancelOrder = createMutationHook({
+  mutationFn: (data: { orderId: string; reason?: string }) =>
+    OrderService.cancelOrder(data.orderId, data.reason),
+  successMessage: "Pesanan berhasil dibatalkan",
+  errorMessage: "Gagal membatalkan pesanan",
+  invalidates: ({ orderId }) => forOrder(orderId),
+})
 
-export function useDeleteCancelled() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (ids: string[]) => OrderService.deleteCancelled(ids),
-    onSuccess: () => {
-      toast.success("Pesanan yang dibatalkan berhasil dihapus")
-      qc.invalidateQueries({ queryKey: orderKeys.all })
-    },
-    onError: (err: Error) => toast.error(err.message || "Gagal menghapus pesanan"),
-  })
-}
+export const useSaveAirwaybill = createMutationHook({
+  mutationFn: (data: { orderId: string; trackingNumber: string; provider?: string }) =>
+    OrderService.saveAirwaybill(data.orderId, data.trackingNumber, data.provider),
+  successMessage: "Nomor resi berhasil disimpan",
+  errorMessage: "Gagal menyimpan nomor resi",
+  invalidates: ({ orderId }) => forOrder(orderId),
+})
 
-export function useMoveToReady() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (orderIds: string[]) => OrderService.moveToReadyToProcess(orderIds),
-    onSuccess: () => {
-      toast.success("Pesanan siap diproses oleh gudang.")
-      qc.invalidateQueries({ queryKey: orderKeys.all })
-    },
-    onError: (err: Error) => toast.error(err.message || "Gagal memindahkan pesanan"),
-  })
-}
+export const useMarkComplete = createMutationHook({
+  mutationFn: (orderIds: string[]) => OrderService.markAsComplete(orderIds),
+  successMessage: "Pesanan berhasil diselesaikan",
+  errorMessage: "Gagal menyelesaikan pesanan",
+  invalidates: forBulk,
+})
 
-export function useRequestAwb() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (data: { orderId: string; courierCode?: string }) =>
-      OrderService.requestAwb(data.orderId, data.courierCode),
-    onSuccess: () => {
-      toast.success("Nomor resi berhasil diminta")
-      qc.invalidateQueries({ queryKey: orderKeys.all })
-    },
-    onError: (err: Error) => toast.error(err.message || "Gagal meminta nomor resi"),
-  })
-}
+export const useDeleteCancelled = createMutationHook({
+  mutationFn: (ids: string[]) => OrderService.deleteCancelled(ids),
+  successMessage: "Pesanan yang dibatalkan berhasil dihapus",
+  errorMessage: "Gagal menghapus pesanan",
+  invalidates: forBulk,
+})
 
-export function useAcceptCancelRequest() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (orderId: string) => OrderService.acceptCancelRequest(orderId),
-    onSuccess: () => {
-      toast.success("Pembatalan pesanan berhasil diterima")
-      qc.invalidateQueries({ queryKey: orderKeys.all })
-    },
-    onError: (err: Error) => toast.error(err.message || "Gagal menerima pembatalan"),
-  })
-}
+export const useMoveToReady = createMutationHook({
+  mutationFn: (orderIds: string[]) => OrderService.moveToReadyToProcess(orderIds),
+  successMessage: "Pesanan siap diproses oleh gudang.",
+  errorMessage: "Gagal memindahkan pesanan",
+  invalidates: forBulk,
+})
 
-export function useRejectCancelRequest() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (orderId: string) => OrderService.rejectCancelRequest(orderId),
-    onSuccess: () => {
-      toast.success("Pembatalan pesanan berhasil ditolak")
-      qc.invalidateQueries({ queryKey: orderKeys.all })
-    },
-    onError: (err: Error) => toast.error(err.message || "Gagal menolak pembatalan"),
-  })
-}
+export const useRequestAwb = createMutationHook({
+  mutationFn: (data: { orderId: string; courierCode?: string }) =>
+    OrderService.requestAwb(data.orderId, data.courierCode),
+  successMessage: "Nomor resi berhasil diminta",
+  errorMessage: "Gagal meminta nomor resi",
+  invalidates: ({ orderId }) => forOrder(orderId),
+})
 
-export function useAcceptReturn() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (returnId: string) => OrderService.acceptReturn(returnId),
-    onSuccess: () => {
-      toast.success("Retur berhasil diterima")
-      qc.invalidateQueries({ queryKey: orderKeys.all })
-    },
-    onError: (err: Error) => toast.error(err.message || "Gagal menerima retur"),
-  })
-}
+export const useAcceptCancelRequest = createMutationHook({
+  mutationFn: (orderId: string) => OrderService.acceptCancelRequest(orderId),
+  successMessage: "Pembatalan pesanan berhasil diterima",
+  errorMessage: "Gagal menerima pembatalan",
+  invalidates: (orderId) => forOrder(orderId),
+})
 
-export function useRejectReturn() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (data: { returnId: string; reason?: string }) =>
-      OrderService.rejectReturn(data.returnId, data.reason),
-    onSuccess: () => {
-      toast.success("Retur berhasil ditolak")
-      qc.invalidateQueries({ queryKey: orderKeys.all })
-    },
-    onError: (err: Error) => toast.error(err.message || "Gagal menolak retur"),
-  })
-}
+export const useRejectCancelRequest = createMutationHook({
+  mutationFn: (orderId: string) => OrderService.rejectCancelRequest(orderId),
+  successMessage: "Pembatalan pesanan berhasil ditolak",
+  errorMessage: "Gagal menolak pembatalan",
+  invalidates: (orderId) => forOrder(orderId),
+})
+
+export const useAcceptReturn = createMutationHook({
+  mutationFn: (returnId: string) => OrderService.acceptReturn(returnId),
+  successMessage: "Retur berhasil diterima",
+  errorMessage: "Gagal menerima retur",
+  // returnId ≠ orderId — detail pesanan terkait tidak bisa ditarget langsung.
+  invalidates: forBulk,
+})
+
+export const useRejectReturn = createMutationHook({
+  mutationFn: (data: { returnId: string; reason?: string }) =>
+    OrderService.rejectReturn(data.returnId, data.reason),
+  successMessage: "Retur berhasil ditolak",
+  errorMessage: "Gagal menolak retur",
+  invalidates: forBulk,
+})
+
+export const useRelocateOrder = createMutationHook({
+  mutationFn: (data: { orderId: string; locationId: string }) =>
+    OrderService.relocateOrder(data.orderId, data.locationId),
+  successMessage: "Lokasi pengambilan berhasil diubah",
+  errorMessage: "Gagal mengubah lokasi pengambilan",
+  invalidates: ({ orderId }) => forOrder(orderId),
+})
 
 function openShippingLabel(result: ShippingLabelResult) {
   if (result.type === "url" && result.url) {
@@ -176,6 +138,8 @@ function triggerDownload(url: string, filename: string) {
   document.body.removeChild(a)
 }
 
+// Bukan kandidat factory: tanpa invalidasi, onSuccess-nya alur unduh + status
+// "preparing" khusus Shopee.
 export function useGetShippingLabel() {
   return useMutation({
     mutationFn: (data: { orderId: string; docType?: string }) =>
@@ -206,18 +170,5 @@ export function useGetShippingLabel() {
       }
     },
     onError: (err: Error) => toast.error(err.message || "Gagal mengambil shipping label"),
-  })
-}
-
-export function useRelocateOrder() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (data: { orderId: string; locationId: string }) =>
-      OrderService.relocateOrder(data.orderId, data.locationId),
-    onSuccess: () => {
-      toast.success("Lokasi pengambilan berhasil diubah")
-      qc.invalidateQueries({ queryKey: orderKeys.all })
-    },
-    onError: (err: Error) => toast.error(err.message || "Gagal mengubah lokasi pengambilan"),
   })
 }

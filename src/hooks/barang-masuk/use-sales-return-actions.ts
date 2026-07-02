@@ -32,3 +32,33 @@ export function useRejectSalesReturn() {
       toast.error((err as { message?: string })?.message || "Gagal menolak retur"),
   })
 }
+
+export function useCreateSalesReturn() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: import("@/types/barang-masuk/sales-return").SalesReturnFormData) =>
+      SalesReturnService.create(data),
+    onSuccess: () => {
+      toast.success("Retur berhasil dibuat")
+      qc.invalidateQueries({ queryKey: ["sales-return"] })
+      qc.invalidateQueries({ queryKey: ["inbound"] })
+    },
+    onError: (err) =>
+      toast.error((err as { message?: string })?.message || "Gagal membuat retur"),
+  })
+}
+
+export function useCompleteSalesReturn() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, processed_by }: { id: string; processed_by: string }) =>
+      SalesReturnService.complete(id, { processed_by }),
+    onSuccess: () => {
+      toast.success("Retur berhasil diselesaikan")
+      qc.invalidateQueries({ queryKey: ["sales-return"] })
+      qc.invalidateQueries({ queryKey: ["inbound"] })
+    },
+    onError: (err) =>
+      toast.error((err as { message?: string })?.message || "Gagal menyelesaikan retur"),
+  })
+}

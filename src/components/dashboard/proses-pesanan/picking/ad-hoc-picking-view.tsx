@@ -18,8 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { PageTitle } from "@/components/dashboard/page-title"
-import { OutboundService } from "@/services/proses-pesanan/outbound.service"
-import { useAdHocPickScan } from "@/hooks/proses-pesanan/use-fulfillment"
+import { useAdHocPickScan, useGetOrderByNo } from "@/hooks/proses-pesanan/use-fulfillment"
 
 const LIST_HREF = "/dashboard/proses-pesanan"
 
@@ -135,6 +134,7 @@ export function AdHocPickingView() {
   const [notes, setNotes] = React.useState("")
 
   const scanMutation = useAdHocPickScan()
+  const getOrderByNo = useGetOrderByNo()
 
   React.useEffect(() => {
     orderScanRef.current?.focus()
@@ -157,7 +157,7 @@ export function AdHocPickingView() {
     setOrderScan("")
     setLoadingOrder(true)
     try {
-      const raw = (await OutboundService.getOrderByNo(code)) as RawOrder | null
+      const raw = (await getOrderByNo.mutateAsync(code)) as RawOrder | null
       if (!raw) {
         toast.error(`Order "${code}" tidak ditemukan.`)
         orderScanRef.current?.focus()

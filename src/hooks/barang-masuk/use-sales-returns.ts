@@ -22,3 +22,12 @@ export function useSalesReturns(params: SalesReturnListParams = {}) {
     staleTime: STALE,
   })
 }
+
+export function useSalesReturn(id: string, enabled = true) {
+  return useQuery({
+    queryKey: ["sales-return", "detail", id],
+    queryFn: () => SalesReturnService.getById(id),
+    enabled: enabled && !!id,
+    staleTime: STALE,
+  })
+}

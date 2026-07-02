@@ -18,12 +18,12 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { DataTable } from "@/components/ui/data-table"
-import { useImportBatchErrors } from "@/hooks/master-produk/use-import"
 import {
-  ImportService,
+  importErrorsDownloadUrl,
+  useImportBatchErrors,
   type ImportBatch,
   type ImportBatchError,
-} from "@/services/master-produk/import.service"
+} from "@/hooks/master-produk/use-import"
 
 const columns: ColumnDef<ImportBatchError>[] = [
   {
@@ -95,7 +95,7 @@ export function ImportErrorSheet({ batch, open, onOpenChange }: Props) {
                 asChild
               >
                 <a
-                  href={ImportService.errorsDownloadUrl(batch.id)}
+                  href={importErrorsDownloadUrl(batch.id)}
                   download
                 >
                   <DownloadIcon className="size-4" />

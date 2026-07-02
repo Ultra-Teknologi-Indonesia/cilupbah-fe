@@ -17,6 +17,16 @@ import {
   type BulkUploadResult,
 } from "@/services/master-produk/upload.service"
 
+export type {
+  CategoryRules,
+  DraftRow,
+  DraftStatus,
+  HistoryRow,
+  MatchRow,
+  RulesSummary,
+  UploadDestination,
+} from "@/services/master-produk/upload.service"
+
 /* ── Query keys ─────────────────────────────────────────────────────────── */
 
 export const uploadListingKey = (productId: string, params: UploadListingParams) =>

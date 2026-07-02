@@ -40,7 +40,7 @@ import type {
   ImportBatch,
   ImportBatchState,
   ImportBatchType,
-} from "@/services/master-produk/import.service"
+} from "@/hooks/master-produk/use-import"
 import { ImportDialog } from "./import-dialog"
 import { ImportErrorSheet } from "./import-error-sheet"
 

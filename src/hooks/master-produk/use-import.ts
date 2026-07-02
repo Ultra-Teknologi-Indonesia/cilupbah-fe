@@ -14,6 +14,20 @@ import {
   type ImportBatchType,
 } from "@/services/master-produk/import.service"
 
+export type {
+  ImportBatch,
+  ImportBatchError,
+  ImportBatchState,
+  ImportBatchType,
+} from "@/services/master-produk/import.service"
+
+/** URL template import (single/bundle) untuk tautan download langsung. */
+export const importTemplateUrl = (type: ImportBatchType) => ImportService.templateUrl(type)
+
+/** URL unduhan laporan error sebuah batch import. */
+export const importErrorsDownloadUrl = (batchId: string) =>
+  ImportService.errorsDownloadUrl(batchId)
+
 export const importBatchKey = (params: ImportBatchParams) =>
   ["master-produk", "import-batches", params] as const
 

@@ -13,6 +13,13 @@ import {
   type PantauanParams,
 } from "@/services/master-produk/pantauan.service"
 
+export type {
+  PantauanParams,
+  PantauanLens,
+  PantauanProduct,
+  ProductTypeFilter,
+} from "@/services/master-produk/pantauan.service"
+
 export const pantauanKey = (params: PantauanParams) =>
   ["master-produk", "pantauan", params] as const
 

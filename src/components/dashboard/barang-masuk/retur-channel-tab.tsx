@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useMemo, useCallback, useEffect } from "react"
-import { CornerDownLeftIcon, CheckCircleIcon, XCircleIcon } from "lucide-react"
+import Link from "next/link"
+import { CornerDownLeftIcon, CheckCircleIcon, XCircleIcon, FlagIcon, PlusIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -10,15 +11,14 @@ import { Combobox } from "@/components/ui/combobox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { Skeleton } from "@/components/ui/skeleton"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { useSalesReturnsUnprocessed, useSalesReturns } from "@/hooks/barang-masuk/use-sales-returns"
-import { useAcceptSalesReturn, useRejectSalesReturn } from "@/hooks/barang-masuk/use-sales-return-actions"
+import { useAcceptSalesReturn, useRejectSalesReturn, useCompleteSalesReturn } from "@/hooks/barang-masuk/use-sales-return-actions"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
-import type { SalesReturn, SalesReturnStatus } from "@/types/barang-masuk/sales-return"
+import type { SalesReturn } from "@/types/barang-masuk/sales-return"
 import { formatDate } from "@/lib/format"
 
 type ReturSubTab = "unprocessed" | "rejected" | "accepted" | "completed"
@@ -69,11 +69,13 @@ export function ReturChannelTab() {
 
   const [acceptTarget, setAcceptTarget] = useState<SalesReturn | null>(null)
   const [rejectTarget, setRejectTarget] = useState<SalesReturn | null>(null)
+  const [completeTarget, setCompleteTarget] = useState<SalesReturn | null>(null)
   const [processedBy, setProcessedBy] = useState("")
   const [rejectReason, setRejectReason] = useState("")
 
   const acceptMutation = useAcceptSalesReturn()
   const rejectMutation = useRejectSalesReturn()
+  const completeMutation = useCompleteSalesReturn()
 
   const resetPage = useCallback(() => setPage(1), [])
 
@@ -118,7 +120,14 @@ export function ReturChannelTab() {
       {
         accessorKey: "return_number",
         header: "No. Retur",
-        cell: ({ row }) => <span className="font-medium">{row.original.return_number}</span>,
+        cell: ({ row }) => (
+          <Link
+            href={`/dashboard/barang-masuk/retur/${row.original.id}`}
+            className="font-medium hover:text-primary hover:underline"
+          >
+            {row.original.return_number}
+          </Link>
+        ),
       },
       {
         accessorKey: "source",
@@ -148,7 +157,7 @@ export function ReturChannelTab() {
         id: "qty",
         header: "Qty",
         cell: ({ row }) => {
-          const totalQty = row.original.items?.reduce((s: number, i: any) => s + i.qty, 0) ?? 0
+          const totalQty = row.original.items?.reduce((s, i) => s + i.qty, 0) ?? 0
           return <span className="tabular-nums text-muted-foreground">{totalQty}</span>
         },
       },
@@ -196,10 +205,28 @@ export function ReturChannelTab() {
           )
         },
       })
+    } else if (subTab === "accepted") {
+      cols.push({
+        id: "actions",
+        header: "Aksi",
+        cell: ({ row }) => {
+          const item = row.original
+          return (
+            <button
+              type="button"
+              onClick={() => { setCompleteTarget(item); setProcessedBy("") }}
+              className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-500/20 dark:text-emerald-400"
+            >
+              <FlagIcon className="h-3.5 w-3.5" />
+              Selesaikan
+            </button>
+          )
+        },
+      })
     }
 
     return cols
-  }, [isUnprocessed])
+  }, [isUnprocessed, subTab])
 
   const items = data?.items ?? []
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
@@ -214,8 +241,9 @@ export function ReturChannelTab() {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-1.5">
-        {SUB_TABS.map(({ key, label }) => (
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {SUB_TABS.map(({ key, label }) => (
           <button
             key={key}
             type="button"
@@ -229,7 +257,14 @@ export function ReturChannelTab() {
           >
             {label}
           </button>
-        ))}
+          ))}
+        </div>
+        <Button size="sm" asChild className="gap-1.5">
+          <Link href="/dashboard/barang-masuk/retur/buat">
+            <PlusIcon className="h-4 w-4" />
+            Buat Retur
+          </Link>
+        </Button>
       </div>
 
       <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
@@ -310,6 +345,35 @@ export function ReturChannelTab() {
           </Label>
           <Input
             id="accept-by"
+            placeholder="Nama petugas"
+            value={processedBy}
+            onChange={(e) => setProcessedBy(e.target.value)}
+            className="mt-1.5"
+          />
+        </div>
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        open={!!completeTarget}
+        onOpenChange={(open) => { if (!open) setCompleteTarget(null) }}
+        title="Selesaikan Retur"
+        description={`Tandai retur ${completeTarget?.return_number ?? ""} sebagai selesai? Pastikan barang sudah diterima kembali ke stok.`}
+        confirmLabel="Selesaikan"
+        loading={completeMutation.isPending}
+        onConfirm={() => {
+          if (!completeTarget || !processedBy.trim()) return
+          completeMutation.mutate(
+            { id: completeTarget.id, processed_by: processedBy.trim() },
+            { onSuccess: () => setCompleteTarget(null) }
+          )
+        }}
+      >
+        <div className="px-1 py-2">
+          <Label htmlFor="complete-by" className="text-sm font-medium">
+            Diproses oleh <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="complete-by"
             placeholder="Nama petugas"
             value={processedBy}
             onChange={(e) => setProcessedBy(e.target.value)}

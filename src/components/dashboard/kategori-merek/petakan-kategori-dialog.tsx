@@ -19,7 +19,7 @@ import {
   useMapCategoryToChannel,
   useSyncChannelCategories,
 } from "@/hooks/kategori-merek/use-kategori"
-import { ChannelService } from "@/services/channel/channel.service"
+import { useFetchConnectedStores } from "@/hooks/channel/use-connected-stores"
 import type { ChannelCategoryNode } from "@/types/kategori-merek/kategori"
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -136,9 +136,10 @@ export function PetakanKategoriDialog({
   )
   const mapMutation = useMapCategoryToChannel()
   const syncMutation = useSyncChannelCategories()
+  const fetchStores = useFetchConnectedStores()
 
   const handleSync = async () => {
-    const stores = await ChannelService.listStores()
+    const stores = await fetchStores()
     const shop = stores.find(
       (s) => s.channel?.code === channelCode && s.is_active
     )

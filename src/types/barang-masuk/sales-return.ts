@@ -10,13 +10,15 @@ export interface SalesReturnItem {
   sales_return_id: string
   item_id: string
   qty: number
-  reason: string | null
-  variant?: {
+  condition?: string | null
+  reason?: string | null
+  notes?: string | null
+  // BE mengirim relasi `product` (ProductVariant: id, sku) + product.product.name
+  product?: {
     id: string
     sku: string
-    item_name: string
-    variation_values: { label: string; value: string }[]
-  }
+    product?: { id: string; name: string } | null
+  } | null
 }
 
 export interface SalesReturn {
@@ -35,9 +37,28 @@ export interface SalesReturn {
   processed_at: string | null
   created_at: string
   updated_at: string
-  order?: { id: string; order_number: string }
-  location?: { id: string; location_name: string }
+  order?: { id: string; salesorder_no?: string; customer_name?: string | null } | null
+  location?: { id: string; location_name: string } | null
   items: SalesReturnItem[]
+}
+
+export interface SalesReturnItemInput {
+  item_id: string
+  qty: number
+  condition?: string
+  notes?: string
+}
+
+export interface SalesReturnFormData {
+  order_id?: string
+  location_id: string
+  source?: "manual" | "marketplace"
+  customer_name?: string
+  customer_contact?: string
+  reason?: string
+  notes?: string
+  created_by: string
+  items: SalesReturnItemInput[]
 }
 
 export interface SalesReturnListParams {

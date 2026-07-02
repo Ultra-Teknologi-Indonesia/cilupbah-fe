@@ -1,116 +1,101 @@
 "use client"
 
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query"
-import { toast } from "sonner"
+import { useQuery } from "@tanstack/react-query"
+
 import { StockOpnameService } from "@/services/transaksi-stok/stock-opname.service"
 import type { StockOpnameListParams, StockOpnameFormData } from "@/types/transaksi-stok/stock-opname"
+import {
+  createDetailHook,
+  createListHook,
+  createMutationHook,
+  createResourceKeys,
+} from "@/hooks/create-crud-hooks"
 
 const STALE = 30 * 1000
 
-export function useStockOpnames(params: StockOpnameListParams = {}) {
-  return useQuery({
-    queryKey: ["stock-opname", "list", params],
-    placeholderData: keepPreviousData,
-    queryFn: () => StockOpnameService.list(params),
-    staleTime: STALE,
-  })
+export const stockOpnameKeys = {
+  ...createResourceKeys("stock-opname"),
+  items: (id: string, params: unknown) => ["stock-opname", "items", id, params] as const,
+  itemsOf: (id: string) => ["stock-opname", "items", id] as const,
 }
 
-export function useStockOpnameDetail(id?: string) {
-  return useQuery({
-    queryKey: ["stock-opname", "detail", id],
-    queryFn: () => StockOpnameService.getById(id!),
-    enabled: !!id,
-    staleTime: STALE,
-  })
-}
+export const useStockOpnames = createListHook(
+  stockOpnameKeys,
+  (params: StockOpnameListParams = {}) => StockOpnameService.list(params)
+)
 
-export function useStockOpnameItems(id: string, params: { page?: number; per_page?: number; search?: string } = {}) {
+export const useStockOpnameDetail = createDetailHook(
+  stockOpnameKeys,
+  (id: string) => StockOpnameService.getById(id)
+)
+
+export function useStockOpnameItems(
+  id: string,
+  params: { page?: number; per_page?: number; search?: string } = {}
+) {
   return useQuery({
-    queryKey: ["stock-opname", "items", id, params],
+    queryKey: stockOpnameKeys.items(id, params),
     queryFn: () => StockOpnameService.getItems(id, params),
     enabled: !!id,
     staleTime: STALE,
   })
 }
 
-export function useCreateStockOpname() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (data: StockOpnameFormData) => StockOpnameService.create(data),
-    onSuccess: () => {
-      toast.success("Stock opname berhasil dibuat")
-      qc.invalidateQueries({ queryKey: ["stock-opname"] })
-    },
-    onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal membuat stock opname"),
-  })
-}
+export const useCreateStockOpname = createMutationHook({
+  mutationFn: (data: StockOpnameFormData) => StockOpnameService.create(data),
+  successMessage: "Stock opname berhasil dibuat",
+  errorMessage: "Gagal membuat stock opname",
+  invalidates: () => [stockOpnameKeys.lists],
+})
 
-export function useStartStockOpname() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: ({ id, processBy }: { id: string; processBy: string }) =>
-      StockOpnameService.start(id, processBy),
-    onSuccess: () => {
-      toast.success("Proses opname dimulai")
-      qc.invalidateQueries({ queryKey: ["stock-opname"] })
-    },
-    onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal memulai opname"),
-  })
-}
+export const useStartStockOpname = createMutationHook({
+  mutationFn: ({ id, processBy }: { id: string; processBy: string }) =>
+    StockOpnameService.start(id, processBy),
+  successMessage: "Proses opname dimulai",
+  errorMessage: "Gagal memulai opname",
+  invalidates: ({ id }) => [stockOpnameKeys.lists, stockOpnameKeys.detail(id)],
+})
 
-export function useCountOpnameItem() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: ({ opnameId, itemId, data }: { opnameId: string; itemId: string; data: { qty_actual: number; reason?: string; counted_by: string } }) =>
-      StockOpnameService.countItem(opnameId, itemId, data),
-    onSuccess: () => {
-      toast.success("Item berhasil dihitung")
-      qc.invalidateQueries({ queryKey: ["stock-opname"] })
-    },
-    onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal menghitung item"),
-  })
-}
+export const useCountOpnameItem = createMutationHook({
+  mutationFn: ({
+    opnameId,
+    itemId,
+    data,
+  }: {
+    opnameId: string
+    itemId: string
+    data: { qty_actual: number; reason?: string; counted_by: string }
+  }) => StockOpnameService.countItem(opnameId, itemId, data),
+  successMessage: "Item berhasil dihitung",
+  errorMessage: "Gagal menghitung item",
+  invalidates: ({ opnameId }) => [
+    stockOpnameKeys.detail(opnameId),
+    stockOpnameKeys.itemsOf(opnameId),
+  ],
+})
 
-export function useFinalizeStockOpname() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: ({ id, finalizedBy }: { id: string; finalizedBy: string }) =>
-      StockOpnameService.finalize(id, finalizedBy),
-    onSuccess: () => {
-      toast.success("Stock opname berhasil difinalisasi")
-      qc.invalidateQueries({ queryKey: ["stock-opname"] })
-    },
-    onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal memfinalisasi opname"),
-  })
-}
+export const useFinalizeStockOpname = createMutationHook({
+  mutationFn: ({ id, finalizedBy }: { id: string; finalizedBy: string }) =>
+    StockOpnameService.finalize(id, finalizedBy),
+  successMessage: "Stock opname berhasil difinalisasi",
+  errorMessage: "Gagal memfinalisasi opname",
+  invalidates: ({ id }) => [
+    stockOpnameKeys.lists,
+    stockOpnameKeys.detail(id),
+    stockOpnameKeys.itemsOf(id),
+  ],
+})
 
-export function useCancelStockOpname() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: StockOpnameService.cancel,
-    onSuccess: () => {
-      toast.success("Stock opname berhasil dibatalkan")
-      qc.invalidateQueries({ queryKey: ["stock-opname"] })
-    },
-    onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal membatalkan opname"),
-  })
-}
+export const useCancelStockOpname = createMutationHook({
+  mutationFn: (id: string) => StockOpnameService.cancel(id),
+  successMessage: "Stock opname berhasil dibatalkan",
+  errorMessage: "Gagal membatalkan opname",
+  invalidates: (id) => [stockOpnameKeys.lists, stockOpnameKeys.detail(id)],
+})
 
-export function useDeleteStockOpname() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: StockOpnameService.delete,
-    onSuccess: () => {
-      toast.success("Stock opname berhasil dihapus")
-      qc.invalidateQueries({ queryKey: ["stock-opname"] })
-    },
-    onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal menghapus opname"),
-  })
-}
+export const useDeleteStockOpname = createMutationHook({
+  mutationFn: (id: string) => StockOpnameService.delete(id),
+  successMessage: "Stock opname berhasil dihapus",
+  errorMessage: "Gagal menghapus opname",
+  invalidates: () => [stockOpnameKeys.lists],
+})

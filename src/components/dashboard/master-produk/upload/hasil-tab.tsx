@@ -31,7 +31,7 @@ import {
   useUploadHistories,
 } from "@/hooks/master-produk/use-upload"
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
-import type { HistoryRow } from "@/services/master-produk/upload.service"
+import type { HistoryRow } from "@/hooks/master-produk/use-upload"
 import type { ChannelCode } from "@/types/channel"
 import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
 import { FilterToolbar } from "../filter-toolbar"

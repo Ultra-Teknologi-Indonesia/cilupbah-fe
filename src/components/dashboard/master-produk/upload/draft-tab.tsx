@@ -33,7 +33,7 @@ import {
   useDeleteDraft,
   useUploadDraft,
 } from "@/hooks/master-produk/use-upload"
-import type { DraftRow, DraftStatus } from "@/services/master-produk/upload.service"
+import type { DraftRow, DraftStatus } from "@/hooks/master-produk/use-upload"
 import type { ChannelCode } from "@/types/channel"
 import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
 import { FilterToolbar } from "../filter-toolbar"

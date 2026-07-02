@@ -15,7 +15,7 @@ import { useProductChannelPrices } from "@/hooks/master-produk/use-product-tabs"
 import { TabPagination } from "./tab-pagination"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
-import type { ChannelPriceRow } from "@/services/master-produk/product-tabs.service"
+import type { ChannelPriceRow } from "@/hooks/master-produk/use-product-tabs"
 
 export function TabHargaChannel({ productId }: { productId: string }) {
   const [view, setView] = React.useState<"daftar" | "matriks">("daftar")

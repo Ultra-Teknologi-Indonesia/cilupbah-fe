@@ -4,12 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { ArrowRight, Eye, Loader2, Lock, Mail } from "lucide-react";
 
-import { AuthService } from "@/services/auth/auth.service";
+import { useLogin } from "@/hooks/auth/use-auth";
 import { setLoginSession } from "@/app/actions/auth.actions";
 import type { ApiResponse } from "@/types/api.types";
 import { cn } from "@/lib/utils";
@@ -50,33 +49,35 @@ export function LoginForm({ className }: { className?: string }) {
     mode: "onTouched",
   });
 
-  const mutation = useMutation({
-    mutationFn: (values: LoginValues) => AuthService.login(values),
-    onSuccess: async (res) => {
-      if (res.data?.access_token) {
-        await setLoginSession(res.data.access_token);
-      }
-      toast.success("Berhasil masuk", {
-        description: res.data?.user?.name
-          ? `Selamat datang kembali, ${res.data.user.name}.`
-          : "Mengalihkan ke dashboard…",
-      });
-      const callbackUrl = new URLSearchParams(window.location.search).get("callbackUrl");
-      router.push(callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : "/dashboard");
-    },
-    onError: (error) => {
-      toast.error("Gagal masuk", {
-        description:
-          (error as Partial<ApiResponse>)?.message ||
-          "Email atau password salah. Silakan coba lagi.",
-      });
-    },
-  });
+  const mutation = useLogin();
+
+  const onSubmit = (values: LoginValues) =>
+    mutation.mutate(values, {
+      onSuccess: async (res) => {
+        if (res.data?.access_token) {
+          await setLoginSession(res.data.access_token);
+        }
+        toast.success("Berhasil masuk", {
+          description: res.data?.user?.name
+            ? `Selamat datang kembali, ${res.data.user.name}.`
+            : "Mengalihkan ke dashboard…",
+        });
+        const callbackUrl = new URLSearchParams(window.location.search).get("callbackUrl");
+        router.push(callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : "/dashboard");
+      },
+      onError: (error) => {
+        toast.error("Gagal masuk", {
+          description:
+            (error as Partial<ApiResponse>)?.message ||
+            "Email atau password salah. Silakan coba lagi.",
+        });
+      },
+    });
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
+        onSubmit={form.handleSubmit(onSubmit)}
         className={cn("space-y-5", className)}
         noValidate
       >

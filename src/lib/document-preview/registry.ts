@@ -74,10 +74,15 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
   "shipping-label": {
     title: "Label Pengiriman",
     subtitle: (id) => `Order ${id.slice(0, 8)}…`,
-    fetchPdf: async (id) => {
+    fetchPdf: async (id, query) => {
+      // Opsi cetak per channel dibawa lewat query param preview (?document_type=&document_size=).
+      const opts = {
+        document_type: query?.get("document_type") ?? undefined,
+        document_size: query?.get("document_size") ?? undefined,
+      }
       let res: Awaited<ReturnType<typeof OutboundService.marketplaceLabel>>
       try {
-        res = await OutboundService.marketplaceLabel(id)
+        res = await OutboundService.marketplaceLabel(id, opts)
       } catch (err: unknown) {
         // Propagate the actual BE error message instead of swallowing it.
         const msg = extractApiMessage(err)

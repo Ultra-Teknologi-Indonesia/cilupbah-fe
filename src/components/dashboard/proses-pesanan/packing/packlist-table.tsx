@@ -19,16 +19,14 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
-import { useQueryClient } from "@tanstack/react-query"
-import { usePacklists, fulfillmentKeys } from "@/hooks/proses-pesanan/use-fulfillment"
-import { OutboundService } from "@/services/proses-pesanan/outbound.service"
+import { usePacklists, usePrefetchPacklistDetail } from "@/hooks/proses-pesanan/use-fulfillment"
 import { PACKLIST_STATUS_LABEL, type Packlist } from "@/types/proses-pesanan/fulfillment"
 
 import { UbahPackerDialog } from "./ubah-packer-dialog"
 
 export function PacklistTable() {
   const router = useRouter()
-  const qc = useQueryClient()
+  const prefetchPacklistDetail = usePrefetchPacklistDetail()
   const [search, setSearch] = React.useState("")
   const [debounced, setDebounced] = React.useState("")
   const [page, setPage] = React.useState(1)
@@ -52,12 +50,9 @@ export function PacklistTable() {
   const prefetchPacklist = React.useCallback(
     (id: string) => {
       router.prefetch(`/dashboard/proses-pesanan/packing/${id}`)
-      qc.prefetchQuery({
-        queryKey: fulfillmentKeys.packlistDetail(id),
-        queryFn: () => OutboundService.packlistDetail(id),
-      })
+      prefetchPacklistDetail(id)
     },
-    [router, qc]
+    [router, prefetchPacklistDetail]
   )
 
   const columns = React.useMemo<ColumnDef<Packlist>[]>(() => [

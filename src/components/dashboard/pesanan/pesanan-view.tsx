@@ -5,6 +5,7 @@ import { useState, useMemo, useCallback, useEffect } from "react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { useOrders } from "@/hooks/pesanan/use-orders"
+import { useUrlTab } from "@/hooks/use-url-tab"
 import type { OrderTab, OrderListParams, SubFilter } from "@/types/pesanan/order"
 import { SUB_PILL_CONFIG, TABS_WITH_ACTIONS, TAB_CONFIG } from "@/types/pesanan/order"
 
@@ -13,9 +14,22 @@ import { OrderFilters, EMPTY_FILTERS, type FilterState } from "./order-filters"
 import { OrderCardList } from "./order-card-list"
 import { BulkActionBar } from "./bulk-action-bar"
 
+const TAB_KEYS = TAB_CONFIG.map((t) => t.key as OrderTab)
+
 export function PesananView() {
-  const [tab, setTab] = useState<OrderTab>("all")
-  const [subFilter, setSubFilter] = useState<SubFilter>(null)
+  // Tab & sub-status hidup di URL (?tab=&sub=) — bertahan saat refresh/back
+  // dan bisa dibagikan sebagai link (pola sama dengan Proses Pesanan).
+  const [tab, setTabUrl] = useUrlTab<OrderTab>("tab", "all", {
+    validValues: TAB_KEYS,
+    clearKeys: ["sub"],
+  })
+  const subKeys = useMemo(
+    () => (SUB_PILL_CONFIG[tab] ?? []).map((p) => p.key),
+    [tab]
+  )
+  const [subValue, setSubUrl] = useUrlTab("sub", "", { validValues: subKeys })
+  const subFilter: SubFilter = (subValue || null) as SubFilter
+
   const [query, setQuery] = useState("")
   const [debouncedQuery, setDebouncedQuery] = useState("")
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
@@ -27,17 +41,16 @@ export function PesananView() {
   const clearSelection = useCallback(() => setSelectedIds(new Set()), [])
 
   const handleTabChange = useCallback((t: OrderTab) => {
-    setTab(t)
-    setSubFilter(null)
+    setTabUrl(t)
     resetPage()
     clearSelection()
-  }, [resetPage, clearSelection])
+  }, [setTabUrl, resetPage, clearSelection])
 
   const handleSubFilterChange = useCallback((s: SubFilter) => {
-    setSubFilter(s)
+    setSubUrl(s ?? "")
     resetPage()
     clearSelection()
-  }, [resetPage, clearSelection])
+  }, [setSubUrl, resetPage, clearSelection])
 
   // Ketikan pencarian responsif seketika di input, tapi hanya di-commit ke
   // params (yang memicu fetch) setelah jeda 350ms — 1 request per jeda ketik,

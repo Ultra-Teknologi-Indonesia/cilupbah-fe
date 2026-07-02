@@ -3,7 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table"
 import { ImageIcon } from "lucide-react"
 
-import type { RaiseProductDetail } from "@/services/master-produk/naikkan.service"
+import type { RaiseProductDetail } from "@/hooks/master-produk/use-naikkan"
 
 function formatDate(iso: string | null): string {
   if (!iso) return "—"

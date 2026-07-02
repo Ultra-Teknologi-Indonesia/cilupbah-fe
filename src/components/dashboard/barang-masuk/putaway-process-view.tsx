@@ -11,7 +11,6 @@ import {
   CheckCircle2Icon,
   ChevronDownIcon,
   ChevronRightIcon,
-  PlusIcon,
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -37,15 +36,16 @@ import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { PageTitle } from "@/components/dashboard/page-title"
+import { ScanAutoflowBar, type ScanAutoflowLine } from "@/components/dashboard/shared/scan-autoflow-bar"
 import {
   usePutawayDetail,
   usePutawayItems,
   useStartPutaway,
   useProcessPutawayItem,
+  usePutawayBins,
+  type BinListItem,
 } from "@/hooks/barang-masuk/use-putaway-actions"
-import { PutawayService } from "@/services/barang-masuk/putaway.service"
 import type { PutawayItem } from "@/types/barang-masuk/putaway"
-import type { BinListItem } from "@/services/barang-masuk/putaway.service"
 
 interface PutawayProcessViewProps {
   id: string
@@ -67,10 +67,8 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const startMutation = useStartPutaway()
 
   const [activeRack, setActiveRack] = useState<BinListItem | null>(null)
-  const [availableBins, setAvailableBins] = useState<BinListItem[]>([])
 
   const [notes, setNotes] = useState("")
-  const [scanCode, setScanCode] = useState("")
   const [scanError, setScanError] = useState("")
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [scannedItemIds, setScannedItemIds] = useState<Set<string>>(new Set())
@@ -78,8 +76,8 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const [itemPlacements, setItemPlacements] = useState<Record<string, PlacementEntry[]>>({})
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
   const [focusPlacementId, setFocusPlacementId] = useState<string | null>(null)
-
-  const scanInputRef = useRef<HTMLInputElement>(null)
+  const [scanFocusKey, setScanFocusKey] = useState(0)
+  const refocusScan = useCallback(() => setScanFocusKey((k) => k + 1), [])
 
   const locationId = putaway?.location_id ?? ""
 
@@ -110,10 +108,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   }, [allItems])
   const progressPct = totalQty > 0 ? Math.round((placedQty / totalQty) * 100) : 0
 
-  useEffect(() => {
-    if (!locationId) return
-    PutawayService.listBins(locationId).then(setAvailableBins).catch(() => {})
-  }, [locationId])
+  const { data: availableBins = [] } = usePutawayBins(locationId)
 
   const binOptions = useMemo(() =>
     availableBins.map((b) => ({
@@ -127,23 +122,11 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const handleSelectRack = useCallback((binId: string | null) => {
     const bin = binId ? availableBins.find((b) => b.id === binId) ?? null : null
     setActiveRack(bin)
-    if (bin) setTimeout(() => scanInputRef.current?.focus(), 50)
-  }, [availableBins])
+    if (bin) refocusScan()
+  }, [availableBins, refocusScan])
 
-  const handleScan = useCallback(() => {
-    const code = scanCode.trim().replace(/\s+/g, "").toLowerCase()
-    if (!code) return
-    const match = allItems.find((it) => {
-      const remaining = it.qty - it.putaway_qty
-      if (remaining <= 0) return false
-      return [it.variant?.sku, it.product?.sku, it.serial_no, it.batch_no]
-        .filter(Boolean)
-        .some((v) => v!.replace(/\s+/g, "").toLowerCase() === code)
-    })
-    if (!match) {
-      setScanError("Produk tidak ditemukan atau sudah selesai ditempatkan")
-      return
-    }
+  // Tambah baris penempatan untuk sebuah item (dipakai scan & pilih manual).
+  const addPlacementForItem = useCallback((match: PutawayItem) => {
     setScanError("")
     setScannedItemIds((prev) => new Set(prev).add(match.id))
 
@@ -188,8 +171,34 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
 
     setExpandedItems((prev) => new Set(prev).add(match.id))
     setFocusPlacementId(newId)
-    setScanCode("")
-  }, [scanCode, allItems])
+  }, [])
+
+  const scanLines = useMemo<ScanAutoflowLine[]>(
+    () =>
+      allItems.map((it) => {
+        const sku = it.variant?.sku ?? it.product?.sku ?? "—"
+        const opts = it.product?.options?.map((o) => o.value).join(" / ")
+          ?? it.variant?.variation_values?.map((v) => v.value).join(" / ")
+        return {
+          id: it.id,
+          primary: it.product?.product?.name ?? (opts ? `${sku} — ${opts}` : sku),
+          secondary: opts ? `${sku} · ${opts}` : sku,
+          codes: [it.variant?.sku, it.product?.sku, it.serial_no, it.batch_no].filter(Boolean) as string[],
+          done: it.qty - it.putaway_qty <= 0,
+        }
+      }),
+    [allItems]
+  )
+
+  const handleResolve = useCallback((line: ScanAutoflowLine) => {
+    const match = allItems.find((it) => it.id === line.id)
+    if (!match) return
+    if (match.qty - match.putaway_qty <= 0) {
+      setScanError("Item ini sudah selesai ditempatkan.")
+      return
+    }
+    addPlacementForItem(match)
+  }, [allItems, addPlacementForItem])
 
   const handleStart = useCallback(() => {
     startMutation.mutate(id, { onSuccess: () => refetchDetail() })
@@ -215,8 +224,8 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   }, [refetchItems, refetchDetail])
 
   const handleScanSaved = useCallback(() => {
-    setTimeout(() => scanInputRef.current?.focus(), 50)
-  }, [])
+    refocusScan()
+  }, [refocusScan])
 
   const toggleExpand = useCallback((itemId: string) => {
     setExpandedItems((prev) => {
@@ -257,49 +266,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
       return next
     })
   }, [])
-
-  const unscannedOptions = useMemo(() => {
-    return allItems
-      .filter((it) => !scannedItemIds.has(it.id) && it.putaway_qty <= 0)
-      .map((it) => {
-        const sku = it.variant?.sku ?? it.product?.sku ?? "—"
-        const opts = it.product?.options?.map((o) => o.value).join(" / ")
-          ?? it.variant?.variation_values?.map((v) => v.value).join(" / ")
-        return {
-          value: it.id,
-          label: opts ? `${sku} — ${opts}` : sku,
-          hint: `${it.qty}`,
-        }
-      })
-  }, [allItems, scannedItemIds])
-
-  const handleManualAdd = useCallback((itemId: string | null) => {
-    if (!itemId) return
-    const match = allItems.find((it) => it.id === itemId)
-    if (!match) return
-
-    setScannedItemIds((prev) => new Set(prev).add(match.id))
-
-    const newId = `${match.id}-p-${Date.now()}`
-    const newEntry: PlacementEntry = {
-      id: newId,
-      initialSavedQty: 0,
-      initialBinCode: "",
-      initialBinQty: 0,
-      maxQty: match.qty - match.putaway_qty,
-    }
-
-    setItemPlacements((prev) => {
-      const existing = prev[match.id]
-      if (existing) {
-        return { ...prev, [match.id]: [...existing, newEntry] }
-      }
-      return { ...prev, [match.id]: [newEntry] }
-    })
-
-    setExpandedItems((prev) => new Set(prev).add(match.id))
-    setFocusPlacementId(newId)
-  }, [allItems])
 
   const statusLabel = isNotStarted
     ? "Belum Mulai"
@@ -407,36 +373,16 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
           <div className="flex min-w-0 flex-1 flex-col gap-4">
             <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
               <div className="flex flex-col gap-4 px-5 py-4">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                  <div className="relative flex-1">
-                    <ScanLineIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      ref={scanInputRef}
-                      placeholder="Scan SKU / Barcode"
-                      value={scanCode}
-                      onChange={(e) => {
-                        setScanCode(e.target.value)
-                        setScanError("")
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleScan()
-                      }}
-                      disabled={!isInProgress}
-                      className="h-11 rounded-xl pl-9"
-                    />
-                  </div>
-                  {unscannedOptions.length > 0 && isInProgress && (
-                    <Combobox
-                      options={unscannedOptions}
-                      value={null}
-                      onChange={handleManualAdd}
-                      placeholder="+ Tambah Item"
-                      searchPlaceholder="Cari SKU / varian…"
-                      emptyText="Semua item sudah ditambahkan."
-                      className="h-11 w-auto min-w-44 shrink-0 rounded-xl"
-                    />
-                  )}
-                  <div className="flex min-w-44 flex-col gap-1.5 sm:w-56">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+                  <ScanAutoflowBar
+                    lines={scanLines}
+                    onResolve={handleResolve}
+                    disabled={!isInProgress}
+                    refocusKey={scanFocusKey}
+                    hint="Scan SKU/serial/batch untuk tambah penempatan, atau pilih manual. Pilih rak lalu isi qty."
+                    className="flex-1"
+                  />
+                  <div className="flex min-w-44 flex-col gap-1.5 lg:w-56">
                     <span className="text-sm font-semibold tabular-nums">
                       {placedQty} / {totalQty} Qty
                     </span>

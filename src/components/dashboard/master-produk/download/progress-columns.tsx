@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import type {
   DownloadState,
   DownloadTransaction,
-} from "@/services/master-produk/download.service"
+} from "@/hooks/master-produk/use-download"
 
 const STATE_LABEL: Record<DownloadState, string> = {
   queued: "Menunggu",

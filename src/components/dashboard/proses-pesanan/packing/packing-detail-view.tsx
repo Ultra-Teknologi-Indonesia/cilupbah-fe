@@ -8,13 +8,13 @@ import {
   CheckCircle2Icon,
   Loader2Icon,
   PackageIcon,
-  ScanBarcodeIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { ScanAutoflowBar, type ScanAutoflowLine } from "@/components/dashboard/shared/scan-autoflow-bar"
 import {
   Dialog,
   DialogContent,
@@ -98,12 +98,12 @@ function ProgressBar({ packed, total }: { packed: number; total: number }) {
 export function PackingDetailView({ id }: { id: string }) {
   const router = useRouter()
 
-  const skuScanRef = React.useRef<HTMLInputElement>(null)
   const qtyInputRef = React.useRef<HTMLInputElement>(null)
 
-  const [skuScan, setSkuScan] = React.useState("")
   const [activeItemId, setActiveItemId] = React.useState<string | null>(null)
   const [packQty, setPackQty] = React.useState("")
+  const [scanFocusKey, setScanFocusKey] = React.useState(0)
+  const refocusScan = () => setScanFocusKey((k) => k + 1)
 
   const { data: pk, isLoading, isError } = usePacklistDetail(id)
   const startPacklist = useStartPacklist()
@@ -147,48 +147,52 @@ export function PackingDetailView({ id }: { id: string }) {
 
   const activeItem = activeItemId ? items.find((i) => i.id === activeItemId) ?? null : null
 
-  const handleScanSku = () => {
-    const code = skuScan.trim()
-    if (!code || !id) return
-    setSkuScan("")
+  const scanLines: ScanAutoflowLine[] = items.map((i) => ({
+    id: i.id,
+    primary: i.description ?? i.sku,
+    secondary: i.sku,
+    codes: [i.sku],
+    done: i.qtyPacked >= i.qtyOrdered,
+  }))
 
-    const item = items.find(
-      (i) => i.sku.toLowerCase() === code.toLowerCase() && i.qtyPacked < i.qtyOrdered
-    ) ?? items.find((i) => i.sku.toLowerCase() === code.toLowerCase())
-
-    if (!item) {
-      verifyBarcode.mutate(
-        { packlistId: id, barcode: code },
-        {
-          onSuccess: (res) => {
-            if (!res) {
-              toast.error(`SKU/Barcode "${code}" tidak ditemukan.`)
-              return
-            }
-            const matched = items.find((i) => i.id === res.itemId)
-            if (matched && matched.qtyPacked < matched.qtyOrdered) {
-              setActiveItemId(matched.id)
-              setPackQty("")
-              setTimeout(() => qtyInputRef.current?.focus(), 50)
-            } else {
-              toast.info(`${res.sku} sudah lengkap.`)
-            }
-          },
-          onError: (e) => toast.error(errMsg(e, "Barcode tidak valid.")),
-        }
-      )
-      return
-    }
-
-    if (item.qtyPacked >= item.qtyOrdered) {
-      toast.info(`${item.sku} sudah lengkap.`)
-      skuScanRef.current?.focus()
-      return
-    }
-
-    setActiveItemId(item.id)
+  const openQtyFor = (itemId: string) => {
+    setActiveItemId(itemId)
     setPackQty("")
     setTimeout(() => qtyInputRef.current?.focus(), 50)
+  }
+
+  const handleResolve = (line: ScanAutoflowLine) => {
+    const item = items.find((i) => i.id === line.id)
+    if (!item) return
+    if (item.qtyPacked >= item.qtyOrdered) {
+      toast.info(`${item.sku} sudah lengkap.`)
+      refocusScan()
+      return
+    }
+    openQtyFor(item.id)
+  }
+
+  // Kode tak cocok lokal → verifikasi barcode ke BE (barcode ≠ SKU).
+  const handleUnmatched = (code: string) => {
+    if (!id) return
+    verifyBarcode.mutate(
+      { packlistId: id, barcode: code },
+      {
+        onSuccess: (res) => {
+          if (!res) {
+            toast.error(`SKU/Barcode "${code}" tidak ditemukan.`)
+            return
+          }
+          const matched = items.find((i) => i.id === res.itemId)
+          if (matched && matched.qtyPacked < matched.qtyOrdered) {
+            openQtyFor(matched.id)
+          } else {
+            toast.info(`${res.sku} sudah lengkap.`)
+          }
+        },
+        onError: (e) => toast.error(errMsg(e, "Barcode tidak valid.")),
+      }
+    )
   }
 
   const handleConfirmPack = () => {
@@ -215,7 +219,7 @@ export function PackingDetailView({ id }: { id: string }) {
           toast.success(`${activeItem.sku} dikemas (${activeItem.qtyPacked + qty}/${activeItem.qtyOrdered}).`)
           setActiveItemId(null)
           setPackQty("")
-          skuScanRef.current?.focus()
+          refocusScan()
         },
         onError: (e) => toast.error(errMsg(e, `Gagal pack ${activeItem.sku}.`)),
       }
@@ -225,7 +229,7 @@ export function PackingDetailView({ id }: { id: string }) {
   const handleCancelPack = () => {
     setActiveItemId(null)
     setPackQty("")
-    skuScanRef.current?.focus()
+    refocusScan()
   }
 
   if (isLoading) {
@@ -316,30 +320,21 @@ export function PackingDetailView({ id }: { id: string }) {
             </div>
           </div>
 
-          {/* SKU scan */}
+          {/* Scan / pilih manual — unified autoflow */}
           {editable && (
             <div className="rounded-2xl border border-border bg-card p-4">
               <label className="text-xs font-medium text-muted-foreground">
                 Scan SKU / Barcode Produk
               </label>
-              <div className="relative mt-1.5">
-                <ScanBarcodeIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  ref={skuScanRef}
-                  value={skuScan}
-                  onChange={(e) => setSkuScan(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault()
-                      handleScanSku()
-                    }
-                  }}
-                  placeholder="Scan SKU / barcode lalu Enter…"
-                  className="pl-9"
-                  disabled={packItem.isPending}
-                  autoFocus
-                />
-              </div>
+              <ScanAutoflowBar
+                lines={scanLines}
+                onResolve={handleResolve}
+                onUnmatched={handleUnmatched}
+                disabled={packItem.isPending}
+                refocusKey={scanFocusKey}
+                hint="Scan barcode/SKU untuk buka input qty, atau pilih manual dari daftar."
+                className="mt-1.5"
+              />
             </div>
           )}
 

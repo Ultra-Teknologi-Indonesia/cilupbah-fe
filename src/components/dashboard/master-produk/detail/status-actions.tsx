@@ -22,7 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import type { ProductDetail } from "@/types/master-produk"
-import type { LifecycleAction } from "@/services/master-produk/product-detail.service"
+import type { LifecycleAction } from "@/hooks/master-produk/use-product-detail"
 
 type Confirm = {
   action: LifecycleAction

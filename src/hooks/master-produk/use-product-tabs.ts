@@ -17,6 +17,13 @@ import {
 } from "@/services/master-produk/product-tabs.service"
 import { UploadService } from "@/services/master-produk/upload.service"
 
+export type {
+  BulkVariantAction,
+  ChannelListingRow,
+  ChannelPriceRow,
+  PriceBookRow,
+} from "@/services/master-produk/product-tabs.service"
+
 
 export const useProductVariants = (
   productId: string,

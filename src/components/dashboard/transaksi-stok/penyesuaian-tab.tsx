@@ -1,25 +1,23 @@
 "use client"
 
-import { useState, useMemo, useCallback, useEffect } from "react"
+import { useState, useMemo, useCallback } from "react"
 import Link from "next/link"
 import {
   SlidersHorizontalIcon,
-  DownloadIcon,
   CheckCircleIcon,
   Trash2Icon,
+  PlusIcon,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { Skeleton } from "@/components/ui/skeleton"
 import type { ColumnDef } from "@tanstack/react-table"
-import { DataTable } from "@/components/ui/data-table/data-table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { Input } from "@/components/ui/input"
+import { ResourceListView } from "@/components/dashboard/shared/resource-list-view"
+import { useListState } from "@/hooks/use-list-state"
 import {
   useStockAdjustments,
   useApproveStockAdjustment,
@@ -55,45 +53,28 @@ const STATUS_MAP: Record<string, { label: string; className: string }> = {
   },
 }
 
-
+const STATUS_OPTIONS = [
+  { value: "", label: "Semua Status" },
+  { value: "DRAFT", label: "Draft" },
+  { value: "APPROVED", label: "Approved" },
+  { value: "CANCELLED", label: "Dibatalkan" },
+]
 
 export function PenyesuaianTab() {
-  const [search, setSearch] = useState("")
-  const [debouncedSearch, setDebouncedSearch] = useState("")
-  const [page, setPage] = useState(1)
-  const [perPage, setPerPage] = useState(20)
-  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
+  const list = useListState<FilterState>(EMPTY_FILTERS)
   const [deleteTarget, setDeleteTarget] = useState<StockAdjustment | null>(null)
   const [approveTarget, setApproveTarget] = useState<StockAdjustment | null>(null)
   const [approvedBy, setApprovedBy] = useState("")
 
-  const resetPage = useCallback(() => setPage(1), [])
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search.trim())
-      resetPage()
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [search, resetPage])
-
-  const handleFilterChange = useCallback(
-    (f: FilterState) => {
-      setFilters(f)
-      resetPage()
-    },
-    [resetPage]
-  )
-
   const params = useMemo<StockAdjustmentListParams>(
     () => ({
-      search: debouncedSearch || undefined,
-      page,
-      per_page: perPage,
-      "filter[status]": filters.status || undefined,
-      "filter[location_id]": filters.location_id || undefined,
+      search: list.debouncedSearch || undefined,
+      page: list.page,
+      per_page: list.perPage,
+      "filter[status]": list.filters.status || undefined,
+      "filter[location_id]": list.filters.location_id || undefined,
     }),
-    [debouncedSearch, page, perPage, filters]
+    [list.debouncedSearch, list.page, list.perPage, list.filters]
   )
 
   const { data, isLoading, isFetching } = useStockAdjustments(params)
@@ -102,12 +83,7 @@ export function PenyesuaianTab() {
   const deleteMut = useDeleteStockAdjustment()
 
   const items = data?.items ?? []
-  const meta = data?.meta ?? {
-    current_page: 1,
-    last_page: 1,
-    per_page: perPage,
-    total: 0,
-  }
+  const total = data?.meta?.total ?? 0
 
   const locationOptions = useMemo(
     () => [
@@ -120,7 +96,7 @@ export function PenyesuaianTab() {
     [locData]
   )
 
-    const columns = useMemo<ColumnDef<StockAdjustment>[]>(() => [
+  const columns = useMemo<ColumnDef<StockAdjustment>[]>(() => [
     {
       accessorKey: "adjustment_no",
       header: "No. Penyesuaian",
@@ -199,16 +175,6 @@ export function PenyesuaianTab() {
     },
   ], [])
 
-  const statusOptions = [
-    { value: "", label: "Semua Status" },
-    { value: "DRAFT", label: "Draft" },
-    { value: "APPROVED", label: "Approved" },
-    { value: "CANCELLED", label: "Dibatalkan" },
-  ]
-
-  const hasActiveFilter = Object.values(filters).some(Boolean)
-  const activeCount = Object.values(filters).filter(Boolean).length
-
   function handleDelete() {
     if (!deleteTarget) return
     deleteMut.mutate(deleteTarget.id, {
@@ -252,97 +218,52 @@ export function PenyesuaianTab() {
 
   return (
     <div className="flex flex-col gap-4">
-      <LiquidGlass
-        radius={20}
-        intensity="subtle"
-        className="bg-white/30 dark:bg-white/[0.04]"
-      >
-        <FilterToolbar
-          search={search}
-          onSearchChange={setSearch}
-          searchPlaceholder="Cari no. penyesuaian..."
-          align="end"
-          onReset={
-            hasActiveFilter
-              ? () => handleFilterChange(EMPTY_FILTERS)
-              : undefined
-          }
-          hasFilter={hasActiveFilter}
-          activeCount={activeCount}
-          gridCols={2}
-          leading={
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExport}
-              disabled={items.length === 0}
-            >
-              <DownloadIcon className="mr-1.5 h-4 w-4" />
-              Export CSV
-            </Button>
-          }
-        >
-          <Combobox
-            options={statusOptions}
-            value={filters.status}
-            onChange={(v) =>
-              handleFilterChange({ ...filters, status: v ?? "" })
-            }
-            placeholder="Status"
-            searchPlaceholder="Cari status"
-            className="h-9 bg-background"
-          />
-          <Combobox
-            options={locationOptions}
-            value={filters.location_id}
-            onChange={(v) =>
-              handleFilterChange({ ...filters, location_id: v ?? "" })
-            }
-            placeholder="Lokasi"
-            searchPlaceholder="Cari lokasi"
-            className="h-9 bg-background"
-          />
-        </FilterToolbar>
+      <div className="flex justify-end">
+        <Button size="sm" asChild className="gap-1.5">
+          <Link href="/dashboard/transaksi-stok/penyesuaian/buat">
+            <PlusIcon className="h-4 w-4" />
+            Buat Penyesuaian
+          </Link>
+        </Button>
+      </div>
 
-        {isFetching && !isLoading && (
-          <div className="flex justify-center py-1">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          </div>
-        )}
-
-                <div className="px-5 py-5 sm:px-6">
-          <DataTable
-            columns={columns}
-            data={items}
-            isLoading={isLoading}
-            hideToolbar
-            manualPagination
-            pagination={{
-              pageIndex: page - 1,
-              pageSize: perPage,
-            }}
-            rowCount={meta.total}
-            onPaginationChange={(p) => {
-              setPage(p.pageIndex + 1)
-              setPerPage(p.pageSize)
-            }}
-            tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
-            emptyState={
-              <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
-                <SlidersHorizontalIcon className="h-10 w-10 opacity-20" />
-                <div className="text-center">
-                  <p className="text-sm font-medium">
-                    Belum ada penyesuaian stok
-                  </p>
-                  <p className="mt-1 text-xs">
-                    Data penyesuaian stok akan muncul di sini.
-                  </p>
-                </div>
-              </div>
-            }
-          />
-        </div>
-      </LiquidGlass>
+      <ResourceListView
+        list={list}
+        columns={columns}
+        rows={items}
+        total={total}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        searchPlaceholder="Cari no. penyesuaian..."
+        onExport={handleExport}
+        emptyIcon={SlidersHorizontalIcon}
+        emptyTitle="Belum ada penyesuaian stok"
+        emptyDescription="Data penyesuaian stok akan muncul di sini."
+        filterControls={
+          <>
+            <Combobox
+              options={STATUS_OPTIONS}
+              value={list.filters.status}
+              onChange={(v) =>
+                list.setFilters({ ...list.filters, status: v ?? "" })
+              }
+              placeholder="Status"
+              searchPlaceholder="Cari status"
+              className="h-9 bg-background"
+            />
+            <Combobox
+              options={locationOptions}
+              value={list.filters.location_id}
+              onChange={(v) =>
+                list.setFilters({ ...list.filters, location_id: v ?? "" })
+              }
+              placeholder="Lokasi"
+              searchPlaceholder="Cari lokasi"
+              className="h-9 bg-background"
+            />
+          </>
+        }
+      />
 
       {/* Approve dialog */}
       <ConfirmDialog

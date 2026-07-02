@@ -1,52 +1,36 @@
 "use client"
 
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query"
-import { toast } from "sonner"
 import { StockRevaluationService } from "@/services/transaksi-stok/stock-revaluation.service"
 import type { StockRevaluationListParams, StockRevaluationFormData } from "@/types/transaksi-stok/stock-revaluation"
+import {
+  createDetailHook,
+  createListHook,
+  createMutationHook,
+  createResourceKeys,
+} from "@/hooks/create-crud-hooks"
 
-const STALE = 30 * 1000
+export const stockRevaluationKeys = createResourceKeys("stock-revaluation")
 
-export function useStockRevaluations(params: StockRevaluationListParams = {}) {
-  return useQuery({
-    queryKey: ["stock-revaluation", "list", params],
-    placeholderData: keepPreviousData,
-    queryFn: () => StockRevaluationService.list(params),
-    staleTime: STALE,
-  })
-}
+export const useStockRevaluations = createListHook(
+  stockRevaluationKeys,
+  (params: StockRevaluationListParams = {}) => StockRevaluationService.list(params)
+)
 
-export function useStockRevaluationDetail(id?: string) {
-  return useQuery({
-    queryKey: ["stock-revaluation", "detail", id],
-    queryFn: () => StockRevaluationService.getById(id!),
-    enabled: !!id,
-    staleTime: STALE,
-  })
-}
+export const useStockRevaluationDetail = createDetailHook(
+  stockRevaluationKeys,
+  (id: string) => StockRevaluationService.getById(id)
+)
 
-export function useCreateStockRevaluation() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (data: StockRevaluationFormData) => StockRevaluationService.create(data),
-    onSuccess: () => {
-      toast.success("Revaluasi stok berhasil dibuat")
-      qc.invalidateQueries({ queryKey: ["stock-revaluation"] })
-    },
-    onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal membuat revaluasi stok"),
-  })
-}
+export const useCreateStockRevaluation = createMutationHook({
+  mutationFn: (data: StockRevaluationFormData) => StockRevaluationService.create(data),
+  successMessage: "Revaluasi stok berhasil dibuat",
+  errorMessage: "Gagal membuat revaluasi stok",
+  invalidates: () => [stockRevaluationKeys.lists],
+})
 
-export function useCancelStockRevaluation() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: StockRevaluationService.cancel,
-    onSuccess: () => {
-      toast.success("Revaluasi stok berhasil dibatalkan")
-      qc.invalidateQueries({ queryKey: ["stock-revaluation"] })
-    },
-    onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal membatalkan revaluasi stok"),
-  })
-}
+export const useCancelStockRevaluation = createMutationHook({
+  mutationFn: (id: string) => StockRevaluationService.cancel(id),
+  successMessage: "Revaluasi stok berhasil dibatalkan",
+  errorMessage: "Gagal membatalkan revaluasi stok",
+  invalidates: (id) => [stockRevaluationKeys.lists, stockRevaluationKeys.detail(id)],
+})

@@ -1,6 +1,7 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { useCallback } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 
 import { InventoryStockService } from "@/services/persediaan/inventory.service"
 import type { StockListParams, StockMovementParams } from "@/types/persediaan/stock"
@@ -50,4 +51,25 @@ export function useItemStock(itemId: string) {
     staleTime: STALE,
     enabled: !!itemId,
   })
+}
+
+// Hangatkan cache detail item (entitas utama + stok) saat hover, agar navigasi
+// ke halaman detail terasa instan. Dipakai imperatif dari daftar posisi stok.
+export function usePrefetchStockDetail() {
+  const qc = useQueryClient()
+  return useCallback(
+    (itemId: string) => {
+      qc.prefetchQuery({
+        queryKey: inventoryKeys.item(itemId),
+        queryFn: () => InventoryStockService.getItem(itemId),
+        staleTime: STALE,
+      })
+      qc.prefetchQuery({
+        queryKey: inventoryKeys.itemStock(itemId),
+        queryFn: () => InventoryStockService.getItemStock(itemId),
+        staleTime: STALE,
+      })
+    },
+    [qc]
+  )
 }

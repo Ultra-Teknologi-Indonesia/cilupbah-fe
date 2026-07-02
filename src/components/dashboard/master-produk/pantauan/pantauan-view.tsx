@@ -25,7 +25,7 @@ import type { SelectedCategory } from "@/types/master-produk"
 import type {
   PantauanLens,
   ProductTypeFilter,
-} from "@/services/master-produk/pantauan.service"
+} from "@/hooks/master-produk/use-pantauan"
 import { FilterToolbar } from "../filter-toolbar"
 import { CategoryPicker } from "../buat/category-picker"
 import { buildPantauanColumns } from "./pantauan-columns"

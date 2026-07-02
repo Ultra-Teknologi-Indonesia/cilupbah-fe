@@ -20,8 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { AuthService } from "@/services/auth/auth.service";
-import { clearLoginSession } from "@/app/actions/auth.actions";
+import { useLogout } from "@/hooks/auth/use-auth";
 import { Logo } from "./logo";
 import { NotificationsPopover } from "./nav-notifications";
 import {
@@ -123,14 +122,9 @@ export function SidebarRailNav({
   onTogglePanel: () => void;
 }) {
   const pathname = usePathname();
+  const logout = useLogout();
 
-  const handleLogout = async () => {
-    try {
-      await AuthService.logout();
-    } catch {}
-    await clearLoginSession();
-    window.location.href = "/login?logout=success";
-  };
+  const handleLogout = () => logout.mutate();
 
   return (
     <aside

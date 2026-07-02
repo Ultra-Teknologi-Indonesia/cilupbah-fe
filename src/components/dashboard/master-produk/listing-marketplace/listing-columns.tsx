@@ -25,11 +25,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
 import { SyncStatusBadge } from "../detail/tab-pagination"
-import type {
-  ChannelListing,
-  ChannelListingVariant,
-} from "@/services/master-produk/channel-product.service"
-import { channelListingRowId } from "@/services/master-produk/channel-product.service"
+import {
+  channelListingRowId,
+  type ChannelListing,
+  type ChannelListingVariant,
+} from "@/hooks/master-produk/use-channel-products"
 import type { ChannelCode } from "@/types/channel"
 import { formatIDR } from "../product-columns"
 

@@ -10,7 +10,7 @@ import { SyncStatusBadge } from "../detail/tab-pagination"
 import type {
   PantauanLens,
   PantauanProduct,
-} from "@/services/master-produk/pantauan.service"
+} from "@/hooks/master-produk/use-pantauan"
 import type { ChannelCode } from "@/types/channel"
 
 function produkCell(p: PantauanProduct) {

@@ -12,7 +12,7 @@ import { DataTable } from "@/components/ui/data-table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { useNaikkanList, useCreateNaikkan, useDeleteNaikkan } from "@/hooks/master-produk/use-naikkan"
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
-import type { RaiseProductStore } from "@/services/master-produk/naikkan.service"
+import type { RaiseProductStore } from "@/hooks/master-produk/use-naikkan"
 import { buildStoreColumns } from "./naikkan-store-columns"
 import { NaikkanTambahDialog } from "./naikkan-tambah-dialog"
 

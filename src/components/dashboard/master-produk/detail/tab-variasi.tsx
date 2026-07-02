@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input"
 import { SimplePagination } from "@/components/ui/simple-pagination"
 import { formatIDR } from "../product-columns"
 import { useProductVariants, useBulkVariants } from "@/hooks/master-produk/use-product-tabs"
-import type { BulkVariantAction } from "@/services/master-produk/product-tabs.service"
+import type { BulkVariantAction } from "@/hooks/master-produk/use-product-tabs"
 
 type SortCol = "sku" | "sell_price" | "stock"
 const PAGE_SIZES = [10, 20, 50, 100]

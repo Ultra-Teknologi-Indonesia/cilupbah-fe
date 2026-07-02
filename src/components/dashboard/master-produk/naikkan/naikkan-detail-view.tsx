@@ -24,7 +24,7 @@ import {
   useExecuteRaise,
   useAddNaikkanProduct,
 } from "@/hooks/master-produk/use-naikkan"
-import type { RaiseProductDetail } from "@/services/master-produk/naikkan.service"
+import type { RaiseProductDetail } from "@/hooks/master-produk/use-naikkan"
 import type { ChannelCode } from "@/types/channel"
 import { buildProdukColumns } from "./naikkan-produk-columns"
 import { aktivitasColumns } from "./naikkan-aktivitas-columns"

@@ -1,9 +1,8 @@
 "use client"
 
-import { cn } from "@/lib/utils"
 import { useOrderCounts } from "@/hooks/pesanan/use-orders"
 import { TAB_CONFIG, SUB_PILL_CONFIG, type OrderTab, type SubFilter } from "@/types/pesanan/order"
-import { Skeleton } from "@/components/ui/skeleton"
+import { PillTab, PillTabs } from "@/components/dashboard/shared/pill-tabs"
 import { Separator } from "@/components/ui/separator"
 
 export function OrderStatusTabs({
@@ -26,37 +25,19 @@ export function OrderStatusTabs({
           {zi > 0 && (
             <Separator orientation="vertical" className="!h-6 mx-1" />
           )}
-          {tabs.map(({ key, label }) => {
-            const count = counts?.[key as keyof typeof counts]
-            const isActive = active === key
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => onChange(key as OrderTab)}
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-foreground text-background shadow-sm"
-                    : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                {label}
-                {isLoading ? (
-                  <Skeleton className="h-4 w-6 rounded-full" />
-                ) : count != null ? (
-                  <span
-                    className={cn(
-                      "rounded-full px-1.5 text-xs tabular-nums",
-                      isActive ? "bg-background/20 text-background" : "bg-background text-muted-foreground"
-                    )}
-                  >
-                    {count}
-                  </span>
-                ) : null}
-              </button>
-            )
-          })}
+          {tabs.map(({ key, label }) => (
+            <PillTab
+              key={key}
+              item={{
+                key: key as OrderTab,
+                label,
+                count: counts?.[key as keyof typeof counts] ?? null,
+                countLoading: isLoading,
+              }}
+              active={active === key}
+              onSelect={onChange}
+            />
+          ))}
         </div>
       ))}
     </div>
@@ -76,34 +57,15 @@ export function OrderSubStatusPills({
   if (!subPills) return null
 
   return (
-    <div className="flex items-center gap-1">
-      <button
-        type="button"
-        onClick={() => onSubFilterChange(null)}
-        className={cn(
-          "rounded-full px-2.5 py-1 text-xs font-medium transition-colors",
-          subFilter === null
-            ? "bg-foreground/10 text-foreground"
-            : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-        )}
-      >
-        Semua
-      </button>
-      {subPills.map(({ key, label }) => (
-        <button
-          key={key}
-          type="button"
-          onClick={() => onSubFilterChange(key as SubFilter)}
-          className={cn(
-            "rounded-full px-2.5 py-1 text-xs font-medium transition-colors",
-            subFilter === key
-              ? "bg-foreground/10 text-foreground"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-          )}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
+    <PillTabs
+      variant="soft"
+      className="gap-1"
+      active={subFilter ?? "__all__"}
+      onSelect={(key) => onSubFilterChange(key === "__all__" ? null : (key as SubFilter))}
+      items={[
+        { key: "__all__", label: "Semua" },
+        ...subPills.map(({ key, label }) => ({ key, label })),
+      ]}
+    />
   )
 }

@@ -28,8 +28,7 @@ import {
   TableCell,
 } from "@/components/ui/table"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
-import { useValidateImport, useSaveImport } from "@/hooks/kontak-pemasok/use-contact-import"
-import { ContactImportService } from "@/services/kontak-pemasok/contact-import.service"
+import { useValidateImport, useSaveImport, useDownloadImportTemplate } from "@/hooks/kontak-pemasok/use-contact-import"
 import type { ImportValidateResult, ImportValidRow, ImportInvalidRow } from "@/types/kontak-pemasok/import"
 
 type ViewTab = "valid" | "invalid"
@@ -53,6 +52,7 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
 
   const validateMut = useValidateImport()
   const saveMut = useSaveImport()
+  const downloadTemplate = useDownloadImportTemplate()
 
   const handleReset = useCallback(() => {
     setFile(null)
@@ -149,7 +149,7 @@ export function ImportPemasokDialog({ open, onOpenChange }: ImportPemasokDialogP
                 {/* Template download link */}
                 <button
                   type="button"
-                  onClick={() => ContactImportService.downloadTemplate()}
+                  onClick={() => downloadTemplate()}
                   className="inline-flex items-center gap-2 text-sm text-primary hover:underline w-fit"
                 >
                   <FileDownIcon className="h-4 w-4" />

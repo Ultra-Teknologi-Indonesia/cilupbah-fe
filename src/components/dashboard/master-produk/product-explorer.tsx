@@ -27,7 +27,7 @@ import {
   useCategoryTree,
 } from "@/hooks/master-produk/use-master-data"
 import type { useProductListQuery } from "@/hooks/master-produk/use-product-list-query"
-import type { ImportBatchType } from "@/services/master-produk/import.service"
+import type { ImportBatchType } from "@/hooks/master-produk/use-import"
 import { CategoryPicker } from "./buat/category-picker"
 import { FilterToolbar } from "./filter-toolbar"
 import { ImportDialog } from "./import/import-dialog"

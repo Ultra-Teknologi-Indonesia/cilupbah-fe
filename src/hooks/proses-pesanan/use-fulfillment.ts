@@ -1,6 +1,9 @@
 "use client"
 
+import { useCallback } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+
+import { createMutationHook } from "@/hooks/create-crud-hooks"
 import { toast } from "sonner"
 
 import {
@@ -146,52 +149,51 @@ export function usePackingCounts() {
 }
 
 // ── Mutations ────────────────────────────────────────────────────────────────
-export function useCreatePicklist() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (payload: {
-      order_ids: string[]
-      location_id: string
-      picker_id: string
-      notes?: string | null
-    }) => OutboundService.createPicklist(payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
-  })
-}
+// Mutasi board sederhana memakai factory (hooks/create-crud-hooks). Tanpa
+// successMessage dan silentError: toast sukses/gagal ditangani pemanggil
+// (dialog/aksi masing-masing) seperti sebelumnya.
+export const useCreatePicklist = createMutationHook({
+  mutationFn: (payload: {
+    order_ids: string[]
+    location_id: string
+    picker_id: string
+    notes?: string | null
+  }) => OutboundService.createPicklist(payload),
+  silentError: true,
+  invalidates: () => [fulfillmentKeys.board],
+})
 
-export function useAssignPicker() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: ({ picklistId, pickerId }: { picklistId: string; pickerId: string }) =>
-      OutboundService.assignPicker(picklistId, pickerId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
-  })
-}
+export const useAssignPicker = createMutationHook({
+  mutationFn: ({ picklistId, pickerId }: { picklistId: string; pickerId: string }) =>
+    OutboundService.assignPicker(picklistId, pickerId),
+  silentError: true,
+  invalidates: () => [fulfillmentKeys.board],
+})
 
-export function useAssignPacker() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: ({ packlistId, packerId }: { packlistId: string; packerId: string }) =>
-      OutboundService.assignPacker(packlistId, packerId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
-  })
-}
+export const useAssignPacker = createMutationHook({
+  mutationFn: ({ packlistId, packerId }: { packlistId: string; packerId: string }) =>
+    OutboundService.assignPacker(packlistId, packerId),
+  silentError: true,
+  invalidates: () => [fulfillmentKeys.board],
+})
 
-export function useReadyToShip() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (orderIds: string[]) => OutboundService.readyToShip(orderIds),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
-  })
-}
+export const useReadyToShip = createMutationHook({
+  mutationFn: (orderIds: string[]) => OutboundService.readyToShip(orderIds),
+  silentError: true,
+  invalidates: () => [fulfillmentKeys.board],
+})
 
-export function useRetryPickup() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (orderIds: string[]) => OutboundService.retryPickup(orderIds),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
-  })
-}
+export const useRetryPickup = createMutationHook({
+  mutationFn: (orderIds: string[]) => OutboundService.retryPickup(orderIds),
+  silentError: true,
+  invalidates: () => [fulfillmentKeys.board],
+})
+
+export const useStartPicklist = createMutationHook({
+  mutationFn: (id: string) => OutboundService.startPicklist(id),
+  silentError: true,
+  invalidates: (id) => [fulfillmentKeys.board, fulfillmentKeys.picklistDetail(id)],
+})
 
 // ── Scan/pick detail (Picking) ───────────────────────────────────────────────
 export function usePicklistDetail(id: string, enabled = true) {
@@ -202,15 +204,32 @@ export function usePicklistDetail(id: string, enabled = true) {
   })
 }
 
-export function useStartPicklist() {
+// Hangatkan cache detail picklist saat hover di daftar picklist.
+export function usePrefetchPicklistDetail() {
   const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (id: string) => OutboundService.startPicklist(id),
-    onSuccess: (_d, id) => {
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.picklistDetail(id) })
+  return useCallback(
+    (id: string) => {
+      qc.prefetchQuery({
+        queryKey: fulfillmentKeys.picklistDetail(id),
+        queryFn: () => OutboundService.picklistDetail(id),
+      })
     },
-  })
+    [qc]
+  )
+}
+
+// Hangatkan cache detail packlist saat hover di daftar packlist.
+export function usePrefetchPacklistDetail() {
+  const qc = useQueryClient()
+  return useCallback(
+    (id: string) => {
+      qc.prefetchQuery({
+        queryKey: fulfillmentKeys.packlistDetail(id),
+        queryFn: () => OutboundService.packlistDetail(id),
+      })
+    },
+    [qc]
+  )
 }
 
 export function usePickItem() {
@@ -311,6 +330,14 @@ export function useAdHocPick() {
       items?: Array<{ order_item_id: string; qty_picked: number; bin_id?: string | null }>
     }) => OutboundService.adHocPick(payload),
     onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
+  })
+}
+
+// Ambil order berdasarkan nomor/resi secara imperatif saat scan (ad-hoc pick).
+// Mengembalikan mutation; komponen menangani mapping & status di callback-nya.
+export function useGetOrderByNo() {
+  return useMutation({
+    mutationFn: (orderNo: string) => OutboundService.getOrderByNo(orderNo),
   })
 }
 

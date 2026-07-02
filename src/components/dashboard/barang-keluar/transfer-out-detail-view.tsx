@@ -123,6 +123,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
 
   const [cancelOpen, setCancelOpen] = useState(false)
   const [cancelReason, setCancelReason] = useState("")
+  const [cancelledBy, setCancelledBy] = useState("")
   const cancelMutation = useCancelTransfer()
 
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -224,7 +225,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => { setCancelOpen(true); setCancelReason("") }}
+            onClick={() => { setCancelOpen(true); setCancelReason(""); setCancelledBy("") }}
             className="text-amber-600 hover:bg-amber-500/10"
           >
             <XIcon className="mr-1.5 h-4 w-4" />
@@ -368,23 +369,38 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
         variant="destructive"
         loading={cancelMutation.isPending}
         onConfirm={() => {
+          if (!cancelledBy.trim()) return
           cancelMutation.mutate(
-            { id: transfer.id, data: { cancelled_by: "admin", cancel_reason: cancelReason.trim() || undefined } },
+            { id: transfer.id, data: { cancelled_by: cancelledBy.trim(), cancel_reason: cancelReason.trim() || undefined } },
             { onSuccess: () => setCancelOpen(false) }
           )
         }}
       >
-        <div className="px-1 py-2">
-          <Label htmlFor="detail-cancel-reason" className="text-sm font-medium">
-            Alasan pembatalan
-          </Label>
-          <Input
-            id="detail-cancel-reason"
-            placeholder="Alasan (opsional)"
-            value={cancelReason}
-            onChange={(e) => setCancelReason(e.target.value)}
-            className="mt-1.5"
-          />
+        <div className="flex flex-col gap-3 px-1 py-2">
+          <div>
+            <Label htmlFor="detail-cancelled-by" className="text-sm font-medium">
+              Dibatalkan oleh <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="detail-cancelled-by"
+              placeholder="Nama pembatal"
+              value={cancelledBy}
+              onChange={(e) => setCancelledBy(e.target.value)}
+              className="mt-1.5"
+            />
+          </div>
+          <div>
+            <Label htmlFor="detail-cancel-reason" className="text-sm font-medium">
+              Alasan pembatalan
+            </Label>
+            <Input
+              id="detail-cancel-reason"
+              placeholder="Alasan (opsional)"
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              className="mt-1.5"
+            />
+          </div>
         </div>
       </ConfirmDialog>
 

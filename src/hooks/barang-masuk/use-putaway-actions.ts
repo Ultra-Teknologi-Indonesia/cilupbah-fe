@@ -3,9 +3,21 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { PutawayService } from "@/services/barang-masuk/putaway.service"
-import type { AssignStaffPayload, ProcessItemPayload } from "@/services/barang-masuk/putaway.service"
+import type { AssignStaffPayload, ProcessItemPayload, BinListItem } from "@/services/barang-masuk/putaway.service"
+
+// Re-export tipe agar komponen tak perlu impor service langsung (aturan layering).
+export type { BinListItem }
 
 const STALE = 30 * 1000
+
+export function usePutawayBins(locationId?: string) {
+  return useQuery({
+    queryKey: ["putaway", "bins", locationId],
+    queryFn: () => PutawayService.listBins(locationId!),
+    enabled: !!locationId,
+    staleTime: 60 * 1000,
+  })
+}
 
 export function usePutawayDetail(id?: string) {
   return useQuery({

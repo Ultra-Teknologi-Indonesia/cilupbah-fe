@@ -31,13 +31,13 @@ import {
 } from "@/components/ui/dialog"
 import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
-import { useDownloadProduct } from "@/hooks/master-produk/use-download"
-import type { RawConnectedStore } from "@/types/channel"
 import {
-  DownloadService,
   channelSearchRowId,
+  useChannelSearchMulti,
+  useDownloadProduct,
   type ChannelSearchItem,
-} from "@/services/master-produk/download.service"
+} from "@/hooks/master-produk/use-download"
+import type { RawConnectedStore } from "@/types/channel"
 
 // Channel yang mendukung pencarian produk by SKU/nama.
 const SUPPORTED = new Set(["tiktok", "lazada", "shopee"])
@@ -163,6 +163,7 @@ export function DownloadSatuanDialog({
 }) {
   const { data: stores = [] } = useConnectedStores()
   const downloadOne = useDownloadProduct()
+  const searchMulti = useChannelSearchMulti()
 
   const [q, setQ] = React.useState("")
   const [selectedStores, setSelectedStores] = React.useState<Record<string, boolean>>({})
@@ -200,19 +201,16 @@ export function DownloadSatuanDialog({
     setSearching(true)
     setResults(null)
     setRowSel({})
-    const failed: string[] = []
     try {
-      const batches = await Promise.all(
-        chosen.map((s) =>
-          DownloadService.searchChannel({ channel: s.channel!.code, shopId: s.shop_id, q }).catch(
-            () => {
-              failed.push(s.shop_name ?? s.shop_id)
-              return [] as ChannelSearchItem[]
-            }
-          )
-        )
-      )
-      setResults(batches.flat())
+      const { results, failed } = await searchMulti.mutateAsync({
+        stores: chosen.map((s) => ({
+          channel: s.channel!.code,
+          shopId: s.shop_id,
+          shopName: s.shop_name ?? s.shop_id,
+        })),
+        q,
+      })
+      setResults(results)
       if (failed.length > 0) {
         toast.error(`Gagal mencari di: ${failed.join(", ")}`)
       }

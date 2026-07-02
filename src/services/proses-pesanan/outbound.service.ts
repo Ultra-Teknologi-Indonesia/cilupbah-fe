@@ -568,12 +568,18 @@ export const OutboundService = {
   },
 
   // ── Marketplace shipping label (AWB dari Shopee/TikTok/Lazada) ───────────────
+  // opts: opsi cetak per channel (TikTok: document_type + document_size; Shopee: document_type).
   marketplaceLabel: async (
-    orderId: string
+    orderId: string,
+    opts?: { document_type?: string; document_size?: string }
   ): Promise<{ type: string; url?: string; document_base64?: string; content_type?: string; source?: string }> => {
+    const sp = new URLSearchParams()
+    if (opts?.document_type) sp.set("document_type", opts.document_type)
+    if (opts?.document_size) sp.set("document_size", opts.document_size)
+    const qs = sp.toString()
     const res = await fetchClient<
       ApiResponse<{ type: string; url?: string; document_base64?: string; content_type?: string; source?: string }>
-    >(`/sales/${orderId}/shipping-label`)
+    >(`/sales/${orderId}/shipping-label${qs ? `?${qs}` : ""}`)
     return res.data
   },
 

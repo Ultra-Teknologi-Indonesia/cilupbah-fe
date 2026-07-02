@@ -14,6 +14,12 @@ import {
   type NaikkanDetailParams,
   type NaikkanHistoryParams,
 } from "@/services/master-produk/naikkan.service"
+import { ChannelProductService } from "@/services/master-produk/channel-product.service"
+
+export type {
+  RaiseProductDetail,
+  RaiseProductStore,
+} from "@/services/master-produk/naikkan.service"
 
 const KEY = "naikkan"
 
@@ -52,6 +58,29 @@ export function useNaikkanHistory(id: string, params: NaikkanHistoryParams) {
     placeholderData: keepPreviousData,
     staleTime: 15_000,
     enabled: !!id,
+  })
+}
+
+/**
+ * Picker produk channel untuk dialog Tambah Produk pada detail naikkan.
+ * Query key sengaja dipisah (`picker`) dari daftar listing utama.
+ */
+export function useNaikkanProductPicker(
+  shopId: string | null,
+  search: string,
+  page: number,
+  enabled: boolean
+) {
+  return useQuery({
+    queryKey: [KEY, "picker", shopId, search, page],
+    queryFn: () =>
+      ChannelProductService.list({
+        shopId: shopId!,
+        search: search || undefined,
+        page,
+        perPage: 20,
+      }),
+    enabled: enabled && !!shopId,
   })
 }
 
