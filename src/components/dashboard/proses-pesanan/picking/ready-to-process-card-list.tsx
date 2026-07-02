@@ -185,75 +185,51 @@ export function ReadyToProcessCardList() {
   return (
     <div>
       {/* Toolbar */}
-      <FilterToolbar
+      <FulfillmentFilterBar
+        value={filter}
+        onChange={(v) => {
+          setFilter(v)
+          setPage(1)
+        }}
+        fields={["courier", "location", "channel", "store", "label_printed", "date"]}
+        excludeTransit
         search={search}
         onSearchChange={(v) => {
           setSearch(v)
           setPage(1)
         }}
         searchPlaceholder="Cari no. pesanan…"
-        onReset={resetFilters}
-        hasFilter={activeFilterCount > 0}
-        activeCount={activeFilterCount}
-        gridCols={3}
-        leading={
-          <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
-            <button
-              type="button"
-              onClick={() => refetch()}
-              className="rounded-full p-1.5 transition-colors hover:bg-muted"
-              aria-label="Muat ulang"
-            >
-              <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
-            </button>
-            <span className="flex items-center gap-1.5">
-              Total <Badge>{meta.total}</Badge>
-            </span>
-          </div>
-        }
-      >
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground">
-            Channel
-          </label>
-          <Select
-            value={source || "__all"}
-            onValueChange={(v) => {
-              setSource(v === "__all" ? "" : v)
-              setPage(1)
-            }}
+      />
+
+      <div className="flex flex-wrap items-center gap-4 border-b border-border/40 px-4 py-2 sm:px-5">
+        <label className="flex cursor-pointer items-center gap-2 text-sm">
+          <Checkbox
+            checked={onlyPriority}
+            onCheckedChange={(v) => setOnlyPriority(!!v)}
+          />
+          <span>Hanya prioritas (FBT/dipromosikan)</span>
+        </label>
+        <label className="flex cursor-pointer items-center gap-2 text-sm">
+          <Checkbox
+            checked={onlyOverdue}
+            onCheckedChange={(v) => setOnlyOverdue(!!v)}
+          />
+          <span>Hanya overdue ship-by-date</span>
+        </label>
+        <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="rounded-full p-1.5 transition-colors hover:bg-muted"
+            aria-label="Muat ulang"
           >
-            <SelectTrigger className="h-9 w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {SOURCE_OPTIONS.map((o) => (
-                <SelectItem key={o.value || "__all"} value={o.value || "__all"}>
-                  {o.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
+          </button>
+          <span className="flex items-center gap-1.5">
+            Total <Badge>{meta.total}</Badge>
+          </span>
         </div>
-
-        <div className="flex flex-col gap-3 pt-1">
-          <label className="flex cursor-pointer items-center gap-2 text-sm">
-            <Checkbox
-              checked={onlyPriority}
-              onCheckedChange={(v) => setOnlyPriority(!!v)}
-            />
-            <span>Hanya prioritas (FBT/dipromosikan)</span>
-          </label>
-
-          <label className="flex cursor-pointer items-center gap-2 text-sm">
-            <Checkbox
-              checked={onlyOverdue}
-              onCheckedChange={(v) => setOnlyOverdue(!!v)}
-            />
-            <span>Hanya overdue ship-by-date</span>
-          </label>
-        </div>
-      </FilterToolbar>
+      </div>
 
       {/* List */}
       <div className="px-4 pb-4 sm:px-5">

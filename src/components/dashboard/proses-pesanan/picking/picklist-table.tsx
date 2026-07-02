@@ -19,7 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
+import {
+  FulfillmentFilterBar,
+  type FulfillmentFilterValue,
+} from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import {
@@ -72,6 +75,7 @@ export function PicklistTable() {
   const [debounced, setDebounced] = React.useState("")
   const [page, setPage] = React.useState(1)
   const [status, setStatus] = React.useState<string>("")
+  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({})
   const [editPicker, setEditPicker] = React.useState<Picklist | null>(null)
 
   React.useEffect(() => {
@@ -83,13 +87,20 @@ export function PicklistTable() {
     () => ({
       q: debounced || undefined,
       status: status || undefined,
+      shipping_provider: filter.shipping_provider,
+      location_id: filter.location_id,
+      source: filter.source,
+      channel_shop_id: filter.channel_shop_id,
+      label_printed: filter.label_printed as "yes" | "no" | undefined,
+      date_from: filter.date_from,
+      date_to: filter.date_to,
+      zone_id: filter.zone_id,
       page,
       per_page: 20,
     }),
-    [debounced, status, page]
+    [debounced, status, filter, page]
   )
   const { data, isLoading, isFetching, refetch } = usePicklists(params)
-  const activeFilterCount = status ? 1 : 0
 
   const picklists = data?.items ?? []
 
@@ -182,39 +193,23 @@ export function PicklistTable() {
 
   return (
     <div>
-      <FilterToolbar
+      <FulfillmentFilterBar
+        value={filter}
+        onChange={(v) => {
+          setFilter(v)
+          setPage(1)
+        }}
+        fields={["courier", "location", "channel", "store", "label_printed", "date", "zone"]}
         search={search}
         onSearchChange={(v) => {
           setSearch(v)
           setPage(1)
         }}
         searchPlaceholder="Cari no. picklist…"
-        onReset={() => {
-          setStatus("")
-          setPage(1)
-        }}
-        hasFilter={!!status}
-        activeCount={activeFilterCount}
-        leading={
-          <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
-            <button
-              type="button"
-              onClick={() => refetch()}
-              className="rounded-full p-1.5 transition-colors hover:bg-muted"
-              aria-label="Muat ulang"
-            >
-              <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
-            </button>
-            <span className="flex items-center gap-1.5">
-              Total <Badge>{meta.total}</Badge>
-            </span>
-          </div>
-        }
-      >
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground">
-            Status Picklist
-          </label>
+      />
+      <div className="flex flex-wrap items-center gap-3 border-b border-border/40 px-4 py-2 sm:px-5">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">Status</span>
           <Select
             value={status || "__all"}
             onValueChange={(v) => {
@@ -222,7 +217,7 @@ export function PicklistTable() {
               setPage(1)
             }}
           >
-            <SelectTrigger className="h-9 w-full">
+            <SelectTrigger className="h-9 w-48">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -234,7 +229,20 @@ export function PicklistTable() {
             </SelectContent>
           </Select>
         </div>
-      </FilterToolbar>
+        <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="rounded-full p-1.5 transition-colors hover:bg-muted"
+            aria-label="Muat ulang"
+          >
+            <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
+          </button>
+          <span className="flex items-center gap-1.5">
+            Total <Badge>{meta.total}</Badge>
+          </span>
+        </div>
+      </div>
 
       <div className="px-4 pb-4 sm:px-5">
         <DataTable

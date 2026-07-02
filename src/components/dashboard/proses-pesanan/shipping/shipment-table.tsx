@@ -13,7 +13,10 @@ import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
+import {
+  FulfillmentFilterBar,
+  type FulfillmentFilterValue,
+} from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import {
@@ -52,10 +55,16 @@ function formatWeight(gram: number): string {
     : `${kg.toLocaleString("id-ID", { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`
 }
 
+const SHIPMENT_STATUS_OPTIONS = [
+  { value: "SCHEDULED", label: "Menunggu" },
+  { value: "HANDED_OVER,IN_TRANSIT,DELIVERED", label: "Terkirim" },
+]
+
 export function ShipmentTable() {
   const [search, setSearch] = React.useState("")
   const [debounced, setDebounced] = React.useState("")
   const [page, setPage] = React.useState(1)
+  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({})
 
   React.useEffect(() => {
     const t = setTimeout(() => setDebounced(search.trim()), 350)
@@ -63,8 +72,17 @@ export function ShipmentTable() {
   }, [search])
 
   const params = React.useMemo(
-    () => ({ status: "SCHEDULED", q: debounced || undefined, page, per_page: 20 }),
-    [debounced, page]
+    () => ({
+      status: filter.status || "SCHEDULED",
+      q: debounced || undefined,
+      page,
+      per_page: 20,
+      courier_code: filter.courier_code,
+      shipment_type: filter.shipment_type,
+      date_from: filter.date_from,
+      date_to: filter.date_to,
+    }),
+    [debounced, page, filter]
   )
   const { data, isLoading, isFetching, refetch } = useShipments(params)
   const cancel = useCancelShipment()
@@ -157,29 +175,35 @@ export function ShipmentTable() {
 
   return (
     <div>
-      <FilterToolbar
+      <FulfillmentFilterBar
+        value={filter}
+        onChange={(v) => {
+          setFilter(v)
+          setPage(1)
+        }}
+        fields={["courier", "shipment_type", "status", "date"]}
+        courierMode="courier_code"
+        statusOptions={SHIPMENT_STATUS_OPTIONS}
         search={search}
         onSearchChange={(v) => {
           setSearch(v)
           setPage(1)
         }}
         searchPlaceholder="Cari no. pengiriman…"
-        leading={
-          <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
-            <button
-              type="button"
-              onClick={() => refetch()}
-              className="rounded-full p-1.5 transition-colors hover:bg-muted"
-              aria-label="Muat ulang"
-            >
-              <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
-            </button>
-            <span className="flex items-center gap-1.5">
-              Total <Badge>{meta.total}</Badge>
-            </span>
-          </div>
-        }
       />
+      <div className="flex items-center justify-end gap-3 border-b border-border/40 px-4 py-2 text-sm text-muted-foreground sm:px-5">
+        <button
+          type="button"
+          onClick={() => refetch()}
+          className="rounded-full p-1.5 transition-colors hover:bg-muted"
+          aria-label="Muat ulang"
+        >
+          <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
+        </button>
+        <span className="flex items-center gap-1.5">
+          Total <Badge>{meta.total}</Badge>
+        </span>
+      </div>
 
       <div className="px-4 pb-4 sm:px-5">
         <DataTable

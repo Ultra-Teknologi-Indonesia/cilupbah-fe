@@ -48,6 +48,11 @@ import { BuatPicklistDialog } from "../picking/buat-picklist-dialog"
 import { BuatPengirimanDialog } from "../shipping/buat-pengiriman-dialog"
 import { DocActions } from "../picking/doc-actions"
 import { formatCurrency } from "@/lib/format"
+import {
+  FulfillmentFilterBar,
+  type FulfillmentFilterField,
+  type FulfillmentFilterValue,
+} from "./fulfillment-filter-bar"
 
 export interface OrderTableActions {
   buatPicklist?: boolean
@@ -386,10 +391,17 @@ export function FulfillmentOrdersTable({
   stage,
   actions,
   searchPlaceholder = "Cari no. pesanan…",
+  filterFields,
+  channelStatusOptions,
+  excludeTransit,
 }: {
   stage: string
   actions: OrderTableActions
   searchPlaceholder?: string
+  filterFields?: FulfillmentFilterField[]
+  /** Untuk halaman Sudah Dikirim / Selesai — mapping status yang di-set ke channel_status. */
+  channelStatusOptions?: { value: string; label: string }[]
+  excludeTransit?: boolean
 }) {
   const [search, setSearch] = React.useState("")
   const [debounced, setDebounced] = React.useState("")
@@ -399,12 +411,14 @@ export function FulfillmentOrdersTable({
   const [picklistOpen, setPicklistOpen] = React.useState(false)
   const [pengirimanOpen, setPengirimanOpen] = React.useState(false)
   const [singlePengirimanOrder, setSinglePengirimanOrder] = React.useState<FulfillmentOrder | null>(null)
+  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({})
 
   React.useEffect(() => {
     setSelected(new Set())
     setPage(1)
     setSearch("")
     setDebounced("")
+    setFilter({})
   }, [stage])
 
   React.useEffect(() => {
@@ -412,9 +426,26 @@ export function FulfillmentOrdersTable({
     return () => clearTimeout(t)
   }, [search])
 
+  React.useEffect(() => { setPage(1) }, [filter])
+
   const params = React.useMemo(
-    () => ({ q: debounced || undefined, page, per_page: perPage }),
-    [debounced, page, perPage]
+    () => ({
+      q: debounced || undefined,
+      page,
+      per_page: perPage,
+      shipping_provider: filter.shipping_provider || undefined,
+      location_id: filter.location_id || undefined,
+      source: filter.source || undefined,
+      channel_shop_id: filter.channel_shop_id || undefined,
+      label_printed: (filter.label_printed || undefined) as "yes" | "no" | undefined,
+      date_from: filter.date_from || undefined,
+      date_to: filter.date_to || undefined,
+      payment: (filter.payment || undefined) as "cod" | "noncod" | undefined,
+      courier_type: (filter.courier_type || undefined) as "regular" | "instant" | undefined,
+      channel_status: filter.channel_status || undefined,
+      exclude_transit: excludeTransit ? ("1" as const) : undefined,
+    }),
+    [debounced, page, perPage, filter, excludeTransit]
   )
   const { data, isLoading, isFetching, refetch } = useOrdersByStage(stage, params)
   const readyToShip = useReadyToShip()
@@ -515,34 +546,62 @@ export function FulfillmentOrdersTable({
 
   return (
     <div>
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
-        <div className="relative w-full max-w-xs">
-          <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value)
-              setPage(1)
-            }}
-            placeholder={searchPlaceholder}
-            className="pl-9"
+      {/* Toolbar: search + filter bar terpadu */}
+      {filterFields && filterFields.length > 0 ? (
+        <>
+          <FulfillmentFilterBar
+            value={filter}
+            onChange={setFilter}
+            fields={filterFields}
+            channelStatusOptions={channelStatusOptions}
+            excludeTransit={excludeTransit}
+            search={search}
+            onSearchChange={(v) => { setSearch(v); setPage(1) }}
+            searchPlaceholder={searchPlaceholder}
           />
+          <div className="flex items-center justify-end gap-3 px-4 py-2 text-sm text-muted-foreground sm:px-5">
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="rounded-full p-1.5 transition-colors hover:bg-muted"
+              aria-label="Muat ulang"
+            >
+              <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
+            </button>
+            <span className="flex items-center gap-1.5">
+              Total <Badge>{meta.total}</Badge>
+            </span>
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
+          <div className="relative w-full max-w-xs">
+            <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value)
+                setPage(1)
+              }}
+              placeholder={searchPlaceholder}
+              className="pl-9"
+            />
+          </div>
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="rounded-full p-1.5 transition-colors hover:bg-muted"
+              aria-label="Muat ulang"
+            >
+              <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
+            </button>
+            <span className="flex items-center gap-1.5">
+              Total <Badge>{meta.total}</Badge>
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-3 text-sm text-muted-foreground">
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="rounded-full p-1.5 transition-colors hover:bg-muted"
-            aria-label="Muat ulang"
-          >
-            <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
-          </button>
-          <span className="flex items-center gap-1.5">
-            Total <Badge>{meta.total}</Badge>
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* Bulk action bar */}
       {selected.size > 0 && (

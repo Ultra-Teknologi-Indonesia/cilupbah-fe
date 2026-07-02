@@ -59,22 +59,79 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
     if (stage === "picking") {
       if (sub === "belum") return <ReadyToProcessCardList />
       if (sub === "diproses") return <PicklistTable />
-      return <FulfillmentCardList stage="finish-pick" tab="all" emptyTitle="Belum ada pesanan selesai pick" emptyDescription="Pesanan yang sudah selesai dipick akan muncul di sini." />
+      return (
+        <FulfillmentCardList
+          stage="finish-pick"
+          tab="all"
+          emptyTitle="Belum ada pesanan selesai pick"
+          emptyDescription="Pesanan yang sudah selesai dipick akan muncul di sini."
+          filterFields={["courier", "location", "channel", "store", "label_printed", "date"]}
+        />
+      )
     }
     if (stage === "packing") {
       if (sub === "belum")
-        return <FulfillmentCardList stage="finish-pick" tab="all" emptyTitle="Belum ada pesanan siap packing" emptyDescription="Pesanan yang sudah selesai dipick akan muncul di sini." />
+        return (
+          <FulfillmentCardList
+            stage="finish-pick"
+            tab="all"
+            emptyTitle="Belum ada pesanan siap packing"
+            emptyDescription="Pesanan yang sudah selesai dipick akan muncul di sini."
+            filterFields={["courier", "date", "label_printed"]}
+          />
+        )
       if (sub === "diproses") return <PacklistTable />
-      return <FulfillmentCardList stage="finish-pack" tab="all" emptyTitle="Belum ada pesanan selesai packing" emptyDescription="Pesanan yang sudah selesai dipacking akan muncul di sini." />
+      return (
+        <FulfillmentCardList
+          stage="finish-pack"
+          tab="all"
+          emptyTitle="Belum ada pesanan selesai packing"
+          emptyDescription="Pesanan yang sudah selesai dipacking akan muncul di sini."
+          filterFields={["courier", "date", "label_printed"]}
+        />
+      )
     }
     if (stage === "shipping") {
       if (sub === "jadwal") return <ShipmentTable />
-      return <FulfillmentCardList stage="finish-pack" tab="all" emptyTitle="Belum ada pesanan siap kirim" emptyDescription="Pesanan yang sudah dipacking akan muncul di sini." />
+      return (
+        <FulfillmentCardList
+          stage="finish-pack"
+          tab="all"
+          emptyTitle="Belum ada pesanan siap kirim"
+          emptyDescription="Pesanan yang sudah dipacking akan muncul di sini."
+          filterFields={["courier", "location", "courier_type", "payment", "date"]}
+        />
+      )
     }
     if (stage === "delivered")
-      return <FulfillmentCardList stage="ready-to-ship" tab="in-transit" emptyTitle="Belum ada pesanan dikirim" emptyDescription="Pesanan yang sudah dikirim akan muncul di sini." />
+      return (
+        <FulfillmentCardList
+          stage="ready-to-ship"
+          tab="in-transit"
+          emptyTitle="Belum ada pesanan dikirim"
+          emptyDescription="Pesanan yang sudah dikirim akan muncul di sini."
+          filterFields={["courier", "status", "date"]}
+          channelStatusOptions={[
+            { value: "SHIPPED", label: "Shipped" },
+            { value: "PROCESSED", label: "Processing" },
+            { value: "COMPLETED", label: "Completed" },
+          ]}
+        />
+      )
     if (stage === "done")
-      return <FulfillmentCardList stage="shipped" tab="completed" emptyTitle="Belum ada pesanan selesai" emptyDescription="Pesanan yang sudah terkirim akan muncul di sini." />
+      return (
+        <FulfillmentCardList
+          stage="shipped"
+          tab="completed"
+          emptyTitle="Belum ada pesanan selesai"
+          emptyDescription="Pesanan yang sudah terkirim akan muncul di sini."
+          filterFields={["courier", "status", "date"]}
+          channelStatusOptions={[
+            { value: "COMPLETED", label: "Selesai" },
+            { value: "LOST,TO_RETURN", label: "Paket Hilang" },
+          ]}
+        />
+      )
     return null
   }
 
