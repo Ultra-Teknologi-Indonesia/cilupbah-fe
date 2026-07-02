@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select"
 
 export const TABLE_PAGE_SIZES = [20, 50, 100, 200]
-export const GRID_PAGE_SIZES = [12, 24, 48, 96, 128, 196]
+export const GRID_PAGE_SIZES = [24, 48, 96, 128, 196]
 const DEFAULT_PAGE_SIZES = TABLE_PAGE_SIZES
 
 interface SimplePaginationProps {

@@ -36,6 +36,10 @@ export interface OrderListParams {
   per_page?: number
   sort_by?: string
   sort_dir?: "asc" | "desc"
+  // Selaras dengan Proses Pesanan (BE menerima param yang sama).
+  shipping_provider?: string
+  payment?: "cod" | "noncod"
+  label_printed?: "yes" | "no"
 }
 
 export interface Order {

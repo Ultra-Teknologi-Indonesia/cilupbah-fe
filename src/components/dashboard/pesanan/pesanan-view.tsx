@@ -83,6 +83,9 @@ export function PesananView() {
     content_type: (filters.content_type as OrderListParams["content_type"]) || undefined,
     date_from: filters.date_from || undefined,
     date_to: filters.date_to || undefined,
+    shipping_provider: filters.shipping_provider || undefined,
+    payment: (filters.payment as OrderListParams["payment"]) || undefined,
+    label_printed: (filters.label_printed as OrderListParams["label_printed"]) || undefined,
     page,
     per_page: perPage,
   }), [tab, subFilter, debouncedQuery, filters, page, perPage])

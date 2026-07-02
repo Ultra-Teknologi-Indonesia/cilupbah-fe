@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { Input } from "@/components/ui/input"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
 import { useCouriers } from "@/hooks/proses-pesanan/use-fulfillment"
@@ -96,6 +97,52 @@ function FieldWrapper({
       <label className="text-xs font-medium text-muted-foreground">{label}</label>
       {children}
     </div>
+  )
+}
+
+/**
+ * Pilih 2/3 opsi hardcode dengan RadioGroup — lebih cepat dari Combobox (1 klik).
+ * Selalu tambah opsi "Semua" di depan (value kosong = tidak difilter).
+ */
+function FilterRadioGroup({
+  name,
+  value,
+  onValueChange,
+  options,
+  allLabel = "Semua",
+}: {
+  name: string
+  value: string | undefined
+  onValueChange: (v: string | undefined) => void
+  options: { value: string; label: string }[]
+  allLabel?: string
+}) {
+  const items = [{ value: "__all", label: allLabel }, ...options]
+  return (
+    <RadioGroup
+      value={value ?? "__all"}
+      onValueChange={(v) => onValueChange(v === "__all" ? undefined : v)}
+      className="flex flex-wrap items-center gap-x-4 gap-y-1.5"
+    >
+      {items.map((opt) => {
+        const id = `${name}-${opt.value}`
+        return (
+          <label
+            key={opt.value}
+            htmlFor={id}
+            className={cn(
+              "flex cursor-pointer items-center gap-1.5 rounded-full border border-transparent px-2 py-1 text-sm transition-colors",
+              (value ?? "__all") === opt.value
+                ? "border-primary/30 bg-primary/5 text-primary"
+                : "text-foreground hover:bg-muted/50"
+            )}
+          >
+            <RadioGroupItem id={id} value={opt.value} />
+            <span>{opt.label}</span>
+          </label>
+        )
+      })}
+    </RadioGroup>
   )
 }
 
@@ -307,58 +354,63 @@ export function FulfillmentFilterBar({
                 </FieldWrapper>
               )}
               {includes("label_printed") && (
-                <FieldWrapper label="Label">
-                  <Combobox
+                <FieldWrapper label="Cetak Label">
+                  <FilterRadioGroup
+                    name="label_printed"
+                    value={value.label_printed}
+                    onValueChange={(v) => patch({ label_printed: v })}
                     options={LABEL_PRINTED_OPTIONS}
-                    value={value.label_printed ?? null}
-                    onChange={(v) => patch({ label_printed: v ?? undefined })}
-                    placeholder="Semua"
-                    searchPlaceholder="Cari"
                   />
                 </FieldWrapper>
               )}
               {includes("payment") && (
                 <FieldWrapper label="Pembayaran">
-                  <Combobox
+                  <FilterRadioGroup
+                    name="payment"
+                    value={value.payment}
+                    onValueChange={(v) => patch({ payment: v })}
                     options={PAYMENT_OPTIONS}
-                    value={value.payment ?? null}
-                    onChange={(v) => patch({ payment: v ?? undefined })}
-                    placeholder="Semua"
-                    searchPlaceholder="Cari"
                   />
                 </FieldWrapper>
               )}
               {includes("courier_type") && (
                 <FieldWrapper label="Jenis Kurir">
-                  <Combobox
+                  <FilterRadioGroup
+                    name="courier_type"
+                    value={value.courier_type}
+                    onValueChange={(v) => patch({ courier_type: v })}
                     options={COURIER_TYPE_OPTIONS}
-                    value={value.courier_type ?? null}
-                    onChange={(v) => patch({ courier_type: v ?? undefined })}
-                    placeholder="Semua"
-                    searchPlaceholder="Cari"
                   />
                 </FieldWrapper>
               )}
               {includes("shipment_type") && (
                 <FieldWrapper label="Tipe Pengiriman">
-                  <Combobox
+                  <FilterRadioGroup
+                    name="shipment_type"
+                    value={value.shipment_type}
+                    onValueChange={(v) => patch({ shipment_type: v })}
                     options={SHIPMENT_TYPE_OPTIONS}
-                    value={value.shipment_type ?? null}
-                    onChange={(v) => patch({ shipment_type: v ?? undefined })}
-                    placeholder="Semua"
-                    searchPlaceholder="Cari"
                   />
                 </FieldWrapper>
               )}
               {includes("status") && statusList.length > 0 && (
                 <FieldWrapper label="Status">
-                  <Combobox
-                    options={statusList}
-                    value={statusValue}
-                    onChange={statusChange}
-                    placeholder="Semua status"
-                    searchPlaceholder="Cari status"
-                  />
+                  {statusList.length <= 3 ? (
+                    <FilterRadioGroup
+                      name="status"
+                      value={statusValue ?? undefined}
+                      onValueChange={(v) => statusChange(v ?? null)}
+                      options={statusList}
+                    />
+                  ) : (
+                    <Combobox
+                      options={statusList}
+                      value={statusValue}
+                      onChange={statusChange}
+                      placeholder="Semua status"
+                      searchPlaceholder="Cari status"
+                    />
+                  )}
                 </FieldWrapper>
               )}
               {includes("date") && (
