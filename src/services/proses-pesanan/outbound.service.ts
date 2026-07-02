@@ -58,6 +58,20 @@ function buildQuery(params: FulfillmentListParams, extra?: Record<string, string
   if (params.location_id) q.set("filter[location_id]", params.location_id)
   if (params.source) q.set("filter[source]", params.source)
   if (params.status) q.set("filter[status]", params.status)
+  // Extended filters (BE allowedFilters). Skip blank/empty values.
+  if (params.shipping_provider) q.set("filter[shipping_provider]", params.shipping_provider)
+  if (params.channel_shop_id) q.set("filter[channel_shop_id]", params.channel_shop_id)
+  if (params.channel_status) q.set("filter[channel_status]", params.channel_status)
+  if (params.payment) q.set("filter[payment]", params.payment)
+  if (params.courier_type) q.set("filter[courier_type]", params.courier_type)
+  if (params.label_printed) q.set("filter[label_printed]", params.label_printed)
+  if (params.date_from) q.set("filter[date_from]", params.date_from)
+  if (params.date_to) q.set("filter[date_to]", params.date_to)
+  if (params.exclude_transit) q.set("filter[exclude_transit]", params.exclude_transit)
+  if (params.zone_id) q.set("filter[zone_id]", params.zone_id)
+  if (params.courier_code) q.set("filter[courier_code]", params.courier_code)
+  if (params.courier_name) q.set("filter[courier_name]", params.courier_name)
+  if (params.shipment_type) q.set("filter[shipment_type]", params.shipment_type)
   q.set("limit", String(params.per_page ?? 20))
   q.set("page", String(params.page ?? 1))
   if (extra) for (const [k, v] of Object.entries(extra)) q.set(k, v)
@@ -395,6 +409,32 @@ export const OutboundService = {
       method: "POST",
       data: payload,
     })
+  },
+  scanForPick: async (
+    picklistId: string,
+    payload: { sku: string; bin_code: string }
+  ): Promise<{
+    item_id: string
+    sku: string
+    bin_code: string
+    available_in_bin: number
+    remaining_to_pick: number
+    max_pickable: number
+  }> => {
+    const res = await fetchClient<{
+      data: {
+        item_id: string
+        sku: string
+        bin_code: string
+        available_in_bin: number
+        remaining_to_pick: number
+        max_pickable: number
+      }
+    }>(`/outbound/picklists/${picklistId}/scan`, {
+      method: "POST",
+      data: payload,
+    })
+    return res.data
   },
   completePicklist: async (id: string): Promise<void> => {
     await fetchClient(`/outbound/picklists/${id}/complete`, { method: "POST" })

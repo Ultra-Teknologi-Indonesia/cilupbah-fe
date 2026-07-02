@@ -274,6 +274,23 @@ export function usePickItem() {
   })
 }
 
+// Validasi scan SKU vs rak aktif sebelum modal qty dibuka. Read-only (tanpa
+// mutasi stok), jadi tidak perlu sentuh cache. Error 422 dari BE dibiarkan naik
+// ke pemanggil untuk ditampilkan sebagai toast + buzz.
+export function useScanForPick() {
+  return useMutation({
+    mutationFn: ({
+      picklistId,
+      sku,
+      binCode,
+    }: {
+      picklistId: string
+      sku: string
+      binCode: string
+    }) => OutboundService.scanForPick(picklistId, { sku, bin_code: binCode }),
+  })
+}
+
 export function useCompletePicklist() {
   const qc = useQueryClient()
   return useMutation({

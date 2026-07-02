@@ -22,9 +22,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { SimplePagination } from "@/components/ui/simple-pagination"
-import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
 import { OrderCard } from "@/components/dashboard/pesanan/order-card"
 import { BulkBuatPicklistConfirmDialog } from "@/components/dashboard/proses-pesanan/picking/bulk-buat-picklist-confirm-dialog"
+import {
+  FulfillmentFilterBar,
+  type FulfillmentFilterValue,
+} from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar"
 import {
   fulfillmentKeys,
   useCreatePicklist,
@@ -34,13 +37,6 @@ import {
 import { orderKeys } from "@/hooks/pesanan/use-orders"
 import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper"
 import { cn } from "@/lib/utils"
-
-const SOURCE_OPTIONS = [
-  { value: "", label: "Semua Channel" },
-  { value: "shopee", label: "Shopee" },
-  { value: "tiktok", label: "TikTok" },
-  { value: "lazada", label: "Lazada" },
-]
 
 function isOverdue(shipByDate: string | null): boolean {
   if (!shipByDate) return false
@@ -58,7 +54,7 @@ export function ReadyToProcessCardList() {
   const [selected, setSelected] = React.useState<Set<string>>(new Set())
   const [pickerId, setPickerId] = React.useState<string>("")
   const [confirmOpen, setConfirmOpen] = React.useState(false)
-  const [source, setSource] = React.useState<string>("")
+  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({})
   const [onlyPriority, setOnlyPriority] = React.useState(false)
   const [onlyOverdue, setOnlyOverdue] = React.useState(false)
 
@@ -70,11 +66,18 @@ export function ReadyToProcessCardList() {
   const params = React.useMemo(
     () => ({
       q: debounced || undefined,
-      source: source || undefined,
+      shipping_provider: filter.shipping_provider,
+      location_id: filter.location_id,
+      source: filter.source,
+      channel_shop_id: filter.channel_shop_id,
+      label_printed: filter.label_printed as "yes" | "no" | undefined,
+      date_from: filter.date_from,
+      date_to: filter.date_to,
+      exclude_transit: "1" as const,
       page,
       per_page: perPage,
     }),
-    [debounced, source, page, perPage]
+    [debounced, filter, page, perPage]
   )
 
   const { data, isLoading, isFetching, refetch } = useOrdersByStage(
@@ -121,19 +124,9 @@ export function ReadyToProcessCardList() {
     if (pickerId !== "") setPickerId("")
   }
 
-  const activeFilterCount =
-    (source ? 1 : 0) + (onlyPriority ? 1 : 0) + (onlyOverdue ? 1 : 0)
-
   const clearSelection = () => {
     setSelected(new Set())
     setPickerId("")
-  }
-
-  const resetFilters = () => {
-    setSource("")
-    setOnlyPriority(false)
-    setOnlyOverdue(false)
-    setPage(1)
   }
 
   const toggleAll = () => {

@@ -29,9 +29,9 @@ import {
   usePicklistDetail,
   useStartPicklist,
   usePickItem,
+  useScanForPick,
   useCompletePicklist,
 } from "@/hooks/proses-pesanan/use-fulfillment"
-import { type PicklistItem } from "@/types/proses-pesanan/fulfillment"
 import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 import { playScanFeedback } from "@/lib/scan-feedback"
 
@@ -91,11 +91,15 @@ export function PickingProsesView({ id }: { id: string }) {
   const [scannedBinCode, setScannedBinCode] = React.useState<string | null>(null)
   const [activeItemId, setActiveItemId] = React.useState<string | null>(null)
   const [pickQty, setPickQty] = React.useState("")
+  // Batas maksimum qty dari BE = min(sisa pesan, stok di rak yang di-scan).
+  // Dipakai untuk default field qty + validasi confirm.
+  const [activePickMax, setActivePickMax] = React.useState(0)
   const [notes, setNotes] = React.useState("")
 
   const { data: pl, isLoading, isError } = usePicklistDetail(id)
   const startPicklist = useStartPicklist()
   const pickItem = usePickItem()
+  const scanForPick = useScanForPick()
   const completePicklist = useCompletePicklist()
 
   const items = React.useMemo(() => pl?.items ?? [], [pl])
@@ -143,21 +147,11 @@ export function PickingProsesView({ id }: { id: string }) {
     }
   }, [pl, allPicked, editable, id, completePicklist, router])
 
-  function findItemForSku(code: string): PicklistItem | null {
-    const lower = code.toLowerCase()
-    return (
-      items.find((it) => it.sku.toLowerCase() === lower && it.qtyPicked < it.qtyOrdered) ??
-      items.find((it) => it.sku.toLowerCase() === lower) ??
-      items.find((it) => (it.sku ?? "").toLowerCase().includes(lower) && it.qtyPicked < it.qtyOrdered) ??
-      null
-    )
-  }
-
   const activeItem = activeItemId ? items.find((i) => i.id === activeItemId) ?? null : null
 
   const BIN_CODE_PATTERN = /^L\d+-B\d+-K\d+-R\d+$/i
 
-  const handleScanSku = () => {
+  const handleScanSku = async () => {
     const code = skuScan.trim()
     if (!code) return
     if (!editable) return
@@ -175,38 +169,38 @@ export function PickingProsesView({ id }: { id: string }) {
       skuScanRef.current?.focus()
       return
     }
-    const item = findItemForSku(code)
     setSkuScan("")
-    if (!item) {
+    // Validasi ke BE: SKU harus benar-benar ada di rak aktif (dan masih bersisa).
+    // Modal hanya dibuka jika valid; kalau tidak, buzz + toast tanpa buka modal.
+    try {
+      const res = await scanForPick.mutateAsync({
+        picklistId: id,
+        sku: code,
+        binCode: scannedBinCode,
+      })
+      playScanFeedback("ok")
+      setActiveItemId(res.item_id)
+      setActivePickMax(res.max_pickable)
+      setPickQty(String(res.max_pickable))
+      setTimeout(() => qtyInputRef.current?.focus(), 50)
+    } catch (e) {
       playScanFeedback("error")
-      toast.error(`SKU / Barcode "${code}" tidak ditemukan.`)
+      toast.error(errMsg(e, `SKU "${code}" tidak bisa diambil dari rak ${scannedBinCode}.`))
       skuScanRef.current?.focus()
-      return
     }
-    if (item.qtyPicked >= item.qtyOrdered) {
-      playScanFeedback("error")
-      toast.warning(`${item.sku} sudah penuh (qty terpenuhi).`)
-      skuScanRef.current?.focus()
-      return
-    }
-    playScanFeedback("ok")
-    setActiveItemId(item.id)
-    setPickQty("")
-    setTimeout(() => qtyInputRef.current?.focus(), 50)
   }
 
   const handleConfirmPick = () => {
     if (!activeItem || !scannedBinCode) return
     const qty = Number.parseInt(pickQty, 10)
-    const remaining = activeItem.qtyOrdered - activeItem.qtyPicked
     if (Number.isNaN(qty) || qty <= 0) {
       playScanFeedback("error")
       toast.error("Masukkan qty yang valid.")
       return
     }
-    if (qty > remaining) {
+    if (qty > activePickMax) {
       playScanFeedback("error")
-      toast.error(`Qty melebihi sisa yang harus di-pick (${remaining}).`)
+      toast.error(`Qty melebihi maksimum yang bisa diambil (${activePickMax}).`)
       return
     }
     pickItem.mutate(
@@ -235,6 +229,7 @@ export function PickingProsesView({ id }: { id: string }) {
   const handleCancelPick = () => {
     setActiveItemId(null)
     setPickQty("")
+    setActivePickMax(0)
     skuScanRef.current?.focus()
   }
 
@@ -412,7 +407,7 @@ export function PickingProsesView({ id }: { id: string }) {
                     }}
                     placeholder="Scan SKU / barcode barang…"
                     className="pl-9"
-                    disabled={!editable || pickItem.isPending}
+                    disabled={!editable || pickItem.isPending || scanForPick.isPending}
                     autoFocus
                   />
                 </div>
@@ -457,7 +452,7 @@ export function PickingProsesView({ id }: { id: string }) {
                         ref={qtyInputRef}
                         type="number"
                         min={1}
-                        max={activeItem.qtyOrdered - activeItem.qtyPicked}
+                        max={activePickMax}
                         inputMode="numeric"
                         value={pickQty}
                         onChange={(e) => setPickQty(e.target.value)}
@@ -467,7 +462,7 @@ export function PickingProsesView({ id }: { id: string }) {
                             handleConfirmPick()
                           }
                         }}
-                        placeholder={`maks ${activeItem.qtyOrdered - activeItem.qtyPicked}`}
+                        placeholder={`maks ${activePickMax}`}
                         className="h-10"
                         disabled={pickItem.isPending}
                       />

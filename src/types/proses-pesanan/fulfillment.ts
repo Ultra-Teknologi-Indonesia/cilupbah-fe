@@ -74,6 +74,20 @@ export interface FulfillmentListParams {
   status?: string
   page?: number
   per_page?: number
+  // Extended filters (dari BE allowedFilters baru).
+  shipping_provider?: string
+  channel_shop_id?: string
+  channel_status?: string // comma-separated multi
+  payment?: "cod" | "noncod"
+  courier_type?: "instant" | "regular"
+  label_printed?: "yes" | "no"
+  date_from?: string // YYYY-MM-DD
+  date_to?: string
+  exclude_transit?: "1"
+  zone_id?: string
+  courier_code?: string
+  courier_name?: string
+  shipment_type?: string // REGULAR|INSTANT|...
 }
 
 // ── Order per-stage (baris SalesOrder mentah dari /outbound/orders/{stage}) ────
