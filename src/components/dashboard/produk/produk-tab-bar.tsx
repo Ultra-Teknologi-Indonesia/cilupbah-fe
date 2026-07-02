@@ -3,7 +3,6 @@
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import {
-  ActivityIcon,
   ArchiveIcon,
   CloudDownloadIcon,
   ImportIcon,
@@ -19,14 +18,13 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 type Tab = {
   id: string
   label: string
-  icon: typeof ActivityIcon
+  icon: typeof Package2Icon
   href?: string
 }
 
 // Tahap "Alur Pengelolaan Produk" (selaras Jubelio). Tab tanpa href = belum
 // dibangun → tampil disabled "Segera".
 const TABS: Tab[] = [
-  { id: "pantauan", label: "Pantauan", icon: ActivityIcon, href: "/dashboard/produk/pantauan" },
   { id: "master", label: "Master", icon: Package2Icon, href: "/dashboard/produk/master" },
   { id: "upload", label: "Upload", icon: UploadCloudIcon, href: "/dashboard/produk/upload" },
   { id: "download", label: "Download", icon: CloudDownloadIcon, href: "/dashboard/produk/download" },
@@ -38,7 +36,6 @@ const TABS: Tab[] = [
 
 function activeId(pathname: string, status: string | null): string {
   if (pathname.startsWith("/dashboard/produk/arsip")) return "arsip"
-  if (pathname.startsWith("/dashboard/produk/pantauan")) return "pantauan"
   if (pathname.startsWith("/dashboard/produk/upload")) return "upload"
   if (pathname.startsWith("/dashboard/produk/download")) return "download"
   if (pathname.startsWith("/dashboard/produk/import")) return "import"

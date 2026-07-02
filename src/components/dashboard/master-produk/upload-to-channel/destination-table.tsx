@@ -100,16 +100,13 @@ export function DestinationTable({
     perPage: pagination.pageSize,
   })
 
-  const navigateToPantauan = React.useCallback(
+  const notifyUploaded = React.useCallback(
     (uploaded: number) => {
       if (uploaded > 0) {
-        toast.success(`${uploaded} toko berhasil diantrekan`, {
-          description: "Menuju halaman pantauan…",
-        })
-        router.push("/dashboard/produk/pantauan")
+        toast.success(`${uploaded} toko berhasil diantrekan`)
       }
     },
-    [router]
+    []
   )
 
   const match = useMatchListing(productId)
@@ -347,7 +344,7 @@ export function DestinationTable({
                     setAttrDialog({ shopIds: [d.shopId], shopId: d.shopId })
                   } else {
                     upload.mutate([d.shopId], {
-                      onSuccess: (res) => navigateToPantauan(res.uploaded),
+                      onSuccess: (res) => notifyUploaded(res.uploaded),
                     })
                   }
                 }}
@@ -368,7 +365,7 @@ export function DestinationTable({
         size: 132,
       },
     ],
-    [isUploaded, matchMap, matching, navigateToPantauan, runMatch, upload, uploadWithAttrs]
+    [isUploaded, matchMap, matching, notifyUploaded, runMatch, upload, uploadWithAttrs]
   )
 
   const [confirmRows, setConfirmRows] = React.useState<UploadDestination[] | null>(null)
@@ -490,7 +487,7 @@ export function DestinationTable({
 
                           if (nonTiktok.length > 0) {
                             upload.mutate(nonTiktok, {
-                              onSuccess: (res) => navigateToPantauan(res.uploaded),
+                              onSuccess: (res) => notifyUploaded(res.uploaded),
                             })
                           }
 
@@ -548,7 +545,7 @@ export function DestinationTable({
                 attributeMapping: Object.keys(mapping).length > 0 ? mapping : null,
               },
               {
-                onSuccess: (res) => navigateToPantauan(res.uploaded),
+                onSuccess: (res) => notifyUploaded(res.uploaded),
                 onSettled: () => {
                   attrDialog.resetSelection?.()
                   setAttrDialog(null)
