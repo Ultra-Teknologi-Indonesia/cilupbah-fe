@@ -16,6 +16,7 @@ export const inventoryKeys = {
   item: (itemId: string) => [...all, "item", itemId] as const,
   movements: (params: StockMovementParams) => [...all, "movements", params] as const,
   itemStock: (itemId: string) => [...all, "item-stock", itemId] as const,
+  movementFilters: () => [...all, "movement-filters"] as const,
 }
 
 export function useStockPosition(params: StockListParams) {
@@ -50,6 +51,14 @@ export function useItemStock(itemId: string) {
     queryFn: () => InventoryStockService.getItemStock(itemId),
     staleTime: STALE,
     enabled: !!itemId,
+  })
+}
+
+export function useMovementFilters() {
+  return useQuery({
+    queryKey: inventoryKeys.movementFilters(),
+    queryFn: () => InventoryStockService.movementFilters(),
+    staleTime: 60 * 60 * 1000,
   })
 }
 

@@ -7,6 +7,7 @@ import type {
   StockMovementParams,
   BinInventory,
   StockListMeta,
+  MovementFilterOptions,
 } from "@/types/persediaan/stock"
 
 interface StockListResponse extends ApiResponse<StockItem[]> {
@@ -49,5 +50,9 @@ export const InventoryStockService = {
 
   getItemStock: (itemId: string) => {
     return fetchClient<ApiResponse<BinInventory[]>>(`/inventory/stocks/${itemId}`)
+  },
+
+  movementFilters: () => {
+    return fetchClient<ApiResponse<MovementFilterOptions>>(`/inventory/movement-filters`)
   },
 }

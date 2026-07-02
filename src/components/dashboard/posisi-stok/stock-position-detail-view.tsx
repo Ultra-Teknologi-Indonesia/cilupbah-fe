@@ -17,16 +17,18 @@ import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination, TABLE_PAGE_SIZES } from "@/components/ui/simple-pagination"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { PageTitle } from "@/components/dashboard/page-title"
+import { FilterToolbar } from "@/components/dashboard/shared/filter-toolbar"
 import {
   useStockItem,
   useStockMovements,
   useItemStock,
+  useMovementFilters,
 } from "@/hooks/persediaan/use-stock-position"
 import type { StockMovement, BinInventory } from "@/types/persediaan/stock"
 import { formatCurrency } from "@/lib/format"
@@ -44,24 +46,7 @@ const CATEGORY_COLOR: Record<string, string> = {
   REVALUATION: "text-violet-600 bg-violet-50 border-violet-200 dark:text-violet-400 dark:bg-violet-500/10 dark:border-violet-500/20",
 }
 
-const SOURCE_FILTER_OPTIONS: { value: string; label: string }[] = [
-  { value: "", label: "Semua Sumber" },
-  { value: "BILL", label: "Tagihan" },
-  { value: "ADJUSTMENT,STOCK_OPNAME", label: "Penyesuaian" },
-  { value: "PURCHASE_RETURN", label: "Retur Pembelian" },
-  { value: "SALES_RETURN", label: "Retur Penjualan" },
-  { value: "INVOICE,ORDER_SHIP", label: "Faktur" },
-  { value: "ORDER_PICK,ORDER_RESTORE", label: "Pesanan" },
-  { value: "ORDER_CANCEL", label: "Pesanan Batal" },
-  { value: "ORDER_BOOK", label: "Cadangan" },
-  { value: "TRANSFER_IN,TRANSFER_OUT,BIN_TRANSFER_IN,BIN_TRANSFER_OUT,PUTAWAY_IN,PUTAWAY_OUT", label: "Transfer" },
-]
-
-const DIRECTION_OPTIONS: { value: string; label: string }[] = [
-  { value: "", label: "Semua Mutasi" },
-  { value: "in", label: "Masuk" },
-  { value: "out", label: "Keluar" },
-]
+const ALL_VALUE = "__all__"
 
 function SourceBadge({ category, label }: { category: string; label: string }) {
   const color = CATEGORY_COLOR[category] ?? "text-muted-foreground bg-muted border-border"
@@ -121,6 +106,10 @@ function MovementsSection({ itemId }: { itemId: string }) {
   const [source, setSource] = useState("")
   const [direction, setDirection] = useState<"" | "in" | "out">("")
 
+  const { data: filterOptions } = useMovementFilters()
+  const sourceOptions = filterOptions?.data?.sources ?? []
+  const directionOptions = filterOptions?.data?.directions ?? []
+
   const params = useMemo(() => ({
     "filter[item_id]": itemId,
     "filter[source]": source || undefined,
@@ -134,25 +123,45 @@ function MovementsSection({ itemId }: { itemId: string }) {
   const movements = data?.data ?? []
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
 
+  const activeCount = [source, direction].filter(Boolean).length
+  const hasActiveFilter = activeCount > 0
+
   const filterBar = (
-    <div className="flex flex-wrap items-center gap-2">
-      <Combobox
-        options={SOURCE_FILTER_OPTIONS}
-        value={source}
-        onChange={(v) => { setSource(v ?? ""); setPage(1) }}
-        placeholder="Pilih sumber"
-        searchPlaceholder="Cari sumber"
-        className="h-9 min-w-[180px] bg-background"
-      />
-      <Combobox
-        options={DIRECTION_OPTIONS}
-        value={direction}
-        onChange={(v) => { setDirection((v ?? "") as "" | "in" | "out"); setPage(1) }}
-        placeholder="Pilih mutasi"
-        searchPlaceholder="Cari mutasi"
-        className="h-9 min-w-[160px] bg-background"
-      />
-    </div>
+    <FilterToolbar
+      hasFilter={hasActiveFilter}
+      activeCount={activeCount}
+      onReset={hasActiveFilter ? () => { setSource(""); setDirection(""); setPage(1) } : undefined}
+      gridCols={2}
+    >
+      <Select
+        value={source || ALL_VALUE}
+        onValueChange={(v) => { setSource(v === ALL_VALUE ? "" : v); setPage(1) }}
+      >
+        <SelectTrigger className="h-9 w-full rounded-full border-border bg-background">
+          <SelectValue placeholder="Pilih sumber" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={ALL_VALUE}>Semua Sumber</SelectItem>
+          {sourceOptions.map((o) => (
+            <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Select
+        value={direction || ALL_VALUE}
+        onValueChange={(v) => { setDirection((v === ALL_VALUE ? "" : v) as "" | "in" | "out"); setPage(1) }}
+      >
+        <SelectTrigger className="h-9 w-full rounded-full border-border bg-background">
+          <SelectValue placeholder="Pilih mutasi" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={ALL_VALUE}>Semua Mutasi</SelectItem>
+          {directionOptions.map((o) => (
+            <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </FilterToolbar>
   )
 
   if (isLoading) {

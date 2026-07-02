@@ -108,6 +108,22 @@ export interface StockLocation {
   location_name: string
 }
 
+export interface MovementSourceOption {
+  value: string
+  label: string
+  category: string
+}
+
+export interface MovementDirectionOption {
+  value: "in" | "out"
+  label: string
+}
+
+export interface MovementFilterOptions {
+  sources: MovementSourceOption[]
+  directions: MovementDirectionOption[]
+}
+
 export interface StockListMeta {
   current_page: number
   last_page: number
