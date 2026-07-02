@@ -33,6 +33,7 @@ import {
 } from "@/hooks/proses-pesanan/use-fulfillment"
 import { type PicklistItem } from "@/types/proses-pesanan/fulfillment"
 import { StatusBadge } from "@/components/dashboard/shared/status-badge"
+import { playScanFeedback } from "@/lib/scan-feedback"
 
 const LIST_HREF = "/dashboard/proses-pesanan"
 
@@ -161,12 +162,14 @@ export function PickingProsesView({ id }: { id: string }) {
     if (!code) return
     if (!editable) return
     if (!scannedBinCode) {
+      playScanFeedback("error")
       toast.warning("Scan kode rak dulu sebelum scan SKU.")
       setSkuScan("")
       binScanRef.current?.focus()
       return
     }
     if (BIN_CODE_PATTERN.test(code) || code === scannedBinCode) {
+      playScanFeedback("error")
       toast.error(`"${code}" adalah kode rak, bukan SKU produk.`)
       setSkuScan("")
       skuScanRef.current?.focus()
@@ -175,15 +178,18 @@ export function PickingProsesView({ id }: { id: string }) {
     const item = findItemForSku(code)
     setSkuScan("")
     if (!item) {
+      playScanFeedback("error")
       toast.error(`SKU / Barcode "${code}" tidak ditemukan.`)
       skuScanRef.current?.focus()
       return
     }
     if (item.qtyPicked >= item.qtyOrdered) {
+      playScanFeedback("error")
       toast.warning(`${item.sku} sudah penuh (qty terpenuhi).`)
       skuScanRef.current?.focus()
       return
     }
+    playScanFeedback("ok")
     setActiveItemId(item.id)
     setPickQty("")
     setTimeout(() => qtyInputRef.current?.focus(), 50)
@@ -194,10 +200,12 @@ export function PickingProsesView({ id }: { id: string }) {
     const qty = Number.parseInt(pickQty, 10)
     const remaining = activeItem.qtyOrdered - activeItem.qtyPicked
     if (Number.isNaN(qty) || qty <= 0) {
+      playScanFeedback("error")
       toast.error("Masukkan qty yang valid.")
       return
     }
     if (qty > remaining) {
+      playScanFeedback("error")
       toast.error(`Qty melebihi sisa yang harus di-pick (${remaining}).`)
       return
     }
@@ -210,12 +218,14 @@ export function PickingProsesView({ id }: { id: string }) {
       },
       {
         onSuccess: () => {
+          playScanFeedback("ok")
           toast.success(`${activeItem.sku} berhasil di-pick (${activeItem.qtyPicked + qty}/${activeItem.qtyOrdered}).`)
           setActiveItemId(null)
           setPickQty("")
           skuScanRef.current?.focus()
         },
         onError: (e) => {
+          playScanFeedback("error")
           toast.error(errMsg(e, `Gagal pick ${activeItem.sku}.`))
         },
       }
@@ -233,6 +243,7 @@ export function PickingProsesView({ id }: { id: string }) {
     if (!code) return
     const isSku = items.some((i) => i.sku.toLowerCase() === code.toLowerCase())
     if (isSku) {
+      playScanFeedback("error")
       toast.error(`"${code}" adalah SKU produk, bukan kode rak.`)
       setBinScan("")
       binScanRef.current?.focus()
@@ -240,6 +251,7 @@ export function PickingProsesView({ id }: { id: string }) {
     }
     setBinScan("")
     setScannedBinCode(code)
+    playScanFeedback("ok")
     toast.success(`Rak ${code} aktif.`)
     setTimeout(() => skuScanRef.current?.focus(), 50)
   }

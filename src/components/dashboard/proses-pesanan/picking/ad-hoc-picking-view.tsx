@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { PageTitle } from "@/components/dashboard/page-title"
 import { useAdHocPickScan, useGetOrderByNo } from "@/hooks/proses-pesanan/use-fulfillment"
+import { playScanFeedback } from "@/lib/scan-feedback"
 
 const LIST_HREF = "/dashboard/proses-pesanan"
 
@@ -159,12 +160,14 @@ export function AdHocPickingView() {
     try {
       const raw = (await getOrderByNo.mutateAsync(code)) as RawOrder | null
       if (!raw) {
+        playScanFeedback("error")
         toast.error(`Order "${code}" tidak ditemukan.`)
         orderScanRef.current?.focus()
         return
       }
       const mapped = mapOrder(raw)
       if (mapped.status !== "reserved") {
+        playScanFeedback("error")
         toast.error(
           `Order ${mapped.salesorderNo} berstatus '${mapped.status ?? "?"}' — hanya 'reserved' yang bisa di-pick.`
         )
@@ -172,9 +175,11 @@ export function AdHocPickingView() {
         return
       }
       setOrder(mapped)
+      playScanFeedback("ok")
       toast.success(`Order ${mapped.salesorderNo} dimuat.`)
       setTimeout(() => skuScanRef.current?.focus(), 50)
     } catch (e) {
+      playScanFeedback("error")
       toast.error(errMsg(e, "Gagal memuat order."))
     } finally {
       setLoadingOrder(false)
@@ -186,6 +191,7 @@ export function AdHocPickingView() {
     if (!code) return
     setBinScan("")
     setScannedBinCode(code)
+    playScanFeedback("ok")
     toast.success(`Rak ${code} aktif.`)
     setTimeout(() => skuScanRef.current?.focus(), 50)
   }
@@ -195,6 +201,7 @@ export function AdHocPickingView() {
     if (!code) return
     if (!order) return
     if (!scannedBinCode) {
+      playScanFeedback("error")
       toast.warning("Scan kode rak dulu sebelum scan SKU.")
       setSkuScan("")
       binScanRef.current?.focus()
@@ -222,6 +229,7 @@ export function AdHocPickingView() {
             return { ...prev, items }
           })
 
+          playScanFeedback("ok")
           if (res.completed) {
             toast.success(`Picking selesai untuk order ${order.salesorderNo}.`)
             // Reset untuk scan order berikutnya.
@@ -239,6 +247,7 @@ export function AdHocPickingView() {
           }
         },
         onError: (e) => {
+          playScanFeedback("error")
           toast.error(errMsg(e, `Gagal scan ${code}.`))
           skuScanRef.current?.focus()
         },

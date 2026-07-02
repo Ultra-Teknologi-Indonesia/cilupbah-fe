@@ -32,6 +32,7 @@ import {
   useScanOrderToShipment,
   useRemoveOrderFromShipment,
 } from "@/hooks/proses-pesanan/use-fulfillment"
+import { playScanFeedback } from "@/lib/scan-feedback"
 import { ChannelBadge } from "../channel-badge"
 import { DocActions } from "../picking/doc-actions"
 
@@ -90,10 +91,12 @@ export function ShipmentDetailView({ id }: { id: string }) {
 
     try {
       await scanOrder.mutateAsync({ shipmentId: id, barcode: code })
+      playScanFeedback("ok")
       toast.success(`Pesanan ${code} ditambahkan.`)
       setBarcode("")
       inputRef.current?.focus()
     } catch (err) {
+      playScanFeedback("error")
       toast.error(errMsg(err, "Gagal menambahkan pesanan."))
       setBarcode("")
       inputRef.current?.focus()

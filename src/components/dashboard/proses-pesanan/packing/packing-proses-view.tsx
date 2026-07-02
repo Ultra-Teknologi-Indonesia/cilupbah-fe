@@ -34,6 +34,7 @@ import {
   useVerifyBarcode,
 } from "@/hooks/proses-pesanan/use-fulfillment"
 import type { PacklistDetail, PacklistItem } from "@/types/proses-pesanan/fulfillment"
+import { playScanFeedback } from "@/lib/scan-feedback"
 
 const LIST_HREF = "/dashboard/proses-pesanan"
 
@@ -149,6 +150,7 @@ export function PackingProsesView() {
     const code = orderScan.trim()
     if (!code) return
     if (!pickerId) {
+      playScanFeedback("error")
       toast.warning("Pilih packer terlebih dahulu.")
       return
     }
@@ -159,9 +161,11 @@ export function PackingProsesView() {
 
       setPacklistId(result.id)
       didAutoComplete.current = false
+      playScanFeedback("ok")
       toast.success(`Packing ${result.packlistNo} dimulai.`)
       setTimeout(() => skuScanRef.current?.focus(), 100)
     } catch (err) {
+      playScanFeedback("error")
       toast.error(errMsg(err, `Pesanan "${code}" tidak ditemukan atau belum siap packing.`))
       orderScanRef.current?.focus()
     }
@@ -184,30 +188,38 @@ export function PackingProsesView() {
         {
           onSuccess: (res) => {
             if (!res) {
+              playScanFeedback("error")
               toast.error(`SKU/Barcode "${code}" tidak ditemukan.`)
               return
             }
             const matched = items.find((i) => i.id === res.itemId)
             if (matched && matched.qtyPacked < matched.qtyOrdered) {
+              playScanFeedback("ok")
               setActiveItemId(matched.id)
               setPackQty("")
               setTimeout(() => qtyInputRef.current?.focus(), 50)
             } else {
+              playScanFeedback("error")
               toast.info(`${res.sku} sudah lengkap.`)
             }
           },
-          onError: (e) => toast.error(errMsg(e, "Barcode tidak valid.")),
+          onError: (e) => {
+            playScanFeedback("error")
+            toast.error(errMsg(e, "Barcode tidak valid."))
+          },
         }
       )
       return
     }
 
     if (item.qtyPacked >= item.qtyOrdered) {
+      playScanFeedback("error")
       toast.info(`${item.sku} sudah lengkap.`)
       skuScanRef.current?.focus()
       return
     }
 
+    playScanFeedback("ok")
     setActiveItemId(item.id)
     setPackQty("")
     setTimeout(() => qtyInputRef.current?.focus(), 50)
@@ -218,10 +230,12 @@ export function PackingProsesView() {
     const qty = Number.parseInt(packQty, 10)
     const remaining = activeItem.qtyOrdered - activeItem.qtyPacked
     if (Number.isNaN(qty) || qty <= 0) {
+      playScanFeedback("error")
       toast.error("Masukkan qty yang valid.")
       return
     }
     if (qty > remaining) {
+      playScanFeedback("error")
       toast.error(`Qty melebihi sisa (${remaining}).`)
       return
     }
@@ -234,12 +248,16 @@ export function PackingProsesView() {
       },
       {
         onSuccess: () => {
+          playScanFeedback("ok")
           toast.success(`${activeItem.sku} dikemas (${activeItem.qtyPacked + qty}/${activeItem.qtyOrdered}).`)
           setActiveItemId(null)
           setPackQty("")
           skuScanRef.current?.focus()
         },
-        onError: (e) => toast.error(errMsg(e, `Gagal pack ${activeItem.sku}.`)),
+        onError: (e) => {
+          playScanFeedback("error")
+          toast.error(errMsg(e, `Gagal pack ${activeItem.sku}.`))
+        },
       }
     )
   }
