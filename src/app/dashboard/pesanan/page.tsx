@@ -11,7 +11,7 @@ import type { OrderListParams } from "@/types/pesanan/order"
 // HARUS sama dengan render pertama PesananView (useOrders). Field undefined
 // tidak memengaruhi hash query key, jadi cukup samakan field yang bernilai
 // (tab/page/per_page). Bila default PesananView berubah, sesuaikan di sini.
-const INITIAL_ORDER_PARAMS: OrderListParams = { tab: "all", page: 1, per_page: 12 }
+const INITIAL_ORDER_PARAMS: OrderListParams = { tab: "all", page: 1, per_page: 24 }
 
 export default async function PesananPage() {
   // Prefetch di server: data list + counts mengalir bersama HTML, sehingga

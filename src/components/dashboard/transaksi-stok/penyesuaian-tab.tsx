@@ -46,7 +46,10 @@ const STATUS_OPTIONS = [
 ]
 
 export function PenyesuaianTab() {
-  const list = useListState<FilterState>(EMPTY_FILTERS)
+  const list = useListState<FilterState>(EMPTY_FILTERS, {
+    urlSync: true,
+    namespace: "adj",
+  })
   const [deleteTarget, setDeleteTarget] = useState<StockAdjustment | null>(null)
   const [approveTarget, setApproveTarget] = useState<StockAdjustment | null>(null)
   const [approvedBy, setApprovedBy] = useState("")
@@ -84,7 +87,7 @@ export function PenyesuaianTab() {
   const columns = useMemo<ColumnDef<StockAdjustment>[]>(() => [
     {
       accessorKey: "adjustment_no",
-      header: "No. Penyesuaian",
+      header: "No. Koreksi Stok",
       cell: ({ row }) => (
         <span className="font-medium">
           <Link
@@ -175,9 +178,9 @@ export function PenyesuaianTab() {
   const handleExport = useCallback(() => {
     if (items.length === 0) return
     exportCsv(
-      "penyesuaian-stok.csv",
+      "koreksi-stok.csv",
       [
-        "No. Penyesuaian",
+        "No. Koreksi Stok",
         "Tgl. Transaksi",
         "Lokasi",
         "Status",
@@ -199,7 +202,7 @@ export function PenyesuaianTab() {
         <Button size="sm" asChild className="gap-1.5">
           <Link href="/dashboard/transaksi-stok/penyesuaian/buat">
             <PlusIcon className="h-4 w-4" />
-            Buat Penyesuaian
+            Koreksi Stok Baru
           </Link>
         </Button>
       </div>
@@ -211,11 +214,11 @@ export function PenyesuaianTab() {
         total={total}
         isLoading={isLoading}
         isFetching={isFetching}
-        searchPlaceholder="Cari no. penyesuaian..."
+        searchPlaceholder="Cari no. koreksi stok..."
         onExport={handleExport}
         emptyIcon={SlidersHorizontalIcon}
-        emptyTitle="Belum ada penyesuaian stok"
-        emptyDescription="Data penyesuaian stok akan muncul di sini."
+        emptyTitle="Belum ada koreksi stok"
+        emptyDescription="Data koreksi stok akan muncul di sini."
         filterControls={
           <>
             <Combobox
@@ -251,8 +254,8 @@ export function PenyesuaianTab() {
             setApprovedBy("")
           }
         }}
-        title="Setujui Penyesuaian Stok"
-        description={`Setujui penyesuaian "${approveTarget?.adjustment_no}"?`}
+        title="Setujui Koreksi Stok"
+        description={`Setujui koreksi stok "${approveTarget?.adjustment_no}"?`}
         confirmLabel="Setujui"
         variant="default"
         loading={approveMut.isPending}
@@ -272,7 +275,7 @@ export function PenyesuaianTab() {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(v) => !v && setDeleteTarget(null)}
-        title="Hapus Penyesuaian Stok"
+        title="Hapus Koreksi Stok"
         description={`Apakah Anda yakin ingin menghapus "${deleteTarget?.adjustment_no}"? Tindakan ini tidak dapat dibatalkan.`}
         confirmLabel="Hapus"
         variant="destructive"

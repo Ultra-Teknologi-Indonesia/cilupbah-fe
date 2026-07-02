@@ -22,11 +22,11 @@ import { RevaluasiTab } from "@/components/dashboard/transaksi-stok/revaluasi-ta
 type Tab = "penyesuaian" | "opname" | "transfer" | "cadang" | "revaluasi"
 
 const TABS: PillTabItem<Tab>[] = [
-  { key: "penyesuaian", label: "Penyesuaian Stok", icon: SlidersHorizontalIcon },
-  { key: "opname", label: "Opname", icon: ClipboardCheckIcon },
+  { key: "penyesuaian", label: "Koreksi Stok", icon: SlidersHorizontalIcon },
+  { key: "opname", label: "Stok Opname", icon: ClipboardCheckIcon },
   { key: "transfer", label: "Internal Transfer", icon: ArrowLeftRightIcon },
-  { key: "cadang", label: "Cadang", icon: ShieldIcon },
-  { key: "revaluasi", label: "Revaluasi", icon: DollarSignIcon },
+  { key: "cadang", label: "Reservasi Stok", icon: ShieldIcon },
+  { key: "revaluasi", label: "Ubah Nilai Stok", icon: DollarSignIcon },
 ]
 
 const TAB_KEYS = TABS.map((t) => t.key)

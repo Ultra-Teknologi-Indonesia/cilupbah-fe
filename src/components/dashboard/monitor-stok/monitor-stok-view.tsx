@@ -42,7 +42,7 @@ const SUB_TABS: { key: OutOfStockMode; label: string }[] = [
   { key: "dipesan", label: "Dipesan namun habis" },
 ]
 
-const EMPTY_META = { current_page: 1, last_page: 1, per_page: 15, total: 0 }
+const EMPTY_META = { current_page: 1, last_page: 1, per_page: 20, total: 0 }
 
 const PERIOD_DEFAULT: Record<string, number> = {
   "tidak-laku": 90,

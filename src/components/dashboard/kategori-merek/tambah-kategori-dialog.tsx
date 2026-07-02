@@ -226,7 +226,7 @@ export function TambahKategoriDialog({
           {/* Header */}
           <div className="flex items-center justify-between border-b border-border/60 px-5 py-4 sm:px-6">
             <div>
-              <DialogTitle className="text-lg">Tambah Kategori</DialogTitle>
+              <DialogTitle className="text-lg">Buat Kategori</DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground">
                 Buat kategori baru atau sub-kategori.
               </DialogDescription>

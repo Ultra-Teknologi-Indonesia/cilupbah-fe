@@ -190,7 +190,7 @@ function ZoneFormDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {mode === "create" ? "Tambah Zona" : "Edit Zona"}
+            {mode === "create" ? "Buat Zona" : "Edit Zona"}
           </DialogTitle>
           <DialogClose />
         </DialogHeader>
@@ -361,7 +361,7 @@ export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
           {!disabled && (
             <Button variant="primary" size="sm" onClick={openCreate}>
               <PlusIcon className="mr-1.5 size-4" />
-              Tambah Zona
+              Buat Zona
             </Button>
           )}
         </div>

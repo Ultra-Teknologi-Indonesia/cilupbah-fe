@@ -46,7 +46,10 @@ const STATUS_OPTIONS = [
 ]
 
 export function OpnameTab() {
-  const list = useListState<FilterState>(EMPTY_FILTERS)
+  const list = useListState<FilterState>(EMPTY_FILTERS, {
+    urlSync: true,
+    namespace: "opn",
+  })
   const [deleteTarget, setDeleteTarget] = useState<StockOpname | null>(null)
   const [startTarget, setStartTarget] = useState<StockOpname | null>(null)
   const [processBy, setProcessBy] = useState("")
@@ -84,7 +87,7 @@ export function OpnameTab() {
   const columns = useMemo<ColumnDef<StockOpname>[]>(() => [
     {
       accessorKey: "opname_no",
-      header: "No. Opname",
+      header: "No. Stok Opname",
       cell: ({ row }) => (
         <span className="font-medium">
           <Link
@@ -175,8 +178,8 @@ export function OpnameTab() {
   const handleExport = useCallback(() => {
     if (items.length === 0) return
     exportCsv(
-      "stock-opname.csv",
-      ["No. Opname", "Lokasi", "Status", "Dibuat Oleh", "Difinalisasi"],
+      "stok-opname.csv",
+      ["No. Stok Opname", "Lokasi", "Status", "Dibuat Oleh", "Difinalisasi"],
       items.map((item: StockOpname) => [
         item.opname_no,
         item.location?.location_name ?? "",
@@ -196,11 +199,11 @@ export function OpnameTab() {
         total={total}
         isLoading={isLoading}
         isFetching={isFetching}
-        searchPlaceholder="Cari no. opname..."
+        searchPlaceholder="Cari no. stok opname..."
         onExport={handleExport}
         emptyIcon={ClipboardCheckIcon}
-        emptyTitle="Belum ada stock opname"
-        emptyDescription="Data stock opname akan muncul di sini."
+        emptyTitle="Belum ada stok opname"
+        emptyDescription="Data stok opname (hitung fisik) akan muncul di sini."
         filterControls={
           <>
             <Combobox
@@ -236,8 +239,8 @@ export function OpnameTab() {
             setProcessBy("")
           }
         }}
-        title="Mulai Proses Opname"
-        description={`Mulai proses opname "${startTarget?.opname_no}"?`}
+        title="Mulai Proses Stok Opname"
+        description={`Mulai proses stok opname "${startTarget?.opname_no}"?`}
         confirmLabel="Mulai"
         variant="default"
         loading={startMut.isPending}
@@ -258,7 +261,7 @@ export function OpnameTab() {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(v) => !v && setDeleteTarget(null)}
-        title="Hapus Stock Opname"
+        title="Hapus Stok Opname"
         description={`Apakah Anda yakin ingin menghapus "${deleteTarget?.opname_no}"? Tindakan ini tidak dapat dibatalkan.`}
         confirmLabel="Hapus"
         variant="destructive"

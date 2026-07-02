@@ -23,14 +23,14 @@ export const useStockRevaluationDetail = createDetailHook(
 
 export const useCreateStockRevaluation = createMutationHook({
   mutationFn: (data: StockRevaluationFormData) => StockRevaluationService.create(data),
-  successMessage: "Revaluasi stok berhasil dibuat",
-  errorMessage: "Gagal membuat revaluasi stok",
+  successMessage: "Perubahan nilai stok berhasil dibuat",
+  errorMessage: "Gagal membuat perubahan nilai stok",
   invalidates: () => [stockRevaluationKeys.lists],
 })
 
 export const useCancelStockRevaluation = createMutationHook({
   mutationFn: (id: string) => StockRevaluationService.cancel(id),
-  successMessage: "Revaluasi stok berhasil dibatalkan",
-  errorMessage: "Gagal membatalkan revaluasi stok",
+  successMessage: "Perubahan nilai stok berhasil dibatalkan",
+  errorMessage: "Gagal membatalkan perubahan nilai stok",
   invalidates: (id) => [stockRevaluationKeys.lists, stockRevaluationKeys.detail(id)],
 })

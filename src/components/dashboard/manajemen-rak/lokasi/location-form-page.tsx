@@ -203,7 +203,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
     toast.error("Lengkapi field wajib di tab Informasi Lokasi.")
   })
 
-  const title = mode === "create" ? "Tambah Lokasi" : "Edit Lokasi"
+  const title = mode === "create" ? "Buat Lokasi" : "Edit Lokasi"
 
   if (mode === "edit" && detail.isLoading) {
     return (

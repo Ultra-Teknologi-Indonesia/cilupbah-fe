@@ -58,7 +58,10 @@ function useInternalTransfers(params: InventoryTransferListParams = {}) {
 }
 
 export function TransferTab() {
-  const list = useListState<FilterState>(EMPTY_FILTERS)
+  const list = useListState<FilterState>(EMPTY_FILTERS, {
+    urlSync: true,
+    namespace: "trf",
+  })
 
   const params = useMemo<InventoryTransferListParams>(
     () => ({

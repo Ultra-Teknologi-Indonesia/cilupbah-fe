@@ -134,7 +134,7 @@ export function ProductExplorer({ query }: { query: Query }) {
               <DropdownMenuTrigger asChild>
                 <Button variant="primary" size="sm" className="h-9 gap-2">
                   <PlusIcon className="size-4" />
-                  <span className="hidden sm:inline">Tambah Produk</span>
+                  <span className="hidden sm:inline">Buat Produk</span>
                   <ChevronDownIcon className="size-4" />
                 </Button>
               </DropdownMenuTrigger>

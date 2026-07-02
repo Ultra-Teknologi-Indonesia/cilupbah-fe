@@ -26,7 +26,7 @@ export default async function ProdukMasterPage({
   const params: MasterProductsParams = {
     status: status || undefined,
     page: 1,
-    perPage: 12,
+    perPage: 24,
   }
 
   const qc = getServerQueryClient()

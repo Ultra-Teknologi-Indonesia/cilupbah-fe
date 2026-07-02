@@ -184,7 +184,7 @@ export function PesananListView() {
         <Button variant="primary" asChild>
           <Link href="/dashboard/transaksi-pembelian/pesanan/tambah">
             <PlusIcon className="h-4 w-4" />
-            Tambah Pesanan
+            Buat Pesanan
           </Link>
         </Button>
       </div>
@@ -256,7 +256,7 @@ export function PesananListView() {
                 <ClipboardListIcon className="h-10 w-10 opacity-20" />
                 <div className="text-center">
                   <p className="text-sm font-medium">Belum ada pesanan pembelian</p>
-                  <p className="mt-1 text-xs">Tambah pesanan baru untuk mulai memesan barang dari pemasok.</p>
+                  <p className="mt-1 text-xs">Buat pesanan baru untuk mulai memesan barang dari pemasok.</p>
                 </div>
               </div>
             }

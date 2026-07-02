@@ -38,7 +38,10 @@ const STATUS_OPTIONS = [
 ]
 
 export function CadangTab() {
-  const list = useListState<FilterState>(EMPTY_FILTERS)
+  const list = useListState<FilterState>(EMPTY_FILTERS, {
+    urlSync: true,
+    namespace: "cad",
+  })
   const [cancelTarget, setCancelTarget] = useState<ReservedStock | null>(null)
 
   const params = useMemo<ReservedStockListParams>(
@@ -73,7 +76,7 @@ export function CadangTab() {
   const columns = useMemo<ColumnDef<ReservedStock>[]>(() => [
     {
       accessorKey: "reserved_stock_no",
-      header: "No. Cadangan",
+      header: "No. Reservasi Stok",
       cell: ({ row }) => (
         <span className="font-medium">
           <Link
@@ -147,9 +150,9 @@ export function CadangTab() {
   const handleExport = useCallback(() => {
     if (items.length === 0) return
     exportCsv(
-      "stok-cadangan.csv",
+      "reservasi-stok.csv",
       [
-        "No. Cadangan",
+        "No. Reservasi Stok",
         "Lokasi",
         "Tgl. Mulai",
         "Tgl. Selesai",
@@ -176,11 +179,11 @@ export function CadangTab() {
         total={total}
         isLoading={isLoading}
         isFetching={isFetching}
-        searchPlaceholder="Cari no. cadangan..."
+        searchPlaceholder="Cari no. reservasi stok..."
         onExport={handleExport}
         emptyIcon={ShieldIcon}
-        emptyTitle="Belum ada stok cadangan"
-        emptyDescription="Data stok cadangan akan muncul di sini."
+        emptyTitle="Belum ada reservasi stok"
+        emptyDescription="Data reservasi stok akan muncul di sini."
         filterControls={
           <>
             <Combobox
@@ -210,8 +213,8 @@ export function CadangTab() {
       <ConfirmDialog
         open={!!cancelTarget}
         onOpenChange={(v) => !v && setCancelTarget(null)}
-        title="Batalkan Stok Cadangan"
-        description={`Apakah Anda yakin ingin membatalkan "${cancelTarget?.reserved_stock_no}"? Stok yang dicadangkan akan dikembalikan.`}
+        title="Batalkan Reservasi Stok"
+        description={`Apakah Anda yakin ingin membatalkan "${cancelTarget?.reserved_stock_no}"? Stok yang direservasi akan dikembalikan.`}
         confirmLabel="Batalkan"
         variant="destructive"
         loading={cancelMut.isPending}

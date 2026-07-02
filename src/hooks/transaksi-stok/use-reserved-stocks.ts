@@ -23,14 +23,14 @@ export const useReservedStockDetail = createDetailHook(
 
 export const useCreateReservedStock = createMutationHook({
   mutationFn: (data: ReservedStockFormData) => ReservedStockService.create(data),
-  successMessage: "Stok cadangan berhasil dibuat",
-  errorMessage: "Gagal membuat stok cadangan",
+  successMessage: "Reservasi stok berhasil dibuat",
+  errorMessage: "Gagal membuat reservasi stok",
   invalidates: () => [reservedStockKeys.lists],
 })
 
 export const useCancelReservedStock = createMutationHook({
   mutationFn: (id: string) => ReservedStockService.cancel(id),
-  successMessage: "Stok cadangan berhasil dibatalkan",
-  errorMessage: "Gagal membatalkan stok cadangan",
+  successMessage: "Reservasi stok berhasil dibatalkan",
+  errorMessage: "Gagal membatalkan reservasi stok",
   invalidates: (id) => [reservedStockKeys.lists, reservedStockKeys.detail(id)],
 })

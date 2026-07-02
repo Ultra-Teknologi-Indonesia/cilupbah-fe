@@ -241,7 +241,7 @@ export function SalesmanTab() {
               </Button>
               <Button variant="primary" size="sm" onClick={openCreate}>
                 <PlusIcon className="mr-1.5 h-4 w-4" />
-                Tambah Salesman
+                Buat Salesman
               </Button>
             </div>
           }
@@ -284,7 +284,7 @@ export function SalesmanTab() {
                 <BadgeCheckIcon className="h-10 w-10 opacity-20" />
                 <div className="text-center">
                   <p className="text-sm font-medium">Belum ada salesman</p>
-                  <p className="mt-1 text-xs">Tambah salesman baru untuk mengelola tim penjualan.</p>
+                  <p className="mt-1 text-xs">Buat salesman baru untuk mengelola tim penjualan.</p>
                 </div>
               </div>
             }
@@ -295,7 +295,7 @@ export function SalesmanTab() {
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editId ? "Edit Salesman" : "Tambah Salesman"}</DialogTitle>
+            <DialogTitle>{editId ? "Edit Salesman" : "Buat Salesman"}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4 py-2">
             <div className="space-y-1.5">

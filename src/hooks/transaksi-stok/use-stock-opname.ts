@@ -43,16 +43,16 @@ export function useStockOpnameItems(
 
 export const useCreateStockOpname = createMutationHook({
   mutationFn: (data: StockOpnameFormData) => StockOpnameService.create(data),
-  successMessage: "Stock opname berhasil dibuat",
-  errorMessage: "Gagal membuat stock opname",
+  successMessage: "Stok opname berhasil dibuat",
+  errorMessage: "Gagal membuat stok opname",
   invalidates: () => [stockOpnameKeys.lists],
 })
 
 export const useStartStockOpname = createMutationHook({
   mutationFn: ({ id, processBy }: { id: string; processBy: string }) =>
     StockOpnameService.start(id, processBy),
-  successMessage: "Proses opname dimulai",
-  errorMessage: "Gagal memulai opname",
+  successMessage: "Proses stok opname dimulai",
+  errorMessage: "Gagal memulai stok opname",
   invalidates: ({ id }) => [stockOpnameKeys.lists, stockOpnameKeys.detail(id)],
 })
 
@@ -77,8 +77,8 @@ export const useCountOpnameItem = createMutationHook({
 export const useFinalizeStockOpname = createMutationHook({
   mutationFn: ({ id, finalizedBy }: { id: string; finalizedBy: string }) =>
     StockOpnameService.finalize(id, finalizedBy),
-  successMessage: "Stock opname berhasil difinalisasi",
-  errorMessage: "Gagal memfinalisasi opname",
+  successMessage: "Stok opname berhasil difinalisasi",
+  errorMessage: "Gagal memfinalisasi stok opname",
   invalidates: ({ id }) => [
     stockOpnameKeys.lists,
     stockOpnameKeys.detail(id),
@@ -88,14 +88,14 @@ export const useFinalizeStockOpname = createMutationHook({
 
 export const useCancelStockOpname = createMutationHook({
   mutationFn: (id: string) => StockOpnameService.cancel(id),
-  successMessage: "Stock opname berhasil dibatalkan",
-  errorMessage: "Gagal membatalkan opname",
+  successMessage: "Stok opname berhasil dibatalkan",
+  errorMessage: "Gagal membatalkan stok opname",
   invalidates: (id) => [stockOpnameKeys.lists, stockOpnameKeys.detail(id)],
 })
 
 export const useDeleteStockOpname = createMutationHook({
   mutationFn: (id: string) => StockOpnameService.delete(id),
-  successMessage: "Stock opname berhasil dihapus",
-  errorMessage: "Gagal menghapus opname",
+  successMessage: "Stok opname berhasil dihapus",
+  errorMessage: "Gagal menghapus stok opname",
   invalidates: () => [stockOpnameKeys.lists],
 })

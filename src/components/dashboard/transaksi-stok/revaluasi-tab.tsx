@@ -37,7 +37,10 @@ const STATUS_OPTIONS = [
 ]
 
 export function RevaluasiTab() {
-  const list = useListState<FilterState>(EMPTY_FILTERS)
+  const list = useListState<FilterState>(EMPTY_FILTERS, {
+    urlSync: true,
+    namespace: "rev",
+  })
   const [cancelTarget, setCancelTarget] = useState<StockRevaluation | null>(
     null
   )
@@ -74,7 +77,7 @@ export function RevaluasiTab() {
   const columns = useMemo<ColumnDef<StockRevaluation>[]>(() => [
     {
       accessorKey: "revaluation_no",
-      header: "No. Revaluasi",
+      header: "No. Ubah Nilai Stok",
       cell: ({ row }) => (
         <span className="font-medium">
           <Link
@@ -125,9 +128,9 @@ export function RevaluasiTab() {
   const handleExport = useCallback(() => {
     if (items.length === 0) return
     exportCsv(
-      "revaluasi-stok.csv",
+      "ubah-nilai-stok.csv",
       [
-        "No. Revaluasi",
+        "No. Ubah Nilai Stok",
         "Lokasi",
         "Status",
         "Dibuat Oleh",
@@ -154,11 +157,11 @@ export function RevaluasiTab() {
         total={total}
         isLoading={isLoading}
         isFetching={isFetching}
-        searchPlaceholder="Cari no. revaluasi..."
+        searchPlaceholder="Cari no. ubah nilai stok..."
         onExport={handleExport}
         emptyIcon={DollarSignIcon}
-        emptyTitle="Belum ada revaluasi stok"
-        emptyDescription="Data revaluasi stok akan muncul di sini."
+        emptyTitle="Belum ada perubahan nilai stok"
+        emptyDescription="Data perubahan nilai stok akan muncul di sini."
         filterControls={
           <>
             <Combobox
@@ -188,7 +191,7 @@ export function RevaluasiTab() {
       <ConfirmDialog
         open={!!cancelTarget}
         onOpenChange={(v) => !v && setCancelTarget(null)}
-        title="Batalkan Revaluasi Stok"
+        title="Batalkan Ubah Nilai Stok"
         description={`Apakah Anda yakin ingin membatalkan "${cancelTarget?.revaluation_no}"? Tindakan ini tidak dapat dibatalkan.`}
         confirmLabel="Batalkan"
         variant="destructive"

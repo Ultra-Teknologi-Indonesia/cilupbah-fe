@@ -236,7 +236,7 @@ export function KontakPemasokView() {
         <Button variant="primary" asChild>
           <Link href="/dashboard/kontak-pemasok/tambah">
             <PlusIcon className="h-4 w-4" />
-            Tambah Pemasok
+            Buat Pemasok
           </Link>
         </Button>
       </div>
@@ -299,7 +299,7 @@ export function KontakPemasokView() {
                 <TruckIcon className="h-10 w-10 opacity-20" />
                 <div className="text-center">
                   <p className="text-sm font-medium">Belum ada kontak pemasok</p>
-                  <p className="mt-1 text-xs">Tambah pemasok baru untuk mulai mengelola kontak.</p>
+                  <p className="mt-1 text-xs">Buat pemasok baru untuk mulai mengelola kontak.</p>
                 </div>
               </div>
             }

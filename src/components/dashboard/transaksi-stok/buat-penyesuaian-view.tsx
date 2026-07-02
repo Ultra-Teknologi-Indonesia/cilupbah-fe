@@ -89,12 +89,12 @@ export function BuatPenyesuaianView() {
   return (
     <div className="flex flex-col gap-5">
       <PageTitle
-        title="Buat Penyesuaian Stok"
+        title="Buat Koreksi Stok"
         backHref={LIST_HREF}
         breadcrumb={[
           { label: "Persediaan" },
           { label: "Transaksi Stok", href: LIST_HREF },
-          { label: "Buat Penyesuaian" },
+          { label: "Buat Koreksi Stok" },
         ]}
         actions={
           <Button variant="outline" size="sm" onClick={() => router.push(LIST_HREF)}>
@@ -129,7 +129,7 @@ export function BuatPenyesuaianView() {
       <LiquidGlass radius={16} intensity="subtle" className="bg-white/40 dark:bg-white/[0.06]">
         <div className="flex flex-col gap-3 px-5 py-5">
           <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium">Item Penyesuaian <span className="text-red-500">*</span></Label>
+            <Label className="text-sm font-medium">Item Koreksi Stok <span className="text-red-500">*</span></Label>
             <Button variant="outline" size="sm" onClick={() => setPickerOpen(true)} className="gap-1.5">
               <PlusIcon className="h-4 w-4" /> Tambah Item
             </Button>

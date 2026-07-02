@@ -138,7 +138,7 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
     }
   }
 
-  const title = mode === "create" ? "Tambah Kontak" : "Edit Kontak"
+  const title = mode === "create" ? "Buat Pemasok" : "Edit Pemasok"
 
   if (mode === "edit" && detail.isLoading) {
     return (

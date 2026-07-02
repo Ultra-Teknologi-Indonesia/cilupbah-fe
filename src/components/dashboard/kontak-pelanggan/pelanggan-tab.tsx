@@ -194,7 +194,7 @@ export function PelangganTab() {
         <Button variant="primary" asChild>
           <Link href="/dashboard/kontak-pelanggan/tambah">
             <PlusIcon className="h-4 w-4" />
-            Tambah Pelanggan
+            Buat Pelanggan
           </Link>
         </Button>
       </div>
@@ -262,7 +262,7 @@ export function PelangganTab() {
                 <UsersIcon className="h-10 w-10 opacity-20" />
                 <div className="text-center">
                   <p className="text-sm font-medium">Belum ada kontak pelanggan</p>
-                  <p className="mt-1 text-xs">Tambah pelanggan baru untuk mulai mengelola kontak.</p>
+                  <p className="mt-1 text-xs">Buat pelanggan baru untuk mulai mengelola kontak.</p>
                 </div>
               </div>
             }

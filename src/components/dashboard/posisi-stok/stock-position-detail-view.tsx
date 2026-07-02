@@ -31,7 +31,7 @@ import type { StockMovement, BinInventory } from "@/types/persediaan/stock"
 import { formatCurrency } from "@/lib/format"
 
 const SOURCE_LABELS: Record<string, { label: string; color: string }> = {
-  ADJUSTMENT: { label: "Penyesuaian", color: "text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20" },
+  ADJUSTMENT: { label: "Koreksi Stok", color: "text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20" },
   PUTAWAY_IN: { label: "Putaway Masuk", color: "text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20" },
   PUTAWAY_OUT: { label: "Putaway Keluar", color: "text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20" },
   ORDER_RESERVE: { label: "Reserve", color: "text-purple-600 bg-purple-50 border-purple-200 dark:text-purple-400 dark:bg-purple-500/10 dark:border-purple-500/20" },
@@ -44,7 +44,7 @@ const SOURCE_LABELS: Record<string, { label: string; color: string }> = {
   BILL: { label: "Faktur Masuk", color: "text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-500/10 dark:border-green-500/20" },
   INVOICE: { label: "Faktur", color: "text-indigo-600 bg-indigo-50 border-indigo-200 dark:text-indigo-400 dark:bg-indigo-500/10 dark:border-indigo-500/20" },
   STOCK_OPNAME: { label: "Stok Opname", color: "text-cyan-600 bg-cyan-50 border-cyan-200 dark:text-cyan-400 dark:bg-cyan-500/10 dark:border-cyan-500/20" },
-  REVALUATION: { label: "Revaluasi", color: "text-violet-600 bg-violet-50 border-violet-200 dark:text-violet-400 dark:bg-violet-500/10 dark:border-violet-500/20" },
+  REVALUATION: { label: "Ubah Nilai Stok", color: "text-violet-600 bg-violet-50 border-violet-200 dark:text-violet-400 dark:bg-violet-500/10 dark:border-violet-500/20" },
 }
 
 function SourceBadge({ source }: { source: string }) {

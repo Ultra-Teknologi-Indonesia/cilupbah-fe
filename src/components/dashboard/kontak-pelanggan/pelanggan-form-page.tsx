@@ -159,7 +159,7 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
     } catch {}
   }
 
-  const title = mode === "create" ? "Tambah Pelanggan" : "Edit Pelanggan"
+  const title = mode === "create" ? "Buat Pelanggan" : "Edit Pelanggan"
 
   if (mode === "edit" && detail.isLoading) {
     return (

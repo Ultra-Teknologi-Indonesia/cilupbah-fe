@@ -7,7 +7,7 @@ import {
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
-import { SimplePagination } from "@/components/ui/simple-pagination"
+import { SimplePagination, GRID_PAGE_SIZES } from "@/components/ui/simple-pagination"
 import {
   FulfillmentFilterBar,
   type FulfillmentFilterField,
@@ -163,7 +163,7 @@ export function FulfillmentCardList({
             setPerPage(s)
             setPage(1)
           }}
-          pageSizeOptions={[10, 20, 50]}
+          pageSizeOptions={GRID_PAGE_SIZES}
           isFetching={isFetching}
           label="pesanan"
           total={meta.total}

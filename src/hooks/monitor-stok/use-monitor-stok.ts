@@ -15,7 +15,7 @@ import type {
 
 const STALE = 30 * 1000
 
-const EMPTY_META = { current_page: 1, last_page: 1, per_page: 15, total: 0 }
+const EMPTY_META = { current_page: 1, last_page: 1, per_page: 20, total: 0 }
 const EMPTY_STOCK = { items: [] as MonitorStockRow[], meta: EMPTY_META }
 const EMPTY_ANALYTICS = { items: [] as MonitorAnalyticsRow[], meta: EMPTY_META }
 

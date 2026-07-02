@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { UsersIcon, BadgeCheckIcon, TagIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -8,6 +7,7 @@ import { PageTitle } from "@/components/dashboard/page-title"
 import { PelangganTab } from "@/components/dashboard/kontak-pelanggan/pelanggan-tab"
 import { SalesmanTab } from "@/components/dashboard/kontak-pelanggan/salesman-tab"
 import { KategoriTab } from "@/components/dashboard/kontak-pelanggan/kategori-tab"
+import { useUrlTab } from "@/hooks/use-url-tab"
 
 type Tab = "pelanggan" | "salesman" | "kategori"
 
@@ -17,8 +17,13 @@ const TABS: { key: Tab; label: string; icon: typeof UsersIcon }[] = [
   { key: "kategori", label: "Kategori", icon: TagIcon },
 ]
 
+const TAB_KEYS = TABS.map((t) => t.key)
+
 export default function KontakPelangganPage() {
-  const [activeTab, setActiveTab] = useState<Tab>("pelanggan")
+  // Tab hidup di URL (?tab=) — bertahan saat refresh/back, bisa dibagikan.
+  const [activeTab, setActiveTab] = useUrlTab<Tab>("tab", "pelanggan", {
+    validValues: TAB_KEYS,
+  })
 
   return (
     <div className="flex flex-col gap-6">

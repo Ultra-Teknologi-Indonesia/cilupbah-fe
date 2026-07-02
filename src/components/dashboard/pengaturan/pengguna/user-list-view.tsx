@@ -214,7 +214,7 @@ export function UserListView() {
             <Button size="sm" asChild>
               <Link href="/dashboard/pengaturan/pengguna/buat">
                 <PlusIcon className="mr-1 size-4" />
-                Tambah Pengguna
+                Buat Pengguna
               </Link>
             </Button>
           </div>

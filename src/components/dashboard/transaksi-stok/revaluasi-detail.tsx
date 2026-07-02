@@ -41,7 +41,7 @@ export function RevaluasiDetail({ id }: { id: string }) {
   const handleExport = () => {
     if (!reval || !reval.items?.length) return
     exportCsv(
-      `revaluasi-${reval.revaluation_no}.csv`,
+      `ubah-nilai-stok-${reval.revaluation_no}.csv`,
       ["SKU", "Nama Produk", "Bin", "Qty", "HPP Lama", "HPP Baru", "Selisih"],
       reval.items.map((item) => {
         const diff = (item.new_cost ?? 0) - (item.old_cost ?? 0)
@@ -171,9 +171,9 @@ export function RevaluasiDetail({ id }: { id: string }) {
       />
 
       <LiquidGlass radius={16} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04] p-5">
-        <h3 className="mb-4 font-semibold">Informasi Revaluasi</h3>
+        <h3 className="mb-4 font-semibold">Informasi Ubah Nilai Stok</h3>
         <div className="grid gap-3 sm:grid-cols-2">
-          <InfoRow label="No. Revaluasi" value={reval.revaluation_no} />
+          <InfoRow label="No. Ubah Nilai Stok" value={reval.revaluation_no} />
           <InfoRow label="Lokasi" value={reval.location?.location_name} />
           <InfoRow
             label="Status"
@@ -220,8 +220,8 @@ export function RevaluasiDetail({ id }: { id: string }) {
       <ConfirmDialog
         open={cancelOpen}
         onOpenChange={(open) => { if (!open) setCancelOpen(false) }}
-        title="Batalkan Revaluasi"
-        description={`Batalkan revaluasi "${reval.revaluation_no}"? Tindakan ini tidak dapat dibatalkan.`}
+        title="Batalkan Ubah Nilai Stok"
+        description={`Batalkan perubahan nilai stok "${reval.revaluation_no}"? Tindakan ini tidak dapat dibatalkan.`}
         confirmLabel="Batalkan"
         variant="destructive"
         loading={cancelMut.isPending}

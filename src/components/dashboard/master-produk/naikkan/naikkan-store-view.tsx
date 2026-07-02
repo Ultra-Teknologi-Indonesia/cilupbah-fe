@@ -84,7 +84,7 @@ export function NaikkanStoreView() {
           onClick={() => setShowTambah(true)}
         >
           <PlusIcon className="size-4" />
-          Tambah Naikkan
+          Buat Naikkan
         </Button>
       </div>
 
@@ -119,7 +119,7 @@ export function NaikkanStoreView() {
                 <SearchXIcon className="size-8 text-muted-foreground" />
                 <p className="font-medium">Belum ada data naikkan</p>
                 <p className="text-sm text-muted-foreground">
-                  Klik &ldquo;Tambah Naikkan&rdquo; untuk menambahkan toko Shopee.
+                  Klik &ldquo;Buat Naikkan&rdquo; untuk menambahkan toko Shopee.
                 </p>
               </div>
             }

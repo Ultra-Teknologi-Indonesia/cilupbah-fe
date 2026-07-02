@@ -49,7 +49,7 @@ export function NaikkanTambahDialog({
     <Dialog open={open} onOpenChange={loading ? undefined : onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Tambah Naikkan Produk</DialogTitle>
+          <DialogTitle>Buat Naikkan Produk</DialogTitle>
           <DialogDescription>
             Pilih toko Shopee untuk menambahkan data naikkan produk.
           </DialogDescription>

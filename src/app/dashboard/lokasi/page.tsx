@@ -40,7 +40,7 @@ export default async function LokasiPage() {
           <Button variant="primary" asChild>
             <Link href="/dashboard/lokasi/buat">
               <PlusIcon />
-              Tambah baru
+              Buat Lokasi
             </Link>
           </Button>
         }

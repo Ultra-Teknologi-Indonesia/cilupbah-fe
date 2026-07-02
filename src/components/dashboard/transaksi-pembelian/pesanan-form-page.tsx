@@ -264,13 +264,13 @@ export function PesananFormPage({ mode, id }: Props) {
   return (
     <div className="flex flex-col gap-6">
       <PageTitle
-        title={mode === "create" ? "Tambah Pesanan" : `Edit ${existingPO?.po_number ?? ""}`}
+        title={mode === "create" ? "Buat Pesanan" : `Edit ${existingPO?.po_number ?? ""}`}
         backHref="/dashboard/transaksi-pembelian"
         breadcrumb={[
           { label: "Pembelian" },
           { label: "Transaksi Pembelian", href: "/dashboard/transaksi-pembelian" },
           { label: "Pesanan", href: "/dashboard/transaksi-pembelian" },
-          { label: mode === "create" ? "Tambah Pesanan" : "Edit" },
+          { label: mode === "create" ? "Buat Pesanan" : "Edit" },
         ]}
         actions={
           <div className="flex items-center gap-2">

@@ -3,7 +3,7 @@
 import { SearchXIcon } from "lucide-react"
 
 import { Skeleton } from "@/components/ui/skeleton"
-import { SimplePagination } from "@/components/ui/simple-pagination"
+import { SimplePagination, GRID_PAGE_SIZES } from "@/components/ui/simple-pagination"
 import { OrderCard } from "./order-card"
 import type { Order, OrderTab, SubFilter } from "@/types/pesanan/order"
 import { TABS_WITH_ACTIONS } from "@/types/pesanan/order"
@@ -94,7 +94,7 @@ export function OrderCardList({
         onPageChange={onPageChange}
         perPage={perPage}
         onPerPageChange={onPerPageChange}
-        pageSizeOptions={[10, 20, 50]}
+        pageSizeOptions={GRID_PAGE_SIZES}
         isFetching={isFetching}
         label="pesanan"
         total={total}

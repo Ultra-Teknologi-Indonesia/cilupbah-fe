@@ -22,6 +22,9 @@ import { ProductTable } from "../product-table"
 
 type View = "card" | "table"
 
+// Default page size per model: grid kelipatan-4 (≥24), tabel (≥20).
+const VIEW_DEFAULT_SIZE: Record<View, number> = { card: 24, table: 20 }
+
 const TYPE_OPTIONS = [
   { value: "satuan", label: "Satuan" },
   { value: "bundle", label: "Bundle" },
@@ -56,9 +59,19 @@ export function HasilTab({
   const [dMax, setDMax] = React.useState("")
   const [price, setPrice] = React.useState<{ min?: number; max?: number }>({})
   const [sorting, setSorting] = React.useState<SortingState>([])
-  const [pagination, setPagination] = React.useState<PaginationState>({ pageIndex: 0, pageSize: 12 })
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: VIEW_DEFAULT_SIZE.card,
+  })
 
   const resetPage = React.useCallback(() => setPagination((p) => ({ ...p, pageIndex: 0 })), [])
+
+  // Ganti mode tampilan sekaligus samakan page size ke default model tersebut
+  // (grid vs tabel punya set ukuran berbeda).
+  const changeView = React.useCallback((target: View) => {
+    setView(target)
+    setPagination((p) => ({ ...p, pageIndex: 0, pageSize: VIEW_DEFAULT_SIZE[target] }))
+  }, [])
 
   React.useEffect(() => {
     const t = setTimeout(() => {
@@ -134,7 +147,7 @@ export function HasilTab({
           ? "bg-background text-foreground shadow-sm hover:bg-background"
           : "text-muted-foreground hover:bg-transparent hover:text-foreground"
       )}
-      onClick={() => setView(target)}
+      onClick={() => changeView(target)}
       aria-label={label}
       aria-pressed={view === target}
     >

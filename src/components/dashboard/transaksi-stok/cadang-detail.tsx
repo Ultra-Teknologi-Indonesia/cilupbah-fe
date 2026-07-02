@@ -128,9 +128,9 @@ export function CadangDetail({ id }: { id: string }) {
       />
 
       <LiquidGlass radius={16} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04] p-5">
-        <h3 className="mb-4 font-semibold">Informasi Stok Cadang</h3>
+        <h3 className="mb-4 font-semibold">Informasi Reservasi Stok</h3>
         <div className="grid gap-3 sm:grid-cols-2">
-          <InfoRow label="No. Cadang" value={stock.reserved_stock_no} />
+          <InfoRow label="No. Reservasi Stok" value={stock.reserved_stock_no} />
           <InfoRow label="Lokasi" value={stock.location?.location_name} />
           <InfoRow label="Mulai" value={formatDate(stock.start_date)} />
           <InfoRow label="Berakhir" value={formatDate(stock.end_date)} />
@@ -173,8 +173,8 @@ export function CadangDetail({ id }: { id: string }) {
       <ConfirmDialog
         open={cancelOpen}
         onOpenChange={(open) => { if (!open) setCancelOpen(false) }}
-        title="Batalkan Stok Cadang"
-        description={`Batalkan cadang "${stock.reserved_stock_no}"? Stok yang dicadangkan akan dilepas kembali.`}
+        title="Batalkan Reservasi Stok"
+        description={`Batalkan reservasi stok "${stock.reserved_stock_no}"? Stok yang direservasi akan dilepas kembali.`}
         confirmLabel="Batalkan"
         variant="destructive"
         loading={cancelMut.isPending}

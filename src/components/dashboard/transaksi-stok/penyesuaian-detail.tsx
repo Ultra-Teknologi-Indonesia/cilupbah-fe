@@ -55,7 +55,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
   const handleExport = () => {
     if (!adj || !adj.items?.length) return
     exportCsv(
-      `penyesuaian-${adj.adjustment_no}.csv`,
+      `koreksi-stok-${adj.adjustment_no}.csv`,
       ["SKU", "Nama Produk", "Bin", "Stok Sistem", "Stok Aktual", "Selisih", "Catatan"],
       adj.items.map((item) => [
         item.item?.sku ?? "",
@@ -189,9 +189,9 @@ export function PenyesuaianDetail({ id }: { id: string }) {
       />
 
       <LiquidGlass radius={16} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04] p-5">
-        <h3 className="mb-4 font-semibold">Informasi Penyesuaian</h3>
+        <h3 className="mb-4 font-semibold">Informasi Koreksi Stok</h3>
         <div className="grid gap-3 sm:grid-cols-2">
-          <InfoRow label="No. Penyesuaian" value={adj.adjustment_no} />
+          <InfoRow label="No. Koreksi Stok" value={adj.adjustment_no} />
           <InfoRow label="Lokasi" value={adj.location?.location_name} />
           <InfoRow label="Tgl. Transaksi" value={adj.transaction_date ? formatDate(adj.transaction_date) : null} />
           <InfoRow
@@ -226,8 +226,8 @@ export function PenyesuaianDetail({ id }: { id: string }) {
       <ConfirmDialog
         open={approveOpen}
         onOpenChange={(open) => { if (!open) setApproveOpen(false) }}
-        title="Approve Penyesuaian"
-        description={`Approve penyesuaian "${adj.adjustment_no}"? Stok akan disesuaikan sesuai dokumen.`}
+        title="Approve Koreksi Stok"
+        description={`Approve koreksi stok "${adj.adjustment_no}"? Stok akan disesuaikan sesuai dokumen.`}
         confirmLabel="Approve"
         loading={approveMut.isPending}
         onConfirm={() => {
@@ -254,8 +254,8 @@ export function PenyesuaianDetail({ id }: { id: string }) {
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={(open) => { if (!open) setDeleteOpen(false) }}
-        title="Hapus Penyesuaian"
-        description={`Hapus penyesuaian "${adj.adjustment_no}"? Tindakan ini tidak dapat dibatalkan.`}
+        title="Hapus Koreksi Stok"
+        description={`Hapus koreksi stok "${adj.adjustment_no}"? Tindakan ini tidak dapat dibatalkan.`}
         confirmLabel="Hapus"
         variant="destructive"
         loading={deleteMut.isPending}

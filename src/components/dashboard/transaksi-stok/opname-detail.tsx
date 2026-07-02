@@ -214,7 +214,7 @@ export function OpnameDetail({ id }: { id: string }) {
   const handleExport = () => {
     if (!opname || !opname.items?.length) return
     exportCsv(
-      `opname-${opname.opname_no}.csv`,
+      `stok-opname-${opname.opname_no}.csv`,
       ["SKU", "Nama Produk", "Bin", "Batch", "Serial", "Stok Sistem", "Stok Aktual", "Selisih", "Alasan", "Dihitung Oleh"],
       opname.items.map((item) => [
         item.item?.sku ?? "",
@@ -320,9 +320,9 @@ export function OpnameDetail({ id }: { id: string }) {
       />
 
       <LiquidGlass radius={16} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04] p-5">
-        <h3 className="mb-4 font-semibold">Informasi Opname</h3>
+        <h3 className="mb-4 font-semibold">Informasi Stok Opname (Hitung Fisik)</h3>
         <div className="grid gap-3 sm:grid-cols-2">
-          <InfoRow label="No. Opname" value={opname.opname_no} />
+          <InfoRow label="No. Stok Opname" value={opname.opname_no} />
           <InfoRow label="Lokasi" value={opname.location?.location_name} />
           <InfoRow
             label="Status"
@@ -358,8 +358,8 @@ export function OpnameDetail({ id }: { id: string }) {
       <ConfirmDialog
         open={startOpen}
         onOpenChange={(open) => { if (!open) setStartOpen(false) }}
-        title="Mulai Opname"
-        description={`Mulai opname "${opname.opname_no}"? Status akan berubah menjadi Sedang Berjalan.`}
+        title="Mulai Stok Opname"
+        description={`Mulai stok opname "${opname.opname_no}"? Status akan berubah menjadi Sedang Berjalan.`}
         confirmLabel="Mulai"
         loading={startMut.isPending}
         onConfirm={() => {
@@ -388,8 +388,8 @@ export function OpnameDetail({ id }: { id: string }) {
       <ConfirmDialog
         open={finalizeOpen}
         onOpenChange={(open) => { if (!open) setFinalizeOpen(false) }}
-        title="Finalisasi Opname"
-        description={`Finalisasi opname "${opname.opname_no}"? Stok akan disesuaikan sesuai hasil penghitungan.`}
+        title="Finalisasi Stok Opname"
+        description={`Finalisasi stok opname "${opname.opname_no}"? Stok akan disesuaikan sesuai hasil penghitungan.`}
         confirmLabel="Finalisasi"
         loading={finalizeMut.isPending}
         onConfirm={() => {
@@ -421,8 +421,8 @@ export function OpnameDetail({ id }: { id: string }) {
       <ConfirmDialog
         open={cancelOpen}
         onOpenChange={(open) => { if (!open) setCancelOpen(false) }}
-        title="Batalkan Opname"
-        description={`Batalkan opname "${opname.opname_no}"? Tindakan ini tidak dapat dibatalkan.`}
+        title="Batalkan Stok Opname"
+        description={`Batalkan stok opname "${opname.opname_no}"? Tindakan ini tidak dapat dibatalkan.`}
         confirmLabel="Batalkan"
         variant="destructive"
         loading={cancelMut.isPending}
@@ -435,8 +435,8 @@ export function OpnameDetail({ id }: { id: string }) {
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={(open) => { if (!open) setDeleteOpen(false) }}
-        title="Hapus Opname"
-        description={`Hapus opname "${opname.opname_no}"? Tindakan ini tidak dapat dibatalkan.`}
+        title="Hapus Stok Opname"
+        description={`Hapus stok opname "${opname.opname_no}"? Tindakan ini tidak dapat dibatalkan.`}
         confirmLabel="Hapus"
         variant="destructive"
         loading={deleteMut.isPending}

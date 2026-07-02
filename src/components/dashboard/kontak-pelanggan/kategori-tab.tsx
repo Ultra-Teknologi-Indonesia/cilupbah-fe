@@ -166,7 +166,7 @@ export function KategoriTab() {
       <div className="flex justify-end">
         <Button variant="primary" size="sm" onClick={openCreate}>
           <PlusIcon className="mr-1.5 h-4 w-4" />
-          Tambah Kategori
+          Buat Kategori
         </Button>
       </div>
 
@@ -184,7 +184,7 @@ export function KategoriTab() {
                 <TagIcon className="h-10 w-10 opacity-20" />
                 <div className="text-center">
                   <p className="text-sm font-medium">Belum ada kategori</p>
-                  <p className="mt-1 text-xs">Tambah kategori untuk mengelompokkan kontak.</p>
+                  <p className="mt-1 text-xs">Buat kategori untuk mengelompokkan kontak.</p>
                 </div>
               </div>
             }
@@ -195,7 +195,7 @@ export function KategoriTab() {
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editTarget ? "Edit Kategori" : "Tambah Kategori"}</DialogTitle>
+            <DialogTitle>{editTarget ? "Edit Kategori" : "Buat Kategori"}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4 py-2">
             <div className="grid gap-4 sm:grid-cols-2">
