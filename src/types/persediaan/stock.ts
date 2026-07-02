@@ -45,6 +45,9 @@ export interface StockMovement {
   bin_code: string | null
   transaction_number: string
   source: string
+  source_category: string
+  source_label: string
+  direction: "in" | "out" | "none"
   qty: number
   balance: number
   transaction_date: string
@@ -86,6 +89,7 @@ export interface StockMovementParams {
   "filter[item_id]"?: string
   "filter[location_id]"?: string
   "filter[source]"?: string
+  "filter[direction]"?: "in" | "out"
   "filter[date_from]"?: string
   "filter[date_to]"?: string
   sort?: string

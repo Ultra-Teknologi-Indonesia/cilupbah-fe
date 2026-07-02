@@ -17,6 +17,7 @@ import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination, TABLE_PAGE_SIZES } from "@/components/ui/simple-pagination"
@@ -30,28 +31,43 @@ import {
 import type { StockMovement, BinInventory } from "@/types/persediaan/stock"
 import { formatCurrency } from "@/lib/format"
 
-const SOURCE_LABELS: Record<string, { label: string; color: string }> = {
-  ADJUSTMENT: { label: "Koreksi Stok", color: "text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20" },
-  PUTAWAY_IN: { label: "Putaway Masuk", color: "text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20" },
-  PUTAWAY_OUT: { label: "Putaway Keluar", color: "text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20" },
-  ORDER_RESERVE: { label: "Reserve", color: "text-purple-600 bg-purple-50 border-purple-200 dark:text-purple-400 dark:bg-purple-500/10 dark:border-purple-500/20" },
-  ORDER_PICK: { label: "Pick", color: "text-orange-600 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-500/10 dark:border-orange-500/20" },
-  ORDER_SHIP: { label: "Kirim", color: "text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-500/10 dark:border-green-500/20" },
-  ORDER_RESTORE: { label: "Restore", color: "text-teal-600 bg-teal-50 border-teal-200 dark:text-teal-400 dark:bg-teal-500/10 dark:border-teal-500/20" },
-  ORDER_CANCEL: { label: "Batal", color: "text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-500/10 dark:border-red-500/20" },
-  TRANSFER_OUT: { label: "Transfer Keluar", color: "text-orange-600 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-500/10 dark:border-orange-500/20" },
-  TRANSFER_IN: { label: "Transfer Masuk", color: "text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20" },
-  BILL: { label: "Faktur Masuk", color: "text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-500/10 dark:border-green-500/20" },
-  INVOICE: { label: "Faktur", color: "text-indigo-600 bg-indigo-50 border-indigo-200 dark:text-indigo-400 dark:bg-indigo-500/10 dark:border-indigo-500/20" },
-  STOCK_OPNAME: { label: "Stok Opname", color: "text-cyan-600 bg-cyan-50 border-cyan-200 dark:text-cyan-400 dark:bg-cyan-500/10 dark:border-cyan-500/20" },
-  REVALUATION: { label: "Ubah Nilai Stok", color: "text-violet-600 bg-violet-50 border-violet-200 dark:text-violet-400 dark:bg-violet-500/10 dark:border-violet-500/20" },
+const CATEGORY_COLOR: Record<string, string> = {
+  BILL: "text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-500/10 dark:border-green-500/20",
+  ADJUSTMENT: "text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20",
+  PURCHASE_RETURN: "text-rose-600 bg-rose-50 border-rose-200 dark:text-rose-400 dark:bg-rose-500/10 dark:border-rose-500/20",
+  SALES_RETURN: "text-teal-600 bg-teal-50 border-teal-200 dark:text-teal-400 dark:bg-teal-500/10 dark:border-teal-500/20",
+  INVOICE: "text-indigo-600 bg-indigo-50 border-indigo-200 dark:text-indigo-400 dark:bg-indigo-500/10 dark:border-indigo-500/20",
+  ORDER: "text-orange-600 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-500/10 dark:border-orange-500/20",
+  ORDER_CANCEL: "text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-500/10 dark:border-red-500/20",
+  RESERVE: "text-purple-600 bg-purple-50 border-purple-200 dark:text-purple-400 dark:bg-purple-500/10 dark:border-purple-500/20",
+  TRANSFER: "text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20",
+  REVALUATION: "text-violet-600 bg-violet-50 border-violet-200 dark:text-violet-400 dark:bg-violet-500/10 dark:border-violet-500/20",
 }
 
-function SourceBadge({ source }: { source: string }) {
-  const info = SOURCE_LABELS[source] ?? { label: source, color: "text-muted-foreground bg-muted border-border" }
+const SOURCE_FILTER_OPTIONS: { value: string; label: string }[] = [
+  { value: "", label: "Semua Sumber" },
+  { value: "BILL", label: "Tagihan" },
+  { value: "ADJUSTMENT,STOCK_OPNAME", label: "Penyesuaian" },
+  { value: "PURCHASE_RETURN", label: "Retur Pembelian" },
+  { value: "SALES_RETURN", label: "Retur Penjualan" },
+  { value: "INVOICE,ORDER_SHIP", label: "Faktur" },
+  { value: "ORDER_PICK,ORDER_RESTORE", label: "Pesanan" },
+  { value: "ORDER_CANCEL", label: "Pesanan Batal" },
+  { value: "ORDER_BOOK", label: "Cadangan" },
+  { value: "TRANSFER_IN,TRANSFER_OUT,BIN_TRANSFER_IN,BIN_TRANSFER_OUT,PUTAWAY_IN,PUTAWAY_OUT", label: "Transfer" },
+]
+
+const DIRECTION_OPTIONS: { value: string; label: string }[] = [
+  { value: "", label: "Semua Mutasi" },
+  { value: "in", label: "Masuk" },
+  { value: "out", label: "Keluar" },
+]
+
+function SourceBadge({ category, label }: { category: string; label: string }) {
+  const color = CATEGORY_COLOR[category] ?? "text-muted-foreground bg-muted border-border"
   return (
-    <Badge variant="outline" className={cn("text-[11px] font-medium", info.color)}>
-      {info.label}
+    <Badge variant="outline" className={cn("text-[11px] font-medium", color)}>
+      {label}
     </Badge>
   )
 }
@@ -102,39 +118,71 @@ function StockSummaryCards({ onHand, onOrder, reserved, available, avgCost }: {
 function MovementsSection({ itemId }: { itemId: string }) {
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(20)
+  const [source, setSource] = useState("")
+  const [direction, setDirection] = useState<"" | "in" | "out">("")
 
   const params = useMemo(() => ({
     "filter[item_id]": itemId,
+    "filter[source]": source || undefined,
+    "filter[direction]": direction || undefined,
     page,
     per_page: perPage,
     sort: "-transaction_date",
-  }), [itemId, page, perPage])
+  }), [itemId, source, direction, page, perPage])
 
   const { data, isLoading } = useStockMovements(params)
   const movements = data?.data ?? []
   const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
 
+  const filterBar = (
+    <div className="flex flex-wrap items-center gap-2">
+      <Combobox
+        options={SOURCE_FILTER_OPTIONS}
+        value={source}
+        onChange={(v) => { setSource(v ?? ""); setPage(1) }}
+        placeholder="Pilih sumber"
+        searchPlaceholder="Cari sumber"
+        className="h-9 min-w-[180px] bg-background"
+      />
+      <Combobox
+        options={DIRECTION_OPTIONS}
+        value={direction}
+        onChange={(v) => { setDirection((v ?? "") as "" | "in" | "out"); setPage(1) }}
+        placeholder="Pilih mutasi"
+        searchPlaceholder="Cari mutasi"
+        className="h-9 min-w-[160px] bg-background"
+      />
+    </div>
+  )
+
   if (isLoading) {
     return (
-      <div className="space-y-2 p-4">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-10 w-full" />
-        ))}
+      <div className="flex flex-col gap-3">
+        {filterBar}
+        <div className="space-y-2 p-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="h-10 w-full" />
+          ))}
+        </div>
       </div>
     )
   }
 
   if (movements.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 py-16 text-muted-foreground">
-        <PackageIcon className="h-8 w-8" />
-        <p className="text-sm font-medium">Belum ada kronologi stok</p>
+      <div className="flex flex-col gap-3">
+        {filterBar}
+        <div className="flex flex-col items-center gap-2 py-16 text-muted-foreground">
+          <PackageIcon className="h-8 w-8" />
+          <p className="text-sm font-medium">Belum ada kronologi stok</p>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="flex flex-col gap-3">
+      {filterBar}
       <Table>
         <TableHeader>
           <TableRow className="border-b border-border/60 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -170,7 +218,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
                 <span className="font-mono text-xs">{m.transaction_number}</span>
               </TableCell>
               <TableCell className="px-3 py-2.5">
-                <SourceBadge source={m.source} />
+                <SourceBadge category={m.source_category} label={m.source_label} />
               </TableCell>
               <TableCell className="px-3 py-2.5 text-right">
                 <QtyCell qty={m.qty} />

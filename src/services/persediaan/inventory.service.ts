@@ -35,6 +35,7 @@ export const InventoryStockService = {
     if (params["filter[item_id]"]) sp.set("filter[item_id]", params["filter[item_id]"])
     if (params["filter[location_id]"]) sp.set("filter[location_id]", params["filter[location_id]"])
     if (params["filter[source]"]) sp.set("filter[source]", params["filter[source]"])
+    if (params["filter[direction]"]) sp.set("filter[direction]", params["filter[direction]"])
     if (params["filter[date_from]"]) sp.set("filter[date_from]", params["filter[date_from]"])
     if (params["filter[date_to]"]) sp.set("filter[date_to]", params["filter[date_to]"])
     if (params.sort) sp.set("sort", params.sort)
