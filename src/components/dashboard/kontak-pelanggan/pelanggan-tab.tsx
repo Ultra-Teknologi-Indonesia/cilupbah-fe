@@ -9,6 +9,7 @@ import {
   LockIcon,
   UsersIcon,
   DownloadIcon,
+  ArrowLeftRightIcon,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -25,6 +26,13 @@ import { useContacts, useContactCategories, useDeleteContact } from "@/hooks/kon
 import { exportCsv } from "@/lib/export-csv"
 import type { ContactItem, ContactListParams } from "@/types/kontak-pemasok/contact"
 
+type TypeFilter = "CUSTOMER" | "BOTH"
+
+const TYPE_TABS: { key: TypeFilter; label: string; icon: typeof UsersIcon }[] = [
+  { key: "CUSTOMER", label: "Pelanggan", icon: UsersIcon },
+  { key: "BOTH", label: "Pemasok dan Pelanggan", icon: ArrowLeftRightIcon },
+]
+
 interface FilterState {
   category_id: string
   status: string
@@ -38,6 +46,7 @@ export function PelangganTab() {
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(20)
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("CUSTOMER")
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
   const [deleteTarget, setDeleteTarget] = useState<ContactItem | null>(null)
 
@@ -56,14 +65,19 @@ export function PelangganTab() {
     resetPage()
   }, [resetPage])
 
+  const handleTypeFilter = useCallback((t: TypeFilter) => {
+    setTypeFilter(t)
+    resetPage()
+  }, [resetPage])
+
   const params = useMemo<ContactListParams>(() => ({
     search: debouncedSearch || undefined,
     page,
     per_page: perPage,
-    "filter[type]": "CUSTOMER",
+    "filter[type]": typeFilter,
     "filter[category_id]": filters.category_id || undefined,
     "filter[status]": filters.status || undefined,
-  }), [debouncedSearch, page, perPage, filters])
+  }), [debouncedSearch, page, perPage, typeFilter, filters])
 
   const { data, isLoading, isFetching } = useContacts(params)
   const { data: categories = [] } = useContactCategories()
@@ -170,6 +184,30 @@ export function PelangganTab() {
     })
   }
 
+  const filterTabs = (
+    <div className="flex items-center gap-1">
+      {TYPE_TABS.map(({ key, label, icon: Icon }) => {
+        const isActive = typeFilter === key
+        return (
+          <button
+            key={key}
+            type="button"
+            onClick={() => handleTypeFilter(key)}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+              isActive
+                ? "bg-foreground text-background shadow-sm"
+                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+            )}
+          >
+            <Icon className="h-3.5 w-3.5" />
+            {label}
+          </button>
+        )
+      })}
+    </div>
+  )
+
   const handleExport = useCallback(() => {
     if (items.length === 0) return
     exportCsv(
@@ -210,10 +248,13 @@ export function PelangganTab() {
           activeCount={activeCount}
           gridCols={2}
           leading={
-            <Button variant="outline" size="sm" onClick={handleExport} disabled={items.length === 0}>
-              <DownloadIcon className="mr-1.5 h-4 w-4" />
-              Export CSV
-            </Button>
+            <div className="flex items-center gap-2">
+              {filterTabs}
+              <Button variant="outline" size="sm" onClick={handleExport} disabled={items.length === 0}>
+                <DownloadIcon className="mr-1.5 h-4 w-4" />
+                Export CSV
+              </Button>
+            </div>
           }
         >
           <Combobox

@@ -27,10 +27,9 @@ import { ImportPemasokDialog } from "@/components/dashboard/kontak-pemasok/impor
 import { useContacts, useContactCategories, useDeleteContact } from "@/hooks/kontak-pemasok/use-contacts"
 import type { ContactItem, ContactListParams } from "@/types/kontak-pemasok/contact"
 
-type TypeFilter = "all" | "SUPPLIER" | "BOTH"
+type TypeFilter = "SUPPLIER" | "BOTH"
 
 const TYPE_TABS: { key: TypeFilter; label: string; icon: typeof UsersIcon }[] = [
-  { key: "all", label: "Semua", icon: UsersIcon },
   { key: "SUPPLIER", label: "Pemasok", icon: TruckIcon },
   { key: "BOTH", label: "Pemasok dan Pelanggan", icon: ArrowLeftRightIcon },
 ]
@@ -54,7 +53,7 @@ export function KontakPemasokView() {
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(20)
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all")
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("SUPPLIER")
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
   const [deleteTarget, setDeleteTarget] = useState<ContactItem | null>(null)
   const [importOpen, setImportOpen] = useState(false)
@@ -83,7 +82,7 @@ export function KontakPemasokView() {
     search: debouncedSearch || undefined,
     page,
     per_page: perPage,
-    "filter[type]": typeFilter === "all" ? undefined : typeFilter,
+    "filter[type]": typeFilter,
     "filter[category_id]": filters.category_id || undefined,
     "filter[status]": filters.status || undefined,
   }), [debouncedSearch, page, perPage, typeFilter, filters])
