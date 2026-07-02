@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
-import { SimplePagination } from "@/components/ui/simple-pagination"
+import { SimplePagination, TABLE_PAGE_SIZES } from "@/components/ui/simple-pagination"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { PageTitle } from "@/components/dashboard/page-title"
 import {
@@ -190,7 +190,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
           onPageChange={setPage}
           perPage={meta.per_page}
           onPerPageChange={(s) => { setPerPage(s); setPage(1) }}
-          pageSizeOptions={[15, 30, 50]}
+          pageSizeOptions={TABLE_PAGE_SIZES}
           total={meta.total}
           label="mutasi"
         />

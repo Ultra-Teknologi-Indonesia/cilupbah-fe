@@ -41,7 +41,7 @@ import {
 } from "@/hooks/proses-pesanan/use-fulfillment"
 import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment"
 import { CHANNEL_MAP, STATUS_LABELS } from "@/types/pesanan/order"
-import { SimplePagination } from "@/components/ui/simple-pagination"
+import { SimplePagination, TABLE_PAGE_SIZES } from "@/components/ui/simple-pagination"
 
 import { ChannelBadge, OrderStatusBadge } from "../channel-badge"
 import { BuatPicklistDialog } from "../picking/buat-picklist-dialog"
@@ -730,7 +730,7 @@ export function FulfillmentOrdersTable({
             setPerPage(s)
             setPage(1)
           }}
-          pageSizeOptions={[10, 20, 50]}
+          pageSizeOptions={TABLE_PAGE_SIZES}
           isFetching={isFetching}
           label="pesanan"
           total={meta.total}

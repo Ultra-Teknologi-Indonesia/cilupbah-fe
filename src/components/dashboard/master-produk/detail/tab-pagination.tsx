@@ -1,8 +1,8 @@
 "use client"
 
-import { SimplePagination } from "@/components/ui/simple-pagination"
+import { SimplePagination, TABLE_PAGE_SIZES } from "@/components/ui/simple-pagination"
 
-const PAGE_SIZES = [10, 20, 50, 100]
+const PAGE_SIZES = TABLE_PAGE_SIZES
 
 export function TabPagination({
   page,

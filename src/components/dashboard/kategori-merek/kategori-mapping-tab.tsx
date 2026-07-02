@@ -9,7 +9,7 @@ import {
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
-import { SimplePagination } from "@/components/ui/simple-pagination"
+import { SimplePagination, TABLE_PAGE_SIZES } from "@/components/ui/simple-pagination"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -179,7 +179,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
           perPage={perPage}
           onPerPageChange={setPerPage}
           total={total}
-          pageSizeOptions={[10, 20, 50, 100]}
+          pageSizeOptions={TABLE_PAGE_SIZES}
           label="pemetaan"
           isFetching={isFetching}
         />

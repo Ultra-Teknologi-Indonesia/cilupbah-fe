@@ -45,8 +45,6 @@ function flattenTree(
   return result
 }
 
-const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const
-
 export function KategoriListTab({ search }: { search: string }) {
   const [page, setPage] = React.useState(1)
   const [perPage, setPerPage] = React.useState(20)
@@ -157,7 +155,7 @@ export function KategoriListTab({ search }: { search: string }) {
           onPageChange={setPage}
           perPage={perPage}
           onPerPageChange={setPerPage}
-          pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
+          pageSizeOptions={TABLE_PAGE_SIZES}
           total={total}
           label="kategori"
         />

@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
-import { SimplePagination } from "@/components/ui/simple-pagination"
+import { SimplePagination, TABLE_PAGE_SIZES } from "@/components/ui/simple-pagination"
 import {
   Tooltip,
   TooltipContent,
@@ -449,7 +449,7 @@ export function PosisiStokView() {
                 onPageChange={setPage}
                 perPage={meta.per_page}
                 onPerPageChange={(s) => { setPerPage(s); resetPage() }}
-                pageSizeOptions={[15, 30, 50]}
+                pageSizeOptions={TABLE_PAGE_SIZES}
                 total={meta.total}
                 label="produk"
               />
