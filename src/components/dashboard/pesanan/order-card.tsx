@@ -726,10 +726,10 @@ export function OrderCard({
   return (
     <div
       className={cn(
-        "group rounded-xl border border-border/60 bg-card transition-all hover:border-border hover:shadow-sm",
+        "group rounded-xl border border-border/60 bg-card transition-colors",
         selected && "border-primary/40 bg-primary/[0.02]",
         order.is_instant &&
-          "border-l-4 border-l-orange-500 bg-orange-50/40 dark:bg-orange-950/15",
+          "border-orange-400/60 bg-orange-50/40 dark:border-orange-500/40 dark:bg-orange-950/15",
       )}
     >
       {}
