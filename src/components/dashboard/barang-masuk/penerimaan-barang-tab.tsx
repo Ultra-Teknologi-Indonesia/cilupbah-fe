@@ -27,13 +27,6 @@ import type {
 } from "@/types/barang-masuk/inbound";
 import { formatDate } from "@/lib/format";
 
-const STATUS_OPTIONS = [
-  { value: "", label: "Semua" },
-  { value: "DRAFT", label: "Belum Mulai" },
-  { value: "PARTIAL", label: "Sedang Diproses" },
-  { value: "RECEIVED", label: "Selesai Diterima" },
-  { value: "COMPLETED", label: "Selesai" },
-];
 
 const TYPE_LABEL: Record<string, string> = {
   PURCHASE_ORDER: "PO",
@@ -76,11 +69,10 @@ function ProgressBar({ value, total }: { value: number; total: number }) {
 }
 
 interface FilterState {
-  status: string;
   location_id: string;
 }
 
-const EMPTY_FILTERS: FilterState = { status: "", location_id: "" };
+const EMPTY_FILTERS: FilterState = { location_id: "" };
 
 function handleExportList(items: Inbound[]) {
   const headers = [
@@ -91,7 +83,6 @@ function handleExportList(items: Inbound[]) {
     "Lokasi",
     "Dibuat Oleh",
     "Qty Diterima",
-    "Status",
   ];
   const rows = items.map((item) => {
     const totalRecv = item.items?.reduce((s, i) => s + i.received_qty, 0) ?? 0;
@@ -103,7 +94,6 @@ function handleExportList(items: Inbound[]) {
       item.location?.location_name ?? "",
       item.created_by,
       String(totalRecv),
-      getStatusMeta("inbound", item.status).label,
     ];
   });
   exportCsv(
@@ -144,7 +134,6 @@ export function PenerimaanBarangTab() {
       search: debouncedSearch || undefined,
       page,
       per_page: perPage,
-      "filter[status]": filters.status || undefined,
       "filter[location_id]": filters.location_id || undefined,
     }),
     [debouncedSearch, page, perPage, filters],
@@ -227,13 +216,7 @@ export function PenerimaanBarangTab() {
           return <ProgressBar value={totalPutaway} total={totalRecv} />;
         },
       },
-      {
-        accessorKey: "status",
-        header: "Status",
-        cell: ({ row }) => (
-          <StatusBadge domain="inbound" status={row.original.status} />
-        ),
-      },
+
       {
         id: "dikerjakan",
         header: "Dikerjakan",
@@ -353,16 +336,7 @@ export function PenerimaanBarangTab() {
           activeCount={activeCount}
           gridCols={2}
         >
-          <Combobox
-            options={STATUS_OPTIONS}
-            value={filters.status}
-            onChange={(v) =>
-              handleFilterChange({ ...filters, status: v ?? "" })
-            }
-            placeholder="Status"
-            searchPlaceholder="Cari status"
-            className="h-9 bg-background"
-          />
+
           <Combobox
             options={locationOptions}
             value={filters.location_id}

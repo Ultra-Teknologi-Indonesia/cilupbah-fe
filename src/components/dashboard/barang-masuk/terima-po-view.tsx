@@ -41,10 +41,8 @@ import { useReceivePurchaseOrder } from "@/hooks/barang-masuk/use-receive-purcha
 interface ItemQty {
   purchase_order_item_id: string;
   qty: number;
-  rejected_qty: number;
   max: number;
   notes: string;
-  rejection_note: string;
 }
 
 export function TerimaPOView({ id }: { id: string }) {
@@ -80,10 +78,8 @@ export function TerimaPOView({ id }: { id: string }) {
               next[item.id] = {
                 purchase_order_item_id: item.id,
                 qty: remaining,
-                rejected_qty: 0,
                 max: remaining,
                 notes: "",
-                rejection_note: "",
               };
               hasChanges = true;
             }
@@ -95,7 +91,7 @@ export function TerimaPOView({ id }: { id: string }) {
   }, [items]);
 
   const hasValidQty = useMemo(
-    () => Object.values(itemQtys).some((i) => i.qty > 0 || i.rejected_qty > 0),
+    () => Object.values(itemQtys).some((i) => i.qty > 0),
     [itemQtys],
   );
 
@@ -103,10 +99,6 @@ export function TerimaPOView({ id }: { id: string }) {
 
   const totalAccepted = useMemo(
     () => Object.values(itemQtys).reduce((s, i) => s + i.qty, 0),
-    [itemQtys],
-  );
-  const totalRejected = useMemo(
-    () => Object.values(itemQtys).reduce((s, i) => s + i.rejected_qty, 0),
     [itemQtys],
   );
 
@@ -121,32 +113,12 @@ export function TerimaPOView({ id }: { id: string }) {
           purchase_order_item_id: itemId,
           max: maxQty,
           qty: num,
-          rejected_qty: maxQty - num,
         },
       };
     });
   }
 
-  function handleRejectedQtyChange(
-    itemId: string,
-    maxQty: number,
-    value: string,
-  ) {
-    const num = Math.max(0, Math.min(parseInt(value) || 0, maxQty));
-    setItemQtys((prev) => {
-      const current = prev[itemId];
-      return {
-        ...prev,
-        [itemId]: {
-          ...current,
-          purchase_order_item_id: itemId,
-          max: maxQty,
-          rejected_qty: num,
-          qty: maxQty - num,
-        },
-      };
-    });
-  }
+
 
   function handleNoteChange(itemId: string, value: string) {
     setItemQtys((prev) => ({
@@ -158,15 +130,7 @@ export function TerimaPOView({ id }: { id: string }) {
     }));
   }
 
-  function handleRejectionNoteChange(itemId: string, value: string) {
-    setItemQtys((prev) => ({
-      ...prev,
-      [itemId]: {
-        ...prev[itemId],
-        rejection_note: value,
-      },
-    }));
-  }
+
 
   function handleSubmit() {
     if (!canSubmit) return;
@@ -179,15 +143,10 @@ export function TerimaPOView({ id }: { id: string }) {
           location_id: po?.location_id,
           notes: notes.trim() || undefined,
           items: Object.values(itemQtys)
-            .filter((i) => i.qty > 0 || i.rejected_qty > 0)
+            .filter((i) => i.qty > 0)
             .map((i) => ({
               purchase_order_item_id: i.purchase_order_item_id,
               qty: i.qty,
-              rejected_qty: i.rejected_qty > 0 ? i.rejected_qty : undefined,
-              rejection_note:
-                i.rejected_qty > 0 && i.rejection_note.trim()
-                  ? i.rejection_note.trim()
-                  : undefined,
               notes: i.notes.trim() || undefined,
             })),
         },
@@ -326,20 +285,12 @@ export function TerimaPOView({ id }: { id: string }) {
                           Diterima
                         </span>
                       </TableHead>
-                      <TableHead className="whitespace-nowrap w-28">
-                        <span className="flex items-center gap-1.5 text-red-600 dark:text-red-400">
-                          <XCircleIcon className="h-3.5 w-3.5" />
-                          Ditolak
-                        </span>
-                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {items.map((item) => {
                       const remaining = item.qty - item.received_qty;
                       const currentQty = itemQtys[item.id]?.qty ?? 0;
-                      const currentRejected =
-                        itemQtys[item.id]?.rejected_qty ?? 0;
                       const variantName = item.variant?.options?.length
                         ? item.variant.options.map((o) => o.value).join(", ")
                         : item.variant?.name;
@@ -353,12 +304,7 @@ export function TerimaPOView({ id }: { id: string }) {
 
                       return (
                         <Fragment key={item.id}>
-                          <TableRow
-                            className={cn(
-                              "border-b border-border/20",
-                              currentRejected > 0 && "border-b-0",
-                            )}
-                          >
+                          <TableRow className="border-b border-border/20">
                             <TableCell className="px-3 py-3">
                               <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted/50">
@@ -426,59 +372,7 @@ export function TerimaPOView({ id }: { id: string }) {
                                 </span>
                               )}
                             </TableCell>
-                            <TableCell className="px-3 py-3">
-                              {remaining > 0 ? (
-                                <Input
-                                  type="number"
-                                  min={0}
-                                  max={remaining}
-                                  value={currentRejected}
-                                  onChange={(e) =>
-                                    handleRejectedQtyChange(
-                                      item.id,
-                                      remaining,
-                                      e.target.value,
-                                    )
-                                  }
-                                  className={cn(
-                                    "h-9 w-20 tabular-nums",
-                                    currentRejected > 0
-                                      ? "border-red-300 bg-red-50/50 text-red-700 focus-visible:ring-red-500/30 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300"
-                                      : "border-border",
-                                  )}
-                                />
-                              ) : (
-                                <span className="text-xs text-muted-foreground">
-                                  —
-                                </span>
-                              )}
-                            </TableCell>
                           </TableRow>
-
-                          {currentRejected > 0 && (
-                            <TableRow className="border-b border-border/20">
-                              <TableCell colSpan={4} className="px-3 pt-0 pb-3">
-                                <div className="ml-[52px] flex items-center gap-3 rounded-md bg-red-50/60 px-3 py-2 dark:bg-red-950/20">
-                                  <Label className="shrink-0 text-xs font-medium text-red-600 dark:text-red-400">
-                                    Alasan ditolak
-                                  </Label>
-                                  <Input
-                                    value={
-                                      itemQtys[item.id]?.rejection_note ?? ""
-                                    }
-                                    onChange={(e) =>
-                                      handleRejectionNoteChange(
-                                        item.id,
-                                        e.target.value,
-                                      )
-                                    }
-                                    placeholder="Opsional — misal: kemasan rusak, barang cacat, jumlah kurang"
-                                    className="h-7 flex-1 border-red-200 bg-white/80 text-xs placeholder:text-red-300 dark:border-red-900 dark:bg-red-950/40 dark:placeholder:text-red-800"
-                                  />
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          )}
                         </Fragment>
                       );
                     })}
@@ -498,7 +392,7 @@ export function TerimaPOView({ id }: { id: string }) {
                 {Object.keys(itemQtys).length > 0 && (
                   <div className="flex items-center justify-between border-t border-border/30 bg-muted/20 px-4 py-2.5">
                     <span className="text-xs font-medium text-muted-foreground">
-                      Ringkasan QC
+                      Ringkasan Penerimaan
                     </span>
                     <div className="flex items-center gap-5">
                       <div className="flex items-center gap-1.5">
@@ -512,19 +406,6 @@ export function TerimaPOView({ id }: { id: string }) {
                           </span>
                         </span>
                       </div>
-                      {totalRejected > 0 && (
-                        <div className="flex items-center gap-1.5">
-                          <div className="h-2 w-2 rounded-full bg-red-500" />
-                          <span className="text-xs tabular-nums">
-                            <span className="font-semibold text-red-700 dark:text-red-400">
-                              {totalRejected}
-                            </span>
-                            <span className="ml-1 text-muted-foreground">
-                              ditolak
-                            </span>
-                          </span>
-                        </div>
-                      )}
                     </div>
                   </div>
                 )}
