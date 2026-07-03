@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -9,21 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-const TIKTOK_TYPES = [
-  { value: "SHIPPING_LABEL", label: "Label" },
-  { value: "PACKING_LIST", label: "Slip" },
-  { value: "SHIPPING_LABEL_AND_PACKING_LIST", label: "Label + Slip" },
-];
-const TIKTOK_SIZES = [
-  { value: "A6", label: "A6 / Thermal" },
-  { value: "A5", label: "A5" },
-  { value: "A4", label: "A4" },
-];
-const SHOPEE_TYPES = [
-  { value: "NORMAL_AIR_WAYBILL", label: "AWB Normal" },
-  { value: "THERMAL_AIR_WAYBILL", label: "AWB Thermal" },
-];
+import { usePrintLabelCapabilities } from "@/hooks/channel/use-print-label-capabilities";
+import type { PrintCapabilityOption } from "@/types/channel";
 
 function OptSelect({
   value,
@@ -33,7 +21,7 @@ function OptSelect({
 }: {
   value: string;
   onChange: (v: string) => void;
-  options: { value: string; label: string }[];
+  options: PrintCapabilityOption[];
   ariaLabel: string;
 }) {
   return (
@@ -56,10 +44,17 @@ function OptSelect({
   );
 }
 
+function defaultValue(options: PrintCapabilityOption[]): string {
+  return options.find((o) => o.default)?.value ?? options[0]?.value ?? "";
+}
+
 export function LabelPrintOptions({ source }: { source?: string | null }) {
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
+
+  const channel = (source ?? "").toLowerCase();
+  const { data: caps, isLoading } = usePrintLabelCapabilities(channel);
 
   const setParam = (key: string, val: string) => {
     const next = new URLSearchParams(sp.toString());
@@ -68,39 +63,40 @@ export function LabelPrintOptions({ source }: { source?: string | null }) {
     router.replace(`${pathname}?${next.toString()}`);
   };
 
-  const channel = (source ?? "").toLowerCase();
+  if (!channel) return null;
 
-  if (channel === "tiktok") {
+  if (isLoading) {
     return (
       <div className="hidden items-center gap-1.5 md:flex">
+        <Skeleton className="h-8 w-28 rounded-md" />
+        <Skeleton className="h-8 w-28 rounded-md" />
+      </div>
+    );
+  }
+
+  const types = caps?.document_types ?? [];
+  const sizes = caps?.document_sizes ?? [];
+
+  if (types.length === 0 && sizes.length === 0) return null;
+
+  return (
+    <div className="hidden items-center gap-1.5 md:flex">
+      {types.length > 0 && (
         <OptSelect
           ariaLabel="Jenis dokumen"
-          value={sp.get("document_type") ?? "SHIPPING_LABEL"}
+          value={sp.get("document_type") ?? defaultValue(types)}
           onChange={(v) => setParam("document_type", v)}
-          options={TIKTOK_TYPES}
+          options={types}
         />
+      )}
+      {sizes.length > 0 && (
         <OptSelect
           ariaLabel="Ukuran kertas"
-          value={sp.get("document_size") ?? "A6"}
+          value={sp.get("document_size") ?? defaultValue(sizes)}
           onChange={(v) => setParam("document_size", v)}
-          options={TIKTOK_SIZES}
+          options={sizes}
         />
-      </div>
-    );
-  }
-
-  if (channel === "shopee") {
-    return (
-      <div className="hidden items-center gap-1.5 md:flex">
-        <OptSelect
-          ariaLabel="Format AWB"
-          value={sp.get("document_type") ?? "NORMAL_AIR_WAYBILL"}
-          onChange={(v) => setParam("document_type", v)}
-          options={SHOPEE_TYPES}
-        />
-      </div>
-    );
-  }
-
-  return null;
+      )}
+    </div>
+  );
 }

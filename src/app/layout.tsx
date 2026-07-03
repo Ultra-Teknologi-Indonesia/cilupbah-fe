@@ -7,6 +7,7 @@ import { QueryProvider } from "@/components/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { LiquidGlassFilter } from "@/components/ui/liquid-glass-filter";
 import { PhantomProvider } from "@/components/providers/phantom-provider";
+import { PrintLabelSizeDialog } from "@/components/dashboard/proses-pesanan/shared/print-label-size-dialog";
 
 const sfPro = localFont({
   src: [
@@ -50,7 +51,10 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <LiquidGlassFilter />
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          {children}
+          <PrintLabelSizeDialog />
+        </QueryProvider>
         <PhantomProvider />
         <Toaster />
         <SpeedInsights />

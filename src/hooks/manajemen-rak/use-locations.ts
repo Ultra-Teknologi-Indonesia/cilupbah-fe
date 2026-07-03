@@ -12,10 +12,11 @@ export const locationKeys = {
   detail: (id: string) => [...locationKeys.all, "detail", id] as const,
 };
 
-export function useLocations(params: LocationListParams = {}) {
+export function useLocations(params: LocationListParams = {}, enabled = true) {
   const excludeTransit = params.excludeTransit ?? true;
 
   return useQuery({
+    enabled,
     queryKey: locationKeys.list(params),
     queryFn: async () => {
       const data = await LocationService.list(params);

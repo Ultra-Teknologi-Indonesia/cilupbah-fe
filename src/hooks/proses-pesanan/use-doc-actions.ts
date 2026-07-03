@@ -1,5 +1,10 @@
 import { toast } from "sonner";
 
+import {
+  openPrintLabelSizeDialog,
+  type PrintLabelChoiceMap,
+  type PrintLabelOrderInput,
+} from "@/components/dashboard/proses-pesanan/shared/print-label-size-dialog";
 import { OutboundService } from "@/services/proses-pesanan/outbound.service";
 import { printReport } from "@/lib/proses-pesanan/print";
 
@@ -54,35 +59,57 @@ function openMarketplaceLabel(result: {
   return false;
 }
 
-export const DocActions = {
-  shippingLabel: async (ids: string[]) => {
-    const toastId = toast.loading("Menyiapkan label…");
-    const fallbackIds: string[] = [];
+function toOrderInputs(
+  input: PrintLabelOrderInput[] | string[],
+): PrintLabelOrderInput[] {
+  return input.map((o) =>
+    typeof o === "string" ? { id: o, source: null } : o,
+  );
+}
 
-    try {
-      const results = await Promise.allSettled(
-        ids.map((id) => OutboundService.marketplaceLabel(id)),
-      );
+async function runShippingLabel(orders: PrintLabelOrderInput[]) {
+  const hasKnownSource = orders.some((o) => (o.source ?? "").length > 0);
+  const choices: PrintLabelChoiceMap | null = hasKnownSource
+    ? await openPrintLabelSizeDialog(orders)
+    : {};
 
-      for (let i = 0; i < results.length; i++) {
-        const r = results[i];
-        if (r.status === "fulfilled" && openMarketplaceLabel(r.value)) {
-          continue;
-        }
-        fallbackIds.push(ids[i]);
+  if (choices === null) return;
+
+  const toastId = toast.loading("Menyiapkan label…");
+  const fallbackIds: string[] = [];
+
+  try {
+    const results = await Promise.allSettled(
+      orders.map((o) => {
+        const src = (o.source ?? "").toLowerCase();
+        const choice = src ? choices[src] : undefined;
+        return OutboundService.marketplaceLabel(o.id, choice);
+      }),
+    );
+
+    for (let i = 0; i < results.length; i++) {
+      const r = results[i];
+      if (r.status === "fulfilled" && openMarketplaceLabel(r.value)) {
+        continue;
       }
-
-      toast.dismiss(toastId);
-
-      if (fallbackIds.length > 0) {
-        const data = await OutboundService.shippingLabel(fallbackIds);
-        printReport("Label Pengiriman", data);
-      }
-    } catch (err) {
-      toast.dismiss(toastId);
-      toast.error(errMsg(err, "Gagal menyiapkan label."));
+      fallbackIds.push(orders[i].id);
     }
-  },
+
+    toast.dismiss(toastId);
+
+    if (fallbackIds.length > 0) {
+      const data = await OutboundService.shippingLabel(fallbackIds);
+      printReport("Label Pengiriman", data);
+    }
+  } catch (err) {
+    toast.dismiss(toastId);
+    toast.error(errMsg(err, "Gagal menyiapkan label."));
+  }
+}
+
+export const DocActions = {
+  shippingLabel: (input: PrintLabelOrderInput[] | string[]) =>
+    runShippingLabel(toOrderInputs(input)),
   pickList: (ids: string[]) =>
     run("Picklist", "Menyiapkan picklist…", () =>
       OutboundService.pickListDoc(ids),
@@ -103,9 +130,10 @@ export const DocActions = {
       "_blank",
     );
   },
-  invoiceAndLabel: async (ids: string[]) => {
-    await DocActions.invoice(ids);
-    await DocActions.shippingLabel(ids);
+  invoiceAndLabel: async (input: PrintLabelOrderInput[] | string[]) => {
+    const orders = toOrderInputs(input);
+    await DocActions.invoice(orders.map((o) => o.id));
+    await runShippingLabel(orders);
   },
   suratJalanAndInvoice: async (ids: string[]) => {
     await DocActions.suratJalan(ids);

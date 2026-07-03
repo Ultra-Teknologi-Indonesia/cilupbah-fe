@@ -1,6 +1,10 @@
 import { fetchClient } from "@/lib/api-client";
 import type { ApiResponse, ApiPaginated } from "@/types/api.types";
-import type { ChannelCode, RawConnectedStore } from "@/types/channel";
+import type {
+  ChannelCode,
+  PrintLabelCapabilities,
+  RawConnectedStore,
+} from "@/types/channel";
 
 export interface StoreFlags {
   is_active?: boolean;
@@ -41,5 +45,14 @@ export const ChannelService = {
     await fetchClient(`/${channel}/stores/${id}/refresh-token`, {
       method: "POST",
     });
+  },
+
+  getPrintLabelCapabilities: async (
+    source: string,
+  ): Promise<PrintLabelCapabilities> => {
+    const res = await fetchClient<ApiResponse<PrintLabelCapabilities>>(
+      `/channels/print-label-capabilities?source=${encodeURIComponent(source)}`,
+    );
+    return res.data;
   },
 };

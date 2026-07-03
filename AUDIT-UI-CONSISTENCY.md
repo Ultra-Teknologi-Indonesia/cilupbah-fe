@@ -9,7 +9,7 @@
 | # | Temuan | Prioritas | Skala |
 |---|--------|-----------|-------|
 | 1 | ~~Raw `<table>` bypass ui/table & data-table~~ ✅ selesai 2026-07-03 | Tinggi | 14 file |
-| 2 | Dua dialog berbeda untuk aksi "buat pengiriman" | Tinggi | 2 file duplikat |
+| 2 | ~~Dua dialog berbeda untuk aksi "buat pengiriman"~~ ✅ selesai 2026-07-03 | Tinggi | 2 file duplikat |
 | 3 | `window.confirm` vs `ConfirmDialog` | Tinggi | 3 titik |
 | 4 | Search picker masih FE-side filtering | Tinggi | 11 file |
 | 5 | Form data-heavy di dalam dialog | Tinggi | 6+ dialog |
@@ -57,7 +57,9 @@ File pelanggar:
 
 **Rekomendasi:** migrasi ke `ui/table` (untuk tabel statis/inline) atau `ui/data-table` (untuk list dengan sorting/pagination).
 
-### 2. Duplikasi dialog "Buat Pengiriman"
+### 2. Duplikasi dialog "Buat Pengiriman" — ✅ SELESAI (2026-07-03)
+
+> Digabung menjadi satu `BuatPengirimanDialog` (`shipping/buat-pengiriman-dialog.tsx`) dengan dua mode: mode pesanan (orderIds terpilih, marketplace-aware) dan mode standalone (no. pengiriman + picker lokasi + tanggal-jam). `tambah-pengiriman-dialog.tsx` dihapus; `proses-pesanan-view.tsx` diarahkan ke dialog gabungan. UX kini seragam (judul, footer Batal + Buat Pengiriman, field catatan). Bonus: `useLocations` dapat param `enabled`, dan reset state pindah dari `useEffect` ke remount natural konten dialog (lolos rule `react-hooks/set-state-in-effect`). Verifikasi: `tsc` bersih, ESLint bersih.
 
 Dua implementasi hampir identik untuk aksi yang sama, dua-duanya masih hidup:
 
@@ -105,7 +107,7 @@ Aturan: form data-heavy pakai halaman tersendiri; dialog hanya untuk konfirmasi 
 | `manajemen-rak/lokasi/layout-gudang-tab.tsx` | 69 |
 | `pesanan/order-card.tsx` | 34 |
 | `shipping/buat-pengiriman-dialog.tsx` | 33 |
-| `shipping/tambah-pengiriman-dialog.tsx` | 33 |
+| ~~`shipping/tambah-pengiriman-dialog.tsx`~~ (dihapus, digabung ke buat-pengiriman-dialog) | 33 |
 | `transaksi-pembelian/product-picker-dialog.tsx` | 21 |
 | `master-produk/upload/draft-tab.tsx` | 21 |
 

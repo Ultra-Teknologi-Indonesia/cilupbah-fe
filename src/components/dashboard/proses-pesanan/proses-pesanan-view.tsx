@@ -26,7 +26,7 @@ import { PicklistTable } from "./picking/picklist-table";
 import { ReadyToProcessCardList } from "./picking/ready-to-process-card-list";
 import { PacklistTable } from "./packing/packlist-table";
 import { ShipmentTable } from "./shipping/shipment-table";
-import { TambahPengirimanDialog } from "./shipping/tambah-pengiriman-dialog";
+import { BuatPengirimanDialog } from "./shipping/buat-pengiriman-dialog";
 import { FulfillmentCardList } from "./shared/completed-order-card-list";
 
 export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
@@ -210,7 +210,7 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
         <div key={`${stage}-${sub}`}>{renderContent()}</div>
       </LiquidGlass>
 
-      <TambahPengirimanDialog
+      <BuatPengirimanDialog
         open={showTambahPengiriman}
         onOpenChange={setShowTambahPengiriman}
       />

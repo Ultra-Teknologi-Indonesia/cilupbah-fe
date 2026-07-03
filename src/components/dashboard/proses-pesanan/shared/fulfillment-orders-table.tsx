@@ -461,7 +461,11 @@ function OrderCard({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => DocActions.shippingLabel([order.id])}
+              onClick={() =>
+                DocActions.shippingLabel([
+                  { id: order.id, source: order.source },
+                ])
+              }
             >
               Cetak Label
             </Button>
@@ -485,7 +489,11 @@ function OrderCard({
           <DropdownMenuContent align="end" className="min-w-52">
             {actions.fakturLabel && (
               <DropdownMenuItem
-                onSelect={() => DocActions.invoiceAndLabel([order.id])}
+                onSelect={() =>
+                  DocActions.invoiceAndLabel([
+                    { id: order.id, source: order.source },
+                  ])
+                }
               >
                 Cetak Faktur & Label
               </DropdownMenuItem>
@@ -820,7 +828,11 @@ export function FulfillmentOrdersTable({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => DocActions.shippingLabel(selectedIds)}
+              onClick={() =>
+                DocActions.shippingLabel(
+                  selectedOrders.map((o) => ({ id: o.id, source: o.source })),
+                )
+              }
             >
               Cetak Label
             </Button>
@@ -838,7 +850,11 @@ export function FulfillmentOrdersTable({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => DocActions.invoiceAndLabel(selectedIds)}
+              onClick={() =>
+                DocActions.invoiceAndLabel(
+                  selectedOrders.map((o) => ({ id: o.id, source: o.source })),
+                )
+              }
             >
               Faktur & Label
             </Button>

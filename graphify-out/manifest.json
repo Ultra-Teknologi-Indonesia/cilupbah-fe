@@ -75,8 +75,8 @@
     "semantic_hash": ""
   },
   "src/app/layout.tsx": {
-    "mtime": 1783067819.3708084,
-    "ast_hash": "86b916e0feb998d71887f897c79c9163",
+    "mtime": 1783090162.7229202,
+    "ast_hash": "f87598ae2dad352727b2858d741b20f3",
     "semantic_hash": ""
   },
   "src/app/login/page.tsx": {
@@ -755,8 +755,8 @@
     "semantic_hash": ""
   },
   "src/services/channel/channel.service.ts": {
-    "mtime": 1783067824.2332115,
-    "ast_hash": "6da0d8b1c6251a696848ecac1da4b0dd",
+    "mtime": 1783089983.3245366,
+    "ast_hash": "543f2b0625f551881d7d58b4c78aeb21",
     "semantic_hash": ""
   },
   "src/services/master-produk/bundle.service.ts": {
@@ -840,8 +840,8 @@
     "semantic_hash": ""
   },
   "src/types/channel/index.ts": {
-    "mtime": 1783067824.5682826,
-    "ast_hash": "600c7b96e9973adcb94a76f00f4a2641",
+    "mtime": 1783089969.3780587,
+    "ast_hash": "30252ff5505408967341f983a666f8c5",
     "semantic_hash": ""
   },
   "src/types/common.ts": {
@@ -1110,8 +1110,8 @@
     "semantic_hash": ""
   },
   "src/hooks/manajemen-rak/use-locations.ts": {
-    "mtime": 1783067823.6347497,
-    "ast_hash": "580f6d99f50d2236e15686b4eb287369",
+    "mtime": 1783089978.5239134,
+    "ast_hash": "7f2649b85456c4ecb3c60eeaf1286861",
     "semantic_hash": ""
   },
   "src/hooks/manajemen-rak/use-regions.ts": {
@@ -1455,8 +1455,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/proses-pesanan-view.tsx": {
-    "mtime": 1783088594.255272,
-    "ast_hash": "bf554b7c6d044310217783a4119869c1",
+    "mtime": 1783090056.3448994,
+    "ast_hash": "850490a10e131fdbe10ed7b740baa116",
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/stage-tabs.tsx": {
@@ -1615,13 +1615,13 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx": {
-    "mtime": 1783081289.0502405,
-    "ast_hash": "1fa3827fd5d718c4f39bde2e12ba920f",
+    "mtime": 1783090219.6932673,
+    "ast_hash": "a016cec35df0a7bdd60743963ac943a5",
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx": {
-    "mtime": 1783067822.6960537,
-    "ast_hash": "6cfd54a7bb21b4d363e61d0201e47e5e",
+    "mtime": 1783090177.7920258,
+    "ast_hash": "319ceeeff2eb0cc0bfcef24f40b7b47b",
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx": {
@@ -2684,11 +2684,6 @@
     "ast_hash": "58ac387c7d638d0da28432ccdbf2b2a1",
     "semantic_hash": ""
   },
-  "src/components/dashboard/proses-pesanan/shipping/tambah-pengiriman-dialog.tsx": {
-    "mtime": 1783067822.7282052,
-    "ast_hash": "d11448abdb189dfead62f62d2f481594",
-    "semantic_hash": ""
-  },
   "src/components/ui/bulk-action-bar.tsx": {
     "mtime": 1783067823.0404549,
     "ast_hash": "e4514252a49879bef22cdb930072b596",
@@ -2850,8 +2845,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/document-preview/label-print-options.tsx": {
-    "mtime": 1783067819.824569,
-    "ast_hash": "65cfe40f299b87c8086990acf447e3a0",
+    "mtime": 1783090010.3457859,
+    "ast_hash": "99118465a0a49600abf0b1ef63258902",
     "semantic_hash": ""
   },
   "src/components/dashboard/pengaturan/retur/sales-return-setting-form.tsx": {
@@ -2940,8 +2935,8 @@
     "semantic_hash": ""
   },
   "src/hooks/proses-pesanan/use-doc-actions.ts": {
-    "mtime": 1783067823.8130567,
-    "ast_hash": "2fa5d7be3718e5ba6c94ad6fa4e9b6b6",
+    "mtime": 1783090203.6601386,
+    "ast_hash": "8746b6a5574eec95c8cce603397abf39",
     "semantic_hash": ""
   },
   "src/hooks/transaksi-stok/use-bin-transfer.ts": {
@@ -3092,6 +3087,21 @@
   "src/types/laporan/retur.ts": {
     "mtime": 1783088049.073828,
     "ast_hash": "2dbc8bfc7f5e9d0a04a486bffb1bfbb2",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/proses-pesanan/shared/print-label-size-dialog.tsx": {
+    "mtime": 1783090149.9248064,
+    "ast_hash": "6345e4963fea56336581cdd80f9f2039",
+    "semantic_hash": ""
+  },
+  "src/hooks/channel/use-print-label-capabilities.ts": {
+    "mtime": 1783089991.1728156,
+    "ast_hash": "9f53c067e179c73498163315eb030c1b",
+    "semantic_hash": ""
+  },
+  "src/types/channel/print-capabilities.ts": {
+    "mtime": 1783089965.3017352,
+    "ast_hash": "78f34465316f523e2067cf42c948ab05",
     "semantic_hash": ""
   }
 }
