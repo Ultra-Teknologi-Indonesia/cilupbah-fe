@@ -2,11 +2,9 @@
 
 import { useState, useMemo } from "react"
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
 import {
-  ArrowLeftIcon,
   ArrowDownIcon,
   ArrowUpIcon,
   PackageIcon,
@@ -515,7 +513,6 @@ function BinSection({ itemId }: { itemId: string }) {
 }
 
 export function StockPositionDetailView({ itemId }: { itemId: string }) {
-  const router = useRouter()
   const [activeTab, setActiveTab] = useState<"kronologi" | "rak">("kronologi")
 
   const { data, isLoading } = useStockItem(itemId)
@@ -526,6 +523,7 @@ export function StockPositionDetailView({ itemId }: { itemId: string }) {
       <PageTitle
         title={isLoading ? "Memuat..." : (item?.item_code ?? "Detail Stok")}
         description={isLoading ? "" : (item?.item_name ?? "")}
+        backHref="/dashboard/posisi-stok"
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Persediaan" },
@@ -533,16 +531,6 @@ export function StockPositionDetailView({ itemId }: { itemId: string }) {
           { label: item?.item_code ?? "Detail" },
         ]}
       />
-
-      <Button
-        variant="ghost"
-        size="sm"
-        className="w-fit gap-1.5"
-        onClick={() => router.push("/dashboard/posisi-stok")}
-      >
-        <ArrowLeftIcon className="h-4 w-4" />
-        Kembali ke Posisi Stok
-      </Button>
 
       {/* Item Header Card */}
       {isLoading ? (
