@@ -293,6 +293,8 @@ export function PenyesuaianTab() {
         loading={deleteMut.isPending}
         onConfirm={handleDelete}
       />
+
+      <ImportPenyesuaianDialog open={importOpen} onOpenChange={setImportOpen} />
     </div>
   )
 }
