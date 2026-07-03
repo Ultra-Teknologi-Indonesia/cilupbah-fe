@@ -25,8 +25,14 @@ import {
 } from "@/components/ui/form";
 
 const loginSchema = z.object({
-  email: z.string().min(1, "Email wajib diisi").email("Format email tidak valid"),
-  password: z.string().min(1, "Password wajib diisi").min(6, "Password minimal 6 karakter"),
+  email: z
+    .string()
+    .min(1, "Email wajib diisi")
+    .email("Format email tidak valid"),
+  password: z
+    .string()
+    .min(1, "Password wajib diisi")
+    .min(6, "Password minimal 6 karakter"),
 });
 
 type LoginValues = z.infer<typeof loginSchema>;
@@ -62,8 +68,14 @@ export function LoginForm({ className }: { className?: string }) {
             ? `Selamat datang kembali, ${res.data.user.name}.`
             : "Mengalihkan ke dashboard…",
         });
-        const callbackUrl = new URLSearchParams(window.location.search).get("callbackUrl");
-        router.push(callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : "/dashboard");
+        const callbackUrl = new URLSearchParams(window.location.search).get(
+          "callbackUrl",
+        );
+        router.push(
+          callbackUrl && callbackUrl.startsWith("/")
+            ? callbackUrl
+            : "/dashboard",
+        );
       },
       onError: (error) => {
         toast.error("Gagal masuk", {
@@ -132,7 +144,11 @@ export function LoginForm({ className }: { className?: string }) {
                     type="button"
                     onClick={() => setShowPassword((s) => !s)}
                     className="absolute top-1/2 right-3 grid size-7 -translate-y-1/2 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
-                    aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                    aria-label={
+                      showPassword
+                        ? "Sembunyikan password"
+                        : "Tampilkan password"
+                    }
                     aria-pressed={showPassword}
                   >
                     <span className="relative grid size-4 place-items-center">

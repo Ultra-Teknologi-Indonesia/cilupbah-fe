@@ -1,38 +1,52 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { DownloadIcon, PlusIcon, SearchIcon, XIcon } from "lucide-react"
+import * as React from "react";
+import { DownloadIcon, PlusIcon, SearchIcon, XIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { KategoriListTab } from "./kategori-list-tab"
-import { KategoriMappingTab } from "./kategori-mapping-tab"
-import { ImportSystemDialog } from "./import-system-dialog"
-import { TambahKategoriDialog } from "./tambah-kategori-dialog"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { KategoriListTab } from "./kategori-list-tab";
+import { KategoriMappingTab } from "./kategori-mapping-tab";
+import { ImportSystemDialog } from "./import-system-dialog";
+import { TambahKategoriDialog } from "./tambah-kategori-dialog";
 
 export function KategoriView() {
-  const [importOpen, setImportOpen] = React.useState(false)
-  const [tambahOpen, setTambahOpen] = React.useState(false)
+  const [importOpen, setImportOpen] = React.useState(false);
+  const [tambahOpen, setTambahOpen] = React.useState(false);
 
-  const [search, setSearch] = React.useState("")
+  const [search, setSearch] = React.useState("");
 
   return (
     <>
       <div className="flex items-center justify-end gap-2">
-        <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => setImportOpen(true)}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5"
+          onClick={() => setImportOpen(true)}
+        >
           <DownloadIcon className="size-4" />
           Import dari Sistem
         </Button>
-        <Button variant="primary" size="sm" className="h-8 gap-1.5" onClick={() => setTambahOpen(true)}>
+        <Button
+          variant="primary"
+          size="sm"
+          className="h-8 gap-1.5"
+          onClick={() => setTambahOpen(true)}
+        >
           <PlusIcon className="size-4" />
           Tambah Baru
         </Button>
       </div>
 
       <Tabs defaultValue="daftar">
-        <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+        <LiquidGlass
+          radius={24}
+          intensity="default"
+          className="bg-white/40 dark:bg-white/[0.06]"
+        >
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 pt-3 sm:px-5">
             <div className="overflow-x-auto">
               <TabsList variant="line">
@@ -76,5 +90,5 @@ export function KategoriView() {
       <ImportSystemDialog open={importOpen} onOpenChange={setImportOpen} />
       <TambahKategoriDialog open={tambahOpen} onOpenChange={setTambahOpen} />
     </>
-  )
+  );
 }

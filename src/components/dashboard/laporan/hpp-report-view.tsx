@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import { useMemo, useState } from "react"
+import { useMemo, useState } from "react";
 import {
   AlertCircleIcon,
   FilterIcon,
   Loader2Icon,
   RefreshCwIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Combobox } from "@/components/ui/combobox"
-import { DatePicker } from "@/components/ui/date-picker"
-import { Label } from "@/components/ui/label"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useLocations } from "@/hooks/manajemen-rak/use-locations"
-import { useHppReport } from "@/hooks/laporan/use-hpp-report"
-import type { HppReportParams } from "@/types/laporan/hpp"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Label } from "@/components/ui/label";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useLocations } from "@/hooks/manajemen-rak/use-locations";
+import { useHppReport } from "@/hooks/laporan/use-hpp-report";
+import type { HppReportParams } from "@/types/laporan/hpp";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("id-ID", {
@@ -25,37 +25,36 @@ function formatCurrency(value: number) {
     currency: "IDR",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(value || 0)
+  }).format(value || 0);
 }
 
 function formatDateISO(d: Date) {
-  // YYYY-MM-DD (local, hindari shift TZ saat toISOString)
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, "0")
-  const day = String(d.getDate()).padStart(2, "0")
-  return `${y}-${m}-${day}`
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 function formatDateID(d: string) {
-  if (!d) return "—"
+  if (!d) return "—";
   return new Date(d).toLocaleDateString("id-ID", {
     day: "2-digit",
     month: "long",
     year: "numeric",
-  })
+  });
 }
 
 function startOfMonth() {
-  const now = new Date()
-  return new Date(now.getFullYear(), now.getMonth(), 1)
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), 1);
 }
 
 interface RowProps {
-  label: string
-  value: number
-  sign?: "+" | "-" | ""
-  emphasized?: boolean
-  separator?: "none" | "thin" | "double"
+  label: string;
+  value: number;
+  sign?: "+" | "-" | "";
+  emphasized?: boolean;
+  separator?: "none" | "thin" | "double";
 }
 
 function RowLine({
@@ -85,7 +84,7 @@ function RowLine({
         {formatCurrency(value)}
       </span>
     </div>
-  )
+  );
 }
 
 function HppSkeleton() {
@@ -95,23 +94,22 @@ function HppSkeleton() {
         <Skeleton key={i} className="h-9 w-full" />
       ))}
     </div>
-  )
+  );
 }
 
 export function HppReportView() {
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(startOfMonth())
-  const [dateTo, setDateTo] = useState<Date | undefined>(new Date())
-  const [locationId, setLocationId] = useState<string>("")
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(startOfMonth());
+  const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
+  const [locationId, setLocationId] = useState<string>("");
 
-  // Trigger fetch hanya setelah klik "Terapkan" supaya UX terduga.
   const [appliedParams, setAppliedParams] = useState<HppReportParams | null>(
     () => ({
       date_from: formatDateISO(startOfMonth()),
       date_to: formatDateISO(new Date()),
     }),
-  )
+  );
 
-  const { data: locData } = useLocations({ perPage: 100 })
+  const { data: locData } = useLocations({ perPage: 100 });
 
   const locationOptions = useMemo(
     () => [
@@ -121,9 +119,9 @@ export function HppReportView() {
         .map((l) => ({ value: l.id, label: l.locationName })),
     ],
     [locData],
-  )
+  );
 
-  const canApply = Boolean(dateFrom && dateTo)
+  const canApply = Boolean(dateFrom && dateTo);
 
   const {
     data: report,
@@ -134,34 +132,34 @@ export function HppReportView() {
   } = useHppReport(
     appliedParams ?? { date_from: "", date_to: "" },
     Boolean(appliedParams),
-  )
+  );
 
   function handleApply() {
-    if (!dateFrom || !dateTo) return
+    if (!dateFrom || !dateTo) return;
     setAppliedParams({
       date_from: formatDateISO(dateFrom),
       date_to: formatDateISO(dateTo),
       location_id: locationId || undefined,
-    })
+    });
   }
 
-  const payload = report?.data
-  const d = payload?.data
+  const payload = report?.data;
+  const d = payload?.data;
 
   const selisih = useMemo(() => {
-    if (!d) return 0
-    return d.hpp - d.hpp_periode_snapshot
-  }, [d])
+    if (!d) return 0;
+    return d.hpp - d.hpp_periode_snapshot;
+  }, [d]);
 
   const errorMessage = useMemo(() => {
-    if (!error) return null
-    const err = error as { message?: string }
-    return err?.message || "Gagal memuat laporan HPP."
-  }, [error])
+    if (!error) return null;
+    const err = error as { message?: string };
+    return err?.message || "Gagal memuat laporan HPP.";
+  }, [error]);
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Filter */}
+      {}
       <LiquidGlass
         radius={16}
         intensity="subtle"
@@ -234,7 +232,7 @@ export function HppReportView() {
         </div>
       </LiquidGlass>
 
-      {/* Hasil */}
+      {}
       <LiquidGlass
         radius={16}
         intensity="subtle"
@@ -357,18 +355,19 @@ export function HppReportView() {
                 <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
                   HPP dihitung dari saldo persediaan + pembelian bersih -
                   persediaan akhir. Snapshot COGS adalah total `total_cogs` dari
-                  sales invoice items terbit di periode (cross-check;
-                  perbedaan dapat terjadi karena timing posting).
+                  sales invoice items terbit di periode (cross-check; perbedaan
+                  dapat terjadi karena timing posting).
                 </p>
               </div>
             </div>
           </div>
         ) : (
           <div className="py-10 text-center text-sm text-muted-foreground">
-            Pilih periode lalu klik &quot;Terapkan&quot; untuk menampilkan laporan.
+            Pilih periode lalu klik &quot;Terapkan&quot; untuk menampilkan
+            laporan.
           </div>
         )}
       </LiquidGlass>
     </div>
-  )
+  );
 }

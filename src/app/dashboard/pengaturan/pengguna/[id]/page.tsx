@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { use } from "react"
-import { PageTitle } from "@/components/dashboard/page-title"
-import { UserDetailPage } from "@/components/dashboard/pengaturan/pengguna/user-detail-page"
+import { use } from "react";
+import { PageTitle } from "@/components/dashboard/page-title";
+import { UserDetailPage } from "@/components/dashboard/pengaturan/pengguna/user-detail-page";
 
 export default function PenggunaDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params)
+  const { id } = use(params);
 
   return (
     <div className="flex flex-col gap-6">
@@ -24,5 +24,5 @@ export default function PenggunaDetailPage({
       />
       <UserDetailPage userId={id} />
     </div>
-  )
+  );
 }

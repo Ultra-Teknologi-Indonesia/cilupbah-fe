@@ -1,9 +1,9 @@
-import * as React from "react"
-import Link from "next/link"
-import { ArrowLeftIcon } from "lucide-react"
+import * as React from "react";
+import Link from "next/link";
+import { ArrowLeftIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
+import { cn } from "@/lib/utils";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,21 +11,21 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb";
 
 export interface BreadcrumbEntry {
-  label: string
-  href?: string
+  label: string;
+  href?: string;
 }
 
 interface PageTitleProps {
-  title: string
-  description?: string
-  breadcrumb?: BreadcrumbEntry[]
-  actions?: React.ReactNode
-  backHref?: string
-  sticky?: boolean
-  className?: string
+  title: string;
+  description?: string;
+  breadcrumb?: BreadcrumbEntry[];
+  actions?: React.ReactNode;
+  backHref?: string;
+  sticky?: boolean;
+  className?: string;
 }
 
 export function PageTitle({
@@ -42,7 +42,7 @@ export function PageTitle({
       {backHref && (
         <Link
           href={backHref}
-                   className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeftIcon className="size-4" />
           Kembali
@@ -59,7 +59,7 @@ export function PageTitle({
             <Breadcrumb className="mb-1.5">
               <BreadcrumbList>
                 {breadcrumb.map((item, i) => {
-                  const isLast = i === breadcrumb.length - 1
+                  const isLast = i === breadcrumb.length - 1;
                   return (
                     <React.Fragment key={`${item.label}-${i}`}>
                       <BreadcrumbItem>
@@ -73,7 +73,7 @@ export function PageTitle({
                       </BreadcrumbItem>
                       {!isLast && <BreadcrumbSeparator />}
                     </React.Fragment>
-                  )
+                  );
                 })}
               </BreadcrumbList>
             </Breadcrumb>
@@ -81,15 +81,21 @@ export function PageTitle({
 
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="min-w-0">
-              <h1 className="truncate text-2xl font-bold tracking-tight">{title}</h1>
+              <h1 className="truncate text-2xl font-bold tracking-tight">
+                {title}
+              </h1>
               {description && (
-                <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  {description}
+                </p>
               )}
             </div>
-            {actions && <div className="flex items-center gap-2">{actions}</div>}
+            {actions && (
+              <div className="flex items-center gap-2">{actions}</div>
+            )}
           </div>
         </div>
       </LiquidGlass>
     </div>
-  )
+  );
 }

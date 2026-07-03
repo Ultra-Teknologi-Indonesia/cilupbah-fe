@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useRouter, usePathname, useSearchParams } from "next/navigation"
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 import {
   Select,
@@ -8,23 +8,22 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
-// Opsi cetak per channel — hanya yang didukung API masing-masing.
 const TIKTOK_TYPES = [
   { value: "SHIPPING_LABEL", label: "Label" },
   { value: "PACKING_LIST", label: "Slip" },
   { value: "SHIPPING_LABEL_AND_PACKING_LIST", label: "Label + Slip" },
-]
+];
 const TIKTOK_SIZES = [
   { value: "A6", label: "A6 / Thermal" },
   { value: "A5", label: "A5" },
   { value: "A4", label: "A4" },
-]
+];
 const SHOPEE_TYPES = [
   { value: "NORMAL_AIR_WAYBILL", label: "AWB Normal" },
   { value: "THERMAL_AIR_WAYBILL", label: "AWB Thermal" },
-]
+];
 
 function OptSelect({
   value,
@@ -32,42 +31,44 @@ function OptSelect({
   options,
   ariaLabel,
 }: {
-  value: string
-  onChange: (v: string) => void
-  options: { value: string; label: string }[]
-  ariaLabel: string
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  ariaLabel: string;
 }) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger size="sm" className="h-8 w-auto min-w-28" aria-label={ariaLabel}>
+      <SelectTrigger
+        size="sm"
+        className="h-8 w-auto min-w-28"
+        aria-label={ariaLabel}
+      >
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
         {options.map((o) => (
-          <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+          <SelectItem key={o.value} value={o.value}>
+            {o.label}
+          </SelectItem>
         ))}
       </SelectContent>
     </Select>
-  )
+  );
 }
 
-/**
- * Selector opsi cetak label pengiriman, tampil sesuai channel order (dari meta.source).
- * Mengubah opsi memperbarui query param preview → memicu re-fetch PDF dengan opsi baru.
- */
 export function LabelPrintOptions({ source }: { source?: string | null }) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const sp = useSearchParams()
+  const router = useRouter();
+  const pathname = usePathname();
+  const sp = useSearchParams();
 
   const setParam = (key: string, val: string) => {
-    const next = new URLSearchParams(sp.toString())
-    if (val) next.set(key, val)
-    else next.delete(key)
-    router.replace(`${pathname}?${next.toString()}`)
-  }
+    const next = new URLSearchParams(sp.toString());
+    if (val) next.set(key, val);
+    else next.delete(key);
+    router.replace(`${pathname}?${next.toString()}`);
+  };
 
-  const channel = (source ?? "").toLowerCase()
+  const channel = (source ?? "").toLowerCase();
 
   if (channel === "tiktok") {
     return (
@@ -85,7 +86,7 @@ export function LabelPrintOptions({ source }: { source?: string | null }) {
           options={TIKTOK_SIZES}
         />
       </div>
-    )
+    );
   }
 
   if (channel === "shopee") {
@@ -98,8 +99,8 @@ export function LabelPrintOptions({ source }: { source?: string | null }) {
           options={SHOPEE_TYPES}
         />
       </div>
-    )
+    );
   }
 
-  return null
+  return null;
 }

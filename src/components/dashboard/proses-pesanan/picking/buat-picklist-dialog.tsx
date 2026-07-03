@@ -1,29 +1,32 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Loader2Icon } from "lucide-react"
-import { toast } from "sonner"
+import * as React from "react";
+import { Loader2Icon } from "lucide-react";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button"
-import { Combobox } from "@/components/ui/combobox"
-import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogClose,
-} from "@/components/ui/dialog"
-import { useCreatePicklist, usePickers } from "@/hooks/proses-pesanan/use-fulfillment"
+} from "@/components/ui/dialog";
+import {
+  useCreatePicklist,
+  usePickers,
+} from "@/hooks/proses-pesanan/use-fulfillment";
 
 interface BuatPicklistDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  orderIds: string[]
-  locationId: string | null
-  locationName: string | null
-  multiLocation: boolean
-  onCreated: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  orderIds: string[];
+  locationId: string | null;
+  locationName: string | null;
+  multiLocation: boolean;
+  onCreated: () => void;
 }
 
 export function BuatPicklistDialog({
@@ -35,26 +38,31 @@ export function BuatPicklistDialog({
   multiLocation,
   onCreated,
 }: BuatPicklistDialogProps) {
-  const [pickerId, setPickerId] = React.useState("")
-  const [notes, setNotes] = React.useState("")
+  const [pickerId, setPickerId] = React.useState("");
+  const [notes, setNotes] = React.useState("");
 
-  const pickers = usePickers(locationId ?? undefined, undefined, open && !!locationId)
-  const createPicklist = useCreatePicklist()
+  const pickers = usePickers(
+    locationId ?? undefined,
+    undefined,
+    open && !!locationId,
+  );
+  const createPicklist = useCreatePicklist();
 
   React.useEffect(() => {
     if (open) {
-      setPickerId("")
-      setNotes("")
+      setPickerId("");
+      setNotes("");
     }
-  }, [open])
+  }, [open]);
 
-  const canSubmit = orderIds.length > 0 && !!locationId && !multiLocation && !!pickerId
+  const canSubmit =
+    orderIds.length > 0 && !!locationId && !multiLocation && !!pickerId;
 
   const handleSubmit = async () => {
-    if (!locationId) return
+    if (!locationId) return;
     if (!pickerId) {
-      toast.error("Pilih picker terlebih dahulu")
-      return
+      toast.error("Pilih picker terlebih dahulu");
+      return;
     }
     try {
       await createPicklist.mutateAsync({
@@ -62,18 +70,18 @@ export function BuatPicklistDialog({
         location_id: locationId,
         picker_id: pickerId,
         notes: notes || null,
-      })
-      toast.success(`Picklist dibuat untuk ${orderIds.length} pesanan.`)
-      onOpenChange(false)
-      onCreated()
+      });
+      toast.success(`Picklist dibuat untuk ${orderIds.length} pesanan.`);
+      onOpenChange(false);
+      onCreated();
     } catch (err) {
       const msg =
         err && typeof err === "object" && "message" in err
           ? String((err as { message?: unknown }).message)
-          : "Gagal membuat picklist."
-      toast.error(msg)
+          : "Gagal membuat picklist.";
+      toast.error(msg);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -85,12 +93,14 @@ export function BuatPicklistDialog({
 
         <div className="flex flex-col gap-4 py-2">
           <div className="rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-sm">
-            <span className="font-medium">{orderIds.length}</span> pesanan terpilih
+            <span className="font-medium">{orderIds.length}</span> pesanan
+            terpilih
           </div>
 
           {multiLocation && (
             <p className="rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-xs text-destructive">
-              Pesanan terpilih berasal dari lokasi berbeda. Pilih pesanan dari satu lokasi saja.
+              Pesanan terpilih berasal dari lokasi berbeda. Pilih pesanan dari
+              satu lokasi saja.
             </p>
           )}
 
@@ -105,7 +115,10 @@ export function BuatPicklistDialog({
             <Label htmlFor="picklist-picker">Picker</Label>
             <Combobox
               id="picklist-picker"
-              options={(pickers.data ?? []).map((p) => ({ value: p.id, label: p.name }))}
+              options={(pickers.data ?? []).map((p) => ({
+                value: p.id,
+                label: p.name,
+              }))}
               value={pickerId || null}
               onChange={(v) => setPickerId(v ?? "")}
               placeholder="— Pilih picker —"
@@ -113,7 +126,9 @@ export function BuatPicklistDialog({
               className="h-9 bg-background"
             />
             {pickers.isLoading && (
-              <p className="text-xs text-muted-foreground">Memuat daftar picker…</p>
+              <p className="text-xs text-muted-foreground">
+                Memuat daftar picker…
+              </p>
             )}
           </div>
 
@@ -139,11 +154,13 @@ export function BuatPicklistDialog({
             onClick={handleSubmit}
             disabled={!canSubmit || createPicklist.isPending}
           >
-            {createPicklist.isPending && <Loader2Icon className="animate-spin" />}
+            {createPicklist.isPending && (
+              <Loader2Icon className="animate-spin" />
+            )}
             Buat Picklist
           </Button>
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

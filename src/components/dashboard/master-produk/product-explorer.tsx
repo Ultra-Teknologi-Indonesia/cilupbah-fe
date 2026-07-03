@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useRouter } from "next/navigation"
+import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
   LayoutGridIcon,
   TableIcon,
@@ -10,42 +10,42 @@ import {
   ChevronDownIcon,
   PackageIcon,
   LayersIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Combobox } from "@/components/ui/combobox"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { PRODUCT_STATUS_OPTIONS } from "@/lib/master-produk/constants"
-import {
-  useCategoryTree,
-} from "@/hooks/master-produk/use-master-data"
-import type { useProductListQuery } from "@/hooks/master-produk/use-product-list-query"
-import type { ImportBatchType } from "@/hooks/master-produk/use-import"
-import { CategoryPicker } from "./buat/category-picker"
-import { FilterToolbar } from "./filter-toolbar"
-import { ImportDialog } from "./import/import-dialog"
-import { ProductTable } from "./product-table"
-import { ProductCardView } from "./product-card-view"
+} from "@/components/ui/dropdown-menu";
+import { PRODUCT_STATUS_OPTIONS } from "@/lib/master-produk/constants";
+import { useCategoryTree } from "@/hooks/master-produk/use-master-data";
+import type { useProductListQuery } from "@/hooks/master-produk/use-product-list-query";
+import type { ImportBatchType } from "@/hooks/master-produk/use-import";
+import { CategoryPicker } from "./buat/category-picker";
+import { FilterToolbar } from "./filter-toolbar";
+import { ImportDialog } from "./import/import-dialog";
+import { ProductTable } from "./product-table";
+import { ProductCardView } from "./product-card-view";
 
-type View = "card" | "table"
-type Query = ReturnType<typeof useProductListQuery>
+type View = "card" | "table";
+type Query = ReturnType<typeof useProductListQuery>;
 
 export function ProductExplorer({ query }: { query: Query }) {
-  const router = useRouter()
-  const [view, setView] = React.useState<View>("card")
-  const [importType, setImportType] = React.useState<ImportBatchType | null>(null)
-  const { data: categoryTree = [] } = useCategoryTree()
+  const router = useRouter();
+  const [view, setView] = React.useState<View>("card");
+  const [importType, setImportType] = React.useState<ImportBatchType | null>(
+    null,
+  );
+  const { data: categoryTree = [] } = useCategoryTree();
 
-  const items = query.result.data?.items ?? []
-  const total = query.result.data?.meta?.total ?? 0
-  const isLoading = query.result.isLoading
+  const items = query.result.data?.items ?? [];
+  const total = query.result.data?.meta?.total ?? 0;
+  const isLoading = query.result.isLoading;
 
   const viewProps = {
     items,
@@ -55,9 +55,13 @@ export function ProductExplorer({ query }: { query: Query }) {
     onSortingChange: query.setSorting,
     pagination: query.pagination,
     onPaginationChange: query.setPagination,
-  }
+  };
 
-  const toggleBtn = (target: View, label: string, Icon: typeof LayoutGridIcon) => (
+  const toggleBtn = (
+    target: View,
+    label: string,
+    Icon: typeof LayoutGridIcon,
+  ) => (
     <Button
       variant="ghost"
       size="icon-sm"
@@ -65,7 +69,7 @@ export function ProductExplorer({ query }: { query: Query }) {
         "size-7 rounded-full",
         view === target
           ? "bg-background text-foreground shadow-sm hover:bg-background"
-          : "text-muted-foreground hover:bg-transparent hover:text-foreground"
+          : "text-muted-foreground hover:bg-transparent hover:text-foreground",
       )}
       onClick={() => setView(target)}
       aria-label={label}
@@ -73,7 +77,7 @@ export function ProductExplorer({ query }: { query: Query }) {
     >
       <Icon className="size-4" />
     </Button>
-  )
+  );
 
   return (
     <>
@@ -211,5 +215,5 @@ export function ProductExplorer({ query }: { query: Query }) {
         />
       )}
     </>
-  )
+  );
 }

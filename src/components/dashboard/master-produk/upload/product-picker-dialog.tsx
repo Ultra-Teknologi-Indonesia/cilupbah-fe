@@ -1,56 +1,56 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useRouter } from "next/navigation"
-import { ImageIcon, Loader2Icon, SearchIcon, SearchXIcon } from "lucide-react"
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import { ImageIcon, Loader2Icon, SearchIcon, SearchXIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { useMasterProducts } from "@/hooks/master-produk/use-master-products"
-import type { Product } from "@/types/master-produk"
+} from "@/components/ui/dialog";
+import { useMasterProducts } from "@/hooks/master-produk/use-master-products";
+import type { Product } from "@/types/master-produk";
 
 export function ProductPickerDialog({
   open,
   onOpenChange,
 }: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) {
-  const router = useRouter()
-  const [searchInput, setSearchInput] = React.useState("")
-  const [search, setSearch] = React.useState("")
+  const router = useRouter();
+  const [searchInput, setSearchInput] = React.useState("");
+  const [search, setSearch] = React.useState("");
 
   React.useEffect(() => {
-    const t = setTimeout(() => setSearch(searchInput), 350)
-    return () => clearTimeout(t)
-  }, [searchInput])
+    const t = setTimeout(() => setSearch(searchInput), 350);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
   const handleOpenChange = (next: boolean) => {
     if (!next) {
-      setSearchInput("")
-      setSearch("")
+      setSearchInput("");
+      setSearch("");
     }
-    onOpenChange(next)
-  }
+    onOpenChange(next);
+  };
 
   const { data, isLoading } = useMasterProducts({
     search: search || undefined,
     perPage: 20,
-  })
-  const items = data?.items ?? []
+  });
+  const items = data?.items ?? [];
 
   const onPick = (product: Product) => {
-    router.push(`/dashboard/produk/${product.itemGroupId}/upload-to-channel`)
-    handleOpenChange(false)
-  }
+    router.push(`/dashboard/produk/${product.itemGroupId}/upload-to-channel`);
+    handleOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -94,7 +94,7 @@ export function ProductPickerDialog({
                     type="button"
                     onClick={() => onPick(p)}
                     className={cn(
-                      "flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-muted/60"
+                      "flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-muted/60",
                     )}
                   >
                     <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
@@ -135,5 +135,5 @@ export function ProductPickerDialog({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

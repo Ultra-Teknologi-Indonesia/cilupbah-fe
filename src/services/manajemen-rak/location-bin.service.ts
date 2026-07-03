@@ -1,5 +1,5 @@
-import { fetchClient } from "@/lib/api-client"
-import type { ApiPaginated, ApiResponse } from "@/types/api.types"
+import { fetchClient } from "@/lib/api-client";
+import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type {
   BinListParams,
   BinPreviewItem,
@@ -7,7 +7,7 @@ import type {
   LocationBin,
   RawLocationBin,
   UniformApplyPayload,
-} from "@/types/manajemen-rak/location"
+} from "@/types/manajemen-rak/location";
 
 function mapBin(raw: RawLocationBin): LocationBin & { id: string } {
   return {
@@ -22,16 +22,16 @@ function mapBin(raw: RawLocationBin): LocationBin & { id: string } {
     isStockAcknowledged: raw.is_stock_acknowledged ?? true,
     isLargeBin: raw.is_large_bin ?? false,
     category: raw.category ?? null,
-  }
+  };
 }
 
 function mapPreviewItem(raw: {
-  floor_code: string
-  row_code: string
-  column_code: string
-  bin_code: string
-  bin_final_code: string
-  max_qty: number
+  floor_code: string;
+  row_code: string;
+  column_code: string;
+  bin_code: string;
+  bin_final_code: string;
+  max_qty: number;
 }): BinPreviewItem {
   return {
     floorCode: raw.floor_code,
@@ -43,87 +43,85 @@ function mapPreviewItem(raw: {
     isStockAcknowledged: true,
     isLargeBin: false,
     category: "",
-  }
+  };
 }
 
 function buildBinQuery(params: BinListParams = {}): string {
-  const q = new URLSearchParams()
-  q.set("page", String(params.page ?? 1))
-  q.set("per_page", String(params.perPage ?? 50))
-  if (params.search) q.set("search", params.search)
-  if (params.sort) q.set("sort", params.sort)
+  const q = new URLSearchParams();
+  q.set("page", String(params.page ?? 1));
+  q.set("per_page", String(params.perPage ?? 50));
+  if (params.search) q.set("search", params.search);
+  if (params.sort) q.set("sort", params.sort);
   if (params.filter) {
     for (const [key, val] of Object.entries(params.filter)) {
       if (val !== undefined && val !== null && val !== "") {
-        q.set(`filter[${key}]`, String(val))
+        q.set(`filter[${key}]`, String(val));
       }
     }
   }
-  return q.toString()
+  return q.toString();
 }
 
 export interface BinListResult {
-  items: (LocationBin & { id: string })[]
-  meta: ApiPaginated<RawLocationBin>["meta"]
+  items: (LocationBin & { id: string })[];
+  meta: ApiPaginated<RawLocationBin>["meta"];
 }
 
 export interface BinPreviewResult {
-  items: BinPreviewItem[]
-  meta: ApiPaginated<unknown>["meta"]
+  items: BinPreviewItem[];
+  meta: ApiPaginated<unknown>["meta"];
 }
 
 export const LocationBinService = {
-  // Simpan kombinasi rak ke lokasi (butuh lokasi sudah tersimpan).
   generate: async (
     locationId: string,
-    payload: GenerateBinsPayload
+    payload: GenerateBinsPayload,
   ): Promise<{ generatedCount: number }> => {
     const res = await fetchClient<ApiResponse<{ generated_count: number }>>(
       `/locations/${locationId}/bins/generate`,
-      { method: "POST", data: payload }
-    )
-    return { generatedCount: res.data?.generated_count ?? 0 }
+      { method: "POST", data: payload },
+    );
+    return { generatedCount: res.data?.generated_count ?? 0 };
   },
 
-  // Preview generate dengan pagination (slice via offset math di BE).
   preview: async (
     locationId: string,
     payload: GenerateBinsPayload,
     page = 1,
-    perPage = 50
+    perPage = 50,
   ): Promise<BinPreviewResult> => {
-    const res = await fetchClient<ApiPaginated<{
-      floor_code: string
-      row_code: string
-      column_code: string
-      bin_code: string
-      bin_final_code: string
-      max_qty: number
-    }>>(`/locations/${locationId}/bins/preview`, {
+    const res = await fetchClient<
+      ApiPaginated<{
+        floor_code: string;
+        row_code: string;
+        column_code: string;
+        bin_code: string;
+        bin_final_code: string;
+        max_qty: number;
+      }>
+    >(`/locations/${locationId}/bins/preview`, {
       method: "POST",
       data: { ...payload, page, per_page: perPage },
-    })
+    });
     return {
       items: (res.data ?? []).map(mapPreviewItem),
       meta: res.meta,
-    }
+    };
   },
 
-  // List bin existing (Spatie: search/filter/sort/per_page).
   list: async (
     locationId: string,
-    params: BinListParams = {}
+    params: BinListParams = {},
   ): Promise<BinListResult> => {
     const res = await fetchClient<ApiPaginated<RawLocationBin>>(
-      `/locations/${locationId}/bins?${buildBinQuery(params)}`
-    )
-    return { items: (res.data ?? []).map(mapBin), meta: res.meta }
+      `/locations/${locationId}/bins?${buildBinQuery(params)}`,
+    );
+    return { items: (res.data ?? []).map(mapBin), meta: res.meta };
   },
 
-  // Apply nilai seragam ke baris terpilih atau seluruh data filter aktif.
   uniformApply: async (
     locationId: string,
-    payload: UniformApplyPayload
+    payload: UniformApplyPayload,
   ): Promise<{ affected: number }> => {
     const qs =
       payload.scope === "all"
@@ -133,7 +131,7 @@ export const LocationBinService = {
             page: 1,
             perPage: 1,
           })}`
-        : ""
+        : "";
 
     const res = await fetchClient<ApiResponse<{ affected: number }>>(
       `/locations/${locationId}/bins/uniform-apply${qs}`,
@@ -144,8 +142,8 @@ export const LocationBinService = {
           ids: payload.ids,
           values: payload.values,
         },
-      }
-    )
-    return res.data
+      },
+    );
+    return res.data;
   },
-}
+};

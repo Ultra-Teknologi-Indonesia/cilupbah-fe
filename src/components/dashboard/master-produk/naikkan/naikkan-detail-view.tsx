@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import type { PaginationState } from "@tanstack/react-table"
+import * as React from "react";
+import type { PaginationState } from "@tanstack/react-table";
 import {
   AlertTriangleIcon,
   Loader2Icon,
   PlusIcon,
   RocketIcon,
   SearchXIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { DataTable } from "@/components/ui/data-table"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
+import { Button } from "@/components/ui/button";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { DataTable } from "@/components/ui/data-table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo";
 import {
   useNaikkanDetail,
   useNaikkanHistory,
@@ -23,55 +23,58 @@ import {
   useRemoveNaikkanProduct,
   useExecuteRaise,
   useAddNaikkanProduct,
-} from "@/hooks/master-produk/use-naikkan"
-import type { RaiseProductDetail } from "@/hooks/master-produk/use-naikkan"
-import type { ChannelCode } from "@/types/channel"
-import { buildProdukColumns } from "./naikkan-produk-columns"
-import { aktivitasColumns } from "./naikkan-aktivitas-columns"
-import { NaikkanProdukPickerDialog } from "./naikkan-produk-picker-dialog"
+} from "@/hooks/master-produk/use-naikkan";
+import type { RaiseProductDetail } from "@/hooks/master-produk/use-naikkan";
+import type { ChannelCode } from "@/types/channel";
+import { buildProdukColumns } from "./naikkan-produk-columns";
+import { aktivitasColumns } from "./naikkan-aktivitas-columns";
+import { NaikkanProdukPickerDialog } from "./naikkan-produk-picker-dialog";
 
-type TabValue = "produk" | "aktivitas"
+type TabValue = "produk" | "aktivitas";
 
 export function NaikkanDetailView({ id }: { id: string }) {
-  const [tab, setTab] = React.useState<TabValue>("produk")
-  const [produkPagination, setProdukPagination] = React.useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 20,
-  })
-  const [historyPagination, setHistoryPagination] = React.useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 20,
-  })
+  const [tab, setTab] = React.useState<TabValue>("produk");
+  const [produkPagination, setProdukPagination] =
+    React.useState<PaginationState>({
+      pageIndex: 0,
+      pageSize: 20,
+    });
+  const [historyPagination, setHistoryPagination] =
+    React.useState<PaginationState>({
+      pageIndex: 0,
+      pageSize: 20,
+    });
 
   const detailQuery = useNaikkanDetail(id, {
     page: produkPagination.pageIndex + 1,
     perPage: produkPagination.pageSize,
-  })
+  });
 
   const historyQuery = useNaikkanHistory(id, {
     page: historyPagination.pageIndex + 1,
     perPage: historyPagination.pageSize,
-  })
+  });
 
-  const store = detailQuery.data?.store
-  const details = detailQuery.data?.details ?? []
-  const detailMeta = detailQuery.data?.meta
-  const historyItems = historyQuery.data?.items ?? []
-  const historyMeta = historyQuery.data?.meta
+  const store = detailQuery.data?.store;
+  const details = detailQuery.data?.details ?? [];
+  const detailMeta = detailQuery.data?.meta;
+  const historyItems = historyQuery.data?.items ?? [];
+  const historyMeta = historyQuery.data?.meta;
 
-  const updateMut = useUpdateNaikkanProduct(id)
-  const removeMut = useRemoveNaikkanProduct(id)
-  const raiseMut = useExecuteRaise(id)
-  const addMut = useAddNaikkanProduct(id)
+  const updateMut = useUpdateNaikkanProduct(id);
+  const removeMut = useRemoveNaikkanProduct(id);
+  const raiseMut = useExecuteRaise(id);
+  const addMut = useAddNaikkanProduct(id);
 
-  const [removeTarget, setRemoveTarget] = React.useState<RaiseProductDetail | null>(null)
-  const [showPicker, setShowPicker] = React.useState(false)
-  const [showRaiseConfirm, setShowRaiseConfirm] = React.useState(false)
+  const [removeTarget, setRemoveTarget] =
+    React.useState<RaiseProductDetail | null>(null);
+  const [showPicker, setShowPicker] = React.useState(false);
+  const [showRaiseConfirm, setShowRaiseConfirm] = React.useState(false);
 
   const existingMappingIds = React.useMemo(
     () => new Set(details.map((d) => d.raiseproductDetailId)),
-    [details]
-  )
+    [details],
+  );
 
   const produkColumns = React.useMemo(
     () =>
@@ -84,22 +87,30 @@ export function NaikkanDetailView({ id }: { id: string }) {
         onRemove: (detail) => setRemoveTarget(detail),
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  )
+    [],
+  );
 
   if (detailQuery.isLoading) {
     return (
-      <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+      <LiquidGlass
+        radius={24}
+        intensity="default"
+        className="bg-white/40 dark:bg-white/[0.06]"
+      >
         <div className="flex items-center justify-center py-20">
           <Loader2Icon className="size-6 animate-spin text-muted-foreground" />
         </div>
       </LiquidGlass>
-    )
+    );
   }
 
   if (detailQuery.isError || !store) {
     return (
-      <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+      <LiquidGlass
+        radius={24}
+        intensity="default"
+        className="bg-white/40 dark:bg-white/[0.06]"
+      >
         <div className="flex flex-col items-center gap-3 py-12 text-center">
           <AlertTriangleIcon className="size-8 text-destructive" />
           <p className="font-medium">Gagal memuat data</p>
@@ -113,12 +124,16 @@ export function NaikkanDetailView({ id }: { id: string }) {
           </Button>
         </div>
       </LiquidGlass>
-    )
+    );
   }
 
   return (
-    <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
-      {/* Header */}
+    <LiquidGlass
+      radius={24}
+      intensity="default"
+      className="bg-white/40 dark:bg-white/[0.06]"
+    >
+      {}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 py-3 sm:px-5">
         <div className="flex items-center gap-3">
           {store.channelCode && (
@@ -131,7 +146,8 @@ export function NaikkanDetailView({ id }: { id: string }) {
           <div>
             <h2 className="font-semibold">{store.storeName ?? "—"}</h2>
             <p className="text-xs text-muted-foreground">
-              {store.channelName ?? store.channelCode} · {store.productActive} produk aktif
+              {store.channelName ?? store.channelCode} · {store.productActive}{" "}
+              produk aktif
             </p>
           </div>
         </div>
@@ -163,7 +179,7 @@ export function NaikkanDetailView({ id }: { id: string }) {
         </div>
       </div>
 
-      {/* Tabs */}
+      {}
       <div className="border-b border-border/60 px-4 pt-1 sm:px-5">
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabValue)}>
           <TabsList variant="line">
@@ -173,7 +189,7 @@ export function NaikkanDetailView({ id }: { id: string }) {
         </Tabs>
       </div>
 
-      {/* Content */}
+      {}
       <div className="px-4 py-5 sm:px-5">
         {tab === "produk" ? (
           <DataTable
@@ -192,7 +208,8 @@ export function NaikkanDetailView({ id }: { id: string }) {
                 <SearchXIcon className="size-8 text-muted-foreground" />
                 <p className="font-medium">Belum ada produk</p>
                 <p className="text-sm text-muted-foreground">
-                  Klik &ldquo;Tambah Produk&rdquo; untuk menambahkan produk channel.
+                  Klik &ldquo;Tambah Produk&rdquo; untuk menambahkan produk
+                  channel.
                 </p>
               </div>
             }
@@ -222,7 +239,7 @@ export function NaikkanDetailView({ id }: { id: string }) {
         )}
       </div>
 
-      {/* Product Picker */}
+      {}
       <NaikkanProdukPickerDialog
         open={showPicker}
         onOpenChange={setShowPicker}
@@ -230,15 +247,13 @@ export function NaikkanDetailView({ id }: { id: string }) {
         existingMappingIds={existingMappingIds}
         onAdd={(mappingId) => {
           addMut.mutate(mappingId, {
-            onSuccess: () => {
-              // keep dialog open for adding more
-            },
-          })
+            onSuccess: () => {},
+          });
         }}
         addingId={addMut.isPending ? (addMut.variables as string) : null}
       />
 
-      {/* Remove Confirm */}
+      {}
       <ConfirmDialog
         open={!!removeTarget}
         onOpenChange={(open) => !open && setRemoveTarget(null)}
@@ -248,14 +263,14 @@ export function NaikkanDetailView({ id }: { id: string }) {
         variant="destructive"
         loading={removeMut.isPending}
         onConfirm={() => {
-          if (!removeTarget) return
+          if (!removeTarget) return;
           removeMut.mutate(removeTarget.raiseproductDetailId, {
             onSuccess: () => setRemoveTarget(null),
-          })
+          });
         }}
       />
 
-      {/* Raise Confirm */}
+      {}
       <ConfirmDialog
         open={showRaiseConfirm}
         onOpenChange={setShowRaiseConfirm}
@@ -266,9 +281,9 @@ export function NaikkanDetailView({ id }: { id: string }) {
         onConfirm={() => {
           raiseMut.mutate(undefined, {
             onSuccess: () => setShowRaiseConfirm(false),
-          })
+          });
         }}
       />
     </LiquidGlass>
-  )
+  );
 }

@@ -1,52 +1,64 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Loader2Icon, LockIcon, PencilIcon, Trash2Icon } from "lucide-react"
+import * as React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Loader2Icon, LockIcon, PencilIcon, Trash2Icon } from "lucide-react";
 
-import { PageTitle } from "@/components/dashboard/page-title"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { cn } from "@/lib/utils"
-import { useContactDetail, useDeleteContact } from "@/hooks/kontak-pemasok/use-contacts"
-import { LocationMapPicker, formatCoordinate } from "@/components/dashboard/manajemen-rak/lokasi/location-map-picker"
+import { PageTitle } from "@/components/dashboard/page-title";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { cn } from "@/lib/utils";
+import {
+  useContactDetail,
+  useDeleteContact,
+} from "@/hooks/kontak-pemasok/use-contacts";
+import {
+  LocationMapPicker,
+  formatCoordinate,
+} from "@/components/dashboard/manajemen-rak/lokasi/location-map-picker";
 
-const LIST_HREF = "/dashboard/kontak-pelanggan"
+const LIST_HREF = "/dashboard/kontak-pelanggan";
 
 const TAX_TYPE_LABELS: Record<string, string> = {
   PKP: "PKP (Pengusaha Kena Pajak)",
   NON_PKP: "Non PKP",
-}
+};
 
-type Section = "umum" | "pic" | "alamat" | "pajak"
+type Section = "umum" | "pic" | "alamat" | "pajak";
 
-function Field({ label, value }: { label: string; value?: string | number | boolean | null }) {
-  const display = typeof value === "boolean" ? (value ? "Ya" : "Tidak") : value
+function Field({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string | number | boolean | null;
+}) {
+  const display = typeof value === "boolean" ? (value ? "Ya" : "Tidak") : value;
   return (
     <div className="space-y-1">
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
       <p className="text-sm">{display || "—"}</p>
     </div>
-  )
+  );
 }
 
 export function PelangganDetailView({ id }: { id: string }) {
-  const router = useRouter()
-  const { data: contact, isLoading, isError } = useContactDetail(id)
-  const deleteMut = useDeleteContact()
-  const [deleteOpen, setDeleteOpen] = React.useState(false)
-  const [section, setSection] = React.useState<Section>("umum")
+  const router = useRouter();
+  const { data: contact, isLoading, isError } = useContactDetail(id);
+  const deleteMut = useDeleteContact();
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [section, setSection] = React.useState<Section>("umum");
 
   function handleDelete() {
     deleteMut.mutate(id, {
       onSuccess: () => {
-        setDeleteOpen(false)
-        router.push(LIST_HREF)
+        setDeleteOpen(false);
+        router.push(LIST_HREF);
       },
-    })
+    });
   }
 
   if (isLoading) {
@@ -54,7 +66,7 @@ export function PelangganDetailView({ id }: { id: string }) {
       <div className="flex items-center justify-center gap-2 py-24 text-muted-foreground">
         <Loader2Icon className="size-4 animate-spin" /> Memuat kontak…
       </div>
-    )
+    );
   }
 
   if (isError || !contact) {
@@ -62,20 +74,20 @@ export function PelangganDetailView({ id }: { id: string }) {
       <div className="py-24 text-center text-sm text-destructive">
         Gagal memuat kontak.
       </div>
-    )
+    );
   }
 
   const coordinate =
     contact.latitude != null && contact.longitude != null
       ? formatCoordinate(contact.latitude, contact.longitude)
-      : ""
+      : "";
 
   const navItems: { key: Section; label: string }[] = [
     { key: "umum", label: "Umum" },
     { key: "pic", label: "Penanggung Jawab" },
     { key: "alamat", label: "Alamat" },
     { key: "pajak", label: "Informasi Pajak" },
-  ]
+  ];
 
   return (
     <div className="flex flex-col gap-6">
@@ -126,7 +138,7 @@ export function PelangganDetailView({ id }: { id: string }) {
                 "rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-colors",
                 section === n.key
                   ? "border-primary/30 bg-primary/10 text-primary"
-                  : "border-border bg-background hover:bg-muted"
+                  : "border-border bg-background hover:bg-muted",
               )}
             >
               {n.label}
@@ -162,9 +174,26 @@ export function PelangganDetailView({ id }: { id: string }) {
               <Separator />
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Kewarganegaraan" value={contact.nationality} />
-                <Field label="Tanggal Lahir" value={contact.birth_date ? new Date(contact.birth_date).toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" }) : null} />
+                <Field
+                  label="Tanggal Lahir"
+                  value={
+                    contact.birth_date
+                      ? new Date(contact.birth_date).toLocaleDateString(
+                          "id-ID",
+                          { day: "2-digit", month: "long", year: "numeric" },
+                        )
+                      : null
+                  }
+                />
               </div>
-              <Field label="Termin" value={contact.payment_term != null ? `${contact.payment_term} hari` : undefined} />
+              <Field
+                label="Termin"
+                value={
+                  contact.payment_term != null
+                    ? `${contact.payment_term} hari`
+                    : undefined
+                }
+              />
               <Field label="Keterangan" value={contact.notes} />
             </div>
           )}
@@ -192,8 +221,14 @@ export function PelangganDetailView({ id }: { id: string }) {
             <div className="space-y-5">
               {coordinate && (
                 <div className="space-y-1.5">
-                  <p className="text-xs font-medium text-muted-foreground">Pin Lokasi</p>
-                  <LocationMapPicker value={coordinate} onChange={() => {}} disabled />
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Pin Lokasi
+                  </p>
+                  <LocationMapPicker
+                    value={coordinate}
+                    onChange={() => {}}
+                    disabled
+                  />
                 </div>
               )}
               <Separator />
@@ -207,13 +242,21 @@ export function PelangganDetailView({ id }: { id: string }) {
               <Separator />
               <h3 className="text-sm font-semibold">Alamat Pengiriman</h3>
               {contact.shipping_same_as_billing ? (
-                <p className="text-sm text-muted-foreground">Sama dengan alamat penagihan.</p>
+                <p className="text-sm text-muted-foreground">
+                  Sama dengan alamat penagihan.
+                </p>
               ) : (
                 <>
-                  <Field label="Detail Alamat" value={contact.shipping_address} />
+                  <Field
+                    label="Detail Alamat"
+                    value={contact.shipping_address}
+                  />
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field label="Provinsi" value={contact.shipping_province} />
-                    <Field label="Kode Pos" value={contact.shipping_postal_code} />
+                    <Field
+                      label="Kode Pos"
+                      value={contact.shipping_postal_code}
+                    />
                   </div>
                 </>
               )}
@@ -222,7 +265,10 @@ export function PelangganDetailView({ id }: { id: string }) {
 
           {section === "pajak" && (
             <div className="space-y-5">
-              <Field label="Status Pajak" value={TAX_TYPE_LABELS[contact.tax_type ?? "NON_PKP"]} />
+              <Field
+                label="Status Pajak"
+                value={TAX_TYPE_LABELS[contact.tax_type ?? "NON_PKP"]}
+              />
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="No. NIK" value={contact.nik} />
                 <Field label="No. NPWP" value={contact.tax_id} />
@@ -230,7 +276,9 @@ export function PelangganDetailView({ id }: { id: string }) {
               {contact.npwp_use_different && (
                 <>
                   <Separator />
-                  <p className="text-xs font-medium text-muted-foreground">NPWP atas nama berbeda</p>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    NPWP atas nama berbeda
+                  </p>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field label="Nama NPWP" value={contact.npwp_name} />
                   </div>
@@ -253,5 +301,5 @@ export function PelangganDetailView({ id }: { id: string }) {
         onConfirm={handleDelete}
       />
     </div>
-  )
+  );
 }

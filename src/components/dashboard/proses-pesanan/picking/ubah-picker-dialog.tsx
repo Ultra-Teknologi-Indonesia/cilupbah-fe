@@ -1,45 +1,46 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Loader2Icon } from "lucide-react"
-import { toast } from "sonner"
+import * as React from "react";
+import { Loader2Icon } from "lucide-react";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogClose,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { useAssignPicker, usePickers } from "@/hooks/proses-pesanan/use-fulfillment"
+} from "@/components/ui/select";
+import {
+  useAssignPicker,
+  usePickers,
+} from "@/hooks/proses-pesanan/use-fulfillment";
 
 interface UbahPickerDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  picklistId: string | null
-  picklistNo: string | null
-  locationId: string | null
-  currentPickerId: string | null
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  picklistId: string | null;
+  picklistNo: string | null;
+  locationId: string | null;
+  currentPickerId: string | null;
 }
 
 export function UbahPickerDialog(props: UbahPickerDialogProps) {
-  // Remount internal body setiap dialog dibuka pada picklist berbeda — bikin state
-  // initial value selalu mencerminkan currentPickerId terbaru tanpa setState-in-effect.
   return (
     <UbahPickerDialogInner
       key={props.open ? `open:${props.picklistId ?? "-"}` : "closed"}
       {...props}
     />
-  )
+  );
 }
 
 function UbahPickerDialogInner({
@@ -50,25 +51,25 @@ function UbahPickerDialogInner({
   locationId,
   currentPickerId,
 }: UbahPickerDialogProps) {
-  const [pickerId, setPickerId] = React.useState(currentPickerId ?? "")
+  const [pickerId, setPickerId] = React.useState(currentPickerId ?? "");
 
-  const pickers = usePickers(locationId ?? undefined, undefined, open)
-  const assignPicker = useAssignPicker()
+  const pickers = usePickers(locationId ?? undefined, undefined, open);
+  const assignPicker = useAssignPicker();
 
   const handleSubmit = async () => {
-    if (!picklistId || !pickerId) return
+    if (!picklistId || !pickerId) return;
     try {
-      await assignPicker.mutateAsync({ picklistId, pickerId })
-      toast.success(`Picker untuk ${picklistNo ?? "picklist"} diperbarui.`)
-      onOpenChange(false)
+      await assignPicker.mutateAsync({ picklistId, pickerId });
+      toast.success(`Picker untuk ${picklistNo ?? "picklist"} diperbarui.`);
+      onOpenChange(false);
     } catch (err) {
       const msg =
         err && typeof err === "object" && "message" in err
           ? String((err as { message?: unknown }).message)
-          : "Gagal mengubah picker."
-      toast.error(msg)
+          : "Gagal mengubah picker.";
+      toast.error(msg);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -98,7 +99,11 @@ function UbahPickerDialogInner({
               >
                 <SelectValue placeholder="— Pilih picker —" />
               </SelectTrigger>
-              <SelectContent position="popper" align="start" className="w-[var(--radix-select-trigger-width)]">
+              <SelectContent
+                position="popper"
+                align="start"
+                className="w-[var(--radix-select-trigger-width)]"
+              >
                 {(pickers.data ?? []).map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name}
@@ -107,7 +112,9 @@ function UbahPickerDialogInner({
               </SelectContent>
             </Select>
             {pickers.isLoading && (
-              <p className="text-xs text-muted-foreground">Memuat daftar picker…</p>
+              <p className="text-xs text-muted-foreground">
+                Memuat daftar picker…
+              </p>
             )}
           </div>
         </div>
@@ -127,5 +134,5 @@ function UbahPickerDialogInner({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

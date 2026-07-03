@@ -22,7 +22,7 @@ export function DashboardSidebar() {
   const pathname = usePathname();
 
   const [activeGroupId, setActiveGroupId] = React.useState(() =>
-    findGroupIdForPath(pathname, dashboardGroups)
+    findGroupIdForPath(pathname, dashboardGroups),
   );
 
   const [prevPath, setPrevPath] = React.useState(pathname);
@@ -53,7 +53,7 @@ export function DashboardSidebar() {
         if (!open) toggleSidebar();
       }
     },
-    [activeGroupId, open, panelOpen, toggleSidebar]
+    [activeGroupId, open, panelOpen, toggleSidebar],
   );
 
   if (isMobile) {

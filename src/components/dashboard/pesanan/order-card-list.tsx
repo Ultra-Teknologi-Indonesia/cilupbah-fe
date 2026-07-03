@@ -1,27 +1,30 @@
-"use client"
+"use client";
 
-import { SearchXIcon } from "lucide-react"
+import { SearchXIcon } from "lucide-react";
 
-import { Skeleton } from "@/components/ui/skeleton"
-import { SimplePagination, GRID_PAGE_SIZES } from "@/components/ui/simple-pagination"
-import { OrderCard } from "./order-card"
-import type { Order, OrderTab, SubFilter } from "@/types/pesanan/order"
-import { TABS_WITH_ACTIONS } from "@/types/pesanan/order"
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  SimplePagination,
+  GRID_PAGE_SIZES,
+} from "@/components/ui/simple-pagination";
+import { OrderCard } from "./order-card";
+import type { Order, OrderTab, SubFilter } from "@/types/pesanan/order";
+import { TABS_WITH_ACTIONS } from "@/types/pesanan/order";
 
 interface OrderCardListProps {
-  orders: Order[]
-  tab: OrderTab
-  subFilter: SubFilter
-  selectedIds: Set<string>
-  onSelectionChange: (ids: Set<string>) => void
-  isLoading: boolean
-  page: number
-  lastPage: number
-  total: number
-  perPage: number
-  onPageChange: (p: number) => void
-  onPerPageChange: (s: number) => void
-  isFetching?: boolean
+  orders: Order[];
+  tab: OrderTab;
+  subFilter: SubFilter;
+  selectedIds: Set<string>;
+  onSelectionChange: (ids: Set<string>) => void;
+  isLoading: boolean;
+  page: number;
+  lastPage: number;
+  total: number;
+  perPage: number;
+  onPageChange: (p: number) => void;
+  onPerPageChange: (s: number) => void;
+  isFetching?: boolean;
 }
 
 export function OrderCardList({
@@ -39,16 +42,16 @@ export function OrderCardList({
   onPerPageChange,
   isFetching,
 }: OrderCardListProps) {
-  const selectable = TABS_WITH_ACTIONS.has(tab)
+  const selectable = TABS_WITH_ACTIONS.has(tab);
 
   function toggleOne(id: string, checked: boolean) {
-    const next = new Set(selectedIds)
+    const next = new Set(selectedIds);
     if (checked) {
-      next.add(id)
+      next.add(id);
     } else {
-      next.delete(id)
+      next.delete(id);
     }
-    onSelectionChange(next)
+    onSelectionChange(next);
   }
 
   if (isLoading) {
@@ -58,7 +61,7 @@ export function OrderCardList({
           <Skeleton key={i} className="h-[120px] w-full rounded-xl" />
         ))}
       </div>
-    )
+    );
   }
 
   if (orders.length === 0) {
@@ -70,7 +73,7 @@ export function OrderCardList({
           Coba ubah tab, pencarian, atau filter.
         </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -83,7 +86,9 @@ export function OrderCardList({
             tab={tab}
             subFilter={subFilter}
             selected={selectable ? selectedIds.has(order.id) : undefined}
-            onSelectedChange={selectable ? (v) => toggleOne(order.id, !!v) : undefined}
+            onSelectedChange={
+              selectable ? (v) => toggleOne(order.id, !!v) : undefined
+            }
           />
         ))}
       </div>
@@ -100,5 +105,5 @@ export function OrderCardList({
         total={total}
       />
     </div>
-  )
+  );
 }

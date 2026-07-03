@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from "zod";
 
 export const buatProdukSchema = z
   .object({
@@ -38,7 +38,7 @@ export const buatProdukSchema = z
     width: z.string().optional(),
     height: z.string().optional(),
     packageContents: z.string().max(2000).optional(),
-    
+
     variationTypes: z
       .array(
         z.object({
@@ -47,15 +47,17 @@ export const buatProdukSchema = z
           values: z
             .array(z.string().trim().min(1, "Opsi tidak boleh kosong"))
             .min(1, "Minimal 1 opsi"),
-        })
+        }),
       )
       .max(2, "Maksimal 2 jenis varian"),
-    
+
     variants: z.array(
       z.object({
         key: z.string(),
         label: z.string(),
-        options: z.array(z.object({ attributeId: z.number(), value: z.string() })),
+        options: z.array(
+          z.object({ attributeId: z.number(), value: z.string() }),
+        ),
         sku: z.string().trim().min(1, "SKU varian wajib diisi").max(50),
         barcode: z.string().max(100).optional(),
         image: z.string().nullable().optional(),
@@ -66,16 +68,16 @@ export const buatProdukSchema = z
         length: z.string().optional(),
         width: z.string().optional(),
         height: z.string().optional(),
-      })
+      }),
     ),
-    
+
     specifications: z.array(
       z.object({
         attributeId: z.number(),
         value: z.string().optional(),
-      })
+      }),
     ),
-    
+
     bundleComponents: z
       .array(
         z.object({
@@ -84,29 +86,53 @@ export const buatProdukSchema = z
           sku: z.string().nullable(),
           variationValues: z.array(z.object({ value: z.string() })).optional(),
           qty: z.number().int().min(1),
-        })
+        }),
       )
       .default([]),
   })
   .superRefine((v, ctx) => {
     if (!v.category)
-      ctx.addIssue({ path: ["category"], code: "custom", message: "Kategori wajib dipilih" })
-    const hasVariants = v.variationTypes.length > 0
-    
+      ctx.addIssue({
+        path: ["category"],
+        code: "custom",
+        message: "Kategori wajib dipilih",
+      });
+    const hasVariants = v.variationTypes.length > 0;
+
     if (v.isBundle && (v.bundleComponents?.length ?? 0) === 0)
-      ctx.addIssue({ path: ["bundleComponents"], code: "custom", message: "Tambahkan minimal 1 komponen bundle" })
-    
+      ctx.addIssue({
+        path: ["bundleComponents"],
+        code: "custom",
+        message: "Tambahkan minimal 1 komponen bundle",
+      });
+
     if (v.isSold && !hasVariants && !v.isBundle && !v.sellPrice?.trim())
-      ctx.addIssue({ path: ["sellPrice"], code: "custom", message: "Harga jual wajib diisi" })
+      ctx.addIssue({
+        path: ["sellPrice"],
+        code: "custom",
+        message: "Harga jual wajib diisi",
+      });
     if (hasVariants && v.variants.length === 0)
-      ctx.addIssue({ path: ["variants"], code: "custom", message: "Lengkapi kombinasi varian" })
+      ctx.addIssue({
+        path: ["variants"],
+        code: "custom",
+        message: "Lengkapi kombinasi varian",
+      });
     if (v.isPreorder && !v.indentDays?.trim())
-      ctx.addIssue({ path: ["indentDays"], code: "custom", message: "Lama indent wajib diisi" })
-    const min = Number(v.minStock || 0)
-    const safe = Number(v.safeStock || 0)
+      ctx.addIssue({
+        path: ["indentDays"],
+        code: "custom",
+        message: "Lama indent wajib diisi",
+      });
+    const min = Number(v.minStock || 0);
+    const safe = Number(v.safeStock || 0);
     if (v.safeStock?.trim() && safe < min)
-      ctx.addIssue({ path: ["safeStock"], code: "custom", message: "Tidak boleh < batas stok menipis" })
-  })
+      ctx.addIssue({
+        path: ["safeStock"],
+        code: "custom",
+        message: "Tidak boleh < batas stok menipis",
+      });
+  });
 
 export const buatBundleSchema = z
   .object({
@@ -124,11 +150,15 @@ export const buatBundleSchema = z
           sku: z.string().nullable(),
           variationValues: z.array(z.object({ value: z.string() })).optional(),
           qty: z.number().int().min(1),
-        })
+        }),
       )
       .min(1, "Tambahkan minimal 1 komponen bundle"),
   })
   .superRefine((v, ctx) => {
     if (!v.category)
-      ctx.addIssue({ path: ["category"], code: "custom", message: "Kategori wajib dipilih" })
-  })
+      ctx.addIssue({
+        path: ["category"],
+        code: "custom",
+        message: "Kategori wajib dipilih",
+      });
+  });

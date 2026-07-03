@@ -1,14 +1,17 @@
-"use client"
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { toast } from "sonner"
-import { PutawayService } from "@/services/barang-masuk/putaway.service"
-import type { AssignStaffPayload, ProcessItemPayload, BinListItem } from "@/services/barang-masuk/putaway.service"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { PutawayService } from "@/services/barang-masuk/putaway.service";
+import type {
+  AssignStaffPayload,
+  ProcessItemPayload,
+  BinListItem,
+} from "@/services/barang-masuk/putaway.service";
 
-// Re-export tipe agar komponen tak perlu impor service langsung (aturan layering).
-export type { BinListItem }
+export type { BinListItem };
 
-const STALE = 30 * 1000
+const STALE = 30 * 1000;
 
 export function usePutawayBins(locationId?: string) {
   return useQuery({
@@ -16,7 +19,7 @@ export function usePutawayBins(locationId?: string) {
     queryFn: () => PutawayService.listBins(locationId!),
     enabled: !!locationId,
     staleTime: 60 * 1000,
-  })
+  });
 }
 
 export function usePutawayDetail(id?: string) {
@@ -25,7 +28,7 @@ export function usePutawayDetail(id?: string) {
     queryFn: () => PutawayService.getById(id!),
     enabled: !!id,
     staleTime: STALE,
-  })
+  });
 }
 
 export function usePutawayItems(id?: string) {
@@ -34,47 +37,59 @@ export function usePutawayItems(id?: string) {
     queryFn: () => PutawayService.getItems(id!),
     enabled: !!id,
     staleTime: STALE,
-  })
+  });
 }
 
 export function useAssignPutawayStaff() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: AssignStaffPayload) => PutawayService.assignStaff(payload),
+    mutationFn: (payload: AssignStaffPayload) =>
+      PutawayService.assignStaff(payload),
     onSuccess: () => {
-      toast.success("Petugas berhasil di-assign")
-      qc.invalidateQueries({ queryKey: ["putaway"] })
+      toast.success("Petugas berhasil di-assign");
+      qc.invalidateQueries({ queryKey: ["putaway"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal assign petugas"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal assign petugas",
+      ),
+  });
 }
 
 export function useStartPutaway() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => PutawayService.start(id),
     onSuccess: () => {
-      toast.success("Putaway berhasil dimulai")
-      qc.invalidateQueries({ queryKey: ["putaway"] })
+      toast.success("Putaway berhasil dimulai");
+      qc.invalidateQueries({ queryKey: ["putaway"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal memulai putaway"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal memulai putaway",
+      ),
+  });
 }
 
 export function useProcessPutawayItem() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ putawayId, itemId, payload }: { putawayId: string; itemId: string; payload: ProcessItemPayload }) =>
-      PutawayService.processItem(putawayId, itemId, payload),
+    mutationFn: ({
+      putawayId,
+      itemId,
+      payload,
+    }: {
+      putawayId: string;
+      itemId: string;
+      payload: ProcessItemPayload;
+    }) => PutawayService.processItem(putawayId, itemId, payload),
     onSuccess: () => {
-      toast.success("Item berhasil ditempatkan")
-      qc.invalidateQueries({ queryKey: ["putaway"] })
+      toast.success("Item berhasil ditempatkan");
+      qc.invalidateQueries({ queryKey: ["putaway"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal menempatkan item"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal menempatkan item",
+      ),
+  });
 }
-
-

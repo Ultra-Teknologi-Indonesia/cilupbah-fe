@@ -1,5 +1,5 @@
-import { PageTitle } from "@/components/dashboard/page-title"
-import { KategoriView } from "@/components/dashboard/kategori-merek/kategori-view"
+import { PageTitle } from "@/components/dashboard/page-title";
+import { KategoriView } from "@/components/dashboard/kategori-merek/kategori-view";
 
 export default function KategoriPage() {
   return (
@@ -15,5 +15,5 @@ export default function KategoriPage() {
       />
       <KategoriView />
     </div>
-  )
+  );
 }

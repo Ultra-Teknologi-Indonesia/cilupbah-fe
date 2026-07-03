@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { PackageIcon } from "lucide-react"
+import Link from "next/link";
+import { PackageIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { useProductDetail } from "@/hooks/master-produk/use-product-detail"
-import { ProductDetailSkeleton } from "../detail/product-detail-skeleton"
-import { EditProdukForm } from "./edit-produk-form"
+import { Button } from "@/components/ui/button";
+import { useProductDetail } from "@/hooks/master-produk/use-product-detail";
+import { ProductDetailSkeleton } from "../detail/product-detail-skeleton";
+import { EditProdukForm } from "./edit-produk-form";
 
 export function EditProdukLoader({ id }: { id: string }) {
-  const { data, isLoading, isError, refetch } = useProductDetail(id)
+  const { data, isLoading, isError, refetch } = useProductDetail(id);
 
-  if (isLoading) return <ProductDetailSkeleton />
+  if (isLoading) return <ProductDetailSkeleton />;
 
   if (isError || !data) {
     return (
@@ -27,8 +27,8 @@ export function EditProdukLoader({ id }: { id: string }) {
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
-  return <EditProdukForm product={data} />
+  return <EditProdukForm product={data} />;
 }

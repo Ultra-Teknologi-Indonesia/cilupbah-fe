@@ -25,7 +25,7 @@ const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
       style,
       ...props
     },
-    ref
+    ref,
   ) => {
     const blurMap = { subtle: 12, default: 18, strong: 28 };
     const saturationMap = { subtle: 1.2, default: 1.5, strong: 1.8 };
@@ -43,7 +43,7 @@ const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
 
     React.useEffect(() => {
       reducedRef.current = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
+        "(prefers-reduced-motion: reduce)",
       ).matches;
       return () => {
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -65,7 +65,7 @@ const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
           el.style.setProperty("--lg-spec", "1");
         });
       },
-      []
+      [],
     );
 
     const handlePointerLeave = React.useCallback(() => {
@@ -95,7 +95,6 @@ const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
         }
         {...props}
       >
-
         {showGlow && (
           <div
             aria-hidden="true"
@@ -147,7 +146,7 @@ const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
         <div style={{ position: "relative", zIndex: 2 }}>{children}</div>
       </div>
     );
-  }
+  },
 );
 
 LiquidGlass.displayName = "LiquidGlass";

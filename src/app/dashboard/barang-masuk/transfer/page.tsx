@@ -1,8 +1,8 @@
-import { Suspense } from "react"
-import { PageTitle } from "@/components/dashboard/page-title"
-import { TableSkeleton, TabBarSkeleton } from "@/components/ui/page-skeleton"
-import { BarangMasukTabBar } from "@/components/dashboard/barang-masuk/barang-masuk-tab-bar"
-import { TransferMasukTab } from "@/components/dashboard/barang-masuk/transfer-masuk-tab"
+import { Suspense } from "react";
+import { PageTitle } from "@/components/dashboard/page-title";
+import { TableSkeleton, TabBarSkeleton } from "@/components/ui/page-skeleton";
+import { BarangMasukTabBar } from "@/components/dashboard/barang-masuk/barang-masuk-tab-bar";
+import { TransferMasukTab } from "@/components/dashboard/barang-masuk/transfer-masuk-tab";
 
 export default function BarangMasukTransferPage() {
   return (
@@ -26,5 +26,5 @@ export default function BarangMasukTransferPage() {
         <TransferMasukTab />
       </Suspense>
     </div>
-  )
+  );
 }

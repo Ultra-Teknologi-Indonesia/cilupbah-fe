@@ -1,25 +1,20 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import {
-  Loader2Icon,
-  PlusIcon,
-  SearchIcon,
-  Trash2Icon,
-} from "lucide-react"
+import * as React from "react";
+import { Loader2Icon, PlusIcon, SearchIcon, Trash2Icon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -27,57 +22,64 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { FilterShell } from "@/components/dashboard/master-produk/filter-shell"
-import { PageTitle } from "@/components/dashboard/page-title"
-import { TambahAtributDialog } from "@/components/dashboard/kategori-merek/tambah-atribut-dialog"
+} from "@/components/ui/table";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { FilterShell } from "@/components/dashboard/master-produk/filter-shell";
+import { PageTitle } from "@/components/dashboard/page-title";
+import { TambahAtributDialog } from "@/components/dashboard/kategori-merek/tambah-atribut-dialog";
 import {
   useCategoryFormAttributes,
   useChannelAttributes,
   useDeleteCategoryAttribute,
   useMapAttributeToChannel,
-} from "@/hooks/kategori-merek/use-kategori"
-import type { CategoryAttributeItem, ChannelAttributeItem } from "@/types/kategori-merek/kategori"
+} from "@/hooks/kategori-merek/use-kategori";
+import type {
+  CategoryAttributeItem,
+  ChannelAttributeItem,
+} from "@/types/kategori-merek/kategori";
 
 const CHANNELS = [
   { code: "shopee", name: "Shopee" },
   { code: "tiktok", name: "TikTok Shop" },
   { code: "lazada", name: "Lazada" },
   { code: "blibli", name: "Blibli" },
-] as const
+] as const;
 
 interface AtributVariasiViewProps {
-  categoryId: number
-  type: "spec" | "sales"
+  categoryId: number;
+  type: "spec" | "sales";
 }
 
-export function AtributVariasiView({ categoryId, type }: AtributVariasiViewProps) {
-  const [search, setSearch] = React.useState("")
-  const [filterOpen, setFilterOpen] = React.useState(false)
-  const [addOpen, setAddOpen] = React.useState(false)
-  const [deleteTarget, setDeleteTarget] = React.useState<CategoryAttributeItem | null>(null)
+export function AtributVariasiView({
+  categoryId,
+  type,
+}: AtributVariasiViewProps) {
+  const [search, setSearch] = React.useState("");
+  const [filterOpen, setFilterOpen] = React.useState(false);
+  const [addOpen, setAddOpen] = React.useState(false);
+  const [deleteTarget, setDeleteTarget] =
+    React.useState<CategoryAttributeItem | null>(null);
 
-  const label = type === "spec" ? "Atribut" : "Variasi"
-  const pageLabel = type === "spec" ? "Atribut" : "Variasi"
+  const label = type === "spec" ? "Atribut" : "Variasi";
+  const pageLabel = type === "spec" ? "Atribut" : "Variasi";
 
-  const { data, isLoading, isError } = useCategoryFormAttributes(categoryId)
-  const deleteMut = useDeleteCategoryAttribute()
+  const { data, isLoading, isError } = useCategoryFormAttributes(categoryId);
+  const deleteMut = useDeleteCategoryAttribute();
 
   const items = React.useMemo(() => {
-    const list = type === "spec" ? data?.specifications : data?.variant_types
-    if (!list) return []
-    if (!search.trim()) return list
-    const q = search.toLowerCase()
-    return list.filter((a) => a.name.toLowerCase().includes(q))
-  }, [data, type, search])
+    const list = type === "spec" ? data?.specifications : data?.variant_types;
+    if (!list) return [];
+    if (!search.trim()) return list;
+    const q = search.toLowerCase();
+    return list.filter((a) => a.name.toLowerCase().includes(q));
+  }, [data, type, search]);
 
   function handleDelete() {
-    if (!deleteTarget) return
+    if (!deleteTarget) return;
     deleteMut.mutate(
       { categoryId, attributeId: deleteTarget.attribute_id },
-      { onSuccess: () => setDeleteTarget(null) }
-    )
+      { onSuccess: () => setDeleteTarget(null) },
+    );
   }
 
   return (
@@ -89,7 +91,10 @@ export function AtributVariasiView({ categoryId, type }: AtributVariasiViewProps
           { label: "Dashboard", href: "/dashboard" },
           { label: "Katalog" },
           { label: "Kategori & Merek" },
-          { label: "Pemetaan Kategori", href: "/dashboard/kategori-merek/kategori" },
+          {
+            label: "Pemetaan Kategori",
+            href: "/dashboard/kategori-merek/kategori",
+          },
           { label: pageLabel },
         ]}
         actions={
@@ -135,7 +140,8 @@ export function AtributVariasiView({ categoryId, type }: AtributVariasiViewProps
         <div className="px-5 py-5 sm:px-6">
           {isLoading ? (
             <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
-              <Loader2Icon className="size-4 animate-spin" /> Memuat {label.toLowerCase()}…
+              <Loader2Icon className="size-4 animate-spin" /> Memuat{" "}
+              {label.toLowerCase()}…
             </div>
           ) : isError ? (
             <div className="py-16 text-center text-sm text-destructive">
@@ -195,7 +201,7 @@ export function AtributVariasiView({ categoryId, type }: AtributVariasiViewProps
         variant="destructive"
       />
     </>
-  )
+  );
 }
 
 function AtributRow({
@@ -204,10 +210,10 @@ function AtributRow({
   type,
   onDelete,
 }: {
-  item: CategoryAttributeItem
-  categoryId: number
-  type: "spec" | "sales"
-  onDelete: () => void
+  item: CategoryAttributeItem;
+  categoryId: number;
+  type: "spec" | "sales";
+  onDelete: () => void;
 }) {
   return (
     <TableRow>
@@ -236,7 +242,7 @@ function AtributRow({
         </Button>
       </TableCell>
     </TableRow>
-  )
+  );
 }
 
 function ChannelMappingCell({
@@ -247,15 +253,15 @@ function ChannelMappingCell({
   mapped,
   type,
 }: {
-  channelCode: string
-  channelName: string
-  attributeId: number
-  categoryId: number
-  mapped: boolean
-  type: "spec" | "sales"
+  channelCode: string;
+  channelName: string;
+  attributeId: number;
+  categoryId: number;
+  mapped: boolean;
+  type: "spec" | "sales";
 }) {
-  const [selecting, setSelecting] = React.useState(false)
-  const mapMut = useMapAttributeToChannel()
+  const [selecting, setSelecting] = React.useState(false);
+  const mapMut = useMapAttributeToChannel();
 
   if (mapped) {
     return (
@@ -264,7 +270,7 @@ function ChannelMappingCell({
           Dipetakan
         </Badge>
       </TableCell>
-    )
+    );
   }
 
   if (!selecting) {
@@ -274,7 +280,7 @@ function ChannelMappingCell({
           Petakan
         </Button>
       </TableCell>
-    )
+    );
   }
 
   return (
@@ -286,14 +292,14 @@ function ChannelMappingCell({
         onSelect={(channelAttrId) => {
           mapMut.mutate(
             { attributeId, channelAttributeIds: [channelAttrId] },
-            { onSuccess: () => setSelecting(false) }
-          )
+            { onSuccess: () => setSelecting(false) },
+          );
         }}
         onCancel={() => setSelecting(false)}
         loading={mapMut.isPending}
       />
     </TableCell>
-  )
+  );
 }
 
 function ChannelAttributeSelect({
@@ -304,47 +310,52 @@ function ChannelAttributeSelect({
   onCancel,
   loading,
 }: {
-  channelCode: string
-  categoryId: number
-  type: "spec" | "sales"
-  onSelect: (id: string) => void
-  onCancel: () => void
-  loading: boolean
+  channelCode: string;
+  categoryId: number;
+  type: "spec" | "sales";
+  onSelect: (id: string) => void;
+  onCancel: () => void;
+  loading: boolean;
 }) {
-  const { data: attrs, isLoading } = useChannelAttributes(channelCode, categoryId)
+  const { data: attrs, isLoading } = useChannelAttributes(
+    channelCode,
+    categoryId,
+  );
 
   const filtered = React.useMemo(() => {
-    if (!attrs) return []
+    if (!attrs) return [];
     return attrs.filter((a) =>
-      type === "sales" ? a.is_sale_prop : !a.is_sale_prop
-    )
-  }, [attrs, type])
+      type === "sales" ? a.is_sale_prop : !a.is_sale_prop,
+    );
+  }, [attrs, type]);
 
   if (isLoading) {
     return (
       <div className="flex items-center gap-1 text-muted-foreground">
         <Loader2Icon className="size-3 animate-spin" /> Memuat…
       </div>
-    )
+    );
   }
 
   if (filtered.length === 0) {
     return (
       <div className="flex items-center gap-2">
         <span className="text-xs text-muted-foreground">Tidak tersedia</span>
-        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={onCancel}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 text-xs"
+          onClick={onCancel}
+        >
           Batal
         </Button>
       </div>
-    )
+    );
   }
 
   return (
     <div className="flex items-center gap-2">
-      <Select
-        onValueChange={(v) => onSelect(v)}
-        disabled={loading}
-      >
+      <Select onValueChange={(v) => onSelect(v)} disabled={loading}>
         <SelectTrigger className="h-8 min-w-[140px] text-xs">
           <SelectValue placeholder="Pilih atribut" />
         </SelectTrigger>
@@ -357,9 +368,14 @@ function ChannelAttributeSelect({
           ))}
         </SelectContent>
       </Select>
-      <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={onCancel}>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-7 text-xs"
+        onClick={onCancel}
+      >
         Batal
       </Button>
     </div>
-  )
+  );
 }

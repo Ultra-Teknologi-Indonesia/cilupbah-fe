@@ -1,18 +1,18 @@
-import { Loader2Icon, PlusIcon } from "lucide-react"
+import { Loader2Icon, PlusIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import type { Channel, ChannelCode } from "@/types/channel"
-import { ChannelLogo } from "./channel-logo"
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import type { Channel, ChannelCode } from "@/types/channel";
+import { ChannelLogo } from "./channel-logo";
 
 export function ConnectMarketplacePanel({
   channels,
   onConnect,
   pendingCode,
 }: {
-  channels: Channel[]
-  onConnect: (channel: Channel) => void
-  pendingCode?: ChannelCode | null
+  channels: Channel[];
+  onConnect: (channel: Channel) => void;
+  pendingCode?: ChannelCode | null;
 }) {
   return (
     <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm">
@@ -25,7 +25,7 @@ export function ConnectMarketplacePanel({
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {channels.map((channel) => {
-          const connecting = pendingCode === channel.code
+          const connecting = pendingCode === channel.code;
           return (
             <div
               key={channel.id}
@@ -35,7 +35,9 @@ export function ConnectMarketplacePanel({
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{channel.name}</p>
                 {channel.connectable ? (
-                  <p className="text-xs text-muted-foreground">Belum terhubung</p>
+                  <p className="text-xs text-muted-foreground">
+                    Belum terhubung
+                  </p>
                 ) : (
                   <Badge
                     variant="outline"
@@ -61,9 +63,9 @@ export function ConnectMarketplacePanel({
                 Hubungkan
               </Button>
             </div>
-          )
+          );
         })}
       </div>
     </section>
-  )
+  );
 }

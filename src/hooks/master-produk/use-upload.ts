@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   keepPreviousData,
   useMutation,
   useQuery,
   useQueryClient,
-} from "@tanstack/react-query"
-import { toast } from "sonner"
+} from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import {
   UploadService,
@@ -15,7 +15,7 @@ import {
   type HistoryParams,
   type UploadListingParams,
   type BulkUploadResult,
-} from "@/services/master-produk/upload.service"
+} from "@/services/master-produk/upload.service";
 
 export type {
   CategoryRules,
@@ -25,121 +25,138 @@ export type {
   MatchRow,
   RulesSummary,
   UploadDestination,
-} from "@/services/master-produk/upload.service"
+} from "@/services/master-produk/upload.service";
 
-/* ── Query keys ─────────────────────────────────────────────────────────── */
-
-export const uploadListingKey = (productId: string, params: UploadListingParams) =>
-  ["master-produk", "upload-listing", productId, params] as const
+export const uploadListingKey = (
+  productId: string,
+  params: UploadListingParams,
+) => ["master-produk", "upload-listing", productId, params] as const;
 export const channelDraftsKey = (params: DraftParams) =>
-  ["master-produk", "channel-drafts", params] as const
+  ["master-produk", "channel-drafts", params] as const;
 export const uploadHistoriesKey = (params: HistoryParams) =>
-  ["master-produk", "upload-histories", params] as const
+  ["master-produk", "upload-histories", params] as const;
 
-/* ── Upload-to-Channel (per produk) ─────────────────────────────────────── */
-
-export function useUploadListing(productId: string, params: UploadListingParams) {
+export function useUploadListing(
+  productId: string,
+  params: UploadListingParams,
+) {
   return useQuery({
     queryKey: uploadListingKey(productId, params),
     queryFn: () => UploadService.listing(productId, params),
     enabled: !!productId,
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
-  })
+  });
 }
 
 export function useMatchListing(productId: string) {
   return useMutation({
-    mutationFn: (storeIds: string[]) => UploadService.match(productId, storeIds),
+    mutationFn: (storeIds: string[]) =>
+      UploadService.match(productId, storeIds),
     onError: (err) => {
-      const message = (err as { message?: string })?.message
-      toast.error(message || "Gagal mencocokkan data master")
+      const message = (err as { message?: string })?.message;
+      toast.error(message || "Gagal mencocokkan data master");
     },
-  })
+  });
 }
 
 function useInvalidateUpload(productId?: string) {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return React.useCallback(() => {
-    qc.invalidateQueries({ queryKey: ["master-produk", "upload-listing"] })
-    qc.invalidateQueries({ queryKey: ["master-produk", "channel-drafts"] })
-    qc.invalidateQueries({ queryKey: ["master-produk", "upload-histories"] })
+    qc.invalidateQueries({ queryKey: ["master-produk", "upload-listing"] });
+    qc.invalidateQueries({ queryKey: ["master-produk", "channel-drafts"] });
+    qc.invalidateQueries({ queryKey: ["master-produk", "upload-histories"] });
     if (productId) {
-      qc.invalidateQueries({ queryKey: ["master-produk", "detail", productId] })
+      qc.invalidateQueries({
+        queryKey: ["master-produk", "detail", productId],
+      });
     }
-  }, [qc, productId])
+  }, [qc, productId]);
 }
 
 export function useUploadToStores(productId: string) {
-  const invalidate = useInvalidateUpload(productId)
+  const invalidate = useInvalidateUpload(productId);
 
   return useMutation({
-    mutationFn: (shopIds: string[]) => UploadService.uploadToStores(productId, shopIds),
+    mutationFn: (shopIds: string[]) =>
+      UploadService.uploadToStores(productId, shopIds),
     onSuccess: (res) => {
-      if (res.uploaded > 0) toast.success(`${res.uploaded} toko diantrekan untuk upload`)
+      if (res.uploaded > 0)
+        toast.success(`${res.uploaded} toko diantrekan untuk upload`);
       if (res.skipped.length > 0) {
         toast.warning(`${res.skipped.length} toko dilewati`, {
-          description: res.skipped.map((s) => s.reason).slice(0, 3).join("; "),
-        })
+          description: res.skipped
+            .map((s) => s.reason)
+            .slice(0, 3)
+            .join("; "),
+        });
       }
       if (res.uploaded === 0 && res.skipped.length === 0) {
-        toast("Tidak ada toko yang diantrekan")
+        toast("Tidak ada toko yang diantrekan");
       }
-      invalidate()
+      invalidate();
     },
     onError: (err) => {
-      const message = (err as { message?: string })?.message
-      toast.error(message || "Upload gagal diproses")
+      const message = (err as { message?: string })?.message;
+      toast.error(message || "Upload gagal diproses");
     },
-  })
+  });
 }
 
-/* ── Required Attributes (TikTok) ──────────────────────────────────────── */
-
 export const requiredAttributesKey = (productId: string, shopId: string) =>
-  ["master-produk", "required-attributes", productId, shopId] as const
+  ["master-produk", "required-attributes", productId, shopId] as const;
 
-export function useRequiredAttributes(productId: string, shopId: string | null) {
+export function useRequiredAttributes(
+  productId: string,
+  shopId: string | null,
+) {
   return useQuery({
     queryKey: requiredAttributesKey(productId, shopId ?? ""),
     queryFn: () => UploadService.fetchRequiredAttributes(productId, shopId!),
     enabled: !!productId && !!shopId,
     staleTime: 5 * 60 * 1000,
     retry: false,
-  })
+  });
 }
 
 export function useUploadWithAttributes(productId: string) {
-  const invalidate = useInvalidateUpload(productId)
+  const invalidate = useInvalidateUpload(productId);
 
   return useMutation({
     mutationFn: ({
       shopIds,
       attributeMapping,
     }: {
-      shopIds: string[]
-      attributeMapping: Record<string, string> | null
-    }) => UploadService.uploadToStoresWithAttributes(productId, shopIds, attributeMapping),
+      shopIds: string[];
+      attributeMapping: Record<string, string> | null;
+    }) =>
+      UploadService.uploadToStoresWithAttributes(
+        productId,
+        shopIds,
+        attributeMapping,
+      ),
     onSuccess: (res: BulkUploadResult) => {
-      if (res.uploaded > 0) toast.success(`${res.uploaded} toko diantrekan untuk upload`)
+      if (res.uploaded > 0)
+        toast.success(`${res.uploaded} toko diantrekan untuk upload`);
       if (res.skipped.length > 0) {
         toast.warning(`${res.skipped.length} toko dilewati`, {
-          description: res.skipped.map((s) => s.reason).slice(0, 3).join("; "),
-        })
+          description: res.skipped
+            .map((s) => s.reason)
+            .slice(0, 3)
+            .join("; "),
+        });
       }
       if (res.uploaded === 0 && res.skipped.length === 0) {
-        toast("Tidak ada toko yang diantrekan")
+        toast("Tidak ada toko yang diantrekan");
       }
-      invalidate()
+      invalidate();
     },
     onError: (err) => {
-      const message = (err as { message?: string })?.message
-      toast.error(message || "Upload gagal diproses")
+      const message = (err as { message?: string })?.message;
+      toast.error(message || "Upload gagal diproses");
     },
-  })
+  });
 }
-
-/* ── Tab Draft ──────────────────────────────────────────────────────────── */
 
 export function useChannelDrafts(params: DraftParams) {
   return useQuery({
@@ -147,35 +164,44 @@ export function useChannelDrafts(params: DraftParams) {
     queryFn: () => UploadService.drafts(params),
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
-  })
+  });
 }
 
 export function useUploadDraft() {
-  const invalidate = useInvalidateUpload()
+  const invalidate = useInvalidateUpload();
   return useMutation({
     mutationFn: (draftId: string) => UploadService.uploadDraft(draftId),
     onSuccess: () => {
-      toast.success("Draft diantrekan untuk upload")
-      invalidate()
+      toast.success("Draft diantrekan untuk upload");
+      invalidate();
     },
-    onError: (err) => toast.error((err as { message?: string })?.message || "Gagal mengupload draft"),
-  })
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message || "Gagal mengupload draft",
+      ),
+  });
 }
 
 export function useDeleteDraft() {
-  const invalidate = useInvalidateUpload()
+  const invalidate = useInvalidateUpload();
   return useMutation({
-    mutationFn: ({ productId, draftId }: { productId: string; draftId: string }) =>
-      UploadService.deleteDraft(productId, draftId),
+    mutationFn: ({
+      productId,
+      draftId,
+    }: {
+      productId: string;
+      draftId: string;
+    }) => UploadService.deleteDraft(productId, draftId),
     onSuccess: () => {
-      toast.success("Draft dihapus")
-      invalidate()
+      toast.success("Draft dihapus");
+      invalidate();
     },
-    onError: (err) => toast.error((err as { message?: string })?.message || "Gagal menghapus draft"),
-  })
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message || "Gagal menghapus draft",
+      ),
+  });
 }
-
-/* ── Tab Hasil ──────────────────────────────────────────────────────────── */
 
 export function useUploadHistories(params: HistoryParams) {
   return useQuery({
@@ -183,29 +209,36 @@ export function useUploadHistories(params: HistoryParams) {
     queryFn: () => UploadService.histories(params),
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
-  })
+  });
 }
 
 export function useReuploadHistory() {
-  const invalidate = useInvalidateUpload()
+  const invalidate = useInvalidateUpload();
   return useMutation({
     mutationFn: (id: string) => UploadService.reupload(id),
     onSuccess: () => {
-      toast.success("Produk diantrekan untuk upload ulang")
-      invalidate()
+      toast.success("Produk diantrekan untuk upload ulang");
+      invalidate();
     },
-    onError: (err) => toast.error((err as { message?: string })?.message || "Gagal mengantrekan upload ulang"),
-  })
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message ||
+          "Gagal mengantrekan upload ulang",
+      ),
+  });
 }
 
 export function useBulkDeleteHistories() {
-  const invalidate = useInvalidateUpload()
+  const invalidate = useInvalidateUpload();
   return useMutation({
     mutationFn: (ids: string[]) => UploadService.bulkDeleteHistories(ids),
     onSuccess: () => {
-      toast.success("Riwayat upload dihapus")
-      invalidate()
+      toast.success("Riwayat upload dihapus");
+      invalidate();
     },
-    onError: (err) => toast.error((err as { message?: string })?.message || "Gagal menghapus riwayat"),
-  })
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message || "Gagal menghapus riwayat",
+      ),
+  });
 }

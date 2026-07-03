@@ -1,27 +1,30 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Loader2Icon } from "lucide-react"
-import { toast } from "sonner"
+import * as React from "react";
+import { Loader2Icon } from "lucide-react";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogClose,
-} from "@/components/ui/dialog"
-import { useAssignPacker, usePickers } from "@/hooks/proses-pesanan/use-fulfillment"
+} from "@/components/ui/dialog";
+import {
+  useAssignPacker,
+  usePickers,
+} from "@/hooks/proses-pesanan/use-fulfillment";
 
 interface UbahPackerDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  packlistId: string | null
-  packlistNo: string | null
-  locationId: string | null
-  currentPackerId: string | null
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  packlistId: string | null;
+  packlistNo: string | null;
+  locationId: string | null;
+  currentPackerId: string | null;
 }
 
 export function UbahPackerDialog({
@@ -32,29 +35,29 @@ export function UbahPackerDialog({
   locationId,
   currentPackerId,
 }: UbahPackerDialogProps) {
-  const [packerId, setPackerId] = React.useState("")
+  const [packerId, setPackerId] = React.useState("");
 
-  const pickers = usePickers(locationId ?? undefined, "packer", open)
-  const assignPacker = useAssignPacker()
+  const pickers = usePickers(locationId ?? undefined, "packer", open);
+  const assignPacker = useAssignPacker();
 
   React.useEffect(() => {
-    if (open) setPackerId(currentPackerId ?? "")
-  }, [open, currentPackerId])
+    if (open) setPackerId(currentPackerId ?? "");
+  }, [open, currentPackerId]);
 
   const handleSubmit = async () => {
-    if (!packlistId || !packerId) return
+    if (!packlistId || !packerId) return;
     try {
-      await assignPacker.mutateAsync({ packlistId, packerId })
-      toast.success(`Packer untuk ${packlistNo ?? "packlist"} diperbarui.`)
-      onOpenChange(false)
+      await assignPacker.mutateAsync({ packlistId, packerId });
+      toast.success(`Packer untuk ${packlistNo ?? "packlist"} diperbarui.`);
+      onOpenChange(false);
     } catch (err) {
       const msg =
         err && typeof err === "object" && "message" in err
           ? String((err as { message?: unknown }).message)
-          : "Gagal mengubah packer."
-      toast.error(msg)
+          : "Gagal mengubah packer.";
+      toast.error(msg);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -87,7 +90,9 @@ export function UbahPackerDialog({
               ))}
             </select>
             {pickers.isLoading && (
-              <p className="text-xs text-muted-foreground">Memuat daftar packer…</p>
+              <p className="text-xs text-muted-foreground">
+                Memuat daftar packer…
+              </p>
             )}
           </div>
         </div>
@@ -107,5 +112,5 @@ export function UbahPackerDialog({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

@@ -1,7 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { CheckIcon, ChevronsUpDownIcon, PlusIcon, SearchIcon, XIcon } from "lucide-react";
+import {
+  CheckIcon,
+  ChevronsUpDownIcon,
+  PlusIcon,
+  SearchIcon,
+  XIcon,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +18,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import type { LookupOption } from "@/types/common";
-
 
 export type ComboboxOption = LookupOption;
 
@@ -66,12 +71,14 @@ export function Combobox({
 
   const isMulti = multiple === true;
   const selectedValues: string[] = isMulti
-    ? (value as string[]) ?? []
-    : (value as string | null | undefined) ? [value as string] : [];
+    ? ((value as string[]) ?? [])
+    : (value as string | null | undefined)
+      ? [value as string]
+      : [];
 
   const selected = isMulti
     ? null
-    : options.find((o) => o.value === (value as string | null)) ?? null;
+    : (options.find((o) => o.value === (value as string | null)) ?? null);
 
   const trimmed = query.trim();
   const filtered = trimmed
@@ -208,7 +215,11 @@ export function Combobox({
             className="h-10 border-0 bg-transparent px-0 focus-visible:ring-0"
           />
         </div>
-        <div className="max-h-64 overflow-y-auto overscroll-contain" onWheel={(e) => e.stopPropagation()} onTouchMove={(e) => e.stopPropagation()}>
+        <div
+          className="max-h-64 overflow-y-auto overscroll-contain"
+          onWheel={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
+        >
           <ul className="p-1.5">
             {filtered.length === 0 && (
               <li className="px-3 py-6 text-center text-sm text-muted-foreground">

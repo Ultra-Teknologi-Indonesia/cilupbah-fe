@@ -9,7 +9,7 @@ export function useGlassSpecular<T extends HTMLElement = HTMLDivElement>() {
 
   React.useEffect(() => {
     reducedRef.current = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
+      "(prefers-reduced-motion: reduce)",
     ).matches;
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);

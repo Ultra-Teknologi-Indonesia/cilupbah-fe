@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import type { ColumnDef } from "@tanstack/react-table"
-import { EyeIcon, Trash2Icon } from "lucide-react"
+import Link from "next/link";
+import type { ColumnDef } from "@tanstack/react-table";
+import { EyeIcon, Trash2Icon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
-import type { RaiseProductStore } from "@/hooks/master-produk/use-naikkan"
-import type { ChannelCode } from "@/types/channel"
+import { Button } from "@/components/ui/button";
+import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo";
+import type { RaiseProductStore } from "@/hooks/master-produk/use-naikkan";
+import type { ChannelCode } from "@/types/channel";
 
 export function buildStoreColumns(
-  onDelete: (store: RaiseProductStore) => void
+  onDelete: (store: RaiseProductStore) => void,
 ): ColumnDef<RaiseProductStore>[] {
   return [
     {
       id: "store",
       header: "Nama Toko",
       cell: ({ row }) => {
-        const s = row.original
+        const s = row.original;
         return (
           <div className="flex items-center gap-3">
             {s.channelCode && (
@@ -30,7 +30,7 @@ export function buildStoreColumns(
             <div className="min-w-0">
               <Link
                 href={`/dashboard/produk/naikkan/${s.raiseproductId}`}
-               
+
                 className="line-clamp-1 font-medium hover:text-primary hover:underline"
               >
                 {s.storeName ?? "—"}
@@ -40,7 +40,7 @@ export function buildStoreColumns(
               </div>
             </div>
           </div>
-        )
+        );
       },
     },
     {
@@ -56,7 +56,7 @@ export function buildStoreColumns(
       id: "actions",
       header: "",
       cell: ({ row }) => {
-        const s = row.original
+        const s = row.original;
         return (
           <div className="flex items-center justify-end gap-1">
             <Button variant="ghost" size="sm" className="h-8 gap-1.5" asChild>
@@ -74,8 +74,8 @@ export function buildStoreColumns(
               <Trash2Icon className="size-4" />
             </Button>
           </div>
-        )
+        );
       },
     },
-  ]
+  ];
 }

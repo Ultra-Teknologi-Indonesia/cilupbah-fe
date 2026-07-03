@@ -7,9 +7,13 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans:
+    var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
 
-  --font-mono: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono:
+    var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -123,12 +127,13 @@
     @apply border-border outline-ring/50;
   }
 
-  .bg-sidebar, [data-sidebar="sidebar"] {
-
+  .bg-sidebar,
+  [data-sidebar="sidebar"] {
     @apply backdrop-blur-xl shadow-sm border border-white/20 dark:border-white/10;
   }
 
-  .bg-card, .bg-popover {
+  .bg-card,
+  .bg-popover {
     backdrop-filter: blur(20px) saturate(1.8) brightness(1.05);
     -webkit-backdrop-filter: blur(20px) saturate(1.8) brightness(1.05);
     background-image: linear-gradient(
@@ -144,7 +149,8 @@
       0 12px 32px -12px color-mix(in oklch, var(--primary) 35%, transparent),
       0 2px 8px -2px rgba(0, 0, 0, 0.05);
   }
-  .dark .bg-card, .dark .bg-popover {
+  .dark .bg-card,
+  .dark .bg-popover {
     background-image: linear-gradient(
       135deg,
       rgba(255, 255, 255, 0.08) 0%,
@@ -164,9 +170,21 @@
     background-color: var(--background);
 
     background-image:
-      radial-gradient(at 12% 6%, color-mix(in oklch, var(--primary) 12%, transparent) 0px, transparent 45%),
-      radial-gradient(at 88% 4%, color-mix(in oklch, var(--primary) 8%, transparent) 0px, transparent 45%),
-      radial-gradient(at 70% 96%, color-mix(in oklch, var(--primary) 8%, transparent) 0px, transparent 50%);
+      radial-gradient(
+        at 12% 6%,
+        color-mix(in oklch, var(--primary) 12%, transparent) 0px,
+        transparent 45%
+      ),
+      radial-gradient(
+        at 88% 4%,
+        color-mix(in oklch, var(--primary) 8%, transparent) 0px,
+        transparent 45%
+      ),
+      radial-gradient(
+        at 70% 96%,
+        color-mix(in oklch, var(--primary) 8%, transparent) 0px,
+        transparent 50%
+      );
     /* NOTE: `background-attachment: fixed` was removed — combined with the glass
        backdrop-filters it forced a full-viewport re-raster on every scroll. The
        wash is on <body> (which doesn't scroll; the dashboard <main> does), so it
@@ -174,9 +192,21 @@
   }
   .dark body {
     background-image:
-      radial-gradient(at 12% 6%, color-mix(in oklch, var(--primary) 20%, transparent) 0px, transparent 45%),
-      radial-gradient(at 88% 4%, color-mix(in oklch, var(--primary) 14%, transparent) 0px, transparent 45%),
-      radial-gradient(at 70% 96%, color-mix(in oklch, var(--primary) 13%, transparent) 0px, transparent 50%);
+      radial-gradient(
+        at 12% 6%,
+        color-mix(in oklch, var(--primary) 20%, transparent) 0px,
+        transparent 45%
+      ),
+      radial-gradient(
+        at 88% 4%,
+        color-mix(in oklch, var(--primary) 14%, transparent) 0px,
+        transparent 45%
+      ),
+      radial-gradient(
+        at 70% 96%,
+        color-mix(in oklch, var(--primary) 13%, transparent) 0px,
+        transparent 50%
+      );
   }
   html {
     @apply font-sans;
@@ -201,8 +231,8 @@
 .lg-glass {
   backdrop-filter: blur(var(--lg-blur, 18px)) saturate(var(--lg-sat, 1.5))
     brightness(var(--lg-bright, 1.05));
-  -webkit-backdrop-filter: blur(var(--lg-blur, 18px)) saturate(var(--lg-sat, 1.5))
-    brightness(var(--lg-bright, 1.05));
+  -webkit-backdrop-filter: blur(var(--lg-blur, 18px))
+    saturate(var(--lg-sat, 1.5)) brightness(var(--lg-bright, 1.05));
 }
 
 .no-scrollbar {
@@ -258,43 +288,58 @@
   border-radius: 28px;
   backdrop-filter: blur(18px) saturate(1.5) brightness(1.05);
   -webkit-backdrop-filter: blur(18px) saturate(1.5) brightness(1.05);
-  filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.12)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
+  filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.12))
+    drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
   transition: opacity 0.26s ease-out;
 }
 
 .liquid-glass::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   z-index: 1;
   overflow: hidden;
   border-radius: 28px;
   pointer-events: none;
-  box-shadow: inset 0 0.5px 0 0 rgba(255, 255, 255, 0.6),
-              inset 0 0 8px 0 rgba(255, 255, 255, 0.25);
+  box-shadow:
+    inset 0 0.5px 0 0 rgba(255, 255, 255, 0.6),
+    inset 0 0 8px 0 rgba(255, 255, 255, 0.25);
   border-top: 0.5px solid rgba(255, 255, 255, 0.5);
   border-left: 0.5px solid rgba(255, 255, 255, 0.3);
 }
 
 .liquid-glass::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   z-index: 0;
   border-radius: 28px;
   pointer-events: none;
-  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.08) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 40%,
+    transparent 60%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
 }
 
 .dark .liquid-glass::before {
-  box-shadow: inset 0 0.5px 0 0 rgba(255, 255, 255, 0.2),
-              inset 0 0 8px 0 rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 0.5px 0 0 rgba(255, 255, 255, 0.2),
+    inset 0 0 8px 0 rgba(255, 255, 255, 0.08);
   border-top-color: rgba(255, 255, 255, 0.15);
   border-left-color: rgba(255, 255, 255, 0.1);
 }
 
 .dark .liquid-glass::after {
-  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.03) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 40%,
+    transparent 60%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
 }
 
 .liquid-glass-subtle {
@@ -303,27 +348,30 @@
   border-radius: 16px;
   backdrop-filter: blur(12px) saturate(1.2) brightness(1.02);
   -webkit-backdrop-filter: blur(12px) saturate(1.2) brightness(1.02);
-  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.06)) drop-shadow(0 1px 4px rgba(0, 0, 0, 0.04));
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.06))
+    drop-shadow(0 1px 4px rgba(0, 0, 0, 0.04));
   transition: opacity 0.26s ease-out;
 }
 
 .liquid-glass-subtle::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   z-index: 1;
   overflow: hidden;
   border-radius: 16px;
   pointer-events: none;
-  box-shadow: inset 0 0.5px 0 0 rgba(255, 255, 255, 0.4),
-              inset 0 0 6px 0 rgba(255, 255, 255, 0.15);
+  box-shadow:
+    inset 0 0.5px 0 0 rgba(255, 255, 255, 0.4),
+    inset 0 0 6px 0 rgba(255, 255, 255, 0.15);
   border-top: 0.5px solid rgba(255, 255, 255, 0.35);
   border-left: 0.5px solid rgba(255, 255, 255, 0.2);
 }
 
 .dark .liquid-glass-subtle::before {
-  box-shadow: inset 0 0.5px 0 0 rgba(255, 255, 255, 0.12),
-              inset 0 0 6px 0 rgba(255, 255, 255, 0.05);
+  box-shadow:
+    inset 0 0.5px 0 0 rgba(255, 255, 255, 0.12),
+    inset 0 0 6px 0 rgba(255, 255, 255, 0.05);
   border-top-color: rgba(255, 255, 255, 0.1);
   border-left-color: rgba(255, 255, 255, 0.06);
 }
@@ -333,21 +381,23 @@
 }
 
 .liquid-glass-glow::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   z-index: 0;
   overflow: hidden;
   border-radius: inherit;
   pointer-events: none;
-  box-shadow: inset 0 0.5px 0 0 rgba(255, 255, 255, 0.6),
-              inset 0 0 8px 0 rgba(255, 255, 255, 0.25);
+  box-shadow:
+    inset 0 0.5px 0 0 rgba(255, 255, 255, 0.6),
+    inset 0 0 8px 0 rgba(255, 255, 255, 0.25);
   border-top: 0.5px solid rgba(255, 255, 255, 0.5);
 }
 
 .dark .liquid-glass-glow::after {
-  box-shadow: inset 0 0.5px 0 0 rgba(255, 255, 255, 0.2),
-              inset 0 0 8px 0 rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 0.5px 0 0 rgba(255, 255, 255, 0.2),
+    inset 0 0 8px 0 rgba(255, 255, 255, 0.08);
   border-top-color: rgba(255, 255, 255, 0.12);
 }
 
@@ -455,7 +505,8 @@
     linear-gradient(#000 0 0);
   mask-composite: exclude;
   -webkit-mask-composite: xor;
-  box-shadow: inset 0 0 0 calc(var(--lg-btn-border) / 2) rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 0 0 calc(var(--lg-btn-border) / 2)
+    rgba(255, 255, 255, 0.5);
   transition: --lg-angle-1 500ms ease;
 }
 .lg-button:hover::after {
@@ -489,7 +540,11 @@
       transparent 60% 95%,
       rgba(255, 255, 255, 0.7)
     ),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15));
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.15),
+      rgba(255, 255, 255, 0.15)
+    );
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -525,19 +580,40 @@
 }
 
 @keyframes liquid-blob-1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, -40px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.95); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -40px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
 }
 
 @keyframes liquid-blob-2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(-40px, 30px) scale(1.05); }
-  66% { transform: translate(25px, -15px) scale(1.1); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-40px, 30px) scale(1.05);
+  }
+  66% {
+    transform: translate(25px, -15px) scale(1.1);
+  }
 }
 
 @keyframes liquid-blob-3 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(20px, 30px) scale(1.15); }
-  66% { transform: translate(-30px, -25px) scale(0.9); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(20px, 30px) scale(1.15);
+  }
+  66% {
+    transform: translate(-30px, -25px) scale(0.9);
+  }
 }

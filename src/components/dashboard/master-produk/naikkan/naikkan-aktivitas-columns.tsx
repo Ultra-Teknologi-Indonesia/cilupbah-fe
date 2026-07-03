@@ -1,20 +1,20 @@
-"use client"
+"use client";
 
-import type { ColumnDef } from "@tanstack/react-table"
-import { ImageIcon } from "lucide-react"
+import type { ColumnDef } from "@tanstack/react-table";
+import { ImageIcon } from "lucide-react";
 
-import type { RaiseProductDetail } from "@/hooks/master-produk/use-naikkan"
+import type { RaiseProductDetail } from "@/hooks/master-produk/use-naikkan";
 
 function formatDate(iso: string | null): string {
-  if (!iso) return "—"
-  const d = new Date(iso)
+  if (!iso) return "—";
+  const d = new Date(iso);
   return d.toLocaleDateString("id-ID", {
     day: "2-digit",
     month: "short",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  })
+  });
 }
 
 export const aktivitasColumns: ColumnDef<RaiseProductDetail>[] = [
@@ -22,18 +22,23 @@ export const aktivitasColumns: ColumnDef<RaiseProductDetail>[] = [
     id: "product",
     header: "Produk",
     cell: ({ row }) => {
-      const d = row.original
-      const thumb = d.thumbnails.find(Boolean) ?? null
-      const skuDisplay = d.itemCodes.length <= 2
-        ? d.itemCodes.join(", ")
-        : `${d.itemCodes.slice(0, 2).join(", ")} + ${d.itemCodes.length - 2} SKU lainnya`
+      const d = row.original;
+      const thumb = d.thumbnails.find(Boolean) ?? null;
+      const skuDisplay =
+        d.itemCodes.length <= 2
+          ? d.itemCodes.join(", ")
+          : `${d.itemCodes.slice(0, 2).join(", ")} + ${d.itemCodes.length - 2} SKU lainnya`;
 
       return (
         <div className="flex items-center gap-3">
           <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
             {thumb ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={thumb} alt={d.itemGroupName ?? ""} className="size-full object-cover" />
+              <img
+                src={thumb}
+                alt={d.itemGroupName ?? ""}
+                className="size-full object-cover"
+              />
             ) : (
               <ImageIcon className="size-4 text-muted-foreground" />
             )}
@@ -45,29 +50,34 @@ export const aktivitasColumns: ColumnDef<RaiseProductDetail>[] = [
             </p>
           </div>
         </div>
-      )
+      );
     },
   },
   {
     id: "start_time",
     header: "Tgl. Naik",
     cell: ({ row }) => (
-      <span className="text-sm tabular-nums">{formatDate(row.original.startTime)}</span>
+      <span className="text-sm tabular-nums">
+        {formatDate(row.original.startTime)}
+      </span>
     ),
   },
   {
     id: "end_time",
     header: "Tgl. Turun",
     cell: ({ row }) => (
-      <span className="text-sm tabular-nums">{formatDate(row.original.endTime)}</span>
+      <span className="text-sm tabular-nums">
+        {formatDate(row.original.endTime)}
+      </span>
     ),
   },
   {
     id: "reason",
     header: "Keterangan",
     cell: ({ row }) => {
-      const r = row.original
-      if (r.isSuccess === null) return <span className="text-muted-foreground">—</span>
+      const r = row.original;
+      if (r.isSuccess === null)
+        return <span className="text-muted-foreground">—</span>;
       return (
         <div className="flex items-center gap-2">
           {r.isSuccess ? (
@@ -80,12 +90,15 @@ export const aktivitasColumns: ColumnDef<RaiseProductDetail>[] = [
             </span>
           )}
           {r.reason && (
-            <span className="line-clamp-1 text-xs text-muted-foreground" title={r.reason}>
+            <span
+              className="line-clamp-1 text-xs text-muted-foreground"
+              title={r.reason}
+            >
               {r.reason}
             </span>
           )}
         </div>
-      )
+      );
     },
   },
-]
+];

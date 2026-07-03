@@ -8,7 +8,6 @@ function subscribe(callback: () => void) {
   return () => mql.removeEventListener("change", callback);
 }
 
-
 export function useIsMobile() {
   return React.useSyncExternalStore(
     subscribe,

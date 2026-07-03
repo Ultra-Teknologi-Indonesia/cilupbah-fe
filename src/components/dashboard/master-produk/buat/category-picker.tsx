@@ -1,39 +1,42 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { ChevronRightIcon, SearchIcon } from "lucide-react"
+import * as React from "react";
+import { ChevronRightIcon, SearchIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
 import {
   Dialog,
   DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { findCategoryPath } from "@/lib/master-produk/category-tree"
-import type { CategoryNode, SelectedCategory } from "@/types/master-produk"
+} from "@/components/ui/dialog";
+import { findCategoryPath } from "@/lib/master-produk/category-tree";
+import type { CategoryNode, SelectedCategory } from "@/types/master-produk";
 
 interface FlatCategory {
-  node: CategoryNode
-  path: CategoryNode[]
-  pathLabel: string
+  node: CategoryNode;
+  path: CategoryNode[];
+  pathLabel: string;
 }
 
-function flattenTree(nodes: CategoryNode[], parents: CategoryNode[] = []): FlatCategory[] {
-  const result: FlatCategory[] = []
+function flattenTree(
+  nodes: CategoryNode[],
+  parents: CategoryNode[] = [],
+): FlatCategory[] {
+  const result: FlatCategory[] = [];
   for (const node of nodes) {
-    const path = [...parents, node]
-    result.push({ node, path, pathLabel: path.map((p) => p.name).join(" › ") })
+    const path = [...parents, node];
+    result.push({ node, path, pathLabel: path.map((p) => p.name).join(" › ") });
     if (node.children?.length) {
-      result.push(...flattenTree(node.children, path))
+      result.push(...flattenTree(node.children, path));
     }
   }
-  return result
+  return result;
 }
 
 function Column({
@@ -41,11 +44,12 @@ function Column({
   activeId,
   onSelect,
 }: {
-  nodes: CategoryNode[]
-  activeId?: string
-  onSelect: (n: CategoryNode) => void
+  nodes: CategoryNode[];
+  activeId?: string;
+  onSelect: (n: CategoryNode) => void;
 }) {
-  if (nodes.length === 0) return <div className="hidden lg:block" aria-hidden />
+  if (nodes.length === 0)
+    return <div className="hidden lg:block" aria-hidden />;
   return (
     <ScrollArea className="h-64">
       <ul className="flex flex-col gap-0.5 p-1.5">
@@ -58,7 +62,7 @@ function Column({
                 "flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors",
                 n.id === activeId
                   ? "bg-primary/10 font-medium text-primary"
-                  : "hover:bg-muted/60"
+                  : "hover:bg-muted/60",
               )}
             >
               <span className="truncate">{n.name}</span>
@@ -70,7 +74,7 @@ function Column({
         ))}
       </ul>
     </ScrollArea>
-  )
+  );
 }
 
 export function CategoryPicker({
@@ -80,49 +84,55 @@ export function CategoryPicker({
   tree = [],
   triggerClassName,
 }: {
-  value: SelectedCategory | null
-  onChange: (v: SelectedCategory) => void
-  invalid?: boolean
-  tree?: CategoryNode[]
-  triggerClassName?: string
+  value: SelectedCategory | null;
+  onChange: (v: SelectedCategory) => void;
+  invalid?: boolean;
+  tree?: CategoryNode[];
+  triggerClassName?: string;
 }) {
-  const [open, setOpen] = React.useState(false)
-  const [path, setPath] = React.useState<CategoryNode[]>([])
-  const [search, setSearch] = React.useState("")
+  const [open, setOpen] = React.useState(false);
+  const [path, setPath] = React.useState<CategoryNode[]>([]);
+  const [search, setSearch] = React.useState("");
 
-  const flat = React.useMemo(() => flattenTree(tree), [tree])
+  const flat = React.useMemo(() => flattenTree(tree), [tree]);
 
   const searchResults = React.useMemo(() => {
-    const q = search.trim().toLowerCase()
-    if (!q) return null
-    return flat.filter((f) => f.node.name.toLowerCase().includes(q)).slice(0, 50)
-  }, [search, flat])
+    const q = search.trim().toLowerCase();
+    if (!q) return null;
+    return flat
+      .filter((f) => f.node.name.toLowerCase().includes(q))
+      .slice(0, 50);
+  }, [search, flat]);
 
   const handleOpen = (next: boolean) => {
-    setOpen(next)
+    setOpen(next);
     if (next) {
-      setPath(value ? findCategoryPath(tree, value.id) ?? [] : [])
-      setSearch("")
+      setPath(value ? (findCategoryPath(tree, value.id) ?? []) : []);
+      setSearch("");
     }
-  }
+  };
 
-  const columns = [tree, path[0]?.children ?? [], path[1]?.children ?? []]
-  const chosen = path[path.length - 1] ?? null
-  const isLeaf = chosen ? !chosen.children?.length : false
+  const columns = [tree, path[0]?.children ?? [], path[1]?.children ?? []];
+  const chosen = path[path.length - 1] ?? null;
+  const isLeaf = chosen ? !chosen.children?.length : false;
 
   const selectAt = (level: number, node: CategoryNode) =>
-    setPath((prev) => [...prev.slice(0, level), node])
+    setPath((prev) => [...prev.slice(0, level), node]);
 
   const selectFromSearch = (item: FlatCategory) => {
-    setPath(item.path)
-    setSearch("")
-  }
+    setPath(item.path);
+    setSearch("");
+  };
 
   const apply = () => {
-    if (!chosen) return
-    onChange({ id: chosen.id, name: chosen.name, path: path.map((p) => p.name) })
-    setOpen(false)
-  }
+    if (!chosen) return;
+    onChange({
+      id: chosen.id,
+      name: chosen.name,
+      path: path.map((p) => p.name),
+    });
+    setOpen(false);
+  };
 
   return (
     <>
@@ -133,7 +143,7 @@ export function CategoryPicker({
           "flex h-10 w-full items-center justify-between gap-2 rounded-full border border-border bg-background px-3 text-sm outline-none transition-[color,box-shadow]",
           "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30",
           invalid && "border-destructive ring-3 ring-destructive/20",
-          triggerClassName
+          triggerClassName,
         )}
       >
         {value ? (
@@ -155,7 +165,11 @@ export function CategoryPicker({
           showCloseButton={false}
           className="border-0 bg-transparent p-0 shadow-none ring-0 sm:max-w-3xl"
         >
-          <LiquidGlass radius={28} intensity="strong" className="bg-white/85 dark:bg-neutral-900/85">
+          <LiquidGlass
+            radius={28}
+            intensity="strong"
+            className="bg-white/85 dark:bg-neutral-900/85"
+          >
             <div className="flex items-center justify-between border-b border-border/60 px-5 py-4 sm:px-6">
               <div>
                 <DialogTitle className="text-lg">Pilih Kategori</DialogTitle>
@@ -192,7 +206,7 @@ export function CategoryPicker({
                   ) : (
                     <ul className="flex flex-col gap-0.5 p-1.5">
                       {searchResults.map((item) => {
-                        const leaf = !item.node.children?.length
+                        const leaf = !item.node.children?.length;
                         return (
                           <li key={item.node.id}>
                             <button
@@ -200,10 +214,15 @@ export function CategoryPicker({
                               onClick={() => selectFromSearch(item)}
                               className={cn(
                                 "flex w-full flex-col gap-0.5 rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-muted/60",
-                                item.node.id === chosen?.id && "bg-primary/10"
+                                item.node.id === chosen?.id && "bg-primary/10",
                               )}
                             >
-                              <span className={cn("truncate", leaf ? "font-medium" : "")}>
+                              <span
+                                className={cn(
+                                  "truncate",
+                                  leaf ? "font-medium" : "",
+                                )}
+                              >
                                 {item.node.name}
                               </span>
                               <span className="truncate text-xs text-muted-foreground">
@@ -212,16 +231,28 @@ export function CategoryPicker({
                               </span>
                             </button>
                           </li>
-                        )
+                        );
                       })}
                     </ul>
                   )}
                 </ScrollArea>
               ) : (
                 <div className="grid grid-cols-1 divide-y divide-border/60 overflow-hidden rounded-2xl border border-border/60 lg:grid-cols-3 lg:divide-x lg:divide-y-0">
-                  <Column nodes={columns[0]} activeId={path[0]?.id} onSelect={(n) => selectAt(0, n)} />
-                  <Column nodes={columns[1]} activeId={path[1]?.id} onSelect={(n) => selectAt(1, n)} />
-                  <Column nodes={columns[2]} activeId={path[2]?.id} onSelect={(n) => selectAt(2, n)} />
+                  <Column
+                    nodes={columns[0]}
+                    activeId={path[0]?.id}
+                    onSelect={(n) => selectAt(0, n)}
+                  />
+                  <Column
+                    nodes={columns[1]}
+                    activeId={path[1]?.id}
+                    onSelect={(n) => selectAt(1, n)}
+                  />
+                  <Column
+                    nodes={columns[2]}
+                    activeId={path[2]?.id}
+                    onSelect={(n) => selectAt(2, n)}
+                  />
                 </div>
               )}
             </div>
@@ -242,5 +273,5 @@ export function CategoryPicker({
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }

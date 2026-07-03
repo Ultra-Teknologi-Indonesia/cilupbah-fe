@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useQuery, keepPreviousData } from "@tanstack/react-query"
-import { PutawayService } from "@/services/barang-masuk/putaway.service"
-import type { PutawayListParams } from "@/types/barang-masuk/putaway"
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { PutawayService } from "@/services/barang-masuk/putaway.service";
+import type { PutawayListParams } from "@/types/barang-masuk/putaway";
 
-const STALE = 30 * 1000
+const STALE = 30 * 1000;
 
 export function usePutaways(params: PutawayListParams = {}) {
   return useQuery({
@@ -12,5 +12,5 @@ export function usePutaways(params: PutawayListParams = {}) {
     placeholderData: keepPreviousData,
     queryFn: () => PutawayService.list(params),
     staleTime: STALE,
-  })
+  });
 }

@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
-import * as React from "react"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import * as React from "react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -20,9 +20,9 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -30,61 +30,61 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Skeleton } from "@/components/ui/skeleton"
-import { DataTableToolbar } from "./data-table-toolbar"
-import { DataTablePagination } from "./data-table-pagination"
-import type { FacetedFilter } from "./types"
-import { BulkActionBar } from "@/components/ui/bulk-action-bar"
+} from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DataTableToolbar } from "./data-table-toolbar";
+import { DataTablePagination } from "./data-table-pagination";
+import type { FacetedFilter } from "./types";
+import { BulkActionBar } from "@/components/ui/bulk-action-bar";
 
 export interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
 
-  getRowId?: (row: TData, index: number) => string
+  getRowId?: (row: TData, index: number) => string;
 
-  searchColumnId?: string
-  searchPlaceholder?: string
+  searchColumnId?: string;
+  searchPlaceholder?: string;
 
-  searchValue?: string
-  onSearchChange?: (value: string) => void
-  facetedFilters?: FacetedFilter[]
-  toolbarActions?: React.ReactNode
-  columnLabels?: Record<string, string>
-  hideToolbar?: boolean
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  facetedFilters?: FacetedFilter[];
+  toolbarActions?: React.ReactNode;
+  columnLabels?: Record<string, string>;
+  hideToolbar?: boolean;
 
-  enableRowSelection?: boolean
-  enableColumnVisibility?: boolean
+  enableRowSelection?: boolean;
+  enableColumnVisibility?: boolean;
 
-  renderSubRow?: (row: TData, rowInstance: Row<TData>) => React.ReactNode
+  renderSubRow?: (row: TData, rowInstance: Row<TData>) => React.ReactNode;
 
   bulkActions?: (
     selected: TData[],
-    table: TableInstance<TData>
-  ) => React.ReactNode
-  onRowClick?: (row: TData) => void
+    table: TableInstance<TData>,
+  ) => React.ReactNode;
+  onRowClick?: (row: TData) => void;
 
-  manualPagination?: boolean
-  manualSorting?: boolean
-  manualFiltering?: boolean
+  manualPagination?: boolean;
+  manualSorting?: boolean;
+  manualFiltering?: boolean;
 
-  rowCount?: number
-  sorting?: SortingState
-  onSortingChange?: (s: SortingState) => void
-  pagination?: PaginationState
-  onPaginationChange?: (p: PaginationState) => void
+  rowCount?: number;
+  sorting?: SortingState;
+  onSortingChange?: (s: SortingState) => void;
+  pagination?: PaginationState;
+  onPaginationChange?: (p: PaginationState) => void;
 
-  isLoading?: boolean
+  isLoading?: boolean;
 
-  loadingRows?: number
-  emptyState?: React.ReactNode
-  errorState?: React.ReactNode
+  loadingRows?: number;
+  emptyState?: React.ReactNode;
+  errorState?: React.ReactNode;
 
-  pageSizeOptions?: number[]
-  hidePagination?: boolean
-  className?: string
+  pageSizeOptions?: number[];
+  hidePagination?: boolean;
+  className?: string;
 
-  tableContainerClassName?: string
+  tableContainerClassName?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -121,17 +121,20 @@ export function DataTable<TData, TValue>({
   className,
   tableContainerClassName,
 }: DataTableProps<TData, TValue>) {
-  const [internalSorting, setInternalSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] =
-    React.useState<ColumnFiltersState>([])
+  const [internalSorting, setInternalSorting] = React.useState<SortingState>(
+    [],
+  );
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [internalPagination, setInternalPagination] =
-    React.useState<PaginationState>({ pageIndex: 0, pageSize: 20 })
+    React.useState<PaginationState>({ pageIndex: 0, pageSize: 20 });
 
-  const sorting = sortingProp ?? internalSorting
-  const pagination = paginationProp ?? internalPagination
+  const sorting = sortingProp ?? internalSorting;
+  const pagination = paginationProp ?? internalPagination;
 
   const table = useReactTable({
     data,
@@ -151,16 +154,15 @@ export function DataTable<TData, TValue>({
     rowCount: manualPagination ? rowCount : undefined,
     getRowCanExpand: renderSubRow ? () => true : undefined,
     onSortingChange: (updater) => {
-      const next =
-        typeof updater === "function" ? updater(sorting) : updater
-      setInternalSorting(next)
-      onSortingChange?.(next)
+      const next = typeof updater === "function" ? updater(sorting) : updater;
+      setInternalSorting(next);
+      onSortingChange?.(next);
     },
     onPaginationChange: (updater) => {
       const next =
-        typeof updater === "function" ? updater(pagination) : updater
-      setInternalPagination(next)
-      onPaginationChange?.(next)
+        typeof updater === "function" ? updater(pagination) : updater;
+      setInternalPagination(next);
+      onPaginationChange?.(next);
     },
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
@@ -174,12 +176,12 @@ export function DataTable<TData, TValue>({
     getExpandedRowModel: getExpandedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-  })
+  });
 
   const selectedRows = table
     .getFilteredSelectedRowModel()
-    .rows.map((r) => r.original)
-  const colSpan = table.getVisibleLeafColumns().length || columns.length
+    .rows.map((r) => r.original);
+  const colSpan = table.getVisibleLeafColumns().length || columns.length;
 
   return (
     <div className={cn("flex flex-col gap-4", className)}>
@@ -206,9 +208,8 @@ export function DataTable<TData, TValue>({
 
       <div
         className={cn(
-
           "overflow-hidden rounded-2xl border border-border bg-card backdrop-blur-xl",
-          tableContainerClassName
+          tableContainerClassName,
         )}
       >
         <ScrollArea className="w-full whitespace-nowrap">
@@ -217,12 +218,20 @@ export function DataTable<TData, TValue>({
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="hover:bg-transparent">
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}>
+                    <TableHead
+                      key={header.id}
+                      style={{
+                        width:
+                          header.getSize() !== 150
+                            ? header.getSize()
+                            : undefined,
+                      }}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   ))}
@@ -233,7 +242,10 @@ export function DataTable<TData, TValue>({
             <TableBody>
               {isLoading ? (
                 Array.from({ length: loadingRows }).map((_, i) => (
-                  <TableRow key={`skeleton-${i}`} className="hover:bg-transparent">
+                  <TableRow
+                    key={`skeleton-${i}`}
+                    className="hover:bg-transparent"
+                  >
                     {table.getVisibleLeafColumns().map((col) => (
                       <TableCell key={col.id}>
                         <Skeleton className="h-5 w-full max-w-[160px]" />
@@ -252,21 +264,26 @@ export function DataTable<TData, TValue>({
                   <React.Fragment key={row.id}>
                     <TableRow
                       data-state={row.getIsSelected() && "selected"}
-                      onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                      onClick={
+                        onRowClick ? () => onRowClick(row.original) : undefined
+                      }
                       className={cn(onRowClick && "cursor-pointer")}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>
                           {flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )}
                         </TableCell>
                       ))}
                     </TableRow>
                     {renderSubRow && row.getIsExpanded() && (
                       <TableRow className="hover:bg-transparent">
-                        <TableCell colSpan={colSpan} className="bg-muted/20 p-0">
+                        <TableCell
+                          colSpan={colSpan}
+                          className="bg-muted/20 p-0"
+                        >
                           {renderSubRow(row.original, row)}
                         </TableCell>
                       </TableRow>
@@ -298,5 +315,5 @@ export function DataTable<TData, TValue>({
         />
       )}
     </div>
-  )
+  );
 }

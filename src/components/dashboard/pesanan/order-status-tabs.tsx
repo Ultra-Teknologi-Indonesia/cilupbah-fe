@@ -1,30 +1,33 @@
-"use client"
+"use client";
 
-import { useOrderCounts } from "@/hooks/pesanan/use-orders"
-import { TAB_CONFIG, SUB_PILL_CONFIG, type OrderTab, type SubFilter } from "@/types/pesanan/order"
-import { PillTab, PillTabs } from "@/components/dashboard/shared/pill-tabs"
-import { Separator } from "@/components/ui/separator"
+import { useOrderCounts } from "@/hooks/pesanan/use-orders";
+import {
+  TAB_CONFIG,
+  SUB_PILL_CONFIG,
+  type OrderTab,
+  type SubFilter,
+} from "@/types/pesanan/order";
+import { PillTab, PillTabs } from "@/components/dashboard/shared/pill-tabs";
+import { Separator } from "@/components/ui/separator";
 
 export function OrderStatusTabs({
   active,
   onChange,
 }: {
-  active: OrderTab
-  onChange: (tab: OrderTab) => void
+  active: OrderTab;
+  onChange: (tab: OrderTab) => void;
 }) {
-  const { data, isLoading } = useOrderCounts()
-  const counts = data?.data
+  const { data, isLoading } = useOrderCounts();
+  const counts = data?.data;
 
-  const zones = ["lifecycle", "problem", "admin"] as const
-  const grouped = zones.map((z) => TAB_CONFIG.filter((t) => t.zone === z))
+  const zones = ["lifecycle", "problem", "admin"] as const;
+  const grouped = zones.map((z) => TAB_CONFIG.filter((t) => t.zone === z));
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       {grouped.map((tabs, zi) => (
         <div key={zi} className="contents">
-          {zi > 0 && (
-            <Separator orientation="vertical" className="!h-6 mx-1" />
-          )}
+          {zi > 0 && <Separator orientation="vertical" className="!h-6 mx-1" />}
           {tabs.map(({ key, label }) => (
             <PillTab
               key={key}
@@ -41,7 +44,7 @@ export function OrderStatusTabs({
         </div>
       ))}
     </div>
-  )
+  );
 }
 
 export function OrderSubStatusPills({
@@ -49,23 +52,25 @@ export function OrderSubStatusPills({
   subFilter,
   onSubFilterChange,
 }: {
-  active: OrderTab
-  subFilter: SubFilter
-  onSubFilterChange: (sub: SubFilter) => void
+  active: OrderTab;
+  subFilter: SubFilter;
+  onSubFilterChange: (sub: SubFilter) => void;
 }) {
-  const subPills = SUB_PILL_CONFIG[active]
-  if (!subPills) return null
+  const subPills = SUB_PILL_CONFIG[active];
+  if (!subPills) return null;
 
   return (
     <PillTabs
       variant="soft"
       className="gap-1"
       active={subFilter ?? "__all__"}
-      onSelect={(key) => onSubFilterChange(key === "__all__" ? null : (key as SubFilter))}
+      onSelect={(key) =>
+        onSubFilterChange(key === "__all__" ? null : (key as SubFilter))
+      }
       items={[
         { key: "__all__", label: "Semua" },
         ...subPills.map(({ key, label }) => ({ key, label })),
       ]}
     />
-  )
+  );
 }

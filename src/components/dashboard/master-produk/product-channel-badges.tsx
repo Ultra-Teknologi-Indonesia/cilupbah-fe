@@ -1,24 +1,24 @@
-import { AlertTriangleIcon } from "lucide-react"
+import { AlertTriangleIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import type { ProductChannelStatus } from "@/types/master-produk"
+} from "@/components/ui/tooltip";
+import type { ProductChannelStatus } from "@/types/master-produk";
 
 const CHANNEL_BG: Record<string, string> = {
   shopee: "bg-[#EE4D2D]",
   tokopedia: "bg-[#03AC0E]",
   tiktok: "bg-neutral-900",
   lazada: "bg-[#0F146D]",
-}
+};
 
 function ChannelDot({ ch }: { ch: ProductChannelStatus }) {
-  const hasError = !!ch.errorText
-  const bg = CHANNEL_BG[ch.channelCode]
-  const hasIcon = !!bg
+  const hasError = !!ch.errorText;
+  const bg = CHANNEL_BG[ch.channelCode];
+  const hasIcon = !!bg;
 
   return (
     <Tooltip>
@@ -26,7 +26,7 @@ function ChannelDot({ ch }: { ch: ProductChannelStatus }) {
         <span
           className={cn(
             "relative flex size-6 items-center justify-center rounded-full ring-2 ring-card",
-            hasIcon ? bg : "bg-muted-foreground"
+            hasIcon ? bg : "bg-muted-foreground",
           )}
         >
           {hasIcon ? (
@@ -60,7 +60,7 @@ function ChannelDot({ ch }: { ch: ProductChannelStatus }) {
         )}
       </TooltipContent>
     </Tooltip>
-  )
+  );
 }
 
 export function ProductChannelBadges({
@@ -68,17 +68,17 @@ export function ProductChannelBadges({
 
   max,
 }: {
-  channels: ProductChannelStatus[]
-  max?: number
+  channels: ProductChannelStatus[];
+  max?: number;
 }) {
   if (channels.length === 0) {
-    return null
+    return null;
   }
 
-  const overflowing = max !== undefined && channels.length > max
-  const visible = overflowing ? channels.slice(0, max - 1) : channels
-  const hidden = overflowing ? channels.slice(max - 1) : []
-  const hiddenHasError = hidden.some((c) => c.errorText)
+  const overflowing = max !== undefined && channels.length > max;
+  const visible = overflowing ? channels.slice(0, max - 1) : channels;
+  const hidden = overflowing ? channels.slice(max - 1) : [];
+  const hiddenHasError = hidden.some((c) => c.errorText);
 
   return (
     <div className="flex items-center -space-x-1.5">
@@ -106,13 +106,13 @@ export function ProductChannelBadges({
                   key={`${c.channelCode}-${i}`}
                   className={cn(
                     "flex items-center gap-1.5",
-                    c.errorText && "text-destructive"
+                    c.errorText && "text-destructive",
                   )}
                 >
                   <span
                     className={cn(
                       "size-1.5 shrink-0 rounded-full",
-                      c.errorText ? "bg-destructive" : "bg-emerald-500"
+                      c.errorText ? "bg-destructive" : "bg-emerald-500",
                     )}
                   />
                   {c.channelName} · {c.storeName}
@@ -123,5 +123,5 @@ export function ProductChannelBadges({
         </Tooltip>
       )}
     </div>
-  )
+  );
 }

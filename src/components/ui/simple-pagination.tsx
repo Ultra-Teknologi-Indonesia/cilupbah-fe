@@ -1,35 +1,35 @@
-"use client"
+"use client";
 
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
-export const TABLE_PAGE_SIZES = [20, 50, 100, 200]
-export const GRID_PAGE_SIZES = [24, 48, 96, 128, 196]
-const DEFAULT_PAGE_SIZES = TABLE_PAGE_SIZES
+export const TABLE_PAGE_SIZES = [20, 50, 100, 200];
+export const GRID_PAGE_SIZES = [24, 48, 96, 128, 196];
+const DEFAULT_PAGE_SIZES = TABLE_PAGE_SIZES;
 
 interface SimplePaginationProps {
-  page: number
-  lastPage: number
-  onPageChange: (page: number) => void
-  perPage?: number
-  onPerPageChange?: (size: number) => void
-  pageSizeOptions?: number[]
-  isFetching?: boolean
-  label?: string
-  total?: number
+  page: number;
+  lastPage: number;
+  onPageChange: (page: number) => void;
+  perPage?: number;
+  onPerPageChange?: (size: number) => void;
+  pageSizeOptions?: number[];
+  isFetching?: boolean;
+  label?: string;
+  total?: number;
 }
 
 export function SimplePagination({
@@ -43,7 +43,8 @@ export function SimplePagination({
   label,
   total,
 }: SimplePaginationProps) {
-  const showSizeSelector = perPage !== undefined && onPerPageChange !== undefined
+  const showSizeSelector =
+    perPage !== undefined && onPerPageChange !== undefined;
 
   return (
     <div className="flex flex-col-reverse items-center gap-4 border-t border-border/60 pt-3 sm:flex-row sm:justify-between">
@@ -58,8 +59,8 @@ export function SimplePagination({
             <Select
               value={`${perPage}`}
               onValueChange={(v) => {
-                onPerPageChange!(Number(v))
-                onPageChange(1)
+                onPerPageChange!(Number(v));
+                onPageChange(1);
               }}
             >
               <SelectTrigger
@@ -127,5 +128,5 @@ export function SimplePagination({
         </div>
       </div>
     </div>
-  )
+  );
 }

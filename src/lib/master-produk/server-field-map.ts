@@ -1,5 +1,4 @@
-import type { BuatProdukFormValues } from "@/types/master-produk"
-
+import type { BuatProdukFormValues } from "@/types/master-produk";
 
 export const SERVER_FIELD_MAP: Record<string, keyof BuatProdukFormValues> = {
   name: "name",
@@ -21,4 +20,4 @@ export const SERVER_FIELD_MAP: Record<string, keyof BuatProdukFormValues> = {
   sales_return_account_id: "salesReturnAccountId",
   inventory_account_id: "inventoryAccountId",
   cogs_account_id: "cogsAccountId",
-}
+};

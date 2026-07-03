@@ -1,28 +1,28 @@
-"use client"
+"use client";
 
-import type { Table } from "@tanstack/react-table"
+import type { Table } from "@tanstack/react-table";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { TABLE_PAGE_SIZES } from "@/components/ui/simple-pagination"
+} from "@/components/ui/select";
+import { TABLE_PAGE_SIZES } from "@/components/ui/simple-pagination";
 
 interface DataTablePaginationProps<TData> {
-  table: Table<TData>
-  pageSizeOptions?: number[]
+  table: Table<TData>;
+  pageSizeOptions?: number[];
 
-  showSelectionCount?: boolean
+  showSelectionCount?: boolean;
 }
 
 export function DataTablePagination<TData>({
@@ -30,15 +30,13 @@ export function DataTablePagination<TData>({
   pageSizeOptions = TABLE_PAGE_SIZES,
   showSelectionCount = true,
 }: DataTablePaginationProps<TData>) {
-  const pageIndex = table.getState().pagination.pageIndex
-  const pageSize = table.getState().pagination.pageSize
-  const pageCount = table.getPageCount()
+  const pageIndex = table.getState().pagination.pageIndex;
+  const pageSize = table.getState().pagination.pageSize;
+  const pageCount = table.getPageCount();
 
-  
-  
   const sizeOptions = Array.from(new Set([...pageSizeOptions, pageSize])).sort(
-    (a, b) => a - b
-  )
+    (a, b) => a - b,
+  );
 
   return (
     <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between">
@@ -122,5 +120,5 @@ export function DataTablePagination<TData>({
         </div>
       </div>
     </div>
-  )
+  );
 }

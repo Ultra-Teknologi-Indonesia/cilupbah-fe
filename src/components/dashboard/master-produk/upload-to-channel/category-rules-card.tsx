@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   AlertTriangleIcon,
@@ -8,27 +8,27 @@ import {
   PackageIcon,
   RulerIcon,
   TruckIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Badge } from "@/components/ui/badge"
-import type { CategoryRules } from "@/hooks/master-produk/use-upload"
+import { Badge } from "@/components/ui/badge";
+import type { CategoryRules } from "@/hooks/master-produk/use-upload";
 
 interface CategoryRulesCardProps {
-  rules: CategoryRules | null
+  rules: CategoryRules | null;
 }
 
 export function CategoryRulesCard({ rules }: CategoryRulesCardProps) {
-  if (!rules) return null
+  if (!rules) return null;
 
-  const certs = rules.productCertifications
+  const certs = rules.productCertifications;
   const hasAnything =
     certs.length > 0 ||
     rules.manufacturer.isRequired ||
     rules.packageDimension.isRequired ||
     rules.sizeChart.isSupported ||
-    rules.cod.isSupported
+    rules.cod.isSupported;
 
-  if (!hasAnything) return null
+  if (!hasAnything) return null;
 
   return (
     <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
@@ -43,19 +43,22 @@ export function CategoryRulesCard({ rules }: CategoryRulesCardProps) {
             Sertifikasi
           </p>
           {certs.map((cert) => (
-            <div
-              key={cert.id}
-              className="flex items-start gap-2 text-sm"
-            >
+            <div key={cert.id} className="flex items-start gap-2 text-sm">
               <FileTextIcon className="size-4 mt-0.5 shrink-0 text-muted-foreground" />
               <div className="min-w-0 flex-1">
                 <span className="font-medium">{cert.name}</span>
                 {cert.isRequired ? (
-                  <Badge variant="destructive" className="ml-2 text-[10px] font-normal px-1.5 py-0">
+                  <Badge
+                    variant="destructive"
+                    className="ml-2 text-[10px] font-normal px-1.5 py-0"
+                  >
                     Wajib
                   </Badge>
                 ) : (
-                  <Badge variant="secondary" className="ml-2 text-[10px] font-normal px-1.5 py-0">
+                  <Badge
+                    variant="secondary"
+                    className="ml-2 text-[10px] font-normal px-1.5 py-0"
+                  >
                     Opsional
                   </Badge>
                 )}
@@ -94,7 +97,7 @@ export function CategoryRulesCard({ rules }: CategoryRulesCardProps) {
         )}
       </div>
     </div>
-  )
+  );
 }
 
 function RuleItem({
@@ -103,24 +106,30 @@ function RuleItem({
   required,
   supported,
 }: {
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-  required?: boolean
-  supported?: boolean
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  required?: boolean;
+  supported?: boolean;
 }) {
   return (
     <div className="flex items-center gap-2 text-sm">
       <Icon className="size-4 text-muted-foreground" />
       <span>{label}</span>
       {required ? (
-        <Badge variant="destructive" className="text-[10px] font-normal px-1.5 py-0">
+        <Badge
+          variant="destructive"
+          className="text-[10px] font-normal px-1.5 py-0"
+        >
           Wajib
         </Badge>
       ) : supported ? (
-        <Badge variant="secondary" className="text-[10px] font-normal px-1.5 py-0">
+        <Badge
+          variant="secondary"
+          className="text-[10px] font-normal px-1.5 py-0"
+        >
           Didukung
         </Badge>
       ) : null}
     </div>
-  )
+  );
 }

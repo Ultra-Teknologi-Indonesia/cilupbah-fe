@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
 import {
   PageHeaderSkeleton,
   TableSkeleton,
-} from "@/components/ui/page-skeleton"
+} from "@/components/ui/page-skeleton";
 
 export default function PesananLoading() {
   return (
@@ -13,5 +13,5 @@ export default function PesananLoading() {
         <TableSkeleton rows={6} cols={6} />
       </div>
     </phantom-ui>
-  )
+  );
 }

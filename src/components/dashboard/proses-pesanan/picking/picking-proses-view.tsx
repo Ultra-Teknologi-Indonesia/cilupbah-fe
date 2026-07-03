@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
+import * as React from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeftIcon,
   CheckIcon,
   Loader2Icon,
   PackageIcon,
   ScanBarcodeIcon,
-} from "lucide-react"
-import { toast } from "sonner"
+} from "lucide-react";
+import { toast } from "sonner";
 
-import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -23,36 +23,36 @@ import {
   DialogTitle,
   DialogFooter,
   DialogDescription,
-} from "@/components/ui/dialog"
-import { PageTitle } from "@/components/dashboard/page-title"
+} from "@/components/ui/dialog";
+import { PageTitle } from "@/components/dashboard/page-title";
 import {
   usePicklistDetail,
   useStartPicklist,
   usePickItem,
   useScanForPick,
   useCompletePicklist,
-} from "@/hooks/proses-pesanan/use-fulfillment"
-import { StatusBadge } from "@/components/dashboard/shared/status-badge"
-import { playScanFeedback } from "@/lib/scan-feedback"
+} from "@/hooks/proses-pesanan/use-fulfillment";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { playScanFeedback } from "@/lib/scan-feedback";
 
-const LIST_HREF = "/dashboard/proses-pesanan"
+const LIST_HREF = "/dashboard/proses-pesanan";
 
 function errMsg(err: unknown, fallback: string): string {
   if (err && typeof err === "object" && "message" in err) {
-    const m = (err as { message?: unknown }).message
-    if (typeof m === "string" && m) return m
+    const m = (err as { message?: unknown }).message;
+    if (typeof m === "string" && m) return m;
   }
-  return fallback
+  return fallback;
 }
 
 function ItemImage({ src, alt }: { src: string | null; alt: string }) {
-  const [errored, setErrored] = React.useState(false)
+  const [errored, setErrored] = React.useState(false);
   if (!src || errored) {
     return (
       <div className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-border bg-muted text-muted-foreground">
         <PackageIcon className="size-5" />
       </div>
-    )
+    );
   }
   return (
     <div className="relative size-12 shrink-0 overflow-hidden rounded-xl border border-border bg-muted">
@@ -65,143 +65,165 @@ function ItemImage({ src, alt }: { src: string | null; alt: string }) {
         onError={() => setErrored(true)}
       />
     </div>
-  )
+  );
 }
 
-function statusBadge(s: string | null, picked: number, ordered: number): { label: string; className: string } {
+function statusBadge(
+  s: string | null,
+  picked: number,
+  ordered: number,
+): { label: string; className: string } {
   if (picked >= ordered && ordered > 0) {
-    return { label: "Selesai", className: "bg-emerald-500/10 text-emerald-600" }
+    return {
+      label: "Selesai",
+      className: "bg-emerald-500/10 text-emerald-600",
+    };
   }
   if (picked > 0) {
-    return { label: "Sebagian", className: "bg-amber-500/10 text-amber-600" }
+    return { label: "Sebagian", className: "bg-amber-500/10 text-amber-600" };
   }
-  if (s === "PICKED") return { label: "Selesai", className: "bg-emerald-500/10 text-emerald-600" }
-  return { label: "Belum", className: "bg-muted text-muted-foreground" }
+  if (s === "PICKED")
+    return {
+      label: "Selesai",
+      className: "bg-emerald-500/10 text-emerald-600",
+    };
+  return { label: "Belum", className: "bg-muted text-muted-foreground" };
 }
 
 export function PickingProsesView({ id }: { id: string }) {
-  const router = useRouter()
+  const router = useRouter();
 
-  const skuScanRef = React.useRef<HTMLInputElement>(null)
-  const binScanRef = React.useRef<HTMLInputElement>(null)
-  const qtyInputRef = React.useRef<HTMLInputElement>(null)
+  const skuScanRef = React.useRef<HTMLInputElement>(null);
+  const binScanRef = React.useRef<HTMLInputElement>(null);
+  const qtyInputRef = React.useRef<HTMLInputElement>(null);
 
-  const [skuScan, setSkuScan] = React.useState("")
-  const [binScan, setBinScan] = React.useState("")
-  const [scannedBinCode, setScannedBinCode] = React.useState<string | null>(null)
-  const [activeItemId, setActiveItemId] = React.useState<string | null>(null)
-  const [pickQty, setPickQty] = React.useState("")
-  // Batas maksimum qty dari BE = min(sisa pesan, stok di rak yang di-scan).
-  // Dipakai untuk default field qty + validasi confirm.
-  const [activePickMax, setActivePickMax] = React.useState(0)
-  const [notes, setNotes] = React.useState("")
+  const [skuScan, setSkuScan] = React.useState("");
+  const [binScan, setBinScan] = React.useState("");
+  const [scannedBinCode, setScannedBinCode] = React.useState<string | null>(
+    null,
+  );
+  const [activeItemId, setActiveItemId] = React.useState<string | null>(null);
+  const [pickQty, setPickQty] = React.useState("");
 
-  const { data: pl, isLoading, isError } = usePicklistDetail(id)
-  const startPicklist = useStartPicklist()
-  const pickItem = usePickItem()
-  const scanForPick = useScanForPick()
-  const completePicklist = useCompletePicklist()
+  const [activePickMax, setActivePickMax] = React.useState(0);
+  const [notes, setNotes] = React.useState("");
 
-  const items = React.useMemo(() => pl?.items ?? [], [pl])
+  const { data: pl, isLoading, isError } = usePicklistDetail(id);
+  const startPicklist = useStartPicklist();
+  const pickItem = usePickItem();
+  const scanForPick = useScanForPick();
+  const completePicklist = useCompletePicklist();
 
-  const totalOrdered = items.reduce((s, i) => s + i.qtyOrdered, 0)
-  const totalPicked = items.reduce((s, i) => s + i.qtyPicked, 0)
-  const allPicked = items.length > 0 && items.every((i) => i.qtyPicked >= i.qtyOrdered)
-  const isTerminal = pl ? ["COMPLETED", "FAILED", "CANCELLED"].includes(pl.status) : false
-  const editable = !!pl && !isTerminal
+  const items = React.useMemo(() => pl?.items ?? [], [pl]);
+
+  const totalOrdered = items.reduce((s, i) => s + i.qtyOrdered, 0);
+  const totalPicked = items.reduce((s, i) => s + i.qtyPicked, 0);
+  const allPicked =
+    items.length > 0 && items.every((i) => i.qtyPicked >= i.qtyOrdered);
+  const isTerminal = pl
+    ? ["COMPLETED", "FAILED", "CANCELLED"].includes(pl.status)
+    : false;
+  const editable = !!pl && !isTerminal;
 
   React.useEffect(() => {
     if (pl && pl.status === "COMPLETED") {
-      toast.info(`Picklist ${pl.picklistNo} sudah selesai.`)
-      router.replace(LIST_HREF)
+      toast.info(`Picklist ${pl.picklistNo} sudah selesai.`);
+      router.replace(LIST_HREF);
     }
-  }, [pl, router])
+  }, [pl, router]);
 
-  const didAutoStart = React.useRef(false)
+  const didAutoStart = React.useRef(false);
   React.useEffect(() => {
-    if (!pl || didAutoStart.current) return
+    if (!pl || didAutoStart.current) return;
     if (pl.status === "DRAFT") {
-      didAutoStart.current = true
+      didAutoStart.current = true;
       startPicklist.mutate(id, {
         onError: (e) => toast.error(errMsg(e, "Gagal memulai picking.")),
-      })
+      });
     }
-  }, [pl, id, startPicklist])
+  }, [pl, id, startPicklist]);
 
-  // Auto-complete ketika semua item sudah di-pick
-  const didAutoComplete = React.useRef(false)
+  const didAutoComplete = React.useRef(false);
   React.useEffect(() => {
-    if (!pl || didAutoComplete.current || !editable) return
+    if (!pl || didAutoComplete.current || !editable) return;
     if (allPicked) {
-      didAutoComplete.current = true
+      didAutoComplete.current = true;
       completePicklist.mutate(id, {
         onSuccess: () => {
-          toast.success("Semua item sudah di-pick. Picking selesai!")
-          router.push(LIST_HREF)
+          toast.success("Semua item sudah di-pick. Picking selesai!");
+          router.push(LIST_HREF);
         },
         onError: (e) => {
-          didAutoComplete.current = false
-          toast.error(errMsg(e, "Gagal menyelesaikan picking."))
+          didAutoComplete.current = false;
+          toast.error(errMsg(e, "Gagal menyelesaikan picking."));
         },
-      })
+      });
     }
-  }, [pl, allPicked, editable, id, completePicklist, router])
+  }, [pl, allPicked, editable, id, completePicklist, router]);
 
-  const activeItem = activeItemId ? items.find((i) => i.id === activeItemId) ?? null : null
+  const activeItem = activeItemId
+    ? (items.find((i) => i.id === activeItemId) ?? null)
+    : null;
 
-  const BIN_CODE_PATTERN = /^L\d+-B\d+-K\d+-R\d+$/i
+  const BIN_CODE_PATTERN = /^L\d+-B\d+-K\d+-R\d+$/i;
 
   const handleScanSku = async () => {
-    const code = skuScan.trim()
-    if (!code) return
-    if (!editable) return
+    const code = skuScan.trim();
+    if (!code) return;
+    if (!editable) return;
     if (!scannedBinCode) {
-      playScanFeedback("error")
-      toast.warning("Scan kode rak dulu sebelum scan SKU.")
-      setSkuScan("")
-      binScanRef.current?.focus()
-      return
+      playScanFeedback("error");
+      toast.warning("Scan kode rak dulu sebelum scan SKU.");
+      setSkuScan("");
+      binScanRef.current?.focus();
+      return;
     }
     if (BIN_CODE_PATTERN.test(code) || code === scannedBinCode) {
-      playScanFeedback("error")
-      toast.error(`"${code}" adalah kode rak, bukan SKU produk.`)
-      setSkuScan("")
-      skuScanRef.current?.focus()
-      return
+      playScanFeedback("error");
+      toast.error(`"${code}" adalah kode rak, bukan SKU produk.`);
+      setSkuScan("");
+      skuScanRef.current?.focus();
+      return;
     }
-    setSkuScan("")
-    // Validasi ke BE: SKU harus benar-benar ada di rak aktif (dan masih bersisa).
-    // Modal hanya dibuka jika valid; kalau tidak, buzz + toast tanpa buka modal.
+    setSkuScan("");
+
     try {
       const res = await scanForPick.mutateAsync({
         picklistId: id,
         sku: code,
         binCode: scannedBinCode,
-      })
-      playScanFeedback("ok")
-      setActiveItemId(res.item_id)
-      setActivePickMax(res.max_pickable)
-      setPickQty(String(res.max_pickable))
-      setTimeout(() => qtyInputRef.current?.focus(), 50)
+      });
+      playScanFeedback("ok");
+      setActiveItemId(res.item_id);
+      setActivePickMax(res.max_pickable);
+      setPickQty(String(res.max_pickable));
+      setTimeout(() => qtyInputRef.current?.focus(), 50);
     } catch (e) {
-      playScanFeedback("error")
-      toast.error(errMsg(e, `SKU "${code}" tidak bisa diambil dari rak ${scannedBinCode}.`))
-      skuScanRef.current?.focus()
+      playScanFeedback("error");
+      toast.error(
+        errMsg(
+          e,
+          `SKU "${code}" tidak bisa diambil dari rak ${scannedBinCode}.`,
+        ),
+      );
+      skuScanRef.current?.focus();
     }
-  }
+  };
 
   const handleConfirmPick = () => {
-    if (!activeItem || !scannedBinCode) return
-    const qty = Number.parseInt(pickQty, 10)
+    if (!activeItem || !scannedBinCode) return;
+    const qty = Number.parseInt(pickQty, 10);
     if (Number.isNaN(qty) || qty <= 0) {
-      playScanFeedback("error")
-      toast.error("Masukkan qty yang valid.")
-      return
+      playScanFeedback("error");
+      toast.error("Masukkan qty yang valid.");
+      return;
     }
     if (qty > activePickMax) {
-      playScanFeedback("error")
-      toast.error(`Qty melebihi maksimum yang bisa diambil (${activePickMax}).`)
-      return
+      playScanFeedback("error");
+      toast.error(
+        `Qty melebihi maksimum yang bisa diambil (${activePickMax}).`,
+      );
+      return;
     }
     pickItem.mutate(
       {
@@ -212,54 +234,56 @@ export function PickingProsesView({ id }: { id: string }) {
       },
       {
         onSuccess: () => {
-          playScanFeedback("ok")
-          toast.success(`${activeItem.sku} berhasil di-pick (${activeItem.qtyPicked + qty}/${activeItem.qtyOrdered}).`)
-          setActiveItemId(null)
-          setPickQty("")
-          skuScanRef.current?.focus()
+          playScanFeedback("ok");
+          toast.success(
+            `${activeItem.sku} berhasil di-pick (${activeItem.qtyPicked + qty}/${activeItem.qtyOrdered}).`,
+          );
+          setActiveItemId(null);
+          setPickQty("");
+          skuScanRef.current?.focus();
         },
         onError: (e) => {
-          playScanFeedback("error")
-          toast.error(errMsg(e, `Gagal pick ${activeItem.sku}.`))
+          playScanFeedback("error");
+          toast.error(errMsg(e, `Gagal pick ${activeItem.sku}.`));
         },
-      }
-    )
-  }
+      },
+    );
+  };
 
   const handleCancelPick = () => {
-    setActiveItemId(null)
-    setPickQty("")
-    setActivePickMax(0)
-    skuScanRef.current?.focus()
-  }
+    setActiveItemId(null);
+    setPickQty("");
+    setActivePickMax(0);
+    skuScanRef.current?.focus();
+  };
 
   const handleScanBin = () => {
-    const code = binScan.trim()
-    if (!code) return
-    const isSku = items.some((i) => i.sku.toLowerCase() === code.toLowerCase())
+    const code = binScan.trim();
+    if (!code) return;
+    const isSku = items.some((i) => i.sku.toLowerCase() === code.toLowerCase());
     if (isSku) {
-      playScanFeedback("error")
-      toast.error(`"${code}" adalah SKU produk, bukan kode rak.`)
-      setBinScan("")
-      binScanRef.current?.focus()
-      return
+      playScanFeedback("error");
+      toast.error(`"${code}" adalah SKU produk, bukan kode rak.`);
+      setBinScan("");
+      binScanRef.current?.focus();
+      return;
     }
-    setBinScan("")
-    setScannedBinCode(code)
-    playScanFeedback("ok")
-    toast.success(`Rak ${code} aktif.`)
-    setTimeout(() => skuScanRef.current?.focus(), 50)
-  }
+    setBinScan("");
+    setScannedBinCode(code);
+    playScanFeedback("ok");
+    toast.success(`Rak ${code} aktif.`);
+    setTimeout(() => skuScanRef.current?.focus(), 50);
+  };
 
   const handleComplete = () => {
     completePicklist.mutate(id, {
       onSuccess: () => {
-        toast.success("Picking selesai.")
-        router.push(LIST_HREF)
+        toast.success("Picking selesai.");
+        router.push(LIST_HREF);
       },
       onError: (e) => toast.error(errMsg(e, "Gagal menyelesaikan picking.")),
-    })
-  }
+    });
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -281,7 +305,9 @@ export function PickingProsesView({ id }: { id: string }) {
               onClick={handleComplete}
               disabled={!editable || !allPicked || completePicklist.isPending}
             >
-              {completePicklist.isPending && <Loader2Icon className="animate-spin" />}
+              {completePicklist.isPending && (
+                <Loader2Icon className="animate-spin" />
+              )}
               Selesaikan Picking
             </Button>
           </div>
@@ -293,14 +319,18 @@ export function PickingProsesView({ id }: { id: string }) {
           <Loader2Icon className="size-4 animate-spin" /> Memuat picklist…
         </div>
       ) : isError || !pl ? (
-        <div className="py-24 text-center text-sm text-destructive">Gagal memuat picklist.</div>
+        <div className="py-24 text-center text-sm text-destructive">
+          Gagal memuat picklist.
+        </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-          {/* ── Sidebar kiri ───────────────────────────────────────────── */}
+          {}
           <aside className="flex flex-col gap-4">
             <div className="rounded-2xl border border-border bg-card p-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">No Picklist</span>
+                <span className="text-xs text-muted-foreground">
+                  No Picklist
+                </span>
                 <StatusBadge domain="picklist" status={pl.status} />
               </div>
               <div className="mt-1 font-mono text-sm font-semibold text-foreground">
@@ -308,11 +338,15 @@ export function PickingProsesView({ id }: { id: string }) {
               </div>
               <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
                 <span>Lokasi</span>
-                <span className="font-medium text-foreground">{pl.locationName ?? "—"}</span>
+                <span className="font-medium text-foreground">
+                  {pl.locationName ?? "—"}
+                </span>
               </div>
               <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
                 <span>Picker</span>
-                <span className="font-medium text-foreground">{pl.pickerName ?? "—"}</span>
+                <span className="font-medium text-foreground">
+                  {pl.pickerName ?? "—"}
+                </span>
               </div>
               <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
                 <span>Progress</span>
@@ -324,12 +358,15 @@ export function PickingProsesView({ id }: { id: string }) {
                 <div
                   className={cn(
                     "h-full rounded-full transition-all",
-                    allPicked ? "bg-emerald-500" : "bg-primary"
+                    allPicked ? "bg-emerald-500" : "bg-primary",
                   )}
                   style={{
                     width: `${
                       totalOrdered > 0
-                        ? Math.min(100, Math.round((totalPicked / totalOrdered) * 100))
+                        ? Math.min(
+                            100,
+                            Math.round((totalPicked / totalOrdered) * 100),
+                          )
                         : 0
                     }%`,
                   }}
@@ -338,7 +375,9 @@ export function PickingProsesView({ id }: { id: string }) {
             </div>
 
             <div className="rounded-2xl border border-border bg-card p-4">
-              <div className="text-xs text-muted-foreground">Kode Rak Aktif</div>
+              <div className="text-xs text-muted-foreground">
+                Kode Rak Aktif
+              </div>
               <div className="mt-1 font-mono text-base font-semibold text-foreground">
                 {scannedBinCode ?? "—"}
               </div>
@@ -361,8 +400,8 @@ export function PickingProsesView({ id }: { id: string }) {
                 onChange={(e) => setBinScan(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
-                    e.preventDefault()
-                    handleScanBin()
+                    e.preventDefault();
+                    handleScanBin();
                   }
                 }}
                 placeholder="Scan kode rak…"
@@ -372,7 +411,10 @@ export function PickingProsesView({ id }: { id: string }) {
             </div>
 
             <div className="rounded-2xl border border-border bg-card p-4">
-              <label htmlFor="picking-notes" className="text-xs text-muted-foreground">
+              <label
+                htmlFor="picking-notes"
+                className="text-xs text-muted-foreground"
+              >
                 Keterangan
               </label>
               <Textarea
@@ -385,11 +427,14 @@ export function PickingProsesView({ id }: { id: string }) {
             </div>
           </aside>
 
-          {/* ── Main kanan ───────────────────────────────────────────── */}
+          {}
           <section className="flex flex-col gap-4">
             <div className="flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-card p-4">
               <div className="flex-1 min-w-[240px]">
-                <label htmlFor="scan-sku" className="text-xs text-muted-foreground">
+                <label
+                  htmlFor="scan-sku"
+                  className="text-xs text-muted-foreground"
+                >
                   Scan SKU / Barcode
                 </label>
                 <div className="relative mt-1.5">
@@ -401,13 +446,15 @@ export function PickingProsesView({ id }: { id: string }) {
                     onChange={(e) => setSkuScan(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
-                        e.preventDefault()
-                        handleScanSku()
+                        e.preventDefault();
+                        handleScanSku();
                       }
                     }}
                     placeholder="Scan SKU / barcode barang…"
                     className="pl-9"
-                    disabled={!editable || pickItem.isPending || scanForPick.isPending}
+                    disabled={
+                      !editable || pickItem.isPending || scanForPick.isPending
+                    }
                     autoFocus
                   />
                 </div>
@@ -421,33 +468,64 @@ export function PickingProsesView({ id }: { id: string }) {
               </div>
             </div>
 
-            <Dialog open={!!activeItem} onOpenChange={(open) => { if (!open) handleCancelPick() }}>
-              <DialogContent className="sm:max-w-md" onOpenAutoFocus={(e) => { e.preventDefault(); setTimeout(() => qtyInputRef.current?.focus(), 50) }}>
+            <Dialog
+              open={!!activeItem}
+              onOpenChange={(open) => {
+                if (!open) handleCancelPick();
+              }}
+            >
+              <DialogContent
+                className="sm:max-w-md"
+                onOpenAutoFocus={(e) => {
+                  e.preventDefault();
+                  setTimeout(() => qtyInputRef.current?.focus(), 50);
+                }}
+              >
                 {activeItem && (
                   <>
                     <DialogHeader>
                       <DialogTitle>Konfirmasi Pick</DialogTitle>
-                      <DialogDescription>Masukkan jumlah yang diambil dari rak <span className="font-semibold">{scannedBinCode}</span></DialogDescription>
+                      <DialogDescription>
+                        Masukkan jumlah yang diambil dari rak{" "}
+                        <span className="font-semibold">{scannedBinCode}</span>
+                      </DialogDescription>
                     </DialogHeader>
                     <div className="flex items-start gap-4 py-2">
-                      <ItemImage src={activeItem.imageUrl} alt={activeItem.name ?? activeItem.sku} />
+                      <ItemImage
+                        src={activeItem.imageUrl}
+                        alt={activeItem.name ?? activeItem.sku}
+                      />
                       <div className="min-w-0 flex-1">
-                        <div className="font-medium text-foreground">{activeItem.name ?? activeItem.sku}</div>
-                        <div className="font-mono text-xs text-muted-foreground">{activeItem.sku}</div>
+                        <div className="font-medium text-foreground">
+                          {activeItem.name ?? activeItem.sku}
+                        </div>
+                        <div className="font-mono text-xs text-muted-foreground">
+                          {activeItem.sku}
+                        </div>
                         <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
                           <span>Pesanan</span>
-                          <span className="font-medium text-foreground">{activeItem.orderNo ?? "—"}</span>
+                          <span className="font-medium text-foreground">
+                            {activeItem.orderNo ?? "—"}
+                          </span>
                           <span>Qty dipesan</span>
-                          <span className="font-medium text-foreground">{activeItem.qtyOrdered}</span>
+                          <span className="font-medium text-foreground">
+                            {activeItem.qtyOrdered}
+                          </span>
                           <span>Sudah pick</span>
-                          <span className="font-medium text-foreground">{activeItem.qtyPicked}</span>
+                          <span className="font-medium text-foreground">
+                            {activeItem.qtyPicked}
+                          </span>
                           <span>Sisa</span>
-                          <span className="font-semibold text-primary">{activeItem.qtyOrdered - activeItem.qtyPicked}</span>
+                          <span className="font-semibold text-primary">
+                            {activeItem.qtyOrdered - activeItem.qtyPicked}
+                          </span>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 pt-2">
-                      <label className="shrink-0 text-sm font-medium text-foreground">Qty ambil</label>
+                      <label className="shrink-0 text-sm font-medium text-foreground">
+                        Qty ambil
+                      </label>
                       <Input
                         ref={qtyInputRef}
                         type="number"
@@ -458,8 +536,8 @@ export function PickingProsesView({ id }: { id: string }) {
                         onChange={(e) => setPickQty(e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
-                            e.preventDefault()
-                            handleConfirmPick()
+                            e.preventDefault();
+                            handleConfirmPick();
                           }
                         }}
                         placeholder={`maks ${activePickMax}`}
@@ -468,11 +546,20 @@ export function PickingProsesView({ id }: { id: string }) {
                       />
                     </div>
                     <DialogFooter className="gap-2 sm:gap-0">
-                      <Button variant="ghost" onClick={handleCancelPick} disabled={pickItem.isPending}>
+                      <Button
+                        variant="ghost"
+                        onClick={handleCancelPick}
+                        disabled={pickItem.isPending}
+                      >
                         Batal
                       </Button>
-                      <Button onClick={handleConfirmPick} disabled={pickItem.isPending || !pickQty.trim()}>
-                        {pickItem.isPending && <Loader2Icon className="size-4 animate-spin" />}
+                      <Button
+                        onClick={handleConfirmPick}
+                        disabled={pickItem.isPending || !pickQty.trim()}
+                      >
+                        {pickItem.isPending && (
+                          <Loader2Icon className="size-4 animate-spin" />
+                        )}
                         Konfirmasi Pick
                       </Button>
                     </DialogFooter>
@@ -498,26 +585,37 @@ export function PickingProsesView({ id }: { id: string }) {
                 <tbody>
                   {items.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="py-12 text-center text-sm text-muted-foreground">
+                      <td
+                        colSpan={8}
+                        className="py-12 text-center text-sm text-muted-foreground"
+                      >
                         Tidak ada item dalam picklist ini.
                       </td>
                     </tr>
                   ) : (
                     items.map((it) => {
-                      const done = it.qtyPicked >= it.qtyOrdered
-                      const badge = statusBadge(it.itemStatus, it.qtyPicked, it.qtyOrdered)
+                      const done = it.qtyPicked >= it.qtyOrdered;
+                      const badge = statusBadge(
+                        it.itemStatus,
+                        it.qtyPicked,
+                        it.qtyOrdered,
+                      );
                       return (
                         <tr
                           key={it.id}
                           className={cn(
                             "border-b border-border/60 last:border-0",
                             done && "bg-emerald-500/[0.04]",
-                            activeItemId === it.id && "bg-primary/[0.06] ring-1 ring-inset ring-primary/20"
+                            activeItemId === it.id &&
+                              "bg-primary/[0.06] ring-1 ring-inset ring-primary/20",
                           )}
                         >
                           <td className="px-3 py-3">
                             <div className="flex items-start gap-3">
-                              <ItemImage src={it.imageUrl} alt={it.name ?? it.sku} />
+                              <ItemImage
+                                src={it.imageUrl}
+                                alt={it.name ?? it.sku}
+                              />
                               <div className="flex min-w-0 flex-col gap-0.5">
                                 <span className="font-medium text-foreground">
                                   {it.name ?? it.sku}
@@ -549,7 +647,7 @@ export function PickingProsesView({ id }: { id: string }) {
                                   ? "bg-emerald-500/10 text-emerald-600"
                                   : it.qtyPicked > 0
                                     ? "bg-amber-500/10 text-amber-600"
-                                    : "text-muted-foreground"
+                                    : "text-muted-foreground",
                               )}
                             >
                               {it.qtyPicked} / {it.qtyOrdered}
@@ -565,7 +663,7 @@ export function PickingProsesView({ id }: { id: string }) {
                             <span
                               className={cn(
                                 "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
-                                badge.className
+                                badge.className,
                               )}
                             >
                               {done && <CheckIcon className="size-3" />}
@@ -576,7 +674,7 @@ export function PickingProsesView({ id }: { id: string }) {
                             {it.trackingNumber ?? "—"}
                           </td>
                         </tr>
-                      )
+                      );
                     })
                   )}
                 </tbody>
@@ -586,5 +684,5 @@ export function PickingProsesView({ id }: { id: string }) {
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -1,47 +1,50 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
+import * as React from "react";
+import Link from "next/link";
 import {
   ClipboardListIcon,
   MoreHorizontalIcon,
   PrinterIcon,
   RefreshCwIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   FulfillmentFilterBar,
   type FulfillmentFilterValue,
-} from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar"
-import type { ColumnDef } from "@tanstack/react-table"
-import { DataTable } from "@/components/ui/data-table/data-table"
+} from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/components/ui/data-table/data-table";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { usePicklists, usePrefetchPicklistDetail } from "@/hooks/proses-pesanan/use-fulfillment"
-import { type Picklist } from "@/types/proses-pesanan/fulfillment"
-import { StatusBadge } from "@/components/dashboard/shared/status-badge"
+} from "@/components/ui/tooltip";
+import {
+  usePicklists,
+  usePrefetchPicklistDetail,
+} from "@/hooks/proses-pesanan/use-fulfillment";
+import { type Picklist } from "@/types/proses-pesanan/fulfillment";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 
-import { UbahPickerDialog } from "./ubah-picker-dialog"
+import { UbahPickerDialog } from "./ubah-picker-dialog";
 
 const STATUS_OPTIONS = [
   { value: "__all", label: "Semua Status" },
@@ -50,10 +53,10 @@ const STATUS_OPTIONS = [
   { value: "COMPLETED", label: "Selesai" },
   { value: "FAILED", label: "Gagal" },
   { value: "CANCELLED", label: "Dibatalkan" },
-]
+];
 
 function ProgressCell({ done, total }: { done: number; total: number }) {
-  const pct = total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0
+  const pct = total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0;
   return (
     <div className="min-w-[140px]">
       <div className="mb-1 text-xs tabular-nums text-muted-foreground">
@@ -61,27 +64,30 @@ function ProgressCell({ done, total }: { done: number; total: number }) {
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
         <div
-          className={cn("h-full rounded-full transition-all", pct >= 100 ? "bg-emerald-500" : "bg-primary")}
+          className={cn(
+            "h-full rounded-full transition-all",
+            pct >= 100 ? "bg-emerald-500" : "bg-primary",
+          )}
           style={{ width: `${pct}%` }}
         />
       </div>
     </div>
-  )
+  );
 }
 
 export function PicklistTable() {
-  const prefetchPicklist = usePrefetchPicklistDetail()
-  const [search, setSearch] = React.useState("")
-  const [debounced, setDebounced] = React.useState("")
-  const [page, setPage] = React.useState(1)
-  const [status, setStatus] = React.useState<string>("")
-  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({})
-  const [editPicker, setEditPicker] = React.useState<Picklist | null>(null)
+  const prefetchPicklist = usePrefetchPicklistDetail();
+  const [search, setSearch] = React.useState("");
+  const [debounced, setDebounced] = React.useState("");
+  const [page, setPage] = React.useState(1);
+  const [status, setStatus] = React.useState<string>("");
+  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
+  const [editPicker, setEditPicker] = React.useState<Picklist | null>(null);
 
   React.useEffect(() => {
-    const t = setTimeout(() => setDebounced(search.trim()), 350)
-    return () => clearTimeout(t)
-  }, [search])
+    const t = setTimeout(() => setDebounced(search.trim()), 350);
+    return () => clearTimeout(t);
+  }, [search]);
 
   const params = React.useMemo(
     () => ({
@@ -98,112 +104,140 @@ export function PicklistTable() {
       page,
       per_page: 20,
     }),
-    [debounced, status, filter, page]
-  )
-  const { data, isLoading, isFetching, refetch } = usePicklists(params)
+    [debounced, status, filter, page],
+  );
+  const { data, isLoading, isFetching, refetch } = usePicklists(params);
 
-  const picklists = data?.items ?? []
+  const picklists = data?.items ?? [];
 
-  // Link sudah prefetch route; warmkan juga data detail picklist saat hover.
-  const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: 20, total: 0 }
+  const meta = data?.meta ?? {
+    current_page: 1,
+    last_page: 1,
+    per_page: 20,
+    total: 0,
+  };
 
-  const columns = React.useMemo<ColumnDef<Picklist>[]>(() => [
-    {
-      accessorKey: "picklistNo",
-      header: "No. Picklist",
-      cell: ({ row }) => (
-        <Link
-          href={`/dashboard/proses-pesanan/picking/proses/${row.original.id}`}
-          onClick={(e) => e.stopPropagation()}
-          onMouseEnter={() => prefetchPicklist(row.original.id)}
-          onFocus={() => prefetchPicklist(row.original.id)}
-          className="cursor-pointer font-medium text-primary hover:underline"
-        >
-          {row.original.picklistNo}
-        </Link>
-      ),
-    },
-    {
-      accessorKey: "locationName",
-      header: "Lokasi",
-      cell: ({ row }) => <span className="text-foreground">{row.original.locationName ?? "—"}</span>,
-    },
-    {
-      accessorKey: "pickerName",
-      header: "Picker",
-      cell: ({ row }) => <span>{row.original.pickerName ?? "—"}</span>,
-    },
-    {
-      accessorKey: "itemsCount",
-      header: "Total Item",
-      cell: ({ row }) => <span className="tabular-nums">{row.original.itemsCount}</span>,
-    },
-    {
-      id: "progress",
-      header: "Progress",
-      cell: ({ row }) => <ProgressCell done={row.original.qtyPicked} total={row.original.qtyOrdered} />,
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => <StatusBadge domain="picklist" status={row.original.status} />,
-    },
-    {
-      id: "actions",
-      header: () => null,
-      cell: ({ row }) => (
-        <div className="flex items-center justify-end gap-1.5">
-          <TooltipProvider delayDuration={200}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label="Cetak Picklist"
-                >
-                  <Link
-                    href={`/dashboard/document-preview/picklist/${row.original.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+  const columns = React.useMemo<ColumnDef<Picklist>[]>(
+    () => [
+      {
+        accessorKey: "picklistNo",
+        header: "No. Picklist",
+        cell: ({ row }) => (
+          <Link
+            href={`/dashboard/proses-pesanan/picking/proses/${row.original.id}`}
+            onClick={(e) => e.stopPropagation()}
+            onMouseEnter={() => prefetchPicklist(row.original.id)}
+            onFocus={() => prefetchPicklist(row.original.id)}
+            className="cursor-pointer font-medium text-primary hover:underline"
+          >
+            {row.original.picklistNo}
+          </Link>
+        ),
+      },
+      {
+        accessorKey: "locationName",
+        header: "Lokasi",
+        cell: ({ row }) => (
+          <span className="text-foreground">
+            {row.original.locationName ?? "—"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "pickerName",
+        header: "Picker",
+        cell: ({ row }) => <span>{row.original.pickerName ?? "—"}</span>,
+      },
+      {
+        accessorKey: "itemsCount",
+        header: "Total Item",
+        cell: ({ row }) => (
+          <span className="tabular-nums">{row.original.itemsCount}</span>
+        ),
+      },
+      {
+        id: "progress",
+        header: "Progress",
+        cell: ({ row }) => (
+          <ProgressCell
+            done={row.original.qtyPicked}
+            total={row.original.qtyOrdered}
+          />
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => (
+          <StatusBadge domain="picklist" status={row.original.status} />
+        ),
+      },
+      {
+        id: "actions",
+        header: () => null,
+        cell: ({ row }) => (
+          <div className="flex items-center justify-end gap-1.5">
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Cetak Picklist"
                   >
-                    <PrinterIcon className="size-4" />
-                  </Link>
+                    <Link
+                      href={`/dashboard/document-preview/picklist/${row.original.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <PrinterIcon className="size-4" />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Pratinjau & Cetak Picklist</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon-sm" aria-label="Aksi">
+                  <MoreHorizontalIcon className="size-4" />
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>Pratinjau & Cetak Picklist</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon-sm" aria-label="Aksi">
-                <MoreHorizontalIcon className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-44">
-              <DropdownMenuItem onSelect={() => setEditPicker(row.original)}>
-                Ubah Picker
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      ),
-    },
-  ], [prefetchPicklist]);
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-44">
+                <DropdownMenuItem onSelect={() => setEditPicker(row.original)}>
+                  Ubah Picker
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        ),
+      },
+    ],
+    [prefetchPicklist],
+  );
 
   return (
     <div>
       <FulfillmentFilterBar
         value={filter}
         onChange={(v) => {
-          setFilter(v)
-          setPage(1)
+          setFilter(v);
+          setPage(1);
         }}
-        fields={["courier", "location", "channel", "store", "label_printed", "date", "zone"]}
+        fields={[
+          "courier",
+          "location",
+          "channel",
+          "store",
+          "label_printed",
+          "date",
+          "zone",
+        ]}
         search={search}
         onSearchChange={(v) => {
-          setSearch(v)
-          setPage(1)
+          setSearch(v);
+          setPage(1);
         }}
         searchPlaceholder="Cari no. picklist…"
       />
@@ -213,8 +247,8 @@ export function PicklistTable() {
           <Select
             value={status || "__all"}
             onValueChange={(v) => {
-              setStatus(v === "__all" ? "" : v)
-              setPage(1)
+              setStatus(v === "__all" ? "" : v);
+              setPage(1);
             }}
           >
             <SelectTrigger className="h-9 w-48">
@@ -236,7 +270,9 @@ export function PicklistTable() {
             className="rounded-full p-1.5 transition-colors hover:bg-muted"
             aria-label="Muat ulang"
           >
-            <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
+            <RefreshCwIcon
+              className={cn("size-4", isFetching && "animate-spin")}
+            />
           </button>
           <span className="flex items-center gap-1.5">
             Total <Badge>{meta.total}</Badge>
@@ -257,7 +293,7 @@ export function PicklistTable() {
           }}
           rowCount={meta.total}
           onPaginationChange={(p) => {
-            setPage(p.pageIndex + 1)
+            setPage(p.pageIndex + 1);
           }}
           tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
           emptyState={
@@ -268,7 +304,8 @@ export function PicklistTable() {
               <div className="space-y-1">
                 <p className="text-sm font-semibold">Belum ada picklist</p>
                 <p className="text-xs text-muted-foreground">
-                  Buat picklist dari tab &quot;Belum Mulai&quot; untuk memulai proses picking.
+                  Buat picklist dari tab &quot;Belum Mulai&quot; untuk memulai
+                  proses picking.
                 </p>
               </div>
             </div>
@@ -285,5 +322,5 @@ export function PicklistTable() {
         currentPickerId={editPicker?.pickerId ?? null}
       />
     </div>
-  )
+  );
 }

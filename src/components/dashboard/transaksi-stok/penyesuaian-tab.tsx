@@ -1,45 +1,43 @@
-"use client"
+"use client";
 
-import { useState, useMemo, useCallback } from "react"
-import Link from "next/link"
-import {
-  SlidersHorizontalIcon,
-  Trash2Icon,
-  PlusIcon,
-} from "lucide-react"
+import { useState, useMemo, useCallback } from "react";
+import Link from "next/link";
+import { SlidersHorizontalIcon, Trash2Icon, PlusIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Combobox } from "@/components/ui/combobox"
-import type { ColumnDef } from "@tanstack/react-table"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { ResourceListView } from "@/components/dashboard/shared/resource-list-view"
-import { ImportPenyesuaianDialog } from "@/components/dashboard/transaksi-stok/import-penyesuaian-view"
-import { useListState } from "@/hooks/use-list-state"
+import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
+import type { ColumnDef } from "@tanstack/react-table";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { ResourceListView } from "@/components/dashboard/shared/resource-list-view";
+import { ImportPenyesuaianDialog } from "@/components/dashboard/transaksi-stok/import-penyesuaian-view";
+import { useListState } from "@/hooks/use-list-state";
 import {
   useStockAdjustments,
   useDeleteStockAdjustment,
-} from "@/hooks/transaksi-stok/use-stock-adjustments"
-import { useLocations } from "@/hooks/manajemen-rak/use-locations"
-import { exportCsv } from "@/lib/export-csv"
+} from "@/hooks/transaksi-stok/use-stock-adjustments";
+import { useLocations } from "@/hooks/manajemen-rak/use-locations";
+import { exportCsv } from "@/lib/export-csv";
 import type {
   StockAdjustment,
   StockAdjustmentListParams,
-} from "@/types/transaksi-stok/stock-adjustment"
-import { formatDate } from "@/lib/format"
+} from "@/types/transaksi-stok/stock-adjustment";
+import { formatDate } from "@/lib/format";
 
 interface FilterState {
-  location_id: string
+  location_id: string;
 }
 
-const EMPTY_FILTERS: FilterState = { location_id: "" }
+const EMPTY_FILTERS: FilterState = { location_id: "" };
 
 export function PenyesuaianTab() {
   const list = useListState<FilterState>(EMPTY_FILTERS, {
     urlSync: true,
     namespace: "adj",
-  })
-  const [deleteTarget, setDeleteTarget] = useState<StockAdjustment | null>(null)
-  const [importOpen, setImportOpen] = useState(false)
+  });
+  const [deleteTarget, setDeleteTarget] = useState<StockAdjustment | null>(
+    null,
+  );
+  const [importOpen, setImportOpen] = useState(false);
 
   const params = useMemo<StockAdjustmentListParams>(
     () => ({
@@ -48,15 +46,15 @@ export function PenyesuaianTab() {
       per_page: list.perPage,
       "filter[location_id]": list.filters.location_id || undefined,
     }),
-    [list.debouncedSearch, list.page, list.perPage, list.filters]
-  )
+    [list.debouncedSearch, list.page, list.perPage, list.filters],
+  );
 
-  const { data, isLoading, isFetching } = useStockAdjustments(params)
-  const { data: locData } = useLocations({ perPage: 100 })
-  const deleteMut = useDeleteStockAdjustment()
+  const { data, isLoading, isFetching } = useStockAdjustments(params);
+  const { data: locData } = useLocations({ perPage: 100 });
+  const deleteMut = useDeleteStockAdjustment();
 
-  const items = data?.items ?? []
-  const total = data?.meta?.total ?? 0
+  const items = data?.items ?? [];
+  const total = data?.meta?.total ?? 0;
 
   const locationOptions = useMemo(
     () => [
@@ -66,83 +64,94 @@ export function PenyesuaianTab() {
         label: l.locationName,
       })),
     ],
-    [locData]
-  )
+    [locData],
+  );
 
-  const columns = useMemo<ColumnDef<StockAdjustment>[]>(() => [
-    {
-      accessorKey: "adjustment_no",
-      header: "No. Koreksi Stok",
-      cell: ({ row }) => (
-        <span className="font-medium">
-          <Link
-            href={`/dashboard/transaksi-stok/penyesuaian/${row.original.id}`}
-            className="hover:text-primary hover:underline"
+  const columns = useMemo<ColumnDef<StockAdjustment>[]>(
+    () => [
+      {
+        accessorKey: "adjustment_no",
+        header: "No. Koreksi Stok",
+        cell: ({ row }) => (
+          <span className="font-medium">
+            <Link
+              href={`/dashboard/transaksi-stok/penyesuaian/${row.original.id}`}
+              className="hover:text-primary hover:underline"
+            >
+              {row.original.adjustment_no}
+            </Link>
+          </span>
+        ),
+      },
+      {
+        accessorKey: "transaction_date",
+        header: "Tgl. Transaksi",
+        cell: ({ row }) => (
+          <span className="text-foreground">
+            {formatDate(row.original.transaction_date)}
+          </span>
+        ),
+      },
+      {
+        id: "location",
+        header: "Lokasi",
+        cell: ({ row }) => (
+          <span className="text-foreground">
+            {row.original.location?.location_name ?? "—"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "created_by",
+        header: "Dibuat Oleh",
+        cell: ({ row }) => (
+          <span className="text-foreground">{row.original.created_by}</span>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <div className="text-right">Aksi</div>,
+        cell: ({ row }) => (
+          <div
+            className="flex items-center justify-end gap-1"
+            onClick={(e) => e.stopPropagation()}
           >
-            {row.original.adjustment_no}
-          </Link>
-        </span>
-      ),
-    },
-    {
-      accessorKey: "transaction_date",
-      header: "Tgl. Transaksi",
-      cell: ({ row }) => <span className="text-foreground">{formatDate(row.original.transaction_date)}</span>,
-    },
-    {
-      id: "location",
-      header: "Lokasi",
-      cell: ({ row }) => <span className="text-foreground">{row.original.location?.location_name ?? "—"}</span>,
-    },
-    {
-      accessorKey: "created_by",
-      header: "Dibuat Oleh",
-      cell: ({ row }) => <span className="text-foreground">{row.original.created_by}</span>,
-    },
-    {
-      id: "actions",
-      header: () => <div className="text-right">Aksi</div>,
-      cell: ({ row }) => (
-        <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => setDeleteTarget(row.original)}
-            aria-label="Hapus"
-            className="text-destructive hover:text-destructive"
-          >
-            <Trash2Icon className="h-3.5 w-3.5" />
-          </Button>
-        </div>
-      ),
-    },
-  ], [])
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setDeleteTarget(row.original)}
+              aria-label="Hapus"
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash2Icon className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
 
   function handleDelete() {
-    if (!deleteTarget) return
+    if (!deleteTarget) return;
     deleteMut.mutate(deleteTarget.id, {
       onSuccess: () => setDeleteTarget(null),
-    })
+    });
   }
 
   const handleExport = useCallback(() => {
-    if (items.length === 0) return
+    if (items.length === 0) return;
     exportCsv(
       "koreksi-stok.csv",
-      [
-        "No. Koreksi Stok",
-        "Tgl. Transaksi",
-        "Lokasi",
-        "Dibuat Oleh",
-      ],
+      ["No. Koreksi Stok", "Tgl. Transaksi", "Lokasi", "Dibuat Oleh"],
       items.map((item: StockAdjustment) => [
         item.adjustment_no,
         formatDate(item.transaction_date),
         item.location?.location_name ?? "",
         item.created_by,
-      ])
-    )
-  }, [items])
+      ]),
+    );
+  }, [items]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -203,5 +212,5 @@ export function PenyesuaianTab() {
 
       <ImportPenyesuaianDialog open={importOpen} onOpenChange={setImportOpen} />
     </div>
-  )
+  );
 }

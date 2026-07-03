@@ -1,30 +1,30 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MaximizeIcon,
   MinusIcon,
   PlusIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export interface PreviewToolbarProps {
-  pageNumber: number
-  numPages: number
-  scale: number
-  onPageChange: (n: number) => void
-  onScaleChange: (s: number) => void
-  onFit: () => void
+  pageNumber: number;
+  numPages: number;
+  scale: number;
+  onPageChange: (n: number) => void;
+  onScaleChange: (s: number) => void;
+  onFit: () => void;
 }
 
-const ZOOM_STEPS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3]
+const ZOOM_STEPS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3];
 
 function clampScale(s: number) {
-  return Math.min(3, Math.max(0.25, s))
+  return Math.min(3, Math.max(0.25, s));
 }
 
 export function PreviewToolbar({
@@ -35,17 +35,17 @@ export function PreviewToolbar({
   onScaleChange,
   onFit,
 }: PreviewToolbarProps) {
-  const canPrev = pageNumber > 1
-  const canNext = pageNumber < numPages
+  const canPrev = pageNumber > 1;
+  const canNext = pageNumber < numPages;
 
   const zoomOut = () => {
-    const below = [...ZOOM_STEPS].reverse().find((z) => z < scale - 0.001)
-    onScaleChange(clampScale(below ?? scale - 0.25))
-  }
+    const below = [...ZOOM_STEPS].reverse().find((z) => z < scale - 0.001);
+    onScaleChange(clampScale(below ?? scale - 0.25));
+  };
   const zoomIn = () => {
-    const above = ZOOM_STEPS.find((z) => z > scale + 0.001)
-    onScaleChange(clampScale(above ?? scale + 0.25))
-  }
+    const above = ZOOM_STEPS.find((z) => z > scale + 0.001);
+    onScaleChange(clampScale(above ?? scale + 0.25));
+  };
 
   return (
     <div
@@ -114,5 +114,5 @@ export function PreviewToolbar({
         </Button>
       </div>
     </div>
-  )
+  );
 }

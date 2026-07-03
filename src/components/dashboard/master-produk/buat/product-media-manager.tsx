@@ -1,46 +1,46 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   ImageIcon,
   PlayIcon,
   StarIcon,
   Trash2Icon,
   UploadCloudIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import type { DetailMedia } from "@/types/master-produk/product-detail"
+import { cn } from "@/lib/utils";
+import type { DetailMedia } from "@/types/master-produk/product-detail";
 
 export interface EditMediaItem {
-  localId: string
-  kind: "existing" | "new"
-  mediaType: "image" | "video"
-  url: string
-  uuid: string | null
-  file?: File
-  isPrimary: boolean
+  localId: string;
+  kind: "existing" | "new";
+  mediaType: "image" | "video";
+  url: string;
+  uuid: string | null;
+  file?: File;
+  isPrimary: boolean;
 }
 
-const MAX_IMAGES = 9
+const MAX_IMAGES = 9;
 
-let _seq = 0
+let _seq = 0;
 function nextId(): string {
-  _seq += 1
-  return `m_${_seq}_${Math.round(performance.now())}`
+  _seq += 1;
+  return `m_${_seq}_${Math.round(performance.now())}`;
 }
 
 function ensurePrimary(items: EditMediaItem[]): EditMediaItem[] {
-  const imgs = items.filter((i) => i.mediaType === "image")
-  const hasPrimary = imgs.some((i) => i.isPrimary)
+  const imgs = items.filter((i) => i.mediaType === "image");
+  const hasPrimary = imgs.some((i) => i.isPrimary);
   return items.map((i, idx) => {
-    if (i.mediaType !== "image") return { ...i, isPrimary: false }
-    if (!hasPrimary && i.localId === imgs[0]?.localId) return { ...i, isPrimary: true }
-    return i
-  })
+    if (i.mediaType !== "image") return { ...i, isPrimary: false };
+    if (!hasPrimary && i.localId === imgs[0]?.localId)
+      return { ...i, isPrimary: true };
+    return i;
+  });
 }
 
-/** Bangun state awal editor dari media produk (detail). */
 export function mediaItemsFromDetail(media: DetailMedia[]): EditMediaItem[] {
   return ensurePrimary(
     media.map((m) => ({
@@ -50,30 +50,30 @@ export function mediaItemsFromDetail(media: DetailMedia[]): EditMediaItem[] {
       url: m.url,
       uuid: m.uuid,
       isPrimary: m.isPrimary,
-    }))
-  )
+    })),
+  );
 }
 
 export function ProductMediaManager({
   value,
   onChange,
 }: {
-  value: EditMediaItem[]
-  onChange: (items: EditMediaItem[]) => void
+  value: EditMediaItem[];
+  onChange: (items: EditMediaItem[]) => void;
 }) {
-  const images = value.filter((i) => i.mediaType === "image")
-  const video = value.find((i) => i.mediaType === "video") ?? null
-  const [dragIdx, setDragIdx] = React.useState<number | null>(null)
+  const images = value.filter((i) => i.mediaType === "image");
+  const video = value.find((i) => i.mediaType === "video") ?? null;
+  const [dragIdx, setDragIdx] = React.useState<number | null>(null);
 
-  const commit = (next: EditMediaItem[]) => onChange(ensurePrimary(next))
+  const commit = (next: EditMediaItem[]) => onChange(ensurePrimary(next));
 
   const addImages = (files: FileList | null) => {
-    if (!files) return
-    const room = MAX_IMAGES - images.length
+    if (!files) return;
+    const room = MAX_IMAGES - images.length;
     const picked = Array.from(files)
       .filter((f) => f.type.startsWith("image/"))
-      .slice(0, Math.max(0, room))
-    if (picked.length === 0) return
+      .slice(0, Math.max(0, room));
+    if (picked.length === 0) return;
     const added: EditMediaItem[] = picked.map((file) => ({
       localId: nextId(),
       kind: "new",
@@ -82,34 +82,36 @@ export function ProductMediaManager({
       uuid: null,
       file,
       isPrimary: false,
-    }))
-    commit([...value, ...added])
-  }
+    }));
+    commit([...value, ...added]);
+  };
 
   const removeItem = (localId: string) =>
-    commit(value.filter((i) => i.localId !== localId))
+    commit(value.filter((i) => i.localId !== localId));
 
   const setPrimary = (localId: string) =>
     commit(
       value.map((i) =>
-        i.mediaType === "image" ? { ...i, isPrimary: i.localId === localId } : i
-      )
-    )
+        i.mediaType === "image"
+          ? { ...i, isPrimary: i.localId === localId }
+          : i,
+      ),
+    );
 
   const reorderImages = (from: number, to: number) => {
-    if (from === to) return
-    const imgs = [...images]
-    const [moved] = imgs.splice(from, 1)
-    imgs.splice(to, 0, moved)
-    const others = value.filter((i) => i.mediaType !== "image")
-    commit([...imgs, ...others])
-  }
+    if (from === to) return;
+    const imgs = [...images];
+    const [moved] = imgs.splice(from, 1);
+    imgs.splice(to, 0, moved);
+    const others = value.filter((i) => i.mediaType !== "image");
+    commit([...imgs, ...others]);
+  };
 
   const setVideo = (file: File | null) => {
-    const withoutVideo = value.filter((i) => i.mediaType !== "video")
+    const withoutVideo = value.filter((i) => i.mediaType !== "video");
     if (!file) {
-      commit(withoutVideo)
-      return
+      commit(withoutVideo);
+      return;
     }
     commit([
       ...withoutVideo,
@@ -122,12 +124,12 @@ export function ProductMediaManager({
         file,
         isPrimary: false,
       },
-    ])
-  }
+    ]);
+  };
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Gambar */}
+      {}
       <div>
         <div className="mb-2 flex items-center justify-between">
           <h4 className="text-sm font-medium">Gambar Produk</h4>
@@ -144,14 +146,16 @@ export function ProductMediaManager({
               onDragStart={() => setDragIdx(idx)}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => {
-                if (dragIdx !== null) reorderImages(dragIdx, idx)
-                setDragIdx(null)
+                if (dragIdx !== null) reorderImages(dragIdx, idx);
+                setDragIdx(null);
               }}
               onDragEnd={() => setDragIdx(null)}
               className={cn(
                 "group relative aspect-square cursor-grab overflow-hidden rounded-xl border bg-muted/30 active:cursor-grabbing",
-                item.isPrimary ? "border-primary ring-2 ring-primary/30" : "border-border/60",
-                dragIdx === idx && "opacity-50"
+                item.isPrimary
+                  ? "border-primary ring-2 ring-primary/30"
+                  : "border-border/60",
+                dragIdx === idx && "opacity-50",
               )}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -198,19 +202,20 @@ export function ProductMediaManager({
                 multiple
                 className="hidden"
                 onChange={(e) => {
-                  addImages(e.target.files)
-                  e.target.value = ""
+                  addImages(e.target.files);
+                  e.target.value = "";
                 }}
               />
             </label>
           )}
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          Seret untuk mengurutkan. Klik &ldquo;Utama&rdquo; untuk menjadikan gambar utama. Maks {MAX_IMAGES} gambar.
+          Seret untuk mengurutkan. Klik &ldquo;Utama&rdquo; untuk menjadikan
+          gambar utama. Maks {MAX_IMAGES} gambar.
         </p>
       </div>
 
-      {/* Video */}
+      {}
       <div>
         <h4 className="mb-1 text-sm font-medium">Video Produk</h4>
         <p className="mb-2 text-xs text-muted-foreground">
@@ -225,7 +230,9 @@ export function ProductMediaManager({
               playsInline
               preload="metadata"
               className="aspect-square w-full object-cover"
-              onLoadedData={(e) => { e.currentTarget.currentTime = 0.5 }}
+              onLoadedData={(e) => {
+                e.currentTarget.currentTime = 0.5;
+              }}
             />
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
               <div className="grid size-9 place-items-center rounded-full bg-white/90 shadow-sm">
@@ -253,13 +260,13 @@ export function ProductMediaManager({
               accept="video/mp4"
               className="hidden"
               onChange={(e) => {
-                setVideo(e.target.files?.[0] ?? null)
-                e.target.value = ""
+                setVideo(e.target.files?.[0] ?? null);
+                e.target.value = "";
               }}
             />
           </label>
         )}
       </div>
     </div>
-  )
+  );
 }

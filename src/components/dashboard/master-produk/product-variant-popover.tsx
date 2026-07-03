@@ -1,43 +1,43 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { PackageIcon } from "lucide-react"
+import * as React from "react";
+import { PackageIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import type { Product } from "@/types/master-produk"
-import { formatIDR } from "./product-columns"
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import type { Product } from "@/types/master-produk";
+import { formatIDR } from "./product-columns";
 
 function variantName(values: { label: string; value: string }[]) {
-  if (values.length === 0) return "Varian tunggal"
-  return values.map((v) => v.value).join(" / ")
+  if (values.length === 0) return "Varian tunggal";
+  return values.map((v) => v.value).join(" / ");
 }
 
 export function ProductVariantPopover({ product }: { product: Product }) {
-  const [open, setOpen] = React.useState(false)
-  const closeTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [open, setOpen] = React.useState(false);
+  const closeTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const cancelClose = () => {
     if (closeTimer.current) {
-      clearTimeout(closeTimer.current)
-      closeTimer.current = null
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
     }
-  }
+  };
   const openNow = () => {
-    cancelClose()
-    setOpen(true)
-  }
+    cancelClose();
+    setOpen(true);
+  };
   const closeSoon = () => {
-    cancelClose()
-    closeTimer.current = setTimeout(() => setOpen(false), 120)
-  }
+    cancelClose();
+    closeTimer.current = setTimeout(() => setOpen(false), 120);
+  };
 
-  React.useEffect(() => cancelClose, [])
+  React.useEffect(() => cancelClose, []);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -49,7 +49,7 @@ export function ProductVariantPopover({ product }: { product: Product }) {
           onClick={(e) => e.stopPropagation()}
           className={cn(
             "inline-flex items-center gap-1 rounded-md px-1 -mx-1 text-xs text-muted-foreground transition-colors",
-            "hover:text-foreground data-[state=open]:text-foreground"
+            "hover:text-foreground data-[state=open]:text-foreground",
           )}
         >
           <PackageIcon className="size-3" />
@@ -90,5 +90,5 @@ export function ProductVariantPopover({ product }: { product: Product }) {
         </ScrollArea>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

@@ -1,43 +1,39 @@
-"use client"
+"use client";
 
-import { UsersIcon, BadgeCheckIcon, TagIcon } from "lucide-react"
+import { UsersIcon, BadgeCheckIcon, TagIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { PageTitle } from "@/components/dashboard/page-title"
-import { PelangganTab } from "@/components/dashboard/kontak-pelanggan/pelanggan-tab"
-import { SalesmanTab } from "@/components/dashboard/kontak-pelanggan/salesman-tab"
-import { KategoriTab } from "@/components/dashboard/kontak-pelanggan/kategori-tab"
-import { useUrlTab } from "@/hooks/use-url-tab"
+import { cn } from "@/lib/utils";
+import { PageTitle } from "@/components/dashboard/page-title";
+import { PelangganTab } from "@/components/dashboard/kontak-pelanggan/pelanggan-tab";
+import { SalesmanTab } from "@/components/dashboard/kontak-pelanggan/salesman-tab";
+import { KategoriTab } from "@/components/dashboard/kontak-pelanggan/kategori-tab";
+import { useUrlTab } from "@/hooks/use-url-tab";
 
-type Tab = "pelanggan" | "salesman" | "kategori"
+type Tab = "pelanggan" | "salesman" | "kategori";
 
 const TABS: { key: Tab; label: string; icon: typeof UsersIcon }[] = [
   { key: "pelanggan", label: "Pelanggan", icon: UsersIcon },
   { key: "salesman", label: "Salesman", icon: BadgeCheckIcon },
   { key: "kategori", label: "Kategori", icon: TagIcon },
-]
+];
 
-const TAB_KEYS = TABS.map((t) => t.key)
+const TAB_KEYS = TABS.map((t) => t.key);
 
 export default function KontakPelangganPage() {
-  // Tab hidup di URL (?tab=) — bertahan saat refresh/back, bisa dibagikan.
   const [activeTab, setActiveTab] = useUrlTab<Tab>("tab", "pelanggan", {
     validValues: TAB_KEYS,
-  })
+  });
 
   return (
     <div className="flex flex-col gap-6">
       <PageTitle
         title="Kontak Pelanggan"
-        breadcrumb={[
-          { label: "Penjualan" },
-          { label: "Kontak Pelanggan" },
-        ]}
+        breadcrumb={[{ label: "Penjualan" }, { label: "Kontak Pelanggan" }]}
       />
 
       <div className="flex items-center gap-1">
         {TABS.map(({ key, label, icon: Icon }) => {
-          const isActive = activeTab === key
+          const isActive = activeTab === key;
           return (
             <button
               key={key}
@@ -47,13 +43,13 @@ export default function KontakPelangganPage() {
                 "inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors",
                 isActive
                   ? "bg-foreground text-background shadow-sm"
-                  : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
               <Icon className="h-4 w-4" />
               {label}
             </button>
-          )
+          );
         })}
       </div>
 
@@ -61,5 +57,5 @@ export default function KontakPelangganPage() {
       {activeTab === "salesman" && <SalesmanTab />}
       {activeTab === "kategori" && <KategoriTab />}
     </div>
-  )
+  );
 }

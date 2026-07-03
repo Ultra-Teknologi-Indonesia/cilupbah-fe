@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useFormContext } from "react-hook-form"
+import { useFormContext } from "react-hook-form";
 
 import {
   FormControl,
@@ -8,57 +8,64 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Combobox } from "@/components/ui/combobox"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Combobox } from "@/components/ui/combobox";
+import { Separator } from "@/components/ui/separator";
 import {
   useProvinces,
   useCities,
   useDistricts,
   useVillages,
-} from "@/hooks/manajemen-rak/use-regions"
-import { useWarehouseUsers } from "@/hooks/manajemen-rak/use-warehouse-users"
-import type { LocationFormValues } from "@/lib/manajemen-rak/location-schema"
-import type { RegionOption } from "@/types/manajemen-rak/location"
+} from "@/hooks/manajemen-rak/use-regions";
+import { useWarehouseUsers } from "@/hooks/manajemen-rak/use-warehouse-users";
+import type { LocationFormValues } from "@/lib/manajemen-rak/location-schema";
+import type { RegionOption } from "@/types/manajemen-rak/location";
 
-import { LocationMapPicker, formatCoordinate } from "./location-map-picker"
+import { LocationMapPicker, formatCoordinate } from "./location-map-picker";
 
 function toOptions(items: RegionOption[] | undefined) {
-  return (items ?? []).map((r) => ({ value: r.id, label: r.nama }))
+  return (items ?? []).map((r) => ({ value: r.id, label: r.nama }));
 }
 
 function Req() {
-  return <span className="text-destructive"> *</span>
+  return <span className="text-destructive"> *</span>;
 }
 
 export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
-  const form = useFormContext<LocationFormValues>()
+  const form = useFormContext<LocationFormValues>();
 
-  const provinceId = form.watch("provinceId")
-  const cityId = form.watch("cityId")
-  const districtId = form.watch("districtId")
+  const provinceId = form.watch("provinceId");
+  const cityId = form.watch("cityId");
+  const districtId = form.watch("districtId");
 
-  const provinces = useProvinces()
-  const cities = useCities(provinceId || undefined)
-  const districts = useDistricts(cityId || undefined)
-  const villages = useVillages(districtId || undefined)
-  const users = useWarehouseUsers()
+  const provinces = useProvinces();
+  const cities = useCities(provinceId || undefined);
+  const districts = useDistricts(cityId || undefined);
+  const villages = useVillages(districtId || undefined);
+  const users = useWarehouseUsers();
 
   return (
     <div className="space-y-6">
-      {/* Informasi dasar */}
+      {}
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField
           control={form.control}
           name="locationName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nama Lokasi<Req /></FormLabel>
+              <FormLabel>
+                Nama Lokasi
+                <Req />
+              </FormLabel>
               <FormControl>
-                <Input placeholder="Nama lokasi" disabled={disabled} {...field} />
+                <Input
+                  placeholder="Nama lokasi"
+                  disabled={disabled}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -69,9 +76,16 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
           name="locationCode"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Kode Lokasi<Req /></FormLabel>
+              <FormLabel>
+                Kode Lokasi
+                <Req />
+              </FormLabel>
               <FormControl>
-                <Input placeholder="Kode lokasi" disabled={disabled} {...field} />
+                <Input
+                  placeholder="Kode lokasi"
+                  disabled={disabled}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -81,7 +95,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
 
       <Separator />
 
-      {/* Alamat */}
+      {}
       <div className="space-y-4">
         <h3 className="text-sm font-semibold">Alamat</h3>
 
@@ -106,7 +120,10 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Detail Alamat<Req /></FormLabel>
+              <FormLabel>
+                Detail Alamat
+                <Req />
+              </FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Cth: Blok, Unit No, Patokan"
@@ -125,15 +142,18 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
             name="provinceId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Provinsi<Req /></FormLabel>
+                <FormLabel>
+                  Provinsi
+                  <Req />
+                </FormLabel>
                 <Combobox
                   options={toOptions(provinces.data)}
                   value={field.value}
                   onChange={(v) => {
-                    field.onChange(v ?? "")
-                    form.setValue("cityId", "")
-                    form.setValue("districtId", "")
-                    form.setValue("villageId", "")
+                    field.onChange(v ?? "");
+                    form.setValue("cityId", "");
+                    form.setValue("districtId", "");
+                    form.setValue("villageId", "");
                   }}
                   placeholder="Pilih provinsi"
                   disabled={disabled || provinces.isLoading}
@@ -148,14 +168,17 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
             name="cityId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Kota<Req /></FormLabel>
+                <FormLabel>
+                  Kota
+                  <Req />
+                </FormLabel>
                 <Combobox
                   options={toOptions(cities.data)}
                   value={field.value}
                   onChange={(v) => {
-                    field.onChange(v ?? "")
-                    form.setValue("districtId", "")
-                    form.setValue("villageId", "")
+                    field.onChange(v ?? "");
+                    form.setValue("districtId", "");
+                    form.setValue("villageId", "");
                   }}
                   placeholder="Pilih kota"
                   disabled={disabled || !provinceId || cities.isLoading}
@@ -170,13 +193,16 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
             name="districtId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Kecamatan<Req /></FormLabel>
+                <FormLabel>
+                  Kecamatan
+                  <Req />
+                </FormLabel>
                 <Combobox
                   options={toOptions(districts.data)}
                   value={field.value}
                   onChange={(v) => {
-                    field.onChange(v ?? "")
-                    form.setValue("villageId", "")
+                    field.onChange(v ?? "");
+                    form.setValue("villageId", "");
                   }}
                   placeholder="Pilih kecamatan"
                   disabled={disabled || !cityId || districts.isLoading}
@@ -191,19 +217,25 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
             name="villageId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Kelurahan<Req /></FormLabel>
+                <FormLabel>
+                  Kelurahan
+                  <Req />
+                </FormLabel>
                 <Combobox
                   options={toOptions(villages.data)}
                   value={field.value}
                   onChange={(v) => {
-                    field.onChange(v ?? "")
-                    const village = villages.data?.find((x) => x.id === v)
-                    if (village?.latitude != null && village?.longitude != null) {
+                    field.onChange(v ?? "");
+                    const village = villages.data?.find((x) => x.id === v);
+                    if (
+                      village?.latitude != null &&
+                      village?.longitude != null
+                    ) {
                       form.setValue(
                         "coordinate",
                         formatCoordinate(village.latitude, village.longitude),
-                        { shouldDirty: true, shouldValidate: true }
-                      )
+                        { shouldDirty: true, shouldValidate: true },
+                      );
                     }
                   }}
                   placeholder="Pilih kelurahan"
@@ -221,7 +253,10 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
           name="postCode"
           render={({ field }) => (
             <FormItem className="sm:max-w-xs">
-              <FormLabel>Kode Pos<Req /></FormLabel>
+              <FormLabel>
+                Kode Pos
+                <Req />
+              </FormLabel>
               <FormControl>
                 <Input placeholder="Kode pos" disabled={disabled} {...field} />
               </FormControl>
@@ -233,7 +268,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
 
       <Separator />
 
-      {/* Kontak */}
+      {}
       <div className="space-y-4">
         <h3 className="text-sm font-semibold">Kontak</h3>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -242,9 +277,16 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>No. Telepon<Req /></FormLabel>
+                <FormLabel>
+                  No. Telepon
+                  <Req />
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="+628xxxxx" disabled={disabled} {...field} />
+                  <Input
+                    placeholder="+628xxxxx"
+                    disabled={disabled}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -255,7 +297,10 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email<Req /></FormLabel>
+                <FormLabel>
+                  Email
+                  <Req />
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="email"
@@ -294,7 +339,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
 
       <Separator />
 
-      {/* Opsi */}
+      {}
       <div className="flex flex-wrap gap-6">
         <FormField
           control={form.control}
@@ -346,5 +391,5 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
         />
       </div>
     </div>
-  )
+  );
 }

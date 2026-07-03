@@ -1,26 +1,32 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { CheckIcon, ImageIcon, Loader2Icon, PlusIcon, SearchIcon } from "lucide-react"
+import * as React from "react";
+import {
+  CheckIcon,
+  ImageIcon,
+  Loader2Icon,
+  PlusIcon,
+  SearchIcon,
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { useNaikkanProductPicker } from "@/hooks/master-produk/use-naikkan"
+} from "@/components/ui/dialog";
+import { useNaikkanProductPicker } from "@/hooks/master-produk/use-naikkan";
 
 interface Props {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  shopId: string | null
-  existingMappingIds: Set<string>
-  onAdd: (mappingId: string) => void
-  addingId: string | null
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  shopId: string | null;
+  existingMappingIds: Set<string>;
+  onAdd: (mappingId: string) => void;
+  addingId: string | null;
 }
 
 export function NaikkanProdukPickerDialog({
@@ -31,28 +37,28 @@ export function NaikkanProdukPickerDialog({
   onAdd,
   addingId,
 }: Props) {
-  const [search, setSearch] = React.useState("")
-  const [appliedSearch, setAppliedSearch] = React.useState("")
-  const [page, setPage] = React.useState(1)
+  const [search, setSearch] = React.useState("");
+  const [appliedSearch, setAppliedSearch] = React.useState("");
+  const [page, setPage] = React.useState(1);
 
   React.useEffect(() => {
     if (!open) {
-      setSearch("")
-      setAppliedSearch("")
-      setPage(1)
+      setSearch("");
+      setAppliedSearch("");
+      setPage(1);
     }
-  }, [open])
+  }, [open]);
 
-  const query = useNaikkanProductPicker(shopId, appliedSearch, page, open)
+  const query = useNaikkanProductPicker(shopId, appliedSearch, page, open);
 
-  const items = query.data?.items ?? []
-  const total = query.data?.meta?.total ?? 0
-  const lastPage = query.data?.meta?.last_page ?? 1
+  const items = query.data?.items ?? [];
+  const total = query.data?.meta?.total ?? 0;
+  const lastPage = query.data?.meta?.last_page ?? 1;
 
   const applySearch = () => {
-    setAppliedSearch(search)
-    setPage(1)
-  }
+    setAppliedSearch(search);
+    setPage(1);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -71,13 +77,18 @@ export function NaikkanProdukPickerDialog({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") applySearch()
+                if (e.key === "Enter") applySearch();
               }}
               placeholder="Cari produk..."
               className="h-9 pl-9"
             />
           </div>
-          <Button variant="outline" size="sm" className="h-9" onClick={applySearch}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9"
+            onClick={applySearch}
+          >
             Cari
           </Button>
         </div>
@@ -94,8 +105,10 @@ export function NaikkanProdukPickerDialog({
           ) : (
             <div className="divide-y">
               {items.map((item) => {
-                const isAdded = item.mappingId ? existingMappingIds.has(item.mappingId) : false
-                const isAdding = item.mappingId === addingId
+                const isAdded = item.mappingId
+                  ? existingMappingIds.has(item.mappingId)
+                  : false;
+                const isAdding = item.mappingId === addingId;
 
                 return (
                   <div
@@ -119,7 +132,10 @@ export function NaikkanProdukPickerDialog({
                         {item.itemGroupName ?? "—"}
                       </p>
                       <p className="line-clamp-1 font-mono text-xs text-muted-foreground">
-                        {item.variants.map((v) => v.masterSku ?? v.channelSku).filter(Boolean).join(", ") || "—"}
+                        {item.variants
+                          .map((v) => v.masterSku ?? v.channelSku)
+                          .filter(Boolean)
+                          .join(", ") || "—"}
                       </p>
                     </div>
 
@@ -145,7 +161,7 @@ export function NaikkanProdukPickerDialog({
                       </Button>
                     )}
                   </div>
-                )
+                );
               })}
             </div>
           )}
@@ -183,5 +199,5 @@ export function NaikkanProdukPickerDialog({
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }

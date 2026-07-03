@@ -1,59 +1,59 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import type { ColumnDef, PaginationState } from "@tanstack/react-table"
+import * as React from "react";
+import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import {
   CheckCircle2Icon,
   ExternalLinkIcon,
   ImageIcon,
   InfoIcon,
   RotateCcwIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { format, parseISO } from "date-fns"
+import { format, parseISO } from "date-fns";
 
-import { Button } from "@/components/ui/button"
-import { Combobox } from "@/components/ui/combobox"
-import { DatePicker } from "@/components/ui/date-picker"
-import { Checkbox } from "@/components/ui/checkbox"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { DataTable } from "@/components/ui/data-table"
+import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Checkbox } from "@/components/ui/checkbox";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { DataTable } from "@/components/ui/data-table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   useBulkDeleteHistories,
   useReuploadHistory,
   useUploadHistories,
-} from "@/hooks/master-produk/use-upload"
-import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
-import type { HistoryRow } from "@/hooks/master-produk/use-upload"
-import type { ChannelCode } from "@/types/channel"
-import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
-import { FilterToolbar } from "../filter-toolbar"
+} from "@/hooks/master-produk/use-upload";
+import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
+import type { HistoryRow } from "@/hooks/master-produk/use-upload";
+import type { ChannelCode } from "@/types/channel";
+import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo";
+import { FilterToolbar } from "../filter-toolbar";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Semua" },
   { value: "success", label: "Berhasil" },
   { value: "failed", label: "Gagal" },
   { value: "pending", label: "Diproses" },
-]
+];
 
 function fmtDate(iso: string | null) {
-  if (!iso) return "—"
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return "—"
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
   return d.toLocaleString("id-ID", {
     day: "2-digit",
     month: "short",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  })
+  });
 }
 
 function HistoryStatus({ row }: { row: HistoryRow }) {
@@ -66,7 +66,7 @@ function HistoryStatus({ row }: { row: HistoryRow }) {
         <CheckCircle2Icon className="size-3.5" />
         Sukses
       </span>
-    )
+    );
   }
   return (
     <div className="flex flex-col items-start gap-1">
@@ -89,38 +89,38 @@ function HistoryStatus({ row }: { row: HistoryRow }) {
         </span>
       )}
     </div>
-  )
+  );
 }
 
 export function HasilTab({
   tabBar,
   actionButton,
 }: {
-  tabBar?: React.ReactNode
-  actionButton?: React.ReactNode
+  tabBar?: React.ReactNode;
+  actionButton?: React.ReactNode;
 }) {
-  const [searchInput, setSearchInput] = React.useState("")
-  const [search, setSearch] = React.useState("")
-  const [shopId, setShopId] = React.useState<string | null>(null)
-  const [status, setStatus] = React.useState("all")
-  const [dateFrom, setDateFrom] = React.useState("")
-  const [dateTo, setDateTo] = React.useState("")
+  const [searchInput, setSearchInput] = React.useState("");
+  const [search, setSearch] = React.useState("");
+  const [shopId, setShopId] = React.useState<string | null>(null);
+  const [status, setStatus] = React.useState("all");
+  const [dateFrom, setDateFrom] = React.useState("");
+  const [dateTo, setDateTo] = React.useState("");
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 20,
-  })
+  });
 
   React.useEffect(() => {
     const t = setTimeout(() => {
-      setSearch(searchInput)
-      setPagination((p) => ({ ...p, pageIndex: 0 }))
-    }, 350)
-    return () => clearTimeout(t)
-  }, [searchInput])
+      setSearch(searchInput);
+      setPagination((p) => ({ ...p, pageIndex: 0 }));
+    }, 350);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
-  const resetPage = () => setPagination((p) => ({ ...p, pageIndex: 0 }))
+  const resetPage = () => setPagination((p) => ({ ...p, pageIndex: 0 }));
 
-  const { data: stores = [] } = useConnectedStores()
+  const { data: stores = [] } = useConnectedStores();
   const storeOptions = React.useMemo(
     () =>
       stores.map((s) => ({
@@ -128,8 +128,8 @@ export function HasilTab({
         label: s.shop_name,
         hint: s.channel?.name ?? undefined,
       })),
-    [stores]
-  )
+    [stores],
+  );
 
   const { data, isLoading } = useUploadHistories({
     search: search || undefined,
@@ -139,26 +139,26 @@ export function HasilTab({
     dateTo: dateTo || undefined,
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
-  })
+  });
 
-  const items = data?.items ?? []
-  const total = data?.meta?.total ?? 0
+  const items = data?.items ?? [];
+  const total = data?.meta?.total ?? 0;
 
-  const reupload = useReuploadHistory()
-  const bulkDelete = useBulkDeleteHistories()
+  const reupload = useReuploadHistory();
+  const bulkDelete = useBulkDeleteHistories();
 
   const hasFilter =
-    !!search || status !== "all" || !!shopId || !!dateFrom || !!dateTo
+    !!search || status !== "all" || !!shopId || !!dateFrom || !!dateTo;
 
   const onReset = () => {
-    setSearchInput("")
-    setSearch("")
-    setShopId(null)
-    setStatus("all")
-    setDateFrom("")
-    setDateTo("")
-    resetPage()
-  }
+    setSearchInput("");
+    setSearch("");
+    setShopId(null);
+    setStatus("all");
+    setDateFrom("");
+    setDateTo("");
+    resetPage();
+  };
 
   const columns = React.useMemo<ColumnDef<HistoryRow>[]>(
     () => [
@@ -170,7 +170,9 @@ export function HasilTab({
               table.getIsAllPageRowsSelected() ||
               (table.getIsSomePageRowsSelected() && "indeterminate")
             }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
             aria-label="Pilih semua"
           />
         ),
@@ -189,7 +191,7 @@ export function HasilTab({
         accessorKey: "itemGroupName",
         header: "Produk",
         cell: ({ row }) => {
-          const h = row.original
+          const h = row.original;
           return (
             <div className="flex items-center gap-3">
               <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
@@ -208,7 +210,7 @@ export function HasilTab({
                 {h.itemGroupName ?? "—"}
               </div>
             </div>
-          )
+          );
         },
       },
       {
@@ -216,7 +218,7 @@ export function HasilTab({
         header: "Store",
         enableSorting: false,
         cell: ({ row }) => {
-          const h = row.original
+          const h = row.original;
           return (
             <div className="flex items-center gap-2">
               <ChannelLogo
@@ -235,7 +237,7 @@ export function HasilTab({
                 )}
               </div>
             </div>
-          )
+          );
         },
       },
       {
@@ -257,16 +259,11 @@ export function HasilTab({
         header: () => <div className="text-right">Tindakan</div>,
         enableSorting: false,
         cell: ({ row }) => {
-          const h = row.original
+          const h = row.original;
           return (
             <div className="flex items-center justify-end gap-1">
               {h.channelUrl && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8"
-                  asChild
-                >
+                <Button variant="ghost" size="icon" className="size-8" asChild>
                   <a
                     href={h.channelUrl}
                     target="_blank"
@@ -287,13 +284,13 @@ export function HasilTab({
                 Re-upload
               </Button>
             </div>
-          )
+          );
         },
         size: 48,
       },
     ],
-    [reupload]
-  )
+    [reupload],
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -305,13 +302,20 @@ export function HasilTab({
         </p>
       </div>
 
-      <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+      <LiquidGlass
+        radius={24}
+        intensity="default"
+        className="bg-white/40 dark:bg-white/[0.06]"
+      >
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 pt-3 sm:px-5">
           <div className="overflow-x-auto">{tabBar}</div>
           <div className="flex items-center gap-3 pb-2">
             {actionButton}
             <span className="text-sm text-muted-foreground">
-              Total <span className="font-medium text-foreground tabular-nums">{total}</span>
+              Total{" "}
+              <span className="font-medium text-foreground tabular-nums">
+                {total}
+              </span>
             </span>
           </div>
         </div>
@@ -321,14 +325,21 @@ export function HasilTab({
           searchPlaceholder="Cari produk…"
           onReset={hasFilter ? onReset : undefined}
           hasFilter={hasFilter}
-          activeCount={[shopId !== null, status !== "all", dateFrom !== "", dateTo !== ""].filter(Boolean).length}
+          activeCount={
+            [
+              shopId !== null,
+              status !== "all",
+              dateFrom !== "",
+              dateTo !== "",
+            ].filter(Boolean).length
+          }
         >
           <Combobox
             options={storeOptions}
             value={shopId}
             onChange={(v) => {
-              setShopId(v)
-              resetPage()
+              setShopId(v);
+              resetPage();
             }}
             placeholder="Pilih toko"
             searchPlaceholder="Cari toko"
@@ -337,8 +348,8 @@ export function HasilTab({
           <Select
             value={status}
             onValueChange={(v) => {
-              setStatus(v)
-              resetPage()
+              setStatus(v);
+              resetPage();
             }}
           >
             <SelectTrigger className="h-9 w-auto min-w-[140px] rounded-full bg-background">
@@ -355,8 +366,8 @@ export function HasilTab({
           <DatePicker
             value={dateFrom ? parseISO(dateFrom) : undefined}
             onChange={(d) => {
-              setDateFrom(d ? format(d, "yyyy-MM-dd") : "")
-              resetPage()
+              setDateFrom(d ? format(d, "yyyy-MM-dd") : "");
+              resetPage();
             }}
             placeholder="Dari tanggal"
             className="bg-background"
@@ -364,8 +375,8 @@ export function HasilTab({
           <DatePicker
             value={dateTo ? parseISO(dateTo) : undefined}
             onChange={(d) => {
-              setDateTo(d ? format(d, "yyyy-MM-dd") : "")
-              resetPage()
+              setDateTo(d ? format(d, "yyyy-MM-dd") : "");
+              resetPage();
             }}
             placeholder="Sampai tanggal"
             className="bg-background"
@@ -392,7 +403,7 @@ export function HasilTab({
                 onClick={() =>
                   bulkDelete.mutate(
                     selected.map((h) => h.id),
-                    { onSuccess: () => table.resetRowSelection() }
+                    { onSuccess: () => table.resetRowSelection() },
                   )
                 }
               >
@@ -400,11 +411,13 @@ export function HasilTab({
               </Button>
             )}
             emptyState={
-              <span className="text-muted-foreground">Belum ada riwayat upload</span>
+              <span className="text-muted-foreground">
+                Belum ada riwayat upload
+              </span>
             }
           />
         </div>
       </LiquidGlass>
     </div>
-  )
+  );
 }

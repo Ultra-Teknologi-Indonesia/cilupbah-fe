@@ -1,14 +1,13 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
+import { Loader2Icon, PencilIcon, Trash2Icon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import {
-  Loader2Icon,
-  PencilIcon,
-  Trash2Icon,
-} from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import { SimplePagination, TABLE_PAGE_SIZES } from "@/components/ui/simple-pagination"
+  SimplePagination,
+  TABLE_PAGE_SIZES,
+} from "@/components/ui/simple-pagination";
 import {
   Table,
   TableBody,
@@ -16,19 +15,26 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { EditKategoriDialog } from "./edit-kategori-dialog"
-import { useEnabledCategories, useDeleteKategori, useDisableKategori } from "@/hooks/kategori-merek/use-kategori"
-import type { KategoriItem, FlatKategori } from "@/types/kategori-merek/kategori"
+} from "@/components/ui/table";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { EditKategoriDialog } from "./edit-kategori-dialog";
+import {
+  useEnabledCategories,
+  useDeleteKategori,
+  useDisableKategori,
+} from "@/hooks/kategori-merek/use-kategori";
+import type {
+  KategoriItem,
+  FlatKategori,
+} from "@/types/kategori-merek/kategori";
 
 function flattenTree(
   nodes: KategoriItem[],
-  parents: string[] = []
+  parents: string[] = [],
 ): FlatKategori[] {
-  const result: FlatKategori[] = []
+  const result: FlatKategori[] = [];
   for (const node of nodes) {
-    const path = [...parents, node.name]
+    const path = [...parents, node.name];
     result.push({
       id: node.id,
       name: node.name,
@@ -37,59 +43,64 @@ function flattenTree(
       hasChildren: Boolean(node.children?.length),
       source: node.source,
       isEnabled: node.is_enabled,
-    })
+    });
     if (node.children?.length) {
-      result.push(...flattenTree(node.children, path))
+      result.push(...flattenTree(node.children, path));
     }
   }
-  return result
+  return result;
 }
 
 export function KategoriListTab({ search }: { search: string }) {
-  const [page, setPage] = React.useState(1)
-  const [perPage, setPerPage] = React.useState(20)
-  const [deleteTarget, setDeleteTarget] = React.useState<FlatKategori | null>(null)
-  const [editTarget, setEditTarget] = React.useState<FlatKategori | null>(null)
+  const [page, setPage] = React.useState(1);
+  const [perPage, setPerPage] = React.useState(20);
+  const [deleteTarget, setDeleteTarget] = React.useState<FlatKategori | null>(
+    null,
+  );
+  const [editTarget, setEditTarget] = React.useState<FlatKategori | null>(null);
 
-  const { data: tree, isLoading, isError } = useEnabledCategories()
-  const deleteMut = useDeleteKategori()
-  const disableMut = useDisableKategori()
+  const { data: tree, isLoading, isError } = useEnabledCategories();
+  const deleteMut = useDeleteKategori();
+  const disableMut = useDisableKategori();
 
-  const prevSearch = React.useRef(search)
+  const prevSearch = React.useRef(search);
   if (prevSearch.current !== search) {
-    prevSearch.current = search
-    if (page !== 1) setPage(1)
+    prevSearch.current = search;
+    if (page !== 1) setPage(1);
   }
 
-  const flat = React.useMemo(() => flattenTree(tree ?? []), [tree])
+  const flat = React.useMemo(() => flattenTree(tree ?? []), [tree]);
 
   const filtered = React.useMemo(() => {
-    if (!search) return flat
-    const q = search.toLowerCase()
-    return flat.filter((f) => f.fullPath.toLowerCase().includes(q))
-  }, [flat, search])
+    if (!search) return flat;
+    const q = search.toLowerCase();
+    return flat.filter((f) => f.fullPath.toLowerCase().includes(q));
+  }, [flat, search]);
 
-  const total = filtered.length
-  const lastPage = Math.max(1, Math.ceil(total / perPage))
-  const paginated = filtered.slice((page - 1) * perPage, page * perPage)
+  const total = filtered.length;
+  const lastPage = Math.max(1, Math.ceil(total / perPage));
+  const paginated = filtered.slice((page - 1) * perPage, page * perPage);
 
   function handleDelete() {
-    if (!deleteTarget) return
+    if (!deleteTarget) return;
     if (deleteTarget.source === "system") {
       disableMut.mutate([deleteTarget.id], {
         onSuccess: () => setDeleteTarget(null),
-      })
+      });
     } else {
       deleteMut.mutate(deleteTarget.id, {
         onSuccess: () => setDeleteTarget(null),
-      })
+      });
     }
   }
 
   return (
     <>
       <div className="flex items-center justify-end pb-3 text-sm text-muted-foreground">
-        Total <span className="ml-2 font-medium text-foreground tabular-nums">{total}</span>
+        Total{" "}
+        <span className="ml-2 font-medium text-foreground tabular-nums">
+          {total}
+        </span>
       </div>
 
       {isLoading ? (
@@ -102,7 +113,9 @@ export function KategoriListTab({ search }: { search: string }) {
         </div>
       ) : paginated.length === 0 ? (
         <div className="py-16 text-center text-sm text-muted-foreground">
-          {search ? "Tidak ditemukan kategori." : "Belum ada kategori. Import dari sistem atau tambah baru."}
+          {search
+            ? "Tidak ditemukan kategori."
+            : "Belum ada kategori. Import dari sistem atau tambah baru."}
         </div>
       ) : (
         <Table>
@@ -164,15 +177,21 @@ export function KategoriListTab({ search }: { search: string }) {
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => {
-          if (!open) setDeleteTarget(null)
+          if (!open) setDeleteTarget(null);
         }}
-        title={deleteTarget?.source === "system" ? "Nonaktifkan Kategori" : "Hapus Kategori"}
+        title={
+          deleteTarget?.source === "system"
+            ? "Nonaktifkan Kategori"
+            : "Hapus Kategori"
+        }
         description={
           deleteTarget?.source === "system"
             ? `Yakin ingin menonaktifkan "${deleteTarget?.fullPath}"? Kategori sistem tidak bisa dihapus, hanya dinonaktifkan.`
             : `Yakin ingin menghapus "${deleteTarget?.fullPath}"? Tindakan ini tidak dapat dibatalkan.`
         }
-        confirmLabel={deleteTarget?.source === "system" ? "Nonaktifkan" : "Hapus"}
+        confirmLabel={
+          deleteTarget?.source === "system" ? "Nonaktifkan" : "Hapus"
+        }
         variant="destructive"
         loading={deleteMut.isPending || disableMut.isPending}
         onConfirm={handleDelete}
@@ -181,12 +200,12 @@ export function KategoriListTab({ search }: { search: string }) {
       <EditKategoriDialog
         open={Boolean(editTarget)}
         onOpenChange={(open) => {
-          if (!open) setEditTarget(null)
+          if (!open) setEditTarget(null);
         }}
         categoryId={editTarget?.id ?? null}
         currentName={editTarget?.name ?? ""}
         fullPath={editTarget?.fullPath ?? ""}
       />
     </>
-  )
+  );
 }

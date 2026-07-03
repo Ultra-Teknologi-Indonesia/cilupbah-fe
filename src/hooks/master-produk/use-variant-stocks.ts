@@ -1,9 +1,8 @@
-"use client"
+"use client";
 
-import { useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query";
 
-import { InventoryService } from "@/services/master-produk/inventory.service"
-
+import { InventoryService } from "@/services/master-produk/inventory.service";
 
 export function useVariantStocks(itemIds: string[], enabled = true) {
   return useQuery({
@@ -11,5 +10,5 @@ export function useVariantStocks(itemIds: string[], enabled = true) {
     queryFn: () => InventoryService.getVariantStocks(itemIds),
     enabled: enabled && itemIds.length > 0,
     staleTime: 30 * 1000,
-  })
+  });
 }

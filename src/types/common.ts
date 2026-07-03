@@ -1,6 +1,5 @@
-
 export interface LookupOption {
-  value: string
-  label: string
-  hint?: string
+  value: string;
+  label: string;
+  hint?: string;
 }

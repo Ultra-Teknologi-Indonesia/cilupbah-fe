@@ -1,13 +1,18 @@
-"use client"
+"use client";
 
-import { Toaster as Sonner, toast, type ToasterProps, type ExternalToast } from "sonner"
+import {
+  Toaster as Sonner,
+  toast,
+  type ToasterProps,
+  type ExternalToast,
+} from "sonner";
 import {
   CircleCheckIcon,
   InfoIcon,
   TriangleAlertIcon,
   OctagonXIcon,
   Loader2Icon,
-} from "lucide-react"
+} from "lucide-react";
 
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
@@ -25,11 +30,12 @@ const Toaster = ({ ...props }: ToasterProps) => {
           <TriangleAlertIcon className="size-5 text-amber-600 dark:text-amber-400" />
         ),
         error: <OctagonXIcon className="size-5 text-destructive" />,
-        loading: <Loader2Icon className="size-5 animate-spin text-muted-foreground" />,
+        loading: (
+          <Loader2Icon className="size-5 animate-spin text-muted-foreground" />
+        ),
       }}
       style={
         {
-          
           "--normal-bg": "var(--popover)",
           "--normal-text": "var(--popover-foreground)",
           "--normal-border": "transparent",
@@ -54,8 +60,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       {...props}
     />
-  )
-}
+  );
+};
 
-export { Toaster, toast }
-export type { ExternalToast }
+export { Toaster, toast };
+export type { ExternalToast };

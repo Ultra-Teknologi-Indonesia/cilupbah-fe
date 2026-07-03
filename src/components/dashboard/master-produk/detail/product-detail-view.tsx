@@ -1,65 +1,75 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { PackageIcon } from "lucide-react"
+import * as React from "react";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { PackageIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useProductDetail, useProductLifecycle } from "@/hooks/master-produk/use-product-detail"
-import type { ProductTypeKind } from "@/types/master-produk"
-import { ProductDetailSkeleton } from "./product-detail-skeleton"
-import { DetailHeader } from "./detail-header"
-import { TabVariasi } from "./tab-variasi"
-import { TabChannel } from "./tab-channel"
-import { TabHargaChannel } from "./tab-harga-channel"
-import { TabKomposisi } from "./tab-komposisi"
-import { TabBukuHarga } from "./tab-buku-harga"
-import { TabRiwayat } from "./tab-riwayat"
-import { AccountsCard, ShippingCard } from "./accounts-shipping"
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  useProductDetail,
+  useProductLifecycle,
+} from "@/hooks/master-produk/use-product-detail";
+import type { ProductTypeKind } from "@/types/master-produk";
+import { ProductDetailSkeleton } from "./product-detail-skeleton";
+import { DetailHeader } from "./detail-header";
+import { TabVariasi } from "./tab-variasi";
+import { TabChannel } from "./tab-channel";
+import { TabHargaChannel } from "./tab-harga-channel";
+import { TabKomposisi } from "./tab-komposisi";
+import { TabBukuHarga } from "./tab-buku-harga";
+import { TabRiwayat } from "./tab-riwayat";
+import { AccountsCard, ShippingCard } from "./accounts-shipping";
 
-type DetailTab = { id: string; label: string }
+type DetailTab = { id: string; label: string };
 
 function tabsFor(type: ProductTypeKind): DetailTab[] {
   const first: DetailTab =
     type === "bundle"
       ? { id: "komposisi", label: "Komposisi" }
-      : { id: "variasi", label: "Variasi" }
+      : { id: "variasi", label: "Variasi" };
   return [
     first,
     { id: "channel", label: "Channel" },
     { id: "harga-channel", label: "Harga Channel" },
     { id: "buku-harga", label: "Buku Harga" },
     { id: "riwayat", label: "Riwayat Upload" },
-  ]
+  ];
 }
 
 export function ProductDetailView({ id }: { id: string }) {
-  const { data: product, isLoading, isError, refetch } = useProductDetail(id)
-  const lifecycle = useProductLifecycle(id)
+  const { data: product, isLoading, isError, refetch } = useProductDetail(id);
+  const lifecycle = useProductLifecycle(id);
 
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const tabs = React.useMemo(() => tabsFor(product?.productType ?? "single"), [product?.productType])
-  const urlTab = searchParams.get("tab")
-  const initialTab = tabs.some((t) => t.id === urlTab) ? (urlTab as string) : tabs[0].id
-  const [active, setActive] = React.useState(initialTab)
+  const tabs = React.useMemo(
+    () => tabsFor(product?.productType ?? "single"),
+    [product?.productType],
+  );
+  const urlTab = searchParams.get("tab");
+  const initialTab = tabs.some((t) => t.id === urlTab)
+    ? (urlTab as string)
+    : tabs[0].id;
+  const [active, setActive] = React.useState(initialTab);
 
   React.useEffect(() => {
-    setActive(tabs.some((t) => t.id === urlTab) ? (urlTab as string) : tabs[0].id)
-  }, [urlTab, tabs])
+    setActive(
+      tabs.some((t) => t.id === urlTab) ? (urlTab as string) : tabs[0].id,
+    );
+  }, [urlTab, tabs]);
 
   const setTab = (next: string) => {
-    setActive(next)
-    const params = new URLSearchParams(searchParams.toString())
-    params.set("tab", next)
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
-  }
+    setActive(next);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", next);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
-  if (isLoading) return <ProductDetailSkeleton />
+  if (isLoading) return <ProductDetailSkeleton />;
 
   if (isError || !product) {
     return (
@@ -75,7 +85,7 @@ export function ProductDetailView({ id }: { id: string }) {
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -86,7 +96,11 @@ export function ProductDetailView({ id }: { id: string }) {
         onLifecycle={(action, opts) => lifecycle.mutate({ action, ...opts })}
       />
 
-      <Tabs value={active} onValueChange={setTab} className="rounded-2xl border border-border/60 bg-card/50 shadow-sm">
+      <Tabs
+        value={active}
+        onValueChange={setTab}
+        className="rounded-2xl border border-border/60 bg-card/50 shadow-sm"
+      >
         <div className="sticky top-0 z-10 overflow-x-auto rounded-t-2xl border-b border-border/60 bg-card/80 px-3 pt-3 backdrop-blur-xl">
           <TabsList variant="line" className="h-auto pb-2">
             {tabs.map((t) => (
@@ -102,7 +116,10 @@ export function ProductDetailView({ id }: { id: string }) {
             <TabVariasi productId={id} />
           </TabsContent>
           <TabsContent value="komposisi">
-            <TabKomposisi components={product.bundleComponents} bundleStock={product.bundleStock} />
+            <TabKomposisi
+              components={product.bundleComponents}
+              bundleStock={product.bundleStock}
+            />
           </TabsContent>
           <TabsContent value="channel">
             <TabChannel productId={id} />
@@ -124,5 +141,5 @@ export function ProductDetailView({ id }: { id: string }) {
         <ShippingCard product={product} />
       </div>
     </div>
-  )
+  );
 }

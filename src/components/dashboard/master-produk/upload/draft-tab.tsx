@@ -1,24 +1,19 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import type { ColumnDef, PaginationState } from "@tanstack/react-table"
-import {
-  ImageIcon,
-  Loader2Icon,
-  Trash2Icon,
-  UploadIcon,
-} from "lucide-react"
+import * as React from "react";
+import type { ColumnDef, PaginationState } from "@tanstack/react-table";
+import { ImageIcon, Loader2Icon, Trash2Icon, UploadIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { DataTable } from "@/components/ui/data-table"
+import { Button } from "@/components/ui/button";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { DataTable } from "@/components/ui/data-table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogClose,
@@ -27,73 +22,72 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   useChannelDrafts,
   useDeleteDraft,
   useUploadDraft,
-} from "@/hooks/master-produk/use-upload"
-import type { DraftRow, DraftStatus } from "@/hooks/master-produk/use-upload"
-import type { ChannelCode } from "@/types/channel"
-import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
-import { FilterToolbar } from "../filter-toolbar"
-import { SyncStatusBadge } from "../detail/tab-pagination"
+} from "@/hooks/master-produk/use-upload";
+import type { DraftRow, DraftStatus } from "@/hooks/master-produk/use-upload";
+import type { ChannelCode } from "@/types/channel";
+import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo";
+import { FilterToolbar } from "../filter-toolbar";
+import { SyncStatusBadge } from "../detail/tab-pagination";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Semua" },
   { value: "draft", label: "Draft" },
   { value: "ready", label: "Siap" },
   { value: "cancelled", label: "Dibatalkan" },
-]
+];
 
-type DeletePending = { productId: string; draftId: string; name: string }
+type DeletePending = { productId: string; draftId: string; name: string };
 
 export function DraftTab({
   tabBar,
   actionButton,
 }: {
-  tabBar?: React.ReactNode
-  actionButton?: React.ReactNode
+  tabBar?: React.ReactNode;
+  actionButton?: React.ReactNode;
 }) {
-  const [searchInput, setSearchInput] = React.useState("")
-  const [search, setSearch] = React.useState("")
-  const [status, setStatus] = React.useState("all")
+  const [searchInput, setSearchInput] = React.useState("");
+  const [search, setSearch] = React.useState("");
+  const [status, setStatus] = React.useState("all");
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 20,
-  })
-  const [deletePending, setDeletePending] = React.useState<DeletePending | null>(
-    null
-  )
+  });
+  const [deletePending, setDeletePending] =
+    React.useState<DeletePending | null>(null);
 
   React.useEffect(() => {
     const t = setTimeout(() => {
-      setSearch(searchInput)
-      setPagination((p) => ({ ...p, pageIndex: 0 }))
-    }, 350)
-    return () => clearTimeout(t)
-  }, [searchInput])
+      setSearch(searchInput);
+      setPagination((p) => ({ ...p, pageIndex: 0 }));
+    }, 350);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
   const { data, isLoading } = useChannelDrafts({
     search: search || undefined,
     status: (status === "all" ? undefined : status) as DraftStatus | undefined,
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
-  })
+  });
 
-  const items = data?.items ?? []
-  const total = data?.meta?.total ?? 0
+  const items = data?.items ?? [];
+  const total = data?.meta?.total ?? 0;
 
-  const uploadDraft = useUploadDraft()
-  const deleteDraft = useDeleteDraft()
+  const uploadDraft = useUploadDraft();
+  const deleteDraft = useDeleteDraft();
 
   const confirmDelete = () => {
-    if (!deletePending) return
+    if (!deletePending) return;
     deleteDraft.mutate(
       { productId: deletePending.productId, draftId: deletePending.draftId },
-      { onSuccess: () => setDeletePending(null) }
-    )
-  }
+      { onSuccess: () => setDeletePending(null) },
+    );
+  };
 
   const columns = React.useMemo<ColumnDef<DraftRow>[]>(
     () => [
@@ -101,7 +95,7 @@ export function DraftTab({
         accessorKey: "itemGroupName",
         header: "Produk",
         cell: ({ row }) => {
-          const d = row.original
+          const d = row.original;
           return (
             <div className="flex items-center gap-3">
               <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
@@ -127,7 +121,7 @@ export function DraftTab({
                 )}
               </div>
             </div>
-          )
+          );
         },
       },
       {
@@ -135,7 +129,7 @@ export function DraftTab({
         header: "Store",
         enableSorting: false,
         cell: ({ row }) => {
-          const d = row.original
+          const d = row.original;
           return (
             <div className="flex items-center gap-2">
               <ChannelLogo
@@ -154,7 +148,7 @@ export function DraftTab({
                 )}
               </div>
             </div>
-          )
+          );
         },
       },
       {
@@ -167,7 +161,7 @@ export function DraftTab({
         header: () => <div className="text-right">Aksi</div>,
         enableSorting: false,
         cell: ({ row }) => {
-          const d = row.original
+          const d = row.original;
           return (
             <div className="flex items-center justify-end gap-1">
               <Button
@@ -195,31 +189,38 @@ export function DraftTab({
                 <Trash2Icon className="size-4" />
               </Button>
             </div>
-          )
+          );
         },
         size: 48,
       },
     ],
-    [uploadDraft]
-  )
+    [uploadDraft],
+  );
 
-  const hasFilter = !!searchInput || status !== "all"
+  const hasFilter = !!searchInput || status !== "all";
   const onReset = () => {
-    setSearchInput("")
-    setSearch("")
-    setStatus("all")
-    setPagination((p) => ({ ...p, pageIndex: 0 }))
-  }
+    setSearchInput("");
+    setSearch("");
+    setStatus("all");
+    setPagination((p) => ({ ...p, pageIndex: 0 }));
+  };
 
   return (
     <>
-      <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+      <LiquidGlass
+        radius={24}
+        intensity="default"
+        className="bg-white/40 dark:bg-white/[0.06]"
+      >
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 pt-3 sm:px-5">
           <div className="overflow-x-auto">{tabBar}</div>
           <div className="flex items-center gap-3 pb-2">
             {actionButton}
             <span className="text-sm text-muted-foreground">
-              Total <span className="font-medium text-foreground tabular-nums">{total}</span>
+              Total{" "}
+              <span className="font-medium text-foreground tabular-nums">
+                {total}
+              </span>
             </span>
           </div>
         </div>
@@ -234,8 +235,8 @@ export function DraftTab({
           <Select
             value={status}
             onValueChange={(v) => {
-              setStatus(v)
-              setPagination((p) => ({ ...p, pageIndex: 0 }))
+              setStatus(v);
+              setPagination((p) => ({ ...p, pageIndex: 0 }));
             }}
           >
             <SelectTrigger className="h-9 w-auto min-w-[140px] rounded-full bg-background">
@@ -263,7 +264,9 @@ export function DraftTab({
             onPaginationChange={setPagination}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <span className="text-muted-foreground">Belum ada draft upload</span>
+              <span className="text-muted-foreground">
+                Belum ada draft upload
+              </span>
             }
           />
         </div>
@@ -272,7 +275,7 @@ export function DraftTab({
       <Dialog
         open={!!deletePending}
         onOpenChange={(o) => {
-          if (!o && !deleteDraft.isPending) setDeletePending(null)
+          if (!o && !deleteDraft.isPending) setDeletePending(null);
         }}
       >
         <DialogContent>
@@ -308,5 +311,5 @@ export function DraftTab({
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }

@@ -1,39 +1,39 @@
-"use client"
+"use client";
 
-import { Suspense } from "react"
+import { Suspense } from "react";
 import {
   SlidersHorizontalIcon,
   ClipboardCheckIcon,
   ArrowLeftRightIcon,
   ShieldIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { PageTitle } from "@/components/dashboard/page-title"
-import { TableSkeleton } from "@/components/ui/page-skeleton"
-import { useUrlTab } from "@/hooks/use-url-tab"
-import { PenyesuaianTab } from "@/components/dashboard/transaksi-stok/penyesuaian-tab"
-import { OpnameTab } from "@/components/dashboard/transaksi-stok/opname-tab"
-import { TransferTab } from "@/components/dashboard/transaksi-stok/transfer-tab"
-import { CadangTab } from "@/components/dashboard/transaksi-stok/cadang-tab"
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageTitle } from "@/components/dashboard/page-title";
+import { TableSkeleton } from "@/components/ui/page-skeleton";
+import { useUrlTab } from "@/hooks/use-url-tab";
+import { PenyesuaianTab } from "@/components/dashboard/transaksi-stok/penyesuaian-tab";
+import { OpnameTab } from "@/components/dashboard/transaksi-stok/opname-tab";
+import { TransferTab } from "@/components/dashboard/transaksi-stok/transfer-tab";
+import { CadangTab } from "@/components/dashboard/transaksi-stok/cadang-tab";
 
-type Tab = "penyesuaian" | "opname" | "transfer" | "cadang"
+type Tab = "penyesuaian" | "opname" | "transfer" | "cadang";
 
-const TABS: { key: Tab; label: string; icon: typeof SlidersHorizontalIcon }[] = [
-  { key: "penyesuaian", label: "Koreksi Stok", icon: SlidersHorizontalIcon },
-  { key: "opname", label: "Stok Opname", icon: ClipboardCheckIcon },
-  { key: "transfer", label: "Internal Transfer", icon: ArrowLeftRightIcon },
-  { key: "cadang", label: "Reservasi Stok", icon: ShieldIcon },
-]
+const TABS: { key: Tab; label: string; icon: typeof SlidersHorizontalIcon }[] =
+  [
+    { key: "penyesuaian", label: "Koreksi Stok", icon: SlidersHorizontalIcon },
+    { key: "opname", label: "Stok Opname", icon: ClipboardCheckIcon },
+    { key: "transfer", label: "Internal Transfer", icon: ArrowLeftRightIcon },
+    { key: "cadang", label: "Reservasi Stok", icon: ShieldIcon },
+  ];
 
-const TAB_KEYS = TABS.map((t) => t.key)
+const TAB_KEYS = TABS.map((t) => t.key);
 
 function TransaksiStokTabs() {
-  // Tab hidup di URL (?tab=) — bertahan saat refresh/back.
   const [activeTab, setActiveTab] = useUrlTab<Tab>("tab", "penyesuaian", {
     validValues: TAB_KEYS,
-  })
+  });
 
   return (
     <>
@@ -48,7 +48,7 @@ function TransaksiStokTabs() {
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Tab)}>
           <TabsList className="gap-1 bg-transparent">
             {TABS.map((tab) => {
-              const Icon = tab.icon
+              const Icon = tab.icon;
               return (
                 <TabsTrigger
                   key={tab.key}
@@ -58,7 +58,7 @@ function TransaksiStokTabs() {
                   <Icon />
                   {tab.label}
                 </TabsTrigger>
-              )
+              );
             })}
           </TabsList>
         </Tabs>
@@ -69,7 +69,7 @@ function TransaksiStokTabs() {
       {activeTab === "transfer" && <TransferTab />}
       {activeTab === "cadang" && <CadangTab />}
     </>
-  )
+  );
 }
 
 export default function TransaksiStokPage() {
@@ -77,16 +77,13 @@ export default function TransaksiStokPage() {
     <div className="flex flex-col gap-6">
       <PageTitle
         title="Transaksi Stok"
-        breadcrumb={[
-          { label: "Persediaan" },
-          { label: "Transaksi Stok" },
-        ]}
+        breadcrumb={[{ label: "Persediaan" }, { label: "Transaksi Stok" }]}
       />
 
-      {/* Suspense wajib untuk useSearchParams (useUrlTab) saat prerender. */}
+      {}
       <Suspense fallback={<TableSkeleton rows={6} cols={5} />}>
         <TransaksiStokTabs />
       </Suspense>
     </div>
-  )
+  );
 }

@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
 import {
   PageHeaderSkeleton,
   DetailSkeleton,
-} from "@/components/ui/page-skeleton"
+} from "@/components/ui/page-skeleton";
 
 export default function PackingDetailLoading() {
   return (
@@ -13,5 +13,5 @@ export default function PackingDetailLoading() {
         <DetailSkeleton />
       </div>
     </phantom-ui>
-  )
+  );
 }

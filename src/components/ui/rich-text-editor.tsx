@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   BoldIcon,
   ItalicIcon,
@@ -11,10 +11,10 @@ import {
   QuoteIcon,
   LinkIcon,
   ImageIcon,
-} from "lucide-react"
-import TurndownService from "turndown"
+} from "lucide-react";
+import TurndownService from "turndown";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 const turndown = new TurndownService({
   headingStyle: "atx",
@@ -22,41 +22,40 @@ const turndown = new TurndownService({
   codeBlockStyle: "fenced",
   strongDelimiter: "**",
   emDelimiter: "*",
-})
+});
 turndown.addRule("strikethrough", {
   filter: ["del", "s", "strike" as keyof HTMLElementTagNameMap],
   replacement: (content) => `~~${content}~~`,
-})
+});
 
 function markdownToHtml(md: string): string {
-  if (!md) return ""
-  let html = md
-  html = html.replace(/^## (.+)$/gm, "<h2>$1</h2>")
-  html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-  html = html.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>")
-  html = html.replace(/~~(.+?)~~/g, "<del>$1</del>")
-  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">')
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-  html = html.replace(/^> (.+)$/gm, "<blockquote>$1</blockquote>")
-  html = html.replace(/^- (.+)$/gm, "<li>$1</li>")
-  html = html.replace(/^(\d+)\. (.+)$/gm, "<li>$2</li>")
+  if (!md) return "";
+  let html = md;
+  html = html.replace(/^## (.+)$/gm, "<h2>$1</h2>");
+  html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  html = html.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>");
+  html = html.replace(/~~(.+?)~~/g, "<del>$1</del>");
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  html = html.replace(/^> (.+)$/gm, "<blockquote>$1</blockquote>");
+  html = html.replace(/^- (.+)$/gm, "<li>$1</li>");
+  html = html.replace(/^(\d+)\. (.+)$/gm, "<li>$2</li>");
   html = html.replace(/(<li>.*<\/li>\n?)+/g, (match) => {
-    return `<ul>${match}</ul>`
-  })
-  html = html.replace(/\n/g, "<br>")
-  return html
+    return `<ul>${match}</ul>`;
+  });
+  html = html.replace(/\n/g, "<br>");
+  return html;
 }
 
 interface RichTextEditorProps {
-  value?: string
-  onChange?: (markdown: string) => void
-  onBlur?: () => void
-  placeholder?: string
-  rows?: number
-  id?: string
-  invalid?: boolean
+  value?: string;
+  onChange?: (markdown: string) => void;
+  onBlur?: () => void;
+  placeholder?: string;
+  rows?: number;
+  id?: string;
+  invalid?: boolean;
 }
-
 
 export function RichTextEditor({
   value = "",
@@ -67,55 +66,54 @@ export function RichTextEditor({
   id,
   invalid,
 }: RichTextEditorProps) {
-  const ref = React.useRef<HTMLDivElement>(null)
-  // null (bukan `value`) agar effect pertama selalu mengisi konten awal saat edit;
-  // jika diinisialisasi `value`, kondisi `value !== lastEmitted` gagal di mount → editor kosong.
-  const lastEmitted = React.useRef<string | null>(null)
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  const lastEmitted = React.useRef<string | null>(null);
 
   React.useEffect(() => {
-    const el = ref.current
-    if (!el) return
+    const el = ref.current;
+    if (!el) return;
     if (document.activeElement !== el && value !== lastEmitted.current) {
-      el.innerHTML = markdownToHtml(value)
-      lastEmitted.current = value
+      el.innerHTML = markdownToHtml(value);
+      lastEmitted.current = value;
     }
-  }, [value])
+  }, [value]);
 
   const emit = () => {
-    const html = ref.current?.innerHTML ?? ""
-    const md = turndown.turndown(html)
-    lastEmitted.current = md
-    onChange?.(md)
-  }
+    const html = ref.current?.innerHTML ?? "";
+    const md = turndown.turndown(html);
+    lastEmitted.current = md;
+    onChange?.(md);
+  };
 
   const exec = (command: string, arg?: string) => {
-    ref.current?.focus()
-    document.execCommand(command, false, arg)
-    emit()
-  }
+    ref.current?.focus();
+    document.execCommand(command, false, arg);
+    emit();
+  };
 
   const insertLink = () => {
-    const url = window.prompt("URL tautan:")
-    if (url) exec("createLink", url)
-  }
+    const url = window.prompt("URL tautan:");
+    if (url) exec("createLink", url);
+  };
   const insertImage = () => {
-    const url = window.prompt("URL gambar:")
-    if (url) exec("insertImage", url)
-  }
+    const url = window.prompt("URL gambar:");
+    if (url) exec("insertImage", url);
+  };
 
-  const isEmpty = !value || !value.trim()
+  const isEmpty = !value || !value.trim();
 
   return (
     <div
       className={cn(
         "overflow-hidden rounded-xl border border-border bg-background shadow-xs transition-[color,box-shadow]",
         "focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/30",
-        invalid && "border-destructive ring-3 ring-destructive/20"
+        invalid && "border-destructive ring-3 ring-destructive/20",
       )}
     >
       <div
         className="flex flex-wrap items-center gap-0.5 border-b border-border/60 bg-muted/30 px-1.5 py-1"
-        
+
         onMouseDown={(e) => e.preventDefault()}
       >
         <ToolBtn label="Tebal" onClick={() => exec("bold")}>
@@ -134,10 +132,16 @@ export function RichTextEditor({
         <ToolBtn label="Daftar" onClick={() => exec("insertUnorderedList")}>
           <ListIcon />
         </ToolBtn>
-        <ToolBtn label="Daftar bernomor" onClick={() => exec("insertOrderedList")}>
+        <ToolBtn
+          label="Daftar bernomor"
+          onClick={() => exec("insertOrderedList")}
+        >
           <ListOrderedIcon />
         </ToolBtn>
-        <ToolBtn label="Kutipan" onClick={() => exec("formatBlock", "<blockquote>")}>
+        <ToolBtn
+          label="Kutipan"
+          onClick={() => exec("formatBlock", "<blockquote>")}
+        >
           <QuoteIcon />
         </ToolBtn>
         <Sep />
@@ -172,12 +176,12 @@ export function RichTextEditor({
             "[&_ul]:my-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-1 [&_ol]:list-decimal [&_ol]:pl-5",
             "[&_blockquote]:my-1 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_blockquote]:text-muted-foreground",
             "[&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2",
-            "[&_img]:my-2 [&_img]:max-h-56 [&_img]:rounded-lg [&_img]:border [&_img]:border-border"
+            "[&_img]:my-2 [&_img]:max-h-56 [&_img]:rounded-lg [&_img]:border [&_img]:border-border",
           )}
         />
       </div>
     </div>
-  )
+  );
 }
 
 function ToolBtn({
@@ -185,9 +189,9 @@ function ToolBtn({
   onClick,
   children,
 }: {
-  label: string
-  onClick: () => void
-  children: React.ReactNode
+  label: string;
+  onClick: () => void;
+  children: React.ReactNode;
 }) {
   return (
     <button
@@ -199,9 +203,9 @@ function ToolBtn({
     >
       {children}
     </button>
-  )
+  );
 }
 
 function Sep() {
-  return <span aria-hidden className="mx-1 h-5 w-px bg-border/60" />
+  return <span aria-hidden className="mx-1 h-5 w-px bg-border/60" />;
 }

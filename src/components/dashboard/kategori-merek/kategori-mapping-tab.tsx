@@ -1,21 +1,20 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
+import { InfoIcon, Loader2Icon, MoreHorizontalIcon } from "lucide-react";
+import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
 import {
-  InfoIcon,
-  Loader2Icon,
-  MoreHorizontalIcon,
-} from "lucide-react"
-import Link from "next/link"
-
-import { Button } from "@/components/ui/button"
-import { SimplePagination, TABLE_PAGE_SIZES } from "@/components/ui/simple-pagination"
+  SimplePagination,
+  TABLE_PAGE_SIZES,
+} from "@/components/ui/simple-pagination";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -23,42 +22,42 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { useKategoriMapping } from "@/hooks/kategori-merek/use-kategori"
-import type { ChannelInfo } from "@/types/kategori-merek/kategori"
-import { PetakanKategoriDialog } from "./petakan-kategori-dialog"
+} from "@/components/ui/table";
+import { useKategoriMapping } from "@/hooks/kategori-merek/use-kategori";
+import type { ChannelInfo } from "@/types/kategori-merek/kategori";
+import { PetakanKategoriDialog } from "./petakan-kategori-dialog";
 
 export function KategoriMappingTab({ search }: { search: string }) {
-  const [page, setPage] = React.useState(1)
-  const [perPage, setPerPage] = React.useState(20)
+  const [page, setPage] = React.useState(1);
+  const [perPage, setPerPage] = React.useState(20);
 
-  const prevSearch = React.useRef(search)
+  const prevSearch = React.useRef(search);
   if (prevSearch.current !== search) {
-    prevSearch.current = search
-    if (page !== 1) setPage(1)
+    prevSearch.current = search;
+    if (page !== 1) setPage(1);
   }
 
   const { data, isLoading, isError, isFetching } = useKategoriMapping({
     search: search || undefined,
     page,
     perPage,
-  })
+  });
 
-  const items = data?.items ?? []
-  const total = data?.meta?.total ?? 0
-  const currentPage = data?.meta?.current_page ?? page
-  const lastPage = data?.meta?.last_page ?? 1
+  const items = data?.items ?? [];
+  const total = data?.meta?.total ?? 0;
+  const currentPage = data?.meta?.current_page ?? page;
+  const lastPage = data?.meta?.last_page ?? 1;
 
-  const channels: ChannelInfo[] = items[0]?.channels ?? []
+  const channels: ChannelInfo[] = items[0]?.channels ?? [];
 
   const [pickerState, setPickerState] = React.useState<{
-    categoryId: number
-    categoryName: string
-    channelId: string
-    channelCode: string
-    channelName: string
-    mappedExternalId?: string
-  } | null>(null)
+    categoryId: number;
+    categoryName: string;
+    channelId: string;
+    channelCode: string;
+    channelName: string;
+    mappedExternalId?: string;
+  } | null>(null);
 
   return (
     <>
@@ -68,7 +67,10 @@ export function KategoriMappingTab({ search }: { search: string }) {
       </div>
 
       <div className="flex items-center justify-end pb-3 text-sm text-muted-foreground">
-        Total <span className="ml-2 font-medium text-foreground tabular-nums">{total}</span>
+        Total{" "}
+        <span className="ml-2 font-medium text-foreground tabular-nums">
+          {total}
+        </span>
       </div>
 
       {isLoading ? (
@@ -85,7 +87,10 @@ export function KategoriMappingTab({ search }: { search: string }) {
         </div>
       ) : (
         <div className="overflow-hidden">
-          <Table className="table-fixed w-full" containerClassName="overflow-x-hidden">
+          <Table
+            className="table-fixed w-full"
+            containerClassName="overflow-x-hidden"
+          >
             <colgroup>
               <col className="w-[34%]" />
               {channels.map((ch) => (
@@ -108,13 +113,18 @@ export function KategoriMappingTab({ search }: { search: string }) {
               {items.map((item) => (
                 <TableRow key={item.category_id}>
                   <TableCell className="whitespace-normal align-top font-medium text-sm">
-                    <span className="line-clamp-2 break-words" title={item.full_category_name}>
+                    <span
+                      className="line-clamp-2 break-words"
+                      title={item.full_category_name}
+                    >
                       {item.full_category_name}
                     </span>
                   </TableCell>
                   {channels.map((ch) => {
-                    const name = item[`${ch.code}_category_name`] as string | null
-                    const extId = item[`${ch.code}_category_id`] as string | null
+                    const name = item[`${ch.code}_category_name`] as
+                      string | null;
+                    const extId = item[`${ch.code}_category_id`] as
+                      string | null;
                     const openPicker = () =>
                       setPickerState({
                         categoryId: item.category_id,
@@ -123,9 +133,12 @@ export function KategoriMappingTab({ search }: { search: string }) {
                         channelCode: ch.code,
                         channelName: ch.name,
                         mappedExternalId: extId ?? undefined,
-                      })
+                      });
                     return (
-                      <TableCell key={ch.code} className="whitespace-normal align-top text-sm">
+                      <TableCell
+                        key={ch.code}
+                        className="whitespace-normal align-top text-sm"
+                      >
                         {name ? (
                           <button
                             type="button"
@@ -136,12 +149,16 @@ export function KategoriMappingTab({ search }: { search: string }) {
                             {name.split(" > ").pop()}
                           </button>
                         ) : (
-                          <Button variant="primary" size="sm" onClick={openPicker}>
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={openPicker}
+                          >
                             Petakan
                           </Button>
                         )}
                       </TableCell>
-                    )
+                    );
                   })}
                   <TableCell className="px-1 align-top">
                     <DropdownMenu>
@@ -152,12 +169,16 @@ export function KategoriMappingTab({ search }: { search: string }) {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link href={`/dashboard/kategori-merek/kategori/${item.category_id}/atribut`}>
+                          <Link
+                            href={`/dashboard/kategori-merek/kategori/${item.category_id}/atribut`}
+                          >
                             Lihat Atribut
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href={`/dashboard/kategori-merek/kategori/${item.category_id}/variasi`}>
+                          <Link
+                            href={`/dashboard/kategori-merek/kategori/${item.category_id}/variasi`}
+                          >
                             Lihat Variasi
                           </Link>
                         </DropdownMenuItem>
@@ -197,5 +218,5 @@ export function KategoriMappingTab({ search }: { search: string }) {
         onSuccess={() => setPickerState(null)}
       />
     </>
-  )
+  );
 }

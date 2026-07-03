@@ -1,21 +1,20 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   type RowSelectionState,
   getCoreRowModel,
   useReactTable,
-} from "@tanstack/react-table"
-import { SearchXIcon } from "lucide-react"
+} from "@tanstack/react-table";
+import { SearchXIcon } from "lucide-react";
 
-import { DataTablePagination } from "@/components/ui/data-table"
-import { GRID_PAGE_SIZES } from "@/components/ui/simple-pagination"
-import { Skeleton } from "@/components/ui/skeleton"
-import { productColumns } from "./product-columns"
-import { ProductBulkActions } from "./product-bulk-actions"
-import { ProductCard } from "./product-card"
-import type { ProductListViewProps } from "./product-table"
-
+import { DataTablePagination } from "@/components/ui/data-table";
+import { GRID_PAGE_SIZES } from "@/components/ui/simple-pagination";
+import { Skeleton } from "@/components/ui/skeleton";
+import { productColumns } from "./product-columns";
+import { ProductBulkActions } from "./product-bulk-actions";
+import { ProductCard } from "./product-card";
+import type { ProductListViewProps } from "./product-table";
 
 export function ProductCardView({
   items,
@@ -26,7 +25,7 @@ export function ProductCardView({
   pagination,
   onPaginationChange,
 }: ProductListViewProps) {
-  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
   const table = useReactTable({
     data: items,
@@ -44,7 +43,7 @@ export function ProductCardView({
     onSortingChange: (u) =>
       onSortingChange(typeof u === "function" ? u(sorting) : u),
     getCoreRowModel: getCoreRowModel(),
-  })
+  });
 
   if (isLoading) {
     return (
@@ -53,13 +52,13 @@ export function ProductCardView({
           <Skeleton key={i} className="h-64 rounded-2xl" />
         ))}
       </div>
-    )
+    );
   }
 
-  const rows = table.getRowModel().rows
+  const rows = table.getRowModel().rows;
   const selectedRows = table
     .getFilteredSelectedRowModel()
-    .rows.map((r) => r.original)
+    .rows.map((r) => r.original);
 
   return (
     <div className="flex flex-col gap-4">
@@ -95,5 +94,5 @@ export function ProductCardView({
 
       <DataTablePagination table={table} pageSizeOptions={GRID_PAGE_SIZES} />
     </div>
-  )
+  );
 }

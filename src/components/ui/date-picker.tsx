@@ -1,27 +1,27 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
-import { CalendarIcon } from "lucide-react"
-import type { DateRange } from "react-day-picker"
+import * as React from "react";
+import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
+import { CalendarIcon } from "lucide-react";
+import type { DateRange } from "react-day-picker";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
 
 interface DatePickerProps {
-  value?: Date
-  onChange?: (date: Date | undefined) => void
-  placeholder?: string
-  disabled?: boolean
-  className?: string
-  id?: string
+  value?: Date;
+  onChange?: (date: Date | undefined) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string;
+  id?: string;
 }
 
 export function DatePicker({
@@ -42,11 +42,13 @@ export function DatePicker({
           data-empty={!value}
           className={cn(
             "w-full justify-start text-left font-normal data-[empty=true]:text-muted-foreground",
-            className
+            className,
           )}
         >
           <CalendarIcon className="size-4" />
-          {value ? format(value, "dd MMMM yyyy", { locale: idLocale }) : placeholder}
+          {value
+            ? format(value, "dd MMMM yyyy", { locale: idLocale })
+            : placeholder}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
@@ -58,26 +60,26 @@ export function DatePicker({
         />
       </PopoverContent>
     </Popover>
-  )
+  );
 }
 
 interface DateRangePickerProps {
-  value?: DateRange
-  onChange?: (range: DateRange | undefined) => void
-  placeholder?: string
-  disabled?: boolean
-  className?: string
-  id?: string
+  value?: DateRange;
+  onChange?: (range: DateRange | undefined) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string;
+  id?: string;
 }
 
 interface DateTimePickerProps {
-  value?: Date
-  onChange?: (date: Date | undefined) => void
-  placeholder?: string
-  disabled?: boolean
-  disablePast?: boolean
-  className?: string
-  id?: string
+  value?: Date;
+  onChange?: (date: Date | undefined) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  disablePast?: boolean;
+  className?: string;
+  id?: string;
 }
 
 export function DateTimePicker({
@@ -89,35 +91,35 @@ export function DateTimePicker({
   className,
   id,
 }: DateTimePickerProps) {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(false);
 
-  const hours = value ? String(value.getHours()).padStart(2, "0") : "00"
-  const minutes = value ? String(value.getMinutes()).padStart(2, "0") : "00"
+  const hours = value ? String(value.getHours()).padStart(2, "0") : "00";
+  const minutes = value ? String(value.getMinutes()).padStart(2, "0") : "00";
 
   const handleDateSelect = (date: Date | undefined) => {
-    if (!date) return
-    const merged = new Date(date)
+    if (!date) return;
+    const merged = new Date(date);
     if (value) {
-      merged.setHours(value.getHours(), value.getMinutes(), 0, 0)
+      merged.setHours(value.getHours(), value.getMinutes(), 0, 0);
     } else {
-      const now = new Date()
-      merged.setHours(now.getHours(), now.getMinutes(), 0, 0)
+      const now = new Date();
+      merged.setHours(now.getHours(), now.getMinutes(), 0, 0);
     }
-    onChange?.(merged)
-  }
+    onChange?.(merged);
+  };
 
   const handleTimeChange = (type: "hours" | "minutes", val: string) => {
-    const num = parseInt(val, 10)
-    if (isNaN(num)) return
-    const base = value ? new Date(value) : new Date()
-    if (type === "hours" && num >= 0 && num <= 23) base.setHours(num)
-    if (type === "minutes" && num >= 0 && num <= 59) base.setMinutes(num)
-    base.setSeconds(0, 0)
-    onChange?.(base)
-  }
+    const num = parseInt(val, 10);
+    if (isNaN(num)) return;
+    const base = value ? new Date(value) : new Date();
+    if (type === "hours" && num >= 0 && num <= 23) base.setHours(num);
+    if (type === "minutes" && num >= 0 && num <= 59) base.setMinutes(num);
+    base.setSeconds(0, 0);
+    onChange?.(base);
+  };
 
-  const now = new Date()
-  now.setHours(0, 0, 0, 0)
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -129,7 +131,7 @@ export function DateTimePicker({
           data-empty={!value}
           className={cn(
             "w-full justify-start text-left font-normal data-[empty=true]:text-muted-foreground",
-            className
+            className,
           )}
         >
           <CalendarIcon className="size-4" />
@@ -168,7 +170,7 @@ export function DateTimePicker({
         </div>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
 
 export function DateRangePicker({
@@ -183,7 +185,7 @@ export function DateRangePicker({
     ? value.to
       ? `${format(value.from, "dd MMM yyyy", { locale: idLocale })} – ${format(value.to, "dd MMM yyyy", { locale: idLocale })}`
       : format(value.from, "dd MMM yyyy", { locale: idLocale })
-    : null
+    : null;
 
   return (
     <Popover>
@@ -195,7 +197,7 @@ export function DateRangePicker({
           data-empty={!label}
           className={cn(
             "w-full justify-start text-left font-normal data-[empty=true]:text-muted-foreground",
-            className
+            className,
           )}
         >
           <CalendarIcon className="size-4" />
@@ -212,5 +214,5 @@ export function DateRangePicker({
         />
       </PopoverContent>
     </Popover>
-  )
+  );
 }

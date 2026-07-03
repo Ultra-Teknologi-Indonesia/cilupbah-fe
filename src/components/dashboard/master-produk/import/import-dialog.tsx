@@ -1,84 +1,90 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { DownloadIcon, FileSpreadsheetIcon, Loader2Icon, UploadIcon } from "lucide-react"
+import * as React from "react";
+import {
+  DownloadIcon,
+  FileSpreadsheetIcon,
+  Loader2Icon,
+  UploadIcon,
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   importTemplateUrl,
   useImportFile,
   type ImportBatchType,
-} from "@/hooks/master-produk/use-import"
+} from "@/hooks/master-produk/use-import";
 
-const ACCEPT = ".xlsx,.xls,.csv"
-const MAX_SIZE = 20 * 1024 * 1024
+const ACCEPT = ".xlsx,.xls,.csv";
+const MAX_SIZE = 20 * 1024 * 1024;
 
 interface Props {
-  type: ImportBatchType
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onQueued?: () => void
+  type: ImportBatchType;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onQueued?: () => void;
 }
 
 export function ImportDialog({ type, open, onOpenChange, onQueued }: Props) {
-  const inputRef = React.useRef<HTMLInputElement>(null)
-  const [file, setFile] = React.useState<File | null>(null)
-  const [dragOver, setDragOver] = React.useState(false)
-  const [sizeError, setSizeError] = React.useState(false)
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const [file, setFile] = React.useState<File | null>(null);
+  const [dragOver, setDragOver] = React.useState(false);
+  const [sizeError, setSizeError] = React.useState(false);
 
-  const importFile = useImportFile()
+  const importFile = useImportFile();
 
-  const title = type === "single" ? "Import Produk Satuan" : "Import Produk Bundle"
+  const title =
+    type === "single" ? "Import Produk Satuan" : "Import Produk Bundle";
   const description =
     type === "single"
       ? "Upload file Excel berisi data produk satuan. Download template terlebih dahulu."
-      : "Upload file Excel berisi komposisi bundle. Download template terlebih dahulu."
+      : "Upload file Excel berisi komposisi bundle. Download template terlebih dahulu.";
 
   const reset = () => {
-    setFile(null)
-    setSizeError(false)
-    if (inputRef.current) inputRef.current.value = ""
-  }
+    setFile(null);
+    setSizeError(false);
+    if (inputRef.current) inputRef.current.value = "";
+  };
 
   const handleFile = (f: File | undefined) => {
-    if (!f) return
+    if (!f) return;
     if (f.size > MAX_SIZE) {
-      setSizeError(true)
-      setFile(null)
-      return
+      setSizeError(true);
+      setFile(null);
+      return;
     }
-    setSizeError(false)
-    setFile(f)
-  }
+    setSizeError(false);
+    setFile(f);
+  };
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setDragOver(false)
-    handleFile(e.dataTransfer.files[0])
-  }
+    e.preventDefault();
+    setDragOver(false);
+    handleFile(e.dataTransfer.files[0]);
+  };
 
   const handleSubmit = async () => {
-    if (!file) return
-    await importFile.mutateAsync({ type, file })
-    reset()
-    onOpenChange(false)
-    onQueued?.()
-  }
+    if (!file) return;
+    await importFile.mutateAsync({ type, file });
+    reset();
+    onOpenChange(false);
+    onQueued?.();
+  };
 
   return (
     <Dialog
       open={open}
       onOpenChange={(o) => {
-        if (!o) reset()
-        onOpenChange(o)
+        if (!o) reset();
+        onOpenChange(o);
       }}
     >
       <DialogContent className="sm:max-w-lg">
@@ -88,7 +94,7 @@ export function ImportDialog({ type, open, onOpenChange, onQueued }: Props) {
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
-          {/* Template download */}
+          {}
           <a
             href={importTemplateUrl(type)}
             download
@@ -105,11 +111,11 @@ export function ImportDialog({ type, open, onOpenChange, onQueued }: Props) {
             </div>
           </a>
 
-          {/* Drop zone */}
+          {}
           <div
             onDragOver={(e) => {
-              e.preventDefault()
-              setDragOver(true)
+              e.preventDefault();
+              setDragOver(true);
             }}
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
@@ -118,7 +124,7 @@ export function ImportDialog({ type, open, onOpenChange, onQueued }: Props) {
               "flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed px-6 py-8 text-center transition-colors",
               dragOver
                 ? "border-primary bg-primary/5"
-                : "border-border hover:border-primary/40 hover:bg-muted/30"
+                : "border-border hover:border-primary/40 hover:bg-muted/30",
             )}
           >
             <input
@@ -138,8 +144,8 @@ export function ImportDialog({ type, open, onOpenChange, onQueued }: Props) {
                 <button
                   type="button"
                   onClick={(e) => {
-                    e.stopPropagation()
-                    reset()
+                    e.stopPropagation();
+                    reset();
                   }}
                   className="text-xs font-medium text-destructive hover:underline"
                 >
@@ -169,8 +175,8 @@ export function ImportDialog({ type, open, onOpenChange, onQueued }: Props) {
             <Button
               variant="outline"
               onClick={() => {
-                reset()
-                onOpenChange(false)
+                reset();
+                onOpenChange(false);
               }}
             >
               Batal
@@ -196,5 +202,5 @@ export function ImportDialog({ type, open, onOpenChange, onQueued }: Props) {
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

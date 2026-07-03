@@ -1,44 +1,44 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { AlertTriangleIcon, Loader2Icon, SendIcon, XIcon } from "lucide-react"
-import { toast } from "sonner"
-import { buatProdukSchema } from "@/schemas/master-produk"
-import type { BuatProdukFormValues } from "@/types/master-produk"
-import { useCreateProduct } from "@/hooks/master-produk/use-create-product"
-import { SERVER_FIELD_MAP } from "@/lib/master-produk/server-field-map"
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertTriangleIcon, Loader2Icon, SendIcon, XIcon } from "lucide-react";
+import { toast } from "sonner";
+import { buatProdukSchema } from "@/schemas/master-produk";
+import type { BuatProdukFormValues } from "@/types/master-produk";
+import { useCreateProduct } from "@/hooks/master-produk/use-create-product";
+import { SERVER_FIELD_MAP } from "@/lib/master-produk/server-field-map";
 
-import { Button } from "@/components/ui/button"
-import { Form } from "@/components/ui/form"
-import { Card } from "@/components/ui/card"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { PageTitle } from "@/components/dashboard/page-title"
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { Card } from "@/components/ui/card";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { PageTitle } from "@/components/dashboard/page-title";
 
-import { SectionNav, type SectionStatus } from "./section-nav"
-import { MediaUploader } from "./media-uploader"
-import { FormDetailSection } from "./form-detail-section"
-import { FormSalesSection } from "./form-sales-section"
-import { FormShippingSection } from "./form-shipping-section"
-import { FormVariantSection } from "./form-variant-section"
-import { FormSpecificationSection } from "./form-specification-section"
-import { FormSectionCard } from "@/components/ui/form-section-card"
+import { SectionNav, type SectionStatus } from "./section-nav";
+import { MediaUploader } from "./media-uploader";
+import { FormDetailSection } from "./form-detail-section";
+import { FormSalesSection } from "./form-sales-section";
+import { FormShippingSection } from "./form-shipping-section";
+import { FormVariantSection } from "./form-variant-section";
+import { FormSpecificationSection } from "./form-specification-section";
+import { FormSectionCard } from "@/components/ui/form-section-card";
 
 export function BuatProdukForm() {
-  const router = useRouter()
-  const [mediaFiles, setMediaFilesRaw] = React.useState<File[]>([])
-  const [mediaError, setMediaError] = React.useState(false)
-  const hasImage = mediaFiles.some((f) => f.type.startsWith("image/"))
+  const router = useRouter();
+  const [mediaFiles, setMediaFilesRaw] = React.useState<File[]>([]);
+  const [mediaError, setMediaError] = React.useState(false);
+  const hasImage = mediaFiles.some((f) => f.type.startsWith("image/"));
   const setMediaFiles = React.useCallback((files: File[]) => {
-    setMediaFilesRaw(files)
-    if (files.some((f) => f.type.startsWith("image/"))) setMediaError(false)
-  }, [])
-  const modeRef = React.useRef<"master">("master")
-  const [serverErrors, setServerErrors] = React.useState<string[]>([])
-  const [cancelOpen, setCancelOpen] = React.useState(false)
-  const { mutateAsync, isPending } = useCreateProduct()
+    setMediaFilesRaw(files);
+    if (files.some((f) => f.type.startsWith("image/"))) setMediaError(false);
+  }, []);
+  const modeRef = React.useRef<"master">("master");
+  const [serverErrors, setServerErrors] = React.useState<string[]>([]);
+  const [cancelOpen, setCancelOpen] = React.useState(false);
+  const { mutateAsync, isPending } = useCreateProduct();
 
   const form = useForm<BuatProdukFormValues>({
     resolver: zodResolver(buatProdukSchema),
@@ -77,114 +77,134 @@ export function BuatProdukForm() {
       specifications: [],
       bundleComponents: [],
     },
-  })
+  });
 
   const {
     handleSubmit,
     watch,
     formState: { errors },
-  } = form
+  } = form;
 
-  const v = watch()
+  const v = watch();
 
   const applyServerErrors = (err: unknown): boolean => {
-    const body = err as { message?: string; errors?: Record<string, string[]> }
-    const serverErrs = body?.errors
-    if (!serverErrs || typeof serverErrs !== "object") return false
+    const body = err as { message?: string; errors?: Record<string, string[]> };
+    const serverErrs = body?.errors;
+    if (!serverErrs || typeof serverErrs !== "object") return false;
 
-    const allMessages: string[] = []
-    let firstField: keyof BuatProdukFormValues | undefined
+    const allMessages: string[] = [];
+    let firstField: keyof BuatProdukFormValues | undefined;
     for (const [key, messages] of Object.entries(serverErrs)) {
-      const msg = Array.isArray(messages) ? messages[0] : String(messages)
-      allMessages.push(msg)
-      const field = SERVER_FIELD_MAP[key]
-      if (!field) continue
-      form.setError(field, { type: "server", message: msg })
-      firstField ??= field
+      const msg = Array.isArray(messages) ? messages[0] : String(messages);
+      allMessages.push(msg);
+      const field = SERVER_FIELD_MAP[key];
+      if (!field) continue;
+      form.setError(field, { type: "server", message: msg });
+      firstField ??= field;
     }
-    setServerErrors(allMessages)
-    if (firstField) form.setFocus(firstField)
-    window.scrollTo({ top: 0, behavior: "smooth" })
-    return true
-  }
+    setServerErrors(allMessages);
+    if (firstField) form.setFocus(firstField);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return true;
+  };
 
   const onValid = async (data: BuatProdukFormValues) => {
-    setServerErrors([])
+    setServerErrors([]);
     try {
-      await mutateAsync({ values: data, files: mediaFiles, status: modeRef.current })
+      await mutateAsync({
+        values: data,
+        files: mediaFiles,
+        status: modeRef.current,
+      });
       toast.success("Produk berhasil dibuat", {
         description: `${data.name} · ${data.sku}`,
-      })
-      router.push("/dashboard/produk")
+      });
+      router.push("/dashboard/produk");
     } catch (err) {
-      const body = err as { message?: string }
+      const body = err as { message?: string };
       if (applyServerErrors(err)) {
-        toast.error(body?.message || "Beberapa isian ditolak server")
+        toast.error(body?.message || "Beberapa isian ditolak server");
       } else {
-        setServerErrors([body?.message || "Gagal menyimpan produk"])
-        toast.error(body?.message || "Gagal menyimpan produk")
+        setServerErrors([body?.message || "Gagal menyimpan produk"]);
+        toast.error(body?.message || "Gagal menyimpan produk");
       }
     }
-  }
+  };
 
   const onInvalid = () => {
-    const order = ["detail", "penjualan", "pengiriman", "media"] as const
-    const first = order.find((id) => sectionHasError(id))
+    const order = ["detail", "penjualan", "pengiriman", "media"] as const;
+    const first = order.find((id) => sectionHasError(id));
     if (first)
-      document.getElementById(first)?.scrollIntoView({ behavior: "smooth", block: "start" })
-    toast.error("Beberapa isian perlu diperbaiki")
-  }
+      document
+        .getElementById(first)
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    toast.error("Beberapa isian perlu diperbaiki");
+  };
 
-  const busy = isPending
+  const busy = isPending;
 
   const submit = (mode: "master") => {
-    if (busy) return
-    modeRef.current = mode
+    if (busy) return;
+    modeRef.current = mode;
 
-    const missingMedia = !hasImage
-    if (missingMedia) setMediaError(true)
+    const missingMedia = !hasImage;
+    if (missingMedia) setMediaError(true);
 
     handleSubmit(
       (data) => {
         if (missingMedia) {
-          toast.error("Minimal 1 foto produk wajib diunggah")
-          document.getElementById("media")?.scrollIntoView({ behavior: "smooth", block: "start" })
-          return
+          toast.error("Minimal 1 foto produk wajib diunggah");
+          document
+            .getElementById("media")
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
         }
-        onValid(data)
+        onValid(data);
       },
       () => {
-        if (missingMedia) setMediaError(true)
-        onInvalid()
+        if (missingMedia) setMediaError(true);
+        onInvalid();
       },
-    )()
-  }
+    )();
+  };
 
-  const has = (...keys: (keyof BuatProdukFormValues)[]) => keys.some((k) => errors[k])
+  const has = (...keys: (keyof BuatProdukFormValues)[]) =>
+    keys.some((k) => errors[k]);
 
   function sectionHasError(id: string): boolean {
-    if (id === "detail") return has("name", "sku", "category", "description", "indentDays")
-    if (id === "penjualan") return has("sellPrice", "safeStock")
-    if (id === "pengiriman") return has("weight", "length", "width", "height")
-    return false
+    if (id === "detail")
+      return has("name", "sku", "category", "description", "indentDays");
+    if (id === "penjualan") return has("sellPrice", "safeStock");
+    if (id === "pengiriman") return has("weight", "length", "width", "height");
+    return false;
   }
 
   function sectionStatus(id: string): SectionStatus {
-    if (sectionHasError(id)) return "error"
-    if (id === "detail") return v.name && v.sku && v.category ? "valid" : "empty"
-    if (id === "penjualan") return !v.isSold || v.sellPrice ? "valid" : "empty"
-    if (id === "pengiriman") return v.weight ? "valid" : "empty"
-    if (id === "media") return mediaError ? "error" : hasImage ? "valid" : "empty"
-    return "empty"
+    if (sectionHasError(id)) return "error";
+    if (id === "detail")
+      return v.name && v.sku && v.category ? "valid" : "empty";
+    if (id === "penjualan") return !v.isSold || v.sellPrice ? "valid" : "empty";
+    if (id === "pengiriman") return v.weight ? "valid" : "empty";
+    if (id === "media")
+      return mediaError ? "error" : hasImage ? "valid" : "empty";
+    return "empty";
   }
 
   const sections = [
     { id: "detail", label: "Detail Produk", status: sectionStatus("detail") },
-    { id: "penjualan", label: "Penjualan & Pembelian", status: sectionStatus("penjualan") },
-    { id: "pengiriman", label: "Pengiriman", status: sectionStatus("pengiriman") },
+    {
+      id: "penjualan",
+      label: "Penjualan & Pembelian",
+      status: sectionStatus("penjualan"),
+    },
+    {
+      id: "pengiriman",
+      label: "Pengiriman",
+      status: sectionStatus("pengiriman"),
+    },
     { id: "media", label: "Gambar & Video", status: sectionStatus("media") },
-  ]
-  const errorCount = Object.keys(errors).length
+  ];
+  const errorCount = Object.keys(errors).length;
 
   return (
     <div className="flex flex-col gap-6">
@@ -240,7 +260,15 @@ export function BuatProdukForm() {
             <FormSalesSection />
             <FormShippingSection />
 
-            <FormSectionCard id="media" title={<>Gambar & Video Produk <span className="text-destructive">*</span></>}>
+            <FormSectionCard
+              id="media"
+              title={
+                <>
+                  Gambar & Video Produk{" "}
+                  <span className="text-destructive">*</span>
+                </>
+              }
+            >
               <MediaUploader onChange={setMediaFiles} />
               <p className="mt-1 text-xs text-muted-foreground">
                 Minimal 1 foto produk wajib diunggah.
@@ -295,5 +323,5 @@ export function BuatProdukForm() {
         </Form>
       </div>
     </div>
-  )
+  );
 }

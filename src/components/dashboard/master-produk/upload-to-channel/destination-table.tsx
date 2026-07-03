@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import type { ColumnDef } from "@tanstack/react-table"
+import * as React from "react";
+import type { ColumnDef } from "@tanstack/react-table";
 import {
   AlertTriangleIcon,
   CheckCircleIcon,
@@ -9,15 +9,15 @@ import {
   PencilIcon,
   RotateCwIcon,
   UploadCloudIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogClose,
@@ -26,46 +26,51 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { DataTable } from "@/components/ui/data-table/data-table"
-import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
-import { SyncStatusBadge } from "@/components/dashboard/master-produk/detail/tab-pagination"
+} from "@/components/ui/dialog";
+import { DataTable } from "@/components/ui/data-table/data-table";
+import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo";
+import { SyncStatusBadge } from "@/components/dashboard/master-produk/detail/tab-pagination";
 import {
   useMatchListing,
   useUploadListing,
   useUploadToStores,
   useUploadWithAttributes,
-} from "@/hooks/master-produk/use-upload"
+} from "@/hooks/master-produk/use-upload";
 import type {
   MatchRow,
   RulesSummary,
   UploadDestination,
-} from "@/hooks/master-produk/use-upload"
-import type { ChannelCode } from "@/types/channel/channel.types"
-import { AttributeSelectionDialog } from "./attribute-selection-dialog"
+} from "@/hooks/master-produk/use-upload";
+import type { ChannelCode } from "@/types/channel/channel.types";
+import { AttributeSelectionDialog } from "./attribute-selection-dialog";
 
-type MatchState = { matched: boolean; message: string; rulesSummary: RulesSummary | null }
+type MatchState = {
+  matched: boolean;
+  message: string;
+  rulesSummary: RulesSummary | null;
+};
 
-/** Aggregate the API's one-row-per-(store × master-variant) into one row per store. */
 function aggregateMatches(rows: MatchRow[]): Map<string, MatchState> {
-  const byStore = new Map<string, MatchRow[]>()
+  const byStore = new Map<string, MatchRow[]>();
   for (const r of rows) {
-    const list = byStore.get(r.storeId) ?? []
-    list.push(r)
-    byStore.set(r.storeId, list)
+    const list = byStore.get(r.storeId) ?? [];
+    list.push(r);
+    byStore.set(r.storeId, list);
   }
 
-  const result = new Map<string, MatchState>()
+  const result = new Map<string, MatchState>();
   for (const [storeId, list] of byStore) {
-    const allMatched = list.every((r) => r.matched)
-    const firstFail = list.find((r) => !r.matched)
+    const allMatched = list.every((r) => r.matched);
+    const firstFail = list.find((r) => !r.matched);
     result.set(storeId, {
       matched: allMatched,
-      message: allMatched ? "Sesuai sama master" : firstFail?.message ?? "Tidak cocok",
+      message: allMatched
+        ? "Sesuai sama master"
+        : (firstFail?.message ?? "Tidak cocok"),
       rulesSummary: list[0]?.rulesSummary ?? null,
-    })
+    });
   }
-  return result
+  return result;
 }
 
 export function DestinationTable({
@@ -75,21 +80,24 @@ export function DestinationTable({
   search,
   channel,
 }: {
-  productId: string
-  productName: string
-  isUploaded: boolean
-  search?: string
-  channel?: string
+  productId: string;
+  productName: string;
+  isUploaded: boolean;
+  search?: string;
+  channel?: string;
 }) {
-  const router = useRouter()
-  const [pagination, setPagination] = React.useState({ pageIndex: 0, pageSize: 20 })
+  const router = useRouter();
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 20,
+  });
 
-  // Reset to first page whenever the filters change (render-phase adjustment).
-  const filterKey = `${search}|${channel ?? ""}`
-  const [prevFilterKey, setPrevFilterKey] = React.useState(filterKey)
+  const filterKey = `${search}|${channel ?? ""}`;
+  const [prevFilterKey, setPrevFilterKey] = React.useState(filterKey);
   if (prevFilterKey !== filterKey) {
-    setPrevFilterKey(filterKey)
-    if (pagination.pageIndex !== 0) setPagination((p) => ({ ...p, pageIndex: 0 }))
+    setPrevFilterKey(filterKey);
+    if (pagination.pageIndex !== 0)
+      setPagination((p) => ({ ...p, pageIndex: 0 }));
   }
 
   const listing = useUploadListing(productId, {
@@ -98,75 +106,74 @@ export function DestinationTable({
     channel,
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
-  })
+  });
 
-  const notifyUploaded = React.useCallback(
-    (uploaded: number) => {
-      if (uploaded > 0) {
-        toast.success(`${uploaded} toko berhasil diantrekan`)
-      }
-    },
-    []
-  )
+  const notifyUploaded = React.useCallback((uploaded: number) => {
+    if (uploaded > 0) {
+      toast.success(`${uploaded} toko berhasil diantrekan`);
+    }
+  }, []);
 
-  const match = useMatchListing(productId)
-  const upload = useUploadToStores(productId)
-  const uploadWithAttrs = useUploadWithAttributes(productId)
+  const match = useMatchListing(productId);
+  const upload = useUploadToStores(productId);
+  const uploadWithAttrs = useUploadWithAttributes(productId);
 
   const [attrDialog, setAttrDialog] = React.useState<{
-    shopIds: string[]
-    shopId: string
-    resetSelection?: () => void
-  } | null>(null)
+    shopIds: string[];
+    shopId: string;
+    resetSelection?: () => void;
+  } | null>(null);
 
-  const rows = React.useMemo(() => listing.data?.items ?? [], [listing.data])
-  const total = listing.data?.meta?.total ?? 0
+  const rows = React.useMemo(() => listing.data?.items ?? [], [listing.data]);
+  const total = listing.data?.meta?.total ?? 0;
 
-  // Kecocokan results + in-flight stores.
-  const [matchMap, setMatchMap] = React.useState<Map<string, MatchState>>(new Map())
-  const [matching, setMatching] = React.useState<Set<string>>(new Set())
+  const [matchMap, setMatchMap] = React.useState<Map<string, MatchState>>(
+    new Map(),
+  );
+  const [matching, setMatching] = React.useState<Set<string>>(new Set());
 
   const mergeMatches = React.useCallback((next: Map<string, MatchState>) => {
     setMatchMap((prev) => {
-      const merged = new Map(prev)
-      for (const [k, v] of next) merged.set(k, v)
-      return merged
-    })
-  }, [])
+      const merged = new Map(prev);
+      for (const [k, v] of next) merged.set(k, v);
+      return merged;
+    });
+  }, []);
 
   const runMatch = React.useCallback(
     (storeIds: string[]) => {
-      const ids = Array.from(new Set(storeIds)).filter(Boolean)
-      if (ids.length === 0) return
+      const ids = Array.from(new Set(storeIds)).filter(Boolean);
+      if (ids.length === 0) return;
       setMatching((prev) => {
-        const next = new Set(prev)
-        ids.forEach((id) => next.add(id))
-        return next
-      })
+        const next = new Set(prev);
+        ids.forEach((id) => next.add(id));
+        return next;
+      });
       match.mutate(ids, {
         onSuccess: (res) => mergeMatches(aggregateMatches(res)),
         onSettled: () => {
           setMatching((prev) => {
-            const next = new Set(prev)
-            ids.forEach((id) => next.delete(id))
-            return next
-          })
+            const next = new Set(prev);
+            ids.forEach((id) => next.delete(id));
+            return next;
+          });
         },
-      })
+      });
     },
-    [match, mergeMatches]
-  )
+    [match, mergeMatches],
+  );
 
-  // Auto-run match once per loaded page, guarded against loops.
-  const requestedKey = React.useRef<string>("")
+  const requestedKey = React.useRef<string>("");
   React.useEffect(() => {
-    const storeIds = Array.from(new Set(rows.map((r) => r.storeId).filter(Boolean)))
-    const key = storeIds.join("|")
-    if (!key || key === requestedKey.current) return
-    requestedKey.current = key
-    runMatch(storeIds)
+    const storeIds = Array.from(
+      new Set(rows.map((r) => r.storeId).filter(Boolean)),
+    );
+    const key = storeIds.join("|");
+    if (!key || key === requestedKey.current) return;
+    requestedKey.current = key;
+    runMatch(storeIds);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rows])
+  }, [rows]);
 
   const columns = React.useMemo<ColumnDef<UploadDestination>[]>(
     () => [
@@ -178,7 +185,9 @@ export function DestinationTable({
               table.getIsAllPageRowsSelected() ||
               (table.getIsSomePageRowsSelected() && "indeterminate")
             }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
             aria-label="Pilih semua"
           />
         ),
@@ -199,7 +208,7 @@ export function DestinationTable({
         header: "Channel",
         enableSorting: false,
         cell: ({ row }) => {
-          const d = row.original
+          const d = row.original;
           return (
             <div className="flex items-center gap-3">
               <ChannelLogo
@@ -209,7 +218,7 @@ export function DestinationTable({
               />
               <span className="font-medium">{d.channelName ?? "—"}</span>
             </div>
-          )
+          );
         },
       },
       {
@@ -217,20 +226,22 @@ export function DestinationTable({
         header: "Toko",
         enableSorting: false,
         cell: ({ row }) => {
-          const d = row.original
+          const d = row.original;
           return (
             <div className="flex flex-col gap-0.5">
               <span className="truncate">{d.storeName ?? "—"}</span>
               {isUploaded && (
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   {d.channelGroupId && (
-                    <span className="font-mono tabular-nums">{d.channelGroupId}</span>
+                    <span className="font-mono tabular-nums">
+                      {d.channelGroupId}
+                    </span>
                   )}
                   <SyncStatusBadge status={d.syncStatus} />
                 </div>
               )}
             </div>
-          )
+          );
         },
       },
       {
@@ -244,9 +255,9 @@ export function DestinationTable({
         header: "Kecocokan Data Master dengan Channel",
         enableSorting: false,
         cell: ({ row }) => {
-          const storeId = row.original.storeId
-          const state = matchMap.get(storeId)
-          const isMatching = matching.has(storeId)
+          const storeId = row.original.storeId;
+          const state = matchMap.get(storeId);
+          const isMatching = matching.has(storeId);
 
           if (!state && isMatching) {
             return (
@@ -254,10 +265,10 @@ export function DestinationTable({
                 <Loader2Icon className="size-4 animate-spin motion-reduce:animate-none" />
                 memeriksa…
               </span>
-            )
+            );
           }
           if (!state) {
-            return <span className="text-sm text-muted-foreground">—</span>
+            return <span className="text-sm text-muted-foreground">—</span>;
           }
           if (state.matched) {
             return (
@@ -275,24 +286,26 @@ export function DestinationTable({
                   </span>
                 )}
               </div>
-            )
+            );
           }
           return (
             <div className="flex flex-col gap-0.5">
               <span className="inline-flex items-center gap-1.5 text-sm text-amber-600 dark:text-amber-400">
                 <AlertTriangleIcon className="size-4 shrink-0" />
-                <span className="truncate" title={state.message}>{state.message}</span>
+                <span className="truncate" title={state.message}>
+                  {state.message}
+                </span>
               </span>
               <Link
                 href={`/dashboard/produk/${productId}/edit`}
-               
+
                 onClick={(e) => e.stopPropagation()}
                 className="ml-[22px] text-xs font-medium text-primary hover:underline"
               >
                 Perbaiki &rarr;
               </Link>
             </div>
-          )
+          );
         },
       },
       {
@@ -301,10 +314,10 @@ export function DestinationTable({
         enableSorting: false,
         enableHiding: false,
         cell: ({ row }) => {
-          const d = row.original
-          const isMatching = matching.has(d.storeId)
-          const state = matchMap.get(d.storeId)
-          const isBlocked = state?.matched === false
+          const d = row.original;
+          const isMatching = matching.has(d.storeId);
+          const state = matchMap.get(d.storeId);
+          const isBlocked = state?.matched === false;
           return (
             <div className="flex items-center justify-end gap-1">
               <Button
@@ -312,8 +325,8 @@ export function DestinationTable({
                 size="icon-sm"
                 disabled={isMatching}
                 onClick={(e) => {
-                  e.stopPropagation()
-                  runMatch([d.storeId])
+                  e.stopPropagation();
+                  runMatch([d.storeId]);
                 }}
                 title="Cocokkan data dengan master"
                 aria-label="Cocokkan"
@@ -336,23 +349,29 @@ export function DestinationTable({
               <Button
                 variant="ghost"
                 size="icon-sm"
-                disabled={!d.shopId || upload.isPending || uploadWithAttrs.isPending || isBlocked}
+                disabled={
+                  !d.shopId ||
+                  upload.isPending ||
+                  uploadWithAttrs.isPending ||
+                  isBlocked
+                }
                 onClick={(e) => {
-                  e.stopPropagation()
-                  if (!d.shopId || isBlocked) return
+                  e.stopPropagation();
+                  if (!d.shopId || isBlocked) return;
                   if (d.channelCode === "tiktok") {
-                    setAttrDialog({ shopIds: [d.shopId], shopId: d.shopId })
+                    setAttrDialog({ shopIds: [d.shopId], shopId: d.shopId });
                   } else {
                     upload.mutate([d.shopId], {
                       onSuccess: (res) => notifyUploaded(res.uploaded),
-                    })
+                    });
                   }
                 }}
                 title={
                   !d.shopId
                     ? "Toko tidak punya shop id"
                     : isBlocked
-                      ? (state?.message ?? "Data belum cocok dengan master — perbaiki dulu")
+                      ? (state?.message ??
+                        "Data belum cocok dengan master — perbaiki dulu")
                       : "Upload ke channel"
                 }
                 aria-label="Upload"
@@ -360,20 +379,30 @@ export function DestinationTable({
                 <UploadCloudIcon />
               </Button>
             </div>
-          )
+          );
         },
         size: 132,
       },
     ],
-    [isUploaded, matchMap, matching, notifyUploaded, runMatch, upload, uploadWithAttrs]
-  )
+    [
+      isUploaded,
+      matchMap,
+      matching,
+      notifyUploaded,
+      runMatch,
+      upload,
+      uploadWithAttrs,
+    ],
+  );
 
-  const [confirmRows, setConfirmRows] = React.useState<UploadDestination[] | null>(null)
+  const [confirmRows, setConfirmRows] = React.useState<
+    UploadDestination[] | null
+  >(null);
 
   const blockedEntries = React.useMemo(
     () => [...matchMap.values()].filter((s) => !s.matched),
-    [matchMap]
-  )
+    [matchMap],
+  );
 
   return (
     <>
@@ -389,7 +418,7 @@ export function DestinationTable({
             </p>
             <Link
               href={`/dashboard/produk/${productId}/edit`}
-             
+
               className="mt-1 inline-block font-medium underline underline-offset-2 hover:text-amber-800 dark:hover:text-amber-300"
             >
               Edit Produk
@@ -442,32 +471,38 @@ export function DestinationTable({
               <Dialog
                 open={!!confirmRows}
                 onOpenChange={(o) => {
-                  if (!o) setConfirmRows(null)
+                  if (!o) setConfirmRows(null);
                 }}
               >
                 <DialogContent>
                   {(() => {
                     const blockedCount = confirmRows.filter(
-                      (r) => matchMap.get(r.storeId)?.matched === false
-                    ).length
+                      (r) => matchMap.get(r.storeId)?.matched === false,
+                    ).length;
                     const eligibleCount = confirmRows.filter(
-                      (r) => r.shopId && matchMap.get(r.storeId)?.matched !== false
-                    ).length
+                      (r) =>
+                        r.shopId && matchMap.get(r.storeId)?.matched !== false,
+                    ).length;
                     return (
                       <DialogHeader>
                         <DialogTitle>Upload ke channel</DialogTitle>
                         <DialogDescription>
-                          Upload <span className="font-medium">{productName}</span> ke{" "}
+                          Upload{" "}
+                          <span className="font-medium">{productName}</span> ke{" "}
                           {eligibleCount} toko{" "}
-                          {isUploaded ? "(upload ulang)" : "yang belum terdaftar"}?
+                          {isUploaded
+                            ? "(upload ulang)"
+                            : "yang belum terdaftar"}
+                          ?
                           {blockedCount > 0 && (
                             <span className="mt-1 block text-amber-600 dark:text-amber-400">
-                              {blockedCount} toko dilewati karena data belum cocok dengan master.
+                              {blockedCount} toko dilewati karena data belum
+                              cocok dengan master.
                             </span>
                           )}
                         </DialogDescription>
                       </DialogHeader>
-                    )
+                    );
                   })()}
                   <DialogFooter>
                     <DialogClose asChild>
@@ -478,31 +513,35 @@ export function DestinationTable({
                         variant="primary"
                         onClick={() => {
                           const eligible = confirmRows.filter(
-                            (r) => r.shopId && matchMap.get(r.storeId)?.matched !== false
-                          )
+                            (r) =>
+                              r.shopId &&
+                              matchMap.get(r.storeId)?.matched !== false,
+                          );
                           const nonTiktok = eligible
                             .filter((r) => r.channelCode !== "tiktok")
-                            .map((r) => r.shopId!)
-                          const tiktok = eligible.filter((r) => r.channelCode === "tiktok")
+                            .map((r) => r.shopId!);
+                          const tiktok = eligible.filter(
+                            (r) => r.channelCode === "tiktok",
+                          );
 
                           if (nonTiktok.length > 0) {
                             upload.mutate(nonTiktok, {
                               onSuccess: (res) => notifyUploaded(res.uploaded),
-                            })
+                            });
                           }
 
                           if (tiktok.length > 0) {
-                            const tiktokShopIds = tiktok.map((r) => r.shopId!)
+                            const tiktokShopIds = tiktok.map((r) => r.shopId!);
                             setAttrDialog({
                               shopIds: tiktokShopIds,
                               shopId: tiktokShopIds[0],
                               resetSelection: () => table.resetRowSelection(),
-                            })
+                            });
                           } else {
-                            table.resetRowSelection()
+                            table.resetRowSelection();
                           }
 
-                          setConfirmRows(null)
+                          setConfirmRows(null);
                         }}
                       >
                         Upload
@@ -533,7 +572,7 @@ export function DestinationTable({
         <AttributeSelectionDialog
           open={!!attrDialog}
           onOpenChange={(o) => {
-            if (!o) setAttrDialog(null)
+            if (!o) setAttrDialog(null);
           }}
           productId={productId}
           shopId={attrDialog.shopId}
@@ -542,19 +581,20 @@ export function DestinationTable({
             uploadWithAttrs.mutate(
               {
                 shopIds: attrDialog.shopIds,
-                attributeMapping: Object.keys(mapping).length > 0 ? mapping : null,
+                attributeMapping:
+                  Object.keys(mapping).length > 0 ? mapping : null,
               },
               {
                 onSuccess: (res) => notifyUploaded(res.uploaded),
                 onSettled: () => {
-                  attrDialog.resetSelection?.()
-                  setAttrDialog(null)
+                  attrDialog.resetSelection?.();
+                  setAttrDialog(null);
                 },
-              }
-            )
+              },
+            );
           }}
         />
       )}
     </>
-  )
+  );
 }

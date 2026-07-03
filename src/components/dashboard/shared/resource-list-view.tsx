@@ -1,48 +1,47 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import type { ColumnDef } from "@tanstack/react-table"
-import type { LucideIcon } from "lucide-react"
-import { DownloadIcon } from "lucide-react"
+import * as React from "react";
+import type { ColumnDef } from "@tanstack/react-table";
+import type { LucideIcon } from "lucide-react";
+import { DownloadIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { DataTable } from "@/components/ui/data-table/data-table"
-import { FilterToolbar } from "@/components/dashboard/shared/filter-toolbar"
-import type { useListState } from "@/hooks/use-list-state"
+import { Button } from "@/components/ui/button";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { DataTable } from "@/components/ui/data-table/data-table";
+import { FilterToolbar } from "@/components/dashboard/shared/filter-toolbar";
+import type { useListState } from "@/hooks/use-list-state";
 
-// Kerangka halaman/tab list standar: LiquidGlass + FilterToolbar + indikator
-// refetch + DataTable berpaginasi server + empty state. Pengganti markup yang
-// sebelumnya di-copy-paste ±150 baris per tab (AUDIT-FE.md §4.2). Yang tetap
-// milik pemanggil: kolom, hook data, kontrol filter (children), dan dialog
-// aksi baris. Contoh pemakaian: tab-tab transaksi-stok.
-
-type ListState = ReturnType<typeof useListState<never>>
+type ListState = ReturnType<typeof useListState<never>>;
 
 interface ResourceListViewProps<T> {
-  /** Hasil useListState — dipakai untuk search & paginasi. */
   list: Pick<
     ListState,
-    "search" | "setSearch" | "hasActiveFilter" | "activeFilterCount" | "pagination" | "onPaginationChange" | "resetFilters"
-  >
-  columns: ColumnDef<T>[]
-  rows: T[]
-  total: number
-  isLoading: boolean
-  isFetching: boolean
-  searchPlaceholder: string
-  /** Kontrol filter (Combobox dsb) di dalam FilterToolbar. */
-  filterControls?: React.ReactNode
-  filterGridCols?: 1 | 2 | 3 | 4
-  /** Handler Export CSV; tombol otomatis disabled saat rows kosong. */
-  onExport?: () => void
-  /** Elemen tambahan di kiri toolbar (menggantikan/menambah tombol export). */
-  toolbarLeading?: React.ReactNode
-  /** Elemen di kanan toolbar setelah Filter toggle (mis. tombol aksi utama). */
-  toolbarTrailing?: React.ReactNode
-  emptyIcon: LucideIcon
-  emptyTitle: string
-  emptyDescription: string
+    | "search"
+    | "setSearch"
+    | "hasActiveFilter"
+    | "activeFilterCount"
+    | "pagination"
+    | "onPaginationChange"
+    | "resetFilters"
+  >;
+  columns: ColumnDef<T>[];
+  rows: T[];
+  total: number;
+  isLoading: boolean;
+  isFetching: boolean;
+  searchPlaceholder: string;
+
+  filterControls?: React.ReactNode;
+  filterGridCols?: 1 | 2 | 3 | 4;
+
+  onExport?: () => void;
+
+  toolbarLeading?: React.ReactNode;
+
+  toolbarTrailing?: React.ReactNode;
+  emptyIcon: LucideIcon;
+  emptyTitle: string;
+  emptyDescription: string;
 }
 
 export function ResourceListView<T>({
@@ -127,5 +126,5 @@ export function ResourceListView<T>({
         />
       </div>
     </LiquidGlass>
-  )
+  );
 }

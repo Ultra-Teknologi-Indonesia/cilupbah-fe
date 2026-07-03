@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
-import { toast } from "sonner"
+import * as React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
+import { toast } from "sonner";
 import {
   CalendarIcon,
   CheckIcon,
@@ -21,13 +21,13 @@ import {
   XIcon,
   CreditCardIcon,
   MessageSquareIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { Skeleton } from "@/components/ui/skeleton"
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -35,28 +35,27 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { PageTitle } from "@/components/dashboard/page-title"
-import { StatusBadge } from "@/components/dashboard/shared/status-badge"
+} from "@/components/ui/tooltip";
+import { PageTitle } from "@/components/dashboard/page-title";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 
-import { CHANNEL_MAP, type Order } from "@/types/pesanan/order"
-import { useOrder } from "@/hooks/pesanan/use-orders"
+import { CHANNEL_MAP, type Order } from "@/types/pesanan/order";
+import { useOrder } from "@/hooks/pesanan/use-orders";
 import {
   useSetPaid,
   useMarkComplete,
   useGetShippingLabel,
-} from "@/hooks/pesanan/use-order-actions"
-import { formatCurrency } from "@/lib/format"
-
+} from "@/hooks/pesanan/use-order-actions";
+import { formatCurrency } from "@/lib/format";
 
 function copyText(text: string) {
-  navigator.clipboard.writeText(text)
-  toast.success("Disalin ke clipboard")
+  navigator.clipboard.writeText(text);
+  toast.success("Disalin ke clipboard");
 }
 
 function SummaryRow({
@@ -64,11 +63,11 @@ function SummaryRow({
   value,
   deduction = false,
 }: {
-  label: string
-  value: number
-  deduction?: boolean
+  label: string;
+  value: number;
+  deduction?: boolean;
 }) {
-  const isDeduction = deduction && value > 0
+  const isDeduction = deduction && value > 0;
   return (
     <div className="flex justify-between">
       <span className="text-muted-foreground">{label}</span>
@@ -82,21 +81,22 @@ function SummaryRow({
         {formatCurrency(value)}
       </span>
     </div>
-  )
+  );
 }
 
 function FinancialSummary({ order }: { order: Order }) {
-  const [showLainnya, setShowLainnya] = React.useState(true)
-  const finance = order.finance
+  const [showLainnya, setShowLainnya] = React.useState(true);
+  const finance = order.finance;
 
   const diskonLainnya =
     (finance?.platform_voucher ?? 0) + (finance?.seller_voucher ?? 0) > 0
       ? (finance?.platform_voucher ?? 0) +
         Math.max((finance?.seller_voucher ?? 0) - order.total_disc, 0)
-      : 0
-  const biayaLainnya = (finance?.service_fee ?? 0) + (finance?.transaction_fee ?? 0)
+      : 0;
+  const biayaLainnya =
+    (finance?.service_fee ?? 0) + (finance?.transaction_fee ?? 0);
   const potonganBiaya =
-    (finance?.commission_fee ?? 0) + (finance?.affiliate_commission ?? 0)
+    (finance?.commission_fee ?? 0) + (finance?.affiliate_commission ?? 0);
 
   return (
     <>
@@ -142,7 +142,11 @@ function FinancialSummary({ order }: { order: Order }) {
         {showLainnya && (
           <>
             <SummaryRow label="Biaya Lainnya" value={biayaLainnya} deduction />
-            <SummaryRow label="Potongan Biaya" value={potonganBiaya} deduction />
+            <SummaryRow
+              label="Potongan Biaya"
+              value={potonganBiaya}
+              deduction
+            />
             <SummaryRow label="Asuransi" value={order.insurance_cost} />
             <SummaryRow
               label="Biaya Proses Pesanan"
@@ -175,7 +179,7 @@ function FinancialSummary({ order }: { order: Order }) {
         </div>
       </div>
     </>
-  )
+  );
 }
 
 const STEPS = [
@@ -184,11 +188,11 @@ const STEPS = [
   { key: "picked", label: "Dipick" },
   { key: "packed", label: "Dikemas" },
   { key: "shipped", label: "Dikirim" },
-]
+];
 
 function StatusStepper({ status }: { status: string }) {
-  const isCancelled = status === "cancelled"
-  const currentIdx = STEPS.findIndex((s) => s.key === status)
+  const isCancelled = status === "cancelled";
+  const currentIdx = STEPS.findIndex((s) => s.key === status);
 
   return (
     <LiquidGlass
@@ -198,8 +202,8 @@ function StatusStepper({ status }: { status: string }) {
     >
       <div className="flex items-center">
         {STEPS.map((step, i) => {
-          const isCompleted = !isCancelled && currentIdx > i
-          const isCurrent = !isCancelled && currentIdx === i
+          const isCompleted = !isCancelled && currentIdx > i;
+          const isCurrent = !isCancelled && currentIdx === i;
 
           return (
             <React.Fragment key={step.key}>
@@ -237,16 +241,14 @@ function StatusStepper({ status }: { status: string }) {
                     "text-[11px] font-medium whitespace-nowrap",
                     isCompleted && "text-emerald-600 dark:text-emerald-400",
                     isCurrent && "text-primary font-semibold",
-                    !isCompleted &&
-                      !isCurrent &&
-                      "text-muted-foreground/50",
+                    !isCompleted && !isCurrent && "text-muted-foreground/50",
                   )}
                 >
                   {step.label}
                 </span>
               </div>
             </React.Fragment>
-          )
+          );
         })}
 
         {isCancelled && (
@@ -264,20 +266,20 @@ function StatusStepper({ status }: { status: string }) {
         )}
       </div>
     </LiquidGlass>
-  )
+  );
 }
 
 function ChannelBadge({ source }: { source: string | null }) {
-  if (!source) return null
-  const ch = CHANNEL_MAP[source]
+  if (!source) return null;
+  const ch = CHANNEL_MAP[source];
   if (!ch) {
     return (
       <Badge variant="outline" className="text-xs capitalize">
         {source}
       </Badge>
-    )
+    );
   }
-  const mask = `url(/channels/${source}.svg) center / contain no-repeat`
+  const mask = `url(/channels/${source}.svg) center / contain no-repeat`;
   return (
     <span
       className="inline-flex h-7 items-center gap-1.5 rounded-lg px-2"
@@ -291,7 +293,7 @@ function ChannelBadge({ source }: { source: string | null }) {
         {ch.label}
       </span>
     </span>
-  )
+  );
 }
 
 function CopyableText({
@@ -299,9 +301,9 @@ function CopyableText({
   label,
   mono,
 }: {
-  text: string
-  label: string
-  mono?: boolean
+  text: string;
+  label: string;
+  mono?: boolean;
 }) {
   return (
     <Tooltip>
@@ -320,7 +322,7 @@ function CopyableText({
       </TooltipTrigger>
       <TooltipContent>{label}</TooltipContent>
     </Tooltip>
-  )
+  );
 }
 
 function InfoRow({
@@ -328,9 +330,9 @@ function InfoRow({
   label,
   children,
 }: {
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-  children: React.ReactNode
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  children: React.ReactNode;
 }) {
   return (
     <div className="flex items-start gap-3">
@@ -344,22 +346,22 @@ function InfoRow({
         <div className="text-sm font-medium">{children}</div>
       </div>
     </div>
-  )
+  );
 }
 
 export function OrderDetailView({ orderId }: { orderId: string }) {
-  const { data, isLoading } = useOrder(orderId)
-  const setPaid = useSetPaid()
-  const markComplete = useMarkComplete()
-  const getLabel = useGetShippingLabel()
+  const { data, isLoading } = useOrder(orderId);
+  const setPaid = useSetPaid();
+  const markComplete = useMarkComplete();
+  const getLabel = useGetShippingLabel();
 
-  const order = data?.data
+  const order = data?.data;
 
-  const isMarketplace = !!order?.source && order.source !== "manual"
+  const isMarketplace = !!order?.source && order.source !== "manual";
 
   const handlePrintInvoice = () => {
-    window.open(`/api/app/sales/${orderId}/invoice`, "_blank")
-  }
+    window.open(`/api/app/sales/${orderId}/invoice`, "_blank");
+  };
 
   const handlePrintLabel = () => {
     if (isMarketplace) {
@@ -367,11 +369,11 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         `/dashboard/document-preview/shipping-label/${orderId}`,
         "_blank",
         "noopener,noreferrer",
-      )
+      );
     } else {
-      toast.info("Cetak resi hanya tersedia untuk pesanan marketplace")
+      toast.info("Cetak resi hanya tersedia untuk pesanan marketplace");
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -386,7 +388,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           <Skeleton className="h-80 w-full" />
         </div>
       </div>
-    )
+    );
   }
 
   if (!order) {
@@ -398,7 +400,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           <Link href="/dashboard/pesanan">Kembali</Link>
         </Button>
       </div>
-    )
+    );
   }
 
   const shippingAddress = [
@@ -408,7 +410,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
     order.shipping?.post_code,
   ]
     .filter(Boolean)
-    .join(", ")
+    .join(", ");
 
   return (
     <div className="flex flex-col gap-4">
@@ -452,7 +454,11 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 {setPaid.isPending ? "Memproses..." : "Tandai Lunas"}
               </Button>
             )}
-            <StatusBadge domain="sales-order" status={order.status} className="text-xs font-semibold ml-1" />
+            <StatusBadge
+              domain="sales-order"
+              status={order.status}
+              className="text-xs font-semibold ml-1"
+            />
           </div>
         }
       />
@@ -502,9 +508,9 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
       )}
 
       <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
-        {/* Left column */}
+        {}
         <div className="flex flex-col gap-4">
-          {/* Order Info */}
+          {}
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -565,7 +571,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             </div>
           </LiquidGlass>
 
-          {/* Items Table */}
+          {}
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -671,9 +677,9 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             </div>
           </LiquidGlass>
 
-          {/* Recipient & Shipping Row */}
+          {}
           <div className="grid gap-4 sm:grid-cols-2">
-            {/* Recipient */}
+            {}
             <LiquidGlass
               radius={16}
               intensity="subtle"
@@ -704,7 +710,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               </div>
             </LiquidGlass>
 
-            {/* Shipping */}
+            {}
             <LiquidGlass
               radius={16}
               intensity="subtle"
@@ -727,11 +733,9 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 {order.received_date && (
                   <InfoRow icon={CalendarIcon} label="Diterima">
                     <span>
-                      {format(
-                        new Date(order.received_date),
-                        "dd MMMM yyyy",
-                        { locale: idLocale },
-                      )}
+                      {format(new Date(order.received_date), "dd MMMM yyyy", {
+                        locale: idLocale,
+                      })}
                     </span>
                   </InfoRow>
                 )}
@@ -740,9 +744,9 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           </div>
         </div>
 
-        {/* Right sidebar */}
+        {}
         <div className="flex flex-col gap-4">
-          {/* Financial Summary */}
+          {}
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -750,7 +754,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           >
             <FinancialSummary order={order} />
 
-            {/* Payment status */}
+            {}
             <div className="mt-4 border-t border-border/40 pt-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">
@@ -778,7 +782,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             </div>
           </LiquidGlass>
 
-          {/* Notes */}
+          {}
           {(order.buyer_message || order.seller_note) && (
             <LiquidGlass
               radius={16}
@@ -811,7 +815,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             </LiquidGlass>
           )}
 
-          {/* Timestamps */}
+          {}
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -835,5 +839,5 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

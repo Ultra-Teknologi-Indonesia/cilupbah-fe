@@ -1,5 +1,9 @@
 import { DashboardSidebar } from "@/components/dashboard/sidebar/app-sidebar";
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  SidebarProvider,
+  SidebarInset,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export default function DashboardLayout({
@@ -10,7 +14,6 @@ export default function DashboardLayout({
   return (
     <TooltipProvider>
       <SidebarProvider>
-
         <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
           <div
             className="absolute -top-[15%] -left-[10%] h-[55%] w-[55%] rounded-full opacity-25 blur-[100px]"
@@ -37,14 +40,12 @@ export default function DashboardLayout({
 
         <DashboardSidebar />
         <SidebarInset className="h-screen overflow-hidden">
-            <header className="flex h-14 items-center gap-4 border-b border-white/20 dark:border-white/10 bg-background/60 dark:bg-background/40 backdrop-blur-xl px-4 md:hidden z-50">
-              <SidebarTrigger />
-              <div className="font-semibold text-lg tracking-tight">Cilupbah</div>
-            </header>
+          <header className="flex h-14 items-center gap-4 border-b border-white/20 dark:border-white/10 bg-background/60 dark:bg-background/40 backdrop-blur-xl px-4 md:hidden z-50">
+            <SidebarTrigger />
+            <div className="font-semibold text-lg tracking-tight">Cilupbah</div>
+          </header>
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-6">
-              {children}
-            </div>
+          <div className="flex-1 overflow-y-auto p-4 md:p-6">{children}</div>
         </SidebarInset>
       </SidebarProvider>
     </TooltipProvider>

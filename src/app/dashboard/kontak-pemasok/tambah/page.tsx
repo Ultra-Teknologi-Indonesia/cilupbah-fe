@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { KontakFormPage } from "@/components/dashboard/kontak-pemasok/kontak-form-page"
+import { KontakFormPage } from "@/components/dashboard/kontak-pemasok/kontak-form-page";
 
 export default function TambahKontakPage() {
-  return <KontakFormPage mode="create" />
+  return <KontakFormPage mode="create" />;
 }

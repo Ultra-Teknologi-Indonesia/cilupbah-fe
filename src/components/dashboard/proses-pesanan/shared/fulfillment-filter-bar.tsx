@@ -1,19 +1,17 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { FilterIcon, SearchIcon, XIcon } from "lucide-react"
+import * as React from "react";
+import { FilterIcon, SearchIcon, XIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Combobox } from "@/components/ui/combobox"
-import { Input } from "@/components/ui/input"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
-import { useLocations } from "@/hooks/manajemen-rak/use-locations"
-import { useCouriers } from "@/hooks/proses-pesanan/use-fulfillment"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
+import { useLocations } from "@/hooks/manajemen-rak/use-locations";
+import { useCouriers } from "@/hooks/proses-pesanan/use-fulfillment";
 
-// Filter yang tersedia untuk halaman-halaman Proses Pesanan.
-// `zone` di-list tapi belum di-render (belum ada endpoint lookup zona).
 export type FulfillmentFilterField =
   | "courier"
   | "location"
@@ -25,37 +23,37 @@ export type FulfillmentFilterField =
   | "payment"
   | "courier_type"
   | "shipment_type"
-  | "status"
+  | "status";
 
 export interface FulfillmentFilterValue {
-  shipping_provider?: string
-  courier_code?: string
-  location_id?: string
-  source?: string
-  channel_shop_id?: string
-  label_printed?: string
-  date_from?: string
-  date_to?: string
-  zone_id?: string
-  payment?: string
-  courier_type?: string
-  shipment_type?: string
-  status?: string
-  channel_status?: string
+  shipping_provider?: string;
+  courier_code?: string;
+  location_id?: string;
+  source?: string;
+  channel_shop_id?: string;
+  label_printed?: string;
+  date_from?: string;
+  date_to?: string;
+  zone_id?: string;
+  payment?: string;
+  courier_type?: string;
+  shipment_type?: string;
+  status?: string;
+  channel_status?: string;
 }
 
 interface Props {
-  value: FulfillmentFilterValue
-  onChange: (v: FulfillmentFilterValue) => void
-  fields: FulfillmentFilterField[]
-  statusOptions?: { value: string; label: string }[]
-  channelStatusOptions?: { value: string; label: string }[]
-  courierMode?: "shipping_provider" | "courier_code"
-  excludeTransit?: boolean
-  search?: string
-  onSearchChange?: (v: string) => void
-  searchPlaceholder?: string
-  className?: string
+  value: FulfillmentFilterValue;
+  onChange: (v: FulfillmentFilterValue) => void;
+  fields: FulfillmentFilterField[];
+  statusOptions?: { value: string; label: string }[];
+  channelStatusOptions?: { value: string; label: string }[];
+  courierMode?: "shipping_provider" | "courier_code";
+  excludeTransit?: boolean;
+  search?: string;
+  onSearchChange?: (v: string) => void;
+  searchPlaceholder?: string;
+  className?: string;
 }
 
 const CHANNEL_OPTIONS = [
@@ -63,47 +61,45 @@ const CHANNEL_OPTIONS = [
   { value: "tiktok", label: "TikTok" },
   { value: "lazada", label: "Lazada" },
   { value: "tokopedia", label: "Tokopedia" },
-]
+];
 
 const LABEL_PRINTED_OPTIONS = [
   { value: "yes", label: "Sudah cetak" },
   { value: "no", label: "Belum cetak" },
-]
+];
 
 const PAYMENT_OPTIONS = [
   { value: "cod", label: "COD" },
   { value: "noncod", label: "Non-COD" },
-]
+];
 
 const COURIER_TYPE_OPTIONS = [
   { value: "regular", label: "Regular" },
   { value: "instant", label: "Instan" },
-]
+];
 
 const SHIPMENT_TYPE_OPTIONS = [
   { value: "REGULAR", label: "Reguler" },
   { value: "INSTANT", label: "Instant" },
-]
+];
 
 function FieldWrapper({
   label,
   children,
 }: {
-  label: string
-  children: React.ReactNode
+  label: string;
+  children: React.ReactNode;
 }) {
   return (
     <div className="flex min-w-[180px] flex-col gap-1">
-      <label className="text-xs font-medium text-muted-foreground">{label}</label>
+      <label className="text-xs font-medium text-muted-foreground">
+        {label}
+      </label>
       {children}
     </div>
-  )
+  );
 }
 
-/**
- * Pilih 2/3 opsi hardcode dengan RadioGroup — lebih cepat dari Combobox (1 klik).
- * Selalu tambah opsi "Semua" di depan (value kosong = tidak difilter).
- */
 function FilterRadioGroup({
   name,
   value,
@@ -111,13 +107,13 @@ function FilterRadioGroup({
   options,
   allLabel = "Semua",
 }: {
-  name: string
-  value: string | undefined
-  onValueChange: (v: string | undefined) => void
-  options: { value: string; label: string }[]
-  allLabel?: string
+  name: string;
+  value: string | undefined;
+  onValueChange: (v: string | undefined) => void;
+  options: { value: string; label: string }[];
+  allLabel?: string;
 }) {
-  const items = [{ value: "__all", label: allLabel }, ...options]
+  const items = [{ value: "__all", label: allLabel }, ...options];
   return (
     <RadioGroup
       value={value ?? "__all"}
@@ -125,7 +121,7 @@ function FilterRadioGroup({
       className="flex flex-wrap items-center gap-x-4 gap-y-1.5"
     >
       {items.map((opt) => {
-        const id = `${name}-${opt.value}`
+        const id = `${name}-${opt.value}`;
         return (
           <label
             key={opt.value}
@@ -134,16 +130,16 @@ function FilterRadioGroup({
               "flex cursor-pointer items-center gap-1.5 rounded-full border border-transparent px-2 py-1 text-sm transition-colors",
               (value ?? "__all") === opt.value
                 ? "border-primary/30 bg-primary/5 text-primary"
-                : "text-foreground hover:bg-muted/50"
+                : "text-foreground hover:bg-muted/50",
             )}
           >
             <RadioGroupItem id={id} value={opt.value} />
             <span>{opt.label}</span>
           </label>
-        )
+        );
       })}
     </RadioGroup>
-  )
+  );
 }
 
 export function FulfillmentFilterBar({
@@ -159,87 +155,91 @@ export function FulfillmentFilterBar({
   searchPlaceholder = "Cari…",
   className,
 }: Props) {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(false);
 
   const includes = React.useCallback(
     (f: FulfillmentFilterField) => fields.includes(f),
-    [fields]
-  )
+    [fields],
+  );
 
-  const couriers = useCouriers(includes("courier"))
-  const locations = useLocations(includes("location") ? { perPage: 200 } : {})
-  const stores = useConnectedStores()
+  const couriers = useCouriers(includes("courier"));
+  const locations = useLocations(includes("location") ? { perPage: 200 } : {});
+  const stores = useConnectedStores();
 
   const courierOptions = React.useMemo(() => {
-    const list = couriers.data ?? []
+    const list = couriers.data ?? [];
     return list.map((c) => ({
       value: courierMode === "courier_code" ? (c.code ?? c.id) : c.name,
       label: c.name,
-    }))
-  }, [couriers.data, courierMode])
+    }));
+  }, [couriers.data, courierMode]);
 
   const locationOptions = React.useMemo(() => {
-    const list = locations.data?.items ?? []
+    const list = locations.data?.items ?? [];
     const filtered = excludeTransit
       ? list.filter((l) => !l.locationName.toLowerCase().includes("transit"))
-      : list
-    return filtered.map((l) => ({ value: l.id, label: l.locationName }))
-  }, [locations.data, excludeTransit])
+      : list;
+    return filtered.map((l) => ({ value: l.id, label: l.locationName }));
+  }, [locations.data, excludeTransit]);
 
   const storeOptions = React.useMemo(() => {
-    const list = stores.data ?? []
-    return list.map((s) => ({ value: s.shop_id, label: s.shop_name }))
-  }, [stores.data])
+    const list = stores.data ?? [];
+    return list.map((s) => ({ value: s.shop_id, label: s.shop_name }));
+  }, [stores.data]);
 
   const activeCount = React.useMemo(() => {
-    let n = 0
-    if (value.shipping_provider) n++
-    if (value.courier_code) n++
-    if (value.location_id) n++
-    if (value.source) n++
-    if (value.channel_shop_id) n++
-    if (value.label_printed) n++
-    if (value.date_from || value.date_to) n++
-    if (value.zone_id) n++
-    if (value.payment) n++
-    if (value.courier_type) n++
-    if (value.shipment_type) n++
-    if (value.status) n++
-    if (value.channel_status) n++
-    return n
-  }, [value])
+    let n = 0;
+    if (value.shipping_provider) n++;
+    if (value.courier_code) n++;
+    if (value.location_id) n++;
+    if (value.source) n++;
+    if (value.channel_shop_id) n++;
+    if (value.label_printed) n++;
+    if (value.date_from || value.date_to) n++;
+    if (value.zone_id) n++;
+    if (value.payment) n++;
+    if (value.courier_type) n++;
+    if (value.shipment_type) n++;
+    if (value.status) n++;
+    if (value.channel_status) n++;
+    return n;
+  }, [value]);
 
-  const hasFilter = activeCount > 0
-  const hasChildren = fields.some((f) => f !== "zone")
+  const hasFilter = activeCount > 0;
+  const hasChildren = fields.some((f) => f !== "zone");
 
   function patch(next: Partial<FulfillmentFilterValue>) {
-    onChange({ ...value, ...next })
+    onChange({ ...value, ...next });
   }
 
   function reset() {
-    onChange({})
-    setOpen(false)
+    onChange({});
+    setOpen(false);
   }
 
   function courierChange(v: string | null) {
     if (courierMode === "courier_code") {
-      patch({ courier_code: v ?? undefined })
+      patch({ courier_code: v ?? undefined });
     } else {
-      patch({ shipping_provider: v ?? undefined })
+      patch({ shipping_provider: v ?? undefined });
     }
   }
   const courierValue =
-    courierMode === "courier_code" ? value.courier_code ?? null : value.shipping_provider ?? null
+    courierMode === "courier_code"
+      ? (value.courier_code ?? null)
+      : (value.shipping_provider ?? null);
 
-  // Untuk field `status`: kalau `channelStatusOptions` disediakan (halaman
-  // Sudah Dikirim / Selesai) map ke `channel_status`, kalau tidak map ke `status`.
-  const useChannelStatus = Boolean(channelStatusOptions?.length)
-  const statusList = useChannelStatus ? channelStatusOptions! : statusOptions ?? []
-  const statusValue = useChannelStatus ? value.channel_status ?? null : value.status ?? null
+  const useChannelStatus = Boolean(channelStatusOptions?.length);
+  const statusList = useChannelStatus
+    ? channelStatusOptions!
+    : (statusOptions ?? []);
+  const statusValue = useChannelStatus
+    ? (value.channel_status ?? null)
+    : (value.status ?? null);
 
   function statusChange(v: string | null) {
-    if (useChannelStatus) patch({ channel_status: v ?? undefined })
-    else patch({ status: v ?? undefined })
+    if (useChannelStatus) patch({ channel_status: v ?? undefined });
+    else patch({ status: v ?? undefined });
   }
 
   return (
@@ -274,7 +274,7 @@ export function FulfillmentFilterBar({
             className={cn(
               "h-9 gap-2 rounded-full transition-colors",
               open && "bg-primary/10 text-primary hover:bg-primary/15",
-              !open && activeCount > 0 && "border-primary/40 text-primary"
+              !open && activeCount > 0 && "border-primary/40 text-primary",
             )}
             onClick={() => setOpen(!open)}
           >
@@ -304,7 +304,7 @@ export function FulfillmentFilterBar({
         <div
           className={cn(
             "grid transition-[grid-template-rows] duration-200 ease-out",
-            open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+            open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
           )}
         >
           <div className="overflow-hidden">
@@ -419,14 +419,18 @@ export function FulfillmentFilterBar({
                     <Input
                       type="date"
                       value={value.date_from ?? ""}
-                      onChange={(e) => patch({ date_from: e.target.value || undefined })}
+                      onChange={(e) =>
+                        patch({ date_from: e.target.value || undefined })
+                      }
                       className="h-10 rounded-full"
                     />
                     <span className="text-xs text-muted-foreground">s/d</span>
                     <Input
                       type="date"
                       value={value.date_to ?? ""}
-                      onChange={(e) => patch({ date_to: e.target.value || undefined })}
+                      onChange={(e) =>
+                        patch({ date_to: e.target.value || undefined })
+                      }
                       className="h-10 rounded-full"
                     />
                   </div>
@@ -437,5 +441,5 @@ export function FulfillmentFilterBar({
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -55,7 +55,7 @@ function RailItem({
         "grid size-10 place-items-center rounded-xl transition-colors",
         active
           ? "bg-primary/10 text-primary"
-          : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+          : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
       )}
     >
       <Icon className="size-5" />
@@ -68,7 +68,7 @@ function RailItem({
         {isLeafGroup(group) ? (
           <Link
             href={group.items[0].link}
-                       aria-label={group.title}
+            aria-label={group.title}
             onClick={() => onSelect(group.id)}
           >
             {inner}
@@ -96,12 +96,12 @@ function RailLink({ route, active }: { route: Route; active?: boolean }) {
       <TooltipTrigger asChild>
         <Link
           href={route.link}
-                   aria-label={route.title}
+          aria-label={route.title}
           className={cn(
             "grid size-10 place-items-center rounded-xl transition-colors",
             active
               ? "bg-primary/10 text-primary"
-              : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+              : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
           )}
         >
           {Icon && <Icon className="size-5" />}
@@ -131,7 +131,11 @@ export function SidebarRailNav({
       aria-label="Navigasi utama"
       className="sidebar-glass glass-elevation liquid-glass-subtle relative flex h-full w-[68px] flex-col items-center rounded-2xl py-3"
     >
-      <Link href="/dashboard" aria-label="Beranda" className="mb-1 grid size-10 place-items-center">
+      <Link
+        href="/dashboard"
+        aria-label="Beranda"
+        className="mb-1 grid size-10 place-items-center"
+      >
         <Logo className="size-7 text-primary" />
       </Link>
 
@@ -163,12 +167,9 @@ export function SidebarRailNav({
             pathname === route.link ||
             pathname.startsWith(route.link + "/") ||
             route.subs?.some(
-              (s) =>
-                pathname === s.link || pathname.startsWith(s.link + "/")
+              (s) => pathname === s.link || pathname.startsWith(s.link + "/"),
             );
-          return (
-            <RailLink key={route.id} route={route} active={isActive} />
-          );
+          return <RailLink key={route.id} route={route} active={isActive} />;
         })}
         <Tooltip>
           <TooltipTrigger asChild>

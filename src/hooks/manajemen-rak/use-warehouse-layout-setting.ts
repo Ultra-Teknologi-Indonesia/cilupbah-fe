@@ -1,27 +1,27 @@
-"use client"
+"use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { WarehouseSettingService } from "@/services/manajemen-rak/warehouse-setting.service"
+import { WarehouseSettingService } from "@/services/manajemen-rak/warehouse-setting.service";
 
-const settingKey = ["pengaturan", "warehouse-layout-setting"] as const
+const settingKey = ["pengaturan", "warehouse-layout-setting"] as const;
 
 export function useWarehouseLayoutSetting() {
   return useQuery({
     queryKey: settingKey,
     queryFn: () => WarehouseSettingService.get(),
     staleTime: 5 * 60 * 1000,
-  })
+  });
 }
 
 export function useSaveWarehouseLayoutSetting() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (useWarehouseLayout: boolean) =>
       WarehouseSettingService.save(useWarehouseLayout),
     onSuccess: (data) => {
-      queryClient.setQueryData(settingKey, data)
+      queryClient.setQueryData(settingKey, data);
     },
-  })
+  });
 }

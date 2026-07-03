@@ -55,7 +55,9 @@ export const dashboardGroups: NavGroup[] = [
     title: "Dashboard",
     icon: Home,
     zone: "top",
-    items: [{ id: "dashboard", title: "Dashboard", icon: Home, link: "/dashboard" }],
+    items: [
+      { id: "dashboard", title: "Dashboard", icon: Home, link: "/dashboard" },
+    ],
   },
   {
     id: "katalog",
@@ -90,10 +92,31 @@ export const dashboardGroups: NavGroup[] = [
     icon: Layers,
     zone: "ops",
     items: [
-      { id: "posisi-stok", title: "Posisi Stok", icon: BarChart2, link: "/dashboard/posisi-stok" },
-      { id: "transaksi-stok", title: "Transaksi Stok", icon: RefreshCw, link: "/dashboard/transaksi-stok" },
-      { id: "monitor-stok", title: "Monitor Stok", icon: Eye, link: "/dashboard/monitor-stok" },
-      { id: "stok-terpesan", title: "Stok Terpesan", icon: PackageCheck, link: "/dashboard/stok-terpesan", comingSoon: true },
+      {
+        id: "posisi-stok",
+        title: "Posisi Stok",
+        icon: BarChart2,
+        link: "/dashboard/posisi-stok",
+      },
+      {
+        id: "transaksi-stok",
+        title: "Transaksi Stok",
+        icon: RefreshCw,
+        link: "/dashboard/transaksi-stok",
+      },
+      {
+        id: "monitor-stok",
+        title: "Monitor Stok",
+        icon: Eye,
+        link: "/dashboard/monitor-stok",
+      },
+      {
+        id: "stok-terpesan",
+        title: "Stok Terpesan",
+        icon: PackageCheck,
+        link: "/dashboard/stok-terpesan",
+        comingSoon: true,
+      },
     ],
   },
   {
@@ -102,11 +125,38 @@ export const dashboardGroups: NavGroup[] = [
     icon: ShoppingBag,
     zone: "ops",
     items: [
-      { id: "pesanan", title: "Pesanan", icon: ShoppingBag, link: "/dashboard/pesanan" },
-      { id: "retur-penjualan", title: "Retur Penjualan", icon: CornerDownLeft, link: "/dashboard/retur-penjualan", comingSoon: true },
-      { id: "kontak-pelanggan", title: "Kontak Pelanggan", icon: Users, link: "/dashboard/kontak-pelanggan" },
-      { id: "kasir-pos", title: "Kasir (POS)", icon: MonitorSmartphone, link: "/dashboard/kasir-pos", comingSoon: true },
-      { id: "integrasi-channel", title: "Integrasi Channel", icon: LinkIcon, link: "/dashboard/integrasi-channel" },
+      {
+        id: "pesanan",
+        title: "Pesanan",
+        icon: ShoppingBag,
+        link: "/dashboard/pesanan",
+      },
+      {
+        id: "retur-penjualan",
+        title: "Retur Penjualan",
+        icon: CornerDownLeft,
+        link: "/dashboard/retur-penjualan",
+        comingSoon: true,
+      },
+      {
+        id: "kontak-pelanggan",
+        title: "Kontak Pelanggan",
+        icon: Users,
+        link: "/dashboard/kontak-pelanggan",
+      },
+      {
+        id: "kasir-pos",
+        title: "Kasir (POS)",
+        icon: MonitorSmartphone,
+        link: "/dashboard/kasir-pos",
+        comingSoon: true,
+      },
+      {
+        id: "integrasi-channel",
+        title: "Integrasi Channel",
+        icon: LinkIcon,
+        link: "/dashboard/integrasi-channel",
+      },
     ],
   },
   {
@@ -122,7 +172,12 @@ export const dashboardGroups: NavGroup[] = [
         link: "/dashboard/transaksi-pembelian",
         match: ["/dashboard/transaksi-pembelian"],
       },
-      { id: "kontak-pemasok", title: "Kontak Pemasok", icon: Truck, link: "/dashboard/kontak-pemasok" },
+      {
+        id: "kontak-pemasok",
+        title: "Kontak Pemasok",
+        icon: Truck,
+        link: "/dashboard/kontak-pemasok",
+      },
     ],
   },
   {
@@ -131,9 +186,24 @@ export const dashboardGroups: NavGroup[] = [
     icon: Warehouse,
     zone: "ops",
     items: [
-      { id: "barang-masuk", title: "Barang Masuk (Inbound)", icon: Inbox, link: "/dashboard/barang-masuk" },
-      { id: "barang-keluar", title: "Barang Keluar (Outbound)", icon: Send, link: "/dashboard/barang-keluar" },
-      { id: "proses-pesanan", title: "Proses Pesanan", icon: PackageCheck, link: "/dashboard/proses-pesanan" },
+      {
+        id: "barang-masuk",
+        title: "Barang Masuk (Inbound)",
+        icon: Inbox,
+        link: "/dashboard/barang-masuk",
+      },
+      {
+        id: "barang-keluar",
+        title: "Barang Keluar (Outbound)",
+        icon: Send,
+        link: "/dashboard/barang-keluar",
+      },
+      {
+        id: "proses-pesanan",
+        title: "Proses Pesanan",
+        icon: PackageCheck,
+        link: "/dashboard/proses-pesanan",
+      },
       {
         id: "manajemen-rak",
         title: "Manajemen Rak & Lokasi",
@@ -148,12 +218,48 @@ export const dashboardGroups: NavGroup[] = [
     icon: CircleDollarSign,
     zone: "fin",
     items: [
-      { id: "piutang", title: "Piutang (Tagihan Masuk)", icon: ReceiptText, link: "/dashboard/piutang", comingSoon: true },
-      { id: "hutang", title: "Hutang", icon: HandCoins, link: "/dashboard/hutang", comingSoon: true },
-      { id: "kas-bank", title: "Kas & Bank", icon: Landmark, link: "/dashboard/kas-bank", comingSoon: true },
-      { id: "jurnal", title: "Jurnal", icon: BookOpen, link: "/dashboard/jurnal", comingSoon: true },
-      { id: "aset", title: "Aset", icon: Building2, link: "/dashboard/aset", comingSoon: true },
-      { id: "peta-akun", title: "Peta Akun", icon: Map, link: "/dashboard/peta-akun", comingSoon: true },
+      {
+        id: "piutang",
+        title: "Piutang (Tagihan Masuk)",
+        icon: ReceiptText,
+        link: "/dashboard/piutang",
+        comingSoon: true,
+      },
+      {
+        id: "hutang",
+        title: "Hutang",
+        icon: HandCoins,
+        link: "/dashboard/hutang",
+        comingSoon: true,
+      },
+      {
+        id: "kas-bank",
+        title: "Kas & Bank",
+        icon: Landmark,
+        link: "/dashboard/kas-bank",
+        comingSoon: true,
+      },
+      {
+        id: "jurnal",
+        title: "Jurnal",
+        icon: BookOpen,
+        link: "/dashboard/jurnal",
+        comingSoon: true,
+      },
+      {
+        id: "aset",
+        title: "Aset",
+        icon: Building2,
+        link: "/dashboard/aset",
+        comingSoon: true,
+      },
+      {
+        id: "peta-akun",
+        title: "Peta Akun",
+        icon: Map,
+        link: "/dashboard/peta-akun",
+        comingSoon: true,
+      },
     ],
   },
   {
@@ -162,11 +268,40 @@ export const dashboardGroups: NavGroup[] = [
     icon: BarChart3,
     zone: "fin",
     items: [
-      { id: "laporan-hpp", title: "Laporan HPP", icon: CircleDollarSign, link: "/dashboard/laporan/hpp" },
-      { id: "laporan-penjualan", title: "Laporan Penjualan", icon: TrendingUp, link: "/dashboard/laporan/penjualan", comingSoon: true },
-      { id: "laporan-pembelian", title: "Laporan Pembelian", icon: TrendingDown, link: "/dashboard/laporan/pembelian", comingSoon: true },
-      { id: "laporan-inventori", title: "Laporan Inventori", icon: PackageOpen, link: "/dashboard/laporan/inventori", comingSoon: true },
-      { id: "laporan-gudang", title: "Laporan Gudang", icon: Factory, link: "/dashboard/laporan/gudang", comingSoon: true },
+      {
+        id: "laporan-hpp",
+        title: "Laporan HPP",
+        icon: CircleDollarSign,
+        link: "/dashboard/laporan/hpp",
+      },
+      {
+        id: "laporan-penjualan",
+        title: "Laporan Penjualan",
+        icon: TrendingUp,
+        link: "/dashboard/laporan/penjualan",
+        comingSoon: true,
+      },
+      {
+        id: "laporan-pembelian",
+        title: "Laporan Pembelian",
+        icon: TrendingDown,
+        link: "/dashboard/laporan/pembelian",
+        comingSoon: true,
+      },
+      {
+        id: "laporan-inventori",
+        title: "Laporan Inventori",
+        icon: PackageOpen,
+        link: "/dashboard/laporan/inventori",
+        comingSoon: true,
+      },
+      {
+        id: "laporan-gudang",
+        title: "Laporan Gudang",
+        icon: Factory,
+        link: "/dashboard/laporan/gudang",
+        comingSoon: true,
+      },
     ],
   },
 ];
@@ -181,15 +316,28 @@ export const settingsRoutes: Route[] = [
       { title: "Daftar Pengguna", link: "/dashboard/pengaturan/pengguna" },
     ],
   },
-  { id: "bantuan", title: "Bantuan", icon: HelpCircle, link: "/dashboard/bantuan" },
+  {
+    id: "bantuan",
+    title: "Bantuan",
+    icon: HelpCircle,
+    link: "/dashboard/bantuan",
+  },
 ];
 
 export const sampleNotifications = [
-  { id: "1", avatar: "/avatars/01.png", fallback: "OM", text: "New order received.", time: "10m ago" },
+  {
+    id: "1",
+    avatar: "/avatars/01.png",
+    fallback: "OM",
+    text: "New order received.",
+    time: "10m ago",
+  },
 ];
 
 function linkMatchLen(pathname: string, link: string): number {
-  return pathname === link || pathname.startsWith(link + "/") ? link.length : -1;
+  return pathname === link || pathname.startsWith(link + "/")
+    ? link.length
+    : -1;
 }
 
 function routeMatchLen(pathname: string, route: Route): number {
@@ -206,7 +354,10 @@ function routeMatchLen(pathname: string, route: Route): number {
   return best;
 }
 
-export function findGroupIdForPath(pathname: string, groups: NavGroup[]): string {
+export function findGroupIdForPath(
+  pathname: string,
+  groups: NavGroup[],
+): string {
   let bestId = groups[0].id;
   let bestLen = -1;
   for (const group of groups) {

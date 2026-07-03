@@ -1,8 +1,8 @@
-import { Suspense } from "react"
+import { Suspense } from "react";
 
-import { PageTitle } from "@/components/dashboard/page-title"
-import { HppReportView } from "@/components/dashboard/laporan/hpp-report-view"
-import { TableSkeleton } from "@/components/ui/page-skeleton"
+import { PageTitle } from "@/components/dashboard/page-title";
+import { HppReportView } from "@/components/dashboard/laporan/hpp-report-view";
+import { TableSkeleton } from "@/components/ui/page-skeleton";
 
 export default function LaporanHppPage() {
   return (
@@ -21,5 +21,5 @@ export default function LaporanHppPage() {
         <HppReportView />
       </Suspense>
     </div>
-  )
+  );
 }

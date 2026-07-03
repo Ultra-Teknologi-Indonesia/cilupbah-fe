@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { ChevronDownIcon, PlusIcon } from "lucide-react"
+import * as React from "react";
+import { ChevronDownIcon, PlusIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import type {
   ChannelGroup as ChannelGroupType,
   ConnectedStore,
-} from "@/types/channel"
-import { ChannelLogo } from "./channel-logo"
-import { StoresTable } from "./stores-table"
+} from "@/types/channel";
+import { ChannelLogo } from "./channel-logo";
+import { StoresTable } from "./stores-table";
 
 export function ChannelGroup({
   group,
@@ -20,14 +20,14 @@ export function ChannelGroup({
   onRefresh,
   onDisconnect,
 }: {
-  group: ChannelGroupType
-  onAdd: (group: ChannelGroupType) => void
-  onToggleActive: (id: string, value: boolean) => void
-  onToggleOrders: (id: string, value: boolean) => void
-  onRefresh: (store: ConnectedStore) => void
-  onDisconnect: (store: ConnectedStore) => void
+  group: ChannelGroupType;
+  onAdd: (group: ChannelGroupType) => void;
+  onToggleActive: (id: string, value: boolean) => void;
+  onToggleOrders: (id: string, value: boolean) => void;
+  onRefresh: (store: ConnectedStore) => void;
+  onDisconnect: (store: ConnectedStore) => void;
 }) {
-  const [open, setOpen] = React.useState(true)
+  const [open, setOpen] = React.useState(true);
 
   return (
     <section className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm">
@@ -37,7 +37,10 @@ export function ChannelGroup({
           <div className="min-w-0">
             <h2 className="truncate text-sm font-semibold">{group.name}</h2>
             <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
-              <span aria-hidden className="size-1.5 rounded-full bg-emerald-500" />
+              <span
+                aria-hidden
+                className="size-1.5 rounded-full bg-emerald-500"
+              />
               Tersambung
             </span>
           </div>
@@ -65,7 +68,10 @@ export function ChannelGroup({
             className="grid size-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <ChevronDownIcon
-              className={cn("size-4 transition-transform", !open && "-rotate-90")}
+              className={cn(
+                "size-4 transition-transform",
+                !open && "-rotate-90",
+              )}
             />
           </button>
         </div>
@@ -83,5 +89,5 @@ export function ChannelGroup({
         </div>
       )}
     </section>
-  )
+  );
 }

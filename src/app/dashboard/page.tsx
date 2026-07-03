@@ -18,11 +18,15 @@ export default function DashboardPage() {
             className="bg-white/40 dark:bg-white/[0.06]"
           >
             <div className="flex flex-row items-center justify-between p-6 pb-2">
-              <h2 className="text-sm font-medium tracking-tight">Metric {i + 1}</h2>
+              <h2 className="text-sm font-medium tracking-tight">
+                Metric {i + 1}
+              </h2>
             </div>
             <div className="p-6 pt-0">
               <div className="text-2xl font-bold">123</div>
-              <p className="text-xs text-muted-foreground">+20.1% dari bulan lalu</p>
+              <p className="text-xs text-muted-foreground">
+                +20.1% dari bulan lalu
+              </p>
             </div>
           </LiquidGlass>
         ))}

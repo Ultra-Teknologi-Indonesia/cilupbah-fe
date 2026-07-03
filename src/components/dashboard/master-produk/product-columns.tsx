@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import type { ColumnDef } from "@tanstack/react-table"
-import { ChevronRightIcon, ImageIcon, PackageIcon } from "lucide-react"
+import * as React from "react";
+import Link from "next/link";
+import type { ColumnDef } from "@tanstack/react-table";
+import { ChevronRightIcon, ImageIcon, PackageIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { DataTableColumnHeader } from "@/components/ui/data-table"
-import type { Product } from "@/types/master-produk"
-import { ProductStatusBadge } from "./product-status-badge"
-import { ProductChannelBadges } from "./product-channel-badges"
-import { ProductRowActions } from "./product-row-actions"
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DataTableColumnHeader } from "@/components/ui/data-table";
+import type { Product } from "@/types/master-produk";
+import { ProductStatusBadge } from "./product-status-badge";
+import { ProductChannelBadges } from "./product-channel-badges";
+import { ProductRowActions } from "./product-row-actions";
 
 export const formatIDR = (value: number | null) =>
   value === null
@@ -22,14 +22,14 @@ export const formatIDR = (value: number | null) =>
         style: "currency",
         currency: "IDR",
         maximumFractionDigits: 0,
-      }).format(value)
+      }).format(value);
 
 const formatDate = (iso: string) =>
   new Intl.DateTimeFormat("id-ID", {
     day: "2-digit",
     month: "short",
     year: "numeric",
-  }).format(new Date(iso))
+  }).format(new Date(iso));
 
 export const productColumns: ColumnDef<Product>[] = [
   {
@@ -62,8 +62,8 @@ export const productColumns: ColumnDef<Product>[] = [
       <DataTableColumnHeader column={column} title="Produk" />
     ),
     cell: ({ row }) => {
-      const p = row.original
-      const canExpand = p.variants.length > 1
+      const p = row.original;
+      const canExpand = p.variants.length > 1;
       return (
         <div className="flex items-center gap-3">
           {canExpand ? (
@@ -71,15 +71,15 @@ export const productColumns: ColumnDef<Product>[] = [
               variant="ghost"
               size="icon-xs"
               onClick={(e) => {
-                e.stopPropagation()
-                row.toggleExpanded()
+                e.stopPropagation();
+                row.toggleExpanded();
               }}
               aria-label="Lihat varian"
             >
               <ChevronRightIcon
                 className={cn(
                   "size-4 transition-transform",
-                  row.getIsExpanded() && "rotate-90"
+                  row.getIsExpanded() && "rotate-90",
                 )}
               />
             </Button>
@@ -89,7 +89,6 @@ export const productColumns: ColumnDef<Product>[] = [
 
           <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
             {p.thumbnail ? (
-
               <img
                 src={p.thumbnail}
                 alt={p.itemName}
@@ -104,7 +103,7 @@ export const productColumns: ColumnDef<Product>[] = [
             <div className="flex items-center gap-1.5">
               <Link
                 href={`/dashboard/produk/${p.itemGroupId}`}
-               
+
                 className="truncate font-medium hover:text-primary hover:underline"
               >
                 {p.itemName}
@@ -129,7 +128,7 @@ export const productColumns: ColumnDef<Product>[] = [
             </div>
           </div>
         </div>
-      )
+      );
     },
   },
   {
@@ -155,7 +154,11 @@ export const productColumns: ColumnDef<Product>[] = [
   {
     accessorKey: "sellPrice",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Harga" className="justify-end" />
+      <DataTableColumnHeader
+        column={column}
+        title="Harga"
+        className="justify-end"
+      />
     ),
     cell: ({ row }) => (
       <div className="text-right font-medium tabular-nums">
@@ -192,7 +195,7 @@ export const productColumns: ColumnDef<Product>[] = [
     ),
     size: 48,
   },
-]
+];
 
 export const productColumnLabels: Record<string, string> = {
   itemName: "Produk",
@@ -201,4 +204,4 @@ export const productColumnLabels: Record<string, string> = {
   sellPrice: "Harga",
   channels: "Channel",
   lastModified: "Diperbarui",
-}
+};

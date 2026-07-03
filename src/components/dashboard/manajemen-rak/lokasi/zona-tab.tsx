@@ -1,51 +1,58 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   PlusIcon,
   Trash2Icon,
   PencilIcon,
   MapPinIcon,
   SearchIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogClose,
-} from "@/components/ui/dialog"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+} from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   useZones,
   useCreateZone,
   useUpdateZone,
   useDeleteZone,
-} from "@/hooks/manajemen-rak/use-zones"
-import type { LocationZone, LocationBin } from "@/types/manajemen-rak/location"
+} from "@/hooks/manajemen-rak/use-zones";
+import type { LocationZone, LocationBin } from "@/types/manajemen-rak/location";
 
 interface ZonaTabProps {
-  locationId?: string
-  bins: LocationBin[]
-  disabled?: boolean
+  locationId?: string;
+  bins: LocationBin[];
+  disabled?: boolean;
 }
 
 interface ZoneFormState {
-  zone_code: string
-  zone_name: string
-  bin_ids: string[]
+  zone_code: string;
+  zone_name: string;
+  bin_ids: string[];
 }
 
-const EMPTY_FORM: ZoneFormState = { zone_code: "", zone_name: "", bin_ids: [] }
+const EMPTY_FORM: ZoneFormState = { zone_code: "", zone_name: "", bin_ids: [] };
 
 function BinPicker({
   bins,
@@ -54,48 +61,48 @@ function BinPicker({
   assignedMap,
   currentZoneId,
 }: {
-  bins: LocationBin[]
-  selectedIds: string[]
-  onChange: (ids: string[]) => void
-  assignedMap: Map<string, string>
-  currentZoneId?: string
+  bins: LocationBin[];
+  selectedIds: string[];
+  onChange: (ids: string[]) => void;
+  assignedMap: Map<string, string>;
+  currentZoneId?: string;
 }) {
-  const [search, setSearch] = React.useState("")
-  const selected = new Set(selectedIds)
+  const [search, setSearch] = React.useState("");
+  const selected = new Set(selectedIds);
 
   const available = bins.filter((b) => {
-    if (b.isInbound || b.binFinalCode === "DEFAULT") return false
-    const assignedTo = assignedMap.get(b.id)
-    if (assignedTo && assignedTo !== currentZoneId) return false
-    return true
-  })
+    if (b.isInbound || b.binFinalCode === "DEFAULT") return false;
+    const assignedTo = assignedMap.get(b.id);
+    if (assignedTo && assignedTo !== currentZoneId) return false;
+    return true;
+  });
 
   const filtered = search.trim()
     ? available.filter((b) =>
-        b.binFinalCode.toLowerCase().includes(search.trim().toLowerCase())
+        b.binFinalCode.toLowerCase().includes(search.trim().toLowerCase()),
       )
-    : available
+    : available;
 
   const toggle = (id: string) => {
-    const next = new Set(selected)
-    if (next.has(id)) next.delete(id)
-    else next.add(id)
-    onChange(Array.from(next))
-  }
+    const next = new Set(selected);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    onChange(Array.from(next));
+  };
 
   const allFilteredSelected =
-    filtered.length > 0 && filtered.every((b) => selected.has(b.id))
+    filtered.length > 0 && filtered.every((b) => selected.has(b.id));
 
   const toggleAll = () => {
     if (allFilteredSelected) {
-      const filteredSet = new Set(filtered.map((b) => b.id))
-      onChange(selectedIds.filter((id) => !filteredSet.has(id)))
+      const filteredSet = new Set(filtered.map((b) => b.id));
+      onChange(selectedIds.filter((id) => !filteredSet.has(id)));
     } else {
-      const next = new Set(selectedIds)
-      filtered.forEach((b) => next.add(b.id))
-      onChange(Array.from(next))
+      const next = new Set(selectedIds);
+      filtered.forEach((b) => next.add(b.id));
+      onChange(Array.from(next));
     }
-  }
+  };
 
   return (
     <div className="space-y-2">
@@ -136,7 +143,7 @@ function BinPicker({
                 key={b.id}
                 className={cn(
                   "flex cursor-pointer items-center gap-2 px-3 py-1.5 text-xs transition-colors hover:bg-muted/40",
-                  selected.has(b.id) && "bg-primary/5"
+                  selected.has(b.id) && "bg-primary/5",
                 )}
               >
                 <Checkbox
@@ -155,7 +162,7 @@ function BinPicker({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 function ZoneFormDialog({
@@ -168,22 +175,22 @@ function ZoneFormDialog({
   onSubmit,
   loading,
 }: {
-  open: boolean
-  onOpenChange: (v: boolean) => void
-  mode: "create" | "edit"
-  initial: ZoneFormState
-  bins: LocationBin[]
-  assignedMap: Map<string, string>
-  onSubmit: (data: ZoneFormState) => void
-  loading: boolean
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  mode: "create" | "edit";
+  initial: ZoneFormState;
+  bins: LocationBin[];
+  assignedMap: Map<string, string>;
+  onSubmit: (data: ZoneFormState) => void;
+  loading: boolean;
 }) {
-  const [form, setForm] = React.useState<ZoneFormState>(initial)
+  const [form, setForm] = React.useState<ZoneFormState>(initial);
 
   React.useEffect(() => {
-    if (open) setForm(initial)
-  }, [open, initial])
+    if (open) setForm(initial);
+  }, [open, initial]);
 
-  const valid = form.zone_code.trim().length > 0
+  const valid = form.zone_code.trim().length > 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -245,52 +252,56 @@ function ZoneFormDialog({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
-  const { data: zones, isLoading } = useZones(locationId)
-  const createZone = useCreateZone(locationId)
-  const updateZone = useUpdateZone(locationId)
-  const deleteZone = useDeleteZone(locationId)
+  const { data: zones, isLoading } = useZones(locationId);
+  const createZone = useCreateZone(locationId);
+  const updateZone = useUpdateZone(locationId);
+  const deleteZone = useDeleteZone(locationId);
 
-  const [dialogOpen, setDialogOpen] = React.useState(false)
-  const [dialogMode, setDialogMode] = React.useState<"create" | "edit">("create")
-  const [editTarget, setEditTarget] = React.useState<LocationZone | null>(null)
-  const [deleteTarget, setDeleteTarget] = React.useState<LocationZone | null>(null)
-  const [search, setSearch] = React.useState("")
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [dialogMode, setDialogMode] = React.useState<"create" | "edit">(
+    "create",
+  );
+  const [editTarget, setEditTarget] = React.useState<LocationZone | null>(null);
+  const [deleteTarget, setDeleteTarget] = React.useState<LocationZone | null>(
+    null,
+  );
+  const [search, setSearch] = React.useState("");
 
   const assignedMap = React.useMemo(() => {
-    const map = new Map<string, string>()
-    if (!zones) return map
+    const map = new Map<string, string>();
+    if (!zones) return map;
     for (const zone of zones) {
-      const detail = zones.find((z) => z.id === zone.id)
-      if (!detail) continue
+      const detail = zones.find((z) => z.id === zone.id);
+      if (!detail) continue;
     }
-    return map
-  }, [zones])
+    return map;
+  }, [zones]);
 
   const filtered = React.useMemo(() => {
-    if (!zones) return []
-    if (!search.trim()) return zones
-    const q = search.trim().toLowerCase()
+    if (!zones) return [];
+    if (!search.trim()) return zones;
+    const q = search.trim().toLowerCase();
     return zones.filter(
       (z) =>
         z.zone_code.toLowerCase().includes(q) ||
-        (z.zone_name ?? "").toLowerCase().includes(q)
-    )
-  }, [zones, search])
+        (z.zone_name ?? "").toLowerCase().includes(q),
+    );
+  }, [zones, search]);
 
   function openCreate() {
-    setDialogMode("create")
-    setEditTarget(null)
-    setDialogOpen(true)
+    setDialogMode("create");
+    setEditTarget(null);
+    setDialogOpen(true);
   }
 
   function openEdit(zone: LocationZone) {
-    setDialogMode("edit")
-    setEditTarget(zone)
-    setDialogOpen(true)
+    setDialogMode("edit");
+    setEditTarget(zone);
+    setDialogOpen(true);
   }
 
   function handleSubmit(data: ZoneFormState) {
@@ -301,8 +312,8 @@ export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
           zone_name: data.zone_name.trim() || null,
           bin_ids: data.bin_ids,
         },
-        { onSuccess: () => setDialogOpen(false) }
-      )
+        { onSuccess: () => setDialogOpen(false) },
+      );
     } else if (editTarget) {
       updateZone.mutate(
         {
@@ -313,16 +324,16 @@ export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
             bin_ids: data.bin_ids,
           },
         },
-        { onSuccess: () => setDialogOpen(false) }
-      )
+        { onSuccess: () => setDialogOpen(false) },
+      );
     }
   }
 
   function handleDelete() {
-    if (!deleteTarget) return
+    if (!deleteTarget) return;
     deleteZone.mutate(deleteTarget.id, {
       onSuccess: () => setDeleteTarget(null),
-    })
+    });
   }
 
   const dialogInitial: ZoneFormState = editTarget
@@ -331,15 +342,17 @@ export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
         zone_name: editTarget.zone_name ?? "",
         bin_ids: [],
       }
-    : EMPTY_FORM
+    : EMPTY_FORM;
 
   if (!locationId) {
     return (
       <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
         <MapPinIcon className="size-10" />
-        <p className="text-sm">Simpan lokasi terlebih dahulu untuk mengelola zona.</p>
+        <p className="text-sm">
+          Simpan lokasi terlebih dahulu untuk mengelola zona.
+        </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -386,7 +399,10 @@ export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
           </p>
         </div>
       ) : (
-        <Table className="border-collapse" containerClassName="rounded-2xl border border-border">
+        <Table
+          className="border-collapse"
+          containerClassName="rounded-2xl border border-border"
+        >
           <TableHeader>
             <TableRow className="border-b border-border bg-muted/40">
               <TableHead className="px-4 py-3 font-medium text-muted-foreground">
@@ -469,5 +485,5 @@ export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
         onConfirm={handleDelete}
       />
     </div>
-  )
+  );
 }

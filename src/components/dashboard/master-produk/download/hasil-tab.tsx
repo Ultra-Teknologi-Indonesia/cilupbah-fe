@@ -1,89 +1,92 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import type { PaginationState, SortingState } from "@tanstack/react-table"
-import { LayoutGridIcon, TableIcon } from "lucide-react"
+import * as React from "react";
+import type { PaginationState, SortingState } from "@tanstack/react-table";
+import { LayoutGridIcon, TableIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Combobox } from "@/components/ui/combobox"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import {
-  useCategoryTree,
-} from "@/hooks/master-produk/use-master-data"
-import { useDownloadedProducts } from "@/hooks/master-produk/use-master-products"
-import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
-import type { SelectedCategory } from "@/types/master-produk"
-import { CategoryPicker } from "../buat/category-picker"
-import { FilterToolbar } from "../filter-toolbar"
-import { ProductCardView } from "../product-card-view"
-import { ProductTable } from "../product-table"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Combobox } from "@/components/ui/combobox";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { useCategoryTree } from "@/hooks/master-produk/use-master-data";
+import { useDownloadedProducts } from "@/hooks/master-produk/use-master-products";
+import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
+import type { SelectedCategory } from "@/types/master-produk";
+import { CategoryPicker } from "../buat/category-picker";
+import { FilterToolbar } from "../filter-toolbar";
+import { ProductCardView } from "../product-card-view";
+import { ProductTable } from "../product-table";
 
-type View = "card" | "table"
+type View = "card" | "table";
 
-// Default page size per model: grid kelipatan-4 (≥24), tabel (≥20).
-const VIEW_DEFAULT_SIZE: Record<View, number> = { card: 24, table: 20 }
+const VIEW_DEFAULT_SIZE: Record<View, number> = { card: 24, table: 20 };
 
 const TYPE_OPTIONS = [
   { value: "satuan", label: "Satuan" },
   { value: "bundle", label: "Bundle" },
   { value: "konsinyasi", label: "Konsinyasi" },
   { value: "pre_order", label: "Pre-Order" },
-]
+];
 
 export function HasilTab({
   tabBar,
   actionButton,
 }: {
-  tabBar?: React.ReactNode
-  actionButton?: React.ReactNode
+  tabBar?: React.ReactNode;
+  actionButton?: React.ReactNode;
 }) {
-  const [view, setView] = React.useState<View>("card")
-  const { data: categoryTree = [] } = useCategoryTree()
-  const { data: stores = [] } = useConnectedStores()
+  const [view, setView] = React.useState<View>("card");
+  const { data: categoryTree = [] } = useCategoryTree();
+  const { data: stores = [] } = useConnectedStores();
   const channelOptions = React.useMemo(() => {
-    const seen = new Map<string, string>()
+    const seen = new Map<string, string>();
     for (const s of stores) {
-      if (s.channel?.code) seen.set(s.channel.code, s.channel.name ?? s.channel.code)
+      if (s.channel?.code)
+        seen.set(s.channel.code, s.channel.name ?? s.channel.code);
     }
-    return Array.from(seen, ([value, label]) => ({ value, label }))
-  }, [stores])
+    return Array.from(seen, ([value, label]) => ({ value, label }));
+  }, [stores]);
 
-  const [search, setSearch] = React.useState("")
-  const [debounced, setDebounced] = React.useState("")
-  const [category, setCategory] = React.useState<SelectedCategory | null>(null)
-  const [type, setType] = React.useState<string | null>(null)
-  const [channel, setChannel] = React.useState<string | null>(null)
-  const [dMin, setDMin] = React.useState("")
-  const [dMax, setDMax] = React.useState("")
-  const [price, setPrice] = React.useState<{ min?: number; max?: number }>({})
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [search, setSearch] = React.useState("");
+  const [debounced, setDebounced] = React.useState("");
+  const [category, setCategory] = React.useState<SelectedCategory | null>(null);
+  const [type, setType] = React.useState<string | null>(null);
+  const [channel, setChannel] = React.useState<string | null>(null);
+  const [dMin, setDMin] = React.useState("");
+  const [dMax, setDMax] = React.useState("");
+  const [price, setPrice] = React.useState<{ min?: number; max?: number }>({});
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: VIEW_DEFAULT_SIZE.card,
-  })
+  });
 
-  const resetPage = React.useCallback(() => setPagination((p) => ({ ...p, pageIndex: 0 })), [])
+  const resetPage = React.useCallback(
+    () => setPagination((p) => ({ ...p, pageIndex: 0 })),
+    [],
+  );
 
-  // Ganti mode tampilan sekaligus samakan page size ke default model tersebut
-  // (grid vs tabel punya set ukuran berbeda).
   const changeView = React.useCallback((target: View) => {
-    setView(target)
-    setPagination((p) => ({ ...p, pageIndex: 0, pageSize: VIEW_DEFAULT_SIZE[target] }))
-  }, [])
+    setView(target);
+    setPagination((p) => ({
+      ...p,
+      pageIndex: 0,
+      pageSize: VIEW_DEFAULT_SIZE[target],
+    }));
+  }, []);
 
   React.useEffect(() => {
     const t = setTimeout(() => {
-      setDebounced(search)
-      resetPage()
-    }, 350)
-    return () => clearTimeout(t)
-  }, [search, resetPage])
+      setDebounced(search);
+      resetPage();
+    }, 350);
+    return () => clearTimeout(t);
+  }, [search, resetPage]);
 
   const sort = sorting[0]
     ? `${sorting[0].desc ? "-" : ""}${sorting[0].id === "itemName" ? "name" : sorting[0].id === "lastModified" ? "updated_at" : sorting[0].id}`
-    : undefined
+    : undefined;
 
   const query = useDownloadedProducts({
     search: debounced || undefined,
@@ -95,37 +98,43 @@ export function HasilTab({
     sort,
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
-  })
+  });
 
-  const items = query.data?.items ?? []
-  const total = query.data?.meta?.total ?? 0
-  const isLoading = query.isLoading
+  const items = query.data?.items ?? [];
+  const total = query.data?.meta?.total ?? 0;
+  const isLoading = query.isLoading;
   const hasFilter = Boolean(
-    search || category || type || channel || price.min != null || price.max != null || sorting.length
-  )
+    search ||
+    category ||
+    type ||
+    channel ||
+    price.min != null ||
+    price.max != null ||
+    sorting.length,
+  );
 
   const applyPrice = () => {
-    const min = dMin.trim() ? Number(dMin) : undefined
-    const max = dMax.trim() ? Number(dMax) : undefined
+    const min = dMin.trim() ? Number(dMin) : undefined;
+    const max = dMax.trim() ? Number(dMax) : undefined;
     setPrice({
       min: Number.isFinite(min) ? min : undefined,
       max: Number.isFinite(max) ? max : undefined,
-    })
-    resetPage()
-  }
+    });
+    resetPage();
+  };
 
   const reset = () => {
-    setSearch("")
-    setDebounced("")
-    setCategory(null)
-    setType(null)
-    setChannel(null)
-    setDMin("")
-    setDMax("")
-    setPrice({})
-    setSorting([])
-    resetPage()
-  }
+    setSearch("");
+    setDebounced("");
+    setCategory(null);
+    setType(null);
+    setChannel(null);
+    setDMin("");
+    setDMax("");
+    setPrice({});
+    setSorting([]);
+    resetPage();
+  };
 
   const viewProps = {
     items,
@@ -135,9 +144,13 @@ export function HasilTab({
     onSortingChange: setSorting,
     pagination,
     onPaginationChange: setPagination,
-  }
+  };
 
-  const toggleBtn = (target: View, label: string, Icon: typeof LayoutGridIcon) => (
+  const toggleBtn = (
+    target: View,
+    label: string,
+    Icon: typeof LayoutGridIcon,
+  ) => (
     <Button
       variant="ghost"
       size="icon-sm"
@@ -145,7 +158,7 @@ export function HasilTab({
         "size-7 rounded-full",
         view === target
           ? "bg-background text-foreground shadow-sm hover:bg-background"
-          : "text-muted-foreground hover:bg-transparent hover:text-foreground"
+          : "text-muted-foreground hover:bg-transparent hover:text-foreground",
       )}
       onClick={() => changeView(target)}
       aria-label={label}
@@ -153,10 +166,14 @@ export function HasilTab({
     >
       <Icon className="size-4" />
     </Button>
-  )
+  );
 
   return (
-    <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+    <LiquidGlass
+      radius={24}
+      intensity="default"
+      className="bg-white/40 dark:bg-white/[0.06]"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 pt-3 sm:px-5">
         <div className="overflow-x-auto">{tabBar}</div>
         <div className="flex items-center gap-3 pb-2">
@@ -177,14 +194,22 @@ export function HasilTab({
         searchPlaceholder="Cari nama / SKU…"
         onReset={hasFilter ? reset : undefined}
         hasFilter={hasFilter}
-        activeCount={[type, channel, category, price.min != null, price.max != null].filter(Boolean).length}
+        activeCount={
+          [
+            type,
+            channel,
+            category,
+            price.min != null,
+            price.max != null,
+          ].filter(Boolean).length
+        }
       >
         <Combobox
           options={TYPE_OPTIONS}
           value={type}
           onChange={(v) => {
-            setType(v)
-            resetPage()
+            setType(v);
+            resetPage();
           }}
           placeholder="Semua tipe"
           searchPlaceholder="Cari tipe"
@@ -194,8 +219,8 @@ export function HasilTab({
           options={channelOptions}
           value={channel}
           onChange={(v) => {
-            setChannel(v)
-            resetPage()
+            setChannel(v);
+            resetPage();
           }}
           placeholder="Semua channel"
           searchPlaceholder="Cari channel"
@@ -204,8 +229,8 @@ export function HasilTab({
         <CategoryPicker
           value={category}
           onChange={(v) => {
-            setCategory(v)
-            resetPage()
+            setCategory(v);
+            resetPage();
           }}
           tree={categoryTree}
           triggerClassName="h-9 bg-background"
@@ -238,8 +263,12 @@ export function HasilTab({
       </FilterToolbar>
 
       <div className="px-5 py-5 sm:px-6">
-        {view === "card" ? <ProductCardView {...viewProps} /> : <ProductTable {...viewProps} />}
+        {view === "card" ? (
+          <ProductCardView {...viewProps} />
+        ) : (
+          <ProductTable {...viewProps} />
+        )}
       </div>
     </LiquidGlass>
-  )
+  );
 }

@@ -1,11 +1,19 @@
-"use client"
+"use client";
 
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query"
-import { toast } from "sonner"
-import { PurchaseOrderService } from "@/services/transaksi-pembelian/purchase-order.service"
-import type { PurchaseOrderListParams, PurchaseOrderFormData } from "@/types/transaksi-pembelian/purchase-order"
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
+import { toast } from "sonner";
+import { PurchaseOrderService } from "@/services/transaksi-pembelian/purchase-order.service";
+import type {
+  PurchaseOrderListParams,
+  PurchaseOrderFormData,
+} from "@/types/transaksi-pembelian/purchase-order";
 
-const STALE = 30 * 1000
+const STALE = 30 * 1000;
 
 export function usePurchaseOrders(params: PurchaseOrderListParams = {}) {
   return useQuery({
@@ -13,7 +21,7 @@ export function usePurchaseOrders(params: PurchaseOrderListParams = {}) {
     placeholderData: keepPreviousData,
     queryFn: () => PurchaseOrderService.list(params),
     staleTime: STALE,
-  })
+  });
 }
 
 export function usePurchaseOrderDetail(id?: string) {
@@ -22,81 +30,93 @@ export function usePurchaseOrderDetail(id?: string) {
     queryFn: () => PurchaseOrderService.getById(id!),
     enabled: !!id,
     staleTime: STALE,
-  })
+  });
 }
 
-export function usePurchaseOrderItems(id?: string, params: { page: number; perPage: number } = { page: 1, perPage: 20 }) {
+export function usePurchaseOrderItems(
+  id?: string,
+  params: { page: number; perPage: number } = { page: 1, perPage: 20 },
+) {
   return useQuery({
     queryKey: ["purchase-order", "items", id, params],
     queryFn: () => PurchaseOrderService.getItems(id!, params),
     enabled: !!id,
     staleTime: STALE,
-  })
+  });
 }
 
 export function useCreatePurchaseOrder() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: PurchaseOrderService.create,
     onSuccess: () => {
-      toast.success("Pesanan pembelian berhasil dibuat")
-      qc.invalidateQueries({ queryKey: ["purchase-order"] })
+      toast.success("Pesanan pembelian berhasil dibuat");
+      qc.invalidateQueries({ queryKey: ["purchase-order"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal membuat pesanan"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal membuat pesanan",
+      ),
+  });
 }
 
 export function useUpdatePurchaseOrder() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: PurchaseOrderFormData }) =>
       PurchaseOrderService.update(id, data),
     onSuccess: () => {
-      toast.success("Pesanan pembelian berhasil diperbarui")
-      qc.invalidateQueries({ queryKey: ["purchase-order"] })
+      toast.success("Pesanan pembelian berhasil diperbarui");
+      qc.invalidateQueries({ queryKey: ["purchase-order"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal memperbarui pesanan"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal memperbarui pesanan",
+      ),
+  });
 }
 
-
 export function useCancelPurchaseOrder() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: PurchaseOrderService.cancel,
     onSuccess: () => {
-      toast.success("Pesanan berhasil dibatalkan")
-      qc.invalidateQueries({ queryKey: ["purchase-order"] })
+      toast.success("Pesanan berhasil dibatalkan");
+      qc.invalidateQueries({ queryKey: ["purchase-order"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal membatalkan pesanan"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal membatalkan pesanan",
+      ),
+  });
 }
 
 export function useBulkDeletePurchaseOrder() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: PurchaseOrderService.bulkDelete,
     onSuccess: () => {
-      toast.success("Pesanan terpilih berhasil dihapus")
-      qc.invalidateQueries({ queryKey: ["purchase-order"] })
+      toast.success("Pesanan terpilih berhasil dihapus");
+      qc.invalidateQueries({ queryKey: ["purchase-order"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal menghapus pesanan"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal menghapus pesanan",
+      ),
+  });
 }
 
 export function useDeletePurchaseOrder() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: PurchaseOrderService.delete,
     onSuccess: () => {
-      toast.success("Pesanan berhasil dihapus")
-      qc.invalidateQueries({ queryKey: ["purchase-order"] })
+      toast.success("Pesanan berhasil dihapus");
+      qc.invalidateQueries({ queryKey: ["purchase-order"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal menghapus pesanan"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal menghapus pesanan",
+      ),
+  });
 }

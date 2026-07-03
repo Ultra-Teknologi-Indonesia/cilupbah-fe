@@ -1,28 +1,28 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import type { Table } from "@tanstack/react-table"
-import { SearchIcon, XIcon } from "lucide-react"
+import * as React from "react";
+import type { Table } from "@tanstack/react-table";
+import { SearchIcon, XIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { DataTableViewOptions } from "./data-table-view-options"
-import { DataTableFacetedFilter } from "./data-table-faceted-filter"
-import type { FacetedFilter } from "./types"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { DataTableViewOptions } from "./data-table-view-options";
+import { DataTableFacetedFilter } from "./data-table-faceted-filter";
+import type { FacetedFilter } from "./types";
 
 interface DataTableToolbarProps<TData> {
-  table: Table<TData>
+  table: Table<TData>;
 
-  searchColumnId?: string
-  searchPlaceholder?: string
+  searchColumnId?: string;
+  searchPlaceholder?: string;
 
-  searchValue?: string
-  onSearchChange?: (value: string) => void
-  facetedFilters?: FacetedFilter[]
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  facetedFilters?: FacetedFilter[];
 
-  actions?: React.ReactNode
-  columnLabels?: Record<string, string>
-  enableColumnVisibility?: boolean
+  actions?: React.ReactNode;
+  columnLabels?: Record<string, string>;
+  enableColumnVisibility?: boolean;
 }
 
 export function DataTableToolbar<TData>({
@@ -36,22 +36,22 @@ export function DataTableToolbar<TData>({
   columnLabels,
   enableColumnVisibility = true,
 }: DataTableToolbarProps<TData>) {
-  const isControlledSearch = onSearchChange !== undefined
-  const column = searchColumnId ? table.getColumn(searchColumnId) : undefined
+  const isControlledSearch = onSearchChange !== undefined;
+  const column = searchColumnId ? table.getColumn(searchColumnId) : undefined;
 
-  const columnSearchValue = (column?.getFilterValue() as string) ?? ""
+  const columnSearchValue = (column?.getFilterValue() as string) ?? "";
   const currentSearch = isControlledSearch
-    ? searchValue ?? ""
-    : columnSearchValue
+    ? (searchValue ?? "")
+    : columnSearchValue;
 
   const isFiltered =
     table.getState().columnFilters.length > 0 ||
-    (isControlledSearch && (searchValue ?? "").length > 0)
+    (isControlledSearch && (searchValue ?? "").length > 0);
 
   const resetFilters = () => {
-    table.resetColumnFilters()
-    onSearchChange?.("")
-  }
+    table.resetColumnFilters();
+    onSearchChange?.("");
+  };
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -63,8 +63,8 @@ export function DataTableToolbar<TData>({
               placeholder={searchPlaceholder}
               value={currentSearch}
               onChange={(e) => {
-                if (isControlledSearch) onSearchChange?.(e.target.value)
-                else column?.setFilterValue(e.target.value)
+                if (isControlledSearch) onSearchChange?.(e.target.value);
+                else column?.setFilterValue(e.target.value);
               }}
               className="h-9 rounded-full border-border bg-background pl-9 pr-8"
             />
@@ -72,8 +72,8 @@ export function DataTableToolbar<TData>({
               <button
                 type="button"
                 onClick={() => {
-                  if (isControlledSearch) onSearchChange?.("")
-                  else column?.setFilterValue("")
+                  if (isControlledSearch) onSearchChange?.("");
+                  else column?.setFilterValue("");
                 }}
                 aria-label="Bersihkan pencarian"
                 className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -85,14 +85,14 @@ export function DataTableToolbar<TData>({
         )}
 
         {facetedFilters?.map((filter) => {
-          const col = table.getColumn(filter.columnId)
-          if (!col) return null
+          const col = table.getColumn(filter.columnId);
+          if (!col) return null;
           if (filter.render) {
             return (
               <React.Fragment key={filter.columnId}>
                 {filter.render(col)}
               </React.Fragment>
-            )
+            );
           }
           return (
             <DataTableFacetedFilter
@@ -101,7 +101,7 @@ export function DataTableToolbar<TData>({
               title={filter.title}
               options={filter.options ?? []}
             />
-          )
+          );
         })}
 
         {isFiltered && (
@@ -124,5 +124,5 @@ export function DataTableToolbar<TData>({
         )}
       </div>
     </div>
-  )
+  );
 }

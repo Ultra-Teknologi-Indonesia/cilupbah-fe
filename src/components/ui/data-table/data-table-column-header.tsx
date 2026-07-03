@@ -1,27 +1,29 @@
-"use client"
+"use client";
 
-import type { Column } from "@tanstack/react-table"
+import type { Column } from "@tanstack/react-table";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
   ChevronsUpDownIcon,
   EyeOffIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 
-interface DataTableColumnHeaderProps<TData, TValue>
-  extends React.HTMLAttributes<HTMLDivElement> {
-  column: Column<TData, TValue>
-  title: string
+interface DataTableColumnHeaderProps<
+  TData,
+  TValue,
+> extends React.HTMLAttributes<HTMLDivElement> {
+  column: Column<TData, TValue>;
+  title: string;
 }
 
 export function DataTableColumnHeader<TData, TValue>({
@@ -30,10 +32,10 @@ export function DataTableColumnHeader<TData, TValue>({
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
   if (!column.getCanSort() && !column.getCanHide()) {
-    return <div className={cn("text-xs", className)}>{title}</div>
+    return <div className={cn("text-xs", className)}>{title}</div>;
   }
 
-  const sorted = column.getIsSorted()
+  const sorted = column.getIsSorted();
 
   return (
     <div className={cn("flex items-center", className)}>
@@ -79,5 +81,5 @@ export function DataTableColumnHeader<TData, TValue>({
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  )
+  );
 }

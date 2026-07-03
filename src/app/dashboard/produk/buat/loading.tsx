@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
 import {
   PageHeaderSkeleton,
   FormSkeleton,
-} from "@/components/ui/page-skeleton"
+} from "@/components/ui/page-skeleton";
 
 export default function BuatProdukLoading() {
   return (
@@ -13,5 +13,5 @@ export default function BuatProdukLoading() {
         <FormSkeleton />
       </div>
     </phantom-ui>
-  )
+  );
 }

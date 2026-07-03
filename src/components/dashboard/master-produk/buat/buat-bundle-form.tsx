@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2Icon, SaveIcon, XIcon } from "lucide-react"
-import { toast } from "sonner"
-import { buatBundleSchema } from "@/schemas/master-produk"
-import type { BuatBundleFormValues } from "@/types/master-produk"
-import { useCreateBundle } from "@/hooks/master-produk/use-create-bundle"
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2Icon, SaveIcon, XIcon } from "lucide-react";
+import { toast } from "sonner";
+import { buatBundleSchema } from "@/schemas/master-produk";
+import type { BuatBundleFormValues } from "@/types/master-produk";
+import { useCreateBundle } from "@/hooks/master-produk/use-create-bundle";
 
-import { Button } from "@/components/ui/button"
-import { Form } from "@/components/ui/form"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { PageTitle } from "@/components/dashboard/page-title"
-import { FormDetailSection } from "./form-detail-section"
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { PageTitle } from "@/components/dashboard/page-title";
+import { FormDetailSection } from "./form-detail-section";
 
 export function BuatBundleForm() {
-  const router = useRouter()
-  const { mutateAsync: createBundle, isPending } = useCreateBundle()
+  const router = useRouter();
+  const { mutateAsync: createBundle, isPending } = useCreateBundle();
 
   const form = useForm<BuatBundleFormValues>({
     resolver: zodResolver(buatBundleSchema),
@@ -30,9 +30,12 @@ export function BuatBundleForm() {
       description: "",
       bundleComponents: [],
     },
-  })
+  });
 
-  const { handleSubmit, formState: { errors } } = form
+  const {
+    handleSubmit,
+    formState: { errors },
+  } = form;
 
   const onValid = async (data: BuatBundleFormValues) => {
     try {
@@ -44,24 +47,26 @@ export function BuatBundleForm() {
           variant_id: c.variantId,
           qty: c.qty,
         })),
-      })
-      toast.success("Bundle produk dibuat", { description: `${data.name} · ${data.sku}` })
-      router.push("/dashboard/produk")
+      });
+      toast.success("Bundle produk dibuat", {
+        description: `${data.name} · ${data.sku}`,
+      });
+      router.push("/dashboard/produk");
     } catch (err) {
-      const body = err as { message?: string }
-      toast.error(body?.message || "Gagal membuat bundle")
+      const body = err as { message?: string };
+      toast.error(body?.message || "Gagal membuat bundle");
     }
-  }
+  };
 
   const submit = () => {
-    if (isPending) return
+    if (isPending) return;
     handleSubmit(onValid, () => {
-      toast.error("Beberapa isian perlu diperbaiki")
-    })()
-  }
+      toast.error("Beberapa isian perlu diperbaiki");
+    })();
+  };
 
-  const [cancelOpen, setCancelOpen] = React.useState(false)
-  const errorCount = Object.keys(errors).length
+  const [cancelOpen, setCancelOpen] = React.useState(false);
+  const errorCount = Object.keys(errors).length;
 
   return (
     <div className="flex flex-col gap-6">
@@ -127,5 +132,5 @@ export function BuatBundleForm() {
         </Form>
       </div>
     </div>
-  )
+  );
 }

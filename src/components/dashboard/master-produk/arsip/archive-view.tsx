@@ -1,11 +1,16 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { ArchiveIcon, ImageIcon, Loader2Icon, RotateCcwIcon } from "lucide-react"
+import * as React from "react";
+import Link from "next/link";
+import {
+  ArchiveIcon,
+  ImageIcon,
+  Loader2Icon,
+  RotateCcwIcon,
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
+import { Button } from "@/components/ui/button";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
 import {
   Dialog,
   DialogClose,
@@ -15,33 +20,41 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import type { ColumnDef } from "@tanstack/react-table"
-import { DataTable } from "@/components/ui/data-table/data-table"
+} from "@/components/ui/dialog";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/components/ui/data-table/data-table";
 import {
   useArchivedProducts,
   useRestoreProduct,
-} from "@/hooks/master-produk/use-archived-products"
-import type { ArchivedProduct } from "@/types/master-produk"
-import { FilterToolbar } from "../filter-toolbar"
+} from "@/hooks/master-produk/use-archived-products";
+import type { ArchivedProduct } from "@/types/master-produk";
+import { FilterToolbar } from "../filter-toolbar";
 
 const fmtDate = (iso: string | null) =>
-  iso ? new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" }).format(new Date(iso)) : "—"
+  iso
+    ? new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" }).format(
+        new Date(iso),
+      )
+    : "—";
 
 function RestoreButton({
   item,
   pending,
   onRestore,
 }: {
-  item: ArchivedProduct
-  pending: boolean
-  onRestore: (item: ArchivedProduct) => void
+  item: ArchivedProduct;
+  pending: boolean;
+  onRestore: (item: ArchivedProduct) => void;
 }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" disabled={pending}>
-          {pending ? <Loader2Icon className="animate-spin motion-reduce:animate-none" /> : <RotateCcwIcon className="mr-1.5 h-4 w-4" />}
+          {pending ? (
+            <Loader2Icon className="animate-spin motion-reduce:animate-none" />
+          ) : (
+            <RotateCcwIcon className="mr-1.5 h-4 w-4" />
+          )}
           Pulihkan
         </Button>
       </DialogTrigger>
@@ -49,7 +62,8 @@ function RestoreButton({
         <DialogHeader>
           <DialogTitle>Pulihkan produk?</DialogTitle>
           <DialogDescription>
-            {item.itemName} akan dikembalikan ke status Master dan tampil kembali di katalog aktif.
+            {item.itemName} akan dikembalikan ke status Master dan tampil
+            kembali di katalog aktif.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -64,100 +78,120 @@ function RestoreButton({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 export function ArchiveView() {
-  const [search, setSearch] = React.useState("")
-  const [debounced, setDebounced] = React.useState("")
-  const [page, setPage] = React.useState(1)
+  const [search, setSearch] = React.useState("");
+  const [debounced, setDebounced] = React.useState("");
+  const [page, setPage] = React.useState(1);
 
   React.useEffect(() => {
     const t = setTimeout(() => {
-      setDebounced(search)
-      setPage(1)
-    }, 350)
-    return () => clearTimeout(t)
-  }, [search])
+      setDebounced(search);
+      setPage(1);
+    }, 350);
+    return () => clearTimeout(t);
+  }, [search]);
 
   const { data, isLoading, isError, refetch } = useArchivedProducts({
     search: debounced || undefined,
     page,
     perPage: 20,
-  })
-  const restore = useRestoreProduct()
-  const pendingId = restore.isPending ? restore.variables ?? null : null
+  });
+  const restore = useRestoreProduct();
+  const pendingId = restore.isPending ? (restore.variables ?? null) : null;
 
-  const meta = data?.meta
-  const items = data?.items ?? []
+  const meta = data?.meta;
+  const items = data?.items ?? [];
 
-    const columns = React.useMemo<ColumnDef<ArchivedProduct>[]>(() => [
-    {
-      accessorKey: "itemName",
-      header: "Produk",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2.5">
-          <div className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-border bg-muted/40">
-            {row.original.thumbnail ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={row.original.thumbnail} alt={row.original.itemName} className="size-full object-cover" />
-            ) : (
-              <ImageIcon className="size-4 text-muted-foreground" />
-            )}
-          </div>
-          <div className="min-w-0">
-            <Link
-              href={`/dashboard/produk/${row.original.itemGroupId}`}
-              className="truncate font-medium hover:text-primary hover:underline"
-            >
-              {row.original.itemName}
-            </Link>
-            <div className="font-mono text-xs text-foreground">
-              {row.original.sku ?? "—"} · {row.original.totalVariants} varian
+  const columns = React.useMemo<ColumnDef<ArchivedProduct>[]>(
+    () => [
+      {
+        accessorKey: "itemName",
+        header: "Produk",
+        cell: ({ row }) => (
+          <div className="flex items-center gap-2.5">
+            <div className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-border bg-muted/40">
+              {row.original.thumbnail ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={row.original.thumbnail}
+                  alt={row.original.itemName}
+                  className="size-full object-cover"
+                />
+              ) : (
+                <ImageIcon className="size-4 text-muted-foreground" />
+              )}
+            </div>
+            <div className="min-w-0">
+              <Link
+                href={`/dashboard/produk/${row.original.itemGroupId}`}
+                className="truncate font-medium hover:text-primary hover:underline"
+              >
+                {row.original.itemName}
+              </Link>
+              <div className="font-mono text-xs text-foreground">
+                {row.original.sku ?? "—"} · {row.original.totalVariants} varian
+              </div>
             </div>
           </div>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "categoryName",
-      header: "Kategori",
-      cell: ({ row }) => <span className="text-foreground">{row.original.categoryName}</span>,
-    },
-    {
-      accessorKey: "archivedAt",
-      header: "Diarsipkan",
-      cell: ({ row }) => (
-        <div className="text-foreground">
-          {fmtDate(row.original.archivedAt)}
-          {row.original.archivedBy && <div className="text-xs text-muted-foreground">oleh {row.original.archivedBy}</div>}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "archiveReason",
-      header: "Alasan",
-      cell: ({ row }) => <span className="text-foreground">{row.original.archiveReason || "—"}</span>,
-    },
-    {
-      id: "actions",
-      header: () => <div className="text-right">Aksi</div>,
-      cell: ({ row }) => {
-        const item = row.original;
-        return (
-          <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
-            <RestoreButton
-              item={item}
-              pending={pendingId === item.itemGroupId}
-              onRestore={(it) => restore.mutate(it.itemGroupId)}
-            />
-          </div>
-        )
+        ),
       },
-    },
-  ], [pendingId, restore])
+      {
+        accessorKey: "categoryName",
+        header: "Kategori",
+        cell: ({ row }) => (
+          <span className="text-foreground">{row.original.categoryName}</span>
+        ),
+      },
+      {
+        accessorKey: "archivedAt",
+        header: "Diarsipkan",
+        cell: ({ row }) => (
+          <div className="text-foreground">
+            {fmtDate(row.original.archivedAt)}
+            {row.original.archivedBy && (
+              <div className="text-xs text-muted-foreground">
+                oleh {row.original.archivedBy}
+              </div>
+            )}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "archiveReason",
+        header: "Alasan",
+        cell: ({ row }) => (
+          <span className="text-foreground">
+            {row.original.archiveReason || "—"}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <div className="text-right">Aksi</div>,
+        cell: ({ row }) => {
+          const item = row.original;
+          return (
+            <div
+              className="flex justify-end"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <RestoreButton
+                item={item}
+                pending={pendingId === item.itemGroupId}
+                onRestore={(it) => restore.mutate(it.itemGroupId)}
+              />
+            </div>
+          );
+        },
+      },
+    ],
+    [pendingId, restore],
+  );
 
-  const hasFilter = search.length > 0
+  const hasFilter = search.length > 0;
 
   return (
     <LiquidGlass
@@ -178,7 +212,10 @@ export function ArchiveView() {
         {isLoading ? (
           <div className="space-y-2 rounded-2xl border border-border/60 p-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-10 w-full animate-pulse rounded bg-muted motion-reduce:animate-none" />
+              <div
+                key={i}
+                className="h-10 w-full animate-pulse rounded bg-muted motion-reduce:animate-none"
+              />
             ))}
           </div>
         ) : isError ? (
@@ -198,30 +235,36 @@ export function ArchiveView() {
           </div>
         ) : (
           <>
-                      <DataTable
-            columns={columns}
-            data={items}
-            hideToolbar
-            manualPagination
-            pagination={meta ? {
-              pageIndex: meta.current_page - 1,
-              pageSize: meta.per_page,
-            } : undefined}
-            rowCount={meta?.total ?? 0}
-            onPaginationChange={(p) => {
-              setPage(p.pageIndex + 1)
-            }}
-            tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
-            emptyState={
-              <div className="flex flex-col items-center gap-2 py-14 text-center">
-                <ArchiveIcon className="size-6 text-muted-foreground opacity-20" />
-                <p className="text-sm font-medium">Belum ada produk diarsipkan</p>
-              </div>
-            }
-          />
+            <DataTable
+              columns={columns}
+              data={items}
+              hideToolbar
+              manualPagination
+              pagination={
+                meta
+                  ? {
+                      pageIndex: meta.current_page - 1,
+                      pageSize: meta.per_page,
+                    }
+                  : undefined
+              }
+              rowCount={meta?.total ?? 0}
+              onPaginationChange={(p) => {
+                setPage(p.pageIndex + 1);
+              }}
+              tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+              emptyState={
+                <div className="flex flex-col items-center gap-2 py-14 text-center">
+                  <ArchiveIcon className="size-6 text-muted-foreground opacity-20" />
+                  <p className="text-sm font-medium">
+                    Belum ada produk diarsipkan
+                  </p>
+                </div>
+              }
+            />
           </>
         )}
       </div>
     </LiquidGlass>
-  )
+  );
 }

@@ -1,67 +1,66 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { useQueryClient } from "@tanstack/react-query"
-import {
-  Loader2Icon,
-  PackageOpenIcon,
-  RefreshCwIcon,
-} from "lucide-react"
-import { toast } from "sonner"
+import * as React from "react";
+import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
+import { Loader2Icon, PackageOpenIcon, RefreshCwIcon } from "lucide-react";
+import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge"
-import { BulkActionBar } from "@/components/ui/bulk-action-bar"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge";
+import { BulkActionBar } from "@/components/ui/bulk-action-bar";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { SimplePagination, GRID_PAGE_SIZES } from "@/components/ui/simple-pagination"
-import { OrderCard } from "@/components/dashboard/pesanan/order-card"
-import { BulkBuatPicklistConfirmDialog } from "@/components/dashboard/proses-pesanan/picking/bulk-buat-picklist-confirm-dialog"
+} from "@/components/ui/select";
+import {
+  SimplePagination,
+  GRID_PAGE_SIZES,
+} from "@/components/ui/simple-pagination";
+import { OrderCard } from "@/components/dashboard/pesanan/order-card";
+import { BulkBuatPicklistConfirmDialog } from "@/components/dashboard/proses-pesanan/picking/bulk-buat-picklist-confirm-dialog";
 import {
   FulfillmentFilterBar,
   type FulfillmentFilterValue,
-} from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar"
+} from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar";
 import {
   fulfillmentKeys,
   useCreatePicklist,
   useOrdersByStage,
   usePickers,
-} from "@/hooks/proses-pesanan/use-fulfillment"
-import { orderKeys } from "@/hooks/pesanan/use-orders"
-import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper"
-import { cn } from "@/lib/utils"
+} from "@/hooks/proses-pesanan/use-fulfillment";
+import { orderKeys } from "@/hooks/pesanan/use-orders";
+import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper";
+import { cn } from "@/lib/utils";
 
 function isOverdue(shipByDate: string | null): boolean {
-  if (!shipByDate) return false
-  const d = new Date(shipByDate)
-  if (Number.isNaN(d.getTime())) return false
-  return d.getTime() < Date.now()
+  if (!shipByDate) return false;
+  const d = new Date(shipByDate);
+  if (Number.isNaN(d.getTime())) return false;
+  return d.getTime() < Date.now();
 }
 
 export function ReadyToProcessCardList() {
-  const qc = useQueryClient()
-  const [search, setSearch] = React.useState("")
-  const [debounced, setDebounced] = React.useState("")
-  const [page, setPage] = React.useState(1)
-  const [perPage, setPerPage] = React.useState(20)
-  const [selected, setSelected] = React.useState<Set<string>>(new Set())
-  const [pickerId, setPickerId] = React.useState<string>("")
-  const [confirmOpen, setConfirmOpen] = React.useState(false)
-  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({})
-  const [onlyPriority, setOnlyPriority] = React.useState(false)
-  const [onlyOverdue, setOnlyOverdue] = React.useState(false)
+  const qc = useQueryClient();
+  const [search, setSearch] = React.useState("");
+  const [debounced, setDebounced] = React.useState("");
+  const [page, setPage] = React.useState(1);
+  const [perPage, setPerPage] = React.useState(20);
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [pickerId, setPickerId] = React.useState<string>("");
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
+  const [onlyPriority, setOnlyPriority] = React.useState(false);
+  const [onlyOverdue, setOnlyOverdue] = React.useState(false);
 
   React.useEffect(() => {
-    const t = setTimeout(() => setDebounced(search.trim()), 350)
-    return () => clearTimeout(t)
-  }, [search])
+    const t = setTimeout(() => setDebounced(search.trim()), 350);
+    return () => clearTimeout(t);
+  }, [search]);
 
   const params = React.useMemo(
     () => ({
@@ -77,126 +76,137 @@ export function ReadyToProcessCardList() {
       page,
       per_page: perPage,
     }),
-    [debounced, filter, page, perPage]
-  )
+    [debounced, filter, page, perPage],
+  );
 
   const { data, isLoading, isFetching, refetch } = useOrdersByStage(
     "ready-to-process",
-    params
-  )
-  const rawOrders = React.useMemo(() => data?.items ?? [], [data])
-  const meta =
-    data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
+    params,
+  );
+  const rawOrders = React.useMemo(() => data?.items ?? [], [data]);
+  const meta = data?.meta ?? {
+    current_page: 1,
+    last_page: 1,
+    per_page: perPage,
+    total: 0,
+  };
 
   const orders = React.useMemo(() => {
     return rawOrders.filter((o) => {
-      if (onlyPriority && !o.priorityFulfillment) return false
-      if (onlyOverdue && !isOverdue(o.shipByDate)) return false
-      return true
-    })
-  }, [rawOrders, onlyPriority, onlyOverdue])
+      if (onlyPriority && !o.priorityFulfillment) return false;
+      if (onlyOverdue && !isOverdue(o.shipByDate)) return false;
+      return true;
+    });
+  }, [rawOrders, onlyPriority, onlyOverdue]);
 
   const mappedOrders = React.useMemo(
     () => orders.map((o) => ({ raw: o, ui: fulfillmentToOrder(o) })),
-    [orders]
-  )
+    [orders],
+  );
 
-  const pageIds = orders.map((o) => o.id)
+  const pageIds = orders.map((o) => o.id);
   const allSelected =
-    pageIds.length > 0 && pageIds.every((id) => selected.has(id))
-  const someSelected = pageIds.some((id) => selected.has(id))
+    pageIds.length > 0 && pageIds.every((id) => selected.has(id));
+  const someSelected = pageIds.some((id) => selected.has(id));
 
-  const selectedOrders = orders.filter((o) => selected.has(o.id))
+  const selectedOrders = orders.filter((o) => selected.has(o.id));
   const distinctLocations = Array.from(
-    new Set(selectedOrders.map((o) => o.locationId).filter(Boolean))
-  ) as string[]
-  const locationId = distinctLocations[0] ?? null
-  const multiLocation = distinctLocations.length > 1
-  const locationName = selectedOrders[0]?.locationName ?? null
+    new Set(selectedOrders.map((o) => o.locationId).filter(Boolean)),
+  ) as string[];
+  const locationId = distinctLocations[0] ?? null;
+  const multiLocation = distinctLocations.length > 1;
+  const locationName = selectedOrders[0]?.locationName ?? null;
 
-  const pickers = usePickers(locationId ?? undefined, undefined, !!locationId)
-  const createPicklist = useCreatePicklist()
-  const selectedPicker = pickers.data?.find((p) => p.id === pickerId) ?? null
+  const pickers = usePickers(locationId ?? undefined, undefined, !!locationId);
+  const createPicklist = useCreatePicklist();
+  const selectedPicker = pickers.data?.find((p) => p.id === pickerId) ?? null;
 
-  const prevLocationRef = React.useRef<string | null>(locationId)
+  const prevLocationRef = React.useRef<string | null>(locationId);
   if (prevLocationRef.current !== locationId) {
-    prevLocationRef.current = locationId
-    if (pickerId !== "") setPickerId("")
+    prevLocationRef.current = locationId;
+    if (pickerId !== "") setPickerId("");
   }
 
   const clearSelection = () => {
-    setSelected(new Set())
-    setPickerId("")
-  }
+    setSelected(new Set());
+    setPickerId("");
+  };
 
   const toggleAll = () => {
     if (allSelected) {
-      clearSelection()
+      clearSelection();
     } else {
-      setSelected(new Set(pageIds))
+      setSelected(new Set(pageIds));
     }
-  }
+  };
 
   const toggleOne = (id: string, v: boolean) => {
     setSelected((prev) => {
-      const next = new Set(prev)
-      if (v) next.add(id)
-      else next.delete(id)
-      return next
-    })
-  }
+      const next = new Set(prev);
+      if (v) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  };
 
   const handleCreatePicklist = async () => {
     if (!locationId) {
-      toast.error("Lokasi pesanan tidak ditemukan")
-      return
+      toast.error("Lokasi pesanan tidak ditemukan");
+      return;
     }
     if (multiLocation) {
-      toast.error("Pesanan terpilih berasal dari lokasi berbeda")
-      return
+      toast.error("Pesanan terpilih berasal dari lokasi berbeda");
+      return;
     }
     if (!pickerId) {
-      toast.error("Pilih picker terlebih dahulu")
-      return
+      toast.error("Pilih picker terlebih dahulu");
+      return;
     }
     try {
       const res = await createPicklist.mutateAsync({
         order_ids: Array.from(selected),
         location_id: locationId,
         picker_id: pickerId,
-      })
-      const no = res?.picklistNo ?? ""
+      });
+      const no = res?.picklistNo ?? "";
       toast.success(
-        no ? `Picklist ${no} berhasil dibuat` : "Picklist berhasil dibuat"
-      )
-      clearSelection()
-      setConfirmOpen(false)
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
-      qc.invalidateQueries({ queryKey: orderKeys.all })
+        no ? `Picklist ${no} berhasil dibuat` : "Picklist berhasil dibuat",
+      );
+      clearSelection();
+      setConfirmOpen(false);
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+      qc.invalidateQueries({ queryKey: orderKeys.all });
     } catch (err) {
       const msg =
         err && typeof err === "object" && "message" in err
           ? String((err as { message?: unknown }).message)
-          : "Gagal membuat picklist"
-      toast.error(msg)
+          : "Gagal membuat picklist";
+      toast.error(msg);
     }
-  }
+  };
 
   return (
     <div>
-      {/* Toolbar */}
+      {}
       <FulfillmentFilterBar
         value={filter}
         onChange={(v) => {
-          setFilter(v)
-          setPage(1)
+          setFilter(v);
+          setPage(1);
         }}
-        fields={["courier", "location", "channel", "store", "label_printed", "date"]}
+        fields={[
+          "courier",
+          "location",
+          "channel",
+          "store",
+          "label_printed",
+          "date",
+        ]}
         excludeTransit
         search={search}
         onSearchChange={(v) => {
-          setSearch(v)
-          setPage(1)
+          setSearch(v);
+          setPage(1);
         }}
         searchPlaceholder="Cari no. pesanan…"
       />
@@ -223,7 +233,9 @@ export function ReadyToProcessCardList() {
             className="rounded-full p-1.5 transition-colors hover:bg-muted"
             aria-label="Muat ulang"
           >
-            <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
+            <RefreshCwIcon
+              className={cn("size-4", isFetching && "animate-spin")}
+            />
           </button>
           <span className="flex items-center gap-1.5">
             Total <Badge>{meta.total}</Badge>
@@ -231,7 +243,7 @@ export function ReadyToProcessCardList() {
         </div>
       </div>
 
-      {/* List */}
+      {}
       <div className="px-4 pb-4 sm:px-5">
         {isLoading ? (
           <div className="flex flex-col gap-3 py-3">
@@ -248,10 +260,12 @@ export function ReadyToProcessCardList() {
               <PackageOpenIcon className="size-8 text-muted-foreground/70" />
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-semibold">Belum ada pesanan siap dipick</p>
+              <p className="text-sm font-semibold">
+                Belum ada pesanan siap dipick
+              </p>
               <p className="text-xs text-muted-foreground">
-                Pesanan akan muncul di sini setelah klik &quot;Proses Pesanan&quot; di
-                halaman Pesanan.
+                Pesanan akan muncul di sini setelah klik &quot;Proses
+                Pesanan&quot; di halaman Pesanan.
               </p>
             </div>
             <Button asChild size="sm" variant="outline">
@@ -262,7 +276,9 @@ export function ReadyToProcessCardList() {
           <div className="flex flex-col gap-3 py-2">
             <div className="flex items-center gap-2 px-1">
               <Checkbox
-                checked={allSelected ? true : someSelected ? "indeterminate" : false}
+                checked={
+                  allSelected ? true : someSelected ? "indeterminate" : false
+                }
                 onCheckedChange={toggleAll}
               />
               <span className="text-xs text-muted-foreground">
@@ -285,7 +301,9 @@ export function ReadyToProcessCardList() {
                 multiLocation ? null : (
                   <>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">Picker</span>
+                      <span className="text-xs text-muted-foreground">
+                        Picker
+                      </span>
                       <Select
                         value={pickerId}
                         onValueChange={setPickerId}
@@ -343,8 +361,8 @@ export function ReadyToProcessCardList() {
           onPageChange={setPage}
           perPage={perPage}
           onPerPageChange={(s) => {
-            setPerPage(s)
-            setPage(1)
+            setPerPage(s);
+            setPage(1);
           }}
           pageSizeOptions={GRID_PAGE_SIZES}
           isFetching={isFetching}
@@ -364,5 +382,5 @@ export function ReadyToProcessCardList() {
         onConfirm={handleCreatePicklist}
       />
     </div>
-  )
+  );
 }

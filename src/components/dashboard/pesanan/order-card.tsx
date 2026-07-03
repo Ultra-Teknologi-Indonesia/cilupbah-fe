@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Image from "next/image"
-import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import * as React from "react";
+import Image from "next/image";
+import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
 import {
   CopyIcon,
   MapPinIcon,
@@ -21,28 +21,28 @@ import {
   CheckIcon,
   XIcon,
   ClipboardListIcon,
-} from "lucide-react"
-import Link from "next/link"
-import { toast } from "sonner"
+} from "lucide-react";
+import Link from "next/link";
+import { toast } from "sonner";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { BuatPicklistDialog } from "@/components/dashboard/proses-pesanan/picking/buat-picklist-dialog"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { BuatPicklistDialog } from "@/components/dashboard/proses-pesanan/picking/buat-picklist-dialog";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/components/ui/tooltip";
 import {
   type Order,
   type OrderItem,
   type OrderTab,
   type SubFilter,
   CHANNEL_MAP,
-} from "@/types/pesanan/order"
-import { StatusBadge } from "@/components/dashboard/shared/status-badge"
+} from "@/types/pesanan/order";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import {
   Dialog,
   DialogContent,
@@ -50,14 +50,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   useMarkComplete,
   useRequestAwb,
@@ -67,22 +67,21 @@ import {
   useAcceptReturn,
   useRejectReturn,
   useRelocateOrder,
-} from "@/hooks/pesanan/use-order-actions"
-import { useLocations } from "@/hooks/manajemen-rak/use-locations"
-import { formatCurrency } from "@/lib/format"
-
+} from "@/hooks/pesanan/use-order-actions";
+import { useLocations } from "@/hooks/manajemen-rak/use-locations";
+import { formatCurrency } from "@/lib/format";
 
 function copyToClipboard(text: string) {
-  navigator.clipboard.writeText(text)
-  toast.success("Disalin ke clipboard")
+  navigator.clipboard.writeText(text);
+  toast.success("Disalin ke clipboard");
 }
 
 function ChannelIcon({ source }: { source: string | null }) {
-  if (!source) return null
-  const ch = CHANNEL_MAP[source]
-  if (!ch) return null
+  if (!source) return null;
+  const ch = CHANNEL_MAP[source];
+  if (!ch) return null;
 
-  const mask = `url(/channels/${source}.svg) center / contain no-repeat`
+  const mask = `url(/channels/${source}.svg) center / contain no-repeat`;
 
   return (
     <Tooltip>
@@ -99,17 +98,14 @@ function ChannelIcon({ source }: { source: string | null }) {
               WebkitMask: mask,
             }}
           />
-          <span
-            className="text-xs font-semibold"
-            style={{ color: ch.color }}
-          >
+          <span className="text-xs font-semibold" style={{ color: ch.color }}>
             {ch.label}
           </span>
         </span>
       </TooltipTrigger>
       <TooltipContent>{ch.label}</TooltipContent>
     </Tooltip>
-  )
+  );
 }
 
 function ItemRow({ item }: { item: OrderItem }) {
@@ -138,7 +134,7 @@ function ItemRow({ item }: { item: OrderItem }) {
         x {item.qty_in_base}
       </span>
     </div>
-  )
+  );
 }
 
 function RelocateDialog({
@@ -146,18 +142,18 @@ function RelocateDialog({
   open,
   onOpenChange,
 }: {
-  order: Order
-  open: boolean
-  onOpenChange: (v: boolean) => void
+  order: Order;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
 }) {
-  const [locationId, setLocationId] = React.useState("")
-  const { data: locationsData } = useLocations({ perPage: 50 })
-  const relocate = useRelocateOrder()
+  const [locationId, setLocationId] = React.useState("");
+  const { data: locationsData } = useLocations({ perPage: 50 });
+  const relocate = useRelocateOrder();
 
   const locations = React.useMemo(() => {
-    const items = locationsData?.items ?? []
-    return items.filter((l) => l.id !== order.location_id)
-  }, [locationsData, order.location_id])
+    const items = locationsData?.items ?? [];
+    return items.filter((l) => l.id !== order.location_id);
+  }, [locationsData, order.location_id]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -189,8 +185,8 @@ function RelocateDialog({
             onClick={() => {
               relocate.mutate(
                 { orderId: order.id, locationId },
-                { onSuccess: () => onOpenChange(false) }
-              )
+                { onSuccess: () => onOpenChange(false) },
+              );
             }}
           >
             {relocate.isPending ? "Menyimpan..." : "Simpan"}
@@ -198,7 +194,7 @@ function RelocateDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 function OrderActions({
@@ -206,22 +202,22 @@ function OrderActions({
   tab,
   subFilter,
 }: {
-  order: Order
-  tab: OrderTab
-  subFilter: SubFilter
+  order: Order;
+  tab: OrderTab;
+  subFilter: SubFilter;
 }) {
-  const [completeOpen, setCompleteOpen] = React.useState(false)
-  const [relocateOpen, setRelocateOpen] = React.useState(false)
+  const [completeOpen, setCompleteOpen] = React.useState(false);
+  const [relocateOpen, setRelocateOpen] = React.useState(false);
 
-  const markComplete = useMarkComplete()
-  const requestAwb = useRequestAwb()
-  const moveToReady = useMoveToReady()
-  const acceptCancel = useAcceptCancelRequest()
-  const rejectCancel = useRejectCancelRequest()
-  const acceptReturn = useAcceptReturn()
-  const rejectReturn = useRejectReturn()
+  const markComplete = useMarkComplete();
+  const requestAwb = useRequestAwb();
+  const moveToReady = useMoveToReady();
+  const acceptCancel = useAcceptCancelRequest();
+  const rejectCancel = useRejectCancelRequest();
+  const acceptReturn = useAcceptReturn();
+  const rejectReturn = useRejectReturn();
 
-  const isMarketplace = !!order.source && order.source !== "manual"
+  const isMarketplace = !!order.source && order.source !== "manual";
 
   const handlePrintLabel = () => {
     if (isMarketplace) {
@@ -229,15 +225,15 @@ function OrderActions({
         `/dashboard/document-preview/shipping-label/${order.id}`,
         "_blank",
         "noopener,noreferrer",
-      )
+      );
     } else {
-      toast.info("Cetak resi hanya tersedia untuk pesanan marketplace")
+      toast.info("Cetak resi hanya tersedia untuk pesanan marketplace");
     }
-  }
+  };
 
   const handlePrintInvoice = () => {
-    window.open(`/api/app/sales/${order.id}/invoice`, "_blank")
-  }
+    window.open(`/api/app/sales/${order.id}/invoice`, "_blank");
+  };
 
   const busy =
     markComplete.isPending ||
@@ -246,9 +242,9 @@ function OrderActions({
     acceptCancel.isPending ||
     rejectCancel.isPending ||
     acceptReturn.isPending ||
-    rejectReturn.isPending
+    rejectReturn.isPending;
 
-  if (tab === "unpaid") return null
+  if (tab === "unpaid") return null;
 
   if (tab === "ready-to-process") {
     return (
@@ -313,13 +309,17 @@ function OrderActions({
           confirmLabel="Ya, Selesaikan"
           cancelLabel="Batal"
           onConfirm={() => {
-            setCompleteOpen(false)
-            markComplete.mutate([order.id])
+            setCompleteOpen(false);
+            markComplete.mutate([order.id]);
           }}
         />
-        <RelocateDialog order={order} open={relocateOpen} onOpenChange={setRelocateOpen} />
+        <RelocateDialog
+          order={order}
+          open={relocateOpen}
+          onOpenChange={setRelocateOpen}
+        />
       </>
-    )
+    );
   }
 
   if (tab === "in-transit") {
@@ -354,12 +354,12 @@ function OrderActions({
           confirmLabel="Ya, Selesaikan"
           cancelLabel="Batal"
           onConfirm={() => {
-            setCompleteOpen(false)
-            markComplete.mutate([order.id])
+            setCompleteOpen(false);
+            markComplete.mutate([order.id]);
           }}
         />
       </>
-    )
+    );
   }
 
   if (tab === "completed") {
@@ -387,7 +387,7 @@ function OrderActions({
           </Button>
         )}
       </>
-    )
+    );
   }
 
   if (tab === "empty-stock" || tab === "failed-pick") {
@@ -399,13 +399,15 @@ function OrderActions({
         onClick={() => moveToReady.mutate([order.id])}
       >
         <ArrowRightIcon className="h-3.5 w-3.5" />
-        {moveToReady.isPending ? "Memindahkan..." : "Pindahkan ke Perlu Dikirim"}
+        {moveToReady.isPending
+          ? "Memindahkan..."
+          : "Pindahkan ke Perlu Dikirim"}
       </Button>
-    )
+    );
   }
 
   if (tab === "cancellation") {
-    if (subFilter === "cancelled" || order.status === "cancelled") return null
+    if (subFilter === "cancelled" || order.status === "cancelled") return null;
 
     return (
       <>
@@ -429,7 +431,7 @@ function OrderActions({
           {rejectCancel.isPending ? "Memproses..." : "Tolak"}
         </Button>
       </>
-    )
+    );
   }
 
   if (tab === "returned") {
@@ -444,7 +446,7 @@ function OrderActions({
           <FileTextIcon className="h-3.5 w-3.5" />
           Cetak Faktur
         </Button>
-      )
+      );
     }
 
     return (
@@ -478,12 +480,12 @@ function OrderActions({
           Cetak Faktur
         </Button>
       </>
-    )
+    );
   }
 
   if (tab === "all") {
-    const secondaryActions: React.ReactNode[] = []
-    let primaryAction: React.ReactNode = null
+    const secondaryActions: React.ReactNode[] = [];
+    let primaryAction: React.ReactNode = null;
 
     if (order.shipping?.tracking_number && !order.is_canceled) {
       secondaryActions.push(
@@ -497,8 +499,8 @@ function OrderActions({
         >
           <PrinterIcon className="h-3.5 w-3.5" />
           Cetak Resi
-        </Button>
-      )
+        </Button>,
+      );
     }
 
     if (order.status === "packed" && !order.is_canceled) {
@@ -513,7 +515,7 @@ function OrderActions({
           <TruckIcon className="h-3.5 w-3.5" />
           {requestAwb.isPending ? "Memproses..." : "Kirim"}
         </Button>
-      )
+      );
     } else if (order.status === "reserved" && !order.is_canceled) {
       primaryAction = (
         <Button
@@ -526,7 +528,7 @@ function OrderActions({
           <ArrowRightIcon className="h-3.5 w-3.5" />
           {moveToReady.isPending ? "Memproses..." : "Proses Pesanan"}
         </Button>
-      )
+      );
     }
 
     return (
@@ -534,10 +536,10 @@ function OrderActions({
         {secondaryActions}
         {primaryAction}
       </>
-    )
+    );
   }
 
-  return null
+  return null;
 }
 
 function ShipByDeadline({ date }: { date?: string | null }) {
@@ -552,10 +554,10 @@ function ShipByDeadline({ date }: { date?: string | null }) {
           <p className="font-medium text-muted-foreground">—</p>
         </div>
       </div>
-    )
+    );
   }
 
-  const deadline = new Date(date)
+  const deadline = new Date(date);
   if (Number.isNaN(deadline.getTime())) {
     return (
       <div className="min-w-0">
@@ -567,34 +569,34 @@ function ShipByDeadline({ date }: { date?: string | null }) {
           <p className="font-medium text-muted-foreground">—</p>
         </div>
       </div>
-    )
+    );
   }
 
-  const now = Date.now()
-  const diffMs = deadline.getTime() - now
-  const isOverdue = diffMs < 0
-  const absDiff = Math.abs(diffMs)
+  const now = Date.now();
+  const diffMs = deadline.getTime() - now;
+  const isOverdue = diffMs < 0;
+  const absDiff = Math.abs(diffMs);
 
-  const totalMinutes = Math.floor(absDiff / 60_000)
-  const hours = Math.floor(totalMinutes / 60)
-  const minutes = totalMinutes % 60
-  const days = Math.floor(hours / 24)
-  const remainingHours = hours % 24
+  const totalMinutes = Math.floor(absDiff / 60_000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  const days = Math.floor(hours / 24);
+  const remainingHours = hours % 24;
 
-  let label: string
+  let label: string;
   if (days > 0) {
-    label = remainingHours > 0 ? `${days}h ${remainingHours}j` : `${days} hari`
+    label = remainingHours > 0 ? `${days}h ${remainingHours}j` : `${days} hari`;
   } else if (hours > 0) {
-    label = `${hours}j ${minutes}m`
+    label = `${hours}j ${minutes}m`;
   } else {
-    label = `${minutes} menit`
+    label = `${minutes} menit`;
   }
 
   const colorClass = isOverdue
     ? "text-destructive"
     : hours < 12
       ? "text-amber-600 dark:text-amber-400"
-      : "text-emerald-600 dark:text-emerald-500"
+      : "text-emerald-600 dark:text-emerald-500";
 
   return (
     <div className="min-w-0">
@@ -613,14 +615,14 @@ function ShipByDeadline({ date }: { date?: string | null }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export type OrderCardVariant = "sales" | "outbound-ready"
+export type OrderCardVariant = "sales" | "outbound-ready";
 
 function OutboundReadyActions({ order }: { order: Order }) {
-  const [picklistOpen, setPicklistOpen] = React.useState(false)
-  const isMarketplace = !!order.source && order.source !== "manual"
+  const [picklistOpen, setPicklistOpen] = React.useState(false);
+  const isMarketplace = !!order.source && order.source !== "manual";
 
   const handlePrintLabel = () => {
     if (isMarketplace) {
@@ -628,13 +630,13 @@ function OutboundReadyActions({ order }: { order: Order }) {
         `/dashboard/document-preview/shipping-label/${order.id}`,
         "_blank",
         "noopener,noreferrer",
-      )
+      );
     } else {
-      toast.info("Cetak label hanya tersedia untuk pesanan marketplace")
+      toast.info("Cetak label hanya tersedia untuk pesanan marketplace");
     }
-  }
+  };
 
-  const hasTracking = !!order.shipping?.tracking_number
+  const hasTracking = !!order.shipping?.tracking_number;
   const cetakLabelBtn = (
     <Button
       variant="outline"
@@ -646,7 +648,7 @@ function OutboundReadyActions({ order }: { order: Order }) {
       <PrinterIcon className="h-3.5 w-3.5" />
       Cetak Label
     </Button>
-  )
+  );
 
   return (
     <>
@@ -658,7 +660,8 @@ function OutboundReadyActions({ order }: { order: Order }) {
             <span tabIndex={0}>{cetakLabelBtn}</span>
           </TooltipTrigger>
           <TooltipContent className="max-w-xs">
-            Belum ada AWB dari marketplace, coba beberapa saat lagi atau klik Proses Pesanan ulang untuk request manual
+            Belum ada AWB dari marketplace, coba beberapa saat lagi atau klik
+            Proses Pesanan ulang untuk request manual
           </TooltipContent>
         </Tooltip>
       )}
@@ -681,7 +684,7 @@ function OutboundReadyActions({ order }: { order: Order }) {
         onCreated={() => setPicklistOpen(false)}
       />
     </>
-  )
+  );
 }
 
 export function OrderCard({
@@ -692,18 +695,18 @@ export function OrderCard({
   onSelectedChange,
   variant = "sales",
 }: {
-  order: Order
-  tab?: OrderTab
-  subFilter?: SubFilter
-  selected?: boolean
-  onSelectedChange?: (v: boolean) => void
-  variant?: OrderCardVariant
+  order: Order;
+  tab?: OrderTab;
+  subFilter?: SubFilter;
+  selected?: boolean;
+  onSelectedChange?: (v: boolean) => void;
+  variant?: OrderCardVariant;
 }) {
   const groupedItems = React.useMemo(() => {
-    const map = new Map<string, OrderItem>()
+    const map = new Map<string, OrderItem>();
     for (const item of order.items) {
-      const key = `${item.channel_product_id ?? ""}|${item.sku}|${item.price}`
-      const existing = map.get(key)
+      const key = `${item.channel_product_id ?? ""}|${item.sku}|${item.price}`;
+      const existing = map.get(key);
       if (existing) {
         map.set(key, {
           ...existing,
@@ -711,22 +714,22 @@ export function OrderCard({
           disc_amount: existing.disc_amount + item.disc_amount,
           tax_amount: existing.tax_amount + item.tax_amount,
           amount: existing.amount + item.amount,
-        })
+        });
       } else {
-        map.set(key, { ...item })
+        map.set(key, { ...item });
       }
     }
-    return Array.from(map.values())
-  }, [order.items])
+    return Array.from(map.values());
+  }, [order.items]);
 
   return (
     <div
       className={cn(
         "group rounded-xl border border-border/60 bg-card transition-all hover:border-border hover:shadow-sm",
-        selected && "border-primary/40 bg-primary/[0.02]"
+        selected && "border-primary/40 bg-primary/[0.02]",
       )}
     >
-      {/* Header */}
+      {}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-border/40 px-4 py-2.5 sm:px-5">
         {onSelectedChange && (
           <Checkbox
@@ -760,12 +763,16 @@ export function OrderCard({
                   onClick={() => copyToClipboard(order.channel_order_no!)}
                   className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <span className="text-[11px] font-medium text-muted-foreground/70">Ref:</span>
+                  <span className="text-[11px] font-medium text-muted-foreground/70">
+                    Ref:
+                  </span>
                   <span className="font-mono">{order.channel_order_no}</span>
                   <CopyIcon className="h-2.5 w-2.5 opacity-0 group-hover:opacity-50 transition-opacity" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent>Klik untuk salin No. Referensi Channel</TooltipContent>
+              <TooltipContent>
+                Klik untuk salin No. Referensi Channel
+              </TooltipContent>
             </Tooltip>
           </>
         )}
@@ -787,27 +794,25 @@ export function OrderCard({
           </span>
           {order.transaction_date && (
             <>
-              <span className="hidden text-border select-none sm:inline">|</span>
+              <span className="hidden text-border select-none sm:inline">
+                |
+              </span>
               <span className="hidden items-center gap-1.5 sm:inline-flex">
                 <CalendarIcon className="h-3.5 w-3.5" />
-                {format(
-                  new Date(order.transaction_date),
-                  "dd MMM yyyy HH:mm",
-                  { locale: idLocale }
-                )}
+                {format(new Date(order.transaction_date), "dd MMM yyyy HH:mm", {
+                  locale: idLocale,
+                })}
               </span>
             </>
           )}
         </div>
       </div>
 
-      {/* Body */}
+      {}
       <div className="flex flex-col gap-4 px-4 py-3.5 sm:px-5 lg:flex-row lg:gap-6">
         <div className="flex-1 space-y-2.5 lg:max-w-[360px]">
           {groupedItems.length > 0 ? (
-            groupedItems.map((item) => (
-              <ItemRow key={item.id} item={item} />
-            ))
+            groupedItems.map((item) => <ItemRow key={item.id} item={item} />)
           ) : (
             <span className="text-sm text-muted-foreground">
               Tidak ada item
@@ -815,12 +820,18 @@ export function OrderCard({
           )}
         </div>
 
-        <div className={cn(
-          "grid flex-1 grid-cols-2 gap-x-6 gap-y-3 lg:items-start",
-          "sm:grid-cols-3 xl:grid-cols-5"
-        )}>
+        <div
+          className={cn(
+            "grid flex-1 grid-cols-2 gap-x-6 gap-y-3 lg:items-start",
+            "sm:grid-cols-3 xl:grid-cols-5",
+          )}
+        >
           <div>
-            <StatusBadge domain="sales-order" status={order.status} className="text-xs font-semibold whitespace-nowrap" />
+            <StatusBadge
+              domain="sales-order"
+              status={order.status}
+              className="text-xs font-semibold whitespace-nowrap"
+            />
             {order.cancel_requested_at && !order.is_canceled && (
               <p className="mt-1 text-[11px] font-medium text-amber-600 dark:text-amber-400">
                 Pembatalan diminta
@@ -886,7 +897,7 @@ export function OrderCard({
         </div>
       </div>
 
-      {/* Footer */}
+      {}
       <div className="flex items-center gap-2 border-t border-border/40 px-4 py-2 sm:px-5">
         <Button
           variant="link"
@@ -904,9 +915,11 @@ export function OrderCard({
           {variant === "sales" && (
             <OrderActions order={order} tab={tab} subFilter={subFilter} />
           )}
-          {variant === "outbound-ready" && <OutboundReadyActions order={order} />}
+          {variant === "outbound-ready" && (
+            <OutboundReadyActions order={order} />
+          )}
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,5 +1,5 @@
-import { PageTitle } from "@/components/dashboard/page-title"
-import { UserFormPage } from "@/components/dashboard/pengaturan/pengguna/user-form-page"
+import { PageTitle } from "@/components/dashboard/page-title";
+import { UserFormPage } from "@/components/dashboard/pengaturan/pengguna/user-form-page";
 
 export default function TambahPenggunaPage() {
   return (
@@ -15,5 +15,5 @@ export default function TambahPenggunaPage() {
       />
       <UserFormPage />
     </div>
-  )
+  );
 }

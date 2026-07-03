@@ -1,42 +1,47 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { ChevronRightIcon, Loader2Icon, RefreshCwIcon, SearchIcon } from "lucide-react"
+import * as React from "react";
+import {
+  ChevronRightIcon,
+  Loader2Icon,
+  RefreshCwIcon,
+  SearchIcon,
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   useChannelCategories,
   useMapCategoryToChannel,
   useSyncChannelCategories,
-} from "@/hooks/kategori-merek/use-kategori"
-import { useFetchConnectedStores } from "@/hooks/channel/use-connected-stores"
-import type { ChannelCategoryNode } from "@/types/kategori-merek/kategori"
-import { useQueryClient } from "@tanstack/react-query"
+} from "@/hooks/kategori-merek/use-kategori";
+import { useFetchConnectedStores } from "@/hooks/channel/use-connected-stores";
+import type { ChannelCategoryNode } from "@/types/kategori-merek/kategori";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface FlatChannelCategory {
-  node: ChannelCategoryNode
-  path: ChannelCategoryNode[]
-  pathLabel: string
+  node: ChannelCategoryNode;
+  path: ChannelCategoryNode[];
+  pathLabel: string;
 }
 
 function buildTree(categories: ChannelCategoryNode[]): ChannelCategoryNode[] {
-  const byParent = new Map<string, ChannelCategoryNode[]>()
+  const byParent = new Map<string, ChannelCategoryNode[]>();
 
   for (const cat of categories) {
-    const key = cat.parent_external_id ?? "0"
-    const list = byParent.get(key) ?? []
-    list.push({ ...cat, children: [] })
-    byParent.set(key, list)
+    const key = cat.parent_external_id ?? "0";
+    const list = byParent.get(key) ?? [];
+    list.push({ ...cat, children: [] });
+    byParent.set(key, list);
   }
 
   function attachChildren(nodes: ChannelCategoryNode[]): ChannelCategoryNode[] {
@@ -45,26 +50,26 @@ function buildTree(categories: ChannelCategoryNode[]): ChannelCategoryNode[] {
         ...node,
         children: attachChildren(byParent.get(node.external_id) ?? []),
       }))
-      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  const roots = byParent.get("0") ?? []
-  return attachChildren(roots)
+  const roots = byParent.get("0") ?? [];
+  return attachChildren(roots);
 }
 
 function flattenTree(
   nodes: ChannelCategoryNode[],
-  parents: ChannelCategoryNode[] = []
+  parents: ChannelCategoryNode[] = [],
 ): FlatChannelCategory[] {
-  const result: FlatChannelCategory[] = []
+  const result: FlatChannelCategory[] = [];
   for (const node of nodes) {
-    const path = [...parents, node]
-    result.push({ node, path, pathLabel: path.map((p) => p.name).join(" > ") })
+    const path = [...parents, node];
+    result.push({ node, path, pathLabel: path.map((p) => p.name).join(" > ") });
     if (node.children?.length) {
-      result.push(...flattenTree(node.children, path))
+      result.push(...flattenTree(node.children, path));
     }
   }
-  return result
+  return result;
 }
 
 function Column({
@@ -72,11 +77,12 @@ function Column({
   activeId,
   onSelect,
 }: {
-  nodes: ChannelCategoryNode[]
-  activeId?: string
-  onSelect: (n: ChannelCategoryNode) => void
+  nodes: ChannelCategoryNode[];
+  activeId?: string;
+  onSelect: (n: ChannelCategoryNode) => void;
 }) {
-  if (nodes.length === 0) return <div className="hidden lg:block" aria-hidden />
+  if (nodes.length === 0)
+    return <div className="hidden lg:block" aria-hidden />;
   return (
     <ScrollArea className="h-72">
       <ul className="flex flex-col gap-0.5 p-1.5">
@@ -89,7 +95,7 @@ function Column({
                 "flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors",
                 n.id === activeId
                   ? "bg-primary/10 font-medium text-primary"
-                  : "hover:bg-muted/60"
+                  : "hover:bg-muted/60",
               )}
             >
               <span className="break-words">{n.name}</span>
@@ -101,19 +107,19 @@ function Column({
         ))}
       </ul>
     </ScrollArea>
-  )
+  );
 }
 
 interface PetakanKategoriDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  channelId: string
-  channelCode: string
-  channelName: string
-  categoryId: number
-  categoryName: string
-  mappedExternalId?: string
-  onSuccess?: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  channelId: string;
+  channelCode: string;
+  channelName: string;
+  categoryId: number;
+  categoryName: string;
+  mappedExternalId?: string;
+  onSuccess?: () => void;
 }
 
 export function PetakanKategoriDialog({
@@ -127,94 +133,105 @@ export function PetakanKategoriDialog({
   mappedExternalId,
   onSuccess,
 }: PetakanKategoriDialogProps) {
-  const [path, setPath] = React.useState<ChannelCategoryNode[]>([])
-  const [search, setSearch] = React.useState("")
+  const [path, setPath] = React.useState<ChannelCategoryNode[]>([]);
+  const [search, setSearch] = React.useState("");
 
-  const qc = useQueryClient()
-  const { data: rawCategories, isLoading, isError } = useChannelCategories(
-    open ? channelId : ""
-  )
-  const mapMutation = useMapCategoryToChannel()
-  const syncMutation = useSyncChannelCategories()
-  const fetchStores = useFetchConnectedStores()
+  const qc = useQueryClient();
+  const {
+    data: rawCategories,
+    isLoading,
+    isError,
+  } = useChannelCategories(open ? channelId : "");
+  const mapMutation = useMapCategoryToChannel();
+  const syncMutation = useSyncChannelCategories();
+  const fetchStores = useFetchConnectedStores();
 
   const handleSync = async () => {
-    const stores = await fetchStores()
+    const stores = await fetchStores();
     const shop = stores.find(
-      (s) => s.channel?.code === channelCode && s.is_active
-    )
+      (s) => s.channel?.code === channelCode && s.is_active,
+    );
     if (!shop) {
-      const { toast } = await import("sonner")
-      toast.error(`Tidak ada toko ${channelName} yang terhubung. Hubungkan toko terlebih dahulu.`)
-      return
+      const { toast } = await import("sonner");
+      toast.error(
+        `Tidak ada toko ${channelName} yang terhubung. Hubungkan toko terlebih dahulu.`,
+      );
+      return;
     }
-    syncMutation.mutate({ channelCode, shopId: shop.shop_id })
-  }
+    syncMutation.mutate({ channelCode, shopId: shop.shop_id });
+  };
 
-  const tree = React.useMemo(() => buildTree(rawCategories ?? []), [rawCategories])
+  const tree = React.useMemo(
+    () => buildTree(rawCategories ?? []),
+    [rawCategories],
+  );
 
-  const flat = React.useMemo(() => flattenTree(tree), [tree])
+  const flat = React.useMemo(() => flattenTree(tree), [tree]);
 
   const searchResults = React.useMemo(() => {
-    const q = search.trim().toLowerCase()
-    if (!q) return null
-    return flat.filter((f) => f.node.name.toLowerCase().includes(q)).slice(0, 50)
-  }, [search, flat])
+    const q = search.trim().toLowerCase();
+    if (!q) return null;
+    return flat
+      .filter((f) => f.node.name.toLowerCase().includes(q))
+      .slice(0, 50);
+  }, [search, flat]);
 
   React.useEffect(() => {
-    if (!open) return
-    setSearch("")
+    if (!open) return;
+    setSearch("");
 
     if (mappedExternalId && flat.length > 0) {
-      const match = flat.find((f) => f.node.external_id === mappedExternalId)
+      const match = flat.find((f) => f.node.external_id === mappedExternalId);
       if (match) {
-        setPath(match.path)
-        return
+        setPath(match.path);
+        return;
       }
     }
-    setPath([])
-  }, [open, mappedExternalId, flat])
+    setPath([]);
+  }, [open, mappedExternalId, flat]);
 
   const allColumns = React.useMemo(() => {
     const cols: { nodes: ChannelCategoryNode[]; level: number }[] = [
       { nodes: tree, level: 0 },
-    ]
+    ];
     for (let i = 0; i < path.length; i++) {
-      const children = path[i].children ?? []
+      const children = path[i].children ?? [];
       if (children.length > 0) {
-        cols.push({ nodes: children, level: i + 1 })
+        cols.push({ nodes: children, level: i + 1 });
       }
     }
-    return cols
-  }, [tree, path])
+    return cols;
+  }, [tree, path]);
 
-  const chosen = path[path.length - 1] ?? null
-  const isLeaf = chosen?.is_leaf ?? false
+  const chosen = path[path.length - 1] ?? null;
+  const isLeaf = chosen?.is_leaf ?? false;
 
   const selectAt = (level: number, node: ChannelCategoryNode) =>
-    setPath((prev) => [...prev.slice(0, level), node])
+    setPath((prev) => [...prev.slice(0, level), node]);
 
   const selectFromSearch = (item: FlatChannelCategory) => {
-    setPath(item.path)
-    setSearch("")
-  }
+    setPath(item.path);
+    setSearch("");
+  };
 
   const handleRefresh = () => {
-    qc.invalidateQueries({ queryKey: ["kategori", "channel-categories", channelId] })
-  }
+    qc.invalidateQueries({
+      queryKey: ["kategori", "channel-categories", channelId],
+    });
+  };
 
   const handleSimpan = () => {
-    if (!chosen || !isLeaf) return
+    if (!chosen || !isLeaf) return;
     mapMutation.mutate(
       { categoryId, channelCategoryIds: [chosen.id] },
       {
         onSuccess: () => {
-          onOpenChange(false)
-          onSuccess?.()
+          onOpenChange(false);
+          onSuccess?.();
         },
-      }
-    )
-  }
+      },
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -241,11 +258,13 @@ export function PetakanKategoriDialog({
         <div className="px-6 py-4">
           {isLoading ? (
             <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
-              <Loader2Icon className="size-4 animate-spin" /> Memuat kategori {channelName}…
+              <Loader2Icon className="size-4 animate-spin" /> Memuat kategori{" "}
+              {channelName}…
             </div>
           ) : isError ? (
             <div className="py-16 text-center text-sm text-destructive">
-              Gagal memuat kategori. Pastikan kategori {channelName} sudah di-sync.
+              Gagal memuat kategori. Pastikan kategori {channelName} sudah
+              di-sync.
             </div>
           ) : (rawCategories?.length ?? 0) === 0 ? (
             <div className="flex flex-col items-center gap-3 py-16">
@@ -281,10 +300,15 @@ export function PetakanKategoriDialog({
                         onClick={() => selectFromSearch(item)}
                         className={cn(
                           "flex w-full flex-col gap-0.5 rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-muted/60",
-                          item.node.id === chosen?.id && "bg-primary/10"
+                          item.node.id === chosen?.id && "bg-primary/10",
                         )}
                       >
-                        <span className={cn("truncate", item.node.is_leaf ? "font-medium" : "")}>
+                        <span
+                          className={cn(
+                            "truncate",
+                            item.node.is_leaf ? "font-medium" : "",
+                          )}
+                        >
                           {item.node.name}
                         </span>
                         <span className="truncate text-xs text-muted-foreground">
@@ -299,14 +323,16 @@ export function PetakanKategoriDialog({
           ) : (
             <div
               className="grid overflow-hidden rounded-2xl border border-border/60"
-              style={{ gridTemplateColumns: `repeat(${allColumns.length}, minmax(0, 1fr))` }}
+              style={{
+                gridTemplateColumns: `repeat(${allColumns.length}, minmax(0, 1fr))`,
+              }}
             >
               {allColumns.map((col, idx) => (
                 <div
                   key={col.level}
                   className={cn(
                     "min-w-0",
-                    idx < allColumns.length - 1 && "border-r border-border/60"
+                    idx < allColumns.length - 1 && "border-r border-border/60",
                   )}
                 >
                   <Column
@@ -332,7 +358,9 @@ export function PetakanKategoriDialog({
             <Button
               variant="outline"
               size="sm"
-              onClick={(rawCategories?.length ?? 0) === 0 ? handleSync : handleRefresh}
+              onClick={
+                (rawCategories?.length ?? 0) === 0 ? handleSync : handleRefresh
+              }
               disabled={isLoading || syncMutation.isPending}
             >
               {syncMutation.isPending ? (
@@ -364,5 +392,5 @@ export function PetakanKategoriDialog({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

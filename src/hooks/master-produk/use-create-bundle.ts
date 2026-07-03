@@ -1,15 +1,18 @@
-"use client"
+"use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { BundleService, type CreateBundlePayload } from "@/services/master-produk/bundle.service"
+import {
+  BundleService,
+  type CreateBundlePayload,
+} from "@/services/master-produk/bundle.service";
 
 export const useCreateBundle = () => {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: CreateBundlePayload) => BundleService.store(payload),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["master-produk", "list"] })
+      qc.invalidateQueries({ queryKey: ["master-produk", "list"] });
     },
-  })
-}
+  });
+};

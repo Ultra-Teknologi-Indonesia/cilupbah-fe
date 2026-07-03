@@ -1,9 +1,9 @@
-import { Suspense } from "react"
+import { Suspense } from "react";
 
-import { PageTitle } from "@/components/dashboard/page-title"
-import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar"
-import { UploadMassalView } from "@/components/dashboard/master-produk/upload/upload-massal-view"
-import { TabBarSkeleton, TableSkeleton } from "@/components/ui/page-skeleton"
+import { PageTitle } from "@/components/dashboard/page-title";
+import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar";
+import { UploadMassalView } from "@/components/dashboard/master-produk/upload/upload-massal-view";
+import { TabBarSkeleton, TableSkeleton } from "@/components/ui/page-skeleton";
 
 export default function UploadMassalPage() {
   return (
@@ -27,5 +27,5 @@ export default function UploadMassalPage() {
         <UploadMassalView />
       </Suspense>
     </div>
-  )
+  );
 }

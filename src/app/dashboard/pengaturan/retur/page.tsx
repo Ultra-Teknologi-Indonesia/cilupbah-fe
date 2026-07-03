@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { PageTitle } from "@/components/dashboard/page-title"
-import { SalesReturnSettingForm } from "@/components/dashboard/pengaturan/retur/sales-return-setting-form"
+import { PageTitle } from "@/components/dashboard/page-title";
+import { SalesReturnSettingForm } from "@/components/dashboard/pengaturan/retur/sales-return-setting-form";
 
 export default function PengaturanReturPage() {
   return (
@@ -17,5 +17,5 @@ export default function PengaturanReturPage() {
       />
       <SalesReturnSettingForm />
     </div>
-  )
+  );
 }

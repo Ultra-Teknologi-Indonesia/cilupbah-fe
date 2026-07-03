@@ -1,57 +1,59 @@
-import { fetchClient } from "@/lib/api-client"
-import type { ApiPaginated, ApiResponse } from "@/types/api.types"
+import { fetchClient } from "@/lib/api-client";
+import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 
-export type DraftStatus = "draft" | "ready" | "cancelled"
-
-/* ── Tab Upload-to-Channel: daftar toko tujuan per produk ───────────────── */
+export type DraftStatus = "draft" | "ready" | "cancelled";
 
 export interface UploadListingParams {
-  isUploaded?: boolean
-  search?: string
-  channel?: string
-  page?: number
-  perPage?: number
+  isUploaded?: boolean;
+  search?: string;
+  channel?: string;
+  page?: number;
+  perPage?: number;
 }
 
 interface RawUploadListing {
-  item_group_id: string
-  item_group_name: string | null
-  store_id: string
-  shop_id: string | null
-  store_name: string | null
-  channel_id: string | null
-  channel_code: string | null
-  channel_name: string | null
-  is_uploaded: boolean
-  channel_group_id: string | null
-  sync_status: string | null
+  item_group_id: string;
+  item_group_name: string | null;
+  store_id: string;
+  shop_id: string | null;
+  store_name: string | null;
+  channel_id: string | null;
+  channel_code: string | null;
+  channel_name: string | null;
+  is_uploaded: boolean;
+  channel_group_id: string | null;
+  sync_status: string | null;
   product_channels: Array<{
-    master_sku: string | null
-    channel_sku: string | null
-    variation: string | null
-  }>
+    master_sku: string | null;
+    channel_sku: string | null;
+    variation: string | null;
+  }>;
 }
 
 export interface UploadDestination {
-  itemGroupId: string
-  itemGroupName: string | null
-  /** channel_shop UUID — dipakai untuk match (store_ids). */
-  storeId: string
-  /** marketplace shop_id — dipakai untuk membuat draft/upload. */
-  shopId: string | null
-  storeName: string | null
-  channelId: string | null
-  channelCode: string | null
-  channelName: string | null
-  isUploaded: boolean
-  channelGroupId: string | null
-  syncStatus: string | null
-  productChannels: Array<{ masterSku: string | null; channelSku: string | null; variation: string | null }>
+  itemGroupId: string;
+  itemGroupName: string | null;
+
+  storeId: string;
+
+  shopId: string | null;
+  storeName: string | null;
+  channelId: string | null;
+  channelCode: string | null;
+  channelName: string | null;
+  isUploaded: boolean;
+  channelGroupId: string | null;
+  syncStatus: string | null;
+  productChannels: Array<{
+    masterSku: string | null;
+    channelSku: string | null;
+    variation: string | null;
+  }>;
 }
 
 export interface UploadListingResult {
-  items: UploadDestination[]
-  meta: ApiPaginated<RawUploadListing>["meta"]
+  items: UploadDestination[];
+  meta: ApiPaginated<RawUploadListing>["meta"];
 }
 
 function mapDestination(raw: RawUploadListing): UploadDestination {
@@ -72,71 +74,69 @@ function mapDestination(raw: RawUploadListing): UploadDestination {
       channelSku: p.channel_sku,
       variation: p.variation,
     })),
-  }
+  };
 }
 
 export interface RulesSummary {
-  requiredCertsCount: number
-  sizeChartRequired: boolean
-  hasSpecialRequirements: boolean
+  requiredCertsCount: number;
+  sizeChartRequired: boolean;
+  hasSpecialRequirements: boolean;
 }
 
 export interface MatchRow {
-  storeId: string
-  channelGroupId: string | null
-  message: string
-  matched: boolean
-  rulesSummary: RulesSummary | null
+  storeId: string;
+  channelGroupId: string | null;
+  message: string;
+  matched: boolean;
+  rulesSummary: RulesSummary | null;
 }
 
 interface RawMatchRow {
-  store_id: string
-  channel_group_id: string | null
-  message: string
-  matched: boolean
+  store_id: string;
+  channel_group_id: string | null;
+  message: string;
+  matched: boolean;
   rules_summary: {
-    required_certs_count: number
-    size_chart_required: boolean
-    has_special_requirements: boolean
-  } | null
+    required_certs_count: number;
+    size_chart_required: boolean;
+    has_special_requirements: boolean;
+  } | null;
 }
 
-/* ── Tab Draft (global) ─────────────────────────────────────────────────── */
-
 export interface DraftParams {
-  search?: string
-  status?: DraftStatus
-  channel?: string
-  page?: number
-  perPage?: number
+  search?: string;
+  status?: DraftStatus;
+  channel?: string;
+  page?: number;
+  perPage?: number;
 }
 
 interface RawDraft {
-  id: string
-  item_group_id: string
-  item_group_name: string | null
-  thumbnail: string | null
-  status: DraftStatus
-  can_upload: boolean
-  shop_name: string | null
-  channel_code: string | null
-  channel_name: string | null
-  store_id: string | null
-  price_override: number | null
+  id: string;
+  item_group_id: string;
+  item_group_name: string | null;
+  thumbnail: string | null;
+  status: DraftStatus;
+  can_upload: boolean;
+  shop_name: string | null;
+  channel_code: string | null;
+  channel_name: string | null;
+  store_id: string | null;
+  price_override: number | null;
 }
 
 export interface DraftRow {
-  id: string
-  itemGroupId: string
-  itemGroupName: string | null
-  thumbnail: string | null
-  status: DraftStatus
-  canUpload: boolean
-  storeName: string | null
-  channelCode: string | null
-  channelName: string | null
-  storeId: string | null
-  priceOverride: number | null
+  id: string;
+  itemGroupId: string;
+  itemGroupName: string | null;
+  thumbnail: string | null;
+  status: DraftStatus;
+  canUpload: boolean;
+  storeName: string | null;
+  channelCode: string | null;
+  channelName: string | null;
+  storeId: string | null;
+  priceOverride: number | null;
 }
 
 function mapDraft(raw: RawDraft): DraftRow {
@@ -152,52 +152,50 @@ function mapDraft(raw: RawDraft): DraftRow {
     channelName: raw.channel_name,
     storeId: raw.store_id,
     priceOverride: raw.price_override,
-  }
+  };
 }
 
-/* ── Tab Hasil (riwayat upload, global) ─────────────────────────────────── */
-
 export interface HistoryParams {
-  search?: string
-  status?: string
-  channel?: string
-  shopId?: string
-  dateFrom?: string
-  dateTo?: string
-  page?: number
-  perPage?: number
+  search?: string;
+  status?: string;
+  channel?: string;
+  shopId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  page?: number;
+  perPage?: number;
 }
 
 interface RawHistory {
-  id: string
-  item_group_id: string
-  item_group_name: string | null
-  thumbnail: string | null
-  upload_date: string | null
-  success: boolean
-  status_message: string | null
-  can_reupload: boolean
-  shop_name: string | null
-  channel_code: string | null
-  channel_name: string | null
-  store_id: string | null
-  channel_url: string | null
+  id: string;
+  item_group_id: string;
+  item_group_name: string | null;
+  thumbnail: string | null;
+  upload_date: string | null;
+  success: boolean;
+  status_message: string | null;
+  can_reupload: boolean;
+  shop_name: string | null;
+  channel_code: string | null;
+  channel_name: string | null;
+  store_id: string | null;
+  channel_url: string | null;
 }
 
 export interface HistoryRow {
-  id: string
-  itemGroupId: string
-  itemGroupName: string | null
-  thumbnail: string | null
-  uploadDate: string | null
-  success: boolean
-  statusMessage: string | null
-  canReupload: boolean
-  storeName: string | null
-  channelCode: string | null
-  channelName: string | null
-  storeId: string | null
-  channelUrl: string | null
+  id: string;
+  itemGroupId: string;
+  itemGroupName: string | null;
+  thumbnail: string | null;
+  uploadDate: string | null;
+  success: boolean;
+  statusMessage: string | null;
+  canReupload: boolean;
+  storeName: string | null;
+  channelCode: string | null;
+  channelName: string | null;
+  storeId: string | null;
+  channelUrl: string | null;
 }
 
 function mapHistory(raw: RawHistory): HistoryRow {
@@ -215,109 +213,105 @@ function mapHistory(raw: RawHistory): HistoryRow {
     channelName: raw.channel_name,
     storeId: raw.store_id,
     channelUrl: raw.channel_url,
-  }
+  };
 }
 
 export interface BulkUploadResult {
-  uploaded: number
-  skipped: { id: string; reason: string }[]
+  uploaded: number;
+  skipped: { id: string; reason: string }[];
 }
 
-/* ── Required Attributes (TikTok) ──────────────────────────────────────── */
-
 interface RawRequiredAttributeOption {
-  external_id: string
-  name: string
+  external_id: string;
+  name: string;
 }
 
 interface RawRequiredAttribute {
-  external_id: string
-  name: string
-  is_covered: boolean
-  options: RawRequiredAttributeOption[]
+  external_id: string;
+  name: string;
+  is_covered: boolean;
+  options: RawRequiredAttributeOption[];
 }
 
 interface RawCategoryRules {
-  cod?: { is_supported?: boolean }
-  epr?: { is_required?: boolean }
-  manufacturer?: { is_required?: boolean }
-  package_dimension?: { is_required?: boolean }
+  cod?: { is_supported?: boolean };
+  epr?: { is_required?: boolean };
+  manufacturer?: { is_required?: boolean };
+  package_dimension?: { is_required?: boolean };
   product_certifications?: Array<{
-    id: string
-    name: string
-    is_required?: boolean
-    document_details?: string
-    sample_image_url?: string
-  }>
-  responsible_person?: { is_required?: boolean }
-  size_chart?: { is_required?: boolean; is_supported?: boolean }
+    id: string;
+    name: string;
+    is_required?: boolean;
+    document_details?: string;
+    sample_image_url?: string;
+  }>;
+  responsible_person?: { is_required?: boolean };
+  size_chart?: { is_required?: boolean; is_supported?: boolean };
 }
 
 interface RawRequiredAttributesData {
-  channel_category_id: string | null
-  attributes: RawRequiredAttribute[]
-  rules: RawCategoryRules | null
+  channel_category_id: string | null;
+  attributes: RawRequiredAttribute[];
+  rules: RawCategoryRules | null;
 }
 
 export interface RequiredAttributeOption {
-  externalId: string
-  name: string
+  externalId: string;
+  name: string;
 }
 
 export interface RequiredAttribute {
-  externalId: string
-  name: string
-  isCovered: boolean
-  options: RequiredAttributeOption[]
+  externalId: string;
+  name: string;
+  isCovered: boolean;
+  options: RequiredAttributeOption[];
 }
 
 export interface CategoryCertification {
-  id: string
-  name: string
-  isRequired: boolean
-  documentDetails?: string
-  sampleImageUrl?: string
+  id: string;
+  name: string;
+  isRequired: boolean;
+  documentDetails?: string;
+  sampleImageUrl?: string;
 }
 
 export interface CategoryRules {
-  cod: { isSupported: boolean }
-  manufacturer: { isRequired: boolean }
-  packageDimension: { isRequired: boolean }
-  productCertifications: CategoryCertification[]
-  sizeChart: { isRequired: boolean; isSupported: boolean }
+  cod: { isSupported: boolean };
+  manufacturer: { isRequired: boolean };
+  packageDimension: { isRequired: boolean };
+  productCertifications: CategoryCertification[];
+  sizeChart: { isRequired: boolean; isSupported: boolean };
 }
 
 export interface RequiredAttributesResult {
-  channelCategoryId: string | null
-  attributes: RequiredAttribute[]
-  rules: CategoryRules | null
+  channelCategoryId: string | null;
+  attributes: RequiredAttribute[];
+  rules: CategoryRules | null;
 }
 
 export const UploadService = {
-  /* Toko tujuan untuk satu produk (Belum/Sudah Diupload). */
   listing: async (
     productId: string,
-    params: UploadListingParams = {}
+    params: UploadListingParams = {},
   ): Promise<UploadListingResult> => {
-    const q = new URLSearchParams()
-    q.set("is_uploaded", params.isUploaded ? "true" : "false")
-    if (params.search) q.set("search", params.search)
-    if (params.channel) q.set("filter[channel]", params.channel)
-    q.set("page", String(params.page ?? 1))
-    q.set("per_page", String(params.perPage ?? 25))
+    const q = new URLSearchParams();
+    q.set("is_uploaded", params.isUploaded ? "true" : "false");
+    if (params.search) q.set("search", params.search);
+    if (params.channel) q.set("filter[channel]", params.channel);
+    q.set("page", String(params.page ?? 1));
+    q.set("per_page", String(params.perPage ?? 25));
 
     const res = await fetchClient<ApiPaginated<RawUploadListing>>(
-      `/products/${productId}/upload-listing?${q.toString()}`
-    )
-    return { items: (res.data ?? []).map(mapDestination), meta: res.meta }
+      `/products/${productId}/upload-listing?${q.toString()}`,
+    );
+    return { items: (res.data ?? []).map(mapDestination), meta: res.meta };
   },
 
-  /* Kecocokan data master untuk toko-toko terpilih (channel_shop UUID). */
   match: async (productId: string, storeIds: string[]): Promise<MatchRow[]> => {
     const res = await fetchClient<ApiResponse<RawMatchRow[]>>(
       `/products/${productId}/upload-listing/match`,
-      { method: "POST", data: { store_ids: storeIds } }
-    )
+      { method: "POST", data: { store_ids: storeIds } },
+    );
     return (res.data ?? []).map((r) => ({
       storeId: r.store_id,
       channelGroupId: r.channel_group_id,
@@ -330,47 +324,47 @@ export const UploadService = {
             hasSpecialRequirements: r.rules_summary.has_special_requirements,
           }
         : null,
-    }))
+    }));
   },
 
-  /* Upsert draft (status ready) untuk produk↔toko (shop_id marketplace). */
-  createDraft: async (productId: string, shopId: string): Promise<{ id: string }> => {
+  createDraft: async (
+    productId: string,
+    shopId: string,
+  ): Promise<{ id: string }> => {
     const res = await fetchClient<ApiResponse<{ id: string }>>(
       `/products/${productId}/channel-drafts`,
-      { method: "POST", data: { shop_id: shopId, status: "ready" } }
-    )
-    return res.data
+      { method: "POST", data: { shop_id: shopId, status: "ready" } },
+    );
+    return res.data;
   },
 
   bulkUpload: async (draftIds: string[]): Promise<BulkUploadResult> => {
     const res = await fetchClient<ApiResponse<BulkUploadResult>>(
       `/products/channel-drafts/bulk-upload`,
-      { method: "POST", data: { ids: draftIds } }
-    )
-    return res.data
+      { method: "POST", data: { ids: draftIds } },
+    );
+    return res.data;
   },
 
-  /* Aksi upload: buat draft per toko lalu antrekan upload. */
   uploadToStores: async (
     productId: string,
-    shopIds: string[]
+    shopIds: string[],
   ): Promise<BulkUploadResult> => {
     const drafts = await Promise.all(
-      shopIds.map((shopId) => UploadService.createDraft(productId, shopId))
-    )
-    return UploadService.bulkUpload(drafts.map((d) => d.id))
+      shopIds.map((shopId) => UploadService.createDraft(productId, shopId)),
+    );
+    return UploadService.bulkUpload(drafts.map((d) => d.id));
   },
 
-  /* Required attributes TikTok untuk product+store. */
   fetchRequiredAttributes: async (
     productId: string,
-    shopId: string
+    shopId: string,
   ): Promise<RequiredAttributesResult> => {
     const res = await fetchClient<ApiResponse<RawRequiredAttributesData>>(
-      `/products/${productId}/channel-drafts/required-attributes?shop_id=${encodeURIComponent(shopId)}`
-    )
-    const raw = res.data
-    const rawRules = raw.rules
+      `/products/${productId}/channel-drafts/required-attributes?shop_id=${encodeURIComponent(shopId)}`,
+    );
+    const raw = res.data;
+    const rawRules = raw.rules;
     return {
       channelCategoryId: raw.channel_category_id,
       attributes: (raw.attributes ?? []).map((a) => ({
@@ -385,29 +379,34 @@ export const UploadService = {
       rules: rawRules
         ? {
             cod: { isSupported: rawRules.cod?.is_supported ?? false },
-            manufacturer: { isRequired: rawRules.manufacturer?.is_required ?? false },
-            packageDimension: { isRequired: rawRules.package_dimension?.is_required ?? false },
-            productCertifications: (rawRules.product_certifications ?? []).map((c) => ({
-              id: c.id,
-              name: c.name,
-              isRequired: c.is_required ?? false,
-              documentDetails: c.document_details,
-              sampleImageUrl: c.sample_image_url,
-            })),
+            manufacturer: {
+              isRequired: rawRules.manufacturer?.is_required ?? false,
+            },
+            packageDimension: {
+              isRequired: rawRules.package_dimension?.is_required ?? false,
+            },
+            productCertifications: (rawRules.product_certifications ?? []).map(
+              (c) => ({
+                id: c.id,
+                name: c.name,
+                isRequired: c.is_required ?? false,
+                documentDetails: c.document_details,
+                sampleImageUrl: c.sample_image_url,
+              }),
+            ),
             sizeChart: {
               isRequired: rawRules.size_chart?.is_required ?? false,
               isSupported: rawRules.size_chart?.is_supported ?? false,
             },
           }
         : null,
-    }
+    };
   },
 
-  /* Buat draft dengan attribute_mapping lalu upload. */
   createDraftWithAttributes: async (
     productId: string,
     shopId: string,
-    attributeMapping: Record<string, string> | null
+    attributeMapping: Record<string, string> | null,
   ): Promise<{ id: string }> => {
     const res = await fetchClient<ApiResponse<{ id: string }>>(
       `/products/${productId}/channel-drafts`,
@@ -420,71 +419,86 @@ export const UploadService = {
             ? { attribute_mapping: attributeMapping }
             : {}),
         },
-      }
-    )
-    return res.data
+      },
+    );
+    return res.data;
   },
 
-  /* Upload dengan attribute mapping: buat draft per toko lalu antrekan. */
   uploadToStoresWithAttributes: async (
     productId: string,
     shopIds: string[],
-    attributeMapping: Record<string, string> | null
+    attributeMapping: Record<string, string> | null,
   ): Promise<BulkUploadResult> => {
     const drafts = await Promise.all(
       shopIds.map((shopId) =>
-        UploadService.createDraftWithAttributes(productId, shopId, attributeMapping)
-      )
-    )
-    return UploadService.bulkUpload(drafts.map((d) => d.id))
+        UploadService.createDraftWithAttributes(
+          productId,
+          shopId,
+          attributeMapping,
+        ),
+      ),
+    );
+    return UploadService.bulkUpload(drafts.map((d) => d.id));
   },
 
-  /* Tab Draft (global). */
-  drafts: async (params: DraftParams = {}): Promise<{ items: DraftRow[]; meta: ApiPaginated<RawDraft>["meta"] }> => {
-    const q = new URLSearchParams()
-    if (params.search) q.set("search", params.search)
-    if (params.status) q.set("filter[status]", params.status)
-    if (params.channel) q.set("filter[channel]", params.channel)
-    q.set("page", String(params.page ?? 1))
-    q.set("per_page", String(params.perPage ?? 25))
+  drafts: async (
+    params: DraftParams = {},
+  ): Promise<{ items: DraftRow[]; meta: ApiPaginated<RawDraft>["meta"] }> => {
+    const q = new URLSearchParams();
+    if (params.search) q.set("search", params.search);
+    if (params.status) q.set("filter[status]", params.status);
+    if (params.channel) q.set("filter[channel]", params.channel);
+    q.set("page", String(params.page ?? 1));
+    q.set("per_page", String(params.perPage ?? 25));
 
     const res = await fetchClient<ApiPaginated<RawDraft>>(
-      `/products/channel-drafts?${q.toString()}`
-    )
-    return { items: (res.data ?? []).map(mapDraft), meta: res.meta }
+      `/products/channel-drafts?${q.toString()}`,
+    );
+    return { items: (res.data ?? []).map(mapDraft), meta: res.meta };
   },
 
   deleteDraft: async (productId: string, draftId: string): Promise<void> => {
-    await fetchClient(`/products/${productId}/channel-drafts/${draftId}`, { method: "DELETE" })
+    await fetchClient(`/products/${productId}/channel-drafts/${draftId}`, {
+      method: "DELETE",
+    });
   },
 
   uploadDraft: async (draftId: string): Promise<void> => {
-    await fetchClient(`/products/channel-drafts/${draftId}/upload`, { method: "POST" })
+    await fetchClient(`/products/channel-drafts/${draftId}/upload`, {
+      method: "POST",
+    });
   },
 
-  /* Tab Hasil (riwayat upload, global). */
-  histories: async (params: HistoryParams = {}): Promise<{ items: HistoryRow[]; meta: ApiPaginated<RawHistory>["meta"] }> => {
-    const q = new URLSearchParams()
-    if (params.search) q.set("search", params.search)
-    if (params.status) q.set("filter[status]", params.status)
-    if (params.channel) q.set("filter[channel]", params.channel)
-    if (params.shopId) q.set("filter[shop_id]", params.shopId)
-    if (params.dateFrom) q.set("filter[date_from]", params.dateFrom)
-    if (params.dateTo) q.set("filter[date_to]", params.dateTo)
-    q.set("page", String(params.page ?? 1))
-    q.set("per_page", String(params.perPage ?? 25))
+  histories: async (
+    params: HistoryParams = {},
+  ): Promise<{
+    items: HistoryRow[];
+    meta: ApiPaginated<RawHistory>["meta"];
+  }> => {
+    const q = new URLSearchParams();
+    if (params.search) q.set("search", params.search);
+    if (params.status) q.set("filter[status]", params.status);
+    if (params.channel) q.set("filter[channel]", params.channel);
+    if (params.shopId) q.set("filter[shop_id]", params.shopId);
+    if (params.dateFrom) q.set("filter[date_from]", params.dateFrom);
+    if (params.dateTo) q.set("filter[date_to]", params.dateTo);
+    q.set("page", String(params.page ?? 1));
+    q.set("per_page", String(params.perPage ?? 25));
 
     const res = await fetchClient<ApiPaginated<RawHistory>>(
-      `/upload-histories?${q.toString()}`
-    )
-    return { items: (res.data ?? []).map(mapHistory), meta: res.meta }
+      `/upload-histories?${q.toString()}`,
+    );
+    return { items: (res.data ?? []).map(mapHistory), meta: res.meta };
   },
 
   reupload: async (id: string): Promise<void> => {
-    await fetchClient(`/upload-histories/${id}/re-upload`, { method: "POST" })
+    await fetchClient(`/upload-histories/${id}/re-upload`, { method: "POST" });
   },
 
   bulkDeleteHistories: async (ids: string[]): Promise<void> => {
-    await fetchClient(`/upload-histories/bulk-delete`, { method: "POST", data: { ids } })
+    await fetchClient(`/upload-histories/bulk-delete`, {
+      method: "POST",
+      data: { ids },
+    });
   },
-}
+};

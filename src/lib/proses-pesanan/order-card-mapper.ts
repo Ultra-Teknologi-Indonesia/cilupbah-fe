@@ -1,5 +1,5 @@
-import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment"
-import type { Order, OrderItem, OrderStatus } from "@/types/pesanan/order"
+import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment";
+import type { Order, OrderItem, OrderStatus } from "@/types/pesanan/order";
 
 export function fulfillmentToOrder(f: FulfillmentOrder): Order {
   const items: OrderItem[] = f.items.map((i) => ({
@@ -15,7 +15,7 @@ export function fulfillmentToOrder(f: FulfillmentOrder): Order {
     tax_amount: 0,
     amount: 0,
     image_url: i.imageUrl,
-  }))
+  }));
 
   return {
     id: f.id,
@@ -42,8 +42,7 @@ export function fulfillmentToOrder(f: FulfillmentOrder): Order {
     shipping_cost: f.actualShippingFee ?? 0,
     insurance_cost: 0,
     grand_total: f.grandTotal,
-    // Fulfillment (proses gudang) tidak punya data finance channel — biarkan null.
-    // Data finance lengkap muncul di detail order pasca SyncOrderFinanceJob.
+
     finance: {
       seller_voucher: null,
       platform_voucher: null,
@@ -82,5 +81,5 @@ export function fulfillmentToOrder(f: FulfillmentOrder): Order {
     ship_by_date: f.shipByDate ?? null,
     created_at: f.transactionDate ?? "",
     updated_at: f.transactionDate ?? "",
-  }
+  };
 }

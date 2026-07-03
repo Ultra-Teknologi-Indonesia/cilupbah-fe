@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useParams } from "next/navigation"
-import { StockPositionDetailView } from "@/components/dashboard/posisi-stok/stock-position-detail-view"
+import { useParams } from "next/navigation";
+import { StockPositionDetailView } from "@/components/dashboard/posisi-stok/stock-position-detail-view";
 
 export default function PosisiStokDetailPage() {
-  const params = useParams()
-  const itemId = params.itemId as string
+  const params = useParams();
+  const itemId = params.itemId as string;
 
-  return <StockPositionDetailView itemId={itemId} />
+  return <StockPositionDetailView itemId={itemId} />;
 }

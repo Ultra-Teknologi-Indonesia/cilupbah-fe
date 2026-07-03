@@ -1,9 +1,9 @@
-import { Suspense } from "react"
+import { Suspense } from "react";
 
-import { PageTitle } from "@/components/dashboard/page-title"
-import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar"
-import { ImportView } from "@/components/dashboard/master-produk/import/import-view"
-import { TabBarSkeleton, TableSkeleton } from "@/components/ui/page-skeleton"
+import { PageTitle } from "@/components/dashboard/page-title";
+import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar";
+import { ImportView } from "@/components/dashboard/master-produk/import/import-view";
+import { TabBarSkeleton, TableSkeleton } from "@/components/ui/page-skeleton";
 
 export default function ImportPage() {
   return (
@@ -27,5 +27,5 @@ export default function ImportPage() {
         <ImportView />
       </Suspense>
     </div>
-  )
+  );
 }

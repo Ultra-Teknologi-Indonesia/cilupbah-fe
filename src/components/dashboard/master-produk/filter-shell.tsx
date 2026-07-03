@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { FilterIcon, XIcon } from "lucide-react"
+import * as React from "react";
+import { FilterIcon, XIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export function FilterShell({
   open,
@@ -14,12 +14,12 @@ export function FilterShell({
   children,
   className,
 }: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  activeCount?: number
-  onReset?: () => void
-  children: React.ReactNode
-  className?: string
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  activeCount?: number;
+  onReset?: () => void;
+  children: React.ReactNode;
+  className?: string;
 }) {
   return (
     <div className={cn("border-b border-border/40", className)}>
@@ -30,7 +30,7 @@ export function FilterShell({
           className={cn(
             "h-9 gap-2 rounded-full transition-colors",
             open && "bg-primary/10 text-primary hover:bg-primary/15",
-            !open && activeCount > 0 && "border-primary/40 text-primary"
+            !open && activeCount > 0 && "border-primary/40 text-primary",
           )}
           onClick={() => onOpenChange(!open)}
         >
@@ -58,7 +58,7 @@ export function FilterShell({
       <div
         className={cn(
           "grid transition-[grid-template-rows] duration-200 ease-out",
-          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
         )}
       >
         <div className="overflow-hidden">
@@ -70,5 +70,5 @@ export function FilterShell({
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Image from "next/image"
+import * as React from "react";
+import Image from "next/image";
 import {
   SearchIcon,
   RefreshCwIcon,
@@ -13,77 +13,83 @@ import {
   MapPinIcon,
   TruckIcon,
   PackageIcon,
-} from "lucide-react"
-import { toast } from "sonner"
+} from "lucide-react";
+import { toast } from "sonner";
 
-import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   useMarkComplete,
   useOrdersByStage,
   useReadyToShip,
   useRetryPickup,
-} from "@/hooks/proses-pesanan/use-fulfillment"
-import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment"
-import { CHANNEL_MAP, STATUS_LABELS } from "@/types/pesanan/order"
-import { SimplePagination, TABLE_PAGE_SIZES } from "@/components/ui/simple-pagination"
+} from "@/hooks/proses-pesanan/use-fulfillment";
+import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment";
+import { CHANNEL_MAP, STATUS_LABELS } from "@/types/pesanan/order";
+import {
+  SimplePagination,
+  TABLE_PAGE_SIZES,
+} from "@/components/ui/simple-pagination";
 
-import { ChannelBadge, OrderStatusBadge } from "../channel-badge"
-import { BuatPicklistDialog } from "../picking/buat-picklist-dialog"
-import { BuatPengirimanDialog } from "../shipping/buat-pengiriman-dialog"
-import { DocActions } from "../picking/doc-actions"
-import { formatCurrency } from "@/lib/format"
+import { ChannelBadge, OrderStatusBadge } from "../channel-badge";
+import { BuatPicklistDialog } from "../picking/buat-picklist-dialog";
+import { BuatPengirimanDialog } from "../shipping/buat-pengiriman-dialog";
+import { DocActions } from "../picking/doc-actions";
+import { formatCurrency } from "@/lib/format";
 import {
   FulfillmentFilterBar,
   type FulfillmentFilterField,
   type FulfillmentFilterValue,
-} from "./fulfillment-filter-bar"
+} from "./fulfillment-filter-bar";
 
 export interface OrderTableActions {
-  buatPicklist?: boolean
-  buatPengiriman?: boolean
-  cetakLabel?: boolean
-  cetakPicklist?: boolean
-  cetakFaktur?: boolean
-  fakturLabel?: boolean
-  suratJalan?: boolean
-  siapDikirim?: boolean
-  selesaikanPesanan?: boolean
+  buatPicklist?: boolean;
+  buatPengiriman?: boolean;
+  cetakLabel?: boolean;
+  cetakPicklist?: boolean;
+  cetakFaktur?: boolean;
+  fakturLabel?: boolean;
+  suratJalan?: boolean;
+  siapDikirim?: boolean;
+  selesaikanPesanan?: boolean;
 }
 
 function formatDate(iso: string | null): string {
-  if (!iso) return "—"
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return "—"
-  return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
-
 function copyToClipboard(text: string) {
-  navigator.clipboard.writeText(text)
-  toast.success("Disalin ke clipboard")
+  navigator.clipboard.writeText(text);
+  toast.success("Disalin ke clipboard");
 }
 
 function ChannelIcon({ source }: { source: string | null }) {
-  if (!source) return null
-  const ch = CHANNEL_MAP[source]
-  if (!ch) return null
-  const mask = `url(/channels/${source}.svg) center / contain no-repeat`
+  if (!source) return null;
+  const ch = CHANNEL_MAP[source];
+  if (!ch) return null;
+  const mask = `url(/channels/${source}.svg) center / contain no-repeat`;
   return (
     <span
       className="inline-flex h-6 items-center gap-1.5 shrink-0 rounded-md px-1.5"
@@ -97,7 +103,7 @@ function ChannelIcon({ source }: { source: string | null }) {
         {ch.label}
       </span>
     </span>
-  )
+  );
 }
 
 function OrderCard({
@@ -113,28 +119,32 @@ function OrderCard({
   completePending,
   retryPickupPending,
 }: {
-  order: FulfillmentOrder
-  actions: OrderTableActions
-  selected: boolean
-  onToggle: () => void
-  onShip: (ids: string[]) => void
-  onComplete: (ids: string[]) => void
-  onBuatPengiriman?: (order: FulfillmentOrder) => void
-  onRetryPickup?: (ids: string[]) => void
-  shipPending: boolean
-  completePending: boolean
-  retryPickupPending?: boolean
+  order: FulfillmentOrder;
+  actions: OrderTableActions;
+  selected: boolean;
+  onToggle: () => void;
+  onShip: (ids: string[]) => void;
+  onComplete: (ids: string[]) => void;
+  onBuatPengiriman?: (order: FulfillmentOrder) => void;
+  onRetryPickup?: (ids: string[]) => void;
+  shipPending: boolean;
+  completePending: boolean;
+  retryPickupPending?: boolean;
 }) {
   return (
     <div
       className={cn(
         "group rounded-xl border border-border/60 bg-card transition-all hover:border-border hover:shadow-sm",
-        selected && "border-primary/40 bg-primary/[0.02]"
+        selected && "border-primary/40 bg-primary/[0.02]",
       )}
     >
-      {/* Header */}
+      {}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-border/40 px-4 py-2.5 sm:px-5">
-        <Checkbox checked={selected} onCheckedChange={onToggle} className="mr-0.5" />
+        <Checkbox
+          checked={selected}
+          onCheckedChange={onToggle}
+          className="mr-0.5"
+        />
 
         <Tooltip>
           <TooltipTrigger asChild>
@@ -160,12 +170,16 @@ function OrderCard({
                   onClick={() => copyToClipboard(order.channelOrderNo!)}
                   className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <span className="text-[11px] font-medium text-muted-foreground/70">Ref:</span>
+                  <span className="text-[11px] font-medium text-muted-foreground/70">
+                    Ref:
+                  </span>
                   <span className="font-mono">{order.channelOrderNo}</span>
                   <CopyIcon className="h-2.5 w-2.5 opacity-0 group-hover:opacity-50 transition-opacity" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent>Klik untuk salin No. Referensi Channel</TooltipContent>
+              <TooltipContent>
+                Klik untuk salin No. Referensi Channel
+              </TooltipContent>
             </Tooltip>
           </>
         )}
@@ -174,12 +188,18 @@ function OrderCard({
         <ChannelIcon source={order.source} />
 
         {order.isCod && (
-          <Badge variant="outline" className="border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[10px] px-1.5 py-0">
+          <Badge
+            variant="outline"
+            className="border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[10px] px-1.5 py-0"
+          >
             COD
           </Badge>
         )}
         {order.priorityFulfillment && (
-          <Badge variant="outline" className="border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-400 text-[10px] px-1.5 py-0">
+          <Badge
+            variant="outline"
+            className="border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-400 text-[10px] px-1.5 py-0"
+          >
             Prioritas
           </Badge>
         )}
@@ -193,7 +213,9 @@ function OrderCard({
           </span>
           {order.transactionDate && (
             <>
-              <span className="hidden text-border select-none sm:inline">|</span>
+              <span className="hidden text-border select-none sm:inline">
+                |
+              </span>
               <span className="hidden items-center gap-1.5 sm:inline-flex">
                 <CalendarIcon className="h-3.5 w-3.5" />
                 {formatDate(order.transactionDate)}
@@ -203,7 +225,7 @@ function OrderCard({
         </div>
       </div>
 
-      {/* Items */}
+      {}
       {order.items.length > 0 && (
         <div className="border-b border-border/40 px-4 py-2.5 sm:px-5">
           <div className="flex flex-col gap-2">
@@ -223,17 +245,23 @@ function OrderCard({
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{item.description || item.sku}</p>
-                  <p className="text-xs text-muted-foreground">SKU: {item.sku}</p>
+                  <p className="truncate font-medium">
+                    {item.description || item.sku}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    SKU: {item.sku}
+                  </p>
                 </div>
-                <span className="shrink-0 font-medium tabular-nums">×{item.qty}</span>
+                <span className="shrink-0 font-medium tabular-nums">
+                  ×{item.qty}
+                </span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Body */}
+      {}
       <div className="grid grid-cols-2 gap-x-6 gap-y-3 px-4 py-3.5 sm:grid-cols-4 sm:px-5">
         <div>
           <OrderStatusBadge status={order.status} />
@@ -259,10 +287,14 @@ function OrderCard({
           <p className="mb-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
             Total
           </p>
-          <p className="text-sm font-bold tabular-nums">{formatCurrency(order.grandTotal)}</p>
+          <p className="text-sm font-bold tabular-nums">
+            {formatCurrency(order.grandTotal)}
+          </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
             {order.isPaid ? (
-              <span className="text-emerald-600 dark:text-emerald-400">Dibayar</span>
+              <span className="text-emerald-600 dark:text-emerald-400">
+                Dibayar
+              </span>
             ) : (
               "Belum dibayar"
             )}
@@ -300,7 +332,7 @@ function OrderCard({
         </div>
       </div>
 
-      {/* Footer actions */}
+      {}
       <div className="flex items-center gap-2 border-t border-border/40 px-4 py-2.5 sm:px-5">
         <div className="flex flex-1 flex-wrap items-center gap-2">
           {actions.buatPicklist && (
@@ -309,7 +341,11 @@ function OrderCard({
             </Button>
           )}
           {actions.buatPengiriman && onBuatPengiriman && (
-            <Button size="sm" variant="primary" onClick={() => onBuatPengiriman(order)}>
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => onBuatPengiriman(order)}
+            >
               Buat Pengiriman
             </Button>
           )}
@@ -348,17 +384,29 @@ function OrderCard({
             </Button>
           )}
           {actions.cetakFaktur && (
-            <Button size="sm" variant="outline" onClick={() => DocActions.invoice([order.id])}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => DocActions.invoice([order.id])}
+            >
               Cetak Faktur
             </Button>
           )}
           {actions.cetakLabel && (
-            <Button size="sm" variant="outline" onClick={() => DocActions.shippingLabel([order.id])}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => DocActions.shippingLabel([order.id])}
+            >
               Cetak Label
             </Button>
           )}
           {actions.cetakPicklist && (
-            <Button size="sm" variant="outline" onClick={() => DocActions.pickList([order.id])}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => DocActions.pickList([order.id])}
+            >
               Cetak Picklist
             </Button>
           )}
@@ -371,12 +419,16 @@ function OrderCard({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-52">
             {actions.fakturLabel && (
-              <DropdownMenuItem onSelect={() => DocActions.invoiceAndLabel([order.id])}>
+              <DropdownMenuItem
+                onSelect={() => DocActions.invoiceAndLabel([order.id])}
+              >
                 Cetak Faktur & Label
               </DropdownMenuItem>
             )}
             {actions.suratJalan && (
-              <DropdownMenuItem onSelect={() => DocActions.suratJalanAndInvoice([order.id])}>
+              <DropdownMenuItem
+                onSelect={() => DocActions.suratJalanAndInvoice([order.id])}
+              >
                 Surat Jalan + Faktur
               </DropdownMenuItem>
             )}
@@ -384,7 +436,7 @@ function OrderCard({
         </DropdownMenu>
       </div>
     </div>
-  )
+  );
 }
 
 export function FulfillmentOrdersTable({
@@ -395,38 +447,41 @@ export function FulfillmentOrdersTable({
   channelStatusOptions,
   excludeTransit,
 }: {
-  stage: string
-  actions: OrderTableActions
-  searchPlaceholder?: string
-  filterFields?: FulfillmentFilterField[]
-  /** Untuk halaman Sudah Dikirim / Selesai — mapping status yang di-set ke channel_status. */
-  channelStatusOptions?: { value: string; label: string }[]
-  excludeTransit?: boolean
+  stage: string;
+  actions: OrderTableActions;
+  searchPlaceholder?: string;
+  filterFields?: FulfillmentFilterField[];
+
+  channelStatusOptions?: { value: string; label: string }[];
+  excludeTransit?: boolean;
 }) {
-  const [search, setSearch] = React.useState("")
-  const [debounced, setDebounced] = React.useState("")
-  const [page, setPage] = React.useState(1)
-  const [perPage, setPerPage] = React.useState(20)
-  const [selected, setSelected] = React.useState<Set<string>>(new Set())
-  const [picklistOpen, setPicklistOpen] = React.useState(false)
-  const [pengirimanOpen, setPengirimanOpen] = React.useState(false)
-  const [singlePengirimanOrder, setSinglePengirimanOrder] = React.useState<FulfillmentOrder | null>(null)
-  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({})
+  const [search, setSearch] = React.useState("");
+  const [debounced, setDebounced] = React.useState("");
+  const [page, setPage] = React.useState(1);
+  const [perPage, setPerPage] = React.useState(20);
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [picklistOpen, setPicklistOpen] = React.useState(false);
+  const [pengirimanOpen, setPengirimanOpen] = React.useState(false);
+  const [singlePengirimanOrder, setSinglePengirimanOrder] =
+    React.useState<FulfillmentOrder | null>(null);
+  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
 
   React.useEffect(() => {
-    setSelected(new Set())
-    setPage(1)
-    setSearch("")
-    setDebounced("")
-    setFilter({})
-  }, [stage])
+    setSelected(new Set());
+    setPage(1);
+    setSearch("");
+    setDebounced("");
+    setFilter({});
+  }, [stage]);
 
   React.useEffect(() => {
-    const t = setTimeout(() => setDebounced(search.trim()), 350)
-    return () => clearTimeout(t)
-  }, [search])
+    const t = setTimeout(() => setDebounced(search.trim()), 350);
+    return () => clearTimeout(t);
+  }, [search]);
 
-  React.useEffect(() => { setPage(1) }, [filter])
+  React.useEffect(() => {
+    setPage(1);
+  }, [filter]);
 
   const params = React.useMemo(
     () => ({
@@ -437,116 +492,129 @@ export function FulfillmentOrdersTable({
       location_id: filter.location_id || undefined,
       source: filter.source || undefined,
       channel_shop_id: filter.channel_shop_id || undefined,
-      label_printed: (filter.label_printed || undefined) as "yes" | "no" | undefined,
+      label_printed: (filter.label_printed || undefined) as
+        "yes" | "no" | undefined,
       date_from: filter.date_from || undefined,
       date_to: filter.date_to || undefined,
       payment: (filter.payment || undefined) as "cod" | "noncod" | undefined,
-      courier_type: (filter.courier_type || undefined) as "regular" | "instant" | undefined,
+      courier_type: (filter.courier_type || undefined) as
+        "regular" | "instant" | undefined,
       channel_status: filter.channel_status || undefined,
       exclude_transit: excludeTransit ? ("1" as const) : undefined,
     }),
-    [debounced, page, perPage, filter, excludeTransit]
-  )
-  const { data, isLoading, isFetching, refetch } = useOrdersByStage(stage, params)
-  const readyToShip = useReadyToShip()
-  const retryPickup = useRetryPickup()
-  const markComplete = useMarkComplete()
+    [debounced, page, perPage, filter, excludeTransit],
+  );
+  const { data, isLoading, isFetching, refetch } = useOrdersByStage(
+    stage,
+    params,
+  );
+  const readyToShip = useReadyToShip();
+  const retryPickup = useRetryPickup();
+  const markComplete = useMarkComplete();
 
-  const orders = data?.items ?? []
-  const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
+  const orders = data?.items ?? [];
+  const meta = data?.meta ?? {
+    current_page: 1,
+    last_page: 1,
+    per_page: perPage,
+    total: 0,
+  };
 
-  const pageIds = orders.map((o) => o.id)
-  const allSelected = pageIds.length > 0 && pageIds.every((id) => selected.has(id))
-  const someSelected = pageIds.some((id) => selected.has(id))
-  const selectedIds = React.useMemo(() => Array.from(selected), [selected])
+  const pageIds = orders.map((o) => o.id);
+  const allSelected =
+    pageIds.length > 0 && pageIds.every((id) => selected.has(id));
+  const someSelected = pageIds.some((id) => selected.has(id));
+  const selectedIds = React.useMemo(() => Array.from(selected), [selected]);
 
-  const clearSelection = () => setSelected(new Set())
-  const toggleAll = () => (allSelected ? clearSelection() : setSelected(new Set(pageIds)))
+  const clearSelection = () => setSelected(new Set());
+  const toggleAll = () =>
+    allSelected ? clearSelection() : setSelected(new Set(pageIds));
   const toggleOne = (id: string) =>
     setSelected((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
-  const selectedOrders = orders.filter((o) => selected.has(o.id))
+  const selectedOrders = orders.filter((o) => selected.has(o.id));
   const distinctLocations = Array.from(
-    new Set(selectedOrders.map((o) => o.locationId).filter(Boolean))
-  )
-  const picklistLocationId = distinctLocations[0] ?? null
+    new Set(selectedOrders.map((o) => o.locationId).filter(Boolean)),
+  );
+  const picklistLocationId = distinctLocations[0] ?? null;
   const picklistLocationName =
-    selectedOrders.find((o) => o.locationId === picklistLocationId)?.locationName ?? null
+    selectedOrders.find((o) => o.locationId === picklistLocationId)
+      ?.locationName ?? null;
 
   const handleShip = async (ids: string[]) => {
-    if (!ids.length) return
+    if (!ids.length) return;
     try {
-      const results = await readyToShip.mutateAsync(ids)
-      const ok = results.filter((r) => r.status === "success").length
-      const failed = results.filter((r) => r.status === "failed")
-      const skipped = results.filter((r) => r.status === "skipped").length
+      const results = await readyToShip.mutateAsync(ids);
+      const ok = results.filter((r) => r.status === "success").length;
+      const failed = results.filter((r) => r.status === "failed");
+      const skipped = results.filter((r) => r.status === "skipped").length;
       if (failed.length) {
         toast.error(
           `${ok} berhasil, ${failed.length} gagal${skipped ? `, ${skipped} dilewati` : ""}.` +
-            (failed[0].message ? ` (${failed[0].message})` : "")
-        )
+            (failed[0].message ? ` (${failed[0].message})` : ""),
+        );
       } else {
         toast.success(
-          `${ok} pesanan diteruskan "Siap Dikirim"${skipped ? `, ${skipped} dilewati` : ""}.`
-        )
+          `${ok} pesanan diteruskan "Siap Dikirim"${skipped ? `, ${skipped} dilewati` : ""}.`,
+        );
       }
-      clearSelection()
+      clearSelection();
     } catch (err) {
       const msg =
         err && typeof err === "object" && "message" in err
           ? String((err as { message?: unknown }).message)
-          : "Gagal memproses Siap Dikirim."
-      toast.error(msg)
+          : "Gagal memproses Siap Dikirim.";
+      toast.error(msg);
     }
-  }
+  };
 
   const handleComplete = async (ids: string[]) => {
-    if (!ids.length) return
+    if (!ids.length) return;
     try {
-      const n = await markComplete.mutateAsync(ids)
-      toast.success(`${n} pesanan diselesaikan.`)
-      clearSelection()
+      const n = await markComplete.mutateAsync(ids);
+      toast.success(`${n} pesanan diselesaikan.`);
+      clearSelection();
     } catch (err) {
       const msg =
         err && typeof err === "object" && "message" in err
           ? String((err as { message?: unknown }).message)
-          : "Gagal menyelesaikan pesanan."
-      toast.error(msg)
+          : "Gagal menyelesaikan pesanan.";
+      toast.error(msg);
     }
-  }
+  };
 
   const handleRetryPickup = async (ids: string[]) => {
-    if (!ids.length) return
+    if (!ids.length) return;
     try {
-      const results = await retryPickup.mutateAsync(ids)
-      const ok = results.filter((r) => r.status === "success").length
-      const failed = results.filter((r) => r.status === "failed")
+      const results = await retryPickup.mutateAsync(ids);
+      const ok = results.filter((r) => r.status === "success").length;
+      const failed = results.filter((r) => r.status === "failed");
       if (failed.length) {
         toast.error(
           `${ok} berhasil, ${failed.length} gagal atur ulang pickup.` +
-            (failed[0].message ? ` (${failed[0].message})` : "")
-        )
+            (failed[0].message ? ` (${failed[0].message})` : ""),
+        );
       } else {
-        toast.success(`${ok} pesanan berhasil diatur ulang pickup.`)
+        toast.success(`${ok} pesanan berhasil diatur ulang pickup.`);
       }
-      clearSelection()
+      clearSelection();
     } catch (err) {
       const msg =
         err && typeof err === "object" && "message" in err
           ? String((err as { message?: unknown }).message)
-          : "Gagal mengatur ulang pickup."
-      toast.error(msg)
+          : "Gagal mengatur ulang pickup.";
+      toast.error(msg);
     }
-  }
+  };
 
   return (
     <div>
-      {/* Toolbar: search + filter bar terpadu */}
+      {}
       {filterFields && filterFields.length > 0 ? (
         <>
           <FulfillmentFilterBar
@@ -556,7 +624,10 @@ export function FulfillmentOrdersTable({
             channelStatusOptions={channelStatusOptions}
             excludeTransit={excludeTransit}
             search={search}
-            onSearchChange={(v) => { setSearch(v); setPage(1) }}
+            onSearchChange={(v) => {
+              setSearch(v);
+              setPage(1);
+            }}
             searchPlaceholder={searchPlaceholder}
           />
           <div className="flex items-center justify-end gap-3 px-4 py-2 text-sm text-muted-foreground sm:px-5">
@@ -566,7 +637,9 @@ export function FulfillmentOrdersTable({
               className="rounded-full p-1.5 transition-colors hover:bg-muted"
               aria-label="Muat ulang"
             >
-              <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
+              <RefreshCwIcon
+                className={cn("size-4", isFetching && "animate-spin")}
+              />
             </button>
             <span className="flex items-center gap-1.5">
               Total <Badge>{meta.total}</Badge>
@@ -580,8 +653,8 @@ export function FulfillmentOrdersTable({
             <Input
               value={search}
               onChange={(e) => {
-                setSearch(e.target.value)
-                setPage(1)
+                setSearch(e.target.value);
+                setPage(1);
               }}
               placeholder={searchPlaceholder}
               className="pl-9"
@@ -594,7 +667,9 @@ export function FulfillmentOrdersTable({
               className="rounded-full p-1.5 transition-colors hover:bg-muted"
               aria-label="Muat ulang"
             >
-              <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
+              <RefreshCwIcon
+                className={cn("size-4", isFetching && "animate-spin")}
+              />
             </button>
             <span className="flex items-center gap-1.5">
               Total <Badge>{meta.total}</Badge>
@@ -603,46 +678,78 @@ export function FulfillmentOrdersTable({
         </div>
       )}
 
-      {/* Bulk action bar */}
+      {}
       {selected.size > 0 && (
         <div className="flex flex-wrap items-center gap-2 border-y border-primary/20 bg-primary/5 px-4 py-2.5 sm:px-5">
           <Checkbox
-            checked={allSelected ? true : someSelected ? "indeterminate" : false}
+            checked={
+              allSelected ? true : someSelected ? "indeterminate" : false
+            }
             onCheckedChange={toggleAll}
           />
-          <span className="mr-1 text-sm font-medium">{selected.size} pesanan dipilih</span>
+          <span className="mr-1 text-sm font-medium">
+            {selected.size} pesanan dipilih
+          </span>
           {actions.buatPicklist && (
-            <Button size="sm" variant="primary" onClick={() => setPicklistOpen(true)}>
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => setPicklistOpen(true)}
+            >
               Buat Picklist
             </Button>
           )}
           {actions.buatPengiriman && (
-            <Button size="sm" variant="primary" onClick={() => setPengirimanOpen(true)}>
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => setPengirimanOpen(true)}
+            >
               Buat Pengiriman
             </Button>
           )}
           {actions.cetakFaktur && (
-            <Button size="sm" variant="outline" onClick={() => DocActions.invoice(selectedIds)}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => DocActions.invoice(selectedIds)}
+            >
               Cetak Faktur
             </Button>
           )}
           {actions.cetakLabel && (
-            <Button size="sm" variant="outline" onClick={() => DocActions.shippingLabel(selectedIds)}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => DocActions.shippingLabel(selectedIds)}
+            >
               Cetak Label
             </Button>
           )}
           {actions.cetakPicklist && (
-            <Button size="sm" variant="outline" onClick={() => DocActions.pickList(selectedIds)}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => DocActions.pickList(selectedIds)}
+            >
               Cetak Picklist
             </Button>
           )}
           {actions.fakturLabel && (
-            <Button size="sm" variant="outline" onClick={() => DocActions.invoiceAndLabel(selectedIds)}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => DocActions.invoiceAndLabel(selectedIds)}
+            >
               Faktur & Label
             </Button>
           )}
           {actions.suratJalan && (
-            <Button size="sm" variant="outline" onClick={() => DocActions.suratJalanAndInvoice(selectedIds)}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => DocActions.suratJalanAndInvoice(selectedIds)}
+            >
               Surat Jalan + Faktur
             </Button>
           )}
@@ -653,7 +760,9 @@ export function FulfillmentOrdersTable({
               onClick={() => handleShip(selectedIds)}
               disabled={readyToShip.isPending}
             >
-              {readyToShip.isPending && <Loader2Icon className="animate-spin" />}
+              {readyToShip.isPending && (
+                <Loader2Icon className="animate-spin" />
+              )}
               Siap Dikirim
             </Button>
           )}
@@ -664,17 +773,24 @@ export function FulfillmentOrdersTable({
               onClick={() => handleComplete(selectedIds)}
               disabled={markComplete.isPending}
             >
-              {markComplete.isPending && <Loader2Icon className="animate-spin" />}
+              {markComplete.isPending && (
+                <Loader2Icon className="animate-spin" />
+              )}
               Selesaikan Pesanan
             </Button>
           )}
-          <Button size="sm" variant="ghost" onClick={clearSelection} className="ml-auto">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={clearSelection}
+            className="ml-auto"
+          >
             Batal
           </Button>
         </div>
       )}
 
-      {/* Card list */}
+      {}
       <div className="px-4 py-3 sm:px-5">
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
@@ -686,14 +802,18 @@ export function FulfillmentOrdersTable({
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {/* Select all row */}
+            {}
             {selected.size === 0 && orders.length > 0 && (
               <div className="flex items-center gap-2 px-1">
                 <Checkbox
-                  checked={allSelected ? true : someSelected ? "indeterminate" : false}
+                  checked={
+                    allSelected ? true : someSelected ? "indeterminate" : false
+                  }
                   onCheckedChange={toggleAll}
                 />
-                <span className="text-xs text-muted-foreground">Pilih semua</span>
+                <span className="text-xs text-muted-foreground">
+                  Pilih semua
+                </span>
               </div>
             )}
 
@@ -706,9 +826,13 @@ export function FulfillmentOrdersTable({
                 onToggle={() => toggleOne(o.id)}
                 onShip={handleShip}
                 onComplete={handleComplete}
-                onBuatPengiriman={actions.buatPengiriman ? (order) => {
-                  setSinglePengirimanOrder(order)
-                } : undefined}
+                onBuatPengiriman={
+                  actions.buatPengiriman
+                    ? (order) => {
+                        setSinglePengirimanOrder(order);
+                      }
+                    : undefined
+                }
                 onRetryPickup={handleRetryPickup}
                 shipPending={readyToShip.isPending}
                 completePending={markComplete.isPending}
@@ -719,7 +843,7 @@ export function FulfillmentOrdersTable({
         )}
       </div>
 
-      {/* Pagination */}
+      {}
       <div className="px-4 pb-4 sm:px-5">
         <SimplePagination
           page={meta.current_page}
@@ -727,8 +851,8 @@ export function FulfillmentOrdersTable({
           onPageChange={setPage}
           perPage={perPage}
           onPerPageChange={(s) => {
-            setPerPage(s)
-            setPage(1)
+            setPerPage(s);
+            setPage(1);
           }}
           pageSizeOptions={TABLE_PAGE_SIZES}
           isFetching={isFetching}
@@ -749,31 +873,41 @@ export function FulfillmentOrdersTable({
         />
       )}
 
-      {actions.buatPengiriman && (() => {
-        const bulkSources = Array.from(new Set(selectedOrders.map((o) => o.source).filter(Boolean)))
-        const bulkSource = bulkSources.length === 1 ? bulkSources[0] : null
-        const bulkProviders = Array.from(new Set(selectedOrders.map((o) => o.shippingProvider).filter(Boolean)))
-        const bulkProvider = bulkProviders.length === 1 ? bulkProviders[0] : null
-        return (
-          <BuatPengirimanDialog
-            open={pengirimanOpen}
-            onOpenChange={setPengirimanOpen}
-            orderIds={selectedIds}
-            locationId={picklistLocationId}
-            locationName={picklistLocationName}
-            multiLocation={distinctLocations.length > 1}
-            onCreated={clearSelection}
-            marketplaceSource={bulkSource}
-            shippingProvider={bulkProvider}
-          />
-        )
-      })()}
+      {actions.buatPengiriman &&
+        (() => {
+          const bulkSources = Array.from(
+            new Set(selectedOrders.map((o) => o.source).filter(Boolean)),
+          );
+          const bulkSource = bulkSources.length === 1 ? bulkSources[0] : null;
+          const bulkProviders = Array.from(
+            new Set(
+              selectedOrders.map((o) => o.shippingProvider).filter(Boolean),
+            ),
+          );
+          const bulkProvider =
+            bulkProviders.length === 1 ? bulkProviders[0] : null;
+          return (
+            <BuatPengirimanDialog
+              open={pengirimanOpen}
+              onOpenChange={setPengirimanOpen}
+              orderIds={selectedIds}
+              locationId={picklistLocationId}
+              locationName={picklistLocationName}
+              multiLocation={distinctLocations.length > 1}
+              onCreated={clearSelection}
+              marketplaceSource={bulkSource}
+              shippingProvider={bulkProvider}
+            />
+          );
+        })()}
 
-      {/* Single-order Buat Pengiriman */}
+      {}
       {singlePengirimanOrder && (
         <BuatPengirimanDialog
           open={true}
-          onOpenChange={(open) => { if (!open) setSinglePengirimanOrder(null) }}
+          onOpenChange={(open) => {
+            if (!open) setSinglePengirimanOrder(null);
+          }}
           orderIds={[singlePengirimanOrder.id]}
           locationId={singlePengirimanOrder.locationId}
           locationName={singlePengirimanOrder.locationName}
@@ -784,13 +918,28 @@ export function FulfillmentOrdersTable({
         />
       )}
     </div>
-  )
+  );
 }
 
 export const ORDER_ACTION_PRESET = {
-  pickingBelum: { buatPicklist: true, cetakLabel: true, cetakPicklist: true, siapDikirim: true },
-  docSet: { cetakFaktur: true, cetakLabel: true, fakturLabel: true, suratJalan: true, siapDikirim: true },
-  shippingSiapKirim: { buatPengiriman: true, cetakLabel: true, cetakFaktur: true },
+  pickingBelum: {
+    buatPicklist: true,
+    cetakLabel: true,
+    cetakPicklist: true,
+    siapDikirim: true,
+  },
+  docSet: {
+    cetakFaktur: true,
+    cetakLabel: true,
+    fakturLabel: true,
+    suratJalan: true,
+    siapDikirim: true,
+  },
+  shippingSiapKirim: {
+    buatPengiriman: true,
+    cetakLabel: true,
+    cetakFaktur: true,
+  },
   sudahDikirim: { selesaikanPesanan: true, cetakLabel: true },
   selesai: { cetakFaktur: true, cetakLabel: true },
-} satisfies Record<string, OrderTableActions>
+} satisfies Record<string, OrderTableActions>;

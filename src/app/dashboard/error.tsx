@@ -5,11 +5,6 @@ import { AlertTriangleIcon, RotateCcwIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-// Error boundary segmen dashboard: menangkap kegagalan render/fetch di subtree
-// dashboard agar tidak menjatuhkan seluruh halaman ke layar putih.
-// Next 16.2+: `unstable_retry()` me-fetch ulang lalu render ulang segmen — itu
-// yang kita mau karena mayoritas error di sini adalah kegagalan fetch.
-// (`reset()` hanya render ulang tanpa fetch ulang, jadi kemungkinan error lagi.)
 export default function DashboardError({
   error,
   unstable_retry,

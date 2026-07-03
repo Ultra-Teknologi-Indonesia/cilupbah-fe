@@ -1,35 +1,42 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Loader2Icon, LockIcon } from "lucide-react"
-import { toast } from "sonner"
+import * as React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Loader2Icon, LockIcon } from "lucide-react";
+import { toast } from "sonner";
 
-import { PageTitle } from "@/components/dashboard/page-title"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Combobox } from "@/components/ui/combobox"
-import { Separator } from "@/components/ui/separator"
-import { Label } from "@/components/ui/label"
-import { cn } from "@/lib/utils"
+import { PageTitle } from "@/components/dashboard/page-title";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Combobox } from "@/components/ui/combobox";
+import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import {
   useContactDetail,
   useContactCategories,
   useAccountPayableOptions,
   useCreateContact,
   useUpdateContact,
-} from "@/hooks/kontak-pemasok/use-contacts"
-import { useAllSalesmen } from "@/hooks/kontak-pemasok/use-salesman"
-import { useProvinces } from "@/hooks/manajemen-rak/use-regions"
-import { LocationMapPicker, formatCoordinate, parseCoordinate } from "@/components/dashboard/manajemen-rak/lokasi/location-map-picker"
-import type { ContactFormData, ContactItem } from "@/types/kontak-pemasok/contact"
+} from "@/hooks/kontak-pemasok/use-contacts";
+import { useAllSalesmen } from "@/hooks/kontak-pemasok/use-salesman";
+import { useProvinces } from "@/hooks/manajemen-rak/use-regions";
+import {
+  LocationMapPicker,
+  formatCoordinate,
+  parseCoordinate,
+} from "@/components/dashboard/manajemen-rak/lokasi/location-map-picker";
+import type {
+  ContactFormData,
+  ContactItem,
+} from "@/types/kontak-pemasok/contact";
 
-const LIST_HREF = "/dashboard/kontak-pelanggan"
+const LIST_HREF = "/dashboard/kontak-pelanggan";
 
-type Section = "umum" | "pic" | "alamat" | "pajak"
+type Section = "umum" | "pic" | "alamat" | "pajak";
 
 const SOURCE_OPTIONS = [
   { value: "WALK_IN", label: "Walk In" },
@@ -38,32 +45,32 @@ const SOURCE_OPTIONS = [
   { value: "MARKETPLACE", label: "Marketplace" },
   { value: "SOCIAL_MEDIA", label: "Media Sosial" },
   { value: "OTHER", label: "Lainnya" },
-]
+];
 
 function Req() {
-  return <span className="text-destructive"> *</span>
+  return <span className="text-destructive"> *</span>;
 }
 
 function toRegionOptions(items: { id: string; nama: string }[] | undefined) {
-  return (items ?? []).map((r) => ({ value: r.id, label: r.nama }))
+  return (items ?? []).map((r) => ({ value: r.id, label: r.nama }));
 }
 
 interface PelangganFormPageProps {
-  mode: "create" | "edit"
-  id?: string
+  mode: "create" | "edit";
+  id?: string;
 }
 
 export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
-  const router = useRouter()
-  const [section, setSection] = React.useState<Section>("umum")
+  const router = useRouter();
+  const [section, setSection] = React.useState<Section>("umum");
 
-  const detail = useContactDetail(mode === "edit" ? id : undefined)
-  const { data: categories = [] } = useContactCategories()
-  const { data: accountPayableOptions = [] } = useAccountPayableOptions()
-  const { data: salesmen = [] } = useAllSalesmen()
-  const provinces = useProvinces()
-  const createContact = useCreateContact()
-  const updateContact = useUpdateContact()
+  const detail = useContactDetail(mode === "edit" ? id : undefined);
+  const { data: categories = [] } = useContactCategories();
+  const { data: accountPayableOptions = [] } = useAccountPayableOptions();
+  const { data: salesmen = [] } = useAllSalesmen();
+  const provinces = useProvinces();
+  const createContact = useCreateContact();
+  const updateContact = useUpdateContact();
 
   const [form, setForm] = React.useState<ContactFormData>({
     name: "",
@@ -75,17 +82,18 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
     is_dropshipper: false,
     is_reseller: false,
     npwp_use_different: false,
-  })
-  const [coordinate, setCoordinate] = React.useState<string>("")
+  });
+  const [coordinate, setCoordinate] = React.useState<string>("");
 
-  const prefilledRef = React.useRef(false)
+  const prefilledRef = React.useRef(false);
   React.useEffect(() => {
     if (mode === "edit" && detail.data && !prefilledRef.current) {
-      const d = detail.data
+      const d = detail.data;
       setForm({
         name: d.name,
         company_name: d.company_name ?? undefined,
-        type: d.type === "SUPPLIER" ? "CUSTOMER" : (d.type as "CUSTOMER" | "BOTH"),
+        type:
+          d.type === "SUPPLIER" ? "CUSTOMER" : (d.type as "CUSTOMER" | "BOTH"),
         category_id: d.category?.id ?? undefined,
         account_payable: d.account_payable ?? undefined,
         is_company: d.is_company,
@@ -119,54 +127,57 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
         npwp_name: d.npwp_name ?? undefined,
         npwp_address: d.npwp_address ?? undefined,
         salesman_id: d.salesman_id ?? undefined,
-      })
+      });
       if (d.latitude != null && d.longitude != null) {
-        setCoordinate(formatCoordinate(d.latitude, d.longitude))
+        setCoordinate(formatCoordinate(d.latitude, d.longitude));
       }
-      prefilledRef.current = true
+      prefilledRef.current = true;
     }
-  }, [mode, detail.data])
+  }, [mode, detail.data]);
 
-  const locked = mode === "edit" && Boolean(detail.data?.is_system)
-  const saving = createContact.isPending || updateContact.isPending
+  const locked = mode === "edit" && Boolean(detail.data?.is_system);
+  const saving = createContact.isPending || updateContact.isPending;
 
-  function set<K extends keyof ContactFormData>(key: K, value: ContactFormData[K]) {
-    setForm((prev) => ({ ...prev, [key]: value }))
+  function set<K extends keyof ContactFormData>(
+    key: K,
+    value: ContactFormData[K],
+  ) {
+    setForm((prev) => ({ ...prev, [key]: value }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+    e.preventDefault();
     if (!form.name.trim()) {
-      setSection("umum")
-      toast.error("Nama Kontak wajib diisi.")
-      return
+      setSection("umum");
+      toast.error("Nama Kontak wajib diisi.");
+      return;
     }
 
-    const coord = parseCoordinate(coordinate)
+    const coord = parseCoordinate(coordinate);
     const payload: ContactFormData = {
       ...form,
       latitude: coord?.lat ?? null,
       longitude: coord?.lng ?? null,
-    }
+    };
 
     try {
       if (mode === "create") {
-        await createContact.mutateAsync(payload)
+        await createContact.mutateAsync(payload);
       } else if (id) {
-        await updateContact.mutateAsync({ id, data: payload })
+        await updateContact.mutateAsync({ id, data: payload });
       }
-      router.push(LIST_HREF)
+      router.push(LIST_HREF);
     } catch {}
   }
 
-  const title = mode === "create" ? "Buat Pelanggan" : "Edit Pelanggan"
+  const title = mode === "create" ? "Buat Pelanggan" : "Edit Pelanggan";
 
   if (mode === "edit" && detail.isLoading) {
     return (
       <div className="flex items-center justify-center gap-2 py-24 text-muted-foreground">
         <Loader2Icon className="size-4 animate-spin" /> Memuat kontak…
       </div>
-    )
+    );
   }
 
   if (mode === "edit" && detail.isError) {
@@ -174,7 +185,7 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
       <div className="py-24 text-center text-sm text-destructive">
         Gagal memuat kontak.
       </div>
-    )
+    );
   }
 
   const categoryOptions = categories
@@ -182,24 +193,24 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
     .map((c) => ({
       value: c.id,
       label: c.code ? `${c.code} - ${c.name}` : c.name,
-    }))
+    }));
 
   const apOptions = accountPayableOptions.map((o) => ({
     value: o.code,
     label: o.name,
-  }))
+  }));
 
   const salesmanOptions = salesmen.map((s) => ({
     value: s.id,
     label: `${s.code} - ${s.name}`,
-  }))
+  }));
 
   const navItems: { key: Section; label: string }[] = [
     { key: "umum", label: "Umum" },
     { key: "pic", label: "Penanggung Jawab" },
     { key: "alamat", label: "Alamat" },
     { key: "pajak", label: "Informasi Pajak" },
-  ]
+  ];
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -243,7 +254,7 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
                 "rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-colors",
                 section === n.key
                   ? "border-primary/30 bg-primary/10 text-primary"
-                  : "border-border bg-background hover:bg-muted"
+                  : "border-border bg-background hover:bg-muted",
               )}
             >
               {n.label}
@@ -282,7 +293,7 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
         </div>
       </div>
     </form>
-  )
+  );
 }
 
 function UmumTab({
@@ -293,17 +304,23 @@ function UmumTab({
   apOptions,
   salesmanOptions,
 }: {
-  form: ContactFormData
-  set: <K extends keyof ContactFormData>(key: K, value: ContactFormData[K]) => void
-  disabled: boolean
-  categoryOptions: { value: string; label: string }[]
-  apOptions: { value: string; label: string }[]
-  salesmanOptions: { value: string; label: string }[]
+  form: ContactFormData;
+  set: <K extends keyof ContactFormData>(
+    key: K,
+    value: ContactFormData[K],
+  ) => void;
+  disabled: boolean;
+  categoryOptions: { value: string; label: string }[];
+  apOptions: { value: string; label: string }[];
+  salesmanOptions: { value: string; label: string }[];
 }) {
   return (
     <div className="space-y-5">
       <div className="space-y-1.5">
-        <Label>Nama Kontak<Req /></Label>
+        <Label>
+          Nama Kontak
+          <Req />
+        </Label>
         <Input
           value={form.name}
           onChange={(e) => set("name", e.target.value)}
@@ -401,7 +418,9 @@ function UmumTab({
           type="number"
           min={0}
           value={form.payment_term ?? ""}
-          onChange={(e) => set("payment_term", e.target.value ? Number(e.target.value) : null)}
+          onChange={(e) =>
+            set("payment_term", e.target.value ? Number(e.target.value) : null)
+          }
           placeholder="0"
           disabled={disabled}
         />
@@ -418,7 +437,7 @@ function UmumTab({
         />
       </div>
     </div>
-  )
+  );
 }
 
 function PICTab({
@@ -426,9 +445,12 @@ function PICTab({
   set,
   disabled,
 }: {
-  form: ContactFormData
-  set: <K extends keyof ContactFormData>(key: K, value: ContactFormData[K]) => void
-  disabled: boolean
+  form: ContactFormData;
+  set: <K extends keyof ContactFormData>(
+    key: K,
+    value: ContactFormData[K],
+  ) => void;
+  disabled: boolean;
 }) {
   return (
     <div className="space-y-5">
@@ -512,7 +534,7 @@ function PICTab({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function AlamatTab({
@@ -524,15 +546,18 @@ function AlamatTab({
   provinceOptions,
   provincesLoading,
 }: {
-  form: ContactFormData
-  set: <K extends keyof ContactFormData>(key: K, value: ContactFormData[K]) => void
-  coordinate: string
-  onCoordinateChange: (v: string) => void
-  disabled: boolean
-  provinceOptions: { value: string; label: string }[]
-  provincesLoading: boolean
+  form: ContactFormData;
+  set: <K extends keyof ContactFormData>(
+    key: K,
+    value: ContactFormData[K],
+  ) => void;
+  coordinate: string;
+  onCoordinateChange: (v: string) => void;
+  disabled: boolean;
+  provinceOptions: { value: string; label: string }[];
+  provincesLoading: boolean;
 }) {
-  const showShipping = !(form.shipping_same_as_billing ?? true)
+  const showShipping = !(form.shipping_same_as_billing ?? true);
 
   return (
     <div className="space-y-5">
@@ -636,7 +661,7 @@ function AlamatTab({
         </>
       )}
     </div>
-  )
+  );
 }
 
 function PajakTab({
@@ -644,11 +669,14 @@ function PajakTab({
   set,
   disabled,
 }: {
-  form: ContactFormData
-  set: <K extends keyof ContactFormData>(key: K, value: ContactFormData[K]) => void
-  disabled: boolean
+  form: ContactFormData;
+  set: <K extends keyof ContactFormData>(
+    key: K,
+    value: ContactFormData[K],
+  ) => void;
+  disabled: boolean;
 }) {
-  const isPKP = form.tax_type === "PKP"
+  const isPKP = form.tax_type === "PKP";
 
   return (
     <div className="space-y-5">
@@ -660,7 +688,9 @@ function PajakTab({
             { value: "PKP", label: "PKP (Pengusaha Kena Pajak)" },
           ]}
           value={form.tax_type ?? "NON_PKP"}
-          onChange={(v) => set("tax_type", (v as "PKP" | "NON_PKP") ?? "NON_PKP")}
+          onChange={(v) =>
+            set("tax_type", (v as "PKP" | "NON_PKP") ?? "NON_PKP")
+          }
           placeholder="Pilih status"
           disabled={disabled}
         />
@@ -697,7 +727,10 @@ function PajakTab({
               onCheckedChange={(v) => set("npwp_use_different", v === true)}
               disabled={disabled}
             />
-            <Label htmlFor="npwp_use_different" className="!mt-0 cursor-pointer">
+            <Label
+              htmlFor="npwp_use_different"
+              className="!mt-0 cursor-pointer"
+            >
               NPWP atas nama berbeda
             </Label>
           </div>
@@ -728,5 +761,5 @@ function PajakTab({
         </>
       )}
     </div>
-  )
+  );
 }

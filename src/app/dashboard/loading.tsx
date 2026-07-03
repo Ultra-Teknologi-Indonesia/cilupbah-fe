@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
 import {
   PageHeaderSkeleton,
   CardGridSkeleton,
-} from "@/components/ui/page-skeleton"
+} from "@/components/ui/page-skeleton";
 
 export default function DashboardLoading() {
   return (
@@ -13,5 +13,5 @@ export default function DashboardLoading() {
         <CardGridSkeleton count={4} />
       </div>
     </phantom-ui>
-  )
+  );
 }

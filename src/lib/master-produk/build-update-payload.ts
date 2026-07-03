@@ -3,29 +3,29 @@ import type {
   CreateMediaInput,
   CreateVariantInput,
   ProductUpdatePayload,
-} from "@/types/master-produk"
+} from "@/types/master-produk";
 
 function num(value?: string | null): number | undefined {
-  if (value == null) return undefined
-  const trimmed = String(value).trim()
-  if (!trimmed) return undefined
-  const n = Number(trimmed)
-  return Number.isFinite(n) ? n : undefined
+  if (value == null) return undefined;
+  const trimmed = String(value).trim();
+  if (!trimmed) return undefined;
+  const n = Number(trimmed);
+  return Number.isFinite(n) ? n : undefined;
 }
 
 export interface VariantMediaEntry {
-  variantKey: string
-  mediaUuid: string
+  variantKey: string;
+  mediaUuid: string;
 }
 
 export function buildUpdatePayload(
   values: BuatProdukFormValues,
   opts: {
-    includeVariant: boolean
-    originalVariantSku?: string
-    media?: CreateMediaInput[]
-    variantMedia?: VariantMediaEntry[]
-  }
+    includeVariant: boolean;
+    originalVariantSku?: string;
+    media?: CreateMediaInput[];
+    variantMedia?: VariantMediaEntry[];
+  },
 ): ProductUpdatePayload {
   const payload: ProductUpdatePayload = {
     name: values.name.trim(),
@@ -50,21 +50,23 @@ export function buildUpdatePayload(
     width: num(values.width) ?? null,
     height: num(values.height) ?? null,
     package_contents: values.packageContents?.trim() || null,
-  }
+  };
 
   const specifications = values.specifications
     .filter((s) => (s.value ?? "").trim() !== "")
-    .map((s) => ({ attribute_id: s.attributeId, text_value: (s.value ?? "").trim() }))
+    .map((s) => ({
+      attribute_id: s.attributeId,
+      text_value: (s.value ?? "").trim(),
+    }));
   if (specifications.length) {
-    payload.specifications = specifications
+    payload.specifications = specifications;
   }
 
   if (values.variationTypes.length > 0) {
-    
     payload.variation_types = values.variationTypes.map((t, i) => ({
       attribute_id: t.attributeId,
       sort_order: i,
-    }))
+    }));
     payload.variants = values.variants.map((row) => {
       const v: CreateVariantInput = {
         sku: row.sku.trim(),
@@ -76,38 +78,50 @@ export function buildUpdatePayload(
         width: num(row.width) ?? null,
         height: num(row.height) ?? null,
         sales_tax_id: values.salesTaxId ? Number(values.salesTaxId) : null,
-        purchase_tax_id: values.purchaseTaxId ? Number(values.purchaseTaxId) : null,
+        purchase_tax_id: values.purchaseTaxId
+          ? Number(values.purchaseTaxId)
+          : null,
         is_active: true,
-        options: row.options.map((o) => ({ attribute_id: o.attributeId, value: o.value })),
-      }
-      const vm = opts.variantMedia?.find((m) => m.variantKey === row.key)
+        options: row.options.map((o) => ({
+          attribute_id: o.attributeId,
+          value: o.value,
+        })),
+      };
+      const vm = opts.variantMedia?.find((m) => m.variantKey === row.key);
       if (vm) {
-        v.media = [{ media_uuid: vm.mediaUuid, media_type: "image", is_primary: true, sort_order: 0 }]
+        v.media = [
+          {
+            media_uuid: vm.mediaUuid,
+            media_type: "image",
+            is_primary: true,
+            sort_order: 0,
+          },
+        ];
       }
-      return v
-    })
+      return v;
+    });
   } else if (opts.includeVariant) {
     const variant: CreateVariantInput = {
       sku: opts.originalVariantSku ?? values.sku.trim(),
       sell_price: num(values.sellPrice) ?? 0,
       buy_price: num(values.buyPrice) ?? null,
       sales_tax_id: values.salesTaxId ? Number(values.salesTaxId) : null,
-      purchase_tax_id: values.purchaseTaxId ? Number(values.purchaseTaxId) : null,
+      purchase_tax_id: values.purchaseTaxId
+        ? Number(values.purchaseTaxId)
+        : null,
       min_stock: num(values.minStock) ?? null,
       safe_stock: num(values.safeStock) ?? null,
       is_active: true,
       ...(values.unlimitedShopIds.length
         ? { unlimited_shop_ids: values.unlimitedShopIds }
         : {}),
-    }
-    payload.variants = [variant]
+    };
+    payload.variants = [variant];
   }
 
-  // Selalu kirim media bila editor menyediakannya (termasuk array kosong),
-  // agar penghapusan semua gambar tersimpan.
   if (opts.media !== undefined) {
-    payload.media = opts.media
+    payload.media = opts.media;
   }
 
-  return payload
+  return payload;
 }

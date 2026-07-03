@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { PindahBinView } from "@/components/dashboard/transaksi-stok/pindah-bin-view"
+import { PindahBinView } from "@/components/dashboard/transaksi-stok/pindah-bin-view";
 
 export default function PindahBinPage() {
-  return <PindahBinView />
+  return <PindahBinView />;
 }

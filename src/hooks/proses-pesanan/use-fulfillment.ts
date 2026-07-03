@@ -1,27 +1,25 @@
-"use client"
+"use client";
 
-import { useCallback } from "react"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useCallback } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { createMutationHook } from "@/hooks/create-crud-hooks"
-import { toast } from "sonner"
+import { createMutationHook } from "@/hooks/create-crud-hooks";
+import { toast } from "sonner";
 
 import {
   OutboundService,
   type CreateShipmentPayload,
-} from "@/services/proses-pesanan/outbound.service"
+} from "@/services/proses-pesanan/outbound.service";
 import type {
   FulfillmentListParams,
   PicklistDetail,
   PacklistDetail,
-} from "@/types/proses-pesanan/fulfillment"
+} from "@/types/proses-pesanan/fulfillment";
 
-const STALE = 30_000
-const all = ["proses-pesanan"] as const
-// Data "papan kerja": list per-stage + badge count. Ini yang berubah tiap ada
-// mutasi status pesanan, jadi invalidasi mutasi cukup menyasar prefix ini —
-// bukan `all` yang juga menyeret data referensi (pickers/couriers) & detail.
-const board = [...all, "board"] as const
+const STALE = 30_000;
+const all = ["proses-pesanan"] as const;
+
+const board = [...all, "board"] as const;
 
 export const fulfillmentKeys = {
   all,
@@ -32,24 +30,24 @@ export const fulfillmentKeys = {
   packlists: (p: FulfillmentListParams) => [...board, "packlists", p] as const,
   shipments: (p: FulfillmentListParams) => [...board, "shipments", p] as const,
   count: (key: string) => [...board, "count", key] as const,
-  pickers: (locationId?: string, role?: string) => [...all, "pickers", locationId ?? "", role ?? ""] as const,
+  pickers: (locationId?: string, role?: string) =>
+    [...all, "pickers", locationId ?? "", role ?? ""] as const,
   picklistDetail: (id: string) => [...all, "picklist-detail", id] as const,
   packlistDetail: (id: string) => [...all, "packlist-detail", id] as const,
   shipmentDetail: (id: string) => [...all, "shipment-detail", id] as const,
-}
+};
 
-// ── Queries ──────────────────────────────────────────────────────────────────
 export function useOrdersByStage(
   stage: string,
   params: FulfillmentListParams,
-  enabled = true
+  enabled = true,
 ) {
   return useQuery({
     queryKey: fulfillmentKeys.ordersByStage(stage, params),
     queryFn: () => OutboundService.ordersByStage(stage, params),
     staleTime: STALE,
     enabled,
-  })
+  });
 }
 
 export function usePicklists(params: FulfillmentListParams, enabled = true) {
@@ -58,7 +56,7 @@ export function usePicklists(params: FulfillmentListParams, enabled = true) {
     queryFn: () => OutboundService.picklists(params),
     staleTime: STALE,
     enabled,
-  })
+  });
 }
 
 export function usePacklists(params: FulfillmentListParams, enabled = true) {
@@ -67,7 +65,7 @@ export function usePacklists(params: FulfillmentListParams, enabled = true) {
     queryFn: () => OutboundService.packlists(params),
     staleTime: STALE,
     enabled,
-  })
+  });
 }
 
 export function useShipments(params: FulfillmentListParams, enabled = true) {
@@ -76,7 +74,7 @@ export function useShipments(params: FulfillmentListParams, enabled = true) {
     queryFn: () => OutboundService.shipments(params),
     staleTime: STALE,
     enabled,
-  })
+  });
 }
 
 export function usePickers(locationId?: string, role?: string, enabled = true) {
@@ -85,7 +83,7 @@ export function usePickers(locationId?: string, role?: string, enabled = true) {
     queryFn: () => OutboundService.pickers(locationId, role),
     staleTime: 60_000,
     enabled,
-  })
+  });
 }
 
 export function useCouriers(enabled = true) {
@@ -94,146 +92,167 @@ export function useCouriers(enabled = true) {
     queryFn: () => OutboundService.couriersAll(),
     staleTime: 5 * 60_000,
     enabled,
-  })
+  });
 }
 
-// Hitung jumlah untuk badge sub-status (per-stage total / picklist IN_PROGRESS total).
 export function usePickingCounts() {
   const belum = useQuery({
     queryKey: fulfillmentKeys.count("picking-belum"),
     queryFn: () =>
-      OutboundService.ordersByStage("ready-to-process", { per_page: 1 }).then((r) => r.meta.total),
+      OutboundService.ordersByStage("ready-to-process", { per_page: 1 }).then(
+        (r) => r.meta.total,
+      ),
     staleTime: STALE,
-  })
+  });
   const diproses = useQuery({
     queryKey: fulfillmentKeys.count("picking-diproses"),
-    queryFn: () => OutboundService.picklists({ per_page: 1, status: "DRAFT,IN_PROGRESS" }).then((r) => r.meta.total),
+    queryFn: () =>
+      OutboundService.picklists({
+        per_page: 1,
+        status: "DRAFT,IN_PROGRESS",
+      }).then((r) => r.meta.total),
     staleTime: STALE,
-  })
+  });
   const selesai = useQuery({
     queryKey: fulfillmentKeys.count("picking-selesai"),
     queryFn: () =>
-      OutboundService.ordersByStage("finish-pick", { per_page: 1 }).then((r) => r.meta.total),
+      OutboundService.ordersByStage("finish-pick", { per_page: 1 }).then(
+        (r) => r.meta.total,
+      ),
     staleTime: STALE,
-  })
+  });
   return {
     belum: belum.data,
     diproses: diproses.data,
     selesai: selesai.data,
-  }
+  };
 }
 
 export function usePackingCounts() {
   const belum = useQuery({
     queryKey: fulfillmentKeys.count("packing-belum"),
     queryFn: () =>
-      OutboundService.ordersByStage("finish-pick", { per_page: 1 }).then((r) => r.meta.total),
+      OutboundService.ordersByStage("finish-pick", { per_page: 1 }).then(
+        (r) => r.meta.total,
+      ),
     staleTime: STALE,
-  })
+  });
   const diproses = useQuery({
     queryKey: fulfillmentKeys.count("packing-diproses"),
-    queryFn: () => OutboundService.packlists({ per_page: 1, status: "DRAFT,IN_PROGRESS" }).then((r) => r.meta.total),
+    queryFn: () =>
+      OutboundService.packlists({
+        per_page: 1,
+        status: "DRAFT,IN_PROGRESS",
+      }).then((r) => r.meta.total),
     staleTime: STALE,
-  })
+  });
   const selesai = useQuery({
     queryKey: fulfillmentKeys.count("packing-selesai"),
     queryFn: () =>
-      OutboundService.ordersByStage("finish-pack", { per_page: 1 }).then((r) => r.meta.total),
+      OutboundService.ordersByStage("finish-pack", { per_page: 1 }).then(
+        (r) => r.meta.total,
+      ),
     staleTime: STALE,
-  })
+  });
   return {
     belum: belum.data,
     diproses: diproses.data,
     selesai: selesai.data,
-  }
+  };
 }
 
-// ── Mutations ────────────────────────────────────────────────────────────────
-// Mutasi board sederhana memakai factory (hooks/create-crud-hooks). Tanpa
-// successMessage dan silentError: toast sukses/gagal ditangani pemanggil
-// (dialog/aksi masing-masing) seperti sebelumnya.
 export const useCreatePicklist = createMutationHook({
   mutationFn: (payload: {
-    order_ids: string[]
-    location_id: string
-    picker_id: string
-    notes?: string | null
+    order_ids: string[];
+    location_id: string;
+    picker_id: string;
+    notes?: string | null;
   }) => OutboundService.createPicklist(payload),
   silentError: true,
   invalidates: () => [fulfillmentKeys.board],
-})
+});
 
 export const useAssignPicker = createMutationHook({
-  mutationFn: ({ picklistId, pickerId }: { picklistId: string; pickerId: string }) =>
-    OutboundService.assignPicker(picklistId, pickerId),
+  mutationFn: ({
+    picklistId,
+    pickerId,
+  }: {
+    picklistId: string;
+    pickerId: string;
+  }) => OutboundService.assignPicker(picklistId, pickerId),
   silentError: true,
   invalidates: () => [fulfillmentKeys.board],
-})
+});
 
 export const useAssignPacker = createMutationHook({
-  mutationFn: ({ packlistId, packerId }: { packlistId: string; packerId: string }) =>
-    OutboundService.assignPacker(packlistId, packerId),
+  mutationFn: ({
+    packlistId,
+    packerId,
+  }: {
+    packlistId: string;
+    packerId: string;
+  }) => OutboundService.assignPacker(packlistId, packerId),
   silentError: true,
   invalidates: () => [fulfillmentKeys.board],
-})
+});
 
 export const useReadyToShip = createMutationHook({
   mutationFn: (orderIds: string[]) => OutboundService.readyToShip(orderIds),
   silentError: true,
   invalidates: () => [fulfillmentKeys.board],
-})
+});
 
 export const useRetryPickup = createMutationHook({
   mutationFn: (orderIds: string[]) => OutboundService.retryPickup(orderIds),
   silentError: true,
   invalidates: () => [fulfillmentKeys.board],
-})
+});
 
 export const useStartPicklist = createMutationHook({
   mutationFn: (id: string) => OutboundService.startPicklist(id),
   silentError: true,
-  invalidates: (id) => [fulfillmentKeys.board, fulfillmentKeys.picklistDetail(id)],
-})
+  invalidates: (id) => [
+    fulfillmentKeys.board,
+    fulfillmentKeys.picklistDetail(id),
+  ],
+});
 
-// ── Scan/pick detail (Picking) ───────────────────────────────────────────────
 export function usePicklistDetail(id: string, enabled = true) {
   return useQuery({
     queryKey: fulfillmentKeys.picklistDetail(id),
     queryFn: () => OutboundService.picklistDetail(id),
     enabled: enabled && !!id,
-  })
+  });
 }
 
-// Hangatkan cache detail picklist saat hover di daftar picklist.
 export function usePrefetchPicklistDetail() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useCallback(
     (id: string) => {
       qc.prefetchQuery({
         queryKey: fulfillmentKeys.picklistDetail(id),
         queryFn: () => OutboundService.picklistDetail(id),
-      })
+      });
     },
-    [qc]
-  )
+    [qc],
+  );
 }
 
-// Hangatkan cache detail packlist saat hover di daftar packlist.
 export function usePrefetchPacklistDetail() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useCallback(
     (id: string) => {
       qc.prefetchQuery({
         queryKey: fulfillmentKeys.packlistDetail(id),
         queryFn: () => OutboundService.packlistDetail(id),
-      })
+      });
     },
-    [qc]
-  )
+    [qc],
+  );
 }
 
 export function usePickItem() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: ({
       picklistId,
@@ -241,42 +260,46 @@ export function usePickItem() {
       qtyPicked,
       binCode,
     }: {
-      picklistId: string
-      itemId: string
-      qtyPicked: number
-      binCode: string
-    }) => OutboundService.pickItem(picklistId, itemId, { qty_picked: qtyPicked, bin_code: binCode }),
-    // Optimistic: qtyPicked adalah nilai absolut, jadi langsung patch item di
-    // cache detail → progress scan naik seketika tanpa nunggu POST + refetch.
-    // onSettled tetap invalidasi agar field turunan dari server (status item,
-    // dsb.) direkonsiliasi di background.
+      picklistId: string;
+      itemId: string;
+      qtyPicked: number;
+      binCode: string;
+    }) =>
+      OutboundService.pickItem(picklistId, itemId, {
+        qty_picked: qtyPicked,
+        bin_code: binCode,
+      }),
+
     onMutate: async (v) => {
-      const key = fulfillmentKeys.picklistDetail(v.picklistId)
-      await qc.cancelQueries({ queryKey: key })
-      const prev = qc.getQueryData<PicklistDetail>(key)
+      const key = fulfillmentKeys.picklistDetail(v.picklistId);
+      await qc.cancelQueries({ queryKey: key });
+      const prev = qc.getQueryData<PicklistDetail>(key);
       if (prev) {
         qc.setQueryData<PicklistDetail>(key, {
           ...prev,
           items: prev.items.map((it) =>
             it.id === v.itemId
-              ? { ...it, qtyPicked: v.qtyPicked, binCode: v.binCode || it.binCode }
-              : it
+              ? {
+                  ...it,
+                  qtyPicked: v.qtyPicked,
+                  binCode: v.binCode || it.binCode,
+                }
+              : it,
           ),
-        })
+        });
       }
-      return { key, prev }
+      return { key, prev };
     },
     onError: (_e, _v, ctx) => {
-      if (ctx?.prev) qc.setQueryData(ctx.key, ctx.prev)
+      if (ctx?.prev) qc.setQueryData(ctx.key, ctx.prev);
     },
     onSettled: (_d, _e, v) =>
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.picklistDetail(v.picklistId) }),
-  })
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.picklistDetail(v.picklistId),
+      }),
+  });
 }
 
-// Validasi scan SKU vs rak aktif sebelum modal qty dibuka. Read-only (tanpa
-// mutasi stok), jadi tidak perlu sentuh cache. Error 422 dari BE dibiarkan naik
-// ke pemanggil untuk ditampilkan sebagai toast + buzz.
 export function useScanForPick() {
   return useMutation({
     mutationFn: ({
@@ -284,149 +307,163 @@ export function useScanForPick() {
       sku,
       binCode,
     }: {
-      picklistId: string
-      sku: string
-      binCode: string
+      picklistId: string;
+      sku: string;
+      binCode: string;
     }) => OutboundService.scanForPick(picklistId, { sku, bin_code: binCode }),
-  })
+  });
 }
 
 export function useCompletePicklist() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => OutboundService.completePicklist(id),
     onSuccess: (_d, id) => {
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.picklistDetail(id) })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.picklistDetail(id) });
     },
-  })
+  });
 }
 
-// Download PDF picklist sebagai file (filename pakai picklistNo bila tersedia,
-// fallback ke `PICK-{id}.pdf`). Trigger anchor click programmatic.
 export function useDownloadPicklistPdf() {
   return useMutation({
     mutationFn: async ({
       picklistId,
       picklistNo,
     }: {
-      picklistId: string
-      picklistNo?: string | null
+      picklistId: string;
+      picklistNo?: string | null;
     }) => {
-      const blob = await OutboundService.picklistPdf(picklistId)
-      const filename = picklistNo ? `${picklistNo}.pdf` : `PICK-${picklistId}.pdf`
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = filename
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      URL.revokeObjectURL(url)
-      return filename
+      const blob = await OutboundService.picklistPdf(picklistId);
+      const filename = picklistNo
+        ? `${picklistNo}.pdf`
+        : `PICK-${picklistId}.pdf`;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      return filename;
     },
     onSuccess: (filename) => {
-      toast.success(`Picklist ${filename} berhasil diunduh`)
+      toast.success(`Picklist ${filename} berhasil diunduh`);
     },
     onError: (err: unknown) => {
       const msg =
-        err && typeof err === "object" && "message" in err && typeof (err as { message?: unknown }).message === "string"
+        err &&
+        typeof err === "object" &&
+        "message" in err &&
+        typeof (err as { message?: unknown }).message === "string"
           ? (err as { message: string }).message
-          : "Gagal mengunduh PDF picklist."
-      toast.error(msg)
+          : "Gagal mengunduh PDF picklist.";
+      toast.error(msg);
     },
-  })
+  });
 }
 
-// ── Ad-hoc pick (tanpa picklist) ────────────────────────────────────────────
 export function useAdHocPick() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: {
-      order_id: string
-      items?: Array<{ order_item_id: string; qty_picked: number; bin_id?: string | null }>
+      order_id: string;
+      items?: Array<{
+        order_item_id: string;
+        qty_picked: number;
+        bin_id?: string | null;
+      }>;
     }) => OutboundService.adHocPick(payload),
     onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
-  })
+  });
 }
 
-// Ambil order berdasarkan nomor/resi secara imperatif saat scan (ad-hoc pick).
-// Mengembalikan mutation; komponen menangani mapping & status di callback-nya.
 export function useGetOrderByNo() {
   return useMutation({
     mutationFn: (orderNo: string) => OutboundService.getOrderByNo(orderNo),
-  })
+  });
 }
 
 export function useAdHocPickScan() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: {
-      order_id: string
-      sku: string
-      qty?: number
-      bin_id?: string | null
+      order_id: string;
+      sku: string;
+      qty?: number;
+      bin_id?: string | null;
     }) => OutboundService.adHocPickScan(payload),
     onSuccess: (_d, _v) => {
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
     },
-  })
+  });
 }
 
 export function useFailPicklist() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
       OutboundService.failPicklist(id, reason),
     onSuccess: (_d, v) => {
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.picklistDetail(v.id) })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.picklistDetail(v.id) });
     },
-  })
+  });
 }
 
-// ── Scan order for packing ──────────────────────────────────────────────────
 export function useScanOrder() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ orderNo, packerId }: { orderNo: string; packerId?: string | null }) =>
-      OutboundService.scanOrder(orderNo, packerId),
+    mutationFn: ({
+      orderNo,
+      packerId,
+    }: {
+      orderNo: string;
+      packerId?: string | null;
+    }) => OutboundService.scanOrder(orderNo, packerId),
     onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
-  })
+  });
 }
 
-// ── Scan/pack detail (Packing) ───────────────────────────────────────────────
 export function usePacklistDetail(id: string, enabled = true) {
   return useQuery({
     queryKey: fulfillmentKeys.packlistDetail(id),
     queryFn: () => OutboundService.packlistDetail(id),
     enabled: enabled && !!id,
-  })
+  });
 }
 
 export function useStartPacklist() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => OutboundService.startPacklist(id),
     onSuccess: (_d, id) => {
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.packlistDetail(id) })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.packlistDetail(id) });
     },
-  })
+  });
 }
 
 export function useVerifyBarcode() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ packlistId, barcode }: { packlistId: string; barcode: string }) =>
-      OutboundService.verifyBarcode(packlistId, barcode),
+    mutationFn: ({
+      packlistId,
+      barcode,
+    }: {
+      packlistId: string;
+      barcode: string;
+    }) => OutboundService.verifyBarcode(packlistId, barcode),
     onSuccess: (_d, v) =>
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.packlistDetail(v.packlistId) }),
-  })
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.packlistDetail(v.packlistId),
+      }),
+  });
 }
 
 export function usePackItem() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: ({
       packlistId,
@@ -434,20 +471,20 @@ export function usePackItem() {
       qtyPacked,
       barcodeVerified,
     }: {
-      packlistId: string
-      itemId: string
-      qtyPacked: number
-      barcodeVerified?: boolean
+      packlistId: string;
+      itemId: string;
+      qtyPacked: number;
+      barcodeVerified?: boolean;
     }) =>
       OutboundService.packItem(packlistId, itemId, {
         qty_packed: qtyPacked,
         barcode_verified: barcodeVerified,
       }),
-    // Optimistic sama seperti pickItem: qtyPacked absolut → patch seketika.
+
     onMutate: async (v) => {
-      const key = fulfillmentKeys.packlistDetail(v.packlistId)
-      await qc.cancelQueries({ queryKey: key })
-      const prev = qc.getQueryData<PacklistDetail>(key)
+      const key = fulfillmentKeys.packlistDetail(v.packlistId);
+      await qc.cancelQueries({ queryKey: key });
+      const prev = qc.getQueryData<PacklistDetail>(key);
       if (prev) {
         qc.setQueryData<PacklistDetail>(key, {
           ...prev,
@@ -458,62 +495,71 @@ export function usePackItem() {
                   qtyPacked: v.qtyPacked,
                   barcodeVerified: v.barcodeVerified ?? it.barcodeVerified,
                 }
-              : it
+              : it,
           ),
-        })
+        });
       }
-      return { key, prev }
+      return { key, prev };
     },
     onError: (_e, _v, ctx) => {
-      if (ctx?.prev) qc.setQueryData(ctx.key, ctx.prev)
+      if (ctx?.prev) qc.setQueryData(ctx.key, ctx.prev);
     },
     onSettled: (_d, _e, v) =>
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.packlistDetail(v.packlistId) }),
-  })
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.packlistDetail(v.packlistId),
+      }),
+  });
 }
 
 export function useCompletePacklist() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => OutboundService.completePacklist(id),
     onSuccess: (_d, id) => {
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.packlistDetail(id) })
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.packlistDetail(id) });
     },
-  })
+  });
 }
 
 export function useMarkComplete() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (orderIds: string[]) => OutboundService.markComplete(orderIds),
     onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
-  })
+  });
 }
 
 export function useCreateShipment() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ payload, orderIds }: { payload: CreateShipmentPayload; orderIds: string[] }) =>
-      OutboundService.createShipmentWithOrders(payload, orderIds),
+    mutationFn: ({
+      payload,
+      orderIds,
+    }: {
+      payload: CreateShipmentPayload;
+      orderIds: string[];
+    }) => OutboundService.createShipmentWithOrders(payload, orderIds),
     onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
-  })
+  });
 }
 
 export function useHandOverShipment() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: (shipmentId: string) => OutboundService.handOverShipment(shipmentId),
+    mutationFn: (shipmentId: string) =>
+      OutboundService.handOverShipment(shipmentId),
     onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
-  })
+  });
 }
 
 export function useCancelShipment() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: (shipmentId: string) => OutboundService.cancelShipment(shipmentId),
+    mutationFn: (shipmentId: string) =>
+      OutboundService.cancelShipment(shipmentId),
     onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
-  })
+  });
 }
 
 export function useShipmentDetail(id: string, enabled = true) {
@@ -521,45 +567,63 @@ export function useShipmentDetail(id: string, enabled = true) {
     queryKey: fulfillmentKeys.shipmentDetail(id),
     queryFn: () => OutboundService.shipmentDetail(id),
     enabled: enabled && !!id,
-  })
+  });
 }
 
 export function useScanOrderToShipment() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ shipmentId, barcode }: { shipmentId: string; barcode: string }) =>
-      OutboundService.scanOrderToShipment(shipmentId, barcode),
+    mutationFn: ({
+      shipmentId,
+      barcode,
+    }: {
+      shipmentId: string;
+      barcode: string;
+    }) => OutboundService.scanOrderToShipment(shipmentId, barcode),
     onSuccess: (_d, v) => {
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.shipmentDetail(v.shipmentId) })
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.shipmentDetail(v.shipmentId),
+      });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
     },
-  })
+  });
 }
 
 export function useRemoveOrderFromShipment() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ shipmentId, orderIds }: { shipmentId: string; orderIds: string[] }) =>
-      OutboundService.removeOrderFromShipment(shipmentId, orderIds),
+    mutationFn: ({
+      shipmentId,
+      orderIds,
+    }: {
+      shipmentId: string;
+      orderIds: string[];
+    }) => OutboundService.removeOrderFromShipment(shipmentId, orderIds),
     onSuccess: (_d, v) => {
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.shipmentDetail(v.shipmentId) })
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.board })
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.shipmentDetail(v.shipmentId),
+      });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
     },
-  })
+  });
 }
 
 export function useShippingCounts() {
   const siapKirim = useQuery({
     queryKey: fulfillmentKeys.count("shipping-siap-kirim"),
     queryFn: () =>
-      OutboundService.ordersByStage("finish-pack", { per_page: 1 }).then((r) => r.meta.total),
+      OutboundService.ordersByStage("finish-pack", { per_page: 1 }).then(
+        (r) => r.meta.total,
+      ),
     staleTime: STALE,
-  })
+  });
   const jadwal = useQuery({
     queryKey: fulfillmentKeys.count("shipping-jadwal"),
     queryFn: () =>
-      OutboundService.shipments({ status: "SCHEDULED", per_page: 1 }).then((r) => r.meta.total),
+      OutboundService.shipments({ status: "SCHEDULED", per_page: 1 }).then(
+        (r) => r.meta.total,
+      ),
     staleTime: STALE,
-  })
-  return { "siap-kirim": siapKirim.data, jadwal: jadwal.data }
+  });
+  return { "siap-kirim": siapKirim.data, jadwal: jadwal.data };
 }

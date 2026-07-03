@@ -1,18 +1,21 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useFormContext } from "react-hook-form"
-import { CheckIcon, ChevronsUpDownIcon, SearchIcon } from "lucide-react"
+import * as React from "react";
+import { useFormContext } from "react-hook-form";
+import { CheckIcon, ChevronsUpDownIcon, SearchIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { FormSectionCard } from "@/components/ui/form-section-card"
-import { useCategoryFormAttributes } from "@/hooks/master-produk/use-master-data"
-import type { BuatProdukFormValues } from "@/types/master-produk"
-
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { FormSectionCard } from "@/components/ui/form-section-card";
+import { useCategoryFormAttributes } from "@/hooks/master-produk/use-master-data";
+import type { BuatProdukFormValues } from "@/types/master-produk";
 
 function CreatableCombobox({
   options,
@@ -20,27 +23,27 @@ function CreatableCombobox({
   onChange,
   placeholder,
 }: {
-  options: { value: string; label: string }[]
-  value: string | null
-  onChange: (v: string) => void
-  placeholder?: string
+  options: { value: string; label: string }[];
+  value: string | null;
+  onChange: (v: string) => void;
+  placeholder?: string;
 }) {
-  const [open, setOpen] = React.useState(false)
-  const [search, setSearch] = React.useState("")
+  const [open, setOpen] = React.useState(false);
+  const [search, setSearch] = React.useState("");
 
   const filtered = options.filter((o) =>
-    o.label.toLowerCase().includes(search.toLowerCase())
-  )
+    o.label.toLowerCase().includes(search.toLowerCase()),
+  );
 
-  const isCustom = search.trim() !== "" && !options.some(
-    (o) => o.label.toLowerCase() === search.trim().toLowerCase()
-  )
+  const isCustom =
+    search.trim() !== "" &&
+    !options.some((o) => o.label.toLowerCase() === search.trim().toLowerCase());
 
   const select = (v: string) => {
-    onChange(v)
-    setSearch("")
-    setOpen(false)
-  }
+    onChange(v);
+    setSearch("");
+    setOpen(false);
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -57,7 +60,10 @@ function CreatableCombobox({
           <ChevronsUpDownIcon className="ml-2 size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+      <PopoverContent
+        className="w-[--radix-popover-trigger-width] p-0"
+        align="start"
+      >
         <div className="flex items-center border-b px-3">
           <SearchIcon className="mr-2 size-4 shrink-0 opacity-50" />
           <input
@@ -76,7 +82,12 @@ function CreatableCombobox({
                 onClick={() => select(o.value)}
                 className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent"
               >
-                <CheckIcon className={cn("size-4 shrink-0", value === o.value ? "opacity-100" : "opacity-0")} />
+                <CheckIcon
+                  className={cn(
+                    "size-4 shrink-0",
+                    value === o.value ? "opacity-100" : "opacity-0",
+                  )}
+                />
                 {o.label}
               </button>
             ))}
@@ -91,32 +102,34 @@ function CreatableCombobox({
               </button>
             )}
             {filtered.length === 0 && !isCustom && (
-              <p className="px-2 py-4 text-center text-sm text-muted-foreground">Tidak ditemukan</p>
+              <p className="px-2 py-4 text-center text-sm text-muted-foreground">
+                Tidak ditemukan
+              </p>
             )}
           </div>
         </ScrollArea>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
 
-
 export function FormSpecificationSection() {
-  const { watch, setValue } = useFormContext<BuatProdukFormValues>()
-  const category = watch("category")
-  const specs = watch("specifications")
-  const { data, isError } = useCategoryFormAttributes(category?.id)
-  const specAttrs = data?.specifications ?? []
+  const { watch, setValue } = useFormContext<BuatProdukFormValues>();
+  const category = watch("category");
+  const specs = watch("specifications");
+  const { data, isError } = useCategoryFormAttributes(category?.id);
+  const specAttrs = data?.specifications ?? [];
 
-  if (!category || isError || specAttrs.length === 0) return null
+  if (!category || isError || specAttrs.length === 0) return null;
 
-  const valueOf = (id: number) => specs.find((s) => s.attributeId === id)?.value ?? ""
+  const valueOf = (id: number) =>
+    specs.find((s) => s.attributeId === id)?.value ?? "";
 
   const setSpec = (id: number, value: string) => {
-    const next = specs.filter((s) => s.attributeId !== id)
-    if (value.trim()) next.push({ attributeId: id, value })
-    setValue("specifications", next, { shouldDirty: true })
-  }
+    const next = specs.filter((s) => s.attributeId !== id);
+    if (value.trim()) next.push({ attributeId: id, value });
+    setValue("specifications", next, { shouldDirty: true });
+  };
 
   return (
     <FormSectionCard id="spesifikasi" title="Spesifikasi">
@@ -127,7 +140,7 @@ export function FormSpecificationSection() {
         {specAttrs.map((a) => {
           const requiredFor = Object.entries(a.channels)
             .filter(([, s]) => s.required)
-            .map(([code]) => code)
+            .map(([code]) => code);
 
           return (
             <div key={a.attribute_id} className="space-y-1.5">
@@ -137,7 +150,10 @@ export function FormSpecificationSection() {
               </label>
               {a.options.length > 0 ? (
                 <CreatableCombobox
-                  options={a.options.map((o) => ({ value: o.value, label: o.value }))}
+                  options={a.options.map((o) => ({
+                    value: o.value,
+                    label: o.value,
+                  }))}
                   value={valueOf(a.attribute_id) || null}
                   onChange={(v) => setSpec(a.attribute_id, v)}
                   placeholder={`Pilih ${a.name}`}
@@ -155,9 +171,9 @@ export function FormSpecificationSection() {
                 </p>
               )}
             </div>
-          )
+          );
         })}
       </div>
     </FormSectionCard>
-  )
+  );
 }

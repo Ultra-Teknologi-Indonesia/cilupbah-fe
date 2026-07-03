@@ -1,22 +1,25 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { STAGE_CONFIG, type FulfillmentStage } from "@/types/proses-pesanan/fulfillment"
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  STAGE_CONFIG,
+  type FulfillmentStage,
+} from "@/types/proses-pesanan/fulfillment";
 
 function activeStage(pathname: string): FulfillmentStage {
   for (const { key } of STAGE_CONFIG) {
-    if (pathname.includes(`/proses-pesanan/${key}`)) return key
+    if (pathname.includes(`/proses-pesanan/${key}`)) return key;
   }
-  return "picking"
+  return "picking";
 }
 
 export function StageTabs() {
-  const pathname = usePathname()
-  const active = activeStage(pathname)
+  const pathname = usePathname();
+  const active = activeStage(pathname);
 
   return (
     <LiquidGlass
@@ -42,5 +45,5 @@ export function StageTabs() {
         </TabsList>
       </Tabs>
     </LiquidGlass>
-  )
+  );
 }

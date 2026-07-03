@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { cn } from "@/lib/utils"
-import { Switch } from "@/components/ui/switch"
-import type { ConnectedStore } from "@/types/channel"
-import { ChannelLogo } from "./channel-logo"
-import { StoreRowActions } from "./store-row-actions"
+import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
+import type { ConnectedStore } from "@/types/channel";
+import { ChannelLogo } from "./channel-logo";
+import { StoreRowActions } from "./store-row-actions";
 
 const STATUS_STYLE = {
   normal: {
@@ -25,17 +25,17 @@ const STATUS_STYLE = {
     label: "Integrasi Bermasalah",
     note: "text-destructive",
   },
-} as const
+} as const;
 
 function IntegrationStatus({ store }: { store: ConnectedStore }) {
-  const status = store.integration.status
-  const style = STATUS_STYLE[status] ?? STATUS_STYLE.normal
+  const status = store.integration.status;
+  const style = STATUS_STYLE[status] ?? STATUS_STYLE.normal;
   return (
     <div>
       <span
         className={cn(
           "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium",
-          style.chip
+          style.chip,
         )}
       >
         <span aria-hidden className={cn("size-1.5 rounded-full", style.dot)} />
@@ -47,7 +47,7 @@ function IntegrationStatus({ store }: { store: ConnectedStore }) {
         </p>
       )}
     </div>
-  )
+  );
 }
 
 export function StoresTable({
@@ -57,14 +57,14 @@ export function StoresTable({
   onRefresh,
   onDisconnect,
 }: {
-  stores: ConnectedStore[]
-  onToggleActive: (id: string, value: boolean) => void
-  onToggleOrders: (id: string, value: boolean) => void
-  onRefresh: (store: ConnectedStore) => void
-  onDisconnect: (store: ConnectedStore) => void
+  stores: ConnectedStore[];
+  onToggleActive: (id: string, value: boolean) => void;
+  onToggleOrders: (id: string, value: boolean) => void;
+  onRefresh: (store: ConnectedStore) => void;
+  onDisconnect: (store: ConnectedStore) => void;
 }) {
-  const showAccess = stores.some((s) => s.accessNote)
-  const showLinked = stores.some((s) => s.linkedStore)
+  const showAccess = stores.some((s) => s.accessNote);
+  const showLinked = stores.some((s) => s.linkedStore);
 
   return (
     <div className="overflow-x-auto">
@@ -93,7 +93,9 @@ export function StoresTable({
                     name={store.channel.name}
                     className="size-7 rounded-lg"
                   />
-                  <span className="font-medium text-primary">{store.shopName}</span>
+                  <span className="font-medium text-primary">
+                    {store.shopName}
+                  </span>
                 </div>
               </td>
               <td className="px-4 py-3">
@@ -102,7 +104,9 @@ export function StoresTable({
               {showAccess && (
                 <td className="px-4 py-3">
                   {store.accessNote ? (
-                    <span className="text-xs text-destructive">{store.accessNote}</span>
+                    <span className="text-xs text-destructive">
+                      {store.accessNote}
+                    </span>
                   ) : (
                     <span className="text-muted-foreground">—</span>
                   )}
@@ -156,5 +160,5 @@ export function StoresTable({
         </tbody>
       </table>
     </div>
-  )
+  );
 }

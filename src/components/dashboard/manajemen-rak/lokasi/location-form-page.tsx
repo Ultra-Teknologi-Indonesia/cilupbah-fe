@@ -1,49 +1,49 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2Icon, LockIcon } from "lucide-react"
-import { toast } from "sonner"
+import * as React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2Icon, LockIcon } from "lucide-react";
+import { toast } from "sonner";
 
-import { PageTitle } from "@/components/dashboard/page-title"
-import { Button } from "@/components/ui/button"
-import { Form } from "@/components/ui/form"
-import { cn } from "@/lib/utils"
+import { PageTitle } from "@/components/dashboard/page-title";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { cn } from "@/lib/utils";
 import {
   locationFormSchema,
   type LocationFormValues,
-} from "@/lib/manajemen-rak/location-schema"
-import { useLocationDetail } from "@/hooks/manajemen-rak/use-location-detail"
-import { useCreateLocation } from "@/hooks/manajemen-rak/use-create-location"
-import { useUpdateLocation } from "@/hooks/manajemen-rak/use-update-location"
-import { useGenerateBins } from "@/hooks/manajemen-rak/use-generate-bins"
-import { useBulkUpdateBins } from "@/hooks/manajemen-rak/use-bulk-update-bins"
-import { useWarehouseLayoutSetting } from "@/hooks/manajemen-rak/use-warehouse-layout-setting"
+} from "@/lib/manajemen-rak/location-schema";
+import { useLocationDetail } from "@/hooks/manajemen-rak/use-location-detail";
+import { useCreateLocation } from "@/hooks/manajemen-rak/use-create-location";
+import { useUpdateLocation } from "@/hooks/manajemen-rak/use-update-location";
+import { useGenerateBins } from "@/hooks/manajemen-rak/use-generate-bins";
+import { useBulkUpdateBins } from "@/hooks/manajemen-rak/use-bulk-update-bins";
+import { useWarehouseLayoutSetting } from "@/hooks/manajemen-rak/use-warehouse-layout-setting";
 import type {
   BinDraft,
   BinPreviewItem,
   GenerateBinsPayload,
   Location,
   LocationPayload,
-} from "@/types/manajemen-rak/location"
+} from "@/types/manajemen-rak/location";
 
-import { InformasiTab } from "./informasi-tab"
-import { LayoutGudangTab } from "./layout-gudang-tab"
-import { ZonaTab } from "./zona-tab"
+import { InformasiTab } from "./informasi-tab";
+import { LayoutGudangTab } from "./layout-gudang-tab";
+import { ZonaTab } from "./zona-tab";
 
-const LIST_HREF = "/dashboard/lokasi"
+const LIST_HREF = "/dashboard/lokasi";
 
-type Section = "informasi" | "layout" | "zona"
+type Section = "informasi" | "layout" | "zona";
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (error && typeof error === "object" && "message" in error) {
-    const msg = (error as { message?: unknown }).message
-    if (typeof msg === "string" && msg) return msg
+    const msg = (error as { message?: unknown }).message;
+    if (typeof msg === "string" && msg) return msg;
   }
-  return fallback
+  return fallback;
 }
 
 const createDefaults: LocationFormValues = {
@@ -62,7 +62,7 @@ const createDefaults: LocationFormValues = {
   isWarehouse: true,
   isActive: true,
   isPos: false,
-}
+};
 
 function toFormValues(loc: Location): LocationFormValues {
   return {
@@ -81,7 +81,7 @@ function toFormValues(loc: Location): LocationFormValues {
     isWarehouse: loc.isWarehouse,
     isActive: loc.isActive,
     isPos: loc.isPos,
-  }
+  };
 }
 
 function buildPayload(values: LocationFormValues): LocationPayload {
@@ -98,46 +98,48 @@ function buildPayload(values: LocationFormValues): LocationPayload {
     is_warehouse: values.isWarehouse,
     is_active: values.isActive,
     is_pos: values.isPos,
-  }
+  };
 }
 
 interface LocationFormPageProps {
-  mode: "create" | "edit"
-  id?: string
+  mode: "create" | "edit";
+  id?: string;
 }
 
 export function LocationFormPage({ mode, id }: LocationFormPageProps) {
-  const router = useRouter()
-  const [section, setSection] = React.useState<Section>("informasi")
+  const router = useRouter();
+  const [section, setSection] = React.useState<Section>("informasi");
   const [appliedPayload, setAppliedPayload] =
-    React.useState<GenerateBinsPayload | null>(null)
+    React.useState<GenerateBinsPayload | null>(null);
 
-  const detail = useLocationDetail(mode === "edit" ? id : undefined)
-  const layoutSetting = useWarehouseLayoutSetting()
-  const createLocation = useCreateLocation()
-  const updateLocation = useUpdateLocation()
-  const generateBins = useGenerateBins()
-  const bulkUpdate = useBulkUpdateBins(id)
-  const binsRef = React.useRef<BinDraft[]>([])
+  const detail = useLocationDetail(mode === "edit" ? id : undefined);
+  const layoutSetting = useWarehouseLayoutSetting();
+  const createLocation = useCreateLocation();
+  const updateLocation = useUpdateLocation();
+  const generateBins = useGenerateBins();
+  const bulkUpdate = useBulkUpdateBins(id);
+  const binsRef = React.useRef<BinDraft[]>([]);
 
   const form = useForm<LocationFormValues>({
     resolver: zodResolver(locationFormSchema),
     defaultValues: createDefaults,
-  })
+  });
 
-  // Prefill saat edit.
-  const prefilledRef = React.useRef(false)
+  const prefilledRef = React.useRef(false);
   React.useEffect(() => {
     if (mode === "edit" && detail.data && !prefilledRef.current) {
-      form.reset(toFormValues(detail.data))
-      prefilledRef.current = true
+      form.reset(toFormValues(detail.data));
+      prefilledRef.current = true;
     }
-  }, [mode, detail.data, form])
+  }, [mode, detail.data, form]);
 
-  const locked = mode === "edit" && Boolean(detail.data?.isLocked)
-  const layoutEnabled = layoutSetting.data?.useWarehouseLayout ?? false
+  const locked = mode === "edit" && Boolean(detail.data?.isLocked);
+  const layoutEnabled = layoutSetting.data?.useWarehouseLayout ?? false;
   const saving =
-    createLocation.isPending || updateLocation.isPending || generateBins.isPending || bulkUpdate.isPending
+    createLocation.isPending ||
+    updateLocation.isPending ||
+    generateBins.isPending ||
+    bulkUpdate.isPending;
 
   const initialBins: BinDraft[] = React.useMemo(
     () =>
@@ -155,62 +157,74 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
           isLargeBin: b.isLargeBin,
           category: b.category ?? "",
         })),
-    [detail.data]
-  )
+    [detail.data],
+  );
 
-  const onSubmit = form.handleSubmit(async (values) => {
-    try {
-      const payload = buildPayload(values)
-      let locationId = id
+  const onSubmit = form.handleSubmit(
+    async (values) => {
+      try {
+        const payload = buildPayload(values);
+        let locationId = id;
 
-      if (mode === "create") {
-        const created = await createLocation.mutateAsync(payload)
-        locationId = created.id
-      } else if (id) {
-        await updateLocation.mutateAsync({ id, payload })
-      }
-
-      if (layoutEnabled && appliedPayload && locationId) {
-        await generateBins.mutateAsync({ locationId, payload: appliedPayload })
-      }
-
-      if (layoutEnabled && !appliedPayload && locationId && binsRef.current.length > 0) {
-        const existingBins = binsRef.current
-          .filter((b) => b.id)
-          .map((b) => ({
-            id: b.id!,
-            bin_final_code: b.binFinalCode,
-            max_qty: b.maxQty,
-            is_stock_acknowledged: b.isStockAcknowledged,
-            is_large_bin: b.isLargeBin,
-            category: b.category || null,
-          }))
-        if (existingBins.length > 0) {
-          await bulkUpdate.mutateAsync(existingBins)
+        if (mode === "create") {
+          const created = await createLocation.mutateAsync(payload);
+          locationId = created.id;
+        } else if (id) {
+          await updateLocation.mutateAsync({ id, payload });
         }
+
+        if (layoutEnabled && appliedPayload && locationId) {
+          await generateBins.mutateAsync({
+            locationId,
+            payload: appliedPayload,
+          });
+        }
+
+        if (
+          layoutEnabled &&
+          !appliedPayload &&
+          locationId &&
+          binsRef.current.length > 0
+        ) {
+          const existingBins = binsRef.current
+            .filter((b) => b.id)
+            .map((b) => ({
+              id: b.id!,
+              bin_final_code: b.binFinalCode,
+              max_qty: b.maxQty,
+              is_stock_acknowledged: b.isStockAcknowledged,
+              is_large_bin: b.isLargeBin,
+              category: b.category || null,
+            }));
+          if (existingBins.length > 0) {
+            await bulkUpdate.mutateAsync(existingBins);
+          }
+        }
+
+        toast.success(
+          mode === "create"
+            ? "Lokasi berhasil dibuat."
+            : "Lokasi berhasil diperbarui.",
+        );
+        router.push(LIST_HREF);
+      } catch (err) {
+        toast.error(getErrorMessage(err, "Gagal menyimpan lokasi."));
       }
+    },
+    () => {
+      setSection("informasi");
+      toast.error("Lengkapi field wajib di tab Informasi Lokasi.");
+    },
+  );
 
-      toast.success(
-        mode === "create" ? "Lokasi berhasil dibuat." : "Lokasi berhasil diperbarui."
-      )
-      router.push(LIST_HREF)
-    } catch (err) {
-      toast.error(getErrorMessage(err, "Gagal menyimpan lokasi."))
-    }
-  }, () => {
-    // Semua field wajib ada di tab Informasi -> arahkan ke sana saat validasi gagal.
-    setSection("informasi")
-    toast.error("Lengkapi field wajib di tab Informasi Lokasi.")
-  })
-
-  const title = mode === "create" ? "Buat Lokasi" : "Edit Lokasi"
+  const title = mode === "create" ? "Buat Lokasi" : "Edit Lokasi";
 
   if (mode === "edit" && detail.isLoading) {
     return (
       <div className="flex items-center justify-center gap-2 py-24 text-muted-foreground">
         <Loader2Icon className="size-4 animate-spin" /> Memuat lokasi…
       </div>
-    )
+    );
   }
 
   if (mode === "edit" && detail.isError) {
@@ -218,14 +232,14 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
       <div className="py-24 text-center text-sm text-destructive">
         Gagal memuat lokasi.
       </div>
-    )
+    );
   }
 
   const navItems: { key: Section; label: string; show: boolean }[] = [
     { key: "informasi", label: "Informasi Lokasi", show: true },
     { key: "layout", label: "Layout Gudang", show: layoutEnabled },
     { key: "zona", label: "Zona", show: mode === "edit" },
-  ]
+  ];
 
   return (
     <Form {...form}>
@@ -261,7 +275,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
         )}
 
         <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-          {/* Sub-nav kiri */}
+          {}
           <nav className="flex flex-col gap-2">
             {navItems
               .filter((n) => n.show)
@@ -274,7 +288,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
                     "rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-colors",
                     section === n.key
                       ? "border-primary/30 bg-primary/10 text-primary"
-                      : "border-border bg-background hover:bg-muted"
+                      : "border-border bg-background hover:bg-muted",
                   )}
                 >
                   {n.label}
@@ -282,7 +296,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
               ))}
           </nav>
 
-          {/* Konten */}
+          {}
           <div className="rounded-2xl border border-border bg-card p-6">
             {section === "informasi" ? (
               <InformasiTab disabled={locked} />
@@ -292,7 +306,9 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
                 locationId={mode === "edit" ? id : undefined}
                 initialBins={initialBins}
                 onApply={setAppliedPayload}
-                onBinsChange={(bins) => { binsRef.current = bins }}
+                onBinsChange={(bins) => {
+                  binsRef.current = bins;
+                }}
               />
             ) : (
               <ZonaTab
@@ -305,5 +321,5 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
         </div>
       </form>
     </Form>
-  )
+  );
 }

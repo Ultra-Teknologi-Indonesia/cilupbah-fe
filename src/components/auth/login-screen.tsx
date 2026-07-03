@@ -20,7 +20,6 @@ export function LoginScreen() {
           "radial-gradient(at 0% 0%, color-mix(in oklch, var(--primary) 7%, transparent) 0px, transparent 55%), radial-gradient(at 100% 100%, color-mix(in oklch, var(--primary) 4%, transparent) 0px, transparent 55%)",
       }}
     >
-
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
           className="absolute -top-[20%] -left-[10%] h-[60%] w-[60%] rounded-full opacity-20 blur-3xl"
@@ -61,8 +60,11 @@ export function LoginScreen() {
                   Selamat datang kembali
                 </CardTitle>
                 <CardDescription className="mt-1.5 max-w-xs">
-                  Masuk ke akun <span className="font-medium text-foreground/80">Cilupbah</span> untuk
-                  melanjutkan.
+                  Masuk ke akun{" "}
+                  <span className="font-medium text-foreground/80">
+                    Cilupbah
+                  </span>{" "}
+                  untuk melanjutkan.
                 </CardDescription>
               </div>
             </CardHeader>
@@ -72,7 +74,6 @@ export function LoginScreen() {
                 <LoginForm />
               </Suspense>
             </CardContent>
-
           </Card>
         </LiquidGlass>
       </div>

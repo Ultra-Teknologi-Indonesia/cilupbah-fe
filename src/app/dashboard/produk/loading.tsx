@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
 import {
   PageHeaderSkeleton,
   TabBarSkeleton,
   TableSkeleton,
-} from "@/components/ui/page-skeleton"
+} from "@/components/ui/page-skeleton";
 
 export default function ProdukLoading() {
   return (
@@ -15,5 +15,5 @@ export default function ProdukLoading() {
         <TableSkeleton rows={6} cols={5} />
       </div>
     </phantom-ui>
-  )
+  );
 }

@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useFormContext } from "react-hook-form"
+import { useFormContext } from "react-hook-form";
 import {
   FormControl,
   FormDescription,
@@ -8,22 +8,22 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
-import { FormSectionCard } from "@/components/ui/form-section-card"
-import type { BuatProdukFormValues } from "@/types/master-produk"
+import { FormSectionCard } from "@/components/ui/form-section-card";
+import type { BuatProdukFormValues } from "@/types/master-produk";
 
 export function FormShippingSection() {
-  const { control } = useFormContext<BuatProdukFormValues>()
+  const { control } = useFormContext<BuatProdukFormValues>();
 
   return (
     <FormSectionCard id="pengiriman" title="Informasi Pengiriman">
@@ -33,7 +33,9 @@ export function FormShippingSection() {
           name="weight"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Berat paket <span className="text-destructive">*</span></FormLabel>
+              <FormLabel>
+                Berat paket <span className="text-destructive">*</span>
+              </FormLabel>
               <div className="flex gap-2">
                 <FormControl>
                   <Input type="number" min={0} placeholder="0" {...field} />
@@ -42,7 +44,10 @@ export function FormShippingSection() {
                   control={control}
                   name="weightUnit"
                   render={({ field: unitField }) => (
-                    <Select value={unitField.value ?? "kg"} onValueChange={unitField.onChange}>
+                    <Select
+                      value={unitField.value ?? "kg"}
+                      onValueChange={unitField.onChange}
+                    >
                       <SelectTrigger className="w-24 shrink-0">
                         <SelectValue />
                       </SelectTrigger>
@@ -106,7 +111,11 @@ export function FormShippingSection() {
             <FormItem>
               <FormLabel>Isi paket</FormLabel>
               <FormControl>
-                <Textarea rows={2} placeholder="mis. 5 band + pouch + panduan" {...field} />
+                <Textarea
+                  rows={2}
+                  placeholder="mis. 5 band + pouch + panduan"
+                  {...field}
+                />
               </FormControl>
               <FormDescription>Opsional</FormDescription>
               <FormMessage />
@@ -115,5 +124,5 @@ export function FormShippingSection() {
         />
       </div>
     </FormSectionCard>
-  )
+  );
 }

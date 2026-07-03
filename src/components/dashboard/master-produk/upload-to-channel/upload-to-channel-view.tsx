@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { ArrowLeftIcon, SearchIcon, XIcon } from "lucide-react"
+import * as React from "react";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeftIcon, SearchIcon, XIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Combobox } from "@/components/ui/combobox"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useProductDetail } from "@/hooks/master-produk/use-product-detail"
-import type { ComboboxOption } from "@/components/ui/combobox"
-import { DestinationTable } from "./destination-table"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Combobox } from "@/components/ui/combobox";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useProductDetail } from "@/hooks/master-produk/use-product-detail";
+import type { ComboboxOption } from "@/components/ui/combobox";
+import { DestinationTable } from "./destination-table";
 
 const TABS = [
   { id: "belum", label: "Belum Diupload", isUploaded: false },
   { id: "sudah", label: "Sudah diupload", isUploaded: true },
-] as const
+] as const;
 
-type TabId = (typeof TABS)[number]["id"]
+type TabId = (typeof TABS)[number]["id"];
 
 const CHANNEL_OPTIONS: ComboboxOption[] = [
   { value: "tiktok", label: "TikTok" },
@@ -28,48 +28,56 @@ const CHANNEL_OPTIONS: ComboboxOption[] = [
   { value: "tokopedia", label: "Tokopedia" },
   { value: "blibli", label: "Blibli" },
   { value: "webstore", label: "Webstore" },
-]
+];
 
 export function UploadToChannelView({ id }: { id: string }) {
-  const { data: product } = useProductDetail(id)
-  const productName = product?.name ?? "Produk"
+  const { data: product } = useProductDetail(id);
+  const productName = product?.name ?? "Produk";
 
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const urlTab = searchParams.get("tab")
-  const initialTab: TabId = TABS.some((t) => t.id === urlTab) ? (urlTab as TabId) : "belum"
-  const [active, setActive] = React.useState<TabId>(initialTab)
+  const urlTab = searchParams.get("tab");
+  const initialTab: TabId = TABS.some((t) => t.id === urlTab)
+    ? (urlTab as TabId)
+    : "belum";
+  const [active, setActive] = React.useState<TabId>(initialTab);
 
   const setTab = (next: string) => {
-    setActive(next as TabId)
-    const params = new URLSearchParams(searchParams.toString())
-    params.set("tab", next)
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
-  }
+    setActive(next as TabId);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", next);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
-  // Toolbar state — debounced search + channel filter.
-  const [searchInput, setSearchInput] = React.useState("")
-  const [search, setSearch] = React.useState("")
-  const [channel, setChannel] = React.useState<string | null>(null)
+  const [searchInput, setSearchInput] = React.useState("");
+  const [search, setSearch] = React.useState("");
+  const [channel, setChannel] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    const t = setTimeout(() => setSearch(searchInput.trim()), 350)
-    return () => clearTimeout(t)
-  }, [searchInput])
+    const t = setTimeout(() => setSearch(searchInput.trim()), 350);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-3">
-        <Button variant="outline" size="icon-sm" asChild aria-label="Kembali ke produk">
+        <Button
+          variant="outline"
+          size="icon-sm"
+          asChild
+          aria-label="Kembali ke produk"
+        >
           <Link href={`/dashboard/produk/${id}`}>
             <ArrowLeftIcon />
           </Link>
         </Button>
         <div className="min-w-0">
           <p className="text-xs text-muted-foreground">Upload ke Channel</p>
-          <h1 className="truncate text-xl font-semibold tracking-tight">{productName}</h1>
+          <h1 className="truncate text-xl font-semibold tracking-tight">
+            {productName}
+          </h1>
         </div>
       </div>
 
@@ -141,5 +149,5 @@ export function UploadToChannelView({ id }: { id: string }) {
         </div>
       </Tabs>
     </div>
-  )
+  );
 }

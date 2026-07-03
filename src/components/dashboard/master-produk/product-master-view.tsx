@@ -1,16 +1,14 @@
-"use client"
+"use client";
 
-import { AlertTriangleIcon } from "lucide-react"
+import { AlertTriangleIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { useProductListQuery } from "@/hooks/master-produk/use-product-list-query"
-import { ProductExplorer } from "./product-explorer"
-
-
+import { Button } from "@/components/ui/button";
+import { useProductListQuery } from "@/hooks/master-produk/use-product-list-query";
+import { ProductExplorer } from "./product-explorer";
 
 export function ProductMasterView() {
-  const query = useProductListQuery()
-  const { isError, isFetching, refetch } = query.result
+  const query = useProductListQuery();
+  const { isError, isFetching, refetch } = query.result;
 
   return (
     <>
@@ -36,5 +34,5 @@ export function ProductMasterView() {
         <ProductExplorer query={query} />
       )}
     </>
-  )
+  );
 }

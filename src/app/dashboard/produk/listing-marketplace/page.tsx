@@ -1,9 +1,9 @@
-import { Suspense } from "react"
+import { Suspense } from "react";
 
-import { PageTitle } from "@/components/dashboard/page-title"
-import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar"
-import { ListingMarketplaceView } from "@/components/dashboard/master-produk/listing-marketplace/listing-view"
-import { TabBarSkeleton } from "@/components/ui/page-skeleton"
+import { PageTitle } from "@/components/dashboard/page-title";
+import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar";
+import { ListingMarketplaceView } from "@/components/dashboard/master-produk/listing-marketplace/listing-view";
+import { TabBarSkeleton } from "@/components/ui/page-skeleton";
 
 export default function ListingMarketplacePage() {
   return (
@@ -24,5 +24,5 @@ export default function ListingMarketplacePage() {
 
       <ListingMarketplaceView />
     </div>
-  )
+  );
 }

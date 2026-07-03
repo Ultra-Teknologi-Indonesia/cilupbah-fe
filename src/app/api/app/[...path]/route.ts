@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-// URL backend hanya dipakai server-side; utamakan env non-publik agar
-// origin backend tidak perlu diekspos ke bundle klien.
 const BACKEND_URL =
   process.env.API_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
@@ -56,13 +54,6 @@ async function proxyRequest(
   try {
     const response = await fetch(targetUrl, fetchOptions);
 
-    // Stream semua respons apa adanya — JSON maupun biner. Sebelumnya respons
-    // JSON di-buffer penuh (response.text() → JSON.parse → re-serialize), yang
-    // menambah latensi + memori untuk list besar dan mematikan streaming.
-    // Membaca .text() juga merusak payload biner (mis. .xlsx). Passthrough
-    // langsung dari response.body menjaga byte tetap utuh beserta status &
-    // header; error body (non-2xx) tetap diteruskan dengan status aslinya
-    // sehingga axios di client tetap menerima error.response.data seperti biasa.
     const passthroughHeaders = new Headers();
     for (const header of [
       "content-type",

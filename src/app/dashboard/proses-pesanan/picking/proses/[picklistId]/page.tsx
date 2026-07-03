@@ -1,10 +1,10 @@
-import { PickingProsesView } from "@/components/dashboard/proses-pesanan/picking/picking-proses-view"
+import { PickingProsesView } from "@/components/dashboard/proses-pesanan/picking/picking-proses-view";
 
 export default async function PickingProsesPage({
   params,
 }: {
-  params: Promise<{ picklistId: string }>
+  params: Promise<{ picklistId: string }>;
 }) {
-  const { picklistId } = await params
-  return <PickingProsesView id={picklistId} />
+  const { picklistId } = await params;
+  return <PickingProsesView id={picklistId} />;
 }

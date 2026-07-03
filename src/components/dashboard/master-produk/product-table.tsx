@@ -1,24 +1,23 @@
-"use client"
+"use client";
 
-import { SearchXIcon } from "lucide-react"
-import type { PaginationState, SortingState } from "@tanstack/react-table"
+import { SearchXIcon } from "lucide-react";
+import type { PaginationState, SortingState } from "@tanstack/react-table";
 
-import { DataTable } from "@/components/ui/data-table"
-import type { Product } from "@/types/master-produk"
-import { productColumns } from "./product-columns"
-import { ProductBulkActions } from "./product-bulk-actions"
-import { ProductVariantDetail } from "./product-variant-detail"
+import { DataTable } from "@/components/ui/data-table";
+import type { Product } from "@/types/master-produk";
+import { productColumns } from "./product-columns";
+import { ProductBulkActions } from "./product-bulk-actions";
+import { ProductVariantDetail } from "./product-variant-detail";
 
 export interface ProductListViewProps {
-  items: Product[]
-  total: number
-  isLoading: boolean
-  sorting: SortingState
-  onSortingChange: (s: SortingState) => void
-  pagination: PaginationState
-  onPaginationChange: (p: PaginationState) => void
+  items: Product[];
+  total: number;
+  isLoading: boolean;
+  sorting: SortingState;
+  onSortingChange: (s: SortingState) => void;
+  pagination: PaginationState;
+  onPaginationChange: (p: PaginationState) => void;
 }
-
 
 export function ProductTable({
   items,
@@ -59,5 +58,5 @@ export function ProductTable({
         </div>
       }
     />
-  )
+  );
 }

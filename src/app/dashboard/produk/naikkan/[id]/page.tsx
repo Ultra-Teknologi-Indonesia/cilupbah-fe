@@ -1,16 +1,16 @@
-import { Suspense } from "react"
+import { Suspense } from "react";
 
-import { PageTitle } from "@/components/dashboard/page-title"
-import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar"
-import { NaikkanDetailView } from "@/components/dashboard/master-produk/naikkan/naikkan-detail-view"
-import { TabBarSkeleton, TableSkeleton } from "@/components/ui/page-skeleton"
+import { PageTitle } from "@/components/dashboard/page-title";
+import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar";
+import { NaikkanDetailView } from "@/components/dashboard/master-produk/naikkan/naikkan-detail-view";
+import { TabBarSkeleton, TableSkeleton } from "@/components/ui/page-skeleton";
 
 export default async function NaikkanDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = await params
+  const { id } = await params;
 
   return (
     <div className="flex flex-col gap-6">
@@ -32,5 +32,5 @@ export default async function NaikkanDetailPage({
         <NaikkanDetailView id={id} />
       </Suspense>
     </div>
-  )
+  );
 }

@@ -1,10 +1,10 @@
-import { Suspense } from "react"
+import { Suspense } from "react";
 
-import { PageTitle } from "@/components/dashboard/page-title"
-import { TableSkeleton } from "@/components/ui/page-skeleton"
-import type { FulfillmentStage } from "@/types/proses-pesanan/fulfillment"
+import { PageTitle } from "@/components/dashboard/page-title";
+import { TableSkeleton } from "@/components/ui/page-skeleton";
+import type { FulfillmentStage } from "@/types/proses-pesanan/fulfillment";
 
-import { ProsesPesananView } from "./proses-pesanan-view"
+import { ProsesPesananView } from "./proses-pesanan-view";
 
 export function ProsesPesananPage({ stage }: { stage: FulfillmentStage }) {
   return (
@@ -23,5 +23,5 @@ export function ProsesPesananPage({ stage }: { stage: FulfillmentStage }) {
         <ProsesPesananView stage={stage} />
       </Suspense>
     </div>
-  )
+  );
 }

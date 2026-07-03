@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname, useSearchParams } from "next/navigation"
+import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   ArchiveIcon,
   CloudDownloadIcon,
@@ -10,45 +10,79 @@ import {
   PlugIcon,
   TrendingUpIcon,
   UploadCloudIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Tab = {
-  id: string
-  label: string
-  icon: typeof Package2Icon
-  href?: string
-}
+  id: string;
+  label: string;
+  icon: typeof Package2Icon;
+  href?: string;
+};
 
-// Tahap "Alur Pengelolaan Produk" (selaras Jubelio). Tab tanpa href = belum
-// dibangun → tampil disabled "Segera".
 const TABS: Tab[] = [
-  { id: "master", label: "Master", icon: Package2Icon, href: "/dashboard/produk/master" },
-  { id: "upload", label: "Upload", icon: UploadCloudIcon, href: "/dashboard/produk/upload" },
-  { id: "download", label: "Download", icon: CloudDownloadIcon, href: "/dashboard/produk/download" },
-  { id: "import", label: "Import", icon: ImportIcon, href: "/dashboard/produk/import" },
-  { id: "arsip", label: "Arsip", icon: ArchiveIcon, href: "/dashboard/produk/arsip" },
-  { id: "channel", label: "Produk Channel", icon: PlugIcon, href: "/dashboard/produk/listing-marketplace" },
-  { id: "naikkan", label: "Naikkan Produk", icon: TrendingUpIcon, href: "/dashboard/produk/naikkan" },
-]
+  {
+    id: "master",
+    label: "Master",
+    icon: Package2Icon,
+    href: "/dashboard/produk/master",
+  },
+  {
+    id: "upload",
+    label: "Upload",
+    icon: UploadCloudIcon,
+    href: "/dashboard/produk/upload",
+  },
+  {
+    id: "download",
+    label: "Download",
+    icon: CloudDownloadIcon,
+    href: "/dashboard/produk/download",
+  },
+  {
+    id: "import",
+    label: "Import",
+    icon: ImportIcon,
+    href: "/dashboard/produk/import",
+  },
+  {
+    id: "arsip",
+    label: "Arsip",
+    icon: ArchiveIcon,
+    href: "/dashboard/produk/arsip",
+  },
+  {
+    id: "channel",
+    label: "Produk Channel",
+    icon: PlugIcon,
+    href: "/dashboard/produk/listing-marketplace",
+  },
+  {
+    id: "naikkan",
+    label: "Naikkan Produk",
+    icon: TrendingUpIcon,
+    href: "/dashboard/produk/naikkan",
+  },
+];
 
 function activeId(pathname: string, status: string | null): string {
-  if (pathname.startsWith("/dashboard/produk/arsip")) return "arsip"
-  if (pathname.startsWith("/dashboard/produk/upload")) return "upload"
-  if (pathname.startsWith("/dashboard/produk/download")) return "download"
-  if (pathname.startsWith("/dashboard/produk/import")) return "import"
-  if (pathname.startsWith("/dashboard/produk/listing-marketplace")) return "channel"
-  if (pathname.startsWith("/dashboard/produk/naikkan")) return "naikkan"
-  if (pathname.startsWith("/dashboard/produk/master")) return "master"
-  return ""
+  if (pathname.startsWith("/dashboard/produk/arsip")) return "arsip";
+  if (pathname.startsWith("/dashboard/produk/upload")) return "upload";
+  if (pathname.startsWith("/dashboard/produk/download")) return "download";
+  if (pathname.startsWith("/dashboard/produk/import")) return "import";
+  if (pathname.startsWith("/dashboard/produk/listing-marketplace"))
+    return "channel";
+  if (pathname.startsWith("/dashboard/produk/naikkan")) return "naikkan";
+  if (pathname.startsWith("/dashboard/produk/master")) return "master";
+  return "";
 }
 
 export function ProdukTabBar() {
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const active = activeId(pathname, searchParams.get("status"))
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const active = activeId(pathname, searchParams.get("status"));
 
   return (
     <LiquidGlass
@@ -62,7 +96,7 @@ export function ProdukTabBar() {
       <Tabs value={active}>
         <TabsList className="gap-1 bg-transparent">
           {TABS.map((tab) => {
-            const Icon = tab.icon
+            const Icon = tab.icon;
 
             if (!tab.href) {
               return (
@@ -79,7 +113,7 @@ export function ProdukTabBar() {
                     Segera
                   </span>
                 </TabsTrigger>
-              )
+              );
             }
 
             return (
@@ -94,10 +128,10 @@ export function ProdukTabBar() {
                   {tab.label}
                 </Link>
               </TabsTrigger>
-            )
+            );
           })}
         </TabsList>
       </Tabs>
     </LiquidGlass>
-  )
+  );
 }

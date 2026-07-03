@@ -1,49 +1,49 @@
-"use client"
+"use client";
 
-import { useState, useMemo, useCallback } from "react"
-import Link from "next/link"
-import { DollarSignIcon } from "lucide-react"
+import { useState, useMemo, useCallback } from "react";
+import Link from "next/link";
+import { DollarSignIcon } from "lucide-react";
 
-import { Combobox } from "@/components/ui/combobox"
-import type { ColumnDef } from "@tanstack/react-table"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { ResourceListView } from "@/components/dashboard/shared/resource-list-view"
-import { StatusBadge } from "@/components/dashboard/shared/status-badge"
-import { getStatusMeta } from "@/lib/status"
-import { useListState } from "@/hooks/use-list-state"
+import { Combobox } from "@/components/ui/combobox";
+import type { ColumnDef } from "@tanstack/react-table";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { ResourceListView } from "@/components/dashboard/shared/resource-list-view";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { getStatusMeta } from "@/lib/status";
+import { useListState } from "@/hooks/use-list-state";
 import {
   useStockRevaluations,
   useCancelStockRevaluation,
-} from "@/hooks/transaksi-stok/use-stock-revaluations"
-import { useLocations } from "@/hooks/manajemen-rak/use-locations"
-import { exportCsv } from "@/lib/export-csv"
+} from "@/hooks/transaksi-stok/use-stock-revaluations";
+import { useLocations } from "@/hooks/manajemen-rak/use-locations";
+import { exportCsv } from "@/lib/export-csv";
 import type {
   StockRevaluation,
   StockRevaluationListParams,
-} from "@/types/transaksi-stok/stock-revaluation"
-import { formatDate } from "@/lib/format"
+} from "@/types/transaksi-stok/stock-revaluation";
+import { formatDate } from "@/lib/format";
 
 interface FilterState {
-  status: string
-  location_id: string
+  status: string;
+  location_id: string;
 }
 
-const EMPTY_FILTERS: FilterState = { status: "", location_id: "" }
+const EMPTY_FILTERS: FilterState = { status: "", location_id: "" };
 
 const STATUS_OPTIONS = [
   { value: "", label: "Semua Status" },
   { value: "APPROVED", label: "Approved" },
   { value: "CANCELLED", label: "Dibatalkan" },
-]
+];
 
 export function RevaluasiTab() {
   const list = useListState<FilterState>(EMPTY_FILTERS, {
     urlSync: true,
     namespace: "rev",
-  })
+  });
   const [cancelTarget, setCancelTarget] = useState<StockRevaluation | null>(
-    null
-  )
+    null,
+  );
 
   const params = useMemo<StockRevaluationListParams>(
     () => ({
@@ -53,15 +53,15 @@ export function RevaluasiTab() {
       "filter[status]": list.filters.status || undefined,
       "filter[location_id]": list.filters.location_id || undefined,
     }),
-    [list.debouncedSearch, list.page, list.perPage, list.filters]
-  )
+    [list.debouncedSearch, list.page, list.perPage, list.filters],
+  );
 
-  const { data, isLoading, isFetching } = useStockRevaluations(params)
-  const { data: locData } = useLocations({ perPage: 100 })
-  const cancelMut = useCancelStockRevaluation()
+  const { data, isLoading, isFetching } = useStockRevaluations(params);
+  const { data: locData } = useLocations({ perPage: 100 });
+  const cancelMut = useCancelStockRevaluation();
 
-  const items = data?.items ?? []
-  const total = data?.meta?.total ?? 0
+  const items = data?.items ?? [];
+  const total = data?.meta?.total ?? 0;
 
   const locationOptions = useMemo(
     () => [
@@ -71,62 +71,85 @@ export function RevaluasiTab() {
         label: l.locationName,
       })),
     ],
-    [locData]
-  )
+    [locData],
+  );
 
-  const columns = useMemo<ColumnDef<StockRevaluation>[]>(() => [
-    {
-      accessorKey: "revaluation_no",
-      header: "No. Ubah Nilai Stok",
-      cell: ({ row }) => (
-        <span className="font-medium">
-          <Link
-            href={`/dashboard/transaksi-stok/revaluasi/${row.original.id}`}
-            className="hover:text-primary hover:underline"
-          >
-            {row.original.revaluation_no}
-          </Link>
-        </span>
-      ),
-    },
-    {
-      id: "location",
-      header: "Lokasi",
-      cell: ({ row }) => <span className="text-foreground">{row.original.location?.location_name ?? "—"}</span>,
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => (
-        <StatusBadge domain="stock-revaluation" status={row.original.status} className="text-[10px] leading-tight" />
-      ),
-    },
-    {
-      accessorKey: "created_by",
-      header: "Dibuat Oleh",
-      cell: ({ row }) => <span className="text-foreground">{row.original.created_by}</span>,
-    },
-    {
-      accessorKey: "approved_by",
-      header: "Disetujui Oleh",
-      cell: ({ row }) => <span className="text-foreground">{row.original.approved_by ?? "—"}</span>,
-    },
-    {
-      accessorKey: "approved_at",
-      header: "Tgl. Disetujui",
-      cell: ({ row }) => <span className="text-foreground">{row.original.approved_at ? formatDate(row.original.approved_at) : "—"}</span>,
-    },
-  ], [])
+  const columns = useMemo<ColumnDef<StockRevaluation>[]>(
+    () => [
+      {
+        accessorKey: "revaluation_no",
+        header: "No. Ubah Nilai Stok",
+        cell: ({ row }) => (
+          <span className="font-medium">
+            <Link
+              href={`/dashboard/transaksi-stok/revaluasi/${row.original.id}`}
+              className="hover:text-primary hover:underline"
+            >
+              {row.original.revaluation_no}
+            </Link>
+          </span>
+        ),
+      },
+      {
+        id: "location",
+        header: "Lokasi",
+        cell: ({ row }) => (
+          <span className="text-foreground">
+            {row.original.location?.location_name ?? "—"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => (
+          <StatusBadge
+            domain="stock-revaluation"
+            status={row.original.status}
+            className="text-[10px] leading-tight"
+          />
+        ),
+      },
+      {
+        accessorKey: "created_by",
+        header: "Dibuat Oleh",
+        cell: ({ row }) => (
+          <span className="text-foreground">{row.original.created_by}</span>
+        ),
+      },
+      {
+        accessorKey: "approved_by",
+        header: "Disetujui Oleh",
+        cell: ({ row }) => (
+          <span className="text-foreground">
+            {row.original.approved_by ?? "—"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "approved_at",
+        header: "Tgl. Disetujui",
+        cell: ({ row }) => (
+          <span className="text-foreground">
+            {row.original.approved_at
+              ? formatDate(row.original.approved_at)
+              : "—"}
+          </span>
+        ),
+      },
+    ],
+    [],
+  );
 
   function handleCancel() {
-    if (!cancelTarget) return
+    if (!cancelTarget) return;
     cancelMut.mutate(cancelTarget.id, {
       onSuccess: () => setCancelTarget(null),
-    })
+    });
   }
 
   const handleExport = useCallback(() => {
-    if (items.length === 0) return
+    if (items.length === 0) return;
     exportCsv(
       "ubah-nilai-stok.csv",
       [
@@ -144,9 +167,9 @@ export function RevaluasiTab() {
         item.created_by,
         item.approved_by ?? "—",
         item.approved_at ? formatDate(item.approved_at) : "—",
-      ])
-    )
-  }, [items])
+      ]),
+    );
+  }, [items]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -199,5 +222,5 @@ export function RevaluasiTab() {
         onConfirm={handleCancel}
       />
     </div>
-  )
+  );
 }

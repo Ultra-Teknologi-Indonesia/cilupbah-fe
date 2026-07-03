@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import type { Column } from "@tanstack/react-table"
-import { CheckIcon, PlusCircleIcon } from "lucide-react"
+import type { Column } from "@tanstack/react-table";
+import { CheckIcon, PlusCircleIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,13 +14,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import type { FacetedFilterOption } from "./types"
+} from "@/components/ui/dropdown-menu";
+import type { FacetedFilterOption } from "./types";
 
 interface DataTableFacetedFilterProps<TData, TValue> {
-  column?: Column<TData, TValue>
-  title: string
-  options: FacetedFilterOption[]
+  column?: Column<TData, TValue>;
+  title: string;
+  options: FacetedFilterOption[];
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
@@ -28,8 +28,8 @@ export function DataTableFacetedFilter<TData, TValue>({
   title,
   options,
 }: DataTableFacetedFilterProps<TData, TValue>) {
-  const facets = column?.getFacetedUniqueValues()
-  const selected = new Set(column?.getFilterValue() as string[])
+  const facets = column?.getFacetedUniqueValues();
+  const selected = new Set(column?.getFilterValue() as string[]);
 
   return (
     <DropdownMenu>
@@ -40,7 +40,10 @@ export function DataTableFacetedFilter<TData, TValue>({
           {selected.size > 0 && (
             <>
               <Separator orientation="vertical" className="mx-0.5 h-4" />
-              <Badge variant="secondary" className="rounded-sm px-1 font-normal">
+              <Badge
+                variant="secondary"
+                className="rounded-sm px-1 font-normal"
+              >
                 {selected.size}
               </Badge>
             </>
@@ -51,16 +54,16 @@ export function DataTableFacetedFilter<TData, TValue>({
         <DropdownMenuLabel>{title}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {options.map((option) => {
-          const isSelected = selected.has(option.value)
+          const isSelected = selected.has(option.value);
           return (
             <DropdownMenuItem
               key={option.value}
               onSelect={(e) => {
-                e.preventDefault()
-                if (isSelected) selected.delete(option.value)
-                else selected.add(option.value)
-                const values = Array.from(selected)
-                column?.setFilterValue(values.length ? values : undefined)
+                e.preventDefault();
+                if (isSelected) selected.delete(option.value);
+                else selected.add(option.value);
+                const values = Array.from(selected);
+                column?.setFilterValue(values.length ? values : undefined);
               }}
             >
               <span
@@ -68,7 +71,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                   "flex size-4 items-center justify-center rounded-[4px] border",
                   isSelected
                     ? "border-primary bg-primary text-primary-foreground"
-                    : "border-input [&_svg]:invisible"
+                    : "border-input [&_svg]:invisible",
                 )}
               >
                 <CheckIcon className="size-3" />
@@ -83,7 +86,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                 </span>
               )}
             </DropdownMenuItem>
-          )
+          );
         })}
         {selected.size > 0 && (
           <>
@@ -98,5 +101,5 @@ export function DataTableFacetedFilter<TData, TValue>({
         )}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

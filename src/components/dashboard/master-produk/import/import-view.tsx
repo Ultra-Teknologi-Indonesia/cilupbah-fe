@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import type { PaginationState } from "@tanstack/react-table"
-import type { ColumnDef } from "@tanstack/react-table"
+import * as React from "react";
+import type { PaginationState } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import {
   AlertTriangleIcon,
   CheckCircle2Icon,
@@ -15,66 +15,74 @@ import {
   RefreshCwIcon,
   SearchXIcon,
   XCircleIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { DataTable } from "@/components/ui/data-table"
-import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar"
-import { useImportBatches } from "@/hooks/master-produk/use-import"
+} from "@/components/ui/select";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { DataTable } from "@/components/ui/data-table";
+import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
+import { useImportBatches } from "@/hooks/master-produk/use-import";
 import type {
   ImportBatch,
   ImportBatchState,
   ImportBatchType,
-} from "@/hooks/master-produk/use-import"
-import { ImportDialog } from "./import-dialog"
-import { ImportErrorSheet } from "./import-error-sheet"
+} from "@/hooks/master-produk/use-import";
+import { ImportDialog } from "./import-dialog";
+import { ImportErrorSheet } from "./import-error-sheet";
 
 function stateLabel(state: ImportBatchState) {
   switch (state) {
     case "queued":
-      return "Menunggu"
+      return "Menunggu";
     case "processing":
-      return "Diproses"
+      return "Diproses";
     case "done":
-      return "Selesai"
+      return "Selesai";
     case "done_with_errors":
-      return "Selesai (Error)"
+      return "Selesai (Error)";
     case "failed":
-      return "Gagal"
+      return "Gagal";
   }
 }
 
 function StateIcon({ state }: { state: ImportBatchState }) {
   switch (state) {
     case "queued":
-      return <ClockIcon className="size-4 text-muted-foreground" />
+      return <ClockIcon className="size-4 text-muted-foreground" />;
     case "processing":
-      return <Loader2Icon className="size-4 animate-spin text-blue-500" />
+      return <Loader2Icon className="size-4 animate-spin text-blue-500" />;
     case "done":
-      return <CheckCircle2Icon className="size-4 text-emerald-600 dark:text-emerald-400" />
+      return (
+        <CheckCircle2Icon className="size-4 text-emerald-600 dark:text-emerald-400" />
+      );
     case "done_with_errors":
-      return <AlertTriangleIcon className="size-4 text-amber-500" />
+      return <AlertTriangleIcon className="size-4 text-amber-500" />;
     case "failed":
-      return <XCircleIcon className="size-4 text-destructive" />
+      return <XCircleIcon className="size-4 text-destructive" />;
   }
 }
 
-function ProgressBar({ percent, state }: { percent: number; state: ImportBatchState }) {
+function ProgressBar({
+  percent,
+  state,
+}: {
+  percent: number;
+  state: ImportBatchState;
+}) {
   const color =
     state === "failed"
       ? "bg-destructive"
@@ -82,7 +90,7 @@ function ProgressBar({ percent, state }: { percent: number; state: ImportBatchSt
         ? "bg-amber-500"
         : state === "done"
           ? "bg-emerald-500"
-          : "bg-primary"
+          : "bg-primary";
   return (
     <div className="flex items-center gap-2">
       <div className="h-2 w-full max-w-[120px] overflow-hidden rounded-full bg-muted">
@@ -91,20 +99,24 @@ function ProgressBar({ percent, state }: { percent: number; state: ImportBatchSt
           style={{ width: `${Math.min(100, percent)}%` }}
         />
       </div>
-      <span className="tabular-nums text-xs text-muted-foreground">{percent}%</span>
+      <span className="tabular-nums text-xs text-muted-foreground">
+        {percent}%
+      </span>
     </div>
-  )
+  );
 }
 
 function buildColumns(
-  onViewErrors: (b: ImportBatch) => void
+  onViewErrors: (b: ImportBatch) => void,
 ): ColumnDef<ImportBatch>[] {
   return [
     {
       accessorKey: "batchNo",
       header: "Batch",
       cell: ({ row }) => (
-        <span className="font-mono text-xs text-primary">{row.original.batchNo}</span>
+        <span className="font-mono text-xs text-primary">
+          {row.original.batchNo}
+        </span>
       ),
     },
     {
@@ -123,7 +135,9 @@ function buildColumns(
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <FileSpreadsheetIcon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-          <span className="max-w-[200px] truncate">{row.original.originalFilename}</span>
+          <span className="max-w-[200px] truncate">
+            {row.original.originalFilename}
+          </span>
         </div>
       ),
     },
@@ -132,28 +146,34 @@ function buildColumns(
       header: "Status",
       size: 150,
       cell: ({ row }) => {
-        const b = row.original
+        const b = row.original;
         return (
           <div className="flex items-center gap-1.5">
             <StateIcon state={b.state} />
             <span className="text-sm">{stateLabel(b.state)}</span>
           </div>
-        )
+        );
       },
     },
     {
       id: "progress",
       header: "Progress",
       size: 180,
-      cell: ({ row }) => <ProgressBar percent={row.original.progressPercent} state={row.original.state} />,
+      cell: ({ row }) => (
+        <ProgressBar
+          percent={row.original.progressPercent}
+          state={row.original.state}
+        />
+      ),
     },
     {
       id: "rows",
       header: "Baris",
       size: 160,
       cell: ({ row }) => {
-        const b = row.original
-        if (b.state === "queued") return <span className="text-sm text-muted-foreground">—</span>
+        const b = row.original;
+        if (b.state === "queued")
+          return <span className="text-sm text-muted-foreground">—</span>;
         return (
           <div className="flex gap-3 text-xs">
             <span className="text-muted-foreground">Total {b.totalRows}</span>
@@ -166,8 +186,8 @@ function buildColumns(
               <button
                 type="button"
                 onClick={(e) => {
-                  e.stopPropagation()
-                  onViewErrors(b)
+                  e.stopPropagation();
+                  onViewErrors(b);
                 }}
                 className="font-medium text-destructive hover:underline"
               >
@@ -175,7 +195,7 @@ function buildColumns(
               </button>
             )}
           </div>
-        )
+        );
       },
     },
     {
@@ -183,9 +203,9 @@ function buildColumns(
       header: "Tanggal",
       size: 160,
       cell: ({ row }) => {
-        const d = row.original.createdAt
-        if (!d) return "—"
-        const date = new Date(d)
+        const d = row.original.createdAt;
+        if (!d) return "—";
+        const date = new Date(d);
         return (
           <span className="text-sm tabular-nums text-muted-foreground">
             {date.toLocaleDateString("id-ID", {
@@ -198,39 +218,49 @@ function buildColumns(
               minute: "2-digit",
             })}
           </span>
-        )
+        );
       },
     },
-  ]
+  ];
 }
 
 export function ImportView() {
-  const [importType, setImportType] = React.useState<ImportBatchType | null>(null)
-  const [errorBatch, setErrorBatch] = React.useState<ImportBatch | null>(null)
+  const [importType, setImportType] = React.useState<ImportBatchType | null>(
+    null,
+  );
+  const [errorBatch, setErrorBatch] = React.useState<ImportBatch | null>(null);
 
-  const [typeFilter, setTypeFilter] = React.useState<"all" | ImportBatchType>("all")
-  const [stateFilter, setStateFilter] = React.useState<"all" | ImportBatchState>("all")
+  const [typeFilter, setTypeFilter] = React.useState<"all" | ImportBatchType>(
+    "all",
+  );
+  const [stateFilter, setStateFilter] = React.useState<
+    "all" | ImportBatchState
+  >("all");
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 20,
-  })
+  });
 
   const query = useImportBatches({
     type: typeFilter === "all" ? undefined : typeFilter,
     state: stateFilter === "all" ? undefined : stateFilter,
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
-  })
+  });
 
-  const items = query.data?.items ?? []
-  const total = query.data?.meta?.total ?? 0
-  const columns = React.useMemo(() => buildColumns(setErrorBatch), [])
+  const items = query.data?.items ?? [];
+  const total = query.data?.meta?.total ?? 0;
+  const columns = React.useMemo(() => buildColumns(setErrorBatch), []);
 
-  const hasFilter = typeFilter !== "all" || stateFilter !== "all"
+  const hasFilter = typeFilter !== "all" || stateFilter !== "all";
 
   return (
     <>
-      <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+      <LiquidGlass
+        radius={24}
+        intensity="default"
+        className="bg-white/40 dark:bg-white/[0.06]"
+      >
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 py-3 sm:px-5">
           <div className="flex items-center gap-2">
             <ImportIcon className="size-5 text-primary" />
@@ -285,7 +315,7 @@ export function ImportView() {
               <RefreshCwIcon
                 className={cn(
                   "size-4",
-                  query.isFetching && "animate-spin motion-reduce:animate-none"
+                  query.isFetching && "animate-spin motion-reduce:animate-none",
                 )}
               />
               Refresh
@@ -294,19 +324,25 @@ export function ImportView() {
         </div>
 
         <FilterToolbar
-          onReset={hasFilter ? () => {
-            setTypeFilter("all")
-            setStateFilter("all")
-            setPagination((p) => ({ ...p, pageIndex: 0 }))
-          } : undefined}
+          onReset={
+            hasFilter
+              ? () => {
+                  setTypeFilter("all");
+                  setStateFilter("all");
+                  setPagination((p) => ({ ...p, pageIndex: 0 }));
+                }
+              : undefined
+          }
           hasFilter={hasFilter}
-          activeCount={(typeFilter !== "all" ? 1 : 0) + (stateFilter !== "all" ? 1 : 0)}
+          activeCount={
+            (typeFilter !== "all" ? 1 : 0) + (stateFilter !== "all" ? 1 : 0)
+          }
         >
           <Select
             value={typeFilter}
             onValueChange={(v) => {
-              setTypeFilter(v as "all" | ImportBatchType)
-              setPagination((p) => ({ ...p, pageIndex: 0 }))
+              setTypeFilter(v as "all" | ImportBatchType);
+              setPagination((p) => ({ ...p, pageIndex: 0 }));
             }}
           >
             <SelectTrigger className="rounded-full bg-background">
@@ -322,8 +358,8 @@ export function ImportView() {
           <Select
             value={stateFilter}
             onValueChange={(v) => {
-              setStateFilter(v as "all" | ImportBatchState)
-              setPagination((p) => ({ ...p, pageIndex: 0 }))
+              setStateFilter(v as "all" | ImportBatchState);
+              setPagination((p) => ({ ...p, pageIndex: 0 }));
             }}
           >
             <SelectTrigger className="rounded-full bg-background">
@@ -395,5 +431,5 @@ export function ImportView() {
         onOpenChange={(o) => !o && setErrorBatch(null)}
       />
     </>
-  )
+  );
 }

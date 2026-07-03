@@ -1,8 +1,8 @@
-import { Suspense } from "react"
-import { PageTitle } from "@/components/dashboard/page-title"
-import { TableSkeleton, TabBarSkeleton } from "@/components/ui/page-skeleton"
-import { BarangMasukTabBar } from "@/components/dashboard/barang-masuk/barang-masuk-tab-bar"
-import { ReturChannelTab } from "@/components/dashboard/barang-masuk/retur-channel-tab"
+import { Suspense } from "react";
+import { PageTitle } from "@/components/dashboard/page-title";
+import { TableSkeleton, TabBarSkeleton } from "@/components/ui/page-skeleton";
+import { BarangMasukTabBar } from "@/components/dashboard/barang-masuk/barang-masuk-tab-bar";
+import { ReturChannelTab } from "@/components/dashboard/barang-masuk/retur-channel-tab";
 
 export default function BarangMasukReturPage() {
   return (
@@ -26,5 +26,5 @@ export default function BarangMasukReturPage() {
         <ReturChannelTab />
       </Suspense>
     </div>
-  )
+  );
 }

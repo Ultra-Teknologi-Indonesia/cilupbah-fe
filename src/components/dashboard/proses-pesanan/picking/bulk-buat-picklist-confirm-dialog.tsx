@@ -1,27 +1,27 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Loader2Icon } from "lucide-react"
+import * as React from "react";
+import { Loader2Icon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment"
+} from "@/components/ui/dialog";
+import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment";
 
 interface BulkBuatPicklistConfirmDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  selectedOrders: FulfillmentOrder[]
-  pickerName: string | null
-  pickerEmail: string | null
-  locationName: string | null
-  loading: boolean
-  onConfirm: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  selectedOrders: FulfillmentOrder[];
+  pickerName: string | null;
+  pickerEmail: string | null;
+  locationName: string | null;
+  loading: boolean;
+  onConfirm: () => void;
 }
 
 export function BulkBuatPicklistConfirmDialog({
@@ -35,16 +35,16 @@ export function BulkBuatPicklistConfirmDialog({
   onConfirm,
 }: BulkBuatPicklistConfirmDialogProps) {
   const { totalSku, totalQty } = React.useMemo(() => {
-    const skuSet = new Set<string>()
-    let qty = 0
+    const skuSet = new Set<string>();
+    let qty = 0;
     for (const order of selectedOrders) {
       for (const item of order.items) {
-        if (item.sku) skuSet.add(item.sku)
-        qty += Number(item.qty ?? 0)
+        if (item.sku) skuSet.add(item.sku);
+        qty += Number(item.qty ?? 0);
       }
     }
-    return { totalSku: skuSet.size, totalQty: qty }
-  }, [selectedOrders])
+    return { totalSku: skuSet.size, totalQty: qty };
+  }, [selectedOrders]);
 
   const rows: { label: string; value: React.ReactNode }[] = [
     {
@@ -78,7 +78,7 @@ export function BulkBuatPicklistConfirmDialog({
       label: "Lokasi",
       value: <span className="font-medium">{locationName ?? "—"}</span>,
     },
-  ]
+  ];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -127,5 +127,5 @@ export function BulkBuatPicklistConfirmDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

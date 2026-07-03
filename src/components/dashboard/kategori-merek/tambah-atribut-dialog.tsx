@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Loader2Icon } from "lucide-react"
+import * as React from "react";
+import { Loader2Icon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { useCreateCategoryAttribute } from "@/hooks/kategori-merek/use-kategori"
+} from "@/components/ui/dialog";
+import { useCreateCategoryAttribute } from "@/hooks/kategori-merek/use-kategori";
 
 interface TambahAtributDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  categoryId: number
-  type: "spec" | "sales"
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  categoryId: number;
+  type: "spec" | "sales";
 }
 
 export function TambahAtributDialog({
@@ -28,24 +28,24 @@ export function TambahAtributDialog({
   categoryId,
   type,
 }: TambahAtributDialogProps) {
-  const [name, setName] = React.useState("")
-  const create = useCreateCategoryAttribute()
+  const [name, setName] = React.useState("");
+  const create = useCreateCategoryAttribute();
 
-  const label = type === "spec" ? "Atribut" : "Variasi"
+  const label = type === "spec" ? "Atribut" : "Variasi";
 
   function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!name.trim()) return
+    e.preventDefault();
+    if (!name.trim()) return;
 
     create.mutate(
       { categoryId, data: { name: name.trim(), type } },
       {
         onSuccess: () => {
-          setName("")
-          onOpenChange(false)
+          setName("");
+          onOpenChange(false);
         },
-      }
-    )
+      },
+    );
   }
 
   return (
@@ -79,12 +79,14 @@ export function TambahAtributDialog({
               variant="primary"
               disabled={!name.trim() || create.isPending}
             >
-              {create.isPending && <Loader2Icon className="size-4 animate-spin" />}
+              {create.isPending && (
+                <Loader2Icon className="size-4 animate-spin" />
+              )}
               Simpan
             </Button>
           </div>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

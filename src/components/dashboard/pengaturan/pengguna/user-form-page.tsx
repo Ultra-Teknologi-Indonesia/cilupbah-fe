@@ -1,16 +1,24 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { CheckIcon, CopyIcon, DicesIcon, EyeIcon, EyeOffIcon, Loader2Icon, XIcon } from "lucide-react"
-import { toast } from "sonner"
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  CheckIcon,
+  CopyIcon,
+  DicesIcon,
+  EyeIcon,
+  EyeOffIcon,
+  Loader2Icon,
+  XIcon,
+} from "lucide-react";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
 import {
   Form,
   FormControl,
@@ -18,31 +26,51 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Combobox } from "@/components/ui/combobox"
+} from "@/components/ui/form";
+import { Combobox } from "@/components/ui/combobox";
 import {
   useRoles,
   useCreateUser,
   useUpdateUser,
   useUserDetail,
-} from "@/hooks/pengaturan/use-users"
-import type { UserFormPayload } from "@/types/pengaturan/user"
+} from "@/hooks/pengaturan/use-users";
+import type { UserFormPayload } from "@/types/pengaturan/user";
 
 const PASSWORD_RULES = [
-  { key: "length", label: "Minimal 8 karakter", test: (v: string) => v.length >= 8 },
-  { key: "upper", label: "Huruf besar (A-Z)", test: (v: string) => /[A-Z]/.test(v) },
-  { key: "lower", label: "Huruf kecil (a-z)", test: (v: string) => /[a-z]/.test(v) },
+  {
+    key: "length",
+    label: "Minimal 8 karakter",
+    test: (v: string) => v.length >= 8,
+  },
+  {
+    key: "upper",
+    label: "Huruf besar (A-Z)",
+    test: (v: string) => /[A-Z]/.test(v),
+  },
+  {
+    key: "lower",
+    label: "Huruf kecil (a-z)",
+    test: (v: string) => /[a-z]/.test(v),
+  },
   { key: "number", label: "Angka (0-9)", test: (v: string) => /\d/.test(v) },
-  { key: "special", label: "Karakter spesial (!@#$...)", test: (v: string) => /[^A-Za-z0-9]/.test(v) },
-] as const
+  {
+    key: "special",
+    label: "Karakter spesial (!@#$...)",
+    test: (v: string) => /[^A-Za-z0-9]/.test(v),
+  },
+] as const;
 
 function getPasswordStrength(password: string) {
-  const passed = PASSWORD_RULES.filter((r) => r.test(password)).length
-  if (passed <= 1) return { level: "Lemah", color: "bg-destructive", percent: 20 }
-  if (passed <= 2) return { level: "Lemah", color: "bg-destructive", percent: 40 }
-  if (passed <= 3) return { level: "Sedang", color: "bg-yellow-500", percent: 60 }
-  if (passed <= 4) return { level: "Kuat", color: "bg-emerald-500", percent: 80 }
-  return { level: "Sangat Kuat", color: "bg-emerald-600", percent: 100 }
+  const passed = PASSWORD_RULES.filter((r) => r.test(password)).length;
+  if (passed <= 1)
+    return { level: "Lemah", color: "bg-destructive", percent: 20 };
+  if (passed <= 2)
+    return { level: "Lemah", color: "bg-destructive", percent: 40 };
+  if (passed <= 3)
+    return { level: "Sedang", color: "bg-yellow-500", percent: 60 };
+  if (passed <= 4)
+    return { level: "Kuat", color: "bg-emerald-500", percent: 80 };
+  return { level: "Sangat Kuat", color: "bg-emerald-600", percent: 100 };
 }
 
 const baseSchema = z.object({
@@ -50,92 +78,102 @@ const baseSchema = z.object({
   email: z.string().email("Format email tidak valid"),
   nik: z.string().optional().or(z.literal("")),
   roles: z.array(z.string()).min(1, "Pilih minimal satu peran"),
-})
+});
 
-const createSchema = baseSchema.extend({
-  password: z
-    .string()
-    .min(8, "Password minimal 8 karakter")
-    .regex(/[A-Z]/, "Harus mengandung huruf besar")
-    .regex(/[a-z]/, "Harus mengandung huruf kecil")
-    .regex(/\d/, "Harus mengandung angka")
-    .regex(/[^A-Za-z0-9]/, "Harus mengandung karakter spesial"),
-  password_confirmation: z.string().min(1, "Konfirmasi password wajib diisi"),
-}).refine((d) => d.password === d.password_confirmation, {
-  message: "Password tidak cocok",
-  path: ["password_confirmation"],
-})
+const createSchema = baseSchema
+  .extend({
+    password: z
+      .string()
+      .min(8, "Password minimal 8 karakter")
+      .regex(/[A-Z]/, "Harus mengandung huruf besar")
+      .regex(/[a-z]/, "Harus mengandung huruf kecil")
+      .regex(/\d/, "Harus mengandung angka")
+      .regex(/[^A-Za-z0-9]/, "Harus mengandung karakter spesial"),
+    password_confirmation: z.string().min(1, "Konfirmasi password wajib diisi"),
+  })
+  .refine((d) => d.password === d.password_confirmation, {
+    message: "Password tidak cocok",
+    path: ["password_confirmation"],
+  });
 
-const editSchema = baseSchema.extend({
-  password: z
-    .string()
-    .refine(
-      (v) => !v || (v.length >= 8 && /[A-Z]/.test(v) && /[a-z]/.test(v) && /\d/.test(v) && /[^A-Za-z0-9]/.test(v)),
-      "Password harus minimal 8 karakter dengan huruf besar, kecil, angka, dan karakter spesial"
-    )
-    .optional()
-    .or(z.literal("")),
-  password_confirmation: z.string().optional().or(z.literal("")),
-}).refine((d) => !d.password || d.password === d.password_confirmation, {
-  message: "Password tidak cocok",
-  path: ["password_confirmation"],
-})
+const editSchema = baseSchema
+  .extend({
+    password: z
+      .string()
+      .refine(
+        (v) =>
+          !v ||
+          (v.length >= 8 &&
+            /[A-Z]/.test(v) &&
+            /[a-z]/.test(v) &&
+            /\d/.test(v) &&
+            /[^A-Za-z0-9]/.test(v)),
+        "Password harus minimal 8 karakter dengan huruf besar, kecil, angka, dan karakter spesial",
+      )
+      .optional()
+      .or(z.literal("")),
+    password_confirmation: z.string().optional().or(z.literal("")),
+  })
+  .refine((d) => !d.password || d.password === d.password_confirmation, {
+    message: "Password tidak cocok",
+    path: ["password_confirmation"],
+  });
 
 type FormValues = {
-  name: string
-  email: string
-  nik?: string
-  roles: string[]
-  password: string
-  password_confirmation: string
-}
+  name: string;
+  email: string;
+  nik?: string;
+  roles: string[];
+  password: string;
+  password_confirmation: string;
+};
 
 function generatePassword(length = 14): string {
-  const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  const lower = "abcdefghijklmnopqrstuvwxyz"
-  const digits = "0123456789"
-  const special = "!@#$%^&*()_+-="
-  const all = upper + lower + digits + special
+  const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const lower = "abcdefghijklmnopqrstuvwxyz";
+  const digits = "0123456789";
+  const special = "!@#$%^&*()_+-=";
+  const all = upper + lower + digits + special;
 
   const required = [
     upper[Math.floor(Math.random() * upper.length)],
     lower[Math.floor(Math.random() * lower.length)],
     digits[Math.floor(Math.random() * digits.length)],
     special[Math.floor(Math.random() * special.length)],
-  ]
+  ];
 
   for (let i = required.length; i < length; i++) {
-    required.push(all[Math.floor(Math.random() * all.length)])
+    required.push(all[Math.floor(Math.random() * all.length)]);
   }
 
   for (let i = required.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[required[i], required[j]] = [required[j], required[i]]
+    const j = Math.floor(Math.random() * (i + 1));
+    [required[i], required[j]] = [required[j], required[i]];
   }
 
-  return required.join("")
+  return required.join("");
 }
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (error && typeof error === "object" && "message" in error) {
-    const msg = (error as { message?: unknown }).message
-    if (typeof msg === "string" && msg) return msg
+    const msg = (error as { message?: unknown }).message;
+    if (typeof msg === "string" && msg) return msg;
   }
-  return fallback
+  return fallback;
 }
 
 interface UserFormPageProps {
-  userId?: string
+  userId?: string;
 }
 
 export function UserFormPage({ userId }: UserFormPageProps) {
-  const router = useRouter()
-  const isEdit = !!userId
+  const router = useRouter();
+  const isEdit = !!userId;
 
-  const { data: user, isLoading: userLoading } = useUserDetail(userId ?? "")
-  const { data: roles, isLoading: rolesLoading } = useRoles()
-  const createUser = useCreateUser()
-  const updateUser = useUpdateUser()
+  const { data: user, isLoading: userLoading } = useUserDetail(userId ?? "");
+  const { data: roles, isLoading: rolesLoading } = useRoles();
+  const createUser = useCreateUser();
+  const updateUser = useUpdateUser();
 
   const form = useForm<FormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -148,7 +186,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
       password_confirmation: "",
       roles: [],
     },
-  })
+  });
 
   React.useEffect(() => {
     if (user && isEdit) {
@@ -159,17 +197,17 @@ export function UserFormPage({ userId }: UserFormPageProps) {
         password: "",
         password_confirmation: "",
         roles: user.roles.filter((r) => r !== "owner"),
-      })
+      });
     }
-  }, [user, isEdit, form])
+  }, [user, isEdit, form]);
 
-  const [showPassword, setShowPassword] = React.useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false)
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
 
-  const passwordValue = form.watch("password") ?? ""
-  const strength = passwordValue ? getPasswordStrength(passwordValue) : null
+  const passwordValue = form.watch("password") ?? "";
+  const strength = passwordValue ? getPasswordStrength(passwordValue) : null;
 
-  const isPending = createUser.isPending || updateUser.isPending
+  const isPending = createUser.isPending || updateUser.isPending;
 
   function onSubmit(values: FormValues) {
     const payload: UserFormPayload = {
@@ -177,10 +215,10 @@ export function UserFormPage({ userId }: UserFormPageProps) {
       email: values.email,
       roles: values.roles,
       nik: values.nik || null,
-    }
+    };
     if (values.password) {
-      payload.password = values.password
-      payload.password_confirmation = values.password_confirmation
+      payload.password = values.password;
+      payload.password_confirmation = values.password_confirmation;
     }
 
     if (isEdit && userId) {
@@ -188,20 +226,22 @@ export function UserFormPage({ userId }: UserFormPageProps) {
         { id: userId, payload },
         {
           onSuccess: () => {
-            toast.success("Pengguna berhasil diperbarui.")
-            router.push(`/dashboard/pengaturan/pengguna/${userId}`)
+            toast.success("Pengguna berhasil diperbarui.");
+            router.push(`/dashboard/pengaturan/pengguna/${userId}`);
           },
-          onError: (err) => toast.error(getErrorMessage(err, "Gagal memperbarui pengguna.")),
-        }
-      )
+          onError: (err) =>
+            toast.error(getErrorMessage(err, "Gagal memperbarui pengguna.")),
+        },
+      );
     } else {
       createUser.mutate(payload, {
         onSuccess: () => {
-          toast.success("Pengguna berhasil ditambahkan.")
-          router.push("/dashboard/pengaturan/pengguna")
+          toast.success("Pengguna berhasil ditambahkan.");
+          router.push("/dashboard/pengaturan/pengguna");
         },
-        onError: (err) => toast.error(getErrorMessage(err, "Gagal menambahkan pengguna.")),
-      })
+        onError: (err) =>
+          toast.error(getErrorMessage(err, "Gagal menambahkan pengguna.")),
+      });
     }
   }
 
@@ -210,10 +250,10 @@ export function UserFormPage({ userId }: UserFormPageProps) {
       <div className="flex items-center justify-center gap-2 py-24 text-muted-foreground">
         <Loader2Icon className="size-4 animate-spin" /> Memuat data pengguna…
       </div>
-    )
+    );
   }
 
-  const selectedRoles = form.watch("roles")
+  const selectedRoles = form.watch("roles");
 
   return (
     <div className="flex flex-col gap-4">
@@ -228,7 +268,8 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Nama Pengguna <span className="text-destructive">*</span>
+                        Nama Pengguna{" "}
+                        <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
                         <Input placeholder="Masukkan nama lengkap" {...field} />
@@ -247,7 +288,11 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                         Email <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="email@example.com" {...field} />
+                        <Input
+                          type="email"
+                          placeholder="email@example.com"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -274,17 +319,22 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                   render={() => (
                     <FormItem>
                       <FormLabel>
-                        Peran Pengguna <span className="text-destructive">*</span>
+                        Peran Pengguna{" "}
+                        <span className="text-destructive">*</span>
                       </FormLabel>
                       <Combobox
                         multiple
                         value={selectedRoles}
-                        onChange={(vals) => form.setValue("roles", vals, { shouldValidate: true })}
+                        onChange={(vals) =>
+                          form.setValue("roles", vals, { shouldValidate: true })
+                        }
                         options={(roles ?? []).map((r) => ({
                           value: r.name,
                           label: r.name,
                         }))}
-                        placeholder={rolesLoading ? "Memuat peran…" : "Pilih peran…"}
+                        placeholder={
+                          rolesLoading ? "Memuat peran…" : "Pilih peran…"
+                        }
                         searchPlaceholder="Cari peran…"
                         emptyText="Peran tidak ditemukan."
                         disabled={rolesLoading}
@@ -301,13 +351,18 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Password {!isEdit && <span className="text-destructive">*</span>}
+                        Password{" "}
+                        {!isEdit && <span className="text-destructive">*</span>}
                       </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showPassword ? "text" : "password"}
-                            placeholder={isEdit ? "Kosongkan jika tidak diubah" : "Masukkan password"}
+                            placeholder={
+                              isEdit
+                                ? "Kosongkan jika tidak diubah"
+                                : "Masukkan password"
+                            }
                             className="pr-24"
                             {...field}
                           />
@@ -318,22 +373,34 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                               className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                               onClick={() => setShowPassword((v) => !v)}
                             >
-                              {showPassword ? <EyeOffIcon className="size-3.5" /> : <EyeIcon className="size-3.5" />}
+                              {showPassword ? (
+                                <EyeOffIcon className="size-3.5" />
+                              ) : (
+                                <EyeIcon className="size-3.5" />
+                              )}
                             </button>
                             <button
                               type="button"
                               tabIndex={-1}
                               className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                               onClick={async () => {
-                                const pwd = generatePassword()
-                                form.setValue("password", pwd, { shouldValidate: true })
-                                form.setValue("password_confirmation", pwd, { shouldValidate: true })
-                                setShowPassword(true)
+                                const pwd = generatePassword();
+                                form.setValue("password", pwd, {
+                                  shouldValidate: true,
+                                });
+                                form.setValue("password_confirmation", pwd, {
+                                  shouldValidate: true,
+                                });
+                                setShowPassword(true);
                                 try {
-                                  await navigator.clipboard.writeText(pwd)
-                                  toast.success("Password di-generate dan disalin ke clipboard.")
+                                  await navigator.clipboard.writeText(pwd);
+                                  toast.success(
+                                    "Password di-generate dan disalin ke clipboard.",
+                                  );
                                 } catch {
-                                  toast.success("Password berhasil di-generate.")
+                                  toast.success(
+                                    "Password berhasil di-generate.",
+                                  );
                                 }
                               }}
                             >
@@ -358,19 +425,28 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                           </div>
                           <ul className="grid grid-cols-2 gap-x-4 gap-y-1">
                             {PASSWORD_RULES.map((rule) => {
-                              const ok = rule.test(passwordValue)
+                              const ok = rule.test(passwordValue);
                               return (
-                                <li key={rule.key} className="flex items-center gap-1.5 text-xs">
+                                <li
+                                  key={rule.key}
+                                  className="flex items-center gap-1.5 text-xs"
+                                >
                                   {ok ? (
                                     <CheckIcon className="size-3 text-emerald-500" />
                                   ) : (
                                     <XIcon className="size-3 text-muted-foreground" />
                                   )}
-                                  <span className={ok ? "text-emerald-600" : "text-muted-foreground"}>
+                                  <span
+                                    className={
+                                      ok
+                                        ? "text-emerald-600"
+                                        : "text-muted-foreground"
+                                    }
+                                  >
                                     {rule.label}
                                   </span>
                                 </li>
-                              )
+                              );
                             })}
                           </ul>
                         </div>
@@ -385,7 +461,8 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Konfirmasi Password {!isEdit && <span className="text-destructive">*</span>}
+                        Konfirmasi Password{" "}
+                        {!isEdit && <span className="text-destructive">*</span>}
                       </FormLabel>
                       <FormControl>
                         <div className="relative">
@@ -402,7 +479,11 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                               className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                               onClick={() => setShowConfirmPassword((v) => !v)}
                             >
-                              {showConfirmPassword ? <EyeOffIcon className="size-3.5" /> : <EyeIcon className="size-3.5" />}
+                              {showConfirmPassword ? (
+                                <EyeOffIcon className="size-3.5" />
+                              ) : (
+                                <EyeIcon className="size-3.5" />
+                              )}
                             </button>
                           </div>
                         </div>
@@ -423,7 +504,9 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                   Batal
                 </Button>
                 <Button type="submit" disabled={isPending}>
-                  {isPending && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+                  {isPending && (
+                    <Loader2Icon className="mr-2 size-4 animate-spin" />
+                  )}
                   {isEdit ? "Simpan" : "Tambah"}
                 </Button>
               </div>
@@ -432,5 +515,5 @@ export function UserFormPage({ userId }: UserFormPageProps) {
         </div>
       </LiquidGlass>
     </div>
-  )
+  );
 }

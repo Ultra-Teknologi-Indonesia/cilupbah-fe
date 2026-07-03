@@ -8,9 +8,6 @@ const apiClient = axios.create({
   },
 });
 
-// Sesi kedaluwarsa terdeteksi di sini (bukan di middleware) supaya navigasi
-// tidak perlu menunggu validasi token ke backend. Sekali 401: hapus cookie
-// token via server action lalu redirect ke login dengan callbackUrl.
 let sessionExpiredHandled = false;
 apiClient.interceptors.response.use(undefined, async (error) => {
   if (
@@ -23,25 +20,18 @@ apiClient.interceptors.response.use(undefined, async (error) => {
     sessionExpiredHandled = true;
     try {
       await clearLoginSession();
-    } catch {
-      // Gagal hapus cookie bukan penghalang: halaman login tetap dimuat.
-    }
+    } catch {}
     const callbackUrl = encodeURIComponent(
-      window.location.pathname + window.location.search
+      window.location.pathname + window.location.search,
     );
     window.location.href = `/login?callbackUrl=${callbackUrl}`;
   }
   return Promise.reject(error);
 });
 
-// Transport override untuk lingkungan server (RSC prefetch). Axios di sini
-// pakai baseURL relatif "/api/app" yang tidak valid di server, jadi saat
-// prefetch di Server Component kita alihkan ke fetcher server (lihat
-// api-server.ts) yang memanggil backend langsung + auth cookie. Global di
-// server aman: fetchClient praktis tak pernah dipanggil lewat axios di server.
 type ServerFetcher = <T>(
   endpoint: string,
-  options?: AxiosRequestConfig
+  options?: AxiosRequestConfig,
 ) => Promise<T>;
 let serverFetcher: ServerFetcher | null = null;
 export function setServerFetcher(fetcher: ServerFetcher | null): void {
@@ -50,7 +40,7 @@ export function setServerFetcher(fetcher: ServerFetcher | null): void {
 
 export async function fetchClient<T>(
   endpoint: string,
-  options?: AxiosRequestConfig
+  options?: AxiosRequestConfig,
 ): Promise<T> {
   if (serverFetcher) {
     return serverFetcher<T>(endpoint, options);
@@ -74,7 +64,7 @@ export async function fetchClient<T>(
 export async function fetchBlob(
   endpoint: string,
   filename: string,
-  mimeType?: string
+  mimeType?: string,
 ): Promise<void> {
   const formattedEndpoint = endpoint.startsWith("/")
     ? endpoint
@@ -101,7 +91,7 @@ export async function fetchBlob(
 
 export async function fetchBlobRaw(
   endpoint: string,
-  mimeType?: string
+  mimeType?: string,
 ): Promise<Blob> {
   const formattedEndpoint = endpoint.startsWith("/")
     ? endpoint

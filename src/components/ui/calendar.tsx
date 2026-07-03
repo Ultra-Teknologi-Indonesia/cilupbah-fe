@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { DayPicker } from "react-day-picker"
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
+import * as React from "react";
+import { DayPicker } from "react-day-picker";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 
 function Calendar({
   className,
@@ -16,8 +16,8 @@ function Calendar({
   endMonth,
   ...props
 }: React.ComponentProps<typeof DayPicker>) {
-  const defaultStart = startMonth ?? new Date(2020, 0)
-  const defaultEnd = endMonth ?? new Date(2030, 11)
+  const defaultStart = startMonth ?? new Date(2020, 0);
+  const defaultEnd = endMonth ?? new Date(2030, 11);
 
   return (
     <DayPicker
@@ -32,17 +32,18 @@ function Calendar({
         month_caption: "flex items-center justify-center px-9",
         caption_label: "hidden",
         dropdowns: "flex items-center gap-1.5",
-        dropdown: "rounded-full border border-border bg-background px-2.5 py-1 text-sm font-medium outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30",
+        dropdown:
+          "rounded-full border border-border bg-background px-2.5 py-1 text-sm font-medium outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30",
         months_dropdown: "appearance-none cursor-pointer",
         years_dropdown: "appearance-none cursor-pointer",
         nav: "absolute top-0 inset-x-0 flex items-center justify-between px-1 z-10 pointer-events-none [&>button]:pointer-events-auto",
         button_previous: cn(
           buttonVariants({ variant: "outline", size: "icon" }),
-          "size-7"
+          "size-7",
         ),
         button_next: cn(
           buttonVariants({ variant: "outline", size: "icon" }),
-          "size-7"
+          "size-7",
         ),
         month_grid: "w-full border-collapse",
         weekdays: "flex",
@@ -53,11 +54,11 @@ function Calendar({
           "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
           "[&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-outside)]:bg-accent/50",
           "[&:has([aria-selected].day-range-end)]:rounded-r-full",
-          "first:[&:has([aria-selected])]:rounded-l-full last:[&:has([aria-selected])]:rounded-r-full"
+          "first:[&:has([aria-selected])]:rounded-l-full last:[&:has([aria-selected])]:rounded-r-full",
         ),
         day_button: cn(
           buttonVariants({ variant: "ghost" }),
-          "size-9 p-0 font-normal aria-selected:opacity-100"
+          "size-9 p-0 font-normal aria-selected:opacity-100",
         ),
         range_start: "day-range-start rounded-l-full",
         range_end: "day-range-end rounded-r-full",
@@ -82,7 +83,7 @@ function Calendar({
       }}
       {...props}
     />
-  )
+  );
 }
 
-export { Calendar }
+export { Calendar };

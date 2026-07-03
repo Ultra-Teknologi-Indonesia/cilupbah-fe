@@ -1,86 +1,95 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { ArrowLeftIcon, InfoIcon, Loader2Icon, SaveIcon } from "lucide-react"
-import { toast } from "sonner"
+import * as React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeftIcon, InfoIcon, Loader2Icon, SaveIcon } from "lucide-react";
+import { toast } from "sonner";
 
-import { cn } from "@/lib/utils"
-import { buatProdukSchema } from "@/schemas/master-produk"
-import type { BuatProdukFormValues, ProductDetail } from "@/types/master-produk"
-import { detailToFormValues, detailVariantLocks } from "@/lib/master-produk/detail-to-form"
-import { SERVER_FIELD_MAP } from "@/lib/master-produk/server-field-map"
-import { useUpdateProduct } from "@/hooks/master-produk/use-update-product"
-import { useCreateBundle } from "@/hooks/master-produk/use-create-bundle"
+import { cn } from "@/lib/utils";
+import { buatProdukSchema } from "@/schemas/master-produk";
+import type {
+  BuatProdukFormValues,
+  ProductDetail,
+} from "@/types/master-produk";
+import {
+  detailToFormValues,
+  detailVariantLocks,
+} from "@/lib/master-produk/detail-to-form";
+import { SERVER_FIELD_MAP } from "@/lib/master-produk/server-field-map";
+import { useUpdateProduct } from "@/hooks/master-produk/use-update-product";
+import { useCreateBundle } from "@/hooks/master-produk/use-create-bundle";
 
-import { Button } from "@/components/ui/button"
-import { Form } from "@/components/ui/form"
-import { Card } from "@/components/ui/card"
-import { PageTitle } from "@/components/dashboard/page-title"
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { Card } from "@/components/ui/card";
+import { PageTitle } from "@/components/dashboard/page-title";
 
-import { SectionNav, type SectionStatus } from "./section-nav"
+import { SectionNav, type SectionStatus } from "./section-nav";
 import {
   ProductMediaManager,
   mediaItemsFromDetail,
   type EditMediaItem,
-} from "./product-media-manager"
-import { FormDetailSection } from "./form-detail-section"
-import { FormSalesSection } from "./form-sales-section"
-import { FormShippingSection } from "./form-shipping-section"
-import { FormVariantSection } from "./form-variant-section"
-import { FormSectionCard } from "@/components/ui/form-section-card"
+} from "./product-media-manager";
+import { FormDetailSection } from "./form-detail-section";
+import { FormSalesSection } from "./form-sales-section";
+import { FormShippingSection } from "./form-shipping-section";
+import { FormVariantSection } from "./form-variant-section";
+import { FormSectionCard } from "@/components/ui/form-section-card";
 
 export function EditProdukForm({ product }: { product: ProductDetail }) {
-  const router = useRouter()
+  const router = useRouter();
   const [mediaItems, setMediaItems] = React.useState<EditMediaItem[]>(() =>
-    mediaItemsFromDetail(product.media)
-  )
-  const { mutateAsync, isPending } = useUpdateProduct(product.id)
-  const { mutateAsync: saveBundle, isPending: isBundlePending } = useCreateBundle()
-  const busy = isPending || isBundlePending
+    mediaItemsFromDetail(product.media),
+  );
+  const { mutateAsync, isPending } = useUpdateProduct(product.id);
+  const { mutateAsync: saveBundle, isPending: isBundlePending } =
+    useCreateBundle();
+  const busy = isPending || isBundlePending;
 
-  const isMultiVariant = product.variants.length > 1
-  const originalVariantSku = product.variants[0]?.sku
-  const detailHref = `/dashboard/produk/${product.id}`
-  const variantLocks = React.useMemo(() => detailVariantLocks(product), [product])
+  const isMultiVariant = product.variants.length > 1;
+  const originalVariantSku = product.variants[0]?.sku;
+  const detailHref = `/dashboard/produk/${product.id}`;
+  const variantLocks = React.useMemo(
+    () => detailVariantLocks(product),
+    [product],
+  );
 
   const form = useForm<BuatProdukFormValues>({
     resolver: zodResolver(buatProdukSchema),
     mode: "onBlur",
     defaultValues: detailToFormValues(product),
-  })
+  });
 
   const {
     handleSubmit,
     watch,
     formState: { errors },
-  } = form
-  const v = watch()
+  } = form;
+  const v = watch();
 
   const applyServerErrors = (err: unknown): boolean => {
-    const body = err as { errors?: Record<string, string[]> }
-    if (!body?.errors || typeof body.errors !== "object") return false
-    let firstField: keyof BuatProdukFormValues | undefined
+    const body = err as { errors?: Record<string, string[]> };
+    if (!body?.errors || typeof body.errors !== "object") return false;
+    let firstField: keyof BuatProdukFormValues | undefined;
     for (const [key, messages] of Object.entries(body.errors)) {
-      const field = SERVER_FIELD_MAP[key]
-      if (!field) continue
+      const field = SERVER_FIELD_MAP[key];
+      if (!field) continue;
       form.setError(field, {
         type: "server",
         message: Array.isArray(messages) ? messages[0] : String(messages),
-      })
-      firstField ??= field
+      });
+      firstField ??= field;
     }
-    if (firstField) form.setFocus(firstField)
-    return true
-  }
+    if (firstField) form.setFocus(firstField);
+    return true;
+  };
 
   const onValid = async (data: BuatProdukFormValues) => {
     try {
       if (data.isBundle) {
-        
         await saveBundle({
           id: product.id,
           name: data.name,
@@ -90,10 +99,10 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
             variant_id: c.variantId,
             qty: c.qty,
           })),
-        })
-        toast.success("Perubahan bundle disimpan")
-        router.push(detailHref)
-        return
+        });
+        toast.success("Perubahan bundle disimpan");
+        router.push(detailHref);
+        return;
       }
 
       await mutateAsync({
@@ -101,46 +110,61 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
         mediaItems,
         includeVariant: !isMultiVariant,
         originalVariantSku,
-      })
-      toast.success("Perubahan produk disimpan")
-      router.push(detailHref)
+      });
+      toast.success("Perubahan produk disimpan");
+      router.push(detailHref);
     } catch (err) {
-      const body = err as { message?: string }
-      if (applyServerErrors(err)) toast.error(body?.message || "Beberapa isian ditolak server")
-      else toast.error(body?.message || "Gagal menyimpan perubahan")
+      const body = err as { message?: string };
+      if (applyServerErrors(err))
+        toast.error(body?.message || "Beberapa isian ditolak server");
+      else toast.error(body?.message || "Gagal menyimpan perubahan");
     }
-  }
+  };
 
   const onInvalid = () => {
-    const order = ["detail", "penjualan", "pengiriman", "media"] as const
-    const first = order.find((id) => sectionHasError(id))
-    if (first) document.getElementById(first)?.scrollIntoView({ behavior: "smooth", block: "start" })
-    toast.error("Beberapa isian perlu diperbaiki")
-  }
+    const order = ["detail", "penjualan", "pengiriman", "media"] as const;
+    const first = order.find((id) => sectionHasError(id));
+    if (first)
+      document
+        .getElementById(first)
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    toast.error("Beberapa isian perlu diperbaiki");
+  };
 
-  const has = (...keys: (keyof BuatProdukFormValues)[]) => keys.some((k) => errors[k])
+  const has = (...keys: (keyof BuatProdukFormValues)[]) =>
+    keys.some((k) => errors[k]);
   function sectionHasError(id: string): boolean {
-    if (id === "detail") return has("name", "sku", "category", "description", "indentDays")
-    if (id === "penjualan") return has("sellPrice", "safeStock")
-    if (id === "pengiriman") return has("weight", "length", "width", "height")
-    return false
+    if (id === "detail")
+      return has("name", "sku", "category", "description", "indentDays");
+    if (id === "penjualan") return has("sellPrice", "safeStock");
+    if (id === "pengiriman") return has("weight", "length", "width", "height");
+    return false;
   }
   function sectionStatus(id: string): SectionStatus {
-    if (sectionHasError(id)) return "error"
-    if (id === "detail") return v.name && v.sku && v.category ? "valid" : "empty"
-    if (id === "penjualan") return !v.isSold || v.sellPrice ? "valid" : "empty"
-    if (id === "pengiriman") return v.weight ? "valid" : "empty"
-    if (id === "media") return mediaItems.length > 0 ? "valid" : "empty"
-    return "empty"
+    if (sectionHasError(id)) return "error";
+    if (id === "detail")
+      return v.name && v.sku && v.category ? "valid" : "empty";
+    if (id === "penjualan") return !v.isSold || v.sellPrice ? "valid" : "empty";
+    if (id === "pengiriman") return v.weight ? "valid" : "empty";
+    if (id === "media") return mediaItems.length > 0 ? "valid" : "empty";
+    return "empty";
   }
 
   const sections = [
     { id: "detail", label: "Detail Produk", status: sectionStatus("detail") },
     { id: "varian", label: "Varian", status: "empty" as SectionStatus },
-    { id: "penjualan", label: "Penjualan & Pembelian", status: sectionStatus("penjualan") },
-    { id: "pengiriman", label: "Pengiriman", status: sectionStatus("pengiriman") },
+    {
+      id: "penjualan",
+      label: "Penjualan & Pembelian",
+      status: sectionStatus("penjualan"),
+    },
+    {
+      id: "pengiriman",
+      label: "Pengiriman",
+      status: sectionStatus("pengiriman"),
+    },
     { id: "media", label: "Gambar & Video", status: sectionStatus("media") },
-  ]
+  ];
 
   return (
     <div className="flex flex-col gap-6">
@@ -160,7 +184,11 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
                 <ArrowLeftIcon /> Kembali
               </Link>
             </Button>
-            <Button variant="primary" onClick={() => !busy && handleSubmit(onValid, onInvalid)()} disabled={busy}>
+            <Button
+              variant="primary"
+              onClick={() => !busy && handleSubmit(onValid, onInvalid)()}
+              disabled={busy}
+            >
               {busy ? <Loader2Icon className="animate-spin" /> : <SaveIcon />}
               Simpan perubahan
             </Button>
@@ -171,15 +199,17 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
       {product.status === "master" && (
         <div className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
           <InfoIcon className="mt-0.5 size-4 shrink-0" />
-          Produk berstatus Master — perubahan langsung berlaku di katalog & channel.
+          Produk berstatus Master — perubahan langsung berlaku di katalog &
+          channel.
         </div>
       )}
 
       {isMultiVariant && (
         <div className="flex items-start gap-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground/80">
           <InfoIcon className="mt-0.5 size-4 shrink-0 text-primary" />
-          Produk ini memiliki {product.variants.length} varian. Bagian Penjualan &amp; Pembelian
-          dikunci — edit harga/pajak per varian akan tersedia lewat editor variasi.
+          Produk ini memiliki {product.variants.length} varian. Bagian Penjualan
+          &amp; Pembelian dikunci — edit harga/pajak per varian akan tersedia
+          lewat editor variasi.
         </div>
       )}
 
@@ -191,7 +221,10 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
         </aside>
 
         <Form {...form}>
-          <form className="flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
+          <form
+            className="flex flex-col gap-6"
+            onSubmit={(e) => e.preventDefault()}
+          >
             <FormDetailSection />
 
             <FormVariantSection
@@ -201,7 +234,10 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
 
             <fieldset
               disabled={isMultiVariant}
-              className={cn("m-0 min-w-0 border-0 p-0", isMultiVariant && "opacity-60")}
+              className={cn(
+                "m-0 min-w-0 border-0 p-0",
+                isMultiVariant && "opacity-60",
+              )}
             >
               <FormSalesSection />
             </fieldset>
@@ -209,11 +245,14 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
             <FormShippingSection />
 
             <FormSectionCard id="media" title="Gambar & Video Produk">
-              <ProductMediaManager value={mediaItems} onChange={setMediaItems} />
+              <ProductMediaManager
+                value={mediaItems}
+                onChange={setMediaItems}
+              />
             </FormSectionCard>
           </form>
         </Form>
       </div>
     </div>
-  )
+  );
 }

@@ -1,26 +1,29 @@
-"use client"
+"use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { toast } from "sonner"
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
-import { LocationService } from "@/services/manajemen-rak/location.service"
-import { locationKeys } from "@/hooks/manajemen-rak/use-locations"
+import { LocationService } from "@/services/manajemen-rak/location.service";
+import { locationKeys } from "@/hooks/manajemen-rak/use-locations";
 
 export interface ToggleLocationActiveVars {
-  id: string
-  isActive: boolean
+  id: string;
+  isActive: boolean;
 }
 
 export function useToggleLocationActive() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, isActive }: ToggleLocationActiveVars) =>
       LocationService.update(id, { is_active: isActive }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: locationKeys.all })
+      queryClient.invalidateQueries({ queryKey: locationKeys.all });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal mengubah status lokasi"),
-  })
+      toast.error(
+        (err as { message?: string })?.message ||
+          "Gagal mengubah status lokasi",
+      ),
+  });
 }

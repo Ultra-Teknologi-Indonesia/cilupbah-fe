@@ -1,12 +1,12 @@
-import { PageTitle } from "@/components/dashboard/page-title"
-import { UploadToChannelView } from "@/components/dashboard/master-produk/upload-to-channel/upload-to-channel-view"
+import { PageTitle } from "@/components/dashboard/page-title";
+import { UploadToChannelView } from "@/components/dashboard/master-produk/upload-to-channel/upload-to-channel-view";
 
 export default async function UploadToChannelPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = await params
+  const { id } = await params;
 
   return (
     <div className="flex flex-col gap-6">
@@ -22,5 +22,5 @@ export default async function UploadToChannelPage({
 
       <UploadToChannelView id={id} />
     </div>
-  )
+  );
 }

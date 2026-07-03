@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { MoreHorizontalIcon, RefreshCwIcon, Unlink2Icon } from "lucide-react"
+import * as React from "react";
+import { MoreHorizontalIcon, RefreshCwIcon, Unlink2Icon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogClose,
@@ -19,25 +19,29 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import type { ConnectedStore } from "@/types/channel"
+} from "@/components/ui/dialog";
+import type { ConnectedStore } from "@/types/channel";
 
 export function StoreRowActions({
   store,
   onRefresh,
   onDisconnect,
 }: {
-  store: ConnectedStore
-  onRefresh: (store: ConnectedStore) => void
-  onDisconnect: (store: ConnectedStore) => void
+  store: ConnectedStore;
+  onRefresh: (store: ConnectedStore) => void;
+  onDisconnect: (store: ConnectedStore) => void;
 }) {
-  const [confirmOpen, setConfirmOpen] = React.useState(false)
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label={`Aksi ${store.shopName}`}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={`Aksi ${store.shopName}`}
+          >
             <MoreHorizontalIcon />
           </Button>
         </DropdownMenuTrigger>
@@ -62,8 +66,8 @@ export function StoreRowActions({
           <DialogHeader>
             <DialogTitle>Putuskan toko?</DialogTitle>
             <DialogDescription>
-              {store.shopName} ({store.channel.name}) akan diputuskan. Sinkronisasi
-              pesanan & stok untuk toko ini akan berhenti.
+              {store.shopName} ({store.channel.name}) akan diputuskan.
+              Sinkronisasi pesanan & stok untuk toko ini akan berhenti.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -79,5 +83,5 @@ export function StoreRowActions({
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }

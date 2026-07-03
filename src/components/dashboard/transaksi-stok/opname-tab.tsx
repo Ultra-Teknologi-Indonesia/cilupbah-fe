@@ -1,41 +1,37 @@
-"use client"
+"use client";
 
-import { useState, useMemo, useCallback } from "react"
-import Link from "next/link"
-import {
-  ClipboardCheckIcon,
-  PlayIcon,
-  Trash2Icon,
-} from "lucide-react"
+import { useState, useMemo, useCallback } from "react";
+import Link from "next/link";
+import { ClipboardCheckIcon, PlayIcon, Trash2Icon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Combobox } from "@/components/ui/combobox"
-import type { ColumnDef } from "@tanstack/react-table"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { ResourceListView } from "@/components/dashboard/shared/resource-list-view"
-import { StatusBadge } from "@/components/dashboard/shared/status-badge"
-import { getStatusMeta } from "@/lib/status"
-import { UserSelect } from "@/components/dashboard/shared/user-select"
-import { useListState } from "@/hooks/use-list-state"
+import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
+import type { ColumnDef } from "@tanstack/react-table";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { ResourceListView } from "@/components/dashboard/shared/resource-list-view";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { getStatusMeta } from "@/lib/status";
+import { UserSelect } from "@/components/dashboard/shared/user-select";
+import { useListState } from "@/hooks/use-list-state";
 import {
   useStockOpnames,
   useStartStockOpname,
   useDeleteStockOpname,
-} from "@/hooks/transaksi-stok/use-stock-opname"
-import { useLocations } from "@/hooks/manajemen-rak/use-locations"
-import { exportCsv } from "@/lib/export-csv"
+} from "@/hooks/transaksi-stok/use-stock-opname";
+import { useLocations } from "@/hooks/manajemen-rak/use-locations";
+import { exportCsv } from "@/lib/export-csv";
 import type {
   StockOpname,
   StockOpnameListParams,
-} from "@/types/transaksi-stok/stock-opname"
-import { formatDate } from "@/lib/format"
+} from "@/types/transaksi-stok/stock-opname";
+import { formatDate } from "@/lib/format";
 
 interface FilterState {
-  status: string
-  location_id: string
+  status: string;
+  location_id: string;
 }
 
-const EMPTY_FILTERS: FilterState = { status: "", location_id: "" }
+const EMPTY_FILTERS: FilterState = { status: "", location_id: "" };
 
 const STATUS_OPTIONS = [
   { value: "", label: "Semua Status" },
@@ -43,16 +39,16 @@ const STATUS_OPTIONS = [
   { value: "IN_PROGRESS", label: "Proses" },
   { value: "FINALIZED", label: "Selesai" },
   { value: "CANCELLED", label: "Dibatalkan" },
-]
+];
 
 export function OpnameTab() {
   const list = useListState<FilterState>(EMPTY_FILTERS, {
     urlSync: true,
     namespace: "opn",
-  })
-  const [deleteTarget, setDeleteTarget] = useState<StockOpname | null>(null)
-  const [startTarget, setStartTarget] = useState<StockOpname | null>(null)
-  const [processBy, setProcessBy] = useState("")
+  });
+  const [deleteTarget, setDeleteTarget] = useState<StockOpname | null>(null);
+  const [startTarget, setStartTarget] = useState<StockOpname | null>(null);
+  const [processBy, setProcessBy] = useState("");
 
   const params = useMemo<StockOpnameListParams>(
     () => ({
@@ -62,16 +58,16 @@ export function OpnameTab() {
       "filter[status]": list.filters.status || undefined,
       "filter[location_id]": list.filters.location_id || undefined,
     }),
-    [list.debouncedSearch, list.page, list.perPage, list.filters]
-  )
+    [list.debouncedSearch, list.page, list.perPage, list.filters],
+  );
 
-  const { data, isLoading, isFetching } = useStockOpnames(params)
-  const { data: locData } = useLocations({ perPage: 100 })
-  const startMut = useStartStockOpname()
-  const deleteMut = useDeleteStockOpname()
+  const { data, isLoading, isFetching } = useStockOpnames(params);
+  const { data: locData } = useLocations({ perPage: 100 });
+  const startMut = useStartStockOpname();
+  const deleteMut = useDeleteStockOpname();
 
-  const items = data?.items ?? []
-  const total = data?.meta?.total ?? 0
+  const items = data?.items ?? [];
+  const total = data?.meta?.total ?? 0;
 
   const locationOptions = useMemo(
     () => [
@@ -81,102 +77,122 @@ export function OpnameTab() {
         label: l.locationName,
       })),
     ],
-    [locData]
-  )
+    [locData],
+  );
 
-  const columns = useMemo<ColumnDef<StockOpname>[]>(() => [
-    {
-      accessorKey: "opname_no",
-      header: "No. Stok Opname",
-      cell: ({ row }) => (
-        <span className="font-medium">
-          <Link
-            href={`/dashboard/transaksi-stok/opname/${row.original.id}`}
-            className="hover:text-primary hover:underline"
-          >
-            {row.original.opname_no}
-          </Link>
-        </span>
-      ),
-    },
-    {
-      id: "location",
-      header: "Lokasi",
-      cell: ({ row }) => <span className="text-foreground">{row.original.location?.location_name ?? "—"}</span>,
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => (
-        <StatusBadge domain="stock-opname" status={row.original.status} className="text-[10px] leading-tight" />
-      ),
-    },
-    {
-      accessorKey: "created_by",
-      header: "Dibuat Oleh",
-      cell: ({ row }) => <span className="text-foreground">{row.original.created_by}</span>,
-    },
-    {
-      accessorKey: "finalized_by",
-      header: "Difinalisasi",
-      cell: ({ row }) => <span className="text-foreground">{row.original.finalized_by ?? "—"}</span>,
-    },
-    {
-      id: "actions",
-      header: () => <div className="text-right">Aksi</div>,
-      cell: ({ row }) => {
-        const item = row.original;
-        if (item.status === "DRAFT") {
-          return (
-            <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => setStartTarget(item)}
-                aria-label="Mulai"
-                className="text-blue-600 hover:text-blue-700"
-              >
-                <PlayIcon className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => setDeleteTarget(item)}
-                aria-label="Hapus"
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2Icon className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          )
-        }
-        return null;
+  const columns = useMemo<ColumnDef<StockOpname>[]>(
+    () => [
+      {
+        accessorKey: "opname_no",
+        header: "No. Stok Opname",
+        cell: ({ row }) => (
+          <span className="font-medium">
+            <Link
+              href={`/dashboard/transaksi-stok/opname/${row.original.id}`}
+              className="hover:text-primary hover:underline"
+            >
+              {row.original.opname_no}
+            </Link>
+          </span>
+        ),
       },
-    },
-  ], [])
+      {
+        id: "location",
+        header: "Lokasi",
+        cell: ({ row }) => (
+          <span className="text-foreground">
+            {row.original.location?.location_name ?? "—"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => (
+          <StatusBadge
+            domain="stock-opname"
+            status={row.original.status}
+            className="text-[10px] leading-tight"
+          />
+        ),
+      },
+      {
+        accessorKey: "created_by",
+        header: "Dibuat Oleh",
+        cell: ({ row }) => (
+          <span className="text-foreground">{row.original.created_by}</span>
+        ),
+      },
+      {
+        accessorKey: "finalized_by",
+        header: "Difinalisasi",
+        cell: ({ row }) => (
+          <span className="text-foreground">
+            {row.original.finalized_by ?? "—"}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <div className="text-right">Aksi</div>,
+        cell: ({ row }) => {
+          const item = row.original;
+          if (item.status === "DRAFT") {
+            return (
+              <div
+                className="flex items-center justify-end gap-1"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => setStartTarget(item)}
+                  aria-label="Mulai"
+                  className="text-blue-600 hover:text-blue-700"
+                >
+                  <PlayIcon className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => setDeleteTarget(item)}
+                  aria-label="Hapus"
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2Icon className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            );
+          }
+          return null;
+        },
+      },
+    ],
+    [],
+  );
 
   function handleDelete() {
-    if (!deleteTarget) return
+    if (!deleteTarget) return;
     deleteMut.mutate(deleteTarget.id, {
       onSuccess: () => setDeleteTarget(null),
-    })
+    });
   }
 
   function handleStart() {
-    if (!startTarget || !processBy.trim()) return
+    if (!startTarget || !processBy.trim()) return;
     startMut.mutate(
       { id: startTarget.id, processBy: processBy.trim() },
       {
         onSuccess: () => {
-          setStartTarget(null)
-          setProcessBy("")
+          setStartTarget(null);
+          setProcessBy("");
         },
-      }
-    )
+      },
+    );
   }
 
   const handleExport = useCallback(() => {
-    if (items.length === 0) return
+    if (items.length === 0) return;
     exportCsv(
       "stok-opname.csv",
       ["No. Stok Opname", "Lokasi", "Status", "Dibuat Oleh", "Difinalisasi"],
@@ -186,9 +202,9 @@ export function OpnameTab() {
         getStatusMeta("stock-opname", item.status).label,
         item.created_by,
         item.finalized_by ?? "—",
-      ])
-    )
-  }, [items])
+      ]),
+    );
+  }, [items]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -230,13 +246,13 @@ export function OpnameTab() {
         }
       />
 
-      {/* Start dialog */}
+      {}
       <ConfirmDialog
         open={!!startTarget}
         onOpenChange={(v) => {
           if (!v) {
-            setStartTarget(null)
-            setProcessBy("")
+            setStartTarget(null);
+            setProcessBy("");
           }
         }}
         title="Mulai Proses Stok Opname"
@@ -257,7 +273,7 @@ export function OpnameTab() {
         </div>
       </ConfirmDialog>
 
-      {/* Delete dialog */}
+      {}
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(v) => !v && setDeleteTarget(null)}
@@ -269,5 +285,5 @@ export function OpnameTab() {
         onConfirm={handleDelete}
       />
     </div>
-  )
+  );
 }

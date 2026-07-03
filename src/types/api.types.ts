@@ -4,9 +4,7 @@ export interface ApiResponse<T = unknown> {
   data: T;
 }
 
-
 export type ApiList<T> = ApiResponse<T[]>;
-
 
 export interface ApiPaginated<T> extends ApiResponse<T[]> {
   meta: {

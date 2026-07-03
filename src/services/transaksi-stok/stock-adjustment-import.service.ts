@@ -1,32 +1,32 @@
-import { fetchBlob, fetchClient } from "@/lib/api-client"
-import type { ApiResponse } from "@/types/api.types"
+import { fetchBlob, fetchClient } from "@/lib/api-client";
+import type { ApiResponse } from "@/types/api.types";
 import type {
   ImportPreviewResponse,
   ImportConfirmPayload,
-} from "@/types/transaksi-stok/stock-adjustment-import"
-import type { StockAdjustment } from "@/types/transaksi-stok/stock-adjustment"
+} from "@/types/transaksi-stok/stock-adjustment-import";
+import type { StockAdjustment } from "@/types/transaksi-stok/stock-adjustment";
 
 export const StockAdjustmentImportService = {
   downloadTemplate: () =>
     fetchBlob(
       "/inventory/adjustments/import/template",
       "template-import-penyesuaian-stok.xlsx",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     ),
 
   preview: (file: File, locationId: string) => {
-    const form = new FormData()
-    form.append("file", file)
-    form.append("location_id", locationId)
+    const form = new FormData();
+    form.append("file", file);
+    form.append("location_id", locationId);
     return fetchClient<ApiResponse<ImportPreviewResponse>>(
       "/inventory/adjustments/import/preview",
       {
         method: "POST",
         data: form,
-        // Biarkan browser set Content-Type dengan boundary multipart yang benar.
+
         headers: { "Content-Type": undefined as unknown as string },
-      }
-    )
+      },
+    );
   },
 
   confirm: (payload: ImportConfirmPayload) => {
@@ -35,7 +35,7 @@ export const StockAdjustmentImportService = {
       {
         method: "POST",
         data: payload,
-      }
-    )
+      },
+    );
   },
-}
+};

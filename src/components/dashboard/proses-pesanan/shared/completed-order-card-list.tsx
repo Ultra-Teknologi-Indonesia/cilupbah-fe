@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
+import { PackageCheckIcon, RefreshCwIcon } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
 import {
-  PackageCheckIcon,
-  RefreshCwIcon,
-} from "lucide-react"
-
-import { Badge } from "@/components/ui/badge"
-import { SimplePagination, GRID_PAGE_SIZES } from "@/components/ui/simple-pagination"
+  SimplePagination,
+  GRID_PAGE_SIZES,
+} from "@/components/ui/simple-pagination";
 import {
   FulfillmentFilterBar,
   type FulfillmentFilterField,
   type FulfillmentFilterValue,
-} from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar"
-import { OrderCard } from "@/components/dashboard/pesanan/order-card"
-import type { OrderTab } from "@/types/pesanan/order"
-import { useOrdersByStage } from "@/hooks/proses-pesanan/use-fulfillment"
-import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper"
-import { cn } from "@/lib/utils"
+} from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar";
+import { OrderCard } from "@/components/dashboard/pesanan/order-card";
+import type { OrderTab } from "@/types/pesanan/order";
+import { useOrdersByStage } from "@/hooks/proses-pesanan/use-fulfillment";
+import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper";
+import { cn } from "@/lib/utils";
 
 export function FulfillmentCardList({
   stage,
@@ -30,26 +30,26 @@ export function FulfillmentCardList({
   courierMode,
   excludeTransit,
 }: {
-  stage: string
-  tab?: OrderTab
-  emptyTitle?: string
-  emptyDescription?: string
-  filterFields?: FulfillmentFilterField[]
-  statusOptions?: { value: string; label: string }[]
-  channelStatusOptions?: { value: string; label: string }[]
-  courierMode?: "shipping_provider" | "courier_code"
-  excludeTransit?: boolean
+  stage: string;
+  tab?: OrderTab;
+  emptyTitle?: string;
+  emptyDescription?: string;
+  filterFields?: FulfillmentFilterField[];
+  statusOptions?: { value: string; label: string }[];
+  channelStatusOptions?: { value: string; label: string }[];
+  courierMode?: "shipping_provider" | "courier_code";
+  excludeTransit?: boolean;
 }) {
-  const [search, setSearch] = React.useState("")
-  const [debounced, setDebounced] = React.useState("")
-  const [page, setPage] = React.useState(1)
-  const [perPage, setPerPage] = React.useState(20)
-  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({})
+  const [search, setSearch] = React.useState("");
+  const [debounced, setDebounced] = React.useState("");
+  const [page, setPage] = React.useState(1);
+  const [perPage, setPerPage] = React.useState(20);
+  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
 
   React.useEffect(() => {
-    const t = setTimeout(() => setDebounced(search.trim()), 350)
-    return () => clearTimeout(t)
-  }, [search])
+    const t = setTimeout(() => setDebounced(search.trim()), 350);
+    return () => clearTimeout(t);
+  }, [search]);
 
   const params = React.useMemo(
     () => ({
@@ -71,26 +71,34 @@ export function FulfillmentCardList({
       channel_status: filter.channel_status,
       exclude_transit: excludeTransit ? ("1" as const) : undefined,
     }),
-    [debounced, page, perPage, filter, excludeTransit]
-  )
+    [debounced, page, perPage, filter, excludeTransit],
+  );
 
-  const { data, isLoading, isFetching, refetch } = useOrdersByStage(stage, params)
-  const orders = React.useMemo(() => data?.items ?? [], [data])
-  const meta = data?.meta ?? { current_page: 1, last_page: 1, per_page: perPage, total: 0 }
+  const { data, isLoading, isFetching, refetch } = useOrdersByStage(
+    stage,
+    params,
+  );
+  const orders = React.useMemo(() => data?.items ?? [], [data]);
+  const meta = data?.meta ?? {
+    current_page: 1,
+    last_page: 1,
+    per_page: perPage,
+    total: 0,
+  };
 
   const mappedOrders = React.useMemo(
     () => orders.map((o) => ({ raw: o, ui: fulfillmentToOrder(o) })),
-    [orders]
-  )
+    [orders],
+  );
 
   return (
     <div>
-      {/* Toolbar */}
+      {}
       <FulfillmentFilterBar
         value={filter}
         onChange={(v) => {
-          setFilter(v)
-          setPage(1)
+          setFilter(v);
+          setPage(1);
         }}
         fields={filterFields ?? []}
         statusOptions={statusOptions}
@@ -99,8 +107,8 @@ export function FulfillmentCardList({
         excludeTransit={excludeTransit}
         search={search}
         onSearchChange={(v) => {
-          setSearch(v)
-          setPage(1)
+          setSearch(v);
+          setPage(1);
         }}
         searchPlaceholder="Cari no. pesanan…"
       />
@@ -111,14 +119,16 @@ export function FulfillmentCardList({
           className="rounded-full p-1.5 transition-colors hover:bg-muted"
           aria-label="Muat ulang"
         >
-          <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} />
+          <RefreshCwIcon
+            className={cn("size-4", isFetching && "animate-spin")}
+          />
         </button>
         <span className="flex items-center gap-1.5">
           Total <Badge>{meta.total}</Badge>
         </span>
       </div>
 
-      {/* List */}
+      {}
       <div className="px-4 pb-4 sm:px-5">
         {isLoading ? (
           <div className="flex flex-col gap-3 py-3">
@@ -136,18 +146,15 @@ export function FulfillmentCardList({
             </div>
             <div className="space-y-1">
               <p className="text-sm font-semibold">{emptyTitle}</p>
-              <p className="text-xs text-muted-foreground">{emptyDescription}</p>
+              <p className="text-xs text-muted-foreground">
+                {emptyDescription}
+              </p>
             </div>
           </div>
         ) : (
           <div className="flex flex-col gap-3 py-2">
             {mappedOrders.map(({ raw, ui }) => (
-              <OrderCard
-                key={raw.id}
-                order={ui}
-                tab={tab}
-                variant="sales"
-              />
+              <OrderCard key={raw.id} order={ui} tab={tab} variant="sales" />
             ))}
           </div>
         )}
@@ -160,8 +167,8 @@ export function FulfillmentCardList({
           onPageChange={setPage}
           perPage={perPage}
           onPerPageChange={(s) => {
-            setPerPage(s)
-            setPage(1)
+            setPerPage(s);
+            setPage(1);
           }}
           pageSizeOptions={GRID_PAGE_SIZES}
           isFetching={isFetching}
@@ -170,5 +177,5 @@ export function FulfillmentCardList({
         />
       </div>
     </div>
-  )
+  );
 }

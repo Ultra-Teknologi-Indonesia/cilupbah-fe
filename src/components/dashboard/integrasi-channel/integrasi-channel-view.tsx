@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { StoreIcon } from "lucide-react"
-import { toast } from "sonner"
+import * as React from "react";
+import { StoreIcon } from "lucide-react";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import type {
   Channel,
   ChannelGroup as ChannelGroupType,
   ConnectedStore,
-} from "@/types/channel"
-import { groupStores } from "@/lib/channel/group-stores"
-import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
+} from "@/types/channel";
+import { groupStores } from "@/lib/channel/group-stores";
+import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
 import {
   useConnectChannel,
   useDisconnectStore,
   useRefreshToken,
   useToggleStoreFlag,
-} from "@/hooks/channel/use-channel-actions"
-import { ChannelGroup } from "./channel-group"
-import { ConnectMarketplacePanel } from "./connect-marketplace-panel"
+} from "@/hooks/channel/use-channel-actions";
+import { ChannelGroup } from "./channel-group";
+import { ConnectMarketplacePanel } from "./connect-marketplace-panel";
 
 function GroupSkeleton() {
   return (
@@ -40,50 +40,51 @@ function GroupSkeleton() {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 export function IntegrasiChannelView() {
-  const { data, isLoading, isError, refetch } = useConnectedStores()
-  const toggle = useToggleStoreFlag()
-  const disconnect = useDisconnectStore()
-  const refresh = useRefreshToken()
-  const { connect, pendingCode } = useConnectChannel()
+  const { data, isLoading, isError, refetch } = useConnectedStores();
+  const toggle = useToggleStoreFlag();
+  const disconnect = useDisconnectStore();
+  const refresh = useRefreshToken();
+  const { connect, pendingCode } = useConnectChannel();
 
-  
   React.useEffect(() => {
-    const sp = new URLSearchParams(window.location.search)
-    const connected = sp.get("connected")
-    if (!connected) return
+    const sp = new URLSearchParams(window.location.search);
+    const connected = sp.get("connected");
+    if (!connected) return;
 
-    const error = sp.get("error")
+    const error = sp.get("error");
     if (error) {
-      toast.error(`Gagal menghubungkan ${connected}: ${error}`)
+      toast.error(`Gagal menghubungkan ${connected}: ${error}`);
     } else {
-      const count = sp.get("count")
-      toast.success(`${count ?? ""} toko ${connected} berhasil dihubungkan`.trim())
-      refetch()
+      const count = sp.get("count");
+      toast.success(
+        `${count ?? ""} toko ${connected} berhasil dihubungkan`.trim(),
+      );
+      refetch();
     }
-    window.history.replaceState({}, "", "/dashboard/integrasi-channel")
-  }, [refetch])
+    window.history.replaceState({}, "", "/dashboard/integrasi-channel");
+  }, [refetch]);
 
   const { groups, available } = React.useMemo(
     () => groupStores(data ?? []),
-    [data]
-  )
+    [data],
+  );
 
   const onToggleActive = (id: string, value: boolean) =>
-    toggle.mutate({ id, flags: { is_active: value } })
+    toggle.mutate({ id, flags: { is_active: value } });
   const onToggleOrders = (id: string, value: boolean) =>
-    toggle.mutate({ id, flags: { order_sync_enabled: value } })
-  const onDisconnect = (store: ConnectedStore) => disconnect.mutate(store.id)
+    toggle.mutate({ id, flags: { order_sync_enabled: value } });
+  const onDisconnect = (store: ConnectedStore) => disconnect.mutate(store.id);
   const onRefresh = (store: ConnectedStore) => {
-    
-    const channel = store.channel.code === "tokopedia" ? "tiktok" : store.channel.code
-    refresh.mutate({ channel, id: store.id })
-  }
-  const onAdd = (group: ChannelGroupType) => connect(group.code)
-  const onConnect = (channel: Channel) => connect(channel.code)
+    const channel =
+      store.channel.code === "tokopedia" ? "tiktok" : store.channel.code;
+    refresh.mutate({ channel, id: store.id });
+  };
+  const onAdd = (group: ChannelGroupType) => connect(group.code);
+  const onConnect = (channel: Channel) => connect(channel.code);
 
   if (isLoading) {
     return (
@@ -91,7 +92,7 @@ export function IntegrasiChannelView() {
         <GroupSkeleton />
         <GroupSkeleton />
       </div>
-    )
+    );
   }
 
   if (isError) {
@@ -102,7 +103,7 @@ export function IntegrasiChannelView() {
           Coba lagi
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -138,5 +139,5 @@ export function IntegrasiChannelView() {
         />
       )}
     </div>
-  )
+  );
 }

@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
+import * as React from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   ArrowLeftIcon,
   DownloadIcon,
@@ -13,21 +13,21 @@ import {
   Trash2Icon,
   ClipboardCheckIcon,
   CalculatorIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import type { ColumnDef } from "@tanstack/react-table"
-import { DataTable } from "@/components/ui/data-table/data-table"
-import { PageTitle } from "@/components/dashboard/page-title"
-import { StatusBadge } from "@/components/dashboard/shared/status-badge"
-import { UserSelect } from "@/components/dashboard/shared/user-select"
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/components/ui/data-table/data-table";
+import { PageTitle } from "@/components/dashboard/page-title";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { UserSelect } from "@/components/dashboard/shared/user-select";
 import {
   useStockOpnameDetail,
   useStartStockOpname,
@@ -35,26 +35,28 @@ import {
   useCancelStockOpname,
   useDeleteStockOpname,
   useCountOpnameItem,
-} from "@/hooks/transaksi-stok/use-stock-opname"
-import { exportCsv } from "@/lib/export-csv"
-import { formatDate } from "@/lib/format"
+} from "@/hooks/transaksi-stok/use-stock-opname";
+import { exportCsv } from "@/lib/export-csv";
+import { formatDate } from "@/lib/format";
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="w-40 shrink-0 text-xs text-muted-foreground">{label}</span>
+      <span className="w-40 shrink-0 text-xs text-muted-foreground">
+        {label}
+      </span>
       <span className="text-sm font-medium">{value || "—"}</span>
     </div>
-  )
+  );
 }
 
 interface CountDialogState {
-  open: boolean
-  itemId: string
-  productName: string
-  qtyActual: string
-  reason: string
-  countedBy: string
+  open: boolean;
+  itemId: string;
+  productName: string;
+  qtyActual: string;
+  reason: string;
+  countedBy: string;
 }
 
 const EMPTY_COUNT: CountDialogState = {
@@ -64,38 +66,45 @@ const EMPTY_COUNT: CountDialogState = {
   qtyActual: "",
   reason: "",
   countedBy: "",
-}
+};
 
 export function OpnameDetail({ id }: { id: string }) {
-  const router = useRouter()
-  const { data: opname, isLoading } = useStockOpnameDetail(id)
-  const startMut = useStartStockOpname()
-  const finalizeMut = useFinalizeStockOpname()
-  const cancelMut = useCancelStockOpname()
-  const deleteMut = useDeleteStockOpname()
-  const countMut = useCountOpnameItem()
+  const router = useRouter();
+  const { data: opname, isLoading } = useStockOpnameDetail(id);
+  const startMut = useStartStockOpname();
+  const finalizeMut = useFinalizeStockOpname();
+  const cancelMut = useCancelStockOpname();
+  const deleteMut = useDeleteStockOpname();
+  const countMut = useCountOpnameItem();
 
-  const isDraft = opname?.status === "DRAFT"
-  const isInProgress = opname?.status === "IN_PROGRESS"
-  const isFinalized = opname?.status === "FINALIZED"
+  const isDraft = opname?.status === "DRAFT";
+  const isInProgress = opname?.status === "IN_PROGRESS";
+  const isFinalized = opname?.status === "FINALIZED";
 
-  const [startOpen, setStartOpen] = useState(false)
-  const [startBy, setStartBy] = useState("")
-  const [finalizeOpen, setFinalizeOpen] = useState(false)
-  const [finalizeBy, setFinalizeBy] = useState("")
-  const [cancelOpen, setCancelOpen] = useState(false)
-  const [deleteOpen, setDeleteOpen] = useState(false)
-  const [countDialog, setCountDialog] = useState<CountDialogState>(EMPTY_COUNT)
+  const [startOpen, setStartOpen] = useState(false);
+  const [startBy, setStartBy] = useState("");
+  const [finalizeOpen, setFinalizeOpen] = useState(false);
+  const [finalizeBy, setFinalizeBy] = useState("");
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [countDialog, setCountDialog] = useState<CountDialogState>(EMPTY_COUNT);
 
-  const actionPending = startMut.isPending || finalizeMut.isPending || cancelMut.isPending || deleteMut.isPending
+  const actionPending =
+    startMut.isPending ||
+    finalizeMut.isPending ||
+    cancelMut.isPending ||
+    deleteMut.isPending;
 
-    const columns = React.useMemo<ColumnDef<any>[]>(() => {
+  const columns = React.useMemo<ColumnDef<any>[]>(() => {
     const cols: ColumnDef<any>[] = [
       {
         accessorKey: "item_name",
         header: "Nama Produk",
         cell: ({ row }) => (
-          <div className="flex min-w-0 flex-col gap-0.5" style={{ maxWidth: 280 }}>
+          <div
+            className="flex min-w-0 flex-col gap-0.5"
+            style={{ maxWidth: 280 }}
+          >
             <span className="font-medium whitespace-normal break-words text-foreground">
               {row.original.item?.item_name ?? "—"}
             </span>
@@ -110,22 +119,38 @@ export function OpnameDetail({ id }: { id: string }) {
       {
         accessorKey: "bin",
         header: "Bin",
-        cell: ({ row }) => <span className="text-foreground">{row.original.bin?.code ?? "—"}</span>,
+        cell: ({ row }) => (
+          <span className="text-foreground">
+            {row.original.bin?.code ?? "—"}
+          </span>
+        ),
       },
       {
         accessorKey: "batch_no",
         header: "Batch",
-        cell: ({ row }) => <span className="text-foreground">{row.original.batch_no ?? "—"}</span>,
+        cell: ({ row }) => (
+          <span className="text-foreground">
+            {row.original.batch_no ?? "—"}
+          </span>
+        ),
       },
       {
         accessorKey: "serial_no",
         header: "Serial",
-        cell: ({ row }) => <span className="text-foreground">{row.original.serial_no ?? "—"}</span>,
+        cell: ({ row }) => (
+          <span className="text-foreground">
+            {row.original.serial_no ?? "—"}
+          </span>
+        ),
       },
       {
         accessorKey: "qty_system",
         header: () => <div className="text-right">Stok Sistem</div>,
-        cell: ({ row }) => <div className="text-right tabular-nums text-foreground">{row.original.qty_system ?? 0}</div>,
+        cell: ({ row }) => (
+          <div className="text-right tabular-nums text-foreground">
+            {row.original.qty_system ?? 0}
+          </div>
+        ),
       },
       {
         accessorKey: "qty_actual",
@@ -134,13 +159,18 @@ export function OpnameDetail({ id }: { id: string }) {
           const isCounted = row.original.qty_actual != null;
           return (
             <div className="text-right tabular-nums text-foreground">
-              {isCounted ? row.original.qty_actual : (
-                <Badge variant="outline" className="text-[10px] leading-tight border-slate-300 text-slate-500">
+              {isCounted ? (
+                row.original.qty_actual
+              ) : (
+                <Badge
+                  variant="outline"
+                  className="text-[10px] leading-tight border-slate-300 text-slate-500"
+                >
                   Belum dihitung
                 </Badge>
               )}
             </div>
-          )
+          );
         },
       },
       {
@@ -148,36 +178,50 @@ export function OpnameDetail({ id }: { id: string }) {
         header: () => <div className="text-right">Selisih</div>,
         cell: ({ row }) => {
           const isCounted = row.original.qty_actual != null;
-          const diff = isCounted ? (row.original.qty_actual! - (row.original.qty_system ?? 0)) : null;
+          const diff = isCounted
+            ? row.original.qty_actual! - (row.original.qty_system ?? 0)
+            : null;
           return (
-            <div className={cn(
-              "text-right tabular-nums font-medium",
-              diff != null && diff > 0 ? "text-emerald-600" : diff != null && diff < 0 ? "text-red-600" : "text-foreground"
-            )}>
+            <div
+              className={cn(
+                "text-right tabular-nums font-medium",
+                diff != null && diff > 0
+                  ? "text-emerald-600"
+                  : diff != null && diff < 0
+                    ? "text-red-600"
+                    : "text-foreground",
+              )}
+            >
               {diff != null ? (diff > 0 ? `+${diff}` : diff) : "—"}
             </div>
-          )
+          );
         },
       },
       {
         accessorKey: "reason",
         header: "Alasan",
-        cell: ({ row }) => <span className="text-foreground">{row.original.reason ?? "—"}</span>,
+        cell: ({ row }) => (
+          <span className="text-foreground">{row.original.reason ?? "—"}</span>
+        ),
       },
       {
         accessorKey: "counted_by",
         header: "Dihitung Oleh",
-        cell: ({ row }) => <span className="text-foreground">{row.original.counted_by ?? "—"}</span>,
+        cell: ({ row }) => (
+          <span className="text-foreground">
+            {row.original.counted_by ?? "—"}
+          </span>
+        ),
       },
-    ]
+    ];
 
     if (isInProgress) {
       cols.push({
         id: "actions",
         header: "",
         cell: ({ row }) => {
-          const item = row.original
-          const isCounted = item.qty_actual != null
+          const item = row.original;
+          const isCounted = item.qty_actual != null;
           if (!isCounted) {
             return (
               <button
@@ -197,25 +241,34 @@ export function OpnameDetail({ id }: { id: string }) {
                 <CalculatorIcon className="h-3.5 w-3.5" />
                 Hitung
               </button>
-            )
+            );
           }
-          return null
+          return null;
         },
-      })
+      });
     }
-    return cols
-  }, [isInProgress])
+    return cols;
+  }, [isInProgress]);
 
-
-
-
-  const hasUncounted = opname?.items?.some((i) => i.qty_actual == null) ?? false
+  const hasUncounted =
+    opname?.items?.some((i) => i.qty_actual == null) ?? false;
 
   const handleExport = () => {
-    if (!opname || !opname.items?.length) return
+    if (!opname || !opname.items?.length) return;
     exportCsv(
       `stok-opname-${opname.opname_no}.csv`,
-      ["SKU", "Nama Produk", "Bin", "Batch", "Serial", "Stok Sistem", "Stok Aktual", "Selisih", "Alasan", "Dihitung Oleh"],
+      [
+        "SKU",
+        "Nama Produk",
+        "Bin",
+        "Batch",
+        "Serial",
+        "Stok Sistem",
+        "Stok Aktual",
+        "Selisih",
+        "Alasan",
+        "Dihitung Oleh",
+      ],
       opname.items.map((item) => [
         item.item?.sku ?? "",
         item.item?.item_name ?? "",
@@ -224,12 +277,14 @@ export function OpnameDetail({ id }: { id: string }) {
         item.serial_no ?? "",
         String(item.qty_system ?? 0),
         item.qty_actual != null ? String(item.qty_actual) : "",
-        item.qty_actual != null ? String(item.qty_actual - (item.qty_system ?? 0)) : "",
+        item.qty_actual != null
+          ? String(item.qty_actual - (item.qty_system ?? 0))
+          : "",
         item.reason ?? "",
         item.counted_by ?? "",
-      ])
-    )
-  }
+      ]),
+    );
+  };
 
   if (isLoading) {
     return (
@@ -237,7 +292,7 @@ export function OpnameDetail({ id }: { id: string }) {
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-[400px] w-full" />
       </div>
-    )
+    );
   }
 
   if (!opname) {
@@ -249,10 +304,8 @@ export function OpnameDetail({ id }: { id: string }) {
           <Link href="/dashboard/transaksi-stok">Kembali</Link>
         </Button>
       </div>
-    )
+    );
   }
-
-
 
   return (
     <div className="flex flex-col gap-4">
@@ -266,7 +319,12 @@ export function OpnameDetail({ id }: { id: string }) {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleExport} disabled={!opname.items?.length}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExport}
+              disabled={!opname.items?.length}
+            >
               <DownloadIcon className="mr-1.5 h-3.5 w-3.5" />
               Export CSV
             </Button>
@@ -274,7 +332,10 @@ export function OpnameDetail({ id }: { id: string }) {
               <>
                 <Button
                   size="sm"
-                  onClick={() => { setStartOpen(true); setStartBy("") }}
+                  onClick={() => {
+                    setStartOpen(true);
+                    setStartBy("");
+                  }}
                   disabled={actionPending}
                   className="bg-blue-600 text-white hover:bg-blue-700"
                 >
@@ -295,7 +356,10 @@ export function OpnameDetail({ id }: { id: string }) {
             {isInProgress && (
               <Button
                 size="sm"
-                onClick={() => { setFinalizeOpen(true); setFinalizeBy("") }}
+                onClick={() => {
+                  setFinalizeOpen(true);
+                  setFinalizeBy("");
+                }}
                 disabled={actionPending || hasUncounted}
                 className="bg-emerald-600 text-white hover:bg-emerald-700"
               >
@@ -319,26 +383,45 @@ export function OpnameDetail({ id }: { id: string }) {
         }
       />
 
-      <LiquidGlass radius={16} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04] p-5">
-        <h3 className="mb-4 font-semibold">Informasi Stok Opname (Hitung Fisik)</h3>
+      <LiquidGlass
+        radius={16}
+        intensity="subtle"
+        className="bg-white/30 dark:bg-white/[0.04] p-5"
+      >
+        <h3 className="mb-4 font-semibold">
+          Informasi Stok Opname (Hitung Fisik)
+        </h3>
         <div className="grid gap-3 sm:grid-cols-2">
           <InfoRow label="No. Stok Opname" value={opname.opname_no} />
           <InfoRow label="Lokasi" value={opname.location?.location_name} />
           <InfoRow
             label="Status"
-            value={<StatusBadge domain="stock-opname" status={opname.status} className="text-[10px] leading-tight" />}
+            value={
+              <StatusBadge
+                domain="stock-opname"
+                status={opname.status}
+                className="text-[10px] leading-tight"
+              />
+            }
           />
           <InfoRow label="Dibuat Oleh" value={opname.created_by} />
           <InfoRow label="Diproses Oleh" value={opname.process_by} />
           <InfoRow label="Difinalisasi Oleh" value={opname.finalized_by} />
-          <InfoRow label="Tgl. Finalisasi" value={opname.finalized_at ? formatDate(opname.finalized_at) : null} />
+          <InfoRow
+            label="Tgl. Finalisasi"
+            value={opname.finalized_at ? formatDate(opname.finalized_at) : null}
+          />
           <InfoRow label="Catatan" value={opname.notes} />
         </div>
       </LiquidGlass>
 
-      <LiquidGlass radius={16} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04] p-5">
+      <LiquidGlass
+        radius={16}
+        intensity="subtle"
+        className="bg-white/30 dark:bg-white/[0.04] p-5"
+      >
         <h3 className="mb-4 font-semibold">Daftar Item</h3>
-                <div className="border border-border/40 rounded-lg overflow-hidden">
+        <div className="border border-border/40 rounded-lg overflow-hidden">
           <DataTable
             columns={columns}
             data={opname.items ?? []}
@@ -354,20 +437,22 @@ export function OpnameDetail({ id }: { id: string }) {
         </div>
       </LiquidGlass>
 
-      {/* Start Dialog */}
+      {}
       <ConfirmDialog
         open={startOpen}
-        onOpenChange={(open) => { if (!open) setStartOpen(false) }}
+        onOpenChange={(open) => {
+          if (!open) setStartOpen(false);
+        }}
         title="Mulai Stok Opname"
         description={`Mulai stok opname "${opname.opname_no}"? Status akan berubah menjadi Sedang Berjalan.`}
         confirmLabel="Mulai"
         loading={startMut.isPending}
         onConfirm={() => {
-          if (!startBy.trim()) return
+          if (!startBy.trim()) return;
           startMut.mutate(
             { id: opname.id, processBy: startBy.trim() },
-            { onSuccess: () => setStartOpen(false) }
-          )
+            { onSuccess: () => setStartOpen(false) },
+          );
         }}
       >
         <div className="px-1 py-2">
@@ -384,20 +469,22 @@ export function OpnameDetail({ id }: { id: string }) {
         </div>
       </ConfirmDialog>
 
-      {/* Finalize Dialog */}
+      {}
       <ConfirmDialog
         open={finalizeOpen}
-        onOpenChange={(open) => { if (!open) setFinalizeOpen(false) }}
+        onOpenChange={(open) => {
+          if (!open) setFinalizeOpen(false);
+        }}
         title="Finalisasi Stok Opname"
         description={`Finalisasi stok opname "${opname.opname_no}"? Stok akan disesuaikan sesuai hasil penghitungan.`}
         confirmLabel="Finalisasi"
         loading={finalizeMut.isPending}
         onConfirm={() => {
-          if (!finalizeBy.trim()) return
+          if (!finalizeBy.trim()) return;
           finalizeMut.mutate(
             { id: opname.id, finalizedBy: finalizeBy.trim() },
-            { onSuccess: () => setFinalizeOpen(false) }
-          )
+            { onSuccess: () => setFinalizeOpen(false) },
+          );
         }}
       >
         <div className="space-y-3 px-1 py-2">
@@ -413,28 +500,36 @@ export function OpnameDetail({ id }: { id: string }) {
               className="mt-1.5"
             />
           </div>
-          <p className="text-xs text-amber-600">Pastikan semua item sudah dihitung.</p>
+          <p className="text-xs text-amber-600">
+            Pastikan semua item sudah dihitung.
+          </p>
         </div>
       </ConfirmDialog>
 
-      {/* Cancel Dialog */}
+      {}
       <ConfirmDialog
         open={cancelOpen}
-        onOpenChange={(open) => { if (!open) setCancelOpen(false) }}
+        onOpenChange={(open) => {
+          if (!open) setCancelOpen(false);
+        }}
         title="Batalkan Stok Opname"
         description={`Batalkan stok opname "${opname.opname_no}"? Tindakan ini tidak dapat dibatalkan.`}
         confirmLabel="Batalkan"
         variant="destructive"
         loading={cancelMut.isPending}
         onConfirm={() => {
-          cancelMut.mutate(opname.id, { onSuccess: () => setCancelOpen(false) })
+          cancelMut.mutate(opname.id, {
+            onSuccess: () => setCancelOpen(false),
+          });
         }}
       />
 
-      {/* Delete Dialog */}
+      {}
       <ConfirmDialog
         open={deleteOpen}
-        onOpenChange={(open) => { if (!open) setDeleteOpen(false) }}
+        onOpenChange={(open) => {
+          if (!open) setDeleteOpen(false);
+        }}
         title="Hapus Stok Opname"
         description={`Hapus stok opname "${opname.opname_no}"? Tindakan ini tidak dapat dibatalkan.`}
         confirmLabel="Hapus"
@@ -443,23 +538,25 @@ export function OpnameDetail({ id }: { id: string }) {
         onConfirm={() => {
           deleteMut.mutate(opname.id, {
             onSuccess: () => {
-              setDeleteOpen(false)
-              router.push("/dashboard/transaksi-stok")
+              setDeleteOpen(false);
+              router.push("/dashboard/transaksi-stok");
             },
-          })
+          });
         }}
       />
 
-      {/* Count Dialog */}
+      {}
       <ConfirmDialog
         open={countDialog.open}
-        onOpenChange={(open) => { if (!open) setCountDialog(EMPTY_COUNT) }}
+        onOpenChange={(open) => {
+          if (!open) setCountDialog(EMPTY_COUNT);
+        }}
         title="Hitung Item"
         description={`Input jumlah aktual untuk "${countDialog.productName}".`}
         confirmLabel="Simpan"
         loading={countMut.isPending}
         onConfirm={() => {
-          if (countDialog.qtyActual === "") return
+          if (countDialog.qtyActual === "") return;
           countMut.mutate(
             {
               opnameId: opname.id,
@@ -470,8 +567,8 @@ export function OpnameDetail({ id }: { id: string }) {
                 counted_by: countDialog.countedBy.trim() || "",
               },
             },
-            { onSuccess: () => setCountDialog(EMPTY_COUNT) }
-          )
+            { onSuccess: () => setCountDialog(EMPTY_COUNT) },
+          );
         }}
       >
         <div className="space-y-3 px-1 py-2">
@@ -485,25 +582,35 @@ export function OpnameDetail({ id }: { id: string }) {
               min={0}
               placeholder="0"
               value={countDialog.qtyActual}
-              onChange={(e) => setCountDialog((p) => ({ ...p, qtyActual: e.target.value }))}
+              onChange={(e) =>
+                setCountDialog((p) => ({ ...p, qtyActual: e.target.value }))
+              }
               className="mt-1.5"
             />
           </div>
           <div>
-            <Label htmlFor="count-reason" className="text-sm font-medium">Alasan</Label>
+            <Label htmlFor="count-reason" className="text-sm font-medium">
+              Alasan
+            </Label>
             <Input
               id="count-reason"
               placeholder="Opsional"
               value={countDialog.reason}
-              onChange={(e) => setCountDialog((p) => ({ ...p, reason: e.target.value }))}
+              onChange={(e) =>
+                setCountDialog((p) => ({ ...p, reason: e.target.value }))
+              }
               className="mt-1.5"
             />
           </div>
           <div>
-            <Label htmlFor="count-by" className="text-sm font-medium">Dihitung Oleh</Label>
+            <Label htmlFor="count-by" className="text-sm font-medium">
+              Dihitung Oleh
+            </Label>
             <UserSelect
               value={countDialog.countedBy}
-              onChange={(name) => setCountDialog((p) => ({ ...p, countedBy: name }))}
+              onChange={(name) =>
+                setCountDialog((p) => ({ ...p, countedBy: name }))
+              }
               defaultToSelf
               placeholder="Nama penghitung"
               className="mt-1.5"
@@ -512,5 +619,5 @@ export function OpnameDetail({ id }: { id: string }) {
         </div>
       </ConfirmDialog>
     </div>
-  )
+  );
 }

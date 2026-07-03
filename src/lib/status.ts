@@ -1,13 +1,3 @@
-// Single source of truth for status labels + Badge variants across the dashboard.
-//
-// Every domain below consolidates a status map that previously lived inline in a
-// component or type file. Labels (Indonesian) are preserved exactly; the original
-// color/className is mapped to the closest Badge variant (see components/ui/badge.tsx).
-//
-// Render statuses through <StatusBadge domain="…" status={raw} /> so the label and
-// color stay identical everywhere. Do NOT put non-status badges here (channel/source
-// badges, pickup-status, payment badges) — those keep their own rendering.
-
 export type BadgeVariant =
   | "default"
   | "secondary"
@@ -20,11 +10,11 @@ export type BadgeVariant =
   | "indigo"
   | "purple"
   | "orange"
-  | "teal"
+  | "teal";
 
 export interface StatusMeta {
-  label: string
-  variant: BadgeVariant
+  label: string;
+  variant: BadgeVariant;
 }
 
 export type Domain =
@@ -43,10 +33,9 @@ export type Domain =
   | "sales-order"
   | "inbound"
   | "putaway"
-  | "channel-integration"
+  | "channel-integration";
 
 export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
-  // Retur penjualan (barang-masuk/sales-return*)
   "sales-return": {
     PENDING: { label: "Menunggu", variant: "warning" },
     ACCEPTED: { label: "Disetujui", variant: "info" },
@@ -55,7 +44,6 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     CANCELLED: { label: "Dibatalkan", variant: "muted" },
   },
 
-  // Retur pembelian (barang-keluar/retur-pembelian, purchase-return-detail)
   "purchase-return": {
     DRAFT: { label: "Draft", variant: "muted" },
     SUBMITTED: { label: "Diajukan", variant: "info" },
@@ -64,7 +52,6 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     CANCELLED: { label: "Dibatalkan", variant: "destructive" },
   },
 
-  // Transfer antar lokasi (transfer keluar/masuk/internal)
   "inventory-transfer": {
     DRAFT: { label: "Draft", variant: "muted" },
     APPROVED: { label: "Disetujui", variant: "indigo" },
@@ -73,14 +60,12 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     CANCELLED: { label: "Dibatalkan", variant: "destructive" },
   },
 
-  // Penyesuaian stok (transaksi-stok/penyesuaian*)
   "stock-adjustment": {
     DRAFT: { label: "Draft", variant: "muted" },
     APPROVED: { label: "Disetujui", variant: "success" },
     CANCELLED: { label: "Dibatalkan", variant: "destructive" },
   },
 
-  // Stock opname (transaksi-stok/opname*)
   "stock-opname": {
     DRAFT: { label: "Draft", variant: "muted" },
     IN_PROGRESS: { label: "Proses", variant: "info" },
@@ -88,26 +73,22 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     CANCELLED: { label: "Dibatalkan", variant: "destructive" },
   },
 
-  // Revaluasi stok (transaksi-stok/revaluasi*)
   "stock-revaluation": {
     APPROVED: { label: "Disetujui", variant: "success" },
     CANCELLED: { label: "Dibatalkan", variant: "destructive" },
   },
 
-  // Stok cadang / reserved (transaksi-stok/cadang*)
   "stock-reserve": {
     ACTIVE: { label: "Aktif", variant: "success" },
     CANCELLED: { label: "Dibatalkan", variant: "destructive" },
   },
 
-  // Settlement retur (barang-masuk/return-settlement)
   "return-settlement": {
     DRAFT: { label: "Draft", variant: "muted" },
     CONFIRMED: { label: "Dikonfirmasi", variant: "info" },
     COMPLETED: { label: "Selesai", variant: "success" },
   },
 
-  // Picklist (proses-pesanan/picking)
   picklist: {
     DRAFT: { label: "Draft", variant: "muted" },
     IN_PROGRESS: { label: "Diproses", variant: "info" },
@@ -116,7 +97,6 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     CANCELLED: { label: "Dibatalkan", variant: "muted" },
   },
 
-  // Packlist (proses-pesanan/packing)
   packlist: {
     DRAFT: { label: "Draft", variant: "muted" },
     IN_PROGRESS: { label: "Diproses", variant: "info" },
@@ -124,7 +104,6 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     CANCELLED: { label: "Dibatalkan", variant: "muted" },
   },
 
-  // Pengiriman / shipment (proses-pesanan/shipping)
   shipment: {
     SCHEDULED: { label: "Terjadwal", variant: "info" },
     HANDED_OVER: { label: "Diserahkan", variant: "warning" },
@@ -133,7 +112,6 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     CANCELLED: { label: "Dibatalkan", variant: "muted" },
   },
 
-  // Pesanan pembelian / PO (transaksi-pembelian + barang-masuk/pesanan-pembelian)
   "purchase-order": {
     DRAFT: { label: "Draft", variant: "muted" },
     OPEN: { label: "Belum Diterima", variant: "warning" },
@@ -143,7 +121,6 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     CANCELLED: { label: "Dibatalkan", variant: "destructive" },
   },
 
-  // Pesanan penjualan (pesanan/order-card, order-detail, fulfillment orders)
   "sales-order": {
     pending: { label: "Menunggu", variant: "orange" },
     reserved: { label: "Siap Proses", variant: "info" },
@@ -153,7 +130,6 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     cancelled: { label: "Dibatalkan", variant: "destructive" },
   },
 
-  // Penerimaan / inbound (barang-masuk/penerimaan*)
   inbound: {
     DRAFT: { label: "Belum Mulai", variant: "muted" },
     PARTIAL: { label: "Sebagian", variant: "warning" },
@@ -163,7 +139,6 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     CANCELLED: { label: "Dibatalkan", variant: "destructive" },
   },
 
-  // Penempatan / putaway (barang-masuk/penempatan)
   putaway: {
     NOT_STARTED: { label: "Belum Mulai", variant: "muted" },
     IN_PROGRESS: { label: "Sedang Diproses", variant: "warning" },
@@ -171,23 +146,21 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     CANCELLED: { label: "Dibatalkan", variant: "destructive" },
   },
 
-  // Status integrasi toko (integrasi-channel/stores-table)
   "channel-integration": {
     normal: { label: "Normal", variant: "success" },
     warning: { label: "Perlu Perhatian", variant: "warning" },
     error: { label: "Integrasi Bermasalah", variant: "destructive" },
   },
-}
+};
 
-const FALLBACK_VARIANT: BadgeVariant = "muted"
+const FALLBACK_VARIANT: BadgeVariant = "muted";
 
-/**
- * Resolve a status string to its label + Badge variant for a domain.
- * Falls back to `{ label: status, variant: "muted" }` for unknown statuses.
- */
-export function getStatusMeta(domain: Domain, status: string | null | undefined): StatusMeta {
-  const raw = status ?? ""
-  const meta = STATUS_REGISTRY[domain]?.[raw]
-  if (meta) return meta
-  return { label: raw || "—", variant: FALLBACK_VARIANT }
+export function getStatusMeta(
+  domain: Domain,
+  status: string | null | undefined,
+): StatusMeta {
+  const raw = status ?? "";
+  const meta = STATUS_REGISTRY[domain]?.[raw];
+  if (meta) return meta;
+  return { label: raw || "—", variant: FALLBACK_VARIANT };
 }

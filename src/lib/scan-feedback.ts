@@ -1,7 +1,3 @@
-// ZzFX Micro v1.3.2 by Frank Force - MIT License
-// https://github.com/KilledByAPixel/ZzFX
-// Embedded to avoid external dependency.
-
 export type ScanFeedbackKind = "ok" | "error";
 
 let zzfxCtx: AudioContext | null = null;
@@ -104,10 +100,12 @@ function zzfx(
           ? q > 2
             ? q > 3
               ? q > 4
-                ? ((ph / PI2) % 1 < D / 2 ? 1 : -1)
+                ? (ph / PI2) % 1 < D / 2
+                  ? 1
+                  : -1
                 : Math.sin(ph ** 3)
               : Math.max(Math.min(Math.tan(ph), 1), -1)
-            : 1 - (((2 * ph) / PI2) % 2 + 2) % 2
+            : 1 - (((((2 * ph) / PI2) % 2) + 2) % 2)
           : 1 - 4 * abs(Math.round(ph / PI2) - ph / PI2)
         : Math.sin(ph);
 
@@ -128,23 +126,15 @@ function zzfx(
         ? s / 2 +
           (c > i
             ? 0
-            : ((i < len - c ? 1 : (len - i) / c) * buf[(i - c) | 0]) /
-              2 /
-              p)
+            : ((i < len - c ? 1 : (len - i) / c) * buf[(i - c) | 0]) / 2 / p)
         : s;
 
       if (N)
         s = y1 =
-          b2 * x2 +
-          b1 * (x2 = x1) +
-          b0 * (x1 = s) -
-          a2 * y2 -
-          a1 * (y2 = y1);
+          b2 * x2 + b1 * (x2 = x1) + b0 * (x1 = s) - a2 * y2 - a1 * (y2 = y1);
     }
 
-    f =
-      (b += u += y) *
-      Math.cos(A * modOff++);
+    f = (b += u += y) * Math.cos(A * modOff++);
     ph += f + f * E * Math.sin(i ** 5);
 
     if (jump && ++jump > z) {
@@ -167,7 +157,6 @@ function zzfx(
   source.connect(ctx.destination);
   source.start();
 }
-/* eslint-enable */
 
 // prettier-ignore
 const SFX_SUCCESS = [2,0,987,.005,.04,.5,0,1.5,,,500,.05,,,,,,.8] as const;

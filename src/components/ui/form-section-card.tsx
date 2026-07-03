@@ -1,12 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import * as React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function FormSectionCard({
   id,
@@ -14,10 +9,10 @@ export function FormSectionCard({
   action,
   children,
 }: {
-  id?: string
-  title: React.ReactNode
-  action?: React.ReactNode
-  children: React.ReactNode
+  id?: string;
+  title: React.ReactNode;
+  action?: React.ReactNode;
+  children: React.ReactNode;
 }) {
   return (
     <section id={id} className="scroll-mt-6">
@@ -29,5 +24,5 @@ export function FormSectionCard({
         <CardContent className="py-5">{children}</CardContent>
       </Card>
     </section>
-  )
+  );
 }

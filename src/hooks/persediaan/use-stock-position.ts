@@ -1,30 +1,34 @@
-"use client"
+"use client";
 
-import { useCallback } from "react"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { InventoryStockService } from "@/services/persediaan/inventory.service"
-import type { StockListParams, StockMovementParams } from "@/types/persediaan/stock"
+import { InventoryStockService } from "@/services/persediaan/inventory.service";
+import type {
+  StockListParams,
+  StockMovementParams,
+} from "@/types/persediaan/stock";
 
-const STALE = 30_000
+const STALE = 30_000;
 
-const all = ["inventory"] as const
+const all = ["inventory"] as const;
 
 export const inventoryKeys = {
   all,
   list: (params: StockListParams) => [...all, "list", params] as const,
   item: (itemId: string) => [...all, "item", itemId] as const,
-  movements: (params: StockMovementParams) => [...all, "movements", params] as const,
+  movements: (params: StockMovementParams) =>
+    [...all, "movements", params] as const,
   itemStock: (itemId: string) => [...all, "item-stock", itemId] as const,
   movementFilters: () => [...all, "movement-filters"] as const,
-}
+};
 
 export function useStockPosition(params: StockListParams) {
   return useQuery({
     queryKey: inventoryKeys.list(params),
     queryFn: () => InventoryStockService.list(params),
     staleTime: STALE,
-  })
+  });
 }
 
 export function useStockItem(itemId: string) {
@@ -33,7 +37,7 @@ export function useStockItem(itemId: string) {
     queryFn: () => InventoryStockService.getItem(itemId),
     staleTime: STALE,
     enabled: !!itemId,
-  })
+  });
 }
 
 export function useStockMovements(params: StockMovementParams) {
@@ -42,7 +46,7 @@ export function useStockMovements(params: StockMovementParams) {
     queryFn: () => InventoryStockService.movements(params),
     staleTime: STALE,
     enabled: !!params["filter[item_id]"],
-  })
+  });
 }
 
 export function useItemStock(itemId: string) {
@@ -51,7 +55,7 @@ export function useItemStock(itemId: string) {
     queryFn: () => InventoryStockService.getItemStock(itemId),
     staleTime: STALE,
     enabled: !!itemId,
-  })
+  });
 }
 
 export function useMovementFilters() {
@@ -59,26 +63,24 @@ export function useMovementFilters() {
     queryKey: inventoryKeys.movementFilters(),
     queryFn: () => InventoryStockService.movementFilters(),
     staleTime: 60 * 60 * 1000,
-  })
+  });
 }
 
-// Hangatkan cache detail item (entitas utama + stok) saat hover, agar navigasi
-// ke halaman detail terasa instan. Dipakai imperatif dari daftar posisi stok.
 export function usePrefetchStockDetail() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useCallback(
     (itemId: string) => {
       qc.prefetchQuery({
         queryKey: inventoryKeys.item(itemId),
         queryFn: () => InventoryStockService.getItem(itemId),
         staleTime: STALE,
-      })
+      });
       qc.prefetchQuery({
         queryKey: inventoryKeys.itemStock(itemId),
         queryFn: () => InventoryStockService.getItemStock(itemId),
         staleTime: STALE,
-      })
+      });
     },
-    [qc]
-  )
+    [qc],
+  );
 }

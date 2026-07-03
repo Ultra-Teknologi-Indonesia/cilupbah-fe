@@ -1,4 +1,4 @@
-const pulse = "animate-pulse rounded bg-muted motion-reduce:animate-none"
+const pulse = "animate-pulse rounded bg-muted motion-reduce:animate-none";
 
 export function ProductDetailSkeleton() {
   return (
@@ -17,11 +17,14 @@ export function ProductDetailSkeleton() {
         ))}
       </div>
       {Array.from({ length: 2 }).map((_, i) => (
-        <div key={i} className="space-y-3 rounded-2xl border border-border/60 p-5">
+        <div
+          key={i}
+          className="space-y-3 rounded-2xl border border-border/60 p-5"
+        >
           <div className={`h-4 w-32 ${pulse}`} />
           <div className={`h-20 w-full ${pulse}`} />
         </div>
       ))}
     </div>
-  )
+  );
 }

@@ -1,29 +1,25 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import type { PaginationState } from "@tanstack/react-table"
-import type { ColumnDef } from "@tanstack/react-table"
-import {
-  AlertTriangleIcon,
-  DownloadIcon,
-  SearchXIcon,
-} from "lucide-react"
+import * as React from "react";
+import type { PaginationState } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
+import { AlertTriangleIcon, DownloadIcon, SearchXIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet"
-import { DataTable } from "@/components/ui/data-table"
+} from "@/components/ui/sheet";
+import { DataTable } from "@/components/ui/data-table";
 import {
   importErrorsDownloadUrl,
   useImportBatchErrors,
   type ImportBatch,
   type ImportBatchError,
-} from "@/hooks/master-produk/use-import"
+} from "@/hooks/master-produk/use-import";
 
 const columns: ColumnDef<ImportBatchError>[] = [
   {
@@ -49,31 +45,31 @@ const columns: ColumnDef<ImportBatchError>[] = [
       <span className="text-destructive">{row.original.message}</span>
     ),
   },
-]
+];
 
 interface Props {
-  batch: ImportBatch | null
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  batch: ImportBatch | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export function ImportErrorSheet({ batch, open, onOpenChange }: Props) {
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 20,
-  })
+  });
 
   React.useEffect(() => {
-    if (open) setPagination((p) => ({ ...p, pageIndex: 0 }))
-  }, [open])
+    if (open) setPagination((p) => ({ ...p, pageIndex: 0 }));
+  }, [open]);
 
   const query = useImportBatchErrors(batch?.id ?? null, {
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
-  })
+  });
 
-  const items = query.data?.items ?? []
-  const total = query.data?.meta?.total ?? 0
+  const items = query.data?.items ?? [];
+  const total = query.data?.meta?.total ?? 0;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -88,16 +84,8 @@ export function ImportErrorSheet({ batch, open, onOpenChange }: Props) {
         <div className="flex flex-col gap-4 pt-4">
           {batch && (
             <div className="flex justify-end">
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1.5"
-                asChild
-              >
-                <a
-                  href={importErrorsDownloadUrl(batch.id)}
-                  download
-                >
+              <Button variant="outline" size="sm" className="gap-1.5" asChild>
+                <a href={importErrorsDownloadUrl(batch.id)} download>
                   <DownloadIcon className="size-4" />
                   Download Error Report
                 </a>
@@ -141,5 +129,5 @@ export function ImportErrorSheet({ batch, open, onOpenChange }: Props) {
         </div>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

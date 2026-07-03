@@ -25,7 +25,7 @@ import type {
   InboundStatus,
   InboundType,
 } from "@/types/barang-masuk/inbound";
-import { formatDate } from "@/lib/format"
+import { formatDate } from "@/lib/format";
 
 const STATUS_OPTIONS = [
   { value: "", label: "Semua" },
@@ -42,22 +42,37 @@ const TYPE_LABEL: Record<string, string> = {
   CONSIGNMENT: "Konsinyasi",
 };
 
-const TYPE_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "muted" | "info" | "indigo" | "purple" | "orange" | "teal"> = {
+const TYPE_VARIANT: Record<
+  string,
+  | "default"
+  | "secondary"
+  | "destructive"
+  | "outline"
+  | "success"
+  | "warning"
+  | "muted"
+  | "info"
+  | "indigo"
+  | "purple"
+  | "orange"
+  | "teal"
+> = {
   PURCHASE_ORDER: "info",
   TRANSIT_IN: "purple",
   SALES_RETURN: "orange",
   CONSIGNMENT: "teal",
 };
 
-
 function ProgressBar({ value, total }: { value: number; total: number }) {
-  const pct = total > 0 ? Math.round((value / total) * 100) : 0
+  const pct = total > 0 ? Math.round((value / total) * 100) : 0;
   return (
     <div className="flex items-center gap-2">
       <Progress value={pct} className="h-1.5 w-16" />
-      <span className="text-xs tabular-nums text-muted-foreground">{value} / {total}</span>
+      <span className="text-xs tabular-nums text-muted-foreground">
+        {value} / {total}
+      </span>
     </div>
-  )
+  );
 }
 
 interface FilterState {
@@ -205,11 +220,11 @@ export function PenerimaanBarangTab() {
         id: "progress_penempatan",
         header: "Progress Penempatan",
         cell: ({ row }) => {
-          const totalRecv = row.original.items?.reduce((s, i) => s + i.received_qty, 0) ?? 0;
-          const totalPutaway = row.original.items?.reduce((s, i) => s + i.putaway_qty, 0) ?? 0;
-          return (
-            <ProgressBar value={totalPutaway} total={totalRecv} />
-          );
+          const totalRecv =
+            row.original.items?.reduce((s, i) => s + i.received_qty, 0) ?? 0;
+          const totalPutaway =
+            row.original.items?.reduce((s, i) => s + i.putaway_qty, 0) ?? 0;
+          return <ProgressBar value={totalPutaway} total={totalRecv} />;
         },
       },
       {
@@ -225,28 +240,43 @@ export function PenerimaanBarangTab() {
         cell: ({ row }) => {
           const worker = row.original.putaways?.[0]?.assignee?.name;
           return <span className="text-muted-foreground">{worker ?? "—"}</span>;
-        }
+        },
       },
       {
         accessorKey: "notes",
         header: "Keterangan",
         cell: ({ row }) => (
-          <span className="text-muted-foreground">{row.original.notes ?? "—"}</span>
-        )
+          <span className="text-muted-foreground">
+            {row.original.notes ?? "—"}
+          </span>
+        ),
       },
       {
         id: "actions",
         header: "Aksi",
         cell: ({ row }) => {
           const item = row.original;
-          const hasActivePutaway = item.putaways && item.putaways.some(p => !["COMPLETED", "CANCELLED"].includes(p.status));
-          const totalRecv = item.items?.reduce((s, i) => s + (i.received_qty || 0), 0) ?? 0;
-          const totalPutaway = item.items?.reduce((s, i) => s + (i.putaway_qty || 0), 0) ?? 0;
+          const hasActivePutaway =
+            item.putaways &&
+            item.putaways.some(
+              (p) => !["COMPLETED", "CANCELLED"].includes(p.status),
+            );
+          const totalRecv =
+            item.items?.reduce((s, i) => s + (i.received_qty || 0), 0) ?? 0;
+          const totalPutaway =
+            item.items?.reduce((s, i) => s + (i.putaway_qty || 0), 0) ?? 0;
 
-          const showPenempatan = !["COMPLETED", "CANCELLED"].includes(item.status) && !hasActivePutaway && totalRecv > 0 && totalPutaway < totalRecv;
+          const showPenempatan =
+            !["COMPLETED", "CANCELLED"].includes(item.status) &&
+            !hasActivePutaway &&
+            totalRecv > 0 &&
+            totalPutaway < totalRecv;
 
           return (
-            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="flex items-center gap-2"
+              onClick={(e) => e.stopPropagation()}
+            >
               {showPenempatan && (
                 <Button
                   size="sm"

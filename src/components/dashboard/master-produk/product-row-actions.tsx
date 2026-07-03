@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   MoreHorizontalIcon,
   PencilIcon,
@@ -9,10 +9,10 @@ import {
   ArchiveIcon,
   ArchiveRestoreIcon,
   Trash2Icon,
-} from "lucide-react"
-import { toast } from "sonner"
+} from "lucide-react";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,23 +20,26 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { Textarea } from "@/components/ui/textarea"
-import { useDeleteProduct, useArchiveProduct } from "@/hooks/master-produk/use-product-actions"
-import { useRestoreProduct } from "@/hooks/master-produk/use-archived-products"
-import type { Product } from "@/types/master-produk"
+} from "@/components/ui/dropdown-menu";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  useDeleteProduct,
+  useArchiveProduct,
+} from "@/hooks/master-produk/use-product-actions";
+import { useRestoreProduct } from "@/hooks/master-produk/use-archived-products";
+import type { Product } from "@/types/master-produk";
 
 export function ProductRowActions({ product }: { product: Product }) {
-  const [archiveOpen, setArchiveOpen] = React.useState(false)
-  const [deleteOpen, setDeleteOpen] = React.useState(false)
-  const [archiveReason, setArchiveReason] = React.useState("")
+  const [archiveOpen, setArchiveOpen] = React.useState(false);
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [archiveReason, setArchiveReason] = React.useState("");
 
-  const deleteMut = useDeleteProduct()
-  const archiveMut = useArchiveProduct()
-  const restoreMut = useRestoreProduct()
+  const deleteMut = useDeleteProduct();
+  const archiveMut = useArchiveProduct();
+  const restoreMut = useRestoreProduct();
 
-  const notify = (msg: string) => toast(msg, { description: product.itemName })
+  const notify = (msg: string) => toast(msg, { description: product.itemName });
 
   return (
     <>
@@ -67,8 +70,8 @@ export function ProductRowActions({ product }: { product: Product }) {
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
-              navigator.clipboard?.writeText(product.itemGroupId)
-              notify(`ID disalin: ${product.itemGroupId}`)
+              navigator.clipboard?.writeText(product.itemGroupId);
+              notify(`ID disalin: ${product.itemGroupId}`);
             }}
           >
             <CopyIcon className="size-4 text-muted-foreground" />
@@ -86,10 +89,12 @@ export function ProductRowActions({ product }: { product: Product }) {
               Pulihkan
             </DropdownMenuItem>
           ) : product.status === "master" ? (
-            <DropdownMenuItem onClick={() => {
-              setArchiveReason("")
-              setArchiveOpen(true)
-            }}>
+            <DropdownMenuItem
+              onClick={() => {
+                setArchiveReason("");
+                setArchiveOpen(true);
+              }}
+            >
               <ArchiveIcon className="size-4 text-muted-foreground" />
               Arsipkan
             </DropdownMenuItem>
@@ -116,8 +121,8 @@ export function ProductRowActions({ product }: { product: Product }) {
         onConfirm={() => {
           archiveMut.mutate(
             { id: product.itemGroupId, reason: archiveReason || undefined },
-            { onSuccess: () => setArchiveOpen(false) }
-          )
+            { onSuccess: () => setArchiveOpen(false) },
+          );
         }}
       >
         <div className="py-2">
@@ -141,9 +146,9 @@ export function ProductRowActions({ product }: { product: Product }) {
         onConfirm={() => {
           deleteMut.mutate(product.itemGroupId, {
             onSuccess: () => setDeleteOpen(false),
-          })
+          });
         }}
       />
     </>
-  )
+  );
 }

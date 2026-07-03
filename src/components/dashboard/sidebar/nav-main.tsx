@@ -32,7 +32,7 @@ export type Route = {
   title: string;
   icon?: React.ElementType;
   link: string;
-  /** Prefix path tambahan yang menandai item ini aktif (mis. workspace bertab). */
+
   match?: string[];
   comingSoon?: boolean;
   subs?: SubRoute[];
@@ -58,15 +58,23 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
     "min-w-0 truncate transition-opacity duration-200 ease-out group-data-[collapsible=icon]:opacity-0";
 
   const isRouteActive = (route: Route) => {
-    if (pathname === route.link || pathname.startsWith(route.link + "/")) return true;
-    if (route.match?.some((m) => pathname === m || pathname.startsWith(m + "/"))) {
+    if (pathname === route.link || pathname.startsWith(route.link + "/"))
+      return true;
+    if (
+      route.match?.some((m) => pathname === m || pathname.startsWith(m + "/"))
+    ) {
       return true;
     }
     if (route.subs) {
       return route.subs.some((sub) => {
-        if (pathname === sub.link || pathname.startsWith(sub.link + "/")) return true;
+        if (pathname === sub.link || pathname.startsWith(sub.link + "/"))
+          return true;
         if (sub.subs) {
-          return sub.subs.some((nestedSub) => pathname === nestedSub.link || pathname.startsWith(nestedSub.link + "/"));
+          return sub.subs.some(
+            (nestedSub) =>
+              pathname === nestedSub.link ||
+              pathname.startsWith(nestedSub.link + "/"),
+          );
         }
         return false;
       });
@@ -106,13 +114,9 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                 <SidebarMenuButton
                   tooltip={route.title}
                   isActive={isActive}
-                  onClick={() =>
-                    setOpenCollapsible(isOpen ? null : route.id)
-                  }
+                  onClick={() => setOpenCollapsible(isOpen ? null : route.id)}
                 >
-                  {Icon && (
-                    <Icon />
-                  )}
+                  {Icon && <Icon />}
                   <span className={labelClass}>{route.title}</span>
                   <motion.span
                     className="ml-auto transition-opacity duration-200 ease-out group-data-[collapsible=icon]:opacity-0"
@@ -148,12 +152,13 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                               <SidebarMenuSubButton asChild>
                                 <Link
                                   href={subRoute.link}
-                                                                   onClick={handleNavClick}
+                                  onClick={handleNavClick}
                                   className={cn(
                                     "flex items-center justify-between rounded-md px-4 py-1.5 text-sm",
-                                    pathname === subRoute.link || pathname.startsWith(subRoute.link + "/")
+                                    pathname === subRoute.link ||
+                                      pathname.startsWith(subRoute.link + "/")
                                       ? "bg-sidebar-accent text-primary font-medium"
-                                      : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+                                      : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
                                   )}
                                 >
                                   <span>{subRoute.title}</span>
@@ -169,16 +174,22 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                             {subRoute.subs && subRoute.subs.length > 0 && (
                               <div className="ml-4 mt-1 border-l border-sidebar-border pl-2 flex flex-col gap-1">
                                 {subRoute.subs.map((nestedSub) => (
-                                  <SidebarMenuSubItem key={`${route.id}-${subRoute.title}-${nestedSub.title}`} className="h-auto">
+                                  <SidebarMenuSubItem
+                                    key={`${route.id}-${subRoute.title}-${nestedSub.title}`}
+                                    className="h-auto"
+                                  >
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         href={nestedSub.link}
-                                                                               onClick={handleNavClick}
+                                        onClick={handleNavClick}
                                         className={cn(
                                           "flex items-center rounded-md px-4 py-1 text-xs",
-                                          pathname === nestedSub.link || pathname.startsWith(nestedSub.link + "/")
+                                          pathname === nestedSub.link ||
+                                            pathname.startsWith(
+                                              nestedSub.link + "/",
+                                            )
                                             ? "bg-sidebar-accent text-primary font-medium"
-                                            : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+                                            : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
                                         )}
                                       >
                                         <span>{nestedSub.title}</span>
@@ -196,14 +207,13 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                 </AnimatePresence>
               </div>
             ) : (
-              <SidebarMenuButton tooltip={route.title} isActive={isActive} asChild>
-                <Link
-                  href={route.link}
-                                   onClick={handleNavClick}
-                >
-                  {Icon && (
-                    <Icon />
-                  )}
+              <SidebarMenuButton
+                tooltip={route.title}
+                isActive={isActive}
+                asChild
+              >
+                <Link href={route.link} onClick={handleNavClick}>
+                  {Icon && <Icon />}
                   <span className={labelClass}>{route.title}</span>
                 </Link>
               </SidebarMenuButton>

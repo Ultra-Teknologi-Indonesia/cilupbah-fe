@@ -1,62 +1,60 @@
-// Renderer cetak: data report dari BE (JSON) dirender ke layout dokumen yang
-// rapi lalu window.print() — pengguna bisa "Save as PDF". Branch per report_type.
-
 function esc(v: unknown): string {
   return String(v ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
+    .replace(/>/g, "&gt;");
 }
 
 function money(v: unknown): string {
-  const n = Number(v)
-  if (!Number.isFinite(n)) return esc(v)
-  return "Rp " + n.toLocaleString("id-ID")
+  const n = Number(v);
+  if (!Number.isFinite(n)) return esc(v);
+  return "Rp " + n.toLocaleString("id-ID");
 }
 
-type Row = Record<string, unknown>
+type Row = Record<string, unknown>;
 
 function asArray(v: unknown): Row[] {
-  if (Array.isArray(v)) return v as Row[]
-  if (v && typeof v === "object") return [v as Row]
-  return []
+  if (Array.isArray(v)) return v as Row[];
+  if (v && typeof v === "object") return [v as Row];
+  return [];
 }
 
 function get(o: Row | undefined | null, key: string): unknown {
-  return o ? o[key] : undefined
+  return o ? o[key] : undefined;
 }
 
-// Tabel item: pakai kolom yang dikenal jika ada, jika tidak union semua key.
-type Col = { key: string; label: string; money?: boolean }
+type Col = { key: string; label: string; money?: boolean };
 function itemTable(items: Row[], cols: Col[]): string {
-  if (!items.length) return "<p class='muted'>— tidak ada item —</p>"
-  const present = cols.filter((c) => items.some((it) => it[c.key] != null))
+  if (!items.length) return "<p class='muted'>— tidak ada item —</p>";
+  const present = cols.filter((c) => items.some((it) => it[c.key] != null));
   const use: Col[] = present.length
     ? present
     : Array.from(
-        items.reduce((s, it) => (Object.keys(it).forEach((k) => s.add(k)), s), new Set<string>())
-      ).map((k) => ({ key: k, label: k }))
-  const head = use.map((c) => `<th>${esc(c.label)}</th>`).join("")
+        items.reduce(
+          (s, it) => (Object.keys(it).forEach((k) => s.add(k)), s),
+          new Set<string>(),
+        ),
+      ).map((k) => ({ key: k, label: k }));
+  const head = use.map((c) => `<th>${esc(c.label)}</th>`).join("");
   const body = items
     .map(
       (it) =>
         `<tr>${use
           .map((c) => `<td>${c.money ? money(it[c.key]) : esc(it[c.key])}</td>`)
-          .join("")}</tr>`
+          .join("")}</tr>`,
     )
-    .join("")
-  return `<table class="lines"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`
+    .join("");
+  return `<table class="lines"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
 }
 
 function field(label: string, value: unknown): string {
-  return `<div class="fld"><span class="lbl">${esc(label)}</span><span class="val">${esc(value)}</span></div>`
+  return `<div class="fld"><span class="lbl">${esc(label)}</span><span class="val">${esc(value)}</span></div>`;
 }
 
 function docWrap(inner: string): string {
-  return `<section class="doc">${inner}</section>`
+  return `<section class="doc">${inner}</section>`;
 }
 
-// ── Per-jenis dokumen ────────────────────────────────────────────────────────
 function labelDoc(orders: Row[]): string {
   return orders
     .map((o) =>
@@ -73,23 +71,23 @@ function labelDoc(orders: Row[]): string {
         <div class="strong">${esc(get(o, "shipping_full_name"))} · ${esc(get(o, "shipping_phone"))}</div>
         <div>${esc(get(o, "shipping_address"))}</div>
         <div>${esc(get(o, "shipping_area"))}, ${esc(get(o, "shipping_city"))}, ${esc(
-        get(o, "shipping_province")
-      )} ${esc(get(o, "shipping_post_code"))}</div>
+          get(o, "shipping_province"),
+        )} ${esc(get(o, "shipping_post_code"))}</div>
       </div>
       ${itemTable(asArray(get(o, "items")), [
         { key: "sku", label: "SKU" },
         { key: "description", label: "Produk" },
         { key: "qty_in_base", label: "Qty" },
       ])}
-    `)
+    `),
     )
-    .join("")
+    .join("");
 }
 
 function invoiceDoc(invoices: Row[]): string {
   return invoices
     .map((inv) => {
-      const order = get(inv, "order") as Row | null
+      const order = get(inv, "order") as Row | null;
       return docWrap(`
       <div class="doc-head"><h2>Faktur</h2><span class="chip">${esc(get(inv, "status"))}</span></div>
       <div class="grid2">
@@ -109,15 +107,15 @@ function invoiceDoc(invoices: Row[]): string {
         ${field("Total", money(get(inv, "total_amount")))}
         ${field("Dibayar", money(get(inv, "paid_amount")))}
       </div>
-    `)
+    `);
     })
-    .join("")
+    .join("");
 }
 
 function pickListDoc(picklists: Row[]): string {
   return picklists
     .map((pl) => {
-      const loc = get(pl, "location") as Row | null
+      const loc = get(pl, "location") as Row | null;
       return docWrap(`
       <div class="doc-head"><h2>Picklist</h2><span class="chip">${esc(get(pl, "status"))}</span></div>
       <div class="grid2">
@@ -138,20 +136,20 @@ function pickListDoc(picklists: Row[]): string {
           { key: "order", label: "No. Pesanan" },
           { key: "qty_ordered", label: "Dipesan" },
           { key: "qty_picked", label: "Dipick" },
-        ]
+        ],
       )}
-    `)
+    `);
     })
-    .join("")
+    .join("");
 }
 
 function manifestDoc(shipments: Row[]): string {
   return shipments
     .map((s) => {
-      const orders = asArray(get(s, "orders"))
+      const orders = asArray(get(s, "orders"));
       const rows = orders.map((so, i) => {
-        const o = (get(so, "order") as Row | null) ?? {}
-        const wg = Number(o.order_weight_gram ?? 0)
+        const o = (get(so, "order") as Row | null) ?? {};
+        const wg = Number(o.order_weight_gram ?? 0);
         return {
           no: i + 1,
           salesorder_no: o.salesorder_no,
@@ -159,17 +157,20 @@ function manifestDoc(shipments: Row[]): string {
           weight: wg ? (wg / 1000).toFixed(2) : "0",
           resi: so.tracking_number ?? o.tracking_number,
           status_channel: o.status ?? "",
-        }
-      })
-      const totalPaket = rows.length
+        };
+      });
+      const totalPaket = rows.length;
       const cancelled = orders.filter((so) => {
-        const o = (get(so, "order") as Row | null) ?? {}
-        return String(o.status ?? "").toLowerCase().includes("cancel")
-      }).length
-      const courierName = get(s, "courier_name") ?? get(s, "courier_code") ?? ""
-      const shipmentNo = get(s, "shipment_no") ?? ""
-      const createdBy = get(s, "created_by") ?? ""
-      const shipmentDate = get(s, "shipment_date")
+        const o = (get(so, "order") as Row | null) ?? {};
+        return String(o.status ?? "")
+          .toLowerCase()
+          .includes("cancel");
+      }).length;
+      const courierName =
+        get(s, "courier_name") ?? get(s, "courier_code") ?? "";
+      const shipmentNo = get(s, "shipment_no") ?? "";
+      const createdBy = get(s, "created_by") ?? "";
+      const shipmentDate = get(s, "shipment_date");
       const fmtDate = shipmentDate
         ? new Date(String(shipmentDate)).toLocaleDateString("id-ID", {
             day: "2-digit",
@@ -178,7 +179,7 @@ function manifestDoc(shipments: Row[]): string {
             hour: "2-digit",
             minute: "2-digit",
           })
-        : "—"
+        : "—";
 
       const head = `<tr>
         <th style="width:36px">No</th>
@@ -188,7 +189,7 @@ function manifestDoc(shipments: Row[]): string {
         <th>Berat</th>
         <th>No Resi</th>
         <th>Status Channel</th>
-      </tr>`
+      </tr>`;
       const body = rows
         .map(
           (r) => `<tr>
@@ -199,9 +200,9 @@ function manifestDoc(shipments: Row[]): string {
             <td style="text-align:center">${r.weight}</td>
             <td>${esc(r.resi)}</td>
             <td>${esc(r.status_channel)}</td>
-          </tr>`
+          </tr>`,
         )
-        .join("")
+        .join("");
 
       return `<section class="manifest">
         <h1 class="manifest-title">Laporan Bukti Pengiriman</h1>
@@ -246,45 +247,47 @@ function manifestDoc(shipments: Row[]): string {
           <thead>${head}</thead>
           <tbody>${body}</tbody>
         </table>
-      </section>`
+      </section>`;
     })
-    .join("")
+    .join("");
 }
 
 function genericDoc(data: unknown): string {
-  const rows = asArray(data)
-  if (!rows.length) return "<p class='muted'>— tidak ada data —</p>"
-  return docWrap(itemTable(rows, []))
+  const rows = asArray(data);
+  if (!rows.length) return "<p class='muted'>— tidak ada data —</p>";
+  return docWrap(itemTable(rows, []));
 }
 
 export function printReport(title: string, payload: unknown) {
-  const win = window.open("", "_blank", "width=900,height=700")
-  if (!win) return
+  const win = window.open("", "_blank", "width=900,height=700");
+  if (!win) return;
 
-  const wrapper = payload && typeof payload === "object" ? (payload as Row) : null
-  const reportType = wrapper?.report_type as string | undefined
-  const inner = wrapper && "data" in wrapper ? wrapper.data : payload
-  const list = asArray(inner)
+  const wrapper =
+    payload && typeof payload === "object" ? (payload as Row) : null;
+  const reportType = wrapper?.report_type as string | undefined;
+  const inner = wrapper && "data" in wrapper ? wrapper.data : payload;
+  const list = asArray(inner);
 
-  let body: string
+  let body: string;
   switch (reportType) {
     case "shipping_label":
-      body = labelDoc(list)
-      break
+      body = labelDoc(list);
+      break;
     case "invoice":
-      body = invoiceDoc(list)
-      break
+      body = invoiceDoc(list);
+      break;
     case "pick_list":
-      body = pickListDoc(list)
-      break
+      body = pickListDoc(list);
+      break;
     case "shipping_manifest":
-      body = manifestDoc(list)
-      break
+      body = manifestDoc(list);
+      break;
     default:
-      body = genericDoc(inner ?? payload)
+      body = genericDoc(inner ?? payload);
   }
 
-  win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>
+  win.document
+    .write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>
     *{box-sizing:border-box}
     body{font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;color:#111827;margin:0;padding:28px;font-size:12px}
     h2{font-size:16px;margin:0}
@@ -322,6 +325,6 @@ export function printReport(title: string, payload: unknown) {
   </head><body>
     ${body}
     <div style="margin-top:8px"><button onclick="window.print()" style="padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;background:#fff;cursor:pointer">Cetak / Simpan PDF</button></div>
-  </body></html>`)
-  win.document.close()
+  </body></html>`);
+  win.document.close();
 }

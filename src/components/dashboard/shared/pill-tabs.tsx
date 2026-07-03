@@ -1,23 +1,18 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 
-import { cn } from "@/lib/utils"
-import { Skeleton } from "@/components/ui/skeleton"
-
-// Pill-tab standar dashboard — satu sumber gaya untuk semua baris tab
-// (sebelumnya tiap halaman merakit pill sendiri, AUDIT-FE.md §5.4). Dua
-// varian: "solid" (tab utama, latar foreground saat aktif) dan "soft"
-// (sub-tab, latar tipis saat aktif).
+import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface PillTabItem<T extends string = string> {
-  key: T
-  label: React.ReactNode
-  icon?: React.ComponentType<{ className?: string }>
-  /** Angka badge; null/undefined = tanpa badge. */
-  count?: number | null
-  /** true = badge skeleton (count sedang dimuat). */
-  countLoading?: boolean
+  key: T;
+  label: React.ReactNode;
+  icon?: React.ComponentType<{ className?: string }>;
+
+  count?: number | null;
+
+  countLoading?: boolean;
 }
 
 export function PillTab<T extends string>({
@@ -26,12 +21,12 @@ export function PillTab<T extends string>({
   variant = "solid",
   onSelect,
 }: {
-  item: PillTabItem<T>
-  active: boolean
-  variant?: "solid" | "soft"
-  onSelect: (key: T) => void
+  item: PillTabItem<T>;
+  active: boolean;
+  variant?: "solid" | "soft";
+  onSelect: (key: T) => void;
 }) {
-  const Icon = item.icon
+  const Icon = item.icon;
   return (
     <button
       type="button"
@@ -45,7 +40,7 @@ export function PillTab<T extends string>({
             : "bg-foreground/10 text-foreground"
           : variant === "solid"
             ? "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-            : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+            : "text-muted-foreground hover:text-foreground hover:bg-muted/60",
       )}
     >
       {Icon && <Icon className="h-4 w-4" />}
@@ -58,14 +53,14 @@ export function PillTab<T extends string>({
             "rounded-full px-1.5 text-xs tabular-nums",
             active && variant === "solid"
               ? "bg-background/20 text-background"
-              : "bg-background text-muted-foreground"
+              : "bg-background text-muted-foreground",
           )}
         >
           {item.count}
         </span>
       ) : null}
     </button>
-  )
+  );
 }
 
 export function PillTabs<T extends string>({
@@ -75,11 +70,11 @@ export function PillTabs<T extends string>({
   variant = "solid",
   className,
 }: {
-  items: PillTabItem<T>[]
-  active: T | null
-  onSelect: (key: T) => void
-  variant?: "solid" | "soft"
-  className?: string
+  items: PillTabItem<T>[];
+  active: T | null;
+  onSelect: (key: T) => void;
+  variant?: "solid" | "soft";
+  className?: string;
 }) {
   return (
     <div className={cn("flex flex-wrap items-center gap-1.5", className)}>
@@ -93,5 +88,5 @@ export function PillTabs<T extends string>({
         />
       ))}
     </div>
-  )
+  );
 }

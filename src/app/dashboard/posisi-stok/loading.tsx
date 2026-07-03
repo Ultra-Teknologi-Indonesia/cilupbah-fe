@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
 import {
   PageHeaderSkeleton,
   TableSkeleton,
-} from "@/components/ui/page-skeleton"
+} from "@/components/ui/page-skeleton";
 
 export default function PosisiStokLoading() {
   return (
@@ -13,5 +13,5 @@ export default function PosisiStokLoading() {
         <TableSkeleton rows={8} cols={6} />
       </div>
     </phantom-ui>
-  )
+  );
 }

@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { FilterIcon, SearchIcon, XIcon } from "lucide-react"
+import * as React from "react";
+import { FilterIcon, SearchIcon, XIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export function FilterToolbar({
   search,
@@ -21,22 +21,22 @@ export function FilterToolbar({
   children,
   className,
 }: {
-  search?: string
-  onSearchChange?: (value: string) => void
-  searchPlaceholder?: string
-  onReset?: () => void
-  hasFilter?: boolean
-  activeCount?: number
-  align?: "start" | "end"
-  leading?: React.ReactNode
-  trailing?: React.ReactNode
-  gridCols?: 1 | 2 | 3 | 4
-  children?: React.ReactNode
-  className?: string
+  search?: string;
+  onSearchChange?: (value: string) => void;
+  searchPlaceholder?: string;
+  onReset?: () => void;
+  hasFilter?: boolean;
+  activeCount?: number;
+  align?: "start" | "end";
+  leading?: React.ReactNode;
+  trailing?: React.ReactNode;
+  gridCols?: 1 | 2 | 3 | 4;
+  children?: React.ReactNode;
+  className?: string;
 }) {
-  const [open, setOpen] = React.useState(false)
-  const hasChildren = React.Children.count(children) > 0
-  const filterCount = activeCount > 0 ? activeCount : undefined
+  const [open, setOpen] = React.useState(false);
+  const hasChildren = React.Children.count(children) > 0;
+  const filterCount = activeCount > 0 ? activeCount : undefined;
 
   return (
     <div className={cn("border-b border-border/40", className)}>
@@ -44,7 +44,14 @@ export function FilterToolbar({
         {leading}
         {align === "end" && <div className="flex-1" />}
         {onSearchChange != null && (
-          <div className={cn("relative", align === "end" ? "min-w-[220px]" : "w-full sm:w-auto sm:min-w-[200px]")}>
+          <div
+            className={cn(
+              "relative",
+              align === "end"
+                ? "min-w-[220px]"
+                : "w-full sm:w-auto sm:min-w-[200px]",
+            )}
+          >
             <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search ?? ""}
@@ -72,7 +79,7 @@ export function FilterToolbar({
             className={cn(
               "h-9 gap-2 rounded-full transition-colors",
               open && "bg-primary/10 text-primary hover:bg-primary/15",
-              !open && filterCount && "border-primary/40 text-primary"
+              !open && filterCount && "border-primary/40 text-primary",
             )}
             onClick={() => setOpen(!open)}
           >
@@ -90,8 +97,8 @@ export function FilterToolbar({
           <button
             type="button"
             onClick={() => {
-              onReset()
-              setOpen(false)
+              onReset();
+              setOpen(false);
             }}
             className="flex items-center gap-1 text-sm font-medium text-destructive transition-colors hover:text-destructive/80"
           >
@@ -107,7 +114,7 @@ export function FilterToolbar({
         <div
           className={cn(
             "grid transition-[grid-template-rows] duration-200 ease-out",
-            open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+            open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
           )}
         >
           <div className="overflow-hidden">
@@ -117,7 +124,7 @@ export function FilterToolbar({
                   "grid grid-cols-1 gap-x-4 gap-y-3",
                   gridCols === 2 && "sm:grid-cols-2",
                   gridCols === 3 && "sm:grid-cols-2 lg:grid-cols-3",
-                  gridCols === 4 && "sm:grid-cols-2 lg:grid-cols-4"
+                  gridCols === 4 && "sm:grid-cols-2 lg:grid-cols-4",
                 )}
               >
                 {children}
@@ -127,5 +134,5 @@ export function FilterToolbar({
         </div>
       )}
     </div>
-  )
+  );
 }

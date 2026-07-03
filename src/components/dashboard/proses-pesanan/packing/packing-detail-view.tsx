@@ -1,43 +1,54 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
+import * as React from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeftIcon,
   CheckCircle2Icon,
   Loader2Icon,
   PackageIcon,
-} from "lucide-react"
-import { toast } from "sonner"
+} from "lucide-react";
+import { toast } from "sonner";
 
-import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { ScanAutoflowBar, type ScanAutoflowLine } from "@/components/dashboard/shared/scan-autoflow-bar"
-import { PageTitle } from "@/components/dashboard/page-title"
-import { playScanFeedback } from "@/lib/scan-feedback"
-import { type PacklistItem } from "@/types/proses-pesanan/fulfillment"
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  ScanAutoflowBar,
+  type ScanAutoflowLine,
+} from "@/components/dashboard/shared/scan-autoflow-bar";
+import { PageTitle } from "@/components/dashboard/page-title";
+import { playScanFeedback } from "@/lib/scan-feedback";
+import { type PacklistItem } from "@/types/proses-pesanan/fulfillment";
 import {
   useCompletePacklist,
   usePackItem,
   usePacklistDetail,
   useStartPacklist,
   useVerifyBarcode,
-} from "@/hooks/proses-pesanan/use-fulfillment"
+} from "@/hooks/proses-pesanan/use-fulfillment";
 
-const LIST_HREF = "/dashboard/proses-pesanan"
+const LIST_HREF = "/dashboard/proses-pesanan";
 
 function errMsg(err: unknown, fallback: string): string {
   if (err && typeof err === "object" && "message" in err) {
-    const m = (err as { message?: unknown }).message
-    if (typeof m === "string" && m) return m
+    const m = (err as { message?: unknown }).message;
+    if (typeof m === "string" && m) return m;
   }
-  return fallback
+  return fallback;
 }
 
-function ItemImage({ src, alt, size = 48 }: { src: string | null; alt: string; size?: number }) {
-  const [errored, setErrored] = React.useState(false)
+function ItemImage({
+  src,
+  alt,
+  size = 48,
+}: {
+  src: string | null;
+  alt: string;
+  size?: number;
+}) {
+  const [errored, setErrored] = React.useState(false);
   if (!src || errored) {
     return (
       <div
@@ -46,7 +57,7 @@ function ItemImage({ src, alt, size = 48 }: { src: string | null; alt: string; s
       >
         <PackageIcon className="size-5" />
       </div>
-    )
+    );
   }
   return (
     <div
@@ -62,12 +73,12 @@ function ItemImage({ src, alt, size = 48 }: { src: string | null; alt: string; s
         onError={() => setErrored(true)}
       />
     </div>
-  )
+  );
 }
 
 function ProgressBar({ packed, total }: { packed: number; total: number }) {
-  const pct = total > 0 ? Math.min(100, Math.round((packed / total) * 100)) : 0
-  const done = packed >= total && total > 0
+  const pct = total > 0 ? Math.min(100, Math.round((packed / total) * 100)) : 0;
+  const done = packed >= total && total > 0;
   return (
     <div className="space-y-1.5">
       <div className="flex items-baseline justify-between">
@@ -80,66 +91,71 @@ function ProgressBar({ packed, total }: { packed: number; total: number }) {
         <div
           className={cn(
             "h-full rounded-full transition-all duration-500",
-            done ? "bg-emerald-500" : "bg-primary"
+            done ? "bg-emerald-500" : "bg-primary",
           )}
           style={{ width: `${pct}%` }}
         />
       </div>
     </div>
-  )
+  );
 }
 
 export function PackingDetailView({ id }: { id: string }) {
-  const router = useRouter()
+  const router = useRouter();
 
-  const qtyInputRef = React.useRef<HTMLInputElement>(null)
+  const qtyInputRef = React.useRef<HTMLInputElement>(null);
 
-  const [activeItemId, setActiveItemId] = React.useState<string | null>(null)
-  const [packQty, setPackQty] = React.useState("")
-  const [scanFocusKey, setScanFocusKey] = React.useState(0)
-  const refocusScan = () => setScanFocusKey((k) => k + 1)
+  const [activeItemId, setActiveItemId] = React.useState<string | null>(null);
+  const [packQty, setPackQty] = React.useState("");
+  const [scanFocusKey, setScanFocusKey] = React.useState(0);
+  const refocusScan = () => setScanFocusKey((k) => k + 1);
 
-  const { data: pk, isLoading, isError } = usePacklistDetail(id)
-  const startPacklist = useStartPacklist()
-  const packItem = usePackItem()
-  const verifyBarcode = useVerifyBarcode()
-  const completePacklist = useCompletePacklist()
+  const { data: pk, isLoading, isError } = usePacklistDetail(id);
+  const startPacklist = useStartPacklist();
+  const packItem = usePackItem();
+  const verifyBarcode = useVerifyBarcode();
+  const completePacklist = useCompletePacklist();
 
-  const items = pk?.items ?? []
-  const totalOrdered = items.reduce((s, i) => s + i.qtyOrdered, 0)
-  const totalPacked = items.reduce((s, i) => s + i.qtyPacked, 0)
-  const allPacked = items.length > 0 && items.every((i) => i.qtyPacked >= i.qtyOrdered)
-  const isTerminal = pk ? ["COMPLETED", "CANCELLED"].includes(pk.status) : false
-  const editable = !!pk && !isTerminal
+  const items = pk?.items ?? [];
+  const totalOrdered = items.reduce((s, i) => s + i.qtyOrdered, 0);
+  const totalPacked = items.reduce((s, i) => s + i.qtyPacked, 0);
+  const allPacked =
+    items.length > 0 && items.every((i) => i.qtyPacked >= i.qtyOrdered);
+  const isTerminal = pk
+    ? ["COMPLETED", "CANCELLED"].includes(pk.status)
+    : false;
+  const editable = !!pk && !isTerminal;
 
-  const didAutoComplete = React.useRef(false)
+  const didAutoComplete = React.useRef(false);
   React.useEffect(() => {
-    if (!pk || didAutoComplete.current) return
+    if (!pk || didAutoComplete.current) return;
     if (allPacked && pk.status !== "COMPLETED") {
-      didAutoComplete.current = true
+      didAutoComplete.current = true;
       completePacklist.mutate(id, {
         onSuccess: () => {
-          toast.success("Semua item sudah dikemas. Packing selesai!")
-          router.push(LIST_HREF)
+          toast.success("Semua item sudah dikemas. Packing selesai!");
+          router.push(LIST_HREF);
         },
         onError: (e) => {
-          didAutoComplete.current = false
-          toast.error(errMsg(e, "Gagal menyelesaikan packing."))
+          didAutoComplete.current = false;
+          toast.error(errMsg(e, "Gagal menyelesaikan packing."));
         },
-      })
+      });
     }
-  }, [pk, allPacked, id, completePacklist, router])
+  }, [pk, allPacked, id, completePacklist, router]);
 
   React.useEffect(() => {
     if (pk && pk.status === "DRAFT") {
       startPacklist.mutate(id, {
         onError: () => {},
-      })
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pk?.id])
+  }, [pk?.id]);
 
-  const activeItem = activeItemId ? items.find((i) => i.id === activeItemId) ?? null : null
+  const activeItem = activeItemId
+    ? (items.find((i) => i.id === activeItemId) ?? null)
+    : null;
 
   const scanLines: ScanAutoflowLine[] = items.map((i) => ({
     id: i.id,
@@ -147,74 +163,110 @@ export function PackingDetailView({ id }: { id: string }) {
     secondary: i.sku,
     codes: [i.sku],
     done: i.qtyPacked >= i.qtyOrdered,
-  }))
+  }));
 
   const packNow = (item: PacklistItem, absoluteQty: number) => {
     packItem.mutate(
-      { packlistId: id, itemId: item.id, qtyPacked: absoluteQty, barcodeVerified: true },
+      {
+        packlistId: id,
+        itemId: item.id,
+        qtyPacked: absoluteQty,
+        barcodeVerified: true,
+      },
       {
         onSuccess: () => {
-          toast.success(`${item.sku} dikemas (${absoluteQty}/${item.qtyOrdered}).`)
-          setActiveItemId(null)
-          setPackQty("")
-          refocusScan()
+          toast.success(
+            `${item.sku} dikemas (${absoluteQty}/${item.qtyOrdered}).`,
+          );
+          setActiveItemId(null);
+          setPackQty("");
+          refocusScan();
         },
-        onError: (e) => { toast.error(errMsg(e, `Gagal pack ${item.sku}.`)); playScanFeedback("error") },
-      }
-    )
-  }
+        onError: (e) => {
+          toast.error(errMsg(e, `Gagal pack ${item.sku}.`));
+          playScanFeedback("error");
+        },
+      },
+    );
+  };
 
   const openQtyFor = (item: PacklistItem) => {
-    const remaining = item.qtyOrdered - item.qtyPacked
-    setActiveItemId(item.id)
-    setPackQty(String(remaining))
-    setTimeout(() => { qtyInputRef.current?.focus(); qtyInputRef.current?.select() }, 50)
-  }
+    const remaining = item.qtyOrdered - item.qtyPacked;
+    setActiveItemId(item.id);
+    setPackQty(String(remaining));
+    setTimeout(() => {
+      qtyInputRef.current?.focus();
+      qtyInputRef.current?.select();
+    }, 50);
+  };
 
-  // qty=1 → pack otomatis (nol keyboard); qty>1 → input qty muncul default = sisa, Enter.
   const packOrPrompt = (item: PacklistItem) => {
-    const remaining = item.qtyOrdered - item.qtyPacked
-    if (remaining <= 0) { toast.info(`${item.sku} sudah lengkap.`); refocusScan(); return }
-    if (remaining === 1) { packNow(item, item.qtyPacked + 1); return }
-    openQtyFor(item)
-  }
+    const remaining = item.qtyOrdered - item.qtyPacked;
+    if (remaining <= 0) {
+      toast.info(`${item.sku} sudah lengkap.`);
+      refocusScan();
+      return;
+    }
+    if (remaining === 1) {
+      packNow(item, item.qtyPacked + 1);
+      return;
+    }
+    openQtyFor(item);
+  };
 
   const handleResolve = (line: ScanAutoflowLine) => {
-    const item = items.find((i) => i.id === line.id)
-    if (item) packOrPrompt(item)
-  }
+    const item = items.find((i) => i.id === line.id);
+    if (item) packOrPrompt(item);
+  };
 
-  // Kode tak cocok lokal → verifikasi barcode ke BE (barcode ≠ SKU).
   const handleUnmatched = (code: string) => {
-    if (!id) return
+    if (!id) return;
     verifyBarcode.mutate(
       { packlistId: id, barcode: code },
       {
         onSuccess: (res) => {
-          if (!res) { toast.error(`SKU/Barcode "${code}" tidak ditemukan.`); playScanFeedback("error"); return }
-          const matched = items.find((i) => i.id === res.itemId)
-          if (matched) { playScanFeedback("ok"); packOrPrompt(matched) }
-          else { toast.info(`${res.sku} sudah lengkap.`); playScanFeedback("error") }
+          if (!res) {
+            toast.error(`SKU/Barcode "${code}" tidak ditemukan.`);
+            playScanFeedback("error");
+            return;
+          }
+          const matched = items.find((i) => i.id === res.itemId);
+          if (matched) {
+            playScanFeedback("ok");
+            packOrPrompt(matched);
+          } else {
+            toast.info(`${res.sku} sudah lengkap.`);
+            playScanFeedback("error");
+          }
         },
-        onError: (e) => { toast.error(errMsg(e, "Barcode tidak valid.")); playScanFeedback("error") },
-      }
-    )
-  }
+        onError: (e) => {
+          toast.error(errMsg(e, "Barcode tidak valid."));
+          playScanFeedback("error");
+        },
+      },
+    );
+  };
 
   const handleConfirmPack = () => {
-    if (!activeItem) return
-    const qty = Number.parseInt(packQty, 10)
-    const remaining = activeItem.qtyOrdered - activeItem.qtyPacked
-    if (Number.isNaN(qty) || qty <= 0) { toast.error("Masukkan qty yang valid."); return }
-    if (qty > remaining) { toast.error(`Qty melebihi sisa (${remaining}).`); return }
-    packNow(activeItem, activeItem.qtyPacked + qty)
-  }
+    if (!activeItem) return;
+    const qty = Number.parseInt(packQty, 10);
+    const remaining = activeItem.qtyOrdered - activeItem.qtyPacked;
+    if (Number.isNaN(qty) || qty <= 0) {
+      toast.error("Masukkan qty yang valid.");
+      return;
+    }
+    if (qty > remaining) {
+      toast.error(`Qty melebihi sisa (${remaining}).`);
+      return;
+    }
+    packNow(activeItem, activeItem.qtyPacked + qty);
+  };
 
   const handleCancelPack = () => {
-    setActiveItemId(null)
-    setPackQty("")
-    refocusScan()
-  }
+    setActiveItemId(null);
+    setPackQty("");
+    refocusScan();
+  };
 
   if (isLoading) {
     return (
@@ -237,7 +289,7 @@ export function PackingDetailView({ id }: { id: string }) {
           <Loader2Icon className="size-4 animate-spin" /> Memuat packlist…
         </div>
       </div>
-    )
+    );
   }
 
   if (isError || !pk) {
@@ -257,9 +309,11 @@ export function PackingDetailView({ id }: { id: string }) {
             </Button>
           }
         />
-        <div className="py-24 text-center text-sm text-destructive">Gagal memuat packlist.</div>
+        <div className="py-24 text-center text-sm text-destructive">
+          Gagal memuat packlist.
+        </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -280,13 +334,15 @@ export function PackingDetailView({ id }: { id: string }) {
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
-        {/* ── Main content ─────────────────────────────────── */}
+        {}
         <div className="flex flex-col gap-4">
-          {/* Packlist info */}
+          {}
           <div className="rounded-2xl border border-border bg-card p-5">
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
               <div>
-                <span className="text-xs text-muted-foreground">No. Packing</span>
+                <span className="text-xs text-muted-foreground">
+                  No. Packing
+                </span>
                 <div className="font-mono font-semibold">{pk.packlistNo}</div>
               </div>
               <div>
@@ -304,7 +360,7 @@ export function PackingDetailView({ id }: { id: string }) {
             </div>
           </div>
 
-          {/* Scan / pilih manual — unified autoflow */}
+          {}
           {editable && (
             <div className="rounded-2xl border border-border bg-card p-4">
               <label className="text-xs font-medium text-muted-foreground">
@@ -322,15 +378,24 @@ export function PackingDetailView({ id }: { id: string }) {
             </div>
           )}
 
-          {/* Input qty inline untuk item qty > 1 (default = sisa, Enter = simpan) */}
+          {}
           {activeItem && (
             <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-primary/30 bg-primary/5 p-4">
-              <ItemImage src={activeItem.imageUrl} alt={activeItem.description ?? activeItem.sku} size={48} />
+              <ItemImage
+                src={activeItem.imageUrl}
+                alt={activeItem.description ?? activeItem.sku}
+                size={48}
+              />
               <div className="min-w-0 flex-1">
-                <div className="truncate font-medium">{activeItem.description ?? activeItem.sku}</div>
-                <div className="font-mono text-xs text-muted-foreground">{activeItem.sku}</div>
+                <div className="truncate font-medium">
+                  {activeItem.description ?? activeItem.sku}
+                </div>
+                <div className="font-mono text-xs text-muted-foreground">
+                  {activeItem.sku}
+                </div>
                 <div className="text-xs text-muted-foreground">
-                  Sisa {activeItem.qtyOrdered - activeItem.qtyPacked} · sudah {activeItem.qtyPacked}/{activeItem.qtyOrdered}
+                  Sisa {activeItem.qtyOrdered - activeItem.qtyPacked} · sudah{" "}
+                  {activeItem.qtyPacked}/{activeItem.qtyOrdered}
                 </div>
               </div>
               <div className="flex flex-col gap-1">
@@ -343,20 +408,36 @@ export function PackingDetailView({ id }: { id: string }) {
                   inputMode="numeric"
                   value={packQty}
                   onChange={(e) => setPackQty(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleConfirmPack() } }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleConfirmPack();
+                    }
+                  }}
                   className="h-10 w-28 text-base"
                   disabled={packItem.isPending}
                 />
               </div>
-              <Button onClick={handleConfirmPack} disabled={packItem.isPending || !packQty.trim()}>
-                {packItem.isPending && <Loader2Icon className="mr-1 size-4 animate-spin" />}
+              <Button
+                onClick={handleConfirmPack}
+                disabled={packItem.isPending || !packQty.trim()}
+              >
+                {packItem.isPending && (
+                  <Loader2Icon className="mr-1 size-4 animate-spin" />
+                )}
                 Simpan
               </Button>
-              <Button variant="ghost" onClick={handleCancelPack} disabled={packItem.isPending}>Batal</Button>
+              <Button
+                variant="ghost"
+                onClick={handleCancelPack}
+                disabled={packItem.isPending}
+              >
+                Batal
+              </Button>
             </div>
           )}
 
-          {/* Items table */}
+          {}
           <div className="overflow-x-auto rounded-2xl border border-border bg-card">
             {items.length === 0 ? (
               <div className="py-16 text-center text-sm text-muted-foreground">
@@ -367,31 +448,43 @@ export function PackingDetailView({ id }: { id: string }) {
                 <thead>
                   <tr className="border-b border-border bg-muted/40 text-left text-muted-foreground">
                     <th className="px-4 py-3 font-medium">Produk</th>
-                    <th className="px-4 py-3 font-medium text-center">QTY Pesanan</th>
-                    <th className="px-4 py-3 font-medium text-center">QTY Pack</th>
-                    <th className="px-4 py-3 font-medium text-center">Status</th>
+                    <th className="px-4 py-3 font-medium text-center">
+                      QTY Pesanan
+                    </th>
+                    <th className="px-4 py-3 font-medium text-center">
+                      QTY Pack
+                    </th>
+                    <th className="px-4 py-3 font-medium text-center">
+                      Status
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {items.map((item) => {
-                    const done = item.qtyPacked >= item.qtyOrdered
+                    const done = item.qtyPacked >= item.qtyOrdered;
                     return (
                       <tr
                         key={item.id}
                         className={cn(
                           "border-b border-border/60 last:border-0 transition-colors",
                           done && "bg-emerald-500/[0.04]",
-                          activeItemId === item.id && "bg-primary/[0.06] ring-1 ring-inset ring-primary/20"
+                          activeItemId === item.id &&
+                            "bg-primary/[0.06] ring-1 ring-inset ring-primary/20",
                         )}
                       >
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <ItemImage src={item.imageUrl} alt={item.description ?? item.sku} />
+                            <ItemImage
+                              src={item.imageUrl}
+                              alt={item.description ?? item.sku}
+                            />
                             <div className="min-w-0 flex-1">
                               <p className="font-medium text-foreground truncate">
                                 {item.description ?? item.sku}
                               </p>
-                              <p className="font-mono text-[11px] text-muted-foreground">{item.sku}</p>
+                              <p className="font-mono text-[11px] text-muted-foreground">
+                                {item.sku}
+                              </p>
                             </div>
                           </div>
                         </td>
@@ -406,7 +499,7 @@ export function PackingDetailView({ id }: { id: string }) {
                                 ? "bg-emerald-500/10 text-emerald-600"
                                 : item.qtyPacked > 0
                                   ? "bg-amber-500/10 text-amber-600"
-                                  : "bg-muted text-muted-foreground"
+                                  : "bg-muted text-muted-foreground",
                             )}
                           >
                             {item.qtyPacked}
@@ -422,11 +515,13 @@ export function PackingDetailView({ id }: { id: string }) {
                               Sisa {item.qtyOrdered - item.qtyPacked}
                             </span>
                           ) : (
-                            <span className="text-xs text-muted-foreground">Belum</span>
+                            <span className="text-xs text-muted-foreground">
+                              Belum
+                            </span>
                           )}
                         </td>
                       </tr>
-                    )
+                    );
                   })}
                 </tbody>
               </table>
@@ -434,7 +529,7 @@ export function PackingDetailView({ id }: { id: string }) {
           </div>
         </div>
 
-        {/* ── Sidebar: progress + images ──────────────────── */}
+        {}
         <aside className="flex flex-col gap-4">
           <div className="rounded-2xl border border-border bg-card p-4">
             <ProgressBar packed={totalPacked} total={totalOrdered} />
@@ -442,19 +537,25 @@ export function PackingDetailView({ id }: { id: string }) {
 
           {items.length > 0 && (
             <div className="rounded-2xl border border-border bg-card p-4">
-              <p className="mb-3 text-xs font-medium text-muted-foreground">Produk dalam paket</p>
+              <p className="mb-3 text-xs font-medium text-muted-foreground">
+                Produk dalam paket
+              </p>
               <div className="grid grid-cols-3 gap-2">
                 {items.map((item) => {
-                  const done = item.qtyPacked >= item.qtyOrdered
+                  const done = item.qtyPacked >= item.qtyOrdered;
                   return (
                     <div
                       key={item.id}
                       className={cn(
                         "relative overflow-hidden rounded-xl border-2 transition-colors",
-                        done ? "border-emerald-500/40" : "border-border/60"
+                        done ? "border-emerald-500/40" : "border-border/60",
                       )}
                     >
-                      <ItemImage src={item.imageUrl} alt={item.description ?? item.sku} size={96} />
+                      <ItemImage
+                        src={item.imageUrl}
+                        alt={item.description ?? item.sku}
+                        size={96}
+                      />
                       {done && (
                         <div className="absolute inset-0 flex items-center justify-center bg-emerald-500/20">
                           <CheckCircle2Icon className="size-6 text-emerald-600" />
@@ -466,7 +567,7 @@ export function PackingDetailView({ id }: { id: string }) {
                         </p>
                       </div>
                     </div>
-                  )
+                  );
                 })}
               </div>
             </div>
@@ -474,5 +575,5 @@ export function PackingDetailView({ id }: { id: string }) {
         </aside>
       </div>
     </div>
-  )
+  );
 }

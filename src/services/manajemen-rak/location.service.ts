@@ -1,5 +1,5 @@
-import { fetchBlobRaw, fetchClient } from "@/lib/api-client"
-import type { ApiPaginated, ApiResponse } from "@/types/api.types"
+import { fetchBlobRaw, fetchClient } from "@/lib/api-client";
+import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type {
   Location,
   LocationBin,
@@ -7,7 +7,7 @@ import type {
   LocationPayload,
   RawLocation,
   RawLocationBin,
-} from "@/types/manajemen-rak/location"
+} from "@/types/manajemen-rak/location";
 
 function mapBin(raw: RawLocationBin): LocationBin {
   return {
@@ -22,7 +22,7 @@ function mapBin(raw: RawLocationBin): LocationBin {
     isStockAcknowledged: raw.is_stock_acknowledged ?? true,
     isLargeBin: raw.is_large_bin ?? false,
     category: raw.category ?? null,
-  }
+  };
 }
 
 export function mapLocation(raw: RawLocation): Location {
@@ -48,135 +48,139 @@ export function mapLocation(raw: RawLocation): Location {
     bins: (raw.bins ?? []).map(mapBin),
     createdAt: raw.created_at,
     updatedAt: raw.updated_at,
-  }
+  };
 }
 
 export interface LocationListResult {
-  items: Location[]
-  meta: ApiPaginated<RawLocation>["meta"]
+  items: Location[];
+  meta: ApiPaginated<RawLocation>["meta"];
 }
 
 export type BinQrPaper =
-  | "thermal_50x40"
-  | "thermal_80x40"
-  | "a4_single"
-  | "a4_multi"
+  "thermal_50x40" | "thermal_80x40" | "a4_single" | "a4_multi";
 
-export const BIN_QR_PAPER_DEFAULT: BinQrPaper = "thermal_50x40"
+export const BIN_QR_PAPER_DEFAULT: BinQrPaper = "thermal_50x40";
 
 export const LocationService = {
-  list: async (params: LocationListParams = {}): Promise<LocationListResult> => {
-    const q = new URLSearchParams()
-    if (params.search) q.set("search", params.search)
-    if (params.sort) q.set("sort", params.sort)
-    q.set("page", String(params.page ?? 1))
-    q.set("per_page", String(params.perPage ?? 20))
+  list: async (
+    params: LocationListParams = {},
+  ): Promise<LocationListResult> => {
+    const q = new URLSearchParams();
+    if (params.search) q.set("search", params.search);
+    if (params.sort) q.set("sort", params.sort);
+    q.set("page", String(params.page ?? 1));
+    q.set("per_page", String(params.perPage ?? 20));
 
     const res = await fetchClient<ApiPaginated<RawLocation>>(
-      `/locations?${q.toString()}`
-    )
-    return { items: (res.data ?? []).map(mapLocation), meta: res.meta }
+      `/locations?${q.toString()}`,
+    );
+    return { items: (res.data ?? []).map(mapLocation), meta: res.meta };
   },
 
   detail: async (id: string): Promise<Location> => {
-    const res = await fetchClient<ApiResponse<RawLocation>>(`/locations/${id}`)
-    return mapLocation(res.data)
+    const res = await fetchClient<ApiResponse<RawLocation>>(`/locations/${id}`);
+    return mapLocation(res.data);
   },
 
   create: async (payload: LocationPayload): Promise<Location> => {
     const res = await fetchClient<ApiResponse<RawLocation>>(`/locations`, {
       method: "POST",
       data: payload,
-    })
-    return mapLocation(res.data)
+    });
+    return mapLocation(res.data);
   },
 
-  update: async (id: string, payload: Partial<LocationPayload>): Promise<Location> => {
-    const res = await fetchClient<ApiResponse<RawLocation>>(`/locations/${id}`, {
-      method: "PUT",
-      data: payload,
-    })
-    return mapLocation(res.data)
+  update: async (
+    id: string,
+    payload: Partial<LocationPayload>,
+  ): Promise<Location> => {
+    const res = await fetchClient<ApiResponse<RawLocation>>(
+      `/locations/${id}`,
+      {
+        method: "PUT",
+        data: payload,
+      },
+    );
+    return mapLocation(res.data);
   },
 
   remove: async (id: string): Promise<void> => {
-    await fetchClient<ApiResponse<null>>(`/locations/${id}`, { method: "DELETE" })
+    await fetchClient<ApiResponse<null>>(`/locations/${id}`, {
+      method: "DELETE",
+    });
   },
 
   bulkUpdateBins: async (
     locationId: string,
     bins: {
-      id: string
-      bin_final_code: string
-      max_qty: number
-      is_stock_acknowledged: boolean
-      is_large_bin: boolean
-      category: string | null
-    }[]
+      id: string;
+      bin_final_code: string;
+      max_qty: number;
+      is_stock_acknowledged: boolean;
+      is_large_bin: boolean;
+      category: string | null;
+    }[],
   ): Promise<{ updated: number }> => {
     const res = await fetchClient<ApiResponse<{ updated: number }>>(
       `/locations/${locationId}/bins/bulk`,
-      { method: "PUT", data: { bins } }
-    )
-    return res.data
+      { method: "PUT", data: { bins } },
+    );
+    return res.data;
   },
 
-  // GET /api/v1/locations/{locationId}/bins/print-qr?bin_ids=<csv>&paper=<variant>
-  // Default paper di BE: thermal_50x40. Tanpa bin_ids = semua bin di lokasi.
   binsPrintQrPdf: async (
     locationId: string,
-    options?: { binIds?: string[]; paper?: BinQrPaper }
+    options?: { binIds?: string[]; paper?: BinQrPaper },
   ): Promise<Blob> => {
-    const params = new URLSearchParams()
+    const params = new URLSearchParams();
     if (options?.binIds && options.binIds.length > 0) {
-      params.set("bin_ids", options.binIds.join(","))
+      params.set("bin_ids", options.binIds.join(","));
     }
-    if (options?.paper) params.set("paper", options.paper)
-    const qs = params.toString()
+    if (options?.paper) params.set("paper", options.paper);
+    const qs = params.toString();
     return fetchBlobRaw(
       `/locations/${locationId}/bins/print-qr${qs ? `?${qs}` : ""}`,
-      "application/pdf"
-    )
+      "application/pdf",
+    );
   },
   createBinQrJob: async (
     locationId: string,
-    options?: { binIds?: string[]; paper?: BinQrPaper }
+    options?: { binIds?: string[]; paper?: BinQrPaper },
   ): Promise<{ job_id: string; status: string }> => {
-    const data: Record<string, string> = {}
+    const data: Record<string, string> = {};
     if (options?.binIds && options.binIds.length > 0) {
-      data.bin_ids = options.binIds.join(",")
+      data.bin_ids = options.binIds.join(",");
     }
-    if (options?.paper) data.paper = options.paper
+    if (options?.paper) data.paper = options.paper;
 
-    const res = await fetchClient<ApiResponse<{ job_id: string; status: string }>>(
-      `/locations/${locationId}/bins/print-qr-job`,
-      { method: "POST", data }
-    )
-    return res.data
+    const res = await fetchClient<
+      ApiResponse<{ job_id: string; status: string }>
+    >(`/locations/${locationId}/bins/print-qr-job`, { method: "POST", data });
+    return res.data;
   },
 
   getBinQrJobStatus: async (
-    jobId: string
+    jobId: string,
   ): Promise<{
-    id: string
-    status: string
-    progress: { processed: number; total: number; percent: number }
-    error_message?: string
-    download_url?: string
+    id: string;
+    status: string;
+    progress: { processed: number; total: number; percent: number };
+    error_message?: string;
+    download_url?: string;
   }> => {
     const res = await fetchClient<
       ApiResponse<{
-        id: string
-        status: string
-        progress: { processed: number; total: number; percent: number }
-        error_message?: string
-        download_url?: string
+        id: string;
+        status: string;
+        progress: { processed: number; total: number; percent: number };
+        error_message?: string;
+        download_url?: string;
       }>
-    >(`/qr-jobs/${jobId}`)
-    return res.data
+    >(`/qr-jobs/${jobId}`);
+    return res.data;
   },
 
   downloadBinQrJobPdf: async (jobId: string): Promise<Blob> => {
-    return fetchBlobRaw(`/qr-jobs/${jobId}/download`, "application/pdf")
+    return fetchBlobRaw(`/qr-jobs/${jobId}/download`, "application/pdf");
   },
-}
+};

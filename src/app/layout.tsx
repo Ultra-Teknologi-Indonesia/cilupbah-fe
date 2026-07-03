@@ -10,9 +10,21 @@ import { PhantomProvider } from "@/components/providers/phantom-provider";
 
 const sfPro = localFont({
   src: [
-    { path: "./fonts/SFProDisplay-Regular.woff2", weight: "400", style: "normal" },
-    { path: "./fonts/SFProDisplay-Medium.woff2", weight: "500", style: "normal" },
-    { path: "./fonts/SFProDisplay-Semibold.woff2", weight: "600", style: "normal" },
+    {
+      path: "./fonts/SFProDisplay-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/SFProDisplay-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/SFProDisplay-Semibold.woff2",
+      weight: "600",
+      style: "normal",
+    },
     { path: "./fonts/SFProDisplay-Bold.woff2", weight: "700", style: "normal" },
   ],
   variable: "--font-sans",
@@ -32,15 +44,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-      <html
-        lang="en"
-        className={cn("h-full", "antialiased", sfPro.variable, "font-sans")}
-      >
+    <html
+      lang="en"
+      className={cn("h-full", "antialiased", sfPro.variable, "font-sans")}
+    >
       <body className="min-h-full flex flex-col">
         <LiquidGlassFilter />
-        <QueryProvider>
-          {children}
-        </QueryProvider>
+        <QueryProvider>{children}</QueryProvider>
         <PhantomProvider />
         <Toaster />
         <SpeedInsights />

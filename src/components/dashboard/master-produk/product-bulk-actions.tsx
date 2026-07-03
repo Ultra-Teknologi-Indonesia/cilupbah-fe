@@ -1,31 +1,34 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import type { Table } from "@tanstack/react-table"
-import { ArchiveIcon, DownloadIcon, Trash2Icon } from "lucide-react"
-import { toast } from "sonner"
+import * as React from "react";
+import type { Table } from "@tanstack/react-table";
+import { ArchiveIcon, DownloadIcon, Trash2Icon } from "lucide-react";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { useBulkArchive, useBulkDelete } from "@/hooks/master-produk/use-product-actions"
-import type { Product } from "@/types/master-produk"
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import {
+  useBulkArchive,
+  useBulkDelete,
+} from "@/hooks/master-produk/use-product-actions";
+import type { Product } from "@/types/master-produk";
 
 export function ProductBulkActions({
   selected,
   table,
 }: {
-  selected: Product[]
-  table: Table<Product>
+  selected: Product[];
+  table: Table<Product>;
 }) {
-  const [archiveOpen, setArchiveOpen] = React.useState(false)
-  const [deleteOpen, setDeleteOpen] = React.useState(false)
-  const [archiveReason, setArchiveReason] = React.useState("")
+  const [archiveOpen, setArchiveOpen] = React.useState(false);
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [archiveReason, setArchiveReason] = React.useState("");
 
-  const bulkArchive = useBulkArchive()
-  const bulkDelete = useBulkDelete()
+  const bulkArchive = useBulkArchive();
+  const bulkDelete = useBulkDelete();
 
-  const ids = selected.map((p) => p.itemGroupId)
+  const ids = selected.map((p) => p.itemGroupId);
 
   return (
     <>
@@ -33,8 +36,10 @@ export function ProductBulkActions({
         variant="outline"
         size="sm"
         onClick={() => {
-          toast("Mengekspor produk terpilih", { description: `${selected.length} produk` })
-          table.resetRowSelection()
+          toast("Mengekspor produk terpilih", {
+            description: `${selected.length} produk`,
+          });
+          table.resetRowSelection();
         }}
       >
         <DownloadIcon className="size-4" />
@@ -44,8 +49,8 @@ export function ProductBulkActions({
         variant="outline"
         size="sm"
         onClick={() => {
-          setArchiveReason("")
-          setArchiveOpen(true)
+          setArchiveReason("");
+          setArchiveOpen(true);
         }}
       >
         <ArchiveIcon className="size-4" />
@@ -72,11 +77,11 @@ export function ProductBulkActions({
             { ids, reason: archiveReason || undefined },
             {
               onSuccess: () => {
-                setArchiveOpen(false)
-                table.resetRowSelection()
+                setArchiveOpen(false);
+                table.resetRowSelection();
               },
-            }
-          )
+            },
+          );
         }}
       >
         <div className="py-2">
@@ -100,12 +105,12 @@ export function ProductBulkActions({
         onConfirm={() => {
           bulkDelete.mutate(ids, {
             onSuccess: () => {
-              setDeleteOpen(false)
-              table.resetRowSelection()
+              setDeleteOpen(false);
+              table.resetRowSelection();
             },
-          })
+          });
         }}
       />
     </>
-  )
+  );
 }

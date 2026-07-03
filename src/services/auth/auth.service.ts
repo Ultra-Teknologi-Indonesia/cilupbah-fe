@@ -23,7 +23,6 @@ export const AuthService = {
     await fetchClient("/auth/logout", { method: "POST" });
   },
 
-  // User yang sedang login (untuk auto-isi "oleh" + tombol "Saya sendiri").
   profile: async (): Promise<CurrentUser> => {
     const res = await fetchClient<ApiResponse<CurrentUser>>("/profile");
     return res.data;

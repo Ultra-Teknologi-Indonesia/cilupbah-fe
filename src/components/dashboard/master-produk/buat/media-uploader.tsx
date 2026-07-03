@@ -1,68 +1,70 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { UploadCloudIcon, XIcon, ImageIcon, PlayIcon } from "lucide-react"
-import { toast } from "sonner"
+import * as React from "react";
+import { UploadCloudIcon, XIcon, ImageIcon, PlayIcon } from "lucide-react";
+import { toast } from "sonner";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 interface Preview {
-  id: string
-  url: string
-  name: string
-  file: File
+  id: string;
+  url: string;
+  name: string;
+  file: File;
 }
 
-const MAX_IMAGES = 9
+const MAX_IMAGES = 9;
 
 export function MediaUploader({
   onChange,
 }: {
-  onChange?: (files: File[]) => void
+  onChange?: (files: File[]) => void;
 }) {
-  const [images, setImages] = React.useState<Preview[]>([])
-  const [video, setVideo] = React.useState<Preview | null>(null)
-  const [dragOver, setDragOver] = React.useState(false)
-  const imgInput = React.useRef<HTMLInputElement>(null)
-  const vidInput = React.useRef<HTMLInputElement>(null)
-  const onChangeRef = React.useRef(onChange)
-  onChangeRef.current = onChange
+  const [images, setImages] = React.useState<Preview[]>([]);
+  const [video, setVideo] = React.useState<Preview | null>(null);
+  const [dragOver, setDragOver] = React.useState(false);
+  const imgInput = React.useRef<HTMLInputElement>(null);
+  const vidInput = React.useRef<HTMLInputElement>(null);
+  const onChangeRef = React.useRef(onChange);
+  onChangeRef.current = onChange;
 
   React.useEffect(() => {
-    onChangeRef.current?.(images.map((i) => i.file))
-  }, [images])
+    onChangeRef.current?.(images.map((i) => i.file));
+  }, [images]);
 
   React.useEffect(
     () => () => {
-      images.forEach((i) => URL.revokeObjectURL(i.url))
-      if (video) URL.revokeObjectURL(video.url)
+      images.forEach((i) => URL.revokeObjectURL(i.url));
+      if (video) URL.revokeObjectURL(video.url);
     },
-    [images, video]
-  )
+    [images, video],
+  );
 
   const addImages = (files: FileList | null) => {
-    if (!files) return
-    const incoming = Array.from(files).filter((f) => f.type.startsWith("image/"))
+    if (!files) return;
+    const incoming = Array.from(files).filter((f) =>
+      f.type.startsWith("image/"),
+    );
     if (images.length >= MAX_IMAGES) {
-      toast.error(`Maksimal ${MAX_IMAGES} foto produk`)
-      return
+      toast.error(`Maksimal ${MAX_IMAGES} foto produk`);
+      return;
     }
     if (images.length + incoming.length > MAX_IMAGES) {
-      toast.warning(`Hanya ${MAX_IMAGES - images.length} foto lagi yang bisa ditambahkan`)
+      toast.warning(
+        `Hanya ${MAX_IMAGES - images.length} foto lagi yang bisa ditambahkan`,
+      );
     }
-    const next = incoming
-      .slice(0, MAX_IMAGES - images.length)
-      .map((f, i) => ({
-        id: `${f.name}-${i}-${f.size}`,
-        url: URL.createObjectURL(f),
-        name: f.name,
-        file: f,
-      }))
-    setImages((prev) => [...prev, ...next].slice(0, MAX_IMAGES))
-  }
+    const next = incoming.slice(0, MAX_IMAGES - images.length).map((f, i) => ({
+      id: `${f.name}-${i}-${f.size}`,
+      url: URL.createObjectURL(f),
+      name: f.name,
+      file: f,
+    }));
+    setImages((prev) => [...prev, ...next].slice(0, MAX_IMAGES));
+  };
 
   const removeImage = (id: string) =>
-    setImages((prev) => prev.filter((i) => i.id !== id))
+    setImages((prev) => prev.filter((i) => i.id !== id));
 
   return (
     <div className="flex flex-col gap-6">
@@ -76,18 +78,18 @@ export function MediaUploader({
 
         <div
           onDragOver={(e) => {
-            e.preventDefault()
-            setDragOver(true)
+            e.preventDefault();
+            setDragOver(true);
           }}
           onDragLeave={() => setDragOver(false)}
           onDrop={(e) => {
-            e.preventDefault()
-            setDragOver(false)
-            addImages(e.dataTransfer.files)
+            e.preventDefault();
+            setDragOver(false);
+            addImages(e.dataTransfer.files);
           }}
           className={cn(
             "rounded-2xl border border-dashed p-4 transition-colors",
-            dragOver ? "border-primary bg-primary/5" : "border-border"
+            dragOver ? "border-primary bg-primary/5" : "border-border",
           )}
         >
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
@@ -96,8 +98,11 @@ export function MediaUploader({
                 key={img.id}
                 className="group relative aspect-square overflow-hidden rounded-xl border border-border bg-muted/40"
               >
-
-                <img src={img.url} alt={img.name} className="size-full object-cover" />
+                <img
+                  src={img.url}
+                  alt={img.name}
+                  className="size-full object-cover"
+                />
                 <button
                   type="button"
                   onClick={() => removeImage(img.id)}
@@ -123,8 +128,8 @@ export function MediaUploader({
 
           {images.length === 0 && (
             <p className="mt-3 text-center text-xs text-muted-foreground">
-              Tarik &amp; letakkan gambar di sini, atau klik kotak untuk memilih.
-              Maks {MAX_IMAGES} gambar.
+              Tarik &amp; letakkan gambar di sini, atau klik kotak untuk
+              memilih. Maks {MAX_IMAGES} gambar.
             </p>
           )}
         </div>
@@ -152,7 +157,9 @@ export function MediaUploader({
               playsInline
               preload="metadata"
               className="aspect-square w-full object-cover"
-              onLoadedData={(e) => { e.currentTarget.currentTime = 0.5 }}
+              onLoadedData={(e) => {
+                e.currentTarget.currentTime = 0.5;
+              }}
             />
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
               <div className="grid size-9 place-items-center rounded-full bg-white/90 shadow-sm">
@@ -187,17 +194,17 @@ export function MediaUploader({
           accept="video/mp4"
           hidden
           onChange={(e) => {
-            const f = e.target.files?.[0]
+            const f = e.target.files?.[0];
             if (f)
               setVideo({
                 id: f.name,
                 url: URL.createObjectURL(f),
                 name: f.name,
                 file: f,
-              })
+              });
           }}
         />
       </div>
     </div>
-  )
+  );
 }

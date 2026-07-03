@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { toast } from "sonner"
+import * as React from "react";
+import { toast } from "sonner";
 import {
   CheckIcon,
   ChevronsUpDownIcon,
@@ -11,71 +11,67 @@ import {
   SearchIcon,
   StoreIcon,
   XIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo"
-import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
+} from "@/components/ui/dialog";
+import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo";
+import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
 import {
   channelSearchRowId,
   useChannelSearchMulti,
   useDownloadProduct,
   type ChannelSearchItem,
-} from "@/hooks/master-produk/use-download"
-import type { RawConnectedStore } from "@/types/channel"
+} from "@/hooks/master-produk/use-download";
+import type { RawConnectedStore } from "@/types/channel";
 
-// Channel yang mendukung pencarian produk by SKU/nama.
-const SUPPORTED = new Set(["tiktok", "lazada", "shopee"])
+const SUPPORTED = new Set(["tiktok", "lazada", "shopee"]);
 
-/* ------------------------------------------------------------------ *
- * Multi-select toko dengan logo channel asli (combobox style)
- * ------------------------------------------------------------------ */
 function StoreMultiSelect({
   stores,
   selected,
   onToggle,
 }: {
-  stores: RawConnectedStore[]
-  selected: Record<string, boolean>
-  onToggle: (shopId: string, next: boolean) => void
+  stores: RawConnectedStore[];
+  selected: Record<string, boolean>;
+  onToggle: (shopId: string, next: boolean) => void;
 }) {
-  const [open, setOpen] = React.useState(false)
-  const [query, setQuery] = React.useState("")
+  const [open, setOpen] = React.useState(false);
+  const [query, setQuery] = React.useState("");
 
-  const selectedCount = stores.filter((s) => selected[s.shop_id]).length
+  const selectedCount = stores.filter((s) => selected[s.shop_id]).length;
 
   const filtered = React.useMemo(() => {
-    const q = query.trim().toLowerCase()
-    if (!q) return stores
+    const q = query.trim().toLowerCase();
+    if (!q) return stores;
     return stores.filter(
       (s) =>
         s.shop_name?.toLowerCase().includes(q) ||
         s.shop_id.toLowerCase().includes(q) ||
-        s.channel?.name?.toLowerCase().includes(q)
-    )
-  }, [stores, query])
+        s.channel?.name?.toLowerCase().includes(q),
+    );
+  }, [stores, query]);
 
   return (
     <Popover
       open={open}
       onOpenChange={(o) => {
-        setOpen(o)
-        if (o) setQuery("")
+        setOpen(o);
+        if (o) setQuery("");
       }}
     >
       <PopoverTrigger asChild>
@@ -85,17 +81,27 @@ function StoreMultiSelect({
           className={cn(
             "flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-border bg-background px-3 text-sm outline-none transition-[color,box-shadow]",
             "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30",
-            "disabled:cursor-not-allowed disabled:opacity-50"
+            "disabled:cursor-not-allowed disabled:opacity-50",
           )}
         >
-          <span className={cn("flex items-center gap-2 truncate", selectedCount === 0 && "text-muted-foreground")}>
+          <span
+            className={cn(
+              "flex items-center gap-2 truncate",
+              selectedCount === 0 && "text-muted-foreground",
+            )}
+          >
             <StoreIcon className="size-4 shrink-0 text-muted-foreground" />
-            {selectedCount === 0 ? "Pilih toko" : `${selectedCount} toko dipilih`}
+            {selectedCount === 0
+              ? "Pilih toko"
+              : `${selectedCount} toko dipilih`}
           </span>
           <ChevronsUpDownIcon className="size-4 shrink-0 text-muted-foreground" />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-(--radix-popover-trigger-width) gap-0 p-0">
+      <PopoverContent
+        align="start"
+        className="w-(--radix-popover-trigger-width) gap-0 p-0"
+      >
         <div className="flex items-center gap-2 border-b border-border/60 px-3">
           <SearchIcon className="size-4 shrink-0 text-muted-foreground" />
           <Input
@@ -114,7 +120,7 @@ function StoreMultiSelect({
           ) : (
             <ul className="flex flex-col gap-0.5">
               {filtered.map((s) => {
-                const isSel = !!selected[s.shop_id]
+                const isSel = !!selected[s.shop_id];
                 return (
                   <li key={s.shop_id}>
                     <button
@@ -122,7 +128,7 @@ function StoreMultiSelect({
                       onClick={() => onToggle(s.shop_id, !isSel)}
                       className={cn(
                         "flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left text-sm transition-colors",
-                        isSel ? "bg-primary/10" : "hover:bg-muted/60"
+                        isSel ? "bg-primary/10" : "hover:bg-muted/60",
                       )}
                     >
                       <ChannelLogo
@@ -131,7 +137,9 @@ function StoreMultiSelect({
                         className="size-8 rounded-lg"
                       />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate font-medium">{s.shop_name}</span>
+                        <span className="block truncate font-medium">
+                          {s.shop_name}
+                        </span>
                         <span className="block truncate text-xs text-muted-foreground">
                           {s.channel?.name} · {s.shop_id}
                         </span>
@@ -139,68 +147,76 @@ function StoreMultiSelect({
                       <CheckIcon
                         className={cn(
                           "size-4 shrink-0 text-primary",
-                          isSel ? "opacity-100" : "opacity-0"
+                          isSel ? "opacity-100" : "opacity-0",
                         )}
                       />
                     </button>
                   </li>
-                )
+                );
               })}
             </ul>
           )}
         </div>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
 
 export function DownloadSatuanDialog({
   open,
   onOpenChange,
 }: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) {
-  const { data: stores = [] } = useConnectedStores()
-  const downloadOne = useDownloadProduct()
-  const searchMulti = useChannelSearchMulti()
+  const { data: stores = [] } = useConnectedStores();
+  const downloadOne = useDownloadProduct();
+  const searchMulti = useChannelSearchMulti();
 
-  const [q, setQ] = React.useState("")
-  const [selectedStores, setSelectedStores] = React.useState<Record<string, boolean>>({})
-  const [results, setResults] = React.useState<ChannelSearchItem[] | null>(null)
-  const [searching, setSearching] = React.useState(false)
-  const [rowSel, setRowSel] = React.useState<Record<string, boolean>>({})
-  const [downloaded, setDownloaded] = React.useState<Record<string, boolean>>({})
-  const [pending, setPending] = React.useState<Record<string, boolean>>({})
+  const [q, setQ] = React.useState("");
+  const [selectedStores, setSelectedStores] = React.useState<
+    Record<string, boolean>
+  >({});
+  const [results, setResults] = React.useState<ChannelSearchItem[] | null>(
+    null,
+  );
+  const [searching, setSearching] = React.useState(false);
+  const [rowSel, setRowSel] = React.useState<Record<string, boolean>>({});
+  const [downloaded, setDownloaded] = React.useState<Record<string, boolean>>(
+    {},
+  );
+  const [pending, setPending] = React.useState<Record<string, boolean>>({});
 
-  // Reset saat dibuka (render-phase guard, bukan effect).
-  const [prevOpen, setPrevOpen] = React.useState(open)
+  const [prevOpen, setPrevOpen] = React.useState(open);
   if (prevOpen !== open) {
-    setPrevOpen(open)
+    setPrevOpen(open);
     if (open) {
-      setQ("")
-      setSelectedStores({})
-      setResults(null)
-      setRowSel({})
-      setDownloaded({})
-      setPending({})
+      setQ("");
+      setSelectedStores({});
+      setResults(null);
+      setRowSel({});
+      setDownloaded({});
+      setPending({});
     }
   }
 
   const supportedStores = React.useMemo(
-    () => stores.filter((s) => s.is_active && s.channel?.code && SUPPORTED.has(s.channel.code)),
-    [stores]
-  )
-  const chosen = supportedStores.filter((s) => selectedStores[s.shop_id])
+    () =>
+      stores.filter(
+        (s) => s.is_active && s.channel?.code && SUPPORTED.has(s.channel.code),
+      ),
+    [stores],
+  );
+  const chosen = supportedStores.filter((s) => selectedStores[s.shop_id]);
 
   const apply = async () => {
     if (chosen.length === 0) {
-      toast("Pilih minimal satu toko")
-      return
+      toast("Pilih minimal satu toko");
+      return;
     }
-    setSearching(true)
-    setResults(null)
-    setRowSel({})
+    setSearching(true);
+    setResults(null);
+    setRowSel({});
     try {
       const { results, failed } = await searchMulti.mutateAsync({
         stores: chosen.map((s) => ({
@@ -209,43 +225,43 @@ export function DownloadSatuanDialog({
           shopName: s.shop_name ?? s.shop_id,
         })),
         q,
-      })
-      setResults(results)
+      });
+      setResults(results);
       if (failed.length > 0) {
-        toast.error(`Gagal mencari di: ${failed.join(", ")}`)
+        toast.error(`Gagal mencari di: ${failed.join(", ")}`);
       }
     } finally {
-      setSearching(false)
+      setSearching(false);
     }
-  }
+  };
 
   const runDownload = async (item: ChannelSearchItem) => {
-    const id = channelSearchRowId(item)
-    setPending((p) => ({ ...p, [id]: true }))
+    const id = channelSearchRowId(item);
+    setPending((p) => ({ ...p, [id]: true }));
     try {
       await downloadOne.mutateAsync({
         channel: item.channelCode,
         shopId: item.shopId,
         externalProductId: item.externalProductId,
-      })
-      setDownloaded((d) => ({ ...d, [id]: true }))
+      });
+      setDownloaded((d) => ({ ...d, [id]: true }));
     } catch {
-      /* toast ditangani hook */
     } finally {
-      setPending((p) => ({ ...p, [id]: false }))
+      setPending((p) => ({ ...p, [id]: false }));
     }
-  }
+  };
 
-  const items = results ?? []
-  const selectedItems = items.filter((i) => rowSel[channelSearchRowId(i)])
-  const bulkBusy = Object.values(pending).some(Boolean)
+  const items = results ?? [];
+  const selectedItems = items.filter((i) => rowSel[channelSearchRowId(i)]);
+  const bulkBusy = Object.values(pending).some(Boolean);
 
   const bulkDownload = async () => {
     for (const item of selectedItems) {
-      if (downloaded[channelSearchRowId(item)] || item.alreadyDownloaded) continue
-      await runDownload(item)
+      if (downloaded[channelSearchRowId(item)] || item.alreadyDownloaded)
+        continue;
+      await runDownload(item);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -253,13 +269,13 @@ export function DownloadSatuanDialog({
         <DialogHeader className="border-b border-border/60 px-6 py-5">
           <DialogTitle className="text-lg">Download Dari Channel</DialogTitle>
           <DialogDescription>
-            Cari produk yang sudah diunggah di marketplace berdasarkan SKU/nama, lalu unduh
-            datanya. Mendukung TikTok, Lazada &amp; Shopee.
+            Cari produk yang sudah diunggah di marketplace berdasarkan SKU/nama,
+            lalu unduh datanya. Mendukung TikTok, Lazada &amp; Shopee.
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid min-h-0 flex-1 md:grid-cols-[20rem_1fr]">
-          {/* Filter */}
+          {}
           <div className="flex min-w-0 flex-col gap-4 border-b border-border/60 p-6 md:border-b-0 md:border-r">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium">Kata kunci</label>
@@ -302,12 +318,17 @@ export function DownloadSatuanDialog({
                             name={s.channel?.name ?? "?"}
                             className="size-4 rounded"
                           />
-                          <span className="max-w-[9rem] truncate">{s.shop_name}</span>
+                          <span className="max-w-[9rem] truncate">
+                            {s.shop_name}
+                          </span>
                           <button
                             type="button"
                             aria-label={`Hapus ${s.shop_name}`}
                             onClick={() =>
-                              setSelectedStores((prev) => ({ ...prev, [s.shop_id]: false }))
+                              setSelectedStores((prev) => ({
+                                ...prev,
+                                [s.shop_id]: false,
+                              }))
                             }
                             className="grid size-4 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                           >
@@ -339,19 +360,29 @@ export function DownloadSatuanDialog({
             </Button>
           </div>
 
-          {/* Daftar produk */}
+          {}
           <div className="flex min-h-0 min-w-0 flex-col">
             <div className="flex items-center justify-between border-b border-border/60 px-5 py-3">
               <span className="text-sm font-medium">Daftar Produk</span>
               <span className="text-xs text-muted-foreground">
-                Total <span className="font-medium text-foreground tabular-nums">{items.length}</span>
+                Total{" "}
+                <span className="font-medium text-foreground tabular-nums">
+                  {items.length}
+                </span>
               </span>
             </div>
 
             {selectedItems.length > 0 && (
               <div className="flex items-center justify-between gap-2 border-b border-border/60 bg-primary/5 px-5 py-2.5 text-sm">
-                <span className="font-medium">{selectedItems.length} dipilih</span>
-                <Button size="sm" className="h-8 gap-1.5" onClick={bulkDownload} disabled={bulkBusy}>
+                <span className="font-medium">
+                  {selectedItems.length} dipilih
+                </span>
+                <Button
+                  size="sm"
+                  className="h-8 gap-1.5"
+                  onClick={bulkDownload}
+                  disabled={bulkBusy}
+                >
                   {bulkBusy ? (
                     <Loader2Icon className="size-3.5 animate-spin" />
                   ) : (
@@ -365,7 +396,8 @@ export function DownloadSatuanDialog({
             <div className="min-h-[20rem] flex-1 overflow-y-auto">
               {searching ? (
                 <div className="flex h-full min-h-[20rem] items-center justify-center text-sm text-muted-foreground">
-                  <Loader2Icon className="mr-2 size-4 animate-spin" /> Mencari produk…
+                  <Loader2Icon className="mr-2 size-4 animate-spin" /> Mencari
+                  produk…
                 </div>
               ) : results === null ? (
                 <div className="flex h-full min-h-[20rem] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-muted-foreground">
@@ -384,14 +416,19 @@ export function DownloadSatuanDialog({
               ) : (
                 <ul className="divide-y divide-border/60">
                   {items.map((item) => {
-                    const id = channelSearchRowId(item)
-                    const isDone = downloaded[id] || item.alreadyDownloaded
+                    const id = channelSearchRowId(item);
+                    const isDone = downloaded[id] || item.alreadyDownloaded;
                     return (
-                      <li key={id} className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-muted/30">
+                      <li
+                        key={id}
+                        className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-muted/30"
+                      >
                         <Checkbox
                           checked={!!rowSel[id]}
                           disabled={isDone}
-                          onCheckedChange={(v) => setRowSel((prev) => ({ ...prev, [id]: !!v }))}
+                          onCheckedChange={(v) =>
+                            setRowSel((prev) => ({ ...prev, [id]: !!v }))
+                          }
                         />
                         <div className="relative grid size-10 shrink-0 place-items-center rounded-lg bg-muted/40">
                           <PackageIcon className="size-4 text-muted-foreground" />
@@ -402,9 +439,12 @@ export function DownloadSatuanDialog({
                           />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium">{item.name}</p>
+                          <p className="truncate text-sm font-medium">
+                            {item.name}
+                          </p>
                           <p className="truncate font-mono text-xs text-muted-foreground">
-                            {item.sellerSku ?? "—"} · {item.shopName ?? item.channelCode}
+                            {item.sellerSku ?? "—"} ·{" "}
+                            {item.shopName ?? item.channelCode}
                           </p>
                         </div>
                         <Button
@@ -424,7 +464,7 @@ export function DownloadSatuanDialog({
                           {isDone ? "Terunduh" : "Download"}
                         </Button>
                       </li>
-                    )
+                    );
                   })}
                 </ul>
               )}
@@ -433,5 +473,5 @@ export function DownloadSatuanDialog({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

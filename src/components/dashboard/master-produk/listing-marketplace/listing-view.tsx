@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import type { PaginationState } from "@tanstack/react-table"
+import * as React from "react";
+import type { PaginationState } from "@tanstack/react-table";
 import {
   AlertTriangleIcon,
   Loader2Icon,
   SearchXIcon,
   Trash2Icon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Combobox } from "@/components/ui/combobox"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { DataTable } from "@/components/ui/data-table"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Combobox } from "@/components/ui/combobox";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { DataTable } from "@/components/ui/data-table";
 import {
   Dialog,
   DialogClose,
@@ -22,8 +22,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
+} from "@/components/ui/dialog";
+import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
 import {
   channelListingRowId,
   useBulkUnlinkListing,
@@ -33,38 +33,51 @@ import {
   useUnlinkListing,
   type ChannelListing,
   type UnlinkInput,
-} from "@/hooks/master-produk/use-channel-products"
-import { FilterToolbar } from "../filter-toolbar"
-import { buildChannelListingColumns } from "./listing-columns"
+} from "@/hooks/master-produk/use-channel-products";
+import { FilterToolbar } from "../filter-toolbar";
+import { buildChannelListingColumns } from "./listing-columns";
 
 export function ListingMarketplaceView() {
-  const [search, setSearch] = React.useState("")
-  const [debouncedSearch, setDebouncedSearch] = React.useState("")
-  const [shopId, setShopId] = React.useState<string | null>(null)
-  const [minInput, setMinInput] = React.useState("")
-  const [maxInput, setMaxInput] = React.useState("")
-  const [priceRange, setPriceRange] = React.useState<{ min?: number; max?: number }>({})
-  const [pagination, setPagination] = React.useState<PaginationState>({ pageIndex: 0, pageSize: 20 })
-  const [expanded, setExpanded] = React.useState<Set<string>>(new Set())
+  const [search, setSearch] = React.useState("");
+  const [debouncedSearch, setDebouncedSearch] = React.useState("");
+  const [shopId, setShopId] = React.useState<string | null>(null);
+  const [minInput, setMinInput] = React.useState("");
+  const [maxInput, setMaxInput] = React.useState("");
+  const [priceRange, setPriceRange] = React.useState<{
+    min?: number;
+    max?: number;
+  }>({});
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 20,
+  });
+  const [expanded, setExpanded] = React.useState<Set<string>>(new Set());
 
-  const resetPage = React.useCallback(() => setPagination((p) => ({ ...p, pageIndex: 0 })), [])
+  const resetPage = React.useCallback(
+    () => setPagination((p) => ({ ...p, pageIndex: 0 })),
+    [],
+  );
 
   React.useEffect(() => {
     const t = setTimeout(() => {
-      setDebouncedSearch(search)
-      resetPage()
-    }, 350)
-    return () => clearTimeout(t)
-  }, [search, resetPage])
+      setDebouncedSearch(search);
+      resetPage();
+    }, 350);
+    return () => clearTimeout(t);
+  }, [search, resetPage]);
 
-  const { data: stores = [] } = useConnectedStores()
+  const { data: stores = [] } = useConnectedStores();
   const storeOptions = React.useMemo(
     () =>
       stores
         .filter((s) => s.is_active)
-        .map((s) => ({ value: s.shop_id, label: s.shop_name, hint: s.channel?.name ?? undefined })),
-    [stores]
-  )
+        .map((s) => ({
+          value: s.shop_id,
+          label: s.shop_name,
+          hint: s.channel?.name ?? undefined,
+        })),
+    [stores],
+  );
 
   const query = useChannelProducts({
     search: debouncedSearch || undefined,
@@ -73,104 +86,133 @@ export function ListingMarketplaceView() {
     maxPrice: priceRange.max,
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
-  })
+  });
 
   const parsePrice = (v: string) => {
-    const n = Number(v.replace(/[^\d]/g, ""))
-    return v.trim() && Number.isFinite(n) ? n : undefined
-  }
+    const n = Number(v.replace(/[^\d]/g, ""));
+    return v.trim() && Number.isFinite(n) ? n : undefined;
+  };
 
   const applyPrice = () => {
-    setPriceRange({ min: parsePrice(minInput), max: parsePrice(maxInput) })
-    resetPage()
-  }
+    setPriceRange({ min: parsePrice(minInput), max: parsePrice(maxInput) });
+    resetPage();
+  };
 
-  const items = query.data?.items ?? []
-  const total = query.data?.meta?.total ?? 0
+  const items = query.data?.items ?? [];
+  const total = query.data?.meta?.total ?? 0;
 
   const onToggle = React.useCallback((id: string) => {
     setExpanded((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }, [])
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
 
-  const download = useDownloadChannel()
-  const unlink = useUnlinkListing()
-  const bulkUnlink = useBulkUnlinkListing()
+  const download = useDownloadChannel();
+  const unlink = useUnlinkListing();
+  const bulkUnlink = useBulkUnlinkListing();
 
-  const [busyIds, setBusyIds] = React.useState<Set<string>>(new Set())
-  const [unlinkTarget, setUnlinkTarget] = React.useState<ChannelListing | null>(null)
-  const [bulkTarget, setBulkTarget] = React.useState<{ rows: ChannelListing[]; reset: () => void } | null>(null)
+  const [busyIds, setBusyIds] = React.useState<Set<string>>(new Set());
+  const [unlinkTarget, setUnlinkTarget] = React.useState<ChannelListing | null>(
+    null,
+  );
+  const [bulkTarget, setBulkTarget] = React.useState<{
+    rows: ChannelListing[];
+    reset: () => void;
+  } | null>(null);
 
   const setBusy = React.useCallback((id: string, on: boolean) => {
     setBusyIds((prev) => {
-      const next = new Set(prev)
-      if (on) next.add(id)
-      else next.delete(id)
-      return next
-    })
-  }, [])
+      const next = new Set(prev);
+      if (on) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }, []);
 
   const onDownload = React.useCallback(
     (l: ChannelListing) => {
-      if (!l.shopId || !l.channelCode) return
-      const id = channelListingRowId(l)
-      setBusy(id, true)
+      if (!l.shopId || !l.channelCode) return;
+      const id = channelListingRowId(l);
+      setBusy(id, true);
       download.mutate(
         { channel: l.channelCode, shopId: l.shopId },
-        { onSettled: () => setBusy(id, false) }
-      )
+        { onSettled: () => setBusy(id, false) },
+      );
     },
-    [download, setBusy]
-  )
+    [download, setBusy],
+  );
 
-  const onUnlink = React.useCallback((l: ChannelListing) => setUnlinkTarget(l), [])
+  const onUnlink = React.useCallback(
+    (l: ChannelListing) => setUnlinkTarget(l),
+    [],
+  );
 
-  const { activate, deactivate, sync } = useListingMutations()
+  const { activate, deactivate, sync } = useListingMutations();
   const runAction = React.useCallback(
     (
       mutate: (vars: UnlinkInput, opts?: { onSettled?: () => void }) => void,
-      l: ChannelListing
+      l: ChannelListing,
     ) => {
-      if (!l.shopId || !l.channelCode || !l.channelGroupId) return
-      const id = channelListingRowId(l)
-      setBusy(id, true)
+      if (!l.shopId || !l.channelCode || !l.channelGroupId) return;
+      const id = channelListingRowId(l);
+      setBusy(id, true);
       mutate(
-        { channel: l.channelCode, externalProductId: l.channelGroupId, shopId: l.shopId },
-        { onSettled: () => setBusy(id, false) }
-      )
+        {
+          channel: l.channelCode,
+          externalProductId: l.channelGroupId,
+          shopId: l.shopId,
+        },
+        { onSettled: () => setBusy(id, false) },
+      );
     },
-    [setBusy]
-  )
-  const onActivate = React.useCallback((l: ChannelListing) => runAction(activate.mutate, l), [runAction, activate.mutate])
-  const onDeactivate = React.useCallback((l: ChannelListing) => runAction(deactivate.mutate, l), [runAction, deactivate.mutate])
-  const onSync = React.useCallback((l: ChannelListing) => runAction(sync.mutate, l), [runAction, sync.mutate])
+    [setBusy],
+  );
+  const onActivate = React.useCallback(
+    (l: ChannelListing) => runAction(activate.mutate, l),
+    [runAction, activate.mutate],
+  );
+  const onDeactivate = React.useCallback(
+    (l: ChannelListing) => runAction(deactivate.mutate, l),
+    [runAction, deactivate.mutate],
+  );
+  const onSync = React.useCallback(
+    (l: ChannelListing) => runAction(sync.mutate, l),
+    [runAction, sync.mutate],
+  );
 
   const confirmUnlink = () => {
-    const l = unlinkTarget
-    if (!l || !l.shopId || !l.channelCode || !l.channelGroupId) return
-    const id = channelListingRowId(l)
-    setBusy(id, true)
+    const l = unlinkTarget;
+    if (!l || !l.shopId || !l.channelCode || !l.channelGroupId) return;
+    const id = channelListingRowId(l);
+    setBusy(id, true);
     unlink.mutate(
-      { channel: l.channelCode, externalProductId: l.channelGroupId, shopId: l.shopId },
-      { onSettled: () => setBusy(id, false) }
-    )
-    setUnlinkTarget(null)
-  }
+      {
+        channel: l.channelCode,
+        externalProductId: l.channelGroupId,
+        shopId: l.shopId,
+      },
+      { onSettled: () => setBusy(id, false) },
+    );
+    setUnlinkTarget(null);
+  };
 
   const confirmBulkUnlink = () => {
-    if (!bulkTarget) return
+    if (!bulkTarget) return;
     const items = bulkTarget.rows
       .filter((l) => l.shopId && l.channelCode && l.channelGroupId)
-      .map((l) => ({ channel: l.channelCode!, externalProductId: l.channelGroupId!, shopId: l.shopId! }))
+      .map((l) => ({
+        channel: l.channelCode!,
+        externalProductId: l.channelGroupId!,
+        shopId: l.shopId!,
+      }));
     if (items.length > 0) {
-      bulkUnlink.mutate(items, { onSuccess: () => bulkTarget.reset() })
+      bulkUnlink.mutate(items, { onSuccess: () => bulkTarget.reset() });
     }
-    setBulkTarget(null)
-  }
+    setBulkTarget(null);
+  };
 
   const columns = React.useMemo(
     () =>
@@ -184,30 +226,43 @@ export function ListingMarketplaceView() {
         onSync,
         busyIds,
       }),
-    [expanded, onToggle, onDownload, onUnlink, onActivate, onDeactivate, onSync, busyIds]
-  )
+    [
+      expanded,
+      onToggle,
+      onDownload,
+      onUnlink,
+      onActivate,
+      onDeactivate,
+      onSync,
+      busyIds,
+    ],
+  );
 
   const setStore = (v: string | null) => {
-    setShopId(v)
-    resetPage()
-  }
+    setShopId(v);
+    resetPage();
+  };
 
   const hasFilter = Boolean(
-    search || shopId || priceRange.min != null || priceRange.max != null
-  )
+    search || shopId || priceRange.min != null || priceRange.max != null,
+  );
   const reset = () => {
-    setSearch("")
-    setDebouncedSearch("")
-    setShopId(null)
-    setMinInput("")
-    setMaxInput("")
-    setPriceRange({})
-    resetPage()
-  }
+    setSearch("");
+    setDebouncedSearch("");
+    setShopId(null);
+    setMinInput("");
+    setMaxInput("");
+    setPriceRange({});
+    resetPage();
+  };
 
   return (
     <>
-      <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+      <LiquidGlass
+        radius={24}
+        intensity="default"
+        className="bg-white/40 dark:bg-white/[0.06]"
+      >
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6 sm:py-5">
           <div>
             <h2 className="text-base font-medium">Produk Channel</h2>
@@ -223,7 +278,10 @@ export function ListingMarketplaceView() {
           searchPlaceholder="Cari nama / SKU…"
           onReset={hasFilter ? reset : undefined}
           hasFilter={hasFilter}
-          activeCount={(shopId ? 1 : 0) + (priceRange.min != null || priceRange.max != null ? 1 : 0)}
+          activeCount={
+            (shopId ? 1 : 0) +
+            (priceRange.min != null || priceRange.max != null ? 1 : 0)
+          }
         >
           <Combobox
             options={storeOptions}
@@ -262,9 +320,16 @@ export function ListingMarketplaceView() {
               <AlertTriangleIcon className="size-8 text-destructive" />
               <div>
                 <p className="font-medium">Gagal memuat listing</p>
-                <p className="text-sm text-muted-foreground">Periksa koneksi atau coba lagi.</p>
+                <p className="text-sm text-muted-foreground">
+                  Periksa koneksi atau coba lagi.
+                </p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => query.refetch()} disabled={query.isFetching}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => query.refetch()}
+                disabled={query.isFetching}
+              >
                 Coba lagi
               </Button>
             </div>
@@ -284,7 +349,12 @@ export function ListingMarketplaceView() {
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={() => setBulkTarget({ rows: selected, reset: () => table.resetRowSelection() })}
+                  onClick={() =>
+                    setBulkTarget({
+                      rows: selected,
+                      reset: () => table.resetRowSelection(),
+                    })
+                  }
                 >
                   <Trash2Icon className="size-4" />
                   Putuskan koneksi
@@ -295,7 +365,9 @@ export function ListingMarketplaceView() {
                 <div className="flex flex-col items-center gap-2 py-6">
                   <SearchXIcon className="size-8 text-muted-foreground" />
                   <p className="font-medium">Tidak ada listing channel</p>
-                  <p className="text-sm text-muted-foreground">Coba ubah pencarian atau filter toko.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Coba ubah pencarian atau filter toko.
+                  </p>
                 </div>
               }
             />
@@ -303,14 +375,23 @@ export function ListingMarketplaceView() {
         </div>
       </LiquidGlass>
 
-      <Dialog open={!!unlinkTarget} onOpenChange={(o) => !o && setUnlinkTarget(null)}>
+      <Dialog
+        open={!!unlinkTarget}
+        onOpenChange={(o) => !o && setUnlinkTarget(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Putuskan koneksi?</DialogTitle>
             <DialogDescription>
-              Listing <span className="font-medium text-foreground">{unlinkTarget?.itemGroupName}</span> akan
-              diputus dari <span className="font-medium text-foreground">{unlinkTarget?.storeName}</span>. Produk
-              master tidak terhapus.
+              Listing{" "}
+              <span className="font-medium text-foreground">
+                {unlinkTarget?.itemGroupName}
+              </span>{" "}
+              akan diputus dari{" "}
+              <span className="font-medium text-foreground">
+                {unlinkTarget?.storeName}
+              </span>
+              . Produk master tidak terhapus.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -327,14 +408,17 @@ export function ListingMarketplaceView() {
       <Dialog
         open={!!bulkTarget}
         onOpenChange={(o) => {
-          if (!o && !bulkUnlink.isPending) setBulkTarget(null)
+          if (!o && !bulkUnlink.isPending) setBulkTarget(null);
         }}
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Putuskan {bulkTarget?.rows.length ?? 0} koneksi?</DialogTitle>
+            <DialogTitle>
+              Putuskan {bulkTarget?.rows.length ?? 0} koneksi?
+            </DialogTitle>
             <DialogDescription>
-              Listing terpilih akan diputus dari channel masing-masing. Produk master tidak terhapus.
+              Listing terpilih akan diputus dari channel masing-masing. Produk
+              master tidak terhapus.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -343,13 +427,19 @@ export function ListingMarketplaceView() {
                 Batal
               </Button>
             </DialogClose>
-            <Button variant="destructive" onClick={confirmBulkUnlink} disabled={bulkUnlink.isPending}>
-              {bulkUnlink.isPending && <Loader2Icon className="size-4 animate-spin motion-reduce:animate-none" />}
+            <Button
+              variant="destructive"
+              onClick={confirmBulkUnlink}
+              disabled={bulkUnlink.isPending}
+            >
+              {bulkUnlink.isPending && (
+                <Loader2Icon className="size-4 animate-spin motion-reduce:animate-none" />
+              )}
               Putuskan
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }

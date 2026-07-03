@@ -1,36 +1,40 @@
-"use client"
+"use client";
 
-import { ReservedStockService } from "@/services/transaksi-stok/reserved-stock.service"
-import type { ReservedStockListParams, ReservedStockFormData } from "@/types/transaksi-stok/reserved-stock"
+import { ReservedStockService } from "@/services/transaksi-stok/reserved-stock.service";
+import type {
+  ReservedStockListParams,
+  ReservedStockFormData,
+} from "@/types/transaksi-stok/reserved-stock";
 import {
   createDetailHook,
   createListHook,
   createMutationHook,
   createResourceKeys,
-} from "@/hooks/create-crud-hooks"
+} from "@/hooks/create-crud-hooks";
 
-export const reservedStockKeys = createResourceKeys("reserved-stock")
+export const reservedStockKeys = createResourceKeys("reserved-stock");
 
 export const useReservedStocks = createListHook(
   reservedStockKeys,
-  (params: ReservedStockListParams = {}) => ReservedStockService.list(params)
-)
+  (params: ReservedStockListParams = {}) => ReservedStockService.list(params),
+);
 
 export const useReservedStockDetail = createDetailHook(
   reservedStockKeys,
-  (id: string) => ReservedStockService.getById(id)
-)
+  (id: string) => ReservedStockService.getById(id),
+);
 
 export const useCreateReservedStock = createMutationHook({
-  mutationFn: (data: ReservedStockFormData) => ReservedStockService.create(data),
+  mutationFn: (data: ReservedStockFormData) =>
+    ReservedStockService.create(data),
   successMessage: "Reservasi stok berhasil dibuat",
   errorMessage: "Gagal membuat reservasi stok",
   invalidates: () => [reservedStockKeys.lists],
-})
+});
 
 export const useCancelReservedStock = createMutationHook({
   mutationFn: (id: string) => ReservedStockService.cancel(id),
   successMessage: "Reservasi stok berhasil dibatalkan",
   errorMessage: "Gagal membatalkan reservasi stok",
   invalidates: (id) => [reservedStockKeys.lists, reservedStockKeys.detail(id)],
-})
+});

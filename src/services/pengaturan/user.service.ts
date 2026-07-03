@@ -1,5 +1,5 @@
-import { fetchClient } from "@/lib/api-client"
-import type { ApiPaginated, ApiResponse } from "@/types/api.types"
+import { fetchClient } from "@/lib/api-client";
+import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type {
   RawUser,
   RawRole,
@@ -10,7 +10,7 @@ import type {
   UserFormPayload,
   UserListParams,
   LoginHistoryParams,
-} from "@/types/pengaturan/user"
+} from "@/types/pengaturan/user";
 
 function mapUser(raw: RawUser): User {
   return {
@@ -26,7 +26,7 @@ function mapUser(raw: RawUser): User {
     })),
     avatarUrl: raw.avatar_url,
     lastLoginAt: raw.last_login_at,
-  }
+  };
 }
 
 function mapLoginHistory(raw: RawLoginHistory): LoginHistory {
@@ -41,7 +41,7 @@ function mapLoginHistory(raw: RawLoginHistory): LoginHistory {
     region: raw.location_region,
     city: raw.location_city,
     createdAt: raw.created_at,
-  }
+  };
 }
 
 function mapRole(raw: RawRole): Role {
@@ -49,78 +49,74 @@ function mapRole(raw: RawRole): Role {
     id: raw.id,
     name: raw.name,
     description: raw.description,
-  }
+  };
 }
 
 export const UserService = {
   list: async (params: UserListParams = {}) => {
-    const qs = new URLSearchParams()
-    qs.set("page", String(params.page ?? 1))
-    qs.set("per_page", String(params.perPage ?? 10))
-    if (params.search) qs.set("search", params.search)
+    const qs = new URLSearchParams();
+    qs.set("page", String(params.page ?? 1));
+    qs.set("per_page", String(params.perPage ?? 10));
+    if (params.search) qs.set("search", params.search);
     if (params["filter[role]"]) {
-      const roles = params["filter[role]"]
+      const roles = params["filter[role]"];
       if (Array.isArray(roles)) {
-        roles.forEach((r) => qs.append("filter[role]", r))
+        roles.forEach((r) => qs.append("filter[role]", r));
       } else {
-        qs.set("filter[role]", roles)
+        qs.set("filter[role]", roles);
       }
     }
 
     const res = await fetchClient<ApiPaginated<RawUser>>(
-      `/users?${qs.toString()}`
-    )
+      `/users?${qs.toString()}`,
+    );
     return {
       items: (res.data ?? []).map(mapUser),
       meta: res.meta,
-    }
+    };
   },
 
   detail: async (id: string) => {
-    const res = await fetchClient<ApiResponse<RawUser>>(`/users/${id}`)
-    return mapUser(res.data)
+    const res = await fetchClient<ApiResponse<RawUser>>(`/users/${id}`);
+    return mapUser(res.data);
   },
 
   create: async (payload: UserFormPayload) => {
     const res = await fetchClient<ApiResponse<RawUser>>("/users", {
       method: "POST",
       data: payload,
-    })
-    return mapUser(res.data)
+    });
+    return mapUser(res.data);
   },
 
   update: async (id: string, payload: UserFormPayload) => {
     const res = await fetchClient<ApiResponse<RawUser>>(`/users/${id}`, {
       method: "PUT",
       data: payload,
-    })
-    return mapUser(res.data)
+    });
+    return mapUser(res.data);
   },
 
   delete: async (id: string) => {
-    await fetchClient<ApiResponse<null>>(`/users/${id}`, { method: "DELETE" })
+    await fetchClient<ApiResponse<null>>(`/users/${id}`, { method: "DELETE" });
   },
 
   loginHistory: async (userId: string, params: LoginHistoryParams = {}) => {
-    const qs = new URLSearchParams()
-    qs.set("page", String(params.page ?? 1))
-    qs.set("page_size", String(params.pageSize ?? 25))
+    const qs = new URLSearchParams();
+    qs.set("page", String(params.page ?? 1));
+    qs.set("page_size", String(params.pageSize ?? 25));
 
     const res = await fetchClient<ApiPaginated<RawLoginHistory>>(
-      `/users/${userId}/login-history?${qs.toString()}`
-    )
+      `/users/${userId}/login-history?${qs.toString()}`,
+    );
     return {
       items: (res.data ?? []).map(mapLoginHistory),
       meta: res.meta,
-    }
+    };
   },
 
   roles: async (): Promise<Role[]> => {
-    const res = await fetchClient<ApiPaginated<RawRole>>(
-      "/roles?per_page=100"
-    )
-    return (res.data ?? [])
-      .map(mapRole)
-      .filter((r) => r.name !== "owner")
+    const res = await fetchClient<ApiPaginated<RawRole>>("/roles?per_page=100");
+    return (res.data ?? []).map(mapRole).filter((r) => r.name !== "owner");
   },
-}
+};

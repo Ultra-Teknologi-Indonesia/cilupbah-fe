@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useQuery, keepPreviousData } from "@tanstack/react-query"
-import { InboundService } from "@/services/barang-masuk/inbound.service"
-import type { InboundListParams } from "@/types/barang-masuk/inbound"
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { InboundService } from "@/services/barang-masuk/inbound.service";
+import type { InboundListParams } from "@/types/barang-masuk/inbound";
 
-const STALE = 30 * 1000
+const STALE = 30 * 1000;
 
 export function useInbounds(params: InboundListParams = {}) {
   return useQuery({
@@ -12,7 +12,7 @@ export function useInbounds(params: InboundListParams = {}) {
     placeholderData: keepPreviousData,
     queryFn: () => InboundService.list(params),
     staleTime: STALE,
-  })
+  });
 }
 
 export function useInboundDetail(id?: string) {
@@ -21,5 +21,5 @@ export function useInboundDetail(id?: string) {
     queryFn: () => InboundService.getById(id!),
     enabled: !!id,
     staleTime: STALE,
-  })
+  });
 }

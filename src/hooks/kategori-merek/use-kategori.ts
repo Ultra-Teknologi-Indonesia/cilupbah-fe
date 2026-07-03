@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { toast } from "sonner"
-import { KategoriService } from "@/services/kategori-merek/kategori.service"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { KategoriService } from "@/services/kategori-merek/kategori.service";
 
-const STALE = 60 * 1000
+const STALE = 60 * 1000;
 
 export function useEnabledCategories() {
   return useQuery({
     queryKey: ["kategori", "enabled-tree"],
     queryFn: KategoriService.getEnabledTree,
     staleTime: STALE,
-  })
+  });
 }
 
 export function useSearchKategori(search: string) {
@@ -20,7 +20,7 @@ export function useSearchKategori(search: string) {
     queryFn: () => KategoriService.searchCategories(search),
     staleTime: STALE,
     enabled: search.length >= 2,
-  })
+  });
 }
 
 export function useSystemCategories(enabled = false) {
@@ -29,15 +29,17 @@ export function useSystemCategories(enabled = false) {
     queryFn: KategoriService.getSystemCategories,
     staleTime: 5 * 60 * 1000,
     enabled,
-  })
+  });
 }
 
-export function useKategoriMapping(params: { search?: string; page?: number; perPage?: number } = {}) {
+export function useKategoriMapping(
+  params: { search?: string; page?: number; perPage?: number } = {},
+) {
   return useQuery({
     queryKey: ["kategori", "mapping", params],
     queryFn: () => KategoriService.getMappingList(params),
     staleTime: STALE,
-  })
+  });
 }
 
 export function useCategoryFormAttributes(categoryId: number) {
@@ -46,44 +48,59 @@ export function useCategoryFormAttributes(categoryId: number) {
     queryFn: () => KategoriService.getCategoryFormAttributes(categoryId),
     staleTime: STALE,
     enabled: categoryId > 0,
-  })
+  });
 }
 
 export function useChannelAttributes(channelCode: string, categoryId: number) {
   return useQuery({
     queryKey: ["kategori", "channel-attributes", channelCode, categoryId],
-    queryFn: () => KategoriService.getChannelAttributes(channelCode, categoryId),
+    queryFn: () =>
+      KategoriService.getChannelAttributes(channelCode, categoryId),
     staleTime: 5 * 60 * 1000,
     enabled: Boolean(channelCode) && categoryId > 0,
-  })
+  });
 }
 
 export function useCreateCategoryAttribute() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ categoryId, data }: { categoryId: number; data: { name: string; type: "spec" | "sales" } }) =>
-      KategoriService.createCategoryAttribute(categoryId, data),
+    mutationFn: ({
+      categoryId,
+      data,
+    }: {
+      categoryId: number;
+      data: { name: string; type: "spec" | "sales" };
+    }) => KategoriService.createCategoryAttribute(categoryId, data),
     onSuccess: () => {
-      toast.success("Atribut berhasil ditambahkan")
-      qc.invalidateQueries({ queryKey: ["kategori", "form-attributes"] })
+      toast.success("Atribut berhasil ditambahkan");
+      qc.invalidateQueries({ queryKey: ["kategori", "form-attributes"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal menambahkan atribut"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal menambahkan atribut",
+      ),
+  });
 }
 
 export function useDeleteCategoryAttribute() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ categoryId, attributeId }: { categoryId: number; attributeId: number }) =>
-      KategoriService.deleteCategoryAttribute(categoryId, attributeId),
+    mutationFn: ({
+      categoryId,
+      attributeId,
+    }: {
+      categoryId: number;
+      attributeId: number;
+    }) => KategoriService.deleteCategoryAttribute(categoryId, attributeId),
     onSuccess: () => {
-      toast.success("Atribut berhasil dihapus")
-      qc.invalidateQueries({ queryKey: ["kategori", "form-attributes"] })
+      toast.success("Atribut berhasil dihapus");
+      qc.invalidateQueries({ queryKey: ["kategori", "form-attributes"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal menghapus atribut"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal menghapus atribut",
+      ),
+  });
 }
 
 export function useChannelCategories(channelId: string) {
@@ -92,49 +109,71 @@ export function useChannelCategories(channelId: string) {
     queryFn: () => KategoriService.getChannelCategories(channelId),
     staleTime: 5 * 60 * 1000,
     enabled: Boolean(channelId),
-  })
+  });
 }
 
 export function useMapCategoryToChannel() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ categoryId, channelCategoryIds }: { categoryId: number; channelCategoryIds: string[] }) =>
-      KategoriService.mapCategoryToChannel(categoryId, channelCategoryIds),
+    mutationFn: ({
+      categoryId,
+      channelCategoryIds,
+    }: {
+      categoryId: number;
+      channelCategoryIds: string[];
+    }) => KategoriService.mapCategoryToChannel(categoryId, channelCategoryIds),
     onSuccess: () => {
-      toast.success("Kategori berhasil dipetakan ke channel")
-      qc.invalidateQueries({ queryKey: ["kategori", "mapping"] })
+      toast.success("Kategori berhasil dipetakan ke channel");
+      qc.invalidateQueries({ queryKey: ["kategori", "mapping"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal memetakan kategori"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal memetakan kategori",
+      ),
+  });
 }
 
 export function useSyncChannelCategories() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ channelCode, shopId }: { channelCode: string; shopId: string }) =>
-      KategoriService.syncChannelCategories(channelCode, shopId),
+    mutationFn: ({
+      channelCode,
+      shopId,
+    }: {
+      channelCode: string;
+      shopId: string;
+    }) => KategoriService.syncChannelCategories(channelCode, shopId),
     onSuccess: (count, { channelCode }) => {
-      toast.success(`${count} kategori ${channelCode} berhasil disinkronkan`)
-      qc.invalidateQueries({ queryKey: ["kategori", "channel-categories"] })
+      toast.success(`${count} kategori ${channelCode} berhasil disinkronkan`);
+      qc.invalidateQueries({ queryKey: ["kategori", "channel-categories"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal sinkron kategori"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal sinkron kategori",
+      ),
+  });
 }
 
 export function useMapAttributeToChannel() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ attributeId, channelAttributeIds }: { attributeId: number; channelAttributeIds: string[] }) =>
+    mutationFn: ({
+      attributeId,
+      channelAttributeIds,
+    }: {
+      attributeId: number;
+      channelAttributeIds: string[];
+    }) =>
       KategoriService.mapAttributeToChannel(attributeId, channelAttributeIds),
     onSuccess: () => {
-      toast.success("Atribut berhasil dipetakan ke channel")
-      qc.invalidateQueries({ queryKey: ["kategori", "form-attributes"] })
+      toast.success("Atribut berhasil dipetakan ke channel");
+      qc.invalidateQueries({ queryKey: ["kategori", "form-attributes"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal memetakan atribut"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal memetakan atribut",
+      ),
+  });
 }
 
 export function useAttributeMapping(categoryId: number) {
@@ -143,7 +182,7 @@ export function useAttributeMapping(categoryId: number) {
     queryFn: () => KategoriService.getAttributeMapping(categoryId),
     staleTime: STALE,
     enabled: categoryId > 0,
-  })
+  });
 }
 
 export function useVariationMapping(categoryId: number) {
@@ -152,7 +191,7 @@ export function useVariationMapping(categoryId: number) {
     queryFn: () => KategoriService.getVariationMapping(categoryId),
     staleTime: STALE,
     enabled: categoryId > 0,
-  })
+  });
 }
 
 export function useAvailableChannelAttributes(categoryId: number) {
@@ -161,132 +200,185 @@ export function useAvailableChannelAttributes(categoryId: number) {
     queryFn: () => KategoriService.getAvailableChannelAttributes(categoryId),
     staleTime: 5 * 60 * 1000,
     enabled: categoryId > 0,
-  })
+  });
 }
 
 export function useStoreAttributeMapping() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ categoryId, data }: { categoryId: number; data: { attribute_id: number; channel_attribute_ids: string[] } }) =>
-      KategoriService.storeAttributeMapping(categoryId, data),
+    mutationFn: ({
+      categoryId,
+      data,
+    }: {
+      categoryId: number;
+      data: { attribute_id: number; channel_attribute_ids: string[] };
+    }) => KategoriService.storeAttributeMapping(categoryId, data),
     onSuccess: () => {
-      toast.success("Mapping atribut berhasil disimpan")
-      qc.invalidateQueries({ queryKey: ["kategori", "attribute-mapping"] })
+      toast.success("Mapping atribut berhasil disimpan");
+      qc.invalidateQueries({ queryKey: ["kategori", "attribute-mapping"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal menyimpan mapping atribut"),
-  })
+      toast.error(
+        (err as { message?: string })?.message ||
+          "Gagal menyimpan mapping atribut",
+      ),
+  });
 }
 
 export function useRemoveAttributeMapping() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ categoryId, data }: { categoryId: number; data: { attribute_id: number; channel_attribute_ids: string[] } }) =>
-      KategoriService.removeAttributeMapping(categoryId, data),
+    mutationFn: ({
+      categoryId,
+      data,
+    }: {
+      categoryId: number;
+      data: { attribute_id: number; channel_attribute_ids: string[] };
+    }) => KategoriService.removeAttributeMapping(categoryId, data),
     onSuccess: () => {
-      toast.success("Mapping atribut berhasil dihapus")
-      qc.invalidateQueries({ queryKey: ["kategori", "attribute-mapping"] })
+      toast.success("Mapping atribut berhasil dihapus");
+      qc.invalidateQueries({ queryKey: ["kategori", "attribute-mapping"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal menghapus mapping atribut"),
-  })
+      toast.error(
+        (err as { message?: string })?.message ||
+          "Gagal menghapus mapping atribut",
+      ),
+  });
 }
 
 export function useStoreVariationMapping() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ categoryId, data }: { categoryId: number; data: { attribute_id: number; channel_attribute_ids: string[] } }) =>
-      KategoriService.storeVariationMapping(categoryId, data),
+    mutationFn: ({
+      categoryId,
+      data,
+    }: {
+      categoryId: number;
+      data: { attribute_id: number; channel_attribute_ids: string[] };
+    }) => KategoriService.storeVariationMapping(categoryId, data),
     onSuccess: () => {
-      toast.success("Mapping variasi berhasil disimpan")
-      qc.invalidateQueries({ queryKey: ["kategori", "variation-mapping"] })
+      toast.success("Mapping variasi berhasil disimpan");
+      qc.invalidateQueries({ queryKey: ["kategori", "variation-mapping"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal menyimpan mapping variasi"),
-  })
+      toast.error(
+        (err as { message?: string })?.message ||
+          "Gagal menyimpan mapping variasi",
+      ),
+  });
 }
 
 export function useRemoveVariationMapping() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ categoryId, data }: { categoryId: number; data: { attribute_id: number; channel_attribute_ids: string[] } }) =>
-      KategoriService.removeVariationMapping(categoryId, data),
+    mutationFn: ({
+      categoryId,
+      data,
+    }: {
+      categoryId: number;
+      data: { attribute_id: number; channel_attribute_ids: string[] };
+    }) => KategoriService.removeVariationMapping(categoryId, data),
     onSuccess: () => {
-      toast.success("Mapping variasi berhasil dihapus")
-      qc.invalidateQueries({ queryKey: ["kategori", "variation-mapping"] })
+      toast.success("Mapping variasi berhasil dihapus");
+      qc.invalidateQueries({ queryKey: ["kategori", "variation-mapping"] });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal menghapus mapping variasi"),
-  })
+      toast.error(
+        (err as { message?: string })?.message ||
+          "Gagal menghapus mapping variasi",
+      ),
+  });
 }
 
 export function useEnableKategori() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: KategoriService.enableCategories,
     onSuccess: (data) => {
-      toast.success(`Berhasil mengimpor ${data.enabled_count} kategori`)
-      qc.invalidateQueries({ queryKey: ["kategori"] })
-      qc.invalidateQueries({ queryKey: ["master-produk", "lookup", "categories"] })
+      toast.success(`Berhasil mengimpor ${data.enabled_count} kategori`);
+      qc.invalidateQueries({ queryKey: ["kategori"] });
+      qc.invalidateQueries({
+        queryKey: ["master-produk", "lookup", "categories"],
+      });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal mengimpor kategori"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal mengimpor kategori",
+      ),
+  });
 }
 
 export function useDisableKategori() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: KategoriService.disableCategories,
     onSuccess: (data) => {
-      toast.success(`Berhasil menonaktifkan ${data.disabled_count} kategori`)
-      qc.invalidateQueries({ queryKey: ["kategori"] })
-      qc.invalidateQueries({ queryKey: ["master-produk", "lookup", "categories"] })
+      toast.success(`Berhasil menonaktifkan ${data.disabled_count} kategori`);
+      qc.invalidateQueries({ queryKey: ["kategori"] });
+      qc.invalidateQueries({
+        queryKey: ["master-produk", "lookup", "categories"],
+      });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal menonaktifkan kategori"),
-  })
+      toast.error(
+        (err as { message?: string })?.message ||
+          "Gagal menonaktifkan kategori",
+      ),
+  });
 }
 
 export function useCreateKategori() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: KategoriService.createCategory,
     onSuccess: () => {
-      toast.success("Kategori berhasil dibuat")
-      qc.invalidateQueries({ queryKey: ["kategori"] })
-      qc.invalidateQueries({ queryKey: ["master-produk", "lookup", "categories"] })
+      toast.success("Kategori berhasil dibuat");
+      qc.invalidateQueries({ queryKey: ["kategori"] });
+      qc.invalidateQueries({
+        queryKey: ["master-produk", "lookup", "categories"],
+      });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal membuat kategori"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal membuat kategori",
+      ),
+  });
 }
 
 export function useUpdateKategori() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, name }: { id: number; name: string }) =>
       KategoriService.updateCategory(id, { name }),
     onSuccess: () => {
-      toast.success("Kategori berhasil diperbarui")
-      qc.invalidateQueries({ queryKey: ["kategori"] })
-      qc.invalidateQueries({ queryKey: ["master-produk", "lookup", "categories"] })
+      toast.success("Kategori berhasil diperbarui");
+      qc.invalidateQueries({ queryKey: ["kategori"] });
+      qc.invalidateQueries({
+        queryKey: ["master-produk", "lookup", "categories"],
+      });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal memperbarui kategori"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal memperbarui kategori",
+      ),
+  });
 }
 
 export function useDeleteKategori() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: KategoriService.deleteCategory,
     onSuccess: () => {
-      toast.success("Kategori berhasil dihapus")
-      qc.invalidateQueries({ queryKey: ["kategori"] })
-      qc.invalidateQueries({ queryKey: ["master-produk", "lookup", "categories"] })
+      toast.success("Kategori berhasil dihapus");
+      qc.invalidateQueries({ queryKey: ["kategori"] });
+      qc.invalidateQueries({
+        queryKey: ["master-produk", "lookup", "categories"],
+      });
     },
     onError: (err) =>
-      toast.error((err as { message?: string })?.message || "Gagal menghapus kategori"),
-  })
+      toast.error(
+        (err as { message?: string })?.message || "Gagal menghapus kategori",
+      ),
+  });
 }

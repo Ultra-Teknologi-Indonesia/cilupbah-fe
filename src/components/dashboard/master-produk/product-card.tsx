@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { ImageIcon } from "lucide-react"
+import Link from "next/link";
+import { ImageIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
-import type { Product } from "@/types/master-produk"
-import { formatIDR } from "./product-columns"
-import { ProductStatusBadge } from "./product-status-badge"
-import { ProductChannelBadges } from "./product-channel-badges"
-import { ProductRowActions } from "./product-row-actions"
-import { ProductVariantPopover } from "./product-variant-popover"
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import type { Product } from "@/types/master-produk";
+import { formatIDR } from "./product-columns";
+import { ProductStatusBadge } from "./product-status-badge";
+import { ProductChannelBadges } from "./product-channel-badges";
+import { ProductRowActions } from "./product-row-actions";
+import { ProductVariantPopover } from "./product-variant-popover";
 
 interface ProductCardProps {
-  product: Product
-  selected: boolean
-  onSelectedChange: (value: boolean) => void
+  product: Product;
+  selected: boolean;
+  onSelectedChange: (value: boolean) => void;
 }
 
 export function ProductCard({
@@ -27,12 +27,10 @@ export function ProductCard({
   return (
     <div
       className={cn(
-
         "group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md",
-        selected && "ring-2 ring-primary"
+        selected && "ring-2 ring-primary",
       )}
     >
-
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent"
@@ -40,7 +38,6 @@ export function ProductCard({
 
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted/40">
         {product.thumbnail ? (
-
           <img
             src={product.thumbnail}
             alt={product.itemName}
@@ -55,7 +52,7 @@ export function ProductCard({
         <div
           className={cn(
             "absolute left-2 top-2 transition-opacity",
-            selected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            selected ? "opacity-100" : "opacity-0 group-hover:opacity-100",
           )}
         >
           <Checkbox
@@ -81,7 +78,7 @@ export function ProductCard({
             <h3 className="truncate text-sm font-medium leading-tight">
               <Link
                 href={`/dashboard/produk/${product.itemGroupId}`}
-               
+
                 className="hover:text-primary hover:underline"
               >
                 {product.itemName}
@@ -132,5 +129,5 @@ export function ProductCard({
         </div>
       </div>
     </div>
-  )
+  );
 }

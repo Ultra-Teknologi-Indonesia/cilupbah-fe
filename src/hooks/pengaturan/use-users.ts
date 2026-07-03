@@ -1,9 +1,13 @@
-"use client"
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { UserService } from "@/services/pengaturan/user.service"
-import type { UserListParams, UserFormPayload, LoginHistoryParams } from "@/types/pengaturan/user"
+import { UserService } from "@/services/pengaturan/user.service";
+import type {
+  UserListParams,
+  UserFormPayload,
+  LoginHistoryParams,
+} from "@/types/pengaturan/user";
 
 export const userKeys = {
   all: ["pengaturan", "pengguna"] as const,
@@ -12,14 +16,14 @@ export const userKeys = {
   loginHistory: (id: string, params: LoginHistoryParams) =>
     [...userKeys.all, "login-history", id, params] as const,
   roles: ["pengaturan", "roles"] as const,
-}
+};
 
 export function useUsers(params: UserListParams = {}) {
   return useQuery({
     queryKey: userKeys.list(params),
     queryFn: () => UserService.list(params),
     staleTime: 30 * 1000,
-  })
+  });
 }
 
 export function useUserDetail(id: string) {
@@ -27,15 +31,18 @@ export function useUserDetail(id: string) {
     queryKey: userKeys.detail(id),
     queryFn: () => UserService.detail(id),
     enabled: !!id,
-  })
+  });
 }
 
-export function useLoginHistory(userId: string, params: LoginHistoryParams = {}) {
+export function useLoginHistory(
+  userId: string,
+  params: LoginHistoryParams = {},
+) {
   return useQuery({
     queryKey: userKeys.loginHistory(userId, params),
     queryFn: () => UserService.loginHistory(userId, params),
     enabled: !!userId,
-  })
+  });
 }
 
 export function useRoles() {
@@ -43,30 +50,30 @@ export function useRoles() {
     queryKey: userKeys.roles,
     queryFn: () => UserService.roles(),
     staleTime: 5 * 60 * 1000,
-  })
+  });
 }
 
 export function useCreateUser() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: UserFormPayload) => UserService.create(payload),
     onSuccess: () => qc.invalidateQueries({ queryKey: userKeys.all }),
-  })
+  });
 }
 
 export function useUpdateUser() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: UserFormPayload }) =>
       UserService.update(id, payload),
     onSuccess: () => qc.invalidateQueries({ queryKey: userKeys.all }),
-  })
+  });
 }
 
 export function useDeleteUser() {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => UserService.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: userKeys.all }),
-  })
+  });
 }

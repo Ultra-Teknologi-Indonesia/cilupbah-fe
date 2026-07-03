@@ -1,19 +1,18 @@
-import type * as React from "react"
-import type { Column } from "@tanstack/react-table"
+import type * as React from "react";
+import type { Column } from "@tanstack/react-table";
 
 export interface FacetedFilterOption {
-  label: string
-  value: string
-  icon?: React.ComponentType<{ className?: string }>
+  label: string;
+  value: string;
+  icon?: React.ComponentType<{ className?: string }>;
 
-  count?: number
+  count?: number;
 }
 
 export interface FacetedFilter {
+  columnId: string;
+  title: string;
+  options?: FacetedFilterOption[];
 
-  columnId: string
-  title: string
-  options?: FacetedFilterOption[]
-
-  render?: (column: Column<any, any>) => React.ReactNode
+  render?: (column: Column<any, any>) => React.ReactNode;
 }

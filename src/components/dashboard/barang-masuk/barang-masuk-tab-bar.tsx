@@ -1,48 +1,77 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   ShoppingCartIcon,
   ArrowRightLeftIcon,
   Undo2Icon,
   PackageIcon,
   LayersIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Tab = {
-  id: string
-  label: string
-  icon: typeof ShoppingCartIcon
-  href?: string
-}
+  id: string;
+  label: string;
+  icon: typeof ShoppingCartIcon;
+  href?: string;
+};
 
 const TABS: Tab[] = [
-  { id: "pesanan", label: "Pesanan Pembelian", icon: ShoppingCartIcon, href: "/dashboard/barang-masuk/pesanan" },
-  { id: "transfer", label: "Transfer Masuk", icon: ArrowRightLeftIcon, href: "/dashboard/barang-masuk/transfer" },
-  { id: "retur", label: "Retur dari Channel Online", icon: Undo2Icon, href: "/dashboard/barang-masuk/retur" },
-  { id: "penerimaan", label: "Penerimaan Barang", icon: PackageIcon, href: "/dashboard/barang-masuk/penerimaan" },
-  { id: "penempatan", label: "Penempatan Barang", icon: LayersIcon, href: "/dashboard/barang-masuk/penempatan" },
-]
+  {
+    id: "pesanan",
+    label: "Pesanan Pembelian",
+    icon: ShoppingCartIcon,
+    href: "/dashboard/barang-masuk/pesanan",
+  },
+  {
+    id: "transfer",
+    label: "Transfer Masuk",
+    icon: ArrowRightLeftIcon,
+    href: "/dashboard/barang-masuk/transfer",
+  },
+  {
+    id: "retur",
+    label: "Retur dari Channel Online",
+    icon: Undo2Icon,
+    href: "/dashboard/barang-masuk/retur",
+  },
+  {
+    id: "penerimaan",
+    label: "Penerimaan Barang",
+    icon: PackageIcon,
+    href: "/dashboard/barang-masuk/penerimaan",
+  },
+  {
+    id: "penempatan",
+    label: "Penempatan Barang",
+    icon: LayersIcon,
+    href: "/dashboard/barang-masuk/penempatan",
+  },
+];
 
 function activeId(pathname: string): string {
-  if (pathname.startsWith("/dashboard/barang-masuk/transfer")) return "transfer"
-  if (pathname.startsWith("/dashboard/barang-masuk/retur")) return "retur"
-  // Needs strict check for penerimaan because it might have /penerimaan/[id] but we want it to be active
-  if (pathname.startsWith("/dashboard/barang-masuk/penerimaan")) return "penerimaan"
-  if (pathname.startsWith("/dashboard/barang-masuk/penempatan")) return "penempatan"
-  if (pathname.startsWith("/dashboard/barang-masuk/pesanan")) return "pesanan"
-  if (pathname.startsWith("/dashboard/barang-masuk/terima-po")) return "pesanan"
-  // Default fallback
-  return "pesanan"
+  if (pathname.startsWith("/dashboard/barang-masuk/transfer"))
+    return "transfer";
+  if (pathname.startsWith("/dashboard/barang-masuk/retur")) return "retur";
+
+  if (pathname.startsWith("/dashboard/barang-masuk/penerimaan"))
+    return "penerimaan";
+  if (pathname.startsWith("/dashboard/barang-masuk/penempatan"))
+    return "penempatan";
+  if (pathname.startsWith("/dashboard/barang-masuk/pesanan")) return "pesanan";
+  if (pathname.startsWith("/dashboard/barang-masuk/terima-po"))
+    return "pesanan";
+
+  return "pesanan";
 }
 
 export function BarangMasukTabBar() {
-  const pathname = usePathname()
-  const active = activeId(pathname)
+  const pathname = usePathname();
+  const active = activeId(pathname);
 
   return (
     <LiquidGlass
@@ -56,7 +85,7 @@ export function BarangMasukTabBar() {
       <Tabs value={active}>
         <TabsList className="gap-1 bg-transparent">
           {TABS.map((tab) => {
-            const Icon = tab.icon
+            const Icon = tab.icon;
 
             if (!tab.href) {
               return (
@@ -73,7 +102,7 @@ export function BarangMasukTabBar() {
                     Segera
                   </span>
                 </TabsTrigger>
-              )
+              );
             }
 
             return (
@@ -88,10 +117,10 @@ export function BarangMasukTabBar() {
                   {tab.label}
                 </Link>
               </TabsTrigger>
-            )
+            );
           })}
         </TabsList>
       </Tabs>
     </LiquidGlass>
-  )
+  );
 }

@@ -1,47 +1,53 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Loader2Icon } from "lucide-react"
-import { toast } from "sonner"
+import * as React from "react";
+import { Loader2Icon } from "lucide-react";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogClose,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { useCouriers, useCreateShipment } from "@/hooks/proses-pesanan/use-fulfillment"
-import { SHIPMENT_TYPES, type ShipmentType } from "@/types/proses-pesanan/fulfillment"
+} from "@/components/ui/select";
+import {
+  useCouriers,
+  useCreateShipment,
+} from "@/hooks/proses-pesanan/use-fulfillment";
+import {
+  SHIPMENT_TYPES,
+  type ShipmentType,
+} from "@/types/proses-pesanan/fulfillment";
 
 function today(): string {
-  return new Date().toISOString().slice(0, 10)
+  return new Date().toISOString().slice(0, 10);
 }
 
-const MARKETPLACE_SOURCES = ["shopee", "tiktok", "lazada", "tokopedia"]
+const MARKETPLACE_SOURCES = ["shopee", "tiktok", "lazada", "tokopedia"];
 
 interface BuatPengirimanDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  orderIds: string[]
-  locationId: string | null
-  locationName: string | null
-  multiLocation: boolean
-  onCreated: () => void
-  /** When all selected orders share same marketplace source */
-  marketplaceSource?: string | null
-  /** Courier name from marketplace order (e.g. "J&T Express") */
-  shippingProvider?: string | null
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  orderIds: string[];
+  locationId: string | null;
+  locationName: string | null;
+  multiLocation: boolean;
+  onCreated: () => void;
+
+  marketplaceSource?: string | null;
+
+  shippingProvider?: string | null;
 }
 
 export function BuatPengirimanDialog({
@@ -55,52 +61,55 @@ export function BuatPengirimanDialog({
   marketplaceSource,
   shippingProvider,
 }: BuatPengirimanDialogProps) {
-  const [courierId, setCourierId] = React.useState("")
-  const [shipmentType, setShipmentType] = React.useState<ShipmentType>("REGULAR")
-  const [shipmentDate, setShipmentDate] = React.useState(today)
-  const [notes, setNotes] = React.useState("")
+  const [courierId, setCourierId] = React.useState("");
+  const [shipmentType, setShipmentType] =
+    React.useState<ShipmentType>("REGULAR");
+  const [shipmentDate, setShipmentDate] = React.useState(today);
+  const [notes, setNotes] = React.useState("");
 
-  const isMarketplace = !!marketplaceSource && MARKETPLACE_SOURCES.includes(marketplaceSource)
-  const couriers = useCouriers(open && !isMarketplace)
-  const createShipment = useCreateShipment()
+  const isMarketplace =
+    !!marketplaceSource && MARKETPLACE_SOURCES.includes(marketplaceSource);
+  const couriers = useCouriers(open && !isMarketplace);
+  const createShipment = useCreateShipment();
 
   React.useEffect(() => {
     if (open) {
-      setCourierId("")
-      setShipmentType("REGULAR")
-      setShipmentDate(today())
-      setNotes("")
+      setCourierId("");
+      setShipmentType("REGULAR");
+      setShipmentDate(today());
+      setNotes("");
     }
-  }, [open])
+  }, [open]);
 
-  const selectedCourier = couriers.data?.find((c) => c.id === courierId) ?? null
+  const selectedCourier =
+    couriers.data?.find((c) => c.id === courierId) ?? null;
 
   const handleCourierChange = (id: string) => {
-    setCourierId(id)
-    const c = couriers.data?.find((x) => x.id === id)
+    setCourierId(id);
+    const c = couriers.data?.find((x) => x.id === id);
     if (c?.type && SHIPMENT_TYPES.some((t) => t.value === c.type)) {
-      setShipmentType(c.type as ShipmentType)
+      setShipmentType(c.type as ShipmentType);
     }
-  }
+  };
 
   const canSubmit = isMarketplace
     ? orderIds.length > 0 && !!locationId && !multiLocation
-    : orderIds.length > 0 && !!locationId && !multiLocation && !!courierId
+    : orderIds.length > 0 && !!locationId && !multiLocation && !!courierId;
 
   const handleSubmit = async () => {
-    if (!locationId) return
+    if (!locationId) return;
 
-    let courierName: string
-    let courierCode: string | null
+    let courierName: string;
+    let courierCode: string | null;
 
     if (isMarketplace && shippingProvider) {
-      courierName = shippingProvider
-      courierCode = shippingProvider.toLowerCase().replace(/\s+/g, "-")
+      courierName = shippingProvider;
+      courierCode = shippingProvider.toLowerCase().replace(/\s+/g, "-");
     } else if (selectedCourier) {
-      courierName = selectedCourier.name
-      courierCode = selectedCourier.code
+      courierName = selectedCourier.name;
+      courierCode = selectedCourier.code;
     } else {
-      return
+      return;
     }
 
     try {
@@ -114,18 +123,18 @@ export function BuatPengirimanDialog({
           notes: notes || null,
         },
         orderIds,
-      })
-      toast.success(`Pengiriman dibuat untuk ${orderIds.length} pesanan.`)
-      onOpenChange(false)
-      onCreated()
+      });
+      toast.success(`Pengiriman dibuat untuk ${orderIds.length} pesanan.`);
+      onOpenChange(false);
+      onCreated();
     } catch (err) {
       const msg =
         err && typeof err === "object" && "message" in err
           ? String((err as { message?: unknown }).message)
-          : "Gagal membuat pengiriman."
-      toast.error(msg)
+          : "Gagal membuat pengiriman.";
+      toast.error(msg);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -137,7 +146,8 @@ export function BuatPengirimanDialog({
 
         <div className="flex flex-col gap-4 py-2">
           <div className="rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-sm">
-            <span className="font-medium">{orderIds.length}</span> pesanan terpilih
+            <span className="font-medium">{orderIds.length}</span> pesanan
+            terpilih
             {isMarketplace && (
               <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary capitalize">
                 {marketplaceSource}
@@ -147,7 +157,8 @@ export function BuatPengirimanDialog({
 
           {multiLocation && (
             <p className="rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-xs text-destructive">
-              Pesanan terpilih berasal dari lokasi berbeda. Pilih pesanan dari satu lokasi saja.
+              Pesanan terpilih berasal dari lokasi berbeda. Pilih pesanan dari
+              satu lokasi saja.
             </p>
           )}
 
@@ -165,7 +176,8 @@ export function BuatPengirimanDialog({
                 {shippingProvider || "Dari marketplace"}
               </div>
               <p className="text-xs text-muted-foreground">
-                Kurir otomatis dari {marketplaceSource} — tidak perlu dipilih manual.
+                Kurir otomatis dari {marketplaceSource} — tidak perlu dipilih
+                manual.
               </p>
             </div>
           ) : (
@@ -187,7 +199,9 @@ export function BuatPengirimanDialog({
                 </SelectContent>
               </Select>
               {couriers.isLoading && (
-                <p className="text-xs text-muted-foreground">Memuat daftar kurir…</p>
+                <p className="text-xs text-muted-foreground">
+                  Memuat daftar kurir…
+                </p>
               )}
             </div>
           )}
@@ -195,7 +209,10 @@ export function BuatPengirimanDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Tipe</Label>
-              <Select value={shipmentType} onValueChange={(v) => setShipmentType(v as ShipmentType)}>
+              <Select
+                value={shipmentType}
+                onValueChange={(v) => setShipmentType(v as ShipmentType)}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
@@ -241,11 +258,13 @@ export function BuatPengirimanDialog({
             onClick={handleSubmit}
             disabled={!canSubmit || createShipment.isPending}
           >
-            {createShipment.isPending && <Loader2Icon className="animate-spin" />}
+            {createShipment.isPending && (
+              <Loader2Icon className="animate-spin" />
+            )}
             Buat Pengiriman
           </Button>
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

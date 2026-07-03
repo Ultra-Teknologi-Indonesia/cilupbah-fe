@@ -1,37 +1,52 @@
-"use client"
+"use client";
 
-import { use } from "react"
-import { useRouter } from "next/navigation"
-import { ArrowLeftIcon, DownloadIcon, PrinterIcon, CheckIcon, TruckIcon, XIcon, Trash2Icon } from "lucide-react"
+import { use } from "react";
+import { useRouter } from "next/navigation";
+import {
+  ArrowLeftIcon,
+  DownloadIcon,
+  PrinterIcon,
+  CheckIcon,
+  TruckIcon,
+  XIcon,
+  Trash2Icon,
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
-import { PageTitle } from "@/components/dashboard/page-title"
-import { UserSelect } from "@/components/dashboard/shared/user-select"
-import { StatusBadge } from "@/components/dashboard/shared/status-badge"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import { PageTitle } from "@/components/dashboard/page-title";
+import { UserSelect } from "@/components/dashboard/shared/user-select";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import {
   useOutboundTransferDetail,
   useApproveTransfer,
   useShipTransfer,
   useCancelTransfer,
   useDeleteTransfer,
-} from "@/hooks/barang-keluar/use-outbound-transfers"
-import { exportCsv } from "@/lib/export-csv"
-import { useState, useCallback } from "react"
-import { formatDate } from "@/lib/format"
+} from "@/hooks/barang-keluar/use-outbound-transfers";
+import { exportCsv } from "@/lib/export-csv";
+import { useState, useCallback } from "react";
+import { formatDate } from "@/lib/format";
 
 const TIMELINE_STEPS = [
   { key: "DRAFT", label: "Draft" },
   { key: "APPROVED", label: "Disetujui" },
   { key: "IN_TRANSIT", label: "Dikirim" },
   { key: "RECEIVED", label: "Diterima" },
-]
+];
 
 const STATUS_ORDER: Record<string, number> = {
   DRAFT: 0,
@@ -39,8 +54,7 @@ const STATUS_ORDER: Record<string, number> = {
   IN_TRANSIT: 2,
   RECEIVED: 3,
   CANCELLED: -1,
-}
-
+};
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -48,7 +62,7 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className="text-sm font-medium">{value ?? "—"}</span>
     </div>
-  )
+  );
 }
 
 function StatusTimeline({ currentStatus }: { currentStatus: string }) {
@@ -56,18 +70,20 @@ function StatusTimeline({ currentStatus }: { currentStatus: string }) {
     return (
       <div className="flex items-center gap-2 rounded-md bg-red-50 px-3 py-2 dark:bg-red-500/10">
         <XIcon className="h-4 w-4 text-red-500" />
-        <span className="text-sm font-medium text-red-600">Transfer dibatalkan</span>
+        <span className="text-sm font-medium text-red-600">
+          Transfer dibatalkan
+        </span>
       </div>
-    )
+    );
   }
 
-  const currentIdx = STATUS_ORDER[currentStatus] ?? 0
+  const currentIdx = STATUS_ORDER[currentStatus] ?? 0;
 
   return (
     <div className="flex items-center gap-0">
       {TIMELINE_STEPS.map((step, idx) => {
-        const isDone = idx <= currentIdx
-        const isCurrent = idx === currentIdx
+        const isDone = idx <= currentIdx;
+        const isCurrent = idx === currentIdx;
         return (
           <div key={step.key} className="flex items-center">
             <div className="flex flex-col items-center">
@@ -76,47 +92,57 @@ function StatusTimeline({ currentStatus }: { currentStatus: string }) {
                   "flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-bold transition-colors",
                   isDone
                     ? "border-emerald-500 bg-emerald-500 text-white"
-                    : "border-border bg-background text-muted-foreground"
+                    : "border-border bg-background text-muted-foreground",
                 )}
               >
                 {isDone ? <CheckIcon className="h-3.5 w-3.5" /> : idx + 1}
               </div>
-              <span className={cn("mt-1 text-[10px] font-medium", isCurrent ? "text-foreground" : "text-muted-foreground")}>
+              <span
+                className={cn(
+                  "mt-1 text-[10px] font-medium",
+                  isCurrent ? "text-foreground" : "text-muted-foreground",
+                )}
+              >
                 {step.label}
               </span>
             </div>
             {idx < TIMELINE_STEPS.length - 1 && (
-              <div className={cn("mx-1 h-0.5 w-8 sm:w-12", idx < currentIdx ? "bg-emerald-500" : "bg-border")} />
+              <div
+                className={cn(
+                  "mx-1 h-0.5 w-8 sm:w-12",
+                  idx < currentIdx ? "bg-emerald-500" : "bg-border",
+                )}
+              />
             )}
           </div>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
 export function TransferOutDetailView({ transferId }: { transferId: string }) {
-  const router = useRouter()
-  const { data: transfer, isLoading } = useOutboundTransferDetail(transferId)
+  const router = useRouter();
+  const { data: transfer, isLoading } = useOutboundTransferDetail(transferId);
 
-  const [approveOpen, setApproveOpen] = useState(false)
-  const [approvedBy, setApprovedBy] = useState("")
-  const approveMutation = useApproveTransfer()
+  const [approveOpen, setApproveOpen] = useState(false);
+  const [approvedBy, setApprovedBy] = useState("");
+  const approveMutation = useApproveTransfer();
 
-  const [shipOpen, setShipOpen] = useState(false)
-  const [shippedBy, setShippedBy] = useState("")
-  const shipMutation = useShipTransfer()
+  const [shipOpen, setShipOpen] = useState(false);
+  const [shippedBy, setShippedBy] = useState("");
+  const shipMutation = useShipTransfer();
 
-  const [cancelOpen, setCancelOpen] = useState(false)
-  const [cancelReason, setCancelReason] = useState("")
-  const [cancelledBy, setCancelledBy] = useState("")
-  const cancelMutation = useCancelTransfer()
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelledBy, setCancelledBy] = useState("");
+  const cancelMutation = useCancelTransfer();
 
-  const [deleteOpen, setDeleteOpen] = useState(false)
-  const deleteMutation = useDeleteTransfer()
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const deleteMutation = useDeleteTransfer();
 
   const handleExport = useCallback(() => {
-    if (!transfer?.items?.length) return
+    if (!transfer?.items?.length) return;
     exportCsv(
       `transfer-${transfer.transfer_number}.csv`,
       ["SKU", "Nama Produk", "Qty", "Qty Diterima"],
@@ -125,11 +151,11 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
         i.variant?.item_name ?? "",
         String(i.qty),
         String(i.received_qty ?? 0),
-      ])
-    )
-  }, [transfer])
+      ]),
+    );
+  }, [transfer]);
 
-  const handlePrint = useCallback(() => window.print(), [])
+  const handlePrint = useCallback(() => window.print(), []);
 
   if (isLoading) {
     return (
@@ -138,18 +164,22 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
         <Skeleton className="h-48 w-full" />
         <Skeleton className="h-64 w-full" />
       </div>
-    )
+    );
   }
 
   if (!transfer) {
     return (
       <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
         <p className="text-sm font-medium">Transfer tidak ditemukan</p>
-        <Button variant="outline" size="sm" onClick={() => router.push("/dashboard/barang-keluar")}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push("/dashboard/barang-keluar")}
+        >
           Kembali
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -166,7 +196,11 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
       />
 
       <div className="flex flex-wrap items-center gap-2">
-        <Button variant="outline" size="sm" onClick={() => router.push("/dashboard/barang-keluar")}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push("/dashboard/barang-keluar")}
+        >
           <ArrowLeftIcon className="mr-1.5 h-4 w-4" />
           Kembali
         </Button>
@@ -174,7 +208,12 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
           <DownloadIcon className="mr-1.5 h-4 w-4" />
           Export CSV
         </Button>
-        <Button variant="outline" size="sm" className="print:hidden" onClick={handlePrint}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="print:hidden"
+          onClick={handlePrint}
+        >
           <PrinterIcon className="mr-1.5 h-4 w-4" />
           Print
         </Button>
@@ -183,13 +222,20 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
           <>
             <Button
               size="sm"
-              onClick={() => { setApproveOpen(true); setApprovedBy("") }}
+              onClick={() => {
+                setApproveOpen(true);
+                setApprovedBy("");
+              }}
               className="bg-indigo-600 text-white hover:bg-indigo-700"
             >
               <CheckIcon className="mr-1.5 h-4 w-4" />
               Approve
             </Button>
-            <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setDeleteOpen(true)}
+            >
               <Trash2Icon className="mr-1.5 h-4 w-4" />
               Hapus
             </Button>
@@ -199,7 +245,10 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
         {transfer.status === "APPROVED" && (
           <Button
             size="sm"
-            onClick={() => { setShipOpen(true); setShippedBy("") }}
+            onClick={() => {
+              setShipOpen(true);
+              setShippedBy("");
+            }}
             className="bg-blue-600 text-white hover:bg-blue-700"
           >
             <TruckIcon className="mr-1.5 h-4 w-4" />
@@ -211,7 +260,11 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => { setCancelOpen(true); setCancelReason(""); setCancelledBy("") }}
+            onClick={() => {
+              setCancelOpen(true);
+              setCancelReason("");
+              setCancelledBy("");
+            }}
             className="text-amber-600 hover:bg-amber-500/10"
           >
             <XIcon className="mr-1.5 h-4 w-4" />
@@ -220,46 +273,105 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
         )}
       </div>
 
-      <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
+      <LiquidGlass
+        radius={20}
+        intensity="subtle"
+        className="bg-white/30 dark:bg-white/[0.04]"
+      >
         <div className="px-4 py-5 sm:px-6">
-          <h3 className="mb-4 text-sm font-semibold text-foreground">Status Transfer</h3>
+          <h3 className="mb-4 text-sm font-semibold text-foreground">
+            Status Transfer
+          </h3>
           <StatusTimeline currentStatus={transfer.status} />
         </div>
       </LiquidGlass>
 
-      <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
+      <LiquidGlass
+        radius={20}
+        intensity="subtle"
+        className="bg-white/30 dark:bg-white/[0.04]"
+      >
         <div className="px-4 py-5 sm:px-6">
-          <h3 className="mb-4 text-sm font-semibold text-foreground">Informasi Transfer</h3>
+          <h3 className="mb-4 text-sm font-semibold text-foreground">
+            Informasi Transfer
+          </h3>
           <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3 lg:grid-cols-4">
             <InfoRow label="No. Transfer" value={transfer.transfer_number} />
-            <InfoRow label="Lokasi Asal" value={transfer.source_location?.location_name} />
-            <InfoRow label="Lokasi Tujuan" value={transfer.destination_location?.location_name} />
+            <InfoRow
+              label="Lokasi Asal"
+              value={transfer.source_location?.location_name}
+            />
+            <InfoRow
+              label="Lokasi Tujuan"
+              value={transfer.destination_location?.location_name}
+            />
             <InfoRow
               label="Status"
-              value={<StatusBadge domain="inventory-transfer" status={transfer.status} className="text-[10px] leading-tight" />}
+              value={
+                <StatusBadge
+                  domain="inventory-transfer"
+                  status={transfer.status}
+                  className="text-[10px] leading-tight"
+                />
+              }
             />
             <InfoRow label="Dibuat oleh" value={transfer.created_by} />
-            <InfoRow label="Tgl. Dibuat" value={formatDate(transfer.created_at)} />
-            {transfer.approved_by && <InfoRow label="Disetujui oleh" value={transfer.approved_by} />}
-            {transfer.approved_at && <InfoRow label="Tgl. Approve" value={formatDate(transfer.approved_at)} />}
-            {transfer.assigned_to && <InfoRow label="Petugas" value={transfer.assigned_to} />}
-            {transfer.shipped_at && <InfoRow label="Tgl. Kirim" value={formatDate(transfer.shipped_at)} />}
-            {transfer.received_by && <InfoRow label="Diterima oleh" value={transfer.received_by} />}
-            {transfer.received_at && <InfoRow label="Tgl. Diterima" value={formatDate(transfer.received_at)} />}
-            {transfer.notes && <InfoRow label="Catatan" value={transfer.notes} />}
+            <InfoRow
+              label="Tgl. Dibuat"
+              value={formatDate(transfer.created_at)}
+            />
+            {transfer.approved_by && (
+              <InfoRow label="Disetujui oleh" value={transfer.approved_by} />
+            )}
+            {transfer.approved_at && (
+              <InfoRow
+                label="Tgl. Approve"
+                value={formatDate(transfer.approved_at)}
+              />
+            )}
+            {transfer.assigned_to && (
+              <InfoRow label="Petugas" value={transfer.assigned_to} />
+            )}
+            {transfer.shipped_at && (
+              <InfoRow
+                label="Tgl. Kirim"
+                value={formatDate(transfer.shipped_at)}
+              />
+            )}
+            {transfer.received_by && (
+              <InfoRow label="Diterima oleh" value={transfer.received_by} />
+            )}
+            {transfer.received_at && (
+              <InfoRow
+                label="Tgl. Diterima"
+                value={formatDate(transfer.received_at)}
+              />
+            )}
+            {transfer.notes && (
+              <InfoRow label="Catatan" value={transfer.notes} />
+            )}
           </div>
         </div>
       </LiquidGlass>
 
-      <LiquidGlass radius={20} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04]">
+      <LiquidGlass
+        radius={20}
+        intensity="subtle"
+        className="bg-white/30 dark:bg-white/[0.04]"
+      >
         <div className="px-4 py-5 sm:px-6">
-          <h3 className="mb-4 text-sm font-semibold text-foreground">Item Transfer</h3>
+          <h3 className="mb-4 text-sm font-semibold text-foreground">
+            Item Transfer
+          </h3>
           {transfer.items?.length > 0 ? (
             <Table containerClassName="rounded-lg border border-border/40">
               <TableHeader>
                 <TableRow className="border-b border-border/60 bg-muted/30">
                   {["SKU", "Nama Produk", "Qty", "Qty Diterima"].map((h) => (
-                    <TableHead key={h} className="px-3 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <TableHead
+                      key={h}
+                      className="px-3 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground"
+                    >
                       {h}
                     </TableHead>
                   ))}
@@ -267,17 +379,30 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
               </TableHeader>
               <TableBody>
                 {transfer.items.map((item) => (
-                  <TableRow key={item.id} className="border-b border-border/20 last:border-0">
-                    <TableCell className="px-3 py-3 font-mono text-xs">{item.variant?.sku ?? "—"}</TableCell>
-                    <TableCell className="px-3 py-3">{item.variant?.item_name ?? "—"}</TableCell>
-                    <TableCell className="px-3 py-3 tabular-nums">{item.qty}</TableCell>
-                    <TableCell className="px-3 py-3 tabular-nums text-muted-foreground">{item.received_qty ?? 0}</TableCell>
+                  <TableRow
+                    key={item.id}
+                    className="border-b border-border/20 last:border-0"
+                  >
+                    <TableCell className="px-3 py-3 font-mono text-xs">
+                      {item.variant?.sku ?? "—"}
+                    </TableCell>
+                    <TableCell className="px-3 py-3">
+                      {item.variant?.item_name ?? "—"}
+                    </TableCell>
+                    <TableCell className="px-3 py-3 tabular-nums">
+                      {item.qty}
+                    </TableCell>
+                    <TableCell className="px-3 py-3 tabular-nums text-muted-foreground">
+                      {item.received_qty ?? 0}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           ) : (
-            <p className="py-8 text-center text-sm text-muted-foreground">Belum ada item</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              Belum ada item
+            </p>
           )}
         </div>
       </LiquidGlass>
@@ -290,11 +415,11 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
         confirmLabel="Approve"
         loading={approveMutation.isPending}
         onConfirm={() => {
-          if (!approvedBy.trim()) return
+          if (!approvedBy.trim()) return;
           approveMutation.mutate(
             { id: transfer.id, data: { approved_by: approvedBy.trim() } },
-            { onSuccess: () => setApproveOpen(false) }
-          )
+            { onSuccess: () => setApproveOpen(false) },
+          );
         }}
       >
         <div className="px-1 py-2">
@@ -318,11 +443,11 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
         confirmLabel="Kirim"
         loading={shipMutation.isPending}
         onConfirm={() => {
-          if (!shippedBy.trim()) return
+          if (!shippedBy.trim()) return;
           shipMutation.mutate(
             { id: transfer.id, data: { shipped_by: shippedBy.trim() } },
-            { onSuccess: () => setShipOpen(false) }
-          )
+            { onSuccess: () => setShipOpen(false) },
+          );
         }}
       >
         <div className="px-1 py-2">
@@ -348,16 +473,25 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
         variant="destructive"
         loading={cancelMutation.isPending}
         onConfirm={() => {
-          if (!cancelledBy.trim()) return
+          if (!cancelledBy.trim()) return;
           cancelMutation.mutate(
-            { id: transfer.id, data: { cancelled_by: cancelledBy.trim(), cancel_reason: cancelReason.trim() || undefined } },
-            { onSuccess: () => setCancelOpen(false) }
-          )
+            {
+              id: transfer.id,
+              data: {
+                cancelled_by: cancelledBy.trim(),
+                cancel_reason: cancelReason.trim() || undefined,
+              },
+            },
+            { onSuccess: () => setCancelOpen(false) },
+          );
         }}
       >
         <div className="flex flex-col gap-3 px-1 py-2">
           <div>
-            <Label htmlFor="detail-cancelled-by" className="text-sm font-medium">
+            <Label
+              htmlFor="detail-cancelled-by"
+              className="text-sm font-medium"
+            >
               Dibatalkan oleh <span className="text-red-500">*</span>
             </Label>
             <UserSelect
@@ -369,7 +503,10 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
             />
           </div>
           <div>
-            <Label htmlFor="detail-cancel-reason" className="text-sm font-medium">
+            <Label
+              htmlFor="detail-cancel-reason"
+              className="text-sm font-medium"
+            >
               Alasan pembatalan
             </Label>
             <Input
@@ -394,19 +531,26 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
         onConfirm={() => {
           deleteMutation.mutate(transfer.id, {
             onSuccess: () => {
-              setDeleteOpen(false)
-              router.push("/dashboard/barang-keluar")
+              setDeleteOpen(false);
+              router.push("/dashboard/barang-keluar");
             },
-          })
+          });
         }}
       />
 
       <style jsx global>{`
         @media print {
-          .print\\:hidden { display: none !important; }
-          nav, header, aside, footer { display: none !important; }
+          .print\\:hidden {
+            display: none !important;
+          }
+          nav,
+          header,
+          aside,
+          footer {
+            display: none !important;
+          }
         }
       `}</style>
     </div>
-  )
+  );
 }

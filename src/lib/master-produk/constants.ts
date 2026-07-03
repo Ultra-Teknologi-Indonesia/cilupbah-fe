@@ -1,7 +1,6 @@
-import type { ProductStatus } from "@/types/master-produk"
+import type { ProductStatus } from "@/types/master-produk";
 
-type StatusBadgeVariant = "success" | "warning" | "muted" | "outline"
-
+type StatusBadgeVariant = "success" | "warning" | "muted" | "outline";
 
 export const PRODUCT_STATUS_META: Record<
   ProductStatus,
@@ -9,17 +8,15 @@ export const PRODUCT_STATUS_META: Record<
 > = {
   master: { label: "Master", variant: "success" },
   archived: { label: "Diarsip", variant: "outline" },
-}
-
+};
 
 export const PRODUCT_STATUS_OPTIONS = (
   Object.keys(PRODUCT_STATUS_META) as ProductStatus[]
-).map((value) => ({ value, label: PRODUCT_STATUS_META[value].label }))
-
+).map((value) => ({ value, label: PRODUCT_STATUS_META[value].label }));
 
 export const CHANNEL_COLORS: Record<string, string> = {
   shopee: "bg-orange-500",
   tokopedia: "bg-green-600",
   tiktok: "bg-neutral-900 dark:bg-neutral-200 dark:text-neutral-900",
   lazada: "bg-blue-600",
-}
+};

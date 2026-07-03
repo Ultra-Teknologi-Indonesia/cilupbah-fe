@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
+import * as React from "react";
+import Link from "next/link";
 import {
   ArchiveIcon,
   ArrowUpRightIcon,
   Loader2Icon,
   PencilIcon,
   RotateCcwIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogClose,
@@ -20,33 +20,35 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import type { ProductDetail } from "@/types/master-produk"
-import type { LifecycleAction } from "@/hooks/master-produk/use-product-detail"
+} from "@/components/ui/dialog";
+import type { ProductDetail } from "@/types/master-produk";
+import type { LifecycleAction } from "@/hooks/master-produk/use-product-detail";
 
 type Confirm = {
-  action: LifecycleAction
-  title: string
-  description: string
-  withReason?: boolean
-  destructive?: boolean
-}
+  action: LifecycleAction;
+  title: string;
+  description: string;
+  withReason?: boolean;
+  destructive?: boolean;
+};
 
 export function StatusActions({
   product,
   isPending,
   onAction,
 }: {
-  product: ProductDetail
-  isPending: boolean
-  onAction: (action: LifecycleAction, opts?: { reason?: string }) => void
+  product: ProductDetail;
+  isPending: boolean;
+  onAction: (action: LifecycleAction, opts?: { reason?: string }) => void;
 }) {
-  const [confirm, setConfirm] = React.useState<Confirm | null>(null)
-  const [reason, setReason] = React.useState("")
+  const [confirm, setConfirm] = React.useState<Confirm | null>(null);
+  const [reason, setReason] = React.useState("");
 
-  const editHref = `/dashboard/produk/${product.id}/edit`
+  const editHref = `/dashboard/produk/${product.id}/edit`;
 
-  const spinner = <Loader2Icon className="animate-spin motion-reduce:animate-none" />
+  const spinner = (
+    <Loader2Icon className="animate-spin motion-reduce:animate-none" />
+  );
   const editBtn = (
     <Button variant="outline" asChild disabled={isPending}>
       <Link href={editHref}>
@@ -54,7 +56,7 @@ export function StatusActions({
         Edit
       </Link>
     </Button>
-  )
+  );
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -71,7 +73,11 @@ export function StatusActions({
       )}
 
       {product.status === "archived" && (
-        <Button variant="primary" disabled={isPending} onClick={() => onAction("restore")}>
+        <Button
+          variant="primary"
+          disabled={isPending}
+          onClick={() => onAction("restore")}
+        >
           {isPending ? spinner : <RotateCcwIcon />}
           Pulihkan
         </Button>
@@ -85,7 +91,8 @@ export function StatusActions({
             setConfirm({
               action: "archive",
               title: "Arsipkan produk?",
-              description: "Produk dipindahkan ke arsip dan tidak tampil di katalog aktif.",
+              description:
+                "Produk dipindahkan ke arsip dan tidak tampil di katalog aktif.",
               withReason: true,
               destructive: true,
             })
@@ -96,13 +103,13 @@ export function StatusActions({
         </Button>
       )}
 
-      {/* Generic Confirm Dialog (archive) */}
+      {}
       <Dialog
         open={!!confirm}
         onOpenChange={(o) => {
           if (!o) {
-            setConfirm(null)
-            setReason("")
+            setConfirm(null);
+            setReason("");
           }
         }}
       >
@@ -127,8 +134,11 @@ export function StatusActions({
               <Button
                 variant={confirm?.destructive ? "destructive" : "primary"}
                 onClick={() => {
-                  if (confirm) onAction(confirm.action, { reason: reason.trim() || undefined })
-                  setReason("")
+                  if (confirm)
+                    onAction(confirm.action, {
+                      reason: reason.trim() || undefined,
+                    });
+                  setReason("");
                 }}
               >
                 Lanjutkan
@@ -138,5 +148,5 @@ export function StatusActions({
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

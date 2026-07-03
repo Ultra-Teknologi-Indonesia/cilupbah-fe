@@ -1,63 +1,77 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useRouter } from "next/navigation"
-import type { PaginationState } from "@tanstack/react-table"
-import { AlertTriangleIcon, PlusIcon, SearchIcon, SearchXIcon } from "lucide-react"
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import type { PaginationState } from "@tanstack/react-table";
+import {
+  AlertTriangleIcon,
+  PlusIcon,
+  SearchIcon,
+  SearchXIcon,
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
-import { DataTable } from "@/components/ui/data-table"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { useNaikkanList, useCreateNaikkan, useDeleteNaikkan } from "@/hooks/master-produk/use-naikkan"
-import { useConnectedStores } from "@/hooks/channel/use-connected-stores"
-import type { RaiseProductStore } from "@/hooks/master-produk/use-naikkan"
-import { buildStoreColumns } from "./naikkan-store-columns"
-import { NaikkanTambahDialog } from "./naikkan-tambah-dialog"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { DataTable } from "@/components/ui/data-table";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import {
+  useNaikkanList,
+  useCreateNaikkan,
+  useDeleteNaikkan,
+} from "@/hooks/master-produk/use-naikkan";
+import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
+import type { RaiseProductStore } from "@/hooks/master-produk/use-naikkan";
+import { buildStoreColumns } from "./naikkan-store-columns";
+import { NaikkanTambahDialog } from "./naikkan-tambah-dialog";
 
 export function NaikkanStoreView() {
-  const router = useRouter()
-  const [search, setSearch] = React.useState("")
-  const [appliedSearch, setAppliedSearch] = React.useState("")
+  const router = useRouter();
+  const [search, setSearch] = React.useState("");
+  const [appliedSearch, setAppliedSearch] = React.useState("");
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 20,
-  })
+  });
 
   const query = useNaikkanList({
     search: appliedSearch || undefined,
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
-  })
+  });
 
-  const items = query.data?.items ?? []
-  const total = query.data?.meta?.total ?? 0
+  const items = query.data?.items ?? [];
+  const total = query.data?.meta?.total ?? 0;
 
-  const [deleteTarget, setDeleteTarget] = React.useState<RaiseProductStore | null>(null)
-  const deleteMut = useDeleteNaikkan()
+  const [deleteTarget, setDeleteTarget] =
+    React.useState<RaiseProductStore | null>(null);
+  const deleteMut = useDeleteNaikkan();
 
-  const [showTambah, setShowTambah] = React.useState(false)
-  const createMut = useCreateNaikkan()
-  const { data: stores = [] } = useConnectedStores()
+  const [showTambah, setShowTambah] = React.useState(false);
+  const createMut = useCreateNaikkan();
+  const { data: stores = [] } = useConnectedStores();
 
   const shopeeStores = React.useMemo(
     () => stores.filter((s) => s.channel?.code === "shopee" && s.is_active),
-    [stores]
-  )
+    [stores],
+  );
 
   const columns = React.useMemo(
     () => buildStoreColumns((s) => setDeleteTarget(s)),
-    []
-  )
+    [],
+  );
 
   const applySearch = () => {
-    setAppliedSearch(search)
-    setPagination((p) => ({ ...p, pageIndex: 0 }))
-  }
+    setAppliedSearch(search);
+    setPagination((p) => ({ ...p, pageIndex: 0 }));
+  };
 
   return (
-    <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+    <LiquidGlass
+      radius={24}
+      intensity="default"
+      className="bg-white/40 dark:bg-white/[0.06]"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 py-3 sm:px-5">
         <div className="flex items-center gap-2">
           <div className="relative">
@@ -66,13 +80,18 @@ export function NaikkanStoreView() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") applySearch()
+                if (e.key === "Enter") applySearch();
               }}
               placeholder="Cari nama toko..."
               className="h-9 w-64 border-border bg-background pl-9"
             />
           </div>
-          <Button variant="outline" size="sm" className="h-9" onClick={applySearch}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9"
+            onClick={applySearch}
+          >
             Cari
           </Button>
         </div>
@@ -136,10 +155,10 @@ export function NaikkanStoreView() {
         onSubmit={(shopId) => {
           createMut.mutate(shopId, {
             onSuccess: (store) => {
-              setShowTambah(false)
-              router.push(`/dashboard/produk/naikkan/${store.raiseproductId}`)
+              setShowTambah(false);
+              router.push(`/dashboard/produk/naikkan/${store.raiseproductId}`);
             },
-          })
+          });
         }}
       />
 
@@ -152,12 +171,12 @@ export function NaikkanStoreView() {
         variant="destructive"
         loading={deleteMut.isPending}
         onConfirm={() => {
-          if (!deleteTarget) return
+          if (!deleteTarget) return;
           deleteMut.mutate(deleteTarget.raiseproductId, {
             onSuccess: () => setDeleteTarget(null),
-          })
+          });
         }}
       />
     </LiquidGlass>
-  )
+  );
 }

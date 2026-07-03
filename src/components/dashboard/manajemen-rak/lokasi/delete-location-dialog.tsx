@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { Loader2Icon } from "lucide-react"
+import { Loader2Icon } from "lucide-react";
 
 import {
   Dialog,
@@ -9,16 +9,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import type { Location } from "@/types/manajemen-rak/location"
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import type { Location } from "@/types/manajemen-rak/location";
 
 interface DeleteLocationDialogProps {
-  location: Location | null
-  open: boolean
-  loading: boolean
-  onOpenChange: (open: boolean) => void
-  onConfirm: () => void
+  location: Location | null;
+  open: boolean;
+  loading: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
 }
 
 export function DeleteLocationDialog({
@@ -56,5 +56,5 @@ export function DeleteLocationDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

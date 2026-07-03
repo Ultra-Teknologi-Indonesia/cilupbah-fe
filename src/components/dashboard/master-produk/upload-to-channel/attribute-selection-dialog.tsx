@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { Loader2Icon, CheckCircleIcon } from "lucide-react"
+import * as React from "react";
+import Link from "next/link";
+import { Loader2Icon, CheckCircleIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { CategoryRulesCard } from "@/components/dashboard/master-produk/upload-to-channel/category-rules-card"
-import { Combobox } from "@/components/ui/combobox"
+import { Button } from "@/components/ui/button";
+import { CategoryRulesCard } from "@/components/dashboard/master-produk/upload-to-channel/category-rules-card";
+import { Combobox } from "@/components/ui/combobox";
 import {
   Dialog,
   DialogContent,
@@ -14,19 +14,19 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useRequiredAttributes } from "@/hooks/master-produk/use-upload"
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useRequiredAttributes } from "@/hooks/master-produk/use-upload";
 
 interface AttributeSelectionDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  productId: string
-  shopId: string
-  onConfirm: (attributeMapping: Record<string, string>) => void
-  isUploading?: boolean
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  productId: string;
+  shopId: string;
+  onConfirm: (attributeMapping: Record<string, string>) => void;
+  isUploading?: boolean;
 }
 
 export function AttributeSelectionDialog({
@@ -39,41 +39,43 @@ export function AttributeSelectionDialog({
 }: AttributeSelectionDialogProps) {
   const { data, isLoading, isError, error, refetch } = useRequiredAttributes(
     productId,
-    open ? shopId : null
-  )
+    open ? shopId : null,
+  );
 
-  const [selections, setSelections] = React.useState<Record<string, string>>({})
+  const [selections, setSelections] = React.useState<Record<string, string>>(
+    {},
+  );
 
   const uncoveredAttrs = React.useMemo(
     () => (data?.attributes ?? []).filter((a) => !a.isCovered),
-    [data]
-  )
+    [data],
+  );
 
   const coveredAttrs = React.useMemo(
     () => (data?.attributes ?? []).filter((a) => a.isCovered),
-    [data]
-  )
+    [data],
+  );
 
   React.useEffect(() => {
     if (!open) {
-      setSelections({})
+      setSelections({});
     }
-  }, [open])
+  }, [open]);
 
   React.useEffect(() => {
-    if (!data || isLoading) return
+    if (!data || isLoading) return;
     if (uncoveredAttrs.length === 0) {
-      onConfirm({})
+      onConfirm({});
     }
-  }, [data, isLoading, uncoveredAttrs.length, onConfirm])
+  }, [data, isLoading, uncoveredAttrs.length, onConfirm]);
 
-  const allFilled = uncoveredAttrs.every((a) => !!selections[a.externalId])
+  const allFilled = uncoveredAttrs.every((a) => !!selections[a.externalId]);
 
   const handleConfirm = () => {
-    onConfirm(selections)
-  }
+    onConfirm(selections);
+  };
 
-  if (!open || (data && uncoveredAttrs.length === 0)) return null
+  if (!open || (data && uncoveredAttrs.length === 0)) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -99,14 +101,10 @@ export function AttributeSelectionDialog({
         {isError && (
           <div className="py-6 text-center">
             <p className="text-sm text-destructive font-medium">
-              {(error as { message?: string })?.message || "Gagal memuat atribut."}
+              {(error as { message?: string })?.message ||
+                "Gagal memuat atribut."}
             </p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-3"
-              asChild
-            >
+            <Button variant="outline" size="sm" className="mt-3" asChild>
               <Link href="/dashboard/kategori-merek/kategori">
                 Petakan Kategori
               </Link>
@@ -123,7 +121,10 @@ export function AttributeSelectionDialog({
                 <div key={attr.externalId} className="space-y-1.5">
                   <label className="flex items-center gap-2 text-sm font-medium">
                     {attr.name}
-                    <Badge variant="destructive" className="text-[10px] font-normal px-1.5 py-0">
+                    <Badge
+                      variant="destructive"
+                      className="text-[10px] font-normal px-1.5 py-0"
+                    >
                       Wajib
                     </Badge>
                   </label>
@@ -166,7 +167,11 @@ export function AttributeSelectionDialog({
 
         {!isError && (
           <DialogFooter>
-            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isUploading}>
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isUploading}
+            >
               Batal
             </Button>
             <Button
@@ -187,5 +192,5 @@ export function AttributeSelectionDialog({
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }

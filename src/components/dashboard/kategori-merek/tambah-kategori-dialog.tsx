@@ -1,69 +1,66 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import {
-  ChevronRightIcon,
-  Loader2Icon,
-  SearchIcon,
-  XIcon,
-} from "lucide-react"
+import * as React from "react";
+import { ChevronRightIcon, Loader2Icon, SearchIcon, XIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { LiquidGlass } from "@/components/ui/liquid-glass"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
 import {
   Dialog,
   DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   useEnabledCategories,
   useCreateKategori,
   useSearchKategori,
-} from "@/hooks/kategori-merek/use-kategori"
-import type { KategoriItem } from "@/types/kategori-merek/kategori"
+} from "@/hooks/kategori-merek/use-kategori";
+import type { KategoriItem } from "@/types/kategori-merek/kategori";
 
-type Mode = "root" | "sub"
+type Mode = "root" | "sub";
 
 function buildPath(tree: KategoriItem[], targetId: number): KategoriItem[] {
-  const walk = (nodes: KategoriItem[], trail: KategoriItem[]): KategoriItem[] | null => {
+  const walk = (
+    nodes: KategoriItem[],
+    trail: KategoriItem[],
+  ): KategoriItem[] | null => {
     for (const n of nodes) {
-      const current = [...trail, n]
-      if (n.id === targetId) return current
+      const current = [...trail, n];
+      if (n.id === targetId) return current;
       if (n.children?.length) {
-        const found = walk(n.children, current)
-        if (found) return found
+        const found = walk(n.children, current);
+        if (found) return found;
       }
     }
-    return null
-  }
-  return walk(tree, []) ?? []
+    return null;
+  };
+  return walk(tree, []) ?? [];
 }
 
 function findNode(nodes: KategoriItem[], id: number): KategoriItem | undefined {
   for (const n of nodes) {
-    if (n.id === id) return n
+    if (n.id === id) return n;
     if (n.children?.length) {
-      const found = findNode(n.children, id)
-      if (found) return found
+      const found = findNode(n.children, id);
+      if (found) return found;
     }
   }
 }
-
 
 function ColumnItem({
   node,
   isActive,
   onSelect,
 }: {
-  node: KategoriItem
-  isActive: boolean
-  onSelect: () => void
+  node: KategoriItem;
+  isActive: boolean;
+  onSelect: () => void;
 }) {
   return (
     <button
@@ -81,7 +78,7 @@ function ColumnItem({
         <ChevronRightIcon className="size-4 shrink-0 opacity-50" />
       ) : null}
     </button>
-  )
+  );
 }
 
 function Column({
@@ -90,10 +87,10 @@ function Column({
   activeId,
   onSelect,
 }: {
-  label: string
-  nodes: KategoriItem[]
-  activeId?: number
-  onSelect: (n: KategoriItem) => void
+  label: string;
+  nodes: KategoriItem[];
+  activeId?: number;
+  onSelect: (n: KategoriItem) => void;
 }) {
   return (
     <div className="flex min-h-[220px] flex-col">
@@ -123,91 +120,93 @@ function Column({
         )}
       </ScrollArea>
     </div>
-  )
+  );
 }
 
 interface TambahKategoriDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export function TambahKategoriDialog({
   open,
   onOpenChange,
 }: TambahKategoriDialogProps) {
-  const [mode, setMode] = React.useState<Mode>("root")
-  const [name, setName] = React.useState("")
-  const [pathIds, setPathIds] = React.useState<number[]>([])
-  const [search, setSearch] = React.useState("")
-  const [debouncedSearch, setDebouncedSearch] = React.useState("")
-  const { data: tree } = useEnabledCategories()
-  const { data: searchResults, isFetching: isSearching } = useSearchKategori(debouncedSearch)
-  const createMut = useCreateKategori()
+  const [mode, setMode] = React.useState<Mode>("root");
+  const [name, setName] = React.useState("");
+  const [pathIds, setPathIds] = React.useState<number[]>([]);
+  const [search, setSearch] = React.useState("");
+  const [debouncedSearch, setDebouncedSearch] = React.useState("");
+  const { data: tree } = useEnabledCategories();
+  const { data: searchResults, isFetching: isSearching } =
+    useSearchKategori(debouncedSearch);
+  const createMut = useCreateKategori();
 
   React.useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300)
-    return () => clearTimeout(timer)
-  }, [search])
+    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const resolved = React.useMemo(() => {
-    if (!tree) return []
+    if (!tree) return [];
     return pathIds
       .map((id) => findNode(tree, id))
-      .filter((n): n is KategoriItem => n !== undefined)
-  }, [tree, pathIds])
+      .filter((n): n is KategoriItem => n !== undefined);
+  }, [tree, pathIds]);
 
   const columns: KategoriItem[][] = [
     tree ?? [],
     resolved[0]?.children ?? [],
     resolved[1]?.children ?? [],
-  ]
+  ];
 
   const selectAt = (level: number, node: KategoriItem) =>
-    setPathIds((prev) => [...prev.slice(0, level), node.id])
+    setPathIds((prev) => [...prev.slice(0, level), node.id]);
 
-  const parentId = mode === "sub" ? pathIds[pathIds.length - 1] ?? null : null
-  const parentLabel = resolved.map((p) => p.name).join(" > ")
+  const parentId =
+    mode === "sub" ? (pathIds[pathIds.length - 1] ?? null) : null;
+  const parentLabel = resolved.map((p) => p.name).join(" > ");
 
   const searchHits = React.useMemo(() => {
-    if (!searchResults || !tree) return null
+    if (!searchResults || !tree) return null;
     return searchResults.map((item) => {
-      const trail = buildPath(tree, item.id)
+      const trail = buildPath(tree, item.id);
       return {
         node: item,
         trail,
         label: trail.map((t) => t.name).join(" > "),
-      }
-    })
-  }, [searchResults, tree])
+      };
+    });
+  }, [searchResults, tree]);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const trimmed = name.trim()
-    if (!trimmed) return
-    if (mode === "sub" && !parentId) return
+    e.preventDefault();
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    if (mode === "sub" && !parentId) return;
 
     createMut.mutate(
       { name: trimmed, parent_id: parentId, is_active: true },
       {
         onSuccess: () => {
-          setName("")
-          setPathIds([])
-          onOpenChange(false)
+          setName("");
+          setPathIds([]);
+          onOpenChange(false);
         },
       },
-    )
-  }
+    );
+  };
 
   const handleOpenChange = (next: boolean) => {
     if (!next) {
-      setName("")
-      setPathIds([])
-      setSearch("")
-      setDebouncedSearch("")
-      setMode("root")
+      setName("");
+      setPathIds([]);
+      setSearch("");
+      setDebouncedSearch("");
+      setMode("root");
     }
-    onOpenChange(next)
-  }
+    onOpenChange(next);
+  };
 
   return (
     <Dialog
@@ -223,7 +222,7 @@ export function TambahKategoriDialog({
           intensity="strong"
           className="bg-white/85 dark:bg-neutral-900/85"
         >
-          {/* Header */}
+          {}
           <div className="flex items-center justify-between border-b border-border/60 px-5 py-4 sm:px-6">
             <div>
               <DialogTitle className="text-lg">Buat Kategori</DialogTitle>
@@ -240,15 +239,15 @@ export function TambahKategoriDialog({
 
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 px-5 py-4 sm:px-6">
-              {/* Mode toggle */}
+              {}
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => {
-                    setMode("root")
-                    setPathIds([])
-                    setSearch("")
-                    setDebouncedSearch("")
+                    setMode("root");
+                    setPathIds([]);
+                    setSearch("");
+                    setDebouncedSearch("");
                   }}
                   className={cn(
                     "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
@@ -273,12 +272,12 @@ export function TambahKategoriDialog({
                 </button>
               </div>
 
-              {/* Sub-kategori picker */}
+              {}
               {mode === "sub" && (
                 <div className="space-y-2">
                   <Label>Kategori Induk</Label>
 
-                  {/* Search (API-based) */}
+                  {}
                   <div className="relative">
                     <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
@@ -292,12 +291,13 @@ export function TambahKategoriDialog({
                     )}
                   </div>
 
-                  {/* Search results (API) */}
+                  {}
                   {debouncedSearch.length >= 2 ? (
                     <ScrollArea className="h-56 rounded-2xl border border-border/60">
                       {isSearching ? (
                         <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
-                          <Loader2Icon className="size-4 animate-spin" /> Mencari...
+                          <Loader2Icon className="size-4 animate-spin" />{" "}
+                          Mencari...
                         </div>
                       ) : !searchHits || searchHits.length === 0 ? (
                         <p className="px-4 py-8 text-center text-sm text-muted-foreground">
@@ -310,10 +310,10 @@ export function TambahKategoriDialog({
                               <button
                                 type="button"
                                 onClick={() => {
-                                  const ids = item.trail.map((t) => t.id)
-                                  setPathIds(ids.slice(0, 3))
-                                  setSearch("")
-                                  setDebouncedSearch("")
+                                  const ids = item.trail.map((t) => t.id);
+                                  setPathIds(ids.slice(0, 3));
+                                  setSearch("");
+                                  setDebouncedSearch("");
                                 }}
                                 className={cn(
                                   "flex w-full flex-col gap-0.5 rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-muted/60",
@@ -334,7 +334,6 @@ export function TambahKategoriDialog({
                       )}
                     </ScrollArea>
                   ) : (
-                    /* 3-column picker */
                     <div className="grid grid-cols-1 divide-y divide-border/60 overflow-hidden rounded-2xl border border-border/60 lg:grid-cols-3 lg:divide-x lg:divide-y-0">
                       <Column
                         label="Level 1"
@@ -356,17 +355,17 @@ export function TambahKategoriDialog({
                       />
                     </div>
                   )}
-
                 </div>
               )}
 
-              {/* Name input — inline with path for sub-kategori */}
+              {}
               <div className="space-y-2">
                 <Label htmlFor="kategori-name">Nama Kategori</Label>
                 {mode === "sub" && parentId ? (
                   <div className="flex items-center gap-0 rounded-xl border border-border/60 bg-background/50 focus-within:ring-2 focus-within:ring-primary/30">
                     <span className="shrink-0 pl-3 text-sm text-primary">
-                      {parentLabel.replace(/ > /g, " / ")}{" / "}
+                      {parentLabel.replace(/ > /g, " / ")}
+                      {" / "}
                     </span>
                     <input
                       id="kategori-name"
@@ -390,7 +389,7 @@ export function TambahKategoriDialog({
               </div>
             </div>
 
-            {/* Footer with Simpan */}
+            {}
             <div className="flex items-center justify-end gap-3 border-t border-border/60 px-5 py-4 sm:px-6">
               <Button
                 type="button"
@@ -409,7 +408,9 @@ export function TambahKategoriDialog({
                   createMut.isPending
                 }
               >
-                {createMut.isPending && <Loader2Icon className="animate-spin" />}
+                {createMut.isPending && (
+                  <Loader2Icon className="animate-spin" />
+                )}
                 Simpan
               </Button>
             </div>
@@ -417,5 +418,5 @@ export function TambahKategoriDialog({
         </LiquidGlass>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

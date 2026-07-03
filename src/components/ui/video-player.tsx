@@ -1,20 +1,20 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   PauseIcon,
   PlayIcon,
   Volume2Icon,
   VolumeOffIcon,
   MaximizeIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 interface VideoPlayerProps extends React.HTMLAttributes<HTMLDivElement> {
-  src: string
-  poster?: string
-  autoPlay?: boolean
+  src: string;
+  poster?: string;
+  autoPlay?: boolean;
 }
 
 export function VideoPlayer({
@@ -24,74 +24,80 @@ export function VideoPlayer({
   className,
   ...props
 }: VideoPlayerProps) {
-  const videoRef = React.useRef<HTMLVideoElement>(null)
-  const containerRef = React.useRef<HTMLDivElement>(null)
-  const [playing, setPlaying] = React.useState(false)
-  const [muted, setMuted] = React.useState(true)
-  const [progress, setProgress] = React.useState(0)
-  const [duration, setDuration] = React.useState(0)
-  const [showControls, setShowControls] = React.useState(true)
-  const hideTimer = React.useRef<ReturnType<typeof setTimeout>>(null)
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [playing, setPlaying] = React.useState(false);
+  const [muted, setMuted] = React.useState(true);
+  const [progress, setProgress] = React.useState(0);
+  const [duration, setDuration] = React.useState(0);
+  const [showControls, setShowControls] = React.useState(true);
+  const hideTimer = React.useRef<ReturnType<typeof setTimeout>>(null);
 
   const togglePlay = () => {
-    const v = videoRef.current
-    if (!v) return
+    const v = videoRef.current;
+    if (!v) return;
     if (v.paused) {
-      v.play()
+      v.play();
     } else {
-      v.pause()
+      v.pause();
     }
-  }
+  };
 
   const toggleMute = () => {
-    const v = videoRef.current
-    if (!v) return
-    v.muted = !v.muted
-    setMuted(v.muted)
-  }
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = !v.muted;
+    setMuted(v.muted);
+  };
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    const v = videoRef.current
-    if (!v || !duration) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
-    v.currentTime = ratio * duration
-  }
+    const v = videoRef.current;
+    if (!v || !duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = Math.max(
+      0,
+      Math.min(1, (e.clientX - rect.left) / rect.width),
+    );
+    v.currentTime = ratio * duration;
+  };
 
   const toggleFullscreen = () => {
-    const el = containerRef.current
-    if (!el) return
+    const el = containerRef.current;
+    if (!el) return;
     if (document.fullscreenElement) {
-      document.exitFullscreen()
+      document.exitFullscreen();
     } else {
-      el.requestFullscreen()
+      el.requestFullscreen();
     }
-  }
+  };
 
   const scheduleHide = () => {
-    if (hideTimer.current) clearTimeout(hideTimer.current)
-    setShowControls(true)
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    setShowControls(true);
     if (playing) {
-      hideTimer.current = setTimeout(() => setShowControls(false), 2500)
+      hideTimer.current = setTimeout(() => setShowControls(false), 2500);
     }
-  }
+  };
 
   React.useEffect(() => {
     return () => {
-      if (hideTimer.current) clearTimeout(hideTimer.current)
-    }
-  }, [])
+      if (hideTimer.current) clearTimeout(hideTimer.current);
+    };
+  }, []);
 
   const fmt = (s: number) => {
-    const m = Math.floor(s / 60)
-    const sec = Math.floor(s % 60)
-    return `${m}:${sec.toString().padStart(2, "0")}`
-  }
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${sec.toString().padStart(2, "0")}`;
+  };
 
   return (
     <div
       ref={containerRef}
-      className={cn("group relative overflow-hidden rounded-xl bg-black", className)}
+      className={cn(
+        "group relative overflow-hidden rounded-xl bg-black",
+        className,
+      )}
       onMouseMove={scheduleHide}
       onMouseLeave={() => playing && setShowControls(false)}
       {...props}
@@ -106,19 +112,19 @@ export function VideoPlayer({
         playsInline
         className="size-full object-contain"
         onPlay={() => {
-          setPlaying(true)
-          scheduleHide()
+          setPlaying(true);
+          scheduleHide();
         }}
         onPause={() => {
-          setPlaying(false)
-          setShowControls(true)
+          setPlaying(false);
+          setShowControls(true);
         }}
         onTimeUpdate={(e) => setProgress(e.currentTarget.currentTime)}
         onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
         onClick={togglePlay}
       />
 
-      {/* Play overlay when paused */}
+      {}
       {!playing && (
         <button
           type="button"
@@ -131,14 +137,14 @@ export function VideoPlayer({
         </button>
       )}
 
-      {/* Bottom controls */}
+      {}
       <div
         className={cn(
           "absolute inset-x-0 bottom-0 z-20 flex flex-col gap-1 bg-gradient-to-t from-black/80 to-transparent px-3 pb-2.5 pt-8 transition-opacity duration-200",
-          showControls ? "opacity-100" : "pointer-events-none opacity-0"
+          showControls ? "opacity-100" : "pointer-events-none opacity-0",
         )}
       >
-        {/* Progress bar */}
+        {}
         <div
           role="slider"
           tabIndex={0}
@@ -150,30 +156,52 @@ export function VideoPlayer({
         >
           <div
             className="absolute inset-y-0 left-0 rounded-full bg-primary"
-            style={{ width: duration ? `${(progress / duration) * 100}%` : "0%" }}
+            style={{
+              width: duration ? `${(progress / duration) * 100}%` : "0%",
+            }}
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <button type="button" onClick={togglePlay} className="text-white hover:text-primary">
-            {playing ? <PauseIcon className="size-4" /> : <PlayIcon className="size-4" />}
+          <button
+            type="button"
+            onClick={togglePlay}
+            className="text-white hover:text-primary"
+          >
+            {playing ? (
+              <PauseIcon className="size-4" />
+            ) : (
+              <PlayIcon className="size-4" />
+            )}
           </button>
 
-          <button type="button" onClick={toggleMute} className="text-white hover:text-primary">
-            {muted ? <VolumeOffIcon className="size-4" /> : <Volume2Icon className="size-4" />}
+          <button
+            type="button"
+            onClick={toggleMute}
+            className="text-white hover:text-primary"
+          >
+            {muted ? (
+              <VolumeOffIcon className="size-4" />
+            ) : (
+              <Volume2Icon className="size-4" />
+            )}
           </button>
 
           <span className="flex-1 text-xs tabular-nums text-white/80">
             {fmt(progress)} / {fmt(duration)}
           </span>
 
-          <button type="button" onClick={toggleFullscreen} className="text-white hover:text-primary">
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            className="text-white hover:text-primary"
+          >
             <MaximizeIcon className="size-4" />
           </button>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export function VideoThumbnail({
@@ -181,7 +209,7 @@ export function VideoThumbnail({
   className,
   ...props
 }: { src: string } & React.HTMLAttributes<HTMLDivElement>) {
-  const videoRef = React.useRef<HTMLVideoElement>(null)
+  const videoRef = React.useRef<HTMLVideoElement>(null);
 
   return (
     <div className={cn("relative overflow-hidden", className)} {...props}>
@@ -194,7 +222,7 @@ export function VideoThumbnail({
         preload="metadata"
         className="size-full object-cover"
         onLoadedData={(e) => {
-          e.currentTarget.currentTime = 0.5
+          e.currentTarget.currentTime = 0.5;
         }}
       />
       <div className="absolute inset-0 flex items-center justify-center bg-black/10">
@@ -203,5 +231,5 @@ export function VideoThumbnail({
         </div>
       </div>
     </div>
-  )
+  );
 }

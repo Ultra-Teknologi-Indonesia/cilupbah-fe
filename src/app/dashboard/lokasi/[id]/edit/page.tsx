@@ -1,10 +1,10 @@
-import { LocationFormPage } from "@/components/dashboard/manajemen-rak/lokasi/location-form-page"
+import { LocationFormPage } from "@/components/dashboard/manajemen-rak/lokasi/location-form-page";
 
 export default async function EditLokasiPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = await params
-  return <LocationFormPage mode="edit" id={id} />
+  const { id } = await params;
+  return <LocationFormPage mode="edit" id={id} />;
 }

@@ -1,8 +1,11 @@
-"use client"
+"use client";
 
-import { SimplePagination, TABLE_PAGE_SIZES } from "@/components/ui/simple-pagination"
+import {
+  SimplePagination,
+  TABLE_PAGE_SIZES,
+} from "@/components/ui/simple-pagination";
 
-const PAGE_SIZES = TABLE_PAGE_SIZES
+const PAGE_SIZES = TABLE_PAGE_SIZES;
 
 export function TabPagination({
   page,
@@ -12,12 +15,12 @@ export function TabPagination({
   onPage,
   onPerPage,
 }: {
-  page: number
-  perPage: number
-  lastPage: number
-  isFetching?: boolean
-  onPage: (p: number) => void
-  onPerPage: (n: number) => void
+  page: number;
+  perPage: number;
+  lastPage: number;
+  isFetching?: boolean;
+  onPage: (p: number) => void;
+  onPerPage: (n: number) => void;
 }) {
   return (
     <SimplePagination
@@ -29,7 +32,7 @@ export function TabPagination({
       pageSizeOptions={PAGE_SIZES}
       isFetching={isFetching}
     />
-  )
+  );
 }
 
 const STATUS_STYLE: Record<string, string> = {
@@ -40,7 +43,7 @@ const STATUS_STYLE: Record<string, string> = {
   rejected: "text-destructive bg-destructive/10",
   failed: "text-destructive bg-destructive/10",
   deactivated: "text-muted-foreground bg-muted",
-}
+};
 const STATUS_LABEL: Record<string, string> = {
   synced: "Tersinkron",
   in_review: "Direview",
@@ -49,16 +52,24 @@ const STATUS_LABEL: Record<string, string> = {
   rejected: "Ditolak",
   failed: "Gagal",
   deactivated: "Nonaktif",
-}
+};
 
-export function SyncStatusBadge({ status, reason }: { status: string | null; reason?: string | null }) {
-  const s = status ?? ""
+export function SyncStatusBadge({
+  status,
+  reason,
+}: {
+  status: string | null;
+  reason?: string | null;
+}) {
+  const s = status ?? "";
   return (
     <span
       className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${STATUS_STYLE[s] ?? "text-muted-foreground bg-muted"}`}
-      title={reason && (s === "rejected" || s === "failed") ? reason : undefined}
+      title={
+        reason && (s === "rejected" || s === "failed") ? reason : undefined
+      }
     >
       {STATUS_LABEL[s] ?? s ?? "—"}
     </span>
-  )
+  );
 }

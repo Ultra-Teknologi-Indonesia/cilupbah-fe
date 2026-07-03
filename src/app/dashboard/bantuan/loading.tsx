@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
 import {
   PageHeaderSkeleton,
   TableSkeleton,
-} from "@/components/ui/page-skeleton"
+} from "@/components/ui/page-skeleton";
 
 export default function Loading() {
   return (
@@ -13,5 +13,5 @@ export default function Loading() {
         <TableSkeleton rows={5} cols={4} />
       </div>
     </phantom-ui>
-  )
+  );
 }

@@ -1,95 +1,102 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { format } from "date-fns"
-import { Loader2Icon } from "lucide-react"
-import { toast } from "sonner"
+import * as React from "react";
+import { format } from "date-fns";
+import { Loader2Icon } from "lucide-react";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogClose,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { DateTimePicker } from "@/components/ui/date-picker"
-import { useCouriers, useCreateShipment } from "@/hooks/proses-pesanan/use-fulfillment"
-import { useLocations } from "@/hooks/manajemen-rak/use-locations"
-import { SHIPMENT_TYPES, type ShipmentType } from "@/types/proses-pesanan/fulfillment"
+} from "@/components/ui/select";
+import { DateTimePicker } from "@/components/ui/date-picker";
+import {
+  useCouriers,
+  useCreateShipment,
+} from "@/hooks/proses-pesanan/use-fulfillment";
+import { useLocations } from "@/hooks/manajemen-rak/use-locations";
+import {
+  SHIPMENT_TYPES,
+  type ShipmentType,
+} from "@/types/proses-pesanan/fulfillment";
 
 interface TambahPengirimanDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export function TambahPengirimanDialog({
   open,
   onOpenChange,
 }: TambahPengirimanDialogProps) {
-  const [shipmentNo, setShipmentNo] = React.useState("")
-  const [courierId, setCourierId] = React.useState("")
-  const [locationId, setLocationId] = React.useState("")
-  const [shipmentType, setShipmentType] = React.useState<ShipmentType>("REGULAR")
+  const [shipmentNo, setShipmentNo] = React.useState("");
+  const [courierId, setCourierId] = React.useState("");
+  const [locationId, setLocationId] = React.useState("");
+  const [shipmentType, setShipmentType] =
+    React.useState<ShipmentType>("REGULAR");
   const [shipmentDate, setShipmentDate] = React.useState<Date | undefined>(
-    () => new Date()
-  )
-  const [dateError, setDateError] = React.useState("")
+    () => new Date(),
+  );
+  const [dateError, setDateError] = React.useState("");
 
-  const couriers = useCouriers(open)
-  const { data: locData } = useLocations({ perPage: 100 })
-  const locations = locData?.items ?? []
-  const createShipment = useCreateShipment()
+  const couriers = useCouriers(open);
+  const { data: locData } = useLocations({ perPage: 100 });
+  const locations = locData?.items ?? [];
+  const createShipment = useCreateShipment();
 
   React.useEffect(() => {
     if (open) {
-      setShipmentNo("")
-      setCourierId("")
-      setLocationId("")
-      setShipmentType("REGULAR")
-      setShipmentDate(new Date())
-      setDateError("")
+      setShipmentNo("");
+      setCourierId("");
+      setLocationId("");
+      setShipmentType("REGULAR");
+      setShipmentDate(new Date());
+      setDateError("");
     }
-  }, [open])
+  }, [open]);
 
-  const selectedCourier = couriers.data?.find((c) => c.id === courierId) ?? null
-  const selectedLocation = locations.find((l) => l.id === locationId) ?? null
+  const selectedCourier =
+    couriers.data?.find((c) => c.id === courierId) ?? null;
+  const selectedLocation = locations.find((l) => l.id === locationId) ?? null;
 
   const handleCourierChange = (id: string) => {
-    setCourierId(id)
-    const c = couriers.data?.find((x) => x.id === id)
+    setCourierId(id);
+    const c = couriers.data?.find((x) => x.id === id);
     if (c?.type && SHIPMENT_TYPES.some((t) => t.value === c.type)) {
-      setShipmentType(c.type as ShipmentType)
+      setShipmentType(c.type as ShipmentType);
     }
-  }
+  };
 
   const handleDateChange = (date: Date | undefined) => {
-    setShipmentDate(date)
+    setShipmentDate(date);
     if (date && date < new Date()) {
-      setDateError("Tanggal & jam tidak boleh di masa lalu.")
+      setDateError("Tanggal & jam tidak boleh di masa lalu.");
     } else {
-      setDateError("")
+      setDateError("");
     }
-  }
+  };
 
-  const canSubmit =
-    !!courierId && !!locationId && !!shipmentDate && !dateError
+  const canSubmit = !!courierId && !!locationId && !!shipmentDate && !dateError;
 
   const handleSubmit = async () => {
-    if (!selectedCourier || !locationId || !shipmentDate) return
+    if (!selectedCourier || !locationId || !shipmentDate) return;
 
     if (shipmentDate < new Date()) {
-      setDateError("Tanggal & jam tidak boleh di masa lalu.")
-      return
+      setDateError("Tanggal & jam tidak boleh di masa lalu.");
+      return;
     }
 
     try {
@@ -104,17 +111,17 @@ export function TambahPengirimanDialog({
           notes: null,
         },
         orderIds: [],
-      })
-      toast.success("Pengiriman baru berhasil dibuat.")
-      onOpenChange(false)
+      });
+      toast.success("Pengiriman baru berhasil dibuat.");
+      onOpenChange(false);
     } catch (err) {
       const msg =
         err && typeof err === "object" && "message" in err
           ? String((err as { message?: unknown }).message)
-          : "Gagal membuat pengiriman."
-      toast.error(msg)
+          : "Gagal membuat pengiriman.";
+      toast.error(msg);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -153,7 +160,9 @@ export function TambahPengirimanDialog({
               </SelectContent>
             </Select>
             {couriers.isLoading && (
-              <p className="text-xs text-muted-foreground">Memuat daftar kurir…</p>
+              <p className="text-xs text-muted-foreground">
+                Memuat daftar kurir…
+              </p>
             )}
           </div>
 
@@ -197,11 +206,13 @@ export function TambahPengirimanDialog({
             onClick={handleSubmit}
             disabled={!canSubmit || createShipment.isPending}
           >
-            {createShipment.isPending && <Loader2Icon className="animate-spin" />}
+            {createShipment.isPending && (
+              <Loader2Icon className="animate-spin" />
+            )}
             Simpan
           </Button>
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

@@ -1,80 +1,88 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Loader2Icon, LockIcon } from "lucide-react"
-import { toast } from "sonner"
+import * as React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Loader2Icon, LockIcon } from "lucide-react";
+import { toast } from "sonner";
 
-import { PageTitle } from "@/components/dashboard/page-title"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Combobox } from "@/components/ui/combobox"
-import { Separator } from "@/components/ui/separator"
-import { Label } from "@/components/ui/label"
-import { cn } from "@/lib/utils"
+import { PageTitle } from "@/components/dashboard/page-title";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Combobox } from "@/components/ui/combobox";
+import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import {
   useContactDetail,
   useContactCategories,
   useAccountPayableOptions,
   useCreateContact,
   useUpdateContact,
-} from "@/hooks/kontak-pemasok/use-contacts"
-import { useProvinces } from "@/hooks/manajemen-rak/use-regions"
-import { LocationMapPicker, formatCoordinate, parseCoordinate } from "@/components/dashboard/manajemen-rak/lokasi/location-map-picker"
-import type { ContactFormData, ContactItem } from "@/types/kontak-pemasok/contact"
+} from "@/hooks/kontak-pemasok/use-contacts";
+import { useProvinces } from "@/hooks/manajemen-rak/use-regions";
+import {
+  LocationMapPicker,
+  formatCoordinate,
+  parseCoordinate,
+} from "@/components/dashboard/manajemen-rak/lokasi/location-map-picker";
+import type {
+  ContactFormData,
+  ContactItem,
+} from "@/types/kontak-pemasok/contact";
 
-const LIST_HREF = "/dashboard/kontak-pemasok"
+const LIST_HREF = "/dashboard/kontak-pemasok";
 
-type Section = "umum" | "pic" | "alamat"
+type Section = "umum" | "pic" | "alamat";
 
 const TYPE_OPTIONS = [
   { value: "SUPPLIER", label: "Pemasok" },
   { value: "BOTH", label: "Pemasok dan Pelanggan" },
-]
+];
 
 function Req() {
-  return <span className="text-destructive"> *</span>
+  return <span className="text-destructive"> *</span>;
 }
 
 function toRegionOptions(items: { id: string; nama: string }[] | undefined) {
-  return (items ?? []).map((r) => ({ value: r.id, label: r.nama }))
+  return (items ?? []).map((r) => ({ value: r.id, label: r.nama }));
 }
 
 interface KontakFormPageProps {
-  mode: "create" | "edit"
-  id?: string
+  mode: "create" | "edit";
+  id?: string;
 }
 
 export function KontakFormPage({ mode, id }: KontakFormPageProps) {
-  const router = useRouter()
-  const [section, setSection] = React.useState<Section>("umum")
+  const router = useRouter();
+  const [section, setSection] = React.useState<Section>("umum");
 
-  const detail = useContactDetail(mode === "edit" ? id : undefined)
-  const { data: categories = [] } = useContactCategories()
-  const { data: accountPayableOptions = [] } = useAccountPayableOptions()
-  const provinces = useProvinces()
-  const createContact = useCreateContact()
-  const updateContact = useUpdateContact()
+  const detail = useContactDetail(mode === "edit" ? id : undefined);
+  const { data: categories = [] } = useContactCategories();
+  const { data: accountPayableOptions = [] } = useAccountPayableOptions();
+  const provinces = useProvinces();
+  const createContact = useCreateContact();
+  const updateContact = useUpdateContact();
 
   const [form, setForm] = React.useState<ContactFormData>({
     name: "",
     type: "SUPPLIER",
     is_company: false,
     shipping_same_as_billing: true,
-  })
-  const [coordinate, setCoordinate] = React.useState<string>("")
+  });
+  const [coordinate, setCoordinate] = React.useState<string>("");
 
-  const prefilledRef = React.useRef(false)
+  const prefilledRef = React.useRef(false);
   React.useEffect(() => {
     if (mode === "edit" && detail.data && !prefilledRef.current) {
-      const d = detail.data
+      const d = detail.data;
       setForm({
         name: d.name,
         company_name: d.company_name ?? undefined,
-        type: d.type === "CUSTOMER" ? "SUPPLIER" : (d.type as "SUPPLIER" | "BOTH"),
+        type:
+          d.type === "CUSTOMER" ? "SUPPLIER" : (d.type as "SUPPLIER" | "BOTH"),
         category_id: d.category?.id ?? undefined,
         account_payable: d.account_payable ?? undefined,
         is_company: d.is_company,
@@ -96,56 +104,57 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
         shipping_postal_code: d.shipping_postal_code ?? undefined,
         latitude: d.latitude,
         longitude: d.longitude,
-      })
+      });
       if (d.latitude != null && d.longitude != null) {
-        setCoordinate(formatCoordinate(d.latitude, d.longitude))
+        setCoordinate(formatCoordinate(d.latitude, d.longitude));
       }
-      prefilledRef.current = true
+      prefilledRef.current = true;
     }
-  }, [mode, detail.data])
+  }, [mode, detail.data]);
 
-  const locked = mode === "edit" && Boolean(detail.data?.is_system)
-  const saving = createContact.isPending || updateContact.isPending
+  const locked = mode === "edit" && Boolean(detail.data?.is_system);
+  const saving = createContact.isPending || updateContact.isPending;
 
-  function set<K extends keyof ContactFormData>(key: K, value: ContactFormData[K]) {
-    setForm((prev) => ({ ...prev, [key]: value }))
+  function set<K extends keyof ContactFormData>(
+    key: K,
+    value: ContactFormData[K],
+  ) {
+    setForm((prev) => ({ ...prev, [key]: value }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+    e.preventDefault();
     if (!form.name.trim()) {
-      setSection("umum")
-      toast.error("Nama Kontak wajib diisi.")
-      return
+      setSection("umum");
+      toast.error("Nama Kontak wajib diisi.");
+      return;
     }
 
-    const coord = parseCoordinate(coordinate)
+    const coord = parseCoordinate(coordinate);
     const payload: ContactFormData = {
       ...form,
       latitude: coord?.lat ?? null,
       longitude: coord?.lng ?? null,
-    }
+    };
 
     try {
       if (mode === "create") {
-        await createContact.mutateAsync(payload)
+        await createContact.mutateAsync(payload);
       } else if (id) {
-        await updateContact.mutateAsync({ id, data: payload })
+        await updateContact.mutateAsync({ id, data: payload });
       }
-      router.push(LIST_HREF)
-    } catch {
-      // error handled by hook
-    }
+      router.push(LIST_HREF);
+    } catch {}
   }
 
-  const title = mode === "create" ? "Buat Pemasok" : "Edit Pemasok"
+  const title = mode === "create" ? "Buat Pemasok" : "Edit Pemasok";
 
   if (mode === "edit" && detail.isLoading) {
     return (
       <div className="flex items-center justify-center gap-2 py-24 text-muted-foreground">
         <Loader2Icon className="size-4 animate-spin" /> Memuat kontak…
       </div>
-    )
+    );
   }
 
   if (mode === "edit" && detail.isError) {
@@ -153,24 +162,24 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
       <div className="py-24 text-center text-sm text-destructive">
         Gagal memuat kontak.
       </div>
-    )
+    );
   }
 
   const categoryOptions = categories.map((c) => ({
     value: c.id,
     label: c.code ? `${c.code} - ${c.name}` : c.name,
-  }))
+  }));
 
   const apOptions = accountPayableOptions.map((o) => ({
     value: o.code,
     label: o.name,
-  }))
+  }));
 
   const navItems: { key: Section; label: string }[] = [
     { key: "umum", label: "Umum" },
     { key: "pic", label: "PIC" },
     { key: "alamat", label: "Alamat" },
-  ]
+  ];
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -214,7 +223,7 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
                 "rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-colors",
                 section === n.key
                   ? "border-primary/30 bg-primary/10 text-primary"
-                  : "border-border bg-background hover:bg-muted"
+                  : "border-border bg-background hover:bg-muted",
               )}
             >
               {n.label}
@@ -249,10 +258,9 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
         </div>
       </div>
     </form>
-  )
+  );
 }
 
-// --- Tab: Umum ---
 function UmumTab({
   form,
   set,
@@ -260,16 +268,22 @@ function UmumTab({
   categoryOptions,
   apOptions,
 }: {
-  form: ContactFormData
-  set: <K extends keyof ContactFormData>(key: K, value: ContactFormData[K]) => void
-  disabled: boolean
-  categoryOptions: { value: string; label: string }[]
-  apOptions: { value: string; label: string }[]
+  form: ContactFormData;
+  set: <K extends keyof ContactFormData>(
+    key: K,
+    value: ContactFormData[K],
+  ) => void;
+  disabled: boolean;
+  categoryOptions: { value: string; label: string }[];
+  apOptions: { value: string; label: string }[];
 }) {
   return (
     <div className="space-y-5">
       <div className="space-y-1.5">
-        <Label>Nama Kontak<Req /></Label>
+        <Label>
+          Nama Kontak
+          <Req />
+        </Label>
         <Input
           value={form.name}
           onChange={(e) => set("name", e.target.value)}
@@ -280,11 +294,16 @@ function UmumTab({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label>Tipe<Req /></Label>
+          <Label>
+            Tipe
+            <Req />
+          </Label>
           <Combobox
             options={TYPE_OPTIONS}
             value={form.type}
-            onChange={(v) => set("type", (v as "SUPPLIER" | "BOTH") ?? "SUPPLIER")}
+            onChange={(v) =>
+              set("type", (v as "SUPPLIER" | "BOTH") ?? "SUPPLIER")
+            }
             placeholder="Pilih tipe"
             disabled={disabled}
           />
@@ -354,7 +373,9 @@ function UmumTab({
           type="number"
           min={0}
           value={form.payment_term ?? ""}
-          onChange={(e) => set("payment_term", e.target.value ? Number(e.target.value) : null)}
+          onChange={(e) =>
+            set("payment_term", e.target.value ? Number(e.target.value) : null)
+          }
           placeholder="0"
           disabled={disabled}
         />
@@ -371,18 +392,20 @@ function UmumTab({
         />
       </div>
     </div>
-  )
+  );
 }
 
-// --- Tab: PIC ---
 function PICTab({
   form,
   set,
   disabled,
 }: {
-  form: ContactFormData
-  set: <K extends keyof ContactFormData>(key: K, value: ContactFormData[K]) => void
-  disabled: boolean
+  form: ContactFormData;
+  set: <K extends keyof ContactFormData>(
+    key: K,
+    value: ContactFormData[K],
+  ) => void;
+  disabled: boolean;
 }) {
   return (
     <div className="space-y-5">
@@ -439,10 +462,9 @@ function PICTab({
         />
       </div>
     </div>
-  )
+  );
 }
 
-// --- Tab: Alamat ---
 function AlamatTab({
   form,
   set,
@@ -452,15 +474,18 @@ function AlamatTab({
   provinceOptions,
   provincesLoading,
 }: {
-  form: ContactFormData
-  set: <K extends keyof ContactFormData>(key: K, value: ContactFormData[K]) => void
-  coordinate: string
-  onCoordinateChange: (v: string) => void
-  disabled: boolean
-  provinceOptions: { value: string; label: string }[]
-  provincesLoading: boolean
+  form: ContactFormData;
+  set: <K extends keyof ContactFormData>(
+    key: K,
+    value: ContactFormData[K],
+  ) => void;
+  coordinate: string;
+  onCoordinateChange: (v: string) => void;
+  disabled: boolean;
+  provinceOptions: { value: string; label: string }[];
+  provincesLoading: boolean;
 }) {
-  const showShipping = !(form.shipping_same_as_billing ?? true)
+  const showShipping = !(form.shipping_same_as_billing ?? true);
 
   return (
     <div className="space-y-5">
@@ -478,7 +503,10 @@ function AlamatTab({
       <h3 className="text-sm font-semibold">Alamat Penagihan</h3>
 
       <div className="space-y-1.5">
-        <Label>Detail Alamat<Req /></Label>
+        <Label>
+          Detail Alamat
+          <Req />
+        </Label>
         <Textarea
           value={form.address ?? ""}
           onChange={(e) => set("address", e.target.value)}
@@ -564,5 +592,5 @@ function AlamatTab({
         </>
       )}
     </div>
-  )
+  );
 }

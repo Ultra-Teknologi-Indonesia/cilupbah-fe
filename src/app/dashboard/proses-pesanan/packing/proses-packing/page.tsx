@@ -1,5 +1,5 @@
-import { PackingProsesView } from "@/components/dashboard/proses-pesanan/packing/packing-proses-view"
+import { PackingProsesView } from "@/components/dashboard/proses-pesanan/packing/packing-proses-view";
 
 export default function PackingProsesPage() {
-  return <PackingProsesView />
+  return <PackingProsesView />;
 }

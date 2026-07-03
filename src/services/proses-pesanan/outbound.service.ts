@@ -1,5 +1,5 @@
-import { fetchBlobRaw, fetchClient } from "@/lib/api-client"
-import type { ApiPaginated, ApiResponse } from "@/types/api.types"
+import { fetchBlobRaw, fetchClient } from "@/lib/api-client";
+import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type {
   Courier,
   FulfillmentListParams,
@@ -28,66 +28,77 @@ import type {
   Shipment,
   ShipmentDetail,
   ShipmentOrderItem,
-} from "@/types/proses-pesanan/fulfillment"
+} from "@/types/proses-pesanan/fulfillment";
 
 export interface CreateShipmentPayload {
-  shipment_no?: string | null
-  location_id: string
-  courier_name?: string | null
-  courier_code?: string | null
-  shipment_type: string
-  shipment_date: string
-  notes?: string | null
+  shipment_no?: string | null;
+  location_id: string;
+  courier_name?: string | null;
+  courier_code?: string | null;
+  shipment_type: string;
+  shipment_date: string;
+  notes?: string | null;
 }
 
-// Proxy FE memetakan /api/app/* -> /api/v1/*. Endpoint outbound diakses lewat
-// prefix "/outbound/...", endpoint dokumen lewat "/reports/...".
-
-type Meta = ApiPaginated<unknown>["meta"]
+type Meta = ApiPaginated<unknown>["meta"];
 
 export interface ListResult<T> {
-  items: T[]
-  meta: Meta
+  items: T[];
+  meta: Meta;
 }
 
-const FALLBACK_META: Meta = { current_page: 1, last_page: 1, per_page: 20, total: 0 }
+const FALLBACK_META: Meta = {
+  current_page: 1,
+  last_page: 1,
+  per_page: 20,
+  total: 0,
+};
 
-function buildQuery(params: FulfillmentListParams, extra?: Record<string, string>): string {
-  const q = new URLSearchParams()
-  if (params.q) q.set("filter[q]", params.q)
-  if (params.location_id) q.set("filter[location_id]", params.location_id)
-  if (params.source) q.set("filter[source]", params.source)
-  if (params.status) q.set("filter[status]", params.status)
-  // Extended filters (BE allowedFilters). Skip blank/empty values.
-  if (params.shipping_provider) q.set("filter[shipping_provider]", params.shipping_provider)
-  if (params.channel_shop_id) q.set("filter[channel_shop_id]", params.channel_shop_id)
-  if (params.channel_status) q.set("filter[channel_status]", params.channel_status)
-  if (params.payment) q.set("filter[payment]", params.payment)
-  if (params.courier_type) q.set("filter[courier_type]", params.courier_type)
-  if (params.label_printed) q.set("filter[label_printed]", params.label_printed)
-  if (params.date_from) q.set("filter[date_from]", params.date_from)
-  if (params.date_to) q.set("filter[date_to]", params.date_to)
-  if (params.exclude_transit) q.set("filter[exclude_transit]", params.exclude_transit)
-  if (params.zone_id) q.set("filter[zone_id]", params.zone_id)
-  if (params.courier_code) q.set("filter[courier_code]", params.courier_code)
-  if (params.courier_name) q.set("filter[courier_name]", params.courier_name)
-  if (params.shipment_type) q.set("filter[shipment_type]", params.shipment_type)
-  q.set("limit", String(params.per_page ?? 20))
-  q.set("page", String(params.page ?? 1))
-  if (extra) for (const [k, v] of Object.entries(extra)) q.set(k, v)
-  return q.toString()
+function buildQuery(
+  params: FulfillmentListParams,
+  extra?: Record<string, string>,
+): string {
+  const q = new URLSearchParams();
+  if (params.q) q.set("filter[q]", params.q);
+  if (params.location_id) q.set("filter[location_id]", params.location_id);
+  if (params.source) q.set("filter[source]", params.source);
+  if (params.status) q.set("filter[status]", params.status);
+
+  if (params.shipping_provider)
+    q.set("filter[shipping_provider]", params.shipping_provider);
+  if (params.channel_shop_id)
+    q.set("filter[channel_shop_id]", params.channel_shop_id);
+  if (params.channel_status)
+    q.set("filter[channel_status]", params.channel_status);
+  if (params.payment) q.set("filter[payment]", params.payment);
+  if (params.courier_type) q.set("filter[courier_type]", params.courier_type);
+  if (params.label_printed)
+    q.set("filter[label_printed]", params.label_printed);
+  if (params.date_from) q.set("filter[date_from]", params.date_from);
+  if (params.date_to) q.set("filter[date_to]", params.date_to);
+  if (params.exclude_transit)
+    q.set("filter[exclude_transit]", params.exclude_transit);
+  if (params.zone_id) q.set("filter[zone_id]", params.zone_id);
+  if (params.courier_code) q.set("filter[courier_code]", params.courier_code);
+  if (params.courier_name) q.set("filter[courier_name]", params.courier_name);
+  if (params.shipment_type)
+    q.set("filter[shipment_type]", params.shipment_type);
+  q.set("limit", String(params.per_page ?? 20));
+  q.set("page", String(params.page ?? 1));
+  if (extra) for (const [k, v] of Object.entries(extra)) q.set(k, v);
+  return q.toString();
 }
 
-// ── Mappers ──────────────────────────────────────────────────────────────────
 function mapOrder(raw: RawFulfillmentOrder): FulfillmentOrder {
   return {
     id: raw.id,
     salesorderNo: raw.salesorder_no,
     channelOrderNo: raw.channel_order_no ?? null,
     channelBuyerId: raw.channel_buyer_id ?? null,
-    customerName: (raw.shipping_full_name && raw.shipping_full_name !== "****"
-      ? raw.shipping_full_name
-      : raw.customer_name) ?? null,
+    customerName:
+      (raw.shipping_full_name && raw.shipping_full_name !== "****"
+        ? raw.shipping_full_name
+        : raw.customer_name) ?? null,
     source: raw.source ?? null,
     status: raw.status ?? null,
     isPaid: Boolean(raw.is_paid),
@@ -119,11 +130,11 @@ function mapOrder(raw: RawFulfillmentOrder): FulfillmentOrder {
       qty: i.qty_in_base,
       imageUrl: i.image_url ?? null,
     })),
-  }
+  };
 }
 
 function mapPicklist(raw: RawPicklist): Picklist {
-  const status = (raw.status ?? "DRAFT") as Picklist["status"]
+  const status = (raw.status ?? "DRAFT") as Picklist["status"];
   return {
     id: raw.id,
     picklistNo: raw.picklist_no,
@@ -138,7 +149,7 @@ function mapPicklist(raw: RawPicklist): Picklist {
     itemsCount: raw.items_count ?? 0,
     qtyOrdered: raw.items_sum_qty_ordered ?? 0,
     qtyPicked: raw.items_sum_qty_picked ?? 0,
-  }
+  };
 }
 
 function mapPacklist(raw: RawPacklist): Packlist {
@@ -153,7 +164,7 @@ function mapPacklist(raw: RawPacklist): Packlist {
     customerName: raw.order?.customer_name ?? null,
     status: (raw.status ?? "DRAFT") as Packlist["status"],
     packageCount: raw.package_count ?? 1,
-  }
+  };
 }
 
 function mapShipment(raw: RawShipment): Shipment {
@@ -171,11 +182,11 @@ function mapShipment(raw: RawShipment): Shipment {
     ordersCount: raw.orders_count ?? 0,
     totalWeightGram: Number(raw.total_weight_gram ?? 0),
     createdAt: raw.created_at ?? null,
-  }
+  };
 }
 
 function mapShipmentOrderItem(raw: RawShipmentOrder): ShipmentOrderItem {
-  const o = raw.order
+  const o = raw.order;
   return {
     id: raw.id,
     orderId: raw.order_id,
@@ -190,7 +201,7 @@ function mapShipmentOrderItem(raw: RawShipmentOrder): ShipmentOrderItem {
     packlistNo: raw.packlist?.packlist_no ?? null,
     pickupStatus: raw.pickup_status ?? null,
     pickupMessage: raw.pickup_message ?? null,
-  }
+  };
 }
 
 function mapShipmentDetail(raw: RawShipmentDetail): ShipmentDetail {
@@ -199,7 +210,7 @@ function mapShipmentDetail(raw: RawShipmentDetail): ShipmentDetail {
     ordersCount: raw.orders?.length ?? raw.orders_count ?? 0,
     orders: (raw.orders ?? []).map(mapShipmentOrderItem),
     notes: raw.notes ?? null,
-  }
+  };
 }
 
 function mapCourier(raw: RawCourier): Courier {
@@ -210,24 +221,37 @@ function mapCourier(raw: RawCourier): Courier {
     type: raw.type ?? null,
     logoUrl: raw.logo_url ?? null,
     isActive: raw.is_active ?? true,
-  }
+  };
 }
 
 function mapPicker(raw: RawPicker): Picker {
-  return { id: raw.id, name: raw.name ?? raw.email ?? raw.id, email: raw.email ?? null }
+  return {
+    id: raw.id,
+    name: raw.name ?? raw.email ?? raw.id,
+    email: raw.email ?? null,
+  };
 }
 
-function pickMediaUrl(media?: { url?: string | null; is_primary?: boolean | null; sort_order?: number | null }[] | null): string | null {
-  if (!media || media.length === 0) return null
-  const primary = media.find((m) => m?.is_primary)
-  if (primary?.url) return primary.url
-  // Fallback: ambil yang sort_order paling kecil (lalu first).
-  const sorted = [...media].sort((a, b) => (a?.sort_order ?? 999) - (b?.sort_order ?? 999))
-  return sorted[0]?.url ?? media[0]?.url ?? null
+function pickMediaUrl(
+  media?:
+    | {
+        url?: string | null;
+        is_primary?: boolean | null;
+        sort_order?: number | null;
+      }[]
+    | null,
+): string | null {
+  if (!media || media.length === 0) return null;
+  const primary = media.find((m) => m?.is_primary);
+  if (primary?.url) return primary.url;
+
+  const sorted = [...media].sort(
+    (a, b) => (a?.sort_order ?? 999) - (b?.sort_order ?? 999),
+  );
+  return sorted[0]?.url ?? media[0]?.url ?? null;
 }
 
 function mapPicklistItem(raw: RawPicklistItem): PicklistItem {
-  // Prioritas image: accessor BE (image_url) > variant media > product media > legacy fields.
   const imageUrl =
     raw.image_url ??
     pickMediaUrl(raw.product?.media) ??
@@ -235,45 +259,48 @@ function mapPicklistItem(raw: RawPicklistItem): PicklistItem {
     raw.product?.image_url ??
     raw.product?.product?.image_url ??
     raw.orderItem?.image_url ??
-    null
+    null;
 
   return {
     id: raw.id,
     sku: raw.sku,
     name: raw.product?.product?.name ?? raw.orderItem?.description ?? null,
-    variantName: raw.product?.variant_name ?? raw.orderItem?.variant_name ?? null,
+    variantName:
+      raw.product?.variant_name ?? raw.orderItem?.variant_name ?? null,
     imageUrl,
-    // Pure-scan: kode rak hanya ditampilkan setelah benar-benar di-pick (qty_picked > 0).
-    // Sebelum scan, kolom rak per item harus kosong.
-    binCode: (raw.qty_picked ?? 0) > 0
-      ? (raw.bin?.bin_final_code ?? raw.bin?.bin_code ?? null)
-      : null,
+
+    binCode:
+      (raw.qty_picked ?? 0) > 0
+        ? (raw.bin?.bin_final_code ?? raw.bin?.bin_code ?? null)
+        : null,
     orderNo: raw.order?.salesorder_no ?? null,
     trackingNumber: raw.order?.tracking_number ?? null,
     packageNo: raw.order?.package_no ?? raw.order?.shipment_no ?? null,
     itemStatus: raw.status ?? null,
     qtyOrdered: raw.qty_ordered ?? 0,
     qtyPicked: raw.qty_picked ?? 0,
-  }
+  };
 }
 
 function mapPicklistDetail(raw: RawPicklistDetail): PicklistDetail {
-  return { ...mapPicklist(raw), items: (raw.items ?? []).map(mapPicklistItem) }
+  return { ...mapPicklist(raw), items: (raw.items ?? []).map(mapPicklistItem) };
 }
 
-function resolveMediaUrl(media?: Array<{ url?: string | null; is_primary?: boolean | null }> | null): string | null {
-  if (!media || media.length === 0) return null
-  const primary = media.find((m) => m.is_primary)
-  return primary?.url ?? media[0]?.url ?? null
+function resolveMediaUrl(
+  media?: Array<{ url?: string | null; is_primary?: boolean | null }> | null,
+): string | null {
+  if (!media || media.length === 0) return null;
+  const primary = media.find((m) => m.is_primary);
+  return primary?.url ?? media[0]?.url ?? null;
 }
 
 function mapPacklistItem(raw: RawPacklistItem): PacklistItem {
-  const variant = raw.order_item?.product ?? raw.product
+  const variant = raw.order_item?.product ?? raw.product;
   const imageUrl =
     resolveMediaUrl(variant?.media) ??
     resolveMediaUrl(variant?.product?.media) ??
     raw.order_item?.image_url ??
-    null
+    null;
 
   return {
     id: raw.id,
@@ -283,11 +310,11 @@ function mapPacklistItem(raw: RawPacklistItem): PacklistItem {
     qtyOrdered: raw.qty_ordered ?? 0,
     qtyPacked: raw.qty_packed ?? 0,
     barcodeVerified: Boolean(raw.barcode_verified),
-  }
+  };
 }
 
 function mapPacklistDetail(raw: RawPacklistDetail): PacklistDetail {
-  return { ...mapPacklist(raw), items: (raw.items ?? []).map(mapPacklistItem) }
+  return { ...mapPacklist(raw), items: (raw.items ?? []).map(mapPacklistItem) };
 }
 
 function mapShipResult(raw: RawReadyToShipResult): ReadyToShipResult {
@@ -297,415 +324,481 @@ function mapShipResult(raw: RawReadyToShipResult): ReadyToShipResult {
     source: raw.source ?? null,
     status: raw.status ?? "failed",
     message: raw.message ?? null,
-  }
+  };
 }
 
-// Envelope paginator Laravel (dipakai /outbound/orders/{stage} dan /outbound/packlists).
 interface RawPaginator<T> {
-  data: T[]
-  current_page: number
-  last_page: number
-  per_page: number
-  total: number
+  data: T[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
 }
 
-function paginatorMeta<T>(p: RawPaginator<T> | undefined, perPage?: number): Meta {
+function paginatorMeta<T>(
+  p: RawPaginator<T> | undefined,
+  perPage?: number,
+): Meta {
   return {
     current_page: p?.current_page ?? 1,
     last_page: p?.last_page ?? 1,
     per_page: p?.per_page ?? perPage ?? 20,
     total: p?.total ?? 0,
-  }
+  };
 }
 
 export const OutboundService = {
-  // Order per-stage (belum/selesai picking & packing). Envelope: {success, data: paginator}.
   ordersByStage: async (
     stage: string,
-    params: FulfillmentListParams
+    params: FulfillmentListParams,
   ): Promise<ListResult<FulfillmentOrder>> => {
-    const res = await fetchClient<{ success?: boolean; data: RawPaginator<RawFulfillmentOrder> }>(
-      `/outbound/orders/${stage}?${buildQuery(params)}`
-    )
-    return { items: (res.data?.data ?? []).map(mapOrder), meta: paginatorMeta(res.data, params.per_page) }
+    const res = await fetchClient<{
+      success?: boolean;
+      data: RawPaginator<RawFulfillmentOrder>;
+    }>(`/outbound/orders/${stage}?${buildQuery(params)}`);
+    return {
+      items: (res.data?.data ?? []).map(mapOrder),
+      meta: paginatorMeta(res.data, params.per_page),
+    };
   },
 
-  // Picklist. Envelope: {status, message, data[], meta}.
-  picklists: async (params: FulfillmentListParams): Promise<ListResult<Picklist>> => {
+  picklists: async (
+    params: FulfillmentListParams,
+  ): Promise<ListResult<Picklist>> => {
     const res = await fetchClient<ApiPaginated<RawPicklist>>(
-      `/outbound/picklists?${buildQuery(params)}`
-    )
-    return { items: (res.data ?? []).map(mapPicklist), meta: res.meta ?? FALLBACK_META }
+      `/outbound/picklists?${buildQuery(params)}`,
+    );
+    return {
+      items: (res.data ?? []).map(mapPicklist),
+      meta: res.meta ?? FALLBACK_META,
+    };
   },
 
-  // Packlist. Envelope: {success, data: paginator}.
-  packlists: async (params: FulfillmentListParams): Promise<ListResult<Packlist>> => {
-    const res = await fetchClient<{ success?: boolean; data: RawPaginator<RawPacklist> }>(
-      `/outbound/packlists?${buildQuery(params)}`
-    )
-    return { items: (res.data?.data ?? []).map(mapPacklist), meta: paginatorMeta(res.data, params.per_page) }
+  packlists: async (
+    params: FulfillmentListParams,
+  ): Promise<ListResult<Packlist>> => {
+    const res = await fetchClient<{
+      success?: boolean;
+      data: RawPaginator<RawPacklist>;
+    }>(`/outbound/packlists?${buildQuery(params)}`);
+    return {
+      items: (res.data?.data ?? []).map(mapPacklist),
+      meta: paginatorMeta(res.data, params.per_page),
+    };
   },
 
-  // Shipment. Envelope: {success, data: paginator}.
-  shipments: async (params: FulfillmentListParams): Promise<ListResult<Shipment>> => {
-    const res = await fetchClient<{ success?: boolean; data: RawPaginator<RawShipment> }>(
-      `/outbound/shipments?${buildQuery(params)}`
-    )
-    return { items: (res.data?.data ?? []).map(mapShipment), meta: paginatorMeta(res.data, params.per_page) }
+  shipments: async (
+    params: FulfillmentListParams,
+  ): Promise<ListResult<Shipment>> => {
+    const res = await fetchClient<{
+      success?: boolean;
+      data: RawPaginator<RawShipment>;
+    }>(`/outbound/shipments?${buildQuery(params)}`);
+    return {
+      items: (res.data?.data ?? []).map(mapShipment),
+      meta: paginatorMeta(res.data, params.per_page),
+    };
   },
 
-  // Courier aktif (untuk pilih kurir saat Buat Pengiriman). Envelope: {success, data: []}.
   couriersAll: async (): Promise<Courier[]> => {
-    const res = await fetchClient<{ success?: boolean; data: RawCourier[] }>(`/outbound/couriers/all`)
-    return (res.data ?? []).map(mapCourier)
+    const res = await fetchClient<{ success?: boolean; data: RawCourier[] }>(
+      `/outbound/couriers/all`,
+    );
+    return (res.data ?? []).map(mapCourier);
   },
 
-  // Daftar picker (warehouse user). Defensif terhadap envelope {status,data} / {success,data}.
   pickers: async (locationId?: string, role?: string): Promise<Picker[]> => {
-    const params = new URLSearchParams()
-    if (locationId) params.set("location_id", locationId)
-    if (role) params.set("role", role)
-    const q = params.toString() ? `?${params}` : ""
-    const res = await fetchClient<{ data: RawPicker[] }>(`/outbound/pickers${q}`)
-    return (res.data ?? []).map(mapPicker)
+    const params = new URLSearchParams();
+    if (locationId) params.set("location_id", locationId);
+    if (role) params.set("role", role);
+    const q = params.toString() ? `?${params}` : "";
+    const res = await fetchClient<{ data: RawPicker[] }>(
+      `/outbound/pickers${q}`,
+    );
+    return (res.data ?? []).map(mapPicker);
   },
 
-  // ── Mutasi ─────────────────────────────────────────────────────────────────
   createPicklist: async (payload: {
-    order_ids: string[]
-    location_id: string
-    picker_id: string
-    notes?: string | null
+    order_ids: string[];
+    location_id: string;
+    picker_id: string;
+    notes?: string | null;
   }): Promise<Picklist> => {
-    const res = await fetchClient<{ data: RawPicklist }>(`/outbound/picklists`, {
-      method: "POST",
-      data: payload,
-    })
-    return mapPicklist(res.data)
+    const res = await fetchClient<{ data: RawPicklist }>(
+      `/outbound/picklists`,
+      {
+        method: "POST",
+        data: payload,
+      },
+    );
+    return mapPicklist(res.data);
   },
 
-  assignPicker: async (picklistId: string, pickerId: string): Promise<Picklist> => {
+  assignPicker: async (
+    picklistId: string,
+    pickerId: string,
+  ): Promise<Picklist> => {
     const res = await fetchClient<{ data: RawPicklist }>(
       `/outbound/picklists/${picklistId}/assign-picker`,
-      { method: "POST", data: { picker_id: pickerId } }
-    )
-    return mapPicklist(res.data)
+      { method: "POST", data: { picker_id: pickerId } },
+    );
+    return mapPicklist(res.data);
   },
 
-  // ── Picking scan/pick detail ─────────────────────────────────────────────
   picklistDetail: async (id: string): Promise<PicklistDetail> => {
-    const res = await fetchClient<{ data: RawPicklistDetail }>(`/outbound/picklists/${id}`)
-    return mapPicklistDetail(res.data)
+    const res = await fetchClient<{ data: RawPicklistDetail }>(
+      `/outbound/picklists/${id}`,
+    );
+    return mapPicklistDetail(res.data);
   },
   startPicklist: async (id: string): Promise<void> => {
-    await fetchClient(`/outbound/picklists/${id}/start`, { method: "POST" })
+    await fetchClient(`/outbound/picklists/${id}/start`, { method: "POST" });
   },
   pickItem: async (
     picklistId: string,
     itemId: string,
-    payload: { qty_picked: number; bin_code: string }
+    payload: { qty_picked: number; bin_code: string },
   ): Promise<void> => {
-    await fetchClient(`/outbound/picklists/${picklistId}/items/${itemId}/pick`, {
-      method: "POST",
-      data: payload,
-    })
+    await fetchClient(
+      `/outbound/picklists/${picklistId}/items/${itemId}/pick`,
+      {
+        method: "POST",
+        data: payload,
+      },
+    );
   },
   scanForPick: async (
     picklistId: string,
-    payload: { sku: string; bin_code: string }
+    payload: { sku: string; bin_code: string },
   ): Promise<{
-    item_id: string
-    sku: string
-    bin_code: string
-    available_in_bin: number
-    remaining_to_pick: number
-    max_pickable: number
+    item_id: string;
+    sku: string;
+    bin_code: string;
+    available_in_bin: number;
+    remaining_to_pick: number;
+    max_pickable: number;
   }> => {
     const res = await fetchClient<{
       data: {
-        item_id: string
-        sku: string
-        bin_code: string
-        available_in_bin: number
-        remaining_to_pick: number
-        max_pickable: number
-      }
+        item_id: string;
+        sku: string;
+        bin_code: string;
+        available_in_bin: number;
+        remaining_to_pick: number;
+        max_pickable: number;
+      };
     }>(`/outbound/picklists/${picklistId}/scan`, {
       method: "POST",
       data: payload,
-    })
-    return res.data
+    });
+    return res.data;
   },
   completePicklist: async (id: string): Promise<void> => {
-    await fetchClient(`/outbound/picklists/${id}/complete`, { method: "POST" })
+    await fetchClient(`/outbound/picklists/${id}/complete`, { method: "POST" });
   },
   failPicklist: async (id: string, reason?: string): Promise<void> => {
     await fetchClient(`/outbound/picklists/${id}/fail`, {
       method: "POST",
       data: { reason: reason ?? null },
-    })
+    });
   },
 
-  // ── Ad-hoc pick (tanpa picklist) ─────────────────────────────────────────
-  getOrderByNo: async (orderNo: string): Promise<RawFulfillmentOrder | null> => {
+  getOrderByNo: async (
+    orderNo: string,
+  ): Promise<RawFulfillmentOrder | null> => {
     try {
-      const res = await fetchClient<{ data: RawFulfillmentOrder }>(`/outbound/orders/get-by-no`, {
-        method: "POST",
-        data: { order_no: orderNo },
-      })
-      return res.data ?? null
+      const res = await fetchClient<{ data: RawFulfillmentOrder }>(
+        `/outbound/orders/get-by-no`,
+        {
+          method: "POST",
+          data: { order_no: orderNo },
+        },
+      );
+      return res.data ?? null;
     } catch {
-      return null
+      return null;
     }
   },
   adHocPick: async (payload: {
-    order_id: string
-    items?: Array<{ order_item_id: string; qty_picked: number; bin_id?: string | null }>
+    order_id: string;
+    items?: Array<{
+      order_item_id: string;
+      qty_picked: number;
+      bin_id?: string | null;
+    }>;
   }): Promise<unknown> => {
-    const res = await fetchClient<{ data: unknown }>(`/outbound/orders/ad-hoc-pick`, {
-      method: "POST",
-      data: payload,
-    })
-    return res.data
+    const res = await fetchClient<{ data: unknown }>(
+      `/outbound/orders/ad-hoc-pick`,
+      {
+        method: "POST",
+        data: payload,
+      },
+    );
+    return res.data;
   },
   adHocPickScan: async (payload: {
-    order_id: string
-    sku: string
-    qty?: number
-    bin_id?: string | null
+    order_id: string;
+    sku: string;
+    qty?: number;
+    bin_id?: string | null;
   }): Promise<{
-    completed: boolean
-    matched_item_id: string
-    qty_picked: number
-    qty_ordered: number
-    progress: Record<string, number>
-    order: unknown
+    completed: boolean;
+    matched_item_id: string;
+    qty_picked: number;
+    qty_ordered: number;
+    progress: Record<string, number>;
+    order: unknown;
   }> => {
     const res = await fetchClient<{
       data: {
-        completed: boolean
-        matched_item_id: string
-        qty_picked: number
-        qty_ordered: number
-        progress: Record<string, number>
-        order: unknown
-      }
+        completed: boolean;
+        matched_item_id: string;
+        qty_picked: number;
+        qty_ordered: number;
+        progress: Record<string, number>;
+        order: unknown;
+      };
     }>(`/outbound/orders/ad-hoc-pick/scan`, {
       method: "POST",
       data: payload,
-    })
-    return res.data
+    });
+    return res.data;
   },
 
-  scanOrder: async (orderNo: string, packerId?: string | null): Promise<PacklistDetail> => {
-    const params = new URLSearchParams({ order_no: orderNo })
-    if (packerId) params.set("packer_id", packerId)
+  scanOrder: async (
+    orderNo: string,
+    packerId?: string | null,
+  ): Promise<PacklistDetail> => {
+    const params = new URLSearchParams({ order_no: orderNo });
+    if (packerId) params.set("packer_id", packerId);
     const res = await fetchClient<{ data: RawPacklistDetail }>(
-      `/outbound/packlists/scan-order?${params}`
-    )
-    return mapPacklistDetail(res.data)
+      `/outbound/packlists/scan-order?${params}`,
+    );
+    return mapPacklistDetail(res.data);
   },
 
-  // ── Packing scan/pack detail ─────────────────────────────────────────────
   packlistDetail: async (id: string): Promise<PacklistDetail> => {
-    const res = await fetchClient<{ data: RawPacklistDetail }>(`/outbound/packlists/${id}`)
-    return mapPacklistDetail(res.data)
+    const res = await fetchClient<{ data: RawPacklistDetail }>(
+      `/outbound/packlists/${id}`,
+    );
+    return mapPacklistDetail(res.data);
   },
   startPacklist: async (id: string): Promise<void> => {
-    await fetchClient(`/outbound/packlists/${id}/start`, { method: "POST" })
+    await fetchClient(`/outbound/packlists/${id}/start`, { method: "POST" });
   },
   verifyBarcode: async (
     packlistId: string,
-    barcode: string
+    barcode: string,
   ): Promise<{ itemId: string; sku: string } | null> => {
-    const res = await fetchClient<{ data?: { item_id?: string; sku?: string } }>(
-      `/outbound/packlists/${packlistId}/verify-barcode`,
-      { method: "POST", data: { barcode } }
-    )
-    return res.data?.item_id ? { itemId: res.data.item_id, sku: res.data.sku ?? barcode } : null
+    const res = await fetchClient<{
+      data?: { item_id?: string; sku?: string };
+    }>(`/outbound/packlists/${packlistId}/verify-barcode`, {
+      method: "POST",
+      data: { barcode },
+    });
+    return res.data?.item_id
+      ? { itemId: res.data.item_id, sku: res.data.sku ?? barcode }
+      : null;
   },
   packItem: async (
     packlistId: string,
     itemId: string,
-    payload: { qty_packed: number; barcode_verified?: boolean }
+    payload: { qty_packed: number; barcode_verified?: boolean },
   ): Promise<void> => {
-    await fetchClient(`/outbound/packlists/${packlistId}/items/${itemId}/pack`, {
-      method: "POST",
-      data: payload,
-    })
+    await fetchClient(
+      `/outbound/packlists/${packlistId}/items/${itemId}/pack`,
+      {
+        method: "POST",
+        data: payload,
+      },
+    );
   },
   completePacklist: async (id: string): Promise<void> => {
-    await fetchClient(`/outbound/packlists/${id}/complete`, { method: "POST" })
+    await fetchClient(`/outbound/packlists/${id}/complete`, { method: "POST" });
   },
 
-  assignPacker: async (packlistId: string, packerId: string): Promise<Packlist> => {
+  assignPacker: async (
+    packlistId: string,
+    packerId: string,
+  ): Promise<Packlist> => {
     const res = await fetchClient<{ data: RawPacklist }>(
       `/outbound/packlists/${packlistId}/assign-packer`,
-      { method: "POST", data: { packer_id: packerId } }
-    )
-    return mapPacklist(res.data)
+      { method: "POST", data: { packer_id: packerId } },
+    );
+    return mapPacklist(res.data);
   },
 
-  // Buat Pengiriman: header dulu (SCHEDULED), lalu tautkan order (add-orders).
   createShipmentWithOrders: async (
     payload: CreateShipmentPayload,
-    orderIds: string[]
+    orderIds: string[],
   ): Promise<Shipment> => {
-    const created = await fetchClient<{ data: RawShipment }>(`/outbound/shipments`, {
-      method: "POST",
-      data: payload,
-    })
-    const shipment = mapShipment(created.data)
-    if (orderIds.length) {
-      await fetchClient<{ data: RawShipment }>(`/outbound/shipments/${shipment.id}/add-orders`, {
+    const created = await fetchClient<{ data: RawShipment }>(
+      `/outbound/shipments`,
+      {
         method: "POST",
-        data: { order_ids: orderIds },
-      })
+        data: payload,
+      },
+    );
+    const shipment = mapShipment(created.data);
+    if (orderIds.length) {
+      await fetchClient<{ data: RawShipment }>(
+        `/outbound/shipments/${shipment.id}/add-orders`,
+        {
+          method: "POST",
+          data: { order_ids: orderIds },
+        },
+      );
     }
-    return shipment
+    return shipment;
   },
 
   handOverShipment: async (shipmentId: string): Promise<Shipment> => {
     const res = await fetchClient<{ data: RawShipment }>(
       `/outbound/shipments/${shipmentId}/hand-over`,
-      { method: "POST" }
-    )
-    return mapShipment(res.data)
+      { method: "POST" },
+    );
+    return mapShipment(res.data);
   },
 
   cancelShipment: async (shipmentId: string): Promise<Shipment> => {
     const res = await fetchClient<{ data: RawShipment }>(
       `/outbound/shipments/${shipmentId}/cancel`,
-      { method: "POST" }
-    )
-    return mapShipment(res.data)
+      { method: "POST" },
+    );
+    return mapShipment(res.data);
   },
 
-  // Manifest (envelope berbeda: {status, message, data: {report_type, generated_at, data}}).
   manifestDoc: async (shipmentId: string): Promise<unknown> => {
     const res = await fetchClient<ApiResponse<unknown>>(
-      `/reports/wms/shipping-manifest?id=${encodeURIComponent(shipmentId)}`
-    )
-    return res.data
+      `/reports/wms/shipping-manifest?id=${encodeURIComponent(shipmentId)}`,
+    );
+    return res.data;
   },
 
-  // Selesaikan Pesanan (modul Sales): finalisasi order packed/reserved -> shipped.
   markComplete: async (orderIds: string[]): Promise<number> => {
     const res = await fetchClient<{ data?: { completed?: number } }>(
       `/sales/orders/mark-as-complete`,
-      { method: "POST", data: { order_ids: orderIds } }
-    )
-    return res.data?.completed ?? 0
+      { method: "POST", data: { order_ids: orderIds } },
+    );
+    return res.data?.completed ?? 0;
   },
 
-  // Omnichannel "Siap Dikirim" — dispatcher BE merutekan per source (Shopee/TikTok/Lazada).
   readyToShip: async (orderIds: string[]): Promise<ReadyToShipResult[]> => {
     const res = await fetchClient<{ data: RawReadyToShipResult[] }>(
       `/outbound/orders/ready-to-ship`,
-      { method: "POST", data: { order_ids: orderIds } }
-    )
-    return (res.data ?? []).map(mapShipResult)
+      { method: "POST", data: { order_ids: orderIds } },
+    );
+    return (res.data ?? []).map(mapShipResult);
   },
 
-  // ── Marketplace shipping label (AWB dari Shopee/TikTok/Lazada) ───────────────
-  // opts: opsi cetak per channel (TikTok: document_type + document_size; Shopee: document_type).
   marketplaceLabel: async (
     orderId: string,
-    opts?: { document_type?: string; document_size?: string }
-  ): Promise<{ type: string; url?: string; document_base64?: string; content_type?: string; source?: string }> => {
-    const sp = new URLSearchParams()
-    if (opts?.document_type) sp.set("document_type", opts.document_type)
-    if (opts?.document_size) sp.set("document_size", opts.document_size)
-    const qs = sp.toString()
+    opts?: { document_type?: string; document_size?: string },
+  ): Promise<{
+    type: string;
+    url?: string;
+    document_base64?: string;
+    content_type?: string;
+    source?: string;
+  }> => {
+    const sp = new URLSearchParams();
+    if (opts?.document_type) sp.set("document_type", opts.document_type);
+    if (opts?.document_size) sp.set("document_size", opts.document_size);
+    const qs = sp.toString();
     const res = await fetchClient<
-      ApiResponse<{ type: string; url?: string; document_base64?: string; content_type?: string; source?: string }>
-    >(`/sales/${orderId}/shipping-label${qs ? `?${qs}` : ""}`)
-    return res.data
+      ApiResponse<{
+        type: string;
+        url?: string;
+        document_base64?: string;
+        content_type?: string;
+        source?: string;
+      }>
+    >(`/sales/${orderId}/shipping-label${qs ? `?${qs}` : ""}`);
+    return res.data;
   },
 
   retryMarketplaceLabel: async (orderId: string): Promise<void> => {
-    await fetchClient(`/sales/${orderId}/shipping-label/retry`, { method: "POST" })
+    await fetchClient(`/sales/${orderId}/shipping-label/retry`, {
+      method: "POST",
+    });
   },
 
   retryPickup: async (orderIds: string[]): Promise<ReadyToShipResult[]> => {
     const res = await fetchClient<{ data: RawReadyToShipResult[] }>(
       `/outbound/orders/retry-pickup`,
-      { method: "POST", data: { order_ids: orderIds } }
-    )
-    return (res.data ?? []).map(mapShipResult)
+      { method: "POST", data: { order_ids: orderIds } },
+    );
+    return (res.data ?? []).map(mapShipResult);
   },
 
-  // ── Dokumen (JSON dari modul Report) ─────────────────────────────────────────
   shippingLabel: async (orderIds: string[]): Promise<unknown> => {
     const res = await fetchClient<ApiResponse<unknown>>(
-      `/reports/shipping-label?order_ids=${orderIds.join(",")}`
-    )
-    return res.data
+      `/reports/shipping-label?order_ids=${orderIds.join(",")}`,
+    );
+    return res.data;
   },
 
   pickListDoc: async (orderIds: string[]): Promise<unknown> => {
     const res = await fetchClient<ApiResponse<unknown>>(
-      `/reports/wms/pick-list?order_ids=${orderIds.join(",")}`
-    )
-    return res.data
+      `/reports/wms/pick-list?order_ids=${orderIds.join(",")}`,
+    );
+    return res.data;
   },
 
   pickListByPicklist: async (picklistId: string): Promise<unknown> => {
     const res = await fetchClient<ApiResponse<unknown>>(
-      `/reports/wms/pick-list?picklist_id=${encodeURIComponent(picklistId)}`
-    )
-    return res.data
+      `/reports/wms/pick-list?picklist_id=${encodeURIComponent(picklistId)}`,
+    );
+    return res.data;
   },
 
-  // PDF Picklist (binary stream dari BE Outbound module). Caller mengatur filename
-  // berdasarkan picklist_no yang sudah dimuat di FE.
   picklistPdf: async (picklistId: string): Promise<Blob> => {
     return fetchBlobRaw(
       `/outbound/picklists/${encodeURIComponent(picklistId)}/pdf`,
-      "application/pdf"
-    )
+      "application/pdf",
+    );
   },
 
   invoiceDoc: async (orderIds: string[]): Promise<unknown> => {
     const res = await fetchClient<ApiResponse<unknown>>(
-      `/reports/invoice?order_ids=${orderIds.join(",")}`
-    )
-    return res.data
+      `/reports/invoice?order_ids=${orderIds.join(",")}`,
+    );
+    return res.data;
   },
 
   suratJalanDoc: async (orderIds: string[]): Promise<unknown> => {
     const res = await fetchClient<ApiResponse<unknown>>(
-      `/reports/wms/shipping-manifest?order_ids=${orderIds.join(",")}`
-    )
-    return res.data
+      `/reports/wms/shipping-manifest?order_ids=${orderIds.join(",")}`,
+    );
+    return res.data;
   },
 
   shipmentDetail: async (id: string): Promise<ShipmentDetail> => {
     const res = await fetchClient<{ data: RawShipmentDetail }>(
-      `/outbound/shipments/${encodeURIComponent(id)}`
-    )
-    return mapShipmentDetail(res.data)
+      `/outbound/shipments/${encodeURIComponent(id)}`,
+    );
+    return mapShipmentDetail(res.data);
   },
 
   scanOrderToShipment: async (
     shipmentId: string,
-    barcode: string
+    barcode: string,
   ): Promise<ShipmentDetail> => {
     const res = await fetchClient<{ data: RawShipmentDetail }>(
       `/outbound/shipments/${encodeURIComponent(shipmentId)}/scan-order`,
-      { method: "POST", data: { barcode } }
-    )
-    return mapShipmentDetail(res.data)
+      { method: "POST", data: { barcode } },
+    );
+    return mapShipmentDetail(res.data);
   },
 
   removeOrderFromShipment: async (
     shipmentId: string,
-    orderIds: string[]
+    orderIds: string[],
   ): Promise<ShipmentDetail> => {
     const res = await fetchClient<{ data: RawShipmentDetail }>(
       `/outbound/shipments/${encodeURIComponent(shipmentId)}/remove-orders`,
-      { method: "POST", data: { order_ids: orderIds } }
-    )
-    return mapShipmentDetail(res.data)
+      { method: "POST", data: { order_ids: orderIds } },
+    );
+    return mapShipmentDetail(res.data);
   },
-}
+};
