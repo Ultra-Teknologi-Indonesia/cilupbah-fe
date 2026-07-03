@@ -126,6 +126,30 @@ export function ImportPenyesuaianDialog({
     )
   }
 
+  const handleDownloadErrorLog = useCallback(() => {
+    if (!preview || preview.errors.length === 0) return
+    let content = "Log Error Import Penyesuaian Stok\n"
+    content += `Tanggal: ${new Date().toLocaleString("id-ID")}\n\n`
+    preview.errors.forEach((e) => {
+      content += `Baris ${e.row} - ${e.field}: ${e.error}\n`
+    })
+    if (preview.warnings.length > 0) {
+      content += "\nWarnings:\n"
+      preview.warnings.forEach((w) => {
+        content += `Baris ${w.row} - ${w.field}: ${w.warning}\n`
+      })
+    }
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = "error_log_import_stok.txt"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }, [preview])
+
   const canPreview = !!file && !!locationId && !previewMut.isPending
   const canConfirm =
     !!preview &&
@@ -276,23 +300,32 @@ export function ImportPenyesuaianDialog({
         </ScrollArea>
 
         <div className="shrink-0 border-t px-6 py-3">
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex items-center justify-between gap-2">
             {preview ? (
               <>
-                <Button variant="outline" onClick={() => setPreview(null)}>
-                  Kembali
-                </Button>
-                <Button onClick={handleConfirm} disabled={!canConfirm} className="gap-1.5">
-                  {confirmMut.isPending && (
-                    <Loader2Icon className="h-4 w-4 animate-spin" />
+                <div className="flex-1">
+                  {preview.errors.length > 0 && (
+                    <Button variant="outline" onClick={handleDownloadErrorLog} className="text-destructive hover:bg-destructive/10 hover:text-destructive">
+                      <DownloadIcon className="mr-2 h-4 w-4" /> Download Log Error
+                    </Button>
                   )}
-                  {preview.errors.length > 0
-                    ? `Perbaiki ${preview.errors.length} error dulu`
-                    : `Konfirmasi Import (${preview.items.length} item)`}
-                </Button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" onClick={() => setPreview(null)}>
+                    {preview.errors.length > 0 ? "Batal & Upload Ulang" : "Kembali"}
+                  </Button>
+                  <Button onClick={handleConfirm} disabled={!canConfirm} className="gap-1.5">
+                    {confirmMut.isPending && (
+                      <Loader2Icon className="h-4 w-4 animate-spin" />
+                    )}
+                    {preview.errors.length > 0
+                      ? `Terdapat ${preview.errors.length} error`
+                      : `Konfirmasi Import (${preview.items.length} item)`}
+                  </Button>
+                </div>
               </>
             ) : (
-              <>
+              <div className="flex w-full items-center justify-end gap-2">
                 <Button variant="outline" onClick={() => handleClose(false)}>
                   Batal
                 </Button>
@@ -302,7 +335,7 @@ export function ImportPenyesuaianDialog({
                   )}
                   <FileSpreadsheetIcon className="h-4 w-4" /> Import
                 </Button>
-              </>
+              </div>
             )}
           </div>
         </div>
