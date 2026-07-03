@@ -1,4 +1,4 @@
-import { fetchClient } from "@/lib/api-client";
+import { fetchBlob, fetchClient } from "@/lib/api-client";
 import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type {
   Order,
@@ -114,16 +114,39 @@ export const OrderService = {
     );
   },
 
-  acceptCancelRequest: (orderId: string) => {
+  acceptCancelRequest: (orderId: string, reason?: string) => {
     return fetchClient<ApiResponse>(`/sales/orders/${orderId}/accept-cancel`, {
       method: "POST",
+      data: reason ? { reason } : undefined,
     });
   },
 
-  rejectCancelRequest: (orderId: string) => {
+  rejectCancelRequest: (orderId: string, reason?: string) => {
     return fetchClient<ApiResponse>(`/sales/orders/${orderId}/reject-cancel`, {
       method: "POST",
+      data: reason ? { reason } : undefined,
     });
+  },
+
+  exportCancelled: (params: {
+    date_from?: string;
+    date_to?: string;
+    post_pack_only?: boolean;
+    source?: string;
+  }) => {
+    const sp = new URLSearchParams();
+    if (params.date_from) sp.set("date_from", params.date_from);
+    if (params.date_to) sp.set("date_to", params.date_to);
+    if (params.post_pack_only) sp.set("post_pack_only", "1");
+    if (params.source) sp.set("source", params.source);
+
+    const filename = `cancel-orders-${params.date_from ?? "all"}-${params.date_to ?? "now"}.xlsx`;
+
+    return fetchBlob(
+      `/sales/orders/cancelled/export?${sp}`,
+      filename,
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
   },
 
   saveReceivedDate: (orderId: string, receivedDate?: string) => {

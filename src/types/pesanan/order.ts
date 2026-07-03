@@ -10,7 +10,7 @@ export type OrderTab =
   | "cancellation"
   | "returned";
 
-export type CancellationSub = "pending" | "cancelled";
+export type CancellationSub = "pending" | "cancelled" | "post_pack";
 export type ReturnSub = "pending" | "accepted" | "rejected";
 export type SubFilter = CancellationSub | ReturnSub | null;
 
@@ -53,6 +53,9 @@ export interface Order {
   cancel_reason: string | null;
   cancel_requested_at: string | null;
   cancel_request_reason: string | null;
+  cancel_accepted_at: string | null;
+  cancel_channel: "auto" | "manual" | null;
+  handed_to_warehouse_at: string | null;
   payment_method: string | null;
   payment_method_name: string | null;
   paid_time: string | null;
@@ -159,6 +162,7 @@ export const SUB_PILL_CONFIG: Partial<
   cancellation: [
     { key: "pending", label: "Menunggu" },
     { key: "cancelled", label: "Dibatalkan" },
+    { key: "post_pack", label: "Batal Setelah Packing" },
   ],
   returned: [
     { key: "pending", label: "Menunggu" },

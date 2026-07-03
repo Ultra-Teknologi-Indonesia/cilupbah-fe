@@ -21,6 +21,7 @@ import { OrderStatusTabs, OrderSubStatusPills } from "./order-status-tabs";
 import { OrderFilters, EMPTY_FILTERS, type FilterState } from "./order-filters";
 import { OrderCardList } from "./order-card-list";
 import { BulkActionBar } from "./bulk-action-bar";
+import { ExportCancelDialog } from "./export-cancel-dialog";
 
 const TAB_KEYS = TAB_CONFIG.map((t) => t.key as OrderTab);
 
@@ -169,6 +170,7 @@ export function PesananView() {
               </div>
             )}
           </div>
+          {tab === "cancellation" && <ExportCancelDialog />}
         </div>
 
         <OrderFilters
