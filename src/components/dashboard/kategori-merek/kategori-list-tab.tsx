@@ -1,5 +1,5 @@
-import { EmptyState } from "@/components/ui/empty-state";
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import * as React from "react";
 import {  Loader2Icon, PencilIcon, Trash2Icon , SearchXIcon, FileXIcon } from "lucide-react";

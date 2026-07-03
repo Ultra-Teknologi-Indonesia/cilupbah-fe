@@ -1,5 +1,5 @@
-import { EmptyState } from "@/components/ui/empty-state";
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import * as React from "react";
 import Link from "next/link";
