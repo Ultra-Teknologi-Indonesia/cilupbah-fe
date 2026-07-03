@@ -31,7 +31,6 @@ import {
   CircleDollarSign,
   Settings,
   HelpCircle,
-  Boxes,
   Layers,
   Warehouse,
   BarChart3,
@@ -62,7 +61,7 @@ export const dashboardGroups: NavGroup[] = [
   {
     id: "katalog",
     title: "Katalog",
-    icon: Boxes,
+    icon: Tag,
     zone: "ops",
     items: [
       {
