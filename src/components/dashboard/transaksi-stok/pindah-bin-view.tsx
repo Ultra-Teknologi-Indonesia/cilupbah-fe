@@ -26,9 +26,9 @@ import {
   useLocationBins,
 } from "@/hooks/transaksi-stok/use-bin-transfer";
 import {
-  ProductPickerDialog,
-  type PickedProduct,
-} from "@/components/dashboard/transaksi-pembelian/product-picker-dialog";
+  StockedProductPickerDialog,
+  type StockedPickedProduct,
+} from "@/components/dashboard/transaksi-stok/stocked-product-picker-dialog";
 import { InventoryStockService } from "@/services/persediaan/inventory.service";
 import { cn } from "@/lib/utils";
 import { playScanFeedback } from "@/lib/scan-feedback";
@@ -185,12 +185,11 @@ export function PindahBinView() {
     }
   };
 
-  const addLinesFromPicker = async (products: PickedProduct[]) => {
+  const addLinesFromPicker = async (products: StockedPickedProduct[]) => {
     setPickerOpen(false);
     setPickerSearch(undefined);
     if (!locationId) return;
 
-    const skipped: string[] = [];
     let added = 0;
     for (const p of products) {
       if (lines.some((l) => l.itemId === p.itemId)) continue;
@@ -201,16 +200,8 @@ export function PindahBinView() {
         upsertLineFromVariant(res.data);
         added += 1;
       } catch {
-        skipped.push(p.sku);
+        toast.error(`Gagal memuat detail rak untuk SKU "${p.sku}".`);
       }
-    }
-
-    if (skipped.length > 0) {
-      const list = skipped.slice(0, 3).join(", ");
-      const more = skipped.length > 3 ? ` (+${skipped.length - 3} lainnya)` : "";
-      toast.error(
-        `${skipped.length} produk dilewati karena tidak ada stok di gudang ini: ${list}${more}`,
-      );
     }
     if (added > 0) {
       toast.success(`${added} produk berhasil ditambahkan.`);
@@ -663,13 +654,14 @@ export function PindahBinView() {
         </Button>
       </div>
 
-      <ProductPickerDialog
+      <StockedProductPickerDialog
         open={pickerOpen}
         onOpenChange={(v) => {
           setPickerOpen(v);
           if (!v) setPickerSearch(undefined);
         }}
         onPick={addLinesFromPicker}
+        locationId={locationId}
         excludeIds={lines.map((l) => l.itemId)}
         initialSearch={pickerSearch}
       />

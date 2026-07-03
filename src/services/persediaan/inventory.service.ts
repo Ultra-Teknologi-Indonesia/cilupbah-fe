@@ -73,6 +73,29 @@ export const InventoryStockService = {
     );
   },
 
+  stockedItems: (params: {
+    locationId: string;
+    search?: string;
+    page?: number;
+    perPage?: number;
+  }) => {
+    const q = new URLSearchParams();
+    q.set("location_id", params.locationId);
+    if (params.search) q.set("search", params.search);
+    if (params.page) q.set("page", String(params.page));
+    q.set("per_page", String(params.perPage ?? 20));
+    return fetchClient<
+      ApiPaginated<{
+        item_id: string;
+        sku: string;
+        product_name: string | null;
+        variant_label: string;
+        thumbnail_url: string | null;
+        total_on_hand: number;
+      }>
+    >(`/inventory/stock/items?${q.toString()}`);
+  },
+
   bySku: (
     sku: string,
     locationId?: string,
