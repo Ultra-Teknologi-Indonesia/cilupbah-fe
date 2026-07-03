@@ -276,7 +276,7 @@ export function ImportPenyesuaianDialog({
         </ScrollArea>
 
         <div className="shrink-0 border-t px-6 py-3">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center justify-end gap-2">
             {preview ? (
               <>
                 <Button variant="outline" onClick={() => setPreview(null)}>
