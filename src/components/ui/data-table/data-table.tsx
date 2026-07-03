@@ -63,6 +63,7 @@ export interface DataTableProps<TData, TValue> {
     table: TableInstance<TData>,
   ) => React.ReactNode;
   onRowClick?: (row: TData) => void;
+  getRowClassName?: (row: TData) => string | undefined;
 
   manualPagination?: boolean;
   manualSorting?: boolean;
@@ -104,6 +105,7 @@ export function DataTable<TData, TValue>({
   renderSubRow,
   bulkActions,
   onRowClick,
+  getRowClassName,
   manualPagination = false,
   manualSorting = false,
   manualFiltering = false,
@@ -267,7 +269,10 @@ export function DataTable<TData, TValue>({
                       onClick={
                         onRowClick ? () => onRowClick(row.original) : undefined
                       }
-                      className={cn(onRowClick && "cursor-pointer")}
+                      className={cn(
+                        onRowClick && "cursor-pointer",
+                        getRowClassName?.(row.original),
+                      )}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>

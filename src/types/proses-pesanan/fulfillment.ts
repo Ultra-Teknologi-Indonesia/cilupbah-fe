@@ -119,6 +119,10 @@ export interface RawFulfillmentOrder {
   is_split_order?: boolean;
   channel_status?: string | null;
   cancel_by?: string | null;
+  is_canceled?: boolean | null;
+  cancel_requested_at?: string | null;
+  cancel_reason?: string | null;
+  cancel_accepted_at?: string | null;
   fulfillment_flag?: string | null;
   days_to_ship?: number | null;
   ship_by_date?: string | null;
@@ -127,6 +131,8 @@ export interface RawFulfillmentOrder {
   dropshipper_phone?: string | null;
   total_qty?: number | null;
   total_sku?: number | null;
+  is_instant?: boolean;
+  shipping_type?: string | null;
   items?: RawFulfillmentOrderItem[] | null;
 }
 
@@ -160,6 +166,10 @@ export interface FulfillmentOrder {
   isSplitOrder: boolean;
   channelStatus: string | null;
   cancelBy: string | null;
+  isCanceled: boolean;
+  cancelRequestedAt: string | null;
+  cancelReason: string | null;
+  cancelAcceptedAt: string | null;
   fulfillmentFlag: string | null;
   daysToShip: number | null;
   shipByDate: string | null;
@@ -168,6 +178,8 @@ export interface FulfillmentOrder {
   dropshipperPhone: string | null;
   totalQty: number | null;
   totalSku: number | null;
+  isInstant: boolean;
+  shippingType: string | null;
   items: FulfillmentOrderItem[];
 }
 
@@ -189,6 +201,7 @@ export interface RawPicklist {
   items_count?: number;
   items_sum_qty_ordered?: number | null;
   items_sum_qty_picked?: number | null;
+  has_instant?: boolean;
   location?: {
     id: string;
     location_name?: string | null;
@@ -211,6 +224,7 @@ export interface Picklist {
   itemsCount: number;
   qtyOrdered: number;
   qtyPicked: number;
+  hasInstant: boolean;
 }
 
 export const PICKLIST_STATUS_LABEL: Record<
@@ -342,6 +356,9 @@ export interface RawPacklist {
     id: string;
     salesorder_no?: string | null;
     customer_name?: string | null;
+    is_instant?: boolean;
+    shipping_provider?: string | null;
+    shipping_type?: string | null;
   } | null;
 }
 
@@ -356,6 +373,7 @@ export interface Packlist {
   customerName: string | null;
   status: PacklistStatus;
   packageCount: number;
+  isInstant: boolean;
 }
 
 export interface RawPacklistItem {
@@ -451,6 +469,7 @@ export interface RawShipment {
   handed_over_at?: string | null;
   orders_count?: number;
   total_weight_gram?: number | null;
+  has_instant?: boolean;
   created_at?: string | null;
 }
 
@@ -467,6 +486,7 @@ export interface Shipment {
   handedOverAt: string | null;
   ordersCount: number;
   totalWeightGram: number;
+  hasInstant: boolean;
   createdAt: string | null;
 }
 

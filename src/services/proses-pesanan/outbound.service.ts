@@ -115,6 +115,10 @@ function mapOrder(raw: RawFulfillmentOrder): FulfillmentOrder {
     isSplitOrder: Boolean(raw.is_split_order),
     channelStatus: raw.channel_status ?? null,
     cancelBy: raw.cancel_by ?? null,
+    isCanceled: Boolean(raw.is_canceled),
+    cancelRequestedAt: raw.cancel_requested_at ?? null,
+    cancelReason: raw.cancel_reason ?? null,
+    cancelAcceptedAt: raw.cancel_accepted_at ?? null,
     fulfillmentFlag: raw.fulfillment_flag ?? null,
     daysToShip: raw.days_to_ship ?? null,
     shipByDate: raw.ship_by_date ?? null,
@@ -123,6 +127,8 @@ function mapOrder(raw: RawFulfillmentOrder): FulfillmentOrder {
     dropshipperPhone: raw.dropshipper_phone ?? null,
     totalQty: raw.total_qty ?? null,
     totalSku: raw.total_sku ?? null,
+    isInstant: Boolean(raw.is_instant),
+    shippingType: raw.shipping_type ?? null,
     items: (raw.items ?? []).map((i) => ({
       id: i.id,
       sku: i.sku,
@@ -149,6 +155,7 @@ function mapPicklist(raw: RawPicklist): Picklist {
     itemsCount: raw.items_count ?? 0,
     qtyOrdered: raw.items_sum_qty_ordered ?? 0,
     qtyPicked: raw.items_sum_qty_picked ?? 0,
+    hasInstant: Boolean(raw.has_instant),
   };
 }
 
@@ -164,6 +171,7 @@ function mapPacklist(raw: RawPacklist): Packlist {
     customerName: raw.order?.customer_name ?? null,
     status: (raw.status ?? "DRAFT") as Packlist["status"],
     packageCount: raw.package_count ?? 1,
+    isInstant: Boolean(raw.order?.is_instant),
   };
 }
 
@@ -181,6 +189,7 @@ function mapShipment(raw: RawShipment): Shipment {
     handedOverAt: raw.handed_over_at ?? null,
     ordersCount: raw.orders_count ?? 0,
     totalWeightGram: Number(raw.total_weight_gram ?? 0),
+    hasInstant: Boolean(raw.has_instant),
     createdAt: raw.created_at ?? null,
   };
 }

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { PackageIcon, PlusIcon, ScanBarcodeIcon } from "lucide-react";
+import { PackageIcon, PlusIcon, ScanBarcodeIcon, ZapIcon } from "lucide-react";
 
 import { useUrlTab } from "@/hooks/use-url-tab";
 
@@ -164,7 +164,16 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
       >
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6 sm:py-5">
           <div className="min-w-0">
-            <h2 className="text-base font-medium">{stageLabel}</h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-base font-medium">{stageLabel}</h2>
+              <span
+                className="inline-flex items-center gap-1 rounded-full border border-orange-500/60 bg-orange-500/10 px-2 py-0.5 text-[10px] font-medium text-orange-700 dark:text-orange-400"
+                title="Baris berwarna oranye = pesanan instan (SLA ~2 jam) — prioritaskan!"
+              >
+                <ZapIcon className="h-2.5 w-2.5 fill-current" />
+                Baris oranye = pesanan instan, prioritaskan
+              </span>
+            </div>
             {subs.length > 0 && (
               <div className="mt-3">
                 <SubStatusTabs

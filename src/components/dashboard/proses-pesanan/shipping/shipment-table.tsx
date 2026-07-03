@@ -7,8 +7,15 @@ import {
   MoreHorizontalIcon,
   PrinterIcon,
   XCircleIcon,
+  ZapIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -114,12 +121,34 @@ export function ShipmentTable() {
         accessorKey: "shipmentNo",
         header: "No. Pengiriman",
         cell: ({ row }) => (
-          <Link
-            href={`/dashboard/proses-pesanan/shipping/${row.original.id}`}
-            className="font-medium text-primary hover:underline"
-          >
-            {row.original.shipmentNo}
-          </Link>
+          <div className="flex items-center gap-1.5">
+            <Link
+              href={`/dashboard/proses-pesanan/shipping/${row.original.id}`}
+              className={cn(
+                "font-medium hover:underline",
+                row.original.hasInstant
+                  ? "text-orange-700 dark:text-orange-400"
+                  : "text-primary",
+              )}
+            >
+              {row.original.shipmentNo}
+            </Link>
+            {row.original.hasInstant && (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-flex items-center gap-0.5 rounded border border-orange-500/60 bg-orange-500/15 px-1 py-0.5 text-[9px] font-semibold text-orange-700 dark:text-orange-400">
+                      <ZapIcon className="h-2.5 w-2.5 fill-current" />
+                      INSTANT
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Manifest ini berisi pesanan instan — prioritaskan!
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
         ),
       },
       {
@@ -236,6 +265,11 @@ export function ShipmentTable() {
           data={shipments}
           isLoading={isLoading}
           hideToolbar
+          getRowClassName={(row) =>
+            row.hasInstant
+              ? "bg-orange-50/60 dark:bg-orange-950/20 border-l-4 border-l-orange-500"
+              : undefined
+          }
           manualPagination
           pagination={{
             pageIndex: meta.current_page - 1,

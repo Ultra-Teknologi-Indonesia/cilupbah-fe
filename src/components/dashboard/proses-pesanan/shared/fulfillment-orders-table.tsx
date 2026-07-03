@@ -13,6 +13,7 @@ import {
   MapPinIcon,
   TruckIcon,
   PackageIcon,
+  ZapIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -136,6 +137,8 @@ function OrderCard({
       className={cn(
         "group rounded-xl border border-border/60 bg-card transition-all hover:border-border hover:shadow-sm",
         selected && "border-primary/40 bg-primary/[0.02]",
+        order.isInstant &&
+          "border-l-4 border-l-orange-500 bg-orange-50/50 dark:bg-orange-950/20",
       )}
     >
       {}
@@ -151,7 +154,10 @@ function OrderCard({
             <button
               type="button"
               onClick={() => copyToClipboard(order.salesorderNo)}
-              className="inline-flex items-center gap-1.5 font-mono text-sm font-semibold hover:text-primary transition-colors"
+              className={cn(
+                "inline-flex items-center gap-1.5 font-mono text-sm font-semibold hover:text-primary transition-colors",
+                order.isInstant && "text-orange-700 dark:text-orange-400",
+              )}
             >
               {order.salesorderNo}
               <CopyIcon className="h-3 w-3 opacity-0 group-hover:opacity-50 transition-opacity" />
@@ -187,6 +193,15 @@ function OrderCard({
         <span className="text-border select-none">|</span>
         <ChannelIcon source={order.source} />
 
+        {order.isInstant && (
+          <Badge
+            variant="outline"
+            className="border-orange-500/60 bg-orange-500/15 text-orange-700 dark:text-orange-400 text-[10px] px-1.5 py-0 gap-0.5"
+          >
+            <ZapIcon className="h-2.5 w-2.5 fill-current" />
+            INSTANT
+          </Badge>
+        )}
         {order.isCod && (
           <Badge
             variant="outline"

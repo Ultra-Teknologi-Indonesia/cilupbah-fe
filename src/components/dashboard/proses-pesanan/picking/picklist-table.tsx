@@ -7,6 +7,7 @@ import {
   MoreHorizontalIcon,
   PrinterIcon,
   RefreshCwIcon,
+  ZapIcon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -123,15 +124,37 @@ export function PicklistTable() {
         accessorKey: "picklistNo",
         header: "No. Picklist",
         cell: ({ row }) => (
-          <Link
-            href={`/dashboard/proses-pesanan/picking/proses/${row.original.id}`}
-            onClick={(e) => e.stopPropagation()}
-            onMouseEnter={() => prefetchPicklist(row.original.id)}
-            onFocus={() => prefetchPicklist(row.original.id)}
-            className="cursor-pointer font-medium text-primary hover:underline"
-          >
-            {row.original.picklistNo}
-          </Link>
+          <div className="flex items-center gap-1.5">
+            <Link
+              href={`/dashboard/proses-pesanan/picking/proses/${row.original.id}`}
+              onClick={(e) => e.stopPropagation()}
+              onMouseEnter={() => prefetchPicklist(row.original.id)}
+              onFocus={() => prefetchPicklist(row.original.id)}
+              className={cn(
+                "cursor-pointer font-medium hover:underline",
+                row.original.hasInstant
+                  ? "text-orange-700 dark:text-orange-400"
+                  : "text-primary",
+              )}
+            >
+              {row.original.picklistNo}
+            </Link>
+            {row.original.hasInstant && (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-flex items-center gap-0.5 rounded border border-orange-500/60 bg-orange-500/15 px-1 py-0.5 text-[9px] font-semibold text-orange-700 dark:text-orange-400">
+                      <ZapIcon className="h-2.5 w-2.5 fill-current" />
+                      INSTANT
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Picklist ini berisi pesanan instan — prioritaskan!
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
         ),
       },
       {
@@ -286,6 +309,11 @@ export function PicklistTable() {
           data={picklists}
           isLoading={isLoading}
           hideToolbar
+          getRowClassName={(row) =>
+            row.hasInstant
+              ? "bg-orange-50/60 dark:bg-orange-950/20 border-l-4 border-l-orange-500"
+              : undefined
+          }
           manualPagination
           pagination={{
             pageIndex: meta.current_page - 1,

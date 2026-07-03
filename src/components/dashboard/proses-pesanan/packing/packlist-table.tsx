@@ -2,7 +2,13 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { RefreshCwIcon, MoreHorizontalIcon } from "lucide-react";
+import { RefreshCwIcon, MoreHorizontalIcon, ZapIcon } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -97,7 +103,31 @@ export function PacklistTable() {
       {
         accessorKey: "orderNo",
         header: "No. Pesanan",
-        cell: ({ row }) => <span>{row.original.orderNo ?? "—"}</span>,
+        cell: ({ row }) => (
+          <div className="flex items-center gap-1.5">
+            <span
+              className={cn(
+                row.original.isInstant &&
+                  "font-semibold text-orange-700 dark:text-orange-400",
+              )}
+            >
+              {row.original.orderNo ?? "—"}
+            </span>
+            {row.original.isInstant && (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-flex items-center gap-0.5 rounded border border-orange-500/60 bg-orange-500/15 px-1 py-0.5 text-[9px] font-semibold text-orange-700 dark:text-orange-400">
+                      <ZapIcon className="h-2.5 w-2.5 fill-current" />
+                      INSTANT
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>Pesanan instan — prioritaskan!</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        ),
       },
       {
         accessorKey: "customerName",
@@ -201,6 +231,11 @@ export function PacklistTable() {
           data={packlists}
           isLoading={isLoading}
           hideToolbar
+          getRowClassName={(row) =>
+            row.isInstant
+              ? "bg-orange-50/60 dark:bg-orange-950/20 border-l-4 border-l-orange-500"
+              : undefined
+          }
           manualPagination
           pagination={{
             pageIndex: meta.current_page - 1,
