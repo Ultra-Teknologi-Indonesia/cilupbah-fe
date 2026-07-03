@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { SimplePagination, TABLE_PAGE_SIZES } from "@/components/ui/simple-pagination"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Combobox } from "@/components/ui/combobox"
 import { PageTitle } from "@/components/dashboard/page-title"
 import { FilterToolbar } from "@/components/dashboard/shared/filter-toolbar"
 import {
@@ -341,27 +342,136 @@ function BinSection({ itemId }: { itemId: string }) {
   const { data, isLoading } = useItemStock(itemId)
   const bins: BinInventory[] = data?.data ?? []
 
+  const [locationId, setLocationId] = useState("")
+  const [floor, setFloor] = useState("")
+  const [row, setRow] = useState("")
+  const [col, setCol] = useState("")
+
+  const locationOptions = useMemo(() => {
+    const seen = new Map<string, string>()
+    for (const b of bins) if (b.location_id && !seen.has(b.location_id)) seen.set(b.location_id, b.location_name)
+    return Array.from(seen, ([value, label]) => ({ value, label }))
+  }, [bins])
+
+  const floorOptions = useMemo(() => {
+    const set = new Set<string>()
+    for (const b of bins) {
+      if (locationId && b.location_id !== locationId) continue
+      if (b.floor_code) set.add(b.floor_code)
+    }
+    return Array.from(set).sort().map((v) => ({ value: v, label: v }))
+  }, [bins, locationId])
+
+  const rowOptions = useMemo(() => {
+    const set = new Set<string>()
+    for (const b of bins) {
+      if (locationId && b.location_id !== locationId) continue
+      if (floor && b.floor_code !== floor) continue
+      if (b.row_code) set.add(b.row_code)
+    }
+    return Array.from(set).sort().map((v) => ({ value: v, label: v }))
+  }, [bins, locationId, floor])
+
+  const colOptions = useMemo(() => {
+    const set = new Set<string>()
+    for (const b of bins) {
+      if (locationId && b.location_id !== locationId) continue
+      if (floor && b.floor_code !== floor) continue
+      if (row && b.row_code !== row) continue
+      if (b.column_code) set.add(b.column_code)
+    }
+    return Array.from(set).sort().map((v) => ({ value: v, label: v }))
+  }, [bins, locationId, floor, row])
+
+  const filtered = useMemo(() => bins.filter((b) => {
+    if (locationId && b.location_id !== locationId) return false
+    if (floor && b.floor_code !== floor) return false
+    if (row && b.row_code !== row) return false
+    if (col && b.column_code !== col) return false
+    return true
+  }), [bins, locationId, floor, row, col])
+
+  const activeCount = [locationId, floor, row, col].filter(Boolean).length
+  const hasFilter = activeCount > 0
+
+  const filterBar = (
+    <FilterToolbar
+      align="end"
+      hasFilter={hasFilter}
+      activeCount={activeCount}
+      onReset={hasFilter ? () => { setLocationId(""); setFloor(""); setRow(""); setCol("") } : undefined}
+      gridCols={2}
+    >
+      <Select
+        value={locationId || ALL_VALUE}
+        onValueChange={(v) => { setLocationId(v === ALL_VALUE ? "" : v); setFloor(""); setRow(""); setCol("") }}
+      >
+        <SelectTrigger className="h-9 w-full rounded-full border-border bg-background">
+          <SelectValue placeholder="Pilih lokasi" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={ALL_VALUE}>Semua Lokasi</SelectItem>
+          {locationOptions.map((o) => (
+            <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Combobox
+        options={[{ value: "", label: "Semua Lantai" }, ...floorOptions]}
+        value={floor}
+        onChange={(v) => { setFloor(v ?? ""); setRow(""); setCol("") }}
+        placeholder="Pilih lantai"
+        searchPlaceholder="Cari lantai"
+        className="h-9 bg-background"
+      />
+      <Combobox
+        options={[{ value: "", label: "Semua Baris" }, ...rowOptions]}
+        value={row}
+        onChange={(v) => { setRow(v ?? ""); setCol("") }}
+        placeholder="Pilih baris"
+        searchPlaceholder="Cari baris"
+        className="h-9 bg-background"
+      />
+      <Combobox
+        options={[{ value: "", label: "Semua Kolom" }, ...colOptions]}
+        value={col}
+        onChange={(v) => setCol(v ?? "")}
+        placeholder="Pilih kolom"
+        searchPlaceholder="Cari kolom"
+        className="h-9 bg-background"
+      />
+    </FilterToolbar>
+  )
+
   if (isLoading) {
     return (
-      <div className="space-y-2 p-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-16 w-full rounded-lg" />
-        ))}
+      <div className="flex flex-col gap-3">
+        {filterBar}
+        <div className="space-y-2 p-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full rounded-lg" />
+          ))}
+        </div>
       </div>
     )
   }
 
   if (bins.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 py-16 text-muted-foreground">
-        <BoxIcon className="h-8 w-8" />
-        <p className="text-sm font-medium">Belum ada data persediaan di rak</p>
+      <div className="flex flex-col gap-3">
+        {filterBar}
+        <div className="flex flex-col items-center gap-2 py-16 text-muted-foreground">
+          <BoxIcon className="h-8 w-8" />
+          <p className="text-sm font-medium">Belum ada data persediaan di rak</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <Table>
+    <div className="flex flex-col gap-3">
+      {filterBar}
+      <Table>
       <TableHeader>
         <TableRow className="border-b border-border/60 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
           <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">Lokasi</TableHead>
@@ -372,7 +482,7 @@ function BinSection({ itemId }: { itemId: string }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {bins.map((b: BinInventory) => (
+        {filtered.map((b: BinInventory) => (
           <TableRow key={b.id} className="border-b border-border/30 transition-colors hover:bg-muted/30">
             <TableCell className="px-3 py-2.5">
               <span className="inline-flex items-center gap-1">
@@ -400,6 +510,7 @@ function BinSection({ itemId }: { itemId: string }) {
         ))}
       </TableBody>
     </Table>
+    </div>
   )
 }
 

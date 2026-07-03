@@ -62,6 +62,9 @@ export interface BinInventory {
   location_name: string
   bin_id: string | null
   bin_code: string | null
+  floor_code: string | null
+  row_code: string | null
+  column_code: string | null
   batch_no: string | null
   serial_no: string | null
   expired_date: string | null
