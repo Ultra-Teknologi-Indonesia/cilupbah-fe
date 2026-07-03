@@ -51,7 +51,7 @@ interface LineDraft {
 
 export function PindahBinView() {
   const router = useRouter();
-  const [transferNo] = useState("[auto]");
+  const [transferNo, setTransferNo] = useState("[auto]");
   const [transferDate, setTransferDate] = useState<Date | undefined>(
     () => new Date(),
   );
@@ -132,11 +132,15 @@ export function PindahBinView() {
 
   const handleSubmit = () => {
     if (!canSubmit) return;
+    const noTrimmed = transferNo.trim();
+    const customNo =
+      noTrimmed !== "" && noTrimmed !== "[auto]" ? noTrimmed : undefined;
     createMut.mutate(
       {
         location_id: locationId,
         source_bin_id: sourceBinId,
         destination_bin_id: destBinId,
+        transfer_number: customNo,
         transfer_date: transferDate ? toDateInputValue(transferDate) : undefined,
         created_by: createdBy.trim(),
         notes: notes.trim() || undefined,
@@ -161,13 +165,13 @@ export function PindahBinView() {
   return (
     <div className="flex flex-col gap-5">
       <PageTitle
-        title="Pindah Antar Bin"
+        title="Transfer Internal"
         backHref={LIST_HREF}
         breadcrumb={[
           { label: "Persediaan" },
           { label: "Transaksi Stok", href: LIST_HREF },
-          { label: "Internal Transfer", href: LIST_HREF },
-          { label: "Pindah Antar Bin" },
+          { label: "Transfer Internal", href: LIST_HREF },
+          { label: "Buat" },
         ]}
       />
 
@@ -180,9 +184,24 @@ export function PindahBinView() {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
-                No. Pindah Bin <span className="text-red-500">*</span>
+                No. Transfer Internal <span className="text-red-500">*</span>
               </Label>
-              <Input value={transferNo} readOnly className="bg-muted/40" />
+              <Input
+                value={transferNo}
+                onChange={(e) => setTransferNo(e.target.value)}
+                onFocus={(e) => {
+                  if (e.target.value === "[auto]") setTransferNo("");
+                }}
+                onBlur={(e) => {
+                  if (e.target.value.trim() === "") setTransferNo("[auto]");
+                }}
+                placeholder="[auto]"
+              />
+              <p className="text-xs text-muted-foreground">
+                Biarkan{" "}
+                <span className="font-mono">[auto]</span> untuk generate
+                otomatis (TRFI-…), atau isi manual.
+              </p>
             </div>
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
@@ -244,7 +263,7 @@ export function PindahBinView() {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
-                Dipindahkan Oleh <span className="text-red-500">*</span>
+                Dibuat Oleh <span className="text-red-500">*</span>
               </Label>
               <UserSelect
                 value={createdBy}
@@ -291,7 +310,7 @@ export function PindahBinView() {
           <div className="flex flex-col gap-4 px-5 py-5">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium">
-                Produk yang Dipindahkan{" "}
+                Produk yang Ditransfer{" "}
                 <span className="text-red-500">*</span>
               </Label>
               <Button
@@ -328,7 +347,7 @@ export function PindahBinView() {
                           <PackageSearchIcon className="h-7 w-7 opacity-40" />
                           <p className="text-sm">
                             Belum ada produk. Klik “Tambah Produk” untuk
-                            memilih produk yang akan dipindahkan.
+                            memilih produk yang akan ditransfer.
                           </p>
                         </div>
                       </td>
@@ -417,7 +436,7 @@ export function PindahBinView() {
 
             {lines.length > 0 && (
               <p className="text-xs text-muted-foreground">
-                Total {validLines.length} produk siap dipindahkan dari{" "}
+                Total {validLines.length} produk siap ditransfer dari{" "}
                 <span className="font-mono">
                   {binOptions.find((b) => b.value === sourceBinId)?.label ??
                     "—"}

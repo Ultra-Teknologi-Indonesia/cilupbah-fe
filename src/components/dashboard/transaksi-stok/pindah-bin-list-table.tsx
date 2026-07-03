@@ -46,7 +46,7 @@ export function PindahBinListTable() {
     () => [
       {
         accessorKey: "transfer_number",
-        header: "No. Pindah Bin",
+        header: "No. Transfer Internal",
         cell: ({ row }) => (
           <Link
             href={`/dashboard/transaksi-stok/pindah-bin/${row.original.id}`}
@@ -127,9 +127,9 @@ export function PindahBinListTable() {
   const handleExport = useCallback(() => {
     if (items.length === 0) return;
     exportCsv(
-      "pindah-bin.csv",
+      "transfer-internal.csv",
       [
-        "No. Pindah Bin",
+        "No. Transfer Internal",
         "Tanggal",
         "Lokasi",
         "Rak Asal",
@@ -155,7 +155,7 @@ export function PindahBinListTable() {
         <Button size="sm" asChild className="gap-1.5">
           <Link href="/dashboard/transaksi-stok/pindah-bin">
             <MoveRightIcon className="h-4 w-4" />
-            Buat Pindah Bin
+            Tambah Transfer Internal
           </Link>
         </Button>
       </div>
@@ -167,11 +167,11 @@ export function PindahBinListTable() {
         total={total}
         isLoading={isLoading}
         isFetching={isFetching}
-        searchPlaceholder="Cari no. pindah bin..."
+        searchPlaceholder="Cari no. transfer internal..."
         onExport={handleExport}
         emptyIcon={PackageIcon}
-        emptyTitle="Belum ada pindah bin"
-        emptyDescription="Buat pindah bin baru untuk memindahkan stok antar rak dalam gudang yang sama."
+        emptyTitle="Belum ada transfer internal"
+        emptyDescription="Buat transfer internal baru untuk memindahkan stok antar rak dalam gudang yang sama."
       />
     </div>
   );

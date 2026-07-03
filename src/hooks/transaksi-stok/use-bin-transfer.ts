@@ -30,6 +30,7 @@ export interface BinTransferPayload {
   location_id: string;
   source_bin_id: string;
   destination_bin_id: string;
+  transfer_number?: string;
   transfer_date?: string;
   created_by: string;
   notes?: string;

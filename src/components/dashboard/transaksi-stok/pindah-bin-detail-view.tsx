@@ -93,7 +93,7 @@ export function PindahBinDetailView({ id }: { id: string }) {
     return (
       <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
         <PackageSearchIcon className="h-10 w-10" />
-        <p className="text-sm">Pindah bin tidak ditemukan.</p>
+        <p className="text-sm">Transfer internal tidak ditemukan.</p>
         <Button variant="outline" size="sm" asChild>
           <Link href={LIST_HREF}>Kembali</Link>
         </Button>
@@ -106,13 +106,12 @@ export function PindahBinDetailView({ id }: { id: string }) {
   return (
     <div className="flex flex-col gap-4">
       <PageTitle
-        title={`Pindah Bin - ${trf.transfer_number}`}
+        title={`Transfer Internal - ${trf.transfer_number}`}
         backHref={LIST_HREF}
         breadcrumb={[
           { label: "Persediaan" },
           { label: "Transaksi Stok", href: LIST_HREF },
-          { label: "Internal Transfer", href: LIST_HREF },
-          { label: "Selesai" },
+          { label: "Transfer Internal", href: LIST_HREF },
           { label: trf.transfer_number },
         ]}
         actions={
@@ -169,17 +168,17 @@ export function PindahBinDetailView({ id }: { id: string }) {
       >
         <div className="grid grid-cols-1 gap-4 px-5 py-5 sm:grid-cols-2">
           <InfoRow
-            label="Tgl. Pindah"
+            label="Tgl. Transfer"
             value={
               trf.transfer_date ? formatDateTimeFull(trf.transfer_date) : null
             }
           />
-          <InfoRow label="No. Pindah Bin" value={trf.transfer_number} />
+          <InfoRow label="No. Transfer Internal" value={trf.transfer_number} />
           <InfoRow
             label="Lokasi"
             value={trf.location?.location_name ?? "—"}
           />
-          <InfoRow label="Dipindahkan Oleh" value={trf.created_by} />
+          <InfoRow label="Dibuat Oleh" value={trf.created_by} />
           <InfoRow
             label="Rak Asal"
             value={trf.source_bin?.bin_final_code ?? "—"}

@@ -61,7 +61,7 @@ export function PindahBinEditView({ id }: { id: string }) {
     return (
       <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
         <PackageSearchIcon className="h-10 w-10" />
-        <p className="text-sm">Pindah bin tidak ditemukan.</p>
+        <p className="text-sm">Transfer internal tidak ditemukan.</p>
         <Button variant="outline" size="sm" asChild>
           <Link href={listHref}>Kembali</Link>
         </Button>
@@ -91,7 +91,7 @@ export function PindahBinEditView({ id }: { id: string }) {
         breadcrumb={[
           { label: "Persediaan" },
           { label: "Transaksi Stok", href: listHref },
-          { label: "Internal Transfer", href: listHref },
+          { label: "Transfer Internal", href: listHref },
           { label: trf.transfer_number, href: detailHref },
           { label: "Edit" },
         ]}
@@ -102,8 +102,9 @@ export function PindahBinEditView({ id }: { id: string }) {
         <div>
           <p className="text-sm font-medium">Hanya metadata yang dapat diubah</p>
           <p className="text-xs text-muted-foreground">
-            Untuk mengubah rak asal/tujuan, produk, atau qty, buat pindah bin
-            baru dengan arah kebalikan lalu susun pindah bin baru.
+            Untuk mengubah rak asal/tujuan, produk, atau qty, buat transfer
+            internal baru dengan arah kebalikan lalu susun transfer internal
+            baru.
           </p>
         </div>
       </div>
@@ -116,7 +117,9 @@ export function PindahBinEditView({ id }: { id: string }) {
         <div className="grid grid-cols-1 gap-4 px-5 py-5 lg:grid-cols-2">
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <Label className="text-sm font-medium">No. Pindah Bin</Label>
+              <Label className="text-sm font-medium">
+                No. Transfer Internal
+              </Label>
               <Input
                 value={trf.transfer_number}
                 readOnly
@@ -163,7 +166,7 @@ export function PindahBinEditView({ id }: { id: string }) {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
-                Dipindahkan Oleh <span className="text-red-500">*</span>
+                Dibuat Oleh <span className="text-red-500">*</span>
               </Label>
               <UserSelect
                 value={createdBy}
