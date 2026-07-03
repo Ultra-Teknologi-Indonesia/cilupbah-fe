@@ -31,7 +31,10 @@ interface LineDraft {
   itemId: string
   sku: string
   name: string
+  variantLabel: string
+  thumbnail: string | null
   binId: string
+  binCode: string
   actualQty: string
 }
 
@@ -71,12 +74,23 @@ export function BuatPenyesuaianView() {
     if (locationId) scanRef.current?.focus()
   }, [locationId])
 
-  const addLines = (products: PickedProduct[]) => {
+  const addLines = (
+    products: (PickedProduct & { binId?: string; binCode?: string; variantLabel?: string; thumbnail?: string | null })[]
+  ) => {
     setLines((prev) => {
       const existing = new Set(prev.map((l) => l.itemId))
       const fresh = products
         .filter((p) => !existing.has(p.itemId))
-        .map((p) => ({ itemId: p.itemId, sku: p.sku, name: p.name, binId: "", actualQty: "" }))
+        .map((p) => ({
+          itemId: p.itemId,
+          sku: p.sku,
+          name: p.name,
+          variantLabel: p.variantLabel ?? "",
+          thumbnail: p.thumbnail ?? null,
+          binId: p.binId ?? "",
+          binCode: p.binCode ?? "",
+          actualQty: "",
+        }))
       return [...prev, ...fresh]
     })
     setPickerOpen(false)
@@ -102,22 +116,23 @@ export function BuatPenyesuaianView() {
 
     setScanning(true)
     try {
-      const res = await InventoryStockService.bySku(q)
+      const res = await InventoryStockService.bySku(q, locationId)
       const variant = res.data
       // Cek duplicate — jangan tambah kalau sudah ada.
       if (lines.some((l) => l.itemId === variant.id)) {
         flash("err")
         return
       }
-      const picked: PickedProduct = {
+      addLines([{
         itemId: variant.id,
         sku: variant.sku,
-        name: variant.product?.name ?? variant.sku,
-        variantLabel: "",
-        thumbnail: null,
+        name: variant.product_name ?? variant.sku,
+        variantLabel: variant.variant_label,
+        thumbnail: variant.thumbnail_url,
+        binId: variant.primary_bin?.id ?? "",
+        binCode: variant.primary_bin?.code ?? "",
         sellPrice: null,
-      }
-      addLines([picked])
+      }])
       flash("ok")
     } catch (err) {
       // Kalau SKU tidak ketemu (404) atau error lain → buka picker sebagai fallback
@@ -240,8 +255,8 @@ export function BuatPenyesuaianView() {
           </div>
 
           {/* Scan SKU */}
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <div className="relative flex-1">
+          <div className="flex flex-col gap-1.5">
+            <div className="relative">
               {scanning ? (
                 <Loader2Icon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-primary" />
               ) : (
@@ -280,8 +295,8 @@ export function BuatPenyesuaianView() {
                 autoComplete="off"
               />
             </div>
-            <p className="hidden text-xs text-muted-foreground sm:flex sm:items-center sm:w-64">
-              SKU exact match langsung tambah. Rak bisa di-scan lewat kolom Rak.
+            <p className="text-xs text-muted-foreground">
+              SKU exact match langsung tambah + rak utama auto-terisi. Rak bisa di-scan lewat kolom Rak.
             </p>
           </div>
 
@@ -297,14 +312,31 @@ export function BuatPenyesuaianView() {
                   key={l.itemId}
                   className="grid grid-cols-[1fr_200px_110px_auto] items-center gap-3 rounded-lg border border-border bg-muted/20 px-3 py-2.5"
                 >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{l.name}</p>
-                    <p className="truncate text-xs text-muted-foreground">{l.sku}</p>
+                  <div className="flex min-w-0 items-center gap-3">
+                    {l.thumbnail ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={l.thumbnail}
+                        alt={l.name}
+                        className="h-11 w-11 shrink-0 rounded-md border border-border object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-muted">
+                        <PackageSearchIcon className="h-5 w-5 text-muted-foreground/40" />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{l.name}</p>
+                      {l.variantLabel && (
+                        <p className="truncate text-xs text-muted-foreground">{l.variantLabel}</p>
+                      )}
+                      <p className="truncate font-mono text-[11px] text-muted-foreground">{l.sku}</p>
+                    </div>
                   </div>
                   <Combobox
                     options={binOptions}
                     value={l.binId}
-                    onChange={(v) => updateLine(l.itemId, { binId: v ?? "" })}
+                    onChange={(v) => updateLine(l.itemId, { binId: v ?? "", binCode: binOptions.find((b) => b.value === v)?.label ?? "" })}
                     placeholder={binsLoading ? "Memuat rak…" : "Scan / pilih rak"}
                     searchPlaceholder="Scan / cari rak…"
                     disabled={!locationId || binsLoading}

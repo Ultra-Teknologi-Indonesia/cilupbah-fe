@@ -57,11 +57,18 @@ export const InventoryStockService = {
     return fetchClient<ApiResponse<MovementFilterOptions>>(`/inventory/movement-filters`)
   },
 
-  bySku: (sku: string) => {
+  bySku: (sku: string, locationId?: string) => {
+    const qs = locationId ? `?location_id=${encodeURIComponent(locationId)}` : ""
     return fetchClient<ApiResponse<{
       id: string
       sku: string
-      product?: { name?: string | null } | null
-    }>>(`/inventory/items/by-sku/${encodeURIComponent(sku)}`)
+      product_id: string | null
+      product_name: string | null
+      variant_label: string
+      thumbnail_url: string | null
+      on_hand: number
+      avg_cost: number
+      primary_bin: { id: string; code: string } | null
+    }>>(`/inventory/items/by-sku/${encodeURIComponent(sku)}${qs}`)
   },
 }
