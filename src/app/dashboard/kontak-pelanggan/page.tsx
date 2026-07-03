@@ -8,6 +8,8 @@ import { PelangganTab } from "@/components/dashboard/kontak-pelanggan/pelanggan-
 import { SalesmanTab } from "@/components/dashboard/kontak-pelanggan/salesman-tab";
 import { KategoriTab } from "@/components/dashboard/kontak-pelanggan/kategori-tab";
 import { useUrlTab } from "@/hooks/use-url-tab";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
 
 type Tab = "pelanggan" | "salesman" | "kategori";
 
@@ -31,31 +33,32 @@ export default function KontakPelangganPage() {
         breadcrumb={[{ label: "Penjualan" }, { label: "Kontak Pelanggan" }]}
       />
 
-      <div className="flex items-center gap-1">
-        {TABS.map(({ key, label, icon: Icon }) => {
-          const isActive = activeTab === key;
-          return (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setActiveTab(key)}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-foreground text-background shadow-sm"
-                  : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
-              )}
-            >
-              <Icon className="h-4 w-4" />
-              {label}
-            </button>
-          );
-        })}
-      </div>
+      <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as Tab)}>
+      <TabsList className="h-auto w-full justify-start gap-1 bg-transparent p-0">
+        {TABS.map(({ key, label, icon: Icon }) => (
+          <TabsTrigger
+            key={key}
+            value={key}
+            className="inline-flex h-auto items-center gap-1.5 rounded-full bg-muted/60 px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground data-[state=active]:bg-foreground! data-[state=active]:text-background! data-[state=active]:shadow-sm! after:hidden!"
+          >
+            <Icon className="h-4 w-4" />
+            {label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
 
-      {activeTab === "pelanggan" && <PelangganTab />}
-      {activeTab === "salesman" && <SalesmanTab />}
-      {activeTab === "kategori" && <KategoriTab />}
+      <div className="mt-6">
+        <TabsContent value="pelanggan" className="mt-0 outline-none">
+          <PelangganTab />
+        </TabsContent>
+        <TabsContent value="salesman" className="mt-0 outline-none">
+          <SalesmanTab />
+        </TabsContent>
+        <TabsContent value="kategori" className="mt-0 outline-none">
+          <KategoriTab />
+        </TabsContent>
+      </div>
+    </Tabs>
     </div>
   );
 }
