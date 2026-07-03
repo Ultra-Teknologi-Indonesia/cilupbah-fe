@@ -47,9 +47,9 @@ export function PenyesuaianDetail({ id }: { id: string }) {
       `koreksi-stok-${adj.adjustment_no}.csv`,
       ["SKU", "Nama Produk", "Bin", "Stok Sistem", "Stok Aktual", "Selisih", "Catatan"],
       adj.items.map((item) => [
-        item.item?.sku ?? "",
-        item.item?.item_name ?? "",
-        item.bin?.code ?? "",
+        item.product?.sku ?? "",
+        item.product?.product?.name ?? "",
+        item.bin?.bin_final_code ?? "",
         String(item.system_qty ?? 0),
         String(item.actual_qty ?? 0),
         String((item.actual_qty ?? 0) - (item.system_qty ?? 0)),
@@ -65,11 +65,11 @@ export function PenyesuaianDetail({ id }: { id: string }) {
       cell: ({ row }) => (
         <div className="flex min-w-0 flex-col gap-0.5" style={{ maxWidth: 280 }}>
           <span className="font-medium whitespace-normal break-words text-foreground">
-            {row.original.item?.item_name ?? "—"}
+            {row.original.product?.product?.name ?? "—"}
           </span>
-          {row.original.item?.sku && (
+          {row.original.product?.sku && (
             <span className="font-mono text-[11px] text-foreground/80">
-              {row.original.item.sku}
+              {row.original.product.sku}
             </span>
           )}
         </div>
@@ -78,7 +78,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
     {
       accessorKey: "bin",
       header: "Bin",
-      cell: ({ row }) => <span className="text-foreground">{row.original.bin?.code ?? "—"}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.bin?.bin_final_code ?? "—"}</span>,
     },
     {
       accessorKey: "system_qty",
