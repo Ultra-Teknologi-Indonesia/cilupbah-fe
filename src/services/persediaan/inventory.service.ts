@@ -73,10 +73,15 @@ export const InventoryStockService = {
     );
   },
 
-  bySku: (sku: string, locationId?: string) => {
-    const qs = locationId
-      ? `?location_id=${encodeURIComponent(locationId)}`
-      : "";
+  bySku: (
+    sku: string,
+    locationId?: string,
+    opts?: { requireStock?: boolean },
+  ) => {
+    const params = new URLSearchParams();
+    if (locationId) params.set("location_id", locationId);
+    if (opts?.requireStock) params.set("require_stock", "1");
+    const qs = params.toString() ? `?${params.toString()}` : "";
     return fetchClient<
       ApiResponse<{
         id: string;
@@ -100,6 +105,6 @@ export const InventoryStockService = {
           avg_cost: number;
         }[];
       }>
-    >(`/inventory/items/by-sku/${encodeURIComponent(sku)}${qs}`);
+    >(`/inventory/stock/by-sku/${encodeURIComponent(sku)}${qs}`);
   },
 };

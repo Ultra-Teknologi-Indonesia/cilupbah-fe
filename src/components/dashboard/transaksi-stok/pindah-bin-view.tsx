@@ -157,19 +157,14 @@ export function PindahBinView() {
 
     setScanning(true);
     try {
-      const res = await InventoryStockService.bySku(q, locationId);
+      const res = await InventoryStockService.bySku(q, locationId, {
+        requireStock: true,
+      });
       const variant = res.data;
 
       if (lines.some((l) => l.itemId === variant.id)) {
         flash("err");
         toast.error(`SKU "${q}" sudah ditambahkan.`);
-        return;
-      }
-      if (!variant.available_bins?.some((b) => b.on_hand > 0)) {
-        flash("err");
-        toast.error(
-          `SKU "${q}" tidak punya stok di gudang ini. Pilih SKU lain.`,
-        );
         return;
       }
       upsertLineFromVariant(variant);
@@ -200,13 +195,10 @@ export function PindahBinView() {
     for (const p of products) {
       if (lines.some((l) => l.itemId === p.itemId)) continue;
       try {
-        const res = await InventoryStockService.bySku(p.sku, locationId);
-        const variant = res.data;
-        if (!variant.available_bins?.some((b) => b.on_hand > 0)) {
-          skipped.push(p.sku);
-          continue;
-        }
-        upsertLineFromVariant(variant);
+        const res = await InventoryStockService.bySku(p.sku, locationId, {
+          requireStock: true,
+        });
+        upsertLineFromVariant(res.data);
         added += 1;
       } catch {
         skipped.push(p.sku);
