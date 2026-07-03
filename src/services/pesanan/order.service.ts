@@ -44,6 +44,8 @@ export const OrderService = {
       sp.set("shipping_provider", params.shipping_provider);
     if (params.payment) sp.set("payment", params.payment);
     if (params.label_printed) sp.set("label_printed", params.label_printed);
+    if (params.contact_status) sp.set("contact_status", params.contact_status);
+    if (params.decision) sp.set("decision", params.decision);
     if (params.page) sp.set("page", String(params.page));
     if (params.per_page) sp.set("per_page", String(params.per_page));
     if (params.sort_by) sp.set("sort_by", params.sort_by);

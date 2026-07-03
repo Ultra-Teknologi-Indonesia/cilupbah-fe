@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
 import { useCouriers } from "@/hooks/proses-pesanan/use-fulfillment";
-import { CHANNEL_MAP } from "@/types/pesanan/order";
+import { CHANNEL_MAP, type OrderTab } from "@/types/pesanan/order";
 
 const CONTENT_OPTIONS = [
   { value: "", label: "Semua Isi" },
@@ -40,6 +40,17 @@ const LABEL_PRINTED_OPTIONS = [
   { value: "no", label: "Belum cetak" },
 ];
 
+const CONTACT_STATUS_OPTIONS = [
+  { value: "not_contacted", label: "Belum dihubungi" },
+  { value: "contacted", label: "Sudah dihubungi" },
+];
+
+const DECISION_OPTIONS = [
+  { value: "waiting", label: "Menunggu" },
+  { value: "cancel", label: "Batal" },
+  { value: "replace", label: "Ganti Barang" },
+];
+
 export interface FilterState {
   channel: string;
   store_id: string;
@@ -50,6 +61,8 @@ export interface FilterState {
   shipping_provider: string;
   payment: string;
   label_printed: string;
+  contact_status: string;
+  decision: string;
 }
 
 const EMPTY: FilterState = {
@@ -62,6 +75,8 @@ const EMPTY: FilterState = {
   shipping_provider: "",
   payment: "",
   label_printed: "",
+  contact_status: "",
+  decision: "",
 };
 
 function toDate(s: string): Date | undefined {
@@ -121,12 +136,14 @@ export function OrderFilters({
   filters,
   onChange,
   leading,
+  tab,
 }: {
   query: string;
   onQueryChange: (v: string) => void;
   filters: FilterState;
   onChange: (f: FilterState) => void;
   leading?: React.ReactNode;
+  tab?: OrderTab;
 }) {
   const { data: locData } = useLocations();
   const { data: storeData } = useConnectedStores();
@@ -156,6 +173,8 @@ export function OrderFilters({
     filters.shipping_provider,
     filters.payment,
     filters.label_printed,
+    filters.contact_status,
+    filters.decision,
   ].filter(Boolean).length;
 
   const dateRange = useMemo<DateRange | undefined>(() => {
@@ -247,6 +266,34 @@ export function OrderFilters({
           options={LABEL_PRINTED_OPTIONS}
         />
       </div>
+
+      {tab === "empty-stock" && (
+        <>
+          <div className="flex flex-col gap-1 sm:col-span-2">
+            <label className="text-xs font-medium text-muted-foreground">
+              Status Kontak
+            </label>
+            <FilterRadioGroup
+              name="contact_status"
+              value={filters.contact_status}
+              onValueChange={(v) => onChange({ ...filters, contact_status: v })}
+              options={CONTACT_STATUS_OPTIONS}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1 sm:col-span-2">
+            <label className="text-xs font-medium text-muted-foreground">
+              Keputusan Pembeli
+            </label>
+            <FilterRadioGroup
+              name="decision"
+              value={filters.decision}
+              onValueChange={(v) => onChange({ ...filters, decision: v })}
+              options={DECISION_OPTIONS}
+            />
+          </div>
+        </>
+      )}
 
       <div className="sm:col-span-2">
         <DateRangePicker

@@ -56,6 +56,8 @@ export interface OrderListParams {
   shipping_provider?: string;
   payment?: "cod" | "noncod";
   label_printed?: "yes" | "no";
+  contact_status?: "contacted" | "not_contacted";
+  decision?: CustomerDecision;
 }
 
 export interface Order {

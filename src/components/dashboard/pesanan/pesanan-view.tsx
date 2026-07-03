@@ -102,6 +102,11 @@ export function PesananView() {
       label_printed:
         (filters.label_printed as OrderListParams["label_printed"]) ||
         undefined,
+      contact_status:
+        (filters.contact_status as OrderListParams["contact_status"]) ||
+        undefined,
+      decision:
+        (filters.decision as OrderListParams["decision"]) || undefined,
       page,
       per_page: perPage,
     }),
@@ -179,6 +184,7 @@ export function PesananView() {
           filters={filters}
           onChange={handleFilterChange}
           leading={selectAllCheckbox}
+          tab={tab}
         />
 
         <div className="px-4 py-4 sm:px-5">
