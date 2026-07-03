@@ -236,7 +236,7 @@ export function PickingProsesView({ id }: { id: string }) {
         onSuccess: () => {
           playScanFeedback("ok");
           toast.success(
-            `${activeItem.sku} berhasil di-pick (${activeItem.qtyPicked + qty}/${activeItem.qtyOrdered}).`,
+            `Stok terpotong: ${activeItem.sku} × ${qty} @ ${scannedBinCode} (${activeItem.qtyPicked + qty}/${activeItem.qtyOrdered}).`,
           );
           setActiveItemId(null);
           setPickQty("");

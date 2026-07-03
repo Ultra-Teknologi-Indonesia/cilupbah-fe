@@ -37,6 +37,7 @@ export const InventoryStockService = {
     const sp = new URLSearchParams();
     if (params.page) sp.set("page", String(params.page));
     if (params.per_page) sp.set("per_page", String(params.per_page));
+    if (params.view) sp.set("view", params.view);
     if (params["filter[item_id]"])
       sp.set("filter[item_id]", params["filter[item_id]"]);
     if (params["filter[location_id]"])

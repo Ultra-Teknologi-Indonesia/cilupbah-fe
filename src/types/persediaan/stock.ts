@@ -34,6 +34,8 @@ export interface StockItem {
   thumbnail: string | null;
 }
 
+export type MovementView = "clean" | "attention" | "all";
+
 export interface StockMovement {
   id: string;
   item_id: string;
@@ -47,6 +49,7 @@ export interface StockMovement {
   source: string;
   source_category: string;
   source_label: string;
+  is_variance: boolean;
   direction: "in" | "out" | "none";
   qty: number;
   balance: number;
@@ -89,6 +92,7 @@ export interface StockListParams {
 export interface StockMovementParams {
   page?: number;
   per_page?: number;
+  view?: MovementView;
   "filter[item_id]"?: string;
   "filter[location_id]"?: string;
   "filter[store_id]"?: string;

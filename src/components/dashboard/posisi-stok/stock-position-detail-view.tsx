@@ -46,7 +46,11 @@ import {
   useItemStock,
   useMovementFilters,
 } from "@/hooks/persediaan/use-stock-position";
-import type { StockMovement, BinInventory } from "@/types/persediaan/stock";
+import type {
+  StockMovement,
+  BinInventory,
+  MovementView,
+} from "@/types/persediaan/stock";
 import { formatCurrency } from "@/lib/format";
 
 const CATEGORY_COLOR: Record<string, string> = {
@@ -57,13 +61,39 @@ const CATEGORY_COLOR: Record<string, string> = {
     "text-rose-600 bg-rose-50 border-rose-200 dark:text-rose-400 dark:bg-rose-500/10 dark:border-rose-500/20",
   SALES_RETURN:
     "text-teal-600 bg-teal-50 border-teal-200 dark:text-teal-400 dark:bg-teal-500/10 dark:border-teal-500/20",
+  PICKING:
+    "text-emerald-600 bg-emerald-50 border-emerald-200 dark:text-emerald-400 dark:bg-emerald-500/10 dark:border-emerald-500/20",
   INVOICE:
-    "text-indigo-600 bg-indigo-50 border-indigo-200 dark:text-indigo-400 dark:bg-indigo-500/10 dark:border-indigo-500/20",
+    "text-orange-600 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-500/10 dark:border-orange-500/20",
   TRANSFER:
     "text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20",
   REVALUATION:
     "text-violet-600 bg-violet-50 border-violet-200 dark:text-violet-400 dark:bg-violet-500/10 dark:border-violet-500/20",
 };
+
+const VIEW_TABS: {
+  value: MovementView;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: "clean",
+    label: "Kronologi Bersih",
+    description:
+      "Pergerakan stok yang sudah jelas: pick per-scan, transfer, retur, adjustment.",
+  },
+  {
+    value: "all",
+    label: "Semua",
+    description: "Semua sumber, termasuk Faktur.",
+  },
+  {
+    value: "attention",
+    label: "Perlu Perhatian",
+    description:
+      "Entri Faktur — indikasi stok nyangkut / kesalahan scan lokasi yang perlu ditelusuri.",
+  },
+];
 
 const ALL_VALUE = "__all__";
 
@@ -101,11 +131,26 @@ function resolveTransactionHref(source: string, trxNo: string): string | null {
   }
 }
 
-function SourceBadge({ category, label }: { category: string; label: string }) {
+function SourceBadge({
+  category,
+  label,
+  isVariance,
+}: {
+  category: string;
+  label: string;
+  isVariance?: boolean;
+}) {
   const color =
     CATEGORY_COLOR[category] ?? "text-muted-foreground bg-muted border-border";
+  const title = isVariance
+    ? "Faktur — kemungkinan stok nyangkut akibat kesalahan scan lokasi. Perlu ditelusuri."
+    : undefined;
   return (
-    <Badge variant="outline" className={cn("text-[11px] font-medium", color)}>
+    <Badge
+      variant="outline"
+      className={cn("text-[11px] font-medium", color)}
+      title={title}
+    >
       {label}
     </Badge>
   );
@@ -187,6 +232,7 @@ function StockSummaryCards({
 }
 
 function MovementsSection({ itemId }: { itemId: string }) {
+  const [view, setView] = useState<MovementView>("clean");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
   const [source, setSource] = useState("");
@@ -207,11 +253,12 @@ function MovementsSection({ itemId }: { itemId: string }) {
       "filter[direction]": direction || undefined,
       "filter[location_id]": locationId || undefined,
       "filter[store_id]": storeId || undefined,
+      view,
       page,
       per_page: perPage,
       sort: "-transaction_date",
     }),
-    [itemId, source, direction, locationId, storeId, page, perPage],
+    [itemId, source, direction, locationId, storeId, view, page, perPage],
   );
 
   const { data, isLoading } = useStockMovements(params);
@@ -227,6 +274,39 @@ function MovementsSection({ itemId }: { itemId: string }) {
     Boolean,
   ).length;
   const hasActiveFilter = activeCount > 0;
+
+  const viewBar = (
+    <div
+      role="tablist"
+      aria-label="Filter kronologi stok"
+      className="flex flex-wrap items-center gap-1 rounded-full border border-border/60 bg-muted/40 p-1"
+    >
+      {VIEW_TABS.map((t) => {
+        const isActive = view === t.value;
+        return (
+          <button
+            key={t.value}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
+            title={t.description}
+            onClick={() => {
+              setView(t.value);
+              setPage(1);
+            }}
+            className={cn(
+              "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+              isActive
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {t.label}
+          </button>
+        );
+      })}
+    </div>
+  );
 
   const filterBar = (
     <FilterToolbar
@@ -328,6 +408,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-3">
+        {viewBar}
         {filterBar}
         <div className="space-y-2 p-4">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -341,10 +422,15 @@ function MovementsSection({ itemId }: { itemId: string }) {
   if (movements.length === 0) {
     return (
       <div className="flex flex-col gap-3">
+        {viewBar}
         {filterBar}
         <div className="flex flex-col items-center gap-2 py-16 text-muted-foreground">
           <PackageIcon className="h-8 w-8" />
-          <p className="text-sm font-medium">Belum ada kronologi stok</p>
+          <p className="text-sm font-medium">
+            {view === "attention"
+              ? "Tidak ada entri Faktur di rentang ini — stok bersih."
+              : "Belum ada kronologi stok"}
+          </p>
         </div>
       </div>
     );
@@ -352,6 +438,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
 
   return (
     <div className="flex flex-col gap-3">
+      {viewBar}
       {filterBar}
       <Table>
         <TableHeader>
@@ -429,6 +516,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
                 <SourceBadge
                   category={m.source_category}
                   label={m.source_label}
+                  isVariance={m.is_variance}
                 />
               </TableCell>
               <TableCell className="px-3 py-2.5 text-right">
