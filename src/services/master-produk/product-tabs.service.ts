@@ -89,32 +89,6 @@ interface RawChannelListingRow {
   }>;
 }
 
-export interface ChannelPriceCell {
-  channelShopId: string | null;
-  shopName: string | null;
-  channelCode: string | null;
-  price: number | null;
-}
-export interface ChannelPriceRow {
-  variantId: string;
-  sku: string;
-  options: { attributeId: number; value: string }[];
-  internalPrice: number | null;
-  prices: ChannelPriceCell[];
-}
-interface RawChannelPriceRow {
-  variant_id: string;
-  sku: string;
-  options?: Array<{ attribute_id: number; value: string }>;
-  internal_price: number | null;
-  prices?: Array<{
-    channel_shop_id: string | null;
-    shop_name: string | null;
-    channel_code: string | null;
-    price: number | null;
-  }>;
-}
-
 export interface ChannelTabParams {
   page?: number;
   perPage?: number;
@@ -238,30 +212,6 @@ export const ProductTabsService = {
           syncStatus: l.sync_status,
           errorMessage: l.error_message,
           lastSyncedAt: l.last_synced_at,
-        })),
-      })),
-      meta: res.meta,
-    };
-  },
-
-  channelPrices: async (
-    productId: string,
-    params: ChannelTabParams = {},
-  ): Promise<{ items: ChannelPriceRow[]; meta: PageMeta }> => {
-    const res = await fetchClient<ApiPaginated<RawChannelPriceRow>>(
-      `/products/${productId}/channel-prices?${channelQuery(params)}`,
-    );
-    return {
-      items: (res.data ?? []).map((r) => ({
-        variantId: r.variant_id,
-        sku: r.sku,
-        options: mapOptions(r.options),
-        internalPrice: r.internal_price,
-        prices: (r.prices ?? []).map((p) => ({
-          channelShopId: p.channel_shop_id,
-          shopName: p.shop_name,
-          channelCode: p.channel_code,
-          price: p.price,
         })),
       })),
       meta: res.meta,

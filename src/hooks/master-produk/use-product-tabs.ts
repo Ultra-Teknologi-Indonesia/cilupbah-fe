@@ -20,7 +20,6 @@ import { UploadService } from "@/services/master-produk/upload.service";
 export type {
   BulkVariantAction,
   ChannelListingRow,
-  ChannelPriceRow,
   PriceBookRow,
 } from "@/services/master-produk/product-tabs.service";
 
@@ -45,19 +44,6 @@ export const useProductChannelListings = (
   useQuery({
     queryKey: ["master-produk", "channel-listings", productId, params],
     queryFn: () => ProductTabsService.channelListings(productId, params),
-    enabled,
-    placeholderData: keepPreviousData,
-    staleTime: 30 * 1000,
-  });
-
-export const useProductChannelPrices = (
-  productId: string,
-  params: ChannelTabParams,
-  enabled: boolean,
-) =>
-  useQuery({
-    queryKey: ["master-produk", "channel-prices", productId, params],
-    queryFn: () => ProductTabsService.channelPrices(productId, params),
     enabled,
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,

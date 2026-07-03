@@ -16,7 +16,6 @@ import { ProductDetailSkeleton } from "./product-detail-skeleton";
 import { DetailHeader } from "./detail-header";
 import { TabVariasi } from "./tab-variasi";
 import { TabChannel } from "./tab-channel";
-import { TabHargaChannel } from "./tab-harga-channel";
 import { TabKomposisi } from "./tab-komposisi";
 import { TabBukuHarga } from "./tab-buku-harga";
 import { TabRiwayat } from "./tab-riwayat";
@@ -32,7 +31,6 @@ function tabsFor(type: ProductTypeKind): DetailTab[] {
   return [
     first,
     { id: "channel", label: "Channel" },
-    { id: "harga-channel", label: "Harga Channel" },
     { id: "buku-harga", label: "Buku Harga" },
     { id: "riwayat", label: "Riwayat Upload" },
   ];
@@ -123,9 +121,6 @@ export function ProductDetailView({ id }: { id: string }) {
           </TabsContent>
           <TabsContent value="channel">
             <TabChannel productId={id} />
-          </TabsContent>
-          <TabsContent value="harga-channel">
-            <TabHargaChannel productId={id} />
           </TabsContent>
           <TabsContent value="buku-harga">
             <TabBukuHarga productId={id} />
