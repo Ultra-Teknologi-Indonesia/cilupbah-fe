@@ -20,6 +20,7 @@ import { DataTable } from "@/components/ui/data-table/data-table"
 import { PageTitle } from "@/components/dashboard/page-title"
 import {
   useStockAdjustmentDetail,
+  useStockAdjustmentItems,
   useDeleteStockAdjustment,
 } from "@/hooks/transaksi-stok/use-stock-adjustments"
 import { exportCsv } from "@/lib/export-csv"
@@ -37,16 +38,26 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 export function PenyesuaianDetail({ id }: { id: string }) {
   const router = useRouter()
   const { data: adj, isLoading } = useStockAdjustmentDetail(id)
+  
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
+  const [globalFilter, setGlobalFilter] = useState("")
+
+  const { data: itemsData, isLoading: itemsLoading } = useStockAdjustmentItems(id, {
+    page: pagination.pageIndex + 1,
+    per_page: pagination.pageSize,
+    search: globalFilter || undefined,
+  })
+
   const deleteMut = useDeleteStockAdjustment()
 
   const [deleteOpen, setDeleteOpen] = useState(false)
 
   const handleExport = () => {
-    if (!adj || !adj.items?.length) return
+    if (!adj || !itemsData?.items?.length) return
     exportCsv(
       `koreksi-stok-${adj.adjustment_no}.csv`,
       ["SKU", "Nama Produk", "Bin", "Stok Sistem", "Stok Aktual", "Selisih", "Catatan"],
-      adj.items.map((item) => [
+      itemsData.items.map((item) => [
         item.product?.sku ?? "",
         item.product?.product?.name ?? "",
         item.bin?.bin_final_code ?? "",
@@ -145,7 +156,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleExport} disabled={!adj.items?.length}>
+            <Button variant="outline" size="sm" onClick={handleExport} disabled={!itemsData?.items?.length}>
               <DownloadIcon className="mr-1.5 h-3.5 w-3.5" />
               Export CSV
             </Button>
@@ -179,9 +190,14 @@ export function PenyesuaianDetail({ id }: { id: string }) {
         <div className="border border-border/40 rounded-lg overflow-hidden">
           <DataTable
             columns={columns}
-            data={adj.items ?? []}
-            hideToolbar
-            manualPagination={false}
+            data={itemsData?.items ?? []}
+            rowCount={itemsData?.meta?.total ?? 0}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            searchValue={globalFilter}
+            onSearchChange={setGlobalFilter}
+            searchPlaceholder="Cari item..."
+            manualPagination={true}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">

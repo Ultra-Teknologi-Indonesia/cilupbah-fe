@@ -7,14 +7,18 @@ export interface StockAdjustmentItem {
   actual_qty: number
   difference_qty: number
   notes: string | null
-  item?: {
+  product?: {
     id: string
-    item_name: string
     sku: string
+    product_id: string
+    product?: {
+      id: string
+      name: string
+    }
   }
   bin?: {
     id: string
-    code: string
+    bin_final_code: string
   } | null
 }
 

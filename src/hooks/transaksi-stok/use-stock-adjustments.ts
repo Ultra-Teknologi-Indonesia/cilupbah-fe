@@ -1,4 +1,5 @@
 "use client"
+import { useQuery } from "@tanstack/react-query"
 
 import { StockAdjustmentService } from "@/services/transaksi-stok/stock-adjustment.service"
 import type { StockAdjustmentListParams, StockAdjustmentFormData } from "@/types/transaksi-stok/stock-adjustment"
@@ -20,6 +21,13 @@ export const useStockAdjustmentDetail = createDetailHook(
   stockAdjustmentKeys,
   (id: string) => StockAdjustmentService.getById(id)
 )
+
+export const useStockAdjustmentItems = (id: string, params: StockAdjustmentListParams = {}) => {
+  return useQuery({
+    queryKey: [...stockAdjustmentKeys.detail(id), "items", params],
+    queryFn: () => StockAdjustmentService.getItems(id, params),
+  })
+}
 
 export const useCreateStockAdjustment = createMutationHook({
   mutationFn: (data: StockAdjustmentFormData) => StockAdjustmentService.create(data),

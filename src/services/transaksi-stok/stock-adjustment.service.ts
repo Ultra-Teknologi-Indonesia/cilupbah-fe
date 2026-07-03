@@ -26,6 +26,17 @@ export const StockAdjustmentService = {
     return res.data
   },
 
+  getItems: async (id: string, params: StockAdjustmentListParams = {}) => {
+    const sp = new URLSearchParams()
+    if (params.search) sp.set("search", params.search)
+    if (params.page) sp.set("page", String(params.page))
+    if (params.per_page) sp.set("per_page", String(params.per_page))
+    if (params.sort) sp.set("sort", params.sort)
+
+    const res = await fetchClient<ApiPaginated<any>>(`${BASE}/${id}/items?${sp}`)
+    return { items: res.data ?? [], meta: res.meta }
+  },
+
   create: async (data: StockAdjustmentFormData) => {
     const res = await fetchClient<ApiResponse<StockAdjustment>>(BASE, {
       method: "POST",
