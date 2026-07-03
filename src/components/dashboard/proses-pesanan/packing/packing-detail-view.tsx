@@ -15,6 +15,14 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   ScanAutoflowBar,
   type ScanAutoflowLine,
 } from "@/components/dashboard/shared/scan-autoflow-bar";
@@ -444,26 +452,28 @@ export function PackingDetailView({ id }: { id: string }) {
                 Tidak ada item dalam packlist ini.
               </div>
             ) : (
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/40 text-left text-muted-foreground">
-                    <th className="px-4 py-3 font-medium">Produk</th>
-                    <th className="px-4 py-3 font-medium text-center">
+              <Table className="border-collapse">
+                <TableHeader>
+                  <TableRow className="border-b border-border bg-muted/40 text-left text-muted-foreground">
+                    <TableHead className="px-4 py-3 text-muted-foreground">
+                      Produk
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-muted-foreground text-center">
                       QTY Pesanan
-                    </th>
-                    <th className="px-4 py-3 font-medium text-center">
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-muted-foreground text-center">
                       QTY Pack
-                    </th>
-                    <th className="px-4 py-3 font-medium text-center">
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-muted-foreground text-center">
                       Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {items.map((item) => {
                     const done = item.qtyPacked >= item.qtyOrdered;
                     return (
-                      <tr
+                      <TableRow
                         key={item.id}
                         className={cn(
                           "border-b border-border/60 last:border-0 transition-colors",
@@ -472,7 +482,7 @@ export function PackingDetailView({ id }: { id: string }) {
                             "bg-primary/[0.06] ring-1 ring-inset ring-primary/20",
                         )}
                       >
-                        <td className="px-4 py-3">
+                        <TableCell className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             <ItemImage
                               src={item.imageUrl}
@@ -487,11 +497,11 @@ export function PackingDetailView({ id }: { id: string }) {
                               </p>
                             </div>
                           </div>
-                        </td>
-                        <td className="px-4 py-3 text-center tabular-nums font-medium text-foreground">
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-center tabular-nums font-medium text-foreground">
                           {item.qtyOrdered}
-                        </td>
-                        <td className="px-4 py-3 text-center">
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-center">
                           <span
                             className={cn(
                               "inline-flex h-7 min-w-12 items-center justify-center rounded-lg px-2.5 text-sm font-semibold tabular-nums",
@@ -504,8 +514,8 @@ export function PackingDetailView({ id }: { id: string }) {
                           >
                             {item.qtyPacked}
                           </span>
-                        </td>
-                        <td className="px-4 py-3 text-center">
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-center">
                           {done ? (
                             <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600">
                               <CheckCircle2Icon className="size-3.5" /> Selesai
@@ -519,12 +529,12 @@ export function PackingDetailView({ id }: { id: string }) {
                               Belum
                             </span>
                           )}
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     );
                   })}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             )}
           </div>
         </div>

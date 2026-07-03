@@ -18,6 +18,14 @@ import {
   SimplePagination,
   TABLE_PAGE_SIZES,
 } from "@/components/ui/simple-pagination";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { formatIDR } from "../product-columns";
 import {
   useProductVariants,
@@ -48,9 +56,12 @@ function SortHeader({
       : "descending"
     : "none";
   return (
-    <th
+    <TableHead
       aria-sort={ariaSort}
-      className={cn("px-3 py-2.5", align === "right" && "text-right")}
+      className={cn(
+        "px-3 py-2.5 text-muted-foreground",
+        align === "right" && "text-right",
+      )}
     >
       <button
         type="button"
@@ -69,7 +80,7 @@ function SortHeader({
           <ArrowDownIcon className="size-3" />
         )}
       </button>
-    </th>
+    </TableHead>
   );
 }
 
@@ -208,145 +219,146 @@ export function TabVariasi({ productId }: { productId: string }) {
       )}
 
       {}
-      <div className="overflow-x-auto rounded-lg border border-border/60 bg-card">
-        <table className="w-full min-w-[720px] border-collapse text-sm">
-          <thead>
-            <tr className="border-b border-border/60 bg-muted/40 text-left text-xs text-muted-foreground">
-              <th className="w-10 px-3 py-2.5">
-                <input
-                  type="checkbox"
-                  aria-label="Pilih semua"
-                  className="size-4 cursor-pointer accent-primary"
-                  checked={allOnPageSelected}
-                  onChange={toggleAll}
-                />
-              </th>
-              <SortHeader label="SKU" col="sku" sort={sort} onSort={onSort} />
-              <th className="px-3 py-2.5">Opsi</th>
-              <SortHeader
-                label="Harga jual"
-                col="sell_price"
-                sort={sort}
-                onSort={onSort}
+      <Table
+        containerClassName="rounded-lg border border-border/60 bg-card"
+        className="min-w-[720px] border-collapse"
+      >
+        <TableHeader>
+          <TableRow className="border-b border-border/60 bg-muted/40 text-left text-xs text-muted-foreground">
+            <TableHead className="w-10 px-3 py-2.5">
+              <input
+                type="checkbox"
+                aria-label="Pilih semua"
+                className="size-4 cursor-pointer accent-primary"
+                checked={allOnPageSelected}
+                onChange={toggleAll}
               />
-              <SortHeader
-                label="Stok"
-                col="stock"
-                sort={sort}
-                onSort={onSort}
-                align="right"
-              />
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <tr key={i} className="border-b border-border/40">
-                  <td colSpan={5} className="px-3 py-3">
-                    <div className="h-5 w-full animate-pulse rounded bg-muted/60" />
-                  </td>
-                </tr>
-              ))
-            ) : isError ? (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="px-3 py-10 text-center text-sm text-muted-foreground"
+            </TableHead>
+            <SortHeader label="SKU" col="sku" sort={sort} onSort={onSort} />
+            <TableHead className="px-3 py-2.5 text-muted-foreground">
+              Opsi
+            </TableHead>
+            <SortHeader
+              label="Harga jual"
+              col="sell_price"
+              sort={sort}
+              onSort={onSort}
+            />
+            <SortHeader
+              label="Stok"
+              col="stock"
+              sort={sort}
+              onSort={onSort}
+              align="right"
+            />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {isLoading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <TableRow key={i} className="border-b border-border/40">
+                <TableCell colSpan={5} className="px-3 py-3">
+                  <div className="h-5 w-full animate-pulse rounded bg-muted/60" />
+                </TableCell>
+              </TableRow>
+            ))
+          ) : isError ? (
+            <TableRow>
+              <TableCell
+                colSpan={5}
+                className="px-3 py-10 text-center text-sm text-muted-foreground"
+              >
+                Gagal memuat varian.{" "}
+                <button
+                  className="font-medium text-primary hover:underline"
+                  onClick={() => refetch()}
                 >
-                  Gagal memuat varian.{" "}
-                  <button
-                    className="font-medium text-primary hover:underline"
-                    onClick={() => refetch()}
-                  >
-                    Coba lagi
-                  </button>
-                </td>
-              </tr>
-            ) : rows.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="px-3 py-10 text-center text-sm text-muted-foreground"
-                >
-                  {search
-                    ? "Tidak ada varian yang cocok."
-                    : "Belum ada varian."}
-                </td>
-              </tr>
-            ) : (
-              rows.map((v) => (
-                <tr
-                  key={v.id}
-                  className={cn(
-                    "border-b border-border/40 last:border-0 hover:bg-muted/30",
-                    selected.has(v.id) && "bg-primary/5",
-                  )}
-                >
-                  <td className="px-3 py-2.5">
-                    <input
-                      type="checkbox"
-                      aria-label={`Pilih ${v.sku}`}
-                      className="size-4 cursor-pointer accent-primary"
-                      checked={selected.has(v.id)}
-                      onChange={() => toggleOne(v.id)}
-                    />
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <div className="flex items-center gap-2.5">
-                      <div className="size-9 shrink-0 overflow-hidden rounded-md border border-border/60 bg-muted/40">
-                        {v.image ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={v.image}
-                            alt={v.sku}
-                            className="size-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex size-full items-center justify-center">
-                            <ImageIcon className="size-4 text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="font-mono text-xs text-primary">
-                          {v.sku}
-                        </div>
-                        {v.barcode && (
-                          <div className="font-mono text-[11px] text-muted-foreground">
-                            {v.barcode}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <div className="flex flex-wrap gap-1">
-                      {v.options.length === 0 ? (
-                        <span className="text-xs text-muted-foreground">—</span>
+                  Coba lagi
+                </button>
+              </TableCell>
+            </TableRow>
+          ) : rows.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={5}
+                className="px-3 py-10 text-center text-sm text-muted-foreground"
+              >
+                {search ? "Tidak ada varian yang cocok." : "Belum ada varian."}
+              </TableCell>
+            </TableRow>
+          ) : (
+            rows.map((v) => (
+              <TableRow
+                key={v.id}
+                className={cn(
+                  "border-b border-border/40 last:border-0 hover:bg-muted/30",
+                  selected.has(v.id) && "bg-primary/5",
+                )}
+              >
+                <TableCell className="px-3 py-2.5">
+                  <input
+                    type="checkbox"
+                    aria-label={`Pilih ${v.sku}`}
+                    className="size-4 cursor-pointer accent-primary"
+                    checked={selected.has(v.id)}
+                    onChange={() => toggleOne(v.id)}
+                  />
+                </TableCell>
+                <TableCell className="px-3 py-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="size-9 shrink-0 overflow-hidden rounded-md border border-border/60 bg-muted/40">
+                      {v.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={v.image}
+                          alt={v.sku}
+                          className="size-full object-cover"
+                        />
                       ) : (
-                        v.options.map((o, i) => (
-                          <span
-                            key={i}
-                            className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-foreground/80"
-                          >
-                            {o.value}
-                          </span>
-                        ))
+                        <div className="flex size-full items-center justify-center">
+                          <ImageIcon className="size-4 text-muted-foreground" />
+                        </div>
                       )}
                     </div>
-                  </td>
-                  <td className="px-3 py-2.5 tabular-nums">
-                    {formatIDR(v.sellPrice)}
-                  </td>
-                  <td className="px-3 py-2.5 text-right tabular-nums">
-                    {new Intl.NumberFormat("id-ID").format(v.stock)}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                    <div className="min-w-0">
+                      <div className="font-mono text-xs text-primary">
+                        {v.sku}
+                      </div>
+                      {v.barcode && (
+                        <div className="font-mono text-[11px] text-muted-foreground">
+                          {v.barcode}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="px-3 py-2.5">
+                  <div className="flex flex-wrap gap-1">
+                    {v.options.length === 0 ? (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    ) : (
+                      v.options.map((o, i) => (
+                        <span
+                          key={i}
+                          className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-foreground/80"
+                        >
+                          {o.value}
+                        </span>
+                      ))
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell className="px-3 py-2.5 tabular-nums">
+                  {formatIDR(v.sellPrice)}
+                </TableCell>
+                <TableCell className="px-3 py-2.5 text-right tabular-nums">
+                  {new Intl.NumberFormat("id-ID").format(v.stock)}
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
 
       <SimplePagination
         page={page}

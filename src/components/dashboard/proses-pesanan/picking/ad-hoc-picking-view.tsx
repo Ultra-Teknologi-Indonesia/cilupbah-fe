@@ -17,6 +17,14 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
 import {
   useAdHocPickScan,
@@ -480,96 +488,107 @@ export function AdHocPickingView() {
               Scan No. Pesanan / Resi untuk memulai picking.
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-2xl border border-border bg-card">
-              <table className="w-full min-w-[800px] border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/40 text-left text-muted-foreground">
-                    <th className="px-3 py-3 font-medium">Produk</th>
-                    <th className="px-3 py-3 font-medium">Qty Pesan</th>
-                    <th className="px-3 py-3 font-medium">Kode Rak</th>
-                    <th className="px-3 py-3 font-medium">Qty Ambil / Pesan</th>
-                    <th className="px-3 py-3 font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {order.items.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={5}
-                        className="py-12 text-center text-sm text-muted-foreground"
+            <Table
+              containerClassName="rounded-2xl border border-border bg-card"
+              className="min-w-[800px] border-collapse"
+            >
+              <TableHeader>
+                <TableRow className="border-b border-border bg-muted/40 text-left text-muted-foreground">
+                  <TableHead className="px-3 py-3 text-muted-foreground">
+                    Produk
+                  </TableHead>
+                  <TableHead className="px-3 py-3 text-muted-foreground">
+                    Qty Pesan
+                  </TableHead>
+                  <TableHead className="px-3 py-3 text-muted-foreground">
+                    Kode Rak
+                  </TableHead>
+                  <TableHead className="px-3 py-3 text-muted-foreground">
+                    Qty Ambil / Pesan
+                  </TableHead>
+                  <TableHead className="px-3 py-3 text-muted-foreground">
+                    Status
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {order.items.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="py-12 text-center text-sm text-muted-foreground"
+                    >
+                      Order ini tidak memiliki item.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  order.items.map((it) => {
+                    const done = it.qtyPicked >= it.qtyOrdered;
+                    const badge = itemBadge(it.qtyPicked, it.qtyOrdered);
+                    const itemBin = pickedBinByItem[it.id] ?? null;
+                    return (
+                      <TableRow
+                        key={it.id}
+                        className={cn(
+                          "border-b border-border/60 last:border-0",
+                          done && "bg-emerald-500/[0.04]",
+                        )}
                       >
-                        Order ini tidak memiliki item.
-                      </td>
-                    </tr>
-                  ) : (
-                    order.items.map((it) => {
-                      const done = it.qtyPicked >= it.qtyOrdered;
-                      const badge = itemBadge(it.qtyPicked, it.qtyOrdered);
-                      const itemBin = pickedBinByItem[it.id] ?? null;
-                      return (
-                        <tr
-                          key={it.id}
-                          className={cn(
-                            "border-b border-border/60 last:border-0",
-                            done && "bg-emerald-500/[0.04]",
-                          )}
-                        >
-                          <td className="px-3 py-3">
-                            <div className="flex items-start gap-3">
-                              <ItemImage
-                                src={it.imageUrl}
-                                alt={it.description ?? it.sku}
-                              />
-                              <div className="flex min-w-0 flex-col gap-0.5">
-                                <span className="font-medium text-foreground">
-                                  {it.description ?? it.sku}
-                                </span>
-                                <span className="font-mono text-[11px] text-foreground/70">
-                                  {it.sku}
-                                </span>
-                              </div>
+                        <TableCell className="px-3 py-3">
+                          <div className="flex items-start gap-3">
+                            <ItemImage
+                              src={it.imageUrl}
+                              alt={it.description ?? it.sku}
+                            />
+                            <div className="flex min-w-0 flex-col gap-0.5">
+                              <span className="font-medium text-foreground">
+                                {it.description ?? it.sku}
+                              </span>
+                              <span className="font-mono text-[11px] text-foreground/70">
+                                {it.sku}
+                              </span>
                             </div>
-                          </td>
-                          <td className="px-3 py-3 tabular-nums text-foreground">
-                            {it.qtyOrdered}
-                          </td>
-                          <td className="px-3 py-3">
-                            <span className="font-mono text-xs text-foreground">
-                              {itemBin ?? "—"}
-                            </span>
-                          </td>
-                          <td className="px-3 py-3">
-                            <span
-                              className={cn(
-                                "inline-flex h-6 min-w-10 items-center justify-center rounded-md px-2 text-xs font-medium tabular-nums",
-                                done
-                                  ? "bg-emerald-500/10 text-emerald-600"
-                                  : it.qtyPicked > 0
-                                    ? "bg-amber-500/10 text-amber-600"
-                                    : "text-muted-foreground",
-                              )}
-                            >
-                              {it.qtyPicked} / {it.qtyOrdered}
-                            </span>
-                          </td>
-                          <td className="px-3 py-3">
-                            <span
-                              className={cn(
-                                "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
-                                badge.className,
-                              )}
-                            >
-                              {done && <CheckIcon className="size-3" />}
-                              {badge.label}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-3 py-3 tabular-nums text-foreground">
+                          {it.qtyOrdered}
+                        </TableCell>
+                        <TableCell className="px-3 py-3">
+                          <span className="font-mono text-xs text-foreground">
+                            {itemBin ?? "—"}
+                          </span>
+                        </TableCell>
+                        <TableCell className="px-3 py-3">
+                          <span
+                            className={cn(
+                              "inline-flex h-6 min-w-10 items-center justify-center rounded-md px-2 text-xs font-medium tabular-nums",
+                              done
+                                ? "bg-emerald-500/10 text-emerald-600"
+                                : it.qtyPicked > 0
+                                  ? "bg-amber-500/10 text-amber-600"
+                                  : "text-muted-foreground",
+                            )}
+                          >
+                            {it.qtyPicked} / {it.qtyOrdered}
+                          </span>
+                        </TableCell>
+                        <TableCell className="px-3 py-3">
+                          <span
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+                              badge.className,
+                            )}
+                          >
+                            {done && <CheckIcon className="size-3" />}
+                            {badge.label}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
           )}
         </section>
       </div>

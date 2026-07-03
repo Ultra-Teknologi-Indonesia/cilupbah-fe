@@ -26,6 +26,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { InfoIcon } from "lucide-react";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
 import {
@@ -73,7 +81,7 @@ function SortHeader({
 }) {
   const isActive = activeField === field;
   return (
-    <th
+    <TableHead
       className={cn(
         "whitespace-nowrap px-3 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground",
         "cursor-pointer select-none transition-colors hover:text-foreground",
@@ -98,7 +106,7 @@ function SortHeader({
           <ArrowUpDown className="h-3 w-3 opacity-40" />
         )}
       </span>
-    </th>
+    </TableHead>
   );
 }
 
@@ -413,161 +421,159 @@ export function PosisiStokView() {
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              <div className="overflow-x-auto rounded-lg border border-border/40">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border/60 bg-muted/30">
-                      <SortHeader
-                        label="Produk"
-                        field="item_code"
-                        activeField={sortField}
-                        dir={sortDir}
-                        onSort={handleSort}
-                      />
-                      <th
-                        className={cn(
-                          "whitespace-nowrap px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground",
-                          "cursor-pointer select-none transition-colors hover:text-foreground",
-                        )}
-                        onClick={() => handleSort("average_cost")}
-                      >
-                        <span className="inline-flex items-center justify-end gap-1">
-                          Harga Pokok
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <InfoIcon
-                                className="h-3 w-3 opacity-60"
-                                onClick={(e) => e.stopPropagation()}
-                              />
-                            </TooltipTrigger>
-                            <TooltipContent side="top">
-                              Metode valuasi: Moving Average (rata-rata
-                              tertimbang).
-                            </TooltipContent>
-                          </Tooltip>
-                          {sortField === "average_cost" ? (
-                            sortDir === "asc" ? (
-                              <ChevronUpIcon className="h-3 w-3" />
-                            ) : (
-                              <ChevronDownIcon className="h-3 w-3" />
-                            )
+              <Table containerClassName="rounded-lg border border-border/40">
+                <TableHeader>
+                  <TableRow className="border-b border-border/60 bg-muted/30">
+                    <SortHeader
+                      label="Produk"
+                      field="item_code"
+                      activeField={sortField}
+                      dir={sortDir}
+                      onSort={handleSort}
+                    />
+                    <TableHead
+                      className={cn(
+                        "whitespace-nowrap px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground",
+                        "cursor-pointer select-none transition-colors hover:text-foreground",
+                      )}
+                      onClick={() => handleSort("average_cost")}
+                    >
+                      <span className="inline-flex items-center justify-end gap-1">
+                        Harga Pokok
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <InfoIcon
+                              className="h-3 w-3 opacity-60"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent side="top">
+                            Metode valuasi: Moving Average (rata-rata
+                            tertimbang).
+                          </TooltipContent>
+                        </Tooltip>
+                        {sortField === "average_cost" ? (
+                          sortDir === "asc" ? (
+                            <ChevronUpIcon className="h-3 w-3" />
                           ) : (
-                            <ArrowUpDown className="h-3 w-3 opacity-40" />
-                          )}
-                        </span>
-                      </th>
-                      <SortHeader
-                        label="On Hand"
-                        field="on_hand"
-                        activeField={sortField}
-                        dir={sortDir}
-                        onSort={handleSort}
-                        align="right"
-                      />
-                      <th className="whitespace-nowrap px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        On Order
-                      </th>
-                      <th className="whitespace-nowrap px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Reserved
-                      </th>
-                      <SortHeader
-                        label="Available"
-                        field="available"
-                        activeField={sortField}
-                        dir={sortDir}
-                        onSort={handleSort}
-                        align="right"
-                      />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((item: StockItem) => (
-                      <tr
-                        key={item.item_id}
-                        onClick={() =>
-                          router.push(`/dashboard/posisi-stok/${item.item_id}`)
-                        }
-                        onMouseEnter={() => prefetchDetail(item.item_id)}
-                        onFocus={() => prefetchDetail(item.item_id)}
-                        className="cursor-pointer border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
-                      >
-                        <td className="px-3 py-3">
-                          <div className="flex items-center gap-3">
-                            {item.thumbnail ? (
-                              <Image
-                                src={item.thumbnail}
-                                alt={item.item_name ?? item.item_code}
-                                width={40}
-                                height={40}
-                                className="h-10 w-10 shrink-0 rounded-lg border border-border/40 object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted/60">
-                                <PackageIcon className="h-5 w-5 text-muted-foreground/60" />
-                              </div>
-                            )}
-                            <div
-                              className="flex min-w-0 flex-col gap-0.5"
-                              style={{ maxWidth: 320 }}
-                            >
-                              <div className="flex flex-wrap items-center gap-1.5">
-                                <span className="whitespace-normal break-words text-sm font-medium text-foreground">
-                                  {item.item_name || item.item_code}
-                                </span>
-                                {item.is_bundle && (
-                                  <Badge
-                                    variant="outline"
-                                    className="shrink-0 text-[10px] leading-tight border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400"
-                                  >
-                                    Bundle
-                                  </Badge>
-                                )}
-                              </div>
-                              {item.variation_values.length > 0 && (
-                                <span className="whitespace-normal break-words text-xs text-foreground">
-                                  {item.variation_values
-                                    .map((v) => v.value)
-                                    .join(", ")}
-                                </span>
-                              )}
-                              <span className="font-mono text-[11px] text-foreground/80">
-                                {item.item_code}
-                              </span>
+                            <ChevronDownIcon className="h-3 w-3" />
+                          )
+                        ) : (
+                          <ArrowUpDown className="h-3 w-3 opacity-40" />
+                        )}
+                      </span>
+                    </TableHead>
+                    <SortHeader
+                      label="On Hand"
+                      field="on_hand"
+                      activeField={sortField}
+                      dir={sortDir}
+                      onSort={handleSort}
+                      align="right"
+                    />
+                    <TableHead className="whitespace-nowrap px-3 py-3 text-right text-xs text-muted-foreground uppercase tracking-wider text-muted-foreground">
+                      On Order
+                    </TableHead>
+                    <TableHead className="whitespace-nowrap px-3 py-3 text-right text-xs text-muted-foreground uppercase tracking-wider text-muted-foreground">
+                      Reserved
+                    </TableHead>
+                    <SortHeader
+                      label="Available"
+                      field="available"
+                      activeField={sortField}
+                      dir={sortDir}
+                      onSort={handleSort}
+                      align="right"
+                    />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {items.map((item: StockItem) => (
+                    <TableRow
+                      key={item.item_id}
+                      onClick={() =>
+                        router.push(`/dashboard/posisi-stok/${item.item_id}`)
+                      }
+                      onMouseEnter={() => prefetchDetail(item.item_id)}
+                      onFocus={() => prefetchDetail(item.item_id)}
+                      className="cursor-pointer border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
+                    >
+                      <TableCell className="px-3 py-3">
+                        <div className="flex items-center gap-3">
+                          {item.thumbnail ? (
+                            <Image
+                              src={item.thumbnail}
+                              alt={item.item_name ?? item.item_code}
+                              width={40}
+                              height={40}
+                              className="h-10 w-10 shrink-0 rounded-lg border border-border/40 object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted/60">
+                              <PackageIcon className="h-5 w-5 text-muted-foreground/60" />
                             </div>
+                          )}
+                          <div
+                            className="flex min-w-0 flex-col gap-0.5"
+                            style={{ maxWidth: 320 }}
+                          >
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span className="whitespace-normal break-words text-sm font-medium text-foreground">
+                                {item.item_name || item.item_code}
+                              </span>
+                              {item.is_bundle && (
+                                <Badge
+                                  variant="outline"
+                                  className="shrink-0 text-[10px] leading-tight border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400"
+                                >
+                                  Bundle
+                                </Badge>
+                              )}
+                            </div>
+                            {item.variation_values.length > 0 && (
+                              <span className="whitespace-normal break-words text-xs text-foreground">
+                                {item.variation_values
+                                  .map((v) => v.value)
+                                  .join(", ")}
+                              </span>
+                            )}
+                            <span className="font-mono text-[11px] text-foreground/80">
+                              {item.item_code}
+                            </span>
                           </div>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-right text-sm text-foreground">
-                          {formatCurrency(Number(item.average_cost))}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-right">
-                          <StockQtyBadge
-                            value={item.total_stocks.on_hand}
-                            variant="default"
-                          />
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-right">
-                          <StockQtyBadge
-                            value={item.total_stocks.on_order}
-                            variant="default"
-                          />
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-right">
-                          <StockQtyBadge
-                            value={item.total_stocks.reserved}
-                            variant="warning"
-                          />
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-right">
-                          <StockQtyBadge
-                            value={item.total_stocks.available}
-                            variant="success"
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap px-3 py-3 text-right text-sm text-foreground">
+                        {formatCurrency(Number(item.average_cost))}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap px-3 py-3 text-right">
+                        <StockQtyBadge
+                          value={item.total_stocks.on_hand}
+                          variant="default"
+                        />
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap px-3 py-3 text-right">
+                        <StockQtyBadge
+                          value={item.total_stocks.on_order}
+                          variant="default"
+                        />
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap px-3 py-3 text-right">
+                        <StockQtyBadge
+                          value={item.total_stocks.reserved}
+                          variant="warning"
+                        />
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap px-3 py-3 text-right">
+                        <StockQtyBadge
+                          value={item.total_stocks.available}
+                          variant="success"
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
 
               <SimplePagination
                 page={meta.current_page}

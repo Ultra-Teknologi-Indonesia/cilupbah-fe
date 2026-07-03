@@ -24,6 +24,14 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
 import {
   usePicklistDetail,
@@ -568,118 +576,135 @@ export function PickingProsesView({ id }: { id: string }) {
               </DialogContent>
             </Dialog>
 
-            <div className="overflow-x-auto rounded-2xl border border-border bg-card">
-              <table className="w-full min-w-[1100px] border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/40 text-left text-muted-foreground">
-                    <th className="px-3 py-3 font-medium">Produk</th>
-                    <th className="px-3 py-3 font-medium">Qty Pesan</th>
-                    <th className="px-3 py-3 font-medium">Kode Rak</th>
-                    <th className="px-3 py-3 font-medium">Qty Ambil / Pesan</th>
-                    <th className="px-3 py-3 font-medium">No. Pesanan</th>
-                    <th className="px-3 py-3 font-medium">No. Paket</th>
-                    <th className="px-3 py-3 font-medium">Status</th>
-                    <th className="px-3 py-3 font-medium">No. Resi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={8}
-                        className="py-12 text-center text-sm text-muted-foreground"
+            <Table
+              containerClassName="rounded-2xl border border-border bg-card"
+              className="min-w-[1100px] border-collapse"
+            >
+              <TableHeader>
+                <TableRow className="border-b border-border bg-muted/40 text-left text-muted-foreground">
+                  <TableHead className="px-3 py-3 text-muted-foreground">
+                    Produk
+                  </TableHead>
+                  <TableHead className="px-3 py-3 text-muted-foreground">
+                    Qty Pesan
+                  </TableHead>
+                  <TableHead className="px-3 py-3 text-muted-foreground">
+                    Kode Rak
+                  </TableHead>
+                  <TableHead className="px-3 py-3 text-muted-foreground">
+                    Qty Ambil / Pesan
+                  </TableHead>
+                  <TableHead className="px-3 py-3 text-muted-foreground">
+                    No. Pesanan
+                  </TableHead>
+                  <TableHead className="px-3 py-3 text-muted-foreground">
+                    No. Paket
+                  </TableHead>
+                  <TableHead className="px-3 py-3 text-muted-foreground">
+                    Status
+                  </TableHead>
+                  <TableHead className="px-3 py-3 text-muted-foreground">
+                    No. Resi
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {items.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={8}
+                      className="py-12 text-center text-sm text-muted-foreground"
+                    >
+                      Tidak ada item dalam picklist ini.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  items.map((it) => {
+                    const done = it.qtyPicked >= it.qtyOrdered;
+                    const badge = statusBadge(
+                      it.itemStatus,
+                      it.qtyPicked,
+                      it.qtyOrdered,
+                    );
+                    return (
+                      <TableRow
+                        key={it.id}
+                        className={cn(
+                          "border-b border-border/60 last:border-0",
+                          done && "bg-emerald-500/[0.04]",
+                          activeItemId === it.id &&
+                            "bg-primary/[0.06] ring-1 ring-inset ring-primary/20",
+                        )}
                       >
-                        Tidak ada item dalam picklist ini.
-                      </td>
-                    </tr>
-                  ) : (
-                    items.map((it) => {
-                      const done = it.qtyPicked >= it.qtyOrdered;
-                      const badge = statusBadge(
-                        it.itemStatus,
-                        it.qtyPicked,
-                        it.qtyOrdered,
-                      );
-                      return (
-                        <tr
-                          key={it.id}
-                          className={cn(
-                            "border-b border-border/60 last:border-0",
-                            done && "bg-emerald-500/[0.04]",
-                            activeItemId === it.id &&
-                              "bg-primary/[0.06] ring-1 ring-inset ring-primary/20",
-                          )}
-                        >
-                          <td className="px-3 py-3">
-                            <div className="flex items-start gap-3">
-                              <ItemImage
-                                src={it.imageUrl}
-                                alt={it.name ?? it.sku}
-                              />
-                              <div className="flex min-w-0 flex-col gap-0.5">
-                                <span className="font-medium text-foreground">
-                                  {it.name ?? it.sku}
+                        <TableCell className="px-3 py-3">
+                          <div className="flex items-start gap-3">
+                            <ItemImage
+                              src={it.imageUrl}
+                              alt={it.name ?? it.sku}
+                            />
+                            <div className="flex min-w-0 flex-col gap-0.5">
+                              <span className="font-medium text-foreground">
+                                {it.name ?? it.sku}
+                              </span>
+                              <span className="font-mono text-[11px] text-foreground/70">
+                                {it.sku}
+                              </span>
+                              {it.variantName && (
+                                <span className="text-[11px] text-muted-foreground">
+                                  {it.variantName}
                                 </span>
-                                <span className="font-mono text-[11px] text-foreground/70">
-                                  {it.sku}
-                                </span>
-                                {it.variantName && (
-                                  <span className="text-[11px] text-muted-foreground">
-                                    {it.variantName}
-                                  </span>
-                                )}
-                              </div>
+                              )}
                             </div>
-                          </td>
-                          <td className="px-3 py-3 tabular-nums text-foreground">
-                            {it.qtyOrdered}
-                          </td>
-                          <td className="px-3 py-3">
-                            <span className="font-mono text-xs text-foreground">
-                              {it.binCode ?? "—"}
-                            </span>
-                          </td>
-                          <td className="px-3 py-3">
-                            <span
-                              className={cn(
-                                "inline-flex h-6 min-w-10 items-center justify-center rounded-md px-2 text-xs font-medium tabular-nums",
-                                done
-                                  ? "bg-emerald-500/10 text-emerald-600"
-                                  : it.qtyPicked > 0
-                                    ? "bg-amber-500/10 text-amber-600"
-                                    : "text-muted-foreground",
-                              )}
-                            >
-                              {it.qtyPicked} / {it.qtyOrdered}
-                            </span>
-                          </td>
-                          <td className="px-3 py-3 font-mono text-xs text-foreground">
-                            {it.orderNo ?? "—"}
-                          </td>
-                          <td className="px-3 py-3 font-mono text-xs text-foreground">
-                            {it.packageNo ?? "—"}
-                          </td>
-                          <td className="px-3 py-3">
-                            <span
-                              className={cn(
-                                "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
-                                badge.className,
-                              )}
-                            >
-                              {done && <CheckIcon className="size-3" />}
-                              {badge.label}
-                            </span>
-                          </td>
-                          <td className="px-3 py-3 font-mono text-xs text-foreground">
-                            {it.trackingNumber ?? "—"}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-3 py-3 tabular-nums text-foreground">
+                          {it.qtyOrdered}
+                        </TableCell>
+                        <TableCell className="px-3 py-3">
+                          <span className="font-mono text-xs text-foreground">
+                            {it.binCode ?? "—"}
+                          </span>
+                        </TableCell>
+                        <TableCell className="px-3 py-3">
+                          <span
+                            className={cn(
+                              "inline-flex h-6 min-w-10 items-center justify-center rounded-md px-2 text-xs font-medium tabular-nums",
+                              done
+                                ? "bg-emerald-500/10 text-emerald-600"
+                                : it.qtyPicked > 0
+                                  ? "bg-amber-500/10 text-amber-600"
+                                  : "text-muted-foreground",
+                            )}
+                          >
+                            {it.qtyPicked} / {it.qtyOrdered}
+                          </span>
+                        </TableCell>
+                        <TableCell className="px-3 py-3 font-mono text-xs text-foreground">
+                          {it.orderNo ?? "—"}
+                        </TableCell>
+                        <TableCell className="px-3 py-3 font-mono text-xs text-foreground">
+                          {it.packageNo ?? "—"}
+                        </TableCell>
+                        <TableCell className="px-3 py-3">
+                          <span
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+                              badge.className,
+                            )}
+                          >
+                            {done && <CheckIcon className="size-3" />}
+                            {badge.label}
+                          </span>
+                        </TableCell>
+                        <TableCell className="px-3 py-3 font-mono text-xs text-foreground">
+                          {it.trackingNumber ?? "—"}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
           </section>
         </div>
       )}

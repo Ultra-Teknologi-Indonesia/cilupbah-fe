@@ -13,6 +13,14 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useCategoryFormAttributes } from "@/hooks/master-produk/use-master-data";
 import {
   buildCombos,
@@ -390,128 +398,136 @@ export function FormVariantSection({
       </div>
 
       {variants.length > 0 && (
-        <div className="mt-6 overflow-x-auto rounded-lg border">
-          <table className="min-w-[900px] w-full text-sm">
-            <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
-              <tr>
-                <th className="sticky left-0 z-10 bg-muted/50 px-3 py-2 font-medium">
-                  Variasi
-                </th>
-                <th className="px-3 py-2 font-medium">Foto</th>
-                <th className="px-3 py-2 font-medium">
-                  SKU <span className="text-destructive">*</span>
-                </th>
-                <th className="px-3 py-2 font-medium">Harga Jual</th>
-                <th className="px-3 py-2 font-medium">Harga Beli</th>
-                <th className="px-3 py-2 font-medium">Berat ({weightUnit})</th>
-                <th className="px-3 py-2 font-medium" colSpan={3}>
-                  Dimensi P×L×T (cm)
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {variants.map((row, i) => (
-                <tr key={row.key} className="border-t">
-                  <td className="sticky left-0 z-10 bg-background px-3 py-2 font-medium whitespace-nowrap">
-                    {row.label}
-                  </td>
-                  <td className="px-2 py-2">
-                    <VariantImageCell
-                      image={row.image}
-                      imageFile={
-                        row.imageFile instanceof File
-                          ? row.imageFile
-                          : undefined
-                      }
-                      onChange={(file) => updateVariant(i, { imageFile: file })}
-                    />
-                  </td>
-                  <td className="px-2 py-2">
-                    <Input
-                      value={row.sku}
-                      onChange={(e) =>
-                        updateVariant(i, { sku: e.target.value })
-                      }
-                      className="h-9 min-w-28"
-                    />
-                  </td>
-                  <td className="px-2 py-2">
-                    <Input
-                      type="number"
-                      min={0}
-                      value={row.sellPrice ?? ""}
-                      onChange={(e) =>
-                        updateVariant(i, { sellPrice: e.target.value })
-                      }
-                      placeholder="0"
-                      className="h-9 min-w-24"
-                    />
-                  </td>
-                  <td className="px-2 py-2">
-                    <Input
-                      type="number"
-                      min={0}
-                      value={row.buyPrice ?? ""}
-                      onChange={(e) =>
-                        updateVariant(i, { buyPrice: e.target.value })
-                      }
-                      placeholder="0"
-                      className="h-9 min-w-24"
-                    />
-                  </td>
-                  <td className="px-2 py-2">
-                    <Input
-                      type="number"
-                      min={0}
-                      value={row.weight ?? ""}
-                      onChange={(e) =>
-                        updateVariant(i, { weight: e.target.value })
-                      }
-                      placeholder="0"
-                      className="h-9 w-24"
-                    />
-                  </td>
-                  <td className="pl-2 pr-1 py-2">
-                    <Input
-                      type="number"
-                      min={0}
-                      value={row.length ?? ""}
-                      onChange={(e) =>
-                        updateVariant(i, { length: e.target.value })
-                      }
-                      placeholder="P"
-                      className="h-9 w-20"
-                    />
-                  </td>
-                  <td className="px-1 py-2">
-                    <Input
-                      type="number"
-                      min={0}
-                      value={row.width ?? ""}
-                      onChange={(e) =>
-                        updateVariant(i, { width: e.target.value })
-                      }
-                      placeholder="L"
-                      className="h-9 w-20"
-                    />
-                  </td>
-                  <td className="pl-1 pr-2 py-2">
-                    <Input
-                      type="number"
-                      min={0}
-                      value={row.height ?? ""}
-                      onChange={(e) =>
-                        updateVariant(i, { height: e.target.value })
-                      }
-                      placeholder="T"
-                      className="h-9 w-20"
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Table
+          containerClassName="mt-6 rounded-lg border"
+          className="min-w-[900px]"
+        >
+          <TableHeader className="bg-muted/50 text-left text-xs text-muted-foreground">
+            <TableRow>
+              <TableHead className="sticky left-0 z-10 bg-muted/50 px-3 py-2 text-muted-foreground">
+                Variasi
+              </TableHead>
+              <TableHead className="px-3 py-2 text-muted-foreground">
+                Foto
+              </TableHead>
+              <TableHead className="px-3 py-2 text-muted-foreground">
+                SKU <span className="text-destructive">*</span>
+              </TableHead>
+              <TableHead className="px-3 py-2 text-muted-foreground">
+                Harga Jual
+              </TableHead>
+              <TableHead className="px-3 py-2 text-muted-foreground">
+                Harga Beli
+              </TableHead>
+              <TableHead className="px-3 py-2 text-muted-foreground">
+                Berat ({weightUnit})
+              </TableHead>
+              <TableHead
+                className="px-3 py-2 text-muted-foreground"
+                colSpan={3}
+              >
+                Dimensi P×L×T (cm)
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {variants.map((row, i) => (
+              <TableRow key={row.key} className="border-t">
+                <TableCell className="sticky left-0 z-10 bg-background px-3 py-2 font-medium whitespace-nowrap">
+                  {row.label}
+                </TableCell>
+                <TableCell className="px-2 py-2">
+                  <VariantImageCell
+                    image={row.image}
+                    imageFile={
+                      row.imageFile instanceof File ? row.imageFile : undefined
+                    }
+                    onChange={(file) => updateVariant(i, { imageFile: file })}
+                  />
+                </TableCell>
+                <TableCell className="px-2 py-2">
+                  <Input
+                    value={row.sku}
+                    onChange={(e) => updateVariant(i, { sku: e.target.value })}
+                    className="h-9 min-w-28"
+                  />
+                </TableCell>
+                <TableCell className="px-2 py-2">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={row.sellPrice ?? ""}
+                    onChange={(e) =>
+                      updateVariant(i, { sellPrice: e.target.value })
+                    }
+                    placeholder="0"
+                    className="h-9 min-w-24"
+                  />
+                </TableCell>
+                <TableCell className="px-2 py-2">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={row.buyPrice ?? ""}
+                    onChange={(e) =>
+                      updateVariant(i, { buyPrice: e.target.value })
+                    }
+                    placeholder="0"
+                    className="h-9 min-w-24"
+                  />
+                </TableCell>
+                <TableCell className="px-2 py-2">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={row.weight ?? ""}
+                    onChange={(e) =>
+                      updateVariant(i, { weight: e.target.value })
+                    }
+                    placeholder="0"
+                    className="h-9 w-24"
+                  />
+                </TableCell>
+                <TableCell className="pl-2 pr-1 py-2">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={row.length ?? ""}
+                    onChange={(e) =>
+                      updateVariant(i, { length: e.target.value })
+                    }
+                    placeholder="P"
+                    className="h-9 w-20"
+                  />
+                </TableCell>
+                <TableCell className="px-1 py-2">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={row.width ?? ""}
+                    onChange={(e) =>
+                      updateVariant(i, { width: e.target.value })
+                    }
+                    placeholder="L"
+                    className="h-9 w-20"
+                  />
+                </TableCell>
+                <TableCell className="pl-1 pr-2 py-2">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={row.height ?? ""}
+                    onChange={(e) =>
+                      updateVariant(i, { height: e.target.value })
+                    }
+                    placeholder="T"
+                    className="h-9 w-20"
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
     </FormSectionCard>
   );

@@ -21,6 +21,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import {
@@ -366,81 +374,96 @@ function PreviewPanel({ preview }: { preview: ImportPreviewResponse }) {
 
       {}
       {preview.items.length > 0 && (
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <table className="w-full min-w-[900px] text-sm">
-            <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
-              <tr>
-                <th className="px-3 py-2.5 text-left font-medium">#</th>
-                <th className="px-3 py-2.5 text-left font-medium">
-                  SKU / Produk
-                </th>
-                <th className="px-3 py-2.5 text-left font-medium">Rak</th>
-                <th className="px-3 py-2.5 text-left font-medium">Mode</th>
-                <th className="px-3 py-2.5 text-right font-medium">Input</th>
-                <th className="px-3 py-2.5 text-right font-medium">On Hand</th>
-                <th className="px-3 py-2.5 text-right font-medium">
-                  Qty Akhir
-                </th>
-                <th className="px-3 py-2.5 text-right font-medium">Selisih</th>
-                <th className="px-3 py-2.5 text-right font-medium">
-                  Harga Pokok
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {preview.items.map((it, idx) => (
-                <tr key={it.row_no} className="bg-background/50">
-                  <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
-                    {idx + 1}
-                  </td>
-                  <td className="px-3 py-2">
-                    <p className="font-medium">{it.product_name || it.sku}</p>
-                    <p className="font-mono text-[11px] text-muted-foreground">
-                      {it.sku}
-                    </p>
-                  </td>
-                  <td className="px-3 py-2 font-mono text-xs">{it.bin_code}</td>
-                  <td className="px-3 py-2">
-                    <span
-                      className={cn(
-                        "inline-flex items-center rounded px-2 py-0.5 text-[11px] font-medium",
-                        it.mode === "DELTA"
-                          ? "bg-blue-500/10 text-blue-700 dark:text-blue-400"
-                          : "bg-purple-500/10 text-purple-700 dark:text-purple-400",
-                      )}
-                    >
-                      {it.mode}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2 text-right font-mono tabular-nums">
-                    {it.input_value > 0 ? `+${it.input_value}` : it.input_value}
-                  </td>
-                  <td className="px-3 py-2 text-right font-mono tabular-nums text-muted-foreground">
-                    {it.system_qty}
-                  </td>
-                  <td className="px-3 py-2 text-right font-mono font-semibold tabular-nums">
-                    {it.actual_qty}
-                  </td>
-                  <td
+        <Table
+          containerClassName="rounded-lg border border-border"
+          className="min-w-[900px]"
+        >
+          <TableHeader className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+            <TableRow>
+              <TableHead className="px-3 py-2.5 text-muted-foreground">
+                #
+              </TableHead>
+              <TableHead className="px-3 py-2.5 text-muted-foreground">
+                SKU / Produk
+              </TableHead>
+              <TableHead className="px-3 py-2.5 text-muted-foreground">
+                Rak
+              </TableHead>
+              <TableHead className="px-3 py-2.5 text-muted-foreground">
+                Mode
+              </TableHead>
+              <TableHead className="px-3 py-2.5 text-right text-muted-foreground">
+                Input
+              </TableHead>
+              <TableHead className="px-3 py-2.5 text-right text-muted-foreground">
+                On Hand
+              </TableHead>
+              <TableHead className="px-3 py-2.5 text-right text-muted-foreground">
+                Qty Akhir
+              </TableHead>
+              <TableHead className="px-3 py-2.5 text-right text-muted-foreground">
+                Selisih
+              </TableHead>
+              <TableHead className="px-3 py-2.5 text-right text-muted-foreground">
+                Harga Pokok
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="divide-y divide-border">
+            {preview.items.map((it, idx) => (
+              <TableRow key={it.row_no} className="bg-background/50">
+                <TableCell className="px-3 py-2 font-mono text-xs text-muted-foreground">
+                  {idx + 1}
+                </TableCell>
+                <TableCell className="px-3 py-2">
+                  <p className="font-medium">{it.product_name || it.sku}</p>
+                  <p className="font-mono text-[11px] text-muted-foreground">
+                    {it.sku}
+                  </p>
+                </TableCell>
+                <TableCell className="px-3 py-2 font-mono text-xs">
+                  {it.bin_code}
+                </TableCell>
+                <TableCell className="px-3 py-2">
+                  <span
                     className={cn(
-                      "px-3 py-2 text-right font-mono tabular-nums",
-                      it.difference > 0 &&
-                        "text-emerald-600 dark:text-emerald-400",
-                      it.difference < 0 && "text-red-600 dark:text-red-400",
+                      "inline-flex items-center rounded px-2 py-0.5 text-[11px] font-medium",
+                      it.mode === "DELTA"
+                        ? "bg-blue-500/10 text-blue-700 dark:text-blue-400"
+                        : "bg-purple-500/10 text-purple-700 dark:text-purple-400",
                     )}
                   >
-                    {it.difference > 0 ? `+${it.difference}` : it.difference}
-                  </td>
-                  <td className="px-3 py-2 text-right font-mono tabular-nums">
-                    {it.unit_cost != null
-                      ? it.unit_cost.toLocaleString("id-ID")
-                      : "—"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    {it.mode}
+                  </span>
+                </TableCell>
+                <TableCell className="px-3 py-2 text-right font-mono tabular-nums">
+                  {it.input_value > 0 ? `+${it.input_value}` : it.input_value}
+                </TableCell>
+                <TableCell className="px-3 py-2 text-right font-mono tabular-nums text-muted-foreground">
+                  {it.system_qty}
+                </TableCell>
+                <TableCell className="px-3 py-2 text-right font-mono font-semibold tabular-nums">
+                  {it.actual_qty}
+                </TableCell>
+                <TableCell
+                  className={cn(
+                    "px-3 py-2 text-right font-mono tabular-nums",
+                    it.difference > 0 &&
+                      "text-emerald-600 dark:text-emerald-400",
+                    it.difference < 0 && "text-red-600 dark:text-red-400",
+                  )}
+                >
+                  {it.difference > 0 ? `+${it.difference}` : it.difference}
+                </TableCell>
+                <TableCell className="px-3 py-2 text-right font-mono tabular-nums">
+                  {it.unit_cost != null
+                    ? it.unit_cost.toLocaleString("id-ID")
+                    : "—"}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
     </div>
   );

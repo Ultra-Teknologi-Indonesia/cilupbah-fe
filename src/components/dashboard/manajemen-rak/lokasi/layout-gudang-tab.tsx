@@ -40,6 +40,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   BIN_QR_PAPER_DEFAULT,
   BIN_QR_PAPER_OPTIONS as PAPER_OPTIONS,
   type BinQrPaper,
@@ -999,11 +1007,11 @@ export function LayoutGudangTab({
             Belum ada data rak.
           </div>
         ) : (
-          <div className="rounded-2xl border border-border overflow-x-auto">
-            <table className="w-full min-w-[800px] border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/40">
-                  <th className="w-10 px-3 py-3">
+          <div className="rounded-2xl border border-border">
+            <Table className="min-w-[800px] border-collapse">
+              <TableHeader>
+                <TableRow className="border-b border-border bg-muted/40">
+                  <TableHead className="w-10 px-3 py-3">
                     <Checkbox
                       checked={
                         allPageSelected
@@ -1015,42 +1023,45 @@ export function LayoutGudangTab({
                       onCheckedChange={togglePageAll}
                       disabled={disabled}
                     />
-                  </th>
-                  <th className="px-3 py-3 text-left">
+                  </TableHead>
+                  <TableHead className="px-3 py-3 text-left">
                     <SortableHeader
                       label="Kode Rak"
                       field="bin_final_code"
                       currentSort={sort}
                       onSort={setSort}
                     />
-                  </th>
-                  <th className="px-3 py-3 text-left">
+                  </TableHead>
+                  <TableHead className="px-3 py-3 text-left">
                     <SortableHeader
                       label="Maks. Qty"
                       field="max_qty"
                       currentSort={sort}
                       onSort={setSort}
                     />
-                  </th>
-                  <th className="px-3 py-3 text-center font-medium text-muted-foreground">
+                  </TableHead>
+                  <TableHead className="px-3 py-3 text-center font-medium text-muted-foreground">
                     Akui Stok
-                  </th>
-                  <th className="px-3 py-3 text-center font-medium text-muted-foreground">
+                  </TableHead>
+                  <TableHead className="px-3 py-3 text-center font-medium text-muted-foreground">
                     Gudang Besar
-                  </th>
-                  <th className="px-3 py-3 text-left font-medium text-muted-foreground">
+                  </TableHead>
+                  <TableHead className="px-3 py-3 text-left font-medium text-muted-foreground">
                     Kategori
-                  </th>
-                  <th className="w-24 px-3 py-3" />
-                </tr>
+                  </TableHead>
+                  <TableHead className="w-24 px-3 py-3" />
+                </TableRow>
 
                 {}
                 {serverMode &&
                   allPageSelected &&
                   !selectAllAcrossPages &&
                   totalAll > pageIds.length && (
-                    <tr className="border-b border-primary/20 bg-primary/5">
-                      <td colSpan={7} className="px-3 py-2 text-center text-sm">
+                    <TableRow className="border-b border-primary/20 bg-primary/5">
+                      <TableCell
+                        colSpan={7}
+                        className="px-3 py-2 text-center text-sm"
+                      >
                         Memilih {pageIds.length} rak di halaman ini.{" "}
                         <button
                           type="button"
@@ -1059,12 +1070,15 @@ export function LayoutGudangTab({
                         >
                           Pilih semua {totalAll.toLocaleString("id-ID")} rak.
                         </button>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   )}
                 {serverMode && selectAllAcrossPages && (
-                  <tr className="border-b border-primary/20 bg-primary/5">
-                    <td colSpan={7} className="px-3 py-2 text-center text-sm">
+                  <TableRow className="border-b border-primary/20 bg-primary/5">
+                    <TableCell
+                      colSpan={7}
+                      className="px-3 py-2 text-center text-sm"
+                    >
                       Memilih semua {totalAll.toLocaleString("id-ID")} rak.{" "}
                       <button
                         type="button"
@@ -1073,13 +1087,13 @@ export function LayoutGudangTab({
                       >
                         Batalkan.
                       </button>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )}
 
                 {(selectedIds.size > 0 || selectAllAcrossPages) && (
-                  <tr className="border-b border-primary/20 bg-primary/5">
-                    <td colSpan={7} className="px-3 py-2">
+                  <TableRow className="border-b border-primary/20 bg-primary/5">
+                    <TableCell colSpan={7} className="px-3 py-2">
                       <div className="flex items-center gap-3">
                         <Checkbox
                           checked={allPageSelected ? true : "indeterminate"}
@@ -1121,30 +1135,30 @@ export function LayoutGudangTab({
                           </Button>
                         )}
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )}
-              </thead>
-              <tbody>
+              </TableHeader>
+              <TableBody>
                 {pageItems.map((b) => {
                   const isSelected =
                     selectedIds.has(b.id) || selectAllAcrossPages;
                   return (
-                    <tr
+                    <TableRow
                       key={b.id}
                       className={cn(
                         "border-b border-border/60 last:border-0",
                         isSelected && "bg-primary/5",
                       )}
                     >
-                      <td className="px-3 py-2.5">
+                      <TableCell className="px-3 py-2.5">
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => toggleOne(b.id)}
                           disabled={disabled || selectAllAcrossPages}
                         />
-                      </td>
-                      <td className="px-3 py-2.5">
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5">
                         <Input
                           value={b.binFinalCode}
                           onChange={(e) =>
@@ -1164,8 +1178,8 @@ export function LayoutGudangTab({
                           placeholder="Kode rak"
                           className="h-9 max-w-[200px]"
                         />
-                      </td>
-                      <td className="px-3 py-2.5">
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5">
                         <Input
                           type="number"
                           min={0}
@@ -1180,8 +1194,8 @@ export function LayoutGudangTab({
                           disabled={disabled}
                           className="h-9 w-24"
                         />
-                      </td>
-                      <td className="px-3 py-2.5 text-center">
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-center">
                         <Switch
                           checked={b.isStockAcknowledged}
                           onCheckedChange={(v) =>
@@ -1191,8 +1205,8 @@ export function LayoutGudangTab({
                           }
                           disabled={disabled}
                         />
-                      </td>
-                      <td className="px-3 py-2.5 text-center">
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-center">
                         <Switch
                           checked={b.isLargeBin}
                           onCheckedChange={(v) =>
@@ -1202,8 +1216,8 @@ export function LayoutGudangTab({
                           }
                           disabled={disabled}
                         />
-                      </td>
-                      <td className="px-3 py-2.5">
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5">
                         <Input
                           value={b.category}
                           onChange={(e) =>
@@ -1215,8 +1229,8 @@ export function LayoutGudangTab({
                           placeholder="Kategori"
                           className="h-9 max-w-[180px]"
                         />
-                      </td>
-                      <td className="px-3 py-2.5">
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5">
                         <div className="flex items-center justify-end gap-1">
                           {canPrintQr && b.binId && (
                             <Tooltip>
@@ -1247,12 +1261,12 @@ export function LayoutGudangTab({
                             </Button>
                           )}
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   );
                 })}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
 
             {serverMode && lastPage > 1 && (
               <div className="border-t border-border px-3 py-2">

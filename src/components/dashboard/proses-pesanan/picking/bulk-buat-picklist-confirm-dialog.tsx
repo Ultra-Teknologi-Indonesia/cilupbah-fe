@@ -11,6 +11,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from "@/components/ui/table";
 import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment";
 
 interface BulkBuatPicklistConfirmDialogProps {
@@ -88,28 +95,28 @@ export function BulkBuatPicklistConfirmDialog({
         </DialogHeader>
 
         <div className="overflow-hidden rounded-xl border border-border">
-          <table className="w-full text-sm">
-            <tbody>
+          <Table>
+            <TableBody>
               {rows.map((row, idx) => (
-                <tr
+                <TableRow
                   key={row.label}
                   className={
                     idx < rows.length - 1 ? "border-b border-border" : undefined
                   }
                 >
-                  <th
+                  <TableHead
                     scope="row"
                     className="w-2/5 bg-muted/30 px-3 py-2.5 text-left align-top text-xs font-normal text-muted-foreground"
                   >
                     {row.label}
-                  </th>
-                  <td className="px-3 py-2.5 text-right align-top">
+                  </TableHead>
+                  <TableCell className="px-3 py-2.5 text-right align-top">
                     {row.value}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
 
         <DialogFooter>
