@@ -42,6 +42,24 @@ export function fulfillmentToOrder(f: FulfillmentOrder): Order {
     shipping_cost: f.actualShippingFee ?? 0,
     insurance_cost: 0,
     grand_total: f.grandTotal,
+    // Fulfillment (proses gudang) tidak punya data finance channel — biarkan null.
+    // Data finance lengkap muncul di detail order pasca SyncOrderFinanceJob.
+    finance: {
+      seller_voucher: null,
+      platform_voucher: null,
+      payment_voucher: null,
+      commission_fee: null,
+      service_fee: null,
+      transaction_fee: null,
+      affiliate_commission: null,
+      order_processing_fee: null,
+      seller_shipping_borne: null,
+      platform_shipping_rebate: null,
+      settlement_amount: null,
+      currency: "IDR",
+      is_settled: false,
+      synced_at: null,
+    },
     shipping: {
       full_name: f.customerName,
       phone: null,
