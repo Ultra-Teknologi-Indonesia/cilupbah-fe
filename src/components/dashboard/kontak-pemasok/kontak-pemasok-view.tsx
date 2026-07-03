@@ -1,17 +1,16 @@
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
-import {
-  PlusIcon,
+import { PlusIcon,
   PencilIcon,
   Trash2Icon,
   LockIcon,
   UsersIcon,
   TruckIcon,
   ArrowLeftRightIcon,
-  UploadIcon,
-} from "lucide-react";
+  UploadIcon, Loader2Icon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -328,7 +327,7 @@ export function KontakPemasokView() {
 
         {isFetching && !isLoading && (
           <div className="flex justify-center py-1">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <Loader2Icon className="size-4 animate-spin text-primary" />
           </div>
         )}
 
@@ -350,17 +349,7 @@ export function KontakPemasokView() {
             }}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
-                <TruckIcon className="h-10 w-10 opacity-20" />
-                <div className="text-center">
-                  <p className="text-sm font-medium">
-                    Belum ada kontak pemasok
-                  </p>
-                  <p className="mt-1 text-xs">
-                    Buat pemasok baru untuk mulai mengelola kontak.
-                  </p>
-                </div>
-              </div>
+              <EmptyState icon={TruckIcon} title="Belum ada kontak pemasok" description="Buat pemasok baru untuk mulai mengelola kontak." />
             }
           />
         </div>

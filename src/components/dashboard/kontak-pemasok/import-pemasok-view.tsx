@@ -1,15 +1,14 @@
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useRef, useCallback } from "react";
-import {
-  UploadIcon,
+import { UploadIcon,
   FileSpreadsheetIcon,
   CheckCircle2Icon,
   XCircleIcon,
   SaveIcon,
   AlertTriangleIcon,
-  FileDownIcon,
-} from "lucide-react";
+  FileDownIcon, Loader2Icon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -263,7 +262,7 @@ export function ImportPemasokDialog({
                       className="bg-emerald-600 text-white hover:bg-emerald-700"
                     >
                       {saveMut.isPending ? (
-                        <div className="mr-1.5 h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        <Loader2Icon className="size-4 animate-spin text-primary" />
                       ) : (
                         <SaveIcon className="mr-1.5 h-3.5 w-3.5" />
                       )}
@@ -326,7 +325,7 @@ export function ImportPemasokDialog({
                             colSpan={COLUMNS.length + 2}
                             className="py-8 text-center text-muted-foreground text-sm"
                           >
-                            Tidak ada data.
+                            Belum ada data.
                           </TableCell>
                         </TableRow>
                       )}
@@ -347,7 +346,7 @@ export function ImportPemasokDialog({
               disabled={!file || validateMut.isPending}
             >
               {validateMut.isPending ? (
-                <div className="mr-1.5 h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <Loader2Icon className="size-4 animate-spin text-primary" />
               ) : (
                 <FileSpreadsheetIcon className="mr-1.5 h-3.5 w-3.5" />
               )}

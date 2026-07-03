@@ -2,8 +2,6 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { format } from "date-fns";
-import { id as idLocale } from "date-fns/locale";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
@@ -52,7 +50,7 @@ import type {
   BinInventory,
   MovementView,
 } from "@/types/persediaan/stock";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatDateTime } from "@/lib/format";
 
 const CATEGORY_COLOR: Record<string, string> = {
   BILL: "text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-500/10 dark:border-green-500/20",
@@ -455,9 +453,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
               className="border-b border-border/30 transition-colors hover:bg-muted/30"
             >
               <TableCell className="px-3 py-2.5 text-muted-foreground">
-                {format(new Date(m.transaction_date), "dd MMM yyyy HH:mm", {
-                  locale: idLocale,
-                })}
+                {formatDateTime(m.transaction_date)}
               </TableCell>
               <TableCell className="px-3 py-2.5">
                 <span className="inline-flex items-center gap-1">

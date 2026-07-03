@@ -70,7 +70,7 @@ import {
   useRelocateOrder,
 } from "@/hooks/pesanan/use-order-actions";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatDateTime } from "@/lib/format";
 
 function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text);
@@ -817,9 +817,7 @@ export function OrderCard({
               </span>
               <span className="hidden items-center gap-1.5 sm:inline-flex">
                 <CalendarIcon className="h-3.5 w-3.5" />
-                {format(new Date(order.transaction_date), "dd MMM yyyy HH:mm", {
-                  locale: idLocale,
-                })}
+                {formatDateTime(order.transaction_date)}
               </span>
             </>
           )}

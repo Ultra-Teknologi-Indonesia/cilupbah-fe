@@ -27,15 +27,7 @@ import {
 } from "@/hooks/transaksi-pembelian/use-purchase-orders";
 import { SimplePagination } from "@/components/ui/simple-pagination";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
-import { formatCurrency } from "@/lib/format";
-
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
-}
+import { formatCurrency, formatDateLong } from "@/lib/format";
 
 function DetailRow({
   label,
@@ -152,7 +144,7 @@ export function PesananDetailView({ id }: { id: string }) {
               <DetailRow label="Lokasi" value={po.location?.location_name} />
               <DetailRow
                 label="Tanggal Pesanan"
-                value={formatDate(po.order_date)}
+                value={formatDateLong(po.order_date)}
               />
               <DetailRow label="No. Referensi" value={po.ref_no} />
               <DetailRow
@@ -374,7 +366,7 @@ export function PesananDetailView({ id }: { id: string }) {
 
             <div className="mt-5 border-t border-border/40 pt-4 text-xs text-muted-foreground">
               <p>Dibuat oleh: {po.created_by}</p>
-              <p>Pada: {formatDate(po.created_at)}</p>
+              <p>Pada: {formatDateLong(po.created_at)}</p>
             </div>
           </LiquidGlass>
         </div>

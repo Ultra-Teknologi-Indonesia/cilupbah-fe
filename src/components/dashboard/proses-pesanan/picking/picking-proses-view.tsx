@@ -1,5 +1,7 @@
 "use client";
 
+import { DetailSkeleton } from "@/components/ui/page-skeleton";
+
 import * as React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -76,26 +78,15 @@ function ItemImage({ src, alt }: { src: string | null; alt: string }) {
   );
 }
 
-function statusBadge(
-  s: string | null,
+function getItemStatus(
   picked: number,
   ordered: number,
-): { label: string; className: string } {
-  if (picked >= ordered && ordered > 0) {
-    return {
-      label: "Selesai",
-      className: "bg-emerald-500/10 text-emerald-600",
-    };
-  }
-  if (picked > 0) {
-    return { label: "Sebagian", className: "bg-amber-500/10 text-amber-600" };
-  }
-  if (s === "PICKED")
-    return {
-      label: "Selesai",
-      className: "bg-emerald-500/10 text-emerald-600",
-    };
-  return { label: "Belum", className: "bg-muted text-muted-foreground" };
+  s: string | null | undefined,
+) {
+  if (picked >= ordered && ordered > 0) return "COMPLETED";
+  if (picked > 0) return "PARTIAL";
+  if (s === "PICKED") return "COMPLETED";
+  return "PENDING";
 }
 
 export function PickingProsesView({ id }: { id: string }) {
@@ -323,9 +314,7 @@ export function PickingProsesView({ id }: { id: string }) {
       />
 
       {isLoading ? (
-        <div className="flex items-center justify-center gap-2 py-24 text-muted-foreground">
-          <Loader2Icon className="size-4 animate-spin" /> Memuat picklist…
-        </div>
+        <DetailSkeleton />
       ) : isError || !pl ? (
         <div className="py-24 text-center text-sm text-destructive">
           Gagal memuat picklist.
@@ -621,10 +610,10 @@ export function PickingProsesView({ id }: { id: string }) {
                 ) : (
                   items.map((it) => {
                     const done = it.qtyPicked >= it.qtyOrdered;
-                    const badge = statusBadge(
-                      it.itemStatus,
+                    const itemStatus = getItemStatus(
                       it.qtyPicked,
                       it.qtyOrdered,
+                      it.itemStatus,
                     );
                     return (
                       <TableRow
@@ -686,15 +675,7 @@ export function PickingProsesView({ id }: { id: string }) {
                           {it.packageNo ?? "—"}
                         </TableCell>
                         <TableCell className="px-3 py-3">
-                          <span
-                            className={cn(
-                              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
-                              badge.className,
-                            )}
-                          >
-                            {done && <CheckIcon className="size-3" />}
-                            {badge.label}
-                          </span>
+                          <StatusBadge domain="picking-item" status={itemStatus} />
                         </TableCell>
                         <TableCell className="px-3 py-3 font-mono text-xs text-foreground">
                           {it.trackingNumber ?? "—"}

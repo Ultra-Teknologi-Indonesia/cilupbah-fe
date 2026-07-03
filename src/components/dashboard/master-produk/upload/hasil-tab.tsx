@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { formatDateTime } from "@/lib/format";
 import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import {
   CheckCircle2Icon,
@@ -42,19 +43,6 @@ const STATUS_OPTIONS = [
   { value: "failed", label: "Gagal" },
   { value: "pending", label: "Diproses" },
 ];
-
-function fmtDate(iso: string | null) {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function HistoryStatus({ row }: { row: HistoryRow }) {
   if (row.success) {
@@ -245,7 +233,7 @@ export function HasilTab({
         header: "Tgl. Upload",
         cell: ({ row }) => (
           <span className="whitespace-nowrap tabular-nums text-sm text-muted-foreground">
-            {fmtDate(row.original.uploadDate)}
+            {formatDateTime(row.original.uploadDate)}
           </span>
         ),
       },

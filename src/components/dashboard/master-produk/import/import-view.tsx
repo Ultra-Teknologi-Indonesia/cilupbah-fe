@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { formatDateTime } from "@/lib/format";
 import type { PaginationState } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -205,18 +206,9 @@ function buildColumns(
       cell: ({ row }) => {
         const d = row.original.createdAt;
         if (!d) return "—";
-        const date = new Date(d);
         return (
           <span className="text-sm tabular-nums text-muted-foreground">
-            {date.toLocaleDateString("id-ID", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })}{" "}
-            {date.toLocaleTimeString("id-ID", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+            {formatDateTime(d)}
           </span>
         );
       },

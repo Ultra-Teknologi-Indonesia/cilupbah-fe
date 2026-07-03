@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { formatDate, formatDateTime } from "@/lib/format";
 import {
   ArrowLeftIcon,
   PrinterIcon,
@@ -34,24 +35,6 @@ const TYPE_LABEL: Record<string, string> = {
   SALES_RETURN: "Retur",
   CONSIGNMENT: "Konsinyasi",
 };
-
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatDateShort(d: string) {
-  return new Date(d).toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-}
 
 function handleExportCsv(inbound: Inbound) {
   const headers = [
@@ -205,7 +188,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                   </p>
                   <p className="mt-1 text-sm">
                     {inbound.expected_date
-                      ? formatDateShort(inbound.expected_date)
+                      ? formatDate(inbound.expected_date)
                       : "—"}
                   </p>
                 </div>
@@ -220,7 +203,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                     Dibuat
                   </p>
                   <p className="mt-1 text-sm">
-                    {formatDate(inbound.created_at)}
+                    {formatDateTime(inbound.created_at)}
                   </p>
                 </div>
               </div>
@@ -360,7 +343,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                             {r.received_by}
                           </TableCell>
                           <TableCell className="px-3 py-2.5 text-muted-foreground">
-                            {formatDate(r.received_date)}
+                            {formatDateTime(r.received_date)}
                           </TableCell>
                         </TableRow>
                       )),
@@ -433,10 +416,10 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                           </Badge>
                         </TableCell>
                         <TableCell className="px-3 py-2.5 text-muted-foreground">
-                          {a.started_at ? formatDate(a.started_at) : "—"}
+                          {a.started_at ? formatDateTime(a.started_at) : "—"}
                         </TableCell>
                         <TableCell className="px-3 py-2.5 text-muted-foreground">
-                          {a.completed_at ? formatDate(a.completed_at) : "—"}
+                          {a.completed_at ? formatDateTime(a.completed_at) : "—"}
                         </TableCell>
                         <TableCell className="max-w-[200px] truncate whitespace-normal px-3 py-2.5 text-xs text-muted-foreground">
                           {a.notes ?? ""}

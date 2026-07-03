@@ -1,5 +1,7 @@
 "use client";
 
+import { DetailSkeleton } from "@/components/ui/page-skeleton";
+
 import * as React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -26,6 +28,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import {
   useAdHocPickScan,
   useGetOrderByNo,
@@ -119,20 +122,10 @@ function ItemImage({ src, alt }: { src: string | null; alt: string }) {
   );
 }
 
-function itemBadge(
-  picked: number,
-  ordered: number,
-): { label: string; className: string } {
-  if (picked >= ordered && ordered > 0) {
-    return {
-      label: "Selesai",
-      className: "bg-emerald-500/10 text-emerald-600",
-    };
-  }
-  if (picked > 0) {
-    return { label: "Sebagian", className: "bg-amber-500/10 text-amber-600" };
-  }
-  return { label: "Belum", className: "bg-muted text-muted-foreground" };
+function getItemStatus(picked: number, ordered: number) {
+  if (picked >= ordered && ordered > 0) return "COMPLETED";
+  if (picked > 0) return "PARTIAL";
+  return "PENDING";
 }
 
 export function AdHocPickingView() {
@@ -480,9 +473,7 @@ export function AdHocPickingView() {
           </div>
 
           {loadingOrder ? (
-            <div className="flex items-center justify-center gap-2 py-24 text-muted-foreground">
-              <Loader2Icon className="size-4 animate-spin" /> Memuat order…
-            </div>
+            <DetailSkeleton />
           ) : !order ? (
             <div className="rounded-2xl border border-dashed border-border bg-card/40 py-16 text-center text-sm text-muted-foreground">
               Scan No. Pesanan / Resi untuk memulai picking.
@@ -524,7 +515,7 @@ export function AdHocPickingView() {
                 ) : (
                   order.items.map((it) => {
                     const done = it.qtyPicked >= it.qtyOrdered;
-                    const badge = itemBadge(it.qtyPicked, it.qtyOrdered);
+                    const itemStatus = getItemStatus(it.qtyPicked, it.qtyOrdered);
                     const itemBin = pickedBinByItem[it.id] ?? null;
                     return (
                       <TableRow
@@ -573,15 +564,7 @@ export function AdHocPickingView() {
                           </span>
                         </TableCell>
                         <TableCell className="px-3 py-3">
-                          <span
-                            className={cn(
-                              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
-                              badge.className,
-                            )}
-                          >
-                            {done && <CheckIcon className="size-3" />}
-                            {badge.label}
-                          </span>
+                          <StatusBadge domain="picking-item" status={itemStatus} />
                         </TableCell>
                       </TableRow>
                     );

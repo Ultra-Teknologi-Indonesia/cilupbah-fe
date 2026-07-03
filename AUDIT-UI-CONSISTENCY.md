@@ -10,10 +10,10 @@
 |---|--------|-----------|-------|
 | 1 | ~~Raw `<table>` bypass ui/table & data-table~~ ✅ selesai 2026-07-03 | Tinggi | 14 file |
 | 2 | ~~Dua dialog berbeda untuk aksi "buat pengiriman"~~ ✅ selesai 2026-07-03 | Tinggi | 2 file duplikat |
-| 3 | `window.confirm` vs `ConfirmDialog` | Tinggi | 3 titik |
-| 4 | Search picker masih FE-side filtering | Tinggi | 11 file |
+| 3 | ~~`window.confirm` vs `ConfirmDialog`~~ ✅ selesai 2026-07-03 | Tinggi | 3 titik |
+| 4 | ~~Search picker masih FE-side filtering~~ ✅ selesai 2026-07-03 | Tinggi | 11 file |
 | 5 | Form data-heavy di dalam dialog | Tinggi | 6+ dialog |
-| 6 | Format tanggal 3 pendekatan paralel | Menengah | 10+ file |
+| 6 | ~~Format tanggal 3 pendekatan paralel~~ ✅ selesai 2026-07-03 | Menengah | 10+ file |
 | 7 | Format uang inline `Intl.NumberFormat` | Menengah | 4 file |
 | 8 | Status pill ad-hoc bypass `StatusBadge` | Menengah | ~15 file |
 | 9 | Loading state tanpa standar | Menengah | codebase-wide |
@@ -70,7 +70,9 @@ Dampak: user mendapat UX berbeda untuk aksi yang sama tergantung entry point-nya
 
 **Rekomendasi:** pilih satu implementasi, arahkan kedua pemanggil ke sana, hapus sisanya.
 
-### 3. Konfirmasi destruktif: `window.confirm` vs `ConfirmDialog`
+### 3. Konfirmasi destruktif: `window.confirm` vs `ConfirmDialog` — ✅ SELESAI (2026-07-03)
+
+> Ketiga titik dimigrasi ke `ConfirmDialog` (variant destructive, loading dari mutation isPending). Verifikasi: `grep window.confirm` = 0 hasil, `tsc` bersih, ESLint bersih.
 
 39 file sudah pakai `ui/confirm-dialog`, tapi 3 titik masih pakai dialog native browser:
 
@@ -80,7 +82,23 @@ Dampak: user mendapat UX berbeda untuk aksi yang sama tergantung entry point-nya
 
 **Rekomendasi:** ganti ketiganya ke `ConfirmDialog`.
 
-### 4. Search di picker masih FE-side filtering
+### 4. Search di picker masih FE-side filtering — ✅ SELESAI (2026-07-03)
+
+> Hasil audit per file (setelah verifikasi sumber data + BE):
+>
+> **Diperbaiki:**
+> - **BE `cilupbah-be`** — `CategoryRepository.getAll()`: `/categories?all=1&search=` sebelumnya rusak diam-diam (search hanya mencari kategori ROOT karena `whereNull('parent_id')` selalu diterapkan; macro `allowedSearch` full-text juga tidak cocok untuk typeahead). Kini `search` pakai `ilike` substring di SEMUA level (konsisten dgn `getMappingList`), tanpa constraint root. Ini sekaligus memperbaiki picker induk di `tambah-kategori-dialog` yang sudah bergantung pada endpoint ini. 32 test Category lolos.
+> - `master-produk/buat/category-picker.tsx` — search kini via `useSearchKategori` (debounce 300ms, min 2 char); hasil BE dipetakan ke path via tree lokal.
+> - `kategori-merek/kategori-list-tab.tsx` — search via `useSearchKategori`; hasil dipetakan ke `fullPath` dari tree lokal; plus perbaikan pola `useRef`-during-render → state (lolos rule `react-hooks/refs`).
+>
+> **Pengecualian sah (dataset lengkap di client, non-paginated):**
+> - `petakan-kategori-dialog.tsx` — tree kategori channel wajib dimuat utuh untuk navigasi kolom + pemetaan `external_id`; BE channel categories tidak punya search.
+> - `import-system-dialog.tsx` — tree sistem dimuat utuh untuk import checkbox + perbandingan `enabledIds`.
+> - `form-specification-section.tsx`, `atribut-variasi-view.tsx` — daftar atribut per kategori, payload lengkap & kecil.
+> - `download-satuan-dialog.tsx`, `download-massal-dialog.tsx` — `useConnectedStores` non-paginated, daftar toko kecil.
+> - `zona-tab.tsx` — zones (`listByLocation` non-paginated) & bins (dari detail lokasi, utuh).
+> - `layout-gudang-tab.tsx` — serverMode SUDAH mengirim `search` ke API (`BinListParams.search`); filter FE hanya untuk mode draf lokal (bins belum tersimpan).
+> - `fulfillment-filter-bar.tsx` L180 — false positive: itu logika exclude "transit", bukan search picker.
 
 Aturan: search di picker/combobox harus lewat API backend (Spatie query), bukan filter `toLowerCase().includes()` di FE. 11 file melanggar:
 
@@ -117,7 +135,13 @@ Aturan: form data-heavy pakai halaman tersendiri; dialog hanya untuk konfirmasi 
 
 ## Prioritas Menengah
 
-### 6. Format tanggal: 3 pendekatan paralel
+### 6. Format tanggal: 3 pendekatan paralel — ✅ SELESAI (2026-07-03)
+
+> 19 file dimigrasi ke helper `lib/format.ts` (`formatDate`/`formatDateLong`/`formatDateTime`): 10 file inline `toLocaleDateString` dari daftar audit + laporan-retur-view, tab-riwayat, progress-columns, hasil-tab (upload), monitor-kronologi-table, `lib/proses-pesanan/print.ts`, dan 3 file display `date-fns` (stock-position-detail-view, order-detail-view, order-card). Semua helper lokal duplikat dihapus.
+>
+> Pemakaian `date-fns` yang TETAP (bukan display): payload/param API `yyyy-MM-dd` (pesanan-list-view, terima-po-view, progress-tab, hasil-tab, order-filters, buat-pengiriman-dialog) dan `ui/date-picker` internal. Pengecualian display yang disengaja: `order-card.tsx` L611 deadline `dd MMM HH:mm` (kompak tanpa tahun untuk chip batas kirim).
+>
+> Verifikasi: `grep toLocaleDateString` = 0 hasil, `tsc` bersih, ESLint tanpa isu baru (4 error yang tersisa terverifikasi pre-existing di HEAD: purity `Date.now()` order-card, `any` tab-riwayat, set-state-in-effect fulfillment-orders-table ×2).
 
 `lib/format.ts` sudah menyediakan `formatDate`, `formatDateLong`, `formatDateTime`, `formatDateTimeFull` — tapi hanya 28 file yang mengimpornya. Sisanya:
 

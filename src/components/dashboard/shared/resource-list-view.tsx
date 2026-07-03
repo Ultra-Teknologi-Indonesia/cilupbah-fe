@@ -1,9 +1,10 @@
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import * as React from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { LucideIcon } from "lucide-react";
-import { DownloadIcon } from "lucide-react";
+import {  DownloadIcon, Loader2Icon , SearchXIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -99,7 +100,7 @@ export function ResourceListView<T>({
 
       {isFetching && !isLoading && (
         <div className="flex justify-center py-1">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <Loader2Icon className="size-4 animate-spin text-primary" />
         </div>
       )}
 
@@ -115,13 +116,7 @@ export function ResourceListView<T>({
           onPaginationChange={list.onPaginationChange}
           tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
           emptyState={
-            <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
-              <EmptyIcon className="h-10 w-10 opacity-20" />
-              <div className="text-center">
-                <p className="text-sm font-medium">{emptyTitle}</p>
-                <p className="mt-1 text-xs">{emptyDescription}</p>
-              </div>
-            </div>
+            list.search ? <EmptyState icon={SearchXIcon} title="Tidak ditemukan" description={`Tidak ada hasil untuk "${list.search}"`} /> : <EmptyState icon={EmptyIcon} title={emptyTitle} description={emptyDescription} />
           }
         />
       </div>

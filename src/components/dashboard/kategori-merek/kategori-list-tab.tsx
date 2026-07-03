@@ -1,7 +1,8 @@
+import { EmptyState } from "@/components/ui/empty-state";
 "use client";
 
 import * as React from "react";
-import { Loader2Icon, PencilIcon, Trash2Icon } from "lucide-react";
+import {  Loader2Icon, PencilIcon, Trash2Icon , SearchXIcon, FileXIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EditKategoriDialog } from "./edit-kategori-dialog";
 import {
   useEnabledCategories,
+  useSearchKategori,
   useDeleteKategori,
   useDisableKategori,
 } from "@/hooks/kategori-merek/use-kategori";
@@ -59,23 +61,39 @@ export function KategoriListTab({ search }: { search: string }) {
   );
   const [editTarget, setEditTarget] = React.useState<FlatKategori | null>(null);
 
+  const [debouncedSearch, setDebouncedSearch] = React.useState("");
+
   const { data: tree, isLoading, isError } = useEnabledCategories();
+  // Search lewat API BE (min. 2 karakter); hasil dipetakan ke fullPath
+  // dari tree lokal yang memang sudah dimuat untuk tampilan hierarki.
+  const searchQuery = useSearchKategori(debouncedSearch);
   const deleteMut = useDeleteKategori();
   const disableMut = useDisableKategori();
 
-  const prevSearch = React.useRef(search);
-  if (prevSearch.current !== search) {
-    prevSearch.current = search;
+  React.useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const [prevSearch, setPrevSearch] = React.useState(search);
+  if (prevSearch !== search) {
+    setPrevSearch(search);
     if (page !== 1) setPage(1);
   }
 
   const flat = React.useMemo(() => flattenTree(tree ?? []), [tree]);
 
+  const flatById = React.useMemo(
+    () => new Map(flat.map((f) => [f.id, f])),
+    [flat],
+  );
+
   const filtered = React.useMemo(() => {
-    if (!search) return flat;
-    const q = search.toLowerCase();
-    return flat.filter((f) => f.fullPath.toLowerCase().includes(q));
-  }, [flat, search]);
+    if (debouncedSearch.length < 2) return flat;
+    return (searchQuery.data ?? [])
+      .map((item) => flatById.get(item.id))
+      .filter((f): f is FlatKategori => f !== undefined);
+  }, [flat, flatById, debouncedSearch, searchQuery.data]);
 
   const total = filtered.length;
   const lastPage = Math.max(1, Math.ceil(total / perPage));
@@ -103,10 +121,10 @@ export function KategoriListTab({ search }: { search: string }) {
         </span>
       </div>
 
-      {isLoading ? (
+      {isLoading ||
+      (debouncedSearch.length >= 2 && searchQuery.isFetching) ? (
         <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
-          <Loader2Icon className="size-4 animate-spin" /> Memuat kategori…
-        </div>
+          <Loader2Icon className="size-4 animate-spin" /></div>
       ) : isError ? (
         <div className="py-16 text-center text-sm text-destructive">
           Gagal memuat data kategori.

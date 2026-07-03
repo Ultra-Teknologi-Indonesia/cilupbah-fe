@@ -64,14 +64,7 @@ export function KategoriView() {
                 className="h-9 border-border bg-background pl-9 pr-8"
               />
               {search.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setSearch("")}
-                  aria-label="Bersihkan pencarian"
-                  className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <XIcon className="size-3.5" />
-                </button>
+                <Button variant="ghost" size="icon" type="button" onClick={() => setSearch("")} aria-label="Bersihkan pencarian" className="absolute right-2.5 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"><XIcon className="size-3.5" /></Button>
               )}
             </div>
           </div>

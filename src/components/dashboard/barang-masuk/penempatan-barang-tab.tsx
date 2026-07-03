@@ -1,14 +1,13 @@
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
-import {
-  ArchiveIcon,
+import { ArchiveIcon,
   PlayIcon,
   UserPlusIcon,
   DownloadIcon,
-  PrinterIcon,
-} from "lucide-react";
+  PrinterIcon, Loader2Icon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -417,7 +416,7 @@ export function PenempatanBarangTab() {
 
         {isFetching && !isLoading && (
           <div className="flex justify-center py-1">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <Loader2Icon className="size-4 animate-spin text-primary" />
           </div>
         )}
 
@@ -439,18 +438,8 @@ export function PenempatanBarangTab() {
             }}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
-                <ArchiveIcon className="h-10 w-10 opacity-20" />
-                <div className="text-center">
-                  <p className="text-sm font-medium">
-                    Belum ada penempatan barang
-                  </p>
-                  <p className="mt-1 text-xs">
-                    Dokumen penempatan ke rak akan tampil di sini setelah
-                    penerimaan.
-                  </p>
-                </div>
-              </div>
+              <EmptyState icon={ArchiveIcon} title="Belum ada penempatan barang" description="Dokumen penempatan ke rak akan tampil di sini setelah
+                    penerimaan." />
             }
           />
         </div>

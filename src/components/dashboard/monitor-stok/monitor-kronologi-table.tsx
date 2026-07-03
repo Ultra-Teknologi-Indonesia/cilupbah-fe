@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { PackageOpenIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { formatDateTime } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
@@ -38,18 +39,6 @@ const CATEGORY_STYLE: Record<string, string> = {
   OTHER: "bg-muted text-muted-foreground border-border/60",
 };
 
-function formatDate(iso: string): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function QtyCell({ qty }: { qty: number }) {
   const positive = qty > 0;
@@ -86,7 +75,7 @@ export function MonitorKronologiTable({
         header: "Tanggal",
         cell: ({ row }) => (
           <span className="text-xs whitespace-nowrap text-muted-foreground">
-            {formatDate(row.original.transaction_date)}
+            {formatDateTime(row.original.transaction_date)}
           </span>
         ),
       },

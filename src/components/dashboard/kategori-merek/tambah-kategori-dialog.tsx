@@ -63,21 +63,12 @@ function ColumnItem({
   onSelect: () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={cn(
-        "flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors",
-        isActive
-          ? "bg-primary/10 font-medium text-primary"
-          : "hover:bg-muted/60",
-      )}
-    >
+    <Button type="button" variant="ghost" onClick={onSelect} className={cn("flex h-auto w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm font-normal transition-colors", isActive ? "bg-primary/10 font-medium text-primary hover:bg-primary/20 hover:text-primary" : "hover:bg-muted/60")}>
       <span className="truncate">{node.name}</span>
       {node.children?.length ? (
         <ChevronRightIcon className="size-4 shrink-0 opacity-50" />
       ) : null}
-    </button>
+    </Button>
   );
 }
 
@@ -241,35 +232,12 @@ export function TambahKategoriDialog({
             <div className="space-y-4 px-5 py-4 sm:px-6">
               {}
               <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode("root");
-                    setPathIds([]);
-                    setSearch("");
-                    setDebouncedSearch("");
-                  }}
-                  className={cn(
-                    "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
-                    mode === "root"
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border hover:bg-muted/60",
-                  )}
-                >
+                <Button type="button" variant="outline" onClick={() => { setMode("root"); setPathIds([]); setSearch(""); setDebouncedSearch(""); }} className={cn("h-auto rounded-full px-4 py-1.5 text-sm font-medium transition-colors", mode === "root" ? "border-primary bg-primary/10 text-primary hover:bg-primary/20" : "border-border hover:bg-muted/60")}>
                   Kategori Baru
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMode("sub")}
-                  className={cn(
-                    "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
-                    mode === "sub"
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border hover:bg-muted/60",
-                  )}
-                >
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setMode("sub")} className={cn("h-auto rounded-full px-4 py-1.5 text-sm font-medium transition-colors", mode === "sub" ? "border-primary bg-primary/10 text-primary hover:bg-primary/20" : "border-border hover:bg-muted/60")}>
                   Sub-Kategori
-                </button>
+                </Button>
               </div>
 
               {}
@@ -307,27 +275,14 @@ export function TambahKategoriDialog({
                         <ul className="flex flex-col gap-0.5 p-1.5">
                           {searchHits.map((item) => (
                             <li key={item.node.id}>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const ids = item.trail.map((t) => t.id);
-                                  setPathIds(ids.slice(0, 3));
-                                  setSearch("");
-                                  setDebouncedSearch("");
-                                }}
-                                className={cn(
-                                  "flex w-full flex-col gap-0.5 rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-muted/60",
-                                  pathIds.includes(item.node.id) &&
-                                    "bg-primary/10",
-                                )}
-                              >
+                              <Button variant="ghost" onClick={() => { const ids = item.trail.map((t) => t.id); setPathIds(ids.slice(0, 3)); setSearch(""); setDebouncedSearch(""); }} className={cn("flex h-auto w-full flex-col items-start gap-0.5 rounded-xl px-3 py-2 text-left text-sm font-normal transition-colors hover:bg-muted/60", pathIds.includes(item.node.id) && "bg-primary/10 hover:bg-primary/20")}>
                                 <span className="truncate font-medium">
                                   {item.node.name}
                                 </span>
                                 <span className="truncate text-xs text-muted-foreground">
                                   {item.label}
                                 </span>
-                              </button>
+                              </Button>
                             </li>
                           ))}
                         </ul>
@@ -367,15 +322,7 @@ export function TambahKategoriDialog({
                       {parentLabel.replace(/ > /g, " / ")}
                       {" / "}
                     </span>
-                    <input
-                      id="kategori-name"
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Nama sub-kategori"
-                      autoFocus
-                      className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground"
-                    />
+                    <Input id="kategori-name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama sub-kategori" autoFocus className="min-w-0 flex-1 border-0 bg-transparent px-3 py-2.5 text-sm outline-none shadow-none focus-visible:ring-0 placeholder:text-muted-foreground" />
                   </div>
                 ) : (
                   <Input

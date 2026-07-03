@@ -20,6 +20,8 @@ import {
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { formatDateTime } from "@/lib/format";
 import {
   FulfillmentFilterBar,
   type FulfillmentFilterValue,
@@ -41,19 +43,6 @@ import type { Shipment } from "@/types/proses-pesanan/fulfillment";
 
 import { DocActions } from "../picking/doc-actions";
 
-function formatDateTime(iso: string | null): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 function formatWeight(gram: number): string {
   if (!gram) return "—";
   const kg = gram / 1000;
@@ -72,6 +61,9 @@ export function ShipmentTable() {
   const [debounced, setDebounced] = React.useState("");
   const [page, setPage] = React.useState(1);
   const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
+  const [cancelTarget, setCancelTarget] = React.useState<Shipment | null>(
+    null,
+  );
 
   React.useEffect(() => {
     const t = setTimeout(() => setDebounced(search.trim()), 350);
@@ -108,10 +100,15 @@ export function ShipmentTable() {
       : fallback;
 
   const onCancel = (s: Shipment) => {
-    if (!window.confirm(`Batalkan pengiriman ${s.shipmentNo}?`)) return;
-    cancel.mutate(s.id, {
-      onSuccess: () => toast.success(`${s.shipmentNo} dibatalkan.`),
+    setCancelTarget(s);
+  };
+
+  const handleCancelConfirm = () => {
+    if (!cancelTarget) return;
+    cancel.mutate(cancelTarget.id, {
+      onSuccess: () => toast.success(`${cancelTarget.shipmentNo} dibatalkan.`),
       onError: (e) => toast.error(errMsg(e, "Gagal membatalkan pengiriman.")),
+      onSettled: () => setCancelTarget(null),
     });
   };
 
@@ -287,6 +284,19 @@ export function ShipmentTable() {
           }
         />
       </div>
+
+      <ConfirmDialog
+        open={!!cancelTarget}
+        onOpenChange={(o) => {
+          if (!o) setCancelTarget(null);
+        }}
+        title="Batalkan Pengiriman"
+        description={`Batalkan pengiriman ${cancelTarget?.shipmentNo ?? ""}?`}
+        confirmLabel="Batalkan"
+        variant="destructive"
+        loading={cancel.isPending}
+        onConfirm={handleCancelConfirm}
+      />
     </div>
   );
 }

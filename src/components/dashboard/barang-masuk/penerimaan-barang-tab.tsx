@@ -1,8 +1,9 @@
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { PackageCheckIcon, DownloadIcon, LayersIcon } from "lucide-react";
+import { PackageCheckIcon, DownloadIcon, LayersIcon, Loader2Icon } from "lucide-react";
 import { BuatPenempatanManualDialog } from "./buat-penempatan-manual-dialog";
 import { InboundService } from "@/services/barang-masuk/inbound.service";
 
@@ -351,7 +352,7 @@ export function PenerimaanBarangTab() {
 
         {isFetching && !isLoading && (
           <div className="flex justify-center py-1">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <Loader2Icon className="size-4 animate-spin text-primary" />
           </div>
         )}
 
@@ -376,18 +377,8 @@ export function PenerimaanBarangTab() {
             }}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
-                <PackageCheckIcon className="h-10 w-10 opacity-20" />
-                <div className="text-center">
-                  <p className="text-sm font-medium">
-                    Belum ada penerimaan barang
-                  </p>
-                  <p className="mt-1 text-xs">
-                    Dokumen penerimaan dari PO, Transfer, atau Retur akan tampil
-                    di sini.
-                  </p>
-                </div>
-              </div>
+              <EmptyState icon={PackageCheckIcon} title="Belum ada penerimaan barang" description="Dokumen penerimaan dari PO, Transfer, atau Retur akan tampil
+                    di sini." />
             }
           />
         </div>

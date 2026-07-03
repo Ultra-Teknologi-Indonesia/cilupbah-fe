@@ -13,6 +13,7 @@ import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
 import {
   SimplePagination,
@@ -26,7 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatIDR } from "../product-columns";
+import { formatCurrency as formatIDR, formatNumber } from "@/lib/format";
 import {
   useProductVariants,
   useBulkVariants,
@@ -112,6 +113,7 @@ export function TabVariasi({ productId }: { productId: string }) {
     true,
   );
   const bulk = useBulkVariants(productId);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = React.useState(false);
 
   const rows = data?.items ?? [];
   const meta = data?.meta;
@@ -150,11 +152,6 @@ export function TabVariasi({ productId }: { productId: string }) {
   const runBulk = (action: BulkVariantAction) => {
     const ids = [...selected];
     if (ids.length === 0) return;
-    if (
-      action === "delete" &&
-      !window.confirm(`Hapus ${ids.length} varian terpilih?`)
-    )
-      return;
 
     bulk.mutate(
       { action, variant_ids: ids },
@@ -174,6 +171,7 @@ export function TabVariasi({ productId }: { productId: string }) {
           const body = err as { message?: string };
           toast.error(body?.message || "Aksi gagal");
         },
+        onSettled: () => setConfirmDeleteOpen(false),
       },
     );
   };
@@ -209,7 +207,7 @@ export function TabVariasi({ productId }: { productId: string }) {
               size="sm"
               variant="outline"
               disabled={bulk.isPending}
-              onClick={() => runBulk("delete")}
+              onClick={() => setConfirmDeleteOpen(true)}
               className="text-destructive hover:text-destructive"
             >
               <Trash2Icon /> Hapus
@@ -352,7 +350,7 @@ export function TabVariasi({ productId }: { productId: string }) {
                   {formatIDR(v.sellPrice)}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 text-right tabular-nums">
-                  {new Intl.NumberFormat("id-ID").format(v.stock)}
+                  {formatNumber(v.stock)}
                 </TableCell>
               </TableRow>
             ))
@@ -370,6 +368,17 @@ export function TabVariasi({ productId }: { productId: string }) {
         total={total}
         label="varian"
         isFetching={isFetching}
+      />
+
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        onOpenChange={setConfirmDeleteOpen}
+        title="Hapus Varian"
+        description={`Hapus ${selected.size} varian terpilih?`}
+        confirmLabel="Hapus"
+        variant="destructive"
+        loading={bulk.isPending}
+        onConfirm={() => runBulk("delete")}
       />
     </div>
   );

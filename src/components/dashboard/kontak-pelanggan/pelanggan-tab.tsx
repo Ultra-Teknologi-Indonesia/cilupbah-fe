@@ -1,16 +1,15 @@
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
-import {
-  PlusIcon,
+import { PlusIcon,
   PencilIcon,
   Trash2Icon,
   LockIcon,
   UsersIcon,
   DownloadIcon,
-  ArrowLeftRightIcon,
-} from "lucide-react";
+  ArrowLeftRightIcon, Loader2Icon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -359,7 +358,7 @@ export function PelangganTab() {
 
         {isFetching && !isLoading && (
           <div className="flex justify-center py-1">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <Loader2Icon className="size-4 animate-spin text-primary" />
           </div>
         )}
 
@@ -381,17 +380,7 @@ export function PelangganTab() {
             }}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
-                <UsersIcon className="h-10 w-10 opacity-20" />
-                <div className="text-center">
-                  <p className="text-sm font-medium">
-                    Belum ada kontak pelanggan
-                  </p>
-                  <p className="mt-1 text-xs">
-                    Buat pelanggan baru untuk mulai mengelola kontak.
-                  </p>
-                </div>
-              </div>
+              <EmptyState icon={UsersIcon} title="Belum ada kontak pelanggan" description="Buat pelanggan baru untuk mulai mengelola kontak." />
             }
           />
         </div>

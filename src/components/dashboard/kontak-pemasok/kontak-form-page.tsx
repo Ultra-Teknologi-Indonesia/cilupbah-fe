@@ -1,5 +1,7 @@
 "use client";
 
+import { FormSkeleton } from "@/components/ui/page-skeleton";
+
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -151,9 +153,7 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
 
   if (mode === "edit" && detail.isLoading) {
     return (
-      <div className="flex items-center justify-center gap-2 py-24 text-muted-foreground">
-        <Loader2Icon className="size-4 animate-spin" /> Memuat kontak…
-      </div>
+      <FormSkeleton />
     );
   }
 
@@ -215,19 +215,9 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
       <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
         <nav className="flex flex-col gap-2">
           {navItems.map((n) => (
-            <button
-              key={n.key}
-              type="button"
-              onClick={() => setSection(n.key)}
-              className={cn(
-                "rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-colors",
-                section === n.key
-                  ? "border-primary/30 bg-primary/10 text-primary"
-                  : "border-border bg-background hover:bg-muted",
-              )}
-            >
+            <Button key={n.key} type="button" variant="outline" onClick={() => setSection(n.key)} className={cn("h-auto justify-start rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-colors", section === n.key ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/20" : "border-border bg-background hover:bg-muted")}>
               {n.label}
-            </button>
+            </Button>
           ))}
         </nav>
 

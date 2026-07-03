@@ -3,18 +3,12 @@
 import type { ColumnDef } from "@tanstack/react-table";
 
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
+import { formatDateTime } from "@/lib/format";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import type {
   DownloadState,
   DownloadTransaction,
 } from "@/hooks/master-produk/use-download";
-
-const STATE_LABEL: Record<DownloadState, string> = {
-  queued: "Menunggu",
-  downloading: "Sedang berjalan",
-  done: "Selesai",
-  failed: "Gagal",
-};
 
 const STATE_BAR: Record<DownloadState, string> = {
   queued: "bg-amber-500",
@@ -22,29 +16,6 @@ const STATE_BAR: Record<DownloadState, string> = {
   done: "bg-emerald-500",
   failed: "bg-destructive",
 };
-
-const STATE_BADGE: Record<DownloadState, string> = {
-  queued:
-    "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
-  downloading: "bg-primary/10 text-primary",
-  done: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
-  failed: "bg-destructive/10 text-destructive",
-};
-
-function formatDate(iso: string): string {
-  try {
-    const d = new Date(iso);
-    return d.toLocaleString("id-ID", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
-}
 
 export function buildProgressColumns(
   onOpen: (trx: DownloadTransaction) => void,
@@ -68,7 +39,7 @@ export function buildProgressColumns(
       header: "Tanggal",
       cell: ({ row }) => (
         <span className="whitespace-nowrap text-sm text-muted-foreground">
-          {formatDate(row.original.createdDate)}
+          {formatDateTime(row.original.createdDate)}
         </span>
       ),
     },
@@ -110,12 +81,11 @@ export function buildProgressColumns(
         return (
           <div className="flex min-w-40 flex-col gap-1">
             <div className="flex items-center justify-between gap-2 text-xs">
-              <Badge
-                variant="secondary"
-                className={cn("px-1.5 py-0", STATE_BADGE[state])}
-              >
-                {STATE_LABEL[state]}
-              </Badge>
+              <StatusBadge
+                domain="download-task"
+                status={state}
+                className="px-1.5 py-0 text-[11px]"
+              />
               <span className="tabular-nums text-muted-foreground">
                 {totalDownloaded}/{allProduct}
               </span>

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { toast } from "sonner";
+import { formatDateTime } from "@/lib/format";
 import { ExternalLinkIcon, RefreshCwIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -26,19 +27,6 @@ const STATUS_OPTIONS = [
   { value: "pending", label: "Diproses" },
 ];
 
-function fmtDate(iso: string | null) {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 export function TabRiwayat({ productId }: { productId: string }) {
   const [status, setStatus] = React.useState("");
   const [page, setPage] = React.useState(1);
@@ -61,7 +49,7 @@ export function TabRiwayat({ productId }: { productId: string }) {
         header: "Tanggal",
         cell: ({ row }) => (
           <span className="whitespace-nowrap tabular-nums text-muted-foreground">
-            {fmtDate(row.original.uploadDate)}
+            {formatDateTime(row.original.uploadDate)}
           </span>
         ),
       },

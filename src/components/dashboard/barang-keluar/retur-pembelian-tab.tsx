@@ -1,14 +1,13 @@
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  CornerUpLeftIcon,
+import { CornerUpLeftIcon,
   DownloadIcon,
   PlayIcon,
   Trash2Icon,
-  PlusIcon,
-} from "lucide-react";
+  PlusIcon, Loader2Icon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
@@ -295,7 +294,7 @@ export function ReturPembelianTab() {
 
         {isFetching && !isLoading && (
           <div className="flex justify-center py-1">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <Loader2Icon className="size-4 animate-spin text-primary" />
           </div>
         )}
 
@@ -320,17 +319,7 @@ export function ReturPembelianTab() {
             }}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
-                <CornerUpLeftIcon className="h-10 w-10 opacity-20" />
-                <div className="text-center">
-                  <p className="text-sm font-medium">
-                    Belum ada retur pembelian
-                  </p>
-                  <p className="mt-1 text-xs">
-                    Retur pembelian ke pemasok akan tampil di sini.
-                  </p>
-                </div>
-              </div>
+              <EmptyState icon={CornerUpLeftIcon} title="Belum ada retur pembelian" description="Retur pembelian ke pemasok akan tampil di sini." />
             }
           />
         </div>

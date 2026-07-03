@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import * as React from "react";
 import { useState, useCallback } from "react";
@@ -218,15 +219,7 @@ export function KategoriTab() {
             manualPagination={false}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
-                <TagIcon className="h-10 w-10 opacity-20" />
-                <div className="text-center">
-                  <p className="text-sm font-medium">Belum ada kategori</p>
-                  <p className="mt-1 text-xs">
-                    Buat kategori untuk mengelompokkan kontak.
-                  </p>
-                </div>
-              </div>
+              <EmptyState icon={TagIcon} title="Belum ada kategori" description="Buat kategori untuk mengelompokkan kontak." />
             }
           />
         </div>

@@ -1,5 +1,7 @@
 "use client";
 
+import { FormSkeleton } from "@/components/ui/page-skeleton";
+
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -247,9 +249,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
 
   if (isEdit && userLoading) {
     return (
-      <div className="flex items-center justify-center gap-2 py-24 text-muted-foreground">
-        <Loader2Icon className="size-4 animate-spin" /> Memuat data pengguna…
-      </div>
+      <FormSkeleton />
     );
   }
 
@@ -367,10 +367,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                             {...field}
                           />
                           <div className="absolute inset-y-0 right-0 flex items-center gap-0.5 pr-1.5">
-                            <button
-                              type="button"
-                              tabIndex={-1}
-                              className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                            <Button type="button" variant="ghost" size="icon" tabIndex={-1} className="size-7 rounded-md text-muted-foreground"
                               onClick={() => setShowPassword((v) => !v)}
                             >
                               {showPassword ? (
@@ -378,11 +375,8 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                               ) : (
                                 <EyeIcon className="size-3.5" />
                               )}
-                            </button>
-                            <button
-                              type="button"
-                              tabIndex={-1}
-                              className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                            </Button>
+                            <Button type="button" variant="ghost" size="icon" tabIndex={-1} className="size-7 rounded-md text-muted-foreground"
                               onClick={async () => {
                                 const pwd = generatePassword();
                                 form.setValue("password", pwd, {
@@ -405,7 +399,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                               }}
                             >
                               <DicesIcon className="size-3.5" />
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       </FormControl>
@@ -473,10 +467,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                             {...field}
                           />
                           <div className="absolute inset-y-0 right-0 flex items-center pr-1.5">
-                            <button
-                              type="button"
-                              tabIndex={-1}
-                              className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                            <Button type="button" variant="ghost" size="icon" tabIndex={-1} className="size-7 rounded-md text-muted-foreground"
                               onClick={() => setShowConfirmPassword((v) => !v)}
                             >
                               {showConfirmPassword ? (
@@ -484,7 +475,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                               ) : (
                                 <EyeIcon className="size-3.5" />
                               )}
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       </FormControl>

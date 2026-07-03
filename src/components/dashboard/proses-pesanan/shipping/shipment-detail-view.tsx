@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { PageTitle } from "@/components/dashboard/page-title";
@@ -86,6 +87,10 @@ function PickupBadge({
 
 export function ShipmentDetailView({ id }: { id: string }) {
   const [barcode, setBarcode] = React.useState("");
+  const [removeTarget, setRemoveTarget] = React.useState<{
+    orderId: string;
+    orderNo: string | null;
+  } | null>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const { data: detail, isLoading } = useShipmentDetail(id, !!id);
@@ -123,19 +128,21 @@ export function ShipmentDetailView({ id }: { id: string }) {
     }
   };
 
-  const handleRemove = async (orderId: string, orderNo: string | null) => {
-    if (
-      !window.confirm(
-        `Hapus pesanan ${orderNo ?? orderId} dari pengiriman ini?`,
-      )
-    )
-      return;
+  const handleRemove = async () => {
+    if (!removeTarget) return;
 
     try {
-      await removeOrder.mutateAsync({ shipmentId: id, orderIds: [orderId] });
-      toast.success(`Pesanan ${orderNo ?? ""} dihapus dari pengiriman.`);
+      await removeOrder.mutateAsync({
+        shipmentId: id,
+        orderIds: [removeTarget.orderId],
+      });
+      toast.success(
+        `Pesanan ${removeTarget.orderNo ?? ""} dihapus dari pengiriman.`,
+      );
     } catch (err) {
       toast.error(errMsg(err, "Gagal menghapus pesanan."));
+    } finally {
+      setRemoveTarget(null);
     }
   };
 
@@ -372,7 +379,12 @@ export function ShipmentDetailView({ id }: { id: string }) {
                           <TableCell>
                             <button
                               type="button"
-                              onClick={() => handleRemove(o.orderId, o.orderNo)}
+                              onClick={() =>
+                                setRemoveTarget({
+                                  orderId: o.orderId,
+                                  orderNo: o.orderNo,
+                                })
+                              }
                               disabled={removeOrder.isPending}
                               className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                               aria-label="Hapus"
@@ -391,6 +403,21 @@ export function ShipmentDetailView({ id }: { id: string }) {
           </ScrollArea>
         </div>
       </LiquidGlass>
+
+      <ConfirmDialog
+        open={!!removeTarget}
+        onOpenChange={(o) => {
+          if (!o) setRemoveTarget(null);
+        }}
+        title="Hapus Pesanan"
+        description={`Hapus pesanan ${
+          removeTarget?.orderNo ?? removeTarget?.orderId ?? ""
+        } dari pengiriman ini?`}
+        confirmLabel="Hapus"
+        variant="destructive"
+        loading={removeOrder.isPending}
+        onConfirm={handleRemove}
+      />
     </div>
   );
 }

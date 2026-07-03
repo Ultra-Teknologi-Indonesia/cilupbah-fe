@@ -4,6 +4,7 @@ import * as React from "react";
 import { PackageOpenIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
@@ -35,14 +36,6 @@ const EXTRA_COLS: Record<AnalyticsKind, string[]> = {
   "perkiraan-habis": ["Rata-rata/hari", "Estimasi Hari", "Perkiraan Habis"],
 };
 
-function formatDate(d: string | null) {
-  if (!d) return "—";
-  return new Date(d).toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-}
 
 function Thumb({ url, alt }: { url: string | null; alt: string }) {
   return (

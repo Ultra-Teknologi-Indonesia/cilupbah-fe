@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import {
   Table,
@@ -8,18 +9,13 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
-import { formatIDR } from "../product-columns";
+import { formatCurrency as formatIDR, formatNumber as num } from "@/lib/format";
 import type { DetailVariant } from "@/types/master-produk";
-
-const num = (n: number | null | undefined) =>
-  n == null ? "—" : new Intl.NumberFormat("id-ID").format(n);
 
 export function VariantTable({ variants }: { variants: DetailVariant[] }) {
   if (variants.length === 0) {
     return (
-      <p className="px-1 py-6 text-center text-sm text-muted-foreground">
-        Belum ada varian.
-      </p>
+      <EmptyState title="Belum ada varian." />
     );
   }
 

@@ -1,15 +1,14 @@
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  PackageIcon,
+import { PackageIcon,
   ArrowUpDown,
   ChevronUpIcon,
   ChevronDownIcon,
   BoxesIcon,
-  BoxIcon,
-} from "lucide-react";
+  BoxIcon, Loader2Icon } from "lucide-react";
 import Image from "next/image";
 
 import { cn } from "@/lib/utils";
@@ -402,7 +401,7 @@ export function PosisiStokView() {
 
         {isFetching && !isLoading && (
           <div className="flex justify-center py-1">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <Loader2Icon className="size-4 animate-spin text-primary" />
           </div>
         )}
 
@@ -410,15 +409,7 @@ export function PosisiStokView() {
           {isLoading ? (
             <StockSkeleton />
           ) : items.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-              <PackageIcon className="h-10 w-10" />
-              <div className="text-center">
-                <p className="text-sm font-medium">Belum ada data stok</p>
-                <p className="mt-1 text-xs">
-                  Produk yang memiliki stok akan muncul di sini.
-                </p>
-              </div>
-            </div>
+            <EmptyState icon={PackageIcon} title="Belum ada data stok" description="Produk yang memiliki stok akan muncul di sini." />
           ) : (
             <div className="flex flex-col gap-3">
               <Table containerClassName="rounded-lg border border-border/40">

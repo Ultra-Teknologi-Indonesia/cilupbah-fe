@@ -16,27 +16,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { findCategoryPath } from "@/lib/master-produk/category-tree";
+import { useSearchKategori } from "@/hooks/kategori-merek/use-kategori";
 import type { CategoryNode, SelectedCategory } from "@/types/master-produk";
 
 interface FlatCategory {
   node: CategoryNode;
   path: CategoryNode[];
   pathLabel: string;
-}
-
-function flattenTree(
-  nodes: CategoryNode[],
-  parents: CategoryNode[] = [],
-): FlatCategory[] {
-  const result: FlatCategory[] = [];
-  for (const node of nodes) {
-    const path = [...parents, node];
-    result.push({ node, path, pathLabel: path.map((p) => p.name).join(" › ") });
-    if (node.children?.length) {
-      result.push(...flattenTree(node.children, path));
-    }
-  }
-  return result;
 }
 
 function Column({
@@ -93,16 +79,32 @@ export function CategoryPicker({
   const [open, setOpen] = React.useState(false);
   const [path, setPath] = React.useState<CategoryNode[]>([]);
   const [search, setSearch] = React.useState("");
+  const [debouncedSearch, setDebouncedSearch] = React.useState("");
 
-  const flat = React.useMemo(() => flattenTree(tree), [tree]);
+  React.useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Search lewat API BE (min. 2 karakter); hasilnya dipetakan kembali ke
+  // path di tree lokal agar navigasi kolom tetap bekerja.
+  const searchQuery = useSearchKategori(debouncedSearch);
 
   const searchResults = React.useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return null;
-    return flat
-      .filter((f) => f.node.name.toLowerCase().includes(q))
+    if (debouncedSearch.length < 2) return null;
+    return (searchQuery.data ?? [])
+      .map((item) => {
+        const p = findCategoryPath(tree, String(item.id));
+        if (!p) return null;
+        return {
+          node: p[p.length - 1],
+          path: p,
+          pathLabel: p.map((n) => n.name).join(" › "),
+        };
+      })
+      .filter((f): f is FlatCategory => f !== null)
       .slice(0, 50);
-  }, [search, flat]);
+  }, [debouncedSearch, searchQuery.data, tree]);
 
   const handleOpen = (next: boolean) => {
     setOpen(next);
@@ -199,7 +201,11 @@ export function CategoryPicker({
             <div className="px-5 py-4 sm:px-6">
               {searchResults ? (
                 <ScrollArea className="h-64 rounded-2xl border border-border/60">
-                  {searchResults.length === 0 ? (
+                  {searchQuery.isFetching ? (
+                    <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+                      Mencari kategori…
+                    </p>
+                  ) : searchResults.length === 0 ? (
                     <p className="px-4 py-8 text-center text-sm text-muted-foreground">
                       Tidak ditemukan kategori untuk &ldquo;{search}&rdquo;
                     </p>

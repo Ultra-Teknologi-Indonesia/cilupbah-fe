@@ -1000,8 +1000,7 @@ export function LayoutGudangTab({
 
         {serverMode && binsQuery.isLoading ? (
           <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground text-sm">
-            <Loader2Icon className="size-4 animate-spin" /> Memuat daftar rak…
-          </div>
+            <Loader2Icon className="size-4 animate-spin" /></div>
         ) : pageItems.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
             Belum ada data rak.

@@ -1,5 +1,7 @@
 "use client";
 
+import { DetailSkeleton } from "@/components/ui/page-skeleton";
+
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -93,9 +95,7 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center gap-2 py-24 text-muted-foreground">
-        <Loader2Icon className="size-4 animate-spin" /> Memuat data pengguna…
-      </div>
+      <DetailSkeleton />
     );
   }
 
@@ -186,9 +186,7 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
 
           {historyLoading ? (
             <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground">
-              <Loader2Icon className="size-4 animate-spin" /> Memuat riwayat
-              login…
-            </div>
+              <Loader2Icon className="size-4 animate-spin" /></div>
           ) : !loginHistoryData?.items?.length ? (
             <div className="py-8 text-center text-sm text-muted-foreground">
               Belum ada riwayat login.

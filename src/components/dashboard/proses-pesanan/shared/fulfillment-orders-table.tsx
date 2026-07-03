@@ -57,7 +57,7 @@ import { ChannelBadge, OrderStatusBadge } from "../channel-badge";
 import { BuatPicklistDialog } from "../picking/buat-picklist-dialog";
 import { BuatPengirimanDialog } from "../shipping/buat-pengiriman-dialog";
 import { DocActions } from "../picking/doc-actions";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatDate } from "@/lib/format";
 import {
   FulfillmentFilterBar,
   type FulfillmentFilterField,
@@ -74,17 +74,6 @@ export interface OrderTableActions {
   suratJalan?: boolean;
   siapDikirim?: boolean;
   selesaikanPesanan?: boolean;
-}
-
-function formatDate(iso: string | null): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
 }
 
 function copyToClipboard(text: string) {

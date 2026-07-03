@@ -1,8 +1,9 @@
+import { EmptyState } from "@/components/ui/empty-state";
 "use client";
 
 import * as React from "react";
 import Link from "next/link";
-import { Loader2Icon, PlusIcon, SearchIcon, Trash2Icon } from "lucide-react";
+import {  Loader2Icon, PlusIcon, SearchIcon, Trash2Icon , SearchXIcon, FileXIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
@@ -244,16 +245,13 @@ export function UserListView() {
 
         {isLoading ? (
           <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
-            <Loader2Icon className="size-4 animate-spin" /> Memuat pengguna…
-          </div>
+            <Loader2Icon className="size-4 animate-spin" /></div>
         ) : isError ? (
           <div className="py-16 text-center text-sm text-destructive">
             Gagal memuat data pengguna.
           </div>
         ) : users.length === 0 ? (
-          <div className="py-16 text-center text-sm text-muted-foreground">
-            {search ? "Tidak ada pengguna yang cocok." : "Belum ada pengguna."}
-          </div>
+          <EmptyState icon={search ? SearchXIcon : FileXIcon} title={search ? "Tidak ditemukan" : "Belum ada pengguna"} />
         ) : (
           <div className="px-5 pb-5">
             <DataTable
@@ -271,11 +269,7 @@ export function UserListView() {
               }}
               tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
               emptyState={
-                <div className="py-16 text-center text-sm text-muted-foreground">
-                  {search
-                    ? "Tidak ada pengguna yang cocok."
-                    : "Belum ada pengguna."}
-                </div>
+                <EmptyState icon={search ? SearchXIcon : FileXIcon} title={search ? "Tidak ditemukan" : "Belum ada pengguna"} />
               }
             />
           </div>

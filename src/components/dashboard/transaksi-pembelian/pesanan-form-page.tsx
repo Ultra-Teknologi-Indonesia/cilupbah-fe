@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -635,11 +636,7 @@ export function PesananFormPage({ mode, id }: Props) {
                         colSpan={8}
                         className="h-32 text-center text-muted-foreground"
                       >
-                        <PackageIcon className="mx-auto mb-2 h-8 w-8 opacity-50" />
-                        <p className="text-sm">
-                          Belum ada produk. Klik tombol di bawah untuk
-                          menambahkan.
-                        </p>
+                        <EmptyState icon={PackageIcon} title="Belum ada produk" description="Klik tombol di bawah untuk menambahkan." />
                       </TableCell>
                     </TableRow>
                   )}

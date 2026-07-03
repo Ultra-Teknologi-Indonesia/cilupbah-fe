@@ -1,8 +1,11 @@
 "use client";
 
+import { DetailSkeleton } from "@/components/ui/page-skeleton";
+
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { formatDateLong } from "@/lib/format";
 import { Loader2Icon, LockIcon, PencilIcon, Trash2Icon } from "lucide-react";
 
 import { PageTitle } from "@/components/dashboard/page-title";
@@ -63,9 +66,7 @@ export function PelangganDetailView({ id }: { id: string }) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center gap-2 py-24 text-muted-foreground">
-        <Loader2Icon className="size-4 animate-spin" /> Memuat kontak…
-      </div>
+      <DetailSkeleton />
     );
   }
 
@@ -178,10 +179,7 @@ export function PelangganDetailView({ id }: { id: string }) {
                   label="Tanggal Lahir"
                   value={
                     contact.birth_date
-                      ? new Date(contact.birth_date).toLocaleDateString(
-                          "id-ID",
-                          { day: "2-digit", month: "long", year: "numeric" },
-                        )
+                      ? formatDateLong(contact.birth_date)
                       : null
                   }
                 />

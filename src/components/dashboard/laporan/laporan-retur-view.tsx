@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { formatDate } from "@/lib/format";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { DateRange } from "react-day-picker";
 import {
@@ -61,17 +62,6 @@ function formatCurrency(value: number): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value || 0);
-}
-
-function formatDateTime(iso: string | null): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
 }
 
 function toIsoDate(d?: Date): string {
@@ -220,7 +210,7 @@ export function LaporanReturView() {
         header: "Diproses",
         cell: ({ row }) => (
           <div className="flex flex-col text-xs">
-            <span>{formatDateTime(row.original.processed_at)}</span>
+            <span>{formatDate(row.original.processed_at)}</span>
             {row.original.processed_by && (
               <span className="text-muted-foreground">
                 {row.original.processed_by}
@@ -234,7 +224,7 @@ export function LaporanReturView() {
         header: "Dibuat",
         cell: ({ row }) => (
           <span className="text-xs text-muted-foreground">
-            {formatDateTime(row.original.created_at)}
+            {formatDate(row.original.created_at)}
           </span>
         ),
       },

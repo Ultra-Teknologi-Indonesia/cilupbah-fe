@@ -5,38 +5,27 @@ import { ExternalLinkIcon, ImageIcon, Trash2Icon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import type { RaiseProductDetail } from "@/hooks/master-produk/use-naikkan";
 import { CountdownTimer } from "./countdown-timer";
 
 function statusBadge(isActive: boolean) {
-  if (isActive) {
-    return (
-      <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-        Aktif
-      </span>
-    );
-  }
   return (
-    <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-      Nonaktif
-    </span>
+    <StatusBadge 
+      domain="product-boost" 
+      status={isActive ? "ACTIVE" : "INACTIVE"} 
+    />
   );
 }
 
 function resultBadge(isSuccess: boolean | null) {
   if (isSuccess === null)
     return <span className="text-muted-foreground">—</span>;
-  if (isSuccess) {
-    return (
-      <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-        Sukses
-      </span>
-    );
-  }
   return (
-    <span className="inline-flex items-center rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-medium text-destructive">
-      Gagal
-    </span>
+    <StatusBadge 
+      domain="product-boost-activity" 
+      status={isSuccess ? "SUCCESS" : "FAILED"} 
+    />
   );
 }
 

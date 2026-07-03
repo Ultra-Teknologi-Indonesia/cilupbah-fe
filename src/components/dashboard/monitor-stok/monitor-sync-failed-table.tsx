@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { PackageOpenIcon, RefreshCwIcon, CheckIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { formatDateTime } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -175,18 +176,7 @@ export function MonitorSyncFailedTable({
         header: "Terakhir Sync",
         cell: ({ row }) => (
           <div className="text-xs text-muted-foreground">
-            {row.original.last_synced_at
-              ? new Date(row.original.last_synced_at).toLocaleDateString(
-                  "id-ID",
-                  {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  },
-                )
-              : "—"}
+            {formatDateTime(row.original.last_synced_at)}
           </div>
         ),
       },

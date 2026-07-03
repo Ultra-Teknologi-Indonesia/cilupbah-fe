@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import * as React from "react";
 import { useFormContext } from "react-hook-form";
@@ -102,9 +103,7 @@ function CreatableCombobox({
               </button>
             )}
             {filtered.length === 0 && !isCustom && (
-              <p className="px-2 py-4 text-center text-sm text-muted-foreground">
-                Tidak ditemukan
-              </p>
+              <EmptyState title="Tidak ditemukan" />
             )}
           </div>
         </ScrollArea>

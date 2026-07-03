@@ -3,8 +3,6 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { format } from "date-fns";
-import { id as idLocale } from "date-fns/locale";
 import { toast } from "sonner";
 import {
   CalendarIcon,
@@ -51,7 +49,11 @@ import {
   useMarkComplete,
   useGetShippingLabel,
 } from "@/hooks/pesanan/use-order-actions";
-import { formatCurrency } from "@/lib/format";
+import {
+  formatCurrency,
+  formatDateLong,
+  formatDateTime,
+} from "@/lib/format";
 
 function copyText(text: string) {
   navigator.clipboard.writeText(text);
@@ -541,15 +543,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               </InfoRow>
 
               <InfoRow icon={CalendarIcon} label="Tanggal Transaksi">
-                <span>
-                  {order.transaction_date
-                    ? format(
-                        new Date(order.transaction_date),
-                        "dd MMMM yyyy, HH:mm",
-                        { locale: idLocale },
-                      )
-                    : "—"}
-                </span>
+                <span>{formatDateTime(order.transaction_date)}</span>
               </InfoRow>
 
               {order.source && (
@@ -732,11 +726,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 )}
                 {order.received_date && (
                   <InfoRow icon={CalendarIcon} label="Diterima">
-                    <span>
-                      {format(new Date(order.received_date), "dd MMMM yyyy", {
-                        locale: idLocale,
-                      })}
-                    </span>
+                    <span>{formatDateLong(order.received_date)}</span>
                   </InfoRow>
                 )}
               </div>
@@ -760,23 +750,15 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 <span className="text-sm text-muted-foreground">
                   Status Bayar
                 </span>
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "text-xs font-semibold",
-                    order.is_paid
-                      ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400"
-                      : "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400",
-                  )}
-                >
-                  {order.is_paid ? "Lunas" : "Belum Dibayar"}
-                </Badge>
+                <StatusBadge 
+                  domain="order-payment" 
+                  status={order.is_paid ? "PAID" : "UNPAID"} 
+                />
               </div>
               {order.is_paid && order.payment_method_name && (
                 <p className="mt-1.5 text-xs text-muted-foreground">
                   via {order.payment_method_name}
-                  {order.paid_time &&
-                    ` - ${format(new Date(order.paid_time), "dd MMM yyyy HH:mm", { locale: idLocale })}`}
+                  {order.paid_time && ` - ${formatDateTime(order.paid_time)}`}
                 </p>
               )}
             </div>
@@ -823,16 +805,10 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           >
             <div className="space-y-1 text-xs text-muted-foreground">
               <p>
-                Dibuat:{" "}
-                {format(new Date(order.created_at), "dd MMM yyyy HH:mm", {
-                  locale: idLocale,
-                })}
+                Dibuat: {formatDateTime(order.created_at)}
               </p>
               <p>
-                Diperbarui:{" "}
-                {format(new Date(order.updated_at), "dd MMM yyyy HH:mm", {
-                  locale: idLocale,
-                })}
+                Diperbarui: {formatDateTime(order.updated_at)}
               </p>
             </div>
           </LiquidGlass>

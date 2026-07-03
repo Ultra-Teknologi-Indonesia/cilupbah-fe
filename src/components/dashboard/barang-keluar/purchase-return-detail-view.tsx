@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import { useRouter } from "next/navigation";
 import {
@@ -292,9 +293,7 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
               </TableFooter>
             </Table>
           ) : (
-            <p className="py-8 text-center text-sm text-muted-foreground">
-              Belum ada item
-            </p>
+            <EmptyState title="Belum ada item" />
           )}
         </div>
       </LiquidGlass>

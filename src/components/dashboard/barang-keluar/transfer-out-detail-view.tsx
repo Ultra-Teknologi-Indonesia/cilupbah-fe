@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import { use } from "react";
 import { useRouter } from "next/navigation";
@@ -400,9 +401,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
               </TableBody>
             </Table>
           ) : (
-            <p className="py-8 text-center text-sm text-muted-foreground">
-              Belum ada item
-            </p>
+            <EmptyState title="Belum ada item" />
           )}
         </div>
       </LiquidGlass>

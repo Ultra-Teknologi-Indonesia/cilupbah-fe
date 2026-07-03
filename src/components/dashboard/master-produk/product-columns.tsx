@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ChevronRightIcon, ImageIcon, PackageIcon } from "lucide-react";
 
+import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,14 +16,7 @@ import { ProductStatusBadge } from "./product-status-badge";
 import { ProductChannelBadges } from "./product-channel-badges";
 import { ProductRowActions } from "./product-row-actions";
 
-export const formatIDR = (value: number | null) =>
-  value === null
-    ? "—"
-    : new Intl.NumberFormat("id-ID", {
-        style: "currency",
-        currency: "IDR",
-        maximumFractionDigits: 0,
-      }).format(value);
+export const formatIDR = formatCurrency;
 
 const formatDate = (iso: string) =>
   new Intl.DateTimeFormat("id-ID", {

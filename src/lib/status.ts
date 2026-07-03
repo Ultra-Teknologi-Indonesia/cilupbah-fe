@@ -33,7 +33,12 @@ export type Domain =
   | "sales-order"
   | "inbound"
   | "putaway"
-  | "channel-integration";
+  | "channel-integration"
+  | "picking-item"
+  | "product-boost"
+  | "product-boost-activity"
+  | "order-payment"
+  | "download-task";
 
 export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
   "sales-return": {
@@ -150,6 +155,34 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     normal: { label: "Normal", variant: "success" },
     warning: { label: "Perlu Perhatian", variant: "warning" },
     error: { label: "Integrasi Bermasalah", variant: "destructive" },
+  },
+
+  "picking-item": {
+    COMPLETED: { label: "Selesai", variant: "success" },
+    PARTIAL: { label: "Sebagian", variant: "warning" },
+    PENDING: { label: "Belum", variant: "muted" },
+  },
+
+  "product-boost": {
+    ACTIVE: { label: "Aktif", variant: "success" },
+    INACTIVE: { label: "Tidak Aktif", variant: "muted" },
+  },
+
+  "product-boost-activity": {
+    SUCCESS: { label: "Sukses", variant: "success" },
+    FAILED: { label: "Gagal", variant: "destructive" },
+  },
+
+  "order-payment": {
+    PAID: { label: "Lunas", variant: "success" },
+    UNPAID: { label: "Belum Dibayar", variant: "warning" },
+  },
+
+  "download-task": {
+    queued: { label: "Menunggu", variant: "warning" },
+    downloading: { label: "Sedang berjalan", variant: "info" },
+    done: { label: "Selesai", variant: "success" },
+    failed: { label: "Gagal", variant: "destructive" },
   },
 };
 

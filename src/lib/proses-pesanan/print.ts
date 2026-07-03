@@ -1,3 +1,5 @@
+import { formatDateTime } from "@/lib/format";
+
 function esc(v: unknown): string {
   return String(v ?? "")
     .replace(/&/g, "&amp;")
@@ -172,13 +174,7 @@ function manifestDoc(shipments: Row[]): string {
       const createdBy = get(s, "created_by") ?? "";
       const shipmentDate = get(s, "shipment_date");
       const fmtDate = shipmentDate
-        ? new Date(String(shipmentDate)).toLocaleDateString("id-ID", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          })
+        ? formatDateTime(String(shipmentDate))
         : "—";
 
       const head = `<tr>

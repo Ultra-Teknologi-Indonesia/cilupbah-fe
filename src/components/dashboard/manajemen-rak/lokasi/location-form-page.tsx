@@ -1,5 +1,7 @@
 "use client";
 
+import { FormSkeleton } from "@/components/ui/page-skeleton";
+
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -221,9 +223,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
 
   if (mode === "edit" && detail.isLoading) {
     return (
-      <div className="flex items-center justify-center gap-2 py-24 text-muted-foreground">
-        <Loader2Icon className="size-4 animate-spin" /> Memuat lokasi…
-      </div>
+      <FormSkeleton />
     );
   }
 

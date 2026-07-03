@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { formatDateLong, formatDateTime, formatCurrency } from "@/lib/format";
 import {
   AlertCircleIcon,
   FilterIcon,
@@ -19,29 +20,11 @@ import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useHppReport } from "@/hooks/laporan/use-hpp-report";
 import type { HppReportParams } from "@/types/laporan/hpp";
 
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value || 0);
-}
-
 function formatDateISO(d: Date) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
-}
-
-function formatDateID(d: string) {
-  if (!d) return "—";
-  return new Date(d).toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
 }
 
 function startOfMonth() {
@@ -245,15 +228,15 @@ export function HppReportView() {
             </h3>
             {payload && (
               <p className="text-xs text-muted-foreground">
-                Periode: {formatDateID(payload.period.date_from)} –{" "}
-                {formatDateID(payload.period.date_to)}
+                Periode: {formatDateLong(payload.period.date_from)} –{" "}
+                {formatDateLong(payload.period.date_to)}
                 {payload.period.location_id ? " · Lokasi terfilter" : ""}
               </p>
             )}
           </div>
           {payload && (
             <p className="text-xs text-muted-foreground">
-              Dibuat: {new Date(payload.generated_at).toLocaleString("id-ID")}
+              Dibuat: {formatDateTime(payload.generated_at)}
             </p>
           )}
         </div>

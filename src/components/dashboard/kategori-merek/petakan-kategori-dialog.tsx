@@ -258,9 +258,7 @@ export function PetakanKategoriDialog({
         <div className="px-6 py-4">
           {isLoading ? (
             <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
-              <Loader2Icon className="size-4 animate-spin" /> Memuat kategori{" "}
-              {channelName}…
-            </div>
+              <Loader2Icon className="size-4 animate-spin" /></div>
           ) : isError ? (
             <div className="py-16 text-center text-sm text-destructive">
               Gagal memuat kategori. Pastikan kategori {channelName} sudah

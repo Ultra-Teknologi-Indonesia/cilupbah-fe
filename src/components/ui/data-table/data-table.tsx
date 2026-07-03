@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import * as React from "react";
@@ -298,11 +299,7 @@ export function DataTable<TData, TValue>({
               ) : (
                 <TableRow className="hover:bg-transparent">
                   <TableCell colSpan={colSpan} className="h-32 text-center">
-                    {emptyState ?? (
-                      <span className="text-muted-foreground">
-                        Tidak ada data.
-                      </span>
-                    )}
+                    {emptyState ?? <EmptyState title="Belum ada data" className="py-2" />}
                   </TableCell>
                 </TableRow>
               )}

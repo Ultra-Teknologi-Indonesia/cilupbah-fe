@@ -76,9 +76,7 @@ export function ProductPickerDialog({
         <div className="max-h-80 overflow-y-auto overscroll-contain">
           {isLoading ? (
             <div className="flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
-              <Loader2Icon className="size-4 animate-spin motion-reduce:animate-none" />
-              Memuat produk…
-            </div>
+              <Loader2Icon className="size-4 animate-spin motion-reduce:animate-none" /></div>
           ) : items.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-12 text-center">
               <SearchXIcon className="size-7 text-muted-foreground" />
