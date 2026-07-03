@@ -37,13 +37,6 @@ import { orderKeys } from "@/hooks/pesanan/use-orders";
 import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper";
 import { cn } from "@/lib/utils";
 
-function isOverdue(shipByDate: string | null): boolean {
-  if (!shipByDate) return false;
-  const d = new Date(shipByDate);
-  if (Number.isNaN(d.getTime())) return false;
-  return d.getTime() < Date.now();
-}
-
 export function ReadyToProcessCardList() {
   const qc = useQueryClient();
   const [search, setSearch] = React.useState("");
@@ -54,8 +47,6 @@ export function ReadyToProcessCardList() {
   const [pickerId, setPickerId] = React.useState<string>("");
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
-  const [onlyPriority, setOnlyPriority] = React.useState(false);
-  const [onlyOverdue, setOnlyOverdue] = React.useState(false);
 
   React.useEffect(() => {
     const t = setTimeout(() => setDebounced(search.trim()), 350);
@@ -83,21 +74,13 @@ export function ReadyToProcessCardList() {
     "ready-to-process",
     params,
   );
-  const rawOrders = React.useMemo(() => data?.items ?? [], [data]);
+  const orders = React.useMemo(() => data?.items ?? [], [data]);
   const meta = data?.meta ?? {
     current_page: 1,
     last_page: 1,
     per_page: perPage,
     total: 0,
   };
-
-  const orders = React.useMemo(() => {
-    return rawOrders.filter((o) => {
-      if (onlyPriority && !o.priorityFulfillment) return false;
-      if (onlyOverdue && !isOverdue(o.shipByDate)) return false;
-      return true;
-    });
-  }, [rawOrders, onlyPriority, onlyOverdue]);
 
   const mappedOrders = React.useMemo(
     () => orders.map((o) => ({ raw: o, ui: fulfillmentToOrder(o) })),
@@ -212,20 +195,6 @@ export function ReadyToProcessCardList() {
       />
 
       <div className="flex flex-wrap items-center gap-4 border-b border-border/40 px-4 py-2 sm:px-5">
-        <label className="flex cursor-pointer items-center gap-2 text-sm">
-          <Checkbox
-            checked={onlyPriority}
-            onCheckedChange={(v) => setOnlyPriority(!!v)}
-          />
-          <span>Hanya prioritas (FBT/dipromosikan)</span>
-        </label>
-        <label className="flex cursor-pointer items-center gap-2 text-sm">
-          <Checkbox
-            checked={onlyOverdue}
-            onCheckedChange={(v) => setOnlyOverdue(!!v)}
-          />
-          <span>Hanya overdue ship-by-date</span>
-        </label>
         <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
           <button
             type="button"
