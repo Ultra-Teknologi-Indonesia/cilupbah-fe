@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { DatePicker } from "@/components/ui/date-picker";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageTitle } from "@/components/dashboard/page-title";
@@ -26,17 +27,26 @@ export function PindahBinEditView({ id }: { id: string }) {
   const { data: trf, isLoading } = useBinTransferDetail(id);
   const updateMut = useBinTransferUpdate(id);
 
-  const [transferDate, setTransferDate] = useState("");
+  const [transferDate, setTransferDate] = useState<Date | undefined>(undefined);
   const [createdBy, setCreatedBy] = useState("");
   const [notes, setNotes] = useState("");
 
   useEffect(() => {
     if (trf) {
-      setTransferDate((trf.transfer_date ?? "").slice(0, 10));
+      const raw = (trf.transfer_date ?? "").slice(0, 10);
+      setTransferDate(raw ? new Date(`${raw}T00:00:00`) : undefined);
       setCreatedBy(trf.created_by ?? "");
       setNotes(trf.notes ?? "");
     }
   }, [trf]);
+
+  const toDateString = (d?: Date): string | undefined => {
+    if (!d) return undefined;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
 
   if (isLoading) {
     return (
@@ -65,7 +75,7 @@ export function PindahBinEditView({ id }: { id: string }) {
   const handleSave = () => {
     updateMut.mutate(
       {
-        transfer_date: transferDate,
+        transfer_date: toDateString(transferDate),
         created_by: createdBy.trim(),
         notes: notes.trim() || null,
       },
@@ -85,14 +95,6 @@ export function PindahBinEditView({ id }: { id: string }) {
           { label: trf.transfer_number, href: detailHref },
           { label: "Edit" },
         ]}
-        actions={
-          <Button size="sm" onClick={handleSave} disabled={!canSubmit}>
-            {updateMut.isPending && (
-              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            Simpan
-          </Button>
-        }
       />
 
       <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
@@ -125,10 +127,10 @@ export function PindahBinEditView({ id }: { id: string }) {
               <Label className="text-sm font-medium">
                 Tanggal <span className="text-red-500">*</span>
               </Label>
-              <Input
-                type="date"
+              <DatePicker
                 value={transferDate}
-                onChange={(e) => setTransferDate(e.target.value)}
+                onChange={setTransferDate}
+                placeholder="Pilih tanggal"
               />
             </div>
             <div className="flex flex-col gap-1.5">

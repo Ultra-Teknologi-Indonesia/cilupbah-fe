@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Combobox } from "@/components/ui/combobox";
+import { DatePicker } from "@/components/ui/date-picker";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
@@ -31,8 +32,11 @@ import { cn } from "@/lib/utils";
 
 const LIST_HREF = "/dashboard/transaksi-stok?tab=transfer";
 
-function todayStr(): string {
-  return new Date().toISOString().slice(0, 10);
+function toDateInputValue(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 interface LineDraft {
@@ -48,7 +52,9 @@ interface LineDraft {
 export function PindahBinView() {
   const router = useRouter();
   const [transferNo] = useState("[auto]");
-  const [transferDate, setTransferDate] = useState(todayStr);
+  const [transferDate, setTransferDate] = useState<Date | undefined>(
+    () => new Date(),
+  );
   const [locationId, setLocationId] = useState("");
   const [sourceBinId, setSourceBinId] = useState("");
   const [destBinId, setDestBinId] = useState("");
@@ -131,7 +137,7 @@ export function PindahBinView() {
         location_id: locationId,
         source_bin_id: sourceBinId,
         destination_bin_id: destBinId,
-        transfer_date: transferDate,
+        transfer_date: transferDate ? toDateInputValue(transferDate) : undefined,
         created_by: createdBy.trim(),
         notes: notes.trim() || undefined,
         items: validLines.map((l) => ({
@@ -163,18 +169,6 @@ export function PindahBinView() {
           { label: "Internal Transfer", href: LIST_HREF },
           { label: "Pindah Antar Bin" },
         ]}
-        actions={
-          <Button
-            onClick={handleSubmit}
-            disabled={!canSubmit || createMut.isPending}
-            size="sm"
-          >
-            {createMut.isPending && (
-              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            Simpan
-          </Button>
-        }
       />
 
       <LiquidGlass
@@ -194,10 +188,10 @@ export function PindahBinView() {
               <Label className="text-sm font-medium">
                 Tanggal <span className="text-red-500">*</span>
               </Label>
-              <Input
-                type="date"
+              <DatePicker
                 value={transferDate}
-                onChange={(e) => setTransferDate(e.target.value)}
+                onChange={setTransferDate}
+                placeholder="Pilih tanggal"
               />
             </div>
             <div className="flex flex-col gap-1.5">
