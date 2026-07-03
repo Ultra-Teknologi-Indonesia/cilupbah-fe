@@ -21,6 +21,7 @@ import {
   CheckIcon,
   XIcon,
   ClipboardListIcon,
+  ZapIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -727,6 +728,8 @@ export function OrderCard({
       className={cn(
         "group rounded-xl border border-border/60 bg-card transition-all hover:border-border hover:shadow-sm",
         selected && "border-primary/40 bg-primary/[0.02]",
+        order.is_instant &&
+          "border-l-4 border-l-orange-500 bg-orange-50/40 dark:bg-orange-950/15",
       )}
     >
       {}
@@ -744,7 +747,10 @@ export function OrderCard({
             <button
               type="button"
               onClick={() => copyToClipboard(order.salesorder_no)}
-              className="inline-flex items-center gap-1.5 font-mono text-sm font-semibold hover:text-primary transition-colors"
+              className={cn(
+                "inline-flex items-center gap-1.5 font-mono text-sm font-semibold hover:text-primary transition-colors",
+                order.is_instant && "text-orange-700 dark:text-orange-400",
+              )}
             >
               {order.salesorder_no}
               <CopyIcon className="h-3 w-3 opacity-0 group-hover:opacity-50 transition-opacity" />
@@ -752,6 +758,18 @@ export function OrderCard({
           </TooltipTrigger>
           <TooltipContent>Klik untuk salin No. Pesanan</TooltipContent>
         </Tooltip>
+
+        {order.is_instant && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-flex items-center gap-0.5 rounded border border-orange-500/60 bg-orange-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-orange-700 dark:text-orange-400">
+                <ZapIcon className="h-2.5 w-2.5 fill-current" />
+                INSTANT
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>Pesanan instan (SLA ~2 jam) — prioritaskan!</TooltipContent>
+          </Tooltip>
+        )}
 
         {order.channel_order_no && (
           <>

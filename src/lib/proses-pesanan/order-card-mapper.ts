@@ -82,6 +82,7 @@ export function fulfillmentToOrder(f: FulfillmentOrder): Order {
     items,
     received_date: null,
     ship_by_date: f.shipByDate ?? null,
+    is_instant: f.isInstant,
     created_at: f.transactionDate ?? "",
     updated_at: f.transactionDate ?? "",
   };

@@ -76,6 +76,7 @@ export interface Order {
   items: OrderItem[];
   received_date: string | null;
   ship_by_date: string | null;
+  is_instant?: boolean;
   created_at: string;
   updated_at: string;
 }
