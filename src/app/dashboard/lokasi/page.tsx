@@ -13,7 +13,7 @@ import type { LocationListParams } from "@/types/manajemen-rak/location"
 // pertama search = "" (string kosong, bukan undefined) sehingga ikut hash key.
 // Query key ditulis literal, harus persis sama dengan locationKeys.list(params) =
 // ["pengaturan","lokasi","list", params] dari modul "use client".
-const INITIAL_PARAMS: LocationListParams = { search: "", page: 1, perPage: 20 }
+const INITIAL_PARAMS: LocationListParams = { search: "", page: 1, perPage: 20, excludeTransit: false }
 
 export default async function LokasiPage() {
   // Prefetch di server: list lokasi mengalir bersama HTML, view langsung hydrate

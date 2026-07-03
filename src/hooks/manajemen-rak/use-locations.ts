@@ -12,9 +12,17 @@ export const locationKeys = {
 }
 
 export function useLocations(params: LocationListParams = {}) {
+  const excludeTransit = params.excludeTransit ?? true
+
   return useQuery({
     queryKey: locationKeys.list(params),
-    queryFn: () => LocationService.list(params),
+    queryFn: async () => {
+      const data = await LocationService.list(params)
+      if (excludeTransit) {
+        data.items = data.items.filter(loc => !loc.locationName.toLowerCase().includes("transit"))
+      }
+      return data
+    },
     staleTime: 30 * 1000,
   })
 }

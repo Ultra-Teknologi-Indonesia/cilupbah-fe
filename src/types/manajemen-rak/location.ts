@@ -192,6 +192,7 @@ export interface LocationListParams {
   page?: number
   perPage?: number
   sort?: string
+  excludeTransit?: boolean
 }
 
 export interface LocationZone {

@@ -60,6 +60,7 @@ export function LocationListView() {
     search,
     page,
     perPage: 20,
+    excludeTransit: false,
   })
   const setting = useWarehouseLayoutSetting()
   const saveSetting = useSaveWarehouseLayoutSetting()
