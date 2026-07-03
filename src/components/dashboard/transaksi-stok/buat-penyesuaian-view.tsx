@@ -358,7 +358,7 @@ export function BuatPenyesuaianView() {
                     const invalid = qtyAkhir < 0
                     const binOptsForLine = l.availableBins.map((b) => ({
                       value: b.id,
-                      label: `${b.code} · ${b.on_hand} stok`,
+                      label: `${b.code} · ${b.onHand} stok`,
                     }))
                     return (
                       <tr key={l.itemId} className="bg-background/50">
