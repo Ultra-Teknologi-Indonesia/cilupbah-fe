@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { PackageCheckIcon, DownloadIcon, LayersIcon, QrCodeIcon } from "lucide-react";
+import { PackageCheckIcon, DownloadIcon, LayersIcon } from "lucide-react";
 import { BuatPenempatanManualDialog } from "./buat-penempatan-manual-dialog";
 import { InboundService } from "@/services/barang-masuk/inbound.service";
 
@@ -260,22 +260,6 @@ export function PenerimaanBarangTab() {
                   Penempatan
                 </Button>
               )}
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-8 gap-1.5"
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  try {
-                    await InboundService.downloadBarcodes(item.id, item.transaction_number);
-                  } catch (err) {
-                    console.error("Failed to download barcodes:", err);
-                  }
-                }}
-              >
-                <QrCodeIcon className="h-4 w-4" />
-                Barcode
-              </Button>
             </div>
           );
         },

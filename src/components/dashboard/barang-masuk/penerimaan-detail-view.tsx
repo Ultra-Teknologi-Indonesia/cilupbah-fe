@@ -1,7 +1,7 @@
 "use client"
 
 import { useParams } from "next/navigation"
-import { ArrowLeftIcon, PrinterIcon, DownloadIcon } from "lucide-react"
+import { ArrowLeftIcon, PrinterIcon, DownloadIcon, QrCodeIcon } from "lucide-react"
 import Link from "next/link"
 
 import { cn } from "@/lib/utils"
@@ -85,6 +85,10 @@ export function PenerimaanDetailView({ id }: { id: string }) {
             <Button variant="outline" size="sm" onClick={() => handleExportCsv(inbound)}>
               <DownloadIcon className="mr-1.5 h-4 w-4" />
               Export CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => window.open(`/api/app/inbounds/${inbound.id}/barcodes`, "_blank")}>
+              <QrCodeIcon className="mr-1.5 h-4 w-4" />
+              Cetak Barcode
             </Button>
             <Button variant="outline" size="sm" onClick={() => window.print()}>
               <PrinterIcon className="mr-1.5 h-4 w-4" />
