@@ -100,20 +100,7 @@ function FinancialSummary({ order }: { order: Order }) {
 
   return (
     <>
-      <h3 className="mb-4 flex items-center justify-between font-semibold">
-        Rincian
-        <Badge
-          variant="outline"
-          className={cn(
-            "text-xs font-semibold",
-            finance?.is_settled
-              ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400"
-              : "border-slate-300 bg-slate-50 text-slate-600 dark:border-slate-500/20 dark:bg-slate-500/10 dark:text-slate-400",
-          )}
-        >
-          {finance?.is_settled ? "Final" : "Estimasi"}
-        </Badge>
-      </h3>
+      <h3 className="mb-4 font-semibold">Rincian</h3>
       <div className="space-y-2.5 text-sm">
         <div className="flex justify-between text-muted-foreground">
           <span>Jumlah SKU</span>
