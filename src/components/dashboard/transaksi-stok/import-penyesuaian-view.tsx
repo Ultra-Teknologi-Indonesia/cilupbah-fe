@@ -126,30 +126,6 @@ export function ImportPenyesuaianDialog({
     )
   }
 
-  const handleDownloadErrorLog = useCallback(() => {
-    if (!preview || preview.errors.length === 0) return
-    let content = "Log Error Import Penyesuaian Stok\n"
-    content += `Tanggal: ${new Date().toLocaleString("id-ID")}\n\n`
-    preview.errors.forEach((e) => {
-      content += `Baris ${e.row} - ${e.field}: ${e.error}\n`
-    })
-    if (preview.warnings.length > 0) {
-      content += "\nWarnings:\n"
-      preview.warnings.forEach((w) => {
-        content += `Baris ${w.row} - ${w.field}: ${w.warning}\n`
-      })
-    }
-    const blob = new Blob([content], { type: "text/plain;charset=utf-8" })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = "error_log_import_stok.txt"
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-  }, [preview])
-
   const canPreview = !!file && !!locationId && !previewMut.isPending
   const canConfirm =
     !!preview &&
@@ -300,29 +276,20 @@ export function ImportPenyesuaianDialog({
         </ScrollArea>
 
         <div className="shrink-0 border-t px-6 py-3">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center justify-end gap-2">
             {preview ? (
               <>
-                <div className="flex-1">
-                  {preview.errors.length > 0 && (
-                    <Button variant="outline" onClick={handleDownloadErrorLog} className="text-destructive hover:bg-destructive/10 hover:text-destructive">
-                      <DownloadIcon className="mr-2 h-4 w-4" /> Download Log Error
-                    </Button>
+                <Button variant="outline" onClick={() => setPreview(null)}>
+                  {preview.errors.length > 0 ? "Batal & Upload Ulang" : "Kembali"}
+                </Button>
+                <Button onClick={handleConfirm} disabled={!canConfirm} className="gap-1.5">
+                  {confirmMut.isPending && (
+                    <Loader2Icon className="h-4 w-4 animate-spin" />
                   )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" onClick={() => setPreview(null)}>
-                    {preview.errors.length > 0 ? "Batal & Upload Ulang" : "Kembali"}
-                  </Button>
-                  <Button onClick={handleConfirm} disabled={!canConfirm} className="gap-1.5">
-                    {confirmMut.isPending && (
-                      <Loader2Icon className="h-4 w-4 animate-spin" />
-                    )}
-                    {preview.errors.length > 0
-                      ? `Terdapat ${preview.errors.length} error`
-                      : `Konfirmasi Import (${preview.items.length} item)`}
-                  </Button>
-                </div>
+                  {preview.errors.length > 0
+                    ? `Terdapat ${preview.errors.length} error`
+                    : `Konfirmasi Import (${preview.items.length} item)`}
+                </Button>
               </>
             ) : (
               <div className="flex w-full items-center justify-end gap-2">
@@ -364,7 +331,6 @@ function PreviewPanel({ preview }: { preview: ImportPreviewResponse }) {
               key={`e${i}`}
               className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive"
             >
-              <span className="font-mono">Baris {e.row}</span> · {e.field}:{" "}
               {e.error}
             </div>
           ))}
@@ -373,7 +339,6 @@ function PreviewPanel({ preview }: { preview: ImportPreviewResponse }) {
               key={`w${i}`}
               className="rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400"
             >
-              <span className="font-mono">Baris {w.row}</span> · {w.field}:{" "}
               {w.warning}
             </div>
           ))}
@@ -398,10 +363,10 @@ function PreviewPanel({ preview }: { preview: ImportPreviewResponse }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {preview.items.map((it) => (
+              {preview.items.map((it, idx) => (
                 <tr key={it.row_no} className="bg-background/50">
                   <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
-                    {it.row_no}
+                    {idx + 1}
                   </td>
                   <td className="px-3 py-2">
                     <p className="font-medium">{it.product_name || it.sku}</p>
