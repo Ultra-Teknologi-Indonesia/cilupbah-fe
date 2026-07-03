@@ -14,18 +14,14 @@ import { PageTitle } from "@/components/dashboard/page-title";
 import { TableSkeleton } from "@/components/ui/page-skeleton";
 import { useUrlTab } from "@/hooks/use-url-tab";
 import { PenyesuaianTab } from "@/components/dashboard/transaksi-stok/penyesuaian-tab";
-import { OpnameTab } from "@/components/dashboard/transaksi-stok/opname-tab";
 import { TransferTab } from "@/components/dashboard/transaksi-stok/transfer-tab";
-import { CadangTab } from "@/components/dashboard/transaksi-stok/cadang-tab";
 
-type Tab = "penyesuaian" | "opname" | "transfer" | "cadang";
+type Tab = "penyesuaian" | "transfer";
 
 const TABS: { key: Tab; label: string; icon: typeof SlidersHorizontalIcon }[] =
   [
     { key: "penyesuaian", label: "Koreksi Stok", icon: SlidersHorizontalIcon },
-    { key: "opname", label: "Stok Opname", icon: ClipboardCheckIcon },
     { key: "transfer", label: "Internal Transfer", icon: ArrowLeftRightIcon },
-    { key: "cadang", label: "Reservasi Stok", icon: ShieldIcon },
   ];
 
 const TAB_KEYS = TABS.map((t) => t.key);
@@ -65,9 +61,7 @@ function TransaksiStokTabs() {
       </LiquidGlass>
 
       {activeTab === "penyesuaian" && <PenyesuaianTab />}
-      {activeTab === "opname" && <OpnameTab />}
       {activeTab === "transfer" && <TransferTab />}
-      {activeTab === "cadang" && <CadangTab />}
     </>
   );
 }

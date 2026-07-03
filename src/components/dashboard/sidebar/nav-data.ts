@@ -71,13 +71,7 @@ export const dashboardGroups: NavGroup[] = [
         icon: Package2,
         link: "/dashboard/produk",
       },
-      {
-        id: "harga-promosi",
-        title: "Harga & Promosi",
-        icon: Tag,
-        link: "/dashboard/harga-promosi",
-        comingSoon: true,
-      },
+
       {
         id: "kategori-merek",
         title: "Kategori",
@@ -144,13 +138,7 @@ export const dashboardGroups: NavGroup[] = [
         icon: Users,
         link: "/dashboard/kontak-pelanggan",
       },
-      {
-        id: "kasir-pos",
-        title: "Kasir (POS)",
-        icon: MonitorSmartphone,
-        link: "/dashboard/kasir-pos",
-        comingSoon: true,
-      },
+
       {
         id: "integrasi-channel",
         title: "Integrasi Channel",
@@ -212,56 +200,7 @@ export const dashboardGroups: NavGroup[] = [
       },
     ],
   },
-  {
-    id: "keuangan",
-    title: "Keuangan",
-    icon: CircleDollarSign,
-    zone: "fin",
-    items: [
-      {
-        id: "piutang",
-        title: "Piutang (Tagihan Masuk)",
-        icon: ReceiptText,
-        link: "/dashboard/piutang",
-        comingSoon: true,
-      },
-      {
-        id: "hutang",
-        title: "Hutang",
-        icon: HandCoins,
-        link: "/dashboard/hutang",
-        comingSoon: true,
-      },
-      {
-        id: "kas-bank",
-        title: "Kas & Bank",
-        icon: Landmark,
-        link: "/dashboard/kas-bank",
-        comingSoon: true,
-      },
-      {
-        id: "jurnal",
-        title: "Jurnal",
-        icon: BookOpen,
-        link: "/dashboard/jurnal",
-        comingSoon: true,
-      },
-      {
-        id: "aset",
-        title: "Aset",
-        icon: Building2,
-        link: "/dashboard/aset",
-        comingSoon: true,
-      },
-      {
-        id: "peta-akun",
-        title: "Peta Akun",
-        icon: Map,
-        link: "/dashboard/peta-akun",
-        comingSoon: true,
-      },
-    ],
-  },
+
   {
     id: "laporan",
     title: "Laporan",
