@@ -184,12 +184,17 @@ export function BuatPenyesuaianView() {
         location_id: locationId,
         notes: notes.trim() || undefined,
         created_by: createdBy.trim(),
-        items: validLines.map((l) => ({
-          item_id: l.itemId,
-          bin_id: l.binId || undefined,
-          actual_qty: l.binOnHand + Number(l.delta),
-          notes: l.notes.trim() || undefined,
-        })),
+        auto_approve: true,
+        items: validLines.map((l) => {
+          const cost = Number(l.unitCost)
+          return {
+            item_id: l.itemId,
+            bin_id: l.binId || undefined,
+            actual_qty: l.binOnHand + Number(l.delta),
+            unit_cost: Number.isFinite(cost) && cost > 0 ? cost : undefined,
+            notes: l.notes.trim() || undefined,
+          }
+        }),
       },
       { onSuccess: () => router.push(LIST_HREF) }
     )

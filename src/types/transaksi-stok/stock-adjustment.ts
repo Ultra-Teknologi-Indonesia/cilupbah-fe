@@ -51,6 +51,7 @@ export interface StockAdjustmentItemInput {
   item_id: string
   bin_id?: string
   actual_qty: number
+  unit_cost?: number
   notes?: string
 }
 
@@ -60,5 +61,6 @@ export interface StockAdjustmentFormData {
   is_beginning_balance?: boolean
   notes?: string
   created_by: string
+  auto_approve?: boolean
   items: StockAdjustmentItemInput[]
 }
