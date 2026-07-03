@@ -6,7 +6,6 @@ import {
   ClipboardCheckIcon,
   ArrowLeftRightIcon,
   ShieldIcon,
-  DollarSignIcon,
 } from "lucide-react"
 
 import { LiquidGlass } from "@/components/ui/liquid-glass"
@@ -18,16 +17,14 @@ import { PenyesuaianTab } from "@/components/dashboard/transaksi-stok/penyesuaia
 import { OpnameTab } from "@/components/dashboard/transaksi-stok/opname-tab"
 import { TransferTab } from "@/components/dashboard/transaksi-stok/transfer-tab"
 import { CadangTab } from "@/components/dashboard/transaksi-stok/cadang-tab"
-import { RevaluasiTab } from "@/components/dashboard/transaksi-stok/revaluasi-tab"
 
-type Tab = "penyesuaian" | "opname" | "transfer" | "cadang" | "revaluasi"
+type Tab = "penyesuaian" | "opname" | "transfer" | "cadang"
 
 const TABS: { key: Tab; label: string; icon: typeof SlidersHorizontalIcon }[] = [
   { key: "penyesuaian", label: "Koreksi Stok", icon: SlidersHorizontalIcon },
   { key: "opname", label: "Stok Opname", icon: ClipboardCheckIcon },
   { key: "transfer", label: "Internal Transfer", icon: ArrowLeftRightIcon },
   { key: "cadang", label: "Reservasi Stok", icon: ShieldIcon },
-  { key: "revaluasi", label: "Ubah Nilai Stok", icon: DollarSignIcon },
 ]
 
 const TAB_KEYS = TABS.map((t) => t.key)
@@ -71,7 +68,6 @@ function TransaksiStokTabs() {
       {activeTab === "opname" && <OpnameTab />}
       {activeTab === "transfer" && <TransferTab />}
       {activeTab === "cadang" && <CadangTab />}
-      {activeTab === "revaluasi" && <RevaluasiTab />}
     </>
   )
 }
