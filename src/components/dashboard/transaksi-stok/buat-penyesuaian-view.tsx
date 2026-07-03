@@ -58,6 +58,7 @@ export function BuatPenyesuaianView() {
   const router = useRouter()
   const [locationId, setLocationId] = useState("")
   const [transactionDate, setTransactionDate] = useState(todayStr)
+  const [adjustmentNo, setAdjustmentNo] = useState("")
   const [notes, setNotes] = useState("")
   const [createdBy, setCreatedBy] = useState("")
   const [lines, setLines] = useState<LineDraft[]>([])
@@ -195,6 +196,7 @@ export function BuatPenyesuaianView() {
       {
         transaction_date: transactionDate,
         location_id: locationId,
+        adjustment_no: adjustmentNo.trim() || undefined,
         notes: notes.trim() || undefined,
         created_by: createdBy.trim(),
         auto_approve: true,
@@ -232,12 +234,11 @@ export function BuatPenyesuaianView() {
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">No. Penyesuaian</Label>
               <Input
-                value="[auto]"
-                readOnly
-                disabled
-                className="cursor-not-allowed text-muted-foreground"
+                value={adjustmentNo}
+                onChange={(e) => setAdjustmentNo(e.target.value)}
+                placeholder="[auto] atau ketik nomor custom"
               />
-              <p className="text-xs text-muted-foreground">Otomatis dengan prefix ADJ setelah disimpan.</p>
+              <p className="text-xs text-muted-foreground">Kosongkan → otomatis prefix ADJ. Isi manual → jadi nomor kustom.</p>
             </div>
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
@@ -335,28 +336,32 @@ export function BuatPenyesuaianView() {
             </p>
           </div>
 
-          {lines.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border py-12 text-muted-foreground">
-              <PackageSearchIcon className="h-7 w-7 opacity-40" />
-              <p className="text-sm">Belum ada item. Scan SKU atau klik Tambah Item.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto rounded-lg border border-border">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+          <div className="overflow-x-auto rounded-lg border border-border">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="px-3 py-2.5 text-left font-medium">Produk</th>
+                  <th className="px-3 py-2.5 text-left font-medium">Kode Rak</th>
+                  <th className="px-3 py-2.5 text-right font-medium">+/-</th>
+                  <th className="px-3 py-2.5 text-right font-medium">On Hand</th>
+                  <th className="px-3 py-2.5 text-right font-medium">Qty Akhir</th>
+                  <th className="px-3 py-2.5 text-right font-medium">Harga Pokok</th>
+                  <th className="px-3 py-2.5 text-left font-medium">Keterangan</th>
+                  <th className="px-3 py-2.5" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {lines.length === 0 ? (
                   <tr>
-                    <th className="px-3 py-2.5 text-left font-medium">Produk</th>
-                    <th className="px-3 py-2.5 text-left font-medium">Kode Rak</th>
-                    <th className="px-3 py-2.5 text-right font-medium">+/-</th>
-                    <th className="px-3 py-2.5 text-right font-medium">On Hand</th>
-                    <th className="px-3 py-2.5 text-right font-medium">Qty Akhir</th>
-                    <th className="px-3 py-2.5 text-right font-medium">Harga Pokok</th>
-                    <th className="px-3 py-2.5 text-left font-medium">Keterangan</th>
-                    <th className="px-3 py-2.5" />
+                    <td colSpan={8} className="px-3 py-12 text-center">
+                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                        <PackageSearchIcon className="h-7 w-7 opacity-40" />
+                        <p className="text-sm">Belum ada item. Scan SKU atau klik Tambah Item.</p>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {lines.map((l) => {
+                ) : (
+                  lines.map((l) => {
                     const deltaNum = l.delta === "" || Number.isNaN(Number(l.delta)) ? 0 : Number(l.delta)
                     const qtyAkhir = l.binOnHand + deltaNum
                     const invalid = qtyAkhir < 0
@@ -476,11 +481,11 @@ export function BuatPenyesuaianView() {
                         </td>
                       </tr>
                     )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
 
           {/* Tambah Item — di bawah, sebelah kiri */}
           <div className="flex items-center justify-between">

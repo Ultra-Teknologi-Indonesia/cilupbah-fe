@@ -58,6 +58,7 @@ export interface StockAdjustmentItemInput {
 export interface StockAdjustmentFormData {
   transaction_date: string
   location_id: string
+  adjustment_no?: string
   is_beginning_balance?: boolean
   notes?: string
   created_by: string
