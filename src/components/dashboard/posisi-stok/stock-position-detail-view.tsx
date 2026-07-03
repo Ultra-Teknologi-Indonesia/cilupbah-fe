@@ -36,9 +36,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Combobox } from "@/components/ui/combobox";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { FilterToolbar } from "@/components/dashboard/shared/filter-toolbar";
-import { PillTabs } from "@/components/dashboard/shared/pill-tabs";
 import {
   useStockItem,
   useStockMovements,
@@ -277,16 +277,21 @@ function MovementsSection({ itemId }: { itemId: string }) {
   const hasActiveFilter = activeCount > 0;
 
   const viewBar = (
-    <PillTabs
-      variant="solid"
-      active={view}
-      onSelect={(v) => {
+    <Tabs
+      value={view}
+      onValueChange={(v) => {
         setView(v as MovementView);
         setPage(1);
       }}
-      items={VIEW_TABS.map((t) => ({ key: t.value, label: t.label }))}
-      className="w-fit! [&_[data-slot=tabs-trigger]]:flex-none"
-    />
+    >
+      <TabsList variant="line" className="h-auto">
+        {VIEW_TABS.map((t) => (
+          <TabsTrigger key={t.value} value={t.value}>
+            {t.label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 
   const filterBar = (

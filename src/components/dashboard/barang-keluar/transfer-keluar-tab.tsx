@@ -382,18 +382,14 @@ export function TransferKeluarTab() {
       >
         <div className="px-4 pt-4 sm:px-5">
           <Tabs value={subTab} onValueChange={(val) => setSubTab(val as any)} className="flex flex-col gap-4">
-        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 bg-transparent p-0">
-          {SUB_TABS.map(({ key, label }) => (
-            <TabsTrigger
-              key={key}
-              value={key}
-              className="inline-flex h-auto items-center gap-1.5 rounded-full bg-muted/60 px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground data-[state=active]:bg-foreground! data-[state=active]:text-background! data-[state=active]:shadow-sm! after:hidden!"
-            >
-              {label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        </Tabs>
+            <TabsList variant="line" className="h-auto">
+              {SUB_TABS.map(({ key, label }) => (
+                <TabsTrigger key={key} value={key}>
+                  {label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
 
         <FilterToolbar

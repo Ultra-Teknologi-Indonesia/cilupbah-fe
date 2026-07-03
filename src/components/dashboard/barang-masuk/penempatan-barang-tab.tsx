@@ -332,19 +332,11 @@ export function PenempatanBarangTab() {
                 })
               }
             >
-              <TabsList className="bg-muted/50 h-9">
-                <TabsTrigger value="ALL" className="text-xs px-4">
-                  Semua
-                </TabsTrigger>
-                <TabsTrigger value="NOT_STARTED" className="text-xs px-4">
-                  Belum Mulai
-                </TabsTrigger>
-                <TabsTrigger value="IN_PROGRESS" className="text-xs px-4">
-                  Proses
-                </TabsTrigger>
-                <TabsTrigger value="COMPLETED" className="text-xs px-4">
-                  Selesai
-                </TabsTrigger>
+              <TabsList variant="line" className="h-auto">
+                <TabsTrigger value="ALL">Semua</TabsTrigger>
+                <TabsTrigger value="NOT_STARTED">Belum Mulai</TabsTrigger>
+                <TabsTrigger value="IN_PROGRESS">Proses</TabsTrigger>
+                <TabsTrigger value="COMPLETED">Selesai</TabsTrigger>
               </TabsList>
             </Tabs>
 
@@ -370,19 +362,11 @@ export function PenempatanBarangTab() {
                 })
               }
             >
-              <TabsList className="bg-muted/50 h-9">
-                <TabsTrigger value="ALL" className="text-xs px-4">
-                  Semua
-                </TabsTrigger>
-                <TabsTrigger value="NOT_STARTED" className="text-xs px-4">
-                  Belum Mulai
-                </TabsTrigger>
-                <TabsTrigger value="IN_PROGRESS" className="text-xs px-4">
-                  Proses
-                </TabsTrigger>
-                <TabsTrigger value="COMPLETED" className="text-xs px-4">
-                  Selesai
-                </TabsTrigger>
+              <TabsList variant="line" className="h-auto">
+                <TabsTrigger value="ALL">Semua</TabsTrigger>
+                <TabsTrigger value="NOT_STARTED">Belum Mulai</TabsTrigger>
+                <TabsTrigger value="IN_PROGRESS">Proses</TabsTrigger>
+                <TabsTrigger value="COMPLETED">Selesai</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>

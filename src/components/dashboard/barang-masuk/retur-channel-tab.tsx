@@ -292,17 +292,13 @@ export function ReturChannelTab() {
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Tabs value={subTab} onValueChange={(val) => setSubTab(val as any)} className="flex flex-col gap-4">
-        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 bg-transparent p-0">
-          {SUB_TABS.map(({ key, label }) => (
-            <TabsTrigger
-              key={key}
-              value={key}
-              className="inline-flex h-auto items-center gap-1.5 rounded-full bg-muted/60 px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground data-[state=active]:bg-foreground! data-[state=active]:text-background! data-[state=active]:shadow-sm! after:hidden!"
-            >
-              {label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+          <TabsList variant="line" className="h-auto">
+            {SUB_TABS.map(({ key, label }) => (
+              <TabsTrigger key={key} value={key}>
+                {label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
         </Tabs>
         <Button size="sm" asChild className="gap-1.5">
           <Link href="/dashboard/barang-masuk/retur/buat">

@@ -303,31 +303,18 @@ export function MonitorStokView() {
               value={subMode}
               onValueChange={(v) => changeSub(v as OutOfStockMode)}
             >
-              <LiquidGlass
-                radius={14}
-                intensity="subtle"
-                showGlow={false}
-                showShadow={false}
-                reactive={false}
-                className="w-fit max-w-full overflow-x-auto bg-white/50 p-1 dark:bg-white/[0.06]"
-              >
-                <TabsList className="gap-1 bg-transparent">
-                  {SUB_TABS.map(({ key, label }) => (
-                    <TabsTrigger
-                      key={key}
-                      value={key}
-                      className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
-                    >
-                      {label}
-                      {subTotal(key) !== undefined && (
-                        <span className="ml-0.5 rounded-full bg-muted px-1.5 text-[10px] tabular-nums">
-                          {subTotal(key)}
-                        </span>
-                      )}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </LiquidGlass>
+              <TabsList variant="line" className="h-auto">
+                {SUB_TABS.map(({ key, label }) => (
+                  <TabsTrigger key={key} value={key}>
+                    {label}
+                    {subTotal(key) !== undefined && (
+                      <span className="ml-0.5 rounded-full bg-muted px-1.5 text-[10px] tabular-nums">
+                        {subTotal(key)}
+                      </span>
+                    )}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
             </Tabs>
           ) : isAnalyticsTab(tab) ? (
             <div className="w-52">
@@ -349,26 +336,13 @@ export function MonitorStokView() {
                 onFilter(() => setKronologiView(v as KronologiView))
               }
             >
-              <LiquidGlass
-                radius={14}
-                intensity="subtle"
-                showGlow={false}
-                showShadow={false}
-                reactive={false}
-                className="w-fit max-w-full overflow-x-auto bg-white/50 p-1 dark:bg-white/[0.06]"
-              >
-                <TabsList className="gap-1 bg-transparent">
-                  {KRONOLOGI_VIEWS.map(({ key, label }) => (
-                    <TabsTrigger
-                      key={key}
-                      value={key}
-                      className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
-                    >
-                      {label}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </LiquidGlass>
+              <TabsList variant="line" className="h-auto">
+                {KRONOLOGI_VIEWS.map(({ key, label }) => (
+                  <TabsTrigger key={key} value={key}>
+                    {label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
             </Tabs>
           ) : (
             <div />

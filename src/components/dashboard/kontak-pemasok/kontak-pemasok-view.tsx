@@ -246,22 +246,16 @@ export function KontakPemasokView() {
   }
 
   const filterTabs = (
-    <div className="flex items-center gap-1">
-      <Tabs value={typeFilter || ""} onValueChange={(val) => handleTypeFilter(val as any)}>
-        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 bg-transparent p-0">
-          {TYPE_TABS.map(({ key, label, icon: Icon }) => (
-            <TabsTrigger
-              key={key}
-              value={key}
-              className="inline-flex h-auto items-center gap-1.5 rounded-full bg-muted/60 px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground data-[state=active]:bg-foreground! data-[state=active]:text-background! data-[state=active]:shadow-sm! after:hidden!"
-            >
-              <Icon className="h-3.5 w-3.5" />
-              {label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
-    </div>
+    <Tabs value={typeFilter || ""} onValueChange={(val) => handleTypeFilter(val as any)}>
+      <TabsList variant="line" className="h-auto">
+        {TYPE_TABS.map(({ key, label, icon: Icon }) => (
+          <TabsTrigger key={key} value={key}>
+            <Icon />
+            {label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 
   return (
