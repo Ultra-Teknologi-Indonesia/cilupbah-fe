@@ -18,6 +18,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Combobox } from "@/components/ui/combobox";
 import { DatePicker } from "@/components/ui/date-picker";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
@@ -131,7 +139,7 @@ export function PindahBinView() {
       const source =
         variant.primary_bin && variant.primary_bin.on_hand > 0
           ? variant.primary_bin.id
-          : availableBins[0]?.id ?? "";
+          : (availableBins[0]?.id ?? "");
       return [
         ...prev,
         {
@@ -243,7 +251,9 @@ export function PindahBinView() {
       {
         location_id: locationId,
         transfer_number: customNo,
-        transfer_date: transferDate ? toDateInputValue(transferDate) : undefined,
+        transfer_date: transferDate
+          ? toDateInputValue(transferDate)
+          : undefined,
         created_by: createdBy.trim(),
         notes: notes.trim() || undefined,
         items: validLines.map((l) => ({
@@ -302,8 +312,7 @@ export function PindahBinView() {
                 placeholder="[auto]"
               />
               <p className="text-xs text-muted-foreground">
-                Biarkan{" "}
-                <span className="font-mono">[auto]</span> untuk generate
+                Biarkan <span className="font-mono">[auto]</span> untuk generate
                 otomatis (TRFI-…), atau isi manual.
               </p>
             </div>
@@ -438,195 +447,190 @@ export function PindahBinView() {
               </p>
             </div>
 
-            <div className="overflow-x-auto rounded-lg border border-border">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
-                  <tr>
-                    <th className="px-3 py-2.5 text-left font-medium">
-                      Produk
-                    </th>
-                    <th className="px-3 py-2.5 text-left font-medium">
-                      Rak Asal
-                    </th>
-                    <th className="px-3 py-2.5 text-left font-medium">
-                      Rak Tujuan
-                    </th>
-                    <th className="px-3 py-2.5 text-right font-medium">
-                      Qty
-                    </th>
-                    <th className="px-3 py-2.5 text-left font-medium">
-                      Keterangan
-                    </th>
-                    <th className="px-3 py-2.5" />
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {lines.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="px-3 py-12 text-center">
-                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                          <PackageSearchIcon className="h-7 w-7 opacity-40" />
-                          <p className="text-sm">
-                            Belum ada produk. Scan SKU di atas atau klik
-                            “Tambah Produk”.
-                          </p>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    lines.map((l) => {
-                      const qtyNum = Number(l.qty);
-                      const qtyInvalid =
-                        l.qty !== "" &&
-                        (Number.isNaN(qtyNum) || qtyNum <= 0);
-                      const sameBin =
-                        !!l.sourceBinId &&
-                        !!l.destBinId &&
-                        l.sourceBinId === l.destBinId;
-                      const sourceOptions =
-                        l.availableBins.length > 0
-                          ? l.availableBins.map((b) => ({
-                              value: b.id,
-                              label: `${b.code} · ${b.onHand} stok`,
-                            }))
-                          : [];
-                      const destOptions = binOptions.filter(
-                        (b) => b.value !== l.sourceBinId,
-                      );
-                      const sourceBin = l.availableBins.find(
-                        (b) => b.id === l.sourceBinId,
-                      );
-                      const qtyOverStock =
-                        !!sourceBin &&
-                        qtyNum > 0 &&
-                        qtyNum > sourceBin.onHand;
-                      return (
-                        <tr key={l.itemId} className="bg-background/50">
-                          <td className="px-3 py-2.5">
-                            <div className="flex items-center gap-3">
-                              {l.thumbnail ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  src={l.thumbnail}
-                                  alt={l.name}
-                                  className="h-11 w-11 shrink-0 rounded-md border border-border object-cover"
-                                />
-                              ) : (
-                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-muted">
-                                  <PackageSearchIcon className="h-5 w-5 text-muted-foreground/40" />
-                                </div>
-                              )}
-                              <div className="min-w-0">
-                                <p className="truncate text-sm font-medium">
-                                  {l.name}
-                                </p>
-                                {l.variantLabel && (
-                                  <p className="truncate text-xs text-muted-foreground">
-                                    {l.variantLabel}
-                                  </p>
-                                )}
-                                <p className="truncate font-mono text-[11px] text-muted-foreground">
-                                  {l.sku}
-                                </p>
+            <Table containerClassName="rounded-lg border border-border">
+              <TableHeader className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+                <TableRow>
+                  <TableHead className="px-3 py-2.5 text-muted-foreground">
+                    Produk
+                  </TableHead>
+                  <TableHead className="px-3 py-2.5 text-muted-foreground">
+                    Rak Asal
+                  </TableHead>
+                  <TableHead className="px-3 py-2.5 text-muted-foreground">
+                    Rak Tujuan
+                  </TableHead>
+                  <TableHead className="px-3 py-2.5 text-right text-muted-foreground">
+                    Qty
+                  </TableHead>
+                  <TableHead className="px-3 py-2.5 text-muted-foreground">
+                    Keterangan
+                  </TableHead>
+                  <TableHead className="px-3 py-2.5" />
+                </TableRow>
+              </TableHeader>
+              <TableBody className="divide-y divide-border">
+                {lines.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="px-3 py-12 text-center">
+                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                        <PackageSearchIcon className="h-7 w-7 opacity-40" />
+                        <p className="text-sm">
+                          Belum ada produk. Scan SKU di atas atau klik “Tambah
+                          Produk”.
+                        </p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  lines.map((l) => {
+                    const qtyNum = Number(l.qty);
+                    const qtyInvalid =
+                      l.qty !== "" && (Number.isNaN(qtyNum) || qtyNum <= 0);
+                    const sameBin =
+                      !!l.sourceBinId &&
+                      !!l.destBinId &&
+                      l.sourceBinId === l.destBinId;
+                    const sourceOptions =
+                      l.availableBins.length > 0
+                        ? l.availableBins.map((b) => ({
+                            value: b.id,
+                            label: `${b.code} · ${b.onHand} stok`,
+                          }))
+                        : [];
+                    const destOptions = binOptions.filter(
+                      (b) => b.value !== l.sourceBinId,
+                    );
+                    const sourceBin = l.availableBins.find(
+                      (b) => b.id === l.sourceBinId,
+                    );
+                    const qtyOverStock =
+                      !!sourceBin && qtyNum > 0 && qtyNum > sourceBin.onHand;
+                    return (
+                      <TableRow key={l.itemId} className="bg-background/50">
+                        <TableCell className="px-3 py-2.5">
+                          <div className="flex items-center gap-3">
+                            {l.thumbnail ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={l.thumbnail}
+                                alt={l.name}
+                                className="h-11 w-11 shrink-0 rounded-md border border-border object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-muted">
+                                <PackageSearchIcon className="h-5 w-5 text-muted-foreground/40" />
                               </div>
+                            )}
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium">
+                                {l.name}
+                              </p>
+                              {l.variantLabel && (
+                                <p className="truncate text-xs text-muted-foreground">
+                                  {l.variantLabel}
+                                </p>
+                              )}
+                              <p className="truncate font-mono text-[11px] text-muted-foreground">
+                                {l.sku}
+                              </p>
                             </div>
-                          </td>
-                          <td className="px-3 py-2.5">
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5">
+                          <Combobox
+                            options={sourceOptions}
+                            value={l.sourceBinId}
+                            onChange={(v) =>
+                              updateLine(l.itemId, { sourceBinId: v ?? "" })
+                            }
+                            placeholder={
+                              sourceOptions.length === 0
+                                ? "Tidak ada stok"
+                                : "Scan / pilih rak asal"
+                            }
+                            searchPlaceholder="Scan / cari rak…"
+                            emptyText="Tidak ada rak dengan stok"
+                            disabled={sourceOptions.length === 0}
+                            className={cn(
+                              "h-9 min-w-[160px]",
+                              sameBin &&
+                                "border-destructive ring-1 ring-destructive/30",
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5">
+                          <div className="flex items-center gap-2">
+                            <ArrowRightIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                             <Combobox
-                              options={sourceOptions}
-                              value={l.sourceBinId}
+                              options={destOptions}
+                              value={l.destBinId}
                               onChange={(v) =>
-                                updateLine(l.itemId, { sourceBinId: v ?? "" })
+                                updateLine(l.itemId, { destBinId: v ?? "" })
                               }
                               placeholder={
-                                sourceOptions.length === 0
-                                  ? "Tidak ada stok"
-                                  : "Scan / pilih rak asal"
+                                binsLoading
+                                  ? "Memuat…"
+                                  : "Scan / pilih rak tujuan"
                               }
                               searchPlaceholder="Scan / cari rak…"
-                              emptyText="Tidak ada rak dengan stok"
-                              disabled={sourceOptions.length === 0}
+                              disabled={binsLoading}
                               className={cn(
                                 "h-9 min-w-[160px]",
                                 sameBin &&
                                   "border-destructive ring-1 ring-destructive/30",
                               )}
                             />
-                          </td>
-                          <td className="px-3 py-2.5">
-                            <div className="flex items-center gap-2">
-                              <ArrowRightIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                              <Combobox
-                                options={destOptions}
-                                value={l.destBinId}
-                                onChange={(v) =>
-                                  updateLine(l.itemId, { destBinId: v ?? "" })
-                                }
-                                placeholder={
-                                  binsLoading
-                                    ? "Memuat…"
-                                    : "Scan / pilih rak tujuan"
-                                }
-                                searchPlaceholder="Scan / cari rak…"
-                                disabled={binsLoading}
-                                className={cn(
-                                  "h-9 min-w-[160px]",
-                                  sameBin &&
-                                    "border-destructive ring-1 ring-destructive/30",
-                                )}
-                              />
-                            </div>
-                          </td>
-                          <td className="px-3 py-2.5 text-right">
-                            <Input
-                              type="number"
-                              min={1}
-                              max={sourceBin?.onHand}
-                              value={l.qty}
-                              onChange={(e) =>
-                                updateLine(l.itemId, { qty: e.target.value })
-                              }
-                              placeholder="0"
-                              className={cn(
-                                "h-9 w-24 text-right",
-                                (qtyInvalid || qtyOverStock) &&
-                                  "border-destructive ring-1 ring-destructive/30",
-                              )}
-                            />
-                            {sourceBin && (
-                              <p className="mt-0.5 text-[10px] text-muted-foreground">
-                                dari {sourceBin.onHand}
-                              </p>
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 text-right">
+                          <Input
+                            type="number"
+                            min={1}
+                            max={sourceBin?.onHand}
+                            value={l.qty}
+                            onChange={(e) =>
+                              updateLine(l.itemId, { qty: e.target.value })
+                            }
+                            placeholder="0"
+                            className={cn(
+                              "h-9 w-24 text-right",
+                              (qtyInvalid || qtyOverStock) &&
+                                "border-destructive ring-1 ring-destructive/30",
                             )}
-                          </td>
-                          <td className="px-3 py-2.5">
-                            <Input
-                              value={l.notes}
-                              onChange={(e) =>
-                                updateLine(l.itemId, { notes: e.target.value })
-                              }
-                              placeholder="Opsional"
-                              className="h-9 min-w-[140px]"
-                            />
-                          </td>
-                          <td className="px-3 py-2.5 text-right">
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              onClick={() => removeLine(l.itemId)}
-                              aria-label="Hapus"
-                              className="text-destructive"
-                            >
-                              <Trash2Icon className="h-4 w-4" />
-                            </Button>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
+                          />
+                          {sourceBin && (
+                            <p className="mt-0.5 text-[10px] text-muted-foreground">
+                              dari {sourceBin.onHand}
+                            </p>
+                          )}
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5">
+                          <Input
+                            value={l.notes}
+                            onChange={(e) =>
+                              updateLine(l.itemId, { notes: e.target.value })
+                            }
+                            placeholder="Opsional"
+                            className="h-9 min-w-[140px]"
+                          />
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 text-right">
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => removeLine(l.itemId)}
+                            aria-label="Hapus"
+                            className="text-destructive"
+                          >
+                            <Trash2Icon className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
 
             {lines.length > 0 && (
               <p className="text-xs text-muted-foreground">

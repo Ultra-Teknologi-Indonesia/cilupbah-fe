@@ -9,19 +9,21 @@ import { CheckIcon, PackageSearchIcon, PencilIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { useBinTransferDetail } from "@/hooks/transaksi-stok/use-bin-transfer";
 import { formatDateTimeFull } from "@/lib/format";
 
 const LIST_HREF = "/dashboard/transaksi-stok?tab=transfer";
 
-function InfoRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: React.ReactNode;
-}) {
+function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-start gap-3">
       <span className="w-40 shrink-0 text-xs text-muted-foreground">
@@ -67,9 +69,7 @@ function TimelineStep({
           {label}
           {timestamp ? ` — ${formatDateTimeFull(timestamp)}` : ""}
         </p>
-        {actor && (
-          <p className="text-xs text-muted-foreground">{actor}</p>
-        )}
+        {actor && <p className="text-xs text-muted-foreground">{actor}</p>}
       </div>
     </div>
   );
@@ -174,10 +174,7 @@ export function PindahBinDetailView({ id }: { id: string }) {
             }
           />
           <InfoRow label="No. Transfer Internal" value={trf.transfer_number} />
-          <InfoRow
-            label="Lokasi"
-            value={trf.location?.location_name ?? "—"}
-          />
+          <InfoRow label="Lokasi" value={trf.location?.location_name ?? "—"} />
           <InfoRow label="Dibuat Oleh" value={trf.created_by} />
           <div className="sm:col-span-2">
             <InfoRow label="Keterangan" value={trf.notes ?? "—"} />
@@ -192,94 +189,98 @@ export function PindahBinDetailView({ id }: { id: string }) {
       >
         <div className="flex flex-col gap-4 px-5 py-5">
           <h3 className="font-semibold">Produk ({trf.items?.length ?? 0})</h3>
-          <div className="overflow-x-auto rounded-lg border border-border">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
-                <tr>
-                  <th className="px-3 py-2.5 text-left font-medium">Produk</th>
-                  <th className="px-3 py-2.5 text-left font-medium">
-                    Rak Asal
-                  </th>
-                  <th className="px-3 py-2.5 text-left font-medium">
-                    Rak Tujuan
-                  </th>
-                  <th className="px-3 py-2.5 text-right font-medium">Qty</th>
-                  <th className="px-3 py-2.5 text-left font-medium">Unit</th>
-                  <th className="px-3 py-2.5 text-left font-medium">
-                    Keterangan
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {(trf.items ?? []).length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-3 py-8 text-center text-sm text-muted-foreground"
-                    >
-                      Tidak ada produk.
-                    </td>
-                  </tr>
-                ) : (
-                  (trf.items ?? []).map((it) => {
-                    const p = it.product;
-                    const image =
-                      (p as { thumbnail_url?: string } | undefined)
-                        ?.thumbnail_url ?? null;
-                    return (
-                      <tr key={it.id} className="bg-background/50">
-                        <td className="px-3 py-2.5">
-                          <div className="flex items-center gap-3">
-                            {image ? (
-                              <Image
-                                src={image}
-                                alt={p?.product?.name ?? p?.sku ?? "Produk"}
-                                width={40}
-                                height={40}
-                                className="h-10 w-10 shrink-0 rounded-md border border-border object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-muted">
-                                <PackageSearchIcon className="h-5 w-5 text-muted-foreground/40" />
-                              </div>
-                            )}
-                            <div className="min-w-0">
-                              <p className="truncate text-sm font-medium">
-                                {p?.product?.name ?? "—"}
-                              </p>
-                              {p?.variant_label && (
-                                <p className="truncate text-xs text-muted-foreground">
-                                  {p.variant_label}
-                                </p>
-                              )}
-                              <p className="truncate font-mono text-[11px] text-muted-foreground">
-                                {p?.sku ?? "—"}
-                              </p>
+          <Table containerClassName="rounded-lg border border-border">
+            <TableHeader className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+              <TableRow>
+                <TableHead className="px-3 py-2.5 text-muted-foreground">
+                  Produk
+                </TableHead>
+                <TableHead className="px-3 py-2.5 text-muted-foreground">
+                  Rak Asal
+                </TableHead>
+                <TableHead className="px-3 py-2.5 text-muted-foreground">
+                  Rak Tujuan
+                </TableHead>
+                <TableHead className="px-3 py-2.5 text-right text-muted-foreground">
+                  Qty
+                </TableHead>
+                <TableHead className="px-3 py-2.5 text-muted-foreground">
+                  Unit
+                </TableHead>
+                <TableHead className="px-3 py-2.5 text-muted-foreground">
+                  Keterangan
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-border">
+              {(trf.items ?? []).length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="px-3 py-8 text-center text-sm text-muted-foreground"
+                  >
+                    Tidak ada produk.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                (trf.items ?? []).map((it) => {
+                  const p = it.product;
+                  const image =
+                    (p as { thumbnail_url?: string } | undefined)
+                      ?.thumbnail_url ?? null;
+                  return (
+                    <TableRow key={it.id} className="bg-background/50">
+                      <TableCell className="px-3 py-2.5">
+                        <div className="flex items-center gap-3">
+                          {image ? (
+                            <Image
+                              src={image}
+                              alt={p?.product?.name ?? p?.sku ?? "Produk"}
+                              width={40}
+                              height={40}
+                              className="h-10 w-10 shrink-0 rounded-md border border-border object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-muted">
+                              <PackageSearchIcon className="h-5 w-5 text-muted-foreground/40" />
                             </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium">
+                              {p?.product?.name ?? "—"}
+                            </p>
+                            {p?.variant_label && (
+                              <p className="truncate text-xs text-muted-foreground">
+                                {p.variant_label}
+                              </p>
+                            )}
+                            <p className="truncate font-mono text-[11px] text-muted-foreground">
+                              {p?.sku ?? "—"}
+                            </p>
                           </div>
-                        </td>
-                        <td className="px-3 py-2.5 font-mono text-xs text-foreground">
-                          {it.source_bin?.bin_final_code ?? "—"}
-                        </td>
-                        <td className="px-3 py-2.5 font-mono text-xs text-foreground">
-                          {it.destination_bin?.bin_final_code ?? "—"}
-                        </td>
-                        <td className="px-3 py-2.5 text-right font-mono tabular-nums">
-                          {it.qty}
-                        </td>
-                        <td className="px-3 py-2.5 text-muted-foreground">
-                          Buah
-                        </td>
-                        <td className="px-3 py-2.5 text-muted-foreground">
-                          {it.notes ?? "—"}
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 font-mono text-xs text-foreground">
+                        {it.source_bin?.bin_final_code ?? "—"}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 font-mono text-xs text-foreground">
+                        {it.destination_bin?.bin_final_code ?? "—"}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-right font-mono tabular-nums">
+                        {it.qty}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-muted-foreground">
+                        Buah
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-muted-foreground">
+                        {it.notes ?? "—"}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
         </div>
       </LiquidGlass>
     </div>

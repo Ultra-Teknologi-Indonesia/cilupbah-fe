@@ -6,6 +6,7 @@ import { ImageIcon, Loader2Icon, SearchIcon, SearchXIcon } from "lucide-react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { SimplePagination } from "@/components/ui/simple-pagination";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { InventoryStockService } from "@/services/persediaan/inventory.service";
 
 export interface StockedPickedProduct {
@@ -44,6 +46,17 @@ interface StockedProductPickerDialogProps {
   locationId: string;
   excludeIds?: string[];
   initialSearch?: string;
+}
+
+interface RawRow {
+  item_id: string;
+  sku: string;
+  product_id: string | null;
+  product_name: string | null;
+  variant_label: string;
+  variation_values: { label: string; value: string }[];
+  thumbnail_url: string | null;
+  total_on_hand: number;
 }
 
 export function StockedProductPickerDialog({
@@ -78,6 +91,16 @@ export function StockedProductPickerDialog({
     setPage(1);
   }, [search, locationId]);
 
+  const handleOpenChange = (next: boolean) => {
+    if (!next) {
+      setSearchInput("");
+      setSearch("");
+      setSelected(new Map());
+      setPage(1);
+    }
+    onOpenChange(next);
+  };
+
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ["stocked-items", locationId, search, page, perPage],
     enabled: open && !!locationId,
@@ -92,169 +115,232 @@ export function StockedProductPickerDialog({
     staleTime: 30 * 1000,
   });
 
-  const rows = (data?.data ?? []).filter((r) => !excludeIds.includes(r.item_id));
+  const rows = ((data?.data ?? []) as RawRow[]).filter(
+    (r) => !excludeIds.includes(r.item_id),
+  );
+
+  const groups = React.useMemo(() => {
+    const map = new Map<
+      string,
+      {
+        productId: string;
+        productName: string;
+        thumbnail: string | null;
+        variants: RawRow[];
+      }
+    >();
+    for (const r of rows) {
+      const key = r.product_id ?? r.item_id;
+      const existing = map.get(key);
+      if (existing) {
+        existing.variants.push(r);
+        if (!existing.thumbnail && r.thumbnail_url) {
+          existing.thumbnail = r.thumbnail_url;
+        }
+      } else {
+        map.set(key, {
+          productId: key,
+          productName: r.product_name ?? r.sku,
+          thumbnail: r.thumbnail_url,
+          variants: [r],
+        });
+      }
+    }
+    return Array.from(map.values());
+  }, [rows]);
+
   const total = data?.meta?.total ?? 0;
   const lastPage = Math.max(1, Math.ceil(total / perPage));
 
-  const handleOpenChange = (next: boolean) => {
-    if (!next) {
-      setSearchInput("");
-      setSearch("");
-      setSelected(new Map());
-      setPage(1);
-    }
-    onOpenChange(next);
-  };
-
-  const toggle = (item: (typeof rows)[number], checked: boolean) => {
+  const toggleSelect = (
+    group: (typeof groups)[number],
+    variant: RawRow,
+  ) => {
     setSelected((prev) => {
       const next = new Map(prev);
-      if (checked) {
-        next.set(item.item_id, {
-          itemId: item.item_id,
-          sku: item.sku,
-          name: item.product_name ?? item.sku,
-          variantLabel: item.variant_label ?? "",
-          thumbnail: item.thumbnail_url,
-          totalOnHand: item.total_on_hand,
-        });
+      if (next.has(variant.item_id)) {
+        next.delete(variant.item_id);
       } else {
-        next.delete(item.item_id);
+        next.set(variant.item_id, {
+          itemId: variant.item_id,
+          sku: variant.sku,
+          name: group.productName,
+          variantLabel: variant.variant_label,
+          thumbnail: group.thumbnail ?? variant.thumbnail_url,
+          totalOnHand: variant.total_on_hand,
+        });
       }
       return next;
     });
   };
 
-  const handleAdd = () => {
+  const handleConfirm = () => {
     onPick(Array.from(selected.values()));
     handleOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-4xl">
-        <DialogHeader>
+      <DialogContent className="flex h-[85vh] max-h-[90vh] w-[95vw] flex-col gap-0 p-0 sm:max-w-5xl">
+        <DialogHeader className="shrink-0 border-b px-6 py-4">
           <DialogTitle>Pilih Produk</DialogTitle>
           <DialogDescription>
             Hanya menampilkan produk yang punya stok di gudang ini.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="relative">
-          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Cari nama produk / SKU..."
-            className="pl-9"
-          />
+        <div className="shrink-0 px-6 py-4">
+          <div className="relative">
+            <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              autoFocus
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Cari nama produk / SKU…"
+              className="h-10 rounded-full border-border bg-background pl-9"
+            />
+          </div>
         </div>
 
-        <div className="max-h-[420px] overflow-auto rounded-md border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-10" />
-                <TableHead>Produk</TableHead>
-                <TableHead>SKU</TableHead>
-                <TableHead>Varian</TableHead>
-                <TableHead className="text-right">Stok</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="py-10 text-center">
-                    <Loader2Icon className="mx-auto h-5 w-5 animate-spin text-muted-foreground" />
-                  </TableCell>
-                </TableRow>
-              ) : rows.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="py-10 text-center">
-                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                      <SearchXIcon className="h-6 w-6 opacity-50" />
-                      <p className="text-sm">
-                        Tidak ada produk berstok di gudang ini
-                        {search ? ` untuk pencarian "${search}"` : ""}.
-                      </p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                rows.map((r) => {
-                  const isSelected = selected.has(r.item_id);
-                  return (
-                    <TableRow
-                      key={r.item_id}
-                      className={cn(
-                        "cursor-pointer",
-                        isSelected && "bg-primary/5",
-                      )}
-                      onClick={() => toggle(r, !isSelected)}
-                    >
-                      <TableCell className="w-10">
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={(v) => toggle(r, !!v)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          {r.thumbnail_url ? (
-                            <Image
-                              src={r.thumbnail_url}
-                              alt={r.product_name ?? r.sku}
-                              width={36}
-                              height={36}
-                              className="h-9 w-9 shrink-0 rounded-md border border-border object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-muted">
-                              <ImageIcon className="h-4 w-4 text-muted-foreground/40" />
+        <div className="flex min-h-0 flex-1 flex-col border-t">
+          {isLoading ? (
+            <div className="flex flex-1 items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
+              <Loader2Icon className="size-4 animate-spin" />
+              Memuat produk…
+            </div>
+          ) : groups.length === 0 ? (
+            <div className="flex flex-1 flex-col items-center justify-center gap-2 py-16 text-center">
+              <SearchXIcon className="size-8 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">
+                Tidak ada produk berstok di gudang ini
+                {search ? ` untuk pencarian "${search}"` : ""}.
+              </p>
+            </div>
+          ) : (
+            <ScrollArea className="min-h-0 flex-1">
+              <Table className="min-w-max">
+                <TableHeader className="sticky top-0 z-10 bg-background">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="h-9 w-10" />
+                    <TableHead className="h-9">Varian</TableHead>
+                    <TableHead className="h-9">SKU</TableHead>
+                    <TableHead className="h-9">Atribut</TableHead>
+                    <TableHead className="h-9 text-right">Stok</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {groups.map((g) => (
+                    <React.Fragment key={g.productId}>
+                      <TableRow className="bg-muted/40 hover:bg-muted/40">
+                        <TableCell colSpan={5} className="py-2">
+                          <div className="flex items-center gap-3">
+                            <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
+                              {g.thumbnail ? (
+                                <Image
+                                  src={g.thumbnail}
+                                  alt={g.productName}
+                                  width={40}
+                                  height={40}
+                                  className="size-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = "none";
+                                    e.currentTarget.nextElementSibling?.classList.remove(
+                                      "hidden",
+                                    );
+                                  }}
+                                />
+                              ) : null}
+                              <ImageIcon
+                                className={cn(
+                                  "size-4 text-muted-foreground",
+                                  g.thumbnail && "hidden",
+                                )}
+                              />
                             </div>
-                          )}
-                          <span className="text-sm font-medium">
-                            {r.product_name ?? "—"}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-mono text-xs text-muted-foreground">
-                        {r.sku}
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {r.variant_label || "—"}
-                      </TableCell>
-                      <TableCell className="text-right font-mono tabular-nums">
-                        {r.total_on_hand}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
+                            <div className="min-w-0 flex-1">
+                              <span className="truncate font-medium">
+                                {g.productName}
+                              </span>
+                            </div>
+                            <span className="shrink-0 text-xs text-muted-foreground">
+                              {g.variants.length} varian
+                            </span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+
+                      {g.variants.map((v) => {
+                        const isSelected = selected.has(v.item_id);
+                        return (
+                          <TableRow
+                            key={v.item_id}
+                            data-state={isSelected ? "selected" : undefined}
+                            onClick={() => toggleSelect(g, v)}
+                            className="cursor-pointer"
+                          >
+                            <TableCell className="py-2">
+                              <Checkbox
+                                checked={isSelected}
+                                aria-hidden
+                                tabIndex={-1}
+                                className="pointer-events-none"
+                              />
+                            </TableCell>
+                            <TableCell className="py-2">
+                              <span className="text-sm font-medium">
+                                {v.variant_label || "Default"}
+                              </span>
+                            </TableCell>
+                            <TableCell className="py-2 font-mono text-xs text-muted-foreground">
+                              {v.sku || "—"}
+                            </TableCell>
+                            <TableCell className="py-2">
+                              <div className="flex flex-wrap gap-1">
+                                {v.variation_values.map((vv) => (
+                                  <Badge
+                                    key={`${vv.label}-${vv.value}`}
+                                    variant="outline"
+                                    className="px-1.5 py-0 text-[10px] font-normal"
+                                  >
+                                    {vv.label}: {vv.value}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </TableCell>
+                            <TableCell className="py-2 text-right font-mono tabular-nums text-sm">
+                              {v.total_on_hand}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </React.Fragment>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          )}
         </div>
 
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>
+        <DialogFooter className="shrink-0 flex-col gap-3 border-t px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-xs text-muted-foreground">
             {selected.size} dipilih
             {isFetching && !isLoading ? " · memuat…" : ""}
-          </span>
-          <SimplePagination
-            page={page}
-            lastPage={lastPage}
-            onPageChange={setPage}
-          />
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={() => handleOpenChange(false)}>
-            Batal
-          </Button>
-          <Button onClick={handleAdd} disabled={selected.size === 0}>
-            Tambah ({selected.size})
-          </Button>
+          </div>
+          <div className="flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center">
+            <SimplePagination
+              page={page}
+              lastPage={lastPage}
+              onPageChange={setPage}
+            />
+            <div className="flex items-center gap-2 sm:ml-4">
+              <Button variant="outline" onClick={() => handleOpenChange(false)}>
+                Batal
+              </Button>
+              <Button onClick={handleConfirm} disabled={selected.size === 0}>
+                Tambah ({selected.size})
+              </Button>
+            </div>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
