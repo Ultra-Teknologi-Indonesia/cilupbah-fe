@@ -71,7 +71,14 @@ export function BuatPenyesuaianView() {
   const createMut = useCreateStockAdjustment()
 
   const locationOptions = useMemo(
-    () => (locData?.items ?? []).map((l) => ({ value: l.id, label: l.locationName })),
+    () =>
+      (locData?.items ?? [])
+        // Skip virtual/transit locations — koreksi stok fisik cuma di gudang nyata.
+        .filter((l) => {
+          const name = (l.locationName ?? "").toLowerCase()
+          return !name.includes("transit") && !name.includes("virtual")
+        })
+        .map((l) => ({ value: l.id, label: l.locationName })),
     [locData]
   )
 
