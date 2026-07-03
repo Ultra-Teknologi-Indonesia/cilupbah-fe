@@ -20,27 +20,6 @@ export function KategoriView() {
 
   return (
     <>
-      <div className="flex items-center justify-end gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 gap-1.5"
-          onClick={() => setImportOpen(true)}
-        >
-          <DownloadIcon className="size-4" />
-          Import dari Sistem
-        </Button>
-        <Button
-          variant="primary"
-          size="sm"
-          className="h-8 gap-1.5"
-          onClick={() => setTambahOpen(true)}
-        >
-          <PlusIcon className="size-4" />
-          Tambah Baru
-        </Button>
-      </div>
-
       <Tabs defaultValue="daftar">
         <LiquidGlass
           radius={24}
@@ -55,17 +34,37 @@ export function KategoriView() {
               </TabsList>
             </div>
 
-            <div className="relative w-full pb-3 sm:w-64 sm:pb-0">
-              <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Cari kategori…"
-                className="h-9 border-border bg-background pl-9 pr-8"
-              />
-              {search.length > 0 && (
-                <Button variant="ghost" size="icon" type="button" onClick={() => setSearch("")} aria-label="Bersihkan pencarian" className="absolute right-2.5 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"><XIcon className="size-3.5" /></Button>
-              )}
+            <div className="flex flex-wrap items-center gap-2 pb-3 sm:pb-0">
+              <div className="relative w-full sm:w-64">
+                <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Cari kategori…"
+                  className="h-9 border-border bg-background pl-9 pr-8"
+                />
+                {search.length > 0 && (
+                  <Button variant="ghost" size="icon" type="button" onClick={() => setSearch("")} aria-label="Bersihkan pencarian" className="absolute right-2.5 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"><XIcon className="size-3.5" /></Button>
+                )}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 gap-1.5"
+                onClick={() => setImportOpen(true)}
+              >
+                <DownloadIcon className="size-4" />
+                Import dari Sistem
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                className="h-9 gap-1.5"
+                onClick={() => setTambahOpen(true)}
+              >
+                <PlusIcon className="size-4" />
+                Tambah Baru
+              </Button>
             </div>
           </div>
 

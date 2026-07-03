@@ -1,15 +1,11 @@
-import Link from "next/link";
-import { PlusIcon } from "lucide-react";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
-import { Button } from "@/components/ui/button";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { LocationListView } from "@/components/dashboard/manajemen-rak/lokasi/location-list-view";
 import { getServerQueryClient } from "@/lib/api-server";
 import { LocationService } from "@/services/manajemen-rak/location.service";
 import type { LocationListParams } from "@/types/manajemen-rak/location";
 
-// ["pengaturan","lokasi","list", params] dari modul "use client".
 const INITIAL_PARAMS: LocationListParams = {
   search: "",
   page: 1,
@@ -35,14 +31,6 @@ export default async function LokasiPage() {
           { label: "Manajemen Rak & Lokasi" },
           { label: "Lokasi Gudang" },
         ]}
-        actions={
-          <Button variant="primary" asChild>
-            <Link href="/dashboard/lokasi/buat">
-              <PlusIcon />
-              Buat Lokasi
-            </Link>
-          </Button>
-        }
       />
 
       <HydrationBoundary state={dehydrate(qc)}>

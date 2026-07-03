@@ -285,20 +285,26 @@ export function PelangganTab() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
-        <Button variant="primary" asChild>
-          <Link href="/dashboard/kontak-pelanggan/tambah">
-            <PlusIcon className="h-4 w-4" />
-            Buat Pelanggan
-          </Link>
-        </Button>
-      </div>
-
       <LiquidGlass
         radius={20}
         intensity="subtle"
         className="bg-white/30 dark:bg-white/[0.04]"
       >
+        <div className="flex flex-wrap items-center justify-between gap-2 px-5 pt-4">
+          <div className="flex items-center gap-2">
+            {filterTabs}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExport}
+              disabled={items.length === 0}
+            >
+              <DownloadIcon className="mr-1.5 h-4 w-4" />
+              Export CSV
+            </Button>
+          </div>
+        </div>
+
         <FilterToolbar
           search={search}
           onSearchChange={setSearch}
@@ -312,19 +318,13 @@ export function PelangganTab() {
           hasFilter={hasActiveFilter}
           activeCount={activeCount}
           gridCols={2}
-          leading={
-            <div className="flex items-center gap-2">
-              {filterTabs}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExport}
-                disabled={items.length === 0}
-              >
-                <DownloadIcon className="mr-1.5 h-4 w-4" />
-                Export CSV
-              </Button>
-            </div>
+          trailing={
+            <Button variant="primary" asChild>
+              <Link href="/dashboard/kontak-pelanggan/tambah">
+                <PlusIcon className="h-4 w-4" />
+                Buat Pelanggan
+              </Link>
+            </Button>
           }
         >
           <Combobox

@@ -260,30 +260,32 @@ export function KontakPemasokView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={() => setImportOpen(true)}>
-          <UploadIcon className="h-4 w-4" />
-          Import
-        </Button>
-        <Button variant="primary" asChild>
-          <Link href="/dashboard/kontak-pemasok/tambah">
-            <PlusIcon className="h-4 w-4" />
-            Buat Pemasok
-          </Link>
-        </Button>
-      </div>
-
       <LiquidGlass
         radius={20}
         intensity="subtle"
         className="bg-white/30 dark:bg-white/[0.04]"
       >
+        <div className="flex flex-wrap items-center justify-between gap-2 px-5 pt-4">
+          {filterTabs}
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => setImportOpen(true)}>
+              <UploadIcon className="h-4 w-4" />
+              Import
+            </Button>
+            <Button variant="primary" asChild>
+              <Link href="/dashboard/kontak-pemasok/tambah">
+                <PlusIcon className="h-4 w-4" />
+                Buat Pemasok
+              </Link>
+            </Button>
+          </div>
+        </div>
+
         <FilterToolbar
           search={search}
           onSearchChange={setSearch}
           searchPlaceholder="Cari nama, perusahaan, email..."
           align="end"
-          leading={filterTabs}
           onReset={
             hasActiveFilter
               ? () => handleFilterChange(EMPTY_FILTERS)
