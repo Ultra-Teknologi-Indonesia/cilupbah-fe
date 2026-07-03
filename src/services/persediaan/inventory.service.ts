@@ -68,7 +68,8 @@ export const InventoryStockService = {
       thumbnail_url: string | null
       on_hand: number
       avg_cost: number
-      primary_bin: { id: string; code: string } | null
+      primary_bin: { id: string; code: string; on_hand: number; avg_cost: number } | null
+      available_bins: { id: string; code: string; on_hand: number; avg_cost: number }[]
     }>>(`/inventory/items/by-sku/${encodeURIComponent(sku)}${qs}`)
   },
 }

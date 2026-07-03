@@ -18,7 +18,6 @@ import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { PageTitle } from "@/components/dashboard/page-title"
 import { UserSelect } from "@/components/dashboard/shared/user-select"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
-import { useLocationBins } from "@/hooks/transaksi-stok/use-bin-transfer"
 import { useCreateStockAdjustment } from "@/hooks/transaksi-stok/use-stock-adjustments"
 import { ProductPickerDialog, type PickedProduct } from "@/components/dashboard/transaksi-pembelian/product-picker-dialog"
 import { InventoryStockService } from "@/services/persediaan/inventory.service"
@@ -26,6 +25,13 @@ import { cn } from "@/lib/utils"
 import { playScanFeedback } from "@/lib/scan-feedback"
 
 const LIST_HREF = "/dashboard/transaksi-stok?tab=penyesuaian"
+
+interface LineBin {
+  id: string
+  code: string
+  onHand: number
+  avgCost: number
+}
 
 interface LineDraft {
   itemId: string
@@ -35,7 +41,12 @@ interface LineDraft {
   thumbnail: string | null
   binId: string
   binCode: string
-  actualQty: string
+  binOnHand: number
+  binAvgCost: number
+  delta: string
+  unitCost: string
+  notes: string
+  availableBins: LineBin[]
 }
 
 function todayStr(): string {
@@ -57,16 +68,11 @@ export function BuatPenyesuaianView() {
   const scanRef = useRef<HTMLInputElement>(null)
 
   const { data: locData } = useLocations({ perPage: 100 })
-  const { data: binData, isLoading: binsLoading } = useLocationBins(locationId)
   const createMut = useCreateStockAdjustment()
 
   const locationOptions = useMemo(
     () => (locData?.items ?? []).map((l) => ({ value: l.id, label: l.locationName })),
     [locData]
-  )
-  const binOptions = useMemo(
-    () => (binData?.items ?? []).map((b) => ({ value: b.id, label: b.binFinalCode })),
-    [binData]
   )
 
   // Fokuskan input scan saat lokasi sudah dipilih — UX ala gudang.
@@ -75,7 +81,15 @@ export function BuatPenyesuaianView() {
   }, [locationId])
 
   const addLines = (
-    products: (PickedProduct & { binId?: string; binCode?: string; variantLabel?: string; thumbnail?: string | null })[]
+    products: (PickedProduct & {
+      binId?: string
+      binCode?: string
+      binOnHand?: number
+      binAvgCost?: number
+      variantLabel?: string
+      thumbnail?: string | null
+      availableBins?: LineBin[]
+    })[]
   ) => {
     setLines((prev) => {
       const existing = new Set(prev.map((l) => l.itemId))
@@ -89,14 +103,17 @@ export function BuatPenyesuaianView() {
           thumbnail: p.thumbnail ?? null,
           binId: p.binId ?? "",
           binCode: p.binCode ?? "",
-          actualQty: "",
+          binOnHand: p.binOnHand ?? 0,
+          binAvgCost: p.binAvgCost ?? 0,
+          delta: "",
+          unitCost: p.binAvgCost != null ? String(p.binAvgCost) : "",
+          notes: "",
+          availableBins: p.availableBins ?? [],
         }))
       return [...prev, ...fresh]
     })
     setPickerOpen(false)
     setPickerSearch(undefined)
-    // Kembalikan fokus ke input scan setelah picker ditutup (naikkan ke 250ms
-    // agar animasi close Radix Dialog selesai sebelum focus).
     setTimeout(() => scanRef.current?.focus(), 250)
   }
 
@@ -131,6 +148,9 @@ export function BuatPenyesuaianView() {
         thumbnail: variant.thumbnail_url,
         binId: variant.primary_bin?.id ?? "",
         binCode: variant.primary_bin?.code ?? "",
+        binOnHand: variant.primary_bin?.on_hand ?? 0,
+        binAvgCost: variant.primary_bin?.avg_cost ?? variant.avg_cost ?? 0,
+        availableBins: variant.available_bins ?? [],
         sellPrice: null,
       }])
       flash("ok")
@@ -150,7 +170,10 @@ export function BuatPenyesuaianView() {
     }
   }
 
-  const validLines = lines.filter((l) => l.actualQty !== "" && Number(l.actualQty) >= 0)
+  const validLines = lines.filter((l) => {
+    const d = Number(l.delta)
+    return l.delta !== "" && !Number.isNaN(d) && l.binOnHand + d >= 0
+  })
   const canSubmit = !!locationId && !!transactionDate && !!createdBy.trim() && validLines.length > 0
 
   const handleSubmit = () => {
@@ -164,7 +187,8 @@ export function BuatPenyesuaianView() {
         items: validLines.map((l) => ({
           item_id: l.itemId,
           bin_id: l.binId || undefined,
-          actual_qty: Number(l.actualQty),
+          actual_qty: l.binOnHand + Number(l.delta),
+          notes: l.notes.trim() || undefined,
         })),
       },
       { onSuccess: () => router.push(LIST_HREF) }
@@ -240,19 +264,9 @@ export function BuatPenyesuaianView() {
       {/* Item + scan bar */}
       <LiquidGlass radius={16} intensity="subtle" className="bg-white/40 dark:bg-white/[0.06]">
         <div className="flex flex-col gap-4 px-5 py-5">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium">
-              Item Koreksi Stok <span className="text-red-500">*</span>
-            </Label>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPickerOpen(true)}
-              className="gap-1.5"
-            >
-              <PlusIcon className="h-4 w-4" /> Tambah Item
-            </Button>
-          </div>
+          <Label className="text-sm font-medium">
+            Item Koreksi Stok <span className="text-red-500">*</span>
+          </Label>
 
           {/* Scan SKU */}
           <div className="flex flex-col gap-1.5">
@@ -306,66 +320,164 @@ export function BuatPenyesuaianView() {
               <p className="text-sm">Belum ada item. Scan SKU atau klik Tambah Item.</p>
             </div>
           ) : (
-            <div className="flex flex-col gap-2">
-              {lines.map((l) => (
-                <div
-                  key={l.itemId}
-                  className="grid grid-cols-[1fr_200px_110px_auto] items-center gap-3 rounded-lg border border-border bg-muted/20 px-3 py-2.5"
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    {l.thumbnail ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={l.thumbnail}
-                        alt={l.name}
-                        className="h-11 w-11 shrink-0 rounded-md border border-border object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-muted">
-                        <PackageSearchIcon className="h-5 w-5 text-muted-foreground/40" />
-                      </div>
-                    )}
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{l.name}</p>
-                      {l.variantLabel && (
-                        <p className="truncate text-xs text-muted-foreground">{l.variantLabel}</p>
-                      )}
-                      <p className="truncate font-mono text-[11px] text-muted-foreground">{l.sku}</p>
-                    </div>
-                  </div>
-                  <Combobox
-                    options={binOptions}
-                    value={l.binId}
-                    onChange={(v) => updateLine(l.itemId, { binId: v ?? "", binCode: binOptions.find((b) => b.value === v)?.label ?? "" })}
-                    placeholder={binsLoading ? "Memuat rak…" : "Scan / pilih rak"}
-                    searchPlaceholder="Scan / cari rak…"
-                    disabled={!locationId || binsLoading}
-                    className="h-9"
-                  />
-                  <Input
-                    type="number"
-                    min={0}
-                    value={l.actualQty}
-                    onChange={(e) => updateLine(l.itemId, { actualQty: e.target.value })}
-                    placeholder="Qty riil"
-                    className="h-9"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => removeLine(l.itemId)}
-                    aria-label="Hapus"
-                    className="text-destructive"
-                  >
-                    <Trash2Icon className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-              <p className="text-xs text-muted-foreground">
-                Qty riil = jumlah fisik hasil hitung. Selisih terhadap stok sistem dihitung otomatis saat disimpan.
-              </p>
+            <div className="overflow-x-auto rounded-lg border border-border">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+                  <tr>
+                    <th className="px-3 py-2.5 text-left font-medium">Produk</th>
+                    <th className="px-3 py-2.5 text-left font-medium">Kode Rak</th>
+                    <th className="px-3 py-2.5 text-right font-medium">+/-</th>
+                    <th className="px-3 py-2.5 text-right font-medium">On Hand</th>
+                    <th className="px-3 py-2.5 text-right font-medium">Qty Akhir</th>
+                    <th className="px-3 py-2.5 text-right font-medium">Harga Pokok</th>
+                    <th className="px-3 py-2.5 text-left font-medium">Keterangan</th>
+                    <th className="px-3 py-2.5" />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {lines.map((l) => {
+                    const deltaNum = l.delta === "" || Number.isNaN(Number(l.delta)) ? 0 : Number(l.delta)
+                    const qtyAkhir = l.binOnHand + deltaNum
+                    const invalid = qtyAkhir < 0
+                    const binOptsForLine = l.availableBins.map((b) => ({
+                      value: b.id,
+                      label: `${b.code} · ${b.on_hand} stok`,
+                    }))
+                    return (
+                      <tr key={l.itemId} className="bg-background/50">
+                        {/* Produk dengan max-width */}
+                        <td className="px-3 py-2.5">
+                          <div className="flex max-w-[260px] items-center gap-3">
+                            {l.thumbnail ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={l.thumbnail}
+                                alt={l.name}
+                                className="h-11 w-11 shrink-0 rounded-md border border-border object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-muted">
+                                <PackageSearchIcon className="h-5 w-5 text-muted-foreground/40" />
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium">{l.name}</p>
+                              {l.variantLabel && (
+                                <p className="truncate text-xs text-muted-foreground">
+                                  {l.variantLabel}
+                                </p>
+                              )}
+                              <p className="truncate font-mono text-[11px] text-muted-foreground">
+                                {l.sku}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        {/* Kode Rak — Combobox terfilter rak yang ada stok */}
+                        <td className="px-3 py-2.5">
+                          <Combobox
+                            options={binOptsForLine}
+                            value={l.binId}
+                            onChange={(v) => {
+                              const picked = l.availableBins.find((b) => b.id === v)
+                              updateLine(l.itemId, {
+                                binId: v ?? "",
+                                binCode: picked?.code ?? "",
+                                binOnHand: picked?.onHand ?? 0,
+                                binAvgCost: picked?.avgCost ?? 0,
+                                unitCost:
+                                  picked?.avgCost != null ? String(picked.avgCost) : l.unitCost,
+                              })
+                            }}
+                            placeholder="Scan / pilih rak"
+                            searchPlaceholder="Scan / cari rak…"
+                            emptyText="Tidak ada rak dengan stok"
+                            className="h-9 min-w-[160px]"
+                          />
+                        </td>
+                        {/* +/- input */}
+                        <td className="px-3 py-2.5 text-right">
+                          <Input
+                            type="number"
+                            value={l.delta}
+                            onChange={(e) => updateLine(l.itemId, { delta: e.target.value })}
+                            placeholder="0"
+                            className={cn(
+                              "h-9 w-20 text-right",
+                              invalid && "border-destructive ring-1 ring-destructive/30"
+                            )}
+                          />
+                        </td>
+                        {/* On Hand readonly */}
+                        <td className="px-3 py-2.5 text-right font-mono tabular-nums text-muted-foreground">
+                          {l.binOnHand}
+                        </td>
+                        {/* Qty Akhir readonly */}
+                        <td
+                          className={cn(
+                            "px-3 py-2.5 text-right font-mono font-semibold tabular-nums",
+                            invalid ? "text-destructive" : "text-foreground"
+                          )}
+                        >
+                          {qtyAkhir}
+                        </td>
+                        {/* Harga Pokok editable */}
+                        <td className="px-3 py-2.5 text-right">
+                          <Input
+                            type="number"
+                            min={0}
+                            value={l.unitCost}
+                            onChange={(e) => updateLine(l.itemId, { unitCost: e.target.value })}
+                            placeholder="0"
+                            className="h-9 w-28 text-right"
+                          />
+                        </td>
+                        {/* Keterangan */}
+                        <td className="px-3 py-2.5">
+                          <Input
+                            value={l.notes}
+                            onChange={(e) => updateLine(l.itemId, { notes: e.target.value })}
+                            placeholder="Alasan"
+                            className="h-9 min-w-[140px]"
+                          />
+                        </td>
+                        {/* Hapus */}
+                        <td className="px-3 py-2.5 text-right">
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => removeLine(l.itemId)}
+                            aria-label="Hapus"
+                            className="text-destructive"
+                          >
+                            <Trash2Icon className="h-4 w-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
+
+          {/* Tambah Item — di bawah, sebelah kiri */}
+          <div className="flex items-center justify-between">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPickerOpen(true)}
+              className="gap-1.5"
+            >
+              <PlusIcon className="h-4 w-4" /> Tambah Item
+            </Button>
+            {lines.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Qty Akhir = On Hand + <span className="font-mono">+/-</span>. Selisih dihitung
+                otomatis saat disimpan.
+              </p>
+            )}
+          </div>
         </div>
       </LiquidGlass>
 
