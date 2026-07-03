@@ -1,0 +1,284 @@
+"use client";
+
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { CheckIcon, PackageSearchIcon, PencilIcon, XIcon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { Skeleton } from "@/components/ui/skeleton";
+import { PageTitle } from "@/components/dashboard/page-title";
+import { useBinTransferDetail } from "@/hooks/transaksi-stok/use-bin-transfer";
+import { formatDateTimeFull } from "@/lib/format";
+
+const LIST_HREF = "/dashboard/transaksi-stok?tab=transfer";
+
+function InfoRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="w-40 shrink-0 text-xs text-muted-foreground">
+        {label}
+      </span>
+      <span className="text-sm font-medium">{value || "—"}</span>
+    </div>
+  );
+}
+
+function TimelineStep({
+  label,
+  timestamp,
+  actor,
+  active,
+  done,
+}: {
+  label: string;
+  timestamp?: string | null;
+  actor?: string | null;
+  active?: boolean;
+  done?: boolean;
+}) {
+  return (
+    <div className="flex flex-1 flex-col items-center gap-2 text-center">
+      <div
+        className={`flex h-11 w-11 items-center justify-center rounded-full border-2 ${
+          done
+            ? "border-primary bg-primary/10 text-primary"
+            : active
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-muted-foreground/20 bg-muted text-muted-foreground"
+        }`}
+      >
+        {done || active ? (
+          <CheckIcon className="h-5 w-5" />
+        ) : (
+          <span className="text-sm font-semibold">•</span>
+        )}
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-foreground">
+          {label}
+          {timestamp ? ` — ${formatDateTimeFull(timestamp)}` : ""}
+        </p>
+        {actor && (
+          <p className="text-xs text-muted-foreground">{actor}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function PindahBinDetailView({ id }: { id: string }) {
+  const router = useRouter();
+  const { data: trf, isLoading } = useBinTransferDetail(id);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+
+  if (!trf) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
+        <PackageSearchIcon className="h-10 w-10" />
+        <p className="text-sm">Pindah bin tidak ditemukan.</p>
+        <Button variant="outline" size="sm" asChild>
+          <Link href={LIST_HREF}>Kembali</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const timestamp = trf.created_at ?? trf.transfer_date;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <PageTitle
+        title={`Pindah Bin - ${trf.transfer_number}`}
+        backHref={LIST_HREF}
+        breadcrumb={[
+          { label: "Persediaan" },
+          { label: "Transaksi Stok", href: LIST_HREF },
+          { label: "Internal Transfer", href: LIST_HREF },
+          { label: "Selesai" },
+          { label: trf.transfer_number },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              onClick={() =>
+                router.push(
+                  `/dashboard/transaksi-stok/pindah-bin/${trf.id}/edit`,
+                )
+              }
+            >
+              <PencilIcon className="mr-1.5 h-3.5 w-3.5" />
+              Edit
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => router.push(LIST_HREF)}
+              aria-label="Tutup"
+            >
+              <XIcon className="h-4 w-4" />
+            </Button>
+          </div>
+        }
+      />
+
+      <LiquidGlass
+        radius={16}
+        intensity="subtle"
+        className="bg-white/40 dark:bg-white/[0.06]"
+      >
+        <div className="flex items-center gap-3 px-5 py-6">
+          <TimelineStep
+            label="Dibuat"
+            timestamp={timestamp}
+            actor={trf.created_by}
+            done
+          />
+          <div className="mt-5 h-0.5 flex-1 bg-primary/40" />
+          <TimelineStep
+            label="Selesai"
+            timestamp={timestamp}
+            actor={trf.created_by}
+            active
+          />
+        </div>
+      </LiquidGlass>
+
+      <LiquidGlass
+        radius={16}
+        intensity="subtle"
+        className="bg-white/40 dark:bg-white/[0.06]"
+      >
+        <div className="grid grid-cols-1 gap-4 px-5 py-5 sm:grid-cols-2">
+          <InfoRow
+            label="Tgl. Pindah"
+            value={
+              trf.transfer_date ? formatDateTimeFull(trf.transfer_date) : null
+            }
+          />
+          <InfoRow label="No. Pindah Bin" value={trf.transfer_number} />
+          <InfoRow
+            label="Lokasi"
+            value={trf.location?.location_name ?? "—"}
+          />
+          <InfoRow label="Dipindahkan Oleh" value={trf.created_by} />
+          <InfoRow
+            label="Rak Asal"
+            value={trf.source_bin?.bin_final_code ?? "—"}
+          />
+          <InfoRow
+            label="Rak Tujuan"
+            value={trf.destination_bin?.bin_final_code ?? "—"}
+          />
+          <div className="sm:col-span-2">
+            <InfoRow label="Keterangan" value={trf.notes ?? "—"} />
+          </div>
+        </div>
+      </LiquidGlass>
+
+      <LiquidGlass
+        radius={16}
+        intensity="subtle"
+        className="bg-white/40 dark:bg-white/[0.06]"
+      >
+        <div className="flex flex-col gap-4 px-5 py-5">
+          <h3 className="font-semibold">Produk ({trf.items?.length ?? 0})</h3>
+          <div className="overflow-x-auto rounded-lg border border-border">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="px-3 py-2.5 text-left font-medium">Produk</th>
+                  <th className="px-3 py-2.5 text-right font-medium">Qty</th>
+                  <th className="px-3 py-2.5 text-left font-medium">Unit</th>
+                  <th className="px-3 py-2.5 text-left font-medium">
+                    Keterangan
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {(trf.items ?? []).length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="px-3 py-8 text-center text-sm text-muted-foreground"
+                    >
+                      Tidak ada produk.
+                    </td>
+                  </tr>
+                ) : (
+                  (trf.items ?? []).map((it) => {
+                    const p = it.product;
+                    const image =
+                      (p as { thumbnail_url?: string } | undefined)
+                        ?.thumbnail_url ?? null;
+                    return (
+                      <tr key={it.id} className="bg-background/50">
+                        <td className="px-3 py-2.5">
+                          <div className="flex items-center gap-3">
+                            {image ? (
+                              <Image
+                                src={image}
+                                alt={p?.product?.name ?? p?.sku ?? "Produk"}
+                                width={40}
+                                height={40}
+                                className="h-10 w-10 shrink-0 rounded-md border border-border object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-muted">
+                                <PackageSearchIcon className="h-5 w-5 text-muted-foreground/40" />
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium">
+                                {p?.product?.name ?? "—"}
+                              </p>
+                              {p?.variant_label && (
+                                <p className="truncate text-xs text-muted-foreground">
+                                  {p.variant_label}
+                                </p>
+                              )}
+                              <p className="truncate font-mono text-[11px] text-muted-foreground">
+                                {p?.sku ?? "—"}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-3 py-2.5 text-right font-mono tabular-nums">
+                          {it.qty}
+                        </td>
+                        <td className="px-3 py-2.5 text-muted-foreground">
+                          Buah
+                        </td>
+                        <td className="px-3 py-2.5 text-muted-foreground">
+                          {it.notes ?? "—"}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </LiquidGlass>
+    </div>
+  );
+}

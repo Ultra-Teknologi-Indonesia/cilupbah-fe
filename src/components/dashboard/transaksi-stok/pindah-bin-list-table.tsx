@@ -1,0 +1,178 @@
+"use client";
+
+import { useMemo, useCallback } from "react";
+import Link from "next/link";
+import { ArrowRightIcon, MoveRightIcon, PackageIcon } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
+
+import { Button } from "@/components/ui/button";
+import { ResourceListView } from "@/components/dashboard/shared/resource-list-view";
+import { useListState } from "@/hooks/use-list-state";
+import {
+  useBinTransferList,
+  type BinTransferListItem,
+} from "@/hooks/transaksi-stok/use-bin-transfer";
+import { exportCsv } from "@/lib/export-csv";
+import { formatDate } from "@/lib/format";
+
+interface FilterState {
+  locationId: string;
+}
+
+const EMPTY_FILTERS: FilterState = { locationId: "" };
+
+export function PindahBinListTable() {
+  const list = useListState<FilterState>(EMPTY_FILTERS, {
+    urlSync: true,
+    namespace: "pbin",
+  });
+
+  const params = useMemo(
+    () => ({
+      q: list.debouncedSearch || undefined,
+      page: list.page,
+      perPage: list.perPage,
+      locationId: list.filters.locationId || undefined,
+    }),
+    [list.debouncedSearch, list.page, list.perPage, list.filters],
+  );
+
+  const { data, isLoading, isFetching } = useBinTransferList(params);
+
+  const items = (data?.data ?? []) as BinTransferListItem[];
+  const total = data?.meta?.total ?? 0;
+
+  const columns = useMemo<ColumnDef<BinTransferListItem>[]>(
+    () => [
+      {
+        accessorKey: "transfer_number",
+        header: "No. Pindah Bin",
+        cell: ({ row }) => (
+          <Link
+            href={`/dashboard/transaksi-stok/pindah-bin/${row.original.id}`}
+            className="font-medium hover:text-primary hover:underline"
+          >
+            {row.original.transfer_number}
+          </Link>
+        ),
+      },
+      {
+        accessorKey: "transfer_date",
+        header: "Tanggal",
+        cell: ({ row }) => (
+          <span className="text-foreground">
+            {formatDate(row.original.transfer_date)}
+          </span>
+        ),
+      },
+      {
+        id: "location",
+        header: "Lokasi",
+        cell: ({ row }) => (
+          <span className="text-foreground">
+            {row.original.location?.location_name ?? "—"}
+          </span>
+        ),
+      },
+      {
+        id: "bin_flow",
+        header: "Rak",
+        cell: ({ row }) => (
+          <div className="flex items-center gap-1.5 text-foreground">
+            <span className="font-mono text-xs">
+              {row.original.source_bin?.bin_final_code ?? "—"}
+            </span>
+            <ArrowRightIcon className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="font-mono text-xs">
+              {row.original.destination_bin?.bin_final_code ?? "—"}
+            </span>
+          </div>
+        ),
+      },
+      {
+        accessorKey: "items_count",
+        header: () => <div className="text-right">Jumlah Item</div>,
+        cell: ({ row }) => (
+          <div className="text-right tabular-nums text-foreground">
+            {row.original.items_count ?? 0}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "created_by",
+        header: "Dibuat Oleh",
+        cell: ({ row }) => (
+          <span className="text-foreground">{row.original.created_by}</span>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <div className="text-right">Aksi</div>,
+        cell: ({ row }) => (
+          <div className="flex justify-end">
+            <Button variant="ghost" size="sm" asChild>
+              <Link
+                href={`/dashboard/transaksi-stok/pindah-bin/${row.original.id}`}
+              >
+                Lihat
+              </Link>
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
+
+  const handleExport = useCallback(() => {
+    if (items.length === 0) return;
+    exportCsv(
+      "pindah-bin.csv",
+      [
+        "No. Pindah Bin",
+        "Tanggal",
+        "Lokasi",
+        "Rak Asal",
+        "Rak Tujuan",
+        "Jumlah Item",
+        "Dibuat Oleh",
+      ],
+      items.map((it) => [
+        it.transfer_number,
+        formatDate(it.transfer_date),
+        it.location?.location_name ?? "",
+        it.source_bin?.bin_final_code ?? "",
+        it.destination_bin?.bin_final_code ?? "",
+        String(it.items_count ?? 0),
+        it.created_by,
+      ]),
+    );
+  }, [items]);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex justify-end">
+        <Button size="sm" asChild className="gap-1.5">
+          <Link href="/dashboard/transaksi-stok/pindah-bin">
+            <MoveRightIcon className="h-4 w-4" />
+            Buat Pindah Bin
+          </Link>
+        </Button>
+      </div>
+
+      <ResourceListView
+        list={list}
+        columns={columns}
+        rows={items}
+        total={total}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        searchPlaceholder="Cari no. pindah bin..."
+        onExport={handleExport}
+        emptyIcon={PackageIcon}
+        emptyTitle="Belum ada pindah bin"
+        emptyDescription="Buat pindah bin baru untuk memindahkan stok antar rak dalam gudang yang sama."
+      />
+    </div>
+  );
+}

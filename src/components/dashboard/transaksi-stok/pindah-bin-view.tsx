@@ -3,44 +3,63 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeftIcon,
   ArrowRightIcon,
   Loader2Icon,
   PackageSearchIcon,
+  PlusIcon,
+  Trash2Icon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Combobox } from "@/components/ui/combobox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import {
-  useBinTransfer,
+  useBinTransferCreate,
   useLocationBins,
 } from "@/hooks/transaksi-stok/use-bin-transfer";
 import {
   ProductPickerDialog,
   type PickedProduct,
 } from "@/components/dashboard/transaksi-pembelian/product-picker-dialog";
+import { cn } from "@/lib/utils";
 
 const LIST_HREF = "/dashboard/transaksi-stok?tab=transfer";
 
+function todayStr(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+interface LineDraft {
+  itemId: string;
+  sku: string;
+  name: string;
+  variantLabel: string;
+  thumbnail: string | null;
+  qty: string;
+  notes: string;
+}
+
 export function PindahBinView() {
   const router = useRouter();
+  const [transferNo] = useState("[auto]");
+  const [transferDate, setTransferDate] = useState(todayStr);
   const [locationId, setLocationId] = useState("");
-  const [item, setItem] = useState<PickedProduct | null>(null);
   const [sourceBinId, setSourceBinId] = useState("");
   const [destBinId, setDestBinId] = useState("");
-  const [qty, setQty] = useState("");
   const [createdBy, setCreatedBy] = useState("");
+  const [notes, setNotes] = useState("");
+  const [lines, setLines] = useState<LineDraft[]>([]);
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const { data: locData } = useLocations({ perPage: 100 });
   const { data: binData, isLoading: binsLoading } = useLocationBins(locationId);
-  const transfer = useBinTransfer();
+  const createMut = useBinTransferCreate();
 
   const locationOptions = useMemo(
     () =>
@@ -50,6 +69,7 @@ export function PindahBinView() {
       })),
     [locData],
   );
+
   const binOptions = useMemo(
     () =>
       (binData?.items ?? []).map((b) => ({
@@ -59,28 +79,76 @@ export function PindahBinView() {
     [binData],
   );
 
-  const qtyNum = Number(qty);
+  const addLines = (
+    products: (PickedProduct & {
+      variantLabel?: string;
+      thumbnail?: string | null;
+    })[],
+  ) => {
+    setLines((prev) => {
+      const existing = new Set(prev.map((l) => l.itemId));
+      const fresh = products
+        .filter((p) => !existing.has(p.itemId))
+        .map<LineDraft>((p) => ({
+          itemId: p.itemId,
+          sku: p.sku,
+          name: p.name,
+          variantLabel: p.variantLabel ?? "",
+          thumbnail: p.thumbnail ?? null,
+          qty: "",
+          notes: "",
+        }));
+      return [...prev, ...fresh];
+    });
+    setPickerOpen(false);
+  };
+
+  const updateLine = (itemId: string, patch: Partial<LineDraft>) =>
+    setLines((prev) =>
+      prev.map((l) => (l.itemId === itemId ? { ...l, ...patch } : l)),
+    );
+  const removeLine = (itemId: string) =>
+    setLines((prev) => prev.filter((l) => l.itemId !== itemId));
+
+  const validLines = lines.filter((l) => {
+    const q = Number(l.qty);
+    return l.qty !== "" && !Number.isNaN(q) && q > 0;
+  });
+
   const canSubmit =
     !!locationId &&
-    !!item &&
     !!sourceBinId &&
     !!destBinId &&
     sourceBinId !== destBinId &&
-    qtyNum > 0 &&
-    !!createdBy.trim();
+    !!transferDate &&
+    !!createdBy.trim() &&
+    validLines.length > 0;
 
   const handleSubmit = () => {
-    if (!canSubmit || !item) return;
-    transfer.mutate(
+    if (!canSubmit) return;
+    createMut.mutate(
       {
-        item_id: item.itemId,
         location_id: locationId,
         source_bin_id: sourceBinId,
         destination_bin_id: destBinId,
-        qty: qtyNum,
+        transfer_date: transferDate,
         created_by: createdBy.trim(),
+        notes: notes.trim() || undefined,
+        items: validLines.map((l) => ({
+          item_id: l.itemId,
+          qty: Number(l.qty),
+          notes: l.notes.trim() || undefined,
+        })),
       },
-      { onSuccess: () => router.push(LIST_HREF) },
+      {
+        onSuccess: (created) => {
+          if (created?.id) {
+            router.push(`/dashboard/transaksi-stok/pindah-bin/${created.id}`);
+          } else {
+            router.push(LIST_HREF);
+          }
+        },
+      },
     );
   };
 
@@ -92,15 +160,19 @@ export function PindahBinView() {
         breadcrumb={[
           { label: "Persediaan" },
           { label: "Transaksi Stok", href: LIST_HREF },
+          { label: "Internal Transfer", href: LIST_HREF },
           { label: "Pindah Antar Bin" },
         ]}
         actions={
           <Button
-            variant="outline"
+            onClick={handleSubmit}
+            disabled={!canSubmit || createMut.isPending}
             size="sm"
-            onClick={() => router.push(LIST_HREF)}
           >
-            <ArrowLeftIcon className="mr-1.5 h-4 w-4" /> Kembali
+            {createMut.isPending && (
+              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            Simpan
           </Button>
         }
       />
@@ -110,115 +182,262 @@ export function PindahBinView() {
         intensity="subtle"
         className="bg-white/40 dark:bg-white/[0.06]"
       >
-        <div className="flex flex-col gap-4 px-5 py-5">
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-sm font-medium">
-              Gudang <span className="text-red-500">*</span>
-            </Label>
-            <Combobox
-              options={locationOptions}
-              value={locationId}
-              onChange={(v) => {
-                setLocationId(v ?? "");
-                setSourceBinId("");
-                setDestBinId("");
-              }}
-              placeholder="Pilih gudang…"
-              searchPlaceholder="Cari gudang…"
-              className="sm:max-w-md"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-sm font-medium">
-              Produk <span className="text-red-500">*</span>
-            </Label>
-            {item ? (
-              <div className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2 sm:max-w-md">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{item.name}</p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {item.sku}
-                    {item.variantLabel ? ` · ${item.variantLabel}` : ""}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setPickerOpen(true)}
-                >
-                  Ganti
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="outline"
-                onClick={() => setPickerOpen(true)}
-                className="justify-start gap-2 sm:max-w-md"
-              >
-                <PackageSearchIcon className="h-4 w-4" />
-                Pilih produk…
-              </Button>
-            )}
-          </div>
-
-          <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-3 sm:max-w-xl">
+        <div className="grid grid-cols-1 gap-4 px-5 py-5 lg:grid-cols-2">
+          <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
-                Bin Asal <span className="text-red-500">*</span>
+                No. Pindah Bin <span className="text-red-500">*</span>
               </Label>
-              <Combobox
-                options={binOptions}
-                value={sourceBinId}
-                onChange={(v) => setSourceBinId(v ?? "")}
-                placeholder={binsLoading ? "Memuat…" : "Bin asal…"}
-                searchPlaceholder="Cari bin…"
-                disabled={!locationId || binsLoading}
-              />
+              <Input value={transferNo} readOnly className="bg-muted/40" />
             </div>
-            <ArrowRightIcon className="mb-2.5 h-4 w-4 shrink-0 text-muted-foreground" />
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
-                Bin Tujuan <span className="text-red-500">*</span>
-              </Label>
-              <Combobox
-                options={binOptions.filter((b) => b.value !== sourceBinId)}
-                value={destBinId}
-                onChange={(v) => setDestBinId(v ?? "")}
-                placeholder={binsLoading ? "Memuat…" : "Bin tujuan…"}
-                searchPlaceholder="Cari bin…"
-                disabled={!locationId || binsLoading}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 sm:max-w-md">
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-sm font-medium">
-                Qty <span className="text-red-500">*</span>
+                Tanggal <span className="text-red-500">*</span>
               </Label>
               <Input
-                type="number"
-                min={1}
-                value={qty}
-                onChange={(e) => setQty(e.target.value)}
-                placeholder="0"
+                type="date"
+                value={transferDate}
+                onChange={(e) => setTransferDate(e.target.value)}
               />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
-                Dipindahkan oleh <span className="text-red-500">*</span>
+                Lokasi <span className="text-red-500">*</span>
+              </Label>
+              <Combobox
+                options={locationOptions}
+                value={locationId}
+                onChange={(v) => {
+                  setLocationId(v ?? "");
+                  setSourceBinId("");
+                  setDestBinId("");
+                }}
+                placeholder="Pilih Lokasi"
+                searchPlaceholder="Cari lokasi…"
+              />
+            </div>
+            <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-3">
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">
+                  Rak Asal <span className="text-red-500">*</span>
+                </Label>
+                <Combobox
+                  options={binOptions.filter((b) => b.value !== destBinId)}
+                  value={sourceBinId}
+                  onChange={(v) => setSourceBinId(v ?? "")}
+                  placeholder={binsLoading ? "Memuat…" : "Pilih rak asal"}
+                  searchPlaceholder="Cari rak…"
+                  disabled={!locationId || binsLoading}
+                />
+              </div>
+              <ArrowRightIcon className="mb-2.5 h-4 w-4 shrink-0 text-muted-foreground" />
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">
+                  Rak Tujuan <span className="text-red-500">*</span>
+                </Label>
+                <Combobox
+                  options={binOptions.filter((b) => b.value !== sourceBinId)}
+                  value={destBinId}
+                  onChange={(v) => setDestBinId(v ?? "")}
+                  placeholder={binsLoading ? "Memuat…" : "Pilih rak tujuan"}
+                  searchPlaceholder="Cari rak…"
+                  disabled={!locationId || binsLoading}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-sm font-medium">
+                Dipindahkan Oleh <span className="text-red-500">*</span>
               </Label>
               <UserSelect
                 value={createdBy}
                 onChange={setCreatedBy}
                 defaultToSelf
-                placeholder="Nama petugas"
+                placeholder="Pilih petugas"
+              />
+            </div>
+            <div className="flex flex-1 flex-col gap-1.5">
+              <Label className="text-sm font-medium">Keterangan</Label>
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Masukkan Keterangan"
+                rows={8}
+                className="flex-1"
               />
             </div>
           </div>
         </div>
       </LiquidGlass>
+
+      {!locationId || !sourceBinId || !destBinId ? (
+        <div className="flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
+          <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            i
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground">
+              Pilih Lokasi, Rak Asal, dan Rak Tujuan
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Harap pilih Lokasi beserta Rak Asal dan Rak Tujuan terlebih
+              dahulu sebelum menambahkan produk.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <LiquidGlass
+          radius={16}
+          intensity="subtle"
+          className="bg-white/40 dark:bg-white/[0.06]"
+        >
+          <div className="flex flex-col gap-4 px-5 py-5">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">
+                Produk yang Dipindahkan{" "}
+                <span className="text-red-500">*</span>
+              </Label>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPickerOpen(true)}
+                className="gap-1.5"
+              >
+                <PlusIcon className="h-4 w-4" /> Tambah Produk
+              </Button>
+            </div>
+
+            <div className="overflow-x-auto rounded-lg border border-border">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+                  <tr>
+                    <th className="px-3 py-2.5 text-left font-medium">
+                      Produk
+                    </th>
+                    <th className="px-3 py-2.5 text-right font-medium">
+                      Qty Pindah
+                    </th>
+                    <th className="px-3 py-2.5 text-left font-medium">
+                      Keterangan
+                    </th>
+                    <th className="px-3 py-2.5" />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {lines.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-3 py-12 text-center">
+                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                          <PackageSearchIcon className="h-7 w-7 opacity-40" />
+                          <p className="text-sm">
+                            Belum ada produk. Klik “Tambah Produk” untuk
+                            memilih produk yang akan dipindahkan.
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    lines.map((l) => {
+                      const qtyNum = Number(l.qty);
+                      const invalid =
+                        l.qty !== "" &&
+                        (Number.isNaN(qtyNum) || qtyNum <= 0);
+                      return (
+                        <tr key={l.itemId} className="bg-background/50">
+                          <td className="px-3 py-2.5">
+                            <div className="flex items-center gap-3">
+                              {l.thumbnail ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={l.thumbnail}
+                                  alt={l.name}
+                                  className="h-11 w-11 shrink-0 rounded-md border border-border object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-muted">
+                                  <PackageSearchIcon className="h-5 w-5 text-muted-foreground/40" />
+                                </div>
+                              )}
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-medium">
+                                  {l.name}
+                                </p>
+                                {l.variantLabel && (
+                                  <p className="truncate text-xs text-muted-foreground">
+                                    {l.variantLabel}
+                                  </p>
+                                )}
+                                <p className="truncate font-mono text-[11px] text-muted-foreground">
+                                  {l.sku}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-3 py-2.5 text-right">
+                            <Input
+                              type="number"
+                              min={1}
+                              value={l.qty}
+                              onChange={(e) =>
+                                updateLine(l.itemId, { qty: e.target.value })
+                              }
+                              placeholder="0"
+                              className={cn(
+                                "h-9 w-24 text-right",
+                                invalid &&
+                                  "border-destructive ring-1 ring-destructive/30",
+                              )}
+                            />
+                          </td>
+                          <td className="px-3 py-2.5">
+                            <Input
+                              value={l.notes}
+                              onChange={(e) =>
+                                updateLine(l.itemId, { notes: e.target.value })
+                              }
+                              placeholder="Opsional"
+                              className="h-9 min-w-[160px]"
+                            />
+                          </td>
+                          <td className="px-3 py-2.5 text-right">
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              onClick={() => removeLine(l.itemId)}
+                              aria-label="Hapus"
+                              className="text-destructive"
+                            >
+                              <Trash2Icon className="h-4 w-4" />
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {lines.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Total {validLines.length} produk siap dipindahkan dari{" "}
+                <span className="font-mono">
+                  {binOptions.find((b) => b.value === sourceBinId)?.label ??
+                    "—"}
+                </span>{" "}
+                ke{" "}
+                <span className="font-mono">
+                  {binOptions.find((b) => b.value === destBinId)?.label ?? "—"}
+                </span>
+                .
+              </p>
+            )}
+          </div>
+        </LiquidGlass>
+      )}
 
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={() => router.push(LIST_HREF)}>
@@ -226,22 +445,20 @@ export function PindahBinView() {
         </Button>
         <Button
           onClick={handleSubmit}
-          disabled={!canSubmit || transfer.isPending}
+          disabled={!canSubmit || createMut.isPending}
         >
-          {transfer.isPending && (
+          {createMut.isPending && (
             <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
           )}
-          Pindahkan
+          Simpan
         </Button>
       </div>
 
       <ProductPickerDialog
         open={pickerOpen}
         onOpenChange={setPickerOpen}
-        onPick={(products) => {
-          if (products[0]) setItem(products[0]);
-          setPickerOpen(false);
-        }}
+        onPick={addLines}
+        excludeIds={lines.map((l) => l.itemId)}
       />
     </div>
   );

@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
 import Link from "next/link";
 import { ArrowLeftRightIcon, InfoIcon, MoveRightIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ResourceListView } from "@/components/dashboard/shared/resource-list-view";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
@@ -20,6 +21,7 @@ import type {
 } from "@/types/barang-masuk/inventory-transfer";
 import type { ApiPaginated } from "@/types/api.types";
 import { formatDate } from "@/lib/format";
+import { PindahBinListTable } from "./pindah-bin-list-table";
 
 interface FilterState {
   status: string;
@@ -58,7 +60,7 @@ function useInternalTransfers(params: InventoryTransferListParams = {}) {
   });
 }
 
-export function TransferTab() {
+function AntarGudangTable() {
   const list = useListState<FilterState>(EMPTY_FILTERS, {
     urlSync: true,
     namespace: "trf",
@@ -170,14 +172,47 @@ export function TransferTab() {
   }, [items]);
 
   return (
+    <ResourceListView
+      list={list}
+      columns={columns}
+      rows={items}
+      total={total}
+      isLoading={isLoading}
+      isFetching={isFetching}
+      searchPlaceholder="Cari no. transfer..."
+      onExport={handleExport}
+      emptyIcon={ArrowLeftRightIcon}
+      emptyTitle="Belum ada internal transfer"
+      emptyDescription="Data transfer internal akan muncul di sini."
+      filterControls={
+        <Combobox
+          options={STATUS_OPTIONS}
+          value={list.filters.status}
+          onChange={(v) =>
+            list.setFilters({ ...list.filters, status: v ?? "" })
+          }
+          placeholder="Status"
+          searchPlaceholder="Cari status"
+          className="h-9 bg-background"
+        />
+      }
+    />
+  );
+}
+
+export function TransferTab() {
+  const [subTab, setSubTab] = useState<"antar-gudang" | "antar-bin">(
+    "antar-gudang",
+  );
+
+  return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-start justify-between gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-500/20 dark:bg-blue-950/30 dark:text-blue-300">
         <div className="flex items-start gap-2">
           <InfoIcon className="mt-0.5 h-4 w-4 shrink-0" />
           <p>
-            Transfer antar lokasi dibuat dari menu Barang Keluar. Untuk
-            memindahkan stok antar bin dalam satu gudang, gunakan tombol di
-            kanan.
+            Transfer antar gudang dibuat dari menu Barang Keluar. Pindah antar
+            bin dalam satu gudang dikelola di sub-tab “Antar Bin”.
           </p>
         </div>
         <Button size="sm" asChild className="shrink-0 gap-1.5">
@@ -188,31 +223,21 @@ export function TransferTab() {
         </Button>
       </div>
 
-      <ResourceListView
-        list={list}
-        columns={columns}
-        rows={items}
-        total={total}
-        isLoading={isLoading}
-        isFetching={isFetching}
-        searchPlaceholder="Cari no. transfer..."
-        onExport={handleExport}
-        emptyIcon={ArrowLeftRightIcon}
-        emptyTitle="Belum ada internal transfer"
-        emptyDescription="Data transfer internal akan muncul di sini."
-        filterControls={
-          <Combobox
-            options={STATUS_OPTIONS}
-            value={list.filters.status}
-            onChange={(v) =>
-              list.setFilters({ ...list.filters, status: v ?? "" })
-            }
-            placeholder="Status"
-            searchPlaceholder="Cari status"
-            className="h-9 bg-background"
-          />
-        }
-      />
+      <Tabs
+        value={subTab}
+        onValueChange={(v) => setSubTab(v as typeof subTab)}
+      >
+        <TabsList>
+          <TabsTrigger value="antar-gudang">Antar Gudang</TabsTrigger>
+          <TabsTrigger value="antar-bin">Antar Bin</TabsTrigger>
+        </TabsList>
+        <TabsContent value="antar-gudang">
+          <AntarGudangTable />
+        </TabsContent>
+        <TabsContent value="antar-bin">
+          <PindahBinListTable />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
