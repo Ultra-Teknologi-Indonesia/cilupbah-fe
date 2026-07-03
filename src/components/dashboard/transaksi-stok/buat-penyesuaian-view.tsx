@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Combobox } from "@/components/ui/combobox"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { PageTitle } from "@/components/dashboard/page-title"
@@ -224,50 +225,53 @@ export function BuatPenyesuaianView() {
         ]}
       />
 
-      {/* Field header — 4 kolom bisnis: No, Tanggal, Lokasi, Keterangan */}
+      {/* Field header: No/Tanggal/Lokasi di baris pertama, Keterangan textarea di baris kedua */}
       <LiquidGlass radius={16} intensity="subtle" className="bg-white/40 dark:bg-white/[0.06]">
-        <div className="grid grid-cols-1 gap-4 px-5 py-5 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-sm font-medium">No. Penyesuaian</Label>
-            <Input
-              value="[auto]"
-              readOnly
-              disabled
-              className="cursor-not-allowed text-muted-foreground"
-            />
-            <p className="text-xs text-muted-foreground">Otomatis dengan prefix ADJ setelah disimpan.</p>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-sm font-medium">
-              Tanggal <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              type="date"
-              value={transactionDate}
-              onChange={(e) => setTransactionDate(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-sm font-medium">
-              Lokasi <span className="text-red-500">*</span>
-            </Label>
-            <Combobox
-              options={locationOptions}
-              value={locationId}
-              onChange={(v) => {
-                setLocationId(v ?? "")
-                setLines((p) => p.map((l) => ({ ...l, binId: "" })))
-              }}
-              placeholder="Pilih lokasi…"
-              searchPlaceholder="Cari lokasi…"
-            />
+        <div className="flex flex-col gap-4 px-5 py-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-sm font-medium">No. Penyesuaian</Label>
+              <Input
+                value="[auto]"
+                readOnly
+                disabled
+                className="cursor-not-allowed text-muted-foreground"
+              />
+              <p className="text-xs text-muted-foreground">Otomatis dengan prefix ADJ setelah disimpan.</p>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-sm font-medium">
+                Tanggal <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                type="date"
+                value={transactionDate}
+                onChange={(e) => setTransactionDate(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-sm font-medium">
+                Lokasi <span className="text-red-500">*</span>
+              </Label>
+              <Combobox
+                options={locationOptions}
+                value={locationId}
+                onChange={(v) => {
+                  setLocationId(v ?? "")
+                  setLines((p) => p.map((l) => ({ ...l, binId: "" })))
+                }}
+                placeholder="Pilih lokasi…"
+                searchPlaceholder="Cari lokasi…"
+              />
+            </div>
           </div>
           <div className="flex flex-col gap-1.5">
             <Label className="text-sm font-medium">Keterangan</Label>
-            <Input
+            <Textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Alasan koreksi (opsional)"
+              rows={3}
             />
           </div>
         </div>
