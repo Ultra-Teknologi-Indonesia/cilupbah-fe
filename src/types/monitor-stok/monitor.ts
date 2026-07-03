@@ -89,4 +89,66 @@ export type MonitorTab =
   | "paling-laku"
   | "perkiraan-habis"
   | "sedang-dibeli"
-  | "gagal-sync";
+  | "gagal-sync"
+  | "kronologi";
+
+export type KronologiView = "clean" | "attention" | "all";
+
+export interface KronologiRow {
+  id: string;
+  item_id: string;
+  sku: string | null;
+  product_id: string | null;
+  location_id: string;
+  location_name: string | null;
+  bin_id: string | null;
+  bin_code: string | null;
+  transaction_number: string | null;
+  source: string;
+  source_category: string;
+  source_label: string;
+  is_variance: boolean;
+  direction: "in" | "out" | "none";
+  qty: number;
+  balance: number;
+  transaction_date: string;
+  created_by: string | null;
+  created_at: string;
+}
+
+export interface KronologiParams {
+  view?: KronologiView;
+  item_id?: string;
+  location_id?: string;
+  source?: string;
+  direction?: "in" | "out";
+  date_from?: string;
+  date_to?: string;
+  store_id?: string;
+  transaction_number?: string;
+  page?: number;
+  per_page?: number;
+}
+
+export interface MovementFilterSource {
+  value: string;
+  label: string;
+  category: string;
+}
+
+export interface MovementFilterDirection {
+  value: string;
+  label: string;
+}
+
+export interface MovementFilterOption {
+  value: string;
+  label: string;
+}
+
+export interface MovementFilterOptions {
+  sources: MovementFilterSource[];
+  directions: MovementFilterDirection[];
+  locations: MovementFilterOption[];
+  stores: MovementFilterOption[];
+}

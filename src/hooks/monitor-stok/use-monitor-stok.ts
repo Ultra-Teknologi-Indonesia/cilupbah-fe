@@ -11,6 +11,8 @@ import type {
   MonitorSyncFailedRow,
   MonitorTab,
   OutOfStockMode,
+  KronologiParams,
+  KronologiRow,
 } from "@/types/monitor-stok/monitor";
 
 const STALE = 30 * 1000;
@@ -42,8 +44,17 @@ export function isSyncTab(tab: MonitorTab): boolean {
   return tab === "gagal-sync";
 }
 
+export function isKronologiTab(tab: MonitorTab): boolean {
+  return tab === "kronologi";
+}
+
 export function isLiveTab(tab: MonitorTab): boolean {
-  return isStockTab(tab) || isAnalyticsTab(tab) || isSyncTab(tab);
+  return (
+    isStockTab(tab) ||
+    isAnalyticsTab(tab) ||
+    isSyncTab(tab) ||
+    isKronologiTab(tab)
+  );
 }
 
 export function useMonitorList(
@@ -136,5 +147,29 @@ export function useRetryBulkSync() {
     mutationFn: (ids: string[]) => MonitorStockService.retryBulkSync(ids),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ["monitor-stok", "failed-sync"] }),
+  });
+}
+
+const EMPTY_KRONOLOGI = { items: [] as KronologiRow[], meta: EMPTY_META };
+
+export function useKronologi(tab: MonitorTab, params: KronologiParams) {
+  return useQuery({
+    queryKey: ["monitor-stok", "kronologi", params],
+    queryFn: () =>
+      isKronologiTab(tab)
+        ? MonitorStockService.kronologi(params)
+        : Promise.resolve(EMPTY_KRONOLOGI),
+    enabled: isKronologiTab(tab),
+    staleTime: STALE,
+    placeholderData: (prev) => prev,
+  });
+}
+
+export function useMovementFilters(enabled: boolean) {
+  return useQuery({
+    queryKey: ["monitor-stok", "movement-filters"],
+    queryFn: () => MonitorStockService.movementFilters(),
+    enabled,
+    staleTime: 5 * 60 * 1000,
   });
 }

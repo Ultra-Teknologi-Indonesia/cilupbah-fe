@@ -9,6 +9,9 @@ import type {
   FailedSyncParams,
   MonitorSummary,
   OutOfStockMode,
+  KronologiParams,
+  KronologiRow,
+  MovementFilterOptions,
 } from "@/types/monitor-stok/monitor";
 
 function toQuery(
@@ -96,6 +99,33 @@ export const MonitorStockService = {
     const res = await fetchClient<ApiResponse<{ retried: number }>>(
       `/inventory/monitor/failed-sync/retry-bulk`,
       { method: "POST", data: { ids } },
+    );
+    return res.data;
+  },
+
+  kronologi: async (params: KronologiParams = {}) => {
+    const sp = new URLSearchParams();
+    if (params.view) sp.set("view", params.view);
+    if (params.item_id) sp.set("filter[item_id]", params.item_id);
+    if (params.location_id) sp.set("filter[location_id]", params.location_id);
+    if (params.source) sp.set("filter[source]", params.source);
+    if (params.direction) sp.set("filter[direction]", params.direction);
+    if (params.date_from) sp.set("filter[date_from]", params.date_from);
+    if (params.date_to) sp.set("filter[date_to]", params.date_to);
+    if (params.store_id) sp.set("filter[store_id]", params.store_id);
+    if (params.transaction_number)
+      sp.set("filter[transaction_number]", params.transaction_number);
+    if (params.page) sp.set("page", String(params.page));
+    if (params.per_page) sp.set("per_page", String(params.per_page));
+    const res = await fetchClient<ApiPaginated<KronologiRow>>(
+      `/inventory/movements?${sp.toString()}`,
+    );
+    return { items: res.data ?? [], meta: res.meta };
+  },
+
+  movementFilters: async (): Promise<MovementFilterOptions> => {
+    const res = await fetchClient<ApiResponse<MovementFilterOptions>>(
+      `/inventory/movement-filters`,
     );
     return res.data;
   },

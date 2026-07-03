@@ -19,6 +19,8 @@ import {
   type AnalyticsKind,
 } from "@/components/dashboard/monitor-stok/monitor-analytics-table";
 import { MonitorSyncFailedTable } from "@/components/dashboard/monitor-stok/monitor-sync-failed-table";
+import { MonitorKronologiTable } from "@/components/dashboard/monitor-stok/monitor-kronologi-table";
+import { DateRangePicker } from "@/components/ui/date-picker";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useEnabledCategories } from "@/hooks/kategori-merek/use-kategori";
 import {
@@ -26,10 +28,12 @@ import {
   useMonitorAnalytics,
   useMonitorSummary,
   useFailedSync,
-  isLiveTab,
+  useKronologi,
+  useMovementFilters,
   isStockTab,
   isAnalyticsTab,
   isSyncTab,
+  isKronologiTab,
 } from "@/hooks/monitor-stok/use-monitor-stok";
 import type {
   MonitorTab,
@@ -37,6 +41,8 @@ import type {
   MonitorAnalyticsRow,
   MonitorSyncFailedRow,
   OutOfStockMode,
+  KronologiView,
+  KronologiRow,
 } from "@/types/monitor-stok/monitor";
 import type { KategoriItem } from "@/types/kategori-merek/kategori";
 
@@ -48,6 +54,13 @@ const TABS: { key: MonitorTab; label: string }[] = [
   { key: "perkiraan-habis", label: "Perkiraan Habis" },
   { key: "sedang-dibeli", label: "Sedang Dibeli" },
   { key: "gagal-sync", label: "Gagal Sync" },
+  { key: "kronologi", label: "Kronologi Stok" },
+];
+
+const KRONOLOGI_VIEWS: { key: KronologiView; label: string }[] = [
+  { key: "clean", label: "Bersih" },
+  { key: "attention", label: "Perlu Perhatian" },
+  { key: "all", label: "Semua" },
 ];
 
 const SUB_TABS: { key: OutOfStockMode; label: string }[] = [
@@ -103,14 +116,42 @@ function csvEncode(cells: (string | number | null | undefined)[]): string {
 
 function exportTabCsv(
   tab: MonitorTab,
-  rows: MonitorStockRow[] | MonitorAnalyticsRow[] | MonitorSyncFailedRow[],
+  rows:
+    | MonitorStockRow[]
+    | MonitorAnalyticsRow[]
+    | MonitorSyncFailedRow[]
+    | KronologiRow[],
   subMode?: string,
 ) {
   let header: string[];
   let lines: string[];
   const filename = `monitor-${tab}${tab === "stok-kosong" && subMode ? `-${subMode}` : ""}.csv`;
 
-  if (isSyncTab(tab)) {
+  if (isKronologiTab(tab)) {
+    const data = rows as KronologiRow[];
+    header = [
+      "Tanggal",
+      "SKU",
+      "Lokasi",
+      "Rak",
+      "Jenis",
+      "Qty",
+      "Saldo",
+      "No. Transaksi",
+    ];
+    lines = data.map((r) =>
+      csvEncode([
+        r.transaction_date,
+        r.sku,
+        r.location_name,
+        r.bin_code,
+        r.source_label,
+        r.qty,
+        r.balance,
+        r.transaction_number,
+      ]),
+    );
+  } else if (isSyncTab(tab)) {
     const data = rows as MonitorSyncFailedRow[];
     header = [
       "SKU",
@@ -211,6 +252,11 @@ export function MonitorStokView() {
   const [autoRefresh, setAutoRefresh] = useState(0);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
+  const [kronologiView, setKronologiView] = useState<KronologiView>("clean");
+  const [kronologiSource, setKronologiSource] = useState("");
+  const [kronologiDirection, setKronologiDirection] = useState("");
+  const [kronologiDateFrom, setKronologiDateFrom] = useState<string>("");
+  const [kronologiDateTo, setKronologiDateTo] = useState<string>("");
 
   const resetPage = useCallback(() => setPage(1), []);
 
@@ -248,18 +294,48 @@ export function MonitorStokView() {
     [debouncedSearch, page, perPage],
   );
 
+  const kronologiParams = useMemo(
+    () => ({
+      view: kronologiView,
+      location_id: locationId || undefined,
+      source: kronologiSource || undefined,
+      direction:
+        kronologiDirection === "in" || kronologiDirection === "out"
+          ? (kronologiDirection as "in" | "out")
+          : undefined,
+      date_from: kronologiDateFrom || undefined,
+      date_to: kronologiDateTo || undefined,
+      page,
+      per_page: perPage,
+    }),
+    [
+      kronologiView,
+      locationId,
+      kronologiSource,
+      kronologiDirection,
+      kronologiDateFrom,
+      kronologiDateTo,
+      page,
+      perPage,
+    ],
+  );
+
   const listQuery = useMonitorList(tab, subMode, listParams);
   const analyticsQuery = useMonitorAnalytics(tab, analyticsParams);
   const failedSyncQuery = useFailedSync(tab, syncParams);
+  const kronologiQuery = useKronologi(tab, kronologiParams);
+  const { data: movementFilters } = useMovementFilters(isKronologiTab(tab));
   const { data: summary } = useMonitorSummary(baseFilters);
   const { data: locData } = useLocations({ perPage: 100 });
   const { data: categoryTree } = useEnabledCategories();
 
-  const active = isSyncTab(tab)
-    ? failedSyncQuery
-    : isAnalyticsTab(tab)
-      ? analyticsQuery
-      : listQuery;
+  const active = isKronologiTab(tab)
+    ? kronologiQuery
+    : isSyncTab(tab)
+      ? failedSyncQuery
+      : isAnalyticsTab(tab)
+        ? analyticsQuery
+        : listQuery;
   const rows = active.data?.items ?? [];
   const meta = active.data?.meta ?? EMPTY_META;
 
@@ -461,6 +537,26 @@ export function MonitorStokView() {
                 className="h-9 bg-background"
               />
             </div>
+          ) : isKronologiTab(tab) ? (
+            <div className="flex flex-wrap gap-1.5">
+              {KRONOLOGI_VIEWS.map(({ key, label }) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() =>
+                    onFilter(() => setKronologiView(key))
+                  }
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                    kronologiView === key
+                      ? "border-primary text-primary"
+                      : "border-border/60 text-muted-foreground hover:bg-muted",
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           ) : (
             <div />
           )}
@@ -501,6 +597,116 @@ export function MonitorStokView() {
                   setPerPage(s);
                   resetPage();
                 }}
+              />
+            </div>
+          </>
+        ) : isKronologiTab(tab) ? (
+          <>
+            <div className="flex flex-wrap items-end gap-3 px-4 pt-3 sm:px-5">
+              <div className="min-w-[220px] flex-1">
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                  Rentang Tanggal
+                </label>
+                <DateRangePicker
+                  value={{
+                    from: kronologiDateFrom
+                      ? new Date(kronologiDateFrom)
+                      : undefined,
+                    to: kronologiDateTo
+                      ? new Date(kronologiDateTo)
+                      : undefined,
+                  }}
+                  onChange={(range) => {
+                    const toStr = (d?: Date) =>
+                      d ? d.toISOString().slice(0, 10) : "";
+                    setKronologiDateFrom(toStr(range?.from));
+                    setKronologiDateTo(toStr(range?.to));
+                    resetPage();
+                  }}
+                  placeholder="Pilih rentang tanggal"
+                  className="h-9 bg-background"
+                />
+              </div>
+              <div className="w-48">
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                  Lokasi
+                </label>
+                <Combobox
+                  options={[
+                    { value: "", label: "Semua Lokasi" },
+                    ...((movementFilters?.locations ?? []) as {
+                      value: string;
+                      label: string;
+                    }[]),
+                  ]}
+                  value={locationId}
+                  onChange={(v) => onFilter(() => setLocationId(v ?? ""))}
+                  placeholder="Semua Lokasi"
+                  searchPlaceholder="Cari lokasi"
+                  className="h-9 bg-background"
+                />
+              </div>
+              <div className="w-48">
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                  Jenis
+                </label>
+                <Combobox
+                  options={[
+                    { value: "", label: "Semua Jenis" },
+                    ...((movementFilters?.sources ?? []) as {
+                      value: string;
+                      label: string;
+                    }[]),
+                  ]}
+                  value={kronologiSource}
+                  onChange={(v) =>
+                    onFilter(() => setKronologiSource(v ?? ""))
+                  }
+                  placeholder="Semua Jenis"
+                  searchPlaceholder="Cari jenis"
+                  className="h-9 bg-background"
+                />
+              </div>
+              <div className="w-36">
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                  Arah
+                </label>
+                <Combobox
+                  options={[
+                    { value: "", label: "Semua Arah" },
+                    ...((movementFilters?.directions ?? []) as {
+                      value: string;
+                      label: string;
+                    }[]),
+                  ]}
+                  value={kronologiDirection}
+                  onChange={(v) =>
+                    onFilter(() => setKronologiDirection(v ?? ""))
+                  }
+                  placeholder="Semua Arah"
+                  searchPlaceholder="Pilih arah"
+                  className="h-9 bg-background"
+                />
+              </div>
+            </div>
+
+            <div className="px-4 py-3 sm:px-5">
+              <MonitorKronologiTable
+                rows={kronologiQuery.data?.items ?? []}
+                meta={kronologiQuery.data?.meta ?? EMPTY_META}
+                isLoading={kronologiQuery.isLoading}
+                onPageChange={setPage}
+                onPerPageChange={(s) => {
+                  setPerPage(s);
+                  resetPage();
+                }}
+                emptyText={
+                  kronologiView === "clean"
+                    ? "Belum ada pergerakan bersih pada rentang ini."
+                    : kronologiView === "attention"
+                      ? "Tidak ada baris yang perlu perhatian."
+                      : "Belum ada pergerakan stok."
+                }
               />
             </div>
           </>
