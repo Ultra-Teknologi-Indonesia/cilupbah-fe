@@ -1,0 +1,22 @@
+"use client"
+
+import { StockAdjustmentImportService } from "@/services/transaksi-stok/stock-adjustment-import.service"
+import type { ImportConfirmPayload } from "@/types/transaksi-stok/stock-adjustment-import"
+import { createMutationHook } from "@/hooks/create-crud-hooks"
+import { stockAdjustmentKeys } from "@/hooks/transaksi-stok/use-stock-adjustments"
+
+export const usePreviewStockAdjustmentImport = createMutationHook({
+  mutationFn: ({ file, locationId }: { file: File; locationId: string }) =>
+    StockAdjustmentImportService.preview(file, locationId),
+  // Suppress default toast — page akan tampilkan preview panel sendiri.
+  errorMessage: "Gagal memproses file import",
+  invalidates: () => [],
+})
+
+export const useConfirmStockAdjustmentImport = createMutationHook({
+  mutationFn: (payload: ImportConfirmPayload) =>
+    StockAdjustmentImportService.confirm(payload),
+  successMessage: "Import penyesuaian stok berhasil diterapkan",
+  errorMessage: "Gagal menerapkan import",
+  invalidates: () => [stockAdjustmentKeys.lists],
+})

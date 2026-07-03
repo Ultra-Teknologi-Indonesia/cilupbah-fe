@@ -208,12 +208,19 @@ export function PenyesuaianTab() {
         searchPlaceholder="Cari no. koreksi stok..."
         onExport={handleExport}
         toolbarTrailing={
-          <Button size="sm" asChild className="gap-1.5">
-            <Link href="/dashboard/transaksi-stok/penyesuaian/buat">
-              <PlusIcon className="h-4 w-4" />
-              Koreksi Stok Baru
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" asChild className="gap-1.5">
+              <Link href="/dashboard/transaksi-stok/penyesuaian/import">
+                Import
+              </Link>
+            </Button>
+            <Button size="sm" asChild className="gap-1.5">
+              <Link href="/dashboard/transaksi-stok/penyesuaian/buat">
+                <PlusIcon className="h-4 w-4" />
+                Koreksi Stok Baru
+              </Link>
+            </Button>
+          </div>
         }
         emptyIcon={SlidersHorizontalIcon}
         emptyTitle="Belum ada koreksi stok"
