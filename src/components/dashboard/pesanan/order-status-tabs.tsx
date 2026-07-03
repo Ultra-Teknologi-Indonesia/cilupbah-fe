@@ -9,6 +9,7 @@ import {
 } from "@/types/pesanan/order";
 import { PillTab, PillTabs } from "@/components/dashboard/shared/pill-tabs";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList } from "@/components/ui/tabs";
 
 export function OrderStatusTabs({
   active,
@@ -24,26 +25,33 @@ export function OrderStatusTabs({
   const grouped = zones.map((z) => TAB_CONFIG.filter((t) => t.zone === z));
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      {grouped.map((tabs, zi) => (
-        <div key={zi} className="contents">
-          {zi > 0 && <Separator orientation="vertical" className="!h-6 mx-1" />}
-          {tabs.map(({ key, label }) => (
-            <PillTab
-              key={key}
-              item={{
-                key: key as OrderTab,
-                label,
-                count: counts?.[key as keyof typeof counts] ?? null,
-                countLoading: isLoading,
-              }}
-              active={active === key}
-              onSelect={onChange}
-            />
-          ))}
-        </div>
-      ))}
-    </div>
+    <Tabs
+      value={active}
+      onValueChange={(val) => onChange(val as OrderTab)}
+    >
+      <TabsList className="h-auto flex flex-wrap items-center gap-1.5 bg-transparent p-0 rounded-none">
+        {grouped.map((tabs, zi) => (
+          <div key={zi} className="contents">
+            {zi > 0 && (
+              <Separator orientation="vertical" className="!h-6 mx-1" />
+            )}
+            {tabs.map(({ key, label }) => (
+              <PillTab
+                key={key}
+                item={{
+                  key: key as OrderTab,
+                  label,
+                  count: counts?.[key as keyof typeof counts] ?? null,
+                  countLoading: isLoading,
+                }}
+                active={active === key}
+                onSelect={onChange}
+              />
+            ))}
+          </div>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 }
 
