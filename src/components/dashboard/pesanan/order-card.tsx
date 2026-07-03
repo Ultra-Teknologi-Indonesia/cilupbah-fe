@@ -31,6 +31,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { BuatPicklistDialog } from "@/components/dashboard/proses-pesanan/picking/buat-picklist-dialog";
+import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
 import {
   Tooltip,
   TooltipContent,
@@ -222,11 +223,7 @@ function OrderActions({
 
   const handlePrintLabel = () => {
     if (isMarketplace) {
-      window.open(
-        `/dashboard/document-preview/shipping-label/${order.id}`,
-        "_blank",
-        "noopener,noreferrer",
-      );
+      DocActions.shippingLabel([{ id: order.id, source: order.source }]);
     } else {
       toast.info("Cetak resi hanya tersedia untuk pesanan marketplace");
     }
@@ -627,11 +624,7 @@ function OutboundReadyActions({ order }: { order: Order }) {
 
   const handlePrintLabel = () => {
     if (isMarketplace) {
-      window.open(
-        `/dashboard/document-preview/shipping-label/${order.id}`,
-        "_blank",
-        "noopener,noreferrer",
-      );
+      DocActions.shippingLabel([{ id: order.id, source: order.source }]);
     } else {
       toast.info("Cetak label hanya tersedia untuk pesanan marketplace");
     }
