@@ -385,8 +385,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/sidebar/nav-data.ts": {
-    "mtime": 1783072935.4317625,
-    "ast_hash": "e87fe8e91420ea2f6e2fb344cf023ca0",
+    "mtime": 1783088221.2603302,
+    "ast_hash": "790632c36148600ea683d2346dbc7642",
     "semantic_hash": ""
   },
   "src/components/dashboard/sidebar/nav-main.tsx": {
@@ -2670,8 +2670,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/picking/ready-to-process-card-list.tsx": {
-    "mtime": 1783067822.612654,
-    "ast_hash": "d3108a1c0461407ee76d5b2154fcb130",
+    "mtime": 1783087898.1261213,
+    "ast_hash": "268487ea59a05f90b6e1efc1f2dbe33e",
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/proses-pesanan-page.tsx": {
@@ -2755,8 +2755,8 @@
     "semantic_hash": ""
   },
   "src/services/laporan/report.service.ts": {
-    "mtime": 1783067824.2594242,
-    "ast_hash": "2a587200bec7d1e09622782ef3d9e60b",
+    "mtime": 1783088061.4305992,
+    "ast_hash": "d4c54f1267d523e22a66363c48a6d5fc",
     "semantic_hash": ""
   },
   "src/types/laporan/hpp.ts": {
@@ -3077,6 +3077,26 @@
   "AUDIT-UI-CONSISTENCY.md": {
     "mtime": 1783080392.6973324,
     "ast_hash": "02032aee0b3a9c81619a8e0bad161297",
+    "semantic_hash": ""
+  },
+  "src/app/dashboard/laporan/retur/page.tsx": {
+    "mtime": 1783088152.1811843,
+    "ast_hash": "ab7c9a34a75558205c635b0051fa311a",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/laporan/laporan-retur-view.tsx": {
+    "mtime": 1783088246.2403336,
+    "ast_hash": "02432a8a90c113400dd0a9e7a96423f8",
+    "semantic_hash": ""
+  },
+  "src/hooks/laporan/use-laporan-retur.ts": {
+    "mtime": 1783088070.1866357,
+    "ast_hash": "245ef4edfa115e14a6ff21bc3a8fc7b6",
+    "semantic_hash": ""
+  },
+  "src/types/laporan/retur.ts": {
+    "mtime": 1783088049.073828,
+    "ast_hash": "2dbc8bfc7f5e9d0a04a486bffb1bfbb2",
     "semantic_hash": ""
   }
 }

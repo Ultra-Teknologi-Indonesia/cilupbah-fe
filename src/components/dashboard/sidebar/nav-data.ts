@@ -34,6 +34,7 @@ import {
   Layers,
   Warehouse,
   BarChart3,
+  Undo2,
 } from "lucide-react";
 import type React from "react";
 import type { Route } from "./nav-main";
@@ -211,6 +212,12 @@ export const dashboardGroups: NavGroup[] = [
         title: "Laporan HPP",
         icon: CircleDollarSign,
         link: "/dashboard/laporan/hpp",
+      },
+      {
+        id: "laporan-retur",
+        title: "Laporan Retur",
+        icon: Undo2,
+        link: "/dashboard/laporan/retur",
       },
       {
         id: "laporan-penjualan",
