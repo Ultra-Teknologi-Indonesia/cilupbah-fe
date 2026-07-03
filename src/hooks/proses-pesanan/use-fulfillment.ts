@@ -608,6 +608,79 @@ export function useRemoveOrderFromShipment() {
   });
 }
 
+export function usePreManifestCancelCount() {
+  return useQuery({
+    queryKey: fulfillmentKeys.count("pre-manifest-cancel"),
+    queryFn: () => OutboundService.preManifestCancelCount(),
+    staleTime: STALE,
+  });
+}
+
+export function useDismissPreManifestCancel() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (orderId: string) =>
+      OutboundService.preManifestCancelDismiss(orderId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.count("pre-manifest-cancel"),
+      });
+    },
+  });
+}
+
+export function useUndismissPreManifestCancel() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (orderId: string) =>
+      OutboundService.preManifestCancelUndismiss(orderId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.count("pre-manifest-cancel"),
+      });
+    },
+  });
+}
+
+export function useDownloadPreManifestCancelXlsx() {
+  return useMutation({
+    mutationFn: async (opts?: {
+      date_from?: string | null;
+      date_to?: string | null;
+    }) => {
+      const blob = await OutboundService.preManifestCancelExport(opts);
+      const today = new Date().toISOString().slice(0, 10);
+      const from = opts?.date_from ?? today;
+      const to = opts?.date_to ?? today;
+      const filename = `cancel-pasca-packing-${from}-${to}.xlsx`;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      return filename;
+    },
+    onSuccess: (filename) => {
+      toast.success(`${filename} berhasil diunduh.`);
+    },
+    onError: (err: unknown) => {
+      const msg =
+        err &&
+        typeof err === "object" &&
+        "message" in err &&
+        typeof (err as { message?: unknown }).message === "string"
+          ? (err as { message: string }).message
+          : "Gagal mengunduh XLSX cancel.";
+      toast.error(msg);
+    },
+  });
+}
+
 export function useShippingCounts() {
   const siapKirim = useQuery({
     queryKey: fulfillmentKeys.count("shipping-siap-kirim"),

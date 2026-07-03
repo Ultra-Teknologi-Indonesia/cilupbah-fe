@@ -810,4 +810,41 @@ export const OutboundService = {
     );
     return mapShipmentDetail(res.data);
   },
+
+  preManifestCancelCount: async (): Promise<number> => {
+    const res = await fetchClient<{ data: { count: number } }>(
+      `/outbound/pre-manifest/cancelled/count`,
+    );
+    return Number(res.data?.count ?? 0);
+  },
+
+  preManifestCancelDismiss: async (orderId: string): Promise<void> => {
+    await fetchClient(
+      `/outbound/pre-manifest/cancelled/${encodeURIComponent(orderId)}/dismiss`,
+      { method: "PATCH" },
+    );
+  },
+
+  preManifestCancelUndismiss: async (orderId: string): Promise<void> => {
+    await fetchClient(
+      `/outbound/pre-manifest/cancelled/${encodeURIComponent(orderId)}/undismiss`,
+      { method: "PATCH" },
+    );
+  },
+
+  preManifestCancelExport: async (opts?: {
+    date_from?: string | null;
+    date_to?: string | null;
+    source?: string | null;
+  }): Promise<Blob> => {
+    const params = new URLSearchParams();
+    if (opts?.date_from) params.set("date_from", opts.date_from);
+    if (opts?.date_to) params.set("date_to", opts.date_to);
+    if (opts?.source) params.set("source", opts.source);
+    const qs = params.toString() ? `?${params}` : "";
+    return fetchBlobRaw(
+      `/outbound/pre-manifest/cancelled/export${qs}`,
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
+  },
 };

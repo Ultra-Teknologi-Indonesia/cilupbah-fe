@@ -14,6 +14,9 @@ import {
   TruckIcon,
   PackageIcon,
   ZapIcon,
+  DownloadIcon,
+  CheckCircle2Icon,
+  AlertTriangleIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -35,8 +38,11 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
+  useDismissPreManifestCancel,
+  useDownloadPreManifestCancelXlsx,
   useMarkComplete,
   useOrdersByStage,
+  usePreManifestCancelCount,
   useReadyToShip,
   useRetryPickup,
 } from "@/hooks/proses-pesanan/use-fulfillment";
@@ -116,9 +122,11 @@ function OrderCard({
   onComplete,
   onBuatPengiriman,
   onRetryPickup,
+  onDismissCancel,
   shipPending,
   completePending,
   retryPickupPending,
+  dismissPending,
 }: {
   order: FulfillmentOrder;
   actions: OrderTableActions;
@@ -128,10 +136,14 @@ function OrderCard({
   onComplete: (ids: string[]) => void;
   onBuatPengiriman?: (order: FulfillmentOrder) => void;
   onRetryPickup?: (ids: string[]) => void;
+  onDismissCancel?: (orderId: string) => void;
   shipPending: boolean;
   completePending: boolean;
   retryPickupPending?: boolean;
+  dismissPending?: boolean;
 }) {
+  const isCancelled = order.status === "cancelled";
+
   return (
     <div
       className={cn(
@@ -139,15 +151,31 @@ function OrderCard({
         selected && "border-primary/40 bg-primary/[0.02]",
         order.isInstant &&
           "border-l-4 border-l-orange-500 bg-orange-50/50 dark:bg-orange-950/20",
+        isCancelled &&
+          "border-l-4 border-l-red-500 bg-red-50/60 dark:bg-red-950/20",
       )}
     >
       {}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-border/40 px-4 py-2.5 sm:px-5">
-        <Checkbox
-          checked={selected}
-          onCheckedChange={onToggle}
-          className="mr-0.5"
-        />
+        {isCancelled ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-flex">
+                <Checkbox checked={false} disabled className="mr-0.5" />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+              Order ini sudah dibatalkan setelah packing. Pisahkan paket fisik
+              dulu, lalu klik &ldquo;Sudah dipisahkan&rdquo;.
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <Checkbox
+            checked={selected}
+            onCheckedChange={onToggle}
+            className="mr-0.5"
+          />
+        )}
 
         <Tooltip>
           <TooltipTrigger asChild>
@@ -216,6 +244,12 @@ function OrderCard({
             className="border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-400 text-[10px] px-1.5 py-0"
           >
             Prioritas
+          </Badge>
+        )}
+        {isCancelled && (
+          <Badge className="bg-red-600 text-white hover:bg-red-700 text-[10px] px-1.5 py-0 gap-1">
+            <AlertTriangleIcon className="h-2.5 w-2.5" />
+            BATAL — Pisahkan Paket
           </Badge>
         )}
 
@@ -350,12 +384,28 @@ function OrderCard({
       {}
       <div className="flex items-center gap-2 border-t border-border/40 px-4 py-2.5 sm:px-5">
         <div className="flex flex-1 flex-wrap items-center gap-2">
-          {actions.buatPicklist && (
+          {isCancelled && onDismissCancel && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
+              onClick={() => onDismissCancel(order.id)}
+              disabled={dismissPending}
+            >
+              {dismissPending ? (
+                <Loader2Icon className="animate-spin" />
+              ) : (
+                <CheckCircle2Icon className="h-3.5 w-3.5" />
+              )}
+              Sudah dipisahkan
+            </Button>
+          )}
+          {!isCancelled && actions.buatPicklist && (
             <Button size="sm" variant="primary" onClick={onToggle}>
               Buat Picklist
             </Button>
           )}
-          {actions.buatPengiriman && onBuatPengiriman && (
+          {!isCancelled && actions.buatPengiriman && onBuatPengiriman && (
             <Button
               size="sm"
               variant="primary"
@@ -364,7 +414,7 @@ function OrderCard({
               Buat Pengiriman
             </Button>
           )}
-          {actions.siapDikirim && (
+          {!isCancelled && actions.siapDikirim && (
             <Button
               size="sm"
               variant="primary"
@@ -375,7 +425,7 @@ function OrderCard({
               Siap Dikirim
             </Button>
           )}
-          {actions.selesaikanPesanan && (
+          {!isCancelled && actions.selesaikanPesanan && (
             <Button
               size="sm"
               variant="primary"
@@ -526,6 +576,9 @@ export function FulfillmentOrdersTable({
   const readyToShip = useReadyToShip();
   const retryPickup = useRetryPickup();
   const markComplete = useMarkComplete();
+  const dismissCancel = useDismissPreManifestCancel();
+  const downloadCancelXlsx = useDownloadPreManifestCancelXlsx();
+  const preManifestCancelCount = usePreManifestCancelCount();
 
   const orders = data?.items ?? [];
   const meta = data?.meta ?? {
@@ -535,7 +588,8 @@ export function FulfillmentOrdersTable({
     total: 0,
   };
 
-  const pageIds = orders.map((o) => o.id);
+  const selectableOrders = orders.filter((o) => o.status !== "cancelled");
+  const pageIds = selectableOrders.map((o) => o.id);
   const allSelected =
     pageIds.length > 0 && pageIds.every((id) => selected.has(id));
   const someSelected = pageIds.some((id) => selected.has(id));
@@ -551,6 +605,22 @@ export function FulfillmentOrdersTable({
       else next.add(id);
       return next;
     });
+
+  const handleDismissCancel = async (orderId: string) => {
+    const target = orders.find((o) => o.id === orderId);
+    try {
+      await dismissCancel.mutateAsync(orderId);
+      toast.success(
+        `Order ${target?.salesorderNo ?? ""} ditandai sudah dipisahkan.`,
+      );
+    } catch (err) {
+      const msg =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message?: unknown }).message)
+          : "Gagal menandai order sudah dipisahkan.";
+      toast.error(msg);
+    }
+  };
 
   const selectedOrders = orders.filter((o) => selected.has(o.id));
   const distinctLocations = Array.from(
@@ -646,6 +716,13 @@ export function FulfillmentOrdersTable({
             searchPlaceholder={searchPlaceholder}
           />
           <div className="flex items-center justify-end gap-3 px-4 py-2 text-sm text-muted-foreground sm:px-5">
+            {actions.buatPengiriman && (
+              <UnduhBatalButton
+                count={preManifestCancelCount.data ?? 0}
+                onDownload={(range) => downloadCancelXlsx.mutate(range)}
+                pending={downloadCancelXlsx.isPending}
+              />
+            )}
             <button
               type="button"
               onClick={() => refetch()}
@@ -676,6 +753,13 @@ export function FulfillmentOrdersTable({
             />
           </div>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            {actions.buatPengiriman && (
+              <UnduhBatalButton
+                count={preManifestCancelCount.data ?? 0}
+                onDownload={(range) => downloadCancelXlsx.mutate(range)}
+                pending={downloadCancelXlsx.isPending}
+              />
+            )}
             <button
               type="button"
               onClick={() => refetch()}
@@ -849,9 +933,14 @@ export function FulfillmentOrdersTable({
                     : undefined
                 }
                 onRetryPickup={handleRetryPickup}
+                onDismissCancel={handleDismissCancel}
                 shipPending={readyToShip.isPending}
                 completePending={markComplete.isPending}
                 retryPickupPending={retryPickup.isPending}
+                dismissPending={
+                  dismissCancel.isPending &&
+                  dismissCancel.variables === o.id
+                }
               />
             ))}
           </div>
@@ -933,6 +1022,79 @@ export function FulfillmentOrdersTable({
         />
       )}
     </div>
+  );
+}
+
+function UnduhBatalButton({
+  count,
+  onDownload,
+  pending,
+}: {
+  count: number;
+  onDownload: (range?: { date_from?: string; date_to?: string }) => void;
+  pending: boolean;
+}) {
+  const [dateFrom, setDateFrom] = React.useState("");
+  const [dateTo, setDateTo] = React.useState("");
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          size="sm"
+          variant="outline"
+          className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
+          disabled={pending}
+        >
+          {pending ? (
+            <Loader2Icon className="animate-spin" />
+          ) : (
+            <DownloadIcon className="h-3.5 w-3.5" />
+          )}
+          Unduh Batal
+          {count > 0 && (
+            <Badge className="ml-1 bg-red-600 text-white hover:bg-red-700 h-4 min-w-4 px-1 text-[10px] tabular-nums">
+              {count}
+            </Badge>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-56">
+        <DropdownMenuItem onSelect={() => onDownload()}>
+          Hari ini
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <div className="px-2 py-1.5">
+          <p className="mb-1.5 text-[11px] font-medium text-muted-foreground">
+            Rentang tanggal
+          </p>
+          <div className="flex flex-col gap-1.5">
+            <Input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="h-8 text-xs"
+            />
+            <Input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="h-8 text-xs"
+            />
+            <Button
+              size="sm"
+              variant="primary"
+              disabled={!dateFrom || !dateTo || pending}
+              onClick={() =>
+                onDownload({ date_from: dateFrom, date_to: dateTo })
+              }
+            >
+              Unduh
+            </Button>
+          </div>
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
