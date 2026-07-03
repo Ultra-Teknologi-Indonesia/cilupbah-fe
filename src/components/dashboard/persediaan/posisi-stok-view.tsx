@@ -12,6 +12,7 @@ import { PackageIcon,
 import Image from "next/image";
 
 import { cn } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Combobox } from "@/components/ui/combobox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -332,25 +333,20 @@ export function PosisiStokView() {
 
   const filterTabs = (
     <div className="flex items-center gap-1">
-      {STOCK_FILTER_TABS.map(({ key, label, icon: Icon }) => {
-        const isActive = stockFilter === key;
-        return (
-          <button
-            key={key}
-            type="button"
-            onClick={() => handleStockFilter(key)}
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-              isActive
-                ? "bg-foreground text-background shadow-sm"
-                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
-            )}
-          >
-            <Icon className="h-3.5 w-3.5" />
-            {label}
-          </button>
-        );
-      })}
+      <Tabs value={stockFilter || ""} onValueChange={(val) => handleStockFilter(val as any)}>
+        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 bg-transparent p-0">
+          {STOCK_FILTER_TABS.map(({ key, label, icon: Icon }) => (
+            <TabsTrigger
+              key={key}
+              value={key}
+              className="inline-flex h-auto items-center gap-1.5 rounded-full bg-muted/60 px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground data-[state=active]:bg-foreground! data-[state=active]:text-background! data-[state=active]:shadow-sm! after:hidden!"
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
     </div>
   );
 

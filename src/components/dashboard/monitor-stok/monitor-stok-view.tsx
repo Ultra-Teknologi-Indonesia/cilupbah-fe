@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Combobox } from "@/components/ui/combobox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -476,23 +477,19 @@ export function MonitorStokView() {
       </div>
 
       {}
-      <div className="flex flex-wrap items-center gap-1.5 border-b border-border/40 pb-2">
-        {TABS.map(({ key, label }) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => changeTab(key)}
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-              tab === key
-                ? "bg-foreground text-background shadow-sm"
-                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
-            )}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <Tabs value={tab} onValueChange={(val) => setTab(val as any)} className="flex flex-col gap-4">
+        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 bg-transparent p-0">
+          {TABS.map(({ key, label }) => (
+            <TabsTrigger
+              key={key}
+              value={key}
+              className="inline-flex h-auto items-center gap-1.5 rounded-full bg-muted/60 px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground data-[state=active]:bg-foreground! data-[state=active]:text-background! data-[state=active]:shadow-sm! after:hidden!"
+            >
+              {label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        </Tabs>
 
       <LiquidGlass
         radius={20}

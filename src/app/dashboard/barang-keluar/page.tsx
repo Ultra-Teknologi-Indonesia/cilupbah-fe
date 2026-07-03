@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 
 import { cn } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { TableSkeleton } from "@/components/ui/page-skeleton";
 import { ReturPembelianTab } from "@/components/dashboard/barang-keluar/retur-pembelian-tab";
@@ -35,40 +36,31 @@ export default function BarangKeluarPage() {
         ]}
       />
 
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {TABS.map(({ key, label }) => {
-            const isActive = tab === key;
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => handleTabChange(key)}
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-foreground text-background shadow-sm"
-                    : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
-                )}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
+      <Tabs value={tab} onValueChange={(val) => handleTabChange(val as any)} className="flex flex-col gap-4">
+        <TabsList className="h-auto w-full justify-start gap-1 bg-transparent p-0">
+          {TABS.map(({ key, label }) => (
+            <TabsTrigger
+              key={key}
+              value={key}
+              className="inline-flex h-auto items-center gap-1.5 rounded-full bg-muted/60 px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground data-[state=active]:bg-foreground! data-[state=active]:text-background! data-[state=active]:shadow-sm! after:hidden!"
+            >
+              {label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-        {tab === "retur" && (
+        <TabsContent value="retur" className="mt-0 outline-none">
           <Suspense fallback={<TableSkeleton rows={6} cols={7} />}>
             <ReturPembelianTab />
           </Suspense>
-        )}
+        </TabsContent>
 
-        {tab === "transfer" && (
+        <TabsContent value="transfer" className="mt-0 outline-none">
           <Suspense fallback={<TableSkeleton rows={6} cols={7} />}>
             <TransferKeluarTab />
           </Suspense>
-        )}
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

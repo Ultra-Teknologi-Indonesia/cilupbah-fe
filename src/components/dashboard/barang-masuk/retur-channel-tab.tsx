@@ -10,6 +10,7 @@ import { CornerDownLeftIcon,
   PlusIcon, Loader2Icon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
@@ -290,23 +291,19 @@ export function ReturChannelTab() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-wrap items-center gap-1.5">
+        <Tabs value={subTab} onValueChange={(val) => setSubTab(val as any)} className="flex flex-col gap-4">
+        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 bg-transparent p-0">
           {SUB_TABS.map(({ key, label }) => (
-            <button
+            <TabsTrigger
               key={key}
-              type="button"
-              onClick={() => handleSubTabChange(key)}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors",
-                subTab === key
-                  ? "bg-foreground/10 text-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
-              )}
+              value={key}
+              className="inline-flex h-auto items-center gap-1.5 rounded-full bg-muted/60 px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground data-[state=active]:bg-foreground! data-[state=active]:text-background! data-[state=active]:shadow-sm! after:hidden!"
             >
               {label}
-            </button>
+            </TabsTrigger>
           ))}
-        </div>
+        </TabsList>
+        </Tabs>
         <Button size="sm" asChild className="gap-1.5">
           <Link href="/dashboard/barang-masuk/retur/buat">
             <PlusIcon className="h-4 w-4" />

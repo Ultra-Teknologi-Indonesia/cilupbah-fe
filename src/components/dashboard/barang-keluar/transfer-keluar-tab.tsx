@@ -11,6 +11,7 @@ import { ArrowRightLeftIcon,
   Trash2Icon, Loader2Icon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
@@ -380,23 +381,19 @@ export function TransferKeluarTab() {
         className="bg-white/30 dark:bg-white/[0.04]"
       >
         <div className="px-4 pt-4 sm:px-5">
-          <div className="flex flex-wrap items-center gap-1">
-            {SUB_TABS.map(({ key, label }) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => handleSubTabChange(key)}
-                className={cn(
-                  "inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-                  subTab === key
-                    ? "bg-foreground/10 text-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          <Tabs value={subTab} onValueChange={(val) => setSubTab(val as any)} className="flex flex-col gap-4">
+        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 bg-transparent p-0">
+          {SUB_TABS.map(({ key, label }) => (
+            <TabsTrigger
+              key={key}
+              value={key}
+              className="inline-flex h-auto items-center gap-1.5 rounded-full bg-muted/60 px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground data-[state=active]:bg-foreground! data-[state=active]:text-background! data-[state=active]:shadow-sm! after:hidden!"
+            >
+              {label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        </Tabs>
         </div>
 
         <FilterToolbar

@@ -1,22 +1,12 @@
-"use client";
+const fs = require('fs');
+let file = 'src/components/dashboard/shared/pill-tabs.tsx';
+let c = fs.readFileSync(file, 'utf8');
 
-import * as React from "react";
-
-import { cn } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-export interface PillTabItem<T extends string = string> {
-  key: T;
-  label: React.ReactNode;
-  icon?: React.ComponentType<{ className?: string }>;
-
-  count?: number | null;
-
-  countLoading?: boolean;
+if (!c.includes('@/components/ui/tabs')) {
+    c = c.replace(/import \{ Skeleton \} from "@\/components\/ui\/skeleton";/, 'import { Skeleton } from "@/components/ui/skeleton";\nimport { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";');
 }
 
-export function PillTab<T extends string>({
+c = c.replace(/export function PillTab([\s\S]*?)<\/button>\n  \);\n}/, `export function PillTab<T extends string>({
   item,
   active,
   variant = "solid",
@@ -61,9 +51,9 @@ export function PillTab<T extends string>({
       ) : null}
     </TabsTrigger>
   );
-}
+}`);
 
-export function PillTabs<T extends string>({
+c = c.replace(/export function PillTabs([\s\S]*?)<\/div>\n  \);\n}/, `export function PillTabs<T extends string>({
   items,
   active,
   onSelect,
@@ -91,4 +81,7 @@ export function PillTabs<T extends string>({
       </TabsList>
     </Tabs>
   );
-}
+}`);
+
+fs.writeFileSync(file, c);
+console.log("Refactored PillTabs");
