@@ -2,12 +2,12 @@
 
 import { UsersIcon, BadgeCheckIcon, TagIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { PelangganTab } from "@/components/dashboard/kontak-pelanggan/pelanggan-tab";
 import { SalesmanTab } from "@/components/dashboard/kontak-pelanggan/salesman-tab";
 import { KategoriTab } from "@/components/dashboard/kontak-pelanggan/kategori-tab";
 import { useUrlTab } from "@/hooks/use-url-tab";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 
@@ -34,31 +34,40 @@ export default function KontakPelangganPage() {
       />
 
       <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as Tab)}>
-      <TabsList className="h-auto w-full justify-start gap-1 bg-transparent p-0">
-        {TABS.map(({ key, label, icon: Icon }) => (
-          <TabsTrigger
-            key={key}
-            value={key}
-            className="inline-flex h-auto items-center gap-1.5 rounded-full bg-muted/60 px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground data-[state=active]:bg-foreground! data-[state=active]:text-background! data-[state=active]:shadow-sm! after:hidden!"
-          >
-            <Icon className="h-4 w-4" />
-            {label}
-          </TabsTrigger>
-        ))}
-      </TabsList>
+        <LiquidGlass
+          radius={16}
+          intensity="subtle"
+          showGlow={false}
+          showShadow={false}
+          reactive={false}
+          className="w-fit max-w-full overflow-x-auto bg-white/50 p-1.5 dark:bg-white/[0.06]"
+        >
+          <TabsList className="gap-1 bg-transparent">
+            {TABS.map(({ key, label, icon: Icon }) => (
+              <TabsTrigger
+                key={key}
+                value={key}
+                className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
+              >
+                <Icon />
+                {label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </LiquidGlass>
 
-      <div className="mt-6">
-        <TabsContent value="pelanggan" className="mt-0 outline-none">
-          <PelangganTab />
-        </TabsContent>
-        <TabsContent value="salesman" className="mt-0 outline-none">
-          <SalesmanTab />
-        </TabsContent>
-        <TabsContent value="kategori" className="mt-0 outline-none">
-          <KategoriTab />
-        </TabsContent>
-      </div>
-    </Tabs>
+        <div className="mt-6">
+          <TabsContent value="pelanggan" className="mt-0 outline-none">
+            <PelangganTab />
+          </TabsContent>
+          <TabsContent value="salesman" className="mt-0 outline-none">
+            <SalesmanTab />
+          </TabsContent>
+          <TabsContent value="kategori" className="mt-0 outline-none">
+            <KategoriTab />
+          </TabsContent>
+        </div>
+      </Tabs>
     </div>
   );
 }
