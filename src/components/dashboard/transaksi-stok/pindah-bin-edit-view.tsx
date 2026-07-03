@@ -144,23 +144,13 @@ export function PindahBinEditView({ id }: { id: string }) {
                 className="bg-muted/40"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-sm font-medium">Rak Asal</Label>
-                <Input
-                  value={trf.source_bin?.bin_final_code ?? "—"}
-                  readOnly
-                  className="bg-muted/40"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-sm font-medium">Rak Tujuan</Label>
-                <Input
-                  value={trf.destination_bin?.bin_final_code ?? "—"}
-                  readOnly
-                  className="bg-muted/40"
-                />
-              </div>
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-sm font-medium">Jumlah Item</Label>
+              <Input
+                value={String(trf.items?.length ?? 0)}
+                readOnly
+                className="bg-muted/40"
+              />
             </div>
           </div>
           <div className="flex flex-col gap-4">

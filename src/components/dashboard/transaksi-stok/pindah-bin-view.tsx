@@ -45,6 +45,8 @@ interface LineDraft {
   name: string;
   variantLabel: string;
   thumbnail: string | null;
+  sourceBinId: string;
+  destBinId: string;
   qty: string;
   notes: string;
 }
@@ -56,8 +58,6 @@ export function PindahBinView() {
     () => new Date(),
   );
   const [locationId, setLocationId] = useState("");
-  const [sourceBinId, setSourceBinId] = useState("");
-  const [destBinId, setDestBinId] = useState("");
   const [createdBy, setCreatedBy] = useState("");
   const [notes, setNotes] = useState("");
   const [lines, setLines] = useState<LineDraft[]>([]);
@@ -101,6 +101,8 @@ export function PindahBinView() {
           name: p.name,
           variantLabel: p.variantLabel ?? "",
           thumbnail: p.thumbnail ?? null,
+          sourceBinId: "",
+          destBinId: "",
           qty: "",
           notes: "",
         }));
@@ -118,17 +120,22 @@ export function PindahBinView() {
 
   const validLines = lines.filter((l) => {
     const q = Number(l.qty);
-    return l.qty !== "" && !Number.isNaN(q) && q > 0;
+    return (
+      l.qty !== "" &&
+      !Number.isNaN(q) &&
+      q > 0 &&
+      !!l.sourceBinId &&
+      !!l.destBinId &&
+      l.sourceBinId !== l.destBinId
+    );
   });
 
   const canSubmit =
     !!locationId &&
-    !!sourceBinId &&
-    !!destBinId &&
-    sourceBinId !== destBinId &&
     !!transferDate &&
     !!createdBy.trim() &&
-    validLines.length > 0;
+    lines.length > 0 &&
+    validLines.length === lines.length;
 
   const handleSubmit = () => {
     if (!canSubmit) return;
@@ -138,14 +145,14 @@ export function PindahBinView() {
     createMut.mutate(
       {
         location_id: locationId,
-        source_bin_id: sourceBinId,
-        destination_bin_id: destBinId,
         transfer_number: customNo,
         transfer_date: transferDate ? toDateInputValue(transferDate) : undefined,
         created_by: createdBy.trim(),
         notes: notes.trim() || undefined,
         items: validLines.map((l) => ({
           item_id: l.itemId,
+          source_bin_id: l.sourceBinId,
+          destination_bin_id: l.destBinId,
           qty: Number(l.qty),
           notes: l.notes.trim() || undefined,
         })),
@@ -222,41 +229,17 @@ export function PindahBinView() {
                 value={locationId}
                 onChange={(v) => {
                   setLocationId(v ?? "");
-                  setSourceBinId("");
-                  setDestBinId("");
+                  setLines((prev) =>
+                    prev.map((l) => ({
+                      ...l,
+                      sourceBinId: "",
+                      destBinId: "",
+                    })),
+                  );
                 }}
                 placeholder="Pilih Lokasi"
                 searchPlaceholder="Cari lokasi…"
               />
-            </div>
-            <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-sm font-medium">
-                  Rak Asal <span className="text-red-500">*</span>
-                </Label>
-                <Combobox
-                  options={binOptions.filter((b) => b.value !== destBinId)}
-                  value={sourceBinId}
-                  onChange={(v) => setSourceBinId(v ?? "")}
-                  placeholder={binsLoading ? "Memuat…" : "Pilih rak asal"}
-                  searchPlaceholder="Cari rak…"
-                  disabled={!locationId || binsLoading}
-                />
-              </div>
-              <ArrowRightIcon className="mb-2.5 h-4 w-4 shrink-0 text-muted-foreground" />
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-sm font-medium">
-                  Rak Tujuan <span className="text-red-500">*</span>
-                </Label>
-                <Combobox
-                  options={binOptions.filter((b) => b.value !== sourceBinId)}
-                  value={destBinId}
-                  onChange={(v) => setDestBinId(v ?? "")}
-                  placeholder={binsLoading ? "Memuat…" : "Pilih rak tujuan"}
-                  searchPlaceholder="Cari rak…"
-                  disabled={!locationId || binsLoading}
-                />
-              </div>
             </div>
           </div>
 
@@ -286,18 +269,16 @@ export function PindahBinView() {
         </div>
       </LiquidGlass>
 
-      {!locationId || !sourceBinId || !destBinId ? (
+      {!locationId ? (
         <div className="flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
           <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
             i
           </div>
           <div>
-            <p className="text-sm font-medium text-foreground">
-              Pilih Lokasi, Rak Asal, dan Rak Tujuan
-            </p>
+            <p className="text-sm font-medium text-foreground">Pilih Lokasi</p>
             <p className="text-xs text-muted-foreground">
-              Harap pilih Lokasi beserta Rak Asal dan Rak Tujuan terlebih
-              dahulu sebelum menambahkan produk.
+              Harap pilih Lokasi terlebih dahulu sebelum menambahkan produk.
+              Setiap produk bisa dipindahkan antar rak yang berbeda.
             </p>
           </div>
         </div>
@@ -310,8 +291,7 @@ export function PindahBinView() {
           <div className="flex flex-col gap-4 px-5 py-5">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium">
-                Produk yang Ditransfer{" "}
-                <span className="text-red-500">*</span>
+                Produk yang Ditransfer <span className="text-red-500">*</span>
               </Label>
               <Button
                 variant="outline"
@@ -330,8 +310,14 @@ export function PindahBinView() {
                     <th className="px-3 py-2.5 text-left font-medium">
                       Produk
                     </th>
+                    <th className="px-3 py-2.5 text-left font-medium">
+                      Rak Asal
+                    </th>
+                    <th className="px-3 py-2.5 text-left font-medium">
+                      Rak Tujuan
+                    </th>
                     <th className="px-3 py-2.5 text-right font-medium">
-                      Qty Pindah
+                      Qty
                     </th>
                     <th className="px-3 py-2.5 text-left font-medium">
                       Keterangan
@@ -342,7 +328,7 @@ export function PindahBinView() {
                 <tbody className="divide-y divide-border">
                   {lines.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-3 py-12 text-center">
+                      <td colSpan={6} className="px-3 py-12 text-center">
                         <div className="flex flex-col items-center gap-2 text-muted-foreground">
                           <PackageSearchIcon className="h-7 w-7 opacity-40" />
                           <p className="text-sm">
@@ -355,9 +341,13 @@ export function PindahBinView() {
                   ) : (
                     lines.map((l) => {
                       const qtyNum = Number(l.qty);
-                      const invalid =
+                      const qtyInvalid =
                         l.qty !== "" &&
                         (Number.isNaN(qtyNum) || qtyNum <= 0);
+                      const sameBin =
+                        !!l.sourceBinId &&
+                        !!l.destBinId &&
+                        l.sourceBinId === l.destBinId;
                       return (
                         <tr key={l.itemId} className="bg-background/50">
                           <td className="px-3 py-2.5">
@@ -389,6 +379,51 @@ export function PindahBinView() {
                               </div>
                             </div>
                           </td>
+                          <td className="px-3 py-2.5">
+                            <Combobox
+                              options={binOptions.filter(
+                                (b) => b.value !== l.destBinId,
+                              )}
+                              value={l.sourceBinId}
+                              onChange={(v) =>
+                                updateLine(l.itemId, { sourceBinId: v ?? "" })
+                              }
+                              placeholder={
+                                binsLoading ? "Memuat…" : "Pilih rak asal"
+                              }
+                              searchPlaceholder="Cari rak…"
+                              disabled={binsLoading}
+                              className={cn(
+                                "h-9 min-w-[140px]",
+                                sameBin &&
+                                  "border-destructive ring-1 ring-destructive/30",
+                              )}
+                            />
+                          </td>
+                          <td className="px-3 py-2.5">
+                            <div className="flex items-center gap-2">
+                              <ArrowRightIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                              <Combobox
+                                options={binOptions.filter(
+                                  (b) => b.value !== l.sourceBinId,
+                                )}
+                                value={l.destBinId}
+                                onChange={(v) =>
+                                  updateLine(l.itemId, { destBinId: v ?? "" })
+                                }
+                                placeholder={
+                                  binsLoading ? "Memuat…" : "Pilih rak tujuan"
+                                }
+                                searchPlaceholder="Cari rak…"
+                                disabled={binsLoading}
+                                className={cn(
+                                  "h-9 min-w-[140px]",
+                                  sameBin &&
+                                    "border-destructive ring-1 ring-destructive/30",
+                                )}
+                              />
+                            </div>
+                          </td>
                           <td className="px-3 py-2.5 text-right">
                             <Input
                               type="number"
@@ -400,7 +435,7 @@ export function PindahBinView() {
                               placeholder="0"
                               className={cn(
                                 "h-9 w-24 text-right",
-                                invalid &&
+                                qtyInvalid &&
                                   "border-destructive ring-1 ring-destructive/30",
                               )}
                             />
@@ -412,7 +447,7 @@ export function PindahBinView() {
                                 updateLine(l.itemId, { notes: e.target.value })
                               }
                               placeholder="Opsional"
-                              className="h-9 min-w-[160px]"
+                              className="h-9 min-w-[140px]"
                             />
                           </td>
                           <td className="px-3 py-2.5 text-right">
@@ -436,16 +471,9 @@ export function PindahBinView() {
 
             {lines.length > 0 && (
               <p className="text-xs text-muted-foreground">
-                Total {validLines.length} produk siap ditransfer dari{" "}
-                <span className="font-mono">
-                  {binOptions.find((b) => b.value === sourceBinId)?.label ??
-                    "—"}
-                </span>{" "}
-                ke{" "}
-                <span className="font-mono">
-                  {binOptions.find((b) => b.value === destBinId)?.label ?? "—"}
-                </span>
-                .
+                Total {validLines.length} dari {lines.length} baris siap
+                ditransfer. Setiap baris wajib punya rak asal, rak tujuan (harus
+                berbeda), dan qty &gt; 0.
               </p>
             )}
           </div>

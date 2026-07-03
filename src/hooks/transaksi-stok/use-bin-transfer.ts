@@ -19,6 +19,8 @@ export function useLocationBins(locationId: string) {
 
 export interface BinTransferItemPayload {
   item_id: string;
+  source_bin_id: string;
+  destination_bin_id: string;
   qty: number;
   batch_no?: string;
   serial_no?: string;
@@ -28,8 +30,6 @@ export interface BinTransferItemPayload {
 
 export interface BinTransferPayload {
   location_id: string;
-  source_bin_id: string;
-  destination_bin_id: string;
   transfer_number?: string;
   transfer_date?: string;
   created_by: string;
@@ -42,20 +42,18 @@ export interface BinTransferListItem {
   transfer_number: string;
   transfer_date: string;
   location_id: string;
-  source_bin_id: string;
-  destination_bin_id: string;
   created_by: string;
   notes: string | null;
   created_at: string;
   items_count: number;
   location?: { id: string; location_name: string } | null;
-  source_bin?: { id: string; bin_final_code: string } | null;
-  destination_bin?: { id: string; bin_final_code: string } | null;
 }
 
 export interface BinTransferDetailItem {
   id: string;
   item_id: string;
+  source_bin_id: string;
+  destination_bin_id: string;
   qty: number;
   batch_no: string | null;
   serial_no: string | null;
@@ -68,6 +66,8 @@ export interface BinTransferDetailItem {
     thumbnail_url?: string | null;
     product?: { id: string; name: string } | null;
   } | null;
+  source_bin?: { id: string; bin_final_code: string } | null;
+  destination_bin?: { id: string; bin_final_code: string } | null;
 }
 
 export interface BinTransferDetail extends BinTransferListItem {

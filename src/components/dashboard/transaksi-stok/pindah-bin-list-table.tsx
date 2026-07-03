@@ -2,11 +2,7 @@
 
 import { useMemo, useCallback } from "react";
 import Link from "next/link";
-import {
-  ArrowRightIcon,
-  PackageIcon,
-  PlusIcon,
-} from "lucide-react";
+import { PackageIcon, PlusIcon } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { DateRange } from "react-day-picker";
 
@@ -123,21 +119,6 @@ export function PindahBinListTable() {
         ),
       },
       {
-        id: "bin_flow",
-        header: "Rak",
-        cell: ({ row }) => (
-          <div className="flex items-center gap-1.5 text-foreground">
-            <span className="font-mono text-xs">
-              {row.original.source_bin?.bin_final_code ?? "—"}
-            </span>
-            <ArrowRightIcon className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="font-mono text-xs">
-              {row.original.destination_bin?.bin_final_code ?? "—"}
-            </span>
-          </div>
-        ),
-      },
-      {
         accessorKey: "items_count",
         header: () => <div className="text-right">Jumlah Item</div>,
         cell: ({ row }) => (
@@ -180,8 +161,6 @@ export function PindahBinListTable() {
         "No. Transfer Internal",
         "Tanggal",
         "Lokasi",
-        "Rak Asal",
-        "Rak Tujuan",
         "Jumlah Item",
         "Dibuat Oleh",
       ],
@@ -189,8 +168,6 @@ export function PindahBinListTable() {
         it.transfer_number,
         formatDate(it.transfer_date),
         it.location?.location_name ?? "",
-        it.source_bin?.bin_final_code ?? "",
-        it.destination_bin?.bin_final_code ?? "",
         String(it.items_count ?? 0),
         it.created_by,
       ]),

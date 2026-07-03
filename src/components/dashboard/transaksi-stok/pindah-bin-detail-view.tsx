@@ -179,14 +179,6 @@ export function PindahBinDetailView({ id }: { id: string }) {
             value={trf.location?.location_name ?? "—"}
           />
           <InfoRow label="Dibuat Oleh" value={trf.created_by} />
-          <InfoRow
-            label="Rak Asal"
-            value={trf.source_bin?.bin_final_code ?? "—"}
-          />
-          <InfoRow
-            label="Rak Tujuan"
-            value={trf.destination_bin?.bin_final_code ?? "—"}
-          />
           <div className="sm:col-span-2">
             <InfoRow label="Keterangan" value={trf.notes ?? "—"} />
           </div>
@@ -205,6 +197,12 @@ export function PindahBinDetailView({ id }: { id: string }) {
               <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
                 <tr>
                   <th className="px-3 py-2.5 text-left font-medium">Produk</th>
+                  <th className="px-3 py-2.5 text-left font-medium">
+                    Rak Asal
+                  </th>
+                  <th className="px-3 py-2.5 text-left font-medium">
+                    Rak Tujuan
+                  </th>
                   <th className="px-3 py-2.5 text-right font-medium">Qty</th>
                   <th className="px-3 py-2.5 text-left font-medium">Unit</th>
                   <th className="px-3 py-2.5 text-left font-medium">
@@ -216,7 +214,7 @@ export function PindahBinDetailView({ id }: { id: string }) {
                 {(trf.items ?? []).length === 0 ? (
                   <tr>
                     <td
-                      colSpan={4}
+                      colSpan={6}
                       className="px-3 py-8 text-center text-sm text-muted-foreground"
                     >
                       Tidak ada produk.
@@ -259,6 +257,12 @@ export function PindahBinDetailView({ id }: { id: string }) {
                               </p>
                             </div>
                           </div>
+                        </td>
+                        <td className="px-3 py-2.5 font-mono text-xs text-foreground">
+                          {it.source_bin?.bin_final_code ?? "—"}
+                        </td>
+                        <td className="px-3 py-2.5 font-mono text-xs text-foreground">
+                          {it.destination_bin?.bin_final_code ?? "—"}
                         </td>
                         <td className="px-3 py-2.5 text-right font-mono tabular-nums">
                           {it.qty}
