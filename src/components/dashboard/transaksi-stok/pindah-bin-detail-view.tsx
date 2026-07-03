@@ -230,8 +230,8 @@ export function PindahBinDetailView({ id }: { id: string }) {
                       ?.thumbnail_url ?? null;
                   return (
                     <TableRow key={it.id} className="bg-background/50">
-                      <TableCell className="px-3 py-2.5">
-                        <div className="flex items-center gap-3">
+                      <TableCell className="px-3 py-2.5 align-top">
+                        <div className="flex max-w-[280px] items-start gap-3">
                           {image ? (
                             <Image
                               src={image}
@@ -245,16 +245,16 @@ export function PindahBinDetailView({ id }: { id: string }) {
                               <PackageSearchIcon className="h-5 w-5 text-muted-foreground/40" />
                             </div>
                           )}
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-medium">
+                          <div className="flex min-w-0 flex-col gap-0.5">
+                            <p className="whitespace-normal break-words text-sm font-medium">
                               {p?.product?.name ?? "—"}
                             </p>
                             {p?.variant_label && (
-                              <p className="truncate text-xs text-muted-foreground">
+                              <p className="whitespace-normal break-words text-xs text-muted-foreground">
                                 {p.variant_label}
                               </p>
                             )}
-                            <p className="truncate font-mono text-[11px] text-muted-foreground">
+                            <p className="whitespace-normal break-all font-mono text-[11px] text-muted-foreground">
                               {p?.sku ?? "—"}
                             </p>
                           </div>

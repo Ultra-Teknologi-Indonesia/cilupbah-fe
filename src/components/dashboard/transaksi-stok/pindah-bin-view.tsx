@@ -507,8 +507,8 @@ export function PindahBinView() {
                       !!sourceBin && qtyNum > 0 && qtyNum > sourceBin.onHand;
                     return (
                       <TableRow key={l.itemId} className="bg-background/50">
-                        <TableCell className="px-3 py-2.5">
-                          <div className="flex items-center gap-3">
+                        <TableCell className="px-3 py-2.5 align-top">
+                          <div className="flex max-w-[280px] items-start gap-3">
                             {l.thumbnail ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
@@ -521,16 +521,16 @@ export function PindahBinView() {
                                 <PackageSearchIcon className="h-5 w-5 text-muted-foreground/40" />
                               </div>
                             )}
-                            <div className="min-w-0">
-                              <p className="truncate text-sm font-medium">
+                            <div className="flex min-w-0 flex-col gap-0.5">
+                              <p className="whitespace-normal break-words text-sm font-medium">
                                 {l.name}
                               </p>
                               {l.variantLabel && (
-                                <p className="truncate text-xs text-muted-foreground">
+                                <p className="whitespace-normal break-words text-xs text-muted-foreground">
                                   {l.variantLabel}
                                 </p>
                               )}
-                              <p className="truncate font-mono text-[11px] text-muted-foreground">
+                              <p className="whitespace-normal break-all font-mono text-[11px] text-muted-foreground">
                                 {l.sku}
                               </p>
                             </div>
