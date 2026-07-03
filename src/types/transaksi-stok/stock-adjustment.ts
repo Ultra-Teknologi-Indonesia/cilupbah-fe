@@ -14,7 +14,9 @@ export interface StockAdjustmentItem {
     product?: {
       id: string
       name: string
+      media?: { url: string }[]
     }
+    media?: { url: string }[]
   }
   bin?: {
     id: string

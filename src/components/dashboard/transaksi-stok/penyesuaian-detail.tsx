@@ -4,6 +4,7 @@ import * as React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import {
   DownloadIcon,
   Trash2Icon,
@@ -73,18 +74,29 @@ export function PenyesuaianDetail({ id }: { id: string }) {
     {
       accessorKey: "item_name",
       header: "Nama Produk",
-      cell: ({ row }) => (
-        <div className="flex min-w-0 flex-col gap-0.5" style={{ maxWidth: 280 }}>
-          <span className="font-medium whitespace-normal break-words text-foreground">
-            {row.original.product?.product?.name ?? "—"}
-          </span>
-          {row.original.product?.sku && (
-            <span className="font-mono text-[11px] text-foreground/80">
-              {row.original.product.sku}
-            </span>
-          )}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const prod = row.original.product
+        const imageUrl = prod?.media?.[0]?.url || prod?.product?.media?.[0]?.url
+        return (
+          <div className="flex items-center gap-3">
+            {imageUrl ? (
+              <Image src={imageUrl} alt={prod?.product?.name ?? "Produk"} width={40} height={40} className="rounded-md object-cover w-10 h-10 shrink-0" />
+            ) : (
+              <div className="rounded-md bg-muted w-10 h-10 shrink-0" />
+            )}
+            <div className="flex min-w-0 flex-col gap-0.5" style={{ maxWidth: 280 }}>
+              <span className="font-medium whitespace-normal break-words text-foreground">
+                {prod?.product?.name ?? "—"}
+              </span>
+              {prod?.sku && (
+                <span className="font-mono text-[11px] text-foreground/80">
+                  {prod.sku}
+                </span>
+              )}
+            </div>
+          </div>
+        )
+      },
     },
     {
       accessorKey: "bin",
@@ -197,6 +209,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
             onSearchChange={setGlobalFilter}
             searchPlaceholder="Cari item..."
             manualPagination={true}
+            enableColumnVisibility={false}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
