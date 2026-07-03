@@ -224,10 +224,19 @@ export function PindahBinDetailView({ id }: { id: string }) {
                 </TableRow>
               ) : (
                 (trf.items ?? []).map((it) => {
-                  const p = it.product;
+                  const p = it.product as
+                    | (NonNullable<typeof it.product> & {
+                        thumbnail_url?: string | null;
+                        media?: { url?: string | null }[];
+                        product?: { media?: { url?: string | null }[] } | null;
+                      })
+                    | null
+                    | undefined;
                   const image =
-                    (p as { thumbnail_url?: string } | undefined)
-                      ?.thumbnail_url ?? null;
+                    p?.thumbnail_url ??
+                    p?.media?.[0]?.url ??
+                    p?.product?.media?.[0]?.url ??
+                    null;
                   return (
                     <TableRow key={it.id} className="bg-background/50">
                       <TableCell className="px-3 py-2.5 align-top">
