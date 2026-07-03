@@ -22,6 +22,17 @@ const dateTime = new Intl.DateTimeFormat("id-ID", {
   minute: "2-digit",
 })
 
+const dateTimeFull = new Intl.DateTimeFormat("id-ID", {
+  weekday: "long",
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Asia/Jakarta",
+  timeZoneName: "short"
+})
+
 const currencyIdr = new Intl.NumberFormat("id-ID", {
   style: "currency",
   currency: "IDR",
@@ -53,6 +64,12 @@ export function formatDateLong(d: string | number | Date | null | undefined): st
 export function formatDateTime(d: string | number | Date | null | undefined): string {
   const date = toDate(d)
   return date ? dateTime.format(date) : "—"
+}
+
+/** "Selasa, 07 Juli 2026, 14.30 WIB" — tanggal lengkap dengan hari dan zona waktu WIB. */
+export function formatDateTimeFull(d: string | number | Date | null | undefined): string {
+  const date = toDate(d)
+  return date ? dateTimeFull.format(date) : "—"
 }
 
 /** "Rp 15.000" — rupiah tanpa desimal. */

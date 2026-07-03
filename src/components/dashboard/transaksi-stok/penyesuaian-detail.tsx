@@ -24,7 +24,7 @@ import {
   useDeleteStockAdjustment,
 } from "@/hooks/transaksi-stok/use-stock-adjustments"
 import { exportCsv } from "@/lib/export-csv"
-import { formatDate } from "@/lib/format"
+import { formatDateTimeFull } from "@/lib/format"
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -178,10 +178,9 @@ export function PenyesuaianDetail({ id }: { id: string }) {
         <div className="grid gap-3 sm:grid-cols-2">
           <InfoRow label="No. Koreksi Stok" value={adj.adjustment_no} />
           <InfoRow label="Lokasi" value={adj.location?.location_name} />
-          <InfoRow label="Tgl. Transaksi" value={adj.transaction_date ? formatDate(adj.transaction_date) : null} />
+          <InfoRow label="Tgl. Transaksi" value={adj.transaction_date ? formatDateTimeFull(adj.transaction_date) : null} />
           <InfoRow label="Dibuat Oleh" value={adj.created_by} />
           <InfoRow label="Catatan" value={adj.notes} />
-          <InfoRow label="Saldo Awal" value={adj.is_beginning_balance ? "Ya" : "Tidak"} />
         </div>
       </LiquidGlass>
 
