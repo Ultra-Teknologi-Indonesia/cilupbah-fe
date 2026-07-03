@@ -1,15 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  DownloadIcon,
-  RefreshCwIcon,
-  TimerIcon,
-  TimerOffIcon,
-} from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { cn } from "@/lib/utils";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Combobox } from "@/components/ui/combobox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -38,12 +31,8 @@ import {
 } from "@/hooks/monitor-stok/use-monitor-stok";
 import type {
   MonitorTab,
-  MonitorStockRow,
-  MonitorAnalyticsRow,
-  MonitorSyncFailedRow,
   OutOfStockMode,
   KronologiView,
-  KronologiRow,
 } from "@/types/monitor-stok/monitor";
 import type { KategoriItem } from "@/types/kategori-merek/kategori";
 
@@ -111,137 +100,6 @@ function flattenCategories(
   return result;
 }
 
-function csvEncode(cells: (string | number | null | undefined)[]): string {
-  return cells.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",");
-}
-
-function exportTabCsv(
-  tab: MonitorTab,
-  rows:
-    | MonitorStockRow[]
-    | MonitorAnalyticsRow[]
-    | MonitorSyncFailedRow[]
-    | KronologiRow[],
-  subMode?: string,
-) {
-  let header: string[];
-  let lines: string[];
-  const filename = `monitor-${tab}${tab === "stok-kosong" && subMode ? `-${subMode}` : ""}.csv`;
-
-  if (isKronologiTab(tab)) {
-    const data = rows as KronologiRow[];
-    header = [
-      "Tanggal",
-      "SKU",
-      "Lokasi",
-      "Rak",
-      "Jenis",
-      "Qty",
-      "Saldo",
-      "No. Transaksi",
-    ];
-    lines = data.map((r) =>
-      csvEncode([
-        r.transaction_date,
-        r.sku,
-        r.location_name,
-        r.bin_code,
-        r.source_label,
-        r.qty,
-        r.balance,
-        r.transaction_number,
-      ]),
-    );
-  } else if (isSyncTab(tab)) {
-    const data = rows as MonitorSyncFailedRow[];
-    header = [
-      "SKU",
-      "Produk",
-      "Channel",
-      "Toko",
-      "Status",
-      "Error",
-      "Terakhir Sync",
-    ];
-    lines = data.map((r) =>
-      csvEncode([
-        r.sku,
-        r.product_name,
-        r.channel_name,
-        r.shop_name,
-        r.sync_status,
-        r.error_message,
-        r.last_synced_at,
-      ]),
-    );
-  } else if (isAnalyticsTab(tab)) {
-    const data = rows as MonitorAnalyticsRow[];
-    header = [
-      "SKU",
-      "Produk",
-      "On Hand",
-      "Tersedia",
-      "Qty Terjual",
-      "Avg/Hari",
-      "Last Sold",
-      "Idle (hari)",
-      "Estimasi Hari",
-      "Tanggal Habis",
-    ];
-    lines = data.map((r) =>
-      csvEncode([
-        r.sku,
-        r.product_name,
-        r.on_hand,
-        r.available,
-        r.qty_sold,
-        r.avg_per_day,
-        r.last_sold,
-        r.days_idle,
-        r.days_to_out,
-        r.estimated_date,
-      ]),
-    );
-  } else {
-    const data = rows as MonitorStockRow[];
-    header = [
-      "SKU",
-      "Produk",
-      "On Hand",
-      "On Order",
-      "Tersedia",
-      "Perlu Restock",
-    ];
-    lines = data.map((r) =>
-      csvEncode([
-        r.sku,
-        r.product_name,
-        r.on_hand,
-        r.on_order,
-        r.available,
-        r.qty_to_restock,
-      ]),
-    );
-  }
-
-  const blob = new Blob([[header.join(","), ...lines].join("\n")], {
-    type: "text/csv;charset=utf-8;",
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-const AUTO_REFRESH_OPTIONS = [
-  { value: "0", label: "Mati" },
-  { value: "30", label: "30 detik" },
-  { value: "60", label: "1 menit" },
-  { value: "300", label: "5 menit" },
-];
-
 export function MonitorStokView() {
   const [tab, setTab] = useState<MonitorTab>("stok-kosong");
   const [subMode, setSubMode] = useState<OutOfStockMode>("habis");
@@ -250,7 +108,6 @@ export function MonitorStokView() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [locationId, setLocationId] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [autoRefresh, setAutoRefresh] = useState(0);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
   const [kronologiView, setKronologiView] = useState<KronologiView>("clean");
@@ -337,7 +194,6 @@ export function MonitorStokView() {
       : isAnalyticsTab(tab)
         ? analyticsQuery
         : listQuery;
-  const rows = active.data?.items ?? [];
   const meta = active.data?.meta ?? EMPTY_META;
 
   const locationOptions = useMemo(
@@ -392,18 +248,6 @@ export function MonitorStokView() {
     [resetPage],
   );
 
-  const autoRefreshRef = useRef(active);
-  autoRefreshRef.current = active;
-  useEffect(() => {
-    if (!autoRefresh) return;
-
-    const id = setInterval(() => {
-      if (document.visibilityState === "visible")
-        autoRefreshRef.current.refetch();
-    }, autoRefresh * 1000);
-    return () => clearInterval(id);
-  }, [autoRefresh]);
-
   const hasFilter = Boolean(locationId || categoryId);
   const activeCount = [locationId, categoryId].filter(Boolean).length;
 
@@ -420,76 +264,32 @@ export function MonitorStokView() {
 
   return (
     <div className="flex flex-col gap-4">
-      {}
-      <div className="flex items-center justify-end gap-2">
-        <button
-          type="button"
-          onClick={() => exportTabCsv(tab, rows, subMode)}
-          disabled={rows.length === 0}
-          className="inline-flex items-center gap-1.5 rounded-md border border-border/60 px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+      <Tabs
+        value={tab}
+        onValueChange={(val) => changeTab(val as MonitorTab)}
+        className="flex flex-col gap-4"
+      >
+        <LiquidGlass
+          radius={16}
+          intensity="subtle"
+          showGlow={false}
+          showShadow={false}
+          reactive={false}
+          className="w-fit max-w-full overflow-x-auto bg-white/50 p-1.5 dark:bg-white/[0.06]"
         >
-          <DownloadIcon className="h-4 w-4" /> Export
-        </button>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => setAutoRefresh((v) => (v ? 0 : 60))}
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors",
-              autoRefresh
-                ? "border-primary/40 bg-primary/10 text-primary"
-                : "border-border/60 text-foreground hover:bg-muted",
-            )}
-            title={
-              autoRefresh
-                ? `Auto-refresh setiap ${autoRefresh}s`
-                : "Auto-refresh mati"
-            }
-          >
-            {autoRefresh ? (
-              <TimerIcon className="h-4 w-4" />
-            ) : (
-              <TimerOffIcon className="h-4 w-4" />
-            )}
-            {autoRefresh ? `${autoRefresh}s` : "Auto"}
-          </button>
-          {autoRefresh > 0 && (
-            <Combobox
-              options={AUTO_REFRESH_OPTIONS.filter((o) => o.value !== "0")}
-              value={String(autoRefresh)}
-              onChange={(v) => setAutoRefresh(Number(v) || 0)}
-              placeholder="Interval"
-              searchPlaceholder="Pilih interval"
-              className="h-9 w-28 bg-background"
-            />
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={() => active.refetch()}
-          className="inline-flex items-center gap-1.5 rounded-md border border-border/60 px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-        >
-          <RefreshCwIcon
-            className={cn("h-4 w-4", active.isFetching && "animate-spin")}
-          />{" "}
-          Refresh
-        </button>
-      </div>
-
-      {}
-      <Tabs value={tab} onValueChange={(val) => setTab(val as any)} className="flex flex-col gap-4">
-        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 bg-transparent p-0">
-          {TABS.map(({ key, label }) => (
-            <TabsTrigger
-              key={key}
-              value={key}
-              className="inline-flex h-auto items-center gap-1.5 rounded-full bg-muted/60 px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground data-[state=active]:bg-foreground! data-[state=active]:text-background! data-[state=active]:shadow-sm! after:hidden!"
-            >
-              {label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        </Tabs>
+          <TabsList className="gap-1 bg-transparent">
+            {TABS.map(({ key, label }) => (
+              <TabsTrigger
+                key={key}
+                value={key}
+                className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
+              >
+                {label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </LiquidGlass>
+      </Tabs>
 
       <LiquidGlass
         radius={20}
@@ -499,28 +299,36 @@ export function MonitorStokView() {
         {}
         <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-4 sm:px-5">
           {tab === "stok-kosong" ? (
-            <div className="flex flex-wrap gap-1.5">
-              {SUB_TABS.map(({ key, label }) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => changeSub(key)}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-                    subMode === key
-                      ? "border-primary text-primary"
-                      : "border-border/60 text-muted-foreground hover:bg-muted",
-                  )}
-                >
-                  {label}
-                  {subTotal(key) !== undefined && (
-                    <span className="rounded-full bg-muted px-1.5 text-[10px] tabular-nums">
-                      {subTotal(key)}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
+            <Tabs
+              value={subMode}
+              onValueChange={(v) => changeSub(v as OutOfStockMode)}
+            >
+              <LiquidGlass
+                radius={14}
+                intensity="subtle"
+                showGlow={false}
+                showShadow={false}
+                reactive={false}
+                className="w-fit max-w-full overflow-x-auto bg-white/50 p-1 dark:bg-white/[0.06]"
+              >
+                <TabsList className="gap-1 bg-transparent">
+                  {SUB_TABS.map(({ key, label }) => (
+                    <TabsTrigger
+                      key={key}
+                      value={key}
+                      className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
+                    >
+                      {label}
+                      {subTotal(key) !== undefined && (
+                        <span className="ml-0.5 rounded-full bg-muted px-1.5 text-[10px] tabular-nums">
+                          {subTotal(key)}
+                        </span>
+                      )}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </LiquidGlass>
+            </Tabs>
           ) : isAnalyticsTab(tab) ? (
             <div className="w-52">
               <Combobox
@@ -535,25 +343,33 @@ export function MonitorStokView() {
               />
             </div>
           ) : isKronologiTab(tab) ? (
-            <div className="flex flex-wrap gap-1.5">
-              {KRONOLOGI_VIEWS.map(({ key, label }) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() =>
-                    onFilter(() => setKronologiView(key))
-                  }
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-                    kronologiView === key
-                      ? "border-primary text-primary"
-                      : "border-border/60 text-muted-foreground hover:bg-muted",
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            <Tabs
+              value={kronologiView}
+              onValueChange={(v) =>
+                onFilter(() => setKronologiView(v as KronologiView))
+              }
+            >
+              <LiquidGlass
+                radius={14}
+                intensity="subtle"
+                showGlow={false}
+                showShadow={false}
+                reactive={false}
+                className="w-fit max-w-full overflow-x-auto bg-white/50 p-1 dark:bg-white/[0.06]"
+              >
+                <TabsList className="gap-1 bg-transparent">
+                  {KRONOLOGI_VIEWS.map(({ key, label }) => (
+                    <TabsTrigger
+                      key={key}
+                      value={key}
+                      className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
+                    >
+                      {label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </LiquidGlass>
+            </Tabs>
           ) : (
             <div />
           )}

@@ -35,15 +35,13 @@ export function UploadMassalView() {
   };
 
   const tabBar = (
-    <Tabs value={active} onValueChange={setTab}>
-      <TabsList variant="line">
-        {TABS.map((t) => (
-          <TabsTrigger key={t.id} value={t.id}>
-            {t.label}
-          </TabsTrigger>
-        ))}
-      </TabsList>
-    </Tabs>
+    <TabsList variant="line">
+      {TABS.map((t) => (
+        <TabsTrigger key={t.id} value={t.id}>
+          {t.label}
+        </TabsTrigger>
+      ))}
+    </TabsList>
   );
 
   const actionButton = (
@@ -60,11 +58,13 @@ export function UploadMassalView() {
 
   return (
     <>
-      {active === "draft" ? (
-        <DraftTab tabBar={tabBar} actionButton={actionButton} />
-      ) : (
-        <HasilTab tabBar={tabBar} actionButton={actionButton} />
-      )}
+      <Tabs value={active} onValueChange={setTab}>
+        {active === "draft" ? (
+          <DraftTab tabBar={tabBar} actionButton={actionButton} />
+        ) : (
+          <HasilTab tabBar={tabBar} actionButton={actionButton} />
+        )}
+      </Tabs>
       <ProductPickerDialog open={pickerOpen} onOpenChange={setPickerOpen} />
     </>
   );

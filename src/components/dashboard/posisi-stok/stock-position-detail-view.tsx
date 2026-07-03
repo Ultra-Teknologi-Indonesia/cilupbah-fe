@@ -78,15 +78,15 @@ const VIEW_TABS: {
   description: string;
 }[] = [
   {
+    value: "all",
+    label: "Semua",
+    description: "Semua sumber, termasuk Faktur.",
+  },
+  {
     value: "clean",
     label: "Kronologi Bersih",
     description:
       "Pergerakan stok yang sudah jelas: pick per-scan, transfer, retur, adjustment.",
-  },
-  {
-    value: "all",
-    label: "Semua",
-    description: "Semua sumber, termasuk Faktur.",
   },
   {
     value: "attention",
@@ -233,7 +233,7 @@ function StockSummaryCards({
 }
 
 function MovementsSection({ itemId }: { itemId: string }) {
-  const [view, setView] = useState<MovementView>("clean");
+  const [view, setView] = useState<MovementView>("all");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
   const [source, setSource] = useState("");
@@ -285,6 +285,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
         setPage(1);
       }}
       items={VIEW_TABS.map((t) => ({ key: t.value, label: t.label }))}
+      className="w-fit! [&_[data-slot=tabs-trigger]]:flex-none"
     />
   );
 

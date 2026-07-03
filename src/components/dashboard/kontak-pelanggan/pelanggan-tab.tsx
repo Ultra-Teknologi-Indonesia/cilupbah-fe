@@ -241,22 +241,32 @@ export function PelangganTab() {
   }
 
   const filterTabs = (
-    <div className="flex items-center gap-1">
-      <Tabs value={typeFilter || ""} onValueChange={(val) => handleTypeFilter(val as any)}>
-        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 bg-transparent p-0">
+    <Tabs
+      value={typeFilter || ""}
+      onValueChange={(val) => handleTypeFilter(val as TypeFilter)}
+    >
+      <LiquidGlass
+        radius={14}
+        intensity="subtle"
+        showGlow={false}
+        showShadow={false}
+        reactive={false}
+        className="w-fit max-w-full overflow-x-auto bg-white/50 p-1 dark:bg-white/[0.06]"
+      >
+        <TabsList className="gap-1 bg-transparent">
           {TYPE_TABS.map(({ key, label, icon: Icon }) => (
             <TabsTrigger
               key={key}
               value={key}
-              className="inline-flex h-auto items-center gap-1.5 rounded-full bg-muted/60 px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground data-[state=active]:bg-foreground! data-[state=active]:text-background! data-[state=active]:shadow-sm! after:hidden!"
+              className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
             >
-              <Icon className="h-3.5 w-3.5" />
+              <Icon />
               {label}
             </TabsTrigger>
           ))}
         </TabsList>
-      </Tabs>
-    </div>
+      </LiquidGlass>
+    </Tabs>
   );
 
   const handleExport = useCallback(() => {

@@ -8,7 +8,6 @@ import {
   ImportIcon,
   Package2Icon,
   PlugIcon,
-  TrendingUpIcon,
   UploadCloudIcon,
 } from "lucide-react";
 
@@ -59,12 +58,6 @@ const TABS: Tab[] = [
     icon: PlugIcon,
     href: "/dashboard/produk/listing-marketplace",
   },
-  {
-    id: "naikkan",
-    label: "Naikkan Produk",
-    icon: TrendingUpIcon,
-    href: "/dashboard/produk/naikkan",
-  },
 ];
 
 function activeId(pathname: string, status: string | null): string {
@@ -74,7 +67,6 @@ function activeId(pathname: string, status: string | null): string {
   if (pathname.startsWith("/dashboard/produk/import")) return "import";
   if (pathname.startsWith("/dashboard/produk/listing-marketplace"))
     return "channel";
-  if (pathname.startsWith("/dashboard/produk/naikkan")) return "naikkan";
   if (pathname.startsWith("/dashboard/produk/master")) return "master";
   return "";
 }

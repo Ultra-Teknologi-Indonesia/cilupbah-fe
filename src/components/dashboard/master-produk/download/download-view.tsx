@@ -49,15 +49,13 @@ export function DownloadView() {
   };
 
   const tabBar = (
-    <Tabs value={active} onValueChange={setTab}>
-      <TabsList variant="line">
-        {TABS.map((t) => (
-          <TabsTrigger key={t.id} value={t.id}>
-            {t.label}
-          </TabsTrigger>
-        ))}
-      </TabsList>
-    </Tabs>
+    <TabsList variant="line">
+      {TABS.map((t) => (
+        <TabsTrigger key={t.id} value={t.id}>
+          {t.label}
+        </TabsTrigger>
+      ))}
+    </TabsList>
   );
 
   const actionButton = (
@@ -100,11 +98,13 @@ export function DownloadView() {
 
   return (
     <>
-      {active === "hasil" ? (
-        <HasilTab tabBar={tabBar} actionButton={actionButton} />
-      ) : (
-        <ProgressTab tabBar={tabBar} actionButton={actionButton} />
-      )}
+      <Tabs value={active} onValueChange={setTab}>
+        {active === "hasil" ? (
+          <HasilTab tabBar={tabBar} actionButton={actionButton} />
+        ) : (
+          <ProgressTab tabBar={tabBar} actionButton={actionButton} />
+        )}
+      </Tabs>
 
       <DownloadMassalDialog
         open={massalOpen}

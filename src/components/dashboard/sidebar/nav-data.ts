@@ -104,13 +104,6 @@ export const dashboardGroups: NavGroup[] = [
         icon: Eye,
         link: "/dashboard/monitor-stok",
       },
-      {
-        id: "stok-terpesan",
-        title: "Stok Terpesan",
-        icon: PackageCheck,
-        link: "/dashboard/stok-terpesan",
-        comingSoon: true,
-      },
     ],
   },
   {
