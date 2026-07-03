@@ -40,6 +40,7 @@ import {
 import { Combobox } from "@/components/ui/combobox";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { FilterToolbar } from "@/components/dashboard/shared/filter-toolbar";
+import { PillTabs } from "@/components/dashboard/shared/pill-tabs";
 import {
   useStockItem,
   useStockMovements,
@@ -276,36 +277,15 @@ function MovementsSection({ itemId }: { itemId: string }) {
   const hasActiveFilter = activeCount > 0;
 
   const viewBar = (
-    <div
-      role="tablist"
-      aria-label="Filter kronologi stok"
-      className="flex flex-wrap items-center gap-1 rounded-full border border-border/60 bg-muted/40 p-1"
-    >
-      {VIEW_TABS.map((t) => {
-        const isActive = view === t.value;
-        return (
-          <button
-            key={t.value}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            title={t.description}
-            onClick={() => {
-              setView(t.value);
-              setPage(1);
-            }}
-            className={cn(
-              "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-              isActive
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {t.label}
-          </button>
-        );
-      })}
-    </div>
+    <PillTabs
+      variant="solid"
+      active={view}
+      onSelect={(v) => {
+        setView(v as MovementView);
+        setPage(1);
+      }}
+      items={VIEW_TABS.map((t) => ({ key: t.value, label: t.label }))}
+    />
   );
 
   const filterBar = (
