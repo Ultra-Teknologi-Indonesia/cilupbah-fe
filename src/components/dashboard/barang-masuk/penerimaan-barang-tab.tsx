@@ -2,8 +2,9 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { PackageCheckIcon, DownloadIcon, LayersIcon } from "lucide-react";
+import { PackageCheckIcon, DownloadIcon, LayersIcon, QrCodeIcon } from "lucide-react";
 import { BuatPenempatanManualDialog } from "./buat-penempatan-manual-dialog";
+import { InboundService } from "@/services/barang-masuk/inbound.service";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -242,22 +243,41 @@ export function PenerimaanBarangTab() {
           const totalRecv = item.items?.reduce((s, i) => s + (i.received_qty || 0), 0) ?? 0;
           const totalPutaway = item.items?.reduce((s, i) => s + (i.putaway_qty || 0), 0) ?? 0;
 
-          if (!["COMPLETED", "CANCELLED"].includes(item.status) && !hasActivePutaway && totalRecv > 0 && totalPutaway < totalRecv) {
-            return (
+          const showPenempatan = !["COMPLETED", "CANCELLED"].includes(item.status) && !hasActivePutaway && totalRecv > 0 && totalPutaway < totalRecv;
+
+          return (
+            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+              {showPenempatan && (
+                <Button
+                  size="sm"
+                  className="h-8 gap-1.5"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPenempatanTarget(item);
+                  }}
+                >
+                  <LayersIcon className="h-4 w-4" />
+                  Penempatan
+                </Button>
+              )}
               <Button
                 size="sm"
+                variant="outline"
                 className="h-8 gap-1.5"
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.stopPropagation();
-                  setPenempatanTarget(item);
+                  try {
+                    await InboundService.downloadBarcodes(item.id, item.transaction_number);
+                  } catch (err) {
+                    console.error("Failed to download barcodes:", err);
+                  }
                 }}
               >
-                <LayersIcon className="h-4 w-4" />
-                Penempatan
+                <QrCodeIcon className="h-4 w-4" />
+                Barcode
               </Button>
-            );
-          }
-          return null;
+            </div>
+          );
         },
       },
     ],

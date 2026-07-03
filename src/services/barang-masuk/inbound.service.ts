@@ -1,4 +1,4 @@
-import { fetchClient } from "@/lib/api-client"
+import { fetchClient, fetchBlob } from "@/lib/api-client"
 import type { ApiResponse, ApiPaginated } from "@/types/api.types"
 import type { Inbound, InboundListParams } from "@/types/barang-masuk/inbound"
 
@@ -37,5 +37,9 @@ export const InboundService = {
       data: payload,
     })
     return res.data
+  },
+
+  downloadBarcodes: async (id: string, transactionNumber: string) => {
+    return fetchBlob(`/inbounds/${id}/barcodes`, `barcodes-inbound-${transactionNumber}.pdf`, "application/pdf")
   },
 }

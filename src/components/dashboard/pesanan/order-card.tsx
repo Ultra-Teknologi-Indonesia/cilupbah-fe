@@ -540,9 +540,35 @@ function OrderActions({
   return null
 }
 
-function ShipByDeadline({ date }: { date: string }) {
+function ShipByDeadline({ date }: { date?: string | null }) {
+  if (!date) {
+    return (
+      <div className="min-w-0">
+        <p className="mb-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+          Batas Kirim
+        </p>
+        <div className="flex items-start gap-1 text-sm">
+          <ClockIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          <p className="font-medium text-muted-foreground">—</p>
+        </div>
+      </div>
+    )
+  }
+
   const deadline = new Date(date)
-  if (Number.isNaN(deadline.getTime())) return null
+  if (Number.isNaN(deadline.getTime())) {
+    return (
+      <div className="min-w-0">
+        <p className="mb-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+          Batas Kirim
+        </p>
+        <div className="flex items-start gap-1 text-sm">
+          <ClockIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          <p className="font-medium text-muted-foreground">—</p>
+        </div>
+      </div>
+    )
+  }
 
   const now = Date.now()
   const diffMs = deadline.getTime() - now
@@ -791,7 +817,7 @@ export function OrderCard({
 
         <div className={cn(
           "grid flex-1 grid-cols-2 gap-x-6 gap-y-3 lg:items-start",
-          order.ship_by_date ? "sm:grid-cols-3 xl:grid-cols-5" : "sm:grid-cols-4"
+          "sm:grid-cols-3 xl:grid-cols-5"
         )}>
           <div>
             <StatusBadge domain="sales-order" status={order.status} className="text-xs font-semibold whitespace-nowrap" />
@@ -856,9 +882,7 @@ export function OrderCard({
             )}
           </div>
 
-          {order.ship_by_date && (
-            <ShipByDeadline date={order.ship_by_date} />
-          )}
+          <ShipByDeadline date={order.ship_by_date} />
         </div>
       </div>
 
