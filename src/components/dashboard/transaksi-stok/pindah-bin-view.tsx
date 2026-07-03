@@ -32,6 +32,7 @@ import {
 import { InventoryStockService } from "@/services/persediaan/inventory.service";
 import { cn } from "@/lib/utils";
 import { playScanFeedback } from "@/lib/scan-feedback";
+import { toast } from "sonner";
 
 const LIST_HREF = "/dashboard/transaksi-stok?tab=transfer";
 
@@ -161,21 +162,27 @@ export function PindahBinView() {
 
       if (lines.some((l) => l.itemId === variant.id)) {
         flash("err");
+        toast.error(`SKU "${q}" sudah ditambahkan.`);
         return;
       }
       if (!variant.available_bins?.some((b) => b.on_hand > 0)) {
         flash("err");
+        toast.error(
+          `SKU "${q}" tidak punya stok di gudang ini. Pilih SKU lain.`,
+        );
         return;
       }
       upsertLineFromVariant(variant);
       flash("ok");
     } catch (err) {
       const status = (err as { status?: number })?.status;
+      flash("err");
       if (status === 404) {
-        setPickerSearch(q);
-        setPickerOpen(true);
+        toast.error(
+          `SKU "${q}" tidak ditemukan di gudang ini. Hanya SKU yg punya stok yg bisa ditransfer.`,
+        );
       } else {
-        flash("err");
+        toast.error(`Gagal mencari SKU "${q}".`);
       }
     } finally {
       setScanning(false);
@@ -187,32 +194,34 @@ export function PindahBinView() {
     setPickerOpen(false);
     setPickerSearch(undefined);
     if (!locationId) return;
+
+    const skipped: string[] = [];
+    let added = 0;
     for (const p of products) {
       if (lines.some((l) => l.itemId === p.itemId)) continue;
       try {
         const res = await InventoryStockService.bySku(p.sku, locationId);
-        upsertLineFromVariant(res.data);
+        const variant = res.data;
+        if (!variant.available_bins?.some((b) => b.on_hand > 0)) {
+          skipped.push(p.sku);
+          continue;
+        }
+        upsertLineFromVariant(variant);
+        added += 1;
       } catch {
-        setLines((prev) => {
-          if (prev.some((l) => l.itemId === p.itemId)) return prev;
-          return [
-            ...prev,
-            {
-              itemId: p.itemId,
-              sku: p.sku,
-              name: p.name,
-              variantLabel: (p as { variantLabel?: string }).variantLabel ?? "",
-              thumbnail:
-                (p as { thumbnail?: string | null }).thumbnail ?? null,
-              sourceBinId: "",
-              destBinId: "",
-              qty: "",
-              notes: "",
-              availableBins: [],
-            },
-          ];
-        });
+        skipped.push(p.sku);
       }
+    }
+
+    if (skipped.length > 0) {
+      const list = skipped.slice(0, 3).join(", ");
+      const more = skipped.length > 3 ? ` (+${skipped.length - 3} lainnya)` : "";
+      toast.error(
+        `${skipped.length} produk dilewati karena tidak ada stok di gudang ini: ${list}${more}`,
+      );
+    }
+    if (added > 0) {
+      toast.success(`${added} produk berhasil ditambahkan.`);
     }
   };
 
@@ -441,8 +450,8 @@ export function PindahBinView() {
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                Scan SKU akan otomatis menambah baris. Rak asal & tujuan juga
-                bisa di-scan lewat kolom masing-masing.
+                Hanya SKU yang punya stok di gudang ini yang bisa ditransfer.
+                Rak asal & tujuan juga bisa di-scan lewat kolom masing-masing.
               </p>
             </div>
 
