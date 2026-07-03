@@ -14,7 +14,6 @@ export const StockAdjustmentService = {
     if (params.search) sp.set("search", params.search)
     if (params.page) sp.set("page", String(params.page))
     if (params.per_page) sp.set("per_page", String(params.per_page))
-    if (params["filter[status]"]) sp.set("filter[status]", params["filter[status]"])
     if (params["filter[location_id]"]) sp.set("filter[location_id]", params["filter[location_id]"])
     if (params.sort) sp.set("sort", params.sort)
 
@@ -31,21 +30,6 @@ export const StockAdjustmentService = {
     const res = await fetchClient<ApiResponse<StockAdjustment>>(BASE, {
       method: "POST",
       data,
-    })
-    return res.data
-  },
-
-  approve: async (id: string, approvedBy: string) => {
-    const res = await fetchClient<ApiResponse<StockAdjustment>>(`${BASE}/${id}/approve`, {
-      method: "POST",
-      data: { approved_by: approvedBy },
-    })
-    return res.data
-  },
-
-  cancel: async (id: string) => {
-    const res = await fetchClient<ApiResponse<StockAdjustment>>(`${BASE}/${id}/cancel`, {
-      method: "POST",
     })
     return res.data
   },

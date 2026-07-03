@@ -28,21 +28,6 @@ export const useCreateStockAdjustment = createMutationHook({
   invalidates: () => [stockAdjustmentKeys.lists],
 })
 
-export const useApproveStockAdjustment = createMutationHook({
-  mutationFn: ({ id, approvedBy }: { id: string; approvedBy: string }) =>
-    StockAdjustmentService.approve(id, approvedBy),
-  successMessage: "Koreksi stok berhasil disetujui",
-  errorMessage: "Gagal menyetujui koreksi stok",
-  invalidates: ({ id }) => [stockAdjustmentKeys.lists, stockAdjustmentKeys.detail(id)],
-})
-
-export const useCancelStockAdjustment = createMutationHook({
-  mutationFn: (id: string) => StockAdjustmentService.cancel(id),
-  successMessage: "Koreksi stok berhasil dibatalkan",
-  errorMessage: "Gagal membatalkan koreksi stok",
-  invalidates: (id) => [stockAdjustmentKeys.lists, stockAdjustmentKeys.detail(id)],
-})
-
 export const useDeleteStockAdjustment = createMutationHook({
   mutationFn: (id: string) => StockAdjustmentService.delete(id),
   successMessage: "Koreksi stok berhasil dihapus",

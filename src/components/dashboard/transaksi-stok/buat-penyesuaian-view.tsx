@@ -202,7 +202,6 @@ export function BuatPenyesuaianView() {
             : adjustmentNo.trim(),
         notes: notes.trim() || undefined,
         created_by: createdBy.trim(),
-        auto_approve: true,
         items: validLines.map((l) => {
           const cost = Number(l.unitCost)
           return {

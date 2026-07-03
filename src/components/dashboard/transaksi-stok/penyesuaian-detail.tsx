@@ -5,27 +5,21 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
-  ArrowLeftIcon,
   DownloadIcon,
-  CheckCircle2Icon,
   Trash2Icon,
   ClipboardListIcon,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
 import { LiquidGlass } from "@/components/ui/liquid-glass"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import type { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { PageTitle } from "@/components/dashboard/page-title"
-import { StatusBadge } from "@/components/dashboard/shared/status-badge"
-import { UserSelect } from "@/components/dashboard/shared/user-select"
 import {
   useStockAdjustmentDetail,
-  useApproveStockAdjustment,
   useDeleteStockAdjustment,
 } from "@/hooks/transaksi-stok/use-stock-adjustments"
 import { exportCsv } from "@/lib/export-csv"
@@ -43,14 +37,9 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 export function PenyesuaianDetail({ id }: { id: string }) {
   const router = useRouter()
   const { data: adj, isLoading } = useStockAdjustmentDetail(id)
-  const approveMut = useApproveStockAdjustment()
   const deleteMut = useDeleteStockAdjustment()
 
-  const [approveOpen, setApproveOpen] = useState(false)
-  const [approvedBy, setApprovedBy] = useState("")
   const [deleteOpen, setDeleteOpen] = useState(false)
-
-  const actionPending = approveMut.isPending || deleteMut.isPending
 
   const handleExport = () => {
     if (!adj || !adj.items?.length) return
@@ -69,28 +58,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
     )
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col gap-4">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-[400px] w-full" />
-      </div>
-    )
-  }
-
-  if (!adj) {
-    return (
-      <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-        <ClipboardListIcon className="h-10 w-10" />
-        <p className="text-sm">Dokumen tidak ditemukan.</p>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/transaksi-stok">Kembali</Link>
-        </Button>
-      </div>
-    )
-  }
-
-    const columns = React.useMemo<ColumnDef<any>[]>(() => [
+  const columns = React.useMemo<ColumnDef<any>[]>(() => [
     {
       accessorKey: "item_name",
       header: "Nama Produk",
@@ -144,7 +112,26 @@ export function PenyesuaianDetail({ id }: { id: string }) {
     },
   ], [])
 
-  const isDraft = adj.status === "DRAFT"
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-[400px] w-full" />
+      </div>
+    )
+  }
+
+  if (!adj) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
+        <ClipboardListIcon className="h-10 w-10" />
+        <p className="text-sm">Dokumen tidak ditemukan.</p>
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/dashboard/transaksi-stok">Kembali</Link>
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -162,28 +149,15 @@ export function PenyesuaianDetail({ id }: { id: string }) {
               <DownloadIcon className="mr-1.5 h-3.5 w-3.5" />
               Export CSV
             </Button>
-            {isDraft && (
-              <>
-                <Button
-                  size="sm"
-                  onClick={() => { setApproveOpen(true); setApprovedBy("") }}
-                  disabled={actionPending}
-                  className="bg-emerald-600 text-white hover:bg-emerald-700"
-                >
-                  <CheckCircle2Icon className="mr-1.5 h-3.5 w-3.5" />
-                  Approve
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => setDeleteOpen(true)}
-                  disabled={actionPending}
-                >
-                  <Trash2Icon className="mr-1.5 h-3.5 w-3.5" />
-                  Hapus
-                </Button>
-              </>
-            )}
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setDeleteOpen(true)}
+              disabled={deleteMut.isPending}
+            >
+              <Trash2Icon className="mr-1.5 h-3.5 w-3.5" />
+              Hapus
+            </Button>
           </div>
         }
       />
@@ -194,12 +168,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
           <InfoRow label="No. Koreksi Stok" value={adj.adjustment_no} />
           <InfoRow label="Lokasi" value={adj.location?.location_name} />
           <InfoRow label="Tgl. Transaksi" value={adj.transaction_date ? formatDate(adj.transaction_date) : null} />
-          <InfoRow
-            label="Status"
-            value={<StatusBadge domain="stock-adjustment" status={adj.status} className="text-[10px] leading-tight" />}
-          />
           <InfoRow label="Dibuat Oleh" value={adj.created_by} />
-          <InfoRow label="Disetujui Oleh" value={adj.approved_by} />
           <InfoRow label="Catatan" value={adj.notes} />
           <InfoRow label="Saldo Awal" value={adj.is_beginning_balance ? "Ya" : "Tidak"} />
         </div>
@@ -207,7 +176,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
 
       <LiquidGlass radius={16} intensity="subtle" className="bg-white/30 dark:bg-white/[0.04] p-5">
         <h3 className="mb-4 font-semibold">Daftar Item</h3>
-                <div className="border border-border/40 rounded-lg overflow-hidden">
+        <div className="border border-border/40 rounded-lg overflow-hidden">
           <DataTable
             columns={columns}
             data={adj.items ?? []}
@@ -222,34 +191,6 @@ export function PenyesuaianDetail({ id }: { id: string }) {
           />
         </div>
       </LiquidGlass>
-
-      <ConfirmDialog
-        open={approveOpen}
-        onOpenChange={(open) => { if (!open) setApproveOpen(false) }}
-        title="Approve Koreksi Stok"
-        description={`Approve koreksi stok "${adj.adjustment_no}"? Stok akan disesuaikan sesuai dokumen.`}
-        confirmLabel="Approve"
-        loading={approveMut.isPending}
-        onConfirm={() => {
-          if (!approvedBy.trim()) return
-          approveMut.mutate(
-            { id: adj.id, approvedBy: approvedBy.trim() },
-            { onSuccess: () => setApproveOpen(false) }
-          )
-        }}
-      >
-        <div className="px-1 py-2">
-          <Label htmlFor="adj-approved-by" className="text-sm font-medium">
-            Disetujui oleh <span className="text-red-500">*</span>
-          </Label>
-          <UserSelect
-            value={approvedBy}
-            onChange={setApprovedBy}
-            placeholder="Nama penanggung jawab"
-            className="mt-1.5"
-          />
-        </div>
-      </ConfirmDialog>
 
       <ConfirmDialog
         open={deleteOpen}

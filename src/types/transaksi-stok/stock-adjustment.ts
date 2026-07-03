@@ -23,12 +23,9 @@ export interface StockAdjustment {
   adjustment_no: string
   transaction_date: string
   location_id: string
-  status: "DRAFT" | "APPROVED" | "CANCELLED"
   is_beginning_balance: boolean
   notes: string | null
   created_by: string
-  approved_by: string | null
-  approved_at: string | null
   created_at: string
   updated_at: string
   location?: {
@@ -42,7 +39,6 @@ export interface StockAdjustmentListParams {
   search?: string
   page?: number
   per_page?: number
-  "filter[status]"?: string
   "filter[location_id]"?: string
   sort?: string
 }
@@ -62,6 +58,5 @@ export interface StockAdjustmentFormData {
   is_beginning_balance?: boolean
   notes?: string
   created_by: string
-  auto_approve?: boolean
   items: StockAdjustmentItemInput[]
 }

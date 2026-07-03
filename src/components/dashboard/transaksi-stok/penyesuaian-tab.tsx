@@ -4,7 +4,6 @@ import { useState, useMemo, useCallback } from "react"
 import Link from "next/link"
 import {
   SlidersHorizontalIcon,
-  CheckCircleIcon,
   Trash2Icon,
   PlusIcon,
 } from "lucide-react"
@@ -14,14 +13,10 @@ import { Combobox } from "@/components/ui/combobox"
 import type { ColumnDef } from "@tanstack/react-table"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { ResourceListView } from "@/components/dashboard/shared/resource-list-view"
-import { StatusBadge } from "@/components/dashboard/shared/status-badge"
-import { getStatusMeta } from "@/lib/status"
-import { UserSelect } from "@/components/dashboard/shared/user-select"
 import { ImportPenyesuaianDialog } from "@/components/dashboard/transaksi-stok/import-penyesuaian-view"
 import { useListState } from "@/hooks/use-list-state"
 import {
   useStockAdjustments,
-  useApproveStockAdjustment,
   useDeleteStockAdjustment,
 } from "@/hooks/transaksi-stok/use-stock-adjustments"
 import { useLocations } from "@/hooks/manajemen-rak/use-locations"
@@ -33,18 +28,10 @@ import type {
 import { formatDate } from "@/lib/format"
 
 interface FilterState {
-  status: string
   location_id: string
 }
 
-const EMPTY_FILTERS: FilterState = { status: "", location_id: "" }
-
-const STATUS_OPTIONS = [
-  { value: "", label: "Semua Status" },
-  { value: "DRAFT", label: "Draft" },
-  { value: "APPROVED", label: "Approved" },
-  { value: "CANCELLED", label: "Dibatalkan" },
-]
+const EMPTY_FILTERS: FilterState = { location_id: "" }
 
 export function PenyesuaianTab() {
   const list = useListState<FilterState>(EMPTY_FILTERS, {
@@ -52,8 +39,6 @@ export function PenyesuaianTab() {
     namespace: "adj",
   })
   const [deleteTarget, setDeleteTarget] = useState<StockAdjustment | null>(null)
-  const [approveTarget, setApproveTarget] = useState<StockAdjustment | null>(null)
-  const [approvedBy, setApprovedBy] = useState("")
   const [importOpen, setImportOpen] = useState(false)
 
   const params = useMemo<StockAdjustmentListParams>(
@@ -61,7 +46,6 @@ export function PenyesuaianTab() {
       search: list.debouncedSearch || undefined,
       page: list.page,
       per_page: list.perPage,
-      "filter[status]": list.filters.status || undefined,
       "filter[location_id]": list.filters.location_id || undefined,
     }),
     [list.debouncedSearch, list.page, list.perPage, list.filters]
@@ -69,7 +53,6 @@ export function PenyesuaianTab() {
 
   const { data, isLoading, isFetching } = useStockAdjustments(params)
   const { data: locData } = useLocations({ perPage: 100 })
-  const approveMut = useApproveStockAdjustment()
   const deleteMut = useDeleteStockAdjustment()
 
   const items = data?.items ?? []
@@ -112,13 +95,6 @@ export function PenyesuaianTab() {
       cell: ({ row }) => <span className="text-foreground">{row.original.location?.location_name ?? "—"}</span>,
     },
     {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => (
-        <StatusBadge domain="stock-adjustment" status={row.original.status} className="text-[10px] leading-tight" />
-      ),
-    },
-    {
       accessorKey: "created_by",
       header: "Dibuat Oleh",
       cell: ({ row }) => <span className="text-foreground">{row.original.created_by}</span>,
@@ -126,34 +102,19 @@ export function PenyesuaianTab() {
     {
       id: "actions",
       header: () => <div className="text-right">Aksi</div>,
-      cell: ({ row }) => {
-        const item = row.original;
-        if (item.status === "DRAFT") {
-          return (
-            <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => setApproveTarget(item)}
-                aria-label="Approve"
-                className="text-emerald-600 hover:text-emerald-700"
-              >
-                <CheckCircleIcon className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => setDeleteTarget(item)}
-                aria-label="Hapus"
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2Icon className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          )
-        }
-        return null;
-      },
+      cell: ({ row }) => (
+        <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setDeleteTarget(row.original)}
+            aria-label="Hapus"
+            className="text-destructive hover:text-destructive"
+          >
+            <Trash2Icon className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      ),
     },
   ], [])
 
@@ -164,19 +125,6 @@ export function PenyesuaianTab() {
     })
   }
 
-  function handleApprove() {
-    if (!approveTarget || !approvedBy.trim()) return
-    approveMut.mutate(
-      { id: approveTarget.id, approvedBy: approvedBy.trim() },
-      {
-        onSuccess: () => {
-          setApproveTarget(null)
-          setApprovedBy("")
-        },
-      }
-    )
-  }
-
   const handleExport = useCallback(() => {
     if (items.length === 0) return
     exportCsv(
@@ -185,14 +133,12 @@ export function PenyesuaianTab() {
         "No. Koreksi Stok",
         "Tgl. Transaksi",
         "Lokasi",
-        "Status",
         "Dibuat Oleh",
       ],
       items.map((item: StockAdjustment) => [
         item.adjustment_no,
         formatDate(item.transaction_date),
         item.location?.location_name ?? "",
-        getStatusMeta("stock-adjustment", item.status).label,
         item.created_by,
       ])
     )
@@ -231,58 +177,19 @@ export function PenyesuaianTab() {
         emptyTitle="Belum ada koreksi stok"
         emptyDescription="Data koreksi stok akan muncul di sini."
         filterControls={
-          <>
-            <Combobox
-              options={STATUS_OPTIONS}
-              value={list.filters.status}
-              onChange={(v) =>
-                list.setFilters({ ...list.filters, status: v ?? "" })
-              }
-              placeholder="Status"
-              searchPlaceholder="Cari status"
-              className="h-9 bg-background"
-            />
-            <Combobox
-              options={locationOptions}
-              value={list.filters.location_id}
-              onChange={(v) =>
-                list.setFilters({ ...list.filters, location_id: v ?? "" })
-              }
-              placeholder="Lokasi"
-              searchPlaceholder="Cari lokasi"
-              className="h-9 bg-background"
-            />
-          </>
+          <Combobox
+            options={locationOptions}
+            value={list.filters.location_id}
+            onChange={(v) =>
+              list.setFilters({ ...list.filters, location_id: v ?? "" })
+            }
+            placeholder="Lokasi"
+            searchPlaceholder="Cari lokasi"
+            className="h-9 bg-background"
+          />
         }
       />
 
-      {/* Approve dialog */}
-      <ConfirmDialog
-        open={!!approveTarget}
-        onOpenChange={(v) => {
-          if (!v) {
-            setApproveTarget(null)
-            setApprovedBy("")
-          }
-        }}
-        title="Setujui Koreksi Stok"
-        description={`Setujui koreksi stok "${approveTarget?.adjustment_no}"?`}
-        confirmLabel="Setujui"
-        variant="default"
-        loading={approveMut.isPending}
-        onConfirm={handleApprove}
-      >
-        <div className="flex flex-col gap-2 pt-2">
-          <label className="text-sm font-medium">Disetujui oleh</label>
-          <UserSelect
-            value={approvedBy}
-            onChange={setApprovedBy}
-            placeholder="Nama penyetuju"
-          />
-        </div>
-      </ConfirmDialog>
-
-      {/* Delete dialog */}
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(v) => !v && setDeleteTarget(null)}
