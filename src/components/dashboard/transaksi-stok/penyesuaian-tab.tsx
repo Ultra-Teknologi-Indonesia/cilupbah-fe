@@ -198,15 +198,6 @@ export function PenyesuaianTab() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
-        <Button size="sm" asChild className="gap-1.5">
-          <Link href="/dashboard/transaksi-stok/penyesuaian/buat">
-            <PlusIcon className="h-4 w-4" />
-            Koreksi Stok Baru
-          </Link>
-        </Button>
-      </div>
-
       <ResourceListView
         list={list}
         columns={columns}
@@ -216,6 +207,14 @@ export function PenyesuaianTab() {
         isFetching={isFetching}
         searchPlaceholder="Cari no. koreksi stok..."
         onExport={handleExport}
+        toolbarTrailing={
+          <Button size="sm" asChild className="gap-1.5">
+            <Link href="/dashboard/transaksi-stok/penyesuaian/buat">
+              <PlusIcon className="h-4 w-4" />
+              Koreksi Stok Baru
+            </Link>
+          </Button>
+        }
         emptyIcon={SlidersHorizontalIcon}
         emptyTitle="Belum ada koreksi stok"
         emptyDescription="Data koreksi stok akan muncul di sini."

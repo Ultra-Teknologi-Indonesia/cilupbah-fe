@@ -38,6 +38,8 @@ interface ResourceListViewProps<T> {
   onExport?: () => void
   /** Elemen tambahan di kiri toolbar (menggantikan/menambah tombol export). */
   toolbarLeading?: React.ReactNode
+  /** Elemen di kanan toolbar setelah Filter toggle (mis. tombol aksi utama). */
+  toolbarTrailing?: React.ReactNode
   emptyIcon: LucideIcon
   emptyTitle: string
   emptyDescription: string
@@ -55,6 +57,7 @@ export function ResourceListView<T>({
   filterGridCols = 2,
   onExport,
   toolbarLeading,
+  toolbarTrailing,
   emptyIcon: EmptyIcon,
   emptyTitle,
   emptyDescription,
@@ -90,6 +93,7 @@ export function ResourceListView<T>({
             )}
           </>
         }
+        trailing={toolbarTrailing}
       >
         {filterControls}
       </FilterToolbar>

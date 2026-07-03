@@ -16,6 +16,7 @@ export function FilterToolbar({
   activeCount = 0,
   align = "start",
   leading,
+  trailing,
   gridCols = 3,
   children,
   className,
@@ -28,6 +29,7 @@ export function FilterToolbar({
   activeCount?: number
   align?: "start" | "end"
   leading?: React.ReactNode
+  trailing?: React.ReactNode
   gridCols?: 1 | 2 | 3 | 4
   children?: React.ReactNode
   className?: string
@@ -91,12 +93,14 @@ export function FilterToolbar({
               onReset()
               setOpen(false)
             }}
-            className="ml-auto flex items-center gap-1 text-sm font-medium text-destructive transition-colors hover:text-destructive/80"
+            className="flex items-center gap-1 text-sm font-medium text-destructive transition-colors hover:text-destructive/80"
           >
             <XIcon className="size-3.5" />
             Reset
           </button>
         )}
+
+        {trailing}
       </div>
 
       {hasChildren && (
