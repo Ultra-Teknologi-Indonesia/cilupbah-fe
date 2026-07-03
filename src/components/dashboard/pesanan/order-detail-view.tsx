@@ -9,6 +9,7 @@ import { toast } from "sonner"
 import {
   CalendarIcon,
   CheckIcon,
+  ChevronDownIcon,
   CopyIcon,
   FileTextIcon,
   MapPinIcon,
@@ -43,7 +44,7 @@ import {
 import { PageTitle } from "@/components/dashboard/page-title"
 import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 
-import { CHANNEL_MAP } from "@/types/pesanan/order"
+import { CHANNEL_MAP, type Order } from "@/types/pesanan/order"
 import { useOrder } from "@/hooks/pesanan/use-orders"
 import {
   useSetPaid,
@@ -56,6 +57,140 @@ import { formatCurrency } from "@/lib/format"
 function copyText(text: string) {
   navigator.clipboard.writeText(text)
   toast.success("Disalin ke clipboard")
+}
+
+function SummaryRow({
+  label,
+  value,
+  deduction = false,
+}: {
+  label: string
+  value: number
+  deduction?: boolean
+}) {
+  const isDeduction = deduction && value > 0
+  return (
+    <div className="flex justify-between">
+      <span className="text-muted-foreground">{label}</span>
+      <span
+        className={cn(
+          "tabular-nums",
+          isDeduction && "text-amber-600 dark:text-amber-400",
+        )}
+      >
+        {isDeduction ? "-" : ""}
+        {formatCurrency(value)}
+      </span>
+    </div>
+  )
+}
+
+function FinancialSummary({ order }: { order: Order }) {
+  const [showLainnya, setShowLainnya] = React.useState(true)
+  const finance = order.finance
+
+  const diskonLainnya =
+    (finance?.platform_voucher ?? 0) + (finance?.seller_voucher ?? 0) > 0
+      ? (finance?.platform_voucher ?? 0) +
+        Math.max((finance?.seller_voucher ?? 0) - order.total_disc, 0)
+      : 0
+  const biayaLainnya = (finance?.service_fee ?? 0) + (finance?.transaction_fee ?? 0)
+  const potonganBiaya =
+    (finance?.commission_fee ?? 0) + (finance?.affiliate_commission ?? 0)
+
+  return (
+    <>
+      <h3 className="mb-4 flex items-center justify-between font-semibold">
+        Rincian
+        <Badge
+          variant="outline"
+          className={cn(
+            "text-xs font-semibold",
+            finance?.is_settled
+              ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400"
+              : "border-slate-300 bg-slate-50 text-slate-600 dark:border-slate-500/20 dark:bg-slate-500/10 dark:text-slate-400",
+          )}
+        >
+          {finance?.is_settled ? "Final" : "Estimasi"}
+        </Badge>
+      </h3>
+      <div className="space-y-2.5 text-sm">
+        <div className="flex justify-between text-muted-foreground">
+          <span>Jumlah SKU</span>
+          <span className="font-medium text-foreground">
+            {order.total_sku} jenis
+          </span>
+        </div>
+
+        <div className="my-3 border-t border-border/40" />
+
+        <SummaryRow
+          label={`Qty Total (${order.total_qty} produk)`}
+          value={order.sub_total}
+        />
+        <SummaryRow label="Diskon" value={order.total_disc} deduction />
+        <SummaryRow label="Diskon Lainnya" value={diskonLainnya} deduction />
+        <SummaryRow label="Pajak" value={order.total_tax} />
+        <SummaryRow label="Ongkos Kirim" value={order.shipping_cost} />
+        <SummaryRow
+          label="Diskon Ongkos Kirim"
+          value={finance?.platform_shipping_rebate ?? 0}
+          deduction
+        />
+
+        <button
+          type="button"
+          onClick={() => setShowLainnya((v) => !v)}
+          className="flex w-full items-center justify-between border-t border-border/40 pt-3 font-semibold"
+        >
+          Lainnya
+          <ChevronDownIcon
+            className={cn(
+              "size-4 transition-transform",
+              showLainnya && "rotate-180",
+            )}
+          />
+        </button>
+
+        {showLainnya && (
+          <>
+            <SummaryRow label="Biaya Lainnya" value={biayaLainnya} deduction />
+            <SummaryRow label="Potongan Biaya" value={potonganBiaya} deduction />
+            <SummaryRow label="Asuransi" value={order.insurance_cost} />
+            <SummaryRow
+              label="Biaya Proses Pesanan"
+              value={finance?.order_processing_fee ?? 0}
+              deduction
+            />
+            <SummaryRow
+              label="Voucher Bayar"
+              value={finance?.payment_voucher ?? 0}
+              deduction
+            />
+          </>
+        )}
+
+        <div className="border-t border-border/40 pt-3">
+          <div className="flex justify-between text-base font-semibold">
+            <span>Total</span>
+            <span className="tabular-nums">
+              {formatCurrency(order.grand_total)}
+            </span>
+          </div>
+          {finance?.is_settled && finance.settlement_amount != null && (
+            <div className="mt-2 flex justify-between text-sm">
+              <span className="text-muted-foreground">
+                Diterima Bersih (Settlement)
+              </span>
+              <span className="tabular-nums font-medium text-emerald-600 dark:text-emerald-400">
+                {formatCurrency(finance.settlement_amount)}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  )
 }
 
 const STEPS = [
@@ -628,71 +763,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             intensity="subtle"
             className="bg-white/30 dark:bg-white/[0.04] p-5 sticky top-4"
           >
-            <h3 className="mb-4 font-semibold">Ringkasan</h3>
-            <div className="space-y-2.5 text-sm">
-              <div className="flex justify-between text-muted-foreground">
-                <span>Total Qty</span>
-                <span className="font-medium text-foreground">
-                  {order.total_qty} item
-                </span>
-              </div>
-              <div className="flex justify-between text-muted-foreground">
-                <span>Jumlah SKU</span>
-                <span className="font-medium text-foreground">
-                  {order.total_sku} jenis
-                </span>
-              </div>
-
-              <div className="my-3 border-t border-border/40" />
-
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="tabular-nums">
-                  {formatCurrency(order.sub_total)}
-                </span>
-              </div>
-              {order.total_disc > 0 && (
-                <div className="flex justify-between text-amber-600 dark:text-amber-400">
-                  <span>Diskon</span>
-                  <span className="tabular-nums">
-                    -{formatCurrency(order.total_disc)}
-                  </span>
-                </div>
-              )}
-              {order.total_tax > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Pajak</span>
-                  <span className="tabular-nums">
-                    {formatCurrency(order.total_tax)}
-                  </span>
-                </div>
-              )}
-              {order.shipping_cost > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Ongkos Kirim</span>
-                  <span className="tabular-nums">
-                    {formatCurrency(order.shipping_cost)}
-                  </span>
-                </div>
-              )}
-              {order.insurance_cost > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Asuransi</span>
-                  <span className="tabular-nums">
-                    {formatCurrency(order.insurance_cost)}
-                  </span>
-                </div>
-              )}
-
-              <div className="border-t border-border/40 pt-3">
-                <div className="flex justify-between text-base font-semibold">
-                  <span>Grand Total</span>
-                  <span className="tabular-nums">
-                    {formatCurrency(order.grand_total)}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <FinancialSummary order={order} />
 
             {/* Payment status */}
             <div className="mt-4 border-t border-border/40 pt-4">

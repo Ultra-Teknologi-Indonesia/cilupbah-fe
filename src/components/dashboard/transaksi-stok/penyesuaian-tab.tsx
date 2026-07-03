@@ -17,6 +17,7 @@ import { ResourceListView } from "@/components/dashboard/shared/resource-list-vi
 import { StatusBadge } from "@/components/dashboard/shared/status-badge"
 import { getStatusMeta } from "@/lib/status"
 import { UserSelect } from "@/components/dashboard/shared/user-select"
+import { ImportPenyesuaianDialog } from "@/components/dashboard/transaksi-stok/import-penyesuaian-view"
 import { useListState } from "@/hooks/use-list-state"
 import {
   useStockAdjustments,
@@ -53,6 +54,7 @@ export function PenyesuaianTab() {
   const [deleteTarget, setDeleteTarget] = useState<StockAdjustment | null>(null)
   const [approveTarget, setApproveTarget] = useState<StockAdjustment | null>(null)
   const [approvedBy, setApprovedBy] = useState("")
+  const [importOpen, setImportOpen] = useState(false)
 
   const params = useMemo<StockAdjustmentListParams>(
     () => ({
@@ -209,10 +211,13 @@ export function PenyesuaianTab() {
         onExport={handleExport}
         toolbarTrailing={
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" asChild className="gap-1.5">
-              <Link href="/dashboard/transaksi-stok/penyesuaian/import">
-                Import
-              </Link>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5"
+              onClick={() => setImportOpen(true)}
+            >
+              Import
             </Button>
             <Button size="sm" asChild className="gap-1.5">
               <Link href="/dashboard/transaksi-stok/penyesuaian/buat">

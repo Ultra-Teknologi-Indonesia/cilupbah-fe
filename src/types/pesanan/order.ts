@@ -67,6 +67,7 @@ export interface Order {
   shipping_cost: number
   insurance_cost: number
   grand_total: number
+  finance: OrderFinance
   shipping: OrderShipping
   buyer_message: string | null
   seller_note: string | null
@@ -79,6 +80,25 @@ export interface Order {
   ship_by_date: string | null
   created_at: string
   updated_at: string
+}
+
+// Rincian biaya marketplace. Field null = data belum tersedia (belum settle),
+// beda makna dengan 0. is_settled=true berarti angka final dari escrow/statement channel.
+export interface OrderFinance {
+  seller_voucher: number | null
+  platform_voucher: number | null
+  payment_voucher: number | null
+  commission_fee: number | null
+  service_fee: number | null
+  transaction_fee: number | null
+  affiliate_commission: number | null
+  order_processing_fee: number | null
+  seller_shipping_borne: number | null
+  platform_shipping_rebate: number | null
+  settlement_amount: number | null
+  currency: string
+  is_settled: boolean
+  synced_at: string | null
 }
 
 export interface OrderShipping {
