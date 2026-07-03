@@ -177,16 +177,14 @@ function FinancialSummary({ order }: { order: Order }) {
               {formatCurrency(order.grand_total)}
             </span>
           </div>
-          {finance?.is_settled && finance.settlement_amount != null && (
-            <div className="mt-2 flex justify-between text-sm">
-              <span className="text-muted-foreground">
-                Diterima Bersih (Settlement)
-              </span>
-              <span className="tabular-nums font-medium text-emerald-600 dark:text-emerald-400">
-                {formatCurrency(finance.settlement_amount)}
-              </span>
-            </div>
-          )}
+          <div className="mt-2 flex justify-between text-sm">
+            <span className="text-muted-foreground">
+              Diterima Bersih (Settlement)
+            </span>
+            <span className="tabular-nums font-medium text-emerald-600 dark:text-emerald-400">
+              {formatCurrency(finance?.settlement_amount ?? 0)}
+            </span>
+          </div>
         </div>
       </div>
     </>
