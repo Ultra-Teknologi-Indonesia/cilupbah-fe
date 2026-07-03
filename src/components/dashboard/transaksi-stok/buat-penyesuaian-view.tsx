@@ -157,7 +157,12 @@ export function BuatPenyesuaianView() {
         binCode: variant.primary_bin?.code ?? "",
         binOnHand: variant.primary_bin?.on_hand ?? 0,
         binAvgCost: variant.primary_bin?.avg_cost ?? variant.avg_cost ?? 0,
-        availableBins: variant.available_bins ?? [],
+        availableBins: (variant.available_bins ?? []).map((b) => ({
+          id: b.id,
+          code: b.code,
+          onHand: b.on_hand,
+          avgCost: b.avg_cost,
+        })),
         sellPrice: null,
       }])
       flash("ok")
