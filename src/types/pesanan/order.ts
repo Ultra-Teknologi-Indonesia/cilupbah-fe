@@ -17,6 +17,27 @@ export type SubFilter = CancellationSub | ReturnSub | null;
 export type OrderStatus =
   "pending" | "reserved" | "picked" | "packed" | "shipped" | "cancelled";
 
+export type ContactChannel =
+  | "marketplace_chat"
+  | "whatsapp"
+  | "phone"
+  | "other";
+
+export type CustomerDecision = "waiting" | "cancel" | "replace";
+
+export const CONTACT_CHANNEL_LABELS: Record<ContactChannel, string> = {
+  marketplace_chat: "Chat Marketplace",
+  whatsapp: "WhatsApp",
+  phone: "Telepon",
+  other: "Lainnya",
+};
+
+export const CUSTOMER_DECISION_LABELS: Record<CustomerDecision, string> = {
+  waiting: "Menunggu",
+  cancel: "Batal",
+  replace: "Ganti Barang",
+};
+
 export interface OrderListParams {
   tab?: OrderTab;
   sub?: string;
@@ -55,6 +76,13 @@ export interface Order {
   cancel_request_reason: string | null;
   cancel_accepted_at: string | null;
   cancel_channel: "auto" | "manual" | null;
+  contacted_at: string | null;
+  contacted_by: string | null;
+  contact_channel: ContactChannel | null;
+  customer_decision: CustomerDecision | null;
+  decision_at: string | null;
+  decision_by: string | null;
+  contact_note: string | null;
   handed_to_warehouse_at: string | null;
   payment_method: string | null;
   payment_method_name: string | null;

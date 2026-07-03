@@ -208,6 +208,7 @@ export function PesananView() {
         subFilter={subFilter}
         count={selectedIds.size}
         onClear={clearSelection}
+        selectedIds={Array.from(selectedIds)}
       />
     </div>
   );

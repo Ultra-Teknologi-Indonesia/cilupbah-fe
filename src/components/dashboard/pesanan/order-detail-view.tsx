@@ -12,11 +12,15 @@ import {
   FileTextIcon,
   MapPinIcon,
   PackageIcon,
+  PencilIcon,
   PhoneIcon,
   PrinterIcon,
+  Trash2Icon,
   TruckIcon,
   UserIcon,
   XIcon,
+  ClockIcon,
+  MessageCircleIcon,
   CreditCardIcon,
   MessageSquareIcon,
 } from "lucide-react";
@@ -42,13 +46,24 @@ import {
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 
-import { CHANNEL_MAP, type Order } from "@/types/pesanan/order";
+import {
+  CHANNEL_MAP,
+  CONTACT_CHANNEL_LABELS,
+  CUSTOMER_DECISION_LABELS,
+  type Order,
+  type OrderItem,
+} from "@/types/pesanan/order";
 import { useOrder } from "@/hooks/pesanan/use-orders";
 import {
   useSetPaid,
   useMarkComplete,
   useGetShippingLabel,
+  useDeleteOrderItem,
 } from "@/hooks/pesanan/use-order-actions";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+
+import { ContactBuyerDialog } from "./contact-buyer-dialog";
+import { EditOrderItemDialog } from "./edit-order-item-dialog";
 import {
   formatCurrency,
   formatDateLong,
@@ -356,6 +371,12 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
   const setPaid = useSetPaid();
   const markComplete = useMarkComplete();
   const getLabel = useGetShippingLabel();
+  const deleteItem = useDeleteOrderItem();
+  const [contactOpen, setContactOpen] = React.useState(false);
+  const [editingItem, setEditingItem] = React.useState<OrderItem | null>(null);
+  const [deletingItemId, setDeletingItemId] = React.useState<string | null>(
+    null,
+  );
 
   const order = data?.data;
 
@@ -443,6 +464,17 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               >
                 <PrinterIcon className="h-4 w-4" />
                 Cetak Resi
+              </Button>
+            )}
+            {order.status === "pending" && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => setContactOpen(true)}
+              >
+                <MessageCircleIcon className="h-4 w-4" />
+                {order.contacted_at ? "Ubah Konfirmasi" : "Catat Konfirmasi"}
               </Button>
             )}
             {!order.is_paid && !order.is_canceled && (
@@ -565,6 +597,20 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             </div>
           </LiquidGlass>
 
+          {(order.customer_decision || order.contacted_at) && (
+            <ContactSummary
+              order={order}
+              onEdit={() => setContactOpen(true)}
+            />
+          )}
+          {(order.customer_decision === "replace" ||
+            order.status === "pending") && (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 text-xs text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
+              Perubahan item pesanan hanya update sistem internal (Jubelio) —
+              tidak dikirim ke marketplace.
+            </div>
+          )}
+
           {}
           <LiquidGlass
             radius={16}
@@ -597,6 +643,11 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                     <TableHead className="whitespace-nowrap text-right text-muted-foreground">
                       Jumlah
                     </TableHead>
+                    {order.status === "pending" && (
+                      <TableHead className="w-24 whitespace-nowrap text-right text-muted-foreground">
+                        Aksi
+                      </TableHead>
+                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -654,12 +705,38 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                       <TableCell className="px-3 py-2.5 text-right font-medium tabular-nums">
                         {formatCurrency(item.amount)}
                       </TableCell>
+                      {order.status === "pending" && (
+                        <TableCell className="px-3 py-2.5 text-right">
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 w-7 p-0"
+                              onClick={() => setEditingItem(item)}
+                              title="Ubah item"
+                            >
+                              <PencilIcon className="h-3.5 w-3.5" />
+                            </Button>
+                            {order.items.length > 1 && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                onClick={() => setDeletingItemId(item.id)}
+                                title="Hapus item"
+                              >
+                                <Trash2Icon className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                   {order.items.length === 0 && (
                     <TableRow>
                       <TableCell
-                        colSpan={6}
+                        colSpan={order.status === "pending" ? 7 : 6}
                         className="py-8 text-center text-sm text-muted-foreground"
                       >
                         Tidak ada produk.
@@ -814,6 +891,112 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           </LiquidGlass>
         </div>
       </div>
+
+      <ContactBuyerDialog
+        open={contactOpen}
+        onOpenChange={setContactOpen}
+        orderId={order.id}
+        orderNo={order.salesorder_no}
+        defaultChannel={order.contact_channel ?? undefined}
+        defaultDecision={order.customer_decision ?? undefined}
+        defaultNote={order.contact_note ?? undefined}
+      />
+
+      {editingItem && (
+        <EditOrderItemDialog
+          open={!!editingItem}
+          onOpenChange={(o) => !o && setEditingItem(null)}
+          orderId={order.id}
+          item={editingItem}
+        />
+      )}
+
+      <ConfirmDialog
+        open={!!deletingItemId}
+        onOpenChange={(o) => !o && setDeletingItemId(null)}
+        title="Hapus item pesanan?"
+        description="Perubahan hanya berlaku di sistem internal, tidak dikirim ke marketplace."
+        confirmLabel="Ya, Hapus"
+        variant="destructive"
+        loading={deleteItem.isPending}
+        onConfirm={() => {
+          if (!deletingItemId) return;
+          deleteItem.mutate(
+            { orderId: order.id, itemId: deletingItemId },
+            { onSuccess: () => setDeletingItemId(null) },
+          );
+        }}
+      />
     </div>
+  );
+}
+
+function ContactSummary({
+  order,
+  onEdit,
+}: {
+  order: Order;
+  onEdit: () => void;
+}) {
+  return (
+    <LiquidGlass
+      radius={16}
+      intensity="subtle"
+      className="bg-white/30 dark:bg-white/[0.04] p-5"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1">
+          <h3 className="font-semibold">Kontak & Keputusan Pembeli</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Catatan komunikasi dengan pembeli untuk pesanan stok kosong.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5"
+          onClick={onEdit}
+        >
+          <MessageCircleIcon className="h-3.5 w-3.5" />
+          Ubah
+        </Button>
+      </div>
+
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <InfoRow icon={CheckIcon} label="Status">
+          {order.contacted_at ? (
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+              Sudah dihubungi · {formatDateTime(order.contacted_at)}
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 text-amber-700 dark:text-amber-300">
+              <ClockIcon className="h-3.5 w-3.5" />
+              Belum dihubungi
+            </span>
+          )}
+        </InfoRow>
+        {order.contact_channel && (
+          <InfoRow icon={MessageSquareIcon} label="Channel">
+            {CONTACT_CHANNEL_LABELS[order.contact_channel]}
+          </InfoRow>
+        )}
+        {order.customer_decision && (
+          <InfoRow icon={UserIcon} label="Keputusan">
+            {CUSTOMER_DECISION_LABELS[order.customer_decision]}
+            {order.decision_at && (
+              <span className="ml-1 text-muted-foreground">
+                · {formatDateTime(order.decision_at)}
+              </span>
+            )}
+          </InfoRow>
+        )}
+        {order.contact_note && (
+          <InfoRow icon={MessageSquareIcon} label="Catatan">
+            <span className="whitespace-pre-line">{order.contact_note}</span>
+          </InfoRow>
+        )}
+      </div>
+    </LiquidGlass>
   );
 }

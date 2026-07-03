@@ -1,10 +1,21 @@
 import { fetchBlob, fetchClient } from "@/lib/api-client";
 import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type {
+  ContactChannel,
+  CustomerDecision,
   Order,
   OrderListParams,
   OrderTabCounts,
 } from "@/types/pesanan/order";
+
+export interface UpdateOrderItemData {
+  sku?: string;
+  description?: string;
+  qty_in_base?: number;
+  price?: number;
+  disc_amount?: number;
+  tax_amount?: number;
+}
 
 export interface ShippingLabelResult {
   type: "url" | "base64" | "raw";
@@ -174,5 +185,65 @@ export const OrderService = {
       method: "POST",
       data: { reason },
     });
+  },
+
+  markContacted: (
+    orderId: string,
+    data?: { channel?: ContactChannel; note?: string },
+  ) => {
+    return fetchClient<ApiResponse<Order>>(
+      `/sales/orders/${orderId}/mark-contacted`,
+      {
+        method: "POST",
+        data: data ?? {},
+      },
+    );
+  },
+
+  bulkMarkContacted: (
+    orderIds: string[],
+    data?: { channel?: ContactChannel; note?: string },
+  ) => {
+    return fetchClient<ApiResponse>("/sales/orders/bulk-mark-contacted", {
+      method: "POST",
+      data: { order_ids: orderIds, ...(data ?? {}) },
+    });
+  },
+
+  setCustomerDecision: (
+    orderId: string,
+    decision: CustomerDecision,
+    note?: string,
+  ) => {
+    return fetchClient<ApiResponse<Order>>(
+      `/sales/orders/${orderId}/customer-decision`,
+      {
+        method: "POST",
+        data: { decision, note },
+      },
+    );
+  },
+
+  updateOrderItem: (
+    orderId: string,
+    itemId: string,
+    data: UpdateOrderItemData,
+  ) => {
+    return fetchClient<ApiResponse<Order>>(
+      `/sales/orders/${orderId}/items/${itemId}`,
+      {
+        method: "PATCH",
+        data,
+      },
+    );
+  },
+
+  deleteOrderItem: (orderId: string, itemId: string) => {
+    return fetchClient<ApiResponse<Order>>(
+      `/sales/orders/${orderId}/items/${itemId}`,
+      {
+        method: "DELETE",
+      },
+    );
   },
 };

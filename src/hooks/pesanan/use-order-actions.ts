@@ -6,7 +6,9 @@ import { toast } from "sonner";
 import {
   OrderService,
   type ShippingLabelResult,
+  type UpdateOrderItemData,
 } from "@/services/pesanan/order.service";
+import type { ContactChannel, CustomerDecision } from "@/types/pesanan/order";
 import { createMutationHook } from "@/hooks/create-crud-hooks";
 import { orderKeys } from "./use-orders";
 
@@ -115,6 +117,67 @@ export const useRelocateOrder = createMutationHook({
     OrderService.relocateOrder(data.orderId, data.locationId),
   successMessage: "Lokasi pengambilan berhasil diubah",
   errorMessage: "Gagal mengubah lokasi pengambilan",
+  invalidates: ({ orderId }) => forOrder(orderId),
+});
+
+export const useMarkContacted = createMutationHook({
+  mutationFn: (data: {
+    orderId: string;
+    channel?: ContactChannel;
+    note?: string;
+  }) =>
+    OrderService.markContacted(data.orderId, {
+      channel: data.channel,
+      note: data.note,
+    }),
+  successMessage: "Pesanan ditandai sudah dihubungi",
+  errorMessage: "Gagal menandai pesanan sudah dihubungi",
+  invalidates: ({ orderId }) => forOrder(orderId),
+});
+
+export const useBulkMarkContacted = createMutationHook({
+  mutationFn: (data: {
+    orderIds: string[];
+    channel?: ContactChannel;
+    note?: string;
+  }) =>
+    OrderService.bulkMarkContacted(data.orderIds, {
+      channel: data.channel,
+      note: data.note,
+    }),
+  successMessage: "Pesanan ditandai sudah dihubungi",
+  errorMessage: "Gagal menandai pesanan sudah dihubungi",
+  invalidates: forBulk,
+});
+
+export const useSetCustomerDecision = createMutationHook({
+  mutationFn: (data: {
+    orderId: string;
+    decision: CustomerDecision;
+    note?: string;
+  }) =>
+    OrderService.setCustomerDecision(data.orderId, data.decision, data.note),
+  successMessage: "Keputusan pembeli tersimpan",
+  errorMessage: "Gagal menyimpan keputusan pembeli",
+  invalidates: ({ orderId }) => forOrder(orderId),
+});
+
+export const useUpdateOrderItem = createMutationHook({
+  mutationFn: (data: {
+    orderId: string;
+    itemId: string;
+    payload: UpdateOrderItemData;
+  }) => OrderService.updateOrderItem(data.orderId, data.itemId, data.payload),
+  successMessage: "Item pesanan diperbarui",
+  errorMessage: "Gagal memperbarui item pesanan",
+  invalidates: ({ orderId }) => forOrder(orderId),
+});
+
+export const useDeleteOrderItem = createMutationHook({
+  mutationFn: (data: { orderId: string; itemId: string }) =>
+    OrderService.deleteOrderItem(data.orderId, data.itemId),
+  successMessage: "Item pesanan dihapus",
+  errorMessage: "Gagal menghapus item pesanan",
   invalidates: ({ orderId }) => forOrder(orderId),
 });
 

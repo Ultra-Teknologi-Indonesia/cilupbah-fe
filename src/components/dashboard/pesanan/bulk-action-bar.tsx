@@ -11,23 +11,27 @@ import {
   BanIcon,
   PrinterIcon,
   CheckIcon,
+  MessageCircleIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import type { OrderTab, SubFilter } from "@/types/pesanan/order";
+import { useBulkMarkContacted } from "@/hooks/pesanan/use-order-actions";
 
 export function BulkActionBar({
   tab,
   subFilter,
   count,
   onClear,
+  selectedIds,
 }: {
   tab: OrderTab;
   subFilter: SubFilter;
   count: number;
   onClear: () => void;
+  selectedIds?: string[];
 }) {
   if (count === 0) return null;
 
@@ -50,7 +54,13 @@ export function BulkActionBar({
 
         <Separator orientation="vertical" className="!h-5" />
 
-        <TabBulkActions tab={tab} subFilter={subFilter} count={count} />
+        <TabBulkActions
+          tab={tab}
+          subFilter={subFilter}
+          count={count}
+          selectedIds={selectedIds ?? []}
+          onDone={onClear}
+        />
       </div>
     </div>
   );
@@ -60,11 +70,17 @@ function TabBulkActions({
   tab,
   subFilter,
   count,
+  selectedIds,
+  onDone,
 }: {
   tab: OrderTab;
   subFilter: SubFilter;
   count: number;
+  selectedIds: string[];
+  onDone: () => void;
 }) {
+  const bulkContact = useBulkMarkContacted();
+
   const placeholder = (label: string) => () =>
     toast.info(`${label} untuk ${count} pesanan akan segera tersedia`);
 
@@ -141,14 +157,33 @@ function TabBulkActions({
 
   if (tab === "empty-stock" || tab === "failed-pick") {
     return (
-      <Button
-        size="sm"
-        className="h-8 gap-1.5 text-xs"
-        onClick={placeholder("Pindahkan ke Perlu Dikirim")}
-      >
-        <ArrowRightIcon className="h-3.5 w-3.5" />
-        Pindahkan ke Perlu Dikirim
-      </Button>
+      <>
+        {tab === "empty-stock" && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            disabled={bulkContact.isPending || selectedIds.length === 0}
+            onClick={() =>
+              bulkContact.mutate(
+                { orderIds: selectedIds },
+                { onSuccess: () => onDone() },
+              )
+            }
+          >
+            <MessageCircleIcon className="h-3.5 w-3.5" />
+            Tandai Sudah Dihubungi
+          </Button>
+        )}
+        <Button
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          onClick={placeholder("Pindahkan ke Perlu Dikirim")}
+        >
+          <ArrowRightIcon className="h-3.5 w-3.5" />
+          Pindahkan ke Perlu Dikirim
+        </Button>
+      </>
     );
   }
 

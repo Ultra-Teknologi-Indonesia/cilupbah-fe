@@ -22,9 +22,12 @@ import {
   XIcon,
   ClipboardListIcon,
   ZapIcon,
+  MessageCircleIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+
+import { ContactBuyerDialog } from "./contact-buyer-dialog";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -210,6 +213,7 @@ function OrderActions({
 }) {
   const [completeOpen, setCompleteOpen] = React.useState(false);
   const [relocateOpen, setRelocateOpen] = React.useState(false);
+  const [contactOpen, setContactOpen] = React.useState(false);
 
   const markComplete = useMarkComplete();
   const requestAwb = useRequestAwb();
@@ -390,17 +394,42 @@ function OrderActions({
 
   if (tab === "empty-stock" || tab === "failed-pick") {
     return (
-      <Button
-        size="sm"
-        className="h-8 gap-1.5 text-xs"
-        disabled={busy}
-        onClick={() => moveToReady.mutate([order.id])}
-      >
-        <ArrowRightIcon className="h-3.5 w-3.5" />
-        {moveToReady.isPending
-          ? "Memindahkan..."
-          : "Pindahkan ke Perlu Dikirim"}
-      </Button>
+      <>
+        {tab === "empty-stock" && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            disabled={busy}
+            onClick={() => setContactOpen(true)}
+          >
+            <MessageCircleIcon className="h-3.5 w-3.5" />
+            {order.contacted_at ? "Ubah Konfirmasi" : "Catat Konfirmasi"}
+          </Button>
+        )}
+        <Button
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          disabled={busy}
+          onClick={() => moveToReady.mutate([order.id])}
+        >
+          <ArrowRightIcon className="h-3.5 w-3.5" />
+          {moveToReady.isPending
+            ? "Memindahkan..."
+            : "Pindahkan ke Perlu Dikirim"}
+        </Button>
+        {tab === "empty-stock" && (
+          <ContactBuyerDialog
+            open={contactOpen}
+            onOpenChange={setContactOpen}
+            orderId={order.id}
+            orderNo={order.salesorder_no}
+            defaultChannel={order.contact_channel ?? undefined}
+            defaultDecision={order.customer_decision ?? undefined}
+            defaultNote={order.contact_note ?? undefined}
+          />
+        )}
+      </>
     );
   }
 
@@ -681,6 +710,55 @@ function OutboundReadyActions({ order }: { order: Order }) {
   );
 }
 
+function ContactBadges({ order, tab }: { order: Order; tab: OrderTab }) {
+  if (tab !== "empty-stock") return null;
+
+  const decisionColor: Record<string, string> = {
+    waiting:
+      "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300",
+    cancel:
+      "border-rose-300 bg-rose-50 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300",
+    replace:
+      "border-violet-300 bg-violet-50 text-violet-700 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-300",
+  };
+
+  return (
+    <>
+      {order.contacted_at ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="inline-flex items-center gap-1 rounded-md border border-emerald-300 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+              <CheckIcon className="h-2.5 w-2.5" />
+              Sudah dihubungi
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            {formatDateTime(order.contacted_at)}
+            {order.contact_note ? ` · ${order.contact_note}` : ""}
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        <span className="inline-flex items-center gap-1 rounded-md border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
+          <ClockIcon className="h-2.5 w-2.5" />
+          Belum dihubungi
+        </span>
+      )}
+      {order.customer_decision && (
+        <span
+          className={cn(
+            "inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] font-medium",
+            decisionColor[order.customer_decision],
+          )}
+        >
+          {order.customer_decision === "waiting" && "Menunggu"}
+          {order.customer_decision === "cancel" && "Batal"}
+          {order.customer_decision === "replace" && "Ganti Barang"}
+        </span>
+      )}
+    </>
+  );
+}
+
 export function OrderCard({
   order,
   tab = "all",
@@ -795,6 +873,8 @@ export function OrderCard({
             {order.shop_name}
           </span>
         )}
+
+        <ContactBadges order={order} tab={tab} />
 
         <div className="ml-auto flex items-center gap-3 text-sm text-foreground">
           <span className="inline-flex items-center gap-1.5">
