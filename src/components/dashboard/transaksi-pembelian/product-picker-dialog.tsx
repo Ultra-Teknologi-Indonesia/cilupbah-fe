@@ -43,6 +43,8 @@ interface ProductPickerDialogProps {
   onOpenChange: (open: boolean) => void;
   onPick: (products: PickedProduct[]) => void;
   excludeIds?: string[];
+  /** Nilai search awal (mis. dari scan SKU). Diaplikasikan saat dialog dibuka. */
+  initialSearch?: string;
 }
 
 export function ProductPickerDialog({
@@ -50,12 +52,22 @@ export function ProductPickerDialog({
   onOpenChange,
   onPick,
   excludeIds = [],
+  initialSearch,
 }: ProductPickerDialogProps) {
   const [searchInput, setSearchInput] = React.useState("");
   const [search, setSearch] = React.useState("");
   const [selected, setSelected] = React.useState<Map<string, PickedProduct>>(
     new Map(),
   );
+
+  // Ketika dialog dibuka dengan initialSearch (mis. dari scan SKU), pre-fill
+  // search agar hasil langsung ter-filter.
+  React.useEffect(() => {
+    if (open && initialSearch) {
+      setSearchInput(initialSearch);
+      setSearch(initialSearch);
+    }
+  }, [open, initialSearch]);
 
   React.useEffect(() => {
     const t = setTimeout(() => setSearch(searchInput), 350);

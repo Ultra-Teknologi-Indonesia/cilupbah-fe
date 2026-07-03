@@ -56,4 +56,12 @@ export const InventoryStockService = {
   movementFilters: () => {
     return fetchClient<ApiResponse<MovementFilterOptions>>(`/inventory/movement-filters`)
   },
+
+  bySku: (sku: string) => {
+    return fetchClient<ApiResponse<{
+      id: string
+      sku: string
+      product?: { name?: string | null } | null
+    }>>(`/inventory/items/by-sku/${encodeURIComponent(sku)}`)
+  },
 }
