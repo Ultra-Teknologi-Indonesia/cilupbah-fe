@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRightIcon,
   Loader2Icon,
   PackageSearchIcon,
   PlusIcon,
+  ScanBarcodeIcon,
   Trash2Icon,
 } from "lucide-react";
 
@@ -28,7 +29,9 @@ import {
   ProductPickerDialog,
   type PickedProduct,
 } from "@/components/dashboard/transaksi-pembelian/product-picker-dialog";
+import { InventoryStockService } from "@/services/persediaan/inventory.service";
 import { cn } from "@/lib/utils";
+import { playScanFeedback } from "@/lib/scan-feedback";
 
 const LIST_HREF = "/dashboard/transaksi-stok?tab=transfer";
 
@@ -37,6 +40,12 @@ function toDateInputValue(d: Date): string {
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
+}
+
+interface AvailableBin {
+  id: string;
+  code: string;
+  onHand: number;
 }
 
 interface LineDraft {
@@ -49,6 +58,7 @@ interface LineDraft {
   destBinId: string;
   qty: string;
   notes: string;
+  availableBins: AvailableBin[];
 }
 
 export function PindahBinView() {
@@ -62,6 +72,13 @@ export function PindahBinView() {
   const [notes, setNotes] = useState("");
   const [lines, setLines] = useState<LineDraft[]>([]);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerSearch, setPickerSearch] = useState<string | undefined>(
+    undefined,
+  );
+  const [scanCode, setScanCode] = useState("");
+  const [scanning, setScanning] = useState(false);
+  const [scanFlash, setScanFlash] = useState<"ok" | "err" | null>(null);
+  const scanRef = useRef<HTMLInputElement>(null);
 
   const { data: locData } = useLocations({ perPage: 100 });
   const { data: binData, isLoading: binsLoading } = useLocationBins(locationId);
@@ -85,30 +102,118 @@ export function PindahBinView() {
     [binData],
   );
 
-  const addLines = (
-    products: (PickedProduct & {
-      variantLabel?: string;
-      thumbnail?: string | null;
-    })[],
-  ) => {
+  useEffect(() => {
+    if (locationId) scanRef.current?.focus();
+  }, [locationId]);
+
+  const flash = (state: "ok" | "err") => {
+    setScanFlash(state);
+    playScanFeedback(state === "ok" ? "ok" : "error");
+    setTimeout(() => setScanFlash(null), 350);
+  };
+
+  const upsertLineFromVariant = (variant: {
+    id: string;
+    sku: string;
+    product_name: string | null;
+    variant_label: string;
+    thumbnail_url: string | null;
+    primary_bin: { id: string; code: string; on_hand: number } | null;
+    available_bins: { id: string; code: string; on_hand: number }[];
+  }) => {
+    const availableBins = (variant.available_bins ?? [])
+      .filter((b) => b.on_hand > 0)
+      .map((b) => ({ id: b.id, code: b.code, onHand: b.on_hand }));
+
     setLines((prev) => {
-      const existing = new Set(prev.map((l) => l.itemId));
-      const fresh = products
-        .filter((p) => !existing.has(p.itemId))
-        .map<LineDraft>((p) => ({
-          itemId: p.itemId,
-          sku: p.sku,
-          name: p.name,
-          variantLabel: p.variantLabel ?? "",
-          thumbnail: p.thumbnail ?? null,
-          sourceBinId: "",
+      if (prev.some((l) => l.itemId === variant.id)) return prev;
+      const source =
+        variant.primary_bin && variant.primary_bin.on_hand > 0
+          ? variant.primary_bin.id
+          : availableBins[0]?.id ?? "";
+      return [
+        ...prev,
+        {
+          itemId: variant.id,
+          sku: variant.sku,
+          name: variant.product_name ?? variant.sku,
+          variantLabel: variant.variant_label ?? "",
+          thumbnail: variant.thumbnail_url ?? null,
+          sourceBinId: source,
           destBinId: "",
           qty: "",
           notes: "",
-        }));
-      return [...prev, ...fresh];
+          availableBins,
+        },
+      ];
     });
+    setTimeout(() => scanRef.current?.focus(), 200);
+  };
+
+  const handleScan = async () => {
+    const q = scanCode.trim();
+    if (!q || scanning || !locationId) return;
+
+    setScanning(true);
+    try {
+      const res = await InventoryStockService.bySku(q, locationId);
+      const variant = res.data;
+
+      if (lines.some((l) => l.itemId === variant.id)) {
+        flash("err");
+        return;
+      }
+      if (!variant.available_bins?.some((b) => b.on_hand > 0)) {
+        flash("err");
+        return;
+      }
+      upsertLineFromVariant(variant);
+      flash("ok");
+    } catch (err) {
+      const status = (err as { status?: number })?.status;
+      if (status === 404) {
+        setPickerSearch(q);
+        setPickerOpen(true);
+      } else {
+        flash("err");
+      }
+    } finally {
+      setScanning(false);
+      setScanCode("");
+    }
+  };
+
+  const addLinesFromPicker = async (products: PickedProduct[]) => {
     setPickerOpen(false);
+    setPickerSearch(undefined);
+    if (!locationId) return;
+    for (const p of products) {
+      if (lines.some((l) => l.itemId === p.itemId)) continue;
+      try {
+        const res = await InventoryStockService.bySku(p.sku, locationId);
+        upsertLineFromVariant(res.data);
+      } catch {
+        setLines((prev) => {
+          if (prev.some((l) => l.itemId === p.itemId)) return prev;
+          return [
+            ...prev,
+            {
+              itemId: p.itemId,
+              sku: p.sku,
+              name: p.name,
+              variantLabel: (p as { variantLabel?: string }).variantLabel ?? "",
+              thumbnail:
+                (p as { thumbnail?: string | null }).thumbnail ?? null,
+              sourceBinId: "",
+              destBinId: "",
+              qty: "",
+              notes: "",
+              availableBins: [],
+            },
+          ];
+        });
+      }
+    }
   };
 
   const updateLine = (itemId: string, patch: Partial<LineDraft>) =>
@@ -229,13 +334,7 @@ export function PindahBinView() {
                 value={locationId}
                 onChange={(v) => {
                   setLocationId(v ?? "");
-                  setLines((prev) =>
-                    prev.map((l) => ({
-                      ...l,
-                      sourceBinId: "",
-                      destBinId: "",
-                    })),
-                  );
+                  setLines([]);
                 }}
                 placeholder="Pilih Lokasi"
                 searchPlaceholder="Cari lokasi…"
@@ -303,6 +402,50 @@ export function PindahBinView() {
               </Button>
             </div>
 
+            <div className="flex flex-col gap-1.5">
+              <div className="relative">
+                {scanning ? (
+                  <Loader2Icon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-primary" />
+                ) : (
+                  <ScanBarcodeIcon
+                    className={cn(
+                      "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 transition-colors",
+                      scanFlash === "ok"
+                        ? "text-emerald-500"
+                        : scanFlash === "err"
+                          ? "text-destructive"
+                          : "text-muted-foreground",
+                    )}
+                  />
+                )}
+                <Input
+                  ref={scanRef}
+                  value={scanCode}
+                  onChange={(e) => setScanCode(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleScan();
+                    }
+                  }}
+                  placeholder="Scan / ketik SKU lalu Enter…"
+                  disabled={scanning}
+                  className={cn(
+                    "h-10 pl-9 text-base transition-colors",
+                    scanFlash === "ok" &&
+                      "border-emerald-500 ring-2 ring-emerald-500/30",
+                    scanFlash === "err" &&
+                      "border-destructive ring-2 ring-destructive/30",
+                  )}
+                  autoComplete="off"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Scan SKU akan otomatis menambah baris. Rak asal & tujuan juga
+                bisa di-scan lewat kolom masing-masing.
+              </p>
+            </div>
+
             <div className="overflow-x-auto rounded-lg border border-border">
               <table className="w-full text-sm">
                 <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
@@ -332,8 +475,8 @@ export function PindahBinView() {
                         <div className="flex flex-col items-center gap-2 text-muted-foreground">
                           <PackageSearchIcon className="h-7 w-7 opacity-40" />
                           <p className="text-sm">
-                            Belum ada produk. Klik “Tambah Produk” untuk
-                            memilih produk yang akan ditransfer.
+                            Belum ada produk. Scan SKU di atas atau klik
+                            “Tambah Produk”.
                           </p>
                         </div>
                       </td>
@@ -348,6 +491,23 @@ export function PindahBinView() {
                         !!l.sourceBinId &&
                         !!l.destBinId &&
                         l.sourceBinId === l.destBinId;
+                      const sourceOptions =
+                        l.availableBins.length > 0
+                          ? l.availableBins.map((b) => ({
+                              value: b.id,
+                              label: `${b.code} · ${b.onHand} stok`,
+                            }))
+                          : [];
+                      const destOptions = binOptions.filter(
+                        (b) => b.value !== l.sourceBinId,
+                      );
+                      const sourceBin = l.availableBins.find(
+                        (b) => b.id === l.sourceBinId,
+                      );
+                      const qtyOverStock =
+                        !!sourceBin &&
+                        qtyNum > 0 &&
+                        qtyNum > sourceBin.onHand;
                       return (
                         <tr key={l.itemId} className="bg-background/50">
                           <td className="px-3 py-2.5">
@@ -381,20 +541,21 @@ export function PindahBinView() {
                           </td>
                           <td className="px-3 py-2.5">
                             <Combobox
-                              options={binOptions.filter(
-                                (b) => b.value !== l.destBinId,
-                              )}
+                              options={sourceOptions}
                               value={l.sourceBinId}
                               onChange={(v) =>
                                 updateLine(l.itemId, { sourceBinId: v ?? "" })
                               }
                               placeholder={
-                                binsLoading ? "Memuat…" : "Pilih rak asal"
+                                sourceOptions.length === 0
+                                  ? "Tidak ada stok"
+                                  : "Scan / pilih rak asal"
                               }
-                              searchPlaceholder="Cari rak…"
-                              disabled={binsLoading}
+                              searchPlaceholder="Scan / cari rak…"
+                              emptyText="Tidak ada rak dengan stok"
+                              disabled={sourceOptions.length === 0}
                               className={cn(
-                                "h-9 min-w-[140px]",
+                                "h-9 min-w-[160px]",
                                 sameBin &&
                                   "border-destructive ring-1 ring-destructive/30",
                               )}
@@ -404,20 +565,20 @@ export function PindahBinView() {
                             <div className="flex items-center gap-2">
                               <ArrowRightIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                               <Combobox
-                                options={binOptions.filter(
-                                  (b) => b.value !== l.sourceBinId,
-                                )}
+                                options={destOptions}
                                 value={l.destBinId}
                                 onChange={(v) =>
                                   updateLine(l.itemId, { destBinId: v ?? "" })
                                 }
                                 placeholder={
-                                  binsLoading ? "Memuat…" : "Pilih rak tujuan"
+                                  binsLoading
+                                    ? "Memuat…"
+                                    : "Scan / pilih rak tujuan"
                                 }
-                                searchPlaceholder="Cari rak…"
+                                searchPlaceholder="Scan / cari rak…"
                                 disabled={binsLoading}
                                 className={cn(
-                                  "h-9 min-w-[140px]",
+                                  "h-9 min-w-[160px]",
                                   sameBin &&
                                     "border-destructive ring-1 ring-destructive/30",
                                 )}
@@ -428,6 +589,7 @@ export function PindahBinView() {
                             <Input
                               type="number"
                               min={1}
+                              max={sourceBin?.onHand}
                               value={l.qty}
                               onChange={(e) =>
                                 updateLine(l.itemId, { qty: e.target.value })
@@ -435,10 +597,15 @@ export function PindahBinView() {
                               placeholder="0"
                               className={cn(
                                 "h-9 w-24 text-right",
-                                qtyInvalid &&
+                                (qtyInvalid || qtyOverStock) &&
                                   "border-destructive ring-1 ring-destructive/30",
                               )}
                             />
+                            {sourceBin && (
+                              <p className="mt-0.5 text-[10px] text-muted-foreground">
+                                dari {sourceBin.onHand}
+                              </p>
+                            )}
                           </td>
                           <td className="px-3 py-2.5">
                             <Input
@@ -472,8 +639,8 @@ export function PindahBinView() {
             {lines.length > 0 && (
               <p className="text-xs text-muted-foreground">
                 Total {validLines.length} dari {lines.length} baris siap
-                ditransfer. Setiap baris wajib punya rak asal, rak tujuan (harus
-                berbeda), dan qty &gt; 0.
+                ditransfer. Setiap baris wajib punya rak asal (dari rak yang
+                menyimpan SKU tsb), rak tujuan berbeda, dan qty &gt; 0.
               </p>
             )}
           </div>
@@ -497,9 +664,13 @@ export function PindahBinView() {
 
       <ProductPickerDialog
         open={pickerOpen}
-        onOpenChange={setPickerOpen}
-        onPick={addLines}
+        onOpenChange={(v) => {
+          setPickerOpen(v);
+          if (!v) setPickerSearch(undefined);
+        }}
+        onPick={addLinesFromPicker}
         excludeIds={lines.map((l) => l.itemId)}
+        initialSearch={pickerSearch}
       />
     </div>
   );
