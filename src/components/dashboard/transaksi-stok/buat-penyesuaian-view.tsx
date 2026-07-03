@@ -58,7 +58,7 @@ export function BuatPenyesuaianView() {
   const router = useRouter()
   const [locationId, setLocationId] = useState("")
   const [transactionDate, setTransactionDate] = useState(todayStr)
-  const [adjustmentNo, setAdjustmentNo] = useState("")
+  const [adjustmentNo, setAdjustmentNo] = useState("[auto]")
   const [notes, setNotes] = useState("")
   const [createdBy, setCreatedBy] = useState("")
   const [lines, setLines] = useState<LineDraft[]>([])
@@ -196,7 +196,10 @@ export function BuatPenyesuaianView() {
       {
         transaction_date: transactionDate,
         location_id: locationId,
-        adjustment_no: adjustmentNo.trim() || undefined,
+        adjustment_no:
+          adjustmentNo.trim() === "" || adjustmentNo.trim() === "[auto]"
+            ? undefined
+            : adjustmentNo.trim(),
         notes: notes.trim() || undefined,
         created_by: createdBy.trim(),
         auto_approve: true,
@@ -236,9 +239,17 @@ export function BuatPenyesuaianView() {
               <Input
                 value={adjustmentNo}
                 onChange={(e) => setAdjustmentNo(e.target.value)}
-                placeholder="[auto] atau ketik nomor custom"
+                onFocus={(e) => {
+                  if (e.target.value === "[auto]") {
+                    setAdjustmentNo("")
+                  }
+                }}
+                onBlur={(e) => {
+                  if (e.target.value.trim() === "") {
+                    setAdjustmentNo("[auto]")
+                  }
+                }}
               />
-              <p className="text-xs text-muted-foreground">Kosongkan → otomatis prefix ADJ. Isi manual → jadi nomor kustom.</p>
             </div>
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
