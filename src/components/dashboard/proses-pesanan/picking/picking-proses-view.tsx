@@ -10,7 +10,10 @@ import {
   CheckIcon,
   Loader2Icon,
   PackageIcon,
+  RotateCcwIcon,
   ScanBarcodeIcon,
+  SplitIcon,
+  Trash2Icon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -41,7 +44,11 @@ import {
   usePickItem,
   useScanForPick,
   useCompletePicklist,
+  useUnfailPickItem,
 } from "@/hooks/proses-pesanan/use-fulfillment";
+import { FailItemDialog } from "@/components/dashboard/proses-pesanan/picking/fail-item-dialog";
+import { PecahRakDialog } from "@/components/dashboard/proses-pesanan/picking/pecah-rak-dialog";
+import type { PicklistItem } from "@/types/proses-pesanan/fulfillment";
 import { ScanAutoflowBar } from "@/components/dashboard/shared/scan-autoflow-bar";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { QtyConfirmInput } from "@/components/ui/qty-confirm-input";
@@ -93,10 +100,15 @@ function getItemStatus(
   ordered: number,
   s: string | null | undefined,
 ) {
+  if (s === "SHORT" || s === "REJECTED") return s;
   if (picked >= ordered && ordered > 0) return "COMPLETED";
   if (picked > 0) return "PARTIAL";
   if (s === "PICKED") return "COMPLETED";
   return "PENDING";
+}
+
+function isFailedStatus(s: string | null | undefined) {
+  return s === "SHORT" || s === "REJECTED";
 }
 
 export function PickingProsesView({ id }: { id: string }) {
@@ -126,13 +138,26 @@ export function PickingProsesView({ id }: { id: string }) {
   const pickItem = usePickItem();
   const scanForPick = useScanForPick();
   const completePicklist = useCompletePicklist();
+  const unfailPickItem = useUnfailPickItem();
+
+  const [failItemTarget, setFailItemTarget] =
+    React.useState<PicklistItem | null>(null);
+  const [pecahRakTarget, setPecahRakTarget] =
+    React.useState<PicklistItem | null>(null);
 
   const items = React.useMemo(() => pl?.items ?? [], [pl]);
 
   const totalOrdered = items.reduce((s, i) => s + i.qtyOrdered, 0);
   const totalPicked = items.reduce((s, i) => s + i.qtyPicked, 0);
-  const allPicked =
-    items.length > 0 && items.every((i) => i.qtyPicked >= i.qtyOrdered);
+  const failedCount = items.filter((i) => isFailedStatus(i.itemStatus)).length;
+  const completedCount = items.filter(
+    (i) => i.qtyPicked >= i.qtyOrdered && !isFailedStatus(i.itemStatus),
+  ).length;
+  const allResolved =
+    items.length > 0 &&
+    items.every(
+      (i) => i.qtyPicked >= i.qtyOrdered || isFailedStatus(i.itemStatus),
+    );
   const isTerminal = pl
     ? ["COMPLETED", "FAILED", "CANCELLED"].includes(pl.status)
     : false;
@@ -161,7 +186,7 @@ export function PickingProsesView({ id }: { id: string }) {
   const [completeDialogDismissed, setCompleteDialogDismissed] =
     React.useState(false);
   const completeDialogOpen =
-    !!pl && editable && allPicked && !completeDialogDismissed;
+    !!pl && editable && allResolved && !completeDialogDismissed;
 
   const handleCompletePicking = () => {
     completePicklist.mutate(id, {
@@ -322,7 +347,7 @@ export function PickingProsesView({ id }: { id: string }) {
             <Button
               variant="primary"
               onClick={handleComplete}
-              disabled={!editable || !allPicked || completePicklist.isPending}
+              disabled={!editable || !allResolved || completePicklist.isPending}
             >
               {completePicklist.isPending && (
                 <Loader2Icon className="animate-spin" />
@@ -371,11 +396,13 @@ export function PickingProsesView({ id }: { id: string }) {
                   {totalPicked} / {totalOrdered}
                 </span>
               </div>
-              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div className="relative mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 <div
                   className={cn(
-                    "h-full rounded-full transition-all",
-                    allPicked ? "bg-success" : "bg-primary",
+                    "absolute inset-y-0 left-0 rounded-full transition-all",
+                    allResolved && failedCount === 0
+                      ? "bg-success"
+                      : "bg-primary",
                   )}
                   style={{
                     width: `${
@@ -389,6 +416,11 @@ export function PickingProsesView({ id }: { id: string }) {
                   }}
                 />
               </div>
+              {failedCount > 0 && (
+                <div className="mt-1 text-xs text-amber-700">
+                  Gagal: {failedCount}
+                </div>
+              )}
             </div>
 
             <div className="rounded-lg border border-border bg-card p-4">
@@ -631,13 +663,16 @@ export function PickingProsesView({ id }: { id: string }) {
                   <TableHead className="px-3 py-3 text-muted-foreground">
                     No. Resi
                   </TableHead>
+                  <TableHead className="w-[120px] px-3 py-3 text-right text-muted-foreground">
+                    Aksi
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {items.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={8}
+                      colSpan={9}
                       className="py-12 text-center text-sm text-muted-foreground"
                     >
                       Tidak ada item dalam picklist ini.
@@ -716,6 +751,76 @@ export function PickingProsesView({ id }: { id: string }) {
                         <TableCell className="px-3 py-3 font-mono text-xs text-foreground">
                           {it.trackingNumber ?? "—"}
                         </TableCell>
+                        <TableCell className="w-[120px] px-3 py-3 text-right">
+                          {editable ? (
+                            <div className="flex items-center justify-end gap-1">
+                              {isFailedStatus(it.itemStatus) ? (
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  aria-label="Batalkan tanda gagal"
+                                  title="Batalkan tanda gagal"
+                                  disabled={unfailPickItem.isPending}
+                                  onClick={() =>
+                                    unfailPickItem.mutate(
+                                      { picklistId: id, itemId: it.id },
+                                      {
+                                        onError: (e) =>
+                                          toast.error(
+                                            errMsg(
+                                              e,
+                                              "Gagal membatalkan tanda gagal.",
+                                            ),
+                                          ),
+                                      },
+                                    )
+                                  }
+                                >
+                                  {unfailPickItem.isPending ? (
+                                    <Loader2Icon className="size-4 animate-spin" />
+                                  ) : (
+                                    <RotateCcwIcon className="size-4" />
+                                  )}
+                                </Button>
+                              ) : (
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  aria-label="Tandai gagal"
+                                  title={
+                                    done
+                                      ? "Item sudah selesai"
+                                      : "Tandai item gagal"
+                                  }
+                                  disabled={done}
+                                  onClick={() => setFailItemTarget(it)}
+                                >
+                                  <Trash2Icon className="size-4 text-destructive" />
+                                </Button>
+                              )}
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                aria-label="Pecah rak"
+                                title={
+                                  done
+                                    ? "Item sudah selesai"
+                                    : isFailedStatus(it.itemStatus)
+                                      ? "Item sudah ditandai gagal"
+                                      : "Pecah pengambilan ke beberapa rak"
+                                }
+                                disabled={done || isFailedStatus(it.itemStatus)}
+                                onClick={() => setPecahRakTarget(it)}
+                              >
+                                <SplitIcon className="size-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              —
+                            </span>
+                          )}
+                        </TableCell>
                       </TableRow>
                     );
                   })
@@ -738,8 +843,20 @@ export function PickingProsesView({ id }: { id: string }) {
           <DialogHeader>
             <DialogTitle>Selesaikan Picking?</DialogTitle>
             <DialogDescription>
-              Semua item pada picklist {pl?.picklistNo ?? ""} sudah di-pick.
-              Klik Selesaikan untuk menutup picking dan lanjut ke daftar.
+              Ringkasan picklist {pl?.picklistNo ?? ""}:
+              <br />• Item selesai:{" "}
+              <span className="font-semibold">{completedCount}</span>
+              <br />• Item gagal (Kurang / Ditolak):{" "}
+              <span className="font-semibold">{failedCount}</span>
+              {failedCount > 0 && (
+                <>
+                  <br />
+                  <span className="text-xs">
+                    Item gagal tidak ikut ke packing dan akan dikembalikan ke
+                    daftar order untuk penanganan lanjut.
+                  </span>
+                </>
+              )}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
@@ -762,6 +879,28 @@ export function PickingProsesView({ id }: { id: string }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {failItemTarget && (
+        <FailItemDialog
+          open={!!failItemTarget}
+          onOpenChange={(open) => {
+            if (!open) setFailItemTarget(null);
+          }}
+          picklistId={id}
+          item={failItemTarget}
+        />
+      )}
+
+      {pecahRakTarget && (
+        <PecahRakDialog
+          open={!!pecahRakTarget}
+          onOpenChange={(open) => {
+            if (!open) setPecahRakTarget(null);
+          }}
+          picklistId={id}
+          item={pecahRakTarget}
+        />
+      )}
     </div>
   );
 }

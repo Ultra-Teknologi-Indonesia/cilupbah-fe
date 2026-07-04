@@ -1,4 +1,4 @@
-import { PickingDetailView } from "@/components/dashboard/proses-pesanan/picking/picking-detail-view";
+import { PickingProsesView } from "@/components/dashboard/proses-pesanan/picking/picking-proses-view";
 
 export default async function PickingDetailPage({
   params,
@@ -6,5 +6,5 @@ export default async function PickingDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <PickingDetailView id={id} />;
+  return <PickingProsesView id={id} />;
 }

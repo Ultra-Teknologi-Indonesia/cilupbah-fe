@@ -440,6 +440,77 @@ export function useFailPicklist() {
   });
 }
 
+export function useFailPickItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      picklistId,
+      itemId,
+      reasonCode,
+      reasonNote,
+    }: {
+      picklistId: string;
+      itemId: string;
+      reasonCode: string;
+      reasonNote?: string | null;
+    }) =>
+      OutboundService.failPickItem(picklistId, itemId, {
+        reasonCode,
+        reasonNote: reasonNote ?? null,
+      }),
+    onSuccess: (_d, v) => {
+      toast.success("Item ditandai gagal.");
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.picklistDetail(v.picklistId),
+      });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+    },
+  });
+}
+
+export function useUnfailPickItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      picklistId,
+      itemId,
+    }: {
+      picklistId: string;
+      itemId: string;
+    }) => OutboundService.unfailPickItem(picklistId, itemId),
+    onSuccess: (_d, v) => {
+      toast.success("Tanda gagal item dibatalkan.");
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.picklistDetail(v.picklistId),
+      });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+    },
+  });
+}
+
+export function useSplitPickItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      picklistId,
+      itemId,
+      allocations,
+    }: {
+      picklistId: string;
+      itemId: string;
+      allocations: Array<{ binCode: string; qty: number }>;
+    }) =>
+      OutboundService.splitPickItem(picklistId, itemId, { allocations }),
+    onSuccess: (_d, v) => {
+      toast.success("Item berhasil di-pick lintas rak.");
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.picklistDetail(v.picklistId),
+      });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+    },
+  });
+}
+
 export function useScanOrder() {
   const qc = useQueryClient();
   return useMutation({

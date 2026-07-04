@@ -285,6 +285,20 @@ export interface RawPicklistMedia {
   sort_order?: number | null;
 }
 
+export type PicklistItemStatus =
+  | "PENDING"
+  | "PARTIAL"
+  | "COMPLETED"
+  | "SHORT"
+  | "REJECTED";
+
+export type PicklistFailReasonCode =
+  | "STOCK_EMPTY"
+  | "DAMAGED"
+  | "REJECTED"
+  | "MISSING"
+  | "OTHER";
+
 export interface RawPicklistItem {
   id: string;
   sku: string;
@@ -294,6 +308,10 @@ export interface RawPicklistItem {
   qty_ordered?: number;
   qty_picked?: number;
   status?: string | null;
+  item_status?: string | null;
+  fail_reason_code?: string | null;
+  fail_reason_note?: string | null;
+  failed_qty?: number | null;
 
   image_url?: string | null;
   product?: {
@@ -332,10 +350,47 @@ export interface PicklistItem {
   orderNo: string | null;
   trackingNumber: string | null;
   packageNo: string | null;
-  itemStatus: string | null;
+  itemStatus: PicklistItemStatus | null;
+  failReasonCode: PicklistFailReasonCode | null;
+  failReasonNote: string | null;
+  failedQty: number | null;
   qtyOrdered: number;
   qtyPicked: number;
 }
+
+export const PICKLIST_ITEM_STATUS_LABEL: Record<
+  PicklistItemStatus,
+  { label: string; className: string }
+> = {
+  PENDING: {
+    label: "Belum",
+    className: "bg-muted text-muted-foreground",
+  },
+  PARTIAL: {
+    label: "Sebagian",
+    className: "bg-warning/10 text-warning",
+  },
+  COMPLETED: {
+    label: "Selesai",
+    className: "bg-emerald-500/10 text-emerald-600",
+  },
+  SHORT: {
+    label: "Kurang",
+    className: "bg-amber-500/10 text-amber-700",
+  },
+  REJECTED: {
+    label: "Ditolak",
+    className: "bg-destructive/10 text-destructive",
+  },
+};
+
+export const FAIL_REASON_LABEL: Record<PicklistFailReasonCode, string> = {
+  STOCK_EMPTY: "Stok habis",
+  DAMAGED: "Rusak",
+  REJECTED: "Ditolak",
+  MISSING: "Hilang",
+  OTHER: "Lainnya",
+};
 
 export interface RawPicklistDetail extends RawPicklist {
   items?: RawPicklistItem[];

@@ -264,6 +264,34 @@ function pickMediaUrl(
   return sorted[0]?.url ?? media[0]?.url ?? null;
 }
 
+const PICKLIST_ITEM_STATUS_VALUES = new Set<PicklistItem["itemStatus"]>([
+  "PENDING",
+  "PARTIAL",
+  "COMPLETED",
+  "SHORT",
+  "REJECTED",
+]);
+
+const PICKLIST_FAIL_REASON_VALUES = new Set<PicklistItem["failReasonCode"]>([
+  "STOCK_EMPTY",
+  "DAMAGED",
+  "REJECTED",
+  "MISSING",
+  "OTHER",
+]);
+
+function normalizeItemStatus(v: unknown): PicklistItem["itemStatus"] {
+  if (typeof v !== "string" || !v) return null;
+  const up = v.toUpperCase() as PicklistItem["itemStatus"];
+  return PICKLIST_ITEM_STATUS_VALUES.has(up) ? up : null;
+}
+
+function normalizeFailReason(v: unknown): PicklistItem["failReasonCode"] {
+  if (typeof v !== "string" || !v) return null;
+  const up = v.toUpperCase() as PicklistItem["failReasonCode"];
+  return PICKLIST_FAIL_REASON_VALUES.has(up) ? up : null;
+}
+
 function mapPicklistItem(raw: RawPicklistItem): PicklistItem {
   const imageUrl =
     raw.image_url ??
@@ -289,7 +317,10 @@ function mapPicklistItem(raw: RawPicklistItem): PicklistItem {
     orderNo: raw.order?.salesorder_no ?? null,
     trackingNumber: raw.order?.tracking_number ?? null,
     packageNo: raw.order?.package_no ?? raw.order?.shipment_no ?? null,
-    itemStatus: raw.status ?? null,
+    itemStatus: normalizeItemStatus(raw.item_status ?? raw.status),
+    failReasonCode: normalizeFailReason(raw.fail_reason_code),
+    failReasonNote: raw.fail_reason_note ?? null,
+    failedQty: raw.failed_qty ?? null,
     qtyOrdered: raw.qty_ordered ?? 0,
     qtyPicked: raw.qty_picked ?? 0,
   };
@@ -492,6 +523,52 @@ export const OutboundService = {
         data: qty != null ? { qty } : undefined,
       },
     );
+  },
+  failPickItem: async (
+    picklistId: string,
+    itemId: string,
+    payload: { reasonCode: string; reasonNote?: string | null },
+  ): Promise<PicklistDetail> => {
+    const res = await fetchClient<{ data: RawPicklistDetail }>(
+      `/outbound/picklists/${picklistId}/items/${itemId}/fail`,
+      {
+        method: "POST",
+        data: {
+          reason_code: payload.reasonCode,
+          reason_note: payload.reasonNote ?? null,
+        },
+      },
+    );
+    return mapPicklistDetail(res.data);
+  },
+  unfailPickItem: async (
+    picklistId: string,
+    itemId: string,
+  ): Promise<PicklistDetail> => {
+    const res = await fetchClient<{ data: RawPicklistDetail }>(
+      `/outbound/picklists/${picklistId}/items/${itemId}/unfail`,
+      { method: "POST", data: {} },
+    );
+    return mapPicklistDetail(res.data);
+  },
+  splitPickItem: async (
+    picklistId: string,
+    itemId: string,
+    payload: { allocations: Array<{ binCode: string; qty: number }> },
+  ): Promise<PicklistDetail> => {
+    const res = await fetchClient<{ data: RawPicklistDetail }>(
+      `/outbound/picklists/${picklistId}/items/${itemId}/split-pick`,
+      {
+        method: "POST",
+        data: {
+          allocations: payload.allocations.map((a) => ({
+            bin_code: a.binCode,
+            qty: a.qty,
+          })),
+        },
+      },
+    );
+    return mapPicklistDetail(res.data);
   },
   scanForPick: async (
     picklistId: string,

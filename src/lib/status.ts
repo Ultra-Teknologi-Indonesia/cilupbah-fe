@@ -161,6 +161,8 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     COMPLETED: { label: "Selesai", variant: "success" },
     PARTIAL: { label: "Sebagian", variant: "warning" },
     PENDING: { label: "Belum", variant: "muted" },
+    SHORT: { label: "Kurang", variant: "warning" },
+    REJECTED: { label: "Ditolak", variant: "destructive" },
   },
 
   "product-boost": {
