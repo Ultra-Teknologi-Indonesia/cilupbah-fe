@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DateTimePicker } from "@/components/ui/date-picker";
+import { DatePicker, DateTimePicker } from "@/components/ui/date-picker";
 import {
   useCouriers,
   useCreateShipment,
@@ -36,10 +36,6 @@ import { PrinterIcon } from "lucide-react";
 import { isShopeeInstantOrSameDay } from "@/lib/proses-pesanan/shopee";
 import { usePrintWithDriverCall } from "@/hooks/proses-pesanan/use-driver-call";
 import { DriverCallIndicator } from "@/components/dashboard/proses-pesanan/shared/driver-call-indicator";
-
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 const MARKETPLACE_SOURCES = ["shopee", "tiktok", "lazada", "tokopedia"];
 
@@ -117,8 +113,8 @@ function PengirimanForm({
   const anyDriverCallPending = printWithDriverCall.isPending;
   const [forceLabel, setForceLabel] = React.useState(false);
 
-  const handlePrintWithDriverCall = async () => {
-    if (!orderIds || orderIds.length === 0) return;
+  const handlePrintWithDriverCall = async (): Promise<typeof driverCallResults> => {
+    if (!orderIds || orderIds.length === 0) return {};
     const nextResults: typeof driverCallResults = {};
     for (const orderId of orderIds) {
       try {
@@ -144,14 +140,18 @@ function PengirimanForm({
       }
     }
     setDriverCallResults((prev) => ({ ...prev, ...nextResults }));
+    return nextResults;
   };
 
   const [courierId, setCourierId] = React.useState("");
-  const [shipmentType, setShipmentType] =
-    React.useState<ShipmentType>("REGULAR");
+  const [shipmentType, setShipmentType] = React.useState<ShipmentType>(
+    () => (showDriverCall ? "INSTANT" : "REGULAR"),
+  );
   const [notes, setNotes] = React.useState("");
   // Mode pesanan: tanggal saja
-  const [shipmentDate, setShipmentDate] = React.useState(today);
+  const [shipmentDateObj, setShipmentDateObj] = React.useState<Date | undefined>(
+    () => new Date(),
+  );
   // Mode standalone
   const [shipmentNo, setShipmentNo] = React.useState("");
   const [standaloneLocationId, setStandaloneLocationId] = React.useState("");
@@ -191,8 +191,15 @@ function PengirimanForm({
 
   const canSubmit = orderMode
     ? isMarketplace
-      ? orderIds.length > 0 && !!locationId && !multiLocation
-      : orderIds.length > 0 && !!locationId && !multiLocation && !!courierId
+      ? orderIds.length > 0 &&
+        !!locationId &&
+        !multiLocation &&
+        !!shipmentDateObj
+      : orderIds.length > 0 &&
+        !!locationId &&
+        !multiLocation &&
+        !!courierId &&
+        !!shipmentDateObj
     : !!courierId && !!standaloneLocationId && !!shipmentDateTime && !dateError;
 
   const handleSubmit = async () => {
@@ -215,12 +222,14 @@ function PengirimanForm({
         return;
       }
 
+      if (!shipmentDateObj) return;
+
       payload = {
         location_id: locationId,
         courier_name: courierName,
         courier_code: courierCode,
         shipment_type: shipmentType,
-        shipment_date: shipmentDate,
+        shipment_date: format(shipmentDateObj, "yyyy-MM-dd"),
         notes: notes || null,
       };
       successMsg = `Pengiriman dibuat untuk ${orderIds.length} pesanan.`;
@@ -260,6 +269,18 @@ function PengirimanForm({
           : "Gagal membuat pengiriman.";
       toast.error(msg);
     }
+  };
+
+  const handlePrintAndShip = async () => {
+    const results = await handlePrintWithDriverCall();
+    const anyFailed = Object.values(results).some((r) => r.status === "failed");
+    if (anyFailed && !forceLabel) {
+      toast.warning(
+        "Panggilan driver gagal untuk beberapa pesanan. Centang \"Tetap cetak meski driver gagal\" bila ingin melanjutkan.",
+      );
+      return;
+    }
+    await handleSubmit();
   };
 
   return (
@@ -364,34 +385,20 @@ function PengirimanForm({
         )}
 
         {orderMode ? (
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label>Tipe</Label>
-              <Select
-                value={shipmentType}
-                onValueChange={(v) => setShipmentType(v as ShipmentType)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SHIPMENT_TYPES.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>
-                      {t.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="shipment-date">Tgl. Pengiriman</Label>
-              <Input
-                id="shipment-date"
-                type="date"
-                value={shipmentDate}
-                onChange={(e) => setShipmentDate(e.target.value)}
-              />
-            </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="shipment-date">Tgl. Pengiriman</Label>
+            <DatePicker
+              id="shipment-date"
+              value={shipmentDateObj}
+              onChange={setShipmentDateObj}
+            />
+            <p className="text-xs text-muted-foreground">
+              Tipe pengiriman terdeteksi otomatis:{" "}
+              <span className="font-medium capitalize">
+                {shipmentType.toLowerCase().replace(/_/g, " ")}
+              </span>
+              .
+            </p>
           </div>
         ) : (
           <>
@@ -490,30 +497,37 @@ function PengirimanForm({
         <Button variant="outline" onClick={() => onOpenChange(false)}>
           Batal
         </Button>
-        {showDriverCall && (
+        {showDriverCall ? (
           <Button
-            variant="secondary"
-            onClick={handlePrintWithDriverCall}
-            disabled={anyDriverCallPending}
+            variant="primary"
+            onClick={handlePrintAndShip}
+            disabled={
+              !canSubmit || anyDriverCallPending || createShipment.isPending
+            }
           >
-            {anyDriverCallPending ? (
+            {anyDriverCallPending || createShipment.isPending ? (
               <Loader2Icon className="animate-spin" />
             ) : (
               <PrinterIcon className="h-4 w-4" />
             )}
             {anyDriverCallPending
               ? "Memanggil driver…"
-              : "Cetak Resi/AWB"}
+              : createShipment.isPending
+                ? "Membuat pengiriman…"
+                : "Cetak Resi/AWB & Buat Pengiriman"}
+          </Button>
+        ) : (
+          <Button
+            variant="primary"
+            onClick={handleSubmit}
+            disabled={!canSubmit || createShipment.isPending}
+          >
+            {createShipment.isPending && (
+              <Loader2Icon className="animate-spin" />
+            )}
+            Buat Pengiriman
           </Button>
         )}
-        <Button
-          variant="primary"
-          onClick={handleSubmit}
-          disabled={!canSubmit || createShipment.isPending}
-        >
-          {createShipment.isPending && <Loader2Icon className="animate-spin" />}
-          Buat Pengiriman
-        </Button>
       </div>
     </>
   );
