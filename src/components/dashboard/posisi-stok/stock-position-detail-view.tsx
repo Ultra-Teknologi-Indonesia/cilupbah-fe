@@ -277,21 +277,30 @@ function MovementsSection({ itemId }: { itemId: string }) {
   const hasActiveFilter = activeCount > 0;
 
   const viewBar = (
-    <Tabs
-      value={view}
-      onValueChange={(v) => {
-        setView(v as MovementView);
-        setPage(1);
-      }}
-    >
-      <TabsList variant="line" className="h-auto">
-        {VIEW_TABS.map((t) => (
-          <TabsTrigger key={t.value} value={t.value}>
+    <div className="flex flex-wrap items-center gap-2">
+      {VIEW_TABS.map((t) => {
+        const isActive = view === t.value;
+        return (
+          <button
+            key={t.value}
+            type="button"
+            title={t.description}
+            onClick={() => {
+              setView(t.value);
+              setPage(1);
+            }}
+            className={cn(
+              "inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+              isActive
+                ? "border-primary/40 bg-primary/10 text-primary"
+                : "border-border/60 bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
+            )}
+          >
             {t.label}
-          </TabsTrigger>
-        ))}
-      </TabsList>
-    </Tabs>
+          </button>
+        );
+      })}
+    </div>
   );
 
   const filterBar = (

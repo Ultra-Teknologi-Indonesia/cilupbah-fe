@@ -8,8 +8,9 @@ import { PackageIcon,
   ChevronUpIcon,
   ChevronDownIcon,
   BoxesIcon,
-  BoxIcon, Loader2Icon } from "lucide-react";
+  BoxIcon, Loader2Icon, CopyIcon, CheckIcon } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -160,6 +161,41 @@ function StockQtyBadge({
     >
       {value}
     </span>
+  );
+}
+
+function CopySkuButton({ sku }: { sku: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(sku);
+      toast.success("SKU disalin ke clipboard");
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    },
+    [sku],
+  );
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground/60 opacity-0 transition-all hover:bg-muted hover:text-foreground group-hover:opacity-100 focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          aria-label="Salin SKU"
+        >
+          {copied ? (
+            <CheckIcon className="h-3 w-3 text-emerald-600" />
+          ) : (
+            <CopyIcon className="h-3 w-3" />
+          )}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top">
+        {copied ? "Tersalin" : "Salin SKU"}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -518,8 +554,11 @@ export function PosisiStokView() {
                                   .join(", ")}
                               </span>
                             )}
-                            <span className="font-mono text-[11px] text-foreground/80">
-                              {item.item_code}
+                            <span className="group inline-flex items-center gap-1">
+                              <span className="font-mono text-[11px] text-foreground/80">
+                                {item.item_code}
+                              </span>
+                              <CopySkuButton sku={item.item_code} />
                             </span>
                           </div>
                         </div>
