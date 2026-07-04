@@ -278,7 +278,7 @@ export function PicklistTable() {
           hideToolbar
           getRowClassName={(row) =>
             row.hasInstant
-              ? "bg-warning/10 border-l-4 border-l-warning"
+              ? "bg-warning/10 hover:bg-warning/10 border-l-2 border-l-warning"
               : undefined
           }
           manualPagination
