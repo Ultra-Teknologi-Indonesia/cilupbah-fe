@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { PackageIcon, Trash2Icon, ImageIcon } from "lucide-react";
+import { PackageIcon, SearchIcon, Trash2Icon, ImageIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -27,6 +28,7 @@ import {
 } from "@/hooks/transaksi-pembelian/use-purchase-orders";
 import { SimplePagination } from "@/components/ui/simple-pagination";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { SortableHeader } from "@/components/dashboard/shared/sortable-header";
 import { formatCurrency, formatDateLong } from "@/lib/format";
 
 function DetailRow({
@@ -52,12 +54,29 @@ export function PesananDetailView({ id }: { id: string }) {
 
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [sort, setSort] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [search]);
+
   const { data: itemsRes, isFetching: isFetchingItems } = usePurchaseOrderItems(
     id,
-    { page, perPage },
+    { page, perPage, search: debouncedSearch || undefined, sort },
   );
   const items = itemsRes?.data ?? [];
   const itemsMeta = itemsRes?.meta;
+
+  const handleSort = (next: string | undefined) => {
+    setSort(next);
+    setPage(1);
+  };
   const deleteMut = useDeletePurchaseOrder();
 
   const [confirmAction, setConfirmAction] = useState<"delete" | null>(null);
@@ -160,23 +179,53 @@ export function PesananDetailView({ id }: { id: string }) {
             intensity="subtle"
             className="bg-white/30 dark:bg-white/[0.04] p-5"
           >
-            <h3 className="mb-4 font-semibold">Daftar Produk</h3>
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h3 className="font-semibold">Daftar Produk</h3>
+              <div className="relative w-full sm:w-72">
+                <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Cari SKU atau nama produk..."
+                  className="pl-8"
+                />
+              </div>
+            </div>
             <div className="overflow-x-auto rounded-lg border border-border/40">
               <Table className="w-full text-sm">
                 <TableHeader>
                   <TableRow className="border-b border-border/60 bg-muted/30">
                     <TableHead className="whitespace-nowrap w-12 text-muted-foreground"></TableHead>
                     <TableHead className="whitespace-nowrap text-muted-foreground">
-                      Produk
+                      <SortableHeader
+                        label="Produk"
+                        field="sku"
+                        currentSort={sort}
+                        onSort={handleSort}
+                      />
                     </TableHead>
                     <TableHead className="whitespace-nowrap text-right text-muted-foreground">
                       Harga
                     </TableHead>
                     <TableHead className="whitespace-nowrap text-right text-muted-foreground">
-                      Qty
+                      <SortableHeader
+                        label="Qty"
+                        field="qty"
+                        currentSort={sort}
+                        onSort={handleSort}
+                        align="right"
+                        className="w-full"
+                      />
                     </TableHead>
                     <TableHead className="whitespace-nowrap text-right text-muted-foreground">
-                      Diterima
+                      <SortableHeader
+                        label="Diterima"
+                        field="received_qty"
+                        currentSort={sort}
+                        onSort={handleSort}
+                        align="right"
+                        className="w-full"
+                      />
                     </TableHead>
                     <TableHead className="whitespace-nowrap text-right text-muted-foreground">
                       Diskon
@@ -296,7 +345,9 @@ export function PesananDetailView({ id }: { id: string }) {
                         colSpan={7}
                         className="py-8 text-center text-sm text-muted-foreground"
                       >
-                        Belum ada produk.
+                        {debouncedSearch
+                          ? `Tidak ada produk cocok "${debouncedSearch}".`
+                          : "Belum ada produk."}
                       </TableCell>
                     </TableRow>
                   )}

@@ -1,6 +1,10 @@
 import { fetchClient } from "@/lib/api-client";
 import type { ApiResponse, ApiPaginated } from "@/types/api.types";
-import type { Inbound, InboundListParams } from "@/types/barang-masuk/inbound";
+import type {
+  Inbound,
+  InboundItem,
+  InboundListParams,
+} from "@/types/barang-masuk/inbound";
 
 export interface ScanPutawayPayload {
   inbound_item_id: string;
@@ -34,6 +38,31 @@ export const InboundService = {
   getById: async (id: string) => {
     const res = await fetchClient<ApiResponse<Inbound>>(`/inbounds/${id}`);
     return res.data;
+  },
+
+  getItems: async (
+    id: string,
+    params: {
+      page: number;
+      perPage: number;
+      search?: string;
+      sku?: string;
+      sort?: string;
+    },
+  ) => {
+    const query: Record<string, string | number> = {
+      page: params.page,
+      per_page: params.perPage,
+    };
+    if (params.search) query["filter[search]"] = params.search;
+    if (params.sku) query["filter[sku]"] = params.sku;
+    if (params.sort) query.sort = params.sort;
+
+    const res = await fetchClient<ApiPaginated<InboundItem>>(
+      `/inbounds/${id}/items`,
+      { params: query },
+    );
+    return res;
   },
 
   scanPutaway: async (payload: ScanPutawayPayload) => {

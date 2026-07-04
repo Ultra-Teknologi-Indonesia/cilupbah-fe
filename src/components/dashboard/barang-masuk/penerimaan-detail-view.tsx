@@ -9,6 +9,7 @@ import {
   PrinterIcon,
   DownloadIcon,
   QrCodeIcon,
+  SearchIcon,
   Trash2Icon,
 } from "lucide-react";
 import Link from "next/link";
@@ -25,8 +26,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SimplePagination } from "@/components/ui/simple-pagination";
 import {
   Table,
   TableHeader,
@@ -37,8 +40,10 @@ import {
 } from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { SortableHeader } from "@/components/dashboard/shared/sortable-header";
 import {
   useInboundDetail,
+  useInboundItems,
   useCorrectReceivedLines,
 } from "@/hooks/barang-masuk/use-inbound";
 import { exportCsv } from "@/lib/export-csv";
@@ -84,10 +89,38 @@ export function PenerimaanDetailView({ id }: { id: string }) {
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [confirmOpen, setConfirmOpen] = React.useState(false);
 
+  const [page, setPage] = React.useState(1);
+  const [perPage, setPerPage] = React.useState(20);
+  const [search, setSearch] = React.useState("");
+  const [debouncedSearch, setDebouncedSearch] = React.useState("");
+  const [sort, setSort] = React.useState<string | undefined>(undefined);
+
+  React.useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  const { data: itemsRes, isFetching: isFetchingItems } = useInboundItems(id, {
+    page,
+    perPage,
+    search: debouncedSearch || undefined,
+    sort,
+  });
+  const items: InboundItem[] = itemsRes?.data ?? [];
+  const itemsMeta = itemsRes?.meta;
+
+  const handleSort = (next: string | undefined) => {
+    setSort(next);
+    setPage(1);
+  };
+
   const canCorrect = !!inbound && inbound.status !== "CANCELLED";
   const correctableItems = React.useMemo(
-    () => (inbound?.items ?? []).filter(isCorrectable),
-    [inbound],
+    () => items.filter(isCorrectable),
+    [items],
   );
 
   const toggleOne = (itemId: string) =>
@@ -291,7 +324,21 @@ export function PenerimaanDetailView({ id }: { id: string }) {
             className="bg-white/30 dark:bg-white/[0.04] print:border print:border-border print:shadow-none"
           >
             <div className="px-5 py-4">
-              <h3 className="mb-3 text-sm font-semibold print:text-base">
+              <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between print:hidden">
+                <h3 className="text-sm font-semibold print:text-base">
+                  Daftar Item
+                </h3>
+                <div className="relative w-full sm:w-72">
+                  <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Cari SKU atau nama produk..."
+                    className="pl-8"
+                  />
+                </div>
+              </div>
+              <h3 className="mb-3 hidden text-sm font-semibold print:block print:text-base">
                 Daftar Item
               </h3>
               <Table containerClassName="rounded-lg border border-border/40">
@@ -306,26 +353,65 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                         />
                       </TableHead>
                     )}
-                    {[
-                      "SKU",
-                      "Produk",
-                      "Qty Diharapkan",
-                      "Qty Diterima",
-                      "Qty Putaway",
-                      "Selisih",
-                      "Catatan",
-                    ].map((h) => (
-                      <TableHead
-                        key={h}
-                        className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground"
-                      >
-                        {h}
-                      </TableHead>
-                    ))}
+                    <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      <SortableHeader
+                        label="SKU"
+                        field="sku"
+                        currentSort={sort}
+                        onSort={handleSort}
+                      />
+                    </TableHead>
+                    <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Produk
+                    </TableHead>
+                    <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      <SortableHeader
+                        label="Qty Diharapkan"
+                        field="expected_qty"
+                        currentSort={sort}
+                        onSort={handleSort}
+                      />
+                    </TableHead>
+                    <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      <SortableHeader
+                        label="Qty Diterima"
+                        field="received_qty"
+                        currentSort={sort}
+                        onSort={handleSort}
+                      />
+                    </TableHead>
+                    <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      <SortableHeader
+                        label="Qty Putaway"
+                        field="putaway_qty"
+                        currentSort={sort}
+                        onSort={handleSort}
+                      />
+                    </TableHead>
+                    <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Selisih
+                    </TableHead>
+                    <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Catatan
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {inbound.items.map((item: InboundItem) => (
+                  {items.length === 0 && !isFetchingItems && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={
+                          canCorrect && correctableItems.length > 0 ? 8 : 7
+                        }
+                        className="py-8 text-center text-sm text-muted-foreground"
+                      >
+                        {debouncedSearch
+                          ? `Tidak ada item cocok "${debouncedSearch}".`
+                          : "Belum ada item."}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {items.map((item: InboundItem) => (
                     <TableRow
                       key={item.id}
                       className="border-b border-border/20 last:border-0"
@@ -374,6 +460,20 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                   ))}
                 </TableBody>
               </Table>
+              {itemsMeta && (
+                <div className="mt-3 print:hidden">
+                  <SimplePagination
+                    page={itemsMeta.current_page}
+                    lastPage={itemsMeta.last_page}
+                    onPageChange={setPage}
+                    perPage={perPage}
+                    onPerPageChange={setPerPage}
+                    isFetching={isFetchingItems}
+                    total={itemsMeta.total}
+                    label="item"
+                  />
+                </div>
+              )}
             </div>
           </LiquidGlass>
 

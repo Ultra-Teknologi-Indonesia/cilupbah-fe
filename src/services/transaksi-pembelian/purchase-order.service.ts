@@ -52,15 +52,27 @@ export const PurchaseOrderService = {
     return res.data;
   },
 
-  getItems: async (id: string, params: { page: number; perPage: number }) => {
+  getItems: async (
+    id: string,
+    params: {
+      page: number;
+      perPage: number;
+      search?: string;
+      sku?: string;
+      sort?: string;
+    },
+  ) => {
+    const query: Record<string, string | number> = {
+      page: params.page,
+      per_page: params.perPage,
+    };
+    if (params.search) query["filter[search]"] = params.search;
+    if (params.sku) query["filter[sku]"] = params.sku;
+    if (params.sort) query.sort = params.sort;
+
     const res = await fetchClient<ApiPaginated<PurchaseOrderItem>>(
       `/purchase/orders/${id}/items`,
-      {
-        params: {
-          page: params.page,
-          per_page: params.perPage,
-        },
-      },
+      { params: query },
     );
     return res;
   },

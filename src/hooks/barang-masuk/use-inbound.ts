@@ -30,6 +30,25 @@ export function useInboundDetail(id?: string) {
   });
 }
 
+export function useInboundItems(
+  id?: string,
+  params: {
+    page: number;
+    perPage: number;
+    search?: string;
+    sku?: string;
+    sort?: string;
+  } = { page: 1, perPage: 20 },
+) {
+  return useQuery({
+    queryKey: ["inbound", "items", id, params],
+    placeholderData: keepPreviousData,
+    queryFn: () => InboundService.getItems(id!, params),
+    enabled: !!id,
+    staleTime: STALE,
+  });
+}
+
 export function useCorrectReceivedLines(inboundId: string) {
   const qc = useQueryClient();
   return useMutation({

@@ -9,6 +9,7 @@ import {
   ImageIcon,
   CheckCircle2Icon,
   XCircleIcon,
+  SearchIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -33,6 +34,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { QtyConfirmInput } from "@/components/ui/qty-confirm-input";
 import { SimplePagination } from "@/components/ui/simple-pagination";
+import { SortableHeader } from "@/components/dashboard/shared/sortable-header";
 import {
   usePurchaseOrderDetail,
   usePurchaseOrderItems,
@@ -52,12 +54,29 @@ export function TerimaPOView({ id }: { id: string }) {
 
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [sort, setSort] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [search]);
+
   const { data: itemsRes, isFetching: isFetchingItems } = usePurchaseOrderItems(
     id,
-    { page, perPage },
+    { page, perPage, search: debouncedSearch || undefined, sort },
   );
   const items = itemsRes?.data ?? [];
   const itemsMeta = itemsRes?.meta;
+
+  const handleSort = (next: string | undefined) => {
+    setSort(next);
+    setPage(1);
+  };
 
   const receiveMutation = useReceivePurchaseOrder();
 
@@ -270,12 +289,29 @@ export function TerimaPOView({ id }: { id: string }) {
             className="bg-white/30 dark:bg-white/[0.04]"
           >
             <div className="px-5 py-4">
+              <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h3 className="font-semibold">Daftar Produk</h3>
+                <div className="relative w-full sm:w-72">
+                  <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Cari SKU atau nama produk..."
+                    className="pl-8"
+                  />
+                </div>
+              </div>
               <div className="overflow-x-auto rounded-lg border border-border/40">
                 <Table className="w-full text-sm">
                   <TableHeader>
                     <TableRow className="border-b border-border/60 bg-muted/30">
                       <TableHead className="text-muted-foreground">
-                        Produk
+                        <SortableHeader
+                          label="Produk"
+                          field="sku"
+                          currentSort={sort}
+                          onSort={handleSort}
+                        />
                       </TableHead>
                       <TableHead className="whitespace-nowrap text-muted-foreground w-16 text-center">
                         Sisa
@@ -386,7 +422,9 @@ export function TerimaPOView({ id }: { id: string }) {
                           colSpan={4}
                           className="py-8 text-center text-sm text-muted-foreground"
                         >
-                          Belum ada produk.
+                          {debouncedSearch
+                            ? `Tidak ada produk cocok "${debouncedSearch}".`
+                            : "Belum ada produk."}
                         </TableCell>
                       </TableRow>
                     )}
