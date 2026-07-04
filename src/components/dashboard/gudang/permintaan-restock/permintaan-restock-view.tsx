@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { CheckIcon, ExternalLinkIcon, XIcon } from "lucide-react";
+import { CheckIcon, ExternalLinkIcon, EyeIcon, XIcon } from "lucide-react";
 
 import { PageTitle } from "@/components/dashboard/page-title";
 import { Badge } from "@/components/ui/badge";
@@ -140,7 +140,11 @@ export function PermintaanRestockView() {
                       {formatDateTime(r.requested_at)}
                     </TableCell>
                     <TableCell className="text-sm">
-                      {r.requested_by_name ?? "—"}
+                      {r.requested_by_name ?? (
+                        <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                          Sistem
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell className="text-xs">
                       <span className="font-medium">
@@ -176,28 +180,38 @@ export function PermintaanRestockView() {
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      {r.status === "PENDING" ? (
-                        <div className="flex justify-end gap-1">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            title="Terima"
-                            onClick={() => setAcceptTarget(r)}
-                          >
-                            <CheckIcon className="size-4 text-emerald-600" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            title="Tolak"
-                            onClick={() => setRejectTarget(r)}
-                          >
-                            <XIcon className="size-4 text-rose-600" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          asChild
+                          size="icon"
+                          variant="ghost"
+                          title="Lihat detail"
+                        >
+                          <Link href={`/dashboard/permintaan-restock/${r.id}`}>
+                            <EyeIcon className="size-4" />
+                          </Link>
+                        </Button>
+                        {r.status === "PENDING" && (
+                          <>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              title="Terima"
+                              onClick={() => setAcceptTarget(r)}
+                            >
+                              <CheckIcon className="size-4 text-emerald-600" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              title="Tolak"
+                              onClick={() => setRejectTarget(r)}
+                            >
+                              <XIcon className="size-4 text-rose-600" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

@@ -28,6 +28,14 @@ export const StockReplenishmentService = {
     return res.data;
   },
 
+  detail: async (id: string) => {
+    const res = await fetchClient<ApiResponse<StockReplenishment>>(
+      `/inventory/stock-replenishment/${id}`,
+      { method: "GET" },
+    );
+    return res.data;
+  },
+
   pendingCount: async () => {
     const res = await fetchClient<ApiResponse<{ count: number }>>(
       "/inventory/stock-replenishment/pending-count",

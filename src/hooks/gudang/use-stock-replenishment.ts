@@ -13,6 +13,7 @@ const KEYS = {
   all: ["stock-replenishment"] as const,
   list: (params: StockReplenishmentListParams) =>
     [...KEYS.all, "list", params] as const,
+  detail: (id: string) => [...KEYS.all, "detail", id] as const,
   pendingCount: () => [...KEYS.all, "pending-count"] as const,
 };
 
@@ -20,6 +21,14 @@ export function useStockReplenishments(params: StockReplenishmentListParams = {}
   return useQuery({
     queryKey: KEYS.list(params),
     queryFn: () => StockReplenishmentService.list(params),
+  });
+}
+
+export function useStockReplenishmentDetail(id: string) {
+  return useQuery({
+    queryKey: KEYS.detail(id),
+    queryFn: () => StockReplenishmentService.detail(id),
+    enabled: !!id,
   });
 }
 
