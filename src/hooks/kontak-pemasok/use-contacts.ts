@@ -34,10 +34,11 @@ export function useContactDetail(id?: string) {
   });
 }
 
-export function useContactCategories() {
+export function useContactCategories(search?: string) {
   return useQuery({
-    queryKey: ["contact", "categories"],
-    queryFn: () => ContactService.getCategories(),
+    queryKey: ["contact", "categories", search ?? ""],
+    placeholderData: keepPreviousData,
+    queryFn: () => ContactService.getCategories({ search }),
     staleTime: STALE,
   });
 }

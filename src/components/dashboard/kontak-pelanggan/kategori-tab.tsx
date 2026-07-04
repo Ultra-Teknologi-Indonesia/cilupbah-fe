@@ -2,7 +2,7 @@
 import { EmptyState } from "@/components/ui/empty-state";
 
 import * as React from "react";
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import {
   PlusIcon,
   PencilIcon,
@@ -11,18 +11,15 @@ import {
   Loader2Icon,
 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Combobox } from "@/components/ui/combobox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { FilterToolbar } from "@/components/dashboard/shared/filter-toolbar";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   Dialog,
   DialogContent,
@@ -40,18 +37,6 @@ import type {
   CategoryFormData,
 } from "@/types/kontak-pemasok/contact";
 
-const TYPE_OPTIONS = [
-  { value: "BOTH", label: "Semua (Pelanggan & Pemasok)" },
-  { value: "CUSTOMER", label: "Pelanggan" },
-  { value: "SUPPLIER", label: "Pemasok" },
-];
-
-const TYPE_LABELS: Record<string, string> = {
-  CUSTOMER: "Pelanggan",
-  SUPPLIER: "Pemasok",
-  BOTH: "Semua",
-};
-
 function Req() {
   return <span className="text-destructive"> *</span>;
 }
@@ -59,12 +44,17 @@ function Req() {
 const EMPTY_FORM: CategoryFormData = {
   code: "",
   name: "",
-  description: "",
-  type: "BOTH",
 };
 
 export function KategoriTab() {
-  const { data: categories = [], isLoading } = useContactCategories();
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search.trim());
+
+  const {
+    data: categories = [],
+    isLoading,
+    isFetching,
+  } = useContactCategories(debouncedSearch || undefined);
   const createMut = useCreateCategory();
   const updateMut = useUpdateCategory();
   const deleteMut = useDeleteCategory();
@@ -87,8 +77,6 @@ export function KategoriTab() {
     setForm({
       code: cat.code ?? "",
       name: cat.name,
-      description: cat.description ?? "",
-      type: cat.type ?? "BOTH",
     });
     setModalOpen(true);
   }
@@ -132,34 +120,6 @@ export function KategoriTab() {
         ),
       },
       {
-        accessorKey: "type",
-        header: "Tipe",
-        cell: ({ row }) => (
-          <Badge
-            variant="outline"
-            className={cn(
-              "text-[10px] leading-tight",
-              row.original.type === "CUSTOMER"
-                ? "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400"
-                : row.original.type === "SUPPLIER"
-                  ? "border-orange-300 text-orange-600 dark:border-orange-500/30 dark:text-orange-400"
-                  : "border-purple-300 text-purple-600 dark:border-purple-500/30 dark:text-purple-400",
-            )}
-          >
-            {TYPE_LABELS[row.original.type ?? "BOTH"] ?? "Semua"}
-          </Badge>
-        ),
-      },
-      {
-        accessorKey: "description",
-        header: "Deskripsi",
-        cell: ({ row }) => (
-          <span className="text-foreground">
-            {row.original.description || "—"}
-          </span>
-        ),
-      },
-      {
         id: "actions",
         header: () => <div className="text-right">Aksi</div>,
         cell: ({ row }) => {
@@ -198,18 +158,30 @@ export function KategoriTab() {
 
   return (
     <>
-      <div className="flex justify-end">
-        <Button variant="primary" size="sm" onClick={openCreate}>
-          <PlusIcon className="mr-1.5 h-4 w-4" />
-          Buat Kategori
-        </Button>
-      </div>
-
       <LiquidGlass
         radius={20}
         intensity="subtle"
         className="bg-white/30 dark:bg-white/[0.04]"
       >
+        <FilterToolbar
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Cari kode atau nama..."
+          align="end"
+          trailing={
+            <Button variant="primary" size="sm" onClick={openCreate}>
+              <PlusIcon className="mr-1.5 h-4 w-4" />
+              Buat Kategori
+            </Button>
+          }
+        />
+
+        {isFetching && !isLoading && (
+          <div className="flex justify-center py-1">
+            <Loader2Icon className="size-4 animate-spin text-primary" />
+          </div>
+        )}
+
         <div className="px-5 py-5 sm:px-6">
           <DataTable
             columns={columns}
@@ -219,7 +191,19 @@ export function KategoriTab() {
             manualPagination={false}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <EmptyState icon={TagIcon} title="Belum ada kategori" description="Buat kategori untuk mengelompokkan kontak." />
+              <EmptyState
+                icon={TagIcon}
+                title={
+                  debouncedSearch
+                    ? "Kategori tidak ditemukan"
+                    : "Belum ada kategori"
+                }
+                description={
+                  debouncedSearch
+                    ? "Coba kata kunci lain."
+                    : "Buat kategori untuk mengelompokkan kontak."
+                }
+              />
             }
           />
         </div>
@@ -256,26 +240,6 @@ export function KategoriTab() {
                   placeholder="Nama kategori"
                 />
               </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Tipe</Label>
-              <Combobox
-                options={TYPE_OPTIONS}
-                value={form.type ?? "BOTH"}
-                onChange={(v) =>
-                  set("type", (v as "CUSTOMER" | "SUPPLIER" | "BOTH") ?? "BOTH")
-                }
-                placeholder="Pilih tipe"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Deskripsi</Label>
-              <Textarea
-                value={form.description ?? ""}
-                onChange={(e) => set("description", e.target.value)}
-                placeholder="Deskripsi opsional"
-                rows={2}
-              />
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">

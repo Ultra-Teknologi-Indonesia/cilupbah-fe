@@ -54,9 +54,13 @@ export const ContactService = {
     });
   },
 
-  getCategories: async () => {
-    const res =
-      await fetchClient<ApiResponse<ContactCategory[]>>("/contact/category");
+  getCategories: async (params: { search?: string } = {}) => {
+    const sp = new URLSearchParams();
+    if (params.search) sp.set("filter[search]", params.search);
+    const qs = sp.toString();
+    const res = await fetchClient<ApiResponse<ContactCategory[]>>(
+      `/contact/category${qs ? `?${qs}` : ""}`,
+    );
     return res.data ?? [];
   },
 

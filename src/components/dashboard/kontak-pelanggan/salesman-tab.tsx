@@ -286,21 +286,21 @@ export function SalesmanTab() {
           activeCount={activeCount}
           gridCols={2}
           leading={
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExport}
-                disabled={items.length === 0}
-              >
-                <DownloadIcon className="mr-1.5 h-4 w-4" />
-                Export CSV
-              </Button>
-              <Button variant="primary" size="sm" onClick={openCreate}>
-                <PlusIcon className="mr-1.5 h-4 w-4" />
-                Buat Salesman
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExport}
+              disabled={items.length === 0}
+            >
+              <DownloadIcon className="mr-1.5 h-4 w-4" />
+              Export CSV
+            </Button>
+          }
+          trailing={
+            <Button variant="primary" size="sm" onClick={openCreate}>
+              <PlusIcon className="mr-1.5 h-4 w-4" />
+              Buat Salesman
+            </Button>
           }
         >
           <Combobox
