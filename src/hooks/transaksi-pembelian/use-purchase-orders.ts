@@ -39,7 +39,6 @@ export function usePurchaseOrderItems(
     page: number;
     perPage: number;
     search?: string;
-    sku?: string;
     sort?: string;
   } = { page: 1, perPage: 20 },
 ) {

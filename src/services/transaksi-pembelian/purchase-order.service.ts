@@ -58,7 +58,6 @@ export const PurchaseOrderService = {
       page: number;
       perPage: number;
       search?: string;
-      sku?: string;
       sort?: string;
     },
   ) => {
@@ -66,8 +65,7 @@ export const PurchaseOrderService = {
       page: params.page,
       per_page: params.perPage,
     };
-    if (params.search) query["filter[search]"] = params.search;
-    if (params.sku) query["filter[sku]"] = params.sku;
+    if (params.search) query.search = params.search;
     if (params.sort) query.sort = params.sort;
 
     const res = await fetchClient<ApiPaginated<PurchaseOrderItem>>(
