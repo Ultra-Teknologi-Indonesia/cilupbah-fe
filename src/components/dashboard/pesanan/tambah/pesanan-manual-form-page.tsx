@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -169,6 +169,14 @@ export function PesananManualFormPage() {
         .map((l) => ({ value: l.id, label: l.locationName })),
     [locData],
   );
+
+  useEffect(() => {
+    if (locationId) return;
+    const kecil = (locData?.items ?? []).find(
+      (l) => l.locationCode === "WH-KECIL",
+    );
+    if (kecil) setLocationId(kecil.id);
+  }, [locData, locationId]);
 
   const courierOptions = useMemo(
     () =>
