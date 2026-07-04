@@ -13,13 +13,8 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { UserSelectById } from "@/components/dashboard/shared/user-select-by-id";
+import { useMe } from "@/hooks/auth/use-auth";
 import {
   useAssignPicker,
   usePickers,
@@ -54,7 +49,17 @@ function UbahPickerDialogInner({
   const [pickerId, setPickerId] = React.useState(currentPickerId ?? "");
 
   const pickers = usePickers(locationId ?? undefined, undefined, open);
+  const { data: me } = useMe();
   const assignPicker = useAssignPicker();
+
+  const pickerOptions = React.useMemo(
+    () =>
+      (pickers.data ?? []).map((p) => ({
+        id: p.id,
+        name: p.name,
+      })),
+    [pickers.data],
+  );
 
   const handleSubmit = async () => {
     if (!picklistId || !pickerId) return;
@@ -88,29 +93,16 @@ function UbahPickerDialogInner({
 
           <div className="space-y-1.5">
             <Label htmlFor="assign-picker">Picker</Label>
-            <Select
-              value={pickerId || undefined}
-              onValueChange={(v) => setPickerId(v)}
-              disabled={pickers.isLoading}
-            >
-              <SelectTrigger
-                id="assign-picker"
-                className="w-full justify-between rounded-lg border-border bg-background"
-              >
-                <SelectValue placeholder="— Pilih picker —" />
-              </SelectTrigger>
-              <SelectContent
-                position="popper"
-                align="start"
-                className="w-[var(--radix-select-trigger-width)]"
-              >
-                {(pickers.data ?? []).map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <UserSelectById
+              id="assign-picker"
+              value={pickerId}
+              onChange={(id) => setPickerId(id)}
+              options={pickerOptions}
+              isLoading={pickers.isLoading}
+              currentUserId={me?.id}
+              placeholder="— Pilih picker —"
+              emptyText="Tidak ada picker di lokasi ini."
+            />
             {pickers.isLoading && (
               <p className="text-xs text-muted-foreground">
                 Memuat daftar picker…

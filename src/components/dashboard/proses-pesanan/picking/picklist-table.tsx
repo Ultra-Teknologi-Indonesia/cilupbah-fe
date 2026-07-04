@@ -4,9 +4,9 @@ import * as React from "react";
 import Link from "next/link";
 import {
   ClipboardListIcon,
-  MoreHorizontalIcon,
   PrinterIcon,
   RefreshCwIcon,
+  UserCogIcon,
   ZapIcon,
 } from "lucide-react";
 
@@ -26,12 +26,6 @@ import {
 } from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
@@ -67,7 +61,7 @@ function ProgressCell({ done, total }: { done: number; total: number }) {
         <div
           className={cn(
             "h-full rounded-full transition-all",
-            pct >= 100 ? "bg-emerald-500" : "bg-primary",
+            pct >= 100 ? "bg-success" : "bg-primary",
           )}
           style={{ width: `${pct}%` }}
         />
@@ -133,7 +127,7 @@ export function PicklistTable() {
               className={cn(
                 "cursor-pointer font-medium hover:underline",
                 row.original.hasInstant
-                  ? "text-orange-700 dark:text-orange-400"
+                  ? "text-warning"
                   : "text-primary",
               )}
             >
@@ -143,7 +137,7 @@ export function PicklistTable() {
               <TooltipProvider delayDuration={200}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="inline-flex items-center gap-0.5 rounded border border-orange-500/60 bg-orange-500/15 px-1 py-0.5 text-[9px] font-semibold text-orange-700 dark:text-orange-400">
+                    <span className="inline-flex items-center gap-0.5 rounded border border-warning/60 bg-warning/15 px-1 py-0.5 text-xs font-semibold text-warning">
                       <ZapIcon className="h-2.5 w-2.5 fill-current" />
                       INSTANT
                     </span>
@@ -221,18 +215,21 @@ export function PicklistTable() {
                 <TooltipContent>Pratinjau & Cetak Picklist</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon-sm" aria-label="Aksi">
-                  <MoreHorizontalIcon className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-44">
-                <DropdownMenuItem onSelect={() => setEditPicker(row.original)}>
-                  Ubah Picker
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Ubah Picker"
+                    onClick={() => setEditPicker(row.original)}
+                  >
+                    <UserCogIcon className="size-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Ubah Picker</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         ),
       },
@@ -311,7 +308,7 @@ export function PicklistTable() {
           hideToolbar
           getRowClassName={(row) =>
             row.hasInstant
-              ? "bg-orange-50/60 dark:bg-orange-950/20 border-l-4 border-l-orange-500"
+              ? "bg-warning/10 border-l-4 border-l-warning"
               : undefined
           }
           manualPagination

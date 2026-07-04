@@ -5,7 +5,6 @@ import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Combobox } from "@/components/ui/combobox";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -14,6 +13,8 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
+import { UserSelectById } from "@/components/dashboard/shared/user-select-by-id";
+import { useMe } from "@/hooks/auth/use-auth";
 import {
   useCreatePicklist,
   usePickers,
@@ -29,7 +30,20 @@ interface BuatPicklistDialogProps {
   onCreated: () => void;
 }
 
-export function BuatPicklistDialog({
+export function BuatPicklistDialog(props: BuatPicklistDialogProps) {
+  return (
+    <BuatPicklistDialogInner
+      key={
+        props.open
+          ? `open:${props.locationId ?? "-"}:${props.orderIds.join(",")}`
+          : "closed"
+      }
+      {...props}
+    />
+  );
+}
+
+function BuatPicklistDialogInner({
   open,
   onOpenChange,
   orderIds,
@@ -46,14 +60,17 @@ export function BuatPicklistDialog({
     undefined,
     open && !!locationId,
   );
+  const { data: me } = useMe();
   const createPicklist = useCreatePicklist();
 
-  React.useEffect(() => {
-    if (open) {
-      setPickerId("");
-      setNotes("");
-    }
-  }, [open]);
+  const pickerOptions = React.useMemo(
+    () =>
+      (pickers.data ?? []).map((p) => ({
+        id: p.id,
+        name: p.name,
+      })),
+    [pickers.data],
+  );
 
   const canSubmit =
     orderIds.length > 0 && !!locationId && !multiLocation && !!pickerId;
@@ -113,17 +130,16 @@ export function BuatPicklistDialog({
 
           <div className="space-y-1.5">
             <Label htmlFor="picklist-picker">Picker</Label>
-            <Combobox
+            <UserSelectById
               id="picklist-picker"
-              options={(pickers.data ?? []).map((p) => ({
-                value: p.id,
-                label: p.name,
-              }))}
-              value={pickerId || null}
-              onChange={(v) => setPickerId(v ?? "")}
+              value={pickerId}
+              onChange={(id) => setPickerId(id)}
+              options={pickerOptions}
+              isLoading={pickers.isLoading}
+              currentUserId={me?.id}
+              defaultToSelf
               placeholder="— Pilih picker —"
-              searchPlaceholder="Cari picker"
-              className="h-9 bg-background"
+              emptyText="Tidak ada picker di lokasi ini."
             />
             {pickers.isLoading && (
               <p className="text-xs text-muted-foreground">

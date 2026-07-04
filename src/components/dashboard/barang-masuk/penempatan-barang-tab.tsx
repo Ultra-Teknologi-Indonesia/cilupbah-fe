@@ -21,6 +21,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
+import { UserSelect } from "@/components/dashboard/shared/user-select";
 import {
   Tooltip,
   TooltipContent,
@@ -278,7 +279,7 @@ export function PenempatanBarangTab() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 gap-1.5 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-950/50"
+                  className="h-8 gap-1.5 text-primary hover:text-primary hover:bg-primary/10"
                   onClick={() => {
                     setAssignTarget(item);
                     setAssignUserId("");
@@ -321,25 +322,25 @@ export function PenempatanBarangTab() {
         intensity="subtle"
         className="bg-white/30 dark:bg-white/[0.04]"
       >
-        {items.length > 0 && (
-          <div className="flex justify-between items-center px-4 pt-3 sm:px-5">
-            <Tabs
-              value={filters.status || "ALL"}
-              onValueChange={(val) =>
-                handleFilterChange({
-                  ...filters,
-                  status: val === "ALL" ? "" : val,
-                })
-              }
-            >
-              <TabsList variant="line" className="h-auto">
-                <TabsTrigger value="ALL">Semua</TabsTrigger>
-                <TabsTrigger value="NOT_STARTED">Belum Mulai</TabsTrigger>
-                <TabsTrigger value="IN_PROGRESS">Proses</TabsTrigger>
-                <TabsTrigger value="COMPLETED">Selesai</TabsTrigger>
-              </TabsList>
-            </Tabs>
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-3 sm:px-5">
+          <Tabs
+            value={filters.status || "ALL"}
+            onValueChange={(val) =>
+              handleFilterChange({
+                ...filters,
+                status: val === "ALL" ? "" : val,
+              })
+            }
+          >
+            <TabsList variant="line" className="h-auto">
+              <TabsTrigger value="ALL">Semua</TabsTrigger>
+              <TabsTrigger value="NOT_STARTED">Belum Mulai</TabsTrigger>
+              <TabsTrigger value="IN_PROGRESS">Proses</TabsTrigger>
+              <TabsTrigger value="COMPLETED">Selesai</TabsTrigger>
+            </TabsList>
+          </Tabs>
 
+          {items.length > 0 && (
             <Button
               variant="outline"
               size="sm"
@@ -348,29 +349,8 @@ export function PenempatanBarangTab() {
               <DownloadIcon className="mr-1.5 h-4 w-4" />
               Export CSV
             </Button>
-          </div>
-        )}
-
-        {items.length === 0 && (
-          <div className="flex justify-start px-4 pt-4 sm:px-5">
-            <Tabs
-              value={filters.status || "ALL"}
-              onValueChange={(val) =>
-                handleFilterChange({
-                  ...filters,
-                  status: val === "ALL" ? "" : val,
-                })
-              }
-            >
-              <TabsList variant="line" className="h-auto">
-                <TabsTrigger value="ALL">Semua</TabsTrigger>
-                <TabsTrigger value="NOT_STARTED">Belum Mulai</TabsTrigger>
-                <TabsTrigger value="IN_PROGRESS">Proses</TabsTrigger>
-                <TabsTrigger value="COMPLETED">Selesai</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-        )}
+          )}
+        </div>
 
         <FilterToolbar
           search={search}
@@ -458,7 +438,7 @@ export function PenempatanBarangTab() {
         <div className="flex flex-col gap-3 px-1 py-2">
           <div>
             <Label htmlFor="assign-user" className="text-sm font-medium">
-              Petugas <span className="text-red-500">*</span>
+              Petugas <span className="text-destructive">*</span>
             </Label>
             <Combobox
               options={userOptions}
@@ -471,13 +451,13 @@ export function PenempatanBarangTab() {
           </div>
           <div>
             <Label htmlFor="assign-by" className="text-sm font-medium">
-              Ditugaskan oleh <span className="text-red-500">*</span>
+              Ditugaskan oleh <span className="text-destructive">*</span>
             </Label>
-            <Input
-              id="assign-by"
-              placeholder="Nama penugasan"
+            <UserSelect
               value={assignPerformedBy}
-              onChange={(e) => setAssignPerformedBy(e.target.value)}
+              onChange={setAssignPerformedBy}
+              defaultToSelf
+              placeholder="Nama penugasan"
               className="mt-1.5"
             />
           </div>

@@ -31,6 +31,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/ui/date-picker";
 import { PageTitle } from "@/components/dashboard/page-title";
+import { QtyConfirmInput } from "@/components/ui/qty-confirm-input";
 import { SimplePagination } from "@/components/ui/simple-pagination";
 import {
   usePurchaseOrderDetail,
@@ -226,7 +227,7 @@ export function TerimaPOView({ id }: { id: string }) {
                   </div>
                   <div className="grid grid-cols-[120px_1fr] items-center gap-4">
                     <Label className="text-sm font-medium text-muted-foreground">
-                      Tanggal <span className="text-red-500">*</span>
+                      Tanggal <span className="text-destructive">*</span>
                     </Label>
                     <DatePicker
                       value={receiveDate}
@@ -280,7 +281,7 @@ export function TerimaPOView({ id }: { id: string }) {
                         Sisa
                       </TableHead>
                       <TableHead className="whitespace-nowrap w-28">
-                        <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
+                        <span className="flex items-center gap-1.5 text-success">
                           <CheckCircle2Icon className="h-3.5 w-3.5" />
                           Diterima
                         </span>
@@ -324,7 +325,7 @@ export function TerimaPOView({ id }: { id: string }) {
                                   <div className="font-medium whitespace-normal break-words leading-snug">
                                     {productName}
                                   </div>
-                                  <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                                  <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
                                     <span>{item.product?.sku ?? "—"}</span>
                                     <span className="text-border">·</span>
                                     <span>Pesanan: {item.qty}</span>
@@ -340,10 +341,10 @@ export function TerimaPOView({ id }: { id: string }) {
                               <Badge
                                 variant="outline"
                                 className={cn(
-                                  "text-[10px] tabular-nums",
+                                  "text-xs tabular-nums",
                                   remaining > 0
-                                    ? "border-amber-300 text-amber-600 dark:border-amber-500/30 dark:text-amber-400"
-                                    : "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400",
+                                    ? "border-warning/60 text-warning"
+                                    : "border-success/60 text-success",
                                 )}
                               >
                                 {remaining}
@@ -351,22 +352,25 @@ export function TerimaPOView({ id }: { id: string }) {
                             </TableCell>
                             <TableCell className="px-3 py-3">
                               {remaining > 0 ? (
-                                <Input
-                                  type="number"
+                                <QtyConfirmInput
                                   min={0}
                                   max={remaining}
-                                  value={currentQty}
-                                  onChange={(e) =>
+                                  expected={remaining}
+                                  value={currentQty === 0 ? "" : currentQty}
+                                  onChange={(v) =>
                                     handleQtyChange(
                                       item.id,
                                       remaining,
-                                      e.target.value,
+                                      v === "" ? "0" : String(v),
                                     )
                                   }
-                                  className="h-9 w-20 tabular-nums border-emerald-200 bg-emerald-50/50 focus-visible:ring-emerald-500/30 dark:border-emerald-900 dark:bg-emerald-950/30"
+                                  onEnter={() => {
+                                    if (canSubmit) handleSubmit();
+                                  }}
+                                  className="h-9 w-20 tabular-nums border-success/40 bg-success/10 focus-visible:ring-success/30"
                                 />
                               ) : (
-                                <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+                                <span className="inline-flex items-center gap-1 text-xs text-success">
                                   <CheckCircle2Icon className="h-3.5 w-3.5" />
                                   Lengkap
                                 </span>
@@ -396,9 +400,9 @@ export function TerimaPOView({ id }: { id: string }) {
                     </span>
                     <div className="flex items-center gap-5">
                       <div className="flex items-center gap-1.5">
-                        <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                        <div className="h-2 w-2 rounded-full bg-success" />
                         <span className="text-xs tabular-nums">
-                          <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                          <span className="font-semibold text-success">
                             {totalAccepted}
                           </span>
                           <span className="ml-1 text-muted-foreground">

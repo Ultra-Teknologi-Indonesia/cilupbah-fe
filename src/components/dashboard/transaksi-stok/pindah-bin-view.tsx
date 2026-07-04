@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRightIcon,
   Loader2Icon,
   PackageSearchIcon,
   PlusIcon,
-  ScanBarcodeIcon,
   Trash2Icon,
 } from "lucide-react";
 
@@ -27,7 +26,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
+import { ScanAutoflowBar } from "@/components/dashboard/shared/scan-autoflow-bar";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
+import { QtyConfirmInput } from "@/components/ui/qty-confirm-input";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import {
   useBinTransferCreate,
@@ -84,10 +85,8 @@ export function PindahBinView() {
   const [pickerSearch, setPickerSearch] = useState<string | undefined>(
     undefined,
   );
-  const [scanCode, setScanCode] = useState("");
   const [scanning, setScanning] = useState(false);
-  const [scanFlash, setScanFlash] = useState<"ok" | "err" | null>(null);
-  const scanRef = useRef<HTMLInputElement>(null);
+  const [scanRefocusKey, setScanRefocusKey] = useState(0);
 
   const { data: locData } = useLocations({ perPage: 100 });
   const { data: binData, isLoading: binsLoading } = useLocationBins(locationId);
@@ -111,16 +110,6 @@ export function PindahBinView() {
     [binData],
   );
 
-  useEffect(() => {
-    if (locationId) scanRef.current?.focus();
-  }, [locationId]);
-
-  const flash = (state: "ok" | "err") => {
-    setScanFlash(state);
-    playScanFeedback(state === "ok" ? "ok" : "error");
-    setTimeout(() => setScanFlash(null), 350);
-  };
-
   const upsertLineFromVariant = (variant: {
     id: string;
     sku: string;
@@ -140,6 +129,10 @@ export function PindahBinView() {
         variant.primary_bin && variant.primary_bin.on_hand > 0
           ? variant.primary_bin.id
           : (availableBins[0]?.id ?? "");
+      const sourceOnHand =
+        variant.primary_bin && variant.primary_bin.on_hand > 0
+          ? variant.primary_bin.on_hand
+          : (availableBins[0]?.onHand ?? 0);
       return [
         ...prev,
         {
@@ -150,17 +143,16 @@ export function PindahBinView() {
           thumbnail: variant.thumbnail_url ?? null,
           sourceBinId: source,
           destBinId: "",
-          qty: "",
+          qty: sourceOnHand > 0 ? String(sourceOnHand) : "",
           notes: "",
           availableBins,
         },
       ];
     });
-    setTimeout(() => scanRef.current?.focus(), 200);
   };
 
-  const handleScan = async () => {
-    const q = scanCode.trim();
+  const handleScanCode = async (rawCode: string) => {
+    const q = rawCode.trim();
     if (!q || scanning || !locationId) return;
 
     setScanning(true);
@@ -171,15 +163,15 @@ export function PindahBinView() {
       const variant = res.data;
 
       if (lines.some((l) => l.itemId === variant.id)) {
-        flash("err");
+        playScanFeedback("error");
         toast.error(`SKU "${q}" sudah ditambahkan.`);
         return;
       }
       upsertLineFromVariant(variant);
-      flash("ok");
+      playScanFeedback("ok");
     } catch (err) {
       const status = (err as { status?: number })?.status;
-      flash("err");
+      playScanFeedback("error");
       if (status === 404) {
         toast.error(
           `SKU "${q}" tidak ditemukan di gudang ini. Hanya SKU yg punya stok yg bisa ditransfer.`,
@@ -189,7 +181,6 @@ export function PindahBinView() {
       }
     } finally {
       setScanning(false);
-      setScanCode("");
     }
   };
 
@@ -298,7 +289,7 @@ export function PindahBinView() {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
-                No. Transfer Internal <span className="text-red-500">*</span>
+                No. Transfer Internal <span className="text-destructive">*</span>
               </Label>
               <Input
                 value={transferNo}
@@ -318,7 +309,7 @@ export function PindahBinView() {
             </div>
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
-                Tanggal <span className="text-red-500">*</span>
+                Tanggal <span className="text-destructive">*</span>
               </Label>
               <DatePicker
                 value={transferDate}
@@ -328,7 +319,7 @@ export function PindahBinView() {
             </div>
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
-                Lokasi <span className="text-red-500">*</span>
+                Lokasi <span className="text-destructive">*</span>
               </Label>
               <Combobox
                 options={locationOptions}
@@ -346,7 +337,7 @@ export function PindahBinView() {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
-                Dibuat Oleh <span className="text-red-500">*</span>
+                Dibuat Oleh <span className="text-destructive">*</span>
               </Label>
               <UserSelect
                 value={createdBy}
@@ -391,7 +382,7 @@ export function PindahBinView() {
           <div className="flex flex-col gap-4 px-5 py-5">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium">
-                Produk yang Ditransfer <span className="text-red-500">*</span>
+                Produk yang Ditransfer <span className="text-destructive">*</span>
               </Label>
               <Button
                 variant="outline"
@@ -403,49 +394,17 @@ export function PindahBinView() {
               </Button>
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <div className="relative">
-                {scanning ? (
-                  <Loader2Icon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-primary" />
-                ) : (
-                  <ScanBarcodeIcon
-                    className={cn(
-                      "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 transition-colors",
-                      scanFlash === "ok"
-                        ? "text-emerald-500"
-                        : scanFlash === "err"
-                          ? "text-destructive"
-                          : "text-muted-foreground",
-                    )}
-                  />
-                )}
-                <Input
-                  ref={scanRef}
-                  value={scanCode}
-                  onChange={(e) => setScanCode(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleScan();
-                    }
-                  }}
-                  placeholder="Scan / ketik SKU lalu Enter…"
-                  disabled={scanning}
-                  className={cn(
-                    "h-10 pl-9 text-base transition-colors",
-                    scanFlash === "ok" &&
-                      "border-emerald-500 ring-2 ring-emerald-500/30",
-                    scanFlash === "err" &&
-                      "border-destructive ring-2 ring-destructive/30",
-                  )}
-                  autoComplete="off"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Hanya SKU yang punya stok di gudang ini yang bisa ditransfer.
-                Rak asal & tujuan juga bisa di-scan lewat kolom masing-masing.
-              </p>
-            </div>
+            <ScanAutoflowBar
+              lines={[]}
+              onResolve={() => {}}
+              onUnmatched={handleScanCode}
+              disabled={scanning || !locationId}
+              autoFocus={!!locationId}
+              refocusKey={scanRefocusKey}
+              scanPlaceholder="Scan / ketik SKU lalu Enter…"
+              hint="Hanya SKU yang punya stok di gudang ini yang bisa ditransfer. Rak asal & tujuan juga bisa di-scan lewat kolom masing-masing."
+              sound={false}
+            />
 
             <Table containerClassName="rounded-lg border border-border">
               <TableHeader className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
@@ -530,7 +489,7 @@ export function PindahBinView() {
                                   {l.variantLabel}
                                 </p>
                               )}
-                              <p className="whitespace-normal break-all font-mono text-[11px] text-muted-foreground">
+                              <p className="whitespace-normal break-all font-mono text-xs text-muted-foreground">
                                 {l.sku}
                               </p>
                             </div>
@@ -583,23 +542,22 @@ export function PindahBinView() {
                           </div>
                         </TableCell>
                         <TableCell className="px-3 py-2.5 text-right">
-                          <Input
-                            type="number"
+                          <QtyConfirmInput
                             min={1}
-                            max={sourceBin?.onHand}
-                            value={l.qty}
-                            onChange={(e) =>
-                              updateLine(l.itemId, { qty: e.target.value })
+                            max={sourceBin?.onHand ?? 0}
+                            expected={sourceBin?.onHand ?? 0}
+                            value={l.qty === "" ? "" : Number(l.qty)}
+                            onChange={(v) =>
+                              updateLine(l.itemId, {
+                                qty: v === "" ? "" : String(v),
+                              })
                             }
+                            onEnter={() => setScanRefocusKey((k) => k + 1)}
                             placeholder="0"
-                            className={cn(
-                              "h-9 w-24 text-right",
-                              (qtyInvalid || qtyOverStock) &&
-                                "border-destructive ring-1 ring-destructive/30",
-                            )}
+                            className="h-9 w-24 text-right"
                           />
                           {sourceBin && (
-                            <p className="mt-0.5 text-[10px] text-muted-foreground">
+                            <p className="mt-0.5 text-xs text-muted-foreground">
                               dari {sourceBin.onHand}
                             </p>
                           )}

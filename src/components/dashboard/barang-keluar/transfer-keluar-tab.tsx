@@ -1,7 +1,7 @@
 "use client";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRightLeftIcon,
   DownloadIcon,
@@ -35,6 +35,7 @@ import {
   useDeleteTransfer,
 } from "@/hooks/barang-keluar/use-outbound-transfers";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
+import { useDebouncedSearch } from "@/hooks/shared/use-debounced-search";
 import { exportCsv } from "@/lib/export-csv";
 import type { InventoryTransfer } from "@/types/barang-masuk/inventory-transfer";
 import { formatDate } from "@/lib/format";
@@ -52,6 +53,24 @@ interface FilterState {
 }
 
 const EMPTY_FILTERS: FilterState = { location_id: "" };
+
+function ProgressBar({ received, total }: { received: number; total: number }) {
+  const pct = total > 0 ? Math.round((received / total) * 100) : 0;
+  return (
+    <div className="flex items-center gap-2">
+      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
+        <div
+          className={cn(
+            "h-full rounded-full transition-all",
+            pct >= 100 ? "bg-success" : "bg-warning",
+          )}
+          style={{ width: `${Math.min(pct, 100)}%` }}
+        />
+      </div>
+      <span className="text-xs tabular-nums text-muted-foreground">{pct}%</span>
+    </div>
+  );
+}
 
 function TransferTable({
   items,
@@ -129,13 +148,35 @@ function TransferTable({
         ),
       },
       {
+        id: "progress",
+        header: "Progress",
+        cell: ({ row }) => {
+          const s = row.original.status;
+          if (s !== "IN_TRANSIT" && s !== "RECEIVED") {
+            return <span className="text-xs text-muted-foreground">—</span>;
+          }
+          const totalQty =
+            row.original.items?.reduce(
+              (s: number, i: { qty: number }) => s + i.qty,
+              0,
+            ) ?? 0;
+          const recvQty =
+            row.original.items?.reduce(
+              (s: number, i: { received_qty?: number }) =>
+                s + (i.received_qty ?? 0),
+              0,
+            ) ?? 0;
+          return <ProgressBar received={recvQty} total={totalQty} />;
+        },
+      },
+      {
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => (
           <StatusBadge
             domain="inventory-transfer"
             status={row.original.status}
-            className="text-[10px] leading-tight"
+            className="text-xs leading-tight"
           />
         ),
       },
@@ -192,7 +233,6 @@ export function TransferKeluarTab() {
   const router = useRouter();
   const [subTab, setSubTab] = useState<SubTab>("draft");
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
@@ -210,6 +250,7 @@ export function TransferKeluarTab() {
   const [cancelTarget, setCancelTarget] = useState<InventoryTransfer | null>(
     null,
   );
+  const [cancelledBy, setCancelledBy] = useState("");
   const [cancelReason, setCancelReason] = useState("");
   const cancelMutation = useCancelTransfer();
 
@@ -219,14 +260,7 @@ export function TransferKeluarTab() {
   const deleteMutation = useDeleteTransfer();
 
   const resetPage = useCallback(() => setPage(1), []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search.trim());
-      resetPage();
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [search, resetPage]);
+  const debouncedSearch = useDebouncedSearch(search, resetPage);
 
   const handleFilterChange = useCallback(
     (f: FilterState) => {
@@ -328,7 +362,7 @@ export function TransferKeluarTab() {
                   setApproveTarget(item);
                   setApprovedBy("");
                 }}
-                className="inline-flex items-center gap-1 rounded-md bg-indigo-500/10 px-2.5 py-1 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-500/20"
+                className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
               >
                 <CheckIcon className="h-3.5 w-3.5" />
                 Approve
@@ -341,7 +375,7 @@ export function TransferKeluarTab() {
                   setShipTarget(item);
                   setShippedBy("");
                 }}
-                className="inline-flex items-center gap-1 rounded-md bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-500/20"
+                className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
               >
                 <TruckIcon className="h-3.5 w-3.5" />
                 Kirim
@@ -353,7 +387,7 @@ export function TransferKeluarTab() {
                 setCancelTarget(item);
                 setCancelReason("");
               }}
-              className="inline-flex items-center gap-1 rounded-md bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-600 transition-colors hover:bg-amber-500/20"
+              className="inline-flex items-center gap-1 rounded-md bg-warning/10 px-2.5 py-1 text-xs font-medium text-warning transition-colors hover:bg-warning/20"
             >
               <XIcon className="h-3.5 w-3.5" />
             </button>
@@ -361,7 +395,7 @@ export function TransferKeluarTab() {
               <button
                 type="button"
                 onClick={() => setDeleteTarget(item)}
-                className="inline-flex items-center gap-1 rounded-md bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-500/20"
+                className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20"
               >
                 <Trash2Icon className="h-3.5 w-3.5" />
               </button>
@@ -463,7 +497,7 @@ export function TransferKeluarTab() {
       >
         <div className="px-1 py-2">
           <Label htmlFor="tf-approved-by" className="text-sm font-medium">
-            Disetujui oleh <span className="text-red-500">*</span>
+            Disetujui oleh <span className="text-destructive">*</span>
           </Label>
           <UserSelect
             value={approvedBy}
@@ -493,7 +527,7 @@ export function TransferKeluarTab() {
       >
         <div className="px-1 py-2">
           <Label htmlFor="tf-shipped-by" className="text-sm font-medium">
-            Dikirim oleh <span className="text-red-500">*</span>
+            Dikirim oleh <span className="text-destructive">*</span>
           </Label>
           <UserSelect
             value={shippedBy}
@@ -508,7 +542,11 @@ export function TransferKeluarTab() {
       <ConfirmDialog
         open={!!cancelTarget}
         onOpenChange={(open) => {
-          if (!open) setCancelTarget(null);
+          if (!open) {
+            setCancelTarget(null);
+            setCancelledBy("");
+            setCancelReason("");
+          }
         }}
         title="Batalkan Transfer"
         description={`Batalkan transfer ${cancelTarget?.transfer_number ?? ""}?`}
@@ -516,30 +554,50 @@ export function TransferKeluarTab() {
         variant="destructive"
         loading={cancelMutation.isPending}
         onConfirm={() => {
-          if (!cancelTarget) return;
+          if (!cancelTarget || !cancelledBy.trim()) return;
           cancelMutation.mutate(
             {
               id: cancelTarget.id,
               data: {
-                cancelled_by: "admin",
+                cancelled_by: cancelledBy.trim(),
                 cancel_reason: cancelReason.trim() || undefined,
               },
             },
-            { onSuccess: () => setCancelTarget(null) },
+            {
+              onSuccess: () => {
+                setCancelTarget(null);
+                setCancelledBy("");
+                setCancelReason("");
+              },
+            },
           );
         }}
       >
-        <div className="px-1 py-2">
-          <Label htmlFor="tf-cancel-reason" className="text-sm font-medium">
-            Alasan pembatalan
-          </Label>
-          <Input
-            id="tf-cancel-reason"
-            placeholder="Alasan (opsional)"
-            value={cancelReason}
-            onChange={(e) => setCancelReason(e.target.value)}
-            className="mt-1.5"
-          />
+        <div className="flex flex-col gap-3 px-1 py-2">
+          <div>
+            <Label htmlFor="tf-cancelled-by" className="text-sm font-medium">
+              Dibatalkan oleh <span className="text-destructive">*</span>
+            </Label>
+            <UserSelect
+              value={cancelledBy}
+              onChange={setCancelledBy}
+              defaultToSelf
+              placeholder="Nama pembatal"
+              className="mt-1.5"
+            />
+          </div>
+          <div>
+            <Label htmlFor="tf-cancel-reason" className="text-sm font-medium">
+              Alasan pembatalan
+            </Label>
+            <Input
+              id="tf-cancel-reason"
+              placeholder="Alasan (opsional)"
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              className="mt-1.5"
+            />
+          </div>
         </div>
       </ConfirmDialog>
 

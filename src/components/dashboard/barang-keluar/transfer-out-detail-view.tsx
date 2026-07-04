@@ -29,6 +29,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
+import { StatusTimeline } from "@/components/dashboard/shared/status-timeline";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import {
@@ -42,82 +43,13 @@ import { exportCsv } from "@/lib/export-csv";
 import { useState, useCallback } from "react";
 import { formatDate } from "@/lib/format";
 
-const TIMELINE_STEPS = [
-  { key: "DRAFT", label: "Draft" },
-  { key: "APPROVED", label: "Disetujui" },
-  { key: "IN_TRANSIT", label: "Dikirim" },
-  { key: "RECEIVED", label: "Diterima" },
-];
-
-const STATUS_ORDER: Record<string, number> = {
-  DRAFT: 0,
-  APPROVED: 1,
-  IN_TRANSIT: 2,
-  RECEIVED: 3,
-  CANCELLED: -1,
-};
+const TRANSFER_STEPS = ["DRAFT", "APPROVED", "IN_TRANSIT", "RECEIVED"];
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-0.5">
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className="text-sm font-medium">{value ?? "—"}</span>
-    </div>
-  );
-}
-
-function StatusTimeline({ currentStatus }: { currentStatus: string }) {
-  if (currentStatus === "CANCELLED") {
-    return (
-      <div className="flex items-center gap-2 rounded-md bg-red-50 px-3 py-2 dark:bg-red-500/10">
-        <XIcon className="h-4 w-4 text-red-500" />
-        <span className="text-sm font-medium text-red-600">
-          Transfer dibatalkan
-        </span>
-      </div>
-    );
-  }
-
-  const currentIdx = STATUS_ORDER[currentStatus] ?? 0;
-
-  return (
-    <div className="flex items-center gap-0">
-      {TIMELINE_STEPS.map((step, idx) => {
-        const isDone = idx <= currentIdx;
-        const isCurrent = idx === currentIdx;
-        return (
-          <div key={step.key} className="flex items-center">
-            <div className="flex flex-col items-center">
-              <div
-                className={cn(
-                  "flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-bold transition-colors",
-                  isDone
-                    ? "border-emerald-500 bg-emerald-500 text-white"
-                    : "border-border bg-background text-muted-foreground",
-                )}
-              >
-                {isDone ? <CheckIcon className="h-3.5 w-3.5" /> : idx + 1}
-              </div>
-              <span
-                className={cn(
-                  "mt-1 text-[10px] font-medium",
-                  isCurrent ? "text-foreground" : "text-muted-foreground",
-                )}
-              >
-                {step.label}
-              </span>
-            </div>
-            {idx < TIMELINE_STEPS.length - 1 && (
-              <div
-                className={cn(
-                  "mx-1 h-0.5 w-8 sm:w-12",
-                  idx < currentIdx ? "bg-emerald-500" : "bg-border",
-                )}
-              />
-            )}
-          </div>
-        );
-      })}
     </div>
   );
 }
@@ -227,7 +159,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
                 setApproveOpen(true);
                 setApprovedBy("");
               }}
-              className="bg-indigo-600 text-white hover:bg-indigo-700"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <CheckIcon className="mr-1.5 h-4 w-4" />
               Approve
@@ -250,7 +182,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
               setShipOpen(true);
               setShippedBy("");
             }}
-            className="bg-blue-600 text-white hover:bg-blue-700"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <TruckIcon className="mr-1.5 h-4 w-4" />
             Kirim
@@ -266,7 +198,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
               setCancelReason("");
               setCancelledBy("");
             }}
-            className="text-amber-600 hover:bg-amber-500/10"
+            className="text-warning hover:bg-warning/10"
           >
             <XIcon className="mr-1.5 h-4 w-4" />
             Batalkan
@@ -283,7 +215,11 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
           <h3 className="mb-4 text-sm font-semibold text-foreground">
             Status Transfer
           </h3>
-          <StatusTimeline currentStatus={transfer.status} />
+          <StatusTimeline
+            domain="inventory-transfer"
+            steps={TRANSFER_STEPS}
+            currentStatus={transfer.status}
+          />
         </div>
       </LiquidGlass>
 
@@ -312,7 +248,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
                 <StatusBadge
                   domain="inventory-transfer"
                   status={transfer.status}
-                  className="text-[10px] leading-tight"
+                  className="text-xs leading-tight"
                 />
               }
             />
@@ -423,7 +359,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
       >
         <div className="px-1 py-2">
           <Label htmlFor="detail-approved-by" className="text-sm font-medium">
-            Disetujui oleh <span className="text-red-500">*</span>
+            Disetujui oleh <span className="text-destructive">*</span>
           </Label>
           <UserSelect
             value={approvedBy}
@@ -451,7 +387,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
       >
         <div className="px-1 py-2">
           <Label htmlFor="detail-shipped-by" className="text-sm font-medium">
-            Dikirim oleh <span className="text-red-500">*</span>
+            Dikirim oleh <span className="text-destructive">*</span>
           </Label>
           <UserSelect
             value={shippedBy}
@@ -491,7 +427,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
               htmlFor="detail-cancelled-by"
               className="text-sm font-medium"
             >
-              Dibatalkan oleh <span className="text-red-500">*</span>
+              Dibatalkan oleh <span className="text-destructive">*</span>
             </Label>
             <UserSelect
               value={cancelledBy}

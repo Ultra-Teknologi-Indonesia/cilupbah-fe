@@ -16,9 +16,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { toast } from "sonner";
+
 import { QRCodeSVG } from "qrcode.react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,6 +50,7 @@ import {
   ScanAutoflowBar,
   type ScanAutoflowLine,
 } from "@/components/dashboard/shared/scan-autoflow-bar";
+import { QtyConfirmInput } from "@/components/ui/qty-confirm-input";
 import {
   usePutawayDetail,
   usePutawayItems,
@@ -233,9 +244,17 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     [allItems, addPlacementForItem],
   );
 
-  const handleStart = useCallback(() => {
-    startMutation.mutate(id, { onSuccess: () => refetchDetail() });
-  }, [id, startMutation, refetchDetail]);
+  const handleStart = () => {
+    const putawayNo = putaway?.putaway_no;
+    startMutation.mutate(id, {
+      onSuccess: () => {
+        refetchDetail();
+        if (putawayNo) {
+          toast.success(`Penempatan dimulai untuk ${putawayNo}.`);
+        }
+      },
+    });
+  };
 
   useEffect(() => {
     if (isNotStarted && putaway && !startMutation.isPending) {
@@ -244,11 +263,9 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNotStarted, putaway?.id]);
 
-  useEffect(() => {
-    if (isCompleted) {
-      router.push("/dashboard/barang-masuk/penempatan");
-    }
-  }, [isCompleted, router]);
+  const [completedDialogDismissed, setCompletedDialogDismissed] =
+    useState(false);
+  const completedDialogOpen = isCompleted && !completedDialogDismissed;
 
   const onProcessed = useCallback(() => {
     refetchItems();
@@ -377,7 +394,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
               )}
             </div>
 
-            <div className="rounded-2xl border border-border bg-card p-4">
+            <div className="rounded-lg border border-border bg-card p-4">
               <div className="flex items-center gap-2">
                 <ScanLineIcon className="h-4 w-4 text-muted-foreground" />
                 <div className="text-sm font-medium">Pilih Rak</div>
@@ -420,7 +437,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 disabled={isCompleted}
-                className="mt-1.5 min-h-28 rounded-2xl text-sm"
+                className="mt-1.5 min-h-28 rounded-lg text-sm"
               />
             </div>
           </aside>
@@ -466,13 +483,13 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                       className={cn(
                         "h-2.5",
                         progressPct >= 100 &&
-                          "[&_[data-slot=progress-indicator]]:bg-emerald-500",
+                          "[&_[data-slot=progress-indicator]]:bg-success",
                       )}
                     />
                   </div>
                 </div>
                 {scanError && (
-                  <p className="-mt-1 text-xs text-red-500">{scanError}</p>
+                  <p className="-mt-1 text-xs text-destructive">{scanError}</p>
                 )}
               </div>
             </LiquidGlass>
@@ -565,6 +582,38 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
           </div>
         </div>
       )}
+
+      <Dialog
+        open={completedDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) setCompletedDialogDismissed(true);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Penempatan Selesai</DialogTitle>
+            <DialogDescription>
+              Semua item pada {putaway?.putaway_no ?? "penempatan"} sudah
+              ditempatkan. Kembali ke daftar penempatan?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="ghost"
+              onClick={() => setCompletedDialogDismissed(true)}
+            >
+              Tetap di Halaman
+            </Button>
+            <Button
+              onClick={() =>
+                router.push("/dashboard/barang-masuk/penempatan")
+              }
+            >
+              Kembali ke Daftar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -659,7 +708,7 @@ function PutawayItemRow({
       <TableRow
         data-state={selected ? "selected" : undefined}
         className={cn(
-          done && "bg-emerald-50/50 dark:bg-emerald-950/20",
+          done && "bg-success/10",
           expanded && effectivePlacements.length > 0 && "border-b-0",
         )}
       >
@@ -714,8 +763,8 @@ function PutawayItemRow({
             </span>
             <span
               className={cn(
-                "text-[11px]",
-                done ? "text-emerald-600 font-medium" : "text-muted-foreground",
+                "text-xs",
+                done ? "text-success font-medium" : "text-muted-foreground",
               )}
             >
               {done
@@ -751,7 +800,7 @@ function PutawayItemRow({
         <TableRow className="hover:bg-transparent">
           <TableCell colSpan={5} className="border-t-0 pb-4 pl-16 pr-5 pt-0">
             <div className="flex flex-col gap-2 rounded-xl border border-border/50 bg-muted/20 p-3">
-              <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Detail Penempatan
               </p>
               {effectivePlacements.map((entry) => (
@@ -835,7 +884,11 @@ function PlacementRow({
     initialBinId,
   );
   const [qty, setQty] = useState(
-    entry.initialBinQty > 0 ? String(entry.initialBinQty) : "",
+    entry.initialBinQty > 0
+      ? String(entry.initialBinQty)
+      : entry.maxQty > 0
+        ? String(entry.maxQty)
+        : "",
   );
   const [hasSaved, setHasSaved] = useState(entry.initialBinQty > 0);
 
@@ -915,11 +968,11 @@ function PlacementRow({
           className={cn(
             "h-8 w-52 rounded-lg text-xs",
             selectedBin &&
-              "border-emerald-300 ring-1 ring-emerald-200 dark:border-emerald-700 dark:ring-emerald-800",
+              "border-success ring-1 ring-success/30",
           )}
         />
         {selectedBin && selectedBin.remaining_capacity != null && (
-          <p className="text-[10px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Sisa kapasitas: {selectedBin.remaining_capacity}/
             {selectedBin.max_qty}
           </p>
@@ -927,38 +980,28 @@ function PlacementRow({
       </div>
 
       <div className="flex items-center gap-1.5">
-        <Input
-          ref={qtyInputRef}
-          type="number"
+        <QtyConfirmInput
+          inputRef={qtyInputRef}
           min={1}
           max={entry.maxQty}
-          value={qty}
-          placeholder="0"
+          expected={entry.maxQty}
+          value={qty === "" ? "" : Number(qty)}
           disabled={!editable}
-          onChange={(e) => {
-            const v = e.target.value;
-            if (v === "") {
-              setQty("");
-              return;
-            }
-            const n = parseInt(v) || 0;
-            setQty(String(Math.max(0, Math.min(entry.maxQty, n))));
+          onChange={(v) => setQty(v === "" ? "" : String(v))}
+          onEnter={() => {
+            if (!selectedBinId) return;
+            clearTimeout(autoSaveTimer.current);
+            const qtyNum = parseInt(qty) || 0;
+            if (qtyNum > lastSavedQty.current)
+              saveNow(selectedBinId, qtyNum, onSaved);
           }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && selectedBinId) {
-              e.preventDefault();
-              clearTimeout(autoSaveTimer.current);
-              const qtyNum = parseInt(qty) || 0;
-              if (qtyNum > lastSavedQty.current)
-                saveNow(selectedBinId, qtyNum, onSaved);
-            }
-          }}
+          placeholder="0"
           className="h-8 w-20 tabular-nums text-xs"
         />
         {processMutation.isPending ? (
-          <Loader2Icon className="h-3.5 w-3.5 animate-spin text-amber-500" />
+          <Loader2Icon className="h-3.5 w-3.5 animate-spin text-warning" />
         ) : hasSaved ? (
-          <CheckCircle2Icon className="h-3.5 w-3.5 text-emerald-500" />
+          <CheckCircle2Icon className="h-3.5 w-3.5 text-success" />
         ) : null}
       </div>
 
@@ -968,7 +1011,7 @@ function PlacementRow({
           variant="ghost"
           size="icon-sm"
           onClick={onRemove}
-          className="h-8 w-8 text-muted-foreground hover:text-red-500"
+          className="h-8 w-8 text-muted-foreground hover:text-destructive"
           aria-label="Hapus penempatan"
         >
           <Trash2Icon className="h-3.5 w-3.5" />
