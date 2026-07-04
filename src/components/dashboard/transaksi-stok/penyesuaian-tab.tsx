@@ -10,9 +10,12 @@ import {
   PrinterIcon,
 } from "lucide-react";
 
+import type { DateRange } from "react-day-picker";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
+import { DateRangePicker } from "@/components/ui/date-picker";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ResourceListView } from "@/components/dashboard/shared/resource-list-view";
@@ -34,11 +37,30 @@ import { toast } from "sonner";
 
 interface FilterState {
   location_id: string;
+  date_from: string;
+  date_to: string;
 }
 
-const EMPTY_FILTERS: FilterState = { location_id: "" };
+const EMPTY_FILTERS: FilterState = {
+  location_id: "",
+  date_from: "",
+  date_to: "",
+};
 
 const BULK_PDF_MAX = 50;
+
+function toDateStr(d?: Date): string {
+  if (!d) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function parseDateStr(s: string): Date | undefined {
+  if (!s) return undefined;
+  return new Date(`${s}T00:00:00`);
+}
 
 export function PenyesuaianTab() {
   const router = useRouter();
@@ -61,9 +83,18 @@ export function PenyesuaianTab() {
       page: list.page,
       per_page: list.perPage,
       "filter[location_id]": list.filters.location_id || undefined,
+      "filter[date_from]": list.filters.date_from || undefined,
+      "filter[date_to]": list.filters.date_to || undefined,
     }),
     [list.debouncedSearch, list.page, list.perPage, list.filters],
   );
+
+  const dateRange: DateRange | undefined = useMemo(() => {
+    const from = parseDateStr(list.filters.date_from);
+    const to = parseDateStr(list.filters.date_to);
+    if (!from && !to) return undefined;
+    return { from, to };
+  }, [list.filters.date_from, list.filters.date_to]);
 
   const { data, isLoading, isFetching } = useStockAdjustments(params);
   const { data: locData } = useLocations({ perPage: 100 });
@@ -288,16 +319,30 @@ export function PenyesuaianTab() {
         emptyTitle="Belum ada koreksi stok"
         emptyDescription="Data koreksi stok akan muncul di sini."
         filterControls={
-          <Combobox
-            options={locationOptions}
-            value={list.filters.location_id}
-            onChange={(v) =>
-              list.setFilters({ ...list.filters, location_id: v ?? "" })
-            }
-            placeholder="Lokasi"
-            searchPlaceholder="Cari lokasi"
-            className="h-9 bg-background"
-          />
+          <>
+            <Combobox
+              options={locationOptions}
+              value={list.filters.location_id}
+              onChange={(v) =>
+                list.setFilters({ ...list.filters, location_id: v ?? "" })
+              }
+              placeholder="Lokasi"
+              searchPlaceholder="Cari lokasi"
+              className="h-9 bg-background"
+            />
+            <DateRangePicker
+              value={dateRange}
+              onChange={(range) =>
+                list.setFilters({
+                  ...list.filters,
+                  date_from: toDateStr(range?.from),
+                  date_to: toDateStr(range?.to),
+                })
+              }
+              placeholder="Rentang tanggal transaksi"
+              className="h-9 bg-background"
+            />
+          </>
         }
       />
 

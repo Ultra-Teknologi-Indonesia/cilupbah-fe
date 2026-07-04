@@ -5,7 +5,10 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { ClipboardListIcon, PackageCheckIcon, Loader2Icon } from "lucide-react";
 
+import type { DateRange } from "react-day-picker";
+
 import { Combobox } from "@/components/ui/combobox";
+import { DateRangePicker } from "@/components/ui/date-picker";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -42,9 +45,29 @@ function ProgressBar({ received, total }: { received: number; total: number }) {
 interface FilterState {
   status: string;
   location_id: string;
+  date_from: string;
+  date_to: string;
 }
 
-const EMPTY_FILTERS: FilterState = { status: "", location_id: "" };
+const EMPTY_FILTERS: FilterState = {
+  status: "",
+  location_id: "",
+  date_from: "",
+  date_to: "",
+};
+
+function toDateStr(d?: Date): string {
+  if (!d) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function parseDateStr(s: string): Date | undefined {
+  if (!s) return undefined;
+  return new Date(`${s}T00:00:00`);
+}
 
 export function PesananPembelianTab() {
   const [search, setSearch] = useState("");
@@ -78,9 +101,18 @@ export function PesananPembelianTab() {
       per_page: perPage,
       "filter[status]": filters.status || undefined,
       "filter[location_id]": filters.location_id || undefined,
+      "filter[date_from]": filters.date_from || undefined,
+      "filter[date_to]": filters.date_to || undefined,
     }),
     [debouncedSearch, page, perPage, filters],
   );
+
+  const dateRange: DateRange | undefined = useMemo(() => {
+    const from = parseDateStr(filters.date_from);
+    const to = parseDateStr(filters.date_to);
+    if (!from && !to) return undefined;
+    return { from, to };
+  }, [filters.date_from, filters.date_to]);
 
   const { data, isLoading, isFetching } = useReceivablePurchaseOrders(params);
   const { data: locData } = useLocations({ perPage: 100 });
@@ -221,6 +253,18 @@ export function PesananPembelianTab() {
           }
           placeholder="Lokasi"
           searchPlaceholder="Cari lokasi"
+          className="h-9 bg-background"
+        />
+        <DateRangePicker
+          value={dateRange}
+          onChange={(range) =>
+            handleFilterChange({
+              ...filters,
+              date_from: toDateStr(range?.from),
+              date_to: toDateStr(range?.to),
+            })
+          }
+          placeholder="Rentang tanggal pesanan"
           className="h-9 bg-background"
         />
       </FilterToolbar>

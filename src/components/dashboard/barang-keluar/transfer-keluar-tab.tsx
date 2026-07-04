@@ -10,10 +10,13 @@ import { ArrowRightLeftIcon,
   XIcon,
   Trash2Icon, Loader2Icon } from "lucide-react";
 
+import type { DateRange } from "react-day-picker";
+
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
+import { DateRangePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -50,9 +53,28 @@ const SUB_TABS: { key: SubTab; label: string }[] = [
 
 interface FilterState {
   location_id: string;
+  date_from: string;
+  date_to: string;
 }
 
-const EMPTY_FILTERS: FilterState = { location_id: "" };
+const EMPTY_FILTERS: FilterState = {
+  location_id: "",
+  date_from: "",
+  date_to: "",
+};
+
+function toDateStr(d?: Date): string {
+  if (!d) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function parseDateStr(s: string): Date | undefined {
+  if (!s) return undefined;
+  return new Date(`${s}T00:00:00`);
+}
 
 function ProgressBar({ received, total }: { received: number; total: number }) {
   const pct = total > 0 ? Math.round((received / total) * 100) : 0;
@@ -281,9 +303,18 @@ export function TransferKeluarTab() {
       page,
       per_page: perPage,
       "filter[source_location_id]": filters.location_id || undefined,
+      "filter[date_from]": filters.date_from || undefined,
+      "filter[date_to]": filters.date_to || undefined,
     }),
     [debouncedSearch, page, perPage, filters],
   );
+
+  const dateRange: DateRange | undefined = useMemo(() => {
+    const from = parseDateStr(filters.date_from);
+    const to = parseDateStr(filters.date_to);
+    if (!from && !to) return undefined;
+    return { from, to };
+  }, [filters.date_from, filters.date_to]);
 
   const draftQuery = useOutboundDrafts(subTab === "draft" ? params : {});
   const transitQuery = useOutboundTransit(subTab === "transit" ? params : {});
@@ -459,6 +490,18 @@ export function TransferKeluarTab() {
             }
             placeholder="Lokasi Asal"
             searchPlaceholder="Cari lokasi"
+            className="h-9 bg-background"
+          />
+          <DateRangePicker
+            value={dateRange}
+            onChange={(range) =>
+              handleFilterChange({
+                ...filters,
+                date_from: toDateStr(range?.from),
+                date_to: toDateStr(range?.to),
+              })
+            }
+            placeholder="Rentang tanggal transfer"
             className="h-9 bg-background"
           />
         </FilterToolbar>

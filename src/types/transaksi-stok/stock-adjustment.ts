@@ -46,6 +46,8 @@ export interface StockAdjustmentListParams {
   page?: number;
   per_page?: number;
   "filter[location_id]"?: string;
+  "filter[date_from]"?: string;
+  "filter[date_to]"?: string;
   sort?: string;
 }
 
