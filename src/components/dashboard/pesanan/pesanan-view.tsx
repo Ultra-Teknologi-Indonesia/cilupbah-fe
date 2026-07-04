@@ -180,6 +180,12 @@ export function PesananView() {
             )}
           </div>
           {tab === "cancellation" && <ExportCancelDialog />}
+          <Button asChild variant="primary" size="sm" className="h-9 rounded-full gap-1.5">
+            <Link href="/dashboard/pesanan/tambah">
+              <PlusIcon className="size-4" />
+              Buat Pesanan
+            </Link>
+          </Button>
         </div>
 
         <OrderFilters
@@ -189,14 +195,6 @@ export function PesananView() {
           onChange={handleFilterChange}
           leading={selectAllCheckbox}
           tab={tab}
-          trailing={
-            <Button asChild variant="primary" size="sm" className="h-9 rounded-full gap-1.5">
-              <Link href="/dashboard/pesanan/tambah">
-                <PlusIcon className="size-4" />
-                Buat Pesanan
-              </Link>
-            </Button>
-          }
         />
 
         <div className="px-4 py-4 sm:px-5">
