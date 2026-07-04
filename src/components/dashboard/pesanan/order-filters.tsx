@@ -136,6 +136,7 @@ export function OrderFilters({
   filters,
   onChange,
   leading,
+  trailing,
   tab,
 }: {
   query: string;
@@ -143,6 +144,7 @@ export function OrderFilters({
   filters: FilterState;
   onChange: (f: FilterState) => void;
   leading?: React.ReactNode;
+  trailing?: React.ReactNode;
   tab?: OrderTab;
 }) {
   const { data: locData } = useLocations();
@@ -194,6 +196,7 @@ export function OrderFilters({
       activeCount={activeCount}
       align="end"
       leading={leading}
+      trailing={trailing}
     >
       <Combobox
         options={[{ value: "", label: "Semua Lokasi" }, ...locations]}

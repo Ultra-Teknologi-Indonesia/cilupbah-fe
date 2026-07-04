@@ -401,51 +401,43 @@ export function PesananManualFormPage() {
     !missingItemId;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <PageTitle
         title="Tambah Pesanan"
+        backHref="/dashboard/pesanan"
         breadcrumb={[
           { label: "Penjualan" },
           { label: "Pesanan", href: "/dashboard/pesanan" },
           { label: "Tambah Pesanan" },
         ]}
-        actions={
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={() => router.push("/dashboard/pesanan")}
-              disabled={createMut.isPending}
-            >
-              Batal
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={!canSubmit || createMut.isPending}
-            >
-              {createMut.isPending ? "Menyimpan…" : "Simpan"}
-            </Button>
-          </div>
-        }
       />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-        <div className="flex flex-col gap-6">
-          <LiquidGlass radius={16} className="p-6">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <Label>No. Pesanan *</Label>
+      <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
+        <div className="flex flex-col gap-5">
+          {/* Informasi Pesanan */}
+          <LiquidGlass radius={16} intensity="subtle" className="bg-white/40 dark:bg-white/[0.06]">
+            <div className="border-b border-border/60 px-5 py-4">
+              <h2 className="text-base font-semibold">Informasi Pesanan</h2>
+            </div>
+            <div className="grid gap-4 px-5 py-5 md:grid-cols-2">
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">No. Pesanan</Label>
                 <Input
                   value={salesorderNo}
                   onChange={(e) => setSalesorderNo(e.target.value)}
                   placeholder="[auto]"
                 />
               </div>
-              <div>
-                <Label>Tanggal *</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">
+                  Tanggal <span className="text-destructive">*</span>
+                </Label>
                 <DatePicker value={date} onChange={setDate} />
               </div>
-              <div>
-                <Label>Pelanggan *</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">
+                  Pelanggan <span className="text-destructive">*</span>
+                </Label>
                 <div className="flex items-center gap-2">
                   <div className="flex-1">
                     <Combobox
@@ -472,8 +464,10 @@ export function PesananManualFormPage() {
                   </Button>
                 </div>
               </div>
-              <div>
-                <Label>Toko *</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">
+                  Toko <span className="text-destructive">*</span>
+                </Label>
                 <Combobox
                   options={tokoOptions}
                   value={tokoId}
@@ -481,16 +475,18 @@ export function PesananManualFormPage() {
                   placeholder="Pilih toko"
                 />
               </div>
-              <div>
-                <Label>No. Ref</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">No. Ref</Label>
                 <Input
                   value={noRef}
                   onChange={(e) => setNoRef(e.target.value)}
                   placeholder="No. ref"
                 />
               </div>
-              <div>
-                <Label>Lokasi *</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">
+                  Lokasi <span className="text-destructive">*</span>
+                </Label>
                 <Combobox
                   options={locationOptions}
                   value={locationId}
@@ -498,8 +494,8 @@ export function PesananManualFormPage() {
                   placeholder="Pilih lokasi"
                 />
               </div>
-              <div>
-                <Label>Salesman</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">Salesman</Label>
                 <Combobox
                   options={salesmanOptions}
                   value={salesmanId}
@@ -507,8 +503,8 @@ export function PesananManualFormPage() {
                   placeholder="Pilih salesman"
                 />
               </div>
-              <div className="md:col-span-2">
-                <Label>Keterangan</Label>
+              <div className="flex flex-col gap-1.5 md:col-span-2">
+                <Label className="text-sm font-medium">Keterangan</Label>
                 <Textarea
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
@@ -519,9 +515,10 @@ export function PesananManualFormPage() {
             </div>
           </LiquidGlass>
 
-          <LiquidGlass radius={16} className="p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Produk</h2>
+          {/* Produk */}
+          <LiquidGlass radius={16} intensity="subtle" className="bg-white/40 dark:bg-white/[0.06]">
+            <div className="flex items-center justify-between border-b border-border/60 px-5 py-4">
+              <h2 className="text-base font-semibold">Produk</h2>
               <label className="flex items-center gap-2 text-sm">
                 <Switch
                   checked={priceIncludesTax}
@@ -530,211 +527,218 @@ export function PesananManualFormPage() {
                 Harga Termasuk Pajak
               </label>
             </div>
-
-            <div className="mb-4">
-              <div className="relative">
-                <ScanBarcodeIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={scanCode}
-                  onChange={(e) => setScanCode(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleScan(scanCode);
+            <div className="flex flex-col gap-4 px-5 py-5">
+              <div className="flex flex-col gap-1.5">
+                <div className="relative">
+                  <ScanBarcodeIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    value={scanCode}
+                    onChange={(e) => setScanCode(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleScan(scanCode);
+                      }
+                    }}
+                    disabled={scanBusy || !locationId}
+                    placeholder={
+                      locationId
+                        ? "Scan / ketik SKU lalu tekan Enter"
+                        : "Pilih lokasi dulu, baru scan"
                     }
-                  }}
-                  disabled={scanBusy || !locationId}
-                  placeholder={
-                    locationId
-                      ? "Scan / ketik SKU lalu tekan Enter"
-                      : "Pilih lokasi dulu, baru scan"
-                  }
-                  className="h-11 pl-9"
-                  autoComplete="off"
-                />
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Stok akan dicek otomatis berdasarkan lokasi yang dipilih.
-              </p>
-            </div>
-
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>SKU</TableHead>
-                    <TableHead>Deskripsi</TableHead>
-                    <TableHead className="w-24 text-right">Stok</TableHead>
-                    <TableHead className="w-24 text-right">Qty</TableHead>
-                    <TableHead className="w-40 text-right">Harga</TableHead>
-                    <TableHead className="w-24 text-right">Diskon %</TableHead>
-                    <TableHead className="w-40 text-right">Total</TableHead>
-                    <TableHead className="w-12" />
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {items.map((it, idx) => {
-                    const gross = it.qty * it.price;
-                    const disc = (gross * it.discPercent) / 100;
-                    const overStock =
-                      it.available !== null && it.qty > it.available;
-                    return (
-                      <TableRow key={it.key}>
-                        <TableCell>
-                          <Input
-                            value={it.sku}
-                            onChange={(e) =>
-                              updateItem(idx, "sku", e.target.value)
-                            }
-                            onBlur={() => refreshAvailable(idx)}
-                            placeholder="SKU"
-                            className={cn(
-                              "h-9",
-                              it.sku && !it.itemId && "border-destructive",
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            value={it.description}
-                            onChange={(e) =>
-                              updateItem(idx, "description", e.target.value)
-                            }
-                            placeholder="Deskripsi (opsional)"
-                            className="h-9"
-                          />
-                        </TableCell>
-                        <TableCell className="text-right text-xs tabular-nums">
-                          {it.available === null ? (
-                            <span className="text-muted-foreground">—</span>
-                          ) : (
-                            <span
-                              className={cn(
-                                overStock
-                                  ? "font-semibold text-destructive"
-                                  : "text-muted-foreground",
-                              )}
-                            >
-                              {it.available}
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            type="text"
-                            inputMode="numeric"
-                            value={it.qty || ""}
-                            onChange={(e) =>
-                              updateItem(
-                                idx,
-                                "qty",
-                                parseCurrency(e.target.value),
-                              )
-                            }
-                            className={cn(
-                              "h-9 text-right tabular-nums",
-                              overStock && "border-destructive ring-2 ring-destructive/20",
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            type="text"
-                            inputMode="numeric"
-                            value={
-                              it.price ? it.price.toLocaleString("id-ID") : ""
-                            }
-                            onChange={(e) =>
-                              updateItem(
-                                idx,
-                                "price",
-                                parseCurrency(e.target.value),
-                              )
-                            }
-                            className="h-9 text-right tabular-nums"
-                            placeholder="0"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            type="text"
-                            inputMode="numeric"
-                            value={it.discPercent || ""}
-                            onChange={(e) =>
-                              updateItem(
-                                idx,
-                                "discPercent",
-                                Math.min(
-                                  100,
-                                  parseCurrency(e.target.value),
-                                ),
-                              )
-                            }
-                            className="h-9 text-right tabular-nums"
-                            placeholder="0"
-                          />
-                        </TableCell>
-                        <TableCell className="text-right font-medium tabular-nums">
-                          {formatCurrency(gross - disc)}
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeItem(idx)}
-                            disabled={items.length === 1}
-                          >
-                            <Trash2Icon className="size-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-
-            <div className="mt-4 flex items-center justify-between gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setItems((p) => [...p, newLine()])}
-              >
-                <PlusIcon className="mr-1 size-4" />
-                Tambah Baris
-              </Button>
-
-              {(overStockItems.length > 0 || missingItemId) && (
-                <div className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive">
-                  {overStockItems.length > 0
-                    ? `Qty melebihi stok tersedia pada ${overStockItems.length} produk. Turunkan qty atau ganti lokasi.`
-                    : "Beberapa SKU belum tervalidasi. Klik ke luar field SKU (blur) untuk cek stok."}
+                    className="h-11 pl-9"
+                    autoComplete="off"
+                  />
                 </div>
-              )}
+                <p className="text-xs text-muted-foreground">
+                  Stok akan dicek otomatis berdasarkan lokasi yang dipilih.
+                </p>
+              </div>
+
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>SKU</TableHead>
+                      <TableHead>Deskripsi</TableHead>
+                      <TableHead className="w-24 text-right">Stok</TableHead>
+                      <TableHead className="w-24 text-right">Qty</TableHead>
+                      <TableHead className="w-40 text-right">Harga</TableHead>
+                      <TableHead className="w-24 text-right">Diskon %</TableHead>
+                      <TableHead className="w-40 text-right">Total</TableHead>
+                      <TableHead className="w-12" />
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {items.map((it, idx) => {
+                      const gross = it.qty * it.price;
+                      const disc = (gross * it.discPercent) / 100;
+                      const overStock =
+                        it.available !== null && it.qty > it.available;
+                      return (
+                        <TableRow key={it.key}>
+                          <TableCell>
+                            <Input
+                              value={it.sku}
+                              onChange={(e) =>
+                                updateItem(idx, "sku", e.target.value)
+                              }
+                              onBlur={() => refreshAvailable(idx)}
+                              placeholder="SKU"
+                              className={cn(
+                                "h-9",
+                                it.sku && !it.itemId && "border-destructive",
+                              )}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Input
+                              value={it.description}
+                              onChange={(e) =>
+                                updateItem(idx, "description", e.target.value)
+                              }
+                              placeholder="Deskripsi (opsional)"
+                              className="h-9"
+                            />
+                          </TableCell>
+                          <TableCell className="text-right text-xs tabular-nums">
+                            {it.available === null ? (
+                              <span className="text-muted-foreground">—</span>
+                            ) : (
+                              <span
+                                className={cn(
+                                  overStock
+                                    ? "font-semibold text-destructive"
+                                    : "text-muted-foreground",
+                                )}
+                              >
+                                {it.available}
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Input
+                              type="text"
+                              inputMode="numeric"
+                              value={it.qty || ""}
+                              onChange={(e) =>
+                                updateItem(
+                                  idx,
+                                  "qty",
+                                  parseCurrency(e.target.value),
+                                )
+                              }
+                              className={cn(
+                                "h-9 text-right tabular-nums",
+                                overStock &&
+                                  "border-destructive ring-2 ring-destructive/20",
+                              )}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Input
+                              type="text"
+                              inputMode="numeric"
+                              value={
+                                it.price ? it.price.toLocaleString("id-ID") : ""
+                              }
+                              onChange={(e) =>
+                                updateItem(
+                                  idx,
+                                  "price",
+                                  parseCurrency(e.target.value),
+                                )
+                              }
+                              className="h-9 text-right tabular-nums"
+                              placeholder="0"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Input
+                              type="text"
+                              inputMode="numeric"
+                              value={it.discPercent || ""}
+                              onChange={(e) =>
+                                updateItem(
+                                  idx,
+                                  "discPercent",
+                                  Math.min(
+                                    100,
+                                    parseCurrency(e.target.value),
+                                  ),
+                                )
+                              }
+                              className="h-9 text-right tabular-nums"
+                              placeholder="0"
+                            />
+                          </TableCell>
+                          <TableCell className="text-right font-medium tabular-nums">
+                            {formatCurrency(gross - disc)}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeItem(idx)}
+                              disabled={items.length === 1}
+                            >
+                              <Trash2Icon className="size-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+
+              <div className="flex items-center justify-between gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setItems((p) => [...p, newLine()])}
+                >
+                  <PlusIcon className="mr-1 size-4" />
+                  Tambah Baris
+                </Button>
+
+                {(overStockItems.length > 0 || missingItemId) && (
+                  <div className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+                    {overStockItems.length > 0
+                      ? `Qty melebihi stok tersedia pada ${overStockItems.length} produk. Turunkan qty atau ganti lokasi.`
+                      : "Beberapa SKU belum tervalidasi. Klik ke luar field SKU (blur) untuk cek stok."}
+                  </div>
+                )}
+              </div>
             </div>
           </LiquidGlass>
 
-          <LiquidGlass radius={16} className="p-6">
-            <h2 className="mb-4 text-lg font-semibold">Penerima</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <Label>Nama *</Label>
+          {/* Penerima */}
+          <LiquidGlass radius={16} intensity="subtle" className="bg-white/40 dark:bg-white/[0.06]">
+            <div className="border-b border-border/60 px-5 py-4">
+              <h2 className="text-base font-semibold">Penerima</h2>
+            </div>
+            <div className="grid gap-4 px-5 py-5 md:grid-cols-2">
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">
+                  Nama <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   value={recipientName}
                   onChange={(e) => setRecipientName(e.target.value)}
                   placeholder="Nama penerima"
                 />
               </div>
-              <div>
-                <Label>No. Telepon</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">No. Telepon</Label>
                 <Input
                   value={recipientPhone}
                   onChange={(e) => setRecipientPhone(e.target.value)}
                   placeholder="No. telepon"
                 />
               </div>
-              <div className="md:col-span-2">
-                <Label>Alamat</Label>
+              <div className="flex flex-col gap-1.5 md:col-span-2">
+                <Label className="text-sm font-medium">Alamat</Label>
                 <Textarea
                   value={recipientAddress}
                   onChange={(e) => setRecipientAddress(e.target.value)}
@@ -742,22 +746,22 @@ export function PesananManualFormPage() {
                   rows={2}
                 />
               </div>
-              <div>
-                <Label>Kota</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">Kota</Label>
                 <Input
                   value={recipientCity}
                   onChange={(e) => setRecipientCity(e.target.value)}
                 />
               </div>
-              <div>
-                <Label>Provinsi</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">Provinsi</Label>
                 <Input
                   value={recipientProvince}
                   onChange={(e) => setRecipientProvince(e.target.value)}
                 />
               </div>
-              <div>
-                <Label>Kode Pos</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">Kode Pos</Label>
                 <Input
                   value={recipientPostCode}
                   onChange={(e) => setRecipientPostCode(e.target.value)}
@@ -766,11 +770,16 @@ export function PesananManualFormPage() {
             </div>
           </LiquidGlass>
 
-          <LiquidGlass radius={16} className="p-6">
-            <h2 className="mb-4 text-lg font-semibold">Pengiriman</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <Label>Metode Pengiriman *</Label>
+          {/* Pengiriman */}
+          <LiquidGlass radius={16} intensity="subtle" className="bg-white/40 dark:bg-white/[0.06]">
+            <div className="border-b border-border/60 px-5 py-4">
+              <h2 className="text-base font-semibold">Pengiriman</h2>
+            </div>
+            <div className="grid gap-4 px-5 py-5 md:grid-cols-2">
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">
+                  Metode Pengiriman <span className="text-destructive">*</span>
+                </Label>
                 <Combobox
                   options={deliveryOptions}
                   value={deliveryMethod}
@@ -783,8 +792,8 @@ export function PesananManualFormPage() {
                   placeholder="Pilih metode"
                 />
               </div>
-              <div>
-                <Label>Kurir</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">Kurir</Label>
                 <Combobox
                   options={courierOptions}
                   value={shippingProvider}
@@ -793,21 +802,23 @@ export function PesananManualFormPage() {
                   disabled={deliveryMethod !== "COURIER"}
                 />
               </div>
-              <div>
-                <Label>No. Resi</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">No. Resi</Label>
                 <Input
                   value={trackingNumber}
                   onChange={(e) => setTrackingNumber(e.target.value)}
                   placeholder="Masukkan no. resi"
                 />
               </div>
-              <div>
-                <Label>Total Berat (gram)</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">Total Berat (gram)</Label>
                 <Input
                   type="text"
                   inputMode="numeric"
                   value={totalWeight || ""}
-                  onChange={(e) => setTotalWeight(parseCurrency(e.target.value))}
+                  onChange={(e) =>
+                    setTotalWeight(parseCurrency(e.target.value))
+                  }
                   placeholder="0"
                 />
               </div>
@@ -827,9 +838,16 @@ export function PesananManualFormPage() {
           </LiquidGlass>
         </div>
 
-        <LiquidGlass radius={16} className="sticky top-6 h-fit p-6">
-          <h2 className="mb-4 text-base font-semibold">Rincian</h2>
-          <div className="space-y-3 text-sm">
+        {/* Rincian sidebar */}
+        <LiquidGlass
+          radius={16}
+          intensity="subtle"
+          className="sticky top-6 h-fit bg-white/40 dark:bg-white/[0.06]"
+        >
+          <div className="border-b border-border/60 px-5 py-4">
+            <h2 className="text-base font-semibold">Rincian</h2>
+          </div>
+          <div className="space-y-3 px-5 py-5 text-sm">
             <RowSum label={`Qty Total (${totals.productCount} produk)`}>
               {formatCurrency(totals.subTotal)}
             </RowSum>
@@ -877,6 +895,24 @@ export function PesananManualFormPage() {
             )}
           </div>
         </LiquidGlass>
+      </div>
+
+      {/* Batal / Simpan */}
+      <div className="flex justify-end gap-2">
+        <Button
+          variant="outline"
+          onClick={() => router.push("/dashboard/pesanan")}
+          disabled={createMut.isPending}
+        >
+          Batal
+        </Button>
+        <Button
+          variant="primary"
+          onClick={handleSubmit}
+          disabled={!canSubmit || createMut.isPending}
+        >
+          {createMut.isPending ? "Menyimpan…" : "Simpan"}
+        </Button>
       </div>
 
       <TambahPelangganDialog
