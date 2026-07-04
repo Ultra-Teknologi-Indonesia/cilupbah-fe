@@ -291,18 +291,7 @@ export function PelangganTab() {
         className="bg-white/30 dark:bg-white/[0.04]"
       >
         <div className="flex flex-wrap items-center justify-between gap-2 px-5 pt-4">
-          <div className="flex items-center gap-2">
-            {filterTabs}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExport}
-              disabled={items.length === 0}
-            >
-              <DownloadIcon className="mr-1.5 h-4 w-4" />
-              Export CSV
-            </Button>
-          </div>
+          {filterTabs}
         </div>
 
         <FilterToolbar
@@ -318,6 +307,18 @@ export function PelangganTab() {
           hasFilter={hasActiveFilter}
           activeCount={activeCount}
           gridCols={2}
+          leading={
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 rounded-full"
+              onClick={handleExport}
+              disabled={items.length === 0}
+            >
+              <DownloadIcon className="mr-1.5 h-4 w-4" />
+              Export CSV
+            </Button>
+          }
           trailing={
             <Button variant="primary" asChild>
               <Link href="/dashboard/kontak-pelanggan/tambah">
