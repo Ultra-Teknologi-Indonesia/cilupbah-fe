@@ -227,6 +227,7 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <PageTitle
         title={title}
+        backHref={LIST_HREF}
         breadcrumb={[
           { label: "Penjualan" },
           { label: "Kontak Pelanggan", href: LIST_HREF },
@@ -288,20 +289,19 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
           {section === "pajak" && (
             <PajakTab form={form} set={set} disabled={locked} />
           )}
-
-          <Separator className="mt-6" />
-          <div className="mt-6 flex items-center justify-end gap-2">
-            <Button variant="outline" asChild>
-              <Link href={LIST_HREF}>Batal</Link>
-            </Button>
-            {!locked && (
-              <Button type="submit" variant="primary" disabled={saving}>
-                {saving && <Loader2Icon className="animate-spin" />}
-                Simpan
-              </Button>
-            )}
-          </div>
         </div>
+      </div>
+
+      <div className="flex items-center justify-end gap-2">
+        <Button variant="outline" asChild>
+          <Link href={LIST_HREF}>Batal</Link>
+        </Button>
+        {!locked && (
+          <Button type="submit" variant="primary" disabled={saving}>
+            {saving && <Loader2Icon className="animate-spin" />}
+            Simpan
+          </Button>
+        )}
       </div>
     </form>
   );
