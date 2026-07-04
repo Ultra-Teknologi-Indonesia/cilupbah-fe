@@ -276,11 +276,6 @@ export function PicklistTable() {
           data={picklists}
           isLoading={isLoading}
           hideToolbar
-          getRowClassName={(row) =>
-            row.hasInstant
-              ? "bg-warning/10 hover:bg-warning/10 border-l-2 border-l-warning"
-              : undefined
-          }
           manualPagination
           pagination={{
             pageIndex: meta.current_page - 1,

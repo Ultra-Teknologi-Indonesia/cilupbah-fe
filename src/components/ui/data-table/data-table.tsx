@@ -211,7 +211,7 @@ export function DataTable<TData, TValue>({
 
       <div
         className={cn(
-          "overflow-hidden rounded-2xl border border-border bg-card backdrop-blur-xl",
+          "overflow-hidden rounded-t-2xl border border-border bg-card backdrop-blur-xl",
           tableContainerClassName,
         )}
       >
