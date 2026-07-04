@@ -11,13 +11,6 @@ import { BulkActionBar } from "@/components/ui/bulk-action-bar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   SimplePagination,
   GRID_PAGE_SIZES,
 } from "@/components/ui/simple-pagination";
@@ -27,6 +20,8 @@ import {
   FulfillmentFilterBar,
   type FulfillmentFilterValue,
 } from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar";
+import { UserSelectById } from "@/components/dashboard/shared/user-select-by-id";
+import { useMe } from "@/hooks/auth/use-auth";
 import {
   fulfillmentKeys,
   useCreatePicklist,
@@ -102,6 +97,15 @@ export function ReadyToProcessCardList() {
 
   const pickers = usePickers(locationId ?? undefined, undefined, !!locationId);
   const createPicklist = useCreatePicklist();
+  const { data: me } = useMe();
+  const pickerOptions = React.useMemo(
+    () =>
+      (pickers.data ?? []).map((p) => ({
+        id: p.id,
+        name: p.name,
+      })),
+    [pickers.data],
+  );
   const selectedPicker = pickers.data?.find((p) => p.id === pickerId) ?? null;
 
   const prevLocationRef = React.useRef<string | null>(locationId);
@@ -273,26 +277,19 @@ export function ReadyToProcessCardList() {
                       <span className="text-xs text-muted-foreground">
                         Picker
                       </span>
-                      <Select
+                      <UserSelectById
                         value={pickerId}
-                        onValueChange={setPickerId}
+                        onChange={(id) => setPickerId(id)}
+                        options={pickerOptions}
+                        isLoading={pickers.isLoading}
+                        currentUserId={me?.id}
                         disabled={!locationId || pickers.isLoading}
-                      >
-                        <SelectTrigger className="h-9 w-56">
-                          <SelectValue
-                            placeholder={
-                              pickers.isLoading ? "Memuat…" : "Pilih picker…"
-                            }
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {pickers.data?.map((p) => (
-                            <SelectItem key={p.id} value={p.id}>
-                              {p.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        placeholder={
+                          pickers.isLoading ? "Memuat…" : "Pilih picker…"
+                        }
+                        emptyText="Tidak ada picker di lokasi ini."
+                        className="w-72"
+                      />
                     </div>
                     <Button
                       variant="primary"
