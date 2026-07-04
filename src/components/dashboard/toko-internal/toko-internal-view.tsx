@@ -5,13 +5,11 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   PencilIcon,
-  PlusIcon,
   SearchIcon,
   StoreIcon,
   Trash2Icon,
 } from "lucide-react";
 
-import { PageTitle } from "@/components/dashboard/page-title";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -59,22 +57,9 @@ export function TokoInternalView() {
   }, [debouncedQuery, isLoading]);
 
   return (
-    <div className="flex flex-col gap-6">
-      <PageTitle
-        title="Toko Internal"
-        breadcrumb={[{ label: "Penjualan" }, { label: "Toko Internal" }]}
-        actions={
-          <Button asChild>
-            <Link href="/dashboard/toko-internal/tambah">
-              <PlusIcon className="mr-1 size-4" />
-              Tambah Toko
-            </Link>
-          </Button>
-        }
-      />
-
-      <LiquidGlass radius={16} className="p-4">
-        <div className="mb-4 flex flex-wrap items-center gap-3">
+    <>
+      <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
+        <div className="mb-4 flex flex-wrap items-center gap-3 px-5 pt-5 sm:px-6">
           <div className="relative min-w-56 flex-1">
             <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -169,7 +154,7 @@ export function TokoInternalView() {
         </div>
 
         {meta && meta.last_page > 1 && (
-          <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
+          <div className="mt-4 flex items-center justify-between px-5 pb-5 text-sm text-muted-foreground sm:px-6">
             <div>
               Menampilkan {items.length} dari {meta.total} toko
             </div>
@@ -210,6 +195,6 @@ export function TokoInternalView() {
           setPendingDelete(null);
         }}
       />
-    </div>
+    </>
   );
 }
