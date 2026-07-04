@@ -482,7 +482,11 @@ export const OutboundService = {
   },
   scanForPick: async (
     picklistId: string,
-    payload: { sku: string; bin_code: string },
+    payload: {
+      sku: string;
+      bin_code?: string | null;
+      hint_active_bin_code?: string | null;
+    },
   ): Promise<{
     item_id: string;
     sku: string;
@@ -490,6 +494,8 @@ export const OutboundService = {
     available_in_bin: number;
     remaining_to_pick: number;
     max_pickable: number;
+    bin_source: "auto" | "manual" | "hint";
+    candidates: Array<{ bin_id: string; bin_code: string; on_hand: number }>;
   }> => {
     const res = await fetchClient<{
       data: {
@@ -499,6 +505,12 @@ export const OutboundService = {
         available_in_bin: number;
         remaining_to_pick: number;
         max_pickable: number;
+        bin_source: "auto" | "manual" | "hint";
+        candidates: Array<{
+          bin_id: string;
+          bin_code: string;
+          on_hand: number;
+        }>;
       };
     }>(`/outbound/picklists/${picklistId}/scan`, {
       method: "POST",

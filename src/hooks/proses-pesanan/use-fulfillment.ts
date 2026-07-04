@@ -306,11 +306,18 @@ export function useScanForPick() {
       picklistId,
       sku,
       binCode,
+      hintActiveBinCode,
     }: {
       picklistId: string;
       sku: string;
-      binCode: string;
-    }) => OutboundService.scanForPick(picklistId, { sku, bin_code: binCode }),
+      binCode?: string | null;
+      hintActiveBinCode?: string | null;
+    }) =>
+      OutboundService.scanForPick(picklistId, {
+        sku,
+        bin_code: binCode ?? null,
+        hint_active_bin_code: hintActiveBinCode ?? null,
+      }),
   });
 }
 

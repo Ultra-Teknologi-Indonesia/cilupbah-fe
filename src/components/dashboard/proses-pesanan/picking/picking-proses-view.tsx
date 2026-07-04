@@ -45,6 +45,13 @@ import {
 import { ScanAutoflowBar } from "@/components/dashboard/shared/scan-autoflow-bar";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { QtyConfirmInput } from "@/components/ui/qty-confirm-input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { playScanFeedback } from "@/lib/scan-feedback";
 import { BIN_CODE_PATTERN } from "@/lib/validators/bin-code";
 
@@ -107,6 +114,12 @@ export function PickingProsesView({ id }: { id: string }) {
   const [pickQty, setPickQty] = React.useState("");
 
   const [activePickMax, setActivePickMax] = React.useState(0);
+  const [activeCandidates, setActiveCandidates] = React.useState<
+    Array<{ bin_id: string; bin_code: string; on_hand: number }>
+  >([]);
+  const [activeChosenBinCode, setActiveChosenBinCode] = React.useState<
+    string | null
+  >(null);
 
   const { data: pl, isLoading, isError } = usePicklistDetail(id);
   const startPicklist = useStartPicklist();
@@ -170,15 +183,15 @@ export function PickingProsesView({ id }: { id: string }) {
     const code = rawCode.trim();
     if (!code) return;
     if (!editable) return;
-    if (!scannedBinCode) {
-      playScanFeedback("error");
-      toast.warning("Scan kode rak dulu sebelum scan SKU.");
-      binScanRef.current?.focus();
-      return;
-    }
-    if (BIN_CODE_PATTERN.test(code) || code === scannedBinCode) {
+    if (BIN_CODE_PATTERN.test(code)) {
       playScanFeedback("error");
       toast.error(`"${code}" adalah kode rak, bukan SKU produk.`);
+      setSkuRefocusKey((k) => k + 1);
+      return;
+    }
+    if (scannedBinCode && code === scannedBinCode) {
+      playScanFeedback("error");
+      toast.error(`"${code}" adalah kode rak aktif, bukan SKU produk.`);
       setSkuRefocusKey((k) => k + 1);
       return;
     }
@@ -187,27 +200,32 @@ export function PickingProsesView({ id }: { id: string }) {
       const res = await scanForPick.mutateAsync({
         picklistId: id,
         sku: code,
-        binCode: scannedBinCode,
+        binCode: null,
+        hintActiveBinCode: scannedBinCode,
       });
       playScanFeedback("ok");
+      setScannedBinCode(res.bin_code);
       setActiveItemId(res.item_id);
       setActivePickMax(res.max_pickable);
       setPickQty(String(res.max_pickable));
+      setActiveCandidates(res.candidates ?? []);
+      setActiveChosenBinCode(res.bin_code);
+      if ((res.candidates?.length ?? 0) > 1) {
+        toast.info(
+          `SKU ada di ${res.candidates.length} rak. Default ambil dari ${res.bin_code}. Ganti kalau perlu.`,
+        );
+      }
       setTimeout(() => qtyInputRef.current?.focus(), 50);
     } catch (e) {
       playScanFeedback("error");
-      toast.error(
-        errMsg(
-          e,
-          `SKU "${code}" tidak bisa diambil dari rak ${scannedBinCode}.`,
-        ),
-      );
+      toast.error(errMsg(e, `SKU "${code}" tidak bisa diambil.`));
       setSkuRefocusKey((k) => k + 1);
     }
   };
 
   const handleConfirmPick = () => {
-    if (!activeItem || !scannedBinCode) return;
+    const binCodeForCommit = activeChosenBinCode ?? scannedBinCode;
+    if (!activeItem || !binCodeForCommit) return;
     const qty = Number.parseInt(pickQty, 10);
     if (Number.isNaN(qty) || qty <= 0) {
       playScanFeedback("error");
@@ -226,16 +244,19 @@ export function PickingProsesView({ id }: { id: string }) {
         picklistId: id,
         itemId: activeItem.id,
         qtyPicked: activeItem.qtyPicked + qty,
-        binCode: scannedBinCode,
+        binCode: binCodeForCommit,
       },
       {
         onSuccess: () => {
           playScanFeedback("ok");
           toast.success(
-            `Stok terpotong: ${activeItem.sku} × ${qty} @ ${scannedBinCode} (${activeItem.qtyPicked + qty}/${activeItem.qtyOrdered}).`,
+            `Stok terpotong: ${activeItem.sku} × ${qty} @ ${binCodeForCommit} (${activeItem.qtyPicked + qty}/${activeItem.qtyOrdered}).`,
           );
+          setScannedBinCode(binCodeForCommit);
           setActiveItemId(null);
           setPickQty("");
+          setActiveCandidates([]);
+          setActiveChosenBinCode(null);
           setSkuRefocusKey((k) => k + 1);
         },
         onError: (e) => {
@@ -250,6 +271,8 @@ export function PickingProsesView({ id }: { id: string }) {
     setActiveItemId(null);
     setPickQty("");
     setActivePickMax(0);
+    setActiveCandidates([]);
+    setActiveChosenBinCode(null);
     setSkuRefocusKey((k) => k + 1);
   };
 
@@ -380,10 +403,11 @@ export function PickingProsesView({ id }: { id: string }) {
             <div className="rounded-lg border border-border bg-card p-4">
               <div className="flex items-center gap-2">
                 <ScanBarcodeIcon className="size-4 text-muted-foreground" />
-                <div className="text-sm font-medium">Ganti Rak</div>
+                <div className="text-sm font-medium">Ganti Rak (opsional)</div>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                Scan kode rak yang menjadi sumber pengambilan berikutnya.
+                Scan bila mau memaksa ambil dari rak tertentu. Bila kosong,
+                sistem otomatis memilih rak berdasarkan stok.
               </p>
               <div className="mt-3 flex h-20 items-center justify-center rounded-xl border border-dashed border-border bg-muted/30">
                 <ScanBarcodeIcon className="size-8 text-muted-foreground/60" />
@@ -420,8 +444,7 @@ export function PickingProsesView({ id }: { id: string }) {
                     disabled={
                       !editable ||
                       pickItem.isPending ||
-                      scanForPick.isPending ||
-                      !scannedBinCode
+                      scanForPick.isPending
                     }
                     autoFocus
                     refocusKey={skuRefocusKey}
@@ -429,7 +452,7 @@ export function PickingProsesView({ id }: { id: string }) {
                     hint={
                       scannedBinCode
                         ? `Rak aktif: ${scannedBinCode}. Enter setelah scan SKU.`
-                        : "Scan kode rak dulu sebelum scan SKU."
+                        : "Scan SKU langsung — sistem akan sarankan raknya."
                     }
                     sound={false}
                   />
@@ -463,7 +486,9 @@ export function PickingProsesView({ id }: { id: string }) {
                       <DialogTitle>Konfirmasi Pick</DialogTitle>
                       <DialogDescription>
                         Masukkan jumlah yang diambil dari rak{" "}
-                        <span className="font-semibold">{scannedBinCode}</span>
+                        <span className="font-semibold">
+                          {activeChosenBinCode ?? scannedBinCode ?? "—"}
+                        </span>
                       </DialogDescription>
                     </DialogHeader>
                     <div className="flex items-start gap-4 py-2">
@@ -498,6 +523,42 @@ export function PickingProsesView({ id }: { id: string }) {
                         </div>
                       </div>
                     </div>
+                    {activeCandidates.length > 1 && (
+                      <div className="flex items-center gap-3 pt-2">
+                        <label className="shrink-0 text-sm font-medium text-foreground">
+                          Ambil dari rak
+                        </label>
+                        <Select
+                          value={activeChosenBinCode ?? ""}
+                          onValueChange={(v) => {
+                            setActiveChosenBinCode(v);
+                            const picked = activeCandidates.find(
+                              (c) => c.bin_code === v,
+                            );
+                            if (picked) {
+                              const nextMax = Math.min(
+                                picked.on_hand,
+                                activeItem.qtyOrdered - activeItem.qtyPicked,
+                              );
+                              setActivePickMax(nextMax);
+                              setPickQty(String(nextMax));
+                            }
+                          }}
+                          disabled={pickItem.isPending}
+                        >
+                          <SelectTrigger className="h-10 flex-1">
+                            <SelectValue placeholder="Pilih rak" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {activeCandidates.map((c) => (
+                              <SelectItem key={c.bin_id} value={c.bin_code}>
+                                {c.bin_code} · tersedia {c.on_hand}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                     <div className="flex items-center gap-3 pt-2">
                       <label className="shrink-0 text-sm font-medium text-foreground">
                         Qty ambil
