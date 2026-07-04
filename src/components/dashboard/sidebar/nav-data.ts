@@ -198,6 +198,12 @@ export const dashboardGroups: NavGroup[] = [
         icon: Archive,
         link: "/dashboard/lokasi",
       },
+      {
+        id: "permintaan-restock",
+        title: "Permintaan Pengisian Stok",
+        icon: HandCoins,
+        link: "/dashboard/permintaan-restock",
+      },
     ],
   },
 

@@ -26,7 +26,6 @@ import { NotificationsPopover } from "./nav-notifications";
 import {
   dashboardGroups,
   settingsRoutes,
-  sampleNotifications,
   isLeafGroup,
   type NavGroup,
   type NavZone,
@@ -161,7 +160,7 @@ export function SidebarRailNav({
 
       <div className="flex w-full flex-col items-center gap-1 pt-1">
         <RailDivider />
-        <NotificationsPopover notifications={sampleNotifications} />
+        <NotificationsPopover />
         {settingsRoutes.map((route) => {
           const isActive =
             pathname === route.link ||

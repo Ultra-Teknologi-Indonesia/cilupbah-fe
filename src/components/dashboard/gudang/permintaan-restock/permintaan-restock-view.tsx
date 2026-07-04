@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -73,18 +74,26 @@ export function PermintaanRestockView() {
         ]}
       />
 
-      <div className="flex flex-wrap items-center gap-2">
-        {STATUS_TABS.map((t) => (
-          <Button
-            key={t.value}
-            size="sm"
-            variant={status === t.value ? "primary" : "outline"}
-            onClick={() => setStatus(t.value)}
-          >
-            {t.label}
-          </Button>
-        ))}
-      </div>
+      <LiquidGlass
+        radius={999}
+        intensity="subtle"
+        className="w-fit bg-white/40 p-1 dark:bg-white/[0.06]"
+      >
+        <Tabs
+          value={status}
+          onValueChange={(v) =>
+            setStatus(v as StockReplenishmentStatus | "ALL")
+          }
+        >
+          <TabsList className="bg-transparent">
+            {STATUS_TABS.map((t) => (
+              <TabsTrigger key={t.value} value={t.value}>
+                {t.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      </LiquidGlass>
 
       <LiquidGlass
         radius={16}
