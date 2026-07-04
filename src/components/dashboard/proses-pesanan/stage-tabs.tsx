@@ -37,7 +37,6 @@ export function StageTabs() {
               key={key}
               value={key}
               asChild
-              className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
             >
               <Link href={`/dashboard/proses-pesanan/${key}`}>{label}</Link>
             </TabsTrigger>
