@@ -2,12 +2,14 @@
 
 import * as React from "react";
 import { FilterIcon, SearchIcon, XIcon } from "lucide-react";
+import { format, parse, isValid } from "date-fns";
+import type { DateRange } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { DateRangePicker } from "@/components/ui/date-picker";
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useCouriers } from "@/hooks/proses-pesanan/use-fulfillment";
@@ -114,32 +116,48 @@ function FilterRadioGroup({
   allLabel?: string;
 }) {
   const items = [{ value: "__all", label: allLabel }, ...options];
+  const current = value ?? "__all";
   return (
-    <RadioGroup
-      value={value ?? "__all"}
-      onValueChange={(v) => onValueChange(v === "__all" ? undefined : v)}
-      className="flex flex-wrap items-center gap-x-4 gap-y-1.5"
+    <div
+      role="radiogroup"
+      aria-label={name}
+      className="inline-flex w-fit flex-wrap items-center gap-1 rounded-full border border-border/60 bg-muted/40 p-1"
     >
       {items.map((opt) => {
-        const id = `${name}-${opt.value}`;
+        const selected = current === opt.value;
         return (
-          <label
+          <button
             key={opt.value}
-            htmlFor={id}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            onClick={() =>
+              onValueChange(opt.value === "__all" ? undefined : opt.value)
+            }
             className={cn(
-              "flex cursor-pointer items-center gap-1.5 rounded-full border border-transparent px-2 py-1 text-sm transition-colors",
-              (value ?? "__all") === opt.value
-                ? "border-primary/30 bg-primary/5 text-primary"
-                : "text-foreground hover:bg-muted/50",
+              "rounded-full px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+              selected
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:bg-background/60 hover:text-foreground",
             )}
           >
-            <RadioGroupItem id={id} value={opt.value} />
-            <span>{opt.label}</span>
-          </label>
+            {opt.label}
+          </button>
         );
       })}
-    </RadioGroup>
+    </div>
   );
+}
+
+function parseISODate(s: string | undefined): Date | undefined {
+  if (!s) return undefined;
+  const d = parse(s, "yyyy-MM-dd", new Date());
+  return isValid(d) ? d : undefined;
+}
+
+function toISODate(d: Date | undefined): string | undefined {
+  if (!d) return undefined;
+  return format(d, "yyyy-MM-dd");
 }
 
 export function FulfillmentFilterBar({
@@ -245,59 +263,61 @@ export function FulfillmentFilterBar({
   return (
     <div className={cn("border-b border-border/40", className)}>
       <div className="flex flex-wrap items-center gap-2 px-4 py-2.5 sm:px-5">
-        {onSearchChange != null && (
-          <div className="relative w-full sm:w-auto sm:min-w-[220px]">
-            <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={search ?? ""}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder={searchPlaceholder}
-              className="h-9 rounded-full bg-background pl-9 pr-8"
-            />
-            {(search?.length ?? 0) > 0 && (
-              <button
-                type="button"
-                onClick={() => onSearchChange("")}
-                aria-label="Bersihkan pencarian"
-                className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                <XIcon className="size-3.5" />
-              </button>
-            )}
-          </div>
-        )}
-
-        {hasChildren && (
-          <Button
-            variant={open ? "secondary" : "outline"}
-            size="sm"
-            className={cn(
-              "h-9 gap-2 rounded-full transition-colors",
-              open && "bg-primary/10 text-primary hover:bg-primary/15",
-              !open && activeCount > 0 && "border-primary/40 text-primary",
-            )}
-            onClick={() => setOpen(!open)}
-          >
-            <FilterIcon className="size-4" />
-            Filter
-            {activeCount > 0 && (
-              <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
-                {activeCount}
-              </span>
-            )}
-          </Button>
-        )}
-
         {hasFilter && (
           <button
             type="button"
             onClick={reset}
-            className="ml-auto flex items-center gap-1 text-sm font-medium text-destructive transition-colors hover:text-destructive/80"
+            className="flex items-center gap-1 text-sm font-medium text-destructive transition-colors hover:text-destructive/80"
           >
             <XIcon className="size-3.5" />
             Reset
           </button>
         )}
+
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          {onSearchChange != null && (
+            <div className="relative w-full sm:w-auto sm:min-w-[220px]">
+              <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={search ?? ""}
+                onChange={(e) => onSearchChange(e.target.value)}
+                placeholder={searchPlaceholder}
+                className="h-9 rounded-full bg-background pl-9 pr-8"
+              />
+              {(search?.length ?? 0) > 0 && (
+                <button
+                  type="button"
+                  onClick={() => onSearchChange("")}
+                  aria-label="Bersihkan pencarian"
+                  className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  <XIcon className="size-3.5" />
+                </button>
+              )}
+            </div>
+          )}
+
+          {hasChildren && (
+            <Button
+              variant={open ? "secondary" : "outline"}
+              size="sm"
+              className={cn(
+                "h-9 gap-2 rounded-full transition-colors",
+                open && "bg-primary/10 text-primary hover:bg-primary/15",
+                !open && activeCount > 0 && "border-primary/40 text-primary",
+              )}
+              onClick={() => setOpen(!open)}
+            >
+              <FilterIcon className="size-4" />
+              Filter
+              {activeCount > 0 && (
+                <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
+                  {activeCount}
+                </span>
+              )}
+            </Button>
+          )}
+        </div>
       </div>
 
       {hasChildren && (
@@ -415,25 +435,22 @@ export function FulfillmentFilterBar({
               )}
               {includes("date") && (
                 <FieldWrapper label="Tanggal">
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="date"
-                      value={value.date_from ?? ""}
-                      onChange={(e) =>
-                        patch({ date_from: e.target.value || undefined })
-                      }
-                      className="h-10 rounded-full"
-                    />
-                    <span className="text-xs text-muted-foreground">s/d</span>
-                    <Input
-                      type="date"
-                      value={value.date_to ?? ""}
-                      onChange={(e) =>
-                        patch({ date_to: e.target.value || undefined })
-                      }
-                      className="h-10 rounded-full"
-                    />
-                  </div>
+                  <DateRangePicker
+                    value={
+                      {
+                        from: parseISODate(value.date_from),
+                        to: parseISODate(value.date_to),
+                      } as DateRange
+                    }
+                    onChange={(range) =>
+                      patch({
+                        date_from: toISODate(range?.from),
+                        date_to: toISODate(range?.to),
+                      })
+                    }
+                    placeholder="Pilih rentang tanggal"
+                    className="h-9 rounded-full"
+                  />
                 </FieldWrapper>
               )}
             </div>

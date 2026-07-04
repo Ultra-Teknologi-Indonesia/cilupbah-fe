@@ -14,13 +14,6 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   FulfillmentFilterBar,
   type FulfillmentFilterValue,
 } from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar";
@@ -42,7 +35,6 @@ import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { UbahPickerDialog } from "./ubah-picker-dialog";
 
 const STATUS_OPTIONS = [
-  { value: "__all", label: "Semua Status" },
   { value: "DRAFT", label: "Draft" },
   { value: "IN_PROGRESS", label: "Diproses" },
   { value: "COMPLETED", label: "Selesai" },
@@ -75,7 +67,6 @@ export function PicklistTable() {
   const [search, setSearch] = React.useState("");
   const [debounced, setDebounced] = React.useState("");
   const [page, setPage] = React.useState(1);
-  const [status, setStatus] = React.useState<string>("");
   const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
   const [editPicker, setEditPicker] = React.useState<Picklist | null>(null);
 
@@ -87,7 +78,7 @@ export function PicklistTable() {
   const params = React.useMemo(
     () => ({
       q: debounced || undefined,
-      status: status || undefined,
+      status: filter.status || undefined,
       shipping_provider: filter.shipping_provider,
       location_id: filter.location_id,
       source: filter.source,
@@ -99,7 +90,7 @@ export function PicklistTable() {
       page,
       per_page: 20,
     }),
-    [debounced, status, filter, page],
+    [debounced, filter, page],
   );
   const { data, isLoading, isFetching, refetch } = usePicklists(params);
 
@@ -246,6 +237,7 @@ export function PicklistTable() {
           setPage(1);
         }}
         fields={[
+          "status",
           "courier",
           "location",
           "channel",
@@ -254,6 +246,7 @@ export function PicklistTable() {
           "date",
           "zone",
         ]}
+        statusOptions={STATUS_OPTIONS}
         search={search}
         onSearchChange={(v) => {
           setSearch(v);
@@ -261,43 +254,20 @@ export function PicklistTable() {
         }}
         searchPlaceholder="Cari no. picklist…"
       />
-      <div className="flex flex-wrap items-center gap-3 border-b border-border/40 px-4 py-2 sm:px-5">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Status</span>
-          <Select
-            value={status || "__all"}
-            onValueChange={(v) => {
-              setStatus(v === "__all" ? "" : v);
-              setPage(1);
-            }}
-          >
-            <SelectTrigger className="h-9 w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {STATUS_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground">
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="rounded-full p-1.5 transition-colors hover:bg-muted"
-            aria-label="Muat ulang"
-          >
-            <RefreshCwIcon
-              className={cn("size-4", isFetching && "animate-spin")}
-            />
-          </button>
-          <span className="flex items-center gap-1.5">
-            Total <Badge>{meta.total}</Badge>
-          </span>
-        </div>
+      <div className="flex flex-wrap items-center justify-end gap-3 border-b border-border/40 px-4 py-2 text-sm text-muted-foreground sm:px-5">
+        <button
+          type="button"
+          onClick={() => refetch()}
+          className="rounded-full p-1.5 transition-colors hover:bg-muted"
+          aria-label="Muat ulang"
+        >
+          <RefreshCwIcon
+            className={cn("size-4", isFetching && "animate-spin")}
+          />
+        </button>
+        <span className="flex items-center gap-1.5">
+          Total <Badge>{meta.total}</Badge>
+        </span>
       </div>
 
       <div className="px-4 pb-4 sm:px-5">
