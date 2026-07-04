@@ -607,7 +607,7 @@ export function PickingProsesView({ id }: { id: string }) {
             >
               <TableHeader>
                 <TableRow className="border-b border-border bg-muted/40 text-left text-muted-foreground">
-                  <TableHead className="px-3 py-3 text-muted-foreground">
+                  <TableHead className="w-[320px] max-w-[320px] px-3 py-3 text-muted-foreground">
                     Produk
                   </TableHead>
                   <TableHead className="px-3 py-3 text-muted-foreground">
@@ -661,21 +661,21 @@ export function PickingProsesView({ id }: { id: string }) {
                             "bg-primary/[0.06] ring-1 ring-inset ring-primary/20",
                         )}
                       >
-                        <TableCell className="px-3 py-3">
+                        <TableCell className="w-[320px] max-w-[320px] px-3 py-3 align-top">
                           <div className="flex items-start gap-3">
                             <ItemImage
                               src={it.imageUrl}
                               alt={it.name ?? it.sku}
                             />
-                            <div className="flex min-w-0 flex-col gap-0.5">
-                              <span className="font-medium text-foreground">
+                            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                              <span className="whitespace-normal break-words font-medium text-foreground">
                                 {it.name ?? it.sku}
                               </span>
-                              <span className="font-mono text-xs text-foreground/70">
+                              <span className="whitespace-normal break-all font-mono text-xs text-foreground/70">
                                 {it.sku}
                               </span>
                               {it.variantName && (
-                                <span className="text-xs text-muted-foreground">
+                                <span className="whitespace-normal break-words text-xs text-muted-foreground">
                                   {it.variantName}
                                 </span>
                               )}
