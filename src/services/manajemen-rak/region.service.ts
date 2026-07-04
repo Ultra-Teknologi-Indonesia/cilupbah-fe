@@ -2,6 +2,20 @@ import { fetchClient } from "@/lib/api-client";
 import type { ApiResponse } from "@/types/api.types";
 import type { RegionOption } from "@/types/manajemen-rak/location";
 
+export interface CountryOption {
+  id: number;
+  alpha2: string;
+  alpha3: string;
+  name: string;
+}
+
+type RawCountry = {
+  id: number | string;
+  alpha2: string;
+  alpha3: string;
+  name: string;
+};
+
 type RawRegion = {
   id: string | number;
   nama: string;
@@ -25,6 +39,19 @@ function mapRegion(raw: RawRegion): RegionOption {
 }
 
 export const RegionService = {
+  countries: async (search?: string): Promise<CountryOption[]> => {
+    const qs = search ? `?search=${encodeURIComponent(search)}` : "";
+    const res = await fetchClient<ApiResponse<RawCountry[]>>(
+      `/regions/countries${qs}`,
+    );
+    return (res.data ?? []).map((c) => ({
+      id: Number(c.id),
+      alpha2: c.alpha2,
+      alpha3: c.alpha3,
+      name: c.name,
+    }));
+  },
+
   provinces: async (): Promise<RegionOption[]> => {
     const res =
       await fetchClient<ApiResponse<RawRegion[]>>(`/regions/provinces`);

@@ -42,7 +42,6 @@ export interface ContactItem {
   is_company: boolean;
   account_payable: string | null;
   category: ContactCategory | null;
-  salesman: { id: string; name: string; code: string } | null;
   source: string | null;
   nationality: string | null;
   birth_date: string | null;
@@ -54,7 +53,6 @@ export interface ContactItem {
   npwp_use_different: boolean;
   npwp_name: string | null;
   npwp_address: string | null;
-  salesman_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -107,7 +105,6 @@ export interface ContactFormData {
   npwp_use_different?: boolean;
   npwp_name?: string;
   npwp_address?: string;
-  salesman_id?: string;
 }
 
 export interface CategoryFormData {

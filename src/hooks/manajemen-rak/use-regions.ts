@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { RegionService } from "@/services/manajemen-rak/region.service";
 
 const regionKeys = {
+  countries: ["pengaturan", "regions", "countries"] as const,
   provinces: ["pengaturan", "regions", "provinces"] as const,
   cities: (provinceId: string) =>
     ["pengaturan", "regions", "cities", provinceId] as const,
@@ -15,6 +16,14 @@ const regionKeys = {
 };
 
 const STALE = 60 * 60 * 1000;
+
+export function useCountries() {
+  return useQuery({
+    queryKey: regionKeys.countries,
+    queryFn: () => RegionService.countries(),
+    staleTime: STALE,
+  });
+}
 
 export function useProvinces() {
   return useQuery({

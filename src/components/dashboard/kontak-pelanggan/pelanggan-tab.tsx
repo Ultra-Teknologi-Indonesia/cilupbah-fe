@@ -164,15 +164,6 @@ export function PelangganTab() {
         ),
       },
       {
-        id: "salesman",
-        header: "Salesman",
-        cell: ({ row }) => (
-          <span className="text-foreground">
-            {row.original.salesman?.name ?? "—"}
-          </span>
-        ),
-      },
-      {
         id: "actions",
         header: () => <div className="text-right">Aksi</div>,
         cell: ({ row }) => {

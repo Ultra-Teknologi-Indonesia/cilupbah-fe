@@ -15,6 +15,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -25,8 +32,7 @@ import {
   useCreateContact,
   useUpdateContact,
 } from "@/hooks/kontak-pemasok/use-contacts";
-import { useAllSalesmen } from "@/hooks/kontak-pemasok/use-salesman";
-import { useProvinces } from "@/hooks/manajemen-rak/use-regions";
+import { useCountries, useProvinces } from "@/hooks/manajemen-rak/use-regions";
 import {
   LocationMapPicker,
   formatCoordinate,
@@ -70,7 +76,7 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
   const detail = useContactDetail(mode === "edit" ? id : undefined);
   const { data: categories = [] } = useContactCategories();
   const { data: accountPayableOptions = [] } = useAccountPayableOptions();
-  const { data: salesmen = [] } = useAllSalesmen();
+  const countries = useCountries();
   const provinces = useProvinces();
   const createContact = useCreateContact();
   const updateContact = useUpdateContact();
@@ -129,7 +135,6 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
         npwp_use_different: d.npwp_use_different ?? false,
         npwp_name: d.npwp_name ?? undefined,
         npwp_address: d.npwp_address ?? undefined,
-        salesman_id: d.salesman_id ?? undefined,
       });
       if (d.latitude != null && d.longitude != null) {
         setCoordinate(formatCoordinate(d.latitude, d.longitude));
@@ -211,9 +216,9 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
     label: o.name,
   }));
 
-  const salesmanOptions = salesmen.map((s) => ({
-    value: s.id,
-    label: `${s.code} - ${s.name}`,
+  const countryOptions = (countries.data ?? []).map((c) => ({
+    value: c.name,
+    label: c.name,
   }));
 
   const navItems: { key: Section; label: string }[] = [
@@ -269,7 +274,8 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
               disabled={locked}
               categoryOptions={categoryOptions}
               apOptions={apOptions}
-              salesmanOptions={salesmanOptions}
+              countryOptions={countryOptions}
+              countriesLoading={countries.isLoading}
             />
           )}
           {section === "pic" && (
@@ -313,7 +319,8 @@ function UmumTab({
   disabled,
   categoryOptions,
   apOptions,
-  salesmanOptions,
+  countryOptions,
+  countriesLoading,
 }: {
   form: ContactFormData;
   set: <K extends keyof ContactFormData>(
@@ -323,21 +330,43 @@ function UmumTab({
   disabled: boolean;
   categoryOptions: { value: string; label: string }[];
   apOptions: { value: string; label: string }[];
-  salesmanOptions: { value: string; label: string }[];
+  countryOptions: { value: string; label: string }[];
+  countriesLoading: boolean;
 }) {
   return (
     <div className="space-y-5">
-      <div className="space-y-1.5">
-        <Label>
-          Nama Kontak
-          <Req />
-        </Label>
-        <Input
-          value={form.name}
-          onChange={(e) => set("name", e.target.value)}
-          placeholder="Masukkan nama kontak"
-          disabled={disabled}
-        />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label>
+            Tipe
+            <Req />
+          </Label>
+          <Select
+            value={form.type}
+            onValueChange={(v) => set("type", v as "CUSTOMER" | "BOTH")}
+            disabled={disabled}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Pilih tipe" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="CUSTOMER">Pelanggan</SelectItem>
+              <SelectItem value="BOTH">Pemasok dan Pelanggan</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1.5">
+          <Label>
+            Nama Kontak
+            <Req />
+          </Label>
+          <Input
+            value={form.name}
+            onChange={(e) => set("name", e.target.value)}
+            placeholder="Masukkan nama kontak"
+            disabled={disabled}
+          />
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -353,39 +382,34 @@ function UmumTab({
         </div>
         <div className="space-y-1.5">
           <Label>Kategori</Label>
-          <Combobox
-            options={categoryOptions}
-            value={form.category_id ?? null}
-            onChange={(v) => set("category_id", v ?? undefined)}
-            placeholder="Pilih kategori"
-            searchPlaceholder="Cari kategori"
+          <Select
+            value={form.category_id ?? ""}
+            onValueChange={(v) => set("category_id", v || undefined)}
             disabled={disabled}
-          />
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Pilih kategori" />
+            </SelectTrigger>
+            <SelectContent>
+              {categoryOptions.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label>Salesman</Label>
-          <Combobox
-            options={salesmanOptions}
-            value={form.salesman_id ?? null}
-            onChange={(v) => set("salesman_id", v ?? undefined)}
-            placeholder="Pilih salesman"
-            searchPlaceholder="Cari salesman"
-            disabled={disabled}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Akun Hutang</Label>
-          <Combobox
-            options={apOptions}
-            value={form.account_payable ?? null}
-            onChange={(v) => set("account_payable", v ?? undefined)}
-            placeholder="Pilih akun"
-            disabled={disabled}
-          />
-        </div>
+      <div className="space-y-1.5 sm:max-w-xs">
+        <Label>Akun Hutang</Label>
+        <Combobox
+          options={apOptions}
+          value={form.account_payable ?? null}
+          onChange={(v) => set("account_payable", v ?? undefined)}
+          placeholder="Pilih akun"
+          disabled={disabled}
+        />
       </div>
 
       <div className="flex items-center gap-2">
@@ -405,11 +429,13 @@ function UmumTab({
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label>Kewarganegaraan</Label>
-          <Input
+          <Combobox
+            options={countryOptions}
             value={form.nationality ?? "Indonesia"}
-            onChange={(e) => set("nationality", e.target.value)}
-            placeholder="Indonesia"
-            disabled={disabled}
+            onChange={(v) => set("nationality", v ?? "Indonesia")}
+            placeholder="Pilih negara"
+            searchPlaceholder="Cari negara"
+            disabled={disabled || countriesLoading}
           />
         </div>
         <div className="space-y-1.5">

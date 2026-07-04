@@ -167,8 +167,7 @@ export function PelangganDetailView({ id }: { id: string }) {
                 />
                 <Field label="Sumber" value={contact.source} />
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Salesman" value={contact.salesman?.name} />
+              <div className="sm:max-w-xs">
                 <Field label="Akun Hutang" value={contact.account_payable} />
               </div>
               <Field label="Perusahaan" value={contact.is_company} />
