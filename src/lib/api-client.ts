@@ -106,3 +106,24 @@ export async function fetchBlobRaw(
     ? new Blob([response.data], { type: mimeType })
     : response.data;
 }
+
+export async function fetchBlobPost(
+  endpoint: string,
+  data: unknown,
+  mimeType?: string,
+): Promise<Blob> {
+  const formattedEndpoint = endpoint.startsWith("/")
+    ? endpoint
+    : `/${endpoint}`;
+
+  const response = await apiClient(formattedEndpoint, {
+    method: "POST",
+    data,
+    responseType: "blob",
+    headers: { Accept: "*/*" },
+  });
+
+  return mimeType
+    ? new Blob([response.data], { type: mimeType })
+    : response.data;
+}

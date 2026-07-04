@@ -1,6 +1,12 @@
 "use client";
 
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
+import { toast } from "sonner";
 import { InboundService } from "@/services/barang-masuk/inbound.service";
 import type { InboundListParams } from "@/types/barang-masuk/inbound";
 
@@ -21,5 +27,24 @@ export function useInboundDetail(id?: string) {
     queryFn: () => InboundService.getById(id!),
     enabled: !!id,
     staleTime: STALE,
+  });
+}
+
+export function useCorrectReceivedLines(inboundId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (items: { item_id: string; qty?: number }[]) =>
+      InboundService.correctReceivedLines(inboundId, items),
+    onSuccess: () => {
+      toast.success("Penerimaan dikoreksi, stok dikembalikan dari bin inbound");
+      qc.invalidateQueries({ queryKey: ["inbound", "detail", inboundId] });
+      qc.invalidateQueries({ queryKey: ["inbound", "list"] });
+      qc.invalidateQueries({ queryKey: ["inventory"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message ||
+          "Gagal mengoreksi penerimaan",
+      ),
   });
 }

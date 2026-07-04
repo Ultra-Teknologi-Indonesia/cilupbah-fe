@@ -111,6 +111,22 @@ export const PutawayService = {
     return res.data;
   },
 
+  deletePlacement: async (
+    id: string,
+    itemId: string,
+    placementId: string,
+    qty?: number,
+  ) => {
+    const res = await fetchClient<ApiResponse<Putaway>>(
+      `/putaway/${id}/items/${itemId}/placements/${placementId}`,
+      {
+        method: "DELETE",
+        data: qty != null ? { qty } : undefined,
+      },
+    );
+    return res.data;
+  },
+
   listBins: async (locationId: string) => {
     const res = await fetchClient<ApiResponse<BinListItem[]>>(
       `/putaway/bins?location_id=${encodeURIComponent(locationId)}`,

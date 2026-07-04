@@ -1,7 +1,10 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 
-import { StockAdjustmentService } from "@/services/transaksi-stok/stock-adjustment.service";
+import {
+  StockAdjustmentService,
+  type BulkDeleteResult,
+} from "@/services/transaksi-stok/stock-adjustment.service";
 import type {
   StockAdjustmentListParams,
   StockAdjustmentFormData,
@@ -47,6 +50,19 @@ export const useCreateStockAdjustment = createMutationHook({
 export const useDeleteStockAdjustment = createMutationHook({
   mutationFn: (id: string) => StockAdjustmentService.delete(id),
   successMessage: "Koreksi stok berhasil dihapus",
+  errorMessage: "Gagal menghapus koreksi stok",
+  invalidates: () => [stockAdjustmentKeys.lists],
+});
+
+export const useBulkDeleteStockAdjustment = createMutationHook<
+  string[],
+  BulkDeleteResult
+>({
+  mutationFn: (ids: string[]) => StockAdjustmentService.bulkDelete(ids),
+  successMessage: (data) =>
+    data.failed.length > 0
+      ? `${data.deleted} dokumen dihapus, ${data.failed.length} gagal`
+      : `${data.deleted} dokumen berhasil dihapus`,
   errorMessage: "Gagal menghapus koreksi stok",
   invalidates: () => [stockAdjustmentKeys.lists],
 });

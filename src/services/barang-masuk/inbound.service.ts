@@ -46,4 +46,33 @@ export const InboundService = {
     );
     return res.data;
   },
+
+  correctReceivedLine: async (
+    inboundId: string,
+    itemId: string,
+    qty?: number,
+  ) => {
+    const res = await fetchClient<ApiResponse<Inbound>>(
+      `/inbounds/${inboundId}/items/${itemId}/received`,
+      {
+        method: "DELETE",
+        data: qty != null ? { qty } : undefined,
+      },
+    );
+    return res.data;
+  },
+
+  correctReceivedLines: async (
+    inboundId: string,
+    items: { item_id: string; qty?: number }[],
+  ) => {
+    const res = await fetchClient<ApiResponse<Inbound>>(
+      `/inbounds/${inboundId}/received`,
+      {
+        method: "DELETE",
+        data: { items },
+      },
+    );
+    return res.data;
+  },
 };

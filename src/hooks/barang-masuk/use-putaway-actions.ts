@@ -93,3 +93,28 @@ export function useProcessPutawayItem() {
       ),
   });
 }
+
+export function useDeletePutawayPlacement() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      putawayId,
+      itemId,
+      placementId,
+      qty,
+    }: {
+      putawayId: string;
+      itemId: string;
+      placementId: string;
+      qty?: number;
+    }) => PutawayService.deletePlacement(putawayId, itemId, placementId, qty),
+    onSuccess: () => {
+      toast.success("Penempatan berhasil dikoreksi, stok dikembalikan ke rak asal");
+      qc.invalidateQueries({ queryKey: ["putaway"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message || "Gagal mengoreksi penempatan",
+      ),
+  });
+}

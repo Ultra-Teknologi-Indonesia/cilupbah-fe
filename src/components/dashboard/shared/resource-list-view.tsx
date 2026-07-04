@@ -2,7 +2,7 @@
 import { EmptyState } from "@/components/ui/empty-state";
 
 import * as React from "react";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef, Table as TableInstance } from "@tanstack/react-table";
 import type { LucideIcon } from "lucide-react";
 import {  DownloadIcon, Loader2Icon , SearchXIcon } from "lucide-react";
 
@@ -43,6 +43,13 @@ interface ResourceListViewProps<T> {
   emptyIcon: LucideIcon;
   emptyTitle: string;
   emptyDescription: string;
+
+  enableRowSelection?: boolean;
+  bulkActions?: (
+    selected: T[],
+    table: TableInstance<T>,
+  ) => React.ReactNode;
+  getRowId?: (row: T, index: number) => string;
 }
 
 export function ResourceListView<T>({
@@ -61,6 +68,9 @@ export function ResourceListView<T>({
   emptyIcon: EmptyIcon,
   emptyTitle,
   emptyDescription,
+  enableRowSelection,
+  bulkActions,
+  getRowId,
 }: ResourceListViewProps<T>) {
   return (
     <LiquidGlass
@@ -114,6 +124,9 @@ export function ResourceListView<T>({
           pagination={list.pagination}
           rowCount={total}
           onPaginationChange={list.onPaginationChange}
+          enableRowSelection={enableRowSelection}
+          bulkActions={bulkActions}
+          getRowId={getRowId}
           tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
           emptyState={
             list.search ? <EmptyState icon={SearchXIcon} title="Tidak ditemukan" description={`Tidak ada hasil untuk "${list.search}"`} /> : <EmptyState icon={EmptyIcon} title={emptyTitle} description={emptyDescription} />

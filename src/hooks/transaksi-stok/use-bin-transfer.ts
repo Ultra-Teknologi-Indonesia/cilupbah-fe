@@ -150,6 +150,37 @@ export function useBinTransferDetail(id: string) {
   });
 }
 
+export function useBinTransferItemDelete(id: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      itemId,
+      qty,
+    }: {
+      itemId: string;
+      qty?: number;
+    }) => {
+      const res = await fetchClient<{ data: BinTransferDetail }>(
+        `/inventory/bin-transfers/${id}/items/${itemId}`,
+        { method: "DELETE", data: qty != null ? { qty } : undefined },
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Baris pindah bin dikoreksi, stok dikembalikan ke rak asal");
+      qc.invalidateQueries({ queryKey: ["bin-transfers"] });
+      qc.invalidateQueries({ queryKey: ["bin-transfer", id] });
+      qc.invalidateQueries({ queryKey: ["inventory"] });
+      qc.invalidateQueries({ queryKey: ["posisi-stok"] });
+      qc.invalidateQueries({ queryKey: ["monitor-stok"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message || "Gagal mengoreksi baris pindah bin",
+      ),
+  });
+}
+
 export interface BinTransferUpdatePayload {
   transfer_date?: string;
   created_by?: string;

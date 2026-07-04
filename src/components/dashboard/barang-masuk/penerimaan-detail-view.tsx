@@ -1,18 +1,30 @@
 "use client";
 
+import * as React from "react";
 import { useParams } from "next/navigation";
 import { formatDate, formatDateTime } from "@/lib/format";
 import {
   ArrowLeftIcon,
+  Loader2Icon,
   PrinterIcon,
   DownloadIcon,
   QrCodeIcon,
+  Trash2Icon,
 } from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -25,7 +37,10 @@ import {
 } from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
-import { useInboundDetail } from "@/hooks/barang-masuk/use-inbound";
+import {
+  useInboundDetail,
+  useCorrectReceivedLines,
+} from "@/hooks/barang-masuk/use-inbound";
 import { exportCsv } from "@/lib/export-csv";
 import type { Inbound, InboundItem } from "@/types/barang-masuk/inbound";
 
@@ -58,8 +73,53 @@ function handleExportCsv(inbound: Inbound) {
   exportCsv(`penerimaan-${inbound.transaction_number}.csv`, headers, rows);
 }
 
+function isCorrectable(item: InboundItem): boolean {
+  return item.received_qty - item.putaway_qty > 0;
+}
+
 export function PenerimaanDetailView({ id }: { id: string }) {
   const { data: inbound, isLoading } = useInboundDetail(id);
+  const correctMutation = useCorrectReceivedLines(id);
+
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+
+  const canCorrect = !!inbound && inbound.status !== "CANCELLED";
+  const correctableItems = React.useMemo(
+    () => (inbound?.items ?? []).filter(isCorrectable),
+    [inbound],
+  );
+
+  const toggleOne = (itemId: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(itemId)) next.delete(itemId);
+      else next.add(itemId);
+      return next;
+    });
+
+  const allCorrectableSelected =
+    correctableItems.length > 0 &&
+    correctableItems.every((i) => selected.has(i.id));
+
+  const toggleAll = () =>
+    setSelected(
+      allCorrectableSelected
+        ? new Set()
+        : new Set(correctableItems.map((i) => i.id)),
+    );
+
+  const submitCorrection = () => {
+    correctMutation.mutate(
+      Array.from(selected).map((item_id) => ({ item_id })),
+      {
+        onSuccess: () => {
+          setConfirmOpen(false);
+          setSelected(new Set());
+        },
+      },
+    );
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -103,6 +163,21 @@ export function PenerimaanDetailView({ id }: { id: string }) {
       ) : (
         <div className="flex flex-col gap-4 print:gap-2">
           <div className="flex items-center justify-end gap-2 print:hidden">
+            {canCorrect && selected.size > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setConfirmOpen(true)}
+                disabled={correctMutation.isPending}
+              >
+                {correctMutation.isPending ? (
+                  <Loader2Icon className="mr-1.5 h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2Icon className="mr-1.5 h-4 w-4" />
+                )}
+                Koreksi Terpilih ({selected.size})
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -222,6 +297,15 @@ export function PenerimaanDetailView({ id }: { id: string }) {
               <Table containerClassName="rounded-lg border border-border/40">
                 <TableHeader>
                   <TableRow className="border-b border-border/60 bg-muted/30">
+                    {canCorrect && correctableItems.length > 0 && (
+                      <TableHead className="w-10 px-3 py-2.5 print:hidden">
+                        <Checkbox
+                          checked={allCorrectableSelected}
+                          onCheckedChange={toggleAll}
+                          aria-label="Pilih semua item yang bisa dikoreksi"
+                        />
+                      </TableHead>
+                    )}
                     {[
                       "SKU",
                       "Produk",
@@ -246,6 +330,17 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                       key={item.id}
                       className="border-b border-border/20 last:border-0"
                     >
+                      {canCorrect && correctableItems.length > 0 && (
+                        <TableCell className="px-3 py-2.5 print:hidden">
+                          {isCorrectable(item) ? (
+                            <Checkbox
+                              checked={selected.has(item.id)}
+                              onCheckedChange={() => toggleOne(item.id)}
+                              aria-label="Pilih item"
+                            />
+                          ) : null}
+                        </TableCell>
+                      )}
                       <TableCell className="px-3 py-2.5 font-mono text-xs">
                         {item.variant?.sku ?? "—"}
                       </TableCell>
@@ -440,6 +535,35 @@ export function PenerimaanDetailView({ id }: { id: string }) {
               </Button>
             </Link>
           </div>
+
+          <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Koreksi Penerimaan</DialogTitle>
+                <DialogDescription>
+                  Koreksi {selected.size} item terpilih? Qty diterima akan
+                  dikurangi dan stok dikembalikan (dihapus) dari bin inbound.
+                  Hanya qty yang belum di-putaway yang bisa dikoreksi.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button
+                  variant="ghost"
+                  onClick={() => setConfirmOpen(false)}
+                  disabled={correctMutation.isPending}
+                >
+                  Batal
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={submitCorrection}
+                  disabled={correctMutation.isPending}
+                >
+                  {correctMutation.isPending ? "Mengoreksi…" : "Ya, Koreksi"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       )}
     </div>

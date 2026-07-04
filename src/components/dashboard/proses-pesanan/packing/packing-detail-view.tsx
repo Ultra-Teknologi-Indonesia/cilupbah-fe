@@ -10,12 +10,21 @@ import {
   CheckCircle2Icon,
   Loader2Icon,
   PackageIcon,
+  Trash2Icon,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -34,10 +43,78 @@ import { type PacklistItem } from "@/types/proses-pesanan/fulfillment";
 import {
   useCompletePacklist,
   usePackItem,
+  useUnpackItem,
   usePacklistDetail,
   useStartPacklist,
   useVerifyBarcode,
 } from "@/hooks/proses-pesanan/use-fulfillment";
+
+function PackCorrectButton({
+  packlistId,
+  item,
+}: {
+  packlistId: string;
+  item: PacklistItem;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const unpack = useUnpackItem();
+
+  return (
+    <>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        onClick={() => setOpen(true)}
+        disabled={unpack.isPending}
+        className="text-muted-foreground hover:text-destructive"
+        aria-label="Koreksi pack"
+      >
+        {unpack.isPending ? (
+          <Loader2Icon className="size-3.5 animate-spin" />
+        ) : (
+          <Trash2Icon className="size-3.5" />
+        )}
+      </Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Koreksi Pack</DialogTitle>
+            <DialogDescription>
+              Batalkan {item.qtyPacked} unit yang sudah di-pack untuk{" "}
+              <span className="font-medium">
+                {item.description ?? item.sku}
+              </span>
+              ?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="ghost"
+              onClick={() => setOpen(false)}
+              disabled={unpack.isPending}
+            >
+              Batal
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={unpack.isPending}
+              onClick={() =>
+                unpack.mutate(
+                  { packlistId, itemId: item.id },
+                  { onSuccess: () => setOpen(false) },
+                )
+              }
+            >
+              {unpack.isPending ? "Mengoreksi…" : "Ya, Koreksi"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
 
 const LIST_HREF = "/dashboard/proses-pesanan";
 
@@ -467,6 +544,9 @@ export function PackingDetailView({ id }: { id: string }) {
                     <TableHead className="px-4 py-3 text-muted-foreground text-center">
                       Status
                     </TableHead>
+                    <TableHead className="px-4 py-3 text-muted-foreground text-right">
+                      Aksi
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -529,6 +609,11 @@ export function PackingDetailView({ id }: { id: string }) {
                               Belum
                             </span>
                           )}
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-right">
+                          {editable && item.qtyPacked > 0 ? (
+                            <PackCorrectButton packlistId={id} item={item} />
+                          ) : null}
                         </TableCell>
                       </TableRow>
                     );

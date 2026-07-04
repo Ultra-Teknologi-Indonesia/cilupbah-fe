@@ -5,6 +5,7 @@ import {
 } from "@/services/manajemen-rak/location.service";
 import { OutboundService } from "@/services/proses-pesanan/outbound.service";
 import { PutawayService } from "@/services/barang-masuk/putaway.service";
+import { StockAdjustmentService } from "@/services/transaksi-stok/stock-adjustment.service";
 
 function extractApiMessage(err: unknown): string | null {
   if (err && typeof err === "object" && "message" in err) {
@@ -51,7 +52,12 @@ export interface DocumentTypeConfig {
 }
 
 export type DocumentTypeKey =
-  "picklist" | "shipping-label" | "bin-qr" | "putaway";
+  | "picklist"
+  | "shipping-label"
+  | "bin-qr"
+  | "putaway"
+  | "stock-adjustment"
+  | "stock-adjustment-bulk";
 
 export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
   picklist: {
@@ -179,6 +185,39 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     backUrl: () => "/dashboard/barang-masuk/penempatan",
     filename: (id, meta) =>
       `${(meta?.putaway_no as string | undefined) ?? `PUTAWAY-${id}`}.pdf`,
+  },
+
+  "stock-adjustment": {
+    title: "Laporan Penyesuaian",
+    subtitle: (id, meta) =>
+      (meta?.adjustment_no as string | undefined) ?? `ADJ-${id.slice(0, 8)}…`,
+    fetchPdf: async (id) => {
+      const blob = await StockAdjustmentService.pdf(id);
+      return { blob };
+    },
+    backUrl: () => "/dashboard/transaksi-stok?tab=penyesuaian",
+    filename: (id, meta) =>
+      `Laporan-Penyesuaian-${
+        (meta?.adjustment_no as string | undefined) ?? id
+      }.pdf`,
+  },
+
+  "stock-adjustment-bulk": {
+    title: "Laporan Penyesuaian (Bulk)",
+    subtitle: (id) => {
+      const count = id.split(",").filter(Boolean).length;
+      return `${count} dokumen`;
+    },
+    fetchPdf: async (id) => {
+      const ids = id.split(",").map((s) => s.trim()).filter(Boolean);
+      const blob = await StockAdjustmentService.bulkPdf(ids);
+      return { blob, meta: { count: ids.length } };
+    },
+    backUrl: () => "/dashboard/transaksi-stok?tab=penyesuaian",
+    filename: () => {
+      const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      return `Laporan-Penyesuaian-Bulk-${stamp}.pdf`;
+    },
   },
 };
 

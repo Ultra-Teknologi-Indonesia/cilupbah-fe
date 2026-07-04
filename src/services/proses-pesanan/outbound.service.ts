@@ -480,6 +480,19 @@ export const OutboundService = {
       },
     );
   },
+  unpickItem: async (
+    picklistId: string,
+    itemId: string,
+    qty?: number,
+  ): Promise<void> => {
+    await fetchClient(
+      `/outbound/picklists/${picklistId}/items/${itemId}/pick`,
+      {
+        method: "DELETE",
+        data: qty != null ? { qty } : undefined,
+      },
+    );
+  },
   scanForPick: async (
     picklistId: string,
     payload: {
@@ -635,6 +648,19 @@ export const OutboundService = {
       {
         method: "POST",
         data: payload,
+      },
+    );
+  },
+  unpackItem: async (
+    packlistId: string,
+    itemId: string,
+    qty?: number,
+  ): Promise<void> => {
+    await fetchClient(
+      `/outbound/packlists/${packlistId}/items/${itemId}/pack`,
+      {
+        method: "DELETE",
+        data: qty != null ? { qty } : undefined,
       },
     );
   },

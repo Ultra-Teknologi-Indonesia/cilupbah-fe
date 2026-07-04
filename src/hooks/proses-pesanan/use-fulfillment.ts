@@ -300,6 +300,27 @@ export function usePickItem() {
   });
 }
 
+export function useUnpickItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      picklistId,
+      itemId,
+      qty,
+    }: {
+      picklistId: string;
+      itemId: string;
+      qty?: number;
+    }) => OutboundService.unpickItem(picklistId, itemId, qty),
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.picklistDetail(v.picklistId),
+      });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+    },
+  });
+}
+
 export function useScanForPick() {
   return useMutation({
     mutationFn: ({
@@ -466,6 +487,27 @@ export function useVerifyBarcode() {
       qc.invalidateQueries({
         queryKey: fulfillmentKeys.packlistDetail(v.packlistId),
       }),
+  });
+}
+
+export function useUnpackItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      packlistId,
+      itemId,
+      qty,
+    }: {
+      packlistId: string;
+      itemId: string;
+      qty?: number;
+    }) => OutboundService.unpackItem(packlistId, itemId, qty),
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.packlistDetail(v.packlistId),
+      });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+    },
   });
 }
 

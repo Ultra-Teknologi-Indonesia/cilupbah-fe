@@ -4,9 +4,24 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { CheckIcon, PackageSearchIcon, PencilIcon, XIcon } from "lucide-react";
+import {
+  CheckIcon,
+  Loader2Icon,
+  PackageSearchIcon,
+  PencilIcon,
+  Trash2Icon,
+  XIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -18,7 +33,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
-import { useBinTransferDetail } from "@/hooks/transaksi-stok/use-bin-transfer";
+import {
+  useBinTransferDetail,
+  useBinTransferItemDelete,
+  type BinTransferDetailItem,
+} from "@/hooks/transaksi-stok/use-bin-transfer";
 import { formatDateTimeFull } from "@/lib/format";
 
 const LIST_HREF = "/dashboard/transaksi-stok?tab=transfer";
@@ -72,6 +91,77 @@ function TimelineStep({
         {actor && <p className="text-xs text-muted-foreground">{actor}</p>}
       </div>
     </div>
+  );
+}
+
+function CorrectItemButton({
+  transferId,
+  item,
+}: {
+  transferId: string;
+  item: BinTransferDetailItem;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const deleteMutation = useBinTransferItemDelete(transferId);
+
+  return (
+    <>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        onClick={() => setOpen(true)}
+        disabled={deleteMutation.isPending}
+        className="text-muted-foreground hover:text-destructive"
+        aria-label="Koreksi baris"
+      >
+        {deleteMutation.isPending ? (
+          <Loader2Icon className="h-3.5 w-3.5 animate-spin" />
+        ) : (
+          <Trash2Icon className="h-3.5 w-3.5" />
+        )}
+      </Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Koreksi Baris Pindah Bin</DialogTitle>
+            <DialogDescription>
+              Kembalikan {item.qty} unit dari rak{" "}
+              <span className="font-mono font-medium">
+                {item.destination_bin?.bin_final_code ?? "—"}
+              </span>{" "}
+              ke rak asal{" "}
+              <span className="font-mono font-medium">
+                {item.source_bin?.bin_final_code ?? "—"}
+              </span>
+              ? Baris ini akan dihapus.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="ghost"
+              onClick={() => setOpen(false)}
+              disabled={deleteMutation.isPending}
+            >
+              Batal
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={deleteMutation.isPending}
+              onClick={() =>
+                deleteMutation.mutate(
+                  { itemId: item.id },
+                  { onSuccess: () => setOpen(false) },
+                )
+              }
+            >
+              {deleteMutation.isPending ? "Mengoreksi…" : "Ya, Koreksi"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -210,13 +300,16 @@ export function PindahBinDetailView({ id }: { id: string }) {
                 <TableHead className="px-3 py-2.5 text-muted-foreground">
                   Keterangan
                 </TableHead>
+                <TableHead className="px-3 py-2.5 text-right text-muted-foreground">
+                  Aksi
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-border">
               {(trf.items ?? []).length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={7}
                     className="px-3 py-8 text-center text-sm text-muted-foreground"
                   >
                     Tidak ada produk.
@@ -283,6 +376,9 @@ export function PindahBinDetailView({ id }: { id: string }) {
                       </TableCell>
                       <TableCell className="px-3 py-2.5 text-muted-foreground">
                         {it.notes ?? "—"}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-right">
+                        <CorrectItemButton transferId={trf.id} item={it} />
                       </TableCell>
                     </TableRow>
                   );

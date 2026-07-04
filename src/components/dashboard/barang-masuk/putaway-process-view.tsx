@@ -56,6 +56,7 @@ import {
   usePutawayItems,
   useStartPutaway,
   useProcessPutawayItem,
+  useDeletePutawayPlacement,
   usePutawayBins,
   type BinListItem,
 } from "@/hooks/barang-masuk/use-putaway-actions";
@@ -71,6 +72,8 @@ interface PlacementEntry {
   initialBinCode: string;
   initialBinQty: number;
   maxQty: number;
+  /** Set when this row is a committed placement (from API) that can be deleted to correct a mis-scan. */
+  committedPlacementId?: string;
 }
 
 export function PutawayProcessView({ id }: PutawayProcessViewProps) {
@@ -554,6 +557,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                         putawayId={id}
                         locationId={locationId}
                         editable={isInProgress}
+                        correctable={isInProgress || isCompleted}
                         defaultRack={activeRack}
                         binOptions={binOptions}
                         availableBins={availableBins}
@@ -623,6 +627,7 @@ interface PutawayItemRowProps {
   putawayId: string;
   locationId: string;
   editable: boolean;
+  correctable: boolean;
   defaultRack: BinListItem | null;
   binOptions: { value: string; label: string; hint?: string }[];
   availableBins: BinListItem[];
@@ -643,6 +648,7 @@ function PutawayItemRow({
   putawayId,
   locationId,
   editable,
+  correctable,
   defaultRack,
   binOptions,
   availableBins,
@@ -665,7 +671,8 @@ function PutawayItemRow({
     const apiPlacements = item.placements ?? [];
     if (apiPlacements.length > 0) {
       return apiPlacements.map((p) => ({
-        id: `auto-${p.bin_id}`,
+        id: p.id,
+        committedPlacementId: p.id,
         initialSavedQty: p.qty,
         initialBinCode: p.bin?.bin_final_code ?? "",
         initialBinQty: p.qty,
@@ -812,6 +819,7 @@ function PutawayItemRow({
                   binOptions={binOptions}
                   availableBins={availableBins}
                   editable={editable}
+                  correctable={correctable}
                   onProcessed={onProcessed}
                   entry={entry}
                   focusTarget={
@@ -846,6 +854,7 @@ interface PlacementRowProps {
   binOptions: { value: string; label: string; hint?: string }[];
   availableBins: BinListItem[];
   editable: boolean;
+  correctable: boolean;
   onProcessed: () => void;
   entry: PlacementEntry;
   focusTarget: "qty" | null;
@@ -860,6 +869,7 @@ function PlacementRow({
   binOptions,
   availableBins,
   editable,
+  correctable,
   onProcessed,
   entry,
   focusTarget,
@@ -867,6 +877,8 @@ function PlacementRow({
   onRemove,
 }: PlacementRowProps) {
   const processMutation = useProcessPutawayItem();
+  const deletePlacementMutation = useDeletePutawayPlacement();
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   const initialBinId = useMemo(() => {
     if (entry.initialBinCode) {
@@ -1016,6 +1028,74 @@ function PlacementRow({
         >
           <Trash2Icon className="h-3.5 w-3.5" />
         </Button>
+      )}
+
+      {entry.committedPlacementId && correctable && (
+        <>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setConfirmDeleteOpen(true)}
+            disabled={deletePlacementMutation.isPending}
+            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+            aria-label="Koreksi penempatan"
+          >
+            {deletePlacementMutation.isPending ? (
+              <Loader2Icon className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Trash2Icon className="h-3.5 w-3.5" />
+            )}
+          </Button>
+
+          <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Koreksi Penempatan</DialogTitle>
+                <DialogDescription>
+                  Hapus penempatan {entry.initialSavedQty} unit di rak{" "}
+                  <span className="font-mono font-medium">
+                    {entry.initialBinCode || "—"}
+                  </span>
+                  ? Stok akan dikembalikan ke rak asal dan qty penempatan item
+                  ini berkurang.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button
+                  variant="ghost"
+                  onClick={() => setConfirmDeleteOpen(false)}
+                  disabled={deletePlacementMutation.isPending}
+                >
+                  Batal
+                </Button>
+                <Button
+                  variant="destructive"
+                  disabled={deletePlacementMutation.isPending}
+                  onClick={() =>
+                    deletePlacementMutation.mutate(
+                      {
+                        putawayId,
+                        itemId: item.id,
+                        placementId: entry.committedPlacementId!,
+                      },
+                      {
+                        onSuccess: () => {
+                          setConfirmDeleteOpen(false);
+                          onProcessed();
+                        },
+                      },
+                    )
+                  }
+                >
+                  {deletePlacementMutation.isPending
+                    ? "Mengoreksi…"
+                    : "Ya, Koreksi"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </>
       )}
     </div>
   );

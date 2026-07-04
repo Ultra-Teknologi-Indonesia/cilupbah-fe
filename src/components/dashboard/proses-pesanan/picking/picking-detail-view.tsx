@@ -11,12 +11,21 @@ import {
   Loader2Icon,
   MapPinIcon,
   ScanBarcodeIcon,
+  Trash2Icon,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -33,11 +42,77 @@ import {
   usePicklistDetail,
   useStartPicklist,
   usePickItem,
+  useUnpickItem,
   useCompletePicklist,
   useFailPicklist,
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import { useLocationBins } from "@/hooks/transaksi-stok/use-bin-transfer";
 import { type PicklistItem } from "@/types/proses-pesanan/fulfillment";
+
+function PickCorrectButton({
+  picklistId,
+  item,
+}: {
+  picklistId: string;
+  item: PicklistItem;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const unpick = useUnpickItem();
+
+  return (
+    <>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        onClick={() => setOpen(true)}
+        disabled={unpick.isPending}
+        className="text-muted-foreground hover:text-destructive"
+        aria-label="Koreksi pick"
+      >
+        {unpick.isPending ? (
+          <Loader2Icon className="size-3.5 animate-spin" />
+        ) : (
+          <Trash2Icon className="size-3.5" />
+        )}
+      </Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Koreksi Pick</DialogTitle>
+            <DialogDescription>
+              Batalkan {item.qtyPicked} unit yang sudah di-pick untuk{" "}
+              <span className="font-medium">{item.name ?? item.sku}</span>? Stok
+              akan dikembalikan ke rak asal.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="ghost"
+              onClick={() => setOpen(false)}
+              disabled={unpick.isPending}
+            >
+              Batal
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={unpick.isPending}
+              onClick={() =>
+                unpick.mutate(
+                  { picklistId, itemId: item.id },
+                  { onSuccess: () => setOpen(false) },
+                )
+              }
+            >
+              {unpick.isPending ? "Mengoreksi…" : "Ya, Koreksi"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
 
 const LIST_HREF = "/dashboard/proses-pesanan";
 
@@ -411,13 +486,14 @@ export function PickingDetailView({ id }: { id: string }) {
                   <TableHead className="text-right">Qty Dipesan</TableHead>
                   <TableHead className="text-right">Qty Dipick</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {items.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={4}
+                      colSpan={5}
                       className="py-12 text-center text-muted-foreground"
                     >
                       Tidak ada item.
@@ -460,6 +536,11 @@ export function PickingDetailView({ id }: { id: string }) {
                               {item.qtyOrdered - item.qtyPicked}
                             </span>
                           )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {editable && item.qtyPicked > 0 ? (
+                            <PickCorrectButton picklistId={id} item={item} />
+                          ) : null}
                         </TableCell>
                       </TableRow>
                     );

@@ -2,9 +2,16 @@
 
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { SlidersHorizontalIcon, Trash2Icon, PlusIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  SlidersHorizontalIcon,
+  Trash2Icon,
+  PlusIcon,
+  PrinterIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -14,6 +21,7 @@ import { useListState } from "@/hooks/use-list-state";
 import {
   useStockAdjustments,
   useDeleteStockAdjustment,
+  useBulkDeleteStockAdjustment,
 } from "@/hooks/transaksi-stok/use-stock-adjustments";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { exportCsv } from "@/lib/export-csv";
@@ -22,6 +30,7 @@ import type {
   StockAdjustmentListParams,
 } from "@/types/transaksi-stok/stock-adjustment";
 import { formatDate } from "@/lib/format";
+import { toast } from "sonner";
 
 interface FilterState {
   location_id: string;
@@ -29,7 +38,10 @@ interface FilterState {
 
 const EMPTY_FILTERS: FilterState = { location_id: "" };
 
+const BULK_PDF_MAX = 50;
+
 export function PenyesuaianTab() {
+  const router = useRouter();
   const list = useListState<FilterState>(EMPTY_FILTERS, {
     urlSync: true,
     namespace: "adj",
@@ -37,6 +49,10 @@ export function PenyesuaianTab() {
   const [deleteTarget, setDeleteTarget] = useState<StockAdjustment | null>(
     null,
   );
+  const [bulkDeleteState, setBulkDeleteState] = useState<{
+    ids: string[];
+    onDone: () => void;
+  } | null>(null);
   const [importOpen, setImportOpen] = useState(false);
 
   const params = useMemo<StockAdjustmentListParams>(
@@ -52,6 +68,7 @@ export function PenyesuaianTab() {
   const { data, isLoading, isFetching } = useStockAdjustments(params);
   const { data: locData } = useLocations({ perPage: 100 });
   const deleteMut = useDeleteStockAdjustment();
+  const bulkDeleteMut = useBulkDeleteStockAdjustment();
 
   const items = data?.items ?? [];
   const total = data?.meta?.total ?? 0;
@@ -69,6 +86,33 @@ export function PenyesuaianTab() {
 
   const columns = useMemo<ColumnDef<StockAdjustment>[]>(
     () => [
+      {
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="Pilih semua"
+          />
+        ),
+        cell: ({ row }) => (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={row.getIsSelected()}
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              aria-label="Pilih baris"
+            />
+          </div>
+        ),
+        enableSorting: false,
+        enableHiding: false,
+        size: 36,
+      },
       {
         accessorKey: "adjustment_no",
         header: "No. Koreksi Stok",
@@ -119,6 +163,18 @@ export function PenyesuaianTab() {
             <Button
               variant="ghost"
               size="icon-sm"
+              asChild
+              aria-label="Cetak"
+            >
+              <Link
+                href={`/dashboard/document-preview/stock-adjustment/${row.original.id}`}
+              >
+                <PrinterIcon className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
               onClick={() => setDeleteTarget(row.original)}
               aria-label="Hapus"
               className="text-destructive hover:text-destructive"
@@ -164,6 +220,52 @@ export function PenyesuaianTab() {
         isFetching={isFetching}
         searchPlaceholder="Cari no. koreksi stok..."
         onExport={handleExport}
+        enableRowSelection
+        getRowId={(row) => row.id}
+        bulkActions={(selected, table) => {
+          const ids = selected.map((r) => r.id);
+          const disablePdf = ids.length > BULK_PDF_MAX;
+          return (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={disablePdf}
+                onClick={() => {
+                  if (disablePdf) {
+                    toast.warning(
+                      `Maksimal ${BULK_PDF_MAX} dokumen per cetak`,
+                    );
+                    return;
+                  }
+                  const path = `/dashboard/document-preview/stock-adjustment-bulk/${ids.join(",")}`;
+                  router.push(path);
+                }}
+                title={
+                  disablePdf
+                    ? `Maksimal ${BULK_PDF_MAX} dokumen per cetak`
+                    : undefined
+                }
+              >
+                <PrinterIcon className="mr-1.5 h-4 w-4" />
+                Cetak {ids.length}
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() =>
+                  setBulkDeleteState({
+                    ids,
+                    onDone: () => table.resetRowSelection(),
+                  })
+                }
+              >
+                <Trash2Icon className="mr-1.5 h-4 w-4" />
+                Hapus {ids.length}
+              </Button>
+            </>
+          );
+        }}
         toolbarTrailing={
           <div className="flex items-center gap-2">
             <Button
@@ -208,6 +310,25 @@ export function PenyesuaianTab() {
         variant="destructive"
         loading={deleteMut.isPending}
         onConfirm={handleDelete}
+      />
+
+      <ConfirmDialog
+        open={!!bulkDeleteState}
+        onOpenChange={(v) => !v && setBulkDeleteState(null)}
+        title="Hapus Koreksi Stok Terpilih"
+        description={`Hapus ${bulkDeleteState?.ids.length ?? 0} koreksi stok? Tindakan ini tidak dapat dibatalkan.`}
+        confirmLabel="Hapus"
+        variant="destructive"
+        loading={bulkDeleteMut.isPending}
+        onConfirm={() => {
+          if (!bulkDeleteState) return;
+          bulkDeleteMut.mutate(bulkDeleteState.ids, {
+            onSuccess: () => {
+              bulkDeleteState.onDone();
+              setBulkDeleteState(null);
+            },
+          });
+        }}
       />
 
       <ImportPenyesuaianDialog open={importOpen} onOpenChange={setImportOpen} />
