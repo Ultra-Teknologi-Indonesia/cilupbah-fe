@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
-import { CheckIcon, XIcon } from "lucide-react";
+import { CheckIcon, ExternalLinkIcon, XIcon } from "lucide-react";
 
 import { PageTitle } from "@/components/dashboard/page-title";
 import { Badge } from "@/components/ui/badge";
@@ -158,9 +159,21 @@ export function PermintaanRestockView() {
                       {r.assignee_name ?? "—"}
                     </TableCell>
                     <TableCell>
-                      <Badge className={STATUS_BADGE[r.status]}>
-                        {r.status}
-                      </Badge>
+                      <div className="flex flex-col gap-1">
+                        <Badge className={STATUS_BADGE[r.status]}>
+                          {r.status}
+                        </Badge>
+                        {r.transfer_out_number && (
+                          <Link
+                            href={`/dashboard/barang-keluar?transfer=${r.transfer_out_id}`}
+                            className="inline-flex items-center gap-1 text-[10px] text-primary hover:underline"
+                            title={`Transfer Keluar ${r.transfer_out_number} · ${r.transfer_out_status}`}
+                          >
+                            <ExternalLinkIcon className="size-3" />
+                            {r.transfer_out_number}
+                          </Link>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-right">
                       {r.status === "PENDING" ? (

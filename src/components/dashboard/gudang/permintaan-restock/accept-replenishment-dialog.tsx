@@ -73,9 +73,10 @@ export function AcceptReplenishmentDialog({ open, onOpenChange, request }: Props
         <DialogHeader>
           <DialogTitle>Terima Permintaan Pengisian Stok</DialogTitle>
           <DialogDescription>
-            Tugaskan staf untuk mengeksekusi transfer dari{" "}
-            {request?.from_location_name ?? "Gudang Pusat"} ke{" "}
-            {request?.to_location_name ?? "Gudang Kecil"}.
+            Setelah diterima, sistem otomatis membuat Transfer Keluar DRAFT
+            dari {request?.from_location_name ?? "Gudang Pusat"} ke{" "}
+            {request?.to_location_name ?? "Gudang Kecil"} dan menugaskan staf
+            yang dipilih.
           </DialogDescription>
         </DialogHeader>
 

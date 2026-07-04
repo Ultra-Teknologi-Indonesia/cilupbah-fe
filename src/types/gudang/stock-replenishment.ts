@@ -23,6 +23,9 @@ export interface StockReplenishment {
   requested_by_name: string | null;
   assignee_user_id: string | null;
   assignee_name: string | null;
+  transfer_out_id: string | null;
+  transfer_out_number: string | null;
+  transfer_out_status: string | null;
   requested_at: string;
   accepted_at: string | null;
   rejected_at: string | null;
