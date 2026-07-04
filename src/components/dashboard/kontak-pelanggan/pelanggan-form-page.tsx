@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -154,6 +155,16 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
       toast.error("Nama Kontak wajib diisi.");
       return;
     }
+    if (!form.address?.trim()) {
+      setSection("alamat");
+      toast.error("Detail alamat penagihan wajib diisi.");
+      return;
+    }
+    if (form.tax_type !== "PKP" && form.tax_type !== "NON_PKP") {
+      setSection("pajak");
+      toast.error("Tipe pajak wajib dipilih.");
+      return;
+    }
 
     const coord = parseCoordinate(coordinate);
     const payload: ContactFormData = {
@@ -221,19 +232,6 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
           { label: "Kontak Pelanggan", href: LIST_HREF },
           { label: title },
         ]}
-        actions={
-          <div className="flex items-center gap-2">
-            <Button variant="outline" asChild>
-              <Link href={LIST_HREF}>Batal</Link>
-            </Button>
-            {!locked && (
-              <Button type="submit" variant="primary" disabled={saving}>
-                {saving && <Loader2Icon className="animate-spin" />}
-                Simpan
-              </Button>
-            )}
-          </div>
-        }
       />
 
       {locked && (
@@ -290,6 +288,19 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
           {section === "pajak" && (
             <PajakTab form={form} set={set} disabled={locked} />
           )}
+
+          <Separator className="mt-6" />
+          <div className="mt-6 flex items-center justify-end gap-2">
+            <Button variant="outline" asChild>
+              <Link href={LIST_HREF}>Batal</Link>
+            </Button>
+            {!locked && (
+              <Button type="submit" variant="primary" disabled={saving}>
+                {saving && <Loader2Icon className="animate-spin" />}
+                Simpan
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </form>
@@ -575,7 +586,10 @@ function AlamatTab({
       <h3 className="text-sm font-semibold">Alamat Penagihan</h3>
 
       <div className="space-y-1.5">
-        <Label>Detail Alamat</Label>
+        <Label>
+          Detail Alamat
+          <Req />
+        </Label>
         <Textarea
           value={form.address ?? ""}
           onChange={(e) => set("address", e.target.value)}
@@ -676,24 +690,32 @@ function PajakTab({
   ) => void;
   disabled: boolean;
 }) {
-  const isPKP = form.tax_type === "PKP";
-
   return (
     <div className="space-y-5">
-      <div className="space-y-1.5">
-        <Label>Status Pajak</Label>
-        <Combobox
-          options={[
-            { value: "NON_PKP", label: "Non PKP" },
-            { value: "PKP", label: "PKP (Pengusaha Kena Pajak)" },
-          ]}
+      <div className="space-y-2">
+        <Label>
+          Tipe
+          <Req />
+        </Label>
+        <RadioGroup
           value={form.tax_type ?? "NON_PKP"}
-          onChange={(v) =>
-            set("tax_type", (v as "PKP" | "NON_PKP") ?? "NON_PKP")
-          }
-          placeholder="Pilih status"
+          onValueChange={(v) => set("tax_type", v as "PKP" | "NON_PKP")}
           disabled={disabled}
-        />
+          className="flex flex-row items-center gap-6"
+        >
+          <div className="flex items-center gap-2">
+            <RadioGroupItem id="tax_type_non_pkp" value="NON_PKP" />
+            <Label htmlFor="tax_type_non_pkp" className="!mt-0 cursor-pointer">
+              Non PKP
+            </Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <RadioGroupItem id="tax_type_pkp" value="PKP" />
+            <Label htmlFor="tax_type_pkp" className="!mt-0 cursor-pointer">
+              PKP
+            </Label>
+          </div>
+        </RadioGroup>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -717,47 +739,39 @@ function PajakTab({
         </div>
       </div>
 
-      {isPKP && (
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id="npwp_use_different"
+          checked={form.npwp_use_different ?? false}
+          onCheckedChange={(v) => set("npwp_use_different", v === true)}
+          disabled={disabled}
+        />
+        <Label htmlFor="npwp_use_different" className="!mt-0 cursor-pointer">
+          Gunakan data NPWP yang berbeda dengan data kontak
+        </Label>
+      </div>
+
+      {form.npwp_use_different && (
         <>
-          <Separator />
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="npwp_use_different"
-              checked={form.npwp_use_different ?? false}
-              onCheckedChange={(v) => set("npwp_use_different", v === true)}
+          <div className="space-y-1.5">
+            <Label>Nama NPWP</Label>
+            <Input
+              value={form.npwp_name ?? ""}
+              onChange={(e) => set("npwp_name", e.target.value)}
+              placeholder="Nama pada NPWP"
               disabled={disabled}
             />
-            <Label
-              htmlFor="npwp_use_different"
-              className="!mt-0 cursor-pointer"
-            >
-              NPWP atas nama berbeda
-            </Label>
           </div>
-
-          {form.npwp_use_different && (
-            <>
-              <div className="space-y-1.5">
-                <Label>Nama NPWP</Label>
-                <Input
-                  value={form.npwp_name ?? ""}
-                  onChange={(e) => set("npwp_name", e.target.value)}
-                  placeholder="Nama pada NPWP"
-                  disabled={disabled}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Alamat NPWP</Label>
-                <Textarea
-                  value={form.npwp_address ?? ""}
-                  onChange={(e) => set("npwp_address", e.target.value)}
-                  placeholder="Alamat pada NPWP"
-                  disabled={disabled}
-                  rows={2}
-                />
-              </div>
-            </>
-          )}
+          <div className="space-y-1.5">
+            <Label>Alamat NPWP</Label>
+            <Textarea
+              value={form.npwp_address ?? ""}
+              onChange={(e) => set("npwp_address", e.target.value)}
+              placeholder="Alamat pada NPWP"
+              disabled={disabled}
+              rows={2}
+            />
+          </div>
         </>
       )}
     </div>
