@@ -10,6 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Combobox } from "@/components/ui/combobox";
@@ -282,10 +283,10 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
                   <Req />
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="+628xxxxx"
+                  <PhoneInput
+                    value={field.value}
+                    onChange={field.onChange}
                     disabled={disabled}
-                    {...field}
                   />
                 </FormControl>
                 <FormMessage />

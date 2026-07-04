@@ -14,9 +14,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { isValidPhone } from "@/lib/phone";
 import {
   useContactDetail,
   useContactCategories,
@@ -129,6 +131,16 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
     if (!form.name.trim()) {
       setSection("umum");
       toast.error("Nama Kontak wajib diisi.");
+      return;
+    }
+    if (form.phone && !isValidPhone(form.phone)) {
+      setSection("pic");
+      toast.error("Format No. Telepon tidak valid.");
+      return;
+    }
+    if (form.fax && !isValidPhone(form.fax)) {
+      setSection("pic");
+      toast.error("Format Fax tidak valid.");
       return;
     }
 
@@ -423,10 +435,9 @@ function PICTab({
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label>No. Telepon</Label>
-          <Input
+          <PhoneInput
             value={form.phone ?? ""}
-            onChange={(e) => set("phone", e.target.value)}
-            placeholder="+628xxxxx"
+            onChange={(v) => set("phone", v || undefined)}
             disabled={disabled}
           />
         </div>
@@ -444,10 +455,10 @@ function PICTab({
 
       <div className="space-y-1.5 sm:max-w-xs">
         <Label>Fax</Label>
-        <Input
+        <PhoneInput
           value={form.fax ?? ""}
-          onChange={(e) => set("fax", e.target.value)}
-          placeholder="021-xxxx"
+          onChange={(v) => set("fax", v || undefined)}
+          placeholder="21 1234 5678"
           disabled={disabled}
         />
       </div>

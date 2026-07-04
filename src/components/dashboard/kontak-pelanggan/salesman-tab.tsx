@@ -10,13 +10,16 @@ import {
   DownloadIcon,
   Loader2Icon,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
+import { isValidPhone } from "@/lib/phone";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { Textarea } from "@/components/ui/textarea";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -147,6 +150,10 @@ export function SalesmanTab() {
 
   async function handleSave() {
     if (!form.name.trim()) return;
+    if (form.phone && !isValidPhone(form.phone)) {
+      toast.error("Format Telepon tidak valid.");
+      return;
+    }
     try {
       if (editId) {
         await updateMut.mutateAsync({ id: editId, data: form });
@@ -368,10 +375,9 @@ export function SalesmanTab() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label>Telepon</Label>
-                <Input
+                <PhoneInput
                   value={form.phone ?? ""}
-                  onChange={(e) => set("phone", e.target.value)}
-                  placeholder="+628xxxxx"
+                  onChange={(v) => set("phone", v)}
                 />
               </div>
               <div className="space-y-1.5">

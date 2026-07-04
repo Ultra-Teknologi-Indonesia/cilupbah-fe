@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { PHONE_E164_REGEX } from "@/lib/phone";
+
 export const locationFormSchema = z.object({
   locationName: z.string().min(1, "Nama lokasi wajib diisi").max(255),
   locationCode: z.string().min(1, "Kode lokasi wajib diisi").max(50),
@@ -10,7 +12,11 @@ export const locationFormSchema = z.object({
   districtId: z.string().min(1, "Kecamatan wajib dipilih"),
   villageId: z.string().min(1, "Kelurahan wajib dipilih"),
   postCode: z.string().min(1, "Kode pos wajib diisi").max(20),
-  phone: z.string().min(1, "No. telepon wajib diisi").max(30),
+  phone: z
+    .string()
+    .min(1, "No. telepon wajib diisi")
+    .regex(PHONE_E164_REGEX, "Format No. Telepon tidak valid")
+    .max(30),
   email: z
     .string()
     .min(1, "Email wajib diisi")

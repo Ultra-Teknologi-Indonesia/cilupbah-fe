@@ -1,6 +1,7 @@
 "use client";
 
 import { DetailSkeleton } from "@/components/ui/page-skeleton";
+import { formatPhoneDisplay } from "@/lib/phone";
 
 import * as React from "react";
 import Link from "next/link";
@@ -191,10 +192,10 @@ export function KontakDetailView({ id }: { id: string }) {
                 <Field label="Jabatan" value={contact.pic_title} />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="No. Telepon" value={contact.phone} />
+                <Field label="No. Telepon" value={formatPhoneDisplay(contact.phone)} />
                 <Field label="Email" value={contact.email} />
               </div>
-              <Field label="Fax" value={contact.fax} />
+              <Field label="Fax" value={formatPhoneDisplay(contact.fax)} />
             </div>
           )}
 
