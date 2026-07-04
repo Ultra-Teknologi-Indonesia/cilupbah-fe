@@ -35,8 +35,16 @@ export interface InboundItem {
   variant?: {
     id: string;
     sku: string;
-    item_name: string;
-    variation_values: { label: string; value: string }[];
+    item_name?: string;
+    name?: string;
+    media?: { url: string }[];
+    options?: { value: string }[];
+    product?: {
+      id: string;
+      name: string;
+      media?: { url: string }[];
+    };
+    variation_values?: { label: string; value: string }[];
   };
   receipts?: InboundReceipt[];
 }

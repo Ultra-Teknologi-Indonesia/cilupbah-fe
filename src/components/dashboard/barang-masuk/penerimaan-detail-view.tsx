@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { useParams } from "next/navigation";
 import { formatDate, formatDateTime } from "@/lib/format";
 import {
   ArrowLeftIcon,
+  ImageIcon,
   Loader2Icon,
   PrinterIcon,
   DownloadIcon,
@@ -41,6 +41,7 @@ import {
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { SortableHeader } from "@/components/dashboard/shared/sortable-header";
+import { CopySku } from "@/components/dashboard/shared/copy-sku";
 import {
   useInboundDetail,
   useInboundItems,
@@ -68,7 +69,10 @@ function handleExportCsv(inbound: Inbound) {
   ];
   const rows = inbound.items.map((item) => [
     item.variant?.sku ?? "",
-    item.variant?.item_name ?? "",
+    item.variant?.product?.name ??
+      item.variant?.item_name ??
+      item.variant?.name ??
+      "",
     String(item.expected_qty),
     String(item.received_qty),
     String(item.putaway_qty),
@@ -159,6 +163,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
       <PageTitle
         title="Detail Penerimaan"
         description={inbound ? inbound.transaction_number : "Memuat..."}
+        backHref="/dashboard/barang-masuk"
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Barang Masuk", href: "/dashboard/barang-masuk" },
@@ -353,42 +358,46 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                         />
                       </TableHead>
                     )}
+                    <TableHead className="w-12 whitespace-nowrap px-3 py-2.5 text-muted-foreground"></TableHead>
                     <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       <SortableHeader
-                        label="SKU"
+                        label="Produk"
                         field="sku"
                         currentSort={sort}
                         onSort={handleSort}
                       />
                     </TableHead>
-                    <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Produk
-                    </TableHead>
-                    <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       <SortableHeader
                         label="Qty Diharapkan"
                         field="expected_qty"
                         currentSort={sort}
                         onSort={handleSort}
+                        align="right"
+                        className="w-full"
                       />
                     </TableHead>
-                    <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       <SortableHeader
                         label="Qty Diterima"
                         field="received_qty"
                         currentSort={sort}
                         onSort={handleSort}
+                        align="right"
+                        className="w-full"
                       />
                     </TableHead>
-                    <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       <SortableHeader
                         label="Qty Putaway"
                         field="putaway_qty"
                         currentSort={sort}
                         onSort={handleSort}
+                        align="right"
+                        className="w-full"
                       />
                     </TableHead>
-                    <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Selisih
                     </TableHead>
                     <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -401,7 +410,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                     <TableRow>
                       <TableCell
                         colSpan={
-                          canCorrect && correctableItems.length > 0 ? 8 : 7
+                          canCorrect && correctableItems.length > 0 ? 9 : 8
                         }
                         className="py-8 text-center text-sm text-muted-foreground"
                       >
@@ -411,53 +420,96 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                       </TableCell>
                     </TableRow>
                   )}
-                  {items.map((item: InboundItem) => (
-                    <TableRow
-                      key={item.id}
-                      className="border-b border-border/20 last:border-0"
-                    >
-                      {canCorrect && correctableItems.length > 0 && (
-                        <TableCell className="px-3 py-2.5 print:hidden">
-                          {isCorrectable(item) ? (
-                            <Checkbox
-                              checked={selected.has(item.id)}
-                              onCheckedChange={() => toggleOne(item.id)}
-                              aria-label="Pilih item"
-                            />
-                          ) : null}
-                        </TableCell>
-                      )}
-                      <TableCell className="px-3 py-2.5 font-mono text-xs">
-                        {item.variant?.sku ?? "—"}
-                      </TableCell>
-                      <TableCell className="px-3 py-2.5 whitespace-normal text-muted-foreground">
-                        {item.variant?.item_name ?? "—"}
-                      </TableCell>
-                      <TableCell className="px-3 py-2.5 tabular-nums text-muted-foreground">
-                        {item.expected_qty}
-                      </TableCell>
-                      <TableCell className="px-3 py-2.5 tabular-nums text-muted-foreground">
-                        {item.received_qty}
-                      </TableCell>
-                      <TableCell className="px-3 py-2.5 tabular-nums text-muted-foreground">
-                        {item.putaway_qty}
-                      </TableCell>
-                      <TableCell className="px-3 py-2.5 tabular-nums">
-                        {item.discrepancy_qty !== 0 && (
-                          <Badge
-                            variant="outline"
-                            className="border-red-300 text-[10px] text-red-600"
-                          >
-                            {item.discrepancy_qty > 0 ? "+" : ""}
-                            {item.discrepancy_qty}
-                          </Badge>
+                  {items.map((item: InboundItem) => {
+                    const variantOptions = item.variant?.options
+                      ?.map((o) => o.value)
+                      .filter(Boolean)
+                      .join(", ");
+                    const productName =
+                      item.variant?.product?.name ??
+                      item.variant?.item_name ??
+                      item.variant?.name ??
+                      "—";
+                    const imageUrl =
+                      item.variant?.media?.[0]?.url ??
+                      item.variant?.product?.media?.[0]?.url;
+                    return (
+                      <TableRow
+                        key={item.id}
+                        className="border-b border-border/20 last:border-0"
+                      >
+                        {canCorrect && correctableItems.length > 0 && (
+                          <TableCell className="px-3 py-2.5 print:hidden">
+                            {isCorrectable(item) ? (
+                              <Checkbox
+                                checked={selected.has(item.id)}
+                                onCheckedChange={() => toggleOne(item.id)}
+                                aria-label="Pilih item"
+                              />
+                            ) : null}
+                          </TableCell>
                         )}
-                      </TableCell>
-                      <TableCell className="max-w-[200px] truncate whitespace-normal px-3 py-2.5 text-xs text-muted-foreground">
-                        {item.discrepancy_note ?? ""}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        <TableCell className="px-3 py-2.5">
+                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted/50">
+                            {imageUrl ? (
+                              <img
+                                src={imageUrl}
+                                alt={productName}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+                                <ImageIcon className="h-4 w-4 opacity-50" />
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5">
+                          <div
+                            className="flex min-w-0 flex-col gap-0.5"
+                            style={{ maxWidth: 320 }}
+                          >
+                            <span className="font-medium whitespace-normal break-words text-foreground">
+                              {productName}
+                            </span>
+                            {variantOptions && (
+                              <span className="whitespace-normal break-words text-xs text-foreground">
+                                {variantOptions}
+                              </span>
+                            )}
+                            {item.variant?.sku && (
+                              <CopySku sku={item.variant.sku} />
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
+                          {item.expected_qty}
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
+                          {item.received_qty}
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
+                          {item.putaway_qty}
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 text-right tabular-nums">
+                          {item.discrepancy_qty !== 0 ? (
+                            <Badge
+                              variant="outline"
+                              className="border-red-300 text-[10px] text-red-600"
+                            >
+                              {item.discrepancy_qty > 0 ? "+" : ""}
+                              {item.discrepancy_qty}
+                            </Badge>
+                          ) : (
+                            <span className="text-foreground">0</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate whitespace-normal px-3 py-2.5 text-xs text-foreground">
+                          {item.discrepancy_note ?? "—"}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
               {itemsMeta && (
@@ -476,78 +528,6 @@ export function PenerimaanDetailView({ id }: { id: string }) {
               )}
             </div>
           </LiquidGlass>
-
-          {inbound.items.some((i) => i.receipts && i.receipts.length > 0) && (
-            <LiquidGlass
-              radius={20}
-              intensity="subtle"
-              className="bg-white/30 dark:bg-white/[0.04] print:border print:border-border print:shadow-none"
-            >
-              <div className="px-5 py-4">
-                <h3 className="mb-3 text-sm font-semibold print:text-base">
-                  Riwayat Penerimaan
-                </h3>
-                <Table containerClassName="rounded-lg border border-border/40">
-                  <TableHeader>
-                    <TableRow className="border-b border-border/60 bg-muted/30">
-                      {[
-                        "SKU",
-                        "Qty",
-                        "Rak",
-                        "Batch",
-                        "SN",
-                        "Kondisi",
-                        "Diterima Oleh",
-                        "Tanggal",
-                      ].map((h) => (
-                        <TableHead
-                          key={h}
-                          className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground"
-                        >
-                          {h}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {inbound.items.flatMap((item) =>
-                      (item.receipts ?? []).map((r) => (
-                        <TableRow
-                          key={r.id}
-                          className="border-b border-border/20 last:border-0"
-                        >
-                          <TableCell className="px-3 py-2.5 font-mono text-xs">
-                            {item.variant?.sku ?? "—"}
-                          </TableCell>
-                          <TableCell className="px-3 py-2.5 tabular-nums text-muted-foreground">
-                            {r.qty}
-                          </TableCell>
-                          <TableCell className="px-3 py-2.5 text-muted-foreground">
-                            {r.bin?.code ?? "—"}
-                          </TableCell>
-                          <TableCell className="px-3 py-2.5 text-muted-foreground">
-                            {r.batch_no ?? "—"}
-                          </TableCell>
-                          <TableCell className="px-3 py-2.5 text-muted-foreground">
-                            {r.serial_no ?? "—"}
-                          </TableCell>
-                          <TableCell className="px-3 py-2.5 text-muted-foreground">
-                            {r.condition ?? "—"}
-                          </TableCell>
-                          <TableCell className="px-3 py-2.5 text-muted-foreground">
-                            {r.received_by}
-                          </TableCell>
-                          <TableCell className="px-3 py-2.5 text-muted-foreground">
-                            {formatDateTime(r.received_date)}
-                          </TableCell>
-                        </TableRow>
-                      )),
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </LiquidGlass>
-          )}
 
           {inbound.assignments && inbound.assignments.length > 0 && (
             <LiquidGlass
@@ -626,15 +606,6 @@ export function PenerimaanDetailView({ id }: { id: string }) {
               </div>
             </LiquidGlass>
           )}
-
-          <div className="flex items-center justify-start print:hidden">
-            <Link href="/dashboard/barang-masuk">
-              <Button variant="outline">
-                <ArrowLeftIcon className="mr-1.5 h-4 w-4" />
-                Kembali
-              </Button>
-            </Link>
-          </div>
 
           <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
             <DialogContent className="sm:max-w-md">
