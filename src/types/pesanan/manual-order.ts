@@ -32,6 +32,9 @@ export interface ManualOrderPayload {
   shipping_cost?: number;
   shipping_discount?: number;
   insurance_cost?: number;
+  service_fee?: number;
+  seller_voucher?: number;
+  order_processing_fee?: number;
   grand_total?: number;
   price_includes_tax?: boolean;
 

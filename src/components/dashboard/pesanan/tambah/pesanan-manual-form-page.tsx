@@ -1,12 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PlusIcon, ScanBarcodeIcon, Trash2Icon } from "lucide-react";
-import { toast } from "sonner";
+import Image from "next/image";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ImageIcon,
+  InfoIcon,
+  PackageIcon,
+  PlusIcon,
+  Trash2Icon,
+} from "lucide-react";
 
 import { PageTitle } from "@/components/dashboard/page-title";
 import { TambahPelangganDialog } from "@/components/dashboard/shared/tambah-pelanggan-dialog";
+import { ProductPickerDialog } from "@/components/dashboard/transaksi-pembelian/product-picker-dialog";
+import type { PickedProduct } from "@/components/dashboard/transaksi-pembelian/product-picker-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
@@ -27,7 +37,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useContacts } from "@/hooks/kontak-pemasok/use-contacts";
 import { useCreateManualOrder } from "@/hooks/pesanan/use-create-manual-order";
-import { SkuLookupService } from "@/services/pesanan/sku-lookup.service";
 import { cn } from "@/lib/utils";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useSalesmen } from "@/hooks/kontak-pemasok/use-salesman";
@@ -41,24 +50,14 @@ interface LineItem {
   key: string;
   itemId: string;
   sku: string;
-  description: string;
+  name: string;
+  variantLabel: string;
+  thumbnail: string | null;
   qty: number;
   price: number;
   discPercent: number;
-  available: number | null;
-}
-
-function newLine(): LineItem {
-  return {
-    key: crypto.randomUUID(),
-    itemId: "",
-    sku: "",
-    description: "",
-    qty: 1,
-    price: 0,
-    discPercent: 0,
-    available: null,
-  };
+  discAmount: number;
+  shippingFee: number;
 }
 
 function toDateOnly(d: Date | undefined) {
@@ -92,14 +91,19 @@ export function PesananManualFormPage() {
   const [locationId, setLocationId] = useState<string | null>(null);
 
   const [priceIncludesTax, setPriceIncludesTax] = useState(false);
-  const [items, setItems] = useState<LineItem[]>([newLine()]);
-  const [scanCode, setScanCode] = useState("");
-  const [scanBusy, setScanBusy] = useState(false);
+  const [items, setItems] = useState<LineItem[]>([]);
+  const [productPickerOpen, setProductPickerOpen] = useState(false);
 
   const [otherDiscount, setOtherDiscount] = useState(0);
   const [shippingCost, setShippingCost] = useState(0);
   const [shippingDiscount, setShippingDiscount] = useState(0);
-  const [taxAmount, setTaxAmount] = useState(0);
+  const [taxAmount] = useState(0);
+
+  const [serviceFee, setServiceFee] = useState(0);
+  const [sellerVoucher, setSellerVoucher] = useState(0);
+  const [insuranceCost, setInsuranceCost] = useState(0);
+  const [orderProcessingFee, setOrderProcessingFee] = useState(0);
+  const [lainnyaOpen, setLainnyaOpen] = useState(true);
 
   const [recipientName, setRecipientName] = useState("");
   const [recipientPhone, setRecipientPhone] = useState("");
@@ -127,10 +131,6 @@ export function PesananManualFormPage() {
   const { data: stores } = useActiveInternalStores();
   const { data: locData } = useLocations({ perPage: 100 });
   const { data: couriers } = useCouriers();
-
-  useEffect(() => {
-    if (!tokoId && stores && stores.length > 0) setTokoId(stores[0].id);
-  }, [stores, tokoId]);
 
   const customerOptions = useMemo(
     () =>
@@ -204,78 +204,26 @@ export function PesananManualFormPage() {
     setItems((prev) => prev.filter((_, i) => i !== idx));
   }
 
-  async function handleScan(rawSku: string) {
-    const sku = rawSku.trim();
-    if (!sku) return;
-    if (!locationId) {
-      toast.error("Pilih lokasi dulu sebelum scan produk.");
-      return;
-    }
-    setScanBusy(true);
-    try {
-      const result = await SkuLookupService.lookup(sku, locationId);
-      setItems((prev) => {
-        const existingIdx = prev.findIndex((it) => it.itemId === result.item_id);
-        if (existingIdx >= 0) {
-          return prev.map((it, i) =>
-            i === existingIdx
-              ? { ...it, qty: it.qty + 1, available: result.available }
-              : it,
-          );
-        }
-        const newItem: LineItem = {
+  function handleProductsPicked(picked: PickedProduct[]) {
+    setItems((prev) => {
+      const existingIds = new Set(prev.map((it) => it.itemId));
+      const fresh: LineItem[] = picked
+        .filter((p) => !existingIds.has(p.itemId))
+        .map((p) => ({
           key: crypto.randomUUID(),
-          itemId: result.item_id,
-          sku: result.sku,
-          description: result.name ?? "",
+          itemId: p.itemId,
+          sku: p.sku,
+          name: p.name,
+          variantLabel: p.variantLabel,
+          thumbnail: p.thumbnail,
           qty: 1,
-          price: result.sell_price,
+          price: p.sellPrice ?? 0,
           discPercent: 0,
-          available: result.available,
-        };
-        const emptyIdx = prev.findIndex((it) => !it.sku.trim());
-        if (emptyIdx >= 0) {
-          return prev.map((it, i) => (i === emptyIdx ? newItem : it));
-        }
-        return [...prev, newItem];
-      });
-      setScanCode("");
-      toast.success(`${result.sku} · stok tersedia ${result.available}`);
-    } catch (err) {
-      toast.error(
-        (err as { message?: string })?.message ??
-          `SKU "${sku}" tidak ditemukan.`,
-      );
-    } finally {
-      setScanBusy(false);
-    }
-  }
-
-  async function refreshAvailable(idx: number) {
-    const it = items[idx];
-    if (!it.sku.trim() || !locationId) return;
-    try {
-      const result = await SkuLookupService.lookup(it.sku.trim(), locationId);
-      setItems((prev) =>
-        prev.map((row, i) =>
-          i === idx
-            ? {
-                ...row,
-                itemId: result.item_id,
-                available: result.available,
-                price: row.price || result.sell_price,
-                description: row.description || (result.name ?? ""),
-              }
-            : row,
-        ),
-      );
-    } catch {
-      setItems((prev) =>
-        prev.map((row, i) =>
-          i === idx ? { ...row, available: null, itemId: "" } : row,
-        ),
-      );
-    }
+          discAmount: 0,
+          shippingFee: 0,
+        }));
+      return [...prev, ...fresh];
+    });
   }
 
   const totals = useMemo(() => {
@@ -283,21 +231,28 @@ export function PesananManualFormPage() {
       (acc, it) => acc + it.qty * it.price,
       0,
     );
-    const totalItemDisc = items.reduce(
-      (acc, it) => acc + (it.qty * it.price * it.discPercent) / 100,
-      0,
-    );
-    const netShipping = Math.max(0, shippingCost - shippingDiscount);
+    const totalItemDisc = items.reduce((acc, it) => {
+      const gross = it.qty * it.price;
+      const percentDisc = (gross * it.discPercent) / 100;
+      const disc = it.discAmount > 0 ? it.discAmount : percentDisc;
+      return acc + disc;
+    }, 0);
+    const itemShipping = items.reduce((acc, it) => acc + it.shippingFee, 0);
+    const netShipping = Math.max(0, shippingCost + itemShipping - shippingDiscount);
+    const additionalFee =
+      serviceFee - sellerVoucher + insuranceCost + orderProcessingFee;
     const netSub = subTotal - totalItemDisc - otherDiscount;
     const withTax = priceIncludesTax ? netSub : netSub + taxAmount;
-    const grand = Math.max(0, withTax + netShipping);
+    const grand = Math.max(0, withTax + netShipping + additionalFee);
     return {
       subTotal,
       totalItemDisc,
       netShipping,
+      itemShipping,
+      additionalFee,
       grand,
       qtyTotal: items.reduce((acc, it) => acc + it.qty, 0),
-      productCount: items.filter((it) => it.sku.trim()).length,
+      productCount: items.length,
     };
   }, [
     items,
@@ -306,6 +261,10 @@ export function PesananManualFormPage() {
     otherDiscount,
     taxAmount,
     priceIncludesTax,
+    serviceFee,
+    sellerVoucher,
+    insuranceCost,
+    orderProcessingFee,
   ]);
 
   const createMut = useCreateManualOrder();
@@ -330,7 +289,7 @@ export function PesananManualFormPage() {
   async function handleSubmit() {
     if (!customerId || !customerName) return;
     if (!tokoId || !locationId) return;
-    if (items.filter((it) => it.sku.trim()).length === 0) return;
+    if (items.length === 0) return;
 
     await createMut.mutateAsync({
       salesorder_no:
@@ -350,8 +309,12 @@ export function PesananManualFormPage() {
       total_disc: totals.totalItemDisc,
       other_discount: otherDiscount,
       total_tax: taxAmount,
-      shipping_cost: shippingCost,
+      shipping_cost: shippingCost + totals.itemShipping,
       shipping_discount: shippingDiscount,
+      insurance_cost: insuranceCost,
+      service_fee: serviceFee,
+      seller_voucher: sellerVoucher,
+      order_processing_fee: orderProcessingFee,
       grand_total: totals.grand,
       price_includes_tax: priceIncludesTax,
 
@@ -371,34 +334,27 @@ export function PesananManualFormPage() {
       shipping_province: recipientProvince || null,
       shipping_post_code: recipientPostCode || null,
 
-      items: items
-        .filter((it) => it.sku.trim() && it.itemId)
-        .map((it) => ({
-          item_id: it.itemId,
-          sku: it.sku,
-          description: it.description || null,
-          qty_in_base: it.qty,
-          price: it.price,
-          disc_percent: it.discPercent,
-        })),
+      items: items.map((it) => ({
+        item_id: it.itemId,
+        sku: it.sku,
+        description: it.name || null,
+        qty_in_base: it.qty,
+        price: it.price,
+        disc: it.discAmount,
+        disc_percent: it.discPercent,
+      })),
     });
 
     router.push("/dashboard/pesanan");
   }
-
-  const overStockItems = items.filter(
-    (it) => it.sku.trim() && it.available !== null && it.qty > it.available,
-  );
-  const missingItemId = items.some((it) => it.sku.trim() && !it.itemId);
 
   const canSubmit =
     !!customerId &&
     !!customerName &&
     !!tokoId &&
     !!locationId &&
-    items.some((it) => it.sku.trim() && it.qty > 0) &&
-    overStockItems.length === 0 &&
-    !missingItemId;
+    items.length > 0 &&
+    items.every((it) => it.qty > 0);
 
   return (
     <div className="flex flex-col gap-5">
@@ -412,10 +368,14 @@ export function PesananManualFormPage() {
         ]}
       />
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
         <div className="flex flex-col gap-5">
           {/* Informasi Pesanan */}
-          <LiquidGlass radius={16} intensity="subtle" className="bg-white/40 dark:bg-white/[0.06]">
+          <LiquidGlass
+            radius={16}
+            intensity="subtle"
+            className="bg-white/40 dark:bg-white/[0.06]"
+          >
             <div className="border-b border-border/60 px-5 py-4">
               <h2 className="text-base font-semibold">Informasi Pesanan</h2>
             </div>
@@ -465,6 +425,14 @@ export function PesananManualFormPage() {
                 </div>
               </div>
               <div className="flex flex-col gap-1.5">
+                <Label className="text-sm font-medium">No. Ref</Label>
+                <Input
+                  value={noRef}
+                  onChange={(e) => setNoRef(e.target.value)}
+                  placeholder="No. ref"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
                 <Label className="text-sm font-medium">
                   Toko <span className="text-destructive">*</span>
                 </Label>
@@ -473,14 +441,6 @@ export function PesananManualFormPage() {
                   value={tokoId}
                   onChange={setTokoId}
                   placeholder="Pilih toko"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-sm font-medium">No. Ref</Label>
-                <Input
-                  value={noRef}
-                  onChange={(e) => setNoRef(e.target.value)}
-                  placeholder="No. ref"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
@@ -503,20 +463,25 @@ export function PesananManualFormPage() {
                   placeholder="Pilih salesman"
                 />
               </div>
-              <div className="flex flex-col gap-1.5 md:col-span-2">
+              <div className="flex flex-col gap-1.5">
                 <Label className="text-sm font-medium">Keterangan</Label>
                 <Textarea
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Masukkan keterangan"
-                  rows={2}
+                  rows={1}
+                  className="min-h-[38px] resize-none"
                 />
               </div>
             </div>
           </LiquidGlass>
 
           {/* Produk */}
-          <LiquidGlass radius={16} intensity="subtle" className="bg-white/40 dark:bg-white/[0.06]">
+          <LiquidGlass
+            radius={16}
+            intensity="subtle"
+            className="bg-white/40 dark:bg-white/[0.06]"
+          >
             <div className="flex items-center justify-between border-b border-border/60 px-5 py-4">
               <h2 className="text-base font-semibold">Produk</h2>
               <label className="flex items-center gap-2 text-sm">
@@ -527,194 +492,216 @@ export function PesananManualFormPage() {
                 Harga Termasuk Pajak
               </label>
             </div>
-            <div className="flex flex-col gap-4 px-5 py-5">
-              <div className="flex flex-col gap-1.5">
-                <div className="relative">
-                  <ScanBarcodeIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    value={scanCode}
-                    onChange={(e) => setScanCode(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleScan(scanCode);
-                      }
-                    }}
-                    disabled={scanBusy || !locationId}
-                    placeholder={
-                      locationId
-                        ? "Scan / ketik SKU lalu tekan Enter"
-                        : "Pilih lokasi dulu, baru scan"
-                    }
-                    className="h-11 pl-9"
-                    autoComplete="off"
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Stok akan dicek otomatis berdasarkan lokasi yang dipilih.
-                </p>
-              </div>
 
-              <div className="overflow-x-auto">
+            <div className="flex flex-col gap-4 px-5 py-5">
+              <div className="overflow-x-auto rounded-xl border border-border/60 bg-background/40">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>SKU</TableHead>
-                      <TableHead>Deskripsi</TableHead>
-                      <TableHead className="w-24 text-right">Stok</TableHead>
-                      <TableHead className="w-24 text-right">Qty</TableHead>
-                      <TableHead className="w-40 text-right">Harga</TableHead>
-                      <TableHead className="w-24 text-right">Diskon %</TableHead>
-                      <TableHead className="w-40 text-right">Total</TableHead>
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead className="min-w-[240px]">Produk</TableHead>
+                      <TableHead className="w-36 text-right">Harga</TableHead>
+                      <TableHead className="w-20 text-right">Qty</TableHead>
+                      <TableHead className="w-24 text-right">
+                        Diskon %
+                      </TableHead>
+                      <TableHead className="w-32 text-right">
+                        Diskon (Rp)
+                      </TableHead>
+                      <TableHead className="w-32 text-right">
+                        Ongkos Angkut
+                      </TableHead>
+                      <TableHead className="w-36 text-right">Total</TableHead>
                       <TableHead className="w-12" />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {items.map((it, idx) => {
-                      const gross = it.qty * it.price;
-                      const disc = (gross * it.discPercent) / 100;
-                      const overStock =
-                        it.available !== null && it.qty > it.available;
-                      return (
-                        <TableRow key={it.key}>
-                          <TableCell>
-                            <Input
-                              value={it.sku}
-                              onChange={(e) =>
-                                updateItem(idx, "sku", e.target.value)
-                              }
-                              onBlur={() => refreshAvailable(idx)}
-                              placeholder="SKU"
-                              className={cn(
-                                "h-9",
-                                it.sku && !it.itemId && "border-destructive",
-                              )}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              value={it.description}
-                              onChange={(e) =>
-                                updateItem(idx, "description", e.target.value)
-                              }
-                              placeholder="Deskripsi (opsional)"
-                              className="h-9"
-                            />
-                          </TableCell>
-                          <TableCell className="text-right text-xs tabular-nums">
-                            {it.available === null ? (
-                              <span className="text-muted-foreground">—</span>
-                            ) : (
-                              <span
-                                className={cn(
-                                  overStock
-                                    ? "font-semibold text-destructive"
-                                    : "text-muted-foreground",
-                                )}
-                              >
-                                {it.available}
-                              </span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              type="text"
-                              inputMode="numeric"
-                              value={it.qty || ""}
-                              onChange={(e) =>
-                                updateItem(
-                                  idx,
-                                  "qty",
-                                  parseCurrency(e.target.value),
-                                )
-                              }
-                              className={cn(
-                                "h-9 text-right tabular-nums",
-                                overStock &&
-                                  "border-destructive ring-2 ring-destructive/20",
-                              )}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              type="text"
-                              inputMode="numeric"
-                              value={
-                                it.price ? it.price.toLocaleString("id-ID") : ""
-                              }
-                              onChange={(e) =>
-                                updateItem(
-                                  idx,
-                                  "price",
-                                  parseCurrency(e.target.value),
-                                )
-                              }
-                              className="h-9 text-right tabular-nums"
-                              placeholder="0"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              type="text"
-                              inputMode="numeric"
-                              value={it.discPercent || ""}
-                              onChange={(e) =>
-                                updateItem(
-                                  idx,
-                                  "discPercent",
-                                  Math.min(
-                                    100,
+                    {items.length === 0 ? (
+                      <TableRow className="hover:bg-transparent">
+                        <TableCell
+                          colSpan={8}
+                          className="h-40 text-center align-middle"
+                        >
+                          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                            <PackageIcon className="size-8 opacity-40" />
+                            <p className="text-sm font-medium">
+                              Belum ada produk
+                            </p>
+                            <p className="text-xs">
+                              Klik tombol di bawah untuk menambahkan.
+                            </p>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      items.map((it, idx) => {
+                        const gross = it.qty * it.price;
+                        const percentDisc = (gross * it.discPercent) / 100;
+                        const disc =
+                          it.discAmount > 0 ? it.discAmount : percentDisc;
+                        const total = Math.max(0, gross - disc) + it.shippingFee;
+                        return (
+                          <TableRow key={it.key}>
+                            <TableCell className="align-top">
+                              <div className="flex items-center gap-3">
+                                <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted/40">
+                                  {it.thumbnail ? (
+                                    <Image
+                                      src={it.thumbnail}
+                                      alt={it.name}
+                                      width={40}
+                                      height={40}
+                                      className="size-full object-cover"
+                                    />
+                                  ) : (
+                                    <ImageIcon className="size-4 text-muted-foreground" />
+                                  )}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <div className="truncate text-sm font-medium">
+                                    {it.name}
+                                  </div>
+                                  <div className="truncate text-xs text-muted-foreground">
+                                    {it.sku}
+                                    {it.variantLabel
+                                      ? ` · ${it.variantLabel}`
+                                      : ""}
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="text"
+                                inputMode="numeric"
+                                value={
+                                  it.price
+                                    ? it.price.toLocaleString("id-ID")
+                                    : ""
+                                }
+                                onChange={(e) =>
+                                  updateItem(
+                                    idx,
+                                    "price",
                                     parseCurrency(e.target.value),
-                                  ),
-                                )
-                              }
-                              className="h-9 text-right tabular-nums"
-                              placeholder="0"
-                            />
-                          </TableCell>
-                          <TableCell className="text-right font-medium tabular-nums">
-                            {formatCurrency(gross - disc)}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => removeItem(idx)}
-                              disabled={items.length === 1}
-                            >
-                              <Trash2Icon className="size-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                                  )
+                                }
+                                className="h-9 text-right tabular-nums"
+                                placeholder="0"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="text"
+                                inputMode="numeric"
+                                value={it.qty || ""}
+                                onChange={(e) =>
+                                  updateItem(
+                                    idx,
+                                    "qty",
+                                    parseCurrency(e.target.value),
+                                  )
+                                }
+                                className="h-9 text-right tabular-nums"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="text"
+                                inputMode="numeric"
+                                value={it.discPercent || ""}
+                                onChange={(e) =>
+                                  updateItem(
+                                    idx,
+                                    "discPercent",
+                                    Math.min(
+                                      100,
+                                      parseCurrency(e.target.value),
+                                    ),
+                                  )
+                                }
+                                className="h-9 text-right tabular-nums"
+                                placeholder="0"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="text"
+                                inputMode="numeric"
+                                value={
+                                  it.discAmount
+                                    ? it.discAmount.toLocaleString("id-ID")
+                                    : ""
+                                }
+                                onChange={(e) =>
+                                  updateItem(
+                                    idx,
+                                    "discAmount",
+                                    parseCurrency(e.target.value),
+                                  )
+                                }
+                                className="h-9 text-right tabular-nums"
+                                placeholder="0"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="text"
+                                inputMode="numeric"
+                                value={
+                                  it.shippingFee
+                                    ? it.shippingFee.toLocaleString("id-ID")
+                                    : ""
+                                }
+                                onChange={(e) =>
+                                  updateItem(
+                                    idx,
+                                    "shippingFee",
+                                    parseCurrency(e.target.value),
+                                  )
+                                }
+                                className="h-9 text-right tabular-nums"
+                                placeholder="0"
+                              />
+                            </TableCell>
+                            <TableCell className="text-right font-medium tabular-nums">
+                              {formatCurrency(total)}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeItem(idx)}
+                              >
+                                <Trash2Icon className="size-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    )}
                   </TableBody>
                 </Table>
               </div>
 
-              <div className="flex items-center justify-between gap-3">
+              <div>
                 <Button
                   type="button"
-                  variant="outline"
-                  onClick={() => setItems((p) => [...p, newLine()])}
+                  variant="primary"
+                  onClick={() => setProductPickerOpen(true)}
                 >
                   <PlusIcon className="mr-1 size-4" />
-                  Tambah Baris
+                  Tambah Baru
                 </Button>
-
-                {(overStockItems.length > 0 || missingItemId) && (
-                  <div className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive">
-                    {overStockItems.length > 0
-                      ? `Qty melebihi stok tersedia pada ${overStockItems.length} produk. Turunkan qty atau ganti lokasi.`
-                      : "Beberapa SKU belum tervalidasi. Klik ke luar field SKU (blur) untuk cek stok."}
-                  </div>
-                )}
               </div>
             </div>
           </LiquidGlass>
 
           {/* Penerima */}
-          <LiquidGlass radius={16} intensity="subtle" className="bg-white/40 dark:bg-white/[0.06]">
+          <LiquidGlass
+            radius={16}
+            intensity="subtle"
+            className="bg-white/40 dark:bg-white/[0.06]"
+          >
             <div className="border-b border-border/60 px-5 py-4">
               <h2 className="text-base font-semibold">Penerima</h2>
             </div>
@@ -771,7 +758,11 @@ export function PesananManualFormPage() {
           </LiquidGlass>
 
           {/* Pengiriman */}
-          <LiquidGlass radius={16} intensity="subtle" className="bg-white/40 dark:bg-white/[0.06]">
+          <LiquidGlass
+            radius={16}
+            intensity="subtle"
+            className="bg-white/40 dark:bg-white/[0.06]"
+          >
             <div className="border-b border-border/60 px-5 py-4">
               <h2 className="text-base font-semibold">Pengiriman</h2>
             </div>
@@ -811,7 +802,9 @@ export function PesananManualFormPage() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label className="text-sm font-medium">Total Berat (gram)</Label>
+                <Label className="text-sm font-medium">
+                  Total Berat (gram)
+                </Label>
                 <Input
                   type="text"
                   inputMode="numeric"
@@ -851,33 +844,82 @@ export function PesananManualFormPage() {
             <RowSum label={`Qty Total (${totals.productCount} produk)`}>
               {formatCurrency(totals.subTotal)}
             </RowSum>
-            <RowSum label="Diskon">{formatCurrency(totals.totalItemDisc)}</RowSum>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Diskon Lainnya</span>
-              <CurrencyInput
-                value={otherDiscount}
-                onChange={setOtherDiscount}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Pajak</span>
-              <CurrencyInput value={taxAmount} onChange={setTaxAmount} />
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Ongkos Kirim</span>
-              <CurrencyInput
-                value={shippingCost}
-                onChange={setShippingCost}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Diskon Ongkir</span>
-              <CurrencyInput
-                value={shippingDiscount}
-                onChange={setShippingDiscount}
-              />
-            </div>
+            <RowSum label="Diskon">
+              {formatCurrency(totals.totalItemDisc)}
+            </RowSum>
+
+            <RowInput
+              label="Diskon Lainnya"
+              value={otherDiscount}
+              onChange={setOtherDiscount}
+            />
+            <RowSum label="Pajak">{formatCurrency(taxAmount)}</RowSum>
+            <RowInput
+              label="Ongkos Kirim"
+              value={shippingCost}
+              onChange={setShippingCost}
+            />
+            <RowInput
+              label="Diskon Ongkos Kirim"
+              value={shippingDiscount}
+              onChange={setShippingDiscount}
+            />
+
             <div className="my-2 h-px bg-border/60" />
+
+            <button
+              type="button"
+              onClick={() => setLainnyaOpen((v) => !v)}
+              className="flex w-full items-center justify-between text-left"
+            >
+              <span className="font-medium">Lainnya</span>
+              {lainnyaOpen ? (
+                <ChevronUpIcon className="size-4 text-muted-foreground" />
+              ) : (
+                <ChevronDownIcon className="size-4 text-muted-foreground" />
+              )}
+            </button>
+
+            {lainnyaOpen && (
+              <div className="space-y-3">
+                <RowInput
+                  label="Biaya Lainnya"
+                  value={serviceFee}
+                  onChange={setServiceFee}
+                />
+                <RowInput
+                  label="Potongan Biaya"
+                  value={sellerVoucher}
+                  onChange={setSellerVoucher}
+                />
+                <RowInput
+                  label="Asuransi"
+                  value={insuranceCost}
+                  onChange={setInsuranceCost}
+                />
+                <RowInput
+                  label="Biaya Proses Pesanan"
+                  value={orderProcessingFee}
+                  onChange={setOrderProcessingFee}
+                />
+              </div>
+            )}
+
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 font-medium">
+                Biaya Tambahan
+                <InfoIcon
+                  className="size-3.5 text-muted-foreground"
+                  aria-label="Total dari Biaya Lainnya - Potongan Biaya + Asuransi + Biaya Proses Pesanan"
+                />
+              </span>
+              <span className="font-semibold tabular-nums text-primary">
+                {formatCurrency(totals.additionalFee)}
+              </span>
+            </div>
+
+            <div className="my-2 h-px bg-border/60" />
+
             <div className="flex items-center justify-between">
               <span className="font-semibold">Total</span>
               <span className="text-lg font-semibold text-primary tabular-nums">
@@ -921,6 +963,13 @@ export function PesananManualFormPage() {
         defaultName={customerQuery}
         onCreated={(c) => handleCustomerSelected(c)}
       />
+
+      <ProductPickerDialog
+        open={productPickerOpen}
+        onOpenChange={setProductPickerOpen}
+        onPick={handleProductsPicked}
+        excludeIds={items.map((it) => it.itemId)}
+      />
     </div>
   );
 }
@@ -940,21 +989,31 @@ function RowSum({
   );
 }
 
-function CurrencyInput({
+function RowInput({
+  label,
   value,
   onChange,
 }: {
+  label: string;
   value: number;
   onChange: (v: number) => void;
 }) {
   return (
-    <Input
-      type="text"
-      inputMode="numeric"
-      value={value ? value.toLocaleString("id-ID") : ""}
-      onChange={(e) => onChange(parseCurrency(e.target.value))}
-      className="h-8 w-32 text-right tabular-nums"
-      placeholder="0"
-    />
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-muted-foreground">{label}</span>
+      <div className="relative w-40">
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+          Rp
+        </span>
+        <Input
+          type="text"
+          inputMode="numeric"
+          value={value ? value.toLocaleString("id-ID") : ""}
+          onChange={(e) => onChange(parseCurrency(e.target.value))}
+          className={cn("h-9 pl-9 pr-3 text-right tabular-nums")}
+          placeholder="0"
+        />
+      </div>
+    </div>
   );
 }
