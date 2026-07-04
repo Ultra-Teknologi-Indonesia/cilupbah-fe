@@ -1,18 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useMemo, useState } from "react";
-import {
-  PencilIcon,
-  SearchIcon,
-  StoreIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { SearchIcon, StoreIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Switch } from "@/components/ui/switch";
@@ -25,16 +18,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import {
-  useDeleteInternalStore,
-  useInternalStores,
-} from "@/hooks/penjualan/use-internal-stores";
+import { useInternalStores } from "@/hooks/penjualan/use-internal-stores";
 
 export function TokoInternalView() {
   const [query, setQuery] = useState("");
   const [onlyActive, setOnlyActive] = useState(false);
   const [page, setPage] = useState(1);
-  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   const debouncedQuery = useDebouncedValue(query, 250);
 
@@ -45,65 +34,65 @@ export function TokoInternalView() {
     "filter[is_active]": onlyActive ? 1 : undefined,
   });
 
-  const deleteMut = useDeleteInternalStore();
-
   const items = data?.items ?? [];
   const meta = data?.meta;
 
   const emptyMessage = useMemo(() => {
     if (isLoading) return "Memuat…";
-    if (debouncedQuery) return `Tidak ada toko yang cocok dengan "${debouncedQuery}".`;
+    if (debouncedQuery)
+      return `Tidak ada toko yang cocok dengan "${debouncedQuery}".`;
     return "Belum ada toko internal.";
   }, [debouncedQuery, isLoading]);
 
   return (
-    <>
-      <LiquidGlass radius={24} intensity="default" className="bg-white/40 dark:bg-white/[0.06]">
-        <div className="mb-4 flex flex-wrap items-center gap-3 px-5 pt-5 sm:px-6">
-          <div className="relative min-w-56 flex-1">
-            <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setPage(1);
-              }}
-              placeholder="Cari nama atau kode toko"
-              className="pl-9"
-            />
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            <Switch checked={onlyActive} onCheckedChange={setOnlyActive} />
-            Hanya aktif
-          </label>
+    <LiquidGlass
+      radius={24}
+      intensity="default"
+      className="bg-white/40 dark:bg-white/[0.06]"
+    >
+      <div className="mb-4 flex flex-wrap items-center gap-3 px-5 pt-5 sm:px-6">
+        <div className="relative min-w-56 flex-1">
+          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Cari nama atau kode toko"
+            className="pl-9"
+          />
         </div>
+        <label className="flex items-center gap-2 text-sm">
+          <Switch checked={onlyActive} onCheckedChange={setOnlyActive} />
+          Hanya aktif
+        </label>
+      </div>
 
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nama</TableHead>
+              <TableHead className="w-32">Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.length === 0 ? (
               <TableRow>
-                <TableHead className="w-16">Logo</TableHead>
-                <TableHead>Kode</TableHead>
-                <TableHead>Nama</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-32 text-right">Aksi</TableHead>
+                <TableCell
+                  colSpan={2}
+                  className="py-12 text-center text-sm text-muted-foreground"
+                >
+                  {emptyMessage}
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="py-12 text-center text-sm text-muted-foreground"
-                  >
-                    {emptyMessage}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                items.map((store) => (
-                  <TableRow key={store.id}>
-                    <TableCell>
-                      <div className="relative size-10 overflow-hidden rounded-lg border border-border bg-muted/40">
+            ) : (
+              items.map((store) => (
+                <TableRow key={store.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="relative size-10 shrink-0 overflow-hidden rounded-lg border border-border bg-muted/40">
                         {store.logo_thumb || store.logo_url ? (
                           <Image
                             src={store.logo_thumb ?? store.logo_url!}
@@ -118,83 +107,56 @@ export function TokoInternalView() {
                           </div>
                         )}
                       </div>
-                    </TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
-                      {store.code}
-                    </TableCell>
-                    <TableCell className="font-medium">{store.name}</TableCell>
-                    <TableCell>
-                      {store.is_active ? (
-                        <Badge variant="secondary">Aktif</Badge>
-                      ) : (
-                        <Badge variant="outline">Nonaktif</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button asChild variant="ghost" size="icon">
-                          <Link href={`/dashboard/toko-internal/${store.id}`}>
-                            <PencilIcon className="size-4" />
-                          </Link>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setPendingDelete(store.id)}
-                        >
-                          <Trash2Icon className="size-4" />
-                        </Button>
+                      <div className="min-w-0">
+                        <div className="truncate font-medium">{store.name}</div>
+                        <div className="truncate font-mono text-xs text-muted-foreground">
+                          {store.code}
+                        </div>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {store.is_active ? (
+                      <Badge variant="secondary">Aktif</Badge>
+                    ) : (
+                      <Badge variant="outline">Nonaktif</Badge>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-        {meta && meta.last_page > 1 && (
-          <div className="mt-4 flex items-center justify-between px-5 pb-5 text-sm text-muted-foreground sm:px-6">
-            <div>
-              Menampilkan {items.length} dari {meta.total} toko
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={meta.current_page <= 1}
-              >
-                Sebelumnya
-              </Button>
-              <span>
-                Halaman {meta.current_page} / {meta.last_page}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => p + 1)}
-                disabled={meta.current_page >= meta.last_page}
-              >
-                Berikutnya
-              </Button>
-            </div>
+      {meta && meta.last_page > 1 && (
+        <div className="mt-4 flex items-center justify-between px-5 pb-5 text-sm text-muted-foreground sm:px-6">
+          <div>
+            Menampilkan {items.length} dari {meta.total} toko
           </div>
-        )}
-      </LiquidGlass>
-
-      <ConfirmDialog
-        open={!!pendingDelete}
-        onOpenChange={(v) => !v && setPendingDelete(null)}
-        title="Hapus toko internal?"
-        description="Toko yang sudah pernah dipakai di pesanan tidak akan hilang dari pesanan tersebut, tapi tidak bisa lagi dipilih di form baru."
-        confirmLabel="Hapus"
-        onConfirm={async () => {
-          if (!pendingDelete) return;
-          await deleteMut.mutateAsync(pendingDelete);
-          setPendingDelete(null);
-        }}
-      />
-    </>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={meta.current_page <= 1}
+            >
+              Sebelumnya
+            </Button>
+            <span>
+              Halaman {meta.current_page} / {meta.last_page}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={meta.current_page >= meta.last_page}
+            >
+              Berikutnya
+            </Button>
+          </div>
+        </div>
+      )}
+    </LiquidGlass>
   );
 }
