@@ -469,8 +469,6 @@ export function PesananManualFormPage() {
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Masukkan keterangan"
-                  rows={1}
-                  className="min-h-[38px] resize-none"
                 />
               </div>
             </div>
