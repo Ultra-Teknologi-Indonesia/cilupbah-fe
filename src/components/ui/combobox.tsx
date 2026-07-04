@@ -32,6 +32,13 @@ interface ComboboxBaseProps {
   className?: string;
   onCreateOption?: (query: string) => void;
   createLabel?: (query: string) => string;
+  /**
+   * Kalau diisi, dipanggil setiap kali user mengetik.
+   * Combobox akan berhenti menyaring lokal & menampilkan seluruh `options` — parent bertanggung jawab
+   * fetch remote berdasarkan query ini.
+   */
+  onQueryChange?: (query: string) => void;
+  loading?: boolean;
 }
 
 interface SingleComboboxProps extends ComboboxBaseProps {
@@ -63,6 +70,8 @@ export function Combobox({
   className,
   onCreateOption,
   createLabel = (q) => `Buat "${q}"`,
+  onQueryChange,
+  loading,
   multiple,
   maxVisible = 2,
 }: ComboboxProps) {
@@ -81,11 +90,13 @@ export function Combobox({
     : (options.find((o) => o.value === (value as string | null)) ?? null);
 
   const trimmed = query.trim();
-  const filtered = trimmed
-    ? options.filter((o) =>
-        o.label.toLowerCase().includes(trimmed.toLowerCase()),
-      )
-    : options;
+  const filtered = onQueryChange
+    ? options
+    : trimmed
+      ? options.filter((o) =>
+          o.label.toLowerCase().includes(trimmed.toLowerCase()),
+        )
+      : options;
   const showCreate = onCreateOption && trimmed;
   const exactMatch = options.some(
     (o) => o.label.toLowerCase() === trimmed.toLowerCase(),
@@ -195,7 +206,10 @@ export function Combobox({
           <Input
             autoFocus
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              onQueryChange?.(e.target.value);
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && onCreateOption && trimmed) {
                 e.preventDefault();
@@ -221,7 +235,12 @@ export function Combobox({
           onTouchMove={(e) => e.stopPropagation()}
         >
           <ul className="p-1.5">
-            {filtered.length === 0 && (
+            {loading && (
+              <li className="px-3 py-6 text-center text-sm text-muted-foreground">
+                Memuat…
+              </li>
+            )}
+            {!loading && filtered.length === 0 && (
               <li className="px-3 py-6 text-center text-sm text-muted-foreground">
                 {emptyText}
               </li>

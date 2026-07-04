@@ -8,6 +8,7 @@ import {
   Eye,
   PackageCheck,
   ShoppingBag,
+  Store,
   CornerDownLeft,
   Users,
   MonitorSmartphone,
@@ -117,6 +118,12 @@ export const dashboardGroups: NavGroup[] = [
         title: "Pesanan",
         icon: ShoppingBag,
         link: "/dashboard/pesanan",
+      },
+      {
+        id: "toko-internal",
+        title: "Toko Internal",
+        icon: Store,
+        link: "/dashboard/toko-internal",
       },
       {
         id: "retur-penjualan",
