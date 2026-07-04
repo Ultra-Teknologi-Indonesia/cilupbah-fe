@@ -133,6 +133,9 @@ export interface RawFulfillmentOrder {
   total_sku?: number | null;
   is_instant?: boolean;
   shipping_type?: string | null;
+  driver_call_status?: "pending" | "success" | "failed" | null;
+  driver_call_message?: string | null;
+  driver_call_attempted_at?: string | null;
   items?: RawFulfillmentOrderItem[] | null;
 }
 
@@ -180,6 +183,9 @@ export interface FulfillmentOrder {
   totalSku: number | null;
   isInstant: boolean;
   shippingType: string | null;
+  driverCallStatus: "pending" | "success" | "failed" | null;
+  driverCallMessage: string | null;
+  driverCallAttemptedAt: string | null;
   items: FulfillmentOrderItem[];
 }
 

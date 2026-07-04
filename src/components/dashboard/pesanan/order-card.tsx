@@ -34,7 +34,10 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { BuatPicklistDialog } from "@/components/dashboard/proses-pesanan/picking/buat-picklist-dialog";
+import { BuatPengirimanDialog } from "@/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog";
+import { DriverCallIndicator } from "@/components/dashboard/proses-pesanan/shared/driver-call-indicator";
 import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
+import { isShopeeInstantOrSameDay } from "@/lib/proses-pesanan/shopee";
 import {
   Tooltip,
   TooltipContent,
@@ -214,6 +217,7 @@ function OrderActions({
   const [completeOpen, setCompleteOpen] = React.useState(false);
   const [relocateOpen, setRelocateOpen] = React.useState(false);
   const [contactOpen, setContactOpen] = React.useState(false);
+  const [pengirimanOpen, setPengirimanOpen] = React.useState(false);
 
   const markComplete = useMarkComplete();
   const requestAwb = useRequestAwb();
@@ -531,13 +535,24 @@ function OrderActions({
     }
 
     if (order.status === "packed" && !order.is_canceled) {
+      const isShopeeInstant = isShopeeInstantOrSameDay({
+        source: order.source,
+        shippingProvider: order.shipping?.provider,
+        isInstant: order.is_instant,
+      });
       primaryAction = (
         <Button
           key="ship"
           size="sm"
           className="h-8 gap-1.5 text-xs"
           disabled={busy}
-          onClick={() => requestAwb.mutate({ orderId: order.id })}
+          onClick={() => {
+            if (isShopeeInstant) {
+              setPengirimanOpen(true);
+            } else {
+              requestAwb.mutate({ orderId: order.id });
+            }
+          }}
         >
           <TruckIcon className="h-3.5 w-3.5" />
           {requestAwb.isPending ? "Memproses..." : "Kirim"}
@@ -562,6 +577,24 @@ function OrderActions({
       <>
         {secondaryActions}
         {primaryAction}
+        <BuatPengirimanDialog
+          open={pengirimanOpen}
+          onOpenChange={setPengirimanOpen}
+          orderIds={[order.id]}
+          locationId={order.location_id}
+          locationName={order.location_name}
+          marketplaceSource={order.source ?? undefined}
+          shippingProvider={order.shipping?.provider ?? undefined}
+          shippingType={
+            isShopeeInstantOrSameDay({
+              source: order.source,
+              shippingProvider: order.shipping?.provider,
+              isInstant: order.is_instant,
+            })
+              ? "INSTANT"
+              : undefined
+          }
+        />
       </>
     );
   }
@@ -841,6 +874,20 @@ export function OrderCard({
             <TooltipContent>Pesanan instan (SLA ~2 jam) — prioritaskan!</TooltipContent>
           </Tooltip>
         )}
+
+        {isShopeeInstantOrSameDay({
+          source: order.source,
+          shippingProvider: order.shipping?.provider,
+          shippingType: order.shipping_type,
+          isInstant: order.is_instant,
+        }) && order.driver_call_status ? (
+          <DriverCallIndicator
+            orderId={order.id}
+            status={order.driver_call_status}
+            message={order.driver_call_message}
+            attemptedAt={order.driver_call_attempted_at}
+          />
+        ) : null}
 
         {order.channel_order_no && (
           <>

@@ -129,6 +129,10 @@ function mapOrder(raw: RawFulfillmentOrder): FulfillmentOrder {
     totalSku: raw.total_sku ?? null,
     isInstant: Boolean(raw.is_instant),
     shippingType: raw.shipping_type ?? null,
+    driverCallStatus:
+      (raw.driver_call_status as FulfillmentOrder["driverCallStatus"]) ?? null,
+    driverCallMessage: raw.driver_call_message ?? null,
+    driverCallAttemptedAt: raw.driver_call_attempted_at ?? null,
     items: (raw.items ?? []).map((i) => ({
       id: i.id,
       sku: i.sku,
@@ -728,6 +732,66 @@ export const OutboundService = {
 
   retryMarketplaceLabel: async (orderId: string): Promise<void> => {
     await fetchClient(`/sales/${orderId}/shipping-label/retry`, {
+      method: "POST",
+    });
+  },
+
+  printWithDriverCall: async (
+    orderId: string,
+    opts?: {
+      document_type?: string;
+      document_size?: string;
+      force_label?: boolean;
+    },
+  ): Promise<{
+    driver_call_status: "pending" | "success" | "failed";
+    driver_call_message: string | null;
+    driver_call_attempted_at: string | null;
+    label:
+      | {
+          type: string;
+          url?: string;
+          document_base64?: string;
+          content_type?: string;
+          source?: string;
+        }
+      | null;
+    label_preparing?: boolean;
+    label_error?: string;
+  }> => {
+    const sp = new URLSearchParams();
+    if (opts?.document_type) sp.set("document_type", opts.document_type);
+    if (opts?.document_size) sp.set("document_size", opts.document_size);
+    if (opts?.force_label) sp.set("force_label", "1");
+    const qs = sp.toString();
+
+    const res = await fetchClient<
+      ApiResponse<{
+        driver_call_status: "pending" | "success" | "failed";
+        driver_call_message: string | null;
+        driver_call_attempted_at: string | null;
+        label:
+          | {
+              type: string;
+              url?: string;
+              document_base64?: string;
+              content_type?: string;
+              source?: string;
+            }
+          | null;
+        label_preparing?: boolean;
+        label_error?: string;
+      }>
+    >(
+      `/sales/${orderId}/print-with-driver-call${qs ? `?${qs}` : ""}`,
+      { method: "POST" },
+    );
+
+    return res.data;
+  },
+
+  retryDriverCall: async (orderId: string): Promise<void> => {
+    await fetchClient(`/sales/${orderId}/driver-call/retry`, {
       method: "POST",
     });
   },

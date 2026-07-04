@@ -107,6 +107,10 @@ export interface Order {
   received_date: string | null;
   ship_by_date: string | null;
   is_instant?: boolean;
+  shipping_type?: string | null;
+  driver_call_status?: "pending" | "success" | "failed" | null;
+  driver_call_message?: string | null;
+  driver_call_attempted_at?: string | null;
   created_at: string;
   updated_at: string;
 }

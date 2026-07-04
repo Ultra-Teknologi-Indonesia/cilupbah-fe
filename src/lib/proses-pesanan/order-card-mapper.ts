@@ -90,6 +90,10 @@ export function fulfillmentToOrder(f: FulfillmentOrder): Order {
     received_date: null,
     ship_by_date: f.shipByDate ?? null,
     is_instant: f.isInstant,
+    shipping_type: f.shippingType,
+    driver_call_status: f.driverCallStatus,
+    driver_call_message: f.driverCallMessage,
+    driver_call_attempted_at: f.driverCallAttemptedAt,
     created_at: f.transactionDate ?? "",
     updated_at: f.transactionDate ?? "",
   };
