@@ -219,7 +219,7 @@ export function DataTable<TData, TValue>({
           <Table>
             <TableHeader className="bg-muted/40">
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
@@ -245,10 +245,7 @@ export function DataTable<TData, TValue>({
             <TableBody>
               {isLoading ? (
                 Array.from({ length: loadingRows }).map((_, i) => (
-                  <TableRow
-                    key={`skeleton-${i}`}
-                    className="hover:bg-transparent"
-                  >
+                  <TableRow key={`skeleton-${i}`}>
                     {table.getVisibleLeafColumns().map((col) => (
                       <TableCell key={col.id}>
                         <Skeleton className="h-5 w-full max-w-[160px]" />
@@ -257,7 +254,7 @@ export function DataTable<TData, TValue>({
                   </TableRow>
                 ))
               ) : errorState ? (
-                <TableRow className="hover:bg-transparent">
+                <TableRow>
                   <TableCell colSpan={colSpan} className="h-32 text-center">
                     {errorState}
                   </TableCell>
@@ -285,7 +282,7 @@ export function DataTable<TData, TValue>({
                       ))}
                     </TableRow>
                     {renderSubRow && row.getIsExpanded() && (
-                      <TableRow className="hover:bg-transparent">
+                      <TableRow>
                         <TableCell
                           colSpan={colSpan}
                           className="bg-muted/20 p-0"
@@ -297,7 +294,7 @@ export function DataTable<TData, TValue>({
                   </React.Fragment>
                 ))
               ) : (
-                <TableRow className="hover:bg-transparent">
+                <TableRow>
                   <TableCell colSpan={colSpan} className="h-32 text-center">
                     {emptyState ?? <EmptyState title="Belum ada data" className="py-2" />}
                   </TableCell>
