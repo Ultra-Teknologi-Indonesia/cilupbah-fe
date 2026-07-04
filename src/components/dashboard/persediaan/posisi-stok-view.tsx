@@ -182,13 +182,16 @@ function CopySkuButton({ sku }: { sku: string }) {
         <button
           type="button"
           onClick={handleCopy}
-          className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground/60 opacity-0 transition-all hover:bg-muted hover:text-foreground group-hover:opacity-100 focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="group/sku inline-flex items-center gap-1 rounded px-1 -mx-1 text-left transition-colors hover:bg-muted focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           aria-label="Salin SKU"
         >
+          <span className="font-mono text-[11px] text-foreground/80">
+            {sku}
+          </span>
           {copied ? (
-            <CheckIcon className="h-3 w-3 text-emerald-600" />
+            <CheckIcon className="h-3 w-3 shrink-0 text-emerald-600" />
           ) : (
-            <CopyIcon className="h-3 w-3" />
+            <CopyIcon className="h-3 w-3 shrink-0 text-muted-foreground/60 opacity-0 transition-opacity group-hover/sku:opacity-100" />
           )}
         </button>
       </TooltipTrigger>
@@ -554,12 +557,7 @@ export function PosisiStokView() {
                                   .join(", ")}
                               </span>
                             )}
-                            <span className="group inline-flex items-center gap-1">
-                              <span className="font-mono text-[11px] text-foreground/80">
-                                {item.item_code}
-                              </span>
-                              <CopySkuButton sku={item.item_code} />
-                            </span>
+                            <CopySkuButton sku={item.item_code} />
                           </div>
                         </div>
                       </TableCell>
