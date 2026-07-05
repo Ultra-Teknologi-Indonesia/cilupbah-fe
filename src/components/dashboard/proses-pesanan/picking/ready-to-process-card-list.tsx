@@ -9,12 +9,11 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { BulkActionBar } from "@/components/ui/bulk-action-bar";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   SimplePagination,
   GRID_PAGE_SIZES,
 } from "@/components/ui/simple-pagination";
-import { OrderCard } from "@/components/dashboard/pesanan/order-card";
+import { OrderTable } from "@/components/dashboard/proses-pesanan/shared/order-table";
 import { BulkBuatPicklistConfirmDialog } from "@/components/dashboard/proses-pesanan/picking/bulk-buat-picklist-confirm-dialog";
 import {
   FulfillmentFilterBar,
@@ -247,18 +246,6 @@ export function ReadyToProcessCardList() {
           </div>
         ) : (
           <div className="flex flex-col gap-3 py-2">
-            <div className="flex items-center gap-2 px-1">
-              <Checkbox
-                checked={
-                  allSelected ? true : someSelected ? "indeterminate" : false
-                }
-                onCheckedChange={toggleAll}
-              />
-              <span className="text-xs text-muted-foreground">
-                Pilih Semua di halaman ini
-              </span>
-            </div>
-
             <BulkActionBar
               count={selected.size}
               onClear={clearSelection}
@@ -307,15 +294,17 @@ export function ReadyToProcessCardList() {
               }
             />
 
-            {mappedOrders.map(({ raw, ui }) => (
-              <OrderCard
-                key={raw.id}
-                order={ui}
-                variant="outbound-ready"
-                selected={selected.has(raw.id)}
-                onSelectedChange={(v) => toggleOne(raw.id, !!v)}
-              />
-            ))}
+            <OrderTable
+              orders={mappedOrders.map((m) => m.ui)}
+              tab="all"
+              variant="outbound-ready"
+              selectable
+              selectedIds={selected}
+              onToggle={toggleOne}
+              allSelected={allSelected}
+              someSelected={someSelected}
+              onToggleAll={toggleAll}
+            />
           </div>
         )}
       </div>

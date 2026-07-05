@@ -80,7 +80,7 @@ import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useCopyToClipboard } from "@/hooks/shared/use-copy-to-clipboard";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 
-function ChannelIcon({ source }: { source: string | null }) {
+export function ChannelIcon({ source }: { source: string | null }) {
   if (!source) return null;
   const ch = CHANNEL_MAP[source];
   if (!ch) return null;
@@ -201,7 +201,7 @@ function RelocateDialog({
   );
 }
 
-function OrderActions({
+export function OrderActions({
   order,
   tab,
   subFilter,
@@ -689,7 +689,7 @@ function ShipByDeadline({ date }: { date?: string | null }) {
 
 export type OrderCardVariant = "sales" | "outbound-ready";
 
-function OutboundReadyActions({ order }: { order: Order }) {
+export function OutboundReadyActions({ order }: { order: Order }) {
   const [picklistOpen, setPicklistOpen] = React.useState(false);
   const isMarketplace = !!order.source && order.source !== "manual";
 
