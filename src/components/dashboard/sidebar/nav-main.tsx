@@ -51,7 +51,11 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
 
   const handleNavClick = () => {
     setOpenCollapsible(null);
-    if (isMobile) setOpenMobile(false);
+    if (isMobile) {
+      setOpenMobile(false);
+    } else {
+      setOpen(false);
+    }
   };
 
   const labelClass =
@@ -99,7 +103,7 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
               >
                 {Icon && <Icon />}
                 <span className={labelClass}>{route.title}</span>
-                <span className="ml-auto rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground transition-opacity duration-200 ease-out group-data-[collapsible=icon]:opacity-0">
+                <span className="ml-auto rounded bg-muted px-1.5 py-0.5 text-2xs font-medium text-muted-foreground transition-opacity duration-200 ease-out group-data-[collapsible=icon]:opacity-0">
                   Segera
                 </span>
               </SidebarMenuButton>
@@ -163,7 +167,7 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                                 >
                                   <span>{subRoute.title}</span>
                                   {subRoute.badge && (
-                                    <span className="flex h-5 items-center justify-center rounded-full bg-primary/10 px-2 text-[10px] font-medium text-primary">
+                                    <span className="flex h-5 items-center justify-center rounded-full bg-primary/10 px-2 text-2xs font-medium text-primary">
                                       {subRoute.badge}
                                     </span>
                                   )}

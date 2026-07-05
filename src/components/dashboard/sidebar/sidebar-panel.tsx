@@ -21,15 +21,13 @@ export function SidebarPanel({
   const reduce = useReducedMotion();
   const [isAnimating, setIsAnimating] = React.useState(false);
 
-  const [reserved, setReserved] = React.useState(open);
-
-  if (open && !reserved) setReserved(true);
-
   return (
     <div
-      className="hidden h-full overflow-hidden md:block"
-
-      style={{ width: reserved ? PANEL_WIDTH : 0 }}
+      className={cn(
+        "absolute left-[76px] top-0 z-50 hidden h-full overflow-hidden md:block",
+        !open && !isAnimating && "pointer-events-none",
+      )}
+      style={{ width: PANEL_WIDTH }}
     >
       <motion.div
         className="glass-elevation h-full overflow-hidden rounded-2xl"
@@ -41,10 +39,7 @@ export function SidebarPanel({
           willChange: isAnimating ? "transform" : "auto",
         }}
         onAnimationStart={() => setIsAnimating(true)}
-        onAnimationComplete={() => {
-          setIsAnimating(false);
-          if (!open) setReserved(false);
-        }}
+        onAnimationComplete={() => setIsAnimating(false)}
       >
         <div
           className={cn(

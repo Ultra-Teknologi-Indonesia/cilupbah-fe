@@ -17,7 +17,7 @@ import DashboardNavigation from "./nav-main";
 import { dashboardGroups, findGroupIdForPath, isLeafGroup } from "./nav-data";
 
 export function DashboardSidebar() {
-  const { open, toggleSidebar, isMobile, openMobile, setOpenMobile } =
+  const { open, setOpen, toggleSidebar, isMobile, openMobile, setOpenMobile } =
     useSidebar();
   const pathname = usePathname();
 
@@ -83,11 +83,23 @@ export function DashboardSidebar() {
 
   return (
     <div className="relative z-10 hidden h-dvh shrink-0 md:flex md:gap-2 md:p-3 md:pr-0">
-      <SidebarRailNav
-        activeGroupId={activeGroupId}
-        onSelect={handleSelect}
-        onTogglePanel={toggleSidebar}
-      />
+      {panelOpen && (
+        <button
+          type="button"
+          aria-label="Tutup panel navigasi"
+          tabIndex={-1}
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 z-40 cursor-default"
+        />
+      )}
+
+      <div className="relative z-50">
+        <SidebarRailNav
+          activeGroupId={activeGroupId}
+          onSelect={handleSelect}
+          onTogglePanel={toggleSidebar}
+        />
+      </div>
 
       <SidebarPanel group={activeGroup} open={panelOpen} />
     </div>

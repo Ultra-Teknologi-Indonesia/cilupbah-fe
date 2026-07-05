@@ -13,7 +13,7 @@ export default function DashboardLayout({
 }) {
   return (
     <TooltipProvider>
-      <SidebarProvider>
+      <SidebarProvider defaultOpen={false}>
         <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
           <div
             className="absolute -top-[15%] -left-[10%] h-[55%] w-[55%] rounded-full opacity-25 blur-[100px]"
