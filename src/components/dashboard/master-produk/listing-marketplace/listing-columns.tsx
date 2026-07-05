@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo";
+import { CopySku } from "@/components/dashboard/shared/copy-sku";
 import { SyncStatusBadge } from "../detail/tab-pagination";
 import {
   channelListingRowId,
@@ -166,7 +167,12 @@ export function buildChannelListingColumns(
         stack(
           row.original,
           ctx,
-          (v) => <span className="font-mono">{v.channelSku ?? "—"}</span>,
+          (v) =>
+            v.channelSku ? (
+              <CopySku sku={v.channelSku} />
+            ) : (
+              <span className="font-mono">—</span>
+            ),
           "SKU",
         ),
     },
@@ -177,7 +183,12 @@ export function buildChannelListingColumns(
         stack(
           row.original,
           ctx,
-          (v) => <span className="font-mono">{v.masterSku ?? "—"}</span>,
+          (v) =>
+            v.masterSku ? (
+              <CopySku sku={v.masterSku} />
+            ) : (
+              <span className="font-mono">—</span>
+            ),
           "SKU",
         ),
     },

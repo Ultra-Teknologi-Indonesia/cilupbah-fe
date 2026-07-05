@@ -29,6 +29,7 @@ import {
 } from "@/hooks/master-produk/use-product-actions";
 import { useRestoreProduct } from "@/hooks/master-produk/use-archived-products";
 import type { Product } from "@/types/master-produk";
+import { useCopyToClipboard } from "@/hooks/shared/use-copy-to-clipboard";
 
 export function ProductRowActions({ product }: { product: Product }) {
   const [archiveOpen, setArchiveOpen] = React.useState(false);
@@ -38,6 +39,7 @@ export function ProductRowActions({ product }: { product: Product }) {
   const deleteMut = useDeleteProduct();
   const archiveMut = useArchiveProduct();
   const restoreMut = useRestoreProduct();
+  const { copy } = useCopyToClipboard();
 
   const notify = (msg: string) => toast(msg, { description: product.itemName });
 
@@ -70,7 +72,7 @@ export function ProductRowActions({ product }: { product: Product }) {
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
-              navigator.clipboard?.writeText(product.itemGroupId);
+              copy(product.itemGroupId, null);
               notify(`ID disalin: ${product.itemGroupId}`);
             }}
           >

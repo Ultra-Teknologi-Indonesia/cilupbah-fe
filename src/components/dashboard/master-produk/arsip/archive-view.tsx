@@ -29,6 +29,7 @@ import {
 } from "@/hooks/master-produk/use-archived-products";
 import type { ArchivedProduct } from "@/types/master-produk";
 import { FilterToolbar } from "../filter-toolbar";
+import { CopySku } from "@/components/dashboard/shared/copy-sku";
 
 const fmtDate = (iso: string | null) =>
   iso
@@ -53,7 +54,7 @@ function RestoreButton({
           {pending ? (
             <Loader2Icon className="animate-spin motion-reduce:animate-none" />
           ) : (
-            <RotateCcwIcon className="mr-1.5 h-4 w-4" />
+            <RotateCcwIcon className="mr-1.5 size-4" />
           )}
           Pulihkan
         </Button>
@@ -112,7 +113,7 @@ export function ArchiveView() {
         header: "Produk",
         cell: ({ row }) => (
           <div className="flex items-center gap-2.5">
-            <div className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-border bg-muted/40">
+            <div className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-xl border border-border bg-muted/40">
               {row.original.thumbnail ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -131,8 +132,13 @@ export function ArchiveView() {
               >
                 {row.original.itemName}
               </Link>
-              <div className="font-mono text-xs text-foreground">
-                {row.original.sku ?? "—"} · {row.original.totalVariants} varian
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                {row.original.sku ? (
+                  <CopySku sku={row.original.sku} />
+                ) : (
+                  <span className="font-mono text-foreground">—</span>
+                )}
+                <span>· {row.original.totalVariants} varian</span>
               </div>
             </div>
           </div>

@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
-import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
+import { useCopyToClipboard } from "@/hooks/shared/use-copy-to-clipboard";
 import {
   Tooltip,
   TooltipContent,
@@ -17,17 +17,15 @@ export interface CopySkuProps {
 }
 
 export function CopySku({ sku, className }: CopySkuProps) {
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopyToClipboard();
 
   const handleCopy = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
-      navigator.clipboard.writeText(sku);
-      toast.success("SKU disalin ke clipboard");
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      e.preventDefault();
+      copy(sku, "SKU disalin ke clipboard");
     },
-    [sku],
+    [copy, sku],
   );
 
   return (
@@ -42,11 +40,11 @@ export function CopySku({ sku, className }: CopySkuProps) {
           )}
           aria-label="Salin SKU"
         >
-          <span className="font-mono text-[11px] text-foreground">{sku}</span>
+          <span className="font-mono text-2xs text-foreground">{sku}</span>
           {copied ? (
-            <CheckIcon className="h-3 w-3 shrink-0 text-emerald-600" />
+            <CheckIcon className="size-3 shrink-0 text-success" />
           ) : (
-            <CopyIcon className="h-3 w-3 shrink-0 text-muted-foreground/60 opacity-0 transition-opacity group-hover/sku:opacity-100" />
+            <CopyIcon className="size-3 shrink-0 text-muted-foreground/60 opacity-0 transition-opacity group-hover/sku:opacity-100" />
           )}
         </button>
       </TooltipTrigger>

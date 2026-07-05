@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { CopySku } from "@/components/dashboard/shared/copy-sku";
 
 interface ProductVariantCellProps {
   name: string | null | undefined;
@@ -9,6 +10,12 @@ interface ProductVariantCellProps {
   className?: string;
   maxWidth?: number | string;
   emphasis?: "default" | "strong";
+  /**
+   * When true, render the SKU as a click-to-copy control (with toast) instead of
+   * plain text. Use this whenever the cell lives inside a clickable row so users
+   * can copy the SKU without triggering the row's navigation.
+   */
+  copyableSku?: boolean;
 }
 
 export function ProductVariantCell({
@@ -19,6 +26,7 @@ export function ProductVariantCell({
   className,
   maxWidth = 280,
   emphasis = "default",
+  copyableSku = false,
 }: ProductVariantCellProps) {
   const variantText = Array.isArray(variant)
     ? variant.filter(Boolean).join(", ")
@@ -46,11 +54,14 @@ export function ProductVariantCell({
             {variantText}
           </span>
         )}
-        {sku && (
-          <span className="font-mono text-[11px] text-foreground/80">
-            {sku}
-          </span>
-        )}
+        {sku &&
+          (copyableSku ? (
+            <CopySku sku={sku} className="self-start" />
+          ) : (
+            <span className="font-mono text-[11px] text-foreground/80">
+              {sku}
+            </span>
+          ))}
       </div>
     </div>
   );

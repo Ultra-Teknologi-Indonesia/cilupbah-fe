@@ -11,6 +11,7 @@ import { formatIDR } from "./product-columns";
 import { ProductStatusBadge } from "./product-status-badge";
 import { ProductChannelBadges } from "./product-channel-badges";
 import { ProductRowActions } from "./product-row-actions";
+import { CopySku } from "@/components/dashboard/shared/copy-sku";
 import { ProductVariantPopover } from "./product-variant-popover";
 
 interface ProductCardProps {
@@ -75,7 +76,7 @@ export function ProductCard({
       <div className="flex flex-1 flex-col gap-2 p-3">
         <div className="flex items-start justify-between gap-1">
           <div className="min-w-0">
-            <h3 className="truncate text-sm font-medium leading-tight">
+            <h3 className="truncate text-sm font-semibold leading-tight">
               <Link
                 href={`/dashboard/produk/${product.itemGroupId}`}
 
@@ -84,9 +85,11 @@ export function ProductCard({
                 {product.itemName}
               </Link>
             </h3>
-            <p className="font-mono text-xs text-muted-foreground">
-              {product.sku ?? "—"}
-            </p>
+            {product.sku ? (
+              <CopySku sku={product.sku} />
+            ) : (
+              <p className="font-mono text-xs text-muted-foreground">—</p>
+            )}
           </div>
           <ProductRowActions product={product} />
         </div>
@@ -94,12 +97,12 @@ export function ProductCard({
         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
           {product.categoryName && <span>{product.categoryName}</span>}
           {product.isBundle && (
-            <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
+            <Badge variant="secondary" className="px-1.5 py-0 text-2xs">
               Bundle
             </Badge>
           )}
           {product.isPo && (
-            <Badge variant="outline" className="px-1.5 py-0 text-[10px]">
+            <Badge variant="outline" className="px-1.5 py-0 text-2xs">
               PO
             </Badge>
           )}
@@ -110,7 +113,7 @@ export function ProductCard({
             {product.variations.map((v) => (
               <span
                 key={v.label}
-                className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground"
+                className="rounded-xl bg-muted px-1.5 py-0.5 text-2xs text-muted-foreground"
               >
                 {v.label}: {v.values.length}
               </span>

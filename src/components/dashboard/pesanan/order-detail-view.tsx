@@ -57,6 +57,7 @@ import {
   type OrderItem,
 } from "@/types/pesanan/order";
 import { useOrder } from "@/hooks/pesanan/use-orders";
+import { useCopyToClipboard } from "@/hooks/shared/use-copy-to-clipboard";
 import {
   useSetPaid,
   useMarkComplete,
@@ -64,6 +65,7 @@ import {
   useDeleteOrderItem,
 } from "@/hooks/pesanan/use-order-actions";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import { ContactBuyerDialog } from "./contact-buyer-dialog";
 import { EditOrderItemDialog } from "./edit-order-item-dialog";
@@ -72,11 +74,6 @@ import {
   formatDateLong,
   formatDateTime,
 } from "@/lib/format";
-
-function copyText(text: string) {
-  navigator.clipboard.writeText(text);
-  toast.success("Disalin ke clipboard");
-}
 
 function SummaryRow({
   label,
@@ -94,7 +91,7 @@ function SummaryRow({
       <span
         className={cn(
           "tabular-nums",
-          isDeduction && "text-amber-600 dark:text-amber-400",
+          isDeduction && "text-destructive",
         )}
       >
         {isDeduction ? "-" : ""}
@@ -192,7 +189,7 @@ function FinancialSummary({ order }: { order: Order }) {
             <span className="text-muted-foreground">
               Diterima Bersih (Settlement)
             </span>
-            <span className="tabular-nums font-medium text-emerald-600 dark:text-emerald-400">
+            <span className="tabular-nums font-medium text-success">
               {formatCurrency(finance?.settlement_amount ?? 0)}
             </span>
           </div>
@@ -232,7 +229,7 @@ function StatusStepper({ status }: { status: string }) {
                   className={cn(
                     "h-[2px] flex-1 rounded-full transition-colors",
                     !isCancelled && i <= currentIdx
-                      ? "bg-emerald-500"
+                      ? "bg-success"
                       : "bg-border",
                   )}
                 />
@@ -242,7 +239,7 @@ function StatusStepper({ status }: { status: string }) {
                   className={cn(
                     "flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold transition-all",
                     isCompleted &&
-                      "border-emerald-500 bg-emerald-500 text-white",
+                      "border-success bg-success text-white",
                     isCurrent &&
                       "border-primary bg-primary text-primary-foreground shadow-md shadow-primary/25",
                     !isCompleted &&
@@ -251,15 +248,15 @@ function StatusStepper({ status }: { status: string }) {
                   )}
                 >
                   {isCompleted ? (
-                    <CheckIcon className="h-4 w-4" />
+                    <CheckIcon className="size-4" />
                   ) : (
                     <span>{i + 1}</span>
                   )}
                 </div>
                 <span
                   className={cn(
-                    "text-[11px] font-medium whitespace-nowrap",
-                    isCompleted && "text-emerald-600 dark:text-emerald-400",
+                    "text-2xs font-medium whitespace-nowrap",
+                    isCompleted && "text-success",
                     isCurrent && "text-primary font-semibold",
                     !isCompleted && !isCurrent && "text-muted-foreground/50",
                   )}
@@ -273,12 +270,12 @@ function StatusStepper({ status }: { status: string }) {
 
         {isCancelled && (
           <>
-            <div className="h-[2px] flex-1 rounded-full bg-rose-300 dark:bg-rose-500/40" />
+            <div className="h-[2px] flex-1 rounded-full bg-destructive/40" />
             <div className="flex flex-col items-center gap-1.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-rose-500 bg-rose-500 text-white shadow-md shadow-rose-500/25">
-                <XIcon className="h-4 w-4" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-destructive bg-destructive text-white shadow-md shadow-destructive/25">
+                <XIcon className="size-4" />
               </div>
-              <span className="text-[11px] font-semibold text-rose-600 dark:text-rose-400 whitespace-nowrap">
+              <span className="text-2xs font-semibold text-destructive whitespace-nowrap">
                 Dibatalkan
               </span>
             </div>
@@ -302,11 +299,11 @@ function ChannelBadge({ source }: { source: string | null }) {
   const mask = `url(/channels/${source}.svg) center / contain no-repeat`;
   return (
     <span
-      className="inline-flex h-7 items-center gap-1.5 rounded-lg px-2"
+      className="inline-flex h-7 items-center gap-1.5 rounded-xl px-2"
       style={{ backgroundColor: `${ch.color}12` }}
     >
       <span
-        className="inline-block h-4 w-4 shrink-0"
+        className="inline-block size-4 shrink-0"
         style={{ backgroundColor: ch.color, mask, WebkitMask: mask }}
       />
       <span className="text-xs font-semibold" style={{ color: ch.color }}>
@@ -325,19 +322,20 @@ function CopyableText({
   label: string;
   mono?: boolean;
 }) {
+  const { copy } = useCopyToClipboard();
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <button
           type="button"
-          onClick={() => copyText(text)}
+          onClick={() => copy(text)}
           className={cn(
             "group/copy inline-flex items-center gap-1.5 text-sm hover:text-primary transition-colors",
             mono && "font-mono",
           )}
         >
           {text}
-          <CopyIcon className="h-3 w-3 opacity-0 group-hover/copy:opacity-60 transition-opacity" />
+          <CopyIcon className="size-3 opacity-0 group-hover/copy:opacity-60 transition-opacity" />
         </button>
       </TooltipTrigger>
       <TooltipContent>{label}</TooltipContent>
@@ -407,13 +405,16 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
 
   if (!order) {
     return (
-      <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-        <PackageIcon className="h-10 w-10" />
-        <p className="text-sm">Pesanan tidak ditemukan.</p>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/pesanan">Kembali</Link>
-        </Button>
-      </div>
+      <EmptyState
+        icon={PackageIcon}
+        title="Pesanan tidak ditemukan."
+        className="py-20"
+        action={
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/pesanan">Kembali</Link>
+          </Button>
+        }
+      />
     );
   }
 
@@ -443,7 +444,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               className="gap-1.5"
               onClick={handlePrintInvoice}
             >
-              <FileTextIcon className="h-4 w-4" />
+              <FileTextIcon className="size-4" />
               Cetak Faktur
             </Button>
             {order.shipping?.tracking_number && (
@@ -453,7 +454,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 className="gap-1.5"
                 onClick={handlePrintLabel}
               >
-                <PrinterIcon className="h-4 w-4" />
+                <PrinterIcon className="size-4" />
                 Cetak Resi
               </Button>
             )}
@@ -464,7 +465,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 className="gap-1.5"
                 onClick={() => setContactOpen(true)}
               >
-                <MessageCircleIcon className="h-4 w-4" />
+                <MessageCircleIcon className="size-4" />
                 {order.contacted_at ? "Ubah Konfirmasi" : "Catat Konfirmasi"}
               </Button>
             )}
@@ -475,7 +476,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 disabled={setPaid.isPending}
                 onClick={() => setPaid.mutate({ orderId: order.id })}
               >
-                <CreditCardIcon className="h-4 w-4" />
+                <CreditCardIcon className="size-4" />
                 {setPaid.isPending ? "Memproses..." : "Tandai Lunas"}
               </Button>
             )}
@@ -497,7 +498,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           className="border-rose-200 bg-rose-50/50 dark:border-rose-500/20 dark:bg-rose-500/[0.06] px-5 py-3"
         >
           <div className="flex items-start gap-3">
-            <XIcon className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
+            <XIcon className="mt-0.5 size-4 shrink-0 text-rose-500" />
             <div>
               <p className="text-sm font-medium text-rose-700 dark:text-rose-400">
                 Alasan Pembatalan
@@ -517,7 +518,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           className="border-amber-200 bg-amber-50/50 dark:border-amber-500/20 dark:bg-amber-500/[0.06] px-5 py-3"
         >
           <div className="flex items-start gap-3">
-            <MessageSquareIcon className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+            <MessageSquareIcon className="mt-0.5 size-4 shrink-0 text-amber-600" />
             <div>
               <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
                 Permintaan Pembatalan
@@ -659,7 +660,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                             />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                              <PackageIcon className="h-4 w-4 opacity-50" />
+                              <PackageIcon className="size-4 opacity-50" />
                             </div>
                           )}
                         </div>
@@ -669,7 +670,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                           <span className="font-medium whitespace-normal break-words">
                             {item.description || "—"}
                           </span>
-                          <span className="font-mono text-[11px] text-muted-foreground">
+                          <span className="font-mono text-2xs text-muted-foreground">
                             SKU: {item.sku}
                           </span>
                         </div>
@@ -682,10 +683,10 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                       </TableCell>
                       <TableCell className="px-3 py-2.5 text-right tabular-nums">
                         {item.disc > 0 ? (
-                          <span className="text-amber-600 dark:text-amber-400">
+                          <span className="text-warning">
                             {item.disc}%
                             <br />
-                            <span className="text-[11px]">
+                            <span className="text-2xs">
                               -{formatCurrency(item.disc_amount)}
                             </span>
                           </span>
@@ -706,7 +707,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                               onClick={() => setEditingItem(item)}
                               title="Ubah item"
                             >
-                              <PencilIcon className="h-3.5 w-3.5" />
+                              <PencilIcon className="size-3.5" />
                             </Button>
                             {order.items.length > 1 && (
                               <Button
@@ -716,7 +717,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                                 onClick={() => setDeletingItemId(item.id)}
                                 title="Hapus item"
                               >
-                                <Trash2Icon className="h-3.5 w-3.5" />
+                                <Trash2Icon className="size-3.5" />
                               </Button>
                             )}
                           </div>
@@ -843,7 +844,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               <div className="space-y-3">
                 {order.buyer_message && (
                   <div>
-                    <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70 mb-1">
+                    <p className="text-2xs font-medium uppercase tracking-wider text-muted-foreground/70 mb-1">
                       Pesan Pembeli
                     </p>
                     <p className="text-sm leading-relaxed rounded-lg bg-muted/40 px-3 py-2">
@@ -853,7 +854,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 )}
                 {order.seller_note && (
                   <div>
-                    <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70 mb-1">
+                    <p className="text-2xs font-medium uppercase tracking-wider text-muted-foreground/70 mb-1">
                       Catatan Penjual
                     </p>
                     <p className="text-sm leading-relaxed rounded-lg bg-muted/40 px-3 py-2">
@@ -948,7 +949,7 @@ function ContactSummary({
           className="gap-1.5"
           onClick={onEdit}
         >
-          <MessageCircleIcon className="h-3.5 w-3.5" />
+          <MessageCircleIcon className="size-3.5" />
           Ubah
         </Button>
       </div>
@@ -962,7 +963,7 @@ function ContactSummary({
             </span>
           ) : (
             <span className="inline-flex items-center gap-1.5 text-amber-700 dark:text-amber-300">
-              <ClockIcon className="h-3.5 w-3.5" />
+              <ClockIcon className="size-3.5" />
               Belum dihubungi
             </span>
           )}

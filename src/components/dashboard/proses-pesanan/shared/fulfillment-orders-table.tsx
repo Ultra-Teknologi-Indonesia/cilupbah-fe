@@ -17,6 +17,7 @@ import {
   DownloadIcon,
   CheckCircle2Icon,
   AlertTriangleIcon,
+  Trash2Icon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -47,6 +48,7 @@ import {
   useRetryPickup,
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment";
+import { useCopyToClipboard } from "@/hooks/shared/use-copy-to-clipboard";
 import { CHANNEL_MAP, STATUS_LABELS } from "@/types/pesanan/order";
 import {
   SimplePagination,
@@ -63,6 +65,7 @@ import {
   type FulfillmentFilterField,
   type FulfillmentFilterValue,
 } from "./fulfillment-filter-bar";
+import { DeleteOrderDialog } from "./delete-order-dialog";
 
 export interface OrderTableActions {
   buatPicklist?: boolean;
@@ -74,11 +77,6 @@ export interface OrderTableActions {
   suratJalan?: boolean;
   siapDikirim?: boolean;
   selesaikanPesanan?: boolean;
-}
-
-function copyToClipboard(text: string) {
-  navigator.clipboard.writeText(text);
-  toast.success("Disalin ke clipboard");
 }
 
 function ChannelIcon({ source }: { source: string | null }) {
@@ -112,6 +110,7 @@ function OrderCard({
   onBuatPengiriman,
   onRetryPickup,
   onDismissCancel,
+  onDeleteOrder,
   shipPending,
   completePending,
   retryPickupPending,
@@ -126,11 +125,13 @@ function OrderCard({
   onBuatPengiriman?: (order: FulfillmentOrder) => void;
   onRetryPickup?: (ids: string[]) => void;
   onDismissCancel?: (orderId: string) => void;
+  onDeleteOrder?: (order: FulfillmentOrder) => void;
   shipPending: boolean;
   completePending: boolean;
   retryPickupPending?: boolean;
   dismissPending?: boolean;
 }) {
+  const { copy } = useCopyToClipboard();
   const isCancelled = order.status === "cancelled";
 
   return (
@@ -141,7 +142,7 @@ function OrderCard({
         order.isInstant &&
           "border-l-4 border-l-orange-500 bg-orange-50/50 dark:bg-orange-950/20",
         isCancelled &&
-          "border-l-4 border-l-red-500 bg-red-50/60 dark:bg-red-950/20",
+          "border-l-4 border-l-destructive bg-destructive/5",
       )}
     >
       {}
@@ -170,14 +171,14 @@ function OrderCard({
           <TooltipTrigger asChild>
             <button
               type="button"
-              onClick={() => copyToClipboard(order.salesorderNo)}
+              onClick={() => copy(order.salesorderNo)}
               className={cn(
                 "inline-flex items-center gap-1.5 font-mono text-sm font-semibold hover:text-primary transition-colors",
                 order.isInstant && "text-orange-700 dark:text-orange-400",
               )}
             >
               {order.salesorderNo}
-              <CopyIcon className="h-3 w-3 opacity-0 group-hover:opacity-50 transition-opacity" />
+              <CopyIcon className="size-3 opacity-0 group-hover:opacity-50 transition-opacity" />
             </button>
           </TooltipTrigger>
           <TooltipContent>Klik untuk salin No. Pesanan</TooltipContent>
@@ -190,14 +191,14 @@ function OrderCard({
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  onClick={() => copyToClipboard(order.channelOrderNo!)}
+                  onClick={() => copy(order.channelOrderNo!)}
                   className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <span className="text-[11px] font-medium text-muted-foreground/70">
+                  <span className="text-2xs font-medium text-muted-foreground/70">
                     Ref:
                   </span>
                   <span className="font-mono">{order.channelOrderNo}</span>
-                  <CopyIcon className="h-2.5 w-2.5 opacity-0 group-hover:opacity-50 transition-opacity" />
+                  <CopyIcon className="size-2.5 opacity-0 group-hover:opacity-50 transition-opacity" />
                 </button>
               </TooltipTrigger>
               <TooltipContent>
@@ -353,7 +354,7 @@ function OrderCard({
                     <TooltipTrigger asChild>
                       <button
                         type="button"
-                        onClick={() => copyToClipboard(order.trackingNumber!)}
+                        onClick={() => copy(order.trackingNumber!)}
                         className="font-mono text-xs text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {order.trackingNumber}
@@ -494,6 +495,20 @@ function OrderCard({
                 Surat Jalan + Faktur
               </DropdownMenuItem>
             )}
+            {onDeleteOrder && (
+              <>
+                {(actions.fakturLabel || actions.suratJalan) && (
+                  <DropdownMenuSeparator />
+                )}
+                <DropdownMenuItem
+                  variant="destructive"
+                  onSelect={() => onDeleteOrder(order)}
+                >
+                  <Trash2Icon className="size-4 mr-2" />
+                  Hapus Pesanan
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -525,6 +540,8 @@ export function FulfillmentOrdersTable({
   const [picklistOpen, setPicklistOpen] = React.useState(false);
   const [pengirimanOpen, setPengirimanOpen] = React.useState(false);
   const [singlePengirimanOrder, setSinglePengirimanOrder] =
+    React.useState<FulfillmentOrder | null>(null);
+  const [deleteTarget, setDeleteTarget] =
     React.useState<FulfillmentOrder | null>(null);
   const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
 
@@ -939,6 +956,7 @@ export function FulfillmentOrdersTable({
                 }
                 onRetryPickup={handleRetryPickup}
                 onDismissCancel={handleDismissCancel}
+                onDeleteOrder={setDeleteTarget}
                 shipPending={readyToShip.isPending}
                 completePending={markComplete.isPending}
                 retryPickupPending={retryPickup.isPending}
@@ -1009,6 +1027,16 @@ export function FulfillmentOrdersTable({
             />
           );
         })()}
+
+      <DeleteOrderDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        orderId={deleteTarget?.id ?? null}
+        orderNo={deleteTarget?.salesorderNo ?? null}
+        onDeleted={clearSelection}
+      />
 
       {}
       {singlePengirimanOrder && (

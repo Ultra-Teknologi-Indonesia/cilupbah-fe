@@ -77,12 +77,8 @@ import {
   useRelocateOrder,
 } from "@/hooks/pesanan/use-order-actions";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
+import { useCopyToClipboard } from "@/hooks/shared/use-copy-to-clipboard";
 import { formatCurrency, formatDateTime } from "@/lib/format";
-
-function copyToClipboard(text: string) {
-  navigator.clipboard.writeText(text);
-  toast.success("Disalin ke clipboard");
-}
 
 function ChannelIcon({ source }: { source: string | null }) {
   if (!source) return null;
@@ -95,11 +91,11 @@ function ChannelIcon({ source }: { source: string | null }) {
     <Tooltip>
       <TooltipTrigger asChild>
         <span
-          className="inline-flex h-6 items-center gap-1.5 shrink-0 rounded-md px-1.5"
+          className="inline-flex h-6 items-center gap-1.5 shrink-0 rounded-xl px-1.5"
           style={{ backgroundColor: `${ch.color}10` }}
         >
           <span
-            className="inline-block h-4 w-4 shrink-0"
+            className="inline-block size-4 shrink-0"
             style={{
               backgroundColor: ch.color,
               mask,
@@ -125,11 +121,11 @@ function ItemRow({ item }: { item: OrderItem }) {
           alt={item.description || item.sku}
           width={40}
           height={40}
-          className="h-10 w-10 shrink-0 rounded-lg border border-border/60 object-cover"
+          className="h-10 w-10 shrink-0 rounded-xl border border-border/60 object-cover"
         />
       ) : (
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted/60">
-          <PackageIcon className="h-5 w-5 text-muted-foreground/60" />
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted/60">
+          <PackageIcon className="size-5 text-muted-foreground/60" />
         </div>
       )}
       <div className="min-w-0 flex-1">
@@ -261,7 +257,7 @@ function OrderActions({
           className="h-8 gap-1.5 text-xs"
           onClick={() => setRelocateOpen(true)}
         >
-          <WarehouseIcon className="h-3.5 w-3.5" />
+          <WarehouseIcon className="size-3.5" />
           Edit Gudang
         </Button>
         {!order.shipping?.tracking_number && (
@@ -272,7 +268,7 @@ function OrderActions({
             disabled={busy}
             onClick={() => requestAwb.mutate({ orderId: order.id })}
           >
-            <TruckIcon className="h-3.5 w-3.5" />
+            <TruckIcon className="size-3.5" />
             Atur Pengiriman
           </Button>
         )}
@@ -284,7 +280,7 @@ function OrderActions({
             disabled={busy}
             onClick={handlePrintLabel}
           >
-            <PrinterIcon className="h-3.5 w-3.5" />
+            <PrinterIcon className="size-3.5" />
             Cetak Label
           </Button>
         )}
@@ -295,7 +291,7 @@ function OrderActions({
           disabled={busy}
           onClick={() => setCompleteOpen(true)}
         >
-          <CheckCircleIcon className="h-3.5 w-3.5" />
+          <CheckCircleIcon className="size-3.5" />
           Selesaikan
         </Button>
         <Button
@@ -304,7 +300,7 @@ function OrderActions({
           disabled={busy}
           onClick={() => moveToReady.mutate([order.id])}
         >
-          <ArrowRightIcon className="h-3.5 w-3.5" />
+          <ArrowRightIcon className="size-3.5" />
           {moveToReady.isPending ? "Memproses..." : "Proses Pesanan"}
         </Button>
         <ConfirmDialog
@@ -339,7 +335,7 @@ function OrderActions({
             disabled={busy}
             onClick={handlePrintLabel}
           >
-            <PrinterIcon className="h-3.5 w-3.5" />
+            <PrinterIcon className="size-3.5" />
             Cetak Resi
           </Button>
         )}
@@ -349,7 +345,7 @@ function OrderActions({
           disabled={busy}
           onClick={() => setCompleteOpen(true)}
         >
-          <CheckCircleIcon className="h-3.5 w-3.5" />
+          <CheckCircleIcon className="size-3.5" />
           {markComplete.isPending ? "Memproses..." : "Selesaikan"}
         </Button>
         <ConfirmDialog
@@ -377,7 +373,7 @@ function OrderActions({
           className="h-8 gap-1.5 text-xs"
           onClick={handlePrintInvoice}
         >
-          <FileTextIcon className="h-3.5 w-3.5" />
+          <FileTextIcon className="size-3.5" />
           Cetak Faktur
         </Button>
         {order.shipping?.tracking_number && (
@@ -388,7 +384,7 @@ function OrderActions({
             disabled={busy}
             onClick={handlePrintLabel}
           >
-            <PrinterIcon className="h-3.5 w-3.5" />
+            <PrinterIcon className="size-3.5" />
             Cetak Resi
           </Button>
         )}
@@ -407,7 +403,7 @@ function OrderActions({
             disabled={busy}
             onClick={() => setContactOpen(true)}
           >
-            <MessageCircleIcon className="h-3.5 w-3.5" />
+            <MessageCircleIcon className="size-3.5" />
             {order.contacted_at ? "Ubah Konfirmasi" : "Catat Konfirmasi"}
           </Button>
         )}
@@ -417,7 +413,7 @@ function OrderActions({
           disabled={busy}
           onClick={() => moveToReady.mutate([order.id])}
         >
-          <ArrowRightIcon className="h-3.5 w-3.5" />
+          <ArrowRightIcon className="size-3.5" />
           {moveToReady.isPending
             ? "Memindahkan..."
             : "Pindahkan ke Perlu Dikirim"}
@@ -448,7 +444,7 @@ function OrderActions({
           disabled={busy}
           onClick={() => acceptCancel.mutate(order.id)}
         >
-          <CheckIcon className="h-3.5 w-3.5" />
+          <CheckIcon className="size-3.5" />
           {acceptCancel.isPending ? "Memproses..." : "Terima"}
         </Button>
         <Button
@@ -458,7 +454,7 @@ function OrderActions({
           disabled={busy}
           onClick={() => rejectCancel.mutate(order.id)}
         >
-          <XIcon className="h-3.5 w-3.5" />
+          <XIcon className="size-3.5" />
           {rejectCancel.isPending ? "Memproses..." : "Tolak"}
         </Button>
       </>
@@ -474,7 +470,7 @@ function OrderActions({
           className="h-8 gap-1.5 text-xs"
           onClick={handlePrintInvoice}
         >
-          <FileTextIcon className="h-3.5 w-3.5" />
+          <FileTextIcon className="size-3.5" />
           Cetak Faktur
         </Button>
       );
@@ -488,7 +484,7 @@ function OrderActions({
           disabled={busy}
           onClick={() => acceptReturn.mutate(order.id)}
         >
-          <CheckIcon className="h-3.5 w-3.5" />
+          <CheckIcon className="size-3.5" />
           {acceptReturn.isPending ? "Memproses..." : "Terima"}
         </Button>
         <Button
@@ -498,7 +494,7 @@ function OrderActions({
           disabled={busy}
           onClick={() => rejectReturn.mutate({ returnId: order.id })}
         >
-          <XIcon className="h-3.5 w-3.5" />
+          <XIcon className="size-3.5" />
           {rejectReturn.isPending ? "Memproses..." : "Tolak"}
         </Button>
         <Button
@@ -507,7 +503,7 @@ function OrderActions({
           className="h-8 gap-1.5 text-xs"
           onClick={handlePrintInvoice}
         >
-          <FileTextIcon className="h-3.5 w-3.5" />
+          <FileTextIcon className="size-3.5" />
           Cetak Faktur
         </Button>
       </>
@@ -528,7 +524,7 @@ function OrderActions({
           disabled={busy}
           onClick={handlePrintLabel}
         >
-          <PrinterIcon className="h-3.5 w-3.5" />
+          <PrinterIcon className="size-3.5" />
           Cetak Resi
         </Button>,
       );
@@ -554,7 +550,7 @@ function OrderActions({
             }
           }}
         >
-          <TruckIcon className="h-3.5 w-3.5" />
+          <TruckIcon className="size-3.5" />
           {requestAwb.isPending ? "Memproses..." : "Kirim"}
         </Button>
       );
@@ -567,7 +563,7 @@ function OrderActions({
           disabled={busy}
           onClick={() => moveToReady.mutate([order.id])}
         >
-          <ArrowRightIcon className="h-3.5 w-3.5" />
+          <ArrowRightIcon className="size-3.5" />
           {moveToReady.isPending ? "Memproses..." : "Proses Pesanan"}
         </Button>
       );
@@ -606,11 +602,11 @@ function ShipByDeadline({ date }: { date?: string | null }) {
   if (!date) {
     return (
       <div className="min-w-0">
-        <p className="mb-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+        <p className="mb-0.5 text-2xs font-medium uppercase tracking-wider text-muted-foreground/70">
           Batas Kirim
         </p>
         <div className="flex items-start gap-1 text-sm">
-          <ClockIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          <ClockIcon className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
           <p className="font-medium text-muted-foreground">—</p>
         </div>
       </div>
@@ -621,11 +617,11 @@ function ShipByDeadline({ date }: { date?: string | null }) {
   if (Number.isNaN(deadline.getTime())) {
     return (
       <div className="min-w-0">
-        <p className="mb-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+        <p className="mb-0.5 text-2xs font-medium uppercase tracking-wider text-muted-foreground/70">
           Batas Kirim
         </p>
         <div className="flex items-start gap-1 text-sm">
-          <ClockIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          <ClockIcon className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
           <p className="font-medium text-muted-foreground">—</p>
         </div>
       </div>
@@ -655,16 +651,16 @@ function ShipByDeadline({ date }: { date?: string | null }) {
   const colorClass = isOverdue
     ? "text-destructive"
     : hours < 12
-      ? "text-amber-600 dark:text-amber-400"
-      : "text-emerald-600 dark:text-emerald-500";
+      ? "text-warning"
+      : "text-success";
 
   return (
     <div className="min-w-0">
-      <p className="mb-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+      <p className="mb-0.5 text-2xs font-medium uppercase tracking-wider text-muted-foreground/70">
         Batas Kirim
       </p>
       <div className="flex items-start gap-1 text-sm">
-        <ClockIcon className={cn("mt-0.5 h-3.5 w-3.5 shrink-0", colorClass)} />
+        <ClockIcon className={cn("mt-0.5 size-3.5 shrink-0", colorClass)} />
         <div className="min-w-0">
           <p className="font-medium">
             {format(deadline, "dd MMM HH:mm", { locale: idLocale })}
@@ -701,7 +697,7 @@ function OutboundReadyActions({ order }: { order: Order }) {
       disabled={!hasTracking}
       onClick={handlePrintLabel}
     >
-      <PrinterIcon className="h-3.5 w-3.5" />
+      <PrinterIcon className="size-3.5" />
       Cetak Label
     </Button>
   );
@@ -727,7 +723,7 @@ function OutboundReadyActions({ order }: { order: Order }) {
         className="h-8 gap-1.5 text-xs"
         onClick={() => setPicklistOpen(true)}
       >
-        <ClipboardListIcon className="h-3.5 w-3.5" />
+        <ClipboardListIcon className="size-3.5" />
         Buat Picklist
       </Button>
       <BuatPicklistDialog
@@ -760,7 +756,7 @@ function ContactBadges({ order, tab }: { order: Order; tab: OrderTab }) {
       {order.contacted_at ? (
         <Tooltip>
           <TooltipTrigger asChild>
-            <span className="inline-flex items-center gap-1 rounded-md border border-emerald-300 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+            <span className="inline-flex items-center gap-1 rounded-md border border-emerald-300 bg-emerald-50 px-1.5 py-0.5 text-2xs font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
               <CheckIcon className="h-2.5 w-2.5" />
               Sudah dihubungi
             </span>
@@ -771,7 +767,7 @@ function ContactBadges({ order, tab }: { order: Order; tab: OrderTab }) {
           </TooltipContent>
         </Tooltip>
       ) : (
-        <span className="inline-flex items-center gap-1 rounded-md border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
+        <span className="inline-flex items-center gap-1 rounded-md border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-2xs font-medium text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
           <ClockIcon className="h-2.5 w-2.5" />
           Belum dihubungi
         </span>
@@ -779,7 +775,7 @@ function ContactBadges({ order, tab }: { order: Order; tab: OrderTab }) {
       {order.customer_decision && (
         <span
           className={cn(
-            "inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] font-medium",
+            "inline-flex items-center rounded-md border px-1.5 py-0.5 text-2xs font-medium",
             decisionColor[order.customer_decision],
           )}
         >
@@ -807,6 +803,7 @@ export function OrderCard({
   onSelectedChange?: (v: boolean) => void;
   variant?: OrderCardVariant;
 }) {
+  const { copy } = useCopyToClipboard();
   const groupedItems = React.useMemo(() => {
     const map = new Map<string, OrderItem>();
     for (const item of order.items) {
@@ -850,14 +847,14 @@ export function OrderCard({
           <TooltipTrigger asChild>
             <button
               type="button"
-              onClick={() => copyToClipboard(order.salesorder_no)}
+              onClick={() => copy(order.salesorder_no)}
               className={cn(
                 "inline-flex items-center gap-1.5 font-mono text-sm font-semibold hover:text-primary transition-colors",
                 order.is_instant && "text-orange-700 dark:text-orange-400",
               )}
             >
               {order.salesorder_no}
-              <CopyIcon className="h-3 w-3 opacity-0 group-hover:opacity-50 transition-opacity" />
+              <CopyIcon className="size-3 opacity-0 group-hover:opacity-50 transition-opacity" />
             </button>
           </TooltipTrigger>
           <TooltipContent>Klik untuk salin No. Pesanan</TooltipContent>
@@ -866,7 +863,7 @@ export function OrderCard({
         {order.is_instant && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="inline-flex items-center gap-0.5 rounded border border-orange-500/60 bg-orange-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-orange-700 dark:text-orange-400">
+              <span className="inline-flex items-center gap-0.5 rounded border border-orange-500/60 bg-orange-500/15 px-1.5 py-0.5 text-2xs font-semibold text-orange-700 dark:text-orange-400">
                 <ZapIcon className="h-2.5 w-2.5 fill-current" />
                 INSTANT
               </span>
@@ -896,10 +893,10 @@ export function OrderCard({
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  onClick={() => copyToClipboard(order.channel_order_no!)}
+                  onClick={() => copy(order.channel_order_no!)}
                   className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <span className="text-[11px] font-medium text-muted-foreground/70">
+                  <span className="text-2xs font-medium text-muted-foreground/70">
                     Ref:
                   </span>
                   <span className="font-mono">{order.channel_order_no}</span>
@@ -925,7 +922,7 @@ export function OrderCard({
 
         <div className="ml-auto flex items-center gap-3 text-sm text-foreground">
           <span className="inline-flex items-center gap-1.5">
-            <UserIcon className="h-3.5 w-3.5" />
+            <UserIcon className="size-3.5" />
             <span className="max-w-[180px] truncate font-medium text-foreground">
               {order.customer_name || "—"}
             </span>
@@ -936,7 +933,7 @@ export function OrderCard({
                 |
               </span>
               <span className="hidden items-center gap-1.5 sm:inline-flex">
-                <CalendarIcon className="h-3.5 w-3.5" />
+                <CalendarIcon className="size-3.5" />
                 {formatDateTime(order.transaction_date)}
               </span>
             </>
@@ -969,18 +966,18 @@ export function OrderCard({
               className="text-xs font-semibold whitespace-nowrap"
             />
             {order.cancel_requested_at && !order.is_canceled && (
-              <p className="mt-1 text-[11px] font-medium text-amber-600 dark:text-amber-400">
+              <p className="mt-1 text-2xs font-medium text-warning">
                 Pembatalan diminta
               </p>
             )}
           </div>
 
           <div className="min-w-0">
-            <p className="mb-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+            <p className="mb-0.5 text-2xs font-medium uppercase tracking-wider text-muted-foreground/70">
               Lokasi Pengambilan
             </p>
             <p className="flex items-start gap-1 text-sm">
-              <MapPinIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <MapPinIcon className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
               <span className="line-clamp-2">{order.location_name || "—"}</span>
             </p>
           </div>
@@ -997,12 +994,12 @@ export function OrderCard({
           </div>
 
           <div className="min-w-0">
-            <p className="mb-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+            <p className="mb-0.5 text-2xs font-medium uppercase tracking-wider text-muted-foreground/70">
               Pengiriman
             </p>
             {order.shipping?.provider ? (
               <div className="flex items-start gap-1 text-sm">
-                <TruckIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <TruckIcon className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
                 <div className="min-w-0">
                   <p className="font-medium">{order.shipping.provider}</p>
                   {order.shipping.tracking_number ? (
@@ -1011,9 +1008,9 @@ export function OrderCard({
                         <button
                           type="button"
                           onClick={() =>
-                            copyToClipboard(order.shipping.tracking_number!)
+                            copy(order.shipping.tracking_number!)
                           }
-                          className="mt-1 inline-flex items-center gap-1 rounded-md bg-muted/60 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-foreground tabular-nums hover:bg-muted transition-colors"
+                          className="mt-1 inline-flex items-center gap-1 rounded-md bg-muted/60 px-1.5 py-0.5 font-mono text-2xs font-semibold text-foreground tabular-nums hover:bg-muted transition-colors"
                         >
                           <span className="text-muted-foreground">AWB:</span>
                           {order.shipping.tracking_number}
@@ -1042,7 +1039,7 @@ export function OrderCard({
           asChild
         >
           <Link href={`/dashboard/pesanan/${order.id}`}>
-            <EyeIcon className="h-3.5 w-3.5" />
+            <EyeIcon className="size-3.5" />
             Lihat Detail
           </Link>
         </Button>

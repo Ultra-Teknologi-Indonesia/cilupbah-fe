@@ -15,6 +15,7 @@ import type { Product } from "@/types/master-produk";
 import { ProductStatusBadge } from "./product-status-badge";
 import { ProductChannelBadges } from "./product-channel-badges";
 import { ProductRowActions } from "./product-row-actions";
+import { CopySku } from "@/components/dashboard/shared/copy-sku";
 
 export const formatIDR = formatCurrency;
 
@@ -114,7 +115,11 @@ export const productColumns: ColumnDef<Product>[] = [
               )}
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="font-mono">{p.sku ?? "—"}</span>
+              {p.sku ? (
+                <CopySku sku={p.sku} />
+              ) : (
+                <span className="font-mono">—</span>
+              )}
               <span className="inline-flex items-center gap-1">
                 <PackageIcon className="size-3" />
                 {p.totalVariants} varian
