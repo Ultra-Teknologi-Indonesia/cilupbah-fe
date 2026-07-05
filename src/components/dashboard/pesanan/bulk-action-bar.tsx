@@ -46,7 +46,7 @@ export function BulkActionBar({
           className="h-8 gap-1.5 text-xs text-muted-foreground"
           onClick={onClear}
         >
-          <XIcon className="h-3.5 w-3.5" />
+          <XIcon className="size-3.5" />
           Batal
         </Button>
 
@@ -92,7 +92,7 @@ function TabBulkActions({
           className="h-8 gap-1.5 text-xs"
           onClick={placeholder("Proses Pesanan")}
         >
-          <PlayIcon className="h-3.5 w-3.5" />
+          <PlayIcon className="size-3.5" />
           Proses Pesanan
         </Button>
         <Button
@@ -101,7 +101,7 @@ function TabBulkActions({
           className="h-8 gap-1.5 text-xs"
           onClick={placeholder("Edit Gudang")}
         >
-          <WarehouseIcon className="h-3.5 w-3.5" />
+          <WarehouseIcon className="size-3.5" />
           Edit Gudang
         </Button>
         <Button
@@ -110,7 +110,7 @@ function TabBulkActions({
           className="h-8 gap-1.5 text-xs"
           onClick={placeholder("Selesaikan")}
         >
-          <CheckCircleIcon className="h-3.5 w-3.5" />
+          <CheckCircleIcon className="size-3.5" />
           Selesaikan
         </Button>
       </>
@@ -126,7 +126,7 @@ function TabBulkActions({
           className="h-8 gap-1.5 text-xs"
           onClick={placeholder("Cetak Resi")}
         >
-          <PrinterIcon className="h-3.5 w-3.5" />
+          <PrinterIcon className="size-3.5" />
           Cetak Resi
         </Button>
         <Button
@@ -134,7 +134,7 @@ function TabBulkActions({
           className="h-8 gap-1.5 text-xs"
           onClick={placeholder("Selesaikan")}
         >
-          <CheckCircleIcon className="h-3.5 w-3.5" />
+          <CheckCircleIcon className="size-3.5" />
           Selesaikan
         </Button>
       </>
@@ -149,7 +149,7 @@ function TabBulkActions({
         className="h-8 gap-1.5 text-xs"
         onClick={placeholder("Cetak Faktur")}
       >
-        <FileTextIcon className="h-3.5 w-3.5" />
+        <FileTextIcon className="size-3.5" />
         Cetak Faktur
       </Button>
     );
@@ -171,7 +171,7 @@ function TabBulkActions({
               )
             }
           >
-            <MessageCircleIcon className="h-3.5 w-3.5" />
+            <MessageCircleIcon className="size-3.5" />
             Tandai Sudah Dihubungi
           </Button>
         )}
@@ -180,7 +180,7 @@ function TabBulkActions({
           className="h-8 gap-1.5 text-xs"
           onClick={placeholder("Pindahkan ke Perlu Dikirim")}
         >
-          <ArrowRightIcon className="h-3.5 w-3.5" />
+          <ArrowRightIcon className="size-3.5" />
           Pindahkan ke Perlu Dikirim
         </Button>
       </>
@@ -196,7 +196,7 @@ function TabBulkActions({
           className="h-8 gap-1.5 text-xs"
           onClick={placeholder("Terima Pembatalan")}
         >
-          <CheckIcon className="h-3.5 w-3.5" />
+          <CheckIcon className="size-3.5" />
           Terima Pembatalan
         </Button>
         <Button
@@ -205,7 +205,7 @@ function TabBulkActions({
           className="h-8 gap-1.5 text-xs"
           onClick={placeholder("Tolak Pembatalan")}
         >
-          <XIcon className="h-3.5 w-3.5" />
+          <XIcon className="size-3.5" />
           Tolak Pembatalan
         </Button>
       </>
@@ -221,7 +221,7 @@ function TabBulkActions({
           className="h-8 gap-1.5 text-xs"
           onClick={placeholder("Cetak Faktur")}
         >
-          <FileTextIcon className="h-3.5 w-3.5" />
+          <FileTextIcon className="size-3.5" />
           Cetak Faktur
         </Button>
       );
@@ -233,7 +233,7 @@ function TabBulkActions({
           className="h-8 gap-1.5 text-xs"
           onClick={placeholder("Terima Retur")}
         >
-          <CheckIcon className="h-3.5 w-3.5" />
+          <CheckIcon className="size-3.5" />
           Terima Retur
         </Button>
         <Button
@@ -242,7 +242,7 @@ function TabBulkActions({
           className="h-8 gap-1.5 text-xs"
           onClick={placeholder("Tolak Retur")}
         >
-          <XIcon className="h-3.5 w-3.5" />
+          <XIcon className="size-3.5" />
           Tolak Retur
         </Button>
       </>
@@ -257,7 +257,7 @@ function TabBulkActions({
           className="h-8 gap-1.5 text-xs"
           onClick={placeholder("Kirim")}
         >
-          <TruckIcon className="h-3.5 w-3.5" />
+          <TruckIcon className="size-3.5" />
           Kirim
         </Button>
         <Button
@@ -266,7 +266,7 @@ function TabBulkActions({
           className="h-8 gap-1.5 text-xs text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10"
           onClick={placeholder("Batalkan")}
         >
-          <BanIcon className="h-3.5 w-3.5" />
+          <BanIcon className="size-3.5" />
           Batalkan
         </Button>
       </>

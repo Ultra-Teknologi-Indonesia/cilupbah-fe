@@ -187,7 +187,7 @@ export function PindahBinListTable() {
       toolbarTrailing={
         <Button size="sm" asChild className="gap-1.5">
           <Link href="/dashboard/transaksi-stok/pindah-bin">
-            <PlusIcon className="h-4 w-4" />
+            <PlusIcon className="size-4" />
             Tambah Transfer Internal
           </Link>
         </Button>

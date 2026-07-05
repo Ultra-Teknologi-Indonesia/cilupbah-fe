@@ -5,6 +5,7 @@ import { PackageOpenIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import type { MonitorStockRow } from "@/types/monitor-stok/monitor";
@@ -31,7 +32,7 @@ interface MonitorStockTableProps {
 function Thumb({ url, alt }: { url: string | null; alt: string }) {
   return (
     <div
-      className="h-9 w-9 shrink-0 rounded-md border border-border/40 bg-muted/40 bg-cover bg-center"
+      className="h-9 w-9 shrink-0 rounded-xl border border-border/40 bg-muted/40 bg-cover bg-center"
       role="img"
       aria-label={alt}
       style={url ? { backgroundImage: `url(${url})` } : undefined}
@@ -77,7 +78,7 @@ export function MonitorStockTable({
                     <Badge
                       key={idx}
                       variant="secondary"
-                      className="text-[10px] font-normal"
+                      className="text-2xs font-normal"
                     >
                       {v.value}
                     </Badge>
@@ -119,7 +120,7 @@ export function MonitorStockTable({
             className={cn(
               "text-right tabular-nums font-medium",
               row.original.available <= 0
-                ? "text-red-600 dark:text-red-400"
+                ? "text-destructive"
                 : "",
             )}
           >
@@ -134,7 +135,7 @@ export function MonitorStockTable({
         accessorKey: "qty_to_restock",
         header: () => <div className="text-right">Perlu Restock</div>,
         cell: ({ row }) => (
-          <div className="text-right tabular-nums font-semibold text-amber-600 dark:text-amber-400">
+          <div className="text-right tabular-nums font-semibold text-warning">
             {row.original.qty_to_restock}
           </div>
         ),
@@ -162,10 +163,7 @@ export function MonitorStockTable({
       }}
       tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
       emptyState={
-        <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-          <PackageOpenIcon className="h-10 w-10 opacity-20" />
-          <p className="text-sm font-medium">{emptyText}</p>
-        </div>
+        <EmptyState icon={PackageOpenIcon} className="py-20" title={emptyText} />
       }
     />
   );

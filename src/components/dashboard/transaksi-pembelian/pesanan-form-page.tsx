@@ -80,7 +80,7 @@ function FieldRow({
 function ProductImage({ src, alt }: { src?: string | null; alt: string }) {
   const [failed, setFailed] = useState(false);
   return (
-    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
+    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
       {src && !failed ? (
         <img
           src={src}
@@ -430,7 +430,7 @@ export function PesananFormPage({ mode, id }: Props) {
           >
             {itemErrors.length > 0 && (
               <div className="mb-4 flex items-start gap-3 rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">
-                <AlertCircleIcon className="mt-0.5 h-5 w-5 shrink-0" />
+                <AlertCircleIcon className="mt-0.5 size-5 shrink-0" />
                 <div>
                   <div className="mb-1 font-semibold">
                     Terdapat kesalahan pada produk:
@@ -495,12 +495,12 @@ export function PesananFormPage({ mode, id }: Props) {
                                 </span>
                               )}
                               {item.product_sku && (
-                                <span className="break-all font-mono text-[11px] text-foreground/80">
+                                <span className="break-all font-mono text-2xs text-foreground/80">
                                   {item.product_sku}
                                 </span>
                               )}
                               {(discAmt > 0 || ship > 0) && (
-                                <span className="mt-0.5 text-[11px] tabular-nums text-foreground">
+                                <span className="mt-0.5 text-2xs tabular-nums text-foreground">
                                   Landed: {formatCurrency(landed)}/unit
                                 </span>
                               )}
@@ -606,7 +606,7 @@ export function PesananFormPage({ mode, id }: Props) {
                             onClick={() => removeItem(idx)}
                             className="text-destructive hover:text-destructive hover:bg-destructive/10"
                           >
-                            <Trash2Icon className="h-3.5 w-3.5" />
+                            <Trash2Icon className="size-3.5" />
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -632,7 +632,7 @@ export function PesananFormPage({ mode, id }: Props) {
                 size="sm"
                 onClick={() => setPickerOpen(true)}
               >
-                <PlusIcon className="mr-1.5 h-3.5 w-3.5" />
+                <PlusIcon className="mr-1.5 size-3.5" />
                 Tambah Baru
               </Button>
             </div>
@@ -695,9 +695,9 @@ export function PesananFormPage({ mode, id }: Props) {
           variant="primary"
         >
           {isPending ? (
-            <Loader2Icon className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+            <Loader2Icon className="mr-1.5 size-3.5 animate-spin" />
           ) : (
-            <SaveIcon className="mr-1.5 h-3.5 w-3.5" />
+            <SaveIcon className="mr-1.5 size-3.5" />
           )}
           Simpan
         </Button>

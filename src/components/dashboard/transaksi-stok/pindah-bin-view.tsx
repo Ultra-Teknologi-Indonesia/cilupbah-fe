@@ -362,7 +362,7 @@ export function PindahBinView() {
 
       {!locationId ? (
         <div className="flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
-          <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
             i
           </div>
           <div>
@@ -390,7 +390,7 @@ export function PindahBinView() {
                 onClick={() => setPickerOpen(true)}
                 className="gap-1.5"
               >
-                <PlusIcon className="h-4 w-4" /> Tambah Produk
+                <PlusIcon className="size-4" /> Tambah Produk
               </Button>
             </div>
 
@@ -477,7 +477,7 @@ export function PindahBinView() {
                               />
                             ) : (
                               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-muted">
-                                <PackageSearchIcon className="h-5 w-5 text-muted-foreground/40" />
+                                <PackageSearchIcon className="size-5 text-muted-foreground/40" />
                               </div>
                             )}
                             <div className="flex min-w-0 flex-col gap-0.5">
@@ -519,7 +519,7 @@ export function PindahBinView() {
                         </TableCell>
                         <TableCell className="px-3 py-2.5">
                           <div className="flex items-center gap-2">
-                            <ArrowRightIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                            <ArrowRightIcon className="size-3.5 shrink-0 text-muted-foreground" />
                             <Combobox
                               options={destOptions}
                               value={l.destBinId}
@@ -580,7 +580,7 @@ export function PindahBinView() {
                             aria-label="Hapus"
                             className="text-destructive"
                           >
-                            <Trash2Icon className="h-4 w-4" />
+                            <Trash2Icon className="size-4" />
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -610,7 +610,7 @@ export function PindahBinView() {
           disabled={!canSubmit || createMut.isPending}
         >
           {createMut.isPending && (
-            <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2Icon className="mr-2 size-4 animate-spin" />
           )}
           Simpan
         </Button>

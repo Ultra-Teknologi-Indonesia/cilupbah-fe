@@ -127,7 +127,7 @@ export function KontakPemasokView() {
               className="inline-flex items-center gap-1.5 hover:text-primary hover:underline"
             >
               {row.original.is_system && (
-                <LockIcon className="h-3 w-3 text-amber-500" />
+                <LockIcon className="size-3 text-warning" />
               )}
               {row.original.name}
             </Link>
@@ -169,7 +169,7 @@ export function KontakPemasokView() {
           <Badge
             variant="outline"
             className={cn(
-              "text-[10px] leading-tight",
+              "text-2xs leading-tight",
               row.original.type === "BOTH"
                 ? "border-purple-300 text-purple-600 dark:border-purple-500/30 dark:text-purple-400"
                 : "border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400",
@@ -194,7 +194,7 @@ export function KontakPemasokView() {
                   href={`/dashboard/kontak-pemasok/${item.id}/edit`}
                   aria-label="Edit"
                 >
-                  <PencilIcon className="h-3.5 w-3.5" />
+                  <PencilIcon className="size-3.5" />
                 </Link>
               </Button>
               {!item.is_system && (
@@ -205,7 +205,7 @@ export function KontakPemasokView() {
                   aria-label="Hapus"
                   className="text-destructive hover:text-destructive"
                 >
-                  <Trash2Icon className="h-3.5 w-3.5" />
+                  <Trash2Icon className="size-3.5" />
                 </Button>
               )}
             </div>
@@ -269,12 +269,12 @@ export function KontakPemasokView() {
           {filterTabs}
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => setImportOpen(true)}>
-              <UploadIcon className="h-4 w-4" />
+              <UploadIcon className="size-4" />
               Import
             </Button>
             <Button variant="primary" asChild>
               <Link href="/dashboard/kontak-pemasok/tambah">
-                <PlusIcon className="h-4 w-4" />
+                <PlusIcon className="size-4" />
                 Buat Pemasok
               </Link>
             </Button>

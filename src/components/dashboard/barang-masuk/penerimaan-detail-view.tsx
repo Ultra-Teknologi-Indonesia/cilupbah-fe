@@ -193,7 +193,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
             <p className="text-sm font-medium">Penerimaan tidak ditemukan</p>
             <Link href="/dashboard/barang-masuk">
               <Button variant="outline" size="sm">
-                <ArrowLeftIcon className="mr-1.5 h-4 w-4" />
+                <ArrowLeftIcon className="mr-1.5 size-4" />
                 Kembali
               </Button>
             </Link>
@@ -210,9 +210,9 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                 disabled={correctMutation.isPending}
               >
                 {correctMutation.isPending ? (
-                  <Loader2Icon className="mr-1.5 h-4 w-4 animate-spin" />
+                  <Loader2Icon className="mr-1.5 size-4 animate-spin" />
                 ) : (
-                  <Trash2Icon className="mr-1.5 h-4 w-4" />
+                  <Trash2Icon className="mr-1.5 size-4" />
                 )}
                 Koreksi Terpilih ({selected.size})
               </Button>
@@ -222,7 +222,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
               size="sm"
               onClick={() => handleExportCsv(inbound)}
             >
-              <DownloadIcon className="mr-1.5 h-4 w-4" />
+              <DownloadIcon className="mr-1.5 size-4" />
               Export CSV
             </Button>
             <Button
@@ -235,11 +235,11 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                 )
               }
             >
-              <QrCodeIcon className="mr-1.5 h-4 w-4" />
+              <QrCodeIcon className="mr-1.5 size-4" />
               Cetak Barcode
             </Button>
             <Button variant="outline" size="sm" onClick={() => window.print()}>
-              <PrinterIcon className="mr-1.5 h-4 w-4" />
+              <PrinterIcon className="mr-1.5 size-4" />
               Cetak
             </Button>
           </div>
@@ -272,7 +272,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                     <StatusBadge
                       domain="inbound"
                       status={inbound.status}
-                      className="text-[10px]"
+                      className="text-2xs"
                     />
                   }
                 />
@@ -424,7 +424,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                           </TableCell>
                         )}
                         <TableCell className="px-3 py-2.5">
-                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted/50">
+                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
                             {imageUrl ? (
                               <img
                                 src={imageUrl}
@@ -433,7 +433,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                               />
                             ) : (
                               <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
-                                <ImageIcon className="h-4 w-4 opacity-50" />
+                                <ImageIcon className="size-4 opacity-50" />
                               </div>
                             )}
                           </div>
@@ -469,7 +469,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                           {item.discrepancy_qty !== 0 ? (
                             <Badge
                               variant="outline"
-                              className="border-red-300 text-[10px] text-red-600"
+                              className="border-destructive/30 text-2xs text-destructive"
                             >
                               {item.discrepancy_qty > 0 ? "+" : ""}
                               {item.discrepancy_qty}
@@ -548,12 +548,12 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                         <TableCell className="px-3 py-2.5">
                           <Badge
                             variant="outline"
-                            className={cn("text-[10px]", {
-                              "border-slate-300 text-slate-600":
+                            className={cn("text-2xs", {
+                              "border-border text-muted-foreground":
                                 a.status === "PENDING",
-                              "border-amber-300 text-amber-600":
+                              "border-warning/30 text-warning":
                                 a.status === "IN_PROGRESS",
-                              "border-emerald-300 text-emerald-600":
+                              "border-success/30 text-success":
                                 a.status === "COMPLETED",
                             })}
                           >

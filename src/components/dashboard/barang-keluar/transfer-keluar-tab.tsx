@@ -395,7 +395,7 @@ export function TransferKeluarTab() {
                 }}
                 className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
               >
-                <CheckIcon className="h-3.5 w-3.5" />
+                <CheckIcon className="size-3.5" />
                 Approve
               </button>
             )}
@@ -408,7 +408,7 @@ export function TransferKeluarTab() {
                 }}
                 className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
               >
-                <TruckIcon className="h-3.5 w-3.5" />
+                <TruckIcon className="size-3.5" />
                 Kirim
               </button>
             )}
@@ -420,7 +420,7 @@ export function TransferKeluarTab() {
               }}
               className="inline-flex items-center gap-1 rounded-md bg-warning/10 px-2.5 py-1 text-xs font-medium text-warning transition-colors hover:bg-warning/20"
             >
-              <XIcon className="h-3.5 w-3.5" />
+              <XIcon className="size-3.5" />
             </button>
             {item.status === "DRAFT" && (
               <button
@@ -428,7 +428,7 @@ export function TransferKeluarTab() {
                 onClick={() => setDeleteTarget(item)}
                 className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20"
               >
-                <Trash2Icon className="h-3.5 w-3.5" />
+                <Trash2Icon className="size-3.5" />
               </button>
             )}
           </>
@@ -477,7 +477,7 @@ export function TransferKeluarTab() {
               onClick={handleExport}
               disabled={items.length === 0}
             >
-              <DownloadIcon className="mr-1.5 h-4 w-4" />
+              <DownloadIcon className="mr-1.5 size-4" />
               Export CSV
             </Button>
           }

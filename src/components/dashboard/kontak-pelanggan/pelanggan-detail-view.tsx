@@ -105,13 +105,13 @@ export function PelangganDetailView({ id }: { id: string }) {
                 className="text-destructive hover:text-destructive"
                 onClick={() => setDeleteOpen(true)}
               >
-                <Trash2Icon className="h-4 w-4" />
+                <Trash2Icon className="size-4" />
                 Hapus
               </Button>
             )}
             <Button variant="primary" asChild>
               <Link href={`/dashboard/kontak-pelanggan/${id}/edit`}>
-                <PencilIcon className="h-4 w-4" />
+                <PencilIcon className="size-4" />
                 Edit
               </Link>
             </Button>

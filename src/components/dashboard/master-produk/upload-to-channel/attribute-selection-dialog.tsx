@@ -123,7 +123,7 @@ export function AttributeSelectionDialog({
                     {attr.name}
                     <Badge
                       variant="destructive"
-                      className="text-[10px] font-normal px-1.5 py-0"
+                      className="text-2xs font-normal px-1.5 py-0"
                     >
                       Wajib
                     </Badge>
@@ -155,7 +155,7 @@ export function AttributeSelectionDialog({
                       key={attr.externalId}
                       className="flex items-center gap-2 text-sm text-muted-foreground"
                     >
-                      <CheckCircleIcon className="size-4 text-emerald-500" />
+                      <CheckCircleIcon className="size-4 text-success" />
                       <span>{attr.name}</span>
                     </div>
                   ))}

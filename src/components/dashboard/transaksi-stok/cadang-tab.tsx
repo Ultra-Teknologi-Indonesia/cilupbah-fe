@@ -123,7 +123,7 @@ export function CadangTab() {
           <StatusBadge
             domain="stock-reserve"
             status={row.original.status}
-            className="text-[10px] leading-tight"
+            className="text-2xs leading-tight"
           />
         ),
       },
@@ -152,7 +152,7 @@ export function CadangTab() {
                   aria-label="Batalkan"
                   className="text-destructive hover:text-destructive"
                 >
-                  <XCircleIcon className="h-3.5 w-3.5" />
+                  <XCircleIcon className="size-3.5" />
                 </Button>
               </div>
             );

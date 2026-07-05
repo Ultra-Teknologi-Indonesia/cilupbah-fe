@@ -184,7 +184,7 @@ export function PesananPembelianTab() {
             return (
               <Button size="sm" className="h-8 gap-1.5" asChild>
                 <Link href={`/dashboard/barang-masuk/terima-po/${item.id}`}>
-                  <PackageCheckIcon className="h-4 w-4" />
+                  <PackageCheckIcon className="size-4" />
                   Terima
                 </Link>
               </Button>

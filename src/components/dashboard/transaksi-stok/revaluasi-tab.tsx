@@ -106,7 +106,7 @@ export function RevaluasiTab() {
           <StatusBadge
             domain="stock-revaluation"
             status={row.original.status}
-            className="text-[10px] leading-tight"
+            className="text-2xs leading-tight"
           />
         ),
       },

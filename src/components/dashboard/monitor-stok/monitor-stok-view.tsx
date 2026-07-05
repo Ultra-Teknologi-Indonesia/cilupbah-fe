@@ -310,7 +310,7 @@ export function MonitorStokView() {
                   <TabsTrigger key={key} value={key}>
                     {label}
                     {subTotal(key) !== undefined && (
-                      <span className="ml-0.5 rounded-full bg-muted px-1.5 text-[10px] tabular-nums">
+                      <span className="ml-0.5 rounded-full bg-muted px-1.5 text-2xs tabular-nums">
                         {subTotal(key)}
                       </span>
                     )}

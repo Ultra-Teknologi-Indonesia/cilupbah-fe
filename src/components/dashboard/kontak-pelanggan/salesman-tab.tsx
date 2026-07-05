@@ -222,9 +222,9 @@ export function SalesmanTab() {
           <Badge
             variant="outline"
             className={cn(
-              "text-[10px] leading-tight",
+              "text-2xs leading-tight",
               row.original.status === "active"
-                ? "border-emerald-300 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400"
+                ? "border-success/30 text-success"
                 : "border-slate-300 text-slate-600 dark:border-slate-500/30 dark:text-slate-400",
             )}
           >
@@ -248,7 +248,7 @@ export function SalesmanTab() {
                 onClick={() => openEdit(item)}
                 aria-label="Edit"
               >
-                <PencilIcon className="h-3.5 w-3.5" />
+                <PencilIcon className="size-3.5" />
               </Button>
               <Button
                 variant="ghost"
@@ -257,7 +257,7 @@ export function SalesmanTab() {
                 aria-label="Hapus"
                 className="text-destructive hover:text-destructive"
               >
-                <Trash2Icon className="h-3.5 w-3.5" />
+                <Trash2Icon className="size-3.5" />
               </Button>
             </div>
           );
@@ -299,13 +299,13 @@ export function SalesmanTab() {
               onClick={handleExport}
               disabled={items.length === 0}
             >
-              <DownloadIcon className="mr-1.5 h-4 w-4" />
+              <DownloadIcon className="mr-1.5 size-4" />
               Export CSV
             </Button>
           }
           trailing={
             <Button variant="primary" size="sm" onClick={openCreate}>
-              <PlusIcon className="mr-1.5 h-4 w-4" />
+              <PlusIcon className="mr-1.5 size-4" />
               Buat Salesman
             </Button>
           }

@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/select";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { DataTable } from "@/components/ui/data-table";
+import { EmptyState } from "@/components/ui/empty-state";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
 import { useImportBatches } from "@/hooks/master-produk/use-import";
 import type {
@@ -67,11 +68,9 @@ function StateIcon({ state }: { state: ImportBatchState }) {
     case "processing":
       return <Loader2Icon className="size-4 animate-spin text-blue-500" />;
     case "done":
-      return (
-        <CheckCircle2Icon className="size-4 text-emerald-600 dark:text-emerald-400" />
-      );
+      return <CheckCircle2Icon className="size-4 text-success" />;
     case "done_with_errors":
-      return <AlertTriangleIcon className="size-4 text-amber-500" />;
+      return <AlertTriangleIcon className="size-4 text-warning" />;
     case "failed":
       return <XCircleIcon className="size-4 text-destructive" />;
   }
@@ -88,9 +87,9 @@ function ProgressBar({
     state === "failed"
       ? "bg-destructive"
       : state === "done_with_errors"
-        ? "bg-amber-500"
+        ? "bg-warning"
         : state === "done"
-          ? "bg-emerald-500"
+          ? "bg-success"
           : "bg-primary";
   return (
     <div className="flex items-center gap-2">
@@ -125,7 +124,7 @@ function buildColumns(
       header: "Tipe",
       size: 100,
       cell: ({ row }) => (
-        <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium">
+        <span className="rounded-xl bg-muted px-2 py-0.5 text-xs font-medium">
           {row.original.type === "single" ? "Satuan" : "Bundle"}
         </span>
       ),
@@ -135,7 +134,7 @@ function buildColumns(
       header: "File",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <FileSpreadsheetIcon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <FileSpreadsheetIcon className="size-4 shrink-0 text-success" />
           <span className="max-w-[200px] truncate">
             {row.original.originalFilename}
           </span>
@@ -179,7 +178,7 @@ function buildColumns(
           <div className="flex gap-3 text-xs">
             <span className="text-muted-foreground">Total {b.totalRows}</span>
             {b.successRows > 0 && (
-              <span className="text-emerald-600 dark:text-emerald-400">
+              <span className="text-success">
                 {b.successRows} OK
               </span>
             )}
@@ -395,13 +394,12 @@ export function ImportView() {
               onPaginationChange={setPagination}
               tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
               emptyState={
-                <div className="flex flex-col items-center gap-2 py-6">
-                  <SearchXIcon className="size-8 text-muted-foreground" />
-                  <p className="font-medium">Belum ada riwayat import</p>
-                  <p className="text-sm text-muted-foreground">
-                    Mulai dari Import Baru → pilih Satuan atau Bundle.
-                  </p>
-                </div>
+                <EmptyState
+                  icon={SearchXIcon}
+                  title="Belum ada riwayat import"
+                  description="Mulai dari Import Baru → pilih Satuan atau Bundle."
+                  className="py-6"
+                />
               }
             />
           )}

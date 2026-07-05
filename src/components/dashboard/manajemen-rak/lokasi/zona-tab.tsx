@@ -32,6 +32,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   useZones,
   useCreateZone,
@@ -134,7 +135,7 @@ function BinPicker({
                 }
                 onCheckedChange={toggleAll}
               />
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-2xs text-muted-foreground">
                 {selected.size} dipilih dari {available.length} rak tersedia
               </span>
             </div>
@@ -154,7 +155,7 @@ function BinPicker({
               </label>
             ))}
             {filtered.length > 100 && (
-              <p className="px-3 py-1.5 text-center text-[11px] text-muted-foreground">
+              <p className="px-3 py-1.5 text-center text-2xs text-muted-foreground">
                 Menampilkan 100 dari {filtered.length}
               </p>
             )}
@@ -387,17 +388,16 @@ export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border py-16 text-center">
-          <MapPinIcon className="mx-auto mb-3 size-10 text-muted-foreground" />
-          <p className="text-sm font-medium text-muted-foreground">
-            {search.trim() ? "Zona tidak ditemukan" : "Belum ada zona"}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {search.trim()
+        <EmptyState
+          icon={MapPinIcon}
+          title={search.trim() ? "Zona tidak ditemukan" : "Belum ada zona"}
+          description={
+            search.trim()
               ? "Coba kata kunci lain"
-              : "Buat zona untuk mengelompokkan rak dalam gudang"}
-          </p>
-        </div>
+              : "Buat zona untuk mengelompokkan rak dalam gudang"
+          }
+          className="rounded-2xl border border-dashed border-border py-16"
+        />
       ) : (
         <Table
           className="border-collapse"

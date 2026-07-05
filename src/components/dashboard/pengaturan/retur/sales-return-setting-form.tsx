@@ -167,7 +167,7 @@ function SettingFormBody({ initial }: { initial: SalesReturnSetting }) {
       <div className="flex justify-end">
         <Button onClick={handleSave} disabled={saveMut.isPending}>
           {saveMut.isPending && (
-            <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2Icon className="mr-2 size-4 animate-spin" />
           )}
           Simpan Pengaturan
         </Button>

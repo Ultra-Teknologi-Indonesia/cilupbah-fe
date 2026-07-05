@@ -16,10 +16,15 @@ import { SidebarPanel } from "./sidebar-panel";
 import DashboardNavigation from "./nav-main";
 import { dashboardGroups, findGroupIdForPath, isLeafGroup } from "./nav-data";
 
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;
+
 export function DashboardSidebar() {
   const { open, setOpen, toggleSidebar, isMobile, openMobile, setOpenMobile } =
     useSidebar();
   const pathname = usePathname();
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [panelPos, setPanelPos] = React.useState({ top: 72, maxHeight: 0 });
 
   const [activeGroupId, setActiveGroupId] = React.useState(() =>
     findGroupIdForPath(pathname, dashboardGroups),
@@ -35,6 +40,36 @@ export function DashboardSidebar() {
     dashboardGroups.find((g) => g.id === activeGroupId) ?? dashboardGroups[0];
 
   const panelOpen = open && !isLeafGroup(activeGroup);
+
+  // Sejajarkan puncak panel floating dengan ikon rail yang sedang aktif.
+  useIsomorphicLayoutEffect(() => {
+    if (!panelOpen) return;
+    const container = containerRef.current;
+    if (!container) return;
+
+    const measure = () => {
+      const activeEl = container.querySelector<HTMLElement>(
+        '[data-rail-active="true"]',
+      );
+      if (!activeEl) return;
+      const cRect = container.getBoundingClientRect();
+      const aRect = activeEl.getBoundingClientRect();
+      const margin = 12;
+      const minRoom = 140;
+      const iconTop = aRect.top - cRect.top;
+      const maxTop = Math.max(
+        margin,
+        window.innerHeight - cRect.top - minRoom - margin,
+      );
+      const top = Math.max(margin, Math.min(iconTop, maxTop));
+      const maxHeight = window.innerHeight - cRect.top - top - margin;
+      setPanelPos({ top, maxHeight });
+    };
+
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [panelOpen, activeGroupId]);
 
   const handleSelect = React.useCallback(
     (id: string) => {
@@ -82,7 +117,10 @@ export function DashboardSidebar() {
   }
 
   return (
-    <div className="relative z-10 hidden h-dvh shrink-0 md:flex md:gap-2 md:p-3 md:pr-0">
+    <div
+      ref={containerRef}
+      className="relative z-10 hidden h-dvh shrink-0 md:flex md:p-3 md:pr-0"
+    >
       {panelOpen && (
         <button
           type="button"
@@ -101,7 +139,12 @@ export function DashboardSidebar() {
         />
       </div>
 
-      <SidebarPanel group={activeGroup} open={panelOpen} />
+      <SidebarPanel
+        group={activeGroup}
+        open={panelOpen}
+        top={panelPos.top}
+        maxHeight={panelPos.maxHeight}
+      />
     </div>
   );
 }

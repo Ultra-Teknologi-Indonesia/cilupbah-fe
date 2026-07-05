@@ -128,7 +128,7 @@ export function PelangganTab() {
               className="inline-flex items-center gap-1.5 hover:text-primary hover:underline"
             >
               {row.original.is_system && (
-                <LockIcon className="h-3 w-3 text-amber-500" />
+                <LockIcon className="size-3 text-warning" />
               )}
               {row.original.name}
             </Link>
@@ -178,7 +178,7 @@ export function PelangganTab() {
                   href={`/dashboard/kontak-pelanggan/${item.id}/edit`}
                   aria-label="Edit"
                 >
-                  <PencilIcon className="h-3.5 w-3.5" />
+                  <PencilIcon className="size-3.5" />
                 </Link>
               </Button>
               {!item.is_system && (
@@ -189,7 +189,7 @@ export function PelangganTab() {
                   aria-label="Hapus"
                   className="text-destructive hover:text-destructive"
                 >
-                  <Trash2Icon className="h-3.5 w-3.5" />
+                  <Trash2Icon className="size-3.5" />
                 </Button>
               )}
             </div>
@@ -306,14 +306,14 @@ export function PelangganTab() {
               onClick={handleExport}
               disabled={items.length === 0}
             >
-              <DownloadIcon className="mr-1.5 h-4 w-4" />
+              <DownloadIcon className="mr-1.5 size-4" />
               Export CSV
             </Button>
           }
           trailing={
             <Button variant="primary" asChild>
               <Link href="/dashboard/kontak-pelanggan/tambah">
-                <PlusIcon className="h-4 w-4" />
+                <PlusIcon className="size-4" />
                 Buat Pelanggan
               </Link>
             </Button>

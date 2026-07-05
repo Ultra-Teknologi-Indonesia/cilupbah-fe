@@ -219,9 +219,9 @@ export function ReturChannelTab() {
                   setAcceptTarget(item);
                   setProcessedBy("");
                 }}
-                className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-500/20 dark:text-emerald-400"
+                className="inline-flex items-center gap-1 rounded-md bg-success/10 px-2 py-1 text-xs font-medium text-success transition-colors hover:bg-success/20"
               >
-                <CheckCircleIcon className="h-3.5 w-3.5" />
+                <CheckCircleIcon className="size-3.5" />
                 Setujui
               </button>
               <button
@@ -231,9 +231,9 @@ export function ReturChannelTab() {
                   setProcessedBy("");
                   setRejectReason("");
                 }}
-                className="inline-flex items-center gap-1 rounded-md bg-red-500/10 px-2 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-500/20 dark:text-red-400"
+                className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20"
               >
-                <XCircleIcon className="h-3.5 w-3.5" />
+                <XCircleIcon className="size-3.5" />
                 Tolak
               </button>
             </div>
@@ -253,9 +253,9 @@ export function ReturChannelTab() {
                 setCompleteTarget(item);
                 setProcessedBy("");
               }}
-              className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-500/20 dark:text-emerald-400"
+              className="inline-flex items-center gap-1 rounded-md bg-success/10 px-2 py-1 text-xs font-medium text-success transition-colors hover:bg-success/20"
             >
-              <FlagIcon className="h-3.5 w-3.5" />
+              <FlagIcon className="size-3.5" />
               Selesaikan
             </button>
           );
@@ -302,7 +302,7 @@ export function ReturChannelTab() {
         </Tabs>
         <Button size="sm" asChild className="gap-1.5">
           <Link href="/dashboard/barang-masuk/retur/buat">
-            <PlusIcon className="h-4 w-4" />
+            <PlusIcon className="size-4" />
             Buat Retur
           </Link>
         </Button>

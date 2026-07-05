@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { formatDateTime } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -35,7 +36,7 @@ interface MonitorSyncFailedTableProps {
 function Thumb({ url, alt }: { url: string | null; alt: string }) {
   return (
     <div
-      className="h-9 w-9 shrink-0 rounded-md border border-border/40 bg-muted/40 bg-cover bg-center"
+      className="h-9 w-9 shrink-0 rounded-xl border border-border/40 bg-muted/40 bg-cover bg-center"
       role="img"
       aria-label={alt}
       style={url ? { backgroundImage: `url(${url})` } : undefined}
@@ -45,7 +46,7 @@ function Thumb({ url, alt }: { url: string | null; alt: string }) {
 
 function StatusBadge({ status }: { status: string }) {
   return (
-    <Badge variant="destructive" className="text-[10px] font-medium">
+    <Badge variant="destructive" className="text-2xs font-medium">
       {status === "failed" ? "Gagal" : status}
     </Badge>
   );
@@ -163,7 +164,7 @@ export function MonitorSyncFailedTable({
         cell: ({ row }) => (
           <div className="max-w-[200px]">
             <p
-              className="truncate text-xs text-red-600 dark:text-red-400"
+              className="truncate text-xs text-destructive"
               title={row.original.error_message ?? ""}
             >
               {row.original.error_message ?? "—"}
@@ -191,7 +192,7 @@ export function MonitorSyncFailedTable({
               disabled={retry.isPending}
               className="inline-flex items-center gap-1 rounded-md border border-border/60 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
             >
-              <RefreshCwIcon className="h-3 w-3" /> Retry
+              <RefreshCwIcon className="size-3" /> Retry
             </button>
           </div>
         ),
@@ -212,7 +213,7 @@ export function MonitorSyncFailedTable({
             onClick={() => setShowBulk(true)}
             className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            <RefreshCwIcon className="h-3.5 w-3.5" /> Retry Semua
+            <RefreshCwIcon className="size-3.5" /> Retry Semua
           </button>
           <button
             type="button"
@@ -241,10 +242,11 @@ export function MonitorSyncFailedTable({
         }}
         tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
         emptyState={
-          <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-            <CheckIcon className="h-10 w-10 opacity-20" />
-            <p className="text-sm font-medium">Tidak ada mapping gagal sync.</p>
-          </div>
+          <EmptyState
+            icon={CheckIcon}
+            className="py-20"
+            title="Tidak ada mapping gagal sync."
+          />
         }
       />
 

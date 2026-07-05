@@ -38,7 +38,7 @@ function ChannelDot({ ch }: { ch: ProductChannelStatus }) {
               }}
             />
           ) : (
-            <span className="text-[11px] font-semibold text-white">
+            <span className="text-2xs font-semibold text-white">
               {ch.channelName.charAt(0).toUpperCase()}
             </span>
           )}
@@ -89,7 +89,7 @@ export function ProductChannelBadges({
       {hidden.length > 0 && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <span className="relative flex size-6 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground ring-2 ring-card">
+            <span className="relative flex size-6 items-center justify-center rounded-full bg-muted text-2xs font-semibold text-muted-foreground ring-2 ring-card">
               +{hidden.length}
               {hiddenHasError && (
                 <span className="absolute -right-0.5 -top-0.5 flex size-3 items-center justify-center rounded-full bg-destructive text-white ring-2 ring-card">
@@ -112,7 +112,7 @@ export function ProductChannelBadges({
                   <span
                     className={cn(
                       "size-1.5 shrink-0 rounded-full",
-                      c.errorText ? "bg-destructive" : "bg-emerald-500",
+                      c.errorText ? "bg-destructive" : "bg-success",
                     )}
                   />
                   {c.channelName} · {c.storeName}

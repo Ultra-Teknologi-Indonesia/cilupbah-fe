@@ -135,7 +135,7 @@ export function KategoriTab() {
                 onClick={() => openEdit(cat)}
                 aria-label="Edit"
               >
-                <PencilIcon className="h-3.5 w-3.5" />
+                <PencilIcon className="size-3.5" />
               </Button>
               <Button
                 variant="ghost"
@@ -144,7 +144,7 @@ export function KategoriTab() {
                 aria-label="Hapus"
                 className="text-destructive hover:text-destructive"
               >
-                <Trash2Icon className="h-3.5 w-3.5" />
+                <Trash2Icon className="size-3.5" />
               </Button>
             </div>
           );
@@ -170,7 +170,7 @@ export function KategoriTab() {
           align="end"
           trailing={
             <Button variant="primary" size="sm" onClick={openCreate}>
-              <PlusIcon className="mr-1.5 h-4 w-4" />
+              <PlusIcon className="mr-1.5 size-4" />
               Buat Kategori
             </Button>
           }

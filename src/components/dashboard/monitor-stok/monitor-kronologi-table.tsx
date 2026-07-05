@@ -6,6 +6,7 @@ import { PackageOpenIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDateTime } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import type { KronologiRow } from "@/types/monitor-stok/monitor";
@@ -50,8 +51,8 @@ function QtyCell({ qty }: { qty: number }) {
         zero
           ? "text-muted-foreground"
           : positive
-            ? "text-emerald-600"
-            : "text-rose-600",
+            ? "text-success"
+            : "text-destructive",
       )}
     >
       {positive ? "+" : ""}
@@ -117,14 +118,14 @@ export function MonitorKronologiTable({
             <div className="flex items-center gap-1.5">
               <Badge
                 variant="outline"
-                className={cn("border text-[10px] font-medium", style)}
+                className={cn("border text-2xs font-medium", style)}
               >
                 {r.source_label}
               </Badge>
               {r.is_variance && (
                 <Badge
                   variant="outline"
-                  className="border-rose-200 bg-rose-50 text-[10px] font-medium text-rose-700"
+                  className="border-destructive/20 bg-destructive/10 text-2xs font-medium text-destructive"
                 >
                   Variance
                 </Badge>
@@ -182,12 +183,11 @@ export function MonitorKronologiTable({
       }}
       tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
       emptyState={
-        <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-          <PackageOpenIcon className="h-10 w-10 opacity-20" />
-          <p className="text-sm font-medium">
-            {emptyText ?? "Belum ada pergerakan stok pada rentang ini."}
-          </p>
-        </div>
+        <EmptyState
+          icon={PackageOpenIcon}
+          className="py-20"
+          title={emptyText ?? "Belum ada pergerakan stok pada rentang ini."}
+        />
       }
     />
   );

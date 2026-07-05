@@ -68,6 +68,7 @@ function RailItem({
           <Link
             href={group.items[0].link}
             aria-label={group.title}
+            data-rail-active={active ? "true" : undefined}
             onClick={() => onSelect(group.id)}
           >
             {inner}
@@ -77,6 +78,7 @@ function RailItem({
             type="button"
             aria-label={group.title}
             aria-pressed={active}
+            data-rail-active={active ? "true" : undefined}
             onClick={() => onSelect(group.id)}
           >
             {inner}

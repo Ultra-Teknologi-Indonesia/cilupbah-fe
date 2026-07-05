@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   Tooltip,
   TooltipContent,
@@ -86,11 +87,11 @@ function ChannelIcon({ source }: { source: string | null }) {
   const mask = `url(/channels/${source}.svg) center / contain no-repeat`;
   return (
     <span
-      className="inline-flex h-6 items-center gap-1.5 shrink-0 rounded-md px-1.5"
+      className="inline-flex h-6 items-center gap-1.5 shrink-0 rounded-xl px-1.5"
       style={{ backgroundColor: `${ch.color}10` }}
     >
       <span
-        className="inline-block h-4 w-4 shrink-0"
+        className="inline-block size-4 shrink-0"
         style={{ backgroundColor: ch.color, mask, WebkitMask: mask }}
       />
       <span className="text-xs font-semibold" style={{ color: ch.color }}>
@@ -214,7 +215,7 @@ function OrderCard({
         {order.isInstant && (
           <Badge
             variant="outline"
-            className="border-orange-500/60 bg-orange-500/15 text-orange-700 dark:text-orange-400 text-[10px] px-1.5 py-0 gap-0.5"
+            className="border-orange-500/60 bg-orange-500/15 text-orange-700 dark:text-orange-400 text-2xs px-1.5 py-0 gap-0.5"
           >
             <ZapIcon className="h-2.5 w-2.5 fill-current" />
             INSTANT
@@ -223,7 +224,7 @@ function OrderCard({
         {order.isCod && (
           <Badge
             variant="outline"
-            className="border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[10px] px-1.5 py-0"
+            className="border-warning/50 bg-warning/10 text-warning text-2xs px-1.5 py-0"
           >
             COD
           </Badge>
@@ -231,13 +232,13 @@ function OrderCard({
         {order.priorityFulfillment && (
           <Badge
             variant="outline"
-            className="border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-400 text-[10px] px-1.5 py-0"
+            className="border-destructive/50 bg-destructive/10 text-destructive text-2xs px-1.5 py-0"
           >
             Prioritas
           </Badge>
         )}
         {isCancelled && (
-          <Badge className="bg-red-600 text-white hover:bg-red-700 text-[10px] px-1.5 py-0 gap-1">
+          <Badge className="bg-destructive text-white hover:bg-destructive/90 text-2xs px-1.5 py-0 gap-1">
             <AlertTriangleIcon className="h-2.5 w-2.5" />
             BATAL — Pisahkan Paket
           </Badge>
@@ -245,7 +246,7 @@ function OrderCard({
 
         <div className="ml-auto flex items-center gap-3 text-sm text-foreground">
           <span className="inline-flex items-center gap-1.5">
-            <UserIcon className="h-3.5 w-3.5" />
+            <UserIcon className="size-3.5" />
             <span className="max-w-[180px] truncate font-medium text-foreground">
               {order.customerName || "—"}
             </span>
@@ -256,7 +257,7 @@ function OrderCard({
                 |
               </span>
               <span className="hidden items-center gap-1.5 sm:inline-flex">
-                <CalendarIcon className="h-3.5 w-3.5" />
+                <CalendarIcon className="size-3.5" />
                 {formatDate(order.transactionDate)}
               </span>
             </>
@@ -276,11 +277,11 @@ function OrderCard({
                     alt={item.description || item.sku}
                     width={40}
                     height={40}
-                    className="h-10 w-10 shrink-0 rounded-lg border border-border/60 object-cover"
+                    className="h-10 w-10 shrink-0 rounded-xl border border-border/60 object-cover"
                   />
                 ) : (
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-muted/50">
-                    <PackageIcon className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-muted/50">
+                    <PackageIcon className="size-4 text-muted-foreground" />
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
@@ -306,24 +307,24 @@ function OrderCard({
           <OrderStatusBadge status={order.status} />
           {order.totalQty != null && (
             <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
-              <PackageIcon className="h-3 w-3" />
+              <PackageIcon className="size-3" />
               {order.totalQty} item · {order.totalSku ?? 0} SKU
             </p>
           )}
         </div>
 
         <div className="min-w-0">
-          <p className="mb-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+          <p className="mb-0.5 text-2xs font-medium uppercase tracking-wider text-muted-foreground/70">
             Lokasi
           </p>
           <p className="flex items-start gap-1 text-sm">
-            <MapPinIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            <MapPinIcon className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
             <span className="line-clamp-2">{order.locationName || "—"}</span>
           </p>
         </div>
 
         <div>
-          <p className="mb-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+          <p className="mb-0.5 text-2xs font-medium uppercase tracking-wider text-muted-foreground/70">
             Total
           </p>
           <p className="text-sm font-bold tabular-nums">
@@ -331,7 +332,7 @@ function OrderCard({
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
             {order.isPaid ? (
-              <span className="text-emerald-600 dark:text-emerald-400">
+              <span className="text-success">
                 Dibayar
               </span>
             ) : (
@@ -341,12 +342,12 @@ function OrderCard({
         </div>
 
         <div className="min-w-0">
-          <p className="mb-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+          <p className="mb-0.5 text-2xs font-medium uppercase tracking-wider text-muted-foreground/70">
             Kurir
           </p>
           {order.shippingProvider ? (
             <div className="flex items-start gap-1 text-sm">
-              <TruckIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <TruckIcon className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
               <div className="min-w-0">
                 <p className="font-medium">{order.shippingProvider}</p>
                 {order.trackingNumber && (
@@ -378,14 +379,14 @@ function OrderCard({
             <Button
               size="sm"
               variant="outline"
-              className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
+              className="border-destructive/30 text-destructive hover:bg-destructive/10"
               onClick={() => onDismissCancel(order.id)}
               disabled={dismissPending}
             >
               {dismissPending ? (
                 <Loader2Icon className="animate-spin" />
               ) : (
-                <CheckCircle2Icon className="h-3.5 w-3.5" />
+                <CheckCircle2Icon className="size-3.5" />
               )}
               Sudah dipisahkan
             </Button>
@@ -430,7 +431,7 @@ function OrderCard({
             <Button
               size="sm"
               variant="outline"
-              className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950"
+              className="border-warning/40 text-warning hover:bg-warning/10"
               onClick={() => onRetryPickup([order.id])}
               disabled={retryPickupPending}
             >
@@ -918,9 +919,7 @@ export function FulfillmentOrdersTable({
             <Loader2Icon className="size-5 animate-spin text-muted-foreground" />
           </div>
         ) : orders.length === 0 ? (
-          <div className="py-16 text-center text-sm text-muted-foreground">
-            Tidak ada pesanan.
-          </div>
+          <EmptyState icon={PackageIcon} title="Tidak ada pesanan." className="py-16" />
         ) : (
           <div className="flex flex-col gap-3">
             {}
@@ -1076,17 +1075,17 @@ function UnduhBatalButton({
         <Button
           size="sm"
           variant="outline"
-          className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
+          className="border-destructive/30 text-destructive hover:bg-destructive/10"
           disabled={pending}
         >
           {pending ? (
             <Loader2Icon className="animate-spin" />
           ) : (
-            <DownloadIcon className="h-3.5 w-3.5" />
+            <DownloadIcon className="size-3.5" />
           )}
           Unduh Batal
           {count > 0 && (
-            <Badge className="ml-1 bg-red-600 text-white hover:bg-red-700 h-4 min-w-4 px-1 text-[10px] tabular-nums">
+            <Badge className="ml-1 bg-destructive text-white hover:bg-destructive/90 h-4 min-w-4 px-1 text-2xs tabular-nums">
               {count}
             </Badge>
           )}
@@ -1098,7 +1097,7 @@ function UnduhBatalButton({
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <div className="px-2 py-1.5">
-          <p className="mb-1.5 text-[11px] font-medium text-muted-foreground">
+          <p className="mb-1.5 text-2xs font-medium text-muted-foreground">
             Rentang tanggal
           </p>
           <div className="flex flex-col gap-1.5">

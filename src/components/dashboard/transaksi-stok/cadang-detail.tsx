@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
@@ -33,10 +34,10 @@ function getRemainingDays(endDate: string): {
   const diff = Math.ceil(
     (end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
   );
-  if (diff < 0) return { label: "Kedaluwarsa", className: "text-red-600" };
+  if (diff < 0) return { label: "Kedaluwarsa", className: "text-destructive" };
   return {
     label: `${diff} hari`,
-    className: diff <= 3 ? "text-amber-600" : "text-foreground",
+    className: diff <= 3 ? "text-warning" : "text-foreground",
   };
 }
 
@@ -93,7 +94,7 @@ export function CadangDetail({ id }: { id: string }) {
               {row.original.item?.item_name ?? "—"}
             </span>
             {row.original.item?.sku && (
-              <span className="font-mono text-[11px] text-foreground/80">
+              <span className="font-mono text-2xs text-foreground/80">
                 {row.original.item.sku}
               </span>
             )}
@@ -144,7 +145,7 @@ export function CadangDetail({ id }: { id: string }) {
                 onClick={() => setCancelOpen(true)}
                 disabled={cancelMut.isPending}
               >
-                <XCircleIcon className="mr-1.5 h-3.5 w-3.5" />
+                <XCircleIcon className="mr-1.5 size-3.5" />
                 Batalkan
               </Button>
             )}
@@ -169,7 +170,7 @@ export function CadangDetail({ id }: { id: string }) {
               <StatusBadge
                 domain="stock-reserve"
                 status={stock.status}
-                className="text-[10px] leading-tight"
+                className="text-2xs leading-tight"
               />
             }
           />
@@ -204,11 +205,7 @@ export function CadangDetail({ id }: { id: string }) {
             hideToolbar
             manualPagination={false}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
-            emptyState={
-              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                <p>Belum ada item.</p>
-              </div>
-            }
+            emptyState={<EmptyState title="Belum ada item." />}
           />
         </div>
       </LiquidGlass>

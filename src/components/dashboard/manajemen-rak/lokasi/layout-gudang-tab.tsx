@@ -470,7 +470,7 @@ function WarehouseVisual({
         ))}
       </svg>
 
-      <div className="grid grid-cols-2 gap-x-5 gap-y-1 text-[11px] text-muted-foreground">
+      <div className="grid grid-cols-2 gap-x-5 gap-y-1 text-2xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <span
             className="size-2 rounded-[3px]"

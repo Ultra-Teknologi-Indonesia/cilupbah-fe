@@ -197,7 +197,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
       />
 
       {product.status === "master" && (
-        <div className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
+        <div className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning/5 px-4 py-3 text-sm text-warning">
           <InfoIcon className="mt-0.5 size-4 shrink-0" />
           Produk berstatus Master — perubahan langsung berlaku di katalog &
           channel.

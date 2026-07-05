@@ -210,7 +210,7 @@ export function ProductPickerDialog({
                       <TableRow className="bg-muted/40 hover:bg-muted/40">
                         <TableCell colSpan={4} className="py-2">
                           <div className="flex items-center gap-3">
-                            <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
+                            <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
                               {p.thumbnail ? (
                                 <Image
                                   src={p.thumbnail}
@@ -241,7 +241,7 @@ export function ProductPickerDialog({
                                 {p.isBundle && (
                                   <Badge
                                     variant="secondary"
-                                    className="px-1.5 py-0 text-[10px]"
+                                    className="px-1.5 py-0 text-2xs"
                                   >
                                     Bundle
                                   </Badge>
@@ -294,7 +294,7 @@ export function ProductPickerDialog({
                                   <Badge
                                     key={vv.label}
                                     variant="outline"
-                                    className="px-1.5 py-0 text-[10px] font-normal"
+                                    className="px-1.5 py-0 text-2xs font-normal"
                                   >
                                     {vv.label}: {vv.value}
                                   </Badge>

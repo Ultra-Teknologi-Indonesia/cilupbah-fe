@@ -69,10 +69,10 @@ function getPasswordStrength(password: string) {
   if (passed <= 2)
     return { level: "Lemah", color: "bg-destructive", percent: 40 };
   if (passed <= 3)
-    return { level: "Sedang", color: "bg-yellow-500", percent: 60 };
+    return { level: "Sedang", color: "bg-warning", percent: 60 };
   if (passed <= 4)
-    return { level: "Kuat", color: "bg-emerald-500", percent: 80 };
-  return { level: "Sangat Kuat", color: "bg-emerald-600", percent: 100 };
+    return { level: "Kuat", color: "bg-success", percent: 80 };
+  return { level: "Sangat Kuat", color: "bg-success", percent: 100 };
 }
 
 const baseSchema = z.object({
@@ -426,14 +426,14 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                                   className="flex items-center gap-1.5 text-xs"
                                 >
                                   {ok ? (
-                                    <CheckIcon className="size-3 text-emerald-500" />
+                                    <CheckIcon className="size-3 text-success" />
                                   ) : (
                                     <XIcon className="size-3 text-muted-foreground" />
                                   )}
                                   <span
                                     className={
                                       ok
-                                        ? "text-emerald-600"
+                                        ? "text-success"
                                         : "text-muted-foreground"
                                     }
                                   >

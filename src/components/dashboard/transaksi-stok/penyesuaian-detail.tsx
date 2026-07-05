@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { SectionTitle } from "@/components/dashboard/shared/section-title";
@@ -97,10 +98,10 @@ export function PenyesuaianDetail({ id }: { id: string }) {
                   alt={prod?.product?.name ?? "Produk"}
                   width={40}
                   height={40}
-                  className="rounded-md object-cover w-10 h-10 shrink-0"
+                  className="rounded-xl object-cover w-10 h-10 shrink-0"
                 />
               ) : (
-                <div className="rounded-md bg-muted w-10 h-10 shrink-0" />
+                <div className="rounded-xl bg-muted w-10 h-10 shrink-0" />
               )}
               <div
                 className="flex min-w-0 flex-col gap-0.5"
@@ -110,7 +111,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
                   {prod?.product?.name ?? "—"}
                 </span>
                 {prod?.sku && (
-                  <span className="font-mono text-[11px] text-foreground/80">
+                  <span className="font-mono text-2xs text-foreground/80">
                     {prod.sku}
                   </span>
                 )}
@@ -157,9 +158,9 @@ export function PenyesuaianDetail({ id }: { id: string }) {
               className={cn(
                 "text-right tabular-nums font-medium",
                 diff > 0
-                  ? "text-emerald-600"
+                  ? "text-success"
                   : diff < 0
-                    ? "text-red-600"
+                    ? "text-destructive"
                     : "text-foreground",
               )}
             >
@@ -191,7 +192,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
   if (!adj) {
     return (
       <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-        <ClipboardListIcon className="h-10 w-10" />
+        <ClipboardListIcon className="size-10" />
         <p className="text-sm">Dokumen tidak ditemukan.</p>
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/transaksi-stok">Kembali</Link>
@@ -218,7 +219,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
               onClick={handleExport}
               disabled={!itemsData?.items?.length}
             >
-              <DownloadIcon className="mr-1.5 h-3.5 w-3.5" />
+              <DownloadIcon className="mr-1.5 size-3.5" />
               Export CSV
             </Button>
             <Button
@@ -227,7 +228,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
               onClick={() => setDeleteOpen(true)}
               disabled={deleteMut.isPending}
             >
-              <Trash2Icon className="mr-1.5 h-3.5 w-3.5" />
+              <Trash2Icon className="mr-1.5 size-3.5" />
               Hapus
             </Button>
           </div>
@@ -275,11 +276,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
             manualPagination={true}
             enableColumnVisibility={false}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
-            emptyState={
-              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                <p>Belum ada item.</p>
-              </div>
-            }
+            emptyState={<EmptyState title="Belum ada item." />}
           />
         </div>
       </LiquidGlass>

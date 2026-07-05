@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/table";
 import { SectionTitle } from "@/components/dashboard/shared/section-title";
 import { PageTitle } from "@/components/dashboard/page-title";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   useBinTransferDetail,
   useBinTransferItemDelete,
@@ -79,7 +80,7 @@ function TimelineStep({
         }`}
       >
         {done || active ? (
-          <CheckIcon className="h-5 w-5" />
+          <CheckIcon className="size-5" />
         ) : (
           <span className="text-sm font-semibold">•</span>
         )}
@@ -117,9 +118,9 @@ function CorrectItemButton({
         aria-label="Koreksi baris"
       >
         {deleteMutation.isPending ? (
-          <Loader2Icon className="h-3.5 w-3.5 animate-spin" />
+          <Loader2Icon className="size-3.5 animate-spin" />
         ) : (
-          <Trash2Icon className="h-3.5 w-3.5" />
+          <Trash2Icon className="size-3.5" />
         )}
       </Button>
 
@@ -182,13 +183,16 @@ export function PindahBinDetailView({ id }: { id: string }) {
 
   if (!trf) {
     return (
-      <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-        <PackageSearchIcon className="h-10 w-10" />
-        <p className="text-sm">Transfer internal tidak ditemukan.</p>
-        <Button variant="outline" size="sm" asChild>
-          <Link href={LIST_HREF}>Kembali</Link>
-        </Button>
-      </div>
+      <EmptyState
+        icon={PackageSearchIcon}
+        title="Transfer internal tidak ditemukan."
+        className="py-20"
+        action={
+          <Button variant="outline" size="sm" asChild>
+            <Link href={LIST_HREF}>Kembali</Link>
+          </Button>
+        }
+      />
     );
   }
 
@@ -215,7 +219,7 @@ export function PindahBinDetailView({ id }: { id: string }) {
                 )
               }
             >
-              <PencilIcon className="mr-1.5 h-3.5 w-3.5" />
+              <PencilIcon className="mr-1.5 size-3.5" />
               Edit
             </Button>
             <Button
@@ -224,7 +228,7 @@ export function PindahBinDetailView({ id }: { id: string }) {
               onClick={() => router.push(LIST_HREF)}
               aria-label="Tutup"
             >
-              <XIcon className="h-4 w-4" />
+              <XIcon className="size-4" />
             </Button>
           </div>
         }
@@ -341,11 +345,11 @@ export function PindahBinDetailView({ id }: { id: string }) {
                               alt={p?.product?.name ?? p?.sku ?? "Produk"}
                               width={40}
                               height={40}
-                              className="h-10 w-10 shrink-0 rounded-md border border-border object-cover"
+                              className="h-10 w-10 shrink-0 rounded-xl border border-border object-cover"
                             />
                           ) : (
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-muted">
-                              <PackageSearchIcon className="h-5 w-5 text-muted-foreground/40" />
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted">
+                              <PackageSearchIcon className="size-5 text-muted-foreground/40" />
                             </div>
                           )}
                           <div className="flex min-w-0 flex-col gap-0.5">
@@ -357,7 +361,7 @@ export function PindahBinDetailView({ id }: { id: string }) {
                                 {p.variant_label}
                               </p>
                             )}
-                            <p className="whitespace-normal break-all font-mono text-[11px] text-muted-foreground">
+                            <p className="whitespace-normal break-all font-mono text-2xs text-muted-foreground">
                               {p?.sku ?? "—"}
                             </p>
                           </div>

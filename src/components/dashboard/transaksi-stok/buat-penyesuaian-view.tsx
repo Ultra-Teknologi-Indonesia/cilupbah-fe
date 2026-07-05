@@ -343,7 +343,7 @@ export function BuatPenyesuaianView() {
                   className={cn(
                     "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 transition-colors",
                     scanFlash === "ok"
-                      ? "text-emerald-500"
+                      ? "text-success"
                       : scanFlash === "err"
                         ? "text-destructive"
                         : "text-muted-foreground",
@@ -369,7 +369,7 @@ export function BuatPenyesuaianView() {
                 className={cn(
                   "h-10 pl-9 text-base transition-colors",
                   scanFlash === "ok" &&
-                    "border-emerald-500 ring-2 ring-emerald-500/30",
+                    "border-success ring-2 ring-success/30",
                   scanFlash === "err" &&
                     "border-destructive ring-2 ring-destructive/30",
                 )}
@@ -414,7 +414,7 @@ export function BuatPenyesuaianView() {
                 <TableRow>
                   <TableCell colSpan={8} className="px-3 py-12 text-center">
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                      <PackageSearchIcon className="h-7 w-7 opacity-40" />
+                      <PackageSearchIcon className="size-7 opacity-40" />
                       <p className="text-sm">
                         Belum ada item. Scan SKU atau klik Tambah Item.
                       </p>
@@ -443,11 +443,11 @@ export function BuatPenyesuaianView() {
                             <img
                               src={l.thumbnail}
                               alt={l.name}
-                              className="h-11 w-11 shrink-0 rounded-md border border-border object-cover"
+                              className="h-11 w-11 shrink-0 rounded-xl border border-border object-cover"
                             />
                           ) : (
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-muted">
-                              <PackageSearchIcon className="h-5 w-5 text-muted-foreground/40" />
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted">
+                              <PackageSearchIcon className="size-5 text-muted-foreground/40" />
                             </div>
                           )}
                           <div className="min-w-0">
@@ -459,7 +459,7 @@ export function BuatPenyesuaianView() {
                                 {l.variantLabel}
                               </p>
                             )}
-                            <p className="truncate font-mono text-[11px] text-muted-foreground">
+                            <p className="truncate font-mono text-2xs text-muted-foreground">
                               {l.sku}
                             </p>
                           </div>
@@ -553,7 +553,7 @@ export function BuatPenyesuaianView() {
                           aria-label="Hapus"
                           className="text-destructive"
                         >
-                          <Trash2Icon className="h-4 w-4" />
+                          <Trash2Icon className="size-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -571,7 +571,7 @@ export function BuatPenyesuaianView() {
               onClick={() => setPickerOpen(true)}
               className="gap-1.5"
             >
-              <PlusIcon className="h-4 w-4" /> Tambah Item
+              <PlusIcon className="size-4" /> Tambah Item
             </Button>
             {lines.length > 0 && (
               <p className="text-xs text-muted-foreground">
@@ -592,7 +592,7 @@ export function BuatPenyesuaianView() {
           disabled={!canSubmit || createMut.isPending}
         >
           {createMut.isPending && (
-            <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2Icon className="mr-2 size-4 animate-spin" />
           )}
           Simpan
         </Button>

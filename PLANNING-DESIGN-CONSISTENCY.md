@@ -1,5 +1,6 @@
 # PLANNING: Konsistensi Bahasa Visual — Anti AI-Slop
 
+> **Status: Fase 0-5 selesai dieksekusi (2026-07-05).** Lihat catatan eksekusi di akhir dokumen.
 > Tanggal: 2026-07-05
 > Scope: `cilupbah-fe` (web dashboard). Mobile di luar scope.
 > Mode: **Redesign - Preserve** — bahasa visual yang ada dipertahankan dan dikunci, bukan diganti.
@@ -193,3 +194,25 @@ Supaya slop tidak balik lagi setelah sapu:
    - `bg-white` tanpa `dark:` di baris yang sama.
 2. **Aturan di CLAUDE.md** (Fase 0) — agent/dev berikutnya membaca aturan sebelum menulis UI.
 3. **Review question tunggal**: "elemen ini pakai token/komponen shared yang mana?" — kalau jawabannya "bikin sendiri", itu red flag.
+
+---
+
+## Catatan Eksekusi (2026-07-05)
+
+Fase 0-5 dieksekusi penuh atas ~90 file di seluruh `src/components` dan `src/app`. Ringkasan:
+
+- **Fase 0**: token `--text-2xs` ditambahkan, `CardTitle` → `font-semibold`, domain `stock-replenishment` didaftarkan ke `lib/status.ts`, `docs/design-rules.md` dibuat + pointer di `CLAUDE.md`.
+- **Fase 1**: seluruh manual `STATUS_BADGE`/`STATUS_STYLE` map (permintaan-restock, laporan-retur, dll) dimigrasi ke `StatusBadge`. 0 manual status map tersisa (kecuali yang sudah token-based seperti `tab-pagination.tsx`, dan pengecualian sah channel/brand/pill-tabs).
+- **Fase 2**: warna semantik hardcoded disapu ke token (`text-success`/`warning`/`destructive`/`muted-foreground`) lintas ~50 file. Sisa 3 titik adalah **legenda kategorikal sah** (9 jenis transaksi/tipe produk berbeda warna by design, bukan makna sukses/gagal) — didokumentasikan, bukan pelanggaran.
+- **Fase 3**: seluruh `text-[10px]`/`text-[11px]` (0 tersisa) → `text-2xs`; heading section disamakan ke `font-semibold`.
+- **Fase 4**: seluruh notasi ikon `h-N w-N` → `size-N` (0 tersisa, disapu global via sed karena murni notasional); radius tier-tengah dirapikan ke `rounded-xl` di tile/thumbnail.
+- **Fase 5**: beberapa empty-state ad-hoc dikonversi ke `EmptyState`; `.icon-chip` (dead CSS) dihapus; fallback `prefers-reduced-transparency` ditambahkan untuk semua permukaan glass.
+
+**Pengecualian sah yang tetap dipertahankan** (jangan "diperbaiki" lagi):
+- `bg-white` di `video-player.tsx` (kontrol player mengambang di atas video), `login-form.tsx` (`hover:bg-white/10` tint kaca translucent), `channel-logo.tsx` (backdrop di belakang logo brand SVG), `pdf-viewer.tsx` (kanvas halaman dokumen tetap putih di semua tema).
+- Peta warna kategorikal multi-nilai (`CATEGORY_COLOR`/`CATEGORY_STYLE` di `monitor-kronologi-table.tsx`, `stock-position-detail-view.tsx`; `decisionColor` di `order-card.tsx`; tipe bundle/single/varian di `detail-header.tsx`) — legenda >2 warna untuk membedakan kategori, bukan status sukses/gagal/peringatan.
+- Warna brand channel (Shopee/Lazada/TikTok) di `channel-logo.tsx`, `product-channel-badges.tsx`.
+
+**Verifikasi**: `tsc --noEmit` bersih di seluruh proyek setelah setiap batch; grep ground-truth akhir menunjukkan 0 sisa `text-[10/11px]`, 0 notasi ikon lama, 0 manual status map, dan hanya sisa yang terverifikasi sah untuk warna semantik/`bg-white`. Smoke test visual di `/login` (glass card, gradient wash, aksen tunggal) tanpa error console.
+
+**Penting — bukan tindakan sesi ini**: selama eksekusi, sesi/proses lain (co-authored "Claude Opus 4.8" dan "Claude Sonnet 5" pada commit `8f3a4c1`, `f7180f5`, `c43807d`) meng-commit DAN push seluruh working tree ke `origin/main` di tengah proses, termasuk pekerjaan Fase 0 sesi ini plus perubahan tak terkait (dialog hapus-pesanan baru, filter tanggal Transfer Masuk, courier picker). Sesi ini tidak melakukan commit/push apa pun — sesuai aturan git safety, itu memerlukan izin eksplisit yang belum diberikan untuk aksi tersebut.

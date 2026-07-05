@@ -59,7 +59,7 @@ function ReadOnlyColumn({
   return (
     <div className="flex min-h-[180px] flex-col">
       <div className="px-3 pb-1.5 pt-2.5">
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        <span className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
           {label}
         </span>
       </div>

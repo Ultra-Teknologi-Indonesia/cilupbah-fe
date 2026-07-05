@@ -99,12 +99,12 @@ function SortHeader({
         {label}
         {isActive ? (
           dir === "asc" ? (
-            <ChevronUpIcon className="h-3 w-3" />
+            <ChevronUpIcon className="size-3" />
           ) : (
-            <ChevronDownIcon className="h-3 w-3" />
+            <ChevronDownIcon className="size-3" />
           )
         ) : (
-          <ArrowUpDown className="h-3 w-3 opacity-40" />
+          <ArrowUpDown className="size-3 opacity-40" />
         )}
       </span>
     </TableHead>
@@ -124,9 +124,9 @@ function StockSkeleton() {
       {Array.from({ length: 10 }).map((_, i) => (
         <div key={i} className="border-b border-border/20 px-3 py-3.5">
           <div className="flex items-center gap-4">
-            <Skeleton className="h-10 w-10 shrink-0 rounded-lg" />
+            <Skeleton className="h-10 w-10 shrink-0 rounded-xl" />
             <div className="flex flex-1 gap-4">
-              <Skeleton className="h-4 w-40" />
+              <Skeleton className="size-40" />
               <Skeleton className="h-4 flex-1" />
               <Skeleton className="h-4 w-16" />
               <Skeleton className="h-4 w-16" />
@@ -149,8 +149,8 @@ function StockQtyBadge({
 }) {
   const colors = {
     default: "",
-    warning: value > 0 ? "text-orange-600 dark:text-orange-400" : "",
-    success: value > 0 ? "text-emerald-600 dark:text-emerald-400" : "",
+    warning: value > 0 ? "text-warning" : "",
+    success: value > 0 ? "text-success" : "",
   };
   return (
     <span
@@ -426,7 +426,7 @@ export function PosisiStokView() {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <InfoIcon
-                              className="h-3 w-3 opacity-60"
+                              className="size-3 opacity-60"
                               onClick={(e) => e.stopPropagation()}
                             />
                           </TooltipTrigger>
@@ -437,12 +437,12 @@ export function PosisiStokView() {
                         </Tooltip>
                         {sortField === "average_cost" ? (
                           sortDir === "asc" ? (
-                            <ChevronUpIcon className="h-3 w-3" />
+                            <ChevronUpIcon className="size-3" />
                           ) : (
-                            <ChevronDownIcon className="h-3 w-3" />
+                            <ChevronDownIcon className="size-3" />
                           )
                         ) : (
-                          <ArrowUpDown className="h-3 w-3 opacity-40" />
+                          <ArrowUpDown className="size-3 opacity-40" />
                         )}
                       </span>
                     </TableHead>
@@ -489,11 +489,11 @@ export function PosisiStokView() {
                               alt={item.item_name ?? item.item_code}
                               width={40}
                               height={40}
-                              className="h-10 w-10 shrink-0 rounded-lg border border-border/40 object-cover"
+                              className="h-10 w-10 shrink-0 rounded-xl border border-border/40 object-cover"
                             />
                           ) : (
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted/60">
-                              <PackageIcon className="h-5 w-5 text-muted-foreground/60" />
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted/60">
+                              <PackageIcon className="size-5 text-muted-foreground/60" />
                             </div>
                           )}
                           <div
@@ -507,7 +507,7 @@ export function PosisiStokView() {
                               {item.is_bundle && (
                                 <Badge
                                   variant="outline"
-                                  className="shrink-0 text-[10px] leading-tight border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400"
+                                  className="shrink-0 text-2xs leading-tight border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400"
                                 >
                                   Bundle
                                 </Badge>

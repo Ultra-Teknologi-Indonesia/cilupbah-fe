@@ -17,7 +17,7 @@ export function ConnectMarketplacePanel({
   return (
     <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm">
       <div className="mb-4">
-        <h2 className="text-sm font-medium">Hubungkan Marketplace Lain</h2>
+        <h2 className="text-sm font-semibold">Hubungkan Marketplace Lain</h2>
         <p className="text-xs text-muted-foreground">
           Marketplace yang belum memiliki toko terhubung.
         </p>
@@ -41,7 +41,7 @@ export function ConnectMarketplacePanel({
                 ) : (
                   <Badge
                     variant="outline"
-                    className="mt-0.5 px-1.5 py-0 text-[10px] text-muted-foreground"
+                    className="mt-0.5 px-1.5 py-0 text-2xs text-muted-foreground"
                   >
                     Segera hadir
                   </Badge>

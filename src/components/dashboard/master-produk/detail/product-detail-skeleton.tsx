@@ -7,7 +7,7 @@ export function ProductDetailSkeleton() {
         <div className={`size-14 rounded-xl ${pulse}`} />
         <div className="flex-1 space-y-2">
           <div className={`h-5 w-48 ${pulse}`} />
-          <div className={`h-3 w-32 ${pulse}`} />
+          <div className={`size-32 ${pulse}`} />
         </div>
         <div className={`h-9 w-24 ${pulse}`} />
       </div>

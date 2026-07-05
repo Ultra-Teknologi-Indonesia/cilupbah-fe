@@ -136,7 +136,7 @@ export function ContactBuyerDialog({
                 type="checkbox"
                 checked={includeDecision}
                 onChange={(e) => setIncludeDecision(e.target.checked)}
-                className="h-4 w-4 rounded border-border/60"
+                className="size-4 rounded border-border/60"
               />
               Sekaligus catat keputusan pembeli
             </label>

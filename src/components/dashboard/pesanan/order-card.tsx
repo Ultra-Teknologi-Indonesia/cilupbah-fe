@@ -756,7 +756,7 @@ function ContactBadges({ order, tab }: { order: Order; tab: OrderTab }) {
       {order.contacted_at ? (
         <Tooltip>
           <TooltipTrigger asChild>
-            <span className="inline-flex items-center gap-1 rounded-md border border-emerald-300 bg-emerald-50 px-1.5 py-0.5 text-2xs font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+            <span className="inline-flex items-center gap-1 rounded-md border border-success/30 bg-success/10 px-1.5 py-0.5 text-2xs font-medium text-success">
               <CheckIcon className="h-2.5 w-2.5" />
               Sudah dihubungi
             </span>
@@ -767,7 +767,7 @@ function ContactBadges({ order, tab }: { order: Order; tab: OrderTab }) {
           </TooltipContent>
         </Tooltip>
       ) : (
-        <span className="inline-flex items-center gap-1 rounded-md border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-2xs font-medium text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
+        <span className="inline-flex items-center gap-1 rounded-md border border-warning/30 bg-warning/10 px-1.5 py-0.5 text-2xs font-medium text-warning">
           <ClockIcon className="h-2.5 w-2.5" />
           Belum dihubungi
         </span>

@@ -14,6 +14,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -196,12 +197,12 @@ function StockSummaryCards({
     {
       label: "Reserved",
       value: reserved,
-      color: "text-orange-600 dark:text-orange-400",
+      color: "text-warning",
     },
     {
       label: "Available",
       value: available,
-      color: "text-emerald-600 dark:text-emerald-400",
+      color: "text-success",
     },
     {
       label: "Harga Pokok",
@@ -417,14 +418,15 @@ function MovementsSection({ itemId }: { itemId: string }) {
       <div className="flex flex-col gap-3">
         {viewBar}
         {filterBar}
-        <div className="flex flex-col items-center gap-2 py-16 text-muted-foreground">
-          <PackageIcon className="h-8 w-8" />
-          <p className="text-sm font-medium">
-            {view === "attention"
+        <EmptyState
+          icon={PackageIcon}
+          className="py-16"
+          title={
+            view === "attention"
               ? "Tidak ada entri Faktur di rentang ini — stok bersih."
-              : "Belum ada kronologi stok"}
-          </p>
-        </div>
+              : "Belum ada kronologi stok"
+          }
+        />
       </div>
     );
   }
@@ -470,7 +472,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
               </TableCell>
               <TableCell className="px-3 py-2.5">
                 <span className="inline-flex items-center gap-1">
-                  <MapPinIcon className="h-3 w-3 text-muted-foreground" />
+                  <MapPinIcon className="size-3 text-muted-foreground" />
                   {m.location_name}
                 </span>
               </TableCell>
@@ -697,12 +699,11 @@ function BinSection({ itemId }: { itemId: string }) {
     return (
       <div className="flex flex-col gap-3">
         {filterBar}
-        <div className="flex flex-col items-center gap-2 py-16 text-muted-foreground">
-          <BoxIcon className="h-8 w-8" />
-          <p className="text-sm font-medium">
-            Belum ada data persediaan di rak
-          </p>
-        </div>
+        <EmptyState
+          icon={BoxIcon}
+          className="py-16"
+          title="Belum ada data persediaan di rak"
+        />
       </div>
     );
   }
@@ -738,7 +739,7 @@ function BinSection({ itemId }: { itemId: string }) {
             >
               <TableCell className="px-3 py-2.5">
                 <span className="inline-flex items-center gap-1">
-                  <MapPinIcon className="h-3 w-3 text-muted-foreground" />
+                  <MapPinIcon className="size-3 text-muted-foreground" />
                   {b.location_name}
                 </span>
               </TableCell>
@@ -754,10 +755,10 @@ function BinSection({ itemId }: { itemId: string }) {
               <TableCell className="px-3 py-2.5 text-right font-semibold tabular-nums">
                 {b.on_hand}
               </TableCell>
-              <TableCell className="px-3 py-2.5 text-right tabular-nums text-orange-600 dark:text-orange-400">
+              <TableCell className="px-3 py-2.5 text-right tabular-nums text-warning">
                 {b.reserved}
               </TableCell>
-              <TableCell className="px-3 py-2.5 text-right font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
+              <TableCell className="px-3 py-2.5 text-right font-semibold tabular-nums text-success">
                 {b.available}
               </TableCell>
             </TableRow>
@@ -862,10 +863,7 @@ export function StockPositionDetailView({ itemId }: { itemId: string }) {
           intensity="subtle"
           className="bg-white/30 p-8 dark:bg-white/[0.04]"
         >
-          <div className="flex flex-col items-center gap-2 text-muted-foreground">
-            <PackageIcon className="h-10 w-10" />
-            <p className="text-sm font-medium">Produk tidak ditemukan</p>
-          </div>
+          <EmptyState icon={PackageIcon} title="Produk tidak ditemukan" />
         </LiquidGlass>
       )}
 

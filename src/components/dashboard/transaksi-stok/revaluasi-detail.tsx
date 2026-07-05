@@ -16,6 +16,7 @@ import { DataTable } from "@/components/ui/data-table/data-table";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { SectionTitle } from "@/components/dashboard/shared/section-title";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   useStockRevaluationDetail,
   useCancelStockRevaluation,
@@ -72,13 +73,16 @@ export function RevaluasiDetail({ id }: { id: string }) {
 
   if (!reval) {
     return (
-      <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-        <DollarSignIcon className="h-10 w-10" />
-        <p className="text-sm">Dokumen tidak ditemukan.</p>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/transaksi-stok">Kembali</Link>
-        </Button>
-      </div>
+      <EmptyState
+        icon={DollarSignIcon}
+        title="Dokumen tidak ditemukan."
+        className="py-20"
+        action={
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/transaksi-stok">Kembali</Link>
+          </Button>
+        }
+      />
     );
   }
 
@@ -98,7 +102,7 @@ export function RevaluasiDetail({ id }: { id: string }) {
               {row.original.item?.item_name ?? "—"}
             </span>
             {row.original.item?.sku && (
-              <span className="font-mono text-[11px] text-foreground/80">
+              <span className="font-mono text-2xs text-foreground/80">
                 {row.original.item.sku}
               </span>
             )}
@@ -152,9 +156,9 @@ export function RevaluasiDetail({ id }: { id: string }) {
               className={cn(
                 "text-right tabular-nums font-medium",
                 diff > 0
-                  ? "text-emerald-600"
+                  ? "text-success"
                   : diff < 0
-                    ? "text-red-600"
+                    ? "text-destructive"
                     : "text-foreground",
               )}
             >
@@ -191,7 +195,7 @@ export function RevaluasiDetail({ id }: { id: string }) {
               onClick={handleExport}
               disabled={!reval.items?.length}
             >
-              <DownloadIcon className="mr-1.5 h-3.5 w-3.5" />
+              <DownloadIcon className="mr-1.5 size-3.5" />
               Export CSV
             </Button>
             {isApproved && (
@@ -201,7 +205,7 @@ export function RevaluasiDetail({ id }: { id: string }) {
                 onClick={() => setCancelOpen(true)}
                 disabled={cancelMut.isPending}
               >
-                <XCircleIcon className="mr-1.5 h-3.5 w-3.5" />
+                <XCircleIcon className="mr-1.5 size-3.5" />
                 Batalkan
               </Button>
             )}
@@ -224,7 +228,7 @@ export function RevaluasiDetail({ id }: { id: string }) {
               <StatusBadge
                 domain="stock-revaluation"
                 status={reval.status}
-                className="text-[10px] leading-tight"
+                className="text-2xs leading-tight"
               />
             }
           />
@@ -251,11 +255,7 @@ export function RevaluasiDetail({ id }: { id: string }) {
             hideToolbar
             manualPagination={false}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
-            emptyState={
-              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                <p>Belum ada item.</p>
-              </div>
-            }
+            emptyState={<EmptyState title="Belum ada item." className="py-12" />}
           />
           {reval.items && reval.items.length > 0 && (
             <div className="flex items-center justify-end gap-6 border-t border-border/60 bg-muted/20 px-3 py-3">
@@ -266,9 +266,9 @@ export function RevaluasiDetail({ id }: { id: string }) {
                 className={cn(
                   "tabular-nums font-semibold",
                   totalSelisih > 0
-                    ? "text-emerald-600"
+                    ? "text-success"
                     : totalSelisih < 0
-                      ? "text-red-600"
+                      ? "text-destructive"
                       : "text-muted-foreground",
                 )}
               >

@@ -213,7 +213,7 @@ export function TerimaPOView({ id }: { id: string }) {
             <p className="text-sm font-medium">PO tidak ditemukan</p>
             <Link href="/dashboard/barang-masuk">
               <Button variant="outline" size="sm">
-                <ArrowLeftIcon className="mr-1.5 h-4 w-4" />
+                <ArrowLeftIcon className="mr-1.5 size-4" />
                 Kembali
               </Button>
             </Link>
@@ -319,7 +319,7 @@ export function TerimaPOView({ id }: { id: string }) {
                       </TableHead>
                       <TableHead className="whitespace-nowrap w-28">
                         <span className="flex items-center gap-1.5 text-success">
-                          <CheckCircle2Icon className="h-3.5 w-3.5" />
+                          <CheckCircle2Icon className="size-3.5" />
                           Diterima
                         </span>
                       </TableHead>
@@ -354,7 +354,7 @@ export function TerimaPOView({ id }: { id: string }) {
                                     />
                                   ) : (
                                     <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
-                                      <ImageIcon className="h-4 w-4 opacity-50" />
+                                      <ImageIcon className="size-4 opacity-50" />
                                     </div>
                                   )}
                                 </div>
@@ -408,7 +408,7 @@ export function TerimaPOView({ id }: { id: string }) {
                                 />
                               ) : (
                                 <span className="inline-flex items-center gap-1 text-xs text-success">
-                                  <CheckCircle2Icon className="h-3.5 w-3.5" />
+                                  <CheckCircle2Icon className="size-3.5" />
                                   Lengkap
                                 </span>
                               )}
@@ -474,7 +474,7 @@ export function TerimaPOView({ id }: { id: string }) {
           <div className="flex items-center justify-end gap-3">
             <Link href="/dashboard/barang-masuk/pesanan">
               <Button variant="outline">
-                <ArrowLeftIcon className="mr-1.5 h-4 w-4" />
+                <ArrowLeftIcon className="mr-1.5 size-4" />
                 Batal
               </Button>
             </Link>
@@ -484,9 +484,9 @@ export function TerimaPOView({ id }: { id: string }) {
               onClick={handleSubmit}
             >
               {receiveMutation.isPending && (
-                <Loader2Icon className="mr-1.5 h-4 w-4 animate-spin" />
+                <Loader2Icon className="mr-1.5 size-4 animate-spin" />
               )}
-              <PackageCheckIcon className="mr-1.5 h-4 w-4" />
+              <PackageCheckIcon className="mr-1.5 size-4" />
               Simpan Penerimaan
             </Button>
           </div>

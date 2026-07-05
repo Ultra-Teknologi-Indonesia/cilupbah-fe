@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import { useSalesReturn } from "@/hooks/barang-masuk/use-sales-returns";
 import { useSalesReturnSetting } from "@/hooks/barang-masuk/use-sales-return-setting";
 import {
@@ -116,7 +117,7 @@ export function ReturnSettlementView({ returnId }: { returnId: string }) {
             size="sm"
             onClick={() => router.push(backHref)}
           >
-            <ArrowLeftIcon className="mr-1.5 h-4 w-4" /> Kembali
+            <ArrowLeftIcon className="mr-1.5 size-4" /> Kembali
           </Button>
         }
       />
@@ -142,20 +143,21 @@ export function ReturnSettlementView({ returnId }: { returnId: string }) {
           intensity="subtle"
           className="bg-white/40 dark:bg-white/[0.06]"
         >
-          <div className="flex flex-col items-center gap-3 px-5 py-10 text-center">
-            <p className="text-sm text-muted-foreground">
-              Belum ada settlement untuk retur ini.
-            </p>
-            <Button
-              onClick={() => createMut.mutate({ return_id: returnId })}
-              disabled={createMut.isPending}
-            >
-              {createMut.isPending && (
-                <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Buat Settlement
-            </Button>
-          </div>
+          <EmptyState
+            icon={null}
+            title="Belum ada settlement untuk retur ini."
+            action={
+              <Button
+                onClick={() => createMut.mutate({ return_id: returnId })}
+                disabled={createMut.isPending}
+              >
+                {createMut.isPending && (
+                  <Loader2Icon className="mr-2 size-4 animate-spin" />
+                )}
+                Buat Settlement
+              </Button>
+            }
+          />
         </LiquidGlass>
       ) : (
         <>
@@ -180,7 +182,7 @@ export function ReturnSettlementView({ returnId }: { returnId: string }) {
                   <StatusBadge
                     domain="return-settlement"
                     status={settlement.status}
-                    className="text-[11px]"
+                    className="text-2xs"
                   />
                 </div>
                 <div>
@@ -277,7 +279,7 @@ export function ReturnSettlementView({ returnId }: { returnId: string }) {
                                 onClick={() => removeRefundMut.mutate(r.id)}
                                 aria-label="Hapus"
                               >
-                                <Trash2Icon className="h-3.5 w-3.5" />
+                                <Trash2Icon className="size-3.5" />
                               </Button>
                             </TableCell>
                           )}
@@ -336,7 +338,7 @@ export function ReturnSettlementView({ returnId }: { returnId: string }) {
                     disabled={!canAddRefund || addRefundMut.isPending}
                     className="gap-1"
                   >
-                    <PlusIcon className="h-4 w-4" /> Tambah
+                    <PlusIcon className="size-4" /> Tambah
                   </Button>
                 </div>
               )}

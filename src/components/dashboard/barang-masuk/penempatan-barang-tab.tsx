@@ -268,7 +268,7 @@ export function PenempatanBarangTab() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <PrinterIcon className="h-4 w-4" />
+                        <PrinterIcon className="size-4" />
                       </Link>
                     </Button>
                   </TooltipTrigger>
@@ -286,7 +286,7 @@ export function PenempatanBarangTab() {
                     setAssignPerformedBy("");
                   }}
                 >
-                  <UserPlusIcon className="h-4 w-4" />
+                  <UserPlusIcon className="size-4" />
                   Assign
                 </Button>
               )}
@@ -294,7 +294,7 @@ export function PenempatanBarangTab() {
                 item.status === "IN_PROGRESS") && (
                 <Button size="sm" className="h-8 gap-1.5" asChild>
                   <Link href={`/dashboard/barang-masuk/putaway/${item.id}`}>
-                    <PlayIcon className="h-4 w-4" />
+                    <PlayIcon className="size-4" />
                     {item.status === "NOT_STARTED" ? "Mulai" : "Lanjut"}
                   </Link>
                 </Button>
@@ -346,7 +346,7 @@ export function PenempatanBarangTab() {
               size="sm"
               onClick={() => handleExportPutaway(items)}
             >
-              <DownloadIcon className="mr-1.5 h-4 w-4" />
+              <DownloadIcon className="mr-1.5 size-4" />
               Export CSV
             </Button>
           )}

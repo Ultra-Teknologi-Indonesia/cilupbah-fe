@@ -98,7 +98,7 @@ export function BarangMasukTabBar() {
                 >
                   <Icon />
                   {tab.label}
-                  <span className="rounded bg-muted px-1 py-0.5 text-[10px] font-medium text-muted-foreground">
+                  <span className="rounded bg-muted px-1 py-0.5 text-2xs font-medium text-muted-foreground">
                     Segera
                   </span>
                 </TabsTrigger>

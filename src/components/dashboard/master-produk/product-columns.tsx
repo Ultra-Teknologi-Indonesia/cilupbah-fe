@@ -82,7 +82,7 @@ export const productColumns: ColumnDef<Product>[] = [
             <span className="inline-block w-6" />
           )}
 
-          <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
+          <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
             {p.thumbnail ? (
               <img
                 src={p.thumbnail}
@@ -104,12 +104,12 @@ export const productColumns: ColumnDef<Product>[] = [
                 {p.itemName}
               </Link>
               {p.isBundle && (
-                <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
+                <Badge variant="secondary" className="px-1.5 py-0 text-2xs">
                   Bundle
                 </Badge>
               )}
               {p.isPo && (
-                <Badge variant="outline" className="px-1.5 py-0 text-[10px]">
+                <Badge variant="outline" className="px-1.5 py-0 text-2xs">
                   PO
                 </Badge>
               )}

@@ -150,7 +150,7 @@ export function HppReportView() {
         className="bg-white/30 dark:bg-white/[0.04] p-5"
       >
         <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
-          <FilterIcon className="h-4 w-4" />
+          <FilterIcon className="size-4" />
           Filter Periode
         </div>
         <div className="grid items-end gap-4 sm:grid-cols-4">
@@ -195,9 +195,9 @@ export function HppReportView() {
               disabled={!canApply || isFetching}
             >
               {isFetching ? (
-                <Loader2Icon className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                <Loader2Icon className="mr-1.5 size-3.5 animate-spin" />
               ) : (
-                <FilterIcon className="mr-1.5 h-3.5 w-3.5" />
+                <FilterIcon className="mr-1.5 size-3.5" />
               )}
               Terapkan
             </Button>
@@ -209,7 +209,7 @@ export function HppReportView() {
                 disabled={isFetching}
                 aria-label="Muat ulang"
               >
-                <RefreshCwIcon className="h-3.5 w-3.5" />
+                <RefreshCwIcon className="size-3.5" />
               </Button>
             )}
           </div>
@@ -244,7 +244,7 @@ export function HppReportView() {
 
         {errorMessage && (
           <div className="mb-4 flex items-start gap-3 rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">
-            <AlertCircleIcon className="mt-0.5 h-5 w-5 shrink-0" />
+            <AlertCircleIcon className="mt-0.5 size-5 shrink-0" />
             <span>{errorMessage}</span>
           </div>
         )}
@@ -328,7 +328,7 @@ export function HppReportView() {
                       className={cn(
                         "tabular-nums",
                         Math.abs(selisih) > 0
-                          ? "text-amber-600 dark:text-amber-400"
+                          ? "text-warning"
                           : "text-foreground",
                       )}
                     >
@@ -336,7 +336,7 @@ export function HppReportView() {
                     </span>
                   </div>
                 )}
-                <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+                <p className="mt-2 text-2xs leading-relaxed text-muted-foreground">
                   HPP dihitung dari saldo persediaan + pembelian bersih -
                   persediaan akhir. Snapshot COGS adalah total `total_cogs` dari
                   sales invoice items terbit di periode (cross-check; perbedaan

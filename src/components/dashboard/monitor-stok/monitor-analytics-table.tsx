@@ -6,6 +6,7 @@ import { PackageOpenIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import type { MonitorAnalyticsRow } from "@/types/monitor-stok/monitor";
@@ -40,7 +41,7 @@ const EXTRA_COLS: Record<AnalyticsKind, string[]> = {
 function Thumb({ url, alt }: { url: string | null; alt: string }) {
   return (
     <div
-      className="h-9 w-9 shrink-0 rounded-md border border-border/40 bg-muted/40 bg-cover bg-center"
+      className="h-9 w-9 shrink-0 rounded-xl border border-border/40 bg-muted/40 bg-cover bg-center"
       role="img"
       aria-label={alt}
       style={url ? { backgroundImage: `url(${url})` } : undefined}
@@ -85,7 +86,7 @@ export function MonitorAnalyticsTable({
                     <Badge
                       key={idx}
                       variant="secondary"
-                      className="text-[10px] font-normal"
+                      className="text-2xs font-normal"
                     >
                       {v.value}
                     </Badge>
@@ -116,7 +117,7 @@ export function MonitorAnalyticsTable({
             {row.original.last_sold ? (
               formatDate(row.original.last_sold)
             ) : (
-              <span className="text-amber-600 dark:text-amber-400">
+              <span className="text-warning">
                 Belum pernah
               </span>
             )}
@@ -137,7 +138,7 @@ export function MonitorAnalyticsTable({
         accessorKey: "qty_sold",
         header: () => <div className="text-right">Terjual</div>,
         cell: ({ row }) => (
-          <div className="text-right tabular-nums font-semibold text-emerald-600 dark:text-emerald-400">
+          <div className="text-right tabular-nums font-semibold text-success">
             {row.original.qty_sold}
           </div>
         ),
@@ -165,7 +166,7 @@ export function MonitorAnalyticsTable({
         accessorKey: "days_to_out",
         header: () => <div className="text-right">Estimasi Hari</div>,
         cell: ({ row }) => (
-          <div className="text-right tabular-nums font-semibold text-red-600 dark:text-red-400">
+          <div className="text-right tabular-nums font-semibold text-destructive">
             {row.original.days_to_out ?? "—"}
           </div>
         ),
@@ -202,10 +203,7 @@ export function MonitorAnalyticsTable({
       }}
       tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
       emptyState={
-        <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-          <PackageOpenIcon className="h-10 w-10 opacity-20" />
-          <p className="text-sm font-medium">{emptyText}</p>
-        </div>
+        <EmptyState icon={PackageOpenIcon} title={emptyText} className="py-20" />
       }
     />
   );

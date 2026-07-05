@@ -205,7 +205,7 @@ export function PesananListView() {
                   onClick={() => setDeleteTarget(row.original)}
                   className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                 >
-                  <Trash2Icon className="h-3.5 w-3.5" />
+                  <Trash2Icon className="size-3.5" />
                 </Button>
               </div>
             );
@@ -222,7 +222,7 @@ export function PesananListView() {
       <div className="flex justify-end">
         <Button variant="primary" asChild>
           <Link href="/dashboard/transaksi-pembelian/pesanan/tambah">
-            <PlusIcon className="h-4 w-4" />
+            <PlusIcon className="size-4" />
             Buat Pesanan
           </Link>
         </Button>
@@ -286,7 +286,7 @@ export function PesananListView() {
                 onClick={() => setBulkDeleteTarget(selected)}
                 className="gap-2"
               >
-                <Trash2Icon className="h-4 w-4" />
+                <Trash2Icon className="size-4" />
                 Hapus ({selected.length})
               </Button>
             )}

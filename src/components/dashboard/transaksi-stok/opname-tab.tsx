@@ -112,7 +112,7 @@ export function OpnameTab() {
           <StatusBadge
             domain="stock-opname"
             status={row.original.status}
-            className="text-[10px] leading-tight"
+            className="text-2xs leading-tight"
           />
         ),
       },
@@ -150,7 +150,7 @@ export function OpnameTab() {
                   aria-label="Mulai"
                   className="text-blue-600 hover:text-blue-700"
                 >
-                  <PlayIcon className="h-3.5 w-3.5" />
+                  <PlayIcon className="size-3.5" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -159,7 +159,7 @@ export function OpnameTab() {
                   aria-label="Hapus"
                   className="text-destructive hover:text-destructive"
                 >
-                  <Trash2Icon className="h-3.5 w-3.5" />
+                  <Trash2Icon className="size-3.5" />
                 </Button>
               </div>
             );

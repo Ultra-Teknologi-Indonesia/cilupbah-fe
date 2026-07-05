@@ -19,6 +19,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { DataTable } from "@/components/ui/data-table";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   Select,
   SelectContent,
@@ -48,7 +49,7 @@ function HistoryStatus({ row }: { row: HistoryRow }) {
   if (row.success) {
     return (
       <span
-        className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
+        className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-2xs font-medium text-success bg-success/10"
         title={row.statusMessage ?? undefined}
       >
         <CheckCircle2Icon className="size-3.5" />
@@ -60,17 +61,17 @@ function HistoryStatus({ row }: { row: HistoryRow }) {
     <div className="flex flex-col items-start gap-1">
       <span
         className={
-          "rounded px-1.5 py-0.5 text-[11px] font-medium " +
+          "rounded px-1.5 py-0.5 text-2xs font-medium " +
           (row.canReupload
             ? "bg-destructive/10 text-destructive"
-            : "bg-amber-500/10 text-amber-600 dark:text-amber-400")
+            : "bg-warning/10 text-warning")
         }
       >
         {row.canReupload ? "Gagal" : "Diproses"}
       </span>
       {row.statusMessage && (
         <span
-          className="line-clamp-2 max-w-[18rem] break-words text-[11px] leading-snug text-destructive/90"
+          className="line-clamp-2 max-w-[18rem] break-words text-2xs leading-snug text-destructive/90"
           title={row.statusMessage}
         >
           {row.statusMessage}
@@ -182,7 +183,7 @@ export function HasilTab({
           const h = row.original;
           return (
             <div className="flex items-center gap-3">
-              <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
+              <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
                 {h.thumbnail ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -212,7 +213,7 @@ export function HasilTab({
               <ChannelLogo
                 code={(h.channelCode ?? "") as ChannelCode}
                 name={h.channelName ?? "—"}
-                className="size-7 rounded-lg"
+                className="size-7 rounded-xl"
               />
               <div className="min-w-0">
                 <div className="truncate text-sm font-medium">
@@ -398,11 +399,7 @@ export function HasilTab({
                 Hapus
               </Button>
             )}
-            emptyState={
-              <span className="text-muted-foreground">
-                Belum ada riwayat upload
-              </span>
-            }
+            emptyState={<EmptyState title="Belum ada riwayat upload" />}
           />
         </div>
       </LiquidGlass>

@@ -127,7 +127,7 @@ export function SalesReturnFormPage() {
             size="sm"
             onClick={() => router.push(LIST_HREF)}
           >
-            <ArrowLeftIcon className="mr-1.5 h-4 w-4" /> Kembali
+            <ArrowLeftIcon className="mr-1.5 size-4" /> Kembali
           </Button>
         }
       />
@@ -196,7 +196,7 @@ export function SalesReturnFormPage() {
               onClick={() => setPickerOpen(true)}
               className="gap-1.5"
             >
-              <PlusIcon className="h-4 w-4" /> Tambah Item
+              <PlusIcon className="size-4" /> Tambah Item
             </Button>
           </div>
 
@@ -247,7 +247,7 @@ export function SalesReturnFormPage() {
                     aria-label="Hapus"
                     className="text-destructive"
                   >
-                    <Trash2Icon className="h-4 w-4" />
+                    <Trash2Icon className="size-4" />
                   </Button>
                 </div>
               ))}
@@ -269,7 +269,7 @@ export function SalesReturnFormPage() {
           disabled={!canSubmit || createMut.isPending}
         >
           {createMut.isPending && (
-            <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2Icon className="mr-2 size-4 animate-spin" />
           )}
           Simpan Retur
         </Button>

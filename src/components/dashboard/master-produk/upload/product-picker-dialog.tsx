@@ -95,7 +95,7 @@ export function ProductPickerDialog({
                       "flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-muted/60",
                     )}
                   >
-                    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
+                    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
                       {p.thumbnail ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -115,7 +115,7 @@ export function ProductPickerDialog({
                         {p.isBundle && (
                           <Badge
                             variant="secondary"
-                            className="px-1.5 py-0 text-[10px]"
+                            className="px-1.5 py-0 text-2xs"
                           >
                             Bundle
                           </Badge>

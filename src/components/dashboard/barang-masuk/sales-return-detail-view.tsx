@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/table";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import { useSalesReturn } from "@/hooks/barang-masuk/use-sales-returns";
 import {
   useAcceptSalesReturn,
@@ -71,8 +72,8 @@ export function SalesReturnDetailView({ id }: { id: string }) {
   }
   if (!ret) {
     return (
-      <div className="py-32 text-center text-sm text-muted-foreground">
-        Retur tidak ditemukan.
+      <div className="py-32">
+        <EmptyState title="Retur tidak ditemukan." />
       </div>
     );
   }
@@ -103,7 +104,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
               size="sm"
               onClick={() => router.push(LIST_HREF)}
             >
-              <ArrowLeftIcon className="mr-1.5 h-4 w-4" /> Kembali
+              <ArrowLeftIcon className="mr-1.5 size-4" /> Kembali
             </Button>
             {ret.status === "PENDING" && (
               <>
@@ -113,9 +114,9 @@ export function SalesReturnDetailView({ id }: { id: string }) {
                     closeAction();
                     setAction("accept");
                   }}
-                  className="bg-emerald-600 text-white hover:bg-emerald-700"
+                  className="bg-success text-white hover:bg-success/90"
                 >
-                  <CheckCircleIcon className="mr-1.5 h-4 w-4" /> Setujui
+                  <CheckCircleIcon className="mr-1.5 size-4" /> Setujui
                 </Button>
                 <Button
                   variant="outline"
@@ -124,9 +125,9 @@ export function SalesReturnDetailView({ id }: { id: string }) {
                     closeAction();
                     setAction("reject");
                   }}
-                  className="text-red-600 hover:bg-red-500/10"
+                  className="text-destructive hover:bg-destructive/10"
                 >
-                  <XCircleIcon className="mr-1.5 h-4 w-4" /> Tolak
+                  <XCircleIcon className="mr-1.5 size-4" /> Tolak
                 </Button>
               </>
             )}
@@ -137,15 +138,15 @@ export function SalesReturnDetailView({ id }: { id: string }) {
                   closeAction();
                   setAction("complete");
                 }}
-                className="bg-emerald-600 text-white hover:bg-emerald-700"
+                className="bg-success text-white hover:bg-success/90"
               >
-                <FlagIcon className="mr-1.5 h-4 w-4" /> Selesaikan
+                <FlagIcon className="mr-1.5 size-4" /> Selesaikan
               </Button>
             )}
             {ret.status === "COMPLETED" && (
               <Button variant="outline" size="sm" asChild>
                 <Link href={`${LIST_HREF}/${ret.id}/settlement`}>
-                  <WalletIcon className="mr-1.5 h-4 w-4" /> Kelola Refund
+                  <WalletIcon className="mr-1.5 size-4" /> Kelola Refund
                 </Link>
               </Button>
             )}
@@ -165,7 +166,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
               <StatusBadge
                 domain="sales-return"
                 status={ret.status}
-                className="text-[11px]"
+                className="text-2xs"
               />
             }
           />
@@ -230,7 +231,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
                         {it.product?.sku ?? "—"}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary" className="text-[10px]">
+                        <Badge variant="secondary" className="text-2xs">
                           {it.condition ?? "GOOD"}
                         </Badge>
                       </TableCell>

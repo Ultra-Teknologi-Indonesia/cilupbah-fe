@@ -50,14 +50,14 @@ export function CategoryRulesCard({ rules }: CategoryRulesCardProps) {
                 {cert.isRequired ? (
                   <Badge
                     variant="destructive"
-                    className="ml-2 text-[10px] font-normal px-1.5 py-0"
+                    className="ml-2 text-2xs font-normal px-1.5 py-0"
                   >
                     Wajib
                   </Badge>
                 ) : (
                   <Badge
                     variant="secondary"
-                    className="ml-2 text-[10px] font-normal px-1.5 py-0"
+                    className="ml-2 text-2xs font-normal px-1.5 py-0"
                   >
                     Opsional
                   </Badge>
@@ -118,14 +118,14 @@ function RuleItem({
       {required ? (
         <Badge
           variant="destructive"
-          className="text-[10px] font-normal px-1.5 py-0"
+          className="text-2xs font-normal px-1.5 py-0"
         >
           Wajib
         </Badge>
       ) : supported ? (
         <Badge
           variant="secondary"
-          className="text-[10px] font-normal px-1.5 py-0"
+          className="text-2xs font-normal px-1.5 py-0"
         >
           Didukung
         </Badge>

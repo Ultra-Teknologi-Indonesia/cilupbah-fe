@@ -141,7 +141,7 @@ export function buildChannelListingColumns(
             ) : (
               <span className="inline-block w-6" />
             )}
-            <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
+            <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
               {l.thumbnail ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -231,7 +231,7 @@ export function buildChannelListingColumns(
             <ChannelLogo
               code={(l.channelCode ?? "") as ChannelCode}
               name={l.storeName ?? ""}
-              className="size-6 rounded-md text-[10px]"
+              className="size-6 rounded-xl text-2xs"
             />
             <span className="whitespace-nowrap text-sm">
               {l.storeName ?? "—"}
@@ -280,7 +280,7 @@ export function buildChannelListingColumns(
               </span>
             ) : l.hasProductData ? (
               <span
-                className="grid size-8 place-items-center text-emerald-600 dark:text-emerald-400"
+                className="grid size-8 place-items-center text-success"
                 title="Data master tersinkron dengan channel"
               >
                 <CheckIcon className="size-4" />

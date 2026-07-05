@@ -141,7 +141,7 @@ export function ScanAutoflowBar({
             className={cn(
               "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 transition-colors",
               flash === "ok"
-                ? "text-emerald-500"
+                ? "text-success"
                 : flash === "err"
                   ? "text-destructive"
                   : "text-muted-foreground",
@@ -161,7 +161,7 @@ export function ScanAutoflowBar({
             placeholder={scanPlaceholder}
             className={cn(
               "h-11 pl-9 text-base transition-colors",
-              flash === "ok" && "border-emerald-500 ring-2 ring-emerald-500/30",
+              flash === "ok" && "border-success ring-2 ring-success/30",
               flash === "err" &&
                 "border-destructive ring-2 ring-destructive/30",
             )}

@@ -180,7 +180,7 @@ export function ReturPembelianTab() {
           <StatusBadge
             domain="purchase-return"
             status={row.original.status}
-            className="text-[10px] leading-tight"
+            className="text-2xs leading-tight"
           />
         ),
       },
@@ -200,17 +200,17 @@ export function ReturPembelianTab() {
                         setProcessTarget(item);
                         setProcessedBy("");
                       }}
-                      className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-500/20"
+                      className="inline-flex items-center gap-1 rounded-md bg-success/10 px-2.5 py-1 text-xs font-medium text-success transition-colors hover:bg-success/20"
                     >
-                      <PlayIcon className="h-3.5 w-3.5" />
+                      <PlayIcon className="size-3.5" />
                       Proses
                     </button>
                     <button
                       type="button"
                       onClick={() => setDeleteTarget(item)}
-                      className="inline-flex items-center gap-1 rounded-md bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-500/20"
+                      className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20"
                     >
-                      <Trash2Icon className="h-3.5 w-3.5" />
+                      <Trash2Icon className="size-3.5" />
                     </button>
                   </>
                 )}
@@ -297,7 +297,7 @@ export function ReturPembelianTab() {
               onClick={handleExport}
               disabled={items.length === 0}
             >
-              <DownloadIcon className="mr-1.5 h-4 w-4" />
+              <DownloadIcon className="mr-1.5 size-4" />
               Export CSV
             </Button>
           }

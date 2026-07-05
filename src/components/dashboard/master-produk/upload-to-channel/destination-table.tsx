@@ -273,12 +273,12 @@ export function DestinationTable({
           if (state.matched) {
             return (
               <div className="flex flex-col gap-0.5">
-                <span className="inline-flex items-center gap-1.5 text-sm text-emerald-600 dark:text-emerald-400">
+                <span className="inline-flex items-center gap-1.5 text-sm text-success">
                   <CheckCircleIcon className="size-4" />
                   Cocok
                 </span>
                 {state.rulesSummary?.hasSpecialRequirements && (
-                  <span className="ml-[22px] inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
+                  <span className="ml-[22px] inline-flex items-center gap-1 text-xs text-info">
                     <AlertTriangleIcon className="size-3 shrink-0" />
                     {state.rulesSummary.requiredCertsCount > 0
                       ? `${state.rulesSummary.requiredCertsCount} sertifikasi diperlukan`
@@ -290,7 +290,7 @@ export function DestinationTable({
           }
           return (
             <div className="flex flex-col gap-0.5">
-              <span className="inline-flex items-center gap-1.5 text-sm text-amber-600 dark:text-amber-400">
+              <span className="inline-flex items-center gap-1.5 text-sm text-warning">
                 <AlertTriangleIcon className="size-4 shrink-0" />
                 <span className="truncate" title={state.message}>
                   {state.message}
@@ -407,19 +407,19 @@ export function DestinationTable({
   return (
     <>
       {blockedEntries.length > 0 && (
-        <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm text-amber-700 dark:text-amber-400">
+        <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2.5 text-sm text-warning">
           <AlertTriangleIcon className="mt-0.5 size-4 shrink-0" />
           <div className="min-w-0">
             <p className="font-medium">
               {blockedEntries.length} toko tidak bisa diupload
             </p>
-            <p className="mt-0.5 text-amber-600/80 dark:text-amber-400/80">
+            <p className="mt-0.5 text-warning/80">
               {blockedEntries[0].message}
             </p>
             <Link
               href={`/dashboard/produk/${productId}/edit`}
 
-              className="mt-1 inline-block font-medium underline underline-offset-2 hover:text-amber-800 dark:hover:text-amber-300"
+              className="mt-1 inline-block font-medium underline underline-offset-2 hover:text-warning/80"
             >
               Edit Produk
             </Link>
@@ -495,7 +495,7 @@ export function DestinationTable({
                             : "yang belum terdaftar"}
                           ?
                           {blockedCount > 0 && (
-                            <span className="mt-1 block text-amber-600 dark:text-amber-400">
+                            <span className="mt-1 block text-warning">
                               {blockedCount} toko dilewati karena data belum
                               cocok dengan master.
                             </span>

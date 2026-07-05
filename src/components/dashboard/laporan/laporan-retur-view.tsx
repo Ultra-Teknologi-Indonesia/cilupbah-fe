@@ -20,7 +20,9 @@ import { DateRangePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { DataTable } from "@/components/ui/data-table/data-table";
+import { EmptyState } from "@/components/ui/empty-state";
 import { SectionTitle } from "@/components/dashboard/shared/section-title";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import {
   useLaporanRetur,
@@ -47,14 +49,6 @@ const SOURCE_OPTIONS = [
   { value: "manual", label: "Manual" },
   { value: "marketplace", label: "Marketplace" },
 ];
-
-const STATUS_STYLE: Record<string, string> = {
-  PENDING: "bg-amber-100 text-amber-700 border-amber-200",
-  ACCEPTED: "bg-sky-100 text-sky-700 border-sky-200",
-  REJECTED: "bg-rose-100 text-rose-700 border-rose-200",
-  COMPLETED: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  CANCELLED: "bg-slate-100 text-slate-700 border-slate-200",
-};
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("id-ID", {
@@ -152,7 +146,7 @@ export function LaporanReturView() {
         accessorKey: "source",
         header: "Sumber",
         cell: ({ row }) => (
-          <Badge variant="outline" className="text-[10px] capitalize">
+          <Badge variant="outline" className="text-2xs capitalize">
             {row.original.source}
           </Badge>
         ),
@@ -160,20 +154,9 @@ export function LaporanReturView() {
       {
         accessorKey: "status",
         header: "Status",
-        cell: ({ row }) => {
-          const s = row.original.status;
-          return (
-            <Badge
-              variant="outline"
-              className={cn(
-                "border text-[10px] font-medium",
-                STATUS_STYLE[s] ?? "bg-muted text-muted-foreground",
-              )}
-            >
-              {s}
-            </Badge>
-          );
-        },
+        cell: ({ row }) => (
+          <StatusBadge domain="sales-return" status={row.original.status} />
+        ),
       },
       {
         accessorKey: "reason",
@@ -198,7 +181,7 @@ export function LaporanReturView() {
                 {formatCurrency(r.refund_total)}
               </div>
               {r.refund_count > 0 && (
-                <div className="text-[10px] text-muted-foreground">
+                <div className="text-2xs text-muted-foreground">
                   {r.refund_count}× · {r.refund_methods.join(", ")}
                 </div>
               )}
@@ -241,7 +224,7 @@ export function LaporanReturView() {
         className="bg-white/30 dark:bg-white/[0.04] p-5"
       >
         <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
-          <FilterIcon className="h-4 w-4" />
+          <FilterIcon className="size-4" />
           Filter Laporan
         </div>
         <div className="grid items-end gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -319,7 +302,7 @@ export function LaporanReturView() {
             >
               <RefreshCwIcon
                 className={cn(
-                  "h-3.5 w-3.5",
+                  "size-3.5",
                   query.isFetching && "animate-spin",
                 )}
               />
@@ -332,9 +315,9 @@ export function LaporanReturView() {
               disabled={exportMut.isPending || rows.length === 0}
             >
               {exportMut.isPending ? (
-                <Loader2Icon className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                <Loader2Icon className="mr-1.5 size-3.5 animate-spin" />
               ) : (
-                <DownloadIcon className="mr-1.5 h-3.5 w-3.5" />
+                <DownloadIcon className="mr-1.5 size-3.5" />
               )}
               Unduh Excel
             </Button>
@@ -359,12 +342,11 @@ export function LaporanReturView() {
             }}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-                <PackageOpenIcon className="h-10 w-10 opacity-20" />
-                <p className="text-sm font-medium">
-                  Belum ada retur pada filter ini.
-                </p>
-              </div>
+              <EmptyState
+                icon={PackageOpenIcon}
+                title="Belum ada retur pada filter ini."
+                className="py-20"
+              />
             }
           />
         </div>

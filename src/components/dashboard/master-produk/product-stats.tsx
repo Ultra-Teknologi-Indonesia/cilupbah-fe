@@ -28,7 +28,7 @@ export function ProductStats({
       label: "Aktif (Master)",
       value: master,
       icon: CheckCircle2Icon,
-      tone: "text-emerald-600 dark:text-emerald-400",
+      tone: "text-success",
     },
     {
       label: "Bermasalah di Channel",

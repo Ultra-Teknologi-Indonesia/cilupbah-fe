@@ -61,7 +61,7 @@ export function PindahBinEditView({ id }: { id: string }) {
   if (!trf) {
     return (
       <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-        <PackageSearchIcon className="h-10 w-10" />
+        <PackageSearchIcon className="size-10" />
         <p className="text-sm">Transfer internal tidak ditemukan.</p>
         <Button variant="outline" size="sm" asChild>
           <Link href={listHref}>Kembali</Link>
@@ -98,8 +98,8 @@ export function PindahBinEditView({ id }: { id: string }) {
         ]}
       />
 
-      <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
-        <InfoIcon className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+      <div className="flex items-start gap-3 rounded-xl border border-warning/30 bg-warning/10 px-4 py-3">
+        <InfoIcon className="mt-0.5 size-5 shrink-0 text-warning" />
         <div>
           <p className="text-sm font-medium">Hanya metadata yang dapat diubah</p>
           <p className="text-xs text-muted-foreground">
@@ -185,7 +185,7 @@ export function PindahBinEditView({ id }: { id: string }) {
         </Button>
         <Button onClick={handleSave} disabled={!canSubmit}>
           {updateMut.isPending && (
-            <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2Icon className="mr-2 size-4 animate-spin" />
           )}
           Simpan
         </Button>

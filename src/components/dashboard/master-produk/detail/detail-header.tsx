@@ -44,7 +44,7 @@ function ProductTypeBadge({ type }: { type: ProductTypeKind }) {
   return (
     <span
       className={cn(
-        "rounded-md px-2 py-0.5 text-xs font-medium",
+        "rounded-xl px-2 py-0.5 text-xs font-medium",
         TYPE_STYLE[type],
       )}
     >

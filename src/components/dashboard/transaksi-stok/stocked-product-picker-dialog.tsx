@@ -298,7 +298,7 @@ export function StockedProductPickerDialog({
                                   <Badge
                                     key={`${vv.label}-${vv.value}`}
                                     variant="outline"
-                                    className="px-1.5 py-0 text-[10px] font-normal"
+                                    className="px-1.5 py-0 text-2xs font-normal"
                                   >
                                     {vv.label}: {vv.value}
                                   </Badge>

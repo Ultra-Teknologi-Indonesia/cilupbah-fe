@@ -98,7 +98,7 @@ export function PesananDetailView({ id }: { id: string }) {
   if (!po) {
     return (
       <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-        <PackageIcon className="h-10 w-10" />
+        <PackageIcon className="size-10" />
         <p className="text-sm">Pesanan tidak ditemukan.</p>
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/transaksi-pembelian">Kembali</Link>
@@ -132,7 +132,7 @@ export function PesananDetailView({ id }: { id: string }) {
                 className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                 onClick={() => setConfirmAction("delete")}
               >
-                <Trash2Icon className="mr-2 h-4 w-4" />
+                <Trash2Icon className="mr-2 size-4" />
                 Hapus
               </Button>
             )}
@@ -247,7 +247,7 @@ export function PesananDetailView({ id }: { id: string }) {
                         className="border-b border-border/20 last:border-0"
                       >
                         <TableCell className="px-3 py-2.5">
-                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted/50">
+                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
                             {imageUrl ? (
                               <img
                                 src={imageUrl}
@@ -256,7 +256,7 @@ export function PesananDetailView({ id }: { id: string }) {
                               />
                             ) : (
                               <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
-                                <ImageIcon className="h-4 w-4 opacity-50" />
+                                <ImageIcon className="size-4 opacity-50" />
                               </div>
                             )}
                           </div>
@@ -275,7 +275,7 @@ export function PesananDetailView({ id }: { id: string }) {
                               </span>
                             )}
                             {item.product?.sku && (
-                              <span className="font-mono text-[11px] text-foreground/80">
+                              <span className="font-mono text-2xs text-foreground/80">
                                 {item.product.sku}
                               </span>
                             )}
@@ -286,7 +286,7 @@ export function PesananDetailView({ id }: { id: string }) {
                             <span>{formatCurrency(item.unit_price)}</span>
                             {(Number(item.shipping_cost ?? 0) > 0 ||
                               Number(item.disc_amount ?? 0) > 0) && (
-                              <span className="text-[11px] text-foreground">
+                              <span className="text-2xs text-foreground">
                                 {Number(item.shipping_cost ?? 0) > 0 &&
                                   `Ongkos: ${formatCurrency(Number(item.shipping_cost))}`}
                                 {Number(item.shipping_cost ?? 0) > 0 &&
@@ -299,7 +299,7 @@ export function PesananDetailView({ id }: { id: string }) {
                             {item.landed_cost_per_unit !== undefined &&
                               Number(item.landed_cost_per_unit) !==
                                 Number(item.unit_price) && (
-                                <span className="text-[11px] text-foreground">
+                                <span className="text-2xs text-foreground">
                                   Landed:{" "}
                                   {formatCurrency(
                                     Number(item.landed_cost_per_unit),
@@ -316,9 +316,9 @@ export function PesananDetailView({ id }: { id: string }) {
                           <span
                             className={cn(
                               item.received_qty >= item.qty
-                                ? "text-emerald-600"
+                                ? "text-success"
                                 : item.received_qty > 0
-                                  ? "text-amber-600"
+                                  ? "text-warning"
                                   : "text-foreground",
                             )}
                           >
@@ -385,7 +385,7 @@ export function PesananDetailView({ id }: { id: string }) {
                 </span>
               </div>
               {po.total_disc > 0 && (
-                <div className="flex justify-between text-amber-600">
+                <div className="flex justify-between text-warning">
                   <span>Diskon</span>
                   <span className="tabular-nums">
                     -{formatCurrency(po.total_disc)}

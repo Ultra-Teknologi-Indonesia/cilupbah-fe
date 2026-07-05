@@ -48,7 +48,7 @@ export function ExportCancelDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
-          <Download className="h-4 w-4" />
+          <Download className="size-4" />
           Unduh Data Cancel
         </Button>
       </DialogTrigger>
@@ -111,7 +111,7 @@ export function ExportCancelDialog() {
             Batal
           </Button>
           <Button onClick={onSubmit} disabled={loading} className="gap-2">
-            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+            {loading && <Loader2 className="size-4 animate-spin" />}
             Unduh XLSX
           </Button>
         </DialogFooter>

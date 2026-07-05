@@ -162,7 +162,7 @@ export function ProductMediaManager({
               <img src={item.url} alt="" className="size-full object-cover" />
 
               {item.isPrimary && (
-                <span className="absolute left-1 top-1 rounded-md bg-primary px-1.5 py-0.5 text-2xs font-medium text-primary-foreground">
+                <span className="absolute left-1 top-1 rounded-xl bg-primary px-1.5 py-0.5 text-2xs font-medium text-primary-foreground">
                   Utama
                 </span>
               )}
@@ -173,7 +173,7 @@ export function ProductMediaManager({
                     type="button"
                     onClick={() => setPrimary(item.localId)}
                     title="Jadikan gambar utama"
-                    className="flex items-center gap-0.5 rounded bg-white/90 px-1.5 py-0.5 text-2xs font-medium text-foreground hover:bg-white"
+                    className="flex items-center gap-0.5 rounded bg-background/90 px-1.5 py-0.5 text-2xs font-medium text-foreground hover:bg-background"
                   >
                     <StarIcon className="size-3" /> Utama
                   </button>
@@ -184,7 +184,7 @@ export function ProductMediaManager({
                   type="button"
                   onClick={() => removeItem(item.localId)}
                   title="Hapus gambar"
-                  className="grid size-6 place-items-center rounded bg-white/90 text-destructive hover:bg-white"
+                  className="grid size-6 place-items-center rounded bg-background/90 text-destructive hover:bg-background"
                 >
                   <Trash2Icon className="size-3.5" />
                 </button>
@@ -235,7 +235,7 @@ export function ProductMediaManager({
               }}
             />
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
-              <div className="grid size-9 place-items-center rounded-full bg-white/90 shadow-sm">
+              <div className="grid size-9 place-items-center rounded-full bg-background/90 shadow-sm">
                 <PlayIcon className="ml-0.5 size-4 fill-current text-foreground" />
               </div>
             </div>
@@ -243,7 +243,7 @@ export function ProductMediaManager({
               type="button"
               onClick={() => setVideo(null)}
               title="Hapus video"
-              className="absolute right-1 top-1 grid size-6 place-items-center rounded bg-white/90 text-destructive hover:bg-white"
+              className="absolute right-1 top-1 grid size-6 place-items-center rounded bg-background/90 text-destructive hover:bg-background"
             >
               <Trash2Icon className="size-3.5" />
             </button>

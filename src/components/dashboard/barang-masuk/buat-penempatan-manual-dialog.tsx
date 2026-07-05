@@ -129,7 +129,7 @@ export function BuatPenempatanManualDialog({
             className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white"
           >
             {mutation.isPending && (
-              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2Icon className="mr-2 size-4 animate-spin" />
             )}
             Simpan
           </Button>

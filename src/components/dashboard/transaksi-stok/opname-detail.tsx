@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
@@ -110,7 +111,7 @@ export function OpnameDetail({ id }: { id: string }) {
               {row.original.item?.item_name ?? "—"}
             </span>
             {row.original.item?.sku && (
-              <span className="font-mono text-[11px] text-foreground/80">
+              <span className="font-mono text-2xs text-foreground/80">
                 {row.original.item.sku}
               </span>
             )}
@@ -165,7 +166,7 @@ export function OpnameDetail({ id }: { id: string }) {
               ) : (
                 <Badge
                   variant="outline"
-                  className="text-[10px] leading-tight border-slate-300 text-slate-500"
+                  className="text-2xs leading-tight border-border text-muted-foreground"
                 >
                   Belum dihitung
                 </Badge>
@@ -187,9 +188,9 @@ export function OpnameDetail({ id }: { id: string }) {
               className={cn(
                 "text-right tabular-nums font-medium",
                 diff != null && diff > 0
-                  ? "text-emerald-600"
+                  ? "text-success"
                   : diff != null && diff < 0
-                    ? "text-red-600"
+                    ? "text-destructive"
                     : "text-foreground",
               )}
             >
@@ -239,7 +240,7 @@ export function OpnameDetail({ id }: { id: string }) {
                 }
                 className="inline-flex items-center gap-1 rounded-md bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-500/20"
               >
-                <CalculatorIcon className="h-3.5 w-3.5" />
+                <CalculatorIcon className="size-3.5" />
                 Hitung
               </button>
             );
@@ -298,13 +299,16 @@ export function OpnameDetail({ id }: { id: string }) {
 
   if (!opname) {
     return (
-      <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-        <ClipboardCheckIcon className="h-10 w-10" />
-        <p className="text-sm">Dokumen tidak ditemukan.</p>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/transaksi-stok">Kembali</Link>
-        </Button>
-      </div>
+      <EmptyState
+        icon={ClipboardCheckIcon}
+        title="Dokumen tidak ditemukan."
+        className="py-20"
+        action={
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/transaksi-stok">Kembali</Link>
+          </Button>
+        }
+      />
     );
   }
 
@@ -326,7 +330,7 @@ export function OpnameDetail({ id }: { id: string }) {
               onClick={handleExport}
               disabled={!opname.items?.length}
             >
-              <DownloadIcon className="mr-1.5 h-3.5 w-3.5" />
+              <DownloadIcon className="mr-1.5 size-3.5" />
               Export CSV
             </Button>
             {isDraft && (
@@ -340,7 +344,7 @@ export function OpnameDetail({ id }: { id: string }) {
                   disabled={actionPending}
                   className="bg-blue-600 text-white hover:bg-blue-700"
                 >
-                  <PlayIcon className="mr-1.5 h-3.5 w-3.5" />
+                  <PlayIcon className="mr-1.5 size-3.5" />
                   Mulai
                 </Button>
                 <Button
@@ -349,7 +353,7 @@ export function OpnameDetail({ id }: { id: string }) {
                   onClick={() => setDeleteOpen(true)}
                   disabled={actionPending}
                 >
-                  <Trash2Icon className="mr-1.5 h-3.5 w-3.5" />
+                  <Trash2Icon className="mr-1.5 size-3.5" />
                   Hapus
                 </Button>
               </>
@@ -362,9 +366,9 @@ export function OpnameDetail({ id }: { id: string }) {
                   setFinalizeBy("");
                 }}
                 disabled={actionPending || hasUncounted}
-                className="bg-emerald-600 text-white hover:bg-emerald-700"
+                className="bg-success text-white hover:bg-success/90"
               >
-                <CheckCircle2Icon className="mr-1.5 h-3.5 w-3.5" />
+                <CheckCircle2Icon className="mr-1.5 size-3.5" />
                 Finalisasi
               </Button>
             )}
@@ -374,9 +378,9 @@ export function OpnameDetail({ id }: { id: string }) {
                 size="sm"
                 onClick={() => setCancelOpen(true)}
                 disabled={actionPending}
-                className="border-red-300 text-red-600 hover:bg-red-50"
+                className="border-destructive/30 text-destructive hover:bg-destructive/10"
               >
-                <XCircleIcon className="mr-1.5 h-3.5 w-3.5" />
+                <XCircleIcon className="mr-1.5 size-3.5" />
                 Batalkan
               </Button>
             )}
@@ -401,7 +405,7 @@ export function OpnameDetail({ id }: { id: string }) {
               <StatusBadge
                 domain="stock-opname"
                 status={opname.status}
-                className="text-[10px] leading-tight"
+                className="text-2xs leading-tight"
               />
             }
           />
@@ -429,11 +433,7 @@ export function OpnameDetail({ id }: { id: string }) {
             hideToolbar
             manualPagination={false}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
-            emptyState={
-              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                <p>Belum ada item.</p>
-              </div>
-            }
+            emptyState={<EmptyState title="Belum ada item." />}
           />
         </div>
       </LiquidGlass>
@@ -501,7 +501,7 @@ export function OpnameDetail({ id }: { id: string }) {
               className="mt-1.5"
             />
           </div>
-          <p className="text-xs text-amber-600">
+          <p className="text-xs text-warning">
             Pastikan semua item sudah dihitung.
           </p>
         </div>

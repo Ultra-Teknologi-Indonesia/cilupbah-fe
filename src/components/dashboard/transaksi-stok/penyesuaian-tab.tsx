@@ -200,7 +200,7 @@ export function PenyesuaianTab() {
               <Link
                 href={`/dashboard/document-preview/stock-adjustment/${row.original.id}`}
               >
-                <PrinterIcon className="h-3.5 w-3.5" />
+                <PrinterIcon className="size-3.5" />
               </Link>
             </Button>
             <Button
@@ -210,7 +210,7 @@ export function PenyesuaianTab() {
               aria-label="Hapus"
               className="text-destructive hover:text-destructive"
             >
-              <Trash2Icon className="h-3.5 w-3.5" />
+              <Trash2Icon className="size-3.5" />
             </Button>
           </div>
         ),
@@ -278,7 +278,7 @@ export function PenyesuaianTab() {
                     : undefined
                 }
               >
-                <PrinterIcon className="mr-1.5 h-4 w-4" />
+                <PrinterIcon className="mr-1.5 size-4" />
                 Cetak {ids.length}
               </Button>
               <Button
@@ -291,7 +291,7 @@ export function PenyesuaianTab() {
                   })
                 }
               >
-                <Trash2Icon className="mr-1.5 h-4 w-4" />
+                <Trash2Icon className="mr-1.5 size-4" />
                 Hapus {ids.length}
               </Button>
             </>
@@ -309,7 +309,7 @@ export function PenyesuaianTab() {
             </Button>
             <Button size="sm" asChild className="gap-1.5">
               <Link href="/dashboard/transaksi-stok/penyesuaian/buat">
-                <PlusIcon className="h-4 w-4" />
+                <PlusIcon className="size-4" />
                 Koreksi Stok Baru
               </Link>
             </Button>

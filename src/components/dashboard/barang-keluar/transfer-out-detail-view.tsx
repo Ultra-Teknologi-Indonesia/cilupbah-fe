@@ -124,7 +124,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
         actions={
           <>
             <Button variant="outline" size="sm" onClick={handleExport}>
-              <DownloadIcon className="mr-1.5 h-4 w-4" />
+              <DownloadIcon className="mr-1.5 size-4" />
               Export CSV
             </Button>
             <Button
@@ -133,7 +133,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
               className="print:hidden"
               onClick={handlePrint}
             >
-              <PrinterIcon className="mr-1.5 h-4 w-4" />
+              <PrinterIcon className="mr-1.5 size-4" />
               Print
             </Button>
 
@@ -147,7 +147,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
                     setApprovedBy("");
                   }}
                 >
-                  <CheckIcon className="mr-1.5 h-4 w-4" />
+                  <CheckIcon className="mr-1.5 size-4" />
                   Approve
                 </Button>
                 <Button
@@ -155,7 +155,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
                   size="sm"
                   onClick={() => setDeleteOpen(true)}
                 >
-                  <Trash2Icon className="mr-1.5 h-4 w-4" />
+                  <Trash2Icon className="mr-1.5 size-4" />
                   Hapus
                 </Button>
               </>
@@ -170,7 +170,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
                   setShippedBy("");
                 }}
               >
-                <TruckIcon className="mr-1.5 h-4 w-4" />
+                <TruckIcon className="mr-1.5 size-4" />
                 Kirim
               </Button>
             )}
@@ -187,7 +187,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
                 }}
                 className="text-warning hover:bg-warning/10"
               >
-                <XIcon className="mr-1.5 h-4 w-4" />
+                <XIcon className="mr-1.5 size-4" />
                 Batalkan
               </Button>
             )}

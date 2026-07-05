@@ -495,15 +495,15 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         <LiquidGlass
           radius={16}
           intensity="subtle"
-          className="border-rose-200 bg-rose-50/50 dark:border-rose-500/20 dark:bg-rose-500/[0.06] px-5 py-3"
+          className="border-destructive/20 bg-destructive/[0.06] px-5 py-3"
         >
           <div className="flex items-start gap-3">
-            <XIcon className="mt-0.5 size-4 shrink-0 text-rose-500" />
+            <XIcon className="mt-0.5 size-4 shrink-0 text-destructive" />
             <div>
-              <p className="text-sm font-medium text-rose-700 dark:text-rose-400">
+              <p className="text-sm font-medium text-destructive">
                 Alasan Pembatalan
               </p>
-              <p className="text-sm text-rose-600/80 dark:text-rose-400/70">
+              <p className="text-sm text-destructive/80">
                 {order.cancel_reason}
               </p>
             </div>
@@ -515,16 +515,16 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         <LiquidGlass
           radius={16}
           intensity="subtle"
-          className="border-amber-200 bg-amber-50/50 dark:border-amber-500/20 dark:bg-amber-500/[0.06] px-5 py-3"
+          className="border-warning/20 bg-warning/[0.06] px-5 py-3"
         >
           <div className="flex items-start gap-3">
-            <MessageSquareIcon className="mt-0.5 size-4 shrink-0 text-amber-600" />
+            <MessageSquareIcon className="mt-0.5 size-4 shrink-0 text-warning" />
             <div>
-              <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
+              <p className="text-sm font-medium text-warning">
                 Permintaan Pembatalan
               </p>
               {order.cancel_request_reason && (
-                <p className="text-sm text-amber-600/80 dark:text-amber-400/70">
+                <p className="text-sm text-warning/80">
                   {order.cancel_request_reason}
                 </p>
               )}
@@ -597,7 +597,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           )}
           {(order.customer_decision === "replace" ||
             order.status === "pending") && (
-            <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 text-xs text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
+            <div className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-2.5 text-xs text-warning">
               Perubahan item pesanan hanya update sistem internal (Jubelio) —
               tidak dikirim ke marketplace.
             </div>
@@ -649,7 +649,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                       className="border-b border-border/20 last:border-0"
                     >
                       <TableCell className="px-3 py-2.5">
-                        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted/50">
+                        <div className="size-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
                           {item.image_url ? (
                             <Image
                               src={item.image_url}
@@ -703,7 +703,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-7 w-7 p-0"
+                              className="size-7 p-0"
                               onClick={() => setEditingItem(item)}
                               title="Ubah item"
                             >
@@ -713,7 +713,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                className="size-7 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
                                 onClick={() => setDeletingItemId(item.id)}
                                 title="Hapus item"
                               >
@@ -958,11 +958,11 @@ function ContactSummary({
         <InfoRow icon={CheckIcon} label="Status">
           {order.contacted_at ? (
             <span className="inline-flex items-center gap-1.5">
-              <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="inline-block size-2 rounded-full bg-success" />
               Sudah dihubungi · {formatDateTime(order.contacted_at)}
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 text-amber-700 dark:text-amber-300">
+            <span className="inline-flex items-center gap-1.5 text-warning">
               <ClockIcon className="size-3.5" />
               Belum dihubungi
             </span>

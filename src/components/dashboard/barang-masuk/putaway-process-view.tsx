@@ -372,7 +372,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
             <p className="text-sm font-medium">Putaway tidak ditemukan</p>
             <Link href="/dashboard/barang-masuk/penempatan">
               <Button variant="outline" size="sm">
-                <ArrowLeftIcon className="mr-1.5 h-4 w-4" />
+                <ArrowLeftIcon className="mr-1.5 size-4" />
                 Kembali
               </Button>
             </Link>
@@ -399,7 +399,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
 
             <div className="rounded-lg border border-border bg-card p-4">
               <div className="flex items-center gap-2">
-                <ScanLineIcon className="h-4 w-4 text-muted-foreground" />
+                <ScanLineIcon className="size-4 text-muted-foreground" />
                 <div className="text-sm font-medium">Pilih Rak</div>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -537,7 +537,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                       <TableCell colSpan={5} className="py-16 text-center">
                         {startMutation.isPending ? (
                           <div className="flex flex-col items-center gap-3">
-                            <Loader2Icon className="h-6 w-6 animate-spin text-muted-foreground" />
+                            <Loader2Icon className="size-6 animate-spin text-muted-foreground" />
                             <p className="text-sm text-muted-foreground">
                               Memulai penempatan...
                             </p>
@@ -740,7 +740,7 @@ function PutawayItemRow({
                   className="object-cover"
                 />
               ) : (
-                <PackageIcon className="h-5 w-5" />
+                <PackageIcon className="size-5" />
               )}
             </div>
             <div className="min-w-0">
@@ -794,9 +794,9 @@ function PutawayItemRow({
               aria-label={expanded ? "Tutup detail" : "Lihat detail"}
             >
               {expanded ? (
-                <ChevronDownIcon className="h-4 w-4" />
+                <ChevronDownIcon className="size-4" />
               ) : (
-                <ChevronRightIcon className="h-4 w-4" />
+                <ChevronRightIcon className="size-4" />
               )}
             </Button>
           ) : null}
@@ -1011,9 +1011,9 @@ function PlacementRow({
           className="h-8 w-20 tabular-nums text-xs"
         />
         {processMutation.isPending ? (
-          <Loader2Icon className="h-3.5 w-3.5 animate-spin text-warning" />
+          <Loader2Icon className="size-3.5 animate-spin text-warning" />
         ) : hasSaved ? (
-          <CheckCircle2Icon className="h-3.5 w-3.5 text-success" />
+          <CheckCircle2Icon className="size-3.5 text-success" />
         ) : null}
       </div>
 
@@ -1026,7 +1026,7 @@ function PlacementRow({
           className="h-8 w-8 text-muted-foreground hover:text-destructive"
           aria-label="Hapus penempatan"
         >
-          <Trash2Icon className="h-3.5 w-3.5" />
+          <Trash2Icon className="size-3.5" />
         </Button>
       )}
 
@@ -1042,9 +1042,9 @@ function PlacementRow({
             aria-label="Koreksi penempatan"
           >
             {deletePlacementMutation.isPending ? (
-              <Loader2Icon className="h-3.5 w-3.5 animate-spin" />
+              <Loader2Icon className="size-3.5 animate-spin" />
             ) : (
-              <Trash2Icon className="h-3.5 w-3.5" />
+              <Trash2Icon className="size-3.5" />
             )}
           </Button>
 

@@ -270,7 +270,7 @@ export function PenerimaanBarangTab() {
                     setPenempatanTarget(item);
                   }}
                 >
-                  <LayersIcon className="h-4 w-4" />
+                  <LayersIcon className="size-4" />
                   Penempatan
                 </Button>
               )}
@@ -318,7 +318,7 @@ export function PenerimaanBarangTab() {
               size="sm"
               onClick={() => handleExportList(items)}
             >
-              <DownloadIcon className="mr-1.5 h-4 w-4" />
+              <DownloadIcon className="mr-1.5 size-4" />
               Export CSV
             </Button>
           </div>

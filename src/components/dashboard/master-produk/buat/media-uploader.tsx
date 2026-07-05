@@ -162,7 +162,7 @@ export function MediaUploader({
               }}
             />
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
-              <div className="grid size-9 place-items-center rounded-full bg-white/90 shadow-sm">
+              <div className="grid size-9 place-items-center rounded-full bg-background/90 shadow-sm">
                 <PlayIcon className="ml-0.5 size-4 fill-current text-foreground" />
               </div>
             </div>

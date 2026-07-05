@@ -214,7 +214,7 @@ export function TransferMasukTab() {
                     setReceivedBy("");
                   }}
                 >
-                  <PackageCheckIcon className="h-4 w-4" />
+                  <PackageCheckIcon className="size-4" />
                   Terima
                 </Button>
               </div>

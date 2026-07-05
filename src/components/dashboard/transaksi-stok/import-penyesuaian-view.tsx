@@ -281,7 +281,7 @@ export function ImportPenyesuaianDialog({
                     }
                     className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
                   >
-                    <DownloadIcon className="h-4 w-4" />
+                    <DownloadIcon className="size-4" />
                     Template Import Penyesuaian Stok
                   </button>
                 </div>
@@ -307,7 +307,7 @@ export function ImportPenyesuaianDialog({
                   className="gap-1.5"
                 >
                   {confirmMut.isPending && (
-                    <Loader2Icon className="h-4 w-4 animate-spin" />
+                    <Loader2Icon className="size-4 animate-spin" />
                   )}
                   {preview.errors.length > 0
                     ? `Terdapat ${preview.errors.length} error`
@@ -325,9 +325,9 @@ export function ImportPenyesuaianDialog({
                   className="gap-1.5"
                 >
                   {previewMut.isPending && (
-                    <Loader2Icon className="h-4 w-4 animate-spin" />
+                    <Loader2Icon className="size-4 animate-spin" />
                   )}
-                  <FileSpreadsheetIcon className="h-4 w-4" /> Import
+                  <FileSpreadsheetIcon className="size-4" /> Import
                 </Button>
               </div>
             )}
@@ -364,7 +364,7 @@ function PreviewPanel({ preview }: { preview: ImportPreviewResponse }) {
           {preview.warnings.map((w: ImportPreviewWarning, i) => (
             <div
               key={`w${i}`}
-              className="rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400"
+              className="rounded-md border border-warning/30 bg-warning/5 px-3 py-2 text-xs text-warning"
             >
               {w.warning}
             </div>
@@ -417,7 +417,7 @@ function PreviewPanel({ preview }: { preview: ImportPreviewResponse }) {
                 </TableCell>
                 <TableCell className="px-3 py-2">
                   <p className="font-medium">{it.product_name || it.sku}</p>
-                  <p className="font-mono text-[11px] text-muted-foreground">
+                  <p className="font-mono text-2xs text-muted-foreground">
                     {it.sku}
                   </p>
                 </TableCell>
@@ -427,7 +427,7 @@ function PreviewPanel({ preview }: { preview: ImportPreviewResponse }) {
                 <TableCell className="px-3 py-2">
                   <span
                     className={cn(
-                      "inline-flex items-center rounded px-2 py-0.5 text-[11px] font-medium",
+                      "inline-flex items-center rounded px-2 py-0.5 text-2xs font-medium",
                       it.mode === "DELTA"
                         ? "bg-blue-500/10 text-blue-700 dark:text-blue-400"
                         : "bg-purple-500/10 text-purple-700 dark:text-purple-400",
@@ -448,9 +448,8 @@ function PreviewPanel({ preview }: { preview: ImportPreviewResponse }) {
                 <TableCell
                   className={cn(
                     "px-3 py-2 text-right font-mono tabular-nums",
-                    it.difference > 0 &&
-                      "text-emerald-600 dark:text-emerald-400",
-                    it.difference < 0 && "text-red-600 dark:text-red-400",
+                    it.difference > 0 && "text-success",
+                    it.difference < 0 && "text-destructive",
                   )}
                 >
                   {it.difference > 0 ? `+${it.difference}` : it.difference}
@@ -484,9 +483,9 @@ function SummaryCard({
       <p
         className={cn(
           "mt-0.5 text-xl font-semibold tabular-nums",
-          tone === "ok" && "text-emerald-600 dark:text-emerald-400",
+          tone === "ok" && "text-success",
           tone === "err" && "text-destructive",
-          tone === "warn" && "text-amber-600 dark:text-amber-400",
+          tone === "warn" && "text-warning",
         )}
       >
         {value}

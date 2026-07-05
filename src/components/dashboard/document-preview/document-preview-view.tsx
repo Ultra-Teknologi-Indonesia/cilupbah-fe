@@ -224,7 +224,7 @@ function KnownDocumentPreview({
           </Button>
           <div className="hidden h-6 w-px bg-border sm:block" />
           <div className="min-w-0 flex-1">
-            <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            <div className="text-2xs font-medium uppercase tracking-wider text-muted-foreground">
               {config.title}
             </div>
             <div className="truncate text-sm font-semibold">{subtitle}</div>

@@ -14,20 +14,27 @@ const CONTENT_TRANSITION = { duration: 0.16, ease: [0.4, 0, 0.2, 1] as const };
 export function SidebarPanel({
   group,
   open,
+  top,
+  maxHeight,
 }: {
   group: NavGroup;
   open: boolean;
+  top: number;
+  maxHeight: number;
 }) {
   const reduce = useReducedMotion();
 
   return (
-    <div className="pointer-events-none absolute left-[88px] top-[72px] z-50 hidden md:block">
+    <div
+      className="pointer-events-none absolute left-[88px] z-50 hidden md:block"
+      style={{ top }}
+    >
       <AnimatePresence>
         {open && (
           <motion.div
             key="panel"
-            className="glass-elevation sidebar-glass liquid-glass-subtle bg-sidebar pointer-events-auto flex max-h-[calc(100dvh-88px)] origin-top-left flex-col overflow-hidden rounded-2xl"
-            style={{ width: PANEL_WIDTH }}
+            className="glass-elevation sidebar-glass liquid-glass-subtle bg-sidebar pointer-events-auto flex origin-top-left flex-col overflow-hidden rounded-2xl"
+            style={{ width: PANEL_WIDTH, maxHeight: maxHeight || undefined }}
             initial={{ opacity: 0, y: -6, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.98 }}
