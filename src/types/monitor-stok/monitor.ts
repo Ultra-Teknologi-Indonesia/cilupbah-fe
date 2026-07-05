@@ -118,6 +118,7 @@ export interface KronologiRow {
 
 export interface KronologiParams {
   view?: KronologiView;
+  search?: string;
   item_id?: string;
   location_id?: string;
   source?: string;

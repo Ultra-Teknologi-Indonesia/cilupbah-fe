@@ -155,6 +155,7 @@ export function MonitorStokView() {
   const kronologiParams = useMemo(
     () => ({
       view: kronologiView,
+      search: debouncedSearch || undefined,
       location_id: locationId || undefined,
       source: kronologiSource || undefined,
       direction:
@@ -168,6 +169,7 @@ export function MonitorStokView() {
     }),
     [
       kronologiView,
+      debouncedSearch,
       locationId,
       kronologiSource,
       kronologiDirection,
@@ -389,6 +391,15 @@ export function MonitorStokView() {
           </>
         ) : isKronologiTab(tab) ? (
           <>
+            <FilterToolbar
+              search={search}
+              onSearchChange={setSearch}
+              searchPlaceholder="Cari produk (SKU / nama)..."
+              align="end"
+              hasFilter={false}
+              activeCount={0}
+            />
+
             <div className="flex flex-wrap items-end gap-3 px-4 pt-3 sm:px-5">
               <div className="min-w-[220px] flex-1">
                 <label className="mb-1 block text-xs font-medium text-muted-foreground">

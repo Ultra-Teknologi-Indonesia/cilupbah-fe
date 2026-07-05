@@ -106,6 +106,7 @@ export const MonitorStockService = {
   kronologi: async (params: KronologiParams = {}) => {
     const sp = new URLSearchParams();
     if (params.view) sp.set("view", params.view);
+    if (params.search) sp.set("search", params.search);
     if (params.item_id) sp.set("filter[item_id]", params.item_id);
     if (params.location_id) sp.set("filter[location_id]", params.location_id);
     if (params.source) sp.set("filter[source]", params.source);
