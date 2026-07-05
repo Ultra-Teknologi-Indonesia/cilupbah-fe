@@ -28,6 +28,7 @@ import {
 import { PageTitle } from "@/components/dashboard/page-title";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { SectionTitle } from "@/components/dashboard/shared/section-title";
 import {
   usePurchaseReturnDetail,
   useProcessPurchaseReturn,
@@ -175,9 +176,9 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
         className="bg-white/30 dark:bg-white/[0.04]"
       >
         <div className="px-4 py-5 sm:px-6">
-          <h3 className="mb-4 text-sm font-semibold text-foreground">
+          <SectionTitle className="mb-4">
             Informasi Retur
-          </h3>
+          </SectionTitle>
           <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3 lg:grid-cols-4">
             <InfoRow label="No. Retur" value={retur.return_number} />
             <InfoRow label="Pemasok" value={retur.supplier?.name} />
@@ -220,9 +221,9 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
         className="bg-white/30 dark:bg-white/[0.04]"
       >
         <div className="px-4 py-5 sm:px-6">
-          <h3 className="mb-4 text-sm font-semibold text-foreground">
+          <SectionTitle className="mb-4">
             Item Retur
-          </h3>
+          </SectionTitle>
           {retur.items?.length > 0 ? (
             <Table containerClassName="rounded-lg border border-border/40">
               <TableHeader>
@@ -315,7 +316,7 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
       >
         <div className="px-1 py-2">
           <Label htmlFor="detail-processed-by" className="text-sm font-medium">
-            Diproses oleh <span className="text-red-500">*</span>
+            Diproses oleh <span className="text-destructive">*</span>
           </Label>
           <UserSelect
             value={processedBy}

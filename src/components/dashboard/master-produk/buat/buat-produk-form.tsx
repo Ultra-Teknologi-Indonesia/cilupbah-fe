@@ -16,6 +16,7 @@ import { Form } from "@/components/ui/form";
 import { Card } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PageTitle } from "@/components/dashboard/page-title";
+import { FormFooter } from "@/components/dashboard/shared/form-footer";
 
 import { SectionNav, type SectionStatus } from "./section-nav";
 import { MediaUploader } from "./media-uploader";
@@ -280,15 +281,14 @@ export function BuatProdukForm() {
               )}
             </FormSectionCard>
 
-            <div className="flex items-center justify-end gap-3">
+            <FormFooter>
               {errorCount > 0 && (
-                <span className="text-xs text-destructive">
+                <span className="mr-auto text-xs text-destructive">
                   {errorCount} perlu diperbaiki
                 </span>
               )}
               <Button
                 variant="outline"
-                size="lg"
                 onClick={() => setCancelOpen(true)}
                 disabled={busy}
               >
@@ -297,7 +297,6 @@ export function BuatProdukForm() {
               </Button>
               <Button
                 variant="primary"
-                size="lg"
                 onClick={() => submit("master")}
                 disabled={busy}
               >
@@ -308,7 +307,7 @@ export function BuatProdukForm() {
                 )}
                 Simpan Produk
               </Button>
-            </div>
+            </FormFooter>
 
             <ConfirmDialog
               open={cancelOpen}

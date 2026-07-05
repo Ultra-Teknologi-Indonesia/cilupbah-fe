@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ImageIcon, Trash2Icon, UploadIcon } from "lucide-react";
 
 import { PageTitle } from "@/components/dashboard/page-title";
+import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -107,21 +108,6 @@ export function TokoInternalFormPage({ mode, id }: Props) {
           { label: "Toko Internal", href: "/dashboard/toko-internal" },
           { label: isEdit ? "Ubah" : "Tambah" },
         ]}
-        actions={
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push("/dashboard/toko-internal")}
-              disabled={submitting}
-            >
-              Batal
-            </Button>
-            <Button type="submit" disabled={disabled || !name.trim()}>
-              {submitting ? "Menyimpan…" : "Simpan"}
-            </Button>
-          </div>
-        }
       />
 
       <LiquidGlass radius={16} className="p-6">
@@ -241,6 +227,20 @@ export function TokoInternalFormPage({ mode, id }: Props) {
           </div>
         </div>
       </LiquidGlass>
+
+      <FormFooter>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.push("/dashboard/toko-internal")}
+          disabled={submitting}
+        >
+          Batal
+        </Button>
+        <Button type="submit" disabled={disabled || !name.trim()}>
+          {submitting ? "Menyimpan…" : "Simpan"}
+        </Button>
+      </FormFooter>
     </form>
   );
 }

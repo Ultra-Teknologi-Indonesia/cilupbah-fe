@@ -15,6 +15,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { SectionTitle } from "@/components/dashboard/shared/section-title";
 import {
   useReservedStockDetail,
   useCancelReservedStock,
@@ -156,7 +157,7 @@ export function CadangDetail({ id }: { id: string }) {
         intensity="subtle"
         className="bg-white/30 dark:bg-white/[0.04] p-5"
       >
-        <h3 className="mb-4 font-semibold">Informasi Reservasi Stok</h3>
+        <SectionTitle className="mb-4">Informasi Reservasi Stok</SectionTitle>
         <div className="grid gap-3 sm:grid-cols-2">
           <InfoRow label="No. Reservasi Stok" value={stock.reserved_stock_no} />
           <InfoRow label="Lokasi" value={stock.location?.location_name} />
@@ -195,7 +196,7 @@ export function CadangDetail({ id }: { id: string }) {
         intensity="subtle"
         className="bg-white/30 dark:bg-white/[0.04] p-5"
       >
-        <h3 className="mb-4 font-semibold">Daftar Item</h3>
+        <SectionTitle className="mb-4">Daftar Item</SectionTitle>
         <div className="border border-border/40 rounded-lg overflow-hidden">
           <DataTable
             columns={columns}

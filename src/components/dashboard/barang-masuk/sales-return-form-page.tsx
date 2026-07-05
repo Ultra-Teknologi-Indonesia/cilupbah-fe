@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Combobox } from "@/components/ui/combobox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { PageTitle } from "@/components/dashboard/page-title";
+import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useCreateSalesReturn } from "@/hooks/barang-masuk/use-sales-return-actions";
@@ -139,7 +140,7 @@ export function SalesReturnFormPage() {
         <div className="grid grid-cols-1 gap-3 px-5 py-5 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <Label className="text-sm font-medium">
-              Lokasi Restock <span className="text-red-500">*</span>
+              Lokasi Restock <span className="text-destructive">*</span>
             </Label>
             <Combobox
               options={locationOptions}
@@ -151,7 +152,7 @@ export function SalesReturnFormPage() {
           </div>
           <div className="flex flex-col gap-1.5">
             <Label className="text-sm font-medium">
-              Dibuat oleh <span className="text-red-500">*</span>
+              Dibuat oleh <span className="text-destructive">*</span>
             </Label>
             <UserSelect
               value={createdBy}
@@ -187,7 +188,7 @@ export function SalesReturnFormPage() {
         <div className="flex flex-col gap-3 px-5 py-5">
           <div className="flex items-center justify-between">
             <Label className="text-sm font-medium">
-              Item Retur <span className="text-red-500">*</span>
+              Item Retur <span className="text-destructive">*</span>
             </Label>
             <Button
               variant="outline"
@@ -259,7 +260,7 @@ export function SalesReturnFormPage() {
         </div>
       </LiquidGlass>
 
-      <div className="flex justify-end gap-2">
+      <FormFooter>
         <Button variant="outline" onClick={() => router.push(LIST_HREF)}>
           Batal
         </Button>
@@ -272,7 +273,7 @@ export function SalesReturnFormPage() {
           )}
           Simpan Retur
         </Button>
-      </div>
+      </FormFooter>
 
       <ProductPickerDialog
         open={pickerOpen}

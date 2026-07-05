@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
+import { SectionTitle } from "@/components/dashboard/shared/section-title";
 import { PageTitle } from "@/components/dashboard/page-title";
 import {
   useStockAdjustmentDetail,
@@ -238,7 +239,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
         intensity="subtle"
         className="bg-white/30 dark:bg-white/[0.04] p-5"
       >
-        <h3 className="mb-4 font-semibold">Informasi Koreksi Stok</h3>
+        <SectionTitle className="mb-4">Informasi Koreksi Stok</SectionTitle>
         <div className="grid gap-3 sm:grid-cols-2">
           <InfoRow label="No. Koreksi Stok" value={adj.adjustment_no} />
           <InfoRow label="Lokasi" value={adj.location?.location_name} />
@@ -260,7 +261,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
         intensity="subtle"
         className="bg-white/30 dark:bg-white/[0.04] p-5"
       >
-        <h3 className="mb-4 font-semibold">Daftar Item</h3>
+        <SectionTitle className="mb-4">Daftar Item</SectionTitle>
         <div className="border border-border/40 rounded-lg overflow-hidden">
           <DataTable
             columns={columns}

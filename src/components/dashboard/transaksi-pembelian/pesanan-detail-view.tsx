@@ -28,7 +28,9 @@ import {
 } from "@/hooks/transaksi-pembelian/use-purchase-orders";
 import { SimplePagination } from "@/components/ui/simple-pagination";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { InfoField } from "@/components/dashboard/shared/info-field";
 import { SortableHeader } from "@/components/dashboard/shared/sortable-header";
+import { SectionTitle } from "@/components/dashboard/shared/section-title";
 import { formatCurrency, formatDateLong } from "@/lib/format";
 
 function DetailRow({
@@ -38,14 +40,7 @@ function DetailRow({
   label: string;
   value: React.ReactNode;
 }) {
-  return (
-    <div className="flex items-start gap-3">
-      <span className="w-36 shrink-0 text-sm text-muted-foreground">
-        {label}
-      </span>
-      <span className="text-sm font-medium">{value || "—"}</span>
-    </div>
-  );
+  return <InfoField orientation="horizontal" label={label} value={value} />;
 }
 
 export function PesananDetailView({ id }: { id: string }) {
@@ -157,7 +152,7 @@ export function PesananDetailView({ id }: { id: string }) {
             intensity="subtle"
             className="bg-white/30 dark:bg-white/[0.04] p-5"
           >
-            <h3 className="mb-4 font-semibold">Informasi Pesanan</h3>
+            <SectionTitle className="mb-4">Informasi Pesanan</SectionTitle>
             <div className="grid gap-3 sm:grid-cols-2">
               <DetailRow label="Pemasok" value={po.contact?.name} />
               <DetailRow label="Lokasi" value={po.location?.location_name} />
@@ -180,7 +175,7 @@ export function PesananDetailView({ id }: { id: string }) {
             className="bg-white/30 dark:bg-white/[0.04] p-5"
           >
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <h3 className="font-semibold">Daftar Produk</h3>
+              <SectionTitle>Daftar Produk</SectionTitle>
               <div className="relative w-full sm:w-72">
                 <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -377,7 +372,7 @@ export function PesananDetailView({ id }: { id: string }) {
             intensity="subtle"
             className="bg-white/30 dark:bg-white/[0.04] p-5 sticky top-4"
           >
-            <h3 className="mb-4 font-semibold">Rincian</h3>
+            <SectionTitle className="mb-4">Rincian</SectionTitle>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Jumlah Produk</span>

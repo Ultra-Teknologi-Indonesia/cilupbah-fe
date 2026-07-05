@@ -45,6 +45,9 @@ import {
 } from "@/components/ui/tooltip";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { InfoField } from "@/components/dashboard/shared/info-field";
+import { SectionTitle } from "@/components/dashboard/shared/section-title";
+import type { LucideIcon } from "lucide-react";
 
 import {
   CHANNEL_MAP,
@@ -117,7 +120,7 @@ function FinancialSummary({ order }: { order: Order }) {
 
   return (
     <>
-      <h3 className="mb-4 font-semibold">Rincian</h3>
+      <SectionTitle className="mb-4">Rincian</SectionTitle>
       <div className="space-y-2.5 text-sm">
         <div className="flex justify-between text-muted-foreground">
           <span>Jumlah SKU</span>
@@ -347,23 +350,11 @@ function InfoRow({
   label,
   children,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: LucideIcon;
   label: string;
   children: React.ReactNode;
 }) {
-  return (
-    <div className="flex items-start gap-3">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted/60">
-        <Icon className="h-4 w-4 text-muted-foreground" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70 mb-0.5">
-          {label}
-        </p>
-        <div className="text-sm font-medium">{children}</div>
-      </div>
-    </div>
-  );
+  return <InfoField icon={Icon} label={label} value={children} />;
 }
 
 export function OrderDetailView({ orderId }: { orderId: string }) {
@@ -550,7 +541,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             intensity="subtle"
             className="bg-white/30 dark:bg-white/[0.04] p-5"
           >
-            <h3 className="mb-4 font-semibold">Informasi Pesanan</h3>
+            <SectionTitle className="mb-4">Informasi Pesanan</SectionTitle>
             <div className="grid gap-4 sm:grid-cols-2">
               <InfoRow icon={PackageIcon} label="No. Pesanan">
                 <CopyableText
@@ -617,12 +608,12 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             intensity="subtle"
             className="bg-white/30 dark:bg-white/[0.04] p-5"
           >
-            <h3 className="mb-4 font-semibold">
+            <SectionTitle className="mb-4">
               Daftar Produk
               <span className="ml-2 text-sm font-normal text-muted-foreground">
                 ({order.items.length} item)
               </span>
-            </h3>
+            </SectionTitle>
             <div className="overflow-x-auto rounded-lg border border-border/40">
               <Table className="w-full text-sm">
                 <TableHeader>
@@ -756,7 +747,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               intensity="subtle"
               className="bg-white/30 dark:bg-white/[0.04] p-5"
             >
-              <h3 className="mb-4 font-semibold">Penerima</h3>
+              <SectionTitle className="mb-4">Penerima</SectionTitle>
               <div className="space-y-3">
                 <InfoRow icon={UserIcon} label="Nama">
                   <span>
@@ -787,7 +778,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               intensity="subtle"
               className="bg-white/30 dark:bg-white/[0.04] p-5"
             >
-              <h3 className="mb-4 font-semibold">Pengiriman</h3>
+              <SectionTitle className="mb-4">Pengiriman</SectionTitle>
               <div className="space-y-3">
                 <InfoRow icon={TruckIcon} label="Kurir">
                   <span>{order.shipping?.provider || "—"}</span>
@@ -848,7 +839,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               intensity="subtle"
               className="bg-white/30 dark:bg-white/[0.04] p-5"
             >
-              <h3 className="mb-3 font-semibold">Catatan</h3>
+              <SectionTitle className="mb-3">Catatan</SectionTitle>
               <div className="space-y-3">
                 {order.buyer_message && (
                   <div>
@@ -946,7 +937,7 @@ function ContactSummary({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1">
-          <h3 className="font-semibold">Kontak & Keputusan Pembeli</h3>
+          <SectionTitle>Kontak & Keputusan Pembeli</SectionTitle>
           <p className="text-xs text-muted-foreground mt-0.5">
             Catatan komunikasi dengan pembeli untuk pesanan stok kosong.
           </p>

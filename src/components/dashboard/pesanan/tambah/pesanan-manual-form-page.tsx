@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { PageTitle } from "@/components/dashboard/page-title";
+import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import { TambahPelangganDialog } from "@/components/dashboard/shared/tambah-pelanggan-dialog";
 import { ProductPickerDialog } from "@/components/dashboard/transaksi-pembelian/product-picker-dialog";
 import type { PickedProduct } from "@/components/dashboard/transaksi-pembelian/product-picker-dialog";
@@ -945,8 +946,7 @@ export function PesananManualFormPage() {
         </LiquidGlass>
       </div>
 
-      {/* Batal / Simpan */}
-      <div className="flex justify-end gap-2">
+      <FormFooter>
         <Button
           variant="outline"
           onClick={() => router.push("/dashboard/pesanan")}
@@ -961,7 +961,7 @@ export function PesananManualFormPage() {
         >
           {createMut.isPending ? "Menyimpan…" : "Simpan"}
         </Button>
-      </div>
+      </FormFooter>
 
       <TambahPelangganDialog
         open={addPelangganOpen}

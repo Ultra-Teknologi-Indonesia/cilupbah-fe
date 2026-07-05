@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Combobox } from "@/components/ui/combobox";
 import { Separator } from "@/components/ui/separator";
+import { SectionTitle } from "@/components/dashboard/shared/section-title";
 import {
   useProvinces,
   useCities,
@@ -98,7 +99,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
 
       {}
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold">Alamat</h3>
+        <SectionTitle>Alamat</SectionTitle>
 
         <FormField
           control={form.control}
@@ -271,7 +272,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
 
       {}
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold">Kontak</h3>
+        <SectionTitle>Kontak</SectionTitle>
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField
             control={form.control}

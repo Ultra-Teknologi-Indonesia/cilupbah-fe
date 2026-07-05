@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { PageTitle } from "@/components/dashboard/page-title";
+import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useCreateStockAdjustment } from "@/hooks/transaksi-stok/use-stock-adjustments";
@@ -275,7 +276,7 @@ export function BuatPenyesuaianView() {
             </div>
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
-                Tanggal <span className="text-red-500">*</span>
+                Tanggal <span className="text-destructive">*</span>
               </Label>
               <Input
                 type="date"
@@ -285,7 +286,7 @@ export function BuatPenyesuaianView() {
             </div>
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
-                Lokasi <span className="text-red-500">*</span>
+                Lokasi <span className="text-destructive">*</span>
               </Label>
               <Combobox
                 options={locationOptions}
@@ -329,7 +330,7 @@ export function BuatPenyesuaianView() {
       >
         <div className="flex flex-col gap-4 px-5 py-5">
           <Label className="text-sm font-medium">
-            Item Koreksi Stok <span className="text-red-500">*</span>
+            Item Koreksi Stok <span className="text-destructive">*</span>
           </Label>
 
           {}
@@ -582,7 +583,7 @@ export function BuatPenyesuaianView() {
         </div>
       </LiquidGlass>
 
-      <div className="flex justify-end gap-2">
+      <FormFooter>
         <Button variant="outline" onClick={() => router.push(LIST_HREF)}>
           Batal
         </Button>
@@ -595,7 +596,7 @@ export function BuatPenyesuaianView() {
           )}
           Simpan
         </Button>
-      </div>
+      </FormFooter>
 
       <ProductPickerDialog
         open={pickerOpen}

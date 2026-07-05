@@ -28,6 +28,7 @@ import { DataTable } from "@/components/ui/data-table/data-table";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
+import { SectionTitle } from "@/components/dashboard/shared/section-title";
 import {
   useStockOpnameDetail,
   useStartStockOpname,
@@ -388,9 +389,9 @@ export function OpnameDetail({ id }: { id: string }) {
         intensity="subtle"
         className="bg-white/30 dark:bg-white/[0.04] p-5"
       >
-        <h3 className="mb-4 font-semibold">
+        <SectionTitle className="mb-4">
           Informasi Stok Opname (Hitung Fisik)
-        </h3>
+        </SectionTitle>
         <div className="grid gap-3 sm:grid-cols-2">
           <InfoRow label="No. Stok Opname" value={opname.opname_no} />
           <InfoRow label="Lokasi" value={opname.location?.location_name} />
@@ -420,7 +421,7 @@ export function OpnameDetail({ id }: { id: string }) {
         intensity="subtle"
         className="bg-white/30 dark:bg-white/[0.04] p-5"
       >
-        <h3 className="mb-4 font-semibold">Daftar Item</h3>
+        <SectionTitle className="mb-4">Daftar Item</SectionTitle>
         <div className="border border-border/40 rounded-lg overflow-hidden">
           <DataTable
             columns={columns}
@@ -457,7 +458,7 @@ export function OpnameDetail({ id }: { id: string }) {
       >
         <div className="px-1 py-2">
           <Label htmlFor="opname-start-by" className="text-sm font-medium">
-            Diproses oleh <span className="text-red-500">*</span>
+            Diproses oleh <span className="text-destructive">*</span>
           </Label>
           <UserSelect
             value={startBy}
@@ -490,7 +491,7 @@ export function OpnameDetail({ id }: { id: string }) {
         <div className="space-y-3 px-1 py-2">
           <div>
             <Label htmlFor="opname-finalize-by" className="text-sm font-medium">
-              Difinalisasi oleh <span className="text-red-500">*</span>
+              Difinalisasi oleh <span className="text-destructive">*</span>
             </Label>
             <UserSelect
               value={finalizeBy}
@@ -574,7 +575,7 @@ export function OpnameDetail({ id }: { id: string }) {
         <div className="space-y-3 px-1 py-2">
           <div>
             <Label htmlFor="count-qty" className="text-sm font-medium">
-              Stok Aktual <span className="text-red-500">*</span>
+              Stok Aktual <span className="text-destructive">*</span>
             </Label>
             <Input
               id="count-qty"

@@ -13,6 +13,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageTitle } from "@/components/dashboard/page-title";
+import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
 import {
   useBinTransferDetail,
@@ -128,7 +129,7 @@ export function PindahBinEditView({ id }: { id: string }) {
             </div>
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
-                Tanggal <span className="text-red-500">*</span>
+                Tanggal <span className="text-destructive">*</span>
               </Label>
               <DatePicker
                 value={transferDate}
@@ -156,7 +157,7 @@ export function PindahBinEditView({ id }: { id: string }) {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
-                Dibuat Oleh <span className="text-red-500">*</span>
+                Dibuat Oleh <span className="text-destructive">*</span>
               </Label>
               <UserSelect
                 value={createdBy}
@@ -178,7 +179,7 @@ export function PindahBinEditView({ id }: { id: string }) {
         </div>
       </LiquidGlass>
 
-      <div className="flex justify-end gap-2">
+      <FormFooter>
         <Button variant="outline" onClick={() => router.push(detailHref)}>
           Batal
         </Button>
@@ -188,7 +189,7 @@ export function PindahBinEditView({ id }: { id: string }) {
           )}
           Simpan
         </Button>
-      </div>
+      </FormFooter>
     </div>
   );
 }

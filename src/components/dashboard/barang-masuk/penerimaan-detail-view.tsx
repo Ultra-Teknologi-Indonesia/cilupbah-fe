@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { InfoField } from "@/components/dashboard/shared/info-field";
 import { SortableHeader } from "@/components/dashboard/shared/sortable-header";
 import { CopySku } from "@/components/dashboard/shared/copy-sku";
 import {
@@ -253,72 +254,45 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                 Informasi Penerimaan
               </h3>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    No. Penerimaan
-                  </p>
-                  <p className="mt-1 text-sm font-semibold">
-                    {inbound.transaction_number}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    No. Referensi
-                  </p>
-                  <p className="mt-1 text-sm">
-                    {inbound.reference_number ?? "—"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Sumber
-                  </p>
-                  <p className="mt-1 text-sm">
-                    {TYPE_LABEL[inbound.type] ?? inbound.type}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Status
-                  </p>
-                  <StatusBadge
-                    domain="inbound"
-                    status={inbound.status}
-                    className="mt-1 text-[10px]"
-                  />
-                </div>
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Lokasi
-                  </p>
-                  <p className="mt-1 text-sm">
-                    {inbound.location?.location_name ?? "—"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Tgl. Diharapkan
-                  </p>
-                  <p className="mt-1 text-sm">
-                    {inbound.expected_date
+                <InfoField
+                  label="No. Penerimaan"
+                  value={inbound.transaction_number}
+                />
+                <InfoField
+                  label="No. Referensi"
+                  value={inbound.reference_number}
+                />
+                <InfoField
+                  label="Sumber"
+                  value={TYPE_LABEL[inbound.type] ?? inbound.type}
+                />
+                <InfoField
+                  label="Status"
+                  value={
+                    <StatusBadge
+                      domain="inbound"
+                      status={inbound.status}
+                      className="text-[10px]"
+                    />
+                  }
+                />
+                <InfoField
+                  label="Lokasi"
+                  value={inbound.location?.location_name}
+                />
+                <InfoField
+                  label="Tgl. Diharapkan"
+                  value={
+                    inbound.expected_date
                       ? formatDate(inbound.expected_date)
-                      : "—"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Dibuat Oleh
-                  </p>
-                  <p className="mt-1 text-sm">{inbound.created_by}</p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Dibuat
-                  </p>
-                  <p className="mt-1 text-sm">
-                    {formatDateTime(inbound.created_at)}
-                  </p>
-                </div>
+                      : undefined
+                  }
+                />
+                <InfoField label="Dibuat Oleh" value={inbound.created_by} />
+                <InfoField
+                  label="Dibuat"
+                  value={formatDateTime(inbound.created_at)}
+                />
               </div>
             </div>
           </LiquidGlass>

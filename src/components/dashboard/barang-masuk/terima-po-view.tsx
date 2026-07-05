@@ -35,6 +35,7 @@ import { PageTitle } from "@/components/dashboard/page-title";
 import { QtyConfirmInput } from "@/components/ui/qty-confirm-input";
 import { SimplePagination } from "@/components/ui/simple-pagination";
 import { SortableHeader } from "@/components/dashboard/shared/sortable-header";
+import { SectionTitle } from "@/components/dashboard/shared/section-title";
 import {
   usePurchaseOrderDetail,
   usePurchaseOrderItems,
@@ -290,7 +291,7 @@ export function TerimaPOView({ id }: { id: string }) {
           >
             <div className="px-5 py-4">
               <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <h3 className="font-semibold">Daftar Produk</h3>
+                <SectionTitle>Daftar Produk</SectionTitle>
                 <div className="relative w-full sm:w-72">
                   <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input

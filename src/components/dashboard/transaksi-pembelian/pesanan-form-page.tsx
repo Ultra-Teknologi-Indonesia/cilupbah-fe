@@ -32,6 +32,8 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
+import { FormFooter } from "@/components/dashboard/shared/form-footer";
+import { SectionTitle } from "@/components/dashboard/shared/section-title";
 import { useContacts } from "@/hooks/kontak-pemasok/use-contacts";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import {
@@ -52,7 +54,7 @@ interface Props {
 }
 
 function RequiredStar() {
-  return <span className="text-red-500">*</span>;
+  return <span className="text-destructive">*</span>;
 }
 
 function FieldRow({
@@ -328,26 +330,6 @@ export function PesananFormPage({ mode, id }: Props) {
           { label: "Pesanan", href: "/dashboard/transaksi-pembelian" },
           { label: mode === "create" ? "Buat Pesanan" : "Edit" },
         ]}
-        actions={
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={handleSubmit}
-              disabled={!canSubmit || isPending}
-              variant="primary"
-              size="sm"
-            >
-              {isPending ? (
-                <Loader2Icon className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <SaveIcon className="mr-1.5 h-3.5 w-3.5" />
-              )}
-              Simpan
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/dashboard/transaksi-pembelian">Batal</Link>
-            </Button>
-          </div>
-        }
       />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
@@ -664,7 +646,7 @@ export function PesananFormPage({ mode, id }: Props) {
             intensity="subtle"
             className="bg-white/30 dark:bg-white/[0.04] p-5 sticky top-4"
           >
-            <h3 className="mb-4 font-semibold">Rincian</h3>
+            <SectionTitle className="mb-4">Rincian</SectionTitle>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">
@@ -702,6 +684,24 @@ export function PesananFormPage({ mode, id }: Props) {
           </LiquidGlass>
         </div>
       </div>
+
+      <FormFooter>
+        <Button variant="outline" asChild>
+          <Link href="/dashboard/transaksi-pembelian">Batal</Link>
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          disabled={!canSubmit || isPending}
+          variant="primary"
+        >
+          {isPending ? (
+            <Loader2Icon className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <SaveIcon className="mr-1.5 h-3.5 w-3.5" />
+          )}
+          Simpan
+        </Button>
+      </FormFooter>
 
       <ProductPickerDialog
         open={pickerOpen}

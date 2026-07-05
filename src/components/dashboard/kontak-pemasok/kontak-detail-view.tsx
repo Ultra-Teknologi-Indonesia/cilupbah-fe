@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { SectionTitle } from "@/components/dashboard/shared/section-title";
 import { cn } from "@/lib/utils";
 import {
   useContactDetail,
@@ -214,7 +215,7 @@ export function KontakDetailView({ id }: { id: string }) {
                 </div>
               )}
               <Separator />
-              <h3 className="text-sm font-semibold">Alamat Penagihan</h3>
+              <SectionTitle>Alamat Penagihan</SectionTitle>
               <Field label="Detail Alamat" value={contact.address} />
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Provinsi" value={contact.province} />
@@ -222,7 +223,7 @@ export function KontakDetailView({ id }: { id: string }) {
               </div>
 
               <Separator />
-              <h3 className="text-sm font-semibold">Alamat Pengiriman</h3>
+              <SectionTitle>Alamat Pengiriman</SectionTitle>
               {contact.shipping_same_as_billing ? (
                 <p className="text-sm text-muted-foreground">
                   Sama dengan alamat penagihan.

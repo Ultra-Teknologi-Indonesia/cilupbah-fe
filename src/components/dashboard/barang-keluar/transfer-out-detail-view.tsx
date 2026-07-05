@@ -1,10 +1,8 @@
 "use client";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { use } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeftIcon,
   DownloadIcon,
   PrinterIcon,
   CheckIcon,
@@ -13,7 +11,6 @@ import {
   Trash2Icon,
 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +29,8 @@ import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusTimeline } from "@/components/dashboard/shared/status-timeline";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { InfoField } from "@/components/dashboard/shared/info-field";
+import { SectionTitle } from "@/components/dashboard/shared/section-title";
 import {
   useOutboundTransferDetail,
   useApproveTransfer,
@@ -46,12 +45,7 @@ import { formatDate } from "@/lib/format";
 const TRANSFER_STEPS = ["DRAFT", "APPROVED", "IN_TRANSIT", "RECEIVED"];
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      <span className="text-sm font-medium">{value ?? "—"}</span>
-    </div>
-  );
+  return <InfoField label={label} value={value} />;
 }
 
 export function TransferOutDetailView({ transferId }: { transferId: string }) {
@@ -120,91 +114,86 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
       <PageTitle
         title={transfer.transfer_number}
         description="Detail transfer keluar"
+        backHref="/dashboard/barang-keluar"
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Gudang" },
           { label: "Barang Keluar", href: "/dashboard/barang-keluar" },
           { label: transfer.transfer_number },
         ]}
-      />
-
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => router.push("/dashboard/barang-keluar")}
-        >
-          <ArrowLeftIcon className="mr-1.5 h-4 w-4" />
-          Kembali
-        </Button>
-        <Button variant="outline" size="sm" onClick={handleExport}>
-          <DownloadIcon className="mr-1.5 h-4 w-4" />
-          Export CSV
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="print:hidden"
-          onClick={handlePrint}
-        >
-          <PrinterIcon className="mr-1.5 h-4 w-4" />
-          Print
-        </Button>
-
-        {transfer.status === "DRAFT" && (
+        actions={
           <>
-            <Button
-              size="sm"
-              onClick={() => {
-                setApproveOpen(true);
-                setApprovedBy("");
-              }}
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              <CheckIcon className="mr-1.5 h-4 w-4" />
-              Approve
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <DownloadIcon className="mr-1.5 h-4 w-4" />
+              Export CSV
             </Button>
             <Button
-              variant="destructive"
+              variant="outline"
               size="sm"
-              onClick={() => setDeleteOpen(true)}
+              className="print:hidden"
+              onClick={handlePrint}
             >
-              <Trash2Icon className="mr-1.5 h-4 w-4" />
-              Hapus
+              <PrinterIcon className="mr-1.5 h-4 w-4" />
+              Print
             </Button>
+
+            {transfer.status === "DRAFT" && (
+              <>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => {
+                    setApproveOpen(true);
+                    setApprovedBy("");
+                  }}
+                >
+                  <CheckIcon className="mr-1.5 h-4 w-4" />
+                  Approve
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  <Trash2Icon className="mr-1.5 h-4 w-4" />
+                  Hapus
+                </Button>
+              </>
+            )}
+
+            {transfer.status === "APPROVED" && (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  setShipOpen(true);
+                  setShippedBy("");
+                }}
+              >
+                <TruckIcon className="mr-1.5 h-4 w-4" />
+                Kirim
+              </Button>
+            )}
+
+            {(transfer.status === "DRAFT" ||
+              transfer.status === "APPROVED") && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setCancelOpen(true);
+                  setCancelReason("");
+                  setCancelledBy("");
+                }}
+                className="text-warning hover:bg-warning/10"
+              >
+                <XIcon className="mr-1.5 h-4 w-4" />
+                Batalkan
+              </Button>
+            )}
           </>
-        )}
-
-        {transfer.status === "APPROVED" && (
-          <Button
-            size="sm"
-            onClick={() => {
-              setShipOpen(true);
-              setShippedBy("");
-            }}
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            <TruckIcon className="mr-1.5 h-4 w-4" />
-            Kirim
-          </Button>
-        )}
-
-        {(transfer.status === "DRAFT" || transfer.status === "APPROVED") && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setCancelOpen(true);
-              setCancelReason("");
-              setCancelledBy("");
-            }}
-            className="text-warning hover:bg-warning/10"
-          >
-            <XIcon className="mr-1.5 h-4 w-4" />
-            Batalkan
-          </Button>
-        )}
-      </div>
+        }
+      />
 
       <LiquidGlass
         radius={20}
@@ -212,9 +201,9 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
         className="bg-white/30 dark:bg-white/[0.04]"
       >
         <div className="px-4 py-5 sm:px-6">
-          <h3 className="mb-4 text-sm font-semibold text-foreground">
+          <SectionTitle className="mb-4">
             Status Transfer
-          </h3>
+          </SectionTitle>
           <StatusTimeline
             domain="inventory-transfer"
             steps={TRANSFER_STEPS}
@@ -229,9 +218,9 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
         className="bg-white/30 dark:bg-white/[0.04]"
       >
         <div className="px-4 py-5 sm:px-6">
-          <h3 className="mb-4 text-sm font-semibold text-foreground">
+          <SectionTitle className="mb-4">
             Informasi Transfer
-          </h3>
+          </SectionTitle>
           <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3 lg:grid-cols-4">
             <InfoRow label="No. Transfer" value={transfer.transfer_number} />
             <InfoRow
@@ -297,9 +286,9 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
         className="bg-white/30 dark:bg-white/[0.04]"
       >
         <div className="px-4 py-5 sm:px-6">
-          <h3 className="mb-4 text-sm font-semibold text-foreground">
+          <SectionTitle className="mb-4">
             Item Transfer
-          </h3>
+          </SectionTitle>
           {transfer.items?.length > 0 ? (
             <Table containerClassName="rounded-lg border border-border/40">
               <TableHeader>

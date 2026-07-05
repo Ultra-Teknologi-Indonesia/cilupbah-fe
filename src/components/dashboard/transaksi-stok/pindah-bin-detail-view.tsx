@@ -32,6 +32,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { SectionTitle } from "@/components/dashboard/shared/section-title";
 import { PageTitle } from "@/components/dashboard/page-title";
 import {
   useBinTransferDetail,
@@ -278,7 +279,7 @@ export function PindahBinDetailView({ id }: { id: string }) {
         className="bg-white/40 dark:bg-white/[0.06]"
       >
         <div className="flex flex-col gap-4 px-5 py-5">
-          <h3 className="font-semibold">Produk ({trf.items?.length ?? 0})</h3>
+          <SectionTitle>Produk ({trf.items?.length ?? 0})</SectionTitle>
           <Table containerClassName="rounded-lg border border-border">
             <TableHeader className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <TableRow>

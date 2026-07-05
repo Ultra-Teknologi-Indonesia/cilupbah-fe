@@ -20,6 +20,7 @@ import { DateRangePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { DataTable } from "@/components/ui/data-table/data-table";
+import { SectionTitle } from "@/components/dashboard/shared/section-title";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import {
   useLaporanRetur,
@@ -298,9 +299,9 @@ export function LaporanReturView() {
       >
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 px-4 py-3 sm:px-5">
           <div>
-            <h3 className="text-base font-semibold text-foreground">
+            <SectionTitle>
               Laporan Retur Detail
-            </h3>
+            </SectionTitle>
             <p className="text-xs text-muted-foreground">
               Total{" "}
               <Badge variant="secondary" className="tabular-nums">

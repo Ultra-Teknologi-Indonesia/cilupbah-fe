@@ -266,7 +266,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
       >
         <div className="px-1 py-2">
           <Label className="text-sm font-medium">
-            Diproses oleh <span className="text-red-500">*</span>
+            Diproses oleh <span className="text-destructive">*</span>
           </Label>
           <UserSelect
             value={processedBy}
@@ -303,7 +303,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
         <div className="flex flex-col gap-3 px-1 py-2">
           <div>
             <Label className="text-sm font-medium">
-              Diproses oleh <span className="text-red-500">*</span>
+              Diproses oleh <span className="text-destructive">*</span>
             </Label>
             <UserSelect
               value={processedBy}
@@ -344,7 +344,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
       >
         <div className="px-1 py-2">
           <Label className="text-sm font-medium">
-            Diproses oleh <span className="text-red-500">*</span>
+            Diproses oleh <span className="text-destructive">*</span>
           </Label>
           <UserSelect
             value={processedBy}

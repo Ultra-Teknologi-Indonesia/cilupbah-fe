@@ -8,6 +8,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatDateLong } from "@/lib/format";
 import { Loader2Icon, LockIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { InfoField } from "@/components/dashboard/shared/info-field";
+import { SectionTitle } from "@/components/dashboard/shared/section-title";
 
 import { PageTitle } from "@/components/dashboard/page-title";
 import { Button } from "@/components/ui/button";
@@ -41,12 +43,7 @@ function Field({
   value?: string | number | boolean | null;
 }) {
   const display = typeof value === "boolean" ? (value ? "Ya" : "Tidak") : value;
-  return (
-    <div className="space-y-1">
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p className="text-sm">{display || "—"}</p>
-    </div>
-  );
+  return <InfoField label={label} value={display} />;
 }
 
 export function PelangganDetailView({ id }: { id: string }) {
@@ -230,7 +227,7 @@ export function PelangganDetailView({ id }: { id: string }) {
                 </div>
               )}
               <Separator />
-              <h3 className="text-sm font-semibold">Alamat Penagihan</h3>
+              <SectionTitle>Alamat Penagihan</SectionTitle>
               <Field label="Detail Alamat" value={contact.address} />
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Provinsi" value={contact.province} />
@@ -238,7 +235,7 @@ export function PelangganDetailView({ id }: { id: string }) {
               </div>
 
               <Separator />
-              <h3 className="text-sm font-semibold">Alamat Pengiriman</h3>
+              <SectionTitle>Alamat Pengiriman</SectionTitle>
               {contact.shipping_same_as_billing ? (
                 <p className="text-sm text-muted-foreground">
                   Sama dengan alamat penagihan.

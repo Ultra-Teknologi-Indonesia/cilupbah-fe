@@ -405,17 +405,13 @@ export function PackingDetailView({ id }: { id: string }) {
     <div className="flex flex-col gap-6">
       <PageTitle
         title="Proses Packing"
+        backHref={LIST_HREF}
         breadcrumb={[
           { label: "Gudang" },
           { label: "Proses Pesanan", href: LIST_HREF },
           { label: "Packing" },
           { label: "Proses Packing" },
         ]}
-        actions={
-          <Button variant="outline" onClick={() => router.push(LIST_HREF)}>
-            <ArrowLeftIcon /> Kembali
-          </Button>
-        }
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">

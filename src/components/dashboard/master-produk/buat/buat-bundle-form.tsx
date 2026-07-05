@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PageTitle } from "@/components/dashboard/page-title";
+import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import { FormDetailSection } from "./form-detail-section";
 
 export function BuatBundleForm() {
@@ -89,27 +90,21 @@ export function BuatBundleForm() {
           >
             <FormDetailSection mode="bundle" />
 
-            <div className="flex items-center justify-end gap-3">
+            <FormFooter>
               {errorCount > 0 && (
-                <span className="text-xs text-destructive">
+                <span className="mr-auto text-xs text-destructive">
                   {errorCount} perlu diperbaiki
                 </span>
               )}
               <Button
                 variant="outline"
-                size="lg"
                 onClick={() => setCancelOpen(true)}
                 disabled={isPending}
               >
                 <XIcon />
                 Batalkan
               </Button>
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={submit}
-                disabled={isPending}
-              >
+              <Button variant="primary" onClick={submit} disabled={isPending}>
                 {isPending ? (
                   <Loader2Icon className="animate-spin" />
                 ) : (
@@ -117,7 +112,7 @@ export function BuatBundleForm() {
                 )}
                 Simpan Bundle
               </Button>
-            </div>
+            </FormFooter>
 
             <ConfirmDialog
               open={cancelOpen}

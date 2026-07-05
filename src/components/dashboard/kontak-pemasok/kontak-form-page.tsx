@@ -9,6 +9,7 @@ import { Loader2Icon, LockIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageTitle } from "@/components/dashboard/page-title";
+import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +18,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
+import { SectionTitle } from "@/components/dashboard/shared/section-title";
 import { cn } from "@/lib/utils";
 import { isValidPhone } from "@/lib/phone";
 import {
@@ -202,19 +204,6 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
           { label: "Kontak Pemasok", href: LIST_HREF },
           { label: title },
         ]}
-        actions={
-          <div className="flex items-center gap-2">
-            <Button variant="outline" asChild>
-              <Link href={LIST_HREF}>Batal</Link>
-            </Button>
-            {!locked && (
-              <Button type="submit" variant="primary" disabled={saving}>
-                {saving && <Loader2Icon className="animate-spin" />}
-                Simpan
-              </Button>
-            )}
-          </div>
-        }
       />
 
       {locked && (
@@ -259,6 +248,18 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
           )}
         </div>
       </div>
+
+      <FormFooter>
+        <Button variant="outline" asChild>
+          <Link href={LIST_HREF}>Batal</Link>
+        </Button>
+        {!locked && (
+          <Button type="submit" variant="primary" disabled={saving}>
+            {saving && <Loader2Icon className="animate-spin" />}
+            Simpan
+          </Button>
+        )}
+      </FormFooter>
     </form>
   );
 }
@@ -501,7 +502,7 @@ function AlamatTab({
 
       <Separator />
 
-      <h3 className="text-sm font-semibold">Alamat Penagihan</h3>
+      <SectionTitle>Alamat Penagihan</SectionTitle>
 
       <div className="space-y-1.5">
         <Label>
@@ -555,7 +556,7 @@ function AlamatTab({
       {showShipping && (
         <>
           <Separator />
-          <h3 className="text-sm font-semibold">Alamat Pengiriman</h3>
+          <SectionTitle>Alamat Pengiriman</SectionTitle>
 
           <div className="space-y-1.5">
             <Label>Detail Alamat</Label>

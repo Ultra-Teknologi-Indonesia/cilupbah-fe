@@ -173,7 +173,7 @@ export function ImportPenyesuaianDialog({
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="flex flex-col gap-1.5">
                     <Label className="text-sm font-medium">
-                      Tgl. Transaksi <span className="text-red-500">*</span>
+                      Tgl. Transaksi <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       type="date"
@@ -183,7 +183,7 @@ export function ImportPenyesuaianDialog({
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <Label className="text-sm font-medium">
-                      Lokasi <span className="text-red-500">*</span>
+                      Lokasi <span className="text-destructive">*</span>
                     </Label>
                     <Combobox
                       options={locationOptions}

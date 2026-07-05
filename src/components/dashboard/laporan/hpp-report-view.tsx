@@ -16,6 +16,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SectionTitle } from "@/components/dashboard/shared/section-title";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useHppReport } from "@/hooks/laporan/use-hpp-report";
 import type { HppReportParams } from "@/types/laporan/hpp";
@@ -223,9 +224,9 @@ export function HppReportView() {
       >
         <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
           <div>
-            <h3 className="text-base font-semibold text-foreground">
+            <SectionTitle>
               Laporan Harga Pokok Penjualan (HPP)
-            </h3>
+            </SectionTitle>
             {payload && (
               <p className="text-xs text-muted-foreground">
                 Periode: {formatDateLong(payload.period.date_from)} –{" "}

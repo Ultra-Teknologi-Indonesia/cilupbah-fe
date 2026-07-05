@@ -391,7 +391,7 @@ export function ReturPembelianTab() {
       >
         <div className="px-1 py-2">
           <Label htmlFor="retur-processed-by" className="text-sm font-medium">
-            Diproses oleh <span className="text-red-500">*</span>
+            Diproses oleh <span className="text-destructive">*</span>
           </Label>
           <UserSelect
             value={processedBy}

@@ -11,6 +11,7 @@ import { Loader2Icon, LockIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageTitle } from "@/components/dashboard/page-title";
+import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
@@ -252,19 +253,6 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
             { label: "Lokasi Gudang", href: LIST_HREF },
             { label: title },
           ]}
-          actions={
-            <div className="flex items-center gap-2">
-              <Button variant="outline" asChild>
-                <Link href={LIST_HREF}>Batal</Link>
-              </Button>
-              {!locked && (
-                <Button type="submit" variant="primary" disabled={saving}>
-                  {saving && <Loader2Icon className="animate-spin" />}
-                  Simpan
-                </Button>
-              )}
-            </div>
-          }
         />
 
         {locked && (
@@ -319,6 +307,18 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
             )}
           </div>
         </div>
+
+        <FormFooter>
+          <Button variant="outline" asChild>
+            <Link href={LIST_HREF}>Batal</Link>
+          </Button>
+          {!locked && (
+            <Button type="submit" variant="primary" disabled={saving}>
+              {saving && <Loader2Icon className="animate-spin" />}
+              Simpan
+            </Button>
+          )}
+        </FormFooter>
       </form>
     </Form>
   );

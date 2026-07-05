@@ -388,7 +388,7 @@ export function ReturChannelTab() {
       >
         <div className="px-1 py-2">
           <Label htmlFor="accept-by" className="text-sm font-medium">
-            Diproses oleh <span className="text-red-500">*</span>
+            Diproses oleh <span className="text-destructive">*</span>
           </Label>
           <UserSelect
             value={processedBy}
@@ -419,7 +419,7 @@ export function ReturChannelTab() {
       >
         <div className="px-1 py-2">
           <Label htmlFor="complete-by" className="text-sm font-medium">
-            Diproses oleh <span className="text-red-500">*</span>
+            Diproses oleh <span className="text-destructive">*</span>
           </Label>
           <UserSelect
             value={processedBy}
@@ -456,7 +456,7 @@ export function ReturChannelTab() {
         <div className="flex flex-col gap-3 px-1 py-2">
           <div>
             <Label htmlFor="reject-by" className="text-sm font-medium">
-              Diproses oleh <span className="text-red-500">*</span>
+              Diproses oleh <span className="text-destructive">*</span>
             </Label>
             <UserSelect
               value={processedBy}
