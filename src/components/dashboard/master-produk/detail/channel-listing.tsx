@@ -1,18 +1,19 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { DetailChannelMapping } from "@/types/master-produk";
 
 const SYNC_STYLE: Record<string, { cls: string; label: string }> = {
   synced: {
-    cls: "text-emerald-600 dark:text-emerald-400",
+    cls: "text-success",
     label: "Tersinkron",
   },
   success: {
-    cls: "text-emerald-600 dark:text-emerald-400",
+    cls: "text-success",
     label: "Tersinkron",
   },
-  pending: { cls: "text-amber-600 dark:text-amber-400", label: "Menunggu" },
+  pending: { cls: "text-warning", label: "Menunggu" },
   failed: { cls: "text-destructive", label: "Gagal" },
   error: { cls: "text-destructive", label: "Gagal" },
 };
@@ -30,11 +31,7 @@ export function ChannelListing({
   mappings: DetailChannelMapping[];
 }) {
   if (mappings.length === 0) {
-    return (
-      <p className="px-1 py-6 text-center text-sm text-muted-foreground">
-        Belum terhubung ke channel mana pun.
-      </p>
-    );
+    return <EmptyState title="Belum terhubung ke channel mana pun." />;
   }
 
   return (

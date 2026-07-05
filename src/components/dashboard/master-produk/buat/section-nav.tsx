@@ -79,8 +79,7 @@ export function SectionNav({ sections }: { sections: SectionItem[] }) {
             <Icon
               className={cn(
                 "size-4 shrink-0",
-                s.status === "valid" &&
-                  "text-emerald-600 dark:text-emerald-400",
+                s.status === "valid" && "text-success",
                 s.status === "error" && "text-destructive",
                 s.status === "empty" && "text-muted-foreground/50",
               )}

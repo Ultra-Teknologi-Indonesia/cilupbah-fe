@@ -130,7 +130,7 @@ export function TransactionDetailSheet({
                 const ok = p.status !== "failed";
                 return (
                   <div key={p.itemId} className="flex items-center gap-3 py-3">
-                    <div className="size-10 shrink-0 overflow-hidden rounded-md bg-muted/40">
+                    <div className="size-10 shrink-0 overflow-hidden rounded-xl bg-muted/40">
                       {p.imgUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -162,14 +162,14 @@ export function TransactionDetailSheet({
 
                     <div className="shrink-0" title={ok ? "Berhasil" : "Gagal"}>
                       {ok ? (
-                        <CheckCircle2Icon className="size-5 text-emerald-500" />
+                        <CheckCircle2Icon className="size-5 text-success" />
                       ) : (
                         <XCircleIcon className="size-5 text-destructive" />
                       )}
                     </div>
 
                     <div className="w-44 shrink-0 text-right">
-                      <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                      <span className="text-xs font-medium text-success">
                         Master
                       </span>
                     </div>

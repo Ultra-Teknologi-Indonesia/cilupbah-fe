@@ -75,12 +75,12 @@ export function TabRiwayat({ productId }: { productId: string }) {
         cell: ({ row }) => (
           <span
             className={
-              "rounded px-1.5 py-0.5 text-[11px] font-medium " +
+              "rounded px-1.5 py-0.5 text-2xs font-medium " +
               (row.original.success
-                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                ? "bg-success/10 text-success"
                 : row.original.canReupload
                   ? "bg-destructive/10 text-destructive"
-                  : "bg-amber-500/10 text-amber-600 dark:text-amber-400")
+                  : "bg-warning/10 text-warning")
             }
             title={row.original.statusMessage ?? undefined}
           >
@@ -104,7 +104,7 @@ export function TabRiwayat({ productId }: { productId: string }) {
                     rel="noopener noreferrer"
                     title="Buka di channel"
                   >
-                    <ExternalLinkIcon className="h-4 w-4" />
+                    <ExternalLinkIcon className="size-4" />
                   </a>
                 </Button>
               )}

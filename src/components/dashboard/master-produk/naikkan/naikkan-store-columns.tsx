@@ -24,7 +24,7 @@ export function buildStoreColumns(
               <ChannelLogo
                 code={s.channelCode as ChannelCode}
                 name={s.channelName ?? s.channelCode}
-                className="size-8 rounded-lg text-[10px]"
+                className="size-8 rounded-lg text-2xs"
               />
             )}
             <div className="min-w-0">

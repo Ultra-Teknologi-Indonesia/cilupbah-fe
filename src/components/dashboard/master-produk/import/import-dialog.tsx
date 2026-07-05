@@ -136,7 +136,7 @@ export function ImportDialog({ type, open, onOpenChange, onQueued }: Props) {
             />
             {file ? (
               <>
-                <FileSpreadsheetIcon className="size-10 text-emerald-600 dark:text-emerald-400" />
+                <FileSpreadsheetIcon className="size-10 text-success" />
                 <div className="font-medium">{file.name}</div>
                 <div className="text-xs text-muted-foreground">
                   {(file.size / 1024).toFixed(1)} KB

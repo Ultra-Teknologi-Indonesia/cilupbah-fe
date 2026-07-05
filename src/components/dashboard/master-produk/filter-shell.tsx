@@ -37,7 +37,7 @@ export function FilterShell({
           <FilterIcon className="size-4" />
           Filter
           {activeCount > 0 && (
-            <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
+            <span className="flex size-5 items-center justify-center rounded-full bg-primary text-2xs font-semibold text-primary-foreground">
               {activeCount}
             </span>
           )}

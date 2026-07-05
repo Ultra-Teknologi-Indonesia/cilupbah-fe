@@ -132,7 +132,7 @@ export function ProductMediaManager({
       {}
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <h4 className="text-sm font-medium">Gambar Produk</h4>
+          <h4 className="text-sm font-semibold">Gambar Produk</h4>
           <span className="text-xs text-muted-foreground tabular-nums">
             {images.length}/{MAX_IMAGES}
           </span>
@@ -162,7 +162,7 @@ export function ProductMediaManager({
               <img src={item.url} alt="" className="size-full object-cover" />
 
               {item.isPrimary && (
-                <span className="absolute left-1 top-1 rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
+                <span className="absolute left-1 top-1 rounded-md bg-primary px-1.5 py-0.5 text-2xs font-medium text-primary-foreground">
                   Utama
                 </span>
               )}
@@ -173,7 +173,7 @@ export function ProductMediaManager({
                     type="button"
                     onClick={() => setPrimary(item.localId)}
                     title="Jadikan gambar utama"
-                    className="flex items-center gap-0.5 rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-medium text-foreground hover:bg-white"
+                    className="flex items-center gap-0.5 rounded bg-white/90 px-1.5 py-0.5 text-2xs font-medium text-foreground hover:bg-white"
                   >
                     <StarIcon className="size-3" /> Utama
                   </button>
@@ -217,7 +217,7 @@ export function ProductMediaManager({
 
       {}
       <div>
-        <h4 className="mb-1 text-sm font-medium">Video Produk</h4>
+        <h4 className="mb-1 text-sm font-semibold">Video Produk</h4>
         <p className="mb-2 text-xs text-muted-foreground">
           Format MP4, durasi maks. 1 menit, ukuran maks. 30MB.
         </p>
@@ -247,7 +247,7 @@ export function ProductMediaManager({
             >
               <Trash2Icon className="size-3.5" />
             </button>
-            <span className="absolute bottom-1 left-1 flex items-center gap-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+            <span className="absolute bottom-1 left-1 flex items-center gap-1 rounded bg-black/60 px-1.5 py-0.5 text-2xs text-white">
               Video
             </span>
           </div>

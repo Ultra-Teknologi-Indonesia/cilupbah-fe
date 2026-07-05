@@ -304,7 +304,7 @@ export function TabVariasi({ productId }: { productId: string }) {
                 </TableCell>
                 <TableCell className="px-3 py-2.5">
                   <div className="flex items-center gap-2.5">
-                    <div className="size-9 shrink-0 overflow-hidden rounded-md border border-border/60 bg-muted/40">
+                    <div className="size-9 shrink-0 overflow-hidden rounded-xl border border-border/60 bg-muted/40">
                       {v.image ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -323,7 +323,7 @@ export function TabVariasi({ productId }: { productId: string }) {
                         {v.sku}
                       </div>
                       {v.barcode && (
-                        <div className="font-mono text-[11px] text-muted-foreground">
+                        <div className="font-mono text-2xs text-muted-foreground">
                           {v.barcode}
                         </div>
                       )}
@@ -338,7 +338,7 @@ export function TabVariasi({ productId }: { productId: string }) {
                       v.options.map((o, i) => (
                         <span
                           key={i}
-                          className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-foreground/80"
+                          className="rounded bg-muted px-1.5 py-0.5 text-2xs text-foreground/80"
                         >
                           {o.value}
                         </span>

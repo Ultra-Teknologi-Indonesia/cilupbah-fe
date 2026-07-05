@@ -458,17 +458,17 @@ function PengirimanForm({
                   : "Instant"}{" "}
                 — SLA ±2 jam
               </div>
-              <label className="flex items-center gap-1.5 text-[11px] text-orange-800">
+              <label className="flex items-center gap-1.5 text-2xs text-orange-800">
                 <input
                   type="checkbox"
-                  className="h-3.5 w-3.5"
+                  className="size-3.5"
                   checked={forceLabel}
                   onChange={(e) => setForceLabel(e.target.checked)}
                 />
                 Tetap cetak meski driver gagal
               </label>
             </div>
-            <p className="text-[11px] leading-snug text-orange-700">
+            <p className="text-2xs leading-snug text-orange-700">
               Menekan tombol Cetak Resi/AWB akan memanggil driver Shopee
               otomatis, lalu membuka PDF label untuk dicetak.
             </p>
@@ -508,7 +508,7 @@ function PengirimanForm({
             {anyDriverCallPending || createShipment.isPending ? (
               <Loader2Icon className="animate-spin" />
             ) : (
-              <PrinterIcon className="h-4 w-4" />
+              <PrinterIcon className="size-4" />
             )}
             {anyDriverCallPending
               ? "Memanggil driver…"

@@ -134,8 +134,8 @@ export function ShipmentTable() {
               <TooltipProvider delayDuration={200}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="inline-flex items-center gap-0.5 rounded border border-orange-500/60 bg-orange-500/15 px-1 py-0.5 text-[9px] font-semibold text-orange-700 dark:text-orange-400">
-                      <ZapIcon className="h-2.5 w-2.5 fill-current" />
+                    <span className="inline-flex items-center gap-0.5 rounded-xl border border-orange-500/60 bg-orange-500/15 px-1 py-0.5 text-[9px] font-semibold text-orange-700 dark:text-orange-400">
+                      <ZapIcon className="size-2.5 fill-current" />
                       INSTANT
                     </span>
                   </TooltipTrigger>

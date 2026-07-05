@@ -43,7 +43,7 @@ export function PillTab<T extends string>({
             : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
       )}
     >
-      {Icon && <Icon className="h-4 w-4" />}
+      {Icon && <Icon className="size-4" />}
       {item.label}
       {item.countLoading ? (
         <Skeleton className="h-4 w-6 rounded-full" />

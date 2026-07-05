@@ -21,7 +21,7 @@ const yn = (b: boolean) => (b ? "Ya" : "Tidak");
 export function AccountsCard({ product }: { product: ProductDetail }) {
   return (
     <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm sm:p-5">
-      <h3 className="mb-2 text-sm font-medium">Akun &amp; transaksi</h3>
+      <h3 className="mb-2 text-sm font-semibold">Akun &amp; transaksi</h3>
       <Row label="Akun penjualan" value={acc(product.accounts.sales)} />
       <Row
         label="Akun retur penjualan"
@@ -60,7 +60,7 @@ export function ShippingCard({ product }: { product: ProductDetail }) {
     : "—";
   return (
     <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm sm:p-5">
-      <h3 className="mb-2 text-sm font-medium">Pengiriman</h3>
+      <h3 className="mb-2 text-sm font-semibold">Pengiriman</h3>
       <Row
         label="Berat"
         value={product.weight != null ? `${product.weight} kg` : "—"}

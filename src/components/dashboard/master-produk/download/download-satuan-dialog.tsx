@@ -134,7 +134,7 @@ function StoreMultiSelect({
                       <ChannelLogo
                         code={s.channel?.code ?? ""}
                         name={s.channel?.name ?? "?"}
-                        className="size-8 rounded-lg"
+                        className="size-8 rounded-xl"
                       />
                       <span className="min-w-0 flex-1">
                         <span className="block truncate font-medium">
@@ -430,7 +430,7 @@ export function DownloadSatuanDialog({
                             setRowSel((prev) => ({ ...prev, [id]: !!v }))
                           }
                         />
-                        <div className="relative grid size-10 shrink-0 place-items-center rounded-lg bg-muted/40">
+                        <div className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-muted/40">
                           <PackageIcon className="size-4 text-muted-foreground" />
                           <ChannelLogo
                             code={item.channelCode}

@@ -47,7 +47,7 @@ export function buildProdukColumns(opts: {
 
         return (
           <div className="flex items-center gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
+            <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
               {thumb ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img

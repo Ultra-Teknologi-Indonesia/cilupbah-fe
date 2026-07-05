@@ -11,9 +11,9 @@ import type {
 } from "@/hooks/master-produk/use-download";
 
 const STATE_BAR: Record<DownloadState, string> = {
-  queued: "bg-amber-500",
+  queued: "bg-warning",
   downloading: "bg-primary",
-  done: "bg-emerald-500",
+  done: "bg-success",
   failed: "bg-destructive",
 };
 
@@ -84,7 +84,7 @@ export function buildProgressColumns(
               <StatusBadge
                 domain="download-task"
                 status={state}
-                className="px-1.5 py-0 text-[11px]"
+                className="px-1.5 py-0 text-2xs"
               />
               <span className="tabular-nums text-muted-foreground">
                 {totalDownloaded}/{allProduct}

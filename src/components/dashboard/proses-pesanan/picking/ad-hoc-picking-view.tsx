@@ -336,7 +336,7 @@ export function AdHocPickingView() {
                   <div
                     className={cn(
                       "h-full rounded-full transition-all",
-                      allPicked ? "bg-emerald-500" : "bg-primary",
+                      allPicked ? "bg-success" : "bg-primary",
                     )}
                     style={{
                       width: `${
@@ -522,7 +522,7 @@ export function AdHocPickingView() {
                         key={it.id}
                         className={cn(
                           "border-b border-border/60 last:border-0",
-                          done && "bg-emerald-500/[0.04]",
+                          done && "bg-success/[0.04]",
                         )}
                       >
                         <TableCell className="px-3 py-3">
@@ -535,7 +535,7 @@ export function AdHocPickingView() {
                               <span className="font-medium text-foreground">
                                 {it.description ?? it.sku}
                               </span>
-                              <span className="font-mono text-[11px] text-foreground/70">
+                              <span className="font-mono text-2xs text-foreground/70">
                                 {it.sku}
                               </span>
                             </div>
@@ -552,11 +552,11 @@ export function AdHocPickingView() {
                         <TableCell className="px-3 py-3">
                           <span
                             className={cn(
-                              "inline-flex h-6 min-w-10 items-center justify-center rounded-md px-2 text-xs font-medium tabular-nums",
+                              "inline-flex h-6 min-w-10 items-center justify-center rounded-xl px-2 text-xs font-medium tabular-nums",
                               done
-                                ? "bg-emerald-500/10 text-emerald-600"
+                                ? "bg-success/10 text-success"
                                 : it.qtyPicked > 0
-                                  ? "bg-amber-500/10 text-amber-600"
+                                  ? "bg-warning/10 text-warning"
                                   : "text-muted-foreground",
                             )}
                           >

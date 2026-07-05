@@ -133,7 +133,7 @@ export function FailItemDialog({
             {REASONS.map((r) => (
               <label
                 key={r}
-                className="flex cursor-pointer items-center gap-3 rounded-md border border-border bg-background px-3 py-2 text-sm hover:bg-muted/40"
+                className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-background px-3 py-2 text-sm hover:bg-muted/40"
               >
                 <RadioGroupItem value={r} id={`reason-${r}`} />
                 <span className="text-foreground">{FAIL_REASON_LABEL[r]}</span>

@@ -728,6 +728,19 @@ export function useRemoveOrderFromShipment() {
   });
 }
 
+export function useDeleteFulfillmentOrder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ orderId, reason }: { orderId: string; reason?: string }) =>
+      OutboundService.deleteFulfillmentOrder(orderId, reason),
+    onSuccess: () => {
+      // Hapus pesanan memengaruhi semua tampilan: orders-by-stage, picklist,
+      // packlist, shipment (list + detail) dan counts — invalidate root key.
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.all });
+    },
+  });
+}
+
 export function usePreManifestCancelCount() {
   return useQuery({
     queryKey: fulfillmentKeys.count("pre-manifest-cancel"),

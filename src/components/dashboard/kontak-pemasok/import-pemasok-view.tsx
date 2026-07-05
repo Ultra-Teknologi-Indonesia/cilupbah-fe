@@ -163,7 +163,7 @@ export function ImportPemasokDialog({
                   >
                     {file ? file.name : "Pilih file yang akan di import"}
                   </span>
-                  <UploadIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <UploadIcon className="size-4 shrink-0 text-muted-foreground" />
                 </div>
 
                 {}
@@ -186,7 +186,7 @@ export function ImportPemasokDialog({
                   onClick={() => downloadTemplate()}
                   className="inline-flex items-center gap-2 text-sm text-primary hover:underline w-fit"
                 >
-                  <FileDownIcon className="h-4 w-4" />
+                  <FileDownIcon className="size-4" />
                   Template Kontak
                 </button>
               </>
@@ -203,23 +203,23 @@ export function ImportPemasokDialog({
                       {result.total}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3 dark:border-emerald-500/20 dark:bg-emerald-500/5">
+                  <div className="rounded-xl border border-success/20 bg-success/10 p-3">
                     <div className="flex items-center gap-1.5">
-                      <CheckCircle2Icon className="h-3.5 w-3.5 text-emerald-500" />
+                      <CheckCircle2Icon className="size-3.5 text-success" />
                       <p className="text-xs text-muted-foreground">Valid</p>
                     </div>
-                    <p className="text-xl font-bold tabular-nums text-emerald-600">
+                    <p className="text-xl font-bold tabular-nums text-success">
                       {result.valid_count}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-red-200 bg-red-50/50 p-3 dark:border-red-500/20 dark:bg-red-500/5">
+                  <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-3">
                     <div className="flex items-center gap-1.5">
-                      <XCircleIcon className="h-3.5 w-3.5 text-red-500" />
+                      <XCircleIcon className="size-3.5 text-destructive" />
                       <p className="text-xs text-muted-foreground">
                         Tidak Valid
                       </p>
                     </div>
-                    <p className="text-xl font-bold tabular-nums text-red-600">
+                    <p className="text-xl font-bold tabular-nums text-destructive">
                       {result.invalid_count}
                     </p>
                   </div>
@@ -234,7 +234,7 @@ export function ImportPemasokDialog({
                       className={cn(
                         "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
                         tab === "valid"
-                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400"
+                          ? "bg-success/15 text-success"
                           : "text-muted-foreground hover:bg-muted",
                       )}
                     >
@@ -246,7 +246,7 @@ export function ImportPemasokDialog({
                       className={cn(
                         "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
                         tab === "invalid"
-                          ? "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400"
+                          ? "bg-destructive/15 text-destructive"
                           : "text-muted-foreground hover:bg-muted",
                       )}
                     >
@@ -259,12 +259,12 @@ export function ImportPemasokDialog({
                       size="sm"
                       onClick={handleSave}
                       disabled={saveMut.isPending}
-                      className="bg-emerald-600 text-white hover:bg-emerald-700"
+                      className="bg-success text-success-foreground hover:bg-success/90"
                     >
                       {saveMut.isPending ? (
-                        <Loader2Icon className="size-4 animate-spin text-primary" />
+                        <Loader2Icon className="size-4 animate-spin" />
                       ) : (
-                        <SaveIcon className="mr-1.5 h-3.5 w-3.5" />
+                        <SaveIcon className="mr-1.5 size-3.5" />
                       )}
                       {saveMut.isPending
                         ? "Menyimpan..."
@@ -274,8 +274,8 @@ export function ImportPemasokDialog({
                 </div>
 
                 {tab === "invalid" && result.invalid_count > 0 && (
-                  <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
-                    <AlertTriangleIcon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                  <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning">
+                    <AlertTriangleIcon className="mt-0.5 size-3.5 shrink-0" />
                     <span>
                       Baris yang tidak valid tidak akan disimpan. Perbaiki data
                       di Excel lalu upload ulang.
@@ -291,19 +291,19 @@ export function ImportPemasokDialog({
                   >
                     <TableHeader>
                       <TableRow className="bg-muted/30 hover:bg-muted/30">
-                        <TableHead className="h-9 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+                        <TableHead className="h-9 py-2 text-2xs uppercase tracking-wider text-muted-foreground">
                           #
                         </TableHead>
                         {COLUMNS.map((h) => (
                           <TableHead
                             key={h}
-                            className="h-9 py-2 text-[11px] uppercase tracking-wider text-muted-foreground"
+                            className="h-9 py-2 text-2xs uppercase tracking-wider text-muted-foreground"
                           >
                             {h}
                           </TableHead>
                         ))}
                         {tab === "invalid" && (
-                          <TableHead className="h-9 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+                          <TableHead className="h-9 py-2 text-2xs uppercase tracking-wider text-muted-foreground">
                             Error
                           </TableHead>
                         )}
@@ -348,7 +348,7 @@ export function ImportPemasokDialog({
               {validateMut.isPending ? (
                 <Loader2Icon className="size-4 animate-spin text-primary" />
               ) : (
-                <FileSpreadsheetIcon className="mr-1.5 h-3.5 w-3.5" />
+                <FileSpreadsheetIcon className="mr-1.5 size-3.5" />
               )}
               {validateMut.isPending ? "Memproses..." : "Import"}
             </Button>
@@ -382,7 +382,7 @@ function InvalidRow({
   index: number;
 }) {
   return (
-    <TableRow className="bg-red-50/50 hover:bg-red-50 dark:bg-red-500/5 dark:hover:bg-red-500/10">
+    <TableRow className="bg-destructive/5 hover:bg-destructive/10">
       <TableCell className="py-2 text-xs text-muted-foreground">
         {index + 1}
       </TableCell>
@@ -393,8 +393,7 @@ function InvalidRow({
             key={col}
             className={cn(
               "py-2 text-xs",
-              isInvalid &&
-                "bg-red-100 font-semibold text-red-700 dark:bg-red-500/25 dark:text-red-300",
+              isInvalid && "bg-destructive/15 font-semibold text-destructive",
             )}
             title={isInvalid ? "Nilai tidak valid" : undefined}
           >
@@ -407,7 +406,7 @@ function InvalidRow({
           {item.errors.map((err, i) => (
             <span
               key={i}
-              className="whitespace-nowrap text-[11px] text-red-600 dark:text-red-400"
+              className="whitespace-nowrap text-2xs text-destructive"
             >
               {err}
             </span>

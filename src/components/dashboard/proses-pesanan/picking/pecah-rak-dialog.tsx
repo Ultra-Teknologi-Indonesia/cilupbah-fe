@@ -174,7 +174,7 @@ export function PecahRakDialog({
                 <div
                   key={candidate.bin_id}
                   className={cn(
-                    "flex items-center gap-3 rounded-md border border-border bg-background px-3 py-2",
+                    "flex items-center gap-3 rounded-xl border border-border bg-background px-3 py-2",
                     overAvailable && "border-destructive/50 bg-destructive/5",
                   )}
                 >
@@ -207,7 +207,7 @@ export function PecahRakDialog({
 
         <div
           className={cn(
-            "flex items-center justify-between rounded-md border border-border bg-muted/20 px-3 py-2 text-sm",
+            "flex items-center justify-between rounded-xl border border-border bg-muted/20 px-3 py-2 text-sm",
             (overRemaining || anyOverAvailable) &&
               "border-destructive/50 bg-destructive/5 text-destructive",
           )}

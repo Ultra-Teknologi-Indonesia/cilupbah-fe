@@ -140,7 +140,7 @@ export function NaikkanDetailView({ id }: { id: string }) {
             <ChannelLogo
               code={store.channelCode as ChannelCode}
               name={store.channelName ?? store.channelCode}
-              className="size-9 rounded-lg text-[11px]"
+              className="size-9 rounded-lg text-2xs"
             />
           )}
           <div>

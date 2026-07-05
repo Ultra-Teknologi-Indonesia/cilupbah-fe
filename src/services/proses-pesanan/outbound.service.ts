@@ -171,6 +171,7 @@ function mapPacklist(raw: RawPacklist): Packlist {
     locationName: raw.location?.location_name ?? null,
     packerId: raw.packer_id ?? raw.packer?.id ?? null,
     packerName: raw.packer?.name ?? null,
+    orderId: raw.order_id ?? raw.order?.id ?? null,
     orderNo: raw.order?.salesorder_no ?? null,
     customerName: raw.order?.customer_name ?? null,
     status: (raw.status ?? "DRAFT") as Packlist["status"],
@@ -314,6 +315,7 @@ function mapPicklistItem(raw: RawPicklistItem): PicklistItem {
       (raw.qty_picked ?? 0) > 0
         ? (raw.bin?.bin_final_code ?? raw.bin?.bin_code ?? null)
         : null,
+    orderId: raw.order_id ?? null,
     orderNo: raw.order?.salesorder_no ?? null,
     trackingNumber: raw.order?.tracking_number ?? null,
     packageNo: raw.order?.package_no ?? raw.order?.shipment_no ?? null,
@@ -988,6 +990,16 @@ export const OutboundService = {
       { method: "POST", data: { order_ids: orderIds } },
     );
     return mapShipmentDetail(res.data);
+  },
+
+  deleteFulfillmentOrder: async (
+    orderId: string,
+    reason?: string,
+  ): Promise<void> => {
+    const qs = reason ? `?reason=${encodeURIComponent(reason)}` : "";
+    await fetchClient(`/outbound/orders/${encodeURIComponent(orderId)}${qs}`, {
+      method: "DELETE",
+    });
   },
 
   preManifestCancelCount: async (): Promise<number> => {

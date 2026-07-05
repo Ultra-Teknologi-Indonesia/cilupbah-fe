@@ -165,7 +165,7 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6 sm:py-5">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-base font-medium">{stageLabel}</h2>
+              <h2 className="text-base font-semibold">{stageLabel}</h2>
             </div>
             {subs.length > 0 && (
               <div className="mt-3">

@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import { PageTitle } from "@/components/dashboard/page-title";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -28,15 +28,7 @@ import {
   useRejectReplenishment,
   useStockReplenishmentDetail,
 } from "@/hooks/gudang/use-stock-replenishment";
-import type { StockReplenishmentStatus } from "@/types/gudang/stock-replenishment";
 import { AcceptReplenishmentDialog } from "./accept-replenishment-dialog";
-
-const STATUS_BADGE: Record<StockReplenishmentStatus, string> = {
-  PENDING: "bg-amber-100 text-amber-800 border-amber-200",
-  ACCEPTED: "bg-blue-100 text-blue-800 border-blue-200",
-  REJECTED: "bg-rose-100 text-rose-800 border-rose-200",
-  DONE: "bg-emerald-100 text-emerald-800 border-emerald-200",
-};
 
 interface Props {
   id: string;
@@ -108,7 +100,7 @@ export function PermintaanRestockDetailView({ id }: Props) {
       >
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4">
           <div className="flex items-center gap-3">
-            <Badge className={STATUS_BADGE[req.status]}>{req.status}</Badge>
+            <StatusBadge domain="stock-replenishment" status={req.status} />
             <span className="font-mono text-xs text-muted-foreground">
               #{req.id.slice(0, 8)}
             </span>
@@ -120,7 +112,7 @@ export function PermintaanRestockDetailView({ id }: Props) {
                 onClick={() => setRejectOpen(true)}
                 disabled={rejectMut.isPending}
               >
-                <XIcon className="mr-1 size-4 text-rose-600" />
+                <XIcon className="mr-1 size-4 text-destructive" />
                 Tolak
               </Button>
               <Button variant="primary" onClick={() => setAcceptOpen(true)}>
@@ -134,7 +126,7 @@ export function PermintaanRestockDetailView({ id }: Props) {
         <div className="grid gap-5 px-5 py-5 md:grid-cols-2 lg:grid-cols-3">
           <InfoField label="Diminta Oleh">
             {req.requested_by_name ?? (
-              <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+              <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-2xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
                 Sistem
               </span>
             )}

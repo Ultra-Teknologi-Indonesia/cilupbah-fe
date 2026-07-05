@@ -123,7 +123,7 @@ function BuatPicklistDialogInner({
 
           <div className="space-y-1.5">
             <Label>Lokasi</Label>
-            <div className="rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm">
+            <div className="rounded-xl border border-border bg-muted/30 px-3 py-2 text-sm">
               {locationName ?? (locationId ? locationId : "—")}
             </div>
           </div>

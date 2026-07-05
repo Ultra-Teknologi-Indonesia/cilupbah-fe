@@ -109,7 +109,7 @@ function ProgressBar({ packed, total }: { packed: number; total: number }) {
         <div
           className={cn(
             "h-full rounded-full transition-all duration-500",
-            done ? "bg-emerald-500" : "bg-primary",
+            done ? "bg-success" : "bg-primary",
           )}
           style={{ width: `${pct}%` }}
         />
@@ -573,7 +573,7 @@ export function PackingProsesView() {
                           key={item.id}
                           className={cn(
                             "border-b border-border/60 last:border-0 transition-colors",
-                            done && "bg-emerald-500/[0.04]",
+                            done && "bg-success/[0.04]",
                             activeItemId === item.id &&
                               "bg-primary/[0.06] ring-1 ring-inset ring-primary/20",
                           )}
@@ -588,7 +588,7 @@ export function PackingProsesView() {
                                 <p className="font-medium text-foreground truncate">
                                   {item.description ?? item.sku}
                                 </p>
-                                <p className="font-mono text-[11px] text-muted-foreground">
+                                <p className="font-mono text-2xs text-muted-foreground">
                                   {item.sku}
                                 </p>
                               </div>
@@ -600,11 +600,11 @@ export function PackingProsesView() {
                           <TableCell className="px-4 py-3 text-center">
                             <span
                               className={cn(
-                                "inline-flex h-7 min-w-12 items-center justify-center rounded-lg px-2.5 text-sm font-semibold tabular-nums",
+                                "inline-flex h-7 min-w-12 items-center justify-center rounded-xl px-2.5 text-sm font-semibold tabular-nums",
                                 done
-                                  ? "bg-emerald-500/10 text-emerald-600"
+                                  ? "bg-success/10 text-success"
                                   : item.qtyPacked > 0
-                                    ? "bg-amber-500/10 text-amber-600"
+                                    ? "bg-warning/10 text-warning"
                                     : "bg-muted text-muted-foreground",
                               )}
                             >
@@ -613,12 +613,12 @@ export function PackingProsesView() {
                           </TableCell>
                           <TableCell className="px-4 py-3 text-center">
                             {done ? (
-                              <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600">
+                              <span className="inline-flex items-center gap-1 text-xs font-medium text-success">
                                 <CheckCircle2Icon className="size-3.5" />{" "}
                                 Selesai
                               </span>
                             ) : item.qtyPacked > 0 ? (
-                              <span className="text-xs font-medium text-amber-600">
+                              <span className="text-xs font-medium text-warning">
                                 Sisa {item.qtyOrdered - item.qtyPacked}
                               </span>
                             ) : (
@@ -671,7 +671,7 @@ export function PackingProsesView() {
                       key={item.id}
                       className={cn(
                         "relative overflow-hidden rounded-xl border-2 transition-colors",
-                        done ? "border-emerald-500/40" : "border-border/60",
+                        done ? "border-success/40" : "border-border/60",
                       )}
                     >
                       <ItemImage
@@ -680,12 +680,12 @@ export function PackingProsesView() {
                         size={96}
                       />
                       {done && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-emerald-500/20">
-                          <CheckCircle2Icon className="size-6 text-emerald-600" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-success/20">
+                          <CheckCircle2Icon className="size-6 text-success" />
                         </div>
                       )}
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-1.5">
-                        <p className="truncate text-[10px] font-medium text-white">
+                        <p className="truncate text-2xs font-medium text-white">
                           {item.qtyPacked}/{item.qtyOrdered}
                         </p>
                       </div>

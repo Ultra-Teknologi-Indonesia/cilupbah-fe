@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { CheckIcon, ExternalLinkIcon, EyeIcon, XIcon } from "lucide-react";
 
 import { PageTitle } from "@/components/dashboard/page-title";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -36,13 +36,6 @@ const STATUS_TABS: Array<{ label: string; value: StockReplenishmentStatus | "ALL
   { label: "Selesai", value: "DONE" },
   { label: "Semua", value: "ALL" },
 ];
-
-const STATUS_BADGE: Record<StockReplenishmentStatus, string> = {
-  PENDING: "bg-amber-100 text-amber-800 border-amber-200",
-  ACCEPTED: "bg-blue-100 text-blue-800 border-blue-200",
-  REJECTED: "bg-rose-100 text-rose-800 border-rose-200",
-  DONE: "bg-emerald-100 text-emerald-800 border-emerald-200",
-};
 
 export function PermintaanRestockView() {
   const [status, setStatus] = useState<StockReplenishmentStatus | "ALL">(
@@ -141,7 +134,7 @@ export function PermintaanRestockView() {
                     </TableCell>
                     <TableCell className="text-sm">
                       {r.requested_by_name ?? (
-                        <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                        <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-2xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
                           Sistem
                         </span>
                       )}
@@ -164,13 +157,14 @@ export function PermintaanRestockView() {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-1">
-                        <Badge className={STATUS_BADGE[r.status]}>
-                          {r.status}
-                        </Badge>
+                        <StatusBadge
+                          domain="stock-replenishment"
+                          status={r.status}
+                        />
                         {r.transfer_out_number && (
                           <Link
                             href={`/dashboard/barang-keluar?transfer=${r.transfer_out_id}`}
-                            className="inline-flex items-center gap-1 text-[10px] text-primary hover:underline"
+                            className="inline-flex items-center gap-1 text-2xs text-primary hover:underline"
                             title={`Transfer Keluar ${r.transfer_out_number} · ${r.transfer_out_status}`}
                           >
                             <ExternalLinkIcon className="size-3" />
@@ -199,7 +193,7 @@ export function PermintaanRestockView() {
                               title="Terima"
                               onClick={() => setAcceptTarget(r)}
                             >
-                              <CheckIcon className="size-4 text-emerald-600" />
+                              <CheckIcon className="size-4 text-success" />
                             </Button>
                             <Button
                               size="icon"
@@ -207,7 +201,7 @@ export function PermintaanRestockView() {
                               title="Tolak"
                               onClick={() => setRejectTarget(r)}
                             >
-                              <XIcon className="size-4 text-rose-600" />
+                              <XIcon className="size-4 text-destructive" />
                             </Button>
                           </>
                         )}

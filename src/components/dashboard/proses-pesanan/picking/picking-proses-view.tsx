@@ -48,6 +48,7 @@ import {
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import { FailItemDialog } from "@/components/dashboard/proses-pesanan/picking/fail-item-dialog";
 import { PecahRakDialog } from "@/components/dashboard/proses-pesanan/picking/pecah-rak-dialog";
+import { DeleteOrderDialog } from "@/components/dashboard/proses-pesanan/shared/delete-order-dialog";
 import type { PicklistItem } from "@/types/proses-pesanan/fulfillment";
 import { ScanAutoflowBar } from "@/components/dashboard/shared/scan-autoflow-bar";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
@@ -144,6 +145,10 @@ export function PickingProsesView({ id }: { id: string }) {
     React.useState<PicklistItem | null>(null);
   const [pecahRakTarget, setPecahRakTarget] =
     React.useState<PicklistItem | null>(null);
+  const [deleteOrderTarget, setDeleteOrderTarget] = React.useState<{
+    orderId: string;
+    orderNo: string | null;
+  } | null>(null);
 
   const items = React.useMemo(() => pl?.items ?? [], [pl]);
 
@@ -417,7 +422,7 @@ export function PickingProsesView({ id }: { id: string }) {
                 />
               </div>
               {failedCount > 0 && (
-                <div className="mt-1 text-xs text-amber-700">
+                <div className="mt-1 text-xs text-warning">
                   Gagal: {failedCount}
                 </div>
               )}
@@ -553,6 +558,25 @@ export function PickingProsesView({ id }: { id: string }) {
                             {activeItem.qtyOrdered - activeItem.qtyPicked}
                           </span>
                         </div>
+                        {activeItem.orderId && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="mt-2 h-7 px-2 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            onClick={() => {
+                              const orderId = activeItem.orderId;
+                              if (!orderId) return;
+                              setDeleteOrderTarget({
+                                orderId,
+                                orderNo: activeItem.orderNo,
+                              });
+                              handleCancelPick();
+                            }}
+                          >
+                            <Trash2Icon className="size-3.5" />
+                            Hapus Pesanan
+                          </Button>
+                        )}
                       </div>
                     </div>
                     {activeCandidates.length > 1 && (
@@ -728,7 +752,7 @@ export function PickingProsesView({ id }: { id: string }) {
                         <TableCell className="px-3 py-3">
                           <span
                             className={cn(
-                              "inline-flex h-6 min-w-10 items-center justify-center rounded-md px-2 text-xs font-medium tabular-nums",
+                              "inline-flex h-6 min-w-10 items-center justify-center rounded-xl px-2 text-xs font-medium tabular-nums",
                               done
                                 ? "bg-success/10 text-success"
                                 : it.qtyPicked > 0
@@ -901,6 +925,15 @@ export function PickingProsesView({ id }: { id: string }) {
           item={pecahRakTarget}
         />
       )}
+
+      <DeleteOrderDialog
+        open={!!deleteOrderTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteOrderTarget(null);
+        }}
+        orderId={deleteOrderTarget?.orderId ?? null}
+        orderNo={deleteOrderTarget?.orderNo ?? null}
+      />
     </div>
   );
 }

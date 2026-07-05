@@ -36,10 +36,10 @@ export function TabPagination({
 }
 
 const STATUS_STYLE: Record<string, string> = {
-  synced: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10",
-  in_review: "text-amber-600 dark:text-amber-400 bg-amber-500/10",
-  pending: "text-amber-600 dark:text-amber-400 bg-amber-500/10",
-  syncing: "text-amber-600 dark:text-amber-400 bg-amber-500/10",
+  synced: "text-success bg-success/10",
+  in_review: "text-warning bg-warning/10",
+  pending: "text-warning bg-warning/10",
+  syncing: "text-warning bg-warning/10",
   rejected: "text-destructive bg-destructive/10",
   failed: "text-destructive bg-destructive/10",
   deactivated: "text-muted-foreground bg-muted",
@@ -64,7 +64,7 @@ export function SyncStatusBadge({
   const s = status ?? "";
   return (
     <span
-      className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${STATUS_STYLE[s] ?? "text-muted-foreground bg-muted"}`}
+      className={`rounded px-1.5 py-0.5 text-2xs font-medium ${STATUS_STYLE[s] ?? "text-muted-foreground bg-muted"}`}
       title={
         reason && (s === "rejected" || s === "failed") ? reason : undefined
       }

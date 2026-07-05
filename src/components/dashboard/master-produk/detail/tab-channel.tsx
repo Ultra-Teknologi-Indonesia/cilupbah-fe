@@ -96,7 +96,7 @@ export function TabChannel({ productId }: { productId: string }) {
                       row.original.options.map((o, i) => (
                         <span
                           key={i}
-                          className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-foreground/80"
+                          className="rounded bg-muted px-1.5 py-0.5 text-2xs text-foreground/80"
                         >
                           {o.value}
                         </span>

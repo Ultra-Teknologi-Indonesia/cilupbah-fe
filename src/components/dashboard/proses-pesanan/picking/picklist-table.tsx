@@ -129,7 +129,7 @@ export function PicklistTable() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="inline-flex items-center gap-0.5 rounded border border-warning/60 bg-warning/15 px-1 py-0.5 text-xs font-semibold text-warning">
-                      <ZapIcon className="h-2.5 w-2.5 fill-current" />
+                      <ZapIcon className="size-2.5 fill-current" />
                       INSTANT
                     </span>
                   </TooltipTrigger>

@@ -9,6 +9,7 @@ import {
   Trash2Icon,
   TruckIcon,
   WeightIcon,
+  XCircleIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -36,6 +37,7 @@ import {
 import { playScanFeedback } from "@/lib/scan-feedback";
 import { ChannelBadge } from "../channel-badge";
 import { DocActions } from "../picking/doc-actions";
+import { DeleteOrderDialog } from "../shared/delete-order-dialog";
 
 const LIST_HREF = "/dashboard/proses-pesanan";
 
@@ -56,9 +58,9 @@ function errMsg(err: unknown, fallback: string): string {
 }
 
 const PICKUP_LABEL: Record<string, { label: string; className: string }> = {
-  success: { label: "Sudah", className: "bg-emerald-500/10 text-emerald-600" },
-  pending: { label: "Proses", className: "bg-amber-500/10 text-amber-600" },
-  failed: { label: "Gagal", className: "bg-red-500/10 text-red-600" },
+  success: { label: "Sudah", className: "bg-success/10 text-success" },
+  pending: { label: "Proses", className: "bg-warning/10 text-warning" },
+  failed: { label: "Gagal", className: "bg-destructive/10 text-destructive" },
   skipped: { label: "Manual", className: "bg-muted text-muted-foreground" },
 };
 
@@ -77,7 +79,7 @@ function PickupBadge({
   return (
     <Badge
       variant="secondary"
-      className={cn("text-[10px] px-1.5 py-0", cfg.className)}
+      className={cn("text-2xs px-1.5 py-0", cfg.className)}
       title={message ?? undefined}
     >
       {cfg.label}
@@ -88,6 +90,10 @@ function PickupBadge({
 export function ShipmentDetailView({ id }: { id: string }) {
   const [barcode, setBarcode] = React.useState("");
   const [removeTarget, setRemoveTarget] = React.useState<{
+    orderId: string;
+    orderNo: string | null;
+  } | null>(null);
+  const [deleteTarget, setDeleteTarget] = React.useState<{
     orderId: string;
     orderNo: string | null;
   } | null>(null);
@@ -377,20 +383,37 @@ export function ShipmentDetailView({ id }: { id: string }) {
                         </TableCell>
                         {isScheduled && (
                           <TableCell>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setRemoveTarget({
-                                  orderId: o.orderId,
-                                  orderNo: o.orderNo,
-                                })
-                              }
-                              disabled={removeOrder.isPending}
-                              className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                              aria-label="Hapus"
-                            >
-                              <Trash2Icon className="size-3.5" />
-                            </button>
+                            <div className="flex items-center justify-end gap-0.5">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setRemoveTarget({
+                                    orderId: o.orderId,
+                                    orderNo: o.orderNo,
+                                  })
+                                }
+                                disabled={removeOrder.isPending}
+                                className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                                aria-label="Keluarkan dari pengiriman"
+                                title="Keluarkan dari pengiriman"
+                              >
+                                <XCircleIcon className="size-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setDeleteTarget({
+                                    orderId: o.orderId,
+                                    orderNo: o.orderNo,
+                                  })
+                                }
+                                className="rounded-md p-1 text-destructive transition-colors hover:bg-destructive/10"
+                                aria-label="Hapus Pesanan"
+                                title="Hapus Pesanan (permanen)"
+                              >
+                                <Trash2Icon className="size-3.5" />
+                              </button>
+                            </div>
                           </TableCell>
                         )}
                       </TableRow>
@@ -417,6 +440,15 @@ export function ShipmentDetailView({ id }: { id: string }) {
         variant="destructive"
         loading={removeOrder.isPending}
         onConfirm={handleRemove}
+      />
+
+      <DeleteOrderDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        orderId={deleteTarget?.orderId ?? null}
+        orderNo={deleteTarget?.orderNo ?? null}
       />
     </div>
   );

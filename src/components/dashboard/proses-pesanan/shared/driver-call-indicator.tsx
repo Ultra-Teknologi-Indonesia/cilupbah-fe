@@ -48,12 +48,12 @@ export function DriverCallIndicator({
           <TooltipTrigger asChild>
             <span
               className={cn(
-                "inline-flex items-center gap-1 text-xs font-medium text-emerald-600",
+                "inline-flex items-center gap-1 text-xs font-medium text-success",
                 className,
               )}
               aria-label="Driver Shopee sudah terpanggil"
             >
-              <CheckCircle2 className="h-4 w-4" />
+              <CheckCircle2 className="size-4" />
               <span>Driver terpanggil</span>
             </span>
           </TooltipTrigger>
@@ -69,12 +69,12 @@ export function DriverCallIndicator({
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1 text-xs font-medium text-amber-600",
+          "inline-flex items-center gap-1 text-xs font-medium text-warning",
           className,
         )}
         aria-label="Sedang memanggil driver Shopee"
       >
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <Loader2 className="size-4 animate-spin" />
         <span>Memanggil driver…</span>
       </span>
     );
@@ -96,15 +96,15 @@ export function DriverCallIndicator({
               retry.mutate(orderId);
             }}
             className={cn(
-              "inline-flex items-center gap-1 rounded text-xs font-medium text-rose-600 hover:underline disabled:opacity-60",
+              "inline-flex items-center gap-1 rounded text-xs font-medium text-destructive hover:underline disabled:opacity-60",
               className,
             )}
             aria-label={message ?? "Panggilan driver Shopee gagal — klik untuk coba lagi"}
           >
             {disabled ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="size-4 animate-spin" />
             ) : (
-              <XCircle className="h-4 w-4" />
+              <XCircle className="size-4" />
             )}
             <span>{label}</span>
           </button>

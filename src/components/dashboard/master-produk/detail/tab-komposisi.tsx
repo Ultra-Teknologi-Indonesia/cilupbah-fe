@@ -45,7 +45,7 @@ export function TabKomposisi({
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/60 bg-card/60 px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <span className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <LayersIcon className="size-4.5" />
           </span>
           <div>
@@ -63,7 +63,7 @@ export function TabKomposisi({
       </div>
 
       {blocking.length > 0 && (
-        <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm text-amber-700 dark:text-amber-400">
+        <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2.5 text-sm text-warning">
           <AlertTriangleIcon className="mt-0.5 size-4 shrink-0" />
           <p>
             {blocking.length === components.length
@@ -109,7 +109,7 @@ export function TabKomposisi({
                     {c.variationValues.map((o, i) => (
                       <span
                         key={i}
-                        className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-foreground/80"
+                        className="rounded bg-muted px-1.5 py-0.5 text-2xs text-foreground/80"
                       >
                         {o.value}
                       </span>

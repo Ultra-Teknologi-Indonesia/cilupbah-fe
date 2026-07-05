@@ -37,7 +37,7 @@ export function NotificationsPopover() {
         >
           <BellIcon className="size-5" />
           {pendingCount > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 inline-flex min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-semibold text-white shadow-sm">
+            <span className="absolute -right-0.5 -top-0.5 inline-flex min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-2xs font-semibold text-destructive-foreground shadow-sm">
               {pendingCount > 99 ? "99+" : pendingCount}
             </span>
           )}
@@ -47,7 +47,7 @@ export function NotificationsPopover() {
         <DropdownMenuLabel className="flex items-center justify-between">
           <span>Notifikasi</span>
           {pendingCount > 0 && (
-            <span className="rounded-full bg-rose-500/10 px-2 py-0.5 text-[10px] font-medium text-rose-600">
+            <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-2xs font-medium text-destructive">
               {pendingCount} permintaan
             </span>
           )}

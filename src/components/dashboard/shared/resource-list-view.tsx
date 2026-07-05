@@ -97,7 +97,7 @@ export function ResourceListView<T>({
                 onClick={onExport}
                 disabled={rows.length === 0}
               >
-                <DownloadIcon className="mr-1.5 h-4 w-4" />
+                <DownloadIcon className="mr-1.5 size-4" />
                 Export CSV
               </Button>
             )}

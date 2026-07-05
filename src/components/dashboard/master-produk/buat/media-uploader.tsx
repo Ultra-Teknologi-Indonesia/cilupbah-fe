@@ -70,7 +70,7 @@ export function MediaUploader({
     <div className="flex flex-col gap-6">
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <h3 className="text-sm font-medium">Gambar Produk</h3>
+          <h3 className="text-sm font-semibold">Gambar Produk</h3>
           <span className="text-xs text-muted-foreground">
             {images.length}/{MAX_IMAGES}
           </span>
@@ -121,7 +121,7 @@ export function MediaUploader({
                 className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
               >
                 <UploadCloudIcon className="size-5" />
-                <span className="text-[11px]">Tambah</span>
+                <span className="text-2xs">Tambah</span>
               </button>
             )}
           </div>
@@ -144,7 +144,7 @@ export function MediaUploader({
       </div>
 
       <div>
-        <h3 className="mb-1 text-sm font-medium">Video Produk</h3>
+        <h3 className="mb-1 text-sm font-semibold">Video Produk</h3>
         <p className="mb-2 text-xs text-muted-foreground">
           Format MP4, durasi maks. 1 menit, ukuran maks. 30MB.
         </p>
@@ -174,7 +174,7 @@ export function MediaUploader({
             >
               <XIcon className="size-3" />
             </button>
-            <span className="absolute bottom-1 left-1 flex items-center gap-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+            <span className="absolute bottom-1 left-1 flex items-center gap-1 rounded bg-black/60 px-1.5 py-0.5 text-2xs text-white">
               Video
             </span>
           </div>
@@ -185,7 +185,7 @@ export function MediaUploader({
             className="flex aspect-square w-32 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
           >
             <ImageIcon className="size-5" />
-            <span className="text-[11px]">Tambah Video</span>
+            <span className="text-2xs">Tambah Video</span>
           </button>
         )}
         <input

@@ -2,7 +2,12 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { RefreshCwIcon, MoreHorizontalIcon, ZapIcon } from "lucide-react";
+import {
+  RefreshCwIcon,
+  MoreHorizontalIcon,
+  Trash2Icon,
+  ZapIcon,
+} from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -24,6 +29,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
   usePacklists,
@@ -32,6 +38,7 @@ import {
 import { type Packlist } from "@/types/proses-pesanan/fulfillment";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 
+import { DeleteOrderDialog } from "../shared/delete-order-dialog";
 import { UbahPackerDialog } from "./ubah-packer-dialog";
 
 export function PacklistTable() {
@@ -41,6 +48,9 @@ export function PacklistTable() {
   const [debounced, setDebounced] = React.useState("");
   const [page, setPage] = React.useState(1);
   const [editPacker, setEditPacker] = React.useState<Packlist | null>(null);
+  const [deleteTarget, setDeleteTarget] = React.useState<Packlist | null>(
+    null,
+  );
   const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
 
   React.useEffect(() => {
@@ -118,7 +128,7 @@ export function PacklistTable() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="inline-flex items-center gap-0.5 rounded border border-orange-500/60 bg-orange-500/15 px-1 py-0.5 text-[9px] font-semibold text-orange-700 dark:text-orange-400">
-                      <ZapIcon className="h-2.5 w-2.5 fill-current" />
+                      <ZapIcon className="size-2.5 fill-current" />
                       INSTANT
                     </span>
                   </TooltipTrigger>
@@ -184,6 +194,18 @@ export function PacklistTable() {
                 <DropdownMenuItem onSelect={() => setEditPacker(row.original)}>
                   Ubah Packer
                 </DropdownMenuItem>
+                {row.original.orderId && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onSelect={() => setDeleteTarget(row.original)}
+                    >
+                      <Trash2Icon className="size-4 mr-2" />
+                      Hapus Pesanan
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -261,6 +283,13 @@ export function PacklistTable() {
         packlistNo={editPacker?.packlistNo ?? null}
         locationId={editPacker?.locationId ?? null}
         currentPackerId={editPacker?.packerId ?? null}
+      />
+
+      <DeleteOrderDialog
+        open={!!deleteTarget}
+        onOpenChange={(o) => !o && setDeleteTarget(null)}
+        orderId={deleteTarget?.orderId ?? null}
+        orderNo={deleteTarget?.orderNo ?? null}
       />
     </div>
   );

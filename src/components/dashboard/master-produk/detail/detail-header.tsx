@@ -111,7 +111,7 @@ function Gallery({
                 onClick={() => setIdx(i)}
                 aria-label={item.type === "video" ? "Video" : `Gambar ${i + 1}`}
                 className={cn(
-                  "relative size-14 shrink-0 overflow-hidden rounded-lg border transition",
+                  "relative size-14 shrink-0 overflow-hidden rounded-xl border transition",
                   i === idx
                     ? "border-primary ring-2 ring-primary/30"
                     : "border-border hover:border-primary/50",

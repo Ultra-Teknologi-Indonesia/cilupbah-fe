@@ -38,7 +38,8 @@ export type Domain =
   | "product-boost"
   | "product-boost-activity"
   | "order-payment"
-  | "download-task";
+  | "download-task"
+  | "stock-replenishment";
 
 export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
   "sales-return": {
@@ -185,6 +186,13 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     downloading: { label: "Sedang berjalan", variant: "info" },
     done: { label: "Selesai", variant: "success" },
     failed: { label: "Gagal", variant: "destructive" },
+  },
+
+  "stock-replenishment": {
+    PENDING: { label: "Menunggu", variant: "warning" },
+    ACCEPTED: { label: "Disetujui", variant: "info" },
+    REJECTED: { label: "Ditolak", variant: "destructive" },
+    DONE: { label: "Selesai", variant: "success" },
   },
 };
 

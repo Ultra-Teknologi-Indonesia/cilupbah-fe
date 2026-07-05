@@ -149,7 +149,7 @@ function SourceBadge({
   return (
     <Badge
       variant="outline"
-      className={cn("text-[11px] font-medium", color)}
+      className={cn("text-2xs font-medium", color)}
       title={title}
     >
       {label}
@@ -163,15 +163,13 @@ function QtyCell({ qty }: { qty: number }) {
     <span
       className={cn(
         "inline-flex items-center gap-0.5 font-mono text-sm font-semibold tabular-nums",
-        isPositive
-          ? "text-emerald-600 dark:text-emerald-400"
-          : "text-red-500 dark:text-red-400",
+        isPositive ? "text-success" : "text-destructive",
       )}
     >
       {isPositive ? (
-        <ArrowUpIcon className="h-3 w-3" />
+        <ArrowUpIcon className="size-3" />
       ) : (
-        <ArrowDownIcon className="h-3 w-3" />
+        <ArrowDownIcon className="size-3" />
       )}
       {isPositive ? "+" : ""}
       {qty}

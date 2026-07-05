@@ -137,7 +137,7 @@ export function DownloadMassalDialog({
                         setSelected((prev) => ({ ...prev, [s.shop_id]: !!v }))
                       }
                     />
-                    <span className="grid size-8 shrink-0 place-items-center rounded-md bg-muted">
+                    <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-muted">
                       <StoreIcon className="size-4 text-muted-foreground" />
                     </span>
                     <span className="min-w-0 flex-1">

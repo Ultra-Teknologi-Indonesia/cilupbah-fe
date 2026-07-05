@@ -347,6 +347,7 @@ export interface PicklistItem {
   variantName: string | null;
   imageUrl: string | null;
   binCode: string | null;
+  orderId: string | null;
   orderNo: string | null;
   trackingNumber: string | null;
   packageNo: string | null;
@@ -430,6 +431,7 @@ export interface Packlist {
   locationName: string | null;
   packerId: string | null;
   packerName: string | null;
+  orderId: string | null;
   orderNo: string | null;
   customerName: string | null;
   status: PacklistStatus;

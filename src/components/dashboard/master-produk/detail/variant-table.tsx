@@ -52,7 +52,7 @@ export function VariantTable({ variants }: { variants: DetailVariant[] }) {
             <TableCell className="px-3 py-2.5">
               <div className="font-mono text-xs text-primary">{v.sku}</div>
               {v.barcode && (
-                <div className="font-mono text-[11px] text-muted-foreground">
+                <div className="font-mono text-2xs text-muted-foreground">
                   {v.barcode}
                 </div>
               )}

@@ -129,11 +129,11 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
           size="sm"
           onClick={() => router.push("/dashboard/barang-keluar")}
         >
-          <ArrowLeftIcon className="mr-1.5 h-4 w-4" />
+          <ArrowLeftIcon className="mr-1.5 size-4" />
           Kembali
         </Button>
         <Button variant="outline" size="sm" onClick={handleExport}>
-          <DownloadIcon className="mr-1.5 h-4 w-4" />
+          <DownloadIcon className="mr-1.5 size-4" />
           Export CSV
         </Button>
         <Button
@@ -142,7 +142,7 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
           className="print:hidden"
           onClick={handlePrint}
         >
-          <PrinterIcon className="mr-1.5 h-4 w-4" />
+          <PrinterIcon className="mr-1.5 size-4" />
           Print
         </Button>
         {retur.status === "DRAFT" && (
@@ -153,9 +153,9 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
                 setProcessOpen(true);
                 setProcessedBy("");
               }}
-              className="bg-emerald-600 text-white hover:bg-emerald-700"
+              className="bg-success text-white hover:bg-success/90"
             >
-              <PlayIcon className="mr-1.5 h-4 w-4" />
+              <PlayIcon className="mr-1.5 size-4" />
               Proses Retur
             </Button>
             <Button
@@ -163,7 +163,7 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
               size="sm"
               onClick={() => setDeleteOpen(true)}
             >
-              <Trash2Icon className="mr-1.5 h-4 w-4" />
+              <Trash2Icon className="mr-1.5 size-4" />
               Hapus
             </Button>
           </>
@@ -191,7 +191,7 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
                 <StatusBadge
                   domain="purchase-return"
                   status={retur.status}
-                  className="text-[10px] leading-tight"
+                  className="text-2xs leading-tight"
                 />
               }
             />
@@ -268,7 +268,7 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
                       {formatCurrency(item.subtotal)}
                     </TableCell>
                     <TableCell className="px-3 py-3">
-                      <Badge variant="outline" className="text-[10px]">
+                      <Badge variant="outline" className="text-2xs">
                         {item.condition}
                       </Badge>
                     </TableCell>

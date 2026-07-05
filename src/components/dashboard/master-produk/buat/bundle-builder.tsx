@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EmptyState } from "@/components/ui/empty-state";
 import { useMasterProducts } from "@/hooks/master-produk/use-master-products";
 
 export interface BundleComponentValue {
@@ -72,13 +73,11 @@ export function BundleBuilder({
     <div className="flex flex-col gap-3">
       {}
       {value.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-border/60 bg-card/40 px-4 py-8 text-center">
-          <PackageIcon className="size-6 text-muted-foreground" />
-          <p className="text-sm font-medium">Belum ada komponen</p>
-          <p className="text-xs text-muted-foreground">
-            Cari produk untuk ditambahkan ke bundle.
-          </p>
-        </div>
+        <EmptyState
+          icon={PackageIcon}
+          title="Belum ada komponen"
+          description="Cari produk untuk ditambahkan ke bundle."
+        />
       ) : (
         <ul className="flex flex-col gap-2">
           {value.map((c) => (
@@ -95,7 +94,7 @@ export function BundleBuilder({
                   {(c.variationValues ?? []).map((o, i) => (
                     <span
                       key={i}
-                      className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-foreground/80"
+                      className="rounded bg-muted px-1.5 py-0.5 text-2xs text-foreground/80"
                     >
                       {o.value}
                     </span>
@@ -249,13 +248,13 @@ export function BundleBuilder({
                                 {vr.variationValues.map((x, i) => (
                                   <span
                                     key={i}
-                                    className="rounded bg-muted px-1.5 py-0.5 text-[11px]"
+                                    className="rounded bg-muted px-1.5 py-0.5 text-2xs"
                                   >
                                     {x.value}
                                   </span>
                                 ))}
                                 {already && (
-                                  <span className="ml-auto text-[11px] text-muted-foreground">
+                                  <span className="ml-auto text-2xs text-muted-foreground">
                                     ditambahkan
                                   </span>
                                 )}

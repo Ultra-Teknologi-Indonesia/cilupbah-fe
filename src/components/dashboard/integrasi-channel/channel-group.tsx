@@ -36,10 +36,10 @@ export function ChannelGroup({
           <ChannelLogo code={group.code} name={group.name} />
           <div className="min-w-0">
             <h2 className="truncate text-sm font-semibold">{group.name}</h2>
-            <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+            <span className="inline-flex items-center gap-1 text-xs text-success">
               <span
                 aria-hidden
-                className="size-1.5 rounded-full bg-emerald-500"
+                className="size-1.5 rounded-full bg-success"
               />
               Tersambung
             </span>

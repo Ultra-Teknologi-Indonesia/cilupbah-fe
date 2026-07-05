@@ -115,7 +115,7 @@ export function NaikkanProdukPickerDialog({
                     key={item.mappingId ?? item.channelGroupId}
                     className="flex items-center gap-3 px-1 py-2.5"
                   >
-                    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
+                    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
                       {item.thumbnail ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img

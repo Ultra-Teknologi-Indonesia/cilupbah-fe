@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import {
   Table,
   TableBody,
@@ -14,43 +15,19 @@ import type { ConnectedStore } from "@/types/channel";
 import { ChannelLogo } from "./channel-logo";
 import { StoreRowActions } from "./store-row-actions";
 
-const STATUS_STYLE = {
-  normal: {
-    chip: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-    dot: "bg-emerald-500",
-    label: "Normal",
-    note: "",
-  },
-  warning: {
-    chip: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-    dot: "bg-amber-500",
-    label: "Perlu Perhatian",
-    note: "text-amber-600 dark:text-amber-400",
-  },
-  error: {
-    chip: "bg-destructive/10 text-destructive",
-    dot: "bg-destructive",
-    label: "Integrasi Bermasalah",
-    note: "text-destructive",
-  },
+const NOTE_STYLE = {
+  normal: "",
+  warning: "text-warning",
+  error: "text-destructive",
 } as const;
 
 function IntegrationStatus({ store }: { store: ConnectedStore }) {
   const status = store.integration.status;
-  const style = STATUS_STYLE[status] ?? STATUS_STYLE.normal;
   return (
     <div>
-      <span
-        className={cn(
-          "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium",
-          style.chip,
-        )}
-      >
-        <span aria-hidden className={cn("size-1.5 rounded-full", style.dot)} />
-        {style.label}
-      </span>
+      <StatusBadge domain="channel-integration" status={status} />
       {status !== "normal" && store.integration.note && (
-        <p className={cn("mt-1 text-[11px]", style.note)}>
+        <p className={cn("mt-1 text-2xs", NOTE_STYLE[status] ?? "")}>
           {store.integration.note}
         </p>
       )}

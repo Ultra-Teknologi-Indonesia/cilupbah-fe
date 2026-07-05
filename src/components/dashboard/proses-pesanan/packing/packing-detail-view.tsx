@@ -38,6 +38,7 @@ import {
   type ScanAutoflowLine,
 } from "@/components/dashboard/shared/scan-autoflow-bar";
 import { PageTitle } from "@/components/dashboard/page-title";
+import { DeleteOrderDialog } from "@/components/dashboard/proses-pesanan/shared/delete-order-dialog";
 import { playScanFeedback } from "@/lib/scan-feedback";
 import { type PacklistItem } from "@/types/proses-pesanan/fulfillment";
 import {
@@ -178,7 +179,7 @@ function ProgressBar({ packed, total }: { packed: number; total: number }) {
         <div
           className={cn(
             "h-full rounded-full transition-all duration-500",
-            done ? "bg-emerald-500" : "bg-primary",
+            done ? "bg-success" : "bg-primary",
           )}
           style={{ width: `${pct}%` }}
         />
@@ -194,6 +195,7 @@ export function PackingDetailView({ id }: { id: string }) {
 
   const [activeItemId, setActiveItemId] = React.useState<string | null>(null);
   const [packQty, setPackQty] = React.useState("");
+  const [deleteOrderOpen, setDeleteOrderOpen] = React.useState(false);
   const [scanFocusKey, setScanFocusKey] = React.useState(0);
   const refocusScan = () => setScanFocusKey((k) => k + 1);
 
@@ -412,6 +414,19 @@ export function PackingDetailView({ id }: { id: string }) {
           { label: "Packing" },
           { label: "Proses Packing" },
         ]}
+        actions={
+          pk.orderId ? (
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-destructive/40 text-destructive hover:bg-destructive/10"
+              onClick={() => setDeleteOrderOpen(true)}
+            >
+              <Trash2Icon className="size-4 mr-1.5" />
+              Hapus Pesanan
+            </Button>
+          ) : undefined
+        }
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
@@ -553,7 +568,7 @@ export function PackingDetailView({ id }: { id: string }) {
                         key={item.id}
                         className={cn(
                           "border-b border-border/60 last:border-0 transition-colors",
-                          done && "bg-emerald-500/[0.04]",
+                          done && "bg-success/[0.04]",
                           activeItemId === item.id &&
                             "bg-primary/[0.06] ring-1 ring-inset ring-primary/20",
                         )}
@@ -568,7 +583,7 @@ export function PackingDetailView({ id }: { id: string }) {
                               <p className="font-medium text-foreground truncate">
                                 {item.description ?? item.sku}
                               </p>
-                              <p className="font-mono text-[11px] text-muted-foreground">
+                              <p className="font-mono text-2xs text-muted-foreground">
                                 {item.sku}
                               </p>
                             </div>
@@ -580,11 +595,11 @@ export function PackingDetailView({ id }: { id: string }) {
                         <TableCell className="px-4 py-3 text-center">
                           <span
                             className={cn(
-                              "inline-flex h-7 min-w-12 items-center justify-center rounded-lg px-2.5 text-sm font-semibold tabular-nums",
+                              "inline-flex h-7 min-w-12 items-center justify-center rounded-xl px-2.5 text-sm font-semibold tabular-nums",
                               done
-                                ? "bg-emerald-500/10 text-emerald-600"
+                                ? "bg-success/10 text-success"
                                 : item.qtyPacked > 0
-                                  ? "bg-amber-500/10 text-amber-600"
+                                  ? "bg-warning/10 text-warning"
                                   : "bg-muted text-muted-foreground",
                             )}
                           >
@@ -593,11 +608,11 @@ export function PackingDetailView({ id }: { id: string }) {
                         </TableCell>
                         <TableCell className="px-4 py-3 text-center">
                           {done ? (
-                            <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600">
+                            <span className="inline-flex items-center gap-1 text-xs font-medium text-success">
                               <CheckCircle2Icon className="size-3.5" /> Selesai
                             </span>
                           ) : item.qtyPacked > 0 ? (
-                            <span className="text-xs font-medium text-amber-600">
+                            <span className="text-xs font-medium text-warning">
                               Sisa {item.qtyOrdered - item.qtyPacked}
                             </span>
                           ) : (
@@ -639,7 +654,7 @@ export function PackingDetailView({ id }: { id: string }) {
                       key={item.id}
                       className={cn(
                         "relative overflow-hidden rounded-xl border-2 transition-colors",
-                        done ? "border-emerald-500/40" : "border-border/60",
+                        done ? "border-success/40" : "border-border/60",
                       )}
                     >
                       <ItemImage
@@ -648,12 +663,12 @@ export function PackingDetailView({ id }: { id: string }) {
                         size={96}
                       />
                       {done && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-emerald-500/20">
-                          <CheckCircle2Icon className="size-6 text-emerald-600" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-success/20">
+                          <CheckCircle2Icon className="size-6 text-success" />
                         </div>
                       )}
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-1.5">
-                        <p className="truncate text-[10px] font-medium text-white">
+                        <p className="truncate text-2xs font-medium text-white">
                           {item.qtyPacked}/{item.qtyOrdered}
                         </p>
                       </div>
@@ -665,6 +680,14 @@ export function PackingDetailView({ id }: { id: string }) {
           )}
         </aside>
       </div>
+
+      <DeleteOrderDialog
+        open={deleteOrderOpen}
+        onOpenChange={setDeleteOrderOpen}
+        orderId={pk.orderId}
+        orderNo={pk.orderNo}
+        onDeleted={() => router.push(LIST_HREF)}
+      />
     </div>
   );
 }
