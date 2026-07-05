@@ -13,7 +13,7 @@ import {
   type FulfillmentFilterField,
   type FulfillmentFilterValue,
 } from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar";
-import { OrderCard } from "@/components/dashboard/pesanan/order-card";
+import { OrderTable } from "@/components/dashboard/proses-pesanan/shared/order-table";
 import type { OrderTab } from "@/types/pesanan/order";
 import { useOrdersByStage } from "@/hooks/proses-pesanan/use-fulfillment";
 import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper";
@@ -152,10 +152,12 @@ export function FulfillmentCardList({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-3 py-2">
-            {mappedOrders.map(({ raw, ui }) => (
-              <OrderCard key={raw.id} order={ui} tab={tab} variant="sales" />
-            ))}
+          <div className="py-2">
+            <OrderTable
+              orders={mappedOrders.map((m) => m.ui)}
+              tab={tab}
+              variant="sales"
+            />
           </div>
         )}
       </div>
