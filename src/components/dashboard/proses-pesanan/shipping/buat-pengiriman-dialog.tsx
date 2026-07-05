@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
 import { DatePicker, DateTimePicker } from "@/components/ui/date-picker";
 import {
   useCouriers,
@@ -34,6 +35,7 @@ import {
 } from "@/types/proses-pesanan/fulfillment";
 import { PrinterIcon } from "lucide-react";
 import { isShopeeInstantOrSameDay } from "@/lib/proses-pesanan/shopee";
+import { guessShipmentTypeFromCourierName } from "@/lib/proses-pesanan/shipment-type";
 import { usePrintWithDriverCall } from "@/hooks/proses-pesanan/use-driver-call";
 import { DriverCallIndicator } from "@/components/dashboard/proses-pesanan/shared/driver-call-indicator";
 
@@ -172,11 +174,11 @@ function PengirimanForm({
   const selectedCourier =
     couriers.data?.find((c) => c.id === courierId) ?? null;
 
-  const handleCourierChange = (id: string) => {
-    setCourierId(id);
+  const handleCourierChange = (id: string | null) => {
+    setCourierId(id ?? "");
     const c = couriers.data?.find((x) => x.id === id);
-    if (c?.type && SHIPMENT_TYPES.some((t) => t.value === c.type)) {
-      setShipmentType(c.type as ShipmentType);
+    if (c?.name) {
+      setShipmentType(guessShipmentTypeFromCourierName(c.name));
     }
   };
 
@@ -363,19 +365,20 @@ function PengirimanForm({
             <Label>
               Kurir<span className="text-destructive"> *</span>
             </Label>
-            <Select value={courierId} onValueChange={handleCourierChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Pilih Kurir" />
-              </SelectTrigger>
-              <SelectContent>
-                {couriers.data?.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.name}
-                    {c.type ? ` (${c.type})` : ""}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Combobox
+              value={courierId || null}
+              onChange={handleCourierChange}
+              options={
+                couriers.data?.map((c) => ({
+                  value: c.id,
+                  label: c.name,
+                })) ?? []
+              }
+              placeholder="Pilih Kurir"
+              searchPlaceholder="Cari kurir"
+              emptyText="Kurir tidak ditemukan."
+              loading={couriers.isLoading}
+            />
             {couriers.isLoading && (
               <p className="text-xs text-muted-foreground">
                 Memuat daftar kurir…
@@ -403,7 +406,7 @@ function PengirimanForm({
         ) : (
           <>
             <div className="space-y-1.5">
-              <Label>Tipe</Label>
+              <Label>Tipe Pengiriman</Label>
               <Select
                 value={shipmentType}
                 onValueChange={(v) => setShipmentType(v as ShipmentType)}
@@ -419,6 +422,10 @@ function PengirimanForm({
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground">
+                Menentukan SLA & panggilan driver otomatis untuk pengiriman
+                instan/same-day.
+              </p>
             </div>
             <div className="space-y-1.5">
               <Label>

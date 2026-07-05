@@ -232,7 +232,6 @@ function mapCourier(raw: RawCourier): Courier {
     id: raw.id,
     name: raw.name ?? raw.code ?? raw.id,
     code: raw.code ?? null,
-    type: raw.type ?? null,
     logoUrl: raw.logo_url ?? null,
     isActive: raw.is_active ?? true,
   };

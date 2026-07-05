@@ -634,7 +634,6 @@ export interface RawCourier {
   id: string;
   name?: string | null;
   code?: string | null;
-  type?: string | null;
   logo_url?: string | null;
   is_active?: boolean;
 }
@@ -643,7 +642,6 @@ export interface Courier {
   id: string;
   name: string;
   code: string | null;
-  type: string | null;
   logoUrl: string | null;
   isActive: boolean;
 }
