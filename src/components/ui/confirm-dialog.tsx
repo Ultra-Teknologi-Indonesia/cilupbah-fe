@@ -22,6 +22,7 @@ interface ConfirmDialogProps {
   cancelLabel?: string;
   variant?: "default" | "destructive";
   loading?: boolean;
+  confirmDisabled?: boolean;
   onConfirm: () => void;
   children?: React.ReactNode;
 }
@@ -35,6 +36,7 @@ export function ConfirmDialog({
   cancelLabel = "Batal",
   variant = "default",
   loading,
+  confirmDisabled,
   onConfirm,
   children,
 }: ConfirmDialogProps) {
@@ -59,7 +61,7 @@ export function ConfirmDialog({
           <Button
             variant={variant === "destructive" ? "destructive" : "primary"}
             onClick={onConfirm}
-            disabled={loading}
+            disabled={loading || confirmDisabled}
           >
             {loading && <Loader2Icon className="animate-spin" />}
             {confirmLabel}

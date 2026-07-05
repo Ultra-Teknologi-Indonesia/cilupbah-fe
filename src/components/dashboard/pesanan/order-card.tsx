@@ -395,6 +395,19 @@ function OrderActions({
   if (tab === "empty-stock" || tab === "failed-pick") {
     return (
       <>
+        {tab === "failed-pick" &&
+          (order.pick_failed_by || order.pick_fail_reason) && (
+            <p className="basis-full text-xs text-muted-foreground">
+              <span className="font-medium text-foreground">Dihapus oleh:</span>{" "}
+              {order.pick_failed_by ?? "—"}
+              {order.pick_fail_reason ? (
+                <>
+                  {" · "}
+                  <span className="text-warning">{order.pick_fail_reason}</span>
+                </>
+              ) : null}
+            </p>
+          )}
         {tab === "empty-stock" && (
           <Button
             variant="outline"

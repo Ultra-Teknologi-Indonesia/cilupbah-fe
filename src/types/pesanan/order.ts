@@ -78,6 +78,9 @@ export interface Order {
   cancel_request_reason: string | null;
   cancel_accepted_at: string | null;
   cancel_channel: "auto" | "manual" | null;
+  pick_failed_at: string | null;
+  pick_failed_by: string | null;
+  pick_fail_reason: string | null;
   contacted_at: string | null;
   contacted_by: string | null;
   contact_channel: ContactChannel | null;
