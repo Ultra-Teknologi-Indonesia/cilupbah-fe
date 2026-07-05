@@ -440,6 +440,17 @@ export function useFailPicklist() {
   });
 }
 
+export function useRevertPicklist() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => OutboundService.revertPicklist(id),
+    onSuccess: () => {
+      // Order anggota kembali ke queue sebelumnya — invalidate seluruh board.
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.all });
+    },
+  });
+}
+
 export function useFailPickItem() {
   const qc = useQueryClient();
   return useMutation({

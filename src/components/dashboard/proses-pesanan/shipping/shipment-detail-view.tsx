@@ -409,7 +409,7 @@ export function ShipmentDetailView({ id }: { id: string }) {
                                 }
                                 className="rounded-md p-1 text-destructive transition-colors hover:bg-destructive/10"
                                 aria-label="Hapus Pesanan"
-                                title="Hapus Pesanan (permanen)"
+                                title="Hapus Pesanan (kembalikan ke tahap sebelumnya)"
                               >
                                 <Trash2Icon className="size-3.5" />
                               </button>

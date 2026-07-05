@@ -618,6 +618,9 @@ export const OutboundService = {
       data: { reason: reason ?? null },
     });
   },
+  revertPicklist: async (id: string): Promise<void> => {
+    await fetchClient(`/outbound/picklists/${id}/revert`, { method: "POST" });
+  },
 
   getOrderByNo: async (
     orderNo: string,

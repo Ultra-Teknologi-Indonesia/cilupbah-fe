@@ -42,7 +42,10 @@ export function DeleteOrderDialog({
       {
         onSuccess: () => {
           toast.success(
-            `Pesanan ${orderNo ?? ""} dihapus permanen.`.replace(/\s+/g, " "),
+            `Pesanan ${orderNo ?? ""} dikembalikan ke tahap sebelumnya.`.replace(
+              /\s+/g,
+              " ",
+            ),
           );
           onOpenChange(false);
           onDeleted?.();
@@ -57,7 +60,7 @@ export function DeleteOrderDialog({
       open={open}
       onOpenChange={onOpenChange}
       title="Hapus Pesanan?"
-      description={`Pesanan ${orderNo ?? orderId ?? ""} — stok yang sudah di-pick akan dikembalikan ke rak asal. Pesanan akan dihapus permanen dari sistem dan TIDAK akan ter-download ulang dari marketplace.`}
+      description={`Pesanan ${orderNo ?? orderId ?? ""} akan kembali ke tahap sebelumnya (bukan dihapus permanen) — stok yang sudah di-pick dikembalikan ke rak asal. Pesanan tetap ada di sistem dan bisa diproses ulang.`}
       confirmLabel="Hapus Pesanan"
       cancelLabel="Batal"
       variant="destructive"

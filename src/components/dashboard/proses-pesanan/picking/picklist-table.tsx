@@ -6,13 +6,16 @@ import {
   ClipboardListIcon,
   PrinterIcon,
   RefreshCwIcon,
+  Trash2Icon,
   UserCogIcon,
   ZapIcon,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   FulfillmentFilterBar,
   type FulfillmentFilterValue,
@@ -28,11 +31,20 @@ import {
 import {
   usePicklists,
   usePrefetchPicklistDetail,
+  useRevertPicklist,
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import { type Picklist } from "@/types/proses-pesanan/fulfillment";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 
 import { UbahPickerDialog } from "./ubah-picker-dialog";
+
+function errMsg(err: unknown, fallback: string): string {
+  if (err && typeof err === "object" && "message" in err) {
+    const m = (err as { message?: unknown }).message;
+    if (typeof m === "string" && m) return m;
+  }
+  return fallback;
+}
 
 const STATUS_OPTIONS = [
   { value: "DRAFT", label: "Draft" },
@@ -69,6 +81,10 @@ export function PicklistTable() {
   const [page, setPage] = React.useState(1);
   const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
   const [editPicker, setEditPicker] = React.useState<Picklist | null>(null);
+  const [revertTarget, setRevertTarget] = React.useState<Picklist | null>(
+    null,
+  );
+  const revertPicklist = useRevertPicklist();
 
   React.useEffect(() => {
     const t = setTimeout(() => setDebounced(search.trim()), 350);
@@ -221,12 +237,43 @@ export function PicklistTable() {
                 <TooltipContent>Ubah Picker</TooltipContent>
               </Tooltip>
             </TooltipProvider>
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Hapus Picklist"
+                    className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => setRevertTarget(row.original)}
+                  >
+                    <Trash2Icon className="size-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Hapus Picklist (kembalikan semua pesanan ke belum dipick)
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         ),
       },
     ],
     [prefetchPicklist],
   );
+
+  const handleRevertConfirm = () => {
+    if (!revertTarget) return;
+    revertPicklist.mutate(revertTarget.id, {
+      onSuccess: () => {
+        toast.success(
+          `${revertTarget.picklistNo} dihapus, pesanan kembali ke belum dipick.`,
+        );
+        setRevertTarget(null);
+      },
+      onError: (e) => toast.error(errMsg(e, "Gagal menghapus picklist.")),
+    });
+  };
 
   return (
     <div>
@@ -310,6 +357,19 @@ export function PicklistTable() {
         picklistNo={editPicker?.picklistNo ?? null}
         locationId={editPicker?.locationId ?? null}
         currentPickerId={editPicker?.pickerId ?? null}
+      />
+
+      <ConfirmDialog
+        open={!!revertTarget}
+        onOpenChange={(o) => {
+          if (!o) setRevertTarget(null);
+        }}
+        title="Hapus Picklist?"
+        description={`Picklist ${revertTarget?.picklistNo ?? ""} berisi ${revertTarget?.itemsCount ?? 0} item dari beberapa pesanan. Menghapusnya akan mengembalikan SEMUA pesanan anggota ke antrian belum dipick — stok yang sudah di-pick dikembalikan ke rak asal. Pesanan tidak hilang, hanya kembali ke tahap sebelumnya.`}
+        confirmLabel="Hapus Picklist"
+        variant="destructive"
+        loading={revertPicklist.isPending}
+        onConfirm={handleRevertConfirm}
       />
     </div>
   );
