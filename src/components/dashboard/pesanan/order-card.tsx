@@ -234,7 +234,11 @@ export function OrderActions({
   };
 
   const handlePrintInvoice = () => {
-    window.open(`/api/app/sales/${order.id}/invoice`, "_blank");
+    window.open(
+      `/dashboard/document-preview/invoice/${order.id}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
   };
 
   const busy =
@@ -327,7 +331,7 @@ export function OrderActions({
   if (tab === "in-transit") {
     return (
       <>
-        {order.shipping?.tracking_number && (
+        {isMarketplace && order.shipping?.tracking_number && (
           <Button
             variant="outline"
             size="sm"
@@ -376,7 +380,7 @@ export function OrderActions({
           <FileTextIcon className="size-3.5" />
           Cetak Faktur
         </Button>
-        {order.shipping?.tracking_number && (
+        {isMarketplace && order.shipping?.tracking_number && (
           <Button
             variant="outline"
             size="sm"
@@ -527,7 +531,7 @@ export function OrderActions({
     const secondaryActions: React.ReactNode[] = [];
     let primaryAction: React.ReactNode = null;
 
-    if (order.shipping?.tracking_number && !order.is_canceled) {
+    if (isMarketplace && order.shipping?.tracking_number && !order.is_canceled) {
       secondaryActions.push(
         <Button
           key="print-resi"

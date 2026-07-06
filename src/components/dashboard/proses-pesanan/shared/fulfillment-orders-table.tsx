@@ -448,7 +448,7 @@ function OrderCard({
               Cetak Faktur
             </Button>
           )}
-          {actions.cetakLabel && (
+          {actions.cetakLabel && order.source && (
             <Button
               size="sm"
               variant="outline"

@@ -6,6 +6,9 @@ import {
 import { OutboundService } from "@/services/proses-pesanan/outbound.service";
 import { PutawayService } from "@/services/barang-masuk/putaway.service";
 import { StockAdjustmentService } from "@/services/transaksi-stok/stock-adjustment.service";
+import { InboundService } from "@/services/barang-masuk/inbound.service";
+import { OutboundTransferService } from "@/services/barang-keluar/outbound-transfer.service";
+import { PurchaseReturnService } from "@/services/barang-keluar/purchase-return.service";
 
 function extractApiMessage(err: unknown): string | null {
   if (err && typeof err === "object" && "message" in err) {
@@ -57,7 +60,13 @@ export type DocumentTypeKey =
   | "bin-qr"
   | "putaway"
   | "stock-adjustment"
-  | "stock-adjustment-bulk";
+  | "stock-adjustment-bulk"
+  | "invoice"
+  | "manifest"
+  | "inbound-barcodes"
+  | "inbound-receipt"
+  | "transfer-out"
+  | "purchase-return";
 
 export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
   picklist: {
@@ -218,6 +227,78 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
       return `Laporan-Penyesuaian-Bulk-${stamp}.pdf`;
     },
+  },
+
+  invoice: {
+    title: "Faktur",
+    subtitle: (id) => `Order ${id.slice(0, 8)}…`,
+    fetchPdf: async (id) => {
+      const blob = await OutboundService.invoicePdf(id);
+      return { blob };
+    },
+    backUrl: () => "/dashboard/pesanan",
+    filename: (id) => `INV-${id.slice(0, 8)}.pdf`,
+  },
+
+  manifest: {
+    title: "Manifest Pengiriman",
+    subtitle: (id, meta) =>
+      (meta?.shipment_no as string | undefined) ?? `SHP-${id.slice(0, 8)}…`,
+    fetchPdf: async (id) => {
+      const blob = await OutboundService.manifestPdf(id);
+      return { blob };
+    },
+    backUrl: () => "/dashboard/proses-pesanan",
+    filename: (id, meta) =>
+      `${(meta?.shipment_no as string | undefined) ?? `SHP-${id}`}-manifest.pdf`,
+  },
+
+  "inbound-barcodes": {
+    title: "Barcode Barang Masuk",
+    subtitle: (id) => `Inbound ${id.slice(0, 8)}…`,
+    fetchPdf: async (id) => {
+      const blob = await InboundService.barcodesPdf(id);
+      return { blob };
+    },
+    backUrl: () => "/dashboard/barang-masuk",
+    filename: (id) => `barcodes-inbound-${id.slice(0, 8)}.pdf`,
+  },
+
+  "inbound-receipt": {
+    title: "Penerimaan Barang",
+    subtitle: (id) => `Inbound ${id.slice(0, 8)}…`,
+    fetchPdf: async (id) => {
+      const blob = await InboundService.pdf(id);
+      return { blob };
+    },
+    backUrl: () => "/dashboard/barang-masuk",
+    filename: (id) => `penerimaan-${id.slice(0, 8)}.pdf`,
+  },
+
+  "transfer-out": {
+    title: "Transfer Keluar",
+    subtitle: (id, meta) =>
+      (meta?.transfer_number as string | undefined) ?? `TRF-${id.slice(0, 8)}…`,
+    fetchPdf: async (id) => {
+      const blob = await OutboundTransferService.pdf(id);
+      return { blob };
+    },
+    backUrl: () => "/dashboard/barang-keluar",
+    filename: (id, meta) =>
+      `${(meta?.transfer_number as string | undefined) ?? `TRF-${id}`}.pdf`,
+  },
+
+  "purchase-return": {
+    title: "Retur Pembelian",
+    subtitle: (id, meta) =>
+      (meta?.return_number as string | undefined) ?? `RTN-${id.slice(0, 8)}…`,
+    fetchPdf: async (id) => {
+      const blob = await PurchaseReturnService.pdf(id);
+      return { blob };
+    },
+    backUrl: () => "/dashboard/barang-keluar",
+    filename: (id, meta) =>
+      `${(meta?.return_number as string | undefined) ?? `RTN-${id}`}.pdf`,
   },
 };
 

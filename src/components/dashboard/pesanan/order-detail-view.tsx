@@ -61,7 +61,6 @@ import { useCopyToClipboard } from "@/hooks/shared/use-copy-to-clipboard";
 import {
   useSetPaid,
   useMarkComplete,
-  useGetShippingLabel,
   useDeleteOrderItem,
 } from "@/hooks/pesanan/use-order-actions";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -359,7 +358,6 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
   const { data, isLoading } = useOrder(orderId);
   const setPaid = useSetPaid();
   const markComplete = useMarkComplete();
-  const getLabel = useGetShippingLabel();
   const deleteItem = useDeleteOrderItem();
   const [contactOpen, setContactOpen] = React.useState(false);
   const [editingItem, setEditingItem] = React.useState<OrderItem | null>(null);
@@ -372,7 +370,11 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
   const isMarketplace = !!order?.source && order.source !== "manual";
 
   const handlePrintInvoice = () => {
-    window.open(`/api/app/sales/${orderId}/invoice`, "_blank");
+    window.open(
+      `/dashboard/document-preview/invoice/${orderId}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
   };
 
   const handlePrintLabel = () => {
@@ -447,7 +449,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               <FileTextIcon className="size-4" />
               Cetak Faktur
             </Button>
-            {order.shipping?.tracking_number && (
+            {isMarketplace && order.shipping?.tracking_number && (
               <Button
                 variant="outline"
                 size="sm"

@@ -230,15 +230,26 @@ export function PenerimaanDetailView({ id }: { id: string }) {
               size="sm"
               onClick={() =>
                 window.open(
-                  `/api/app/inbounds/${inbound.id}/barcodes`,
+                  `/dashboard/document-preview/inbound-barcodes/${inbound.id}`,
                   "_blank",
+                  "noopener,noreferrer",
                 )
               }
             >
               <QrCodeIcon className="mr-1.5 size-4" />
               Cetak Barcode
             </Button>
-            <Button variant="outline" size="sm" onClick={() => window.print()}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                window.open(
+                  `/dashboard/document-preview/inbound-receipt/${inbound.id}`,
+                  "_blank",
+                  "noopener,noreferrer",
+                )
+              }
+            >
               <PrinterIcon className="mr-1.5 size-4" />
               Cetak
             </Button>

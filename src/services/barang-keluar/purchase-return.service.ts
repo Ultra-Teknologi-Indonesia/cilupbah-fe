@@ -1,4 +1,4 @@
-import { fetchClient } from "@/lib/api-client";
+import { fetchClient, fetchBlobRaw } from "@/lib/api-client";
 import type { ApiResponse, ApiPaginated } from "@/types/api.types";
 import type {
   PurchaseReturn,
@@ -65,5 +65,12 @@ export const PurchaseReturnService = {
       data: { id },
     });
     return res.data;
+  },
+
+  pdf: async (id: string): Promise<Blob> => {
+    return fetchBlobRaw(
+      `/purchase/purchase-returns/${encodeURIComponent(id)}/pdf`,
+      "application/pdf",
+    );
   },
 };
