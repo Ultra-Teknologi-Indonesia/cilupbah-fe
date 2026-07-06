@@ -13,3 +13,12 @@ export function useIncomingTransfers(params: InventoryTransferListParams = {}) {
     staleTime: STALE,
   });
 }
+
+export function useIncomingTransferDetail(id?: string) {
+  return useQuery({
+    queryKey: ["inventory-transfer", "detail", id],
+    queryFn: () => InventoryTransferService.getById(id!),
+    enabled: !!id,
+    staleTime: STALE,
+  });
+}

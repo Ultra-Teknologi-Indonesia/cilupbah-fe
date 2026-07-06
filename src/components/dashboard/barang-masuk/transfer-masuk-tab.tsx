@@ -10,17 +10,13 @@ import type { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { Combobox } from "@/components/ui/combobox";
 import { DateRangePicker } from "@/components/ui/date-picker";
-import { Label } from "@/components/ui/label";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Button } from "@/components/ui/button";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
-import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { useIncomingTransfers } from "@/hooks/barang-masuk/use-inventory-transfers";
-import { useReceiveTransfer } from "@/hooks/barang-masuk/use-receive-transfer";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useDebouncedSearch } from "@/hooks/shared/use-debounced-search";
 import type { InventoryTransfer } from "@/types/barang-masuk/inventory-transfer";
@@ -83,12 +79,6 @@ export function TransferMasukTab() {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
-
-  const [receiveTarget, setReceiveTarget] = useState<InventoryTransfer | null>(
-    null,
-  );
-  const [receivedBy, setReceivedBy] = useState("");
-  const receiveMutation = useReceiveTransfer();
 
   const resetPage = useCallback(() => setPage(1), []);
   const debouncedSearch = useDebouncedSearch(search, resetPage);
@@ -209,10 +199,11 @@ export function TransferMasukTab() {
                 <Button
                   size="sm"
                   className="h-8 gap-1.5"
-                  onClick={() => {
-                    setReceiveTarget(item);
-                    setReceivedBy("");
-                  }}
+                  onClick={() =>
+                    router.push(
+                      `/dashboard/barang-masuk/transfer/${item.id}/terima`,
+                    )
+                  }
                 >
                   <PackageCheckIcon className="size-4" />
                   Terima
@@ -224,7 +215,7 @@ export function TransferMasukTab() {
         },
       },
     ],
-    [],
+    [router],
   );
 
   const items = data?.items ?? [];
@@ -250,13 +241,12 @@ export function TransferMasukTab() {
   const activeCount = Object.values(filters).filter(Boolean).length;
 
   return (
-    <>
-      <LiquidGlass
-        radius={20}
-        intensity="subtle"
-        className="bg-white/30 dark:bg-white/[0.04]"
-      >
-        <FilterToolbar
+    <LiquidGlass
+      radius={20}
+      intensity="subtle"
+      className="bg-white/30 dark:bg-white/[0.04]"
+    >
+      <FilterToolbar
           search={search}
           onSearchChange={setSearch}
           searchPlaceholder="Cari no. transfer..."
@@ -334,39 +324,7 @@ export function TransferMasukTab() {
               <EmptyState icon={ArrowRightLeftIcon} title="Belum ada transfer masuk" description="Transfer barang antar lokasi yang masuk akan tampil di sini." />
             }
           />
-        </div>
-      </LiquidGlass>
-
-      <ConfirmDialog
-        open={!!receiveTarget}
-        onOpenChange={(open) => {
-          if (!open) setReceiveTarget(null);
-        }}
-        title="Terima Transfer"
-        description={`Terima transfer ${receiveTarget?.transfer_number ?? ""}?`}
-        confirmLabel="Terima"
-        loading={receiveMutation.isPending}
-        onConfirm={() => {
-          if (!receiveTarget || !receivedBy.trim()) return;
-          receiveMutation.mutate(
-            { id: receiveTarget.id, data: { received_by: receivedBy.trim() } },
-            { onSuccess: () => setReceiveTarget(null) },
-          );
-        }}
-      >
-        <div className="px-1 py-2">
-          <Label htmlFor="transfer-received-by" className="text-sm font-medium">
-            Diterima oleh <span className="text-destructive">*</span>
-          </Label>
-          <UserSelect
-            value={receivedBy}
-            onChange={setReceivedBy}
-            defaultToSelf
-            placeholder="Nama penerima"
-            className="mt-1.5"
-          />
-        </div>
-      </ConfirmDialog>
-    </>
+      </div>
+    </LiquidGlass>
   );
 }

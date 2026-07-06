@@ -30,6 +30,13 @@ export const InventoryTransferService = {
     return { items: res.data ?? [], meta: res.meta };
   },
 
+  getById: async (id: string) => {
+    const res = await fetchClient<ApiResponse<InventoryTransfer>>(
+      `/inventory/transfers/${id}`,
+    );
+    return res.data;
+  },
+
   receive: async (
     id: string,
     data: {
