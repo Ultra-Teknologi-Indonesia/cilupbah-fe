@@ -136,6 +136,21 @@ export function useSubmitDraft() {
   });
 }
 
+export function useRevertToDraft() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => OutboundTransferService.revertToDraft(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message ||
+          "Gagal mengembalikan transfer ke Baru Dibuat",
+      ),
+  });
+}
+
 export function useShipTransfer() {
   const qc = useQueryClient();
   return useMutation({

@@ -97,7 +97,11 @@ export const OutboundTransferService = {
     return res.data;
   },
 
-  updateItem: async (id: string, itemId: string, data: { qty: number }) => {
+  updateItem: async (
+    id: string,
+    itemId: string,
+    data: { qty: number; source_bin_id?: string | null },
+  ) => {
     const res = await fetchClient<ApiResponse<unknown>>(
       `/inventory/transfers/${id}/items/${itemId}`,
       {
@@ -135,6 +139,16 @@ export const OutboundTransferService = {
   submitDraft: async (id: string) => {
     const res = await fetchClient<ApiResponse<InventoryTransfer>>(
       `/inventory/transfers/${id}/submit`,
+      {
+        method: "POST",
+      },
+    );
+    return res.data;
+  },
+
+  revertToDraft: async (id: string) => {
+    const res = await fetchClient<ApiResponse<InventoryTransfer>>(
+      `/inventory/transfers/${id}/revert-to-draft`,
       {
         method: "POST",
       },

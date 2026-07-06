@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowRightLeftIcon,
+  PencilIcon,
   PlusIcon,
   PrinterIcon,
   Trash2Icon,
@@ -30,6 +31,7 @@ import {
   useShipTransfer,
   useSubmitDraft,
   useDeleteTransfer,
+  useRevertToDraft,
 } from "@/hooks/barang-keluar/use-outbound-transfers";
 import { useMe } from "@/hooks/auth/use-auth";
 import { toast } from "sonner";
@@ -215,6 +217,15 @@ export function TransferKeluarTab() {
     null,
   );
   const deleteMutation = useDeleteTransfer();
+  const revertMutation = useRevertToDraft();
+  const isRevertTarget = deleteTarget?.status === "IN_TRANSIT";
+
+  const handleEdit = useCallback(
+    (item: InventoryTransfer) => {
+      router.push(`/dashboard/barang-keluar/transfer/${item.id}/edit`);
+    },
+    [router],
+  );
 
   const submitMutation = useSubmitDraft();
   const { data: me } = useMe();
@@ -361,6 +372,14 @@ export function TransferKeluarTab() {
         </button>
         <button
           type="button"
+          onClick={() => handleEdit(item)}
+          title="Ubah transfer"
+          className="inline-flex items-center gap-1 rounded-md bg-muted px-2.5 py-1 text-xs font-medium text-foreground/80 transition-colors hover:bg-muted/70"
+        >
+          <PencilIcon className="size-3.5" />
+        </button>
+        <button
+          type="button"
           onClick={() => setDeleteTarget(item)}
           title="Hapus transfer"
           className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20"
@@ -369,7 +388,44 @@ export function TransferKeluarTab() {
         </button>
       </div>
     ),
-    [handlePrint, printingId],
+    [handlePrint, handleEdit, printingId],
+  );
+
+  const transitActions = useCallback(
+    (item: InventoryTransfer) => (
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={() => handleReprint(item)}
+          disabled={printingId === item.id}
+          title="Cetak ulang Surat Jalan"
+          className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+        >
+          {printingId === item.id ? (
+            <Loader2Icon className="size-3.5 animate-spin" />
+          ) : (
+            <PrinterIcon className="size-3.5" />
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={() => handleEdit(item)}
+          title="Ubah transfer (dikembalikan ke Baru Dibuat)"
+          className="inline-flex items-center gap-1 rounded-md bg-muted px-2.5 py-1 text-xs font-medium text-foreground/80 transition-colors hover:bg-muted/70"
+        >
+          <PencilIcon className="size-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => setDeleteTarget(item)}
+          title="Kembalikan ke Baru Dibuat"
+          className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20"
+        >
+          <Trash2Icon className="size-3.5" />
+        </button>
+      </div>
+    ),
+    [handleReprint, handleEdit, printingId],
   );
 
   const reprintActions = useCallback(
@@ -470,7 +526,13 @@ export function TransferKeluarTab() {
           setPerPage={setPerPage}
           resetPage={resetPage}
           onRowClick={handleRowClick}
-          actionSlot={subTab === "draft" ? draftActions : reprintActions}
+          actionSlot={
+            subTab === "draft"
+              ? draftActions
+              : subTab === "transit"
+                ? transitActions
+                : reprintActions
+          }
         />
       </LiquidGlass>
 
@@ -479,16 +541,31 @@ export function TransferKeluarTab() {
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-        title="Hapus Transfer"
-        description={`Hapus transfer ${deleteTarget?.transfer_number ?? ""}? Stok yang sudah dialokasikan akan dikembalikan. Aksi ini tidak bisa dibatalkan.`}
-        confirmLabel="Hapus"
+        title={isRevertTarget ? "Kembalikan ke Baru Dibuat" : "Hapus Transfer"}
+        description={
+          isRevertTarget
+            ? `Transfer ${deleteTarget?.transfer_number ?? ""} sedang dijalan. Menghapus akan membatalkan pengiriman dan mengembalikannya ke Baru Dibuat (stok dikembalikan ke rak asal).`
+            : `Hapus transfer ${deleteTarget?.transfer_number ?? ""}? Stok yang sudah dialokasikan akan dikembalikan. Aksi ini tidak bisa dibatalkan.`
+        }
+        confirmLabel={isRevertTarget ? "Kembalikan" : "Hapus"}
         variant="destructive"
-        loading={deleteMutation.isPending}
+        loading={
+          isRevertTarget ? revertMutation.isPending : deleteMutation.isPending
+        }
         onConfirm={() => {
           if (!deleteTarget) return;
-          deleteMutation.mutate(deleteTarget.id, {
-            onSuccess: () => setDeleteTarget(null),
-          });
+          if (isRevertTarget) {
+            revertMutation.mutate(deleteTarget.id, {
+              onSuccess: () => {
+                setDeleteTarget(null);
+                toast.success("Transfer dikembalikan ke Baru Dibuat");
+              },
+            });
+          } else {
+            deleteMutation.mutate(deleteTarget.id, {
+              onSuccess: () => setDeleteTarget(null),
+            });
+          }
         }}
       />
     </>

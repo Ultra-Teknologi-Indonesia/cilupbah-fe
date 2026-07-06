@@ -11,6 +11,7 @@ import {
   PlusIcon,
   SaveIcon,
   ScanBarcodeIcon,
+  SplitIcon,
   Trash2Icon,
 } from "lucide-react";
 
@@ -50,6 +51,10 @@ interface LineBin {
 }
 
 interface LineDraft {
+  rowId: string;
+  // id item transfer di server (hanya untuk baris yang sudah tersimpan / mode edit)
+  serverItemId?: string;
+  // id ProductVariant
   itemId: string;
   sku: string;
   name: string;
@@ -60,6 +65,9 @@ interface LineDraft {
   qty: string;
   notes: string;
   availableBins: LineBin[];
+  // nilai awal (untuk deteksi perubahan saat submit edit)
+  origBinId: string;
+  origQty: number;
 }
 
 interface TransferKeluarFormPageProps {
@@ -71,7 +79,14 @@ function todayStr(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
+function newRowId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `row_${Math.random().toString(36).slice(2)}${Date.now()}`;
+}
+
+export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps) {
   const router = useRouter();
   const qc = useQueryClient();
 
@@ -90,7 +105,10 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
   const [scanning, setScanning] = useState(false);
   const [scanFlash, setScanFlash] = useState<"ok" | "err" | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [loadingEdit, setLoadingEdit] = useState(mode === "edit");
   const scanRef = useRef<HTMLInputElement>(null);
+  const editLoadedRef = useRef(false);
+  const originalItemIdsRef = useRef<string[]>([]);
 
   const { data: locData } = useLocations({ perPage: 100 });
 
@@ -111,8 +129,114 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
   );
 
   useEffect(() => {
-    if (sourceLocationId) scanRef.current?.focus();
-  }, [sourceLocationId]);
+    if (sourceLocationId && mode === "create") scanRef.current?.focus();
+  }, [sourceLocationId, mode]);
+
+  // Mode edit: muat transfer, kembalikan ke DRAFT bila masih APPROVED/IN_TRANSIT,
+  // lalu isi form dari data item (satu baris per item — SKU yang dipecah ke
+  // beberapa rak jadi beberapa baris).
+  useEffect(() => {
+    if (mode !== "edit" || !id || editLoadedRef.current) return;
+    editLoadedRef.current = true;
+
+    (async () => {
+      setLoadingEdit(true);
+      try {
+        let detail = await OutboundTransferService.getById(id);
+        if (detail && detail.status !== "DRAFT") {
+          detail = await OutboundTransferService.revertToDraft(id);
+          qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
+          toast.info("Transfer dikembalikan ke Baru Dibuat untuk diedit");
+        }
+        if (!detail) {
+          toast.error("Transfer tidak ditemukan");
+          return;
+        }
+
+        setTransferNo(detail.transfer_number);
+        setSourceLocationId(detail.source_location_id);
+        setDestLocationId(detail.destination_location_id);
+        setNotes(detail.notes ?? "");
+        originalItemIdsRef.current = detail.items.map((it) => it.id);
+
+        const srcLoc = detail.source_location_id;
+        const uniqueSkus = Array.from(
+          new Set(
+            detail.items.map((it) => it.product?.sku).filter(Boolean) as string[],
+          ),
+        );
+        const stockBySku = new Map<
+          string,
+          { available_bins: { id: string; code: string; on_hand: number }[] }
+        >();
+        await Promise.allSettled(
+          uniqueSkus.map(async (sku) => {
+            try {
+              const r = await InventoryStockService.bySku(sku, srcLoc);
+              stockBySku.set(sku, {
+                available_bins: r.data.available_bins ?? [],
+              });
+            } catch {
+              /* biarkan — rak fallback dari source_bin item */
+            }
+          }),
+        );
+
+        const builtLines: LineDraft[] = detail.items.map((it) => {
+          const sku = it.product?.sku ?? "";
+          const stock = stockBySku.get(sku);
+          const bins: LineBin[] = (stock?.available_bins ?? []).map((b) => ({
+            id: b.id,
+            code: b.code,
+            onHand: b.on_hand,
+          }));
+          // Pastikan rak asal saat ini selalu ada sebagai opsi.
+          if (
+            it.source_bin?.id &&
+            !bins.some((b) => b.id === it.source_bin!.id)
+          ) {
+            bins.unshift({
+              id: it.source_bin.id,
+              code: it.source_bin.bin_final_code,
+              onHand: it.qty,
+            });
+          }
+          const curBin = bins.find((b) => b.id === it.source_bin?.id);
+          const variantOptions = (it.product?.options ?? [])
+            .map((o) => o.value)
+            .filter(Boolean)
+            .join(", ");
+          return {
+            rowId: newRowId(),
+            serverItemId: it.id,
+            itemId: it.item_id,
+            sku,
+            name: it.product?.product?.name ?? sku,
+            variantLabel: variantOptions,
+            thumbnail:
+              it.product?.media?.[0]?.url ??
+              it.product?.product?.media?.[0]?.url ??
+              null,
+            binId: it.source_bin?.id ?? "",
+            binOnHand: curBin?.onHand ?? it.qty,
+            qty: String(it.qty),
+            notes: "",
+            availableBins: bins,
+            origBinId: it.source_bin?.id ?? "",
+            origQty: it.qty,
+          };
+        });
+        setLines(builtLines);
+      } catch (err) {
+        toast.error(
+          (err as { message?: string })?.message ||
+            "Gagal memuat transfer untuk diedit",
+        );
+      } finally {
+        setLoadingEdit(false);
+      }
+    })();
+  }, [mode, id, qc]);
 
   const flash = (state: "ok" | "err") => {
     setScanFlash(state);
@@ -120,12 +244,38 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
     setTimeout(() => setScanFlash(null), 350);
   };
 
-  const updateLine = (itemId: string, patch: Partial<LineDraft>) =>
+  const updateLine = (rowId: string, patch: Partial<LineDraft>) =>
     setLines((prev) =>
-      prev.map((l) => (l.itemId === itemId ? { ...l, ...patch } : l)),
+      prev.map((l) => (l.rowId === rowId ? { ...l, ...patch } : l)),
     );
-  const removeLine = (itemId: string) =>
-    setLines((prev) => prev.filter((l) => l.itemId !== itemId));
+  const removeLine = (rowId: string) =>
+    setLines((prev) => prev.filter((l) => l.rowId !== rowId));
+
+  // "Tambah rak": kloning baris SKU yang sama ke rak lain (qty terpisah).
+  const addRakRow = (rowId: string) =>
+    setLines((prev) => {
+      const idx = prev.findIndex((l) => l.rowId === rowId);
+      if (idx === -1) return prev;
+      const src = prev[idx];
+      const usedBinIds = new Set(
+        prev.filter((l) => l.itemId === src.itemId).map((l) => l.binId),
+      );
+      const nextBin = src.availableBins.find((b) => !usedBinIds.has(b.id));
+      const clone: LineDraft = {
+        ...src,
+        rowId: newRowId(),
+        serverItemId: undefined,
+        binId: nextBin?.id ?? "",
+        binOnHand: nextBin?.onHand ?? 0,
+        qty: nextBin ? "1" : "",
+        notes: "",
+        origBinId: "",
+        origQty: 0,
+      };
+      const next = [...prev];
+      next.splice(idx + 1, 0, clone);
+      return next;
+    });
 
   const buildLineFromStock = (stock: {
     id: string;
@@ -146,6 +296,8 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
       : undefined;
     const chosen = primary ?? bins[0];
     return {
+      rowId: newRowId(),
+      serverItemId: undefined,
       itemId: stock.id,
       sku: stock.sku,
       name: stock.product_name ?? stock.sku,
@@ -156,6 +308,8 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
       qty: chosen ? "1" : "",
       notes: "",
       availableBins: bins,
+      origBinId: "",
+      origQty: 0,
     };
   };
 
@@ -168,12 +322,12 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
       const res = await InventoryStockService.bySku(q, sourceLocationId);
       const stock = res.data;
 
-      if (lines.some((l) => l.itemId === stock.id)) {
-        // already present — bump qty of existing row if room, else flash err
-        const existing = lines.find((l) => l.itemId === stock.id)!;
+      const existing = lines.find((l) => l.itemId === stock.id);
+      if (existing) {
+        // sudah ada — tambah qty baris pertama jika masih muat, else flash err
         const cur = Number(existing.qty) || 0;
         if (cur < existing.binOnHand) {
-          updateLine(existing.itemId, { qty: String(cur + 1) });
+          updateLine(existing.rowId, { qty: String(cur + 1) });
           flash("ok");
         } else {
           flash("err");
@@ -255,60 +409,142 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
     );
   });
 
-  const canSubmit =
-    mode === "create" &&
+  // Cegah dua baris memakai rak yang sama untuk SKU yang sama.
+  const hasDuplicateBin = useMemo(() => {
+    const seen = new Set<string>();
+    for (const l of lines) {
+      if (!l.binId) continue;
+      const key = `${l.itemId}::${l.binId}`;
+      if (seen.has(key)) return true;
+      seen.add(key);
+    }
+    return false;
+  }, [lines]);
+
+  const baseValid =
     !!sourceLocationId &&
     !!destLocationId &&
     sourceLocationId !== destLocationId &&
-    !!createdBy.trim() &&
     validLines.length === lines.length &&
     lines.length > 0 &&
-    !submitting;
+    !hasDuplicateBin &&
+    !submitting &&
+    !loadingEdit;
+
+  const canSubmit =
+    mode === "create" ? baseValid && !!createdBy.trim() : baseValid;
+
+  const detailHref = id ? `${LIST_HREF}/transfer/${id}` : LIST_HREF;
+  const cancelHref = mode === "edit" ? detailHref : LIST_HREF;
+
+  const handleCreateSubmit = async () => {
+    const manualNo =
+      transferNo.trim() === "" || transferNo.trim() === "[auto]"
+        ? undefined
+        : transferNo.trim();
+
+    const draft = await OutboundTransferService.createDraft({
+      source_location_id: sourceLocationId,
+      destination_location_id: destLocationId,
+      notes: notes.trim() || undefined,
+      created_by: createdBy.trim(),
+      transfer_number: manualNo,
+    });
+
+    const failedSkus: string[] = [];
+    for (const l of validLines) {
+      try {
+        await OutboundTransferService.addItem(draft.id, {
+          item_id: l.itemId,
+          qty: Number(l.qty),
+          source_bin_id: l.binId,
+        });
+      } catch {
+        failedSkus.push(l.sku);
+      }
+    }
+
+    qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
+
+    if (failedSkus.length > 0) {
+      toast.error(
+        `Draft dibuat, tapi ${failedSkus.length} item gagal ditambahkan: ${failedSkus.join(", ")}`,
+      );
+    } else {
+      toast.success("Transfer keluar berhasil dibuat");
+    }
+    router.push(LIST_HREF);
+  };
+
+  const handleEditSubmit = async () => {
+    if (!id) return;
+
+    await OutboundTransferService.updateDraft(id, {
+      destination_location_id: destLocationId,
+      notes: notes.trim() || undefined,
+    });
+
+    // Hapus item yang tak lagi ada di form.
+    const keptServerIds = new Set(
+      validLines.map((l) => l.serverItemId).filter(Boolean) as string[],
+    );
+    for (const oid of originalItemIdsRef.current) {
+      if (!keptServerIds.has(oid)) {
+        try {
+          await OutboundTransferService.removeItem(id, oid);
+        } catch {
+          /* biarkan — laporkan via toast di akhir */
+        }
+      }
+    }
+
+    const failedSkus: string[] = [];
+    for (const l of validLines) {
+      try {
+        if (!l.serverItemId) {
+          await OutboundTransferService.addItem(id, {
+            item_id: l.itemId,
+            qty: Number(l.qty),
+            source_bin_id: l.binId,
+          });
+        } else if (l.binId !== l.origBinId || Number(l.qty) !== l.origQty) {
+          await OutboundTransferService.updateItem(id, l.serverItemId, {
+            qty: Number(l.qty),
+            source_bin_id: l.binId,
+          });
+        }
+      } catch {
+        failedSkus.push(l.sku);
+      }
+    }
+
+    qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
+
+    if (failedSkus.length > 0) {
+      toast.error(
+        `${failedSkus.length} item gagal diperbarui: ${failedSkus.join(", ")}`,
+      );
+    } else {
+      toast.success("Transfer keluar berhasil diperbarui");
+    }
+    router.push(detailHref);
+  };
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
     setSubmitting(true);
     try {
-      const manualNo =
-        transferNo.trim() === "" || transferNo.trim() === "[auto]"
-          ? undefined
-          : transferNo.trim();
-
-      const draft = await OutboundTransferService.createDraft({
-        source_location_id: sourceLocationId,
-        destination_location_id: destLocationId,
-        notes: notes.trim() || undefined,
-        created_by: createdBy.trim(),
-        transfer_number: manualNo,
-      });
-
-      const failedSkus: string[] = [];
-      for (const l of validLines) {
-        try {
-          await OutboundTransferService.addItem(draft.id, {
-            item_id: l.itemId,
-            qty: Number(l.qty),
-            source_bin_id: l.binId,
-          });
-        } catch {
-          failedSkus.push(l.sku);
-        }
-      }
-
-      qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
-
-      if (failedSkus.length > 0) {
-        toast.error(
-          `Draft dibuat, tapi ${failedSkus.length} item gagal ditambahkan: ${failedSkus.join(", ")}`,
-        );
+      if (mode === "edit") {
+        await handleEditSubmit();
       } else {
-        toast.success("Transfer keluar berhasil dibuat");
+        await handleCreateSubmit();
       }
-      router.push(LIST_HREF);
     } catch (err) {
       toast.error(
         (err as { message?: string })?.message ||
-          "Gagal membuat transfer keluar",
+          (mode === "edit"
+            ? "Gagal memperbarui transfer keluar"
+            : "Gagal membuat transfer keluar"),
       );
     } finally {
       setSubmitting(false);
@@ -318,12 +554,12 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
   return (
     <div className="flex flex-col gap-5">
       <PageTitle
-        title="Tambah Transfer Keluar"
-        backHref={LIST_HREF}
+        title={mode === "edit" ? "Ubah Transfer Keluar" : "Tambah Transfer Keluar"}
+        backHref={cancelHref}
         breadcrumb={[
           { label: "Gudang" },
           { label: "Barang Keluar", href: LIST_HREF },
-          { label: "Tambah" },
+          { label: mode === "edit" ? "Ubah" : "Tambah" },
         ]}
       />
 
@@ -347,6 +583,7 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
                   if (e.target.value.trim() === "") setTransferNo("[auto]");
                 }}
                 placeholder="[auto]"
+                disabled={mode === "edit"}
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -374,6 +611,7 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
                 }}
                 placeholder="Pilih lokasi asal…"
                 searchPlaceholder="Cari lokasi…"
+                disabled={mode === "edit"}
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -402,15 +640,17 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
         </div>
       </LiquidGlass>
 
-      {/* Hidden current-user capture (name string) */}
-      <div className="sr-only" aria-hidden="true">
-        <UserSelect
-          value={createdBy}
-          onChange={setCreatedBy}
-          defaultToSelf
-          placeholder="Petugas"
-        />
-      </div>
+      {/* Hidden current-user capture (name string) — hanya mode create */}
+      {mode === "create" && (
+        <div className="sr-only" aria-hidden="true">
+          <UserSelect
+            value={createdBy}
+            onChange={setCreatedBy}
+            defaultToSelf
+            placeholder="Petugas"
+          />
+        </div>
+      )}
 
       {/* Items */}
       <LiquidGlass
@@ -467,7 +707,8 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
             </div>
             <p className="text-xs text-muted-foreground">
               SKU exact match langsung tambah + rak utama auto-terisi. Scan
-              ulang untuk menambah qty.
+              ulang untuk menambah qty. Pakai “Tambah rak” untuk mengambil 1 SKU
+              dari beberapa rak.
             </p>
           </div>
 
@@ -497,10 +738,19 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
                 <TableRow>
                   <TableCell colSpan={6} className="px-3 py-12 text-center">
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                      <PackageSearchIcon className="size-7 opacity-40" />
-                      <p className="text-sm">
-                        Belum ada item. Scan SKU atau klik Tambah Baru.
-                      </p>
+                      {loadingEdit ? (
+                        <>
+                          <Loader2Icon className="size-7 animate-spin opacity-40" />
+                          <p className="text-sm">Memuat item transfer…</p>
+                        </>
+                      ) : (
+                        <>
+                          <PackageSearchIcon className="size-7 opacity-40" />
+                          <p className="text-sm">
+                            Belum ada item. Scan SKU atau klik Tambah Baru.
+                          </p>
+                        </>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -511,14 +761,22 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
                       ? 0
                       : Number(l.qty);
                   const noStock = l.binOnHand <= 0;
+                  const dupBin =
+                    !!l.binId &&
+                    lines.some(
+                      (o) =>
+                        o.rowId !== l.rowId &&
+                        o.itemId === l.itemId &&
+                        o.binId === l.binId,
+                    );
                   const qtyInvalid =
-                    !l.binId || qtyNum < 1 || qtyNum > l.binOnHand;
+                    !l.binId || qtyNum < 1 || qtyNum > l.binOnHand || dupBin;
                   const binOptsForLine = l.availableBins.map((b) => ({
                     value: b.id,
                     label: `${b.code} · ${b.onHand} stok`,
                   }));
                   return (
-                    <TableRow key={l.itemId} className="bg-background/50">
+                    <TableRow key={l.rowId} className="bg-background/50">
                       <TableCell className="px-3 py-2.5">
                         <div className="flex max-w-[260px] items-center gap-3">
                           {l.thumbnail ? (
@@ -559,7 +817,7 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
                             );
                             const onHand = picked?.onHand ?? 0;
                             const cur = Number(l.qty) || 0;
-                            updateLine(l.itemId, {
+                            updateLine(l.rowId, {
                               binId: v ?? "",
                               binOnHand: onHand,
                               qty:
@@ -571,7 +829,11 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
                           placeholder="Pilih rak"
                           searchPlaceholder="Cari rak…"
                           emptyText="Tidak ada rak dengan stok"
-                          className="h-9 min-w-[160px]"
+                          className={cn(
+                            "h-9 min-w-[160px]",
+                            dupBin &&
+                              "border-destructive ring-1 ring-destructive/30",
+                          )}
                         />
                       </TableCell>
                       <TableCell
@@ -591,16 +853,16 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
                           max={l.binOnHand}
                           value={l.qty}
                           onChange={(e) =>
-                            updateLine(l.itemId, { qty: e.target.value })
+                            updateLine(l.rowId, { qty: e.target.value })
                           }
                           onBlur={(e) => {
                             const v = Number(e.target.value);
                             if (Number.isNaN(v) || v < 1) {
-                              updateLine(l.itemId, {
+                              updateLine(l.rowId, {
                                 qty: l.binOnHand > 0 ? "1" : "",
                               });
                             } else if (v > l.binOnHand) {
-                              updateLine(l.itemId, {
+                              updateLine(l.rowId, {
                                 qty: String(l.binOnHand),
                               });
                             }
@@ -617,22 +879,33 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
                         <Input
                           value={l.notes}
                           onChange={(e) =>
-                            updateLine(l.itemId, { notes: e.target.value })
+                            updateLine(l.rowId, { notes: e.target.value })
                           }
                           placeholder="Catatan (opsional)"
                           className="h-9 min-w-[140px]"
                         />
                       </TableCell>
-                      <TableCell className="px-3 py-2.5 text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => removeLine(l.itemId)}
-                          aria-label="Hapus"
-                          className="text-destructive"
-                        >
-                          <Trash2Icon className="size-4" />
-                        </Button>
+                      <TableCell className="px-3 py-2.5">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => addRakRow(l.rowId)}
+                            aria-label="Tambah rak untuk SKU ini"
+                            title="Ambil SKU ini dari rak lain"
+                          >
+                            <SplitIcon className="size-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => removeLine(l.rowId)}
+                            aria-label="Hapus"
+                            className="text-destructive"
+                          >
+                            <Trash2Icon className="size-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   );
@@ -640,6 +913,13 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
               )}
             </TableBody>
           </Table>
+
+          {hasDuplicateBin && (
+            <p className="text-xs text-destructive">
+              Ada dua baris SKU yang sama memakai rak yang sama. Pilih rak
+              berbeda atau gabungkan qty-nya.
+            </p>
+          )}
 
           <div className="flex items-center justify-between">
             <Button
@@ -661,7 +941,7 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
       </LiquidGlass>
 
       <FormFooter>
-        <Button variant="outline" onClick={() => router.push(LIST_HREF)}>
+        <Button variant="outline" onClick={() => router.push(cancelHref)}>
           Batal
         </Button>
         <Button onClick={handleSubmit} disabled={!canSubmit}>

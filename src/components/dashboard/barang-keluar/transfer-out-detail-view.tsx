@@ -3,7 +3,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { PrinterIcon, Trash2Icon, ImageIcon } from "lucide-react";
+import { PrinterIcon, Trash2Icon, ImageIcon, PencilIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,7 @@ import {
   useSubmitDraft,
   useShipTransfer,
   useDeleteTransfer,
+  useRevertToDraft,
 } from "@/hooks/barang-keluar/use-outbound-transfers";
 import { useMe } from "@/hooks/auth/use-auth";
 import { useState, useCallback } from "react";
@@ -50,6 +51,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const deleteMutation = useDeleteTransfer();
+  const revertMutation = useRevertToDraft();
   const [printing, setPrinting] = useState(false);
 
   const openPreview = useCallback(() => {
@@ -107,6 +109,8 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
 
   const isBaruDibuat =
     transfer.status === "DRAFT" || transfer.status === "APPROVED";
+  const isInTransit = transfer.status === "IN_TRANSIT";
+  const isEditable = isBaruDibuat || isInTransit;
 
   return (
     <div className="flex flex-col gap-6">
@@ -132,7 +136,21 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
               <PrinterIcon className="mr-1.5 size-4" />
               {isBaruDibuat ? "Cetak & Kirim" : "Cetak"}
             </Button>
-            {isBaruDibuat && (
+            {isEditable && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  router.push(
+                    `${LIST_HREF}/transfer/${transfer.id}/edit`,
+                  )
+                }
+              >
+                <PencilIcon className="mr-1.5 size-4" />
+                Ubah
+              </Button>
+            )}
+            {isEditable && (
               <Button
                 variant="destructive"
                 size="sm"
@@ -223,7 +241,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
             <Table containerClassName="rounded-lg border border-border/40">
               <TableHeader>
                 <TableRow className="border-b border-border/60 bg-muted/30">
-                  {["Produk", "Qty", "Qty Diterima"].map((h, i) => (
+                  {["Produk", "Kode Rak", "Qty", "Qty Diterima"].map((h, i) => (
                     <TableHead
                       key={i}
                       className="px-3 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground"
@@ -282,6 +300,17 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
                           </div>
                         </div>
                       </TableCell>
+                      <TableCell className="px-3 py-2.5">
+                        {item.source_bin?.bin_final_code ? (
+                          <span className="font-mono text-xs text-foreground">
+                            {item.source_bin.bin_final_code}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">
+                            —
+                          </span>
+                        )}
+                      </TableCell>
                       <TableCell className="px-3 py-2.5 tabular-nums text-foreground">
                         {item.qty}
                       </TableCell>
@@ -302,18 +331,33 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Hapus Transfer"
-        description={`Hapus transfer ${transfer.transfer_number}? Stok yang sudah dialokasikan akan dikembalikan. Aksi ini tidak bisa dibatalkan.`}
-        confirmLabel="Hapus"
+        title={isInTransit ? "Kembalikan ke Baru Dibuat" : "Hapus Transfer"}
+        description={
+          isInTransit
+            ? `Transfer ${transfer.transfer_number} sedang dijalan. Menghapus akan membatalkan pengiriman dan mengembalikannya ke Baru Dibuat (stok dikembalikan ke rak asal).`
+            : `Hapus transfer ${transfer.transfer_number}? Stok yang sudah dialokasikan akan dikembalikan. Aksi ini tidak bisa dibatalkan.`
+        }
+        confirmLabel={isInTransit ? "Kembalikan" : "Hapus"}
         variant="destructive"
-        loading={deleteMutation.isPending}
+        loading={
+          isInTransit ? revertMutation.isPending : deleteMutation.isPending
+        }
         onConfirm={() => {
-          deleteMutation.mutate(transfer.id, {
-            onSuccess: () => {
-              setDeleteOpen(false);
-              router.push(LIST_HREF);
-            },
-          });
+          if (isInTransit) {
+            revertMutation.mutate(transfer.id, {
+              onSuccess: () => {
+                setDeleteOpen(false);
+                toast.success("Transfer dikembalikan ke Baru Dibuat");
+              },
+            });
+          } else {
+            deleteMutation.mutate(transfer.id, {
+              onSuccess: () => {
+                setDeleteOpen(false);
+                router.push(LIST_HREF);
+              },
+            });
+          }
         }}
       />
 
