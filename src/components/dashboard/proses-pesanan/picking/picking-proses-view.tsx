@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
+import { formatPickingDuration } from "@/lib/format";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -110,6 +111,26 @@ function getItemStatus(
 
 function isFailedStatus(s: string | null | undefined) {
   return s === "SHORT" || s === "REJECTED";
+}
+
+function PickingDurationLive({
+  startedAt,
+  completedAt,
+  status,
+}: {
+  startedAt: string | null;
+  completedAt: string | null;
+  status: string;
+}) {
+  const [, forceTick] = React.useReducer((c: number) => c + 1, 0);
+
+  React.useEffect(() => {
+    if (status !== "IN_PROGRESS" || completedAt) return;
+    const t = setInterval(forceTick, 60_000);
+    return () => clearInterval(t);
+  }, [status, completedAt]);
+
+  return <>{formatPickingDuration(startedAt, completedAt, status)}</>;
 }
 
 export function PickingProsesView({ id }: { id: string }) {
@@ -432,6 +453,16 @@ export function PickingProsesView({ id }: { id: string }) {
                 <span>Picker</span>
                 <span className="font-medium text-foreground">
                   {pl.pickerName ?? "—"}
+                </span>
+              </div>
+              <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
+                <span>Durasi Picking</span>
+                <span className="font-medium tabular-nums text-foreground">
+                  <PickingDurationLive
+                    startedAt={pl.startedAt}
+                    completedAt={pl.completedAt}
+                    status={pl.status}
+                  />
                 </span>
               </div>
               <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">

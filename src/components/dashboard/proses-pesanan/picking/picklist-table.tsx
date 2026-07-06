@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
+import { formatDateTime, formatPickingDuration } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -53,6 +54,42 @@ const STATUS_OPTIONS = [
   { value: "FAILED", label: "Gagal" },
   { value: "CANCELLED", label: "Dibatalkan" },
 ];
+
+function DurationCell({
+  startedAt,
+  completedAt,
+  status,
+}: {
+  startedAt: string | null;
+  completedAt: string | null;
+  status: Picklist["status"];
+}) {
+  const [, forceTick] = React.useReducer((c: number) => c + 1, 0);
+
+  React.useEffect(() => {
+    if (status !== "IN_PROGRESS" || completedAt) return;
+    const t = setInterval(forceTick, 60_000);
+    return () => clearInterval(t);
+  }, [status, completedAt]);
+
+  return (
+    <TooltipProvider delayDuration={200}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="tabular-nums text-foreground">
+            {formatPickingDuration(startedAt, completedAt, status)}
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>
+          Mulai: {formatDateTime(startedAt)}
+          <br />
+          Selesai:{" "}
+          {completedAt ? formatDateTime(completedAt) : "Sedang berjalan"}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 
 function ProgressCell({ done, total }: { done: number; total: number }) {
   const pct = total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0;
@@ -186,6 +223,17 @@ export function PicklistTable() {
           <ProgressCell
             done={row.original.qtyPicked}
             total={row.original.qtyOrdered}
+          />
+        ),
+      },
+      {
+        id: "duration",
+        header: "Durasi",
+        cell: ({ row }) => (
+          <DurationCell
+            startedAt={row.original.startedAt}
+            completedAt={row.original.completedAt}
+            status={row.original.status}
           />
         ),
       },

@@ -79,3 +79,25 @@ export function formatCurrency(n: number | null | undefined): string {
 export function formatNumber(n: number | null | undefined): string {
   return n == null || Number.isNaN(n) ? "—" : numberId.format(n);
 }
+
+export function formatPickingDuration(
+  startedAt: string | null | undefined,
+  completedAt: string | null | undefined,
+  status: string | null | undefined,
+  now: Date | number = new Date(),
+): string {
+  if (status === "DRAFT" || status === "FAILED" || status === "CANCELLED") {
+    return "—";
+  }
+  const start = toDate(startedAt);
+  const end = completedAt ? toDate(completedAt) : toDate(now);
+  if (!start || !end) return "—";
+
+  const totalMinutes = Math.max(
+    0,
+    Math.round((end.getTime() - start.getTime()) / 60000),
+  );
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  return h > 0 ? `${h}j ${m}m` : `${m}m`;
+}
