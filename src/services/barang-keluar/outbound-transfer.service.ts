@@ -10,6 +10,7 @@ export interface CreateTransferDraftPayload {
   destination_location_id: string;
   notes?: string;
   created_by: string;
+  transfer_number?: string;
 }
 
 export interface AddTransferItemPayload {
@@ -126,6 +127,16 @@ export const OutboundTransferService = {
       {
         method: "POST",
         data,
+      },
+    );
+    return res.data;
+  },
+
+  submitDraft: async (id: string) => {
+    const res = await fetchClient<ApiResponse<InventoryTransfer>>(
+      `/inventory/transfers/${id}/submit`,
+      {
+        method: "POST",
       },
     );
     return res.data;

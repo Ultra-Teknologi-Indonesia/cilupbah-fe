@@ -8,19 +8,20 @@ import { ArrowRightLeftIcon,
   CheckIcon,
   TruckIcon,
   XIcon,
+  PlusIcon,
+  PrinterIcon,
   Trash2Icon, Loader2Icon } from "lucide-react";
 
 import type { DateRange } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { DateRangePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -34,9 +35,13 @@ import {
   useOutboundFinished,
   useApproveTransfer,
   useShipTransfer,
+  useSubmitDraft,
   useCancelTransfer,
   useDeleteTransfer,
 } from "@/hooks/barang-keluar/use-outbound-transfers";
+import { OutboundTransferService } from "@/services/barang-keluar/outbound-transfer.service";
+import { useMe } from "@/hooks/auth/use-auth";
+import { toast } from "sonner";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useDebouncedSearch } from "@/hooks/shared/use-debounced-search";
 import { exportCsv } from "@/lib/export-csv";
@@ -47,7 +52,7 @@ type SubTab = "draft" | "transit" | "finished";
 
 const SUB_TABS: { key: SubTab; label: string }[] = [
   { key: "draft", label: "Baru Dibuat" },
-  { key: "transit", label: "Sedang Dikirim" },
+  { key: "transit", label: "Sedang Dijalan" },
   { key: "finished", label: "Selesai" },
 ];
 
@@ -281,6 +286,62 @@ export function TransferKeluarTab() {
   );
   const deleteMutation = useDeleteTransfer();
 
+  const submitMutation = useSubmitDraft();
+  const { data: me } = useMe();
+  const meName = me?.name ?? "";
+  const [printingId, setPrintingId] = useState<string | null>(null);
+
+  const openTransferPdf = useCallback(async (id: string) => {
+    const blob = await OutboundTransferService.pdf(id);
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank", "noopener,noreferrer");
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }, []);
+
+  const handlePrint = useCallback(
+    async (item: InventoryTransfer) => {
+      if (printingId) return;
+      setPrintingId(item.id);
+      try {
+        if (item.status === "DRAFT") {
+          await submitMutation.mutateAsync(item.id);
+          toast.success("Transfer dikirim — pindah ke Sedang Dijalan");
+        } else if (item.status === "APPROVED") {
+          await shipMutation.mutateAsync({
+            id: item.id,
+            data: { shipped_by: meName },
+          });
+        }
+        await openTransferPdf(item.id);
+      } catch (err) {
+        toast.error(
+          (err as { message?: string })?.message ||
+            "Gagal memproses cetak transfer",
+        );
+      } finally {
+        setPrintingId(null);
+      }
+    },
+    [printingId, submitMutation, shipMutation, meName, openTransferPdf],
+  );
+
+  const handleReprint = useCallback(
+    async (item: InventoryTransfer) => {
+      if (printingId) return;
+      setPrintingId(item.id);
+      try {
+        await openTransferPdf(item.id);
+      } catch (err) {
+        toast.error(
+          (err as { message?: string })?.message || "Gagal membuka PDF",
+        );
+      } finally {
+        setPrintingId(null);
+      }
+    },
+    [printingId, openTransferPdf],
+  );
+
   const resetPage = useCallback(() => setPage(1), []);
   const debouncedSearch = useDebouncedSearch(search, resetPage);
 
@@ -384,6 +445,19 @@ export function TransferKeluarTab() {
   const draftActions = useCallback(
     (item: InventoryTransfer) => (
       <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={() => handlePrint(item)}
+          disabled={printingId === item.id}
+          title="Cetak Surat Jalan & kirim"
+          className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+        >
+          {printingId === item.id ? (
+            <Loader2Icon className="size-3.5 animate-spin" />
+          ) : (
+            <PrinterIcon className="size-3.5" />
+          )}
+        </button>
         {(item.status === "DRAFT" || item.status === "APPROVED") && (
           <>
             {item.status === "DRAFT" && (
@@ -435,7 +509,28 @@ export function TransferKeluarTab() {
         )}
       </div>
     ),
-    [],
+    [handlePrint, printingId],
+  );
+
+  const reprintActions = useCallback(
+    (item: InventoryTransfer) => (
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={() => handleReprint(item)}
+          disabled={printingId === item.id}
+          title="Cetak ulang Surat Jalan"
+          className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+        >
+          {printingId === item.id ? (
+            <Loader2Icon className="size-3.5 animate-spin" />
+          ) : (
+            <PrinterIcon className="size-3.5" />
+          )}
+        </button>
+      </div>
+    ),
+    [handleReprint, printingId],
   );
 
   return (
@@ -445,8 +540,8 @@ export function TransferKeluarTab() {
         intensity="subtle"
         className="bg-white/30 dark:bg-white/[0.04]"
       >
-        <div className="px-4 pt-4 sm:px-5">
-          <Tabs value={subTab} onValueChange={(val) => setSubTab(val as any)} className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-4 sm:px-5">
+          <Tabs value={subTab} onValueChange={(val) => handleSubTabChange(val as SubTab)} className="flex flex-col gap-4">
             <TabsList variant="line" className="h-auto">
               {SUB_TABS.map(({ key, label }) => (
                 <TabsTrigger key={key} value={key}>
@@ -455,6 +550,15 @@ export function TransferKeluarTab() {
               ))}
             </TabsList>
           </Tabs>
+          <Button
+            size="sm"
+            onClick={() =>
+              router.push("/dashboard/barang-keluar/transfer/tambah")
+            }
+          >
+            <PlusIcon className="mr-1.5 size-4" />
+            Tambah baru
+          </Button>
         </div>
 
         <FilterToolbar
@@ -517,7 +621,7 @@ export function TransferKeluarTab() {
           setPerPage={setPerPage}
           resetPage={resetPage}
           onRowClick={handleRowClick}
-          actionSlot={subTab === "draft" ? draftActions : undefined}
+          actionSlot={subTab === "draft" ? draftActions : reprintActions}
         />
       </LiquidGlass>
 

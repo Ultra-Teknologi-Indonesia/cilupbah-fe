@@ -121,6 +121,21 @@ export function useApproveTransfer() {
   });
 }
 
+export function useSubmitDraft() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => OutboundTransferService.submitDraft(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["outbound-transfer", "drafts"] });
+      qc.invalidateQueries({ queryKey: ["outbound-transfer", "transit"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message || "Gagal mengirim transfer",
+      ),
+  });
+}
+
 export function useShipTransfer() {
   const qc = useQueryClient();
   return useMutation({
