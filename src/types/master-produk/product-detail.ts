@@ -45,9 +45,6 @@ export interface DetailVariant {
   safeStock: number | null;
   isActive: boolean;
   weight: number | null;
-  length: number | null;
-  width: number | null;
-  height: number | null;
   salesTax: DetailTax | null;
   purchaseTax: DetailTax | null;
   options: DetailVariantOption[];
@@ -121,9 +118,6 @@ export interface ProductDetail {
   packageContents: string | null;
   weight: number | null;
   weightUnit: "gram" | "kg";
-  length: number | null;
-  width: number | null;
-  height: number | null;
   accounts: {
     sales: AccountRef | null;
     salesReturn: AccountRef | null;
@@ -191,9 +185,6 @@ export interface RawProductDetail {
   package_contents: string | null;
   weight: number | null;
   weight_unit?: "gram" | "kg" | string;
-  length: number | null;
-  width: number | null;
-  height: number | null;
   accounts: {
     sales: AccountRef | null;
     sales_return: AccountRef | null;
@@ -230,9 +221,6 @@ export interface RawProductDetail {
     safe_stock: number | null;
     is_active: boolean;
     weight?: number | null;
-    length?: number | null;
-    width?: number | null;
-    height?: number | null;
     sales_tax: DetailTax | null;
     purchase_tax: DetailTax | null;
     options?: Array<{ attribute_id: number; value: string }>;

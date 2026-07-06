@@ -50,7 +50,6 @@ export function BuatProdukForm() {
       category: null,
       description: "",
       isBundle: false,
-      isConsignment: false,
       isPreorder: false,
       indentDays: "",
       isStored: true,
@@ -60,7 +59,6 @@ export function BuatProdukForm() {
       salesTaxId: null,
       salesAccountId: null,
       salesReturnAccountId: null,
-      buyPrice: "",
       purchaseTaxId: null,
       inventoryAccountId: null,
       cogsAccountId: null,
@@ -69,9 +67,6 @@ export function BuatProdukForm() {
       safeStock: "",
       unlimitedShopIds: [],
       weight: "",
-      length: "",
-      width: "",
-      height: "",
       packageContents: "",
       variationTypes: [],
       variants: [],
@@ -176,7 +171,7 @@ export function BuatProdukForm() {
     if (id === "detail")
       return has("name", "sku", "category", "description", "indentDays");
     if (id === "penjualan") return has("sellPrice", "safeStock");
-    if (id === "pengiriman") return has("weight", "length", "width", "height");
+    if (id === "pengiriman") return has("weight");
     return false;
   }
 

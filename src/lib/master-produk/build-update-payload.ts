@@ -33,7 +33,6 @@ export function buildUpdatePayload(
     category_id: Number(values.category!.id),
     description: values.description?.trim() || null,
     is_bundle: values.isBundle,
-    is_consignment: values.isConsignment,
     order_type: values.isPreorder ? "PREORDER" : "REGULER",
     ...(values.isPreorder ? { indent_days: num(values.indentDays) ?? 0 } : {}),
     is_stored: values.isStored,
@@ -46,9 +45,6 @@ export function buildUpdatePayload(
     cogs_account_id: values.cogsAccountId,
     weight: num(values.weight) ?? null,
     weight_unit: values.weightUnit ?? "kg",
-    length: num(values.length) ?? null,
-    width: num(values.width) ?? null,
-    height: num(values.height) ?? null,
     package_contents: values.packageContents?.trim() || null,
   };
 
@@ -70,13 +66,8 @@ export function buildUpdatePayload(
     payload.variants = values.variants.map((row) => {
       const v: CreateVariantInput = {
         sku: row.sku.trim(),
-        barcode: row.barcode?.trim() || null,
         sell_price: num(row.sellPrice) ?? num(values.sellPrice) ?? 0,
-        buy_price: num(row.buyPrice) ?? null,
         weight: num(row.weight) ?? null,
-        length: num(row.length) ?? null,
-        width: num(row.width) ?? null,
-        height: num(row.height) ?? null,
         sales_tax_id: values.salesTaxId ? Number(values.salesTaxId) : null,
         purchase_tax_id: values.purchaseTaxId
           ? Number(values.purchaseTaxId)
@@ -104,7 +95,6 @@ export function buildUpdatePayload(
     const variant: CreateVariantInput = {
       sku: opts.originalVariantSku ?? values.sku.trim(),
       sell_price: num(values.sellPrice) ?? 0,
-      buy_price: num(values.buyPrice) ?? null,
       sales_tax_id: values.salesTaxId ? Number(values.salesTaxId) : null,
       purchase_tax_id: values.purchaseTaxId
         ? Number(values.purchaseTaxId)

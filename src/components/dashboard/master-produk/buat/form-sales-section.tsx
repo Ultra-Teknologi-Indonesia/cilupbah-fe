@@ -257,19 +257,6 @@ export function FormSalesSection() {
           >
             <FormField
               control={control}
-              name="buyPrice"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Harga beli</FormLabel>
-                  <FormControl>
-                    <MoneyInput placeholder="0" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
               name="purchaseTaxId"
               render={({ field }) => (
                 <FormItem>

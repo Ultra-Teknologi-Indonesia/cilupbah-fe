@@ -136,24 +136,7 @@ export function FormDetailSection({
       {mode === "full" && (
         <div className="mt-6 border-t pt-5">
           <h4 className="mb-3 text-sm font-medium">Tipe Produk</h4>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <FormField
-              control={control}
-              name="isConsignment"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                  <div className="space-y-0.5">
-                    <FormLabel>Produk Konsinyasi</FormLabel>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+          <div className="grid gap-3 sm:max-w-xs">
             <FormField
               control={control}
               name="isPreorder"

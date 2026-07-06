@@ -71,9 +71,6 @@ function mapDetail(raw: RawProductDetail): ProductDetail {
     packageContents: raw.package_contents,
     weight: raw.weight,
     weightUnit: raw.weight_unit === "gram" ? "gram" : "kg",
-    length: raw.length,
-    width: raw.width,
-    height: raw.height,
     accounts: {
       sales: raw.accounts.sales,
       salesReturn: raw.accounts.sales_return,
@@ -109,9 +106,6 @@ function mapDetail(raw: RawProductDetail): ProductDetail {
       safeStock: v.safe_stock,
       isActive: v.is_active,
       weight: v.weight ?? null,
-      length: v.length ?? null,
-      width: v.width ?? null,
-      height: v.height ?? null,
       salesTax: v.sales_tax,
       purchaseTax: v.purchase_tax,
       options: (v.options ?? []).map((o) => ({

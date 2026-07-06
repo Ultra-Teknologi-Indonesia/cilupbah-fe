@@ -5,9 +5,17 @@ import { useFormContext } from "react-hook-form";
 import { ImageIcon, InfoIcon, PlusIcon, Trash2Icon, XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Combobox } from "@/components/ui/combobox";
 import { FormSectionCard } from "@/components/ui/form-section-card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Tooltip,
   TooltipTrigger,
@@ -184,20 +192,25 @@ export function FormVariantSection({
         label,
         options: opts,
         sku: prev?.sku || suggest,
-        barcode: prev?.barcode ?? "",
         image: prev?.image ?? null,
         imageFile: prev?.imageFile ?? undefined,
         sellPrice: prev?.sellPrice ?? "",
-        buyPrice: prev?.buyPrice ?? "",
         weight: prev?.weight ?? "",
-        length: prev?.length ?? "",
-        width: prev?.width ?? "",
-        height: prev?.height ?? "",
       };
     });
     setValue("variants", next, { shouldDirty: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [typesKey, baseSku]);
+
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [bulkColumn, setBulkColumn] = React.useState<
+    "sellPrice" | "weight" | "sku"
+  >("sellPrice");
+  const [bulkValue, setBulkValue] = React.useState("");
+
+  React.useEffect(() => {
+    setSelected(new Set());
+  }, [typesKey]);
 
   if (!category) return null;
 
@@ -269,6 +282,44 @@ export function FormVariantSection({
       cur.map((v, idx) => (idx === i ? { ...v, ...patch } : v)),
       { shouldDirty: true },
     );
+  };
+
+  const allSelected =
+    variants.length > 0 && variants.every((row) => selected.has(row.key));
+
+  const toggleAll = () => {
+    setSelected(allSelected ? new Set() : new Set(variants.map((r) => r.key)));
+  };
+
+  const toggleRow = (key: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const applyBulk = () => {
+    if (!bulkValue.trim() || selected.size === 0) return;
+    const cur = getValues("variants");
+    setValue(
+      "variants",
+      cur.map((row) => {
+        if (!selected.has(row.key)) return row;
+        if (bulkColumn === "sku") {
+          const sku = [bulkValue, ...row.options.map((o) => skuPart(o.value))]
+            .filter(Boolean)
+            .join("-")
+            .toUpperCase();
+          return { ...row, sku };
+        }
+        return { ...row, [bulkColumn]: bulkValue };
+      }),
+      { shouldDirty: true },
+    );
+    setSelected(new Set());
+    setBulkValue("");
   };
 
   const isLockedValue = (attrId: number, value: string) =>
@@ -398,136 +449,145 @@ export function FormVariantSection({
       </div>
 
       {variants.length > 0 && (
-        <Table
-          containerClassName="mt-6 rounded-lg border"
-          className="min-w-[900px]"
-        >
-          <TableHeader className="bg-muted/50 text-left text-xs text-muted-foreground">
-            <TableRow>
-              <TableHead className="sticky left-0 z-10 bg-muted/50 px-3 py-2 text-muted-foreground">
-                Variasi
-              </TableHead>
-              <TableHead className="px-3 py-2 text-muted-foreground">
-                Foto
-              </TableHead>
-              <TableHead className="px-3 py-2 text-muted-foreground">
-                SKU <span className="text-destructive">*</span>
-              </TableHead>
-              <TableHead className="px-3 py-2 text-muted-foreground">
-                Harga Jual
-              </TableHead>
-              <TableHead className="px-3 py-2 text-muted-foreground">
-                Harga Beli
-              </TableHead>
-              <TableHead className="px-3 py-2 text-muted-foreground">
-                Berat ({weightUnit})
-              </TableHead>
-              <TableHead
-                className="px-3 py-2 text-muted-foreground"
-                colSpan={3}
+        <>
+          {selected.size > 0 && (
+            <div className="mt-4 flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2.5">
+              <span className="text-sm font-medium">
+                {selected.size} dipilih
+              </span>
+              <Select
+                value={bulkColumn}
+                onValueChange={(v) =>
+                  setBulkColumn(v as "sellPrice" | "weight" | "sku")
+                }
               >
-                Dimensi P×L×T (cm)
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {variants.map((row, i) => (
-              <TableRow key={row.key} className="border-t">
-                <TableCell className="sticky left-0 z-10 bg-background px-3 py-2 font-medium whitespace-nowrap">
-                  {row.label}
-                </TableCell>
-                <TableCell className="px-2 py-2">
-                  <VariantImageCell
-                    image={row.image}
-                    imageFile={
-                      row.imageFile instanceof File ? row.imageFile : undefined
-                    }
-                    onChange={(file) => updateVariant(i, { imageFile: file })}
+                <SelectTrigger className="h-9 w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sellPrice">Harga Jual</SelectItem>
+                  <SelectItem value="weight">Berat</SelectItem>
+                  <SelectItem value="sku">SKU</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                type={bulkColumn === "sku" ? "text" : "number"}
+                min={0}
+                value={bulkValue}
+                onChange={(e) => setBulkValue(e.target.value)}
+                placeholder={bulkColumn === "sku" ? "Awalan SKU" : "0"}
+                className="h-9 w-40"
+              />
+              <Button
+                type="button"
+                size="sm"
+                onClick={applyBulk}
+                disabled={!bulkValue.trim()}
+              >
+                Terapkan ke {selected.size} baris
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelected(new Set())}
+              >
+                Batal
+              </Button>
+            </div>
+          )}
+          <Table
+            containerClassName="mt-4 rounded-lg border"
+            className="min-w-[900px]"
+          >
+            <TableHeader className="bg-muted/50 text-left text-xs text-muted-foreground">
+              <TableRow>
+                <TableHead className="sticky left-0 z-10 w-10 bg-muted/50 px-3 py-2">
+                  <Checkbox
+                    checked={allSelected}
+                    onCheckedChange={toggleAll}
+                    aria-label="Pilih semua"
                   />
-                </TableCell>
-                <TableCell className="px-2 py-2">
-                  <Input
-                    value={row.sku}
-                    onChange={(e) => updateVariant(i, { sku: e.target.value })}
-                    className="h-9 min-w-28"
-                  />
-                </TableCell>
-                <TableCell className="px-2 py-2">
-                  <Input
-                    type="number"
-                    min={0}
-                    value={row.sellPrice ?? ""}
-                    onChange={(e) =>
-                      updateVariant(i, { sellPrice: e.target.value })
-                    }
-                    placeholder="0"
-                    className="h-9 min-w-24"
-                  />
-                </TableCell>
-                <TableCell className="px-2 py-2">
-                  <Input
-                    type="number"
-                    min={0}
-                    value={row.buyPrice ?? ""}
-                    onChange={(e) =>
-                      updateVariant(i, { buyPrice: e.target.value })
-                    }
-                    placeholder="0"
-                    className="h-9 min-w-24"
-                  />
-                </TableCell>
-                <TableCell className="px-2 py-2">
-                  <Input
-                    type="number"
-                    min={0}
-                    value={row.weight ?? ""}
-                    onChange={(e) =>
-                      updateVariant(i, { weight: e.target.value })
-                    }
-                    placeholder="0"
-                    className="h-9 w-24"
-                  />
-                </TableCell>
-                <TableCell className="pl-2 pr-1 py-2">
-                  <Input
-                    type="number"
-                    min={0}
-                    value={row.length ?? ""}
-                    onChange={(e) =>
-                      updateVariant(i, { length: e.target.value })
-                    }
-                    placeholder="P"
-                    className="h-9 w-20"
-                  />
-                </TableCell>
-                <TableCell className="px-1 py-2">
-                  <Input
-                    type="number"
-                    min={0}
-                    value={row.width ?? ""}
-                    onChange={(e) =>
-                      updateVariant(i, { width: e.target.value })
-                    }
-                    placeholder="L"
-                    className="h-9 w-20"
-                  />
-                </TableCell>
-                <TableCell className="pl-1 pr-2 py-2">
-                  <Input
-                    type="number"
-                    min={0}
-                    value={row.height ?? ""}
-                    onChange={(e) =>
-                      updateVariant(i, { height: e.target.value })
-                    }
-                    placeholder="T"
-                    className="h-9 w-20"
-                  />
-                </TableCell>
+                </TableHead>
+                <TableHead className="px-3 py-2 text-muted-foreground">
+                  Variasi
+                </TableHead>
+                <TableHead className="px-3 py-2 text-muted-foreground">
+                  Foto
+                </TableHead>
+                <TableHead className="px-3 py-2 text-muted-foreground">
+                  SKU <span className="text-destructive">*</span>
+                </TableHead>
+                <TableHead className="px-3 py-2 text-muted-foreground">
+                  Harga Jual
+                </TableHead>
+                <TableHead className="px-3 py-2 text-muted-foreground">
+                  Berat ({weightUnit})
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {variants.map((row, i) => (
+                <TableRow key={row.key} className="border-t">
+                  <TableCell className="sticky left-0 z-10 bg-background px-3 py-2">
+                    <Checkbox
+                      checked={selected.has(row.key)}
+                      onCheckedChange={() => toggleRow(row.key)}
+                      aria-label={`Pilih ${row.label}`}
+                    />
+                  </TableCell>
+                  <TableCell className="px-3 py-2 font-medium whitespace-nowrap">
+                    {row.label}
+                  </TableCell>
+                  <TableCell className="px-2 py-2">
+                    <VariantImageCell
+                      image={row.image}
+                      imageFile={
+                        row.imageFile instanceof File
+                          ? row.imageFile
+                          : undefined
+                      }
+                      onChange={(file) => updateVariant(i, { imageFile: file })}
+                    />
+                  </TableCell>
+                  <TableCell className="px-2 py-2">
+                    <Input
+                      value={row.sku}
+                      onChange={(e) =>
+                        updateVariant(i, { sku: e.target.value })
+                      }
+                      className="h-9 min-w-28"
+                    />
+                  </TableCell>
+                  <TableCell className="px-2 py-2">
+                    <Input
+                      type="number"
+                      min={0}
+                      value={row.sellPrice ?? ""}
+                      onChange={(e) =>
+                        updateVariant(i, { sellPrice: e.target.value })
+                      }
+                      placeholder="0"
+                      className="h-9 min-w-24"
+                    />
+                  </TableCell>
+                  <TableCell className="px-2 py-2">
+                    <Input
+                      type="number"
+                      min={0}
+                      value={row.weight ?? ""}
+                      onChange={(e) =>
+                        updateVariant(i, { weight: e.target.value })
+                      }
+                      placeholder="0"
+                      className="h-9 w-24"
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </>
       )}
     </FormSectionCard>
   );

@@ -63,45 +63,6 @@ export function FormShippingSection() {
             </FormItem>
           )}
         />
-        <FormField
-          control={control}
-          name="length"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Panjang (cm)</FormLabel>
-              <FormControl>
-                <Input type="number" min={0} placeholder="0" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="width"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Lebar (cm)</FormLabel>
-              <FormControl>
-                <Input type="number" min={0} placeholder="0" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="height"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tinggi (cm)</FormLabel>
-              <FormControl>
-                <Input type="number" min={0} placeholder="0" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
       </div>
       <div className="mt-5">
         <FormField

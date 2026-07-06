@@ -137,7 +137,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
     if (id === "detail")
       return has("name", "sku", "category", "description", "indentDays");
     if (id === "penjualan") return has("sellPrice", "safeStock");
-    if (id === "pengiriman") return has("weight", "length", "width", "height");
+    if (id === "pengiriman") return has("weight");
     return false;
   }
   function sectionStatus(id: string): SectionStatus {

@@ -16,13 +16,8 @@ export interface VariantOptionInput {
 
 export interface CreateVariantInput {
   sku: string;
-  barcode?: string | null;
   sell_price: number;
-  buy_price?: number | null;
   weight?: number | null;
-  length?: number | null;
-  width?: number | null;
-  height?: number | null;
   sales_tax_id?: number | null;
   purchase_tax_id?: number | null;
   min_stock?: number | null;
@@ -51,7 +46,6 @@ export interface CreateProductPayload {
   category_id: number;
   description?: string | null;
   is_bundle?: boolean;
-  is_consignment?: boolean;
   order_type?: "REGULER" | "PREORDER" | "COD";
   indent_days?: number;
   status?: ProductCreateStatus;
@@ -65,9 +59,6 @@ export interface CreateProductPayload {
   cogs_account_id?: string | null;
   weight?: number | null;
   weight_unit?: "gram" | "kg";
-  length?: number | null;
-  width?: number | null;
-  height?: number | null;
   package_contents?: string | null;
   media?: CreateMediaInput[];
   variation_types?: VariationTypeInput[];
