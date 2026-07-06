@@ -4,11 +4,31 @@ import type {
   ChannelCode,
   PrintLabelCapabilities,
   RawConnectedStore,
+  RawStockAllocationStore,
+  StockAllocationStore,
+  StockSourceMode,
 } from "@/types/channel";
 
 export interface StoreFlags {
   is_active?: boolean;
   order_sync_enabled?: boolean;
+  stock_source_mode?: StockSourceMode;
+  location_id?: string | null;
+}
+
+function mapStockAllocationStore(
+  raw: RawStockAllocationStore,
+): StockAllocationStore {
+  return {
+    storeId: raw.store_id,
+    channelName: raw.channel_name,
+    storeName: raw.store_name,
+    fullStoreName: raw.full_store_name,
+    stockSourceMode: raw.stock_source_mode,
+    locationId: raw.location_id,
+    locationName: raw.location_name,
+    locationCode: raw.location_code,
+  };
 }
 
 export const ChannelService = {
@@ -35,6 +55,13 @@ export const ChannelService = {
       { method: "PATCH", data: flags },
     );
     return res.data;
+  },
+
+  listStockAllocation: async (): Promise<StockAllocationStore[]> => {
+    const res = await fetchClient<ApiPaginated<RawStockAllocationStore>>(
+      "/marketplace/stock-allocation?per_page=200",
+    );
+    return (res.data ?? []).map(mapStockAllocationStore);
   },
 
   disconnect: async (id: string): Promise<void> => {

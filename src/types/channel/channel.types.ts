@@ -58,3 +58,27 @@ export interface RawChannel {
   code: string;
   name: string;
 }
+
+export type StockSourceMode = "total" | "location";
+
+export interface StockAllocationStore {
+  storeId: string;
+  channelName: string;
+  storeName: string;
+  fullStoreName: string;
+  stockSourceMode: StockSourceMode;
+  locationId: string | null;
+  locationName: string | null;
+  locationCode: string | null;
+}
+
+export interface RawStockAllocationStore {
+  store_id: string;
+  channel_name: string;
+  store_name: string;
+  full_store_name: string;
+  stock_source_mode: StockSourceMode;
+  location_id: string | null;
+  location_name: string | null;
+  location_code: string | null;
+}
