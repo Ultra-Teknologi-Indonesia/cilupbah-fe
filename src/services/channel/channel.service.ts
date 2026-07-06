@@ -16,6 +16,16 @@ export interface StoreFlags {
   location_id?: string | null;
 }
 
+export interface StockAllocationParams {
+  page?: number;
+  perPage?: number;
+}
+
+export interface StockAllocationListResult {
+  items: StockAllocationStore[];
+  meta: ApiPaginated<RawStockAllocationStore>["meta"];
+}
+
 function mapStockAllocationStore(
   raw: RawStockAllocationStore,
 ): StockAllocationStore {
@@ -57,11 +67,20 @@ export const ChannelService = {
     return res.data;
   },
 
-  listStockAllocation: async (): Promise<StockAllocationStore[]> => {
+  listStockAllocation: async (
+    params: StockAllocationParams = {},
+  ): Promise<StockAllocationListResult> => {
+    const q = new URLSearchParams();
+    q.set("page", String(params.page ?? 1));
+    q.set("per_page", String(params.perPage ?? 20));
+
     const res = await fetchClient<ApiPaginated<RawStockAllocationStore>>(
-      "/marketplace/stock-allocation?per_page=200",
+      `/marketplace/stock-allocation?${q.toString()}`,
     );
-    return (res.data ?? []).map(mapStockAllocationStore);
+    return {
+      items: (res.data ?? []).map(mapStockAllocationStore),
+      meta: res.meta,
+    };
   },
 
   disconnect: async (id: string): Promise<void> => {
