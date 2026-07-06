@@ -222,7 +222,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
             <Table containerClassName="rounded-lg border border-border/40">
               <TableHeader>
                 <TableRow className="border-b border-border/60 bg-muted/30">
-                  {["", "Produk", "Qty", "Qty Diterima"].map((h, i) => (
+                  {["Produk", "Qty", "Qty Diterima"].map((h, i) => (
                     <TableHead
                       key={i}
                       className="px-3 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground"
@@ -249,35 +249,35 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
                       className="border-b border-border/20 last:border-0"
                     >
                       <TableCell className="px-3 py-2.5">
-                        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
-                          {imageUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={imageUrl}
-                              alt={productName}
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
-                              <ImageIcon className="size-4 opacity-50" />
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-3 py-2.5">
-                        <div
-                          className="flex min-w-0 flex-col gap-0.5"
-                          style={{ maxWidth: 360 }}
-                        >
-                          <span className="font-medium whitespace-normal break-words text-foreground">
-                            {productName}
-                          </span>
-                          {variantOptions && (
-                            <span className="whitespace-normal break-words text-xs text-foreground">
-                              {variantOptions}
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
+                            {imageUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={imageUrl}
+                                alt={productName}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+                                <ImageIcon className="size-4 opacity-50" />
+                              </div>
+                            )}
+                          </div>
+                          <div
+                            className="flex min-w-0 flex-col gap-0.5"
+                            style={{ maxWidth: 360 }}
+                          >
+                            <span className="font-medium whitespace-normal break-words text-foreground">
+                              {productName}
                             </span>
-                          )}
-                          {variant?.sku && <CopySku sku={variant.sku} />}
+                            {variantOptions && (
+                              <span className="whitespace-normal break-words text-xs text-foreground">
+                                {variantOptions}
+                              </span>
+                            )}
+                            {variant?.sku && <CopySku sku={variant.sku} />}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="px-3 py-2.5 tabular-nums text-foreground">
