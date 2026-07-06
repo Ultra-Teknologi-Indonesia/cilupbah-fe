@@ -101,11 +101,6 @@ export function ProductCard({
               Bundle
             </Badge>
           )}
-          {product.isPo && (
-            <Badge variant="outline" className="px-1.5 py-0 text-2xs">
-              PO
-            </Badge>
-          )}
         </div>
 
         {product.variations.length > 0 && (

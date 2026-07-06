@@ -108,11 +108,6 @@ export const productColumns: ColumnDef<Product>[] = [
                   Bundle
                 </Badge>
               )}
-              {p.isPo && (
-                <Badge variant="outline" className="px-1.5 py-0 text-2xs">
-                  PO
-                </Badge>
-              )}
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               {p.sku ? (

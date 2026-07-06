@@ -38,9 +38,6 @@ export function VariantTable({ variants }: { variants: DetailVariant[] }) {
           <TableHead className="px-3 py-2.5 text-right text-xs text-muted-foreground">
             Stok
           </TableHead>
-          <TableHead className="px-3 py-2.5 text-right text-xs text-muted-foreground">
-            Min / Aman
-          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -76,9 +73,6 @@ export function VariantTable({ variants }: { variants: DetailVariant[] }) {
               ) : (
                 <span className="text-muted-foreground">—</span>
               )}
-            </TableCell>
-            <TableCell className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">
-              {num(v.minStock)} / {num(v.safeStock)}
             </TableCell>
           </TableRow>
         ))}

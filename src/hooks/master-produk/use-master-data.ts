@@ -14,23 +14,6 @@ function useMasterDataQuery<T>(key: string, queryFn: () => Promise<T>) {
   });
 }
 
-export const useSalesTaxes = () =>
-  useMasterDataQuery("sales-taxes", MasterDataService.salesTaxes);
-export const usePurchaseTaxes = () =>
-  useMasterDataQuery("purchase-taxes", MasterDataService.purchaseTaxes);
-export const useSalesAccounts = () =>
-  useMasterDataQuery("sales-accounts", MasterDataService.salesAccounts);
-export const useSalesReturnAccounts = () =>
-  useMasterDataQuery(
-    "sales-return-accounts",
-    MasterDataService.salesReturnAccounts,
-  );
-export const useInventoryAccounts = () =>
-  useMasterDataQuery("inventory-accounts", MasterDataService.inventoryAccounts);
-export const useCogsAccounts = () =>
-  useMasterDataQuery("cogs-accounts", MasterDataService.cogsAccounts);
-export const useShopOptions = () =>
-  useMasterDataQuery("shops", MasterDataService.shops);
 export const useCategoryTree = () =>
   useMasterDataQuery("categories", MasterDataService.categoryTree);
 

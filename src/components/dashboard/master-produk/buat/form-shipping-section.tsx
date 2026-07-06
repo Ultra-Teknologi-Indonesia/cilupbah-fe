@@ -3,14 +3,12 @@
 import { useFormContext } from "react-hook-form";
 import {
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -59,26 +57,6 @@ export function FormShippingSection() {
                   )}
                 />
               </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-      <div className="mt-5">
-        <FormField
-          control={control}
-          name="packageContents"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Isi paket</FormLabel>
-              <FormControl>
-                <Textarea
-                  rows={2}
-                  placeholder="mis. 5 band + pouch + panduan"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>Opsional</FormDescription>
               <FormMessage />
             </FormItem>
           )}

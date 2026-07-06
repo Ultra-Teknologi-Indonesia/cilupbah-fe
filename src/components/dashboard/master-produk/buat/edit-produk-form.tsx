@@ -134,9 +134,8 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
   const has = (...keys: (keyof BuatProdukFormValues)[]) =>
     keys.some((k) => errors[k]);
   function sectionHasError(id: string): boolean {
-    if (id === "detail")
-      return has("name", "sku", "category", "description", "indentDays");
-    if (id === "penjualan") return has("sellPrice", "safeStock");
+    if (id === "detail") return has("name", "sku", "category", "description");
+    if (id === "penjualan") return has("sellPrice");
     if (id === "pengiriman") return has("weight");
     return false;
   }
@@ -144,7 +143,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
     if (sectionHasError(id)) return "error";
     if (id === "detail")
       return v.name && v.sku && v.category ? "valid" : "empty";
-    if (id === "penjualan") return !v.isSold || v.sellPrice ? "valid" : "empty";
+    if (id === "penjualan") return v.sellPrice ? "valid" : "empty";
     if (id === "pengiriman") return v.weight ? "valid" : "empty";
     if (id === "media") return mediaItems.length > 0 ? "valid" : "empty";
     return "empty";

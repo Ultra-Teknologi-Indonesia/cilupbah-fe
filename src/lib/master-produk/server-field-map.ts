@@ -7,13 +7,5 @@ export const SERVER_FIELD_MAP: Record<string, keyof BuatProdukFormValues> = {
   category_id: "category",
   description: "description",
   "variants.0.sell_price": "sellPrice",
-  "variants.0.min_stock": "minStock",
-  "variants.0.safe_stock": "safeStock",
-  indent_days: "indentDays",
   weight: "weight",
-  purchase_lead_time: "purchaseLeadTime",
-  sales_account_id: "salesAccountId",
-  sales_return_account_id: "salesReturnAccountId",
-  inventory_account_id: "inventoryAccountId",
-  cogs_account_id: "cogsAccountId",
 };

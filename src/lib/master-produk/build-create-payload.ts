@@ -24,14 +24,7 @@ export function buildCreatePayload(
   const singleVariant: CreateVariantInput = {
     sku,
     sell_price: num(values.sellPrice) ?? 0,
-    sales_tax_id: values.salesTaxId ? Number(values.salesTaxId) : null,
-    purchase_tax_id: values.purchaseTaxId ? Number(values.purchaseTaxId) : null,
-    min_stock: num(values.minStock) ?? null,
-    safe_stock: num(values.safeStock) ?? null,
     is_active: true,
-    ...(values.unlimitedShopIds.length
-      ? { unlimited_shop_ids: values.unlimitedShopIds }
-      : {}),
   };
 
   const typeNameById = new Map(
@@ -43,10 +36,6 @@ export function buildCreatePayload(
         sku: row.sku.trim(),
         sell_price: num(row.sellPrice) ?? num(values.sellPrice) ?? 0,
         weight: num(row.weight) ?? null,
-        sales_tax_id: values.salesTaxId ? Number(values.salesTaxId) : null,
-        purchase_tax_id: values.purchaseTaxId
-          ? Number(values.purchaseTaxId)
-          : null,
         is_active: true,
         options: row.options.map((o) =>
           o.attributeId < 0
@@ -69,20 +58,9 @@ export function buildCreatePayload(
     category_id: Number(values.category!.id),
     description: values.description?.trim() || null,
     is_bundle: values.isBundle,
-    order_type: values.isPreorder ? "PREORDER" : "REGULER",
-    ...(values.isPreorder ? { indent_days: num(values.indentDays) ?? 0 } : {}),
     status: opts.status,
-    is_stored: values.isStored,
-    is_sold: values.isSold,
-    is_purchased: values.isPurchased,
-    purchase_lead_time: num(values.purchaseLeadTime) ?? null,
-    sales_account_id: values.salesAccountId,
-    sales_return_account_id: values.salesReturnAccountId,
-    inventory_account_id: values.inventoryAccountId,
-    cogs_account_id: values.cogsAccountId,
     weight: num(values.weight) ?? null,
     weight_unit: values.weightUnit ?? "kg",
-    package_contents: values.packageContents?.trim() || null,
     ...(opts.media?.length ? { media: opts.media } : {}),
     ...(hasVariants
       ? {

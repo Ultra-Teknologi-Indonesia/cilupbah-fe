@@ -7,7 +7,6 @@ import {
   CloudDownloadIcon,
   ImportIcon,
   Package2Icon,
-  PlugIcon,
   UploadCloudIcon,
 } from "lucide-react";
 
@@ -52,12 +51,6 @@ const TABS: Tab[] = [
     icon: ArchiveIcon,
     href: "/dashboard/produk/arsip",
   },
-  {
-    id: "channel",
-    label: "Produk Channel",
-    icon: PlugIcon,
-    href: "/dashboard/produk/listing-marketplace",
-  },
 ];
 
 function activeId(pathname: string, status: string | null): string {
@@ -65,8 +58,6 @@ function activeId(pathname: string, status: string | null): string {
   if (pathname.startsWith("/dashboard/produk/upload")) return "upload";
   if (pathname.startsWith("/dashboard/produk/download")) return "download";
   if (pathname.startsWith("/dashboard/produk/import")) return "import";
-  if (pathname.startsWith("/dashboard/produk/listing-marketplace"))
-    return "channel";
   if (pathname.startsWith("/dashboard/produk/master")) return "master";
   return "";
 }

@@ -1,14 +1,9 @@
 import { fetchClient } from "@/lib/api-client";
 import type { ApiList, ApiResponse } from "@/types/api.types";
-import type { LookupOption } from "@/types/common";
 import type {
   CategoryFormAttributes,
   CategoryNode,
-  RawAccount,
   RawCategory,
-  RawShop,
-  RawTax,
-  TaxLookup,
 } from "@/types/master-produk";
 
 function buildCategoryTree(raw: RawCategory[]): CategoryNode[] {
@@ -44,44 +39,7 @@ function buildCategoryTree(raw: RawCategory[]): CategoryNode[] {
   return roots.map(prune);
 }
 
-async function taxLookup(path: string): Promise<TaxLookup> {
-  const res = await fetchClient<ApiList<RawTax>>(path);
-  const rateById: Record<string, number> = {};
-  const options = (res.data ?? []).map((t) => {
-    const value = String(t.id);
-    rateById[value] = t.rate;
-    return { value, label: t.name, hint: `${t.rate}%` };
-  });
-  return { options, rateById };
-}
-
-async function accountOptions(path: string): Promise<LookupOption[]> {
-  const res = await fetchClient<ApiList<RawAccount>>(path);
-  return (res.data ?? []).map((a) => ({
-    value: a.account_id,
-    label: a.account_name,
-  }));
-}
-
 export const MasterDataService = {
-  salesTaxes: () => taxLookup("/products/master-data/sales-taxes"),
-  purchaseTaxes: () => taxLookup("/products/master-data/purchase-taxes"),
-  salesAccounts: () => accountOptions("/products/master-data/sales-accounts"),
-  salesReturnAccounts: () =>
-    accountOptions("/products/master-data/sales-return-accounts"),
-  inventoryAccounts: () =>
-    accountOptions("/products/master-data/inventory-accounts"),
-  cogsAccounts: () => accountOptions("/products/master-data/cogs-accounts"),
-
-  shops: async (): Promise<LookupOption[]> => {
-    const res = await fetchClient<ApiList<RawShop>>("/marketplace/store");
-    return (res.data ?? []).map((s) => ({
-      value: s.id,
-      label: s.shop_name ?? s.shop_id ?? "Toko",
-      hint: s.channel?.name ?? s.channel_name ?? undefined,
-    }));
-  },
-
   categoryTree: async (): Promise<CategoryNode[]> => {
     const res = await fetchClient<ApiList<RawCategory>>(
       "/categories?all=1&include=children.children.children",

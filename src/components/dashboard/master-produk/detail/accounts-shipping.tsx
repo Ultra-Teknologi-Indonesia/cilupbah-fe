@@ -13,43 +13,7 @@ function Row({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
-const acc = (a: { code: string; name: string } | null) =>
-  a ? `${a.code} · ${a.name}` : "—";
-
 const yn = (b: boolean) => (b ? "Ya" : "Tidak");
-
-export function AccountsCard({ product }: { product: ProductDetail }) {
-  return (
-    <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm sm:p-5">
-      <h3 className="mb-2 text-sm font-semibold">Akun &amp; transaksi</h3>
-      <Row label="Akun penjualan" value={acc(product.accounts.sales)} />
-      <Row
-        label="Akun retur penjualan"
-        value={acc(product.accounts.salesReturn)}
-      />
-      <Row label="Akun persediaan" value={acc(product.accounts.inventory)} />
-      <Row label="Akun HPP" value={acc(product.accounts.cogs)} />
-      <Row
-        label="Tipe pesanan"
-        value={
-          product.isPo
-            ? `Pre-Order (${product.indentDays ?? 0} hari)`
-            : "Reguler"
-        }
-      />
-      <Row
-        label="Dijual / Dibeli / Disimpan"
-        value={`${yn(product.isSold)} · ${yn(product.isPurchased)} · ${yn(product.isStored)}`}
-      />
-      {product.isPurchased && (
-        <Row
-          label="Lead time pembelian"
-          value={`${product.purchaseLeadTime ?? 0} hari`}
-        />
-      )}
-    </div>
-  );
-}
 
 export function ShippingCard({ product }: { product: ProductDetail }) {
   return (
@@ -59,7 +23,6 @@ export function ShippingCard({ product }: { product: ProductDetail }) {
         label="Berat"
         value={product.weight != null ? `${product.weight} kg` : "—"}
       />
-      <Row label="Isi paket" value={product.packageContents || "—"} />
       <Row label="Konsinyasi" value={yn(product.isConsignment)} />
     </div>
   );

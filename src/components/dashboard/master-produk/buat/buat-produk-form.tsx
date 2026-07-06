@@ -50,24 +50,8 @@ export function BuatProdukForm() {
       category: null,
       description: "",
       isBundle: false,
-      isPreorder: false,
-      indentDays: "",
-      isStored: true,
-      isSold: true,
-      isPurchased: true,
       sellPrice: "",
-      salesTaxId: null,
-      salesAccountId: null,
-      salesReturnAccountId: null,
-      purchaseTaxId: null,
-      inventoryAccountId: null,
-      cogsAccountId: null,
-      purchaseLeadTime: "",
-      minStock: "",
-      safeStock: "",
-      unlimitedShopIds: [],
       weight: "",
-      packageContents: "",
       variationTypes: [],
       variants: [],
       specifications: [],
@@ -168,9 +152,8 @@ export function BuatProdukForm() {
     keys.some((k) => errors[k]);
 
   function sectionHasError(id: string): boolean {
-    if (id === "detail")
-      return has("name", "sku", "category", "description", "indentDays");
-    if (id === "penjualan") return has("sellPrice", "safeStock");
+    if (id === "detail") return has("name", "sku", "category", "description");
+    if (id === "penjualan") return has("sellPrice");
     if (id === "pengiriman") return has("weight");
     return false;
   }
@@ -179,7 +162,7 @@ export function BuatProdukForm() {
     if (sectionHasError(id)) return "error";
     if (id === "detail")
       return v.name && v.sku && v.category ? "valid" : "empty";
-    if (id === "penjualan") return !v.isSold || v.sellPrice ? "valid" : "empty";
+    if (id === "penjualan") return v.sellPrice ? "valid" : "empty";
     if (id === "pengiriman") return v.weight ? "valid" : "empty";
     if (id === "media")
       return mediaError ? "error" : hasImage ? "valid" : "empty";

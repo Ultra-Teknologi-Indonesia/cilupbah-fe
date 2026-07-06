@@ -14,25 +14,9 @@ export const buatProdukSchema = z
       .nullable(),
     description: z.string().min(30, "Deskripsi minimal 30 karakter").max(10000),
     isBundle: z.boolean(),
-    isPreorder: z.boolean(),
-    indentDays: z.string().optional(),
-    isStored: z.boolean(),
-    isSold: z.boolean(),
-    isPurchased: z.boolean(),
     sellPrice: z.string().optional(),
-    salesTaxId: z.string().nullable(),
-    salesAccountId: z.string().nullable(),
-    salesReturnAccountId: z.string().nullable(),
-    purchaseTaxId: z.string().nullable(),
-    inventoryAccountId: z.string().nullable(),
-    cogsAccountId: z.string().nullable(),
-    purchaseLeadTime: z.string().optional(),
-    minStock: z.string().optional(),
-    safeStock: z.string().optional(),
-    unlimitedShopIds: z.array(z.string()),
     weight: z.string().min(1, "Berat wajib diisi"),
     weightUnit: z.enum(["gram", "kg"]).default("kg"),
-    packageContents: z.string().max(2000).optional(),
 
     variationTypes: z
       .array(
@@ -96,7 +80,7 @@ export const buatProdukSchema = z
         message: "Tambahkan minimal 1 komponen bundle",
       });
 
-    if (v.isSold && !hasVariants && !v.isBundle && !v.sellPrice?.trim())
+    if (!hasVariants && !v.isBundle && !v.sellPrice?.trim())
       ctx.addIssue({
         path: ["sellPrice"],
         code: "custom",
@@ -107,20 +91,6 @@ export const buatProdukSchema = z
         path: ["variants"],
         code: "custom",
         message: "Lengkapi kombinasi varian",
-      });
-    if (v.isPreorder && !v.indentDays?.trim())
-      ctx.addIssue({
-        path: ["indentDays"],
-        code: "custom",
-        message: "Lama indent wajib diisi",
-      });
-    const min = Number(v.minStock || 0);
-    const safe = Number(v.safeStock || 0);
-    if (v.safeStock?.trim() && safe < min)
-      ctx.addIssue({
-        path: ["safeStock"],
-        code: "custom",
-        message: "Tidak boleh < batas stok menipis",
       });
   });
 

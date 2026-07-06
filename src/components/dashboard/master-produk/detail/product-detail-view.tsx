@@ -19,7 +19,7 @@ import { TabChannel } from "./tab-channel";
 import { TabKomposisi } from "./tab-komposisi";
 import { TabBukuHarga } from "./tab-buku-harga";
 import { TabRiwayat } from "./tab-riwayat";
-import { AccountsCard, ShippingCard } from "./accounts-shipping";
+import { ShippingCard } from "./accounts-shipping";
 
 type DetailTab = { id: string; label: string };
 
@@ -131,8 +131,7 @@ export function ProductDetailView({ id }: { id: string }) {
         </div>
       </Tabs>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <AccountsCard product={product} />
+      <div className="grid gap-4">
         <ShippingCard product={product} />
       </div>
     </div>
