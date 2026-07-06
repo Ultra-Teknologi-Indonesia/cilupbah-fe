@@ -55,6 +55,7 @@ import {
   CUSTOMER_DECISION_LABELS,
   type Order,
   type OrderItem,
+  type StatusHistoryEntry,
 } from "@/types/pesanan/order";
 import { useOrder } from "@/hooks/pesanan/use-orders";
 import { useCopyToClipboard } from "@/hooks/shared/use-copy-to-clipboard";
@@ -206,9 +207,59 @@ const STEPS = [
   { key: "shipped", label: "Dikirim" },
 ];
 
-function StatusStepper({ status }: { status: string }) {
+const STEP_ACTIONS: Record<string, string[]> = {
+  pending: ["CREATED"],
+  reserved: ["PROCESS", "PAID"],
+  picked: ["FINISH_PICK"],
+  packed: ["FINISH_PACK"],
+  shipped: ["SHIPPED", "COMPLETED"],
+};
+
+function findStepEntry(
+  history: StatusHistoryEntry[] | undefined,
+  stepKey: string,
+): StatusHistoryEntry | undefined {
+  const actions = STEP_ACTIONS[stepKey];
+  if (!actions || !history?.length) return undefined;
+  return history.find((h) => actions.includes(h.action));
+}
+
+function StepKeterangan({
+  entry,
+  tone,
+}: {
+  entry: StatusHistoryEntry;
+  tone: "success" | "destructive";
+}) {
+  return (
+    <div className="hidden sm:flex flex-col items-center gap-0 text-2xs leading-tight">
+      <span
+        className={cn(
+          "whitespace-nowrap font-medium",
+          tone === "success" ? "text-success" : "text-destructive",
+        )}
+      >
+        {formatDateTime(entry.created_at)}
+      </span>
+      <span className="whitespace-nowrap text-muted-foreground">
+        {entry.actor_name ?? entry.actor_email}
+      </span>
+    </div>
+  );
+}
+
+function StatusStepper({
+  status,
+  history,
+}: {
+  status: string;
+  history?: StatusHistoryEntry[];
+}) {
   const isCancelled = status === "cancelled";
   const currentIdx = STEPS.findIndex((s) => s.key === status);
+  const cancelEntry = isCancelled
+    ? history?.find((h) => h.action === "CANCELLED")
+    : undefined;
 
   return (
     <LiquidGlass
@@ -220,6 +271,7 @@ function StatusStepper({ status }: { status: string }) {
         {STEPS.map((step, i) => {
           const isCompleted = !isCancelled && currentIdx > i;
           const isCurrent = !isCancelled && currentIdx === i;
+          const entry = findStepEntry(history, step.key);
 
           return (
             <React.Fragment key={step.key}>
@@ -234,24 +286,39 @@ function StatusStepper({ status }: { status: string }) {
                 />
               )}
               <div className="flex flex-col items-center gap-1.5">
-                <div
-                  className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold transition-all",
-                    isCompleted &&
-                      "border-success bg-success text-white",
-                    isCurrent &&
-                      "border-primary bg-primary text-primary-foreground shadow-md shadow-primary/25",
-                    !isCompleted &&
-                      !isCurrent &&
-                      "border-muted-foreground/25 bg-background text-muted-foreground/40",
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className={cn(
+                        "flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold transition-all",
+                        isCompleted &&
+                          "border-success bg-success text-white",
+                        isCurrent &&
+                          "border-primary bg-primary text-primary-foreground shadow-md shadow-primary/25",
+                        !isCompleted &&
+                          !isCurrent &&
+                          "border-muted-foreground/25 bg-background text-muted-foreground/40",
+                      )}
+                    >
+                      {isCompleted ? (
+                        <CheckIcon className="size-4" />
+                      ) : (
+                        <span>{i + 1}</span>
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  {entry && (
+                    <TooltipContent>
+                      <div className="text-xs">
+                        <div>{formatDateTime(entry.created_at)}</div>
+                        <div className="text-muted-foreground">
+                          {entry.actor_name ?? entry.actor_email}
+                        </div>
+                      </div>
+                    </TooltipContent>
                   )}
-                >
-                  {isCompleted ? (
-                    <CheckIcon className="size-4" />
-                  ) : (
-                    <span>{i + 1}</span>
-                  )}
-                </div>
+                </Tooltip>
                 <span
                   className={cn(
                     "text-2xs font-medium whitespace-nowrap",
@@ -262,6 +329,7 @@ function StatusStepper({ status }: { status: string }) {
                 >
                   {step.label}
                 </span>
+                {entry && <StepKeterangan entry={entry} tone="success" />}
               </div>
             </React.Fragment>
           );
@@ -271,12 +339,32 @@ function StatusStepper({ status }: { status: string }) {
           <>
             <div className="h-[2px] flex-1 rounded-full bg-destructive/40" />
             <div className="flex flex-col items-center gap-1.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-destructive bg-destructive text-white shadow-md shadow-destructive/25">
-                <XIcon className="size-4" />
-              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-destructive bg-destructive text-white shadow-md shadow-destructive/25"
+                  >
+                    <XIcon className="size-4" />
+                  </button>
+                </TooltipTrigger>
+                {cancelEntry && (
+                  <TooltipContent>
+                    <div className="text-xs">
+                      <div>{formatDateTime(cancelEntry.created_at)}</div>
+                      <div className="text-muted-foreground">
+                        {cancelEntry.actor_name ?? cancelEntry.actor_email}
+                      </div>
+                    </div>
+                  </TooltipContent>
+                )}
+              </Tooltip>
               <span className="text-2xs font-semibold text-destructive whitespace-nowrap">
                 Dibatalkan
               </span>
+              {cancelEntry && (
+                <StepKeterangan entry={cancelEntry} tone="destructive" />
+              )}
             </div>
           </>
         )}
@@ -491,7 +579,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         }
       />
 
-      <StatusStepper status={order.status} />
+      <StatusStepper status={order.status} history={order.status_history} />
 
       {order.is_canceled && order.cancel_reason && (
         <LiquidGlass

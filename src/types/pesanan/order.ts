@@ -60,6 +60,14 @@ export interface OrderListParams {
   decision?: CustomerDecision;
 }
 
+export interface StatusHistoryEntry {
+  action: string;
+  action_id: string;
+  actor_email: string | null;
+  actor_name: string | null;
+  created_at: string;
+}
+
 export interface Order {
   id: string;
   salesorder_no: string;
@@ -70,6 +78,7 @@ export interface Order {
   customer_name: string;
   transaction_date: string | null;
   status: OrderStatus;
+  status_history?: StatusHistoryEntry[];
   channel_status: string | null;
   is_paid: boolean;
   is_canceled: boolean;
