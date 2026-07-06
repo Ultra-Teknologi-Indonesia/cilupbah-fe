@@ -23,6 +23,8 @@ import {
   ClipboardListIcon,
   ZapIcon,
   MessageCircleIcon,
+  MoreHorizontalIcon,
+  Trash2Icon,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -33,9 +35,16 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { BuatPicklistDialog } from "@/components/dashboard/proses-pesanan/picking/buat-picklist-dialog";
 import { BuatPengirimanDialog } from "@/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog";
 import { DriverCallIndicator } from "@/components/dashboard/proses-pesanan/shared/driver-call-indicator";
+import { DeleteOrderDialog } from "@/components/dashboard/proses-pesanan/shared/delete-order-dialog";
 import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
 import { isShopeeInstantOrSameDay } from "@/lib/proses-pesanan/shopee";
 import {
@@ -214,6 +223,7 @@ export function OrderActions({
   const [relocateOpen, setRelocateOpen] = React.useState(false);
   const [contactOpen, setContactOpen] = React.useState(false);
   const [pengirimanOpen, setPengirimanOpen] = React.useState(false);
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
 
   const markComplete = useMarkComplete();
   const requestAwb = useRequestAwb();
@@ -590,6 +600,28 @@ export function OrderActions({
       <>
         {secondaryActions}
         {primaryAction}
+        {!order.is_canceled && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Aksi lainnya"
+              >
+                <MoreHorizontalIcon className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-44">
+              <DropdownMenuItem
+                variant="destructive"
+                onSelect={() => setDeleteOpen(true)}
+              >
+                <Trash2Icon className="size-4 mr-2" />
+                Hapus Pesanan
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         <BuatPengirimanDialog
           open={pengirimanOpen}
           onOpenChange={setPengirimanOpen}
@@ -607,6 +639,12 @@ export function OrderActions({
               ? "INSTANT"
               : undefined
           }
+        />
+        <DeleteOrderDialog
+          open={deleteOpen}
+          onOpenChange={setDeleteOpen}
+          orderId={order.id}
+          orderNo={order.salesorder_no}
         />
       </>
     );
