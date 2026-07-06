@@ -75,6 +75,10 @@ function parseDateStr(s: string): Date | undefined {
   return new Date(`${s}T00:00:00`);
 }
 
+function hasMissingBin(item: InventoryTransfer): boolean {
+  return item.items.some((it) => !it.source_bin_id);
+}
+
 function TransferTable({
   items,
   isLoading,
@@ -289,6 +293,12 @@ export function TransferKeluarTab() {
   const handlePrint = useCallback(
     async (item: InventoryTransfer) => {
       if (printingId) return;
+      if (hasMissingBin(item)) {
+        toast.error(
+          "Pilih rak asal untuk semua item sebelum bisa cetak/kirim.",
+        );
+        return;
+      }
       setPrintingId(item.id);
       try {
         if (item.status === "DRAFT") {
@@ -333,8 +343,11 @@ export function TransferKeluarTab() {
       if (bulkPrinting || items.length === 0) return;
       setBulkPrinting(true);
       try {
+        const blockedByBin = items.filter(hasMissingBin).length;
+        const printable = items.filter((item) => !hasMissingBin(item));
+
         const results = await Promise.allSettled(
-          items.map(async (item) => {
+          printable.map(async (item) => {
             if (item.status === "DRAFT") {
               await submitMutation.mutateAsync(item.id);
             } else if (item.status === "APPROVED") {
@@ -354,6 +367,11 @@ export function TransferKeluarTab() {
           .map((r) => r.value);
         const failedCount = results.length - succeeded.length;
 
+        if (blockedByBin > 0) {
+          toast.error(
+            `${blockedByBin} transfer dilewati karena belum semua item punya rak asal`,
+          );
+        }
         if (failedCount > 0) {
           toast.warning(
             `${failedCount} transfer gagal diproses, ${succeeded.length} dilanjutkan cetak`,
@@ -448,15 +466,21 @@ export function TransferKeluarTab() {
   );
 
   const draftActions = useCallback(
-    (item: InventoryTransfer) => (
+    (item: InventoryTransfer) => {
+      const missingBin = hasMissingBin(item);
+      return (
       <div className="flex items-center gap-1">
         <Button
           variant="ghost"
           size="icon-sm"
           onClick={() => handlePrint(item)}
-          disabled={printingId === item.id}
+          disabled={printingId === item.id || missingBin}
           aria-label="Cetak Surat Jalan & kirim"
-          title="Cetak Surat Jalan & kirim"
+          title={
+            missingBin
+              ? "Pilih rak asal untuk semua item dulu"
+              : "Cetak Surat Jalan & kirim"
+          }
           className="text-primary hover:text-primary"
         >
           {printingId === item.id ? (
@@ -485,7 +509,8 @@ export function TransferKeluarTab() {
           <Trash2Icon className="size-3.5" />
         </Button>
       </div>
-    ),
+      );
+    },
     [handlePrint, handleEdit, printingId],
   );
 
