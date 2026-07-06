@@ -12,6 +12,7 @@ export default async function UploadToChannelPage({
     <div className="flex flex-col gap-6">
       <PageTitle
         title="Upload ke Channel"
+        backHref={`/dashboard/produk/${id}`}
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Katalog" },

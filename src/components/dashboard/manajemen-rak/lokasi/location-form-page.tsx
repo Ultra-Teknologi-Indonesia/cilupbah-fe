@@ -247,6 +247,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
       <form onSubmit={onSubmit} className="flex flex-col gap-6">
         <PageTitle
           title={title}
+          backHref={LIST_HREF}
           breadcrumb={[
             { label: "Gudang" },
             { label: "Manajemen Rak & Lokasi" },

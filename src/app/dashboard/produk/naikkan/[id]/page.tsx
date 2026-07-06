@@ -16,6 +16,7 @@ export default async function NaikkanDetailPage({
     <div className="flex flex-col gap-6">
       <PageTitle
         title="Detail Naikkan Produk"
+        backHref="/dashboard/produk/naikkan"
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Katalog" },

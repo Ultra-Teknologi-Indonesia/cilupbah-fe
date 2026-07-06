@@ -103,6 +103,7 @@ export function TokoInternalFormPage({ mode, id }: Props) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <PageTitle
         title={isEdit ? "Ubah Toko Internal" : "Tambah Toko Internal"}
+        backHref="/dashboard/toko-internal"
         breadcrumb={[
           { label: "Penjualan" },
           { label: "Toko Internal", href: "/dashboard/toko-internal" },
