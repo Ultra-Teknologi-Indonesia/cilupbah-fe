@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -32,9 +33,9 @@ import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import {
-  ProductPickerDialog,
-  type PickedProduct,
-} from "@/components/dashboard/transaksi-pembelian/product-picker-dialog";
+  StockedProductPickerDialog,
+  type StockedPickedProduct,
+} from "@/components/dashboard/transaksi-stok/stocked-product-picker-dialog";
 import { InventoryStockService } from "@/services/persediaan/inventory.service";
 import { OutboundTransferService } from "@/services/barang-keluar/outbound-transfer.service";
 import { cn } from "@/lib/utils";
@@ -203,9 +204,11 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
     }
   };
 
-  // Manual add via product picker: picker only returns basic product info, so
-  // look up stock per SKU at the source location to fill available bins.
-  const handlePicked = async (products: PickedProduct[]) => {
+  // Manual add via StockedProductPickerDialog: dialog itself only lists
+  // products that have stock at sourceLocationId, so the "no stock" skip
+  // below is just a defensive fallback (e.g. stock changed mid-pick).
+  // We still look up bySku per item to get the per-bin breakdown.
+  const handlePicked = async (products: StockedPickedProduct[]) => {
     setPickerOpen(false);
     setPickerSearch(undefined);
     const existing = new Set(lines.map((l) => l.itemId));
@@ -519,10 +522,11 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
                       <TableCell className="px-3 py-2.5">
                         <div className="flex max-w-[260px] items-center gap-3">
                           {l.thumbnail ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
+                            <Image
                               src={l.thumbnail}
                               alt={l.name}
+                              width={44}
+                              height={44}
                               className="h-11 w-11 shrink-0 rounded-xl border border-border object-cover"
                             />
                           ) : (
@@ -670,13 +674,14 @@ export function TransferKeluarFormPage({ mode }: TransferKeluarFormPageProps) {
         </Button>
       </FormFooter>
 
-      <ProductPickerDialog
+      <StockedProductPickerDialog
         open={pickerOpen}
         onOpenChange={(v) => {
           setPickerOpen(v);
           if (!v) setPickerSearch(undefined);
         }}
         onPick={handlePicked}
+        locationId={sourceLocationId}
         excludeIds={lines.map((l) => l.itemId)}
         initialSearch={pickerSearch}
       />

@@ -2,6 +2,7 @@
 import { EmptyState } from "@/components/ui/empty-state";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { PrinterIcon, Trash2Icon, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -252,10 +253,11 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
                             {imageUrl ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
+                              <Image
                                 src={imageUrl}
                                 alt={productName}
+                                width={40}
+                                height={40}
                                 className="h-full w-full object-cover"
                               />
                             ) : (
