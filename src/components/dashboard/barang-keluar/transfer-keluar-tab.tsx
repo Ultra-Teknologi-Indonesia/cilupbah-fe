@@ -39,7 +39,6 @@ import {
   useCancelTransfer,
   useDeleteTransfer,
 } from "@/hooks/barang-keluar/use-outbound-transfers";
-import { OutboundTransferService } from "@/services/barang-keluar/outbound-transfer.service";
 import { useMe } from "@/hooks/auth/use-auth";
 import { toast } from "sonner";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
@@ -291,11 +290,14 @@ export function TransferKeluarTab() {
   const meName = me?.name ?? "";
   const [printingId, setPrintingId] = useState<string | null>(null);
 
-  const openTransferPdf = useCallback(async (id: string) => {
-    const blob = await OutboundTransferService.pdf(id);
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank", "noopener,noreferrer");
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  // Konsisten dengan komponen lain: preview PDF via halaman document-preview,
+  // bukan blob URL. (lihat transfer-out-detail-view, penyesuaian-tab, dst.)
+  const openTransferPdf = useCallback((id: string) => {
+    window.open(
+      `/dashboard/document-preview/transfer-out/${id}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
   }, []);
 
   const handlePrint = useCallback(
@@ -312,7 +314,7 @@ export function TransferKeluarTab() {
             data: { shipped_by: meName },
           });
         }
-        await openTransferPdf(item.id);
+        openTransferPdf(item.id);
       } catch (err) {
         toast.error(
           (err as { message?: string })?.message ||
@@ -326,20 +328,10 @@ export function TransferKeluarTab() {
   );
 
   const handleReprint = useCallback(
-    async (item: InventoryTransfer) => {
-      if (printingId) return;
-      setPrintingId(item.id);
-      try {
-        await openTransferPdf(item.id);
-      } catch (err) {
-        toast.error(
-          (err as { message?: string })?.message || "Gagal membuka PDF",
-        );
-      } finally {
-        setPrintingId(null);
-      }
+    (item: InventoryTransfer) => {
+      openTransferPdf(item.id);
     },
-    [printingId, openTransferPdf],
+    [openTransferPdf],
   );
 
   const resetPage = useCallback(() => setPage(1), []);
