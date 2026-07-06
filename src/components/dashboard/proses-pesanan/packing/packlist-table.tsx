@@ -2,12 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import {
-  RefreshCwIcon,
-  MoreHorizontalIcon,
-  Trash2Icon,
-  ZapIcon,
-} from "lucide-react";
+import { RefreshCwIcon, Trash2Icon, ZapIcon } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -24,13 +19,6 @@ import {
 } from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
 import {
   usePacklists,
   usePrefetchPacklistDetail,
@@ -173,41 +161,44 @@ export function PacklistTable() {
         id: "actions",
         header: () => null,
         cell: ({ row }) => (
-          <div className="flex justify-end">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon-sm" aria-label="Aksi">
-                  <MoreHorizontalIcon className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-44">
-                <DropdownMenuItem
-                  onSelect={() =>
-                    router.push(
-                      `/dashboard/proses-pesanan/packing/${row.original.id}`,
-                    )
-                  }
-                  onMouseEnter={() => prefetchPacklist(row.original.id)}
-                >
-                  Proses Packing
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setEditPacker(row.original)}>
-                  Ubah Packer
-                </DropdownMenuItem>
-                {row.original.orderId && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      variant="destructive"
-                      onSelect={() => setDeleteTarget(row.original)}
+          <div className="flex justify-end items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                router.push(
+                  `/dashboard/proses-pesanan/packing/${row.original.id}`,
+                )
+              }
+              onMouseEnter={() => prefetchPacklist(row.original.id)}
+            >
+              Proses Packing
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEditPacker(row.original)}
+            >
+              Ubah Packer
+            </Button>
+            {row.original.orderId && (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      aria-label="Hapus Pesanan"
+                      onClick={() => setDeleteTarget(row.original)}
                     >
-                      <Trash2Icon className="size-4 mr-2" />
-                      Hapus Pesanan
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                      <Trash2Icon className="size-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Hapus Pesanan</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </div>
         ),
       },

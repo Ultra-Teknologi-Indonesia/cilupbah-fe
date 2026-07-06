@@ -4,7 +4,6 @@ import * as React from "react";
 import Link from "next/link";
 import {
   RefreshCwIcon,
-  MoreHorizontalIcon,
   PrinterIcon,
   XCircleIcon,
   ZapIcon,
@@ -28,13 +27,6 @@ import {
 } from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
 import {
   useCancelShipment,
   useShipments,
@@ -191,30 +183,31 @@ export function ShipmentTable() {
         id: "actions",
         header: () => null,
         cell: ({ row }) => (
-          <div className="flex justify-end">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon-sm" aria-label="Aksi">
-                  <MoreHorizontalIcon className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-44">
-                <DropdownMenuItem
-                  onSelect={() => DocActions.manifest(row.original.id)}
-                >
-                  <PrinterIcon className="size-4 mr-2" />
-                  Cetak Manifest
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  variant="destructive"
-                  onSelect={() => onCancel(row.original)}
-                >
-                  <XCircleIcon className="size-4 mr-2" />
-                  Batalkan
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <div className="flex justify-end items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => DocActions.manifest(row.original.id)}
+            >
+              <PrinterIcon className="size-3.5" />
+              Cetak Manifest
+            </Button>
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    aria-label="Batalkan"
+                    onClick={() => onCancel(row.original)}
+                  >
+                    <XCircleIcon className="size-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Batalkan</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         ),
       },
