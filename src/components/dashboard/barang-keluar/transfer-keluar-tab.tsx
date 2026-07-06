@@ -3,47 +3,38 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRightLeftIcon,
-  DownloadIcon,
-  CheckIcon,
-  TruckIcon,
-  XIcon,
+import Link from "next/link";
+import {
+  ArrowRightLeftIcon,
   PlusIcon,
   PrinterIcon,
-  Trash2Icon, Loader2Icon } from "lucide-react";
+  Trash2Icon,
+  Loader2Icon,
+} from "lucide-react";
 
 import type { DateRange } from "react-day-picker";
 
-import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { DateRangePicker } from "@/components/ui/date-picker";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
-import { UserSelect } from "@/components/dashboard/shared/user-select";
-import { StatusBadge } from "@/components/dashboard/shared/status-badge";
-import { getStatusMeta } from "@/lib/status";
 import {
   useOutboundDrafts,
   useOutboundTransit,
   useOutboundFinished,
-  useApproveTransfer,
   useShipTransfer,
   useSubmitDraft,
-  useCancelTransfer,
   useDeleteTransfer,
 } from "@/hooks/barang-keluar/use-outbound-transfers";
 import { useMe } from "@/hooks/auth/use-auth";
 import { toast } from "sonner";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useDebouncedSearch } from "@/hooks/shared/use-debounced-search";
-import { exportCsv } from "@/lib/export-csv";
 import type { InventoryTransfer } from "@/types/barang-masuk/inventory-transfer";
 import { formatDate } from "@/lib/format";
 
@@ -78,24 +69,6 @@ function toDateStr(d?: Date): string {
 function parseDateStr(s: string): Date | undefined {
   if (!s) return undefined;
   return new Date(`${s}T00:00:00`);
-}
-
-function ProgressBar({ received, total }: { received: number; total: number }) {
-  const pct = total > 0 ? Math.round((received / total) * 100) : 0;
-  return (
-    <div className="flex items-center gap-2">
-      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
-        <div
-          className={cn(
-            "h-full rounded-full transition-all",
-            pct >= 100 ? "bg-success" : "bg-warning",
-          )}
-          style={{ width: `${Math.min(pct, 100)}%` }}
-        />
-      </div>
-      <span className="text-xs tabular-nums text-muted-foreground">{pct}%</span>
-    </div>
-  );
 }
 
 function TransferTable({
@@ -134,7 +107,13 @@ function TransferTable({
         accessorKey: "transfer_number",
         header: "No. Transfer",
         cell: ({ row }) => (
-          <span className="font-medium">{row.original.transfer_number}</span>
+          <Link
+            href={`/dashboard/barang-keluar/transfer/${row.original.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="font-medium text-primary underline-offset-2 transition-colors hover:underline"
+          >
+            {row.original.transfer_number}
+          </Link>
         ),
       },
       {
@@ -171,39 +150,6 @@ function TransferTable({
           <span className="tabular-nums text-foreground">
             {row.original.items?.length ?? 0} item
           </span>
-        ),
-      },
-      {
-        id: "progress",
-        header: "Progress",
-        cell: ({ row }) => {
-          const s = row.original.status;
-          if (s !== "IN_TRANSIT" && s !== "RECEIVED") {
-            return <span className="text-xs text-muted-foreground">—</span>;
-          }
-          const totalQty =
-            row.original.items?.reduce(
-              (s: number, i: { qty: number }) => s + i.qty,
-              0,
-            ) ?? 0;
-          const recvQty =
-            row.original.items?.reduce(
-              (s: number, i: { received_qty?: number }) =>
-                s + (i.received_qty ?? 0),
-              0,
-            ) ?? 0;
-          return <ProgressBar received={recvQty} total={totalQty} />;
-        },
-      },
-      {
-        accessorKey: "status",
-        header: "Status",
-        cell: ({ row }) => (
-          <StatusBadge
-            domain="inventory-transfer"
-            status={row.original.status}
-            className="text-xs leading-tight"
-          />
         ),
       },
       {
@@ -263,22 +209,7 @@ export function TransferKeluarTab() {
   const [perPage, setPerPage] = useState(20);
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
 
-  const [approveTarget, setApproveTarget] = useState<InventoryTransfer | null>(
-    null,
-  );
-  const [approvedBy, setApprovedBy] = useState("");
-  const approveMutation = useApproveTransfer();
-
-  const [shipTarget, setShipTarget] = useState<InventoryTransfer | null>(null);
-  const [shippedBy, setShippedBy] = useState("");
   const shipMutation = useShipTransfer();
-
-  const [cancelTarget, setCancelTarget] = useState<InventoryTransfer | null>(
-    null,
-  );
-  const [cancelledBy, setCancelledBy] = useState("");
-  const [cancelReason, setCancelReason] = useState("");
-  const cancelMutation = useCancelTransfer();
 
   const [deleteTarget, setDeleteTarget] = useState<InventoryTransfer | null>(
     null,
@@ -404,29 +335,6 @@ export function TransferKeluarTab() {
   const hasActiveFilter = Object.values(filters).some(Boolean);
   const activeCount = Object.values(filters).filter(Boolean).length;
 
-  const handleExport = useCallback(() => {
-    if (items.length === 0) return;
-    exportCsv(
-      `transfer-keluar-${subTab}.csv`,
-      [
-        "No. Transfer",
-        "Tanggal",
-        "Lokasi Asal",
-        "Lokasi Tujuan",
-        "Jumlah Item",
-        "Status",
-      ],
-      items.map((t: InventoryTransfer) => [
-        t.transfer_number,
-        t.created_at,
-        t.source_location?.location_name ?? "",
-        t.destination_location?.location_name ?? "",
-        String(t.items?.length ?? 0),
-        getStatusMeta("inventory-transfer", t.status).label,
-      ]),
-    );
-  }, [items, subTab]);
-
   const handleRowClick = useCallback(
     (item: InventoryTransfer) => {
       router.push(`/dashboard/barang-keluar/transfer/${item.id}`);
@@ -449,56 +357,16 @@ export function TransferKeluarTab() {
           ) : (
             <PrinterIcon className="size-3.5" />
           )}
+          Cetak
         </button>
-        {(item.status === "DRAFT" || item.status === "APPROVED") && (
-          <>
-            {item.status === "DRAFT" && (
-              <button
-                type="button"
-                onClick={() => {
-                  setApproveTarget(item);
-                  setApprovedBy("");
-                }}
-                className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
-              >
-                <CheckIcon className="size-3.5" />
-                Approve
-              </button>
-            )}
-            {item.status === "APPROVED" && (
-              <button
-                type="button"
-                onClick={() => {
-                  setShipTarget(item);
-                  setShippedBy("");
-                }}
-                className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
-              >
-                <TruckIcon className="size-3.5" />
-                Kirim
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => {
-                setCancelTarget(item);
-                setCancelReason("");
-              }}
-              className="inline-flex items-center gap-1 rounded-md bg-warning/10 px-2.5 py-1 text-xs font-medium text-warning transition-colors hover:bg-warning/20"
-            >
-              <XIcon className="size-3.5" />
-            </button>
-            {item.status === "DRAFT" && (
-              <button
-                type="button"
-                onClick={() => setDeleteTarget(item)}
-                className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20"
-              >
-                <Trash2Icon className="size-3.5" />
-              </button>
-            )}
-          </>
-        )}
+        <button
+          type="button"
+          onClick={() => setDeleteTarget(item)}
+          title="Hapus transfer"
+          className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20"
+        >
+          <Trash2Icon className="size-3.5" />
+        </button>
       </div>
     ),
     [handlePrint, printingId],
@@ -566,17 +434,6 @@ export function TransferKeluarTab() {
           hasFilter={hasActiveFilter}
           activeCount={activeCount}
           gridCols={2}
-          leading={
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExport}
-              disabled={items.length === 0}
-            >
-              <DownloadIcon className="mr-1.5 size-4" />
-              Export CSV
-            </Button>
-          }
         >
           <Combobox
             options={locationOptions}
@@ -618,135 +475,12 @@ export function TransferKeluarTab() {
       </LiquidGlass>
 
       <ConfirmDialog
-        open={!!approveTarget}
-        onOpenChange={(open) => {
-          if (!open) setApproveTarget(null);
-        }}
-        title="Approve Transfer"
-        description={`Approve transfer ${approveTarget?.transfer_number ?? ""}?`}
-        confirmLabel="Approve"
-        loading={approveMutation.isPending}
-        onConfirm={() => {
-          if (!approveTarget || !approvedBy.trim()) return;
-          approveMutation.mutate(
-            { id: approveTarget.id, data: { approved_by: approvedBy.trim() } },
-            { onSuccess: () => setApproveTarget(null) },
-          );
-        }}
-      >
-        <div className="px-1 py-2">
-          <Label htmlFor="tf-approved-by" className="text-sm font-medium">
-            Disetujui oleh <span className="text-destructive">*</span>
-          </Label>
-          <UserSelect
-            value={approvedBy}
-            onChange={setApprovedBy}
-            placeholder="Nama penyetuju"
-            className="mt-1.5"
-          />
-        </div>
-      </ConfirmDialog>
-
-      <ConfirmDialog
-        open={!!shipTarget}
-        onOpenChange={(open) => {
-          if (!open) setShipTarget(null);
-        }}
-        title="Kirim Transfer"
-        description={`Kirim transfer ${shipTarget?.transfer_number ?? ""}? Stok akan dikurangi dari lokasi asal.`}
-        confirmLabel="Kirim"
-        loading={shipMutation.isPending}
-        onConfirm={() => {
-          if (!shipTarget || !shippedBy.trim()) return;
-          shipMutation.mutate(
-            { id: shipTarget.id, data: { shipped_by: shippedBy.trim() } },
-            { onSuccess: () => setShipTarget(null) },
-          );
-        }}
-      >
-        <div className="px-1 py-2">
-          <Label htmlFor="tf-shipped-by" className="text-sm font-medium">
-            Dikirim oleh <span className="text-destructive">*</span>
-          </Label>
-          <UserSelect
-            value={shippedBy}
-            onChange={setShippedBy}
-            defaultToSelf
-            placeholder="Nama pengirim"
-            className="mt-1.5"
-          />
-        </div>
-      </ConfirmDialog>
-
-      <ConfirmDialog
-        open={!!cancelTarget}
-        onOpenChange={(open) => {
-          if (!open) {
-            setCancelTarget(null);
-            setCancelledBy("");
-            setCancelReason("");
-          }
-        }}
-        title="Batalkan Transfer"
-        description={`Batalkan transfer ${cancelTarget?.transfer_number ?? ""}?`}
-        confirmLabel="Batalkan"
-        variant="destructive"
-        loading={cancelMutation.isPending}
-        onConfirm={() => {
-          if (!cancelTarget || !cancelledBy.trim()) return;
-          cancelMutation.mutate(
-            {
-              id: cancelTarget.id,
-              data: {
-                cancelled_by: cancelledBy.trim(),
-                cancel_reason: cancelReason.trim() || undefined,
-              },
-            },
-            {
-              onSuccess: () => {
-                setCancelTarget(null);
-                setCancelledBy("");
-                setCancelReason("");
-              },
-            },
-          );
-        }}
-      >
-        <div className="flex flex-col gap-3 px-1 py-2">
-          <div>
-            <Label htmlFor="tf-cancelled-by" className="text-sm font-medium">
-              Dibatalkan oleh <span className="text-destructive">*</span>
-            </Label>
-            <UserSelect
-              value={cancelledBy}
-              onChange={setCancelledBy}
-              defaultToSelf
-              placeholder="Nama pembatal"
-              className="mt-1.5"
-            />
-          </div>
-          <div>
-            <Label htmlFor="tf-cancel-reason" className="text-sm font-medium">
-              Alasan pembatalan
-            </Label>
-            <Input
-              id="tf-cancel-reason"
-              placeholder="Alasan (opsional)"
-              value={cancelReason}
-              onChange={(e) => setCancelReason(e.target.value)}
-              className="mt-1.5"
-            />
-          </div>
-        </div>
-      </ConfirmDialog>
-
-      <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
         title="Hapus Transfer"
-        description={`Hapus draft transfer ${deleteTarget?.transfer_number ?? ""}? Aksi ini tidak bisa dibatalkan.`}
+        description={`Hapus transfer ${deleteTarget?.transfer_number ?? ""}? Stok yang sudah dialokasikan akan dikembalikan. Aksi ini tidak bisa dibatalkan.`}
         confirmLabel="Hapus"
         variant="destructive"
         loading={deleteMutation.isPending}

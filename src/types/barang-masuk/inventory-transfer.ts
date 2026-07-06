@@ -7,12 +7,15 @@ export interface InventoryTransferItem {
   item_id: string;
   qty: number;
   received_qty: number;
-  variant?: {
+  source_bin?: { id: string; bin_final_code: string } | null;
+  // Relasi `product` = ProductVariant (dimuat oleh BE untuk detail).
+  product?: {
     id: string;
     sku: string;
-    item_name: string;
-    variation_values: { label: string; value: string }[];
-  };
+    product?: { id: string; name: string; media?: { url: string }[] } | null;
+    media?: { url: string }[];
+    options?: { value: string }[];
+  } | null;
 }
 
 export interface InventoryTransfer {
