@@ -923,13 +923,6 @@ export const OutboundService = {
     return (res.data ?? []).map(mapShipResult);
   },
 
-  shippingLabel: async (orderIds: string[]): Promise<unknown> => {
-    const res = await fetchClient<ApiResponse<unknown>>(
-      `/reports/shipping-label?order_ids=${orderIds.join(",")}`,
-    );
-    return res.data;
-  },
-
   pickListDoc: async (orderIds: string[]): Promise<unknown> => {
     const res = await fetchClient<ApiResponse<unknown>>(
       `/reports/wms/pick-list?order_ids=${orderIds.join(",")}`,
@@ -951,11 +944,18 @@ export const OutboundService = {
     );
   },
 
-  invoiceDoc: async (orderIds: string[]): Promise<unknown> => {
-    const res = await fetchClient<ApiResponse<unknown>>(
-      `/reports/invoice?order_ids=${orderIds.join(",")}`,
+  invoicePdf: async (orderId: string): Promise<Blob> => {
+    return fetchBlobRaw(
+      `/sales/${encodeURIComponent(orderId)}/invoice`,
+      "application/pdf",
     );
-    return res.data;
+  },
+
+  manifestPdf: async (shipmentId: string): Promise<Blob> => {
+    return fetchBlobRaw(
+      `/outbound/shipments/${encodeURIComponent(shipmentId)}/manifest-pdf`,
+      "application/pdf",
+    );
   },
 
   suratJalanDoc: async (orderIds: string[]): Promise<unknown> => {

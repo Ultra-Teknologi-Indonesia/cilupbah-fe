@@ -50,8 +50,8 @@
     "semantic_hash": ""
   },
   "src/app/dashboard/layout.tsx": {
-    "mtime": 1783067818.9874904,
-    "ast_hash": "4b2c0d4d6d2e271e6f8a4d544d35c8ff",
+    "mtime": 1783238706.327542,
+    "ast_hash": "64bcb68998a2ef8b44b16dc8408aeeba",
     "semantic_hash": ""
   },
   "src/app/dashboard/page.tsx": {
@@ -65,8 +65,8 @@
     "semantic_hash": ""
   },
   "src/app/dashboard/produk/[id]/upload-to-channel/page.tsx": {
-    "mtime": 1783067819.086436,
-    "ast_hash": "4168195fd72d6c56bafcc6c6f7a4e207",
+    "mtime": 1783250249.611308,
+    "ast_hash": "eddb2046b9dc3a50e9851b1041dd4d0b",
     "semantic_hash": ""
   },
   "src/app/dashboard/produk/upload/page.tsx": {
@@ -110,8 +110,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/integrasi-channel/connect-marketplace-panel.tsx": {
-    "mtime": 1783067819.8575275,
-    "ast_hash": "16d2acbecc2e5b702796773a7fc86bc0",
+    "mtime": 1783238730.5646255,
+    "ast_hash": "6f569f6ed4fe946020135600c7b80431",
     "semantic_hash": ""
   },
   "src/components/dashboard/integrasi-channel/integrasi-channel-view.tsx": {
@@ -150,8 +150,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/buat/edit-produk-form.tsx": {
-    "mtime": 1783067820.9641726,
-    "ast_hash": "92f6b3e25c8ac30b859bda7a8333290c",
+    "mtime": 1783238803.9086,
+    "ast_hash": "d4ee86c130ff39304d51e86c76b4a656",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/buat/edit-produk-loader.tsx": {
@@ -185,8 +185,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/buat/media-uploader.tsx": {
-    "mtime": 1783222900.563617,
-    "ast_hash": "a9b8d7447d53c73ad915a884daba2ee5",
+    "mtime": 1783238824.201089,
+    "ast_hash": "a9f8666f060a5ff0f38e0eedacf6b979",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/buat/section-nav.tsx": {
@@ -210,13 +210,13 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/detail/detail-header.tsx": {
-    "mtime": 1783222811.2493286,
-    "ast_hash": "71d56662eb0e5da6c4a19df7e6ad33d7",
+    "mtime": 1783238557.350027,
+    "ast_hash": "563c870a2505fd519e1f878a3ba2880c",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/detail/product-detail-skeleton.tsx": {
-    "mtime": 1783067821.2242792,
-    "ast_hash": "c71de0729a5fe5e72f2ca34e984667d5",
+    "mtime": 1783238451.248522,
+    "ast_hash": "2879df499f5bfcc98f55b1b88672922a",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/detail/product-detail-view.tsx": {
@@ -280,13 +280,13 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/product-channel-badges.tsx": {
-    "mtime": 1783067821.7836523,
-    "ast_hash": "af783b38c7c2a10f1f02e0f519b365ed",
+    "mtime": 1783238645.8568773,
+    "ast_hash": "ef41efe871954a7e191b2c1c8b721d3e",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/product-columns.tsx": {
-    "mtime": 1783222958.7648113,
-    "ast_hash": "13831f31b3584e21ab0bc77ad4f488f9",
+    "mtime": 1783238661.6303165,
+    "ast_hash": "7ea4b6b380a97054d0c35f00a311bbf0",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/product-explorer.tsx": {
@@ -305,8 +305,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/product-stats.tsx": {
-    "mtime": 1783067821.8232813,
-    "ast_hash": "3b07bcf20a95628a74c6e4f64eb02c72",
+    "mtime": 1783238672.042992,
+    "ast_hash": "870cea70034aae59f0918f74b7fcef99",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/product-status-badge.tsx": {
@@ -330,8 +330,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/upload-to-channel/destination-table.tsx": {
-    "mtime": 1783067821.901998,
-    "ast_hash": "5cfea681fd4f66f50c03c004253ab520",
+    "mtime": 1783238738.485735,
+    "ast_hash": "bc864d00488bcec34a0e32442024961d",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/upload-to-channel/upload-to-channel-view.tsx": {
@@ -345,13 +345,13 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/upload/hasil-tab.tsx": {
-    "mtime": 1783092712.5666022,
-    "ast_hash": "2cdd3406d38e50e0d92f5fa38334b6a4",
+    "mtime": 1783238773.030705,
+    "ast_hash": "4b69018860f82675b368025035b6b895",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/upload/product-picker-dialog.tsx": {
-    "mtime": 1783093833.885524,
-    "ast_hash": "233be2c51f6c59bf35690f02bce1d44a",
+    "mtime": 1783238792.0509284,
+    "ast_hash": "d19448085e6fc5db886a0d025981cb2d",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/upload/upload-massal-view.tsx": {
@@ -365,8 +365,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/sidebar/app-sidebar.tsx": {
-    "mtime": 1783067822.7827606,
-    "ast_hash": "d135bdf4d47373e064baa5062edd901d",
+    "mtime": 1783249600.7414117,
+    "ast_hash": "d95f9f00441219fb9232c72b3f3a281d",
     "semantic_hash": ""
   },
   "src/components/dashboard/sidebar/index.tsx": {
@@ -385,23 +385,23 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/sidebar/nav-main.tsx": {
-    "mtime": 1783067822.8123858,
-    "ast_hash": "b4cdc4d68ff3627a3d160863a127d5af",
+    "mtime": 1783238776.6263683,
+    "ast_hash": "28892801ebe70fbebeba08a52f61a0e2",
     "semantic_hash": ""
   },
   "src/components/dashboard/sidebar/nav-notifications.tsx": {
-    "mtime": 1783222924.30084,
-    "ast_hash": "9155752a5556e499372f4a0304e143c6",
+    "mtime": 1783238876.578216,
+    "ast_hash": "1d7e9c716cc16342b5de16c40a225dc8",
     "semantic_hash": ""
   },
   "src/components/dashboard/sidebar/sidebar-panel.tsx": {
-    "mtime": 1783067822.8229637,
-    "ast_hash": "63408b140cdb48a02d39fc27a8993611",
+    "mtime": 1783249608.7998855,
+    "ast_hash": "51f48aaffdba7a59db46376c289dfa6a",
     "semantic_hash": ""
   },
   "src/components/dashboard/sidebar/sidebar-rail-nav.tsx": {
-    "mtime": 1783149307.7083983,
-    "ast_hash": "84bf8d5ee96991fb175301837105a164",
+    "mtime": 1783249570.7450476,
+    "ast_hash": "b49932b62843ac79895c25ec0b5e9b0a",
     "semantic_hash": ""
   },
   "src/components/dashboard/sidebar/team-switcher.tsx": {
@@ -990,8 +990,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/listing-marketplace/listing-columns.tsx": {
-    "mtime": 1783223006.9167073,
-    "ast_hash": "7cb7f5afe16b2285e84de0f415ca4230",
+    "mtime": 1783238627.1594558,
+    "ast_hash": "6342b5e3f82c36645ac01e2a2b947900",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/listing-marketplace/listing-view.tsx": {
@@ -1010,13 +1010,13 @@
     "semantic_hash": ""
   },
   "src/components/ui/map.tsx": {
-    "mtime": 1783067823.3432744,
-    "ast_hash": "5dd63039d7c273003e579f6a4d5aa152",
+    "mtime": 1783239073.1124449,
+    "ast_hash": "076d2a3fbf83068507c9486c225cdb4b",
     "semantic_hash": ""
   },
   "src/components/dashboard/produk/produk-tab-bar.tsx": {
-    "mtime": 1783097846.0742977,
-    "ast_hash": "790e366034b085e1d625b056271d9099",
+    "mtime": 1783238755.251168,
+    "ast_hash": "86d3cb4acd24c3fe9ef4a9766f1b7fdb",
     "semantic_hash": ""
   },
   "docs/SESSION-HANDOFF.md": {
@@ -1035,13 +1035,13 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/manajemen-rak/lokasi/layout-gudang-tab.tsx": {
-    "mtime": 1783093833.8738358,
-    "ast_hash": "b25241d36396f948b044780bc70dc562",
+    "mtime": 1783238620.5705826,
+    "ast_hash": "6eb266515ef5f760e525948512c3176d",
     "semantic_hash": ""
   },
   "src/components/dashboard/manajemen-rak/lokasi/location-form-page.tsx": {
-    "mtime": 1783219894.2729015,
-    "ast_hash": "e425a79f3c6c7d932ccf9df4b135a130",
+    "mtime": 1783250253.357305,
+    "ast_hash": "7b2737dc8a98f17f8d20c220e6cf2b6a",
     "semantic_hash": ""
   },
   "src/components/dashboard/manajemen-rak/lokasi/location-list-view.tsx": {
@@ -1280,8 +1280,8 @@
     "semantic_hash": ""
   },
   "src/app/dashboard/produk/naikkan/[id]/page.tsx": {
-    "mtime": 1783067819.146985,
-    "ast_hash": "a07d8c20e6e4057fd96d36f47d6316b4",
+    "mtime": 1783250247.6180754,
+    "ast_hash": "a7c1fb5b9bb542fa440ac53b52f502b0",
     "semantic_hash": ""
   },
   "src/app/dashboard/produk/naikkan/page.tsx": {
@@ -1305,8 +1305,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/kategori-merek/edit-kategori-dialog.tsx": {
-    "mtime": 1783095064.6241906,
-    "ast_hash": "b9e3c6711cdaa4360984f51a69023c7f",
+    "mtime": 1783238583.2416615,
+    "ast_hash": "ba9b4167ba6b6ecc0f729fab9996d000",
     "semantic_hash": ""
   },
   "src/components/dashboard/kategori-merek/import-system-dialog.tsx": {
@@ -1340,8 +1340,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/kategori-merek/tambah-kategori-dialog.tsx": {
-    "mtime": 1783094496.8955095,
-    "ast_hash": "60386f3dd7f29a52f2361a7c74808a0e",
+    "mtime": 1783238600.4767895,
+    "ast_hash": "0360fa682cee39c2bc2e9ca63a11565a",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/buat/buat-bundle-form.tsx": {
@@ -1350,8 +1350,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/buat/product-media-manager.tsx": {
-    "mtime": 1783222890.9629424,
-    "ast_hash": "6aa6e77e5dd1138f1470347205526bde",
+    "mtime": 1783238862.4172854,
+    "ast_hash": "a5bf60e506f9948d507363f97a848413",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/filter-toolbar.tsx": {
@@ -1370,8 +1370,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/import/import-view.tsx": {
-    "mtime": 1783092707.439053,
-    "ast_hash": "de94809fb1d5c0d9851f29aa5e145239",
+    "mtime": 1783238603.815752,
+    "ast_hash": "6270d59f0139b1d2319571270bb58533",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/naikkan/countdown-timer.tsx": {
@@ -1415,18 +1415,18 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/upload-to-channel/attribute-selection-dialog.tsx": {
-    "mtime": 1783067821.860787,
-    "ast_hash": "edbccaf87d83b54b7fe35590ad10a4e3",
+    "mtime": 1783238683.802584,
+    "ast_hash": "72eeacf6deba9643125025dcd1cda381",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/upload-to-channel/category-rules-card.tsx": {
-    "mtime": 1783067821.8696518,
-    "ast_hash": "49e7275a9b157bd8546aeec6ef72d57b",
+    "mtime": 1783238709.8726337,
+    "ast_hash": "7fdb0a6d871af8bf2025683706b2e37f",
     "semantic_hash": ""
   },
   "src/components/dashboard/pesanan/bulk-action-bar.tsx": {
-    "mtime": 1783100134.1943958,
-    "ast_hash": "3c647892b97a2dfd50c868a1b78ba1b8",
+    "mtime": 1783238451.2592218,
+    "ast_hash": "9ffbc296707f7fd4517e1543cc3d6144",
     "semantic_hash": ""
   },
   "src/components/dashboard/pesanan/order-card-list.tsx": {
@@ -1435,8 +1435,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/pesanan/order-card.tsx": {
-    "mtime": 1783222870.1774292,
-    "ast_hash": "0806c31b6f3ac54f7d5d42be14e10faf",
+    "mtime": 1783258778.9751878,
+    "ast_hash": "e1446a5c4058a5b684f4596f0bdc1f54",
     "semantic_hash": ""
   },
   "src/components/dashboard/pesanan/order-filters.tsx": {
@@ -1475,8 +1475,8 @@
     "semantic_hash": ""
   },
   "src/components/ui/confirm-dialog.tsx": {
-    "mtime": 1783067823.1043096,
-    "ast_hash": "d0a2a4ec789f4f8d6f31d7505df6720a",
+    "mtime": 1783257979.7250712,
+    "ast_hash": "13c7a49d708d5ead0dc38923d60916f3",
     "semantic_hash": ""
   },
   "src/components/ui/date-picker.tsx": {
@@ -1530,8 +1530,8 @@
     "semantic_hash": ""
   },
   "src/hooks/proses-pesanan/use-fulfillment.ts": {
-    "mtime": 1783222216.1121285,
-    "ast_hash": "e8ff895f3992257c7fee0ec7989ac4c8",
+    "mtime": 1783259207.0777106,
+    "ast_hash": "47da0185a92e67b0b39ab4bba227acd8",
     "semantic_hash": ""
   },
   "src/services/kategori-merek/kategori.service.ts": {
@@ -1555,8 +1555,8 @@
     "semantic_hash": ""
   },
   "src/services/proses-pesanan/outbound.service.ts": {
-    "mtime": 1783222188.5194876,
-    "ast_hash": "ca459aab851dd2e913e55300d4089372",
+    "mtime": 1783239705.8968046,
+    "ast_hash": "8043bbca4f38ad7efa754b6fbf6fdb51",
     "semantic_hash": ""
   },
   "src/types/kategori-merek/kategori.ts": {
@@ -1565,13 +1565,13 @@
     "semantic_hash": ""
   },
   "src/types/pesanan/order.ts": {
-    "mtime": 1783124099.9328961,
-    "ast_hash": "accd43604cbb1dc5195b1ecd8fa902f7",
+    "mtime": 1783257889.0889053,
+    "ast_hash": "ce16440d4cca3392aba6903277a99644",
     "semantic_hash": ""
   },
   "src/types/proses-pesanan/fulfillment.ts": {
-    "mtime": 1783222210.4609478,
-    "ast_hash": "b8e0b1ff6e8c2b02b00c9758ba4920a8",
+    "mtime": 1783225566.4012313,
+    "ast_hash": "4f2b0d9410d742d87258f30a4f35d131",
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/channel-badge.tsx": {
@@ -1590,8 +1590,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/picking/picklist-table.tsx": {
-    "mtime": 1783222860.6104248,
-    "ast_hash": "7984a991ca94674bc6c12fd6b134d3ab",
+    "mtime": 1783239782.744783,
+    "ast_hash": "02b58aca16cf27c666d44b1e5bfb6797",
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/picking/ubah-picker-dialog.tsx": {
@@ -1615,13 +1615,13 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/shared/fulfillment-orders-table.tsx": {
-    "mtime": 1783222921.4653642,
-    "ast_hash": "6148fa4ff6a58f3337c39fae724740ce",
+    "mtime": 1783238840.2646832,
+    "ast_hash": "2342225f0db00c9d53c5e35190b13c0a",
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog.tsx": {
-    "mtime": 1783222888.7223253,
-    "ast_hash": "7a5bde4d2b81f64f72d43a5434e169a5",
+    "mtime": 1783225613.1294694,
+    "ast_hash": "60e7a6018b979a3dfce4ed76ff26f1e3",
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/shipping/shipment-table.tsx": {
@@ -1640,8 +1640,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/packing/packing-detail-view.tsx": {
-    "mtime": 1783222850.6476817,
-    "ast_hash": "e1e5fbe4e6abcfa701b315906c146ed0",
+    "mtime": 1783259478.5200896,
+    "ast_hash": "b583d950c74a3a8ddf2b49b1fcd18047",
     "semantic_hash": ""
   },
   "src/app/dashboard/bantuan/loading.tsx": {
@@ -1950,48 +1950,48 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/barang-keluar/retur-pembelian-tab.tsx": {
-    "mtime": 1783221277.9584105,
-    "ast_hash": "06c0b2b5c8036c993f56e71108090a90",
+    "mtime": 1783238004.5574286,
+    "ast_hash": "a0118db52403ea3026e4bf6dbb96bacc",
     "semantic_hash": ""
   },
   "src/components/dashboard/barang-keluar/transfer-keluar-tab.tsx": {
-    "mtime": 1783170060.6466975,
-    "ast_hash": "393a5a57f2906eb6d2b62a0c8e0d7397",
+    "mtime": 1783238451.1214736,
+    "ast_hash": "2fbf9992f603af5a4f7c0f25eec9c80f",
     "semantic_hash": ""
   },
   "src/components/dashboard/barang-masuk/penempatan-barang-tab.tsx": {
-    "mtime": 1783124750.6268144,
-    "ast_hash": "d4d81e51a81eb2c0e0bea709dd4a1692",
+    "mtime": 1783238451.2163463,
+    "ast_hash": "0380f8d55a6a334a1af1f35a5746756e",
     "semantic_hash": ""
   },
   "src/components/dashboard/barang-masuk/penerimaan-barang-tab.tsx": {
-    "mtime": 1783094356.101863,
-    "ast_hash": "56a24786df2c23d1359e141ff9f384ad",
+    "mtime": 1783238451.1836023,
+    "ast_hash": "0fb7427810e97bf6e397434db76c8bb8",
     "semantic_hash": ""
   },
   "src/components/dashboard/barang-masuk/pesanan-pembelian-tab.tsx": {
-    "mtime": 1783170086.5259712,
-    "ast_hash": "6610535855995c5e199cec621609d4f4",
+    "mtime": 1783238451.2115111,
+    "ast_hash": "a3b72554f89931ef14843f5863d257ae",
     "semantic_hash": ""
   },
   "src/components/dashboard/barang-masuk/retur-channel-tab.tsx": {
-    "mtime": 1783221277.9802961,
-    "ast_hash": "aeb678cf792fea73057ab03f830d9409",
+    "mtime": 1783238598.0390012,
+    "ast_hash": "78ec0ecbba70f35048c1a453533bce6b",
     "semantic_hash": ""
   },
   "src/components/dashboard/barang-masuk/transfer-masuk-tab.tsx": {
-    "mtime": 1783124489.5611181,
-    "ast_hash": "b76337e43537c228c9349a0b1dbcad0a",
+    "mtime": 1783238451.2074885,
+    "ast_hash": "4ebe9cb2855f4369c3caa7441e83789b",
     "semantic_hash": ""
   },
   "src/components/dashboard/kontak-pelanggan/kategori-tab.tsx": {
-    "mtime": 1783125373.4698236,
-    "ast_hash": "0ad16024940b948b6197c1581170c672",
+    "mtime": 1783238451.2377396,
+    "ast_hash": "32163a39458754e1e163e795b8c6c060",
     "semantic_hash": ""
   },
   "src/components/dashboard/kontak-pelanggan/pelanggan-detail-view.tsx": {
-    "mtime": 1783221302.736856,
-    "ast_hash": "637757e5413f036f33b9a24853a668d3",
+    "mtime": 1783250243.603433,
+    "ast_hash": "b204890a9920a28cf35cced024af716a",
     "semantic_hash": ""
   },
   "src/components/dashboard/kontak-pelanggan/pelanggan-form-page.tsx": {
@@ -2000,13 +2000,13 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/kontak-pelanggan/pelanggan-tab.tsx": {
-    "mtime": 1783128008.3047853,
-    "ast_hash": "82d9ff5e90cc9ad811c72bfc61ecf664",
+    "mtime": 1783238063.303278,
+    "ast_hash": "d2b65ed0a589623b8ea79fcf2205b00e",
     "semantic_hash": ""
   },
   "src/components/dashboard/kontak-pelanggan/salesman-tab.tsx": {
-    "mtime": 1783129427.9954672,
-    "ast_hash": "28e93a9cc694f095c10728a63a56995a",
+    "mtime": 1783238080.4004924,
+    "ast_hash": "598e0303a1c8828cf5cfa87ba56bf79b",
     "semantic_hash": ""
   },
   "src/components/dashboard/kontak-pemasok/import-pemasok-view.tsx": {
@@ -2015,8 +2015,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/kontak-pemasok/kontak-detail-view.tsx": {
-    "mtime": 1783221256.2339182,
-    "ast_hash": "1eabe995ac9629f77491ca83d7d59106",
+    "mtime": 1783250245.6359084,
+    "ast_hash": "1bb6fbe2d837adfb7e88d3b1b14db6cd",
     "semantic_hash": ""
   },
   "src/components/dashboard/kontak-pemasok/kontak-form-page.tsx": {
@@ -2025,33 +2025,33 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/kontak-pemasok/kontak-pemasok-view.tsx": {
-    "mtime": 1783121700.6654549,
-    "ast_hash": "316e9bf6cbf56f3a9a574832f123e471",
+    "mtime": 1783238052.0861218,
+    "ast_hash": "24acc85ea331ae121fceef734f2a61ff",
     "semantic_hash": ""
   },
   "src/components/dashboard/manajemen-rak/lokasi/zona-tab.tsx": {
-    "mtime": 1783067820.776317,
-    "ast_hash": "b0caf4d956cf8e5d420ee8612e366697",
+    "mtime": 1783238661.413638,
+    "ast_hash": "3354fa68cc144127584390d6a5ebf1b9",
     "semantic_hash": ""
   },
   "src/components/dashboard/monitor-stok/monitor-analytics-table.tsx": {
-    "mtime": 1783092726.6574044,
-    "ast_hash": "4d0e39f45dde25560fe8295f41031f2d",
+    "mtime": 1783238570.8600116,
+    "ast_hash": "338aaedd4f5644f5c5a104a73db1a984",
     "semantic_hash": ""
   },
   "src/components/dashboard/monitor-stok/monitor-stock-table.tsx": {
-    "mtime": 1783067821.9671373,
-    "ast_hash": "0a155549c580857c718681b0ee389a8d",
+    "mtime": 1783238060.4556952,
+    "ast_hash": "b8370b9054352d974a4f40972de77737",
     "semantic_hash": ""
   },
   "src/components/dashboard/monitor-stok/monitor-stok-view.tsx": {
-    "mtime": 1783221088.7602227,
-    "ast_hash": "34a5980f1863276fda302b556145c260",
+    "mtime": 1783238602.2321978,
+    "ast_hash": "c41755f1e4b006f621c0b256c95c27b4",
     "semantic_hash": ""
   },
   "src/components/dashboard/monitor-stok/monitor-sync-failed-table.tsx": {
-    "mtime": 1783092730.8400795,
-    "ast_hash": "871c0ed2b9024451fe0208eac55ed727",
+    "mtime": 1783238092.456157,
+    "ast_hash": "e839ce6503083e0353c04218b406d6d3",
     "semantic_hash": ""
   },
   "src/components/dashboard/pengaturan/pengguna/user-detail-page.tsx": {
@@ -2060,78 +2060,78 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/pengaturan/pengguna/user-form-page.tsx": {
-    "mtime": 1783094162.6353722,
-    "ast_hash": "d7d738654421f27a3e4d281509e011a3",
+    "mtime": 1783238627.1170092,
+    "ast_hash": "595b35e071a1a288b51ee2d7d3ab039d",
     "semantic_hash": ""
   },
   "src/components/dashboard/pengaturan/pengguna/user-list-view.tsx": {
-    "mtime": 1783095064.6429172,
-    "ast_hash": "0d45917db656b2ae3e6aae7226b0a6c8",
+    "mtime": 1783238451.1473649,
+    "ast_hash": "4f9b40373c8739cd5ec36a1cf92058ef",
     "semantic_hash": ""
   },
   "src/components/dashboard/persediaan/posisi-stok-view.tsx": {
-    "mtime": 1783222786.4420245,
-    "ast_hash": "3857e3c3a9b1179c9d0b141b9f8173b9",
+    "mtime": 1783238649.261073,
+    "ast_hash": "8e5ed618ebbf805d61e9c682ef9d2f1a",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-pembelian/pesanan-detail-view.tsx": {
-    "mtime": 1783221350.8046358,
-    "ast_hash": "03607ead53dac0bf1d986ab4d8029288",
+    "mtime": 1783238031.114626,
+    "ast_hash": "914e503319d46d5f6ae10774b791212e",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-pembelian/pesanan-form-page.tsx": {
-    "mtime": 1783221396.5069647,
-    "ast_hash": "d2a8c1d8570ba106c4ffc0556a0fbdaf",
+    "mtime": 1783238688.2428517,
+    "ast_hash": "8ab21905847e2aba90c97d8482da8b4e",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-pembelian/pesanan-list-view.tsx": {
-    "mtime": 1783094356.1481607,
-    "ast_hash": "1b54ed0794da8fc3dedecab4033380e2",
+    "mtime": 1783238451.117954,
+    "ast_hash": "e9d91e7e250e83a96694b8d95f12c232",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-pembelian/product-picker-dialog.tsx": {
-    "mtime": 1783093833.9073079,
-    "ast_hash": "145e5e09d71c87be383cb9222c44857c",
+    "mtime": 1783238712.7225692,
+    "ast_hash": "f3b1c0a87e6287af7bd34cffd551f9b6",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/cadang-detail.tsx": {
-    "mtime": 1783221214.7595727,
-    "ast_hash": "adc9ade2de9620d859623e7909661424",
+    "mtime": 1783238045.5554821,
+    "ast_hash": "974e81e64d8d279e45b544331fd1185f",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/cadang-tab.tsx": {
-    "mtime": 1783067822.9243634,
-    "ast_hash": "01d16ec4189b5b9c34ab775937f6aa69",
+    "mtime": 1783238681.0305688,
+    "ast_hash": "e679255b79c26d568bb9aae7d9e219f5",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/opname-detail.tsx": {
-    "mtime": 1783221396.512932,
-    "ast_hash": "501c84d13107c7741b4ab0151d13bf78",
+    "mtime": 1783238719.888867,
+    "ast_hash": "0aba338ea80bcece0590e64730f5ca2b",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/opname-tab.tsx": {
-    "mtime": 1783067822.9607835,
-    "ast_hash": "18aed8f8b3edadcddb196a9359311dd5",
+    "mtime": 1783238732.4838438,
+    "ast_hash": "0405445c47436d7f6894b63e12f9bc87",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/penyesuaian-detail.tsx": {
-    "mtime": 1783221182.0340352,
-    "ast_hash": "1e553ae717149e14fa60ecbb204920c6",
+    "mtime": 1783238067.162811,
+    "ast_hash": "c93aff8d4c688fef55ed41d457818ffa",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/penyesuaian-tab.tsx": {
-    "mtime": 1783169979.7395782,
-    "ast_hash": "30519e5da18c839a73791394acfdf190",
+    "mtime": 1783238451.1401863,
+    "ast_hash": "9bd1ef175067e5110df4abcb10b59d68",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/revaluasi-detail.tsx": {
-    "mtime": 1783221176.0981088,
-    "ast_hash": "535ba3bc2563ce3ae11dc65b04d50032",
+    "mtime": 1783238778.1276972,
+    "ast_hash": "4ea59f47d4b7ca6304f2cbe88d69fd36",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/revaluasi-tab.tsx": {
-    "mtime": 1783067823.0127144,
-    "ast_hash": "522724a4bdfa72432d557a36c403a8eb",
+    "mtime": 1783238793.2288442,
+    "ast_hash": "d7fa7bfef721e4bb7385fc87e7238c58",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/transfer-tab.tsx": {
@@ -2575,38 +2575,38 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/barang-keluar/transfer-out-detail-view.tsx": {
-    "mtime": 1783221078.277801,
-    "ast_hash": "b650215cb6fad443ec71b337a9a1fcf2",
+    "mtime": 1783238451.109118,
+    "ast_hash": "3ebd817a3603f137d0e110741ee1c655",
     "semantic_hash": ""
   },
   "src/components/dashboard/barang-masuk/barang-masuk-tab-bar.tsx": {
-    "mtime": 1783067819.5139182,
-    "ast_hash": "64bb91fb6b7c9a0f9d785369032cd4d9",
+    "mtime": 1783238541.2718835,
+    "ast_hash": "589d65a01bfb76f5e702d3af0a917b0a",
     "semantic_hash": ""
   },
   "src/components/dashboard/barang-masuk/buat-penempatan-manual-dialog.tsx": {
-    "mtime": 1783068481.1497657,
-    "ast_hash": "3ec3a928f2da508bff64e3459ceffe3c",
+    "mtime": 1783238451.1727538,
+    "ast_hash": "d897768ece658c65c2b9c93d06827bf4",
     "semantic_hash": ""
   },
   "src/components/dashboard/barang-masuk/penerimaan-detail-view.tsx": {
-    "mtime": 1783220860.0019777,
-    "ast_hash": "f27d1fc1b1771ffc34e5662f2adf87a1",
+    "mtime": 1783238566.9123173,
+    "ast_hash": "7e0e6c3239163ed015a87f6eea7fdd04",
     "semantic_hash": ""
   },
   "src/components/dashboard/barang-masuk/putaway-process-view.tsx": {
-    "mtime": 1783165343.9114373,
-    "ast_hash": "56386bc2ab231b5ab8ebf728f8f0f21b",
+    "mtime": 1783238451.1629333,
+    "ast_hash": "a017495935cfe90d74e7c73ec6f261c3",
     "semantic_hash": ""
   },
   "src/components/dashboard/barang-masuk/terima-po-view.tsx": {
-    "mtime": 1783221228.4055815,
-    "ast_hash": "82b9d2e862eb2a7feece8f263fb44c46",
+    "mtime": 1783238451.1665618,
+    "ast_hash": "a5462119eee1db703d5eeb35e006f79b",
     "semantic_hash": ""
   },
   "src/components/dashboard/document-preview/document-preview-view.tsx": {
-    "mtime": 1783067819.8100142,
-    "ast_hash": "f94f69b9755ee60b02690fd6fd079ac3",
+    "mtime": 1783238782.8078513,
+    "ast_hash": "f1d93a71e64fb27cc17c5591a72bc68c",
     "semantic_hash": ""
   },
   "src/components/dashboard/document-preview/pdf-viewer.tsx": {
@@ -2620,8 +2620,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/laporan/hpp-report-view.tsx": {
-    "mtime": 1783221265.7433965,
-    "ast_hash": "7d58451ecd9c1369c5572c9cd09ede77",
+    "mtime": 1783238451.1799278,
+    "ast_hash": "0c7e3ef4b62f2853d3cf37516bc2ca7c",
     "semantic_hash": ""
   },
   "src/components/dashboard/manajemen-rak/lokasi/location-map-canvas.tsx": {
@@ -2630,18 +2630,18 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/pesanan/order-detail-view.tsx": {
-    "mtime": 1783222817.1184878,
-    "ast_hash": "ba9badf2a5b8a6bb9aae9f9122f872e0",
+    "mtime": 1783238089.0687902,
+    "ast_hash": "52449f813b8ff29de65836b3206e8de3",
     "semantic_hash": ""
   },
   "src/components/dashboard/posisi-stok/stock-position-detail-view.tsx": {
-    "mtime": 1783222925.5360222,
-    "ast_hash": "2d27bce6d4bec29c3781a630a56b0a76",
+    "mtime": 1783238732.386823,
+    "ast_hash": "cf817a1fb826d20bac79563814382af7",
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/packing/packing-proses-view.tsx": {
-    "mtime": 1783222887.6068683,
-    "ast_hash": "97219a8b9adea9aa6828f49b14c24681",
+    "mtime": 1783259570.395947,
+    "ast_hash": "baed5904df3e879ddf446296fd668f9b",
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/picking/ad-hoc-picking-view.tsx": {
@@ -2655,13 +2655,13 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/picking/picking-proses-view.tsx": {
-    "mtime": 1783222839.4786804,
-    "ast_hash": "ec7f9d992e7d4e6278e70b98e8c51186",
+    "mtime": 1783259698.0703056,
+    "ast_hash": "dbd90406011b389b116abb9fac88c6a6",
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/picking/ready-to-process-card-list.tsx": {
-    "mtime": 1783155771.314343,
-    "ast_hash": "b12d9ce1767d1b7f7d5b33d85843a2ea",
+    "mtime": 1783258893.0606449,
+    "ast_hash": "5bfaa83495d9330c150bd97c4f16ee77",
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/proses-pesanan-page.tsx": {
@@ -2670,13 +2670,13 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/shared/completed-order-card-list.tsx": {
-    "mtime": 1783067822.6391046,
-    "ast_hash": "fe7667c9dcc8bcd9c1126aea20fa5442",
+    "mtime": 1783258849.3859744,
+    "ast_hash": "74403b98f06846ce952e62f59ab98dd2",
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/shipping/shipment-detail-view.tsx": {
-    "mtime": 1783222725.1361861,
-    "ast_hash": "63587ede038e350baf147374946afd9f",
+    "mtime": 1783239625.2858124,
+    "ast_hash": "60c608dd278abf170af60fcc5be23e00",
     "semantic_hash": ""
   },
   "src/components/ui/bulk-action-bar.tsx": {
@@ -2695,8 +2695,8 @@
     "semantic_hash": ""
   },
   "src/components/ui/product-variant-cell.tsx": {
-    "mtime": 1783222563.538056,
-    "ast_hash": "577d83ed6262ba40e7e95ec6700a6df5",
+    "mtime": 1783238033.675636,
+    "ast_hash": "980deadbc89ca7ed008f93350c71431e",
     "semantic_hash": ""
   },
   "src/components/ui/progress.tsx": {
@@ -2735,8 +2735,8 @@
     "semantic_hash": ""
   },
   "src/lib/proses-pesanan/order-card-mapper.ts": {
-    "mtime": 1783124110.3390439,
-    "ast_hash": "6bfc13c28e5e38de1c9028e1568bcf74",
+    "mtime": 1783258032.8519337,
+    "ast_hash": "9d5e9472fe4d7593d86d9b9363cbee62",
     "semantic_hash": ""
   },
   "src/services/laporan/report.service.ts": {
@@ -2825,18 +2825,18 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/barang-masuk/return-settlement-view.tsx": {
-    "mtime": 1783067819.689016,
-    "ast_hash": "6ed701277fae5ee4d8a7b6a0fd3c9d06",
+    "mtime": 1783238620.786137,
+    "ast_hash": "51887bc4a10c716a1d235bb475fb670b",
     "semantic_hash": ""
   },
   "src/components/dashboard/barang-masuk/sales-return-detail-view.tsx": {
-    "mtime": 1783221277.990892,
-    "ast_hash": "4bdf33bb06b83ca59bce9760295366cb",
+    "mtime": 1783238650.9680254,
+    "ast_hash": "92791ced332dcc97f371a2233263b73c",
     "semantic_hash": ""
   },
   "src/components/dashboard/barang-masuk/sales-return-form-page.tsx": {
-    "mtime": 1783221277.985772,
-    "ast_hash": "d91a157b2d04f30eaff0f3b2d46cbd96",
+    "mtime": 1783238451.2004669,
+    "ast_hash": "705c64f6447ee65998ba2a526d5c02a0",
     "semantic_hash": ""
   },
   "src/components/dashboard/document-preview/label-print-options.tsx": {
@@ -2845,13 +2845,13 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/pengaturan/retur/sales-return-setting-form.tsx": {
-    "mtime": 1783067822.1135619,
-    "ast_hash": "a09f63b3f3bf2e28e6fa1c3fc10d5aef",
+    "mtime": 1783238451.1761105,
+    "ast_hash": "c60d9340f6bb3b93b1d4d4469df29eab",
     "semantic_hash": ""
   },
   "src/components/dashboard/shared/filter-toolbar.tsx": {
-    "mtime": 1783067822.7446198,
-    "ast_hash": "ea55438b184d7acedb15df4c4744c61e",
+    "mtime": 1783238032.537812,
+    "ast_hash": "3fee949dd1f99b90f305f7623ee944c4",
     "semantic_hash": ""
   },
   "src/components/dashboard/shared/pill-tabs.tsx": {
@@ -2865,8 +2865,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/shared/scan-autoflow-bar.tsx": {
-    "mtime": 1783067822.761536,
-    "ast_hash": "bae16f89c21bbd22fa7a9465001ba7bf",
+    "mtime": 1783238858.885835,
+    "ast_hash": "80517d8f0588a1cca7876741279c5ae6",
     "semantic_hash": ""
   },
   "src/components/dashboard/shared/status-badge.tsx": {
@@ -2880,13 +2880,13 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/buat-penyesuaian-view.tsx": {
-    "mtime": 1783221277.964215,
-    "ast_hash": "166b589597220fdfd870d7d1e9642510",
+    "mtime": 1783238669.03853,
+    "ast_hash": "a82bd58f667f9152d9867ab302553e95",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/pindah-bin-view.tsx": {
-    "mtime": 1783124595.99293,
-    "ast_hash": "f32136152638f2d098064a4b48535e89",
+    "mtime": 1783238451.1512332,
+    "ast_hash": "d0f8375f4c6999a218f7749d85b0d0df",
     "semantic_hash": ""
   },
   "src/components/ui/surface.tsx": {
@@ -2980,8 +2980,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar.tsx": {
-    "mtime": 1783152692.922739,
-    "ast_hash": "33105e13693df8e1c20f28d17a864961",
+    "mtime": 1783238768.2514122,
+    "ast_hash": "96c37f76a9023efcdb6acd87db03d30a",
     "semantic_hash": ""
   },
   "src/components/ui/radio-group.tsx": {
@@ -3005,23 +3005,23 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/import-penyesuaian-view.tsx": {
-    "mtime": 1783221277.9752038,
-    "ast_hash": "d3cdfee77c5b2cc1fb22c65d12d61a63",
+    "mtime": 1783238702.557308,
+    "ast_hash": "f83daeb32bd88525760d6ee7ceeee2ba",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/pindah-bin-detail-view.tsx": {
-    "mtime": 1783221224.7093928,
-    "ast_hash": "079fb6be8ef7dad45b500986acec28d4",
+    "mtime": 1783238752.565348,
+    "ast_hash": "41062181e7e21a6afa247e3d4af4cb9e",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/pindah-bin-edit-view.tsx": {
-    "mtime": 1783221277.9699576,
-    "ast_hash": "abe17ae2150e530457cba5ebbfee3458",
+    "mtime": 1783238031.705822,
+    "ast_hash": "b4ee675f10e231e23d26f2528c49478c",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/pindah-bin-list-table.tsx": {
-    "mtime": 1783075629.6869364,
-    "ast_hash": "56387fdec9134f94e0b539ab82ee47b1",
+    "mtime": 1783238451.143739,
+    "ast_hash": "6c83aee262772f8e0dc8286a6237fafd",
     "semantic_hash": ""
   },
   "src/hooks/transaksi-stok/use-stock-adjustment-import.ts": {
@@ -3040,18 +3040,18 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/monitor-stok/monitor-kronologi-table.tsx": {
-    "mtime": 1783092723.3662982,
-    "ast_hash": "03f9c61fae516f7921397cb44f2e32b5",
+    "mtime": 1783238043.1276207,
+    "ast_hash": "99a959f341d7ef1418b7062bf494a211",
     "semantic_hash": ""
   },
   "src/components/dashboard/pesanan/export-cancel-dialog.tsx": {
-    "mtime": 1783075915.346974,
-    "ast_hash": "cc6193096b039d6198df5a5e7befbeb6",
+    "mtime": 1783238451.255976,
+    "ast_hash": "ef96c11c22e463548e1c17fd409dda06",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/stocked-product-picker-dialog.tsx": {
-    "mtime": 1783093833.9113712,
-    "ast_hash": "971fa83c53cc23db81d4d04b45104d92",
+    "mtime": 1783238808.7572904,
+    "ast_hash": "cf0c55dbba017284bb4952b6998df60f",
     "semantic_hash": ""
   },
   "AUDIT-UI-CONSISTENCY.md": {
@@ -3065,8 +3065,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/laporan/laporan-retur-view.tsx": {
-    "mtime": 1783221269.7363787,
-    "ast_hash": "d50ec68345c0f3935c6f88c4a40ecd69",
+    "mtime": 1783238943.644845,
+    "ast_hash": "6409ab866a4cd2a77c888f9debdbbda9",
     "semantic_hash": ""
   },
   "src/hooks/laporan/use-laporan-retur.ts": {
@@ -3145,8 +3145,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/pesanan/contact-buyer-dialog.tsx": {
-    "mtime": 1783099979.7639544,
-    "ast_hash": "f119de64f5534988575376af18782633",
+    "mtime": 1783238451.2526875,
+    "ast_hash": "87a5154cf50b7fd538e6a952512ea312",
     "semantic_hash": ""
   },
   "src/components/dashboard/pesanan/edit-order-item-dialog.tsx": {
@@ -3180,8 +3180,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/toko-internal/toko-internal-form-page.tsx": {
-    "mtime": 1783219939.3530173,
-    "ast_hash": "d8e8df1f5ed5cb9a581893f7f724b3cf",
+    "mtime": 1783250252.1101987,
+    "ast_hash": "db3b96795a9d744a94065206086c3829",
     "semantic_hash": ""
   },
   "src/components/dashboard/toko-internal/toko-internal-view.tsx": {
@@ -3295,8 +3295,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/proses-pesanan/shared/delete-order-dialog.tsx": {
-    "mtime": 1783222228.5035439,
-    "ast_hash": "d055f5cb8fad80053c8c9ef81742d9c2",
+    "mtime": 1783257997.881412,
+    "ast_hash": "babda2d396b3108db5849bf5b2229a73",
     "semantic_hash": ""
   },
   "src/components/dashboard/shared/copy-sku.tsx": {
@@ -3330,13 +3330,33 @@
     "semantic_hash": ""
   },
   "PLANNING-DESIGN-CONSISTENCY.md": {
-    "mtime": 1783222863.2556005,
-    "ast_hash": "cf53a973008af416fb2426aa1732ee21",
+    "mtime": 1783239210.1323347,
+    "ast_hash": "f6e7611facadb1483b58ceb2844312cb",
     "semantic_hash": ""
   },
   "docs/design-rules.md": {
     "mtime": 1783222523.1946304,
     "ast_hash": "490bbfdc76b62e3695d5dec30a77d63c",
+    "semantic_hash": ""
+  },
+  "src/lib/proses-pesanan/shipment-type.ts": {
+    "mtime": 1783225585.2236779,
+    "ast_hash": "ba9b5cf175c0b215b09f083beac2108d",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/proses-pesanan/packing/pack-qty-cell.tsx": {
+    "mtime": 1783259790.8770144,
+    "ast_hash": "1cf36699ddc6f435cf1e1571b650b994",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/proses-pesanan/shared/order-table.tsx": {
+    "mtime": 1783259549.6315553,
+    "ast_hash": "8e8866cb3a2006dcb50dd374c29944a9",
+    "semantic_hash": ""
+  },
+  "src/hooks/proses-pesanan/use-qty-bump-queue.ts": {
+    "mtime": 1783259193.3183637,
+    "ast_hash": "ea925844d257c64da9fad52b1dc33202",
     "semantic_hash": ""
   }
 }

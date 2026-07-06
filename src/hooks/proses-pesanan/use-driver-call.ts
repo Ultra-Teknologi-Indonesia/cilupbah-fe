@@ -22,27 +22,6 @@ export type PrintWithDriverCallResult = {
   label_error?: string;
 };
 
-export function openMarketplaceLabelInTab(label: LabelResult): boolean {
-  if (label.type === "url" && label.url) {
-    window.open(label.url, "_blank");
-    return true;
-  }
-  if (label.type === "base64" && label.document_base64) {
-    const ct = label.content_type || "application/pdf";
-    const dataUrl = `data:${ct};base64,${label.document_base64}`;
-    const win = window.open("", "_blank");
-    if (win) {
-      win.document.write(
-        `<!doctype html><html><head><title>Label Pengiriman</title></head>` +
-          `<body style="margin:0"><iframe src="${dataUrl}" style="width:100%;height:100vh;border:none"></iframe></body></html>`,
-      );
-      win.document.close();
-    }
-    return true;
-  }
-  return false;
-}
-
 export function usePrintWithDriverCall() {
   const qc = useQueryClient();
 
@@ -58,12 +37,13 @@ export function usePrintWithDriverCall() {
         document_size: data.documentSize,
         force_label: data.forceLabel,
       }),
-    onSuccess: (result) => {
+    onSuccess: (result, variables) => {
       if (result.label) {
-        const opened = openMarketplaceLabelInTab(result.label);
-        if (!opened) {
-          toast.info("Label diterima tetapi format tidak dikenali.");
-        }
+        window.open(
+          `/dashboard/document-preview/shipping-label/${variables.orderId}`,
+          "_blank",
+          "noopener,noreferrer",
+        );
       } else if (result.label_preparing) {
         toast.warning(
           "Driver terpanggil. Label masih disiapkan Shopee, coba unduh lagi dalam beberapa detik.",

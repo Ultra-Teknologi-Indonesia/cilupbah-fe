@@ -2,11 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { CopyIcon, EyeIcon, TruckIcon, ZapIcon } from "lucide-react";
+import { TruckIcon, ZapIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -113,17 +112,15 @@ function OrderRow({
       <TableCell>
         <div className="flex flex-col gap-1">
           <div className="flex flex-wrap items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => copy(order.salesorder_no)}
+            <Link
+              href={`/dashboard/pesanan/${order.id}`}
               className={cn(
-                "inline-flex items-center gap-1.5 font-mono text-sm font-semibold transition-colors hover:text-primary",
+                "font-mono text-sm font-semibold transition-colors hover:text-primary hover:underline",
                 order.is_instant && "text-orange-700 dark:text-orange-400",
               )}
             >
               {order.salesorder_no}
-              <CopyIcon className="size-3 opacity-0 transition-opacity group-hover:opacity-50" />
-            </button>
+            </Link>
             {order.is_instant && (
               <Badge
                 variant="outline"
@@ -228,17 +225,6 @@ function OrderRow({
 
       <TableCell>
         <div className="flex items-center justify-end gap-2">
-          <Button
-            variant="link"
-            size="sm"
-            className="h-8 gap-1.5 text-xs"
-            asChild
-          >
-            <Link href={`/dashboard/pesanan/${order.id}`}>
-              <EyeIcon className="size-3.5" />
-              Detail
-            </Link>
-          </Button>
           {variant === "sales" && (
             <OrderActions order={order} tab={tab} subFilter={null} />
           )}

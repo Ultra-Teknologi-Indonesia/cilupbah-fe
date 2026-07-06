@@ -135,6 +135,308 @@ function OrderCard({
   const { copy } = useCopyToClipboard();
   const isCancelled = order.status === "cancelled";
 
+  const rowActions: {
+    key: string;
+    asButton: React.ReactNode;
+    asMenuItem: React.ReactNode;
+  }[] = [];
+
+  if (isCancelled && onDismissCancel) {
+    rowActions.push({
+      key: "dismiss-cancel",
+      asButton: (
+        <Button
+          size="sm"
+          variant="outline"
+          className="border-destructive/30 text-destructive hover:bg-destructive/10"
+          onClick={() => onDismissCancel(order.id)}
+          disabled={dismissPending}
+        >
+          {dismissPending ? (
+            <Loader2Icon className="animate-spin" />
+          ) : (
+            <CheckCircle2Icon className="size-3.5" />
+          )}
+          Sudah dipisahkan
+        </Button>
+      ),
+      asMenuItem: (
+        <DropdownMenuItem
+          onSelect={() => onDismissCancel(order.id)}
+          disabled={dismissPending}
+        >
+          <CheckCircle2Icon className="size-4 mr-2" />
+          Sudah dipisahkan
+        </DropdownMenuItem>
+      ),
+    });
+  }
+
+  if (!isCancelled && actions.buatPicklist) {
+    rowActions.push({
+      key: "buat-picklist",
+      asButton: (
+        <Button size="sm" variant="primary" onClick={onToggle}>
+          Buat Picklist
+        </Button>
+      ),
+      asMenuItem: (
+        <DropdownMenuItem onSelect={onToggle}>Buat Picklist</DropdownMenuItem>
+      ),
+    });
+  }
+
+  if (!isCancelled && actions.buatPengiriman && onBuatPengiriman) {
+    rowActions.push({
+      key: "buat-pengiriman",
+      asButton: (
+        <Button
+          size="sm"
+          variant="primary"
+          onClick={() => onBuatPengiriman(order)}
+        >
+          Buat Pengiriman
+        </Button>
+      ),
+      asMenuItem: (
+        <DropdownMenuItem onSelect={() => onBuatPengiriman(order)}>
+          Buat Pengiriman
+        </DropdownMenuItem>
+      ),
+    });
+  }
+
+  if (!isCancelled && actions.siapDikirim) {
+    rowActions.push({
+      key: "siap-dikirim",
+      asButton: (
+        <Button
+          size="sm"
+          variant="primary"
+          onClick={() => onShip([order.id])}
+          disabled={shipPending}
+        >
+          {shipPending && <Loader2Icon className="animate-spin" />}
+          Siap Dikirim
+        </Button>
+      ),
+      asMenuItem: (
+        <DropdownMenuItem
+          onSelect={() => onShip([order.id])}
+          disabled={shipPending}
+        >
+          Siap Dikirim
+        </DropdownMenuItem>
+      ),
+    });
+  }
+
+  if (!isCancelled && actions.selesaikanPesanan) {
+    rowActions.push({
+      key: "selesaikan-pesanan",
+      asButton: (
+        <Button
+          size="sm"
+          variant="primary"
+          onClick={() => onComplete([order.id])}
+          disabled={completePending}
+        >
+          {completePending && <Loader2Icon className="animate-spin" />}
+          Selesaikan Pesanan
+        </Button>
+      ),
+      asMenuItem: (
+        <DropdownMenuItem
+          onSelect={() => onComplete([order.id])}
+          disabled={completePending}
+        >
+          Selesaikan Pesanan
+        </DropdownMenuItem>
+      ),
+    });
+  }
+
+  if (order.channelStatus === "RETRY_SHIP" && onRetryPickup) {
+    rowActions.push({
+      key: "retry-pickup",
+      asButton: (
+        <Button
+          size="sm"
+          variant="outline"
+          className="border-warning/40 text-warning hover:bg-warning/10"
+          onClick={() => onRetryPickup([order.id])}
+          disabled={retryPickupPending}
+        >
+          {retryPickupPending && <Loader2Icon className="animate-spin" />}
+          Atur Ulang Pickup
+        </Button>
+      ),
+      asMenuItem: (
+        <DropdownMenuItem
+          onSelect={() => onRetryPickup([order.id])}
+          disabled={retryPickupPending}
+        >
+          Atur Ulang Pickup
+        </DropdownMenuItem>
+      ),
+    });
+  }
+
+  if (actions.cetakFaktur) {
+    rowActions.push({
+      key: "cetak-faktur",
+      asButton: (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => DocActions.invoice([order.id])}
+        >
+          Cetak Faktur
+        </Button>
+      ),
+      asMenuItem: (
+        <DropdownMenuItem onSelect={() => DocActions.invoice([order.id])}>
+          Cetak Faktur
+        </DropdownMenuItem>
+      ),
+    });
+  }
+
+  if (actions.cetakLabel && order.source) {
+    rowActions.push({
+      key: "cetak-label",
+      asButton: (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() =>
+            DocActions.shippingLabel([{ id: order.id, source: order.source }])
+          }
+        >
+          Cetak Label
+        </Button>
+      ),
+      asMenuItem: (
+        <DropdownMenuItem
+          onSelect={() =>
+            DocActions.shippingLabel([
+              { id: order.id, source: order.source },
+            ])
+          }
+        >
+          Cetak Label
+        </DropdownMenuItem>
+      ),
+    });
+  }
+
+  if (actions.cetakPicklist) {
+    rowActions.push({
+      key: "cetak-picklist",
+      asButton: (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => DocActions.pickList([order.id])}
+        >
+          Cetak Picklist
+        </Button>
+      ),
+      asMenuItem: (
+        <DropdownMenuItem onSelect={() => DocActions.pickList([order.id])}>
+          Cetak Picklist
+        </DropdownMenuItem>
+      ),
+    });
+  }
+
+  if (actions.fakturLabel) {
+    rowActions.push({
+      key: "faktur-label",
+      asButton: (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() =>
+            DocActions.invoiceAndLabel([
+              { id: order.id, source: order.source },
+            ])
+          }
+        >
+          Cetak Faktur & Label
+        </Button>
+      ),
+      asMenuItem: (
+        <DropdownMenuItem
+          onSelect={() =>
+            DocActions.invoiceAndLabel([
+              { id: order.id, source: order.source },
+            ])
+          }
+        >
+          Cetak Faktur & Label
+        </DropdownMenuItem>
+      ),
+    });
+  }
+
+  if (actions.suratJalan) {
+    rowActions.push({
+      key: "surat-jalan",
+      asButton: (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => DocActions.suratJalanAndInvoice([order.id])}
+        >
+          Surat Jalan + Faktur
+        </Button>
+      ),
+      asMenuItem: (
+        <DropdownMenuItem
+          onSelect={() => DocActions.suratJalanAndInvoice([order.id])}
+        >
+          Surat Jalan + Faktur
+        </DropdownMenuItem>
+      ),
+    });
+  }
+
+  if (onDeleteOrder) {
+    rowActions.push({
+      key: "hapus-pesanan",
+      asButton: (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              aria-label="Hapus Pesanan"
+              onClick={() => onDeleteOrder(order)}
+            >
+              <Trash2Icon className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Hapus Pesanan</TooltipContent>
+        </Tooltip>
+      ),
+      asMenuItem: (
+        <DropdownMenuItem
+          variant="destructive"
+          onSelect={() => onDeleteOrder(order)}
+        >
+          <Trash2Icon className="size-4 mr-2" />
+          Hapus Pesanan
+        </DropdownMenuItem>
+      ),
+    });
+  }
+
+  const overflowActions = rowActions.length > 3 ? rowActions.slice(3) : [];
+  const visibleActions =
+    overflowActions.length > 0 ? rowActions.slice(0, 3) : rowActions;
+
   return (
     <div
       className={cn(
@@ -375,143 +677,29 @@ function OrderCard({
       {}
       <div className="flex items-center gap-2 border-t border-border/40 px-4 py-2.5 sm:px-5">
         <div className="flex flex-1 flex-wrap items-center gap-2">
-          {isCancelled && onDismissCancel && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-destructive/30 text-destructive hover:bg-destructive/10"
-              onClick={() => onDismissCancel(order.id)}
-              disabled={dismissPending}
-            >
-              {dismissPending ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <CheckCircle2Icon className="size-3.5" />
-              )}
-              Sudah dipisahkan
-            </Button>
-          )}
-          {!isCancelled && actions.buatPicklist && (
-            <Button size="sm" variant="primary" onClick={onToggle}>
-              Buat Picklist
-            </Button>
-          )}
-          {!isCancelled && actions.buatPengiriman && onBuatPengiriman && (
-            <Button
-              size="sm"
-              variant="primary"
-              onClick={() => onBuatPengiriman(order)}
-            >
-              Buat Pengiriman
-            </Button>
-          )}
-          {!isCancelled && actions.siapDikirim && (
-            <Button
-              size="sm"
-              variant="primary"
-              onClick={() => onShip([order.id])}
-              disabled={shipPending}
-            >
-              {shipPending && <Loader2Icon className="animate-spin" />}
-              Siap Dikirim
-            </Button>
-          )}
-          {!isCancelled && actions.selesaikanPesanan && (
-            <Button
-              size="sm"
-              variant="primary"
-              onClick={() => onComplete([order.id])}
-              disabled={completePending}
-            >
-              {completePending && <Loader2Icon className="animate-spin" />}
-              Selesaikan Pesanan
-            </Button>
-          )}
-          {order.channelStatus === "RETRY_SHIP" && onRetryPickup && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-warning/40 text-warning hover:bg-warning/10"
-              onClick={() => onRetryPickup([order.id])}
-              disabled={retryPickupPending}
-            >
-              {retryPickupPending && <Loader2Icon className="animate-spin" />}
-              Atur Ulang Pickup
-            </Button>
-          )}
-          {actions.cetakFaktur && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => DocActions.invoice([order.id])}
-            >
-              Cetak Faktur
-            </Button>
-          )}
-          {actions.cetakLabel && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() =>
-                DocActions.shippingLabel([
-                  { id: order.id, source: order.source },
-                ])
-              }
-            >
-              Cetak Label
-            </Button>
-          )}
-          {actions.cetakPicklist && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => DocActions.pickList([order.id])}
-            >
-              Cetak Picklist
-            </Button>
-          )}
+          {visibleActions.map((a) => (
+            <React.Fragment key={a.key}>{a.asButton}</React.Fragment>
+          ))}
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-sm" aria-label="Aksi lainnya">
-              <MoreHorizontalIcon className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-52">
-            {actions.fakturLabel && (
-              <DropdownMenuItem
-                onSelect={() =>
-                  DocActions.invoiceAndLabel([
-                    { id: order.id, source: order.source },
-                  ])
-                }
-              >
-                Cetak Faktur & Label
-              </DropdownMenuItem>
-            )}
-            {actions.suratJalan && (
-              <DropdownMenuItem
-                onSelect={() => DocActions.suratJalanAndInvoice([order.id])}
-              >
-                Surat Jalan + Faktur
-              </DropdownMenuItem>
-            )}
-            {onDeleteOrder && (
-              <>
-                {(actions.fakturLabel || actions.suratJalan) && (
-                  <DropdownMenuSeparator />
-                )}
-                <DropdownMenuItem
-                  variant="destructive"
-                  onSelect={() => onDeleteOrder(order)}
-                >
-                  <Trash2Icon className="size-4 mr-2" />
-                  Hapus Pesanan
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {overflowActions.length > 0 && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon-sm" aria-label="Aksi lainnya">
+                <MoreHorizontalIcon className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-52">
+              {overflowActions.map((a, i) => (
+                <React.Fragment key={a.key}>
+                  {a.key === "hapus-pesanan" && i > 0 && (
+                    <DropdownMenuSeparator />
+                  )}
+                  {a.asMenuItem}
+                </React.Fragment>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </div>
   );

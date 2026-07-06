@@ -15,7 +15,6 @@ import {
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -38,6 +37,7 @@ import {
   type ScanAutoflowLine,
 } from "@/components/dashboard/shared/scan-autoflow-bar";
 import { PageTitle } from "@/components/dashboard/page-title";
+import { PackQtyCell } from "@/components/dashboard/proses-pesanan/packing/pack-qty-cell";
 import { DeleteOrderDialog } from "@/components/dashboard/proses-pesanan/shared/delete-order-dialog";
 import { playScanFeedback } from "@/lib/scan-feedback";
 import { type PacklistItem } from "@/types/proses-pesanan/fulfillment";
@@ -49,6 +49,7 @@ import {
   useStartPacklist,
   useVerifyBarcode,
 } from "@/hooks/proses-pesanan/use-fulfillment";
+import { useQtyBumpQueue } from "@/hooks/proses-pesanan/use-qty-bump-queue";
 
 function PackCorrectButton({
   packlistId,
@@ -191,10 +192,6 @@ function ProgressBar({ packed, total }: { packed: number; total: number }) {
 export function PackingDetailView({ id }: { id: string }) {
   const router = useRouter();
 
-  const qtyInputRef = React.useRef<HTMLInputElement>(null);
-
-  const [activeItemId, setActiveItemId] = React.useState<string | null>(null);
-  const [packQty, setPackQty] = React.useState("");
   const [deleteOrderOpen, setDeleteOrderOpen] = React.useState(false);
   const [scanFocusKey, setScanFocusKey] = React.useState(0);
   const refocusScan = () => setScanFocusKey((k) => k + 1);
@@ -204,6 +201,18 @@ export function PackingDetailView({ id }: { id: string }) {
   const packItem = usePackItem();
   const verifyBarcode = useVerifyBarcode();
   const completePacklist = useCompletePacklist();
+
+  const commitPack = React.useCallback(
+    (itemId: string, qty: number) =>
+      packItem.mutateAsync({
+        packlistId: id,
+        itemId,
+        qtyPacked: qty,
+        barcodeVerified: true,
+      }),
+    [packItem, id],
+  );
+  const { bump, setTarget } = useQtyBumpQueue(commitPack);
 
   const items = pk?.items ?? [];
   const totalOrdered = items.reduce((s, i) => s + i.qtyOrdered, 0);
@@ -242,10 +251,6 @@ export function PackingDetailView({ id }: { id: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pk?.id]);
 
-  const activeItem = activeItemId
-    ? (items.find((i) => i.id === activeItemId) ?? null)
-    : null;
-
   const scanLines: ScanAutoflowLine[] = items.map((i) => ({
     id: i.id,
     primary: i.description ?? i.sku,
@@ -254,58 +259,35 @@ export function PackingDetailView({ id }: { id: string }) {
     done: i.qtyPacked >= i.qtyOrdered,
   }));
 
-  const packNow = (item: PacklistItem, absoluteQty: number) => {
-    packItem.mutate(
-      {
-        packlistId: id,
-        itemId: item.id,
-        qtyPacked: absoluteQty,
-        barcodeVerified: true,
-      },
-      {
-        onSuccess: () => {
-          toast.success(
-            `${item.sku} dikemas (${absoluteQty}/${item.qtyOrdered}).`,
-          );
-          setActiveItemId(null);
-          setPackQty("");
-          refocusScan();
-        },
-        onError: (e) => {
-          toast.error(errMsg(e, `Gagal pack ${item.sku}.`));
-          playScanFeedback("error");
-        },
-      },
-    );
-  };
-
-  const openQtyFor = (item: PacklistItem) => {
-    const remaining = item.qtyOrdered - item.qtyPacked;
-    setActiveItemId(item.id);
-    setPackQty(String(remaining));
-    setTimeout(() => {
-      qtyInputRef.current?.focus();
-      qtyInputRef.current?.select();
-    }, 50);
-  };
-
-  const packOrPrompt = (item: PacklistItem) => {
+  // Scan = qty pack +1 (cashier-style). No popup; focus stays on the scan bar.
+  const increment = (item: PacklistItem) => {
     const remaining = item.qtyOrdered - item.qtyPacked;
     if (remaining <= 0) {
+      playScanFeedback("error");
       toast.info(`${item.sku} sudah lengkap.`);
       refocusScan();
       return;
     }
-    if (remaining === 1) {
-      packNow(item, item.qtyPacked + 1);
-      return;
-    }
-    openQtyFor(item);
+    bump({
+      itemId: item.id,
+      base: item.qtyPacked,
+      max: item.qtyOrdered,
+      delta: 1,
+    });
+    refocusScan();
+  };
+
+  // Manual bulk entry: checker types an absolute qty directly in the row.
+  const setPackQtyManual = (item: PacklistItem, qty: number) => {
+    const clamped = Math.max(0, Math.min(item.qtyOrdered, qty));
+    if (clamped === item.qtyPacked) return;
+    playScanFeedback("ok");
+    setTarget({ itemId: item.id, value: clamped, max: item.qtyOrdered });
   };
 
   const handleResolve = (line: ScanAutoflowLine) => {
     const item = items.find((i) => i.id === line.id);
-    if (item) packOrPrompt(item);
+    if (item) increment(item);
   };
 
   const handleUnmatched = (code: string) => {
@@ -322,7 +304,7 @@ export function PackingDetailView({ id }: { id: string }) {
           const matched = items.find((i) => i.id === res.itemId);
           if (matched) {
             playScanFeedback("ok");
-            packOrPrompt(matched);
+            increment(matched);
           } else {
             toast.info(`${res.sku} sudah lengkap.`);
             playScanFeedback("error");
@@ -334,27 +316,6 @@ export function PackingDetailView({ id }: { id: string }) {
         },
       },
     );
-  };
-
-  const handleConfirmPack = () => {
-    if (!activeItem) return;
-    const qty = Number.parseInt(packQty, 10);
-    const remaining = activeItem.qtyOrdered - activeItem.qtyPacked;
-    if (Number.isNaN(qty) || qty <= 0) {
-      toast.error("Masukkan qty yang valid.");
-      return;
-    }
-    if (qty > remaining) {
-      toast.error(`Qty melebihi sisa (${remaining}).`);
-      return;
-    }
-    packNow(activeItem, activeItem.qtyPacked + qty);
-  };
-
-  const handleCancelPack = () => {
-    setActiveItemId(null);
-    setPackQty("");
-    refocusScan();
   };
 
   if (isLoading) {
@@ -466,70 +427,10 @@ export function PackingDetailView({ id }: { id: string }) {
                 lines={scanLines}
                 onResolve={handleResolve}
                 onUnmatched={handleUnmatched}
-                disabled={packItem.isPending}
                 refocusKey={scanFocusKey}
-                hint="Scan barcode/SKU — qty 1 otomatis; qty >1 masukkan jumlah lalu Enter."
+                hint="Scan SKU/barcode → qty pack +1 tiap scan. Untuk bulk, ketik qty di kolom QTY Pack lalu Enter."
                 className="mt-1.5"
               />
-            </div>
-          )}
-
-          {}
-          {activeItem && (
-            <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-primary/30 bg-primary/5 p-4">
-              <ItemImage
-                src={activeItem.imageUrl}
-                alt={activeItem.description ?? activeItem.sku}
-                size={48}
-              />
-              <div className="min-w-0 flex-1">
-                <div className="truncate font-medium">
-                  {activeItem.description ?? activeItem.sku}
-                </div>
-                <div className="font-mono text-xs text-muted-foreground">
-                  {activeItem.sku}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Sisa {activeItem.qtyOrdered - activeItem.qtyPacked} · sudah{" "}
-                  {activeItem.qtyPacked}/{activeItem.qtyOrdered}
-                </div>
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium">Qty kemas</label>
-                <Input
-                  ref={qtyInputRef}
-                  type="number"
-                  min={1}
-                  max={activeItem.qtyOrdered - activeItem.qtyPacked}
-                  inputMode="numeric"
-                  value={packQty}
-                  onChange={(e) => setPackQty(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleConfirmPack();
-                    }
-                  }}
-                  className="h-10 w-28 text-base"
-                  disabled={packItem.isPending}
-                />
-              </div>
-              <Button
-                onClick={handleConfirmPack}
-                disabled={packItem.isPending || !packQty.trim()}
-              >
-                {packItem.isPending && (
-                  <Loader2Icon className="mr-1 size-4 animate-spin" />
-                )}
-                Simpan
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={handleCancelPack}
-                disabled={packItem.isPending}
-              >
-                Batal
-              </Button>
             </div>
           )}
 
@@ -569,8 +470,6 @@ export function PackingDetailView({ id }: { id: string }) {
                         className={cn(
                           "border-b border-border/60 last:border-0 transition-colors",
                           done && "bg-success/[0.04]",
-                          activeItemId === item.id &&
-                            "bg-primary/[0.06] ring-1 ring-inset ring-primary/20",
                         )}
                       >
                         <TableCell className="px-4 py-3">
@@ -593,18 +492,25 @@ export function PackingDetailView({ id }: { id: string }) {
                           {item.qtyOrdered}
                         </TableCell>
                         <TableCell className="px-4 py-3 text-center">
-                          <span
-                            className={cn(
-                              "inline-flex h-7 min-w-12 items-center justify-center rounded-xl px-2.5 text-sm font-semibold tabular-nums",
-                              done
-                                ? "bg-success/10 text-success"
-                                : item.qtyPacked > 0
-                                  ? "bg-warning/10 text-warning"
-                                  : "bg-muted text-muted-foreground",
-                            )}
-                          >
-                            {item.qtyPacked}
-                          </span>
+                          {editable ? (
+                            <PackQtyCell
+                              item={item}
+                              onCommit={(qty) => setPackQtyManual(item, qty)}
+                            />
+                          ) : (
+                            <span
+                              className={cn(
+                                "inline-flex h-7 min-w-12 items-center justify-center rounded-xl px-2.5 text-sm font-semibold tabular-nums",
+                                done
+                                  ? "bg-success/10 text-success"
+                                  : item.qtyPacked > 0
+                                    ? "bg-warning/10 text-warning"
+                                    : "bg-muted text-muted-foreground",
+                              )}
+                            >
+                              {item.qtyPacked}
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell className="px-4 py-3 text-center">
                           {done ? (

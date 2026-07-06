@@ -1,11 +1,7 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
-
 import {
   OrderService,
-  type ShippingLabelResult,
   type UpdateOrderItemData,
 } from "@/services/pesanan/order.service";
 import type { ContactChannel, CustomerDecision } from "@/types/pesanan/order";
@@ -181,67 +177,3 @@ export const useDeleteOrderItem = createMutationHook({
   invalidates: ({ orderId }) => forOrder(orderId),
 });
 
-function openShippingLabel(result: ShippingLabelResult) {
-  if (result.type === "url" && result.url) {
-    triggerDownload(result.url, "shipping-label.pdf");
-    return;
-  }
-  if (result.type === "base64" && result.document_base64) {
-    const contentType = result.content_type || "application/pdf";
-    const byteChars = atob(result.document_base64);
-    const byteArray = new Uint8Array(byteChars.length);
-    for (let i = 0; i < byteChars.length; i++) {
-      byteArray[i] = byteChars.charCodeAt(i);
-    }
-    const blob = new Blob([byteArray], { type: contentType });
-    const url = URL.createObjectURL(blob);
-    const ext = contentType.includes("pdf") ? "pdf" : "bin";
-    triggerDownload(url, `shipping-label.${ext}`);
-    setTimeout(() => URL.revokeObjectURL(url), 10_000);
-    return;
-  }
-  toast.info("Format label tidak dikenali");
-}
-
-function triggerDownload(url: string, filename: string) {
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.target = "_blank";
-  a.rel = "noopener";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-
-export function useGetShippingLabel() {
-  return useMutation({
-    mutationFn: (data: { orderId: string; docType?: string }) =>
-      OrderService.getShippingLabel(data.orderId, data.docType),
-    onSuccess: (res) => {
-      const maybeStatus = (res as unknown as { status?: string })?.status;
-      if (maybeStatus === "preparing") {
-        toast.warning(
-          (res as unknown as { message?: string })?.message ||
-            "Label sedang disiapkan oleh Shopee, coba lagi 1-2 menit.",
-        );
-        return;
-      }
-
-      const result = res.data;
-      if (result) {
-        openShippingLabel(result);
-        if (result.requires_self_design) {
-          toast.info(
-            "Label custom (self-design) — marketplace tidak menyediakan PDF, " +
-              "dibuat oleh sistem.",
-          );
-        } else {
-          toast.success("Shipping label berhasil diambil");
-        }
-      }
-    },
-    onError: (err: Error) =>
-      toast.error(err.message || "Gagal mengambil shipping label"),
-  });
-}

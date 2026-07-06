@@ -83,7 +83,13 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
     );
   }, [retur]);
 
-  const handlePrint = useCallback(() => window.print(), []);
+  const handlePrint = useCallback(() => {
+    window.open(
+      `/dashboard/document-preview/purchase-return/${returnId}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  }, [returnId]);
 
   if (isLoading) {
     return (

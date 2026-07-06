@@ -82,7 +82,13 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
     );
   }, [transfer]);
 
-  const handlePrint = useCallback(() => window.print(), []);
+  const handlePrint = useCallback(() => {
+    window.open(
+      `/dashboard/document-preview/transfer-out/${transferId}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  }, [transferId]);
 
   if (isLoading) {
     return (

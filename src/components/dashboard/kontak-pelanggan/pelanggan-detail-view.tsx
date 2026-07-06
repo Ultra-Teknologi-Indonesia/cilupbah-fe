@@ -92,6 +92,7 @@ export function PelangganDetailView({ id }: { id: string }) {
     <div className="flex flex-col gap-6">
       <PageTitle
         title={contact.name}
+        backHref={LIST_HREF}
         breadcrumb={[
           { label: "Penjualan" },
           { label: "Kontak Pelanggan", href: LIST_HREF },

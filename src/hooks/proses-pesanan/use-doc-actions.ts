@@ -32,33 +32,6 @@ async function run(
   }
 }
 
-function openMarketplaceLabel(result: {
-  type: string;
-  url?: string;
-  document_base64?: string;
-  content_type?: string;
-  source?: string;
-}) {
-  if (result.type === "url" && result.url) {
-    window.open(result.url, "_blank");
-    return true;
-  }
-  if (result.type === "base64" && result.document_base64) {
-    const ct = result.content_type || "application/pdf";
-    const dataUrl = `data:${ct};base64,${result.document_base64}`;
-    const win = window.open("", "_blank");
-    if (win) {
-      win.document.write(
-        `<!doctype html><html><head><title>Label Pengiriman</title></head>` +
-          `<body style="margin:0"><iframe src="${dataUrl}" style="width:100%;height:100vh;border:none"></iframe></body></html>`,
-      );
-      win.document.close();
-    }
-    return true;
-  }
-  return false;
-}
-
 function toOrderInputs(
   input: PrintLabelOrderInput[] | string[],
 ): PrintLabelOrderInput[] {
@@ -68,42 +41,29 @@ function toOrderInputs(
 }
 
 async function runShippingLabel(orders: PrintLabelOrderInput[]) {
-  const hasKnownSource = orders.some((o) => (o.source ?? "").length > 0);
-  const choices: PrintLabelChoiceMap | null = hasKnownSource
-    ? await openPrintLabelSizeDialog(orders)
-    : {};
+  const marketplaceOrders = orders.filter((o) => (o.source ?? "").length > 0);
 
+  if (marketplaceOrders.length === 0) {
+    toast.error("Cetak resi hanya tersedia untuk pesanan marketplace.");
+    return;
+  }
+
+  const choices: PrintLabelChoiceMap | null =
+    await openPrintLabelSizeDialog(marketplaceOrders);
   if (choices === null) return;
 
-  const toastId = toast.loading("Menyiapkan label…");
-  const fallbackIds: string[] = [];
-
-  try {
-    const results = await Promise.allSettled(
-      orders.map((o) => {
-        const src = (o.source ?? "").toLowerCase();
-        const choice = src ? choices[src] : undefined;
-        return OutboundService.marketplaceLabel(o.id, choice);
-      }),
+  for (const o of marketplaceOrders) {
+    const src = (o.source ?? "").toLowerCase();
+    const choice = choices[src];
+    const params = new URLSearchParams();
+    if (choice?.document_type) params.set("document_type", choice.document_type);
+    if (choice?.document_size) params.set("document_size", choice.document_size);
+    const qs = params.toString() ? `?${params}` : "";
+    window.open(
+      `/dashboard/document-preview/shipping-label/${o.id}${qs}`,
+      "_blank",
+      "noopener,noreferrer",
     );
-
-    for (let i = 0; i < results.length; i++) {
-      const r = results[i];
-      if (r.status === "fulfilled" && openMarketplaceLabel(r.value)) {
-        continue;
-      }
-      fallbackIds.push(orders[i].id);
-    }
-
-    toast.dismiss(toastId);
-
-    if (fallbackIds.length > 0) {
-      const data = await OutboundService.shippingLabel(fallbackIds);
-      printReport("Label Pengiriman", data);
-    }
-  } catch (err) {
-    toast.dismiss(toastId);
-    toast.error(errMsg(err, "Gagal menyiapkan label."));
   }
 }
 
@@ -118,16 +78,24 @@ export const DocActions = {
     run("Picklist", "Menyiapkan picklist…", () =>
       OutboundService.pickListByPicklist(picklistId),
     ),
-  invoice: (ids: string[]) =>
-    run("Faktur", "Menyiapkan faktur…", () => OutboundService.invoiceDoc(ids)),
+  invoice: (ids: string[]) => {
+    for (const id of ids) {
+      window.open(
+        `/dashboard/document-preview/invoice/${id}`,
+        "_blank",
+        "noopener,noreferrer",
+      );
+    }
+  },
   suratJalan: (ids: string[]) =>
     run("Surat Jalan", "Menyiapkan surat jalan…", () =>
       OutboundService.suratJalanDoc(ids),
     ),
   manifest: (shipmentId: string) => {
     window.open(
-      `/api/app/outbound/shipments/${shipmentId}/manifest-pdf`,
+      `/dashboard/document-preview/manifest/${shipmentId}`,
       "_blank",
+      "noopener,noreferrer",
     );
   },
   invoiceAndLabel: async (input: PrintLabelOrderInput[] | string[]) => {

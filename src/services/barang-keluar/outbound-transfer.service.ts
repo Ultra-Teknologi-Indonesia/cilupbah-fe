@@ -1,4 +1,4 @@
-import { fetchClient } from "@/lib/api-client";
+import { fetchClient, fetchBlobRaw } from "@/lib/api-client";
 import type { ApiResponse, ApiPaginated } from "@/types/api.types";
 import type {
   InventoryTransfer,
@@ -182,6 +182,13 @@ export const OutboundTransferService = {
       `/inventory/transfer/delivery?transfer_id=${transferId}`,
     );
     return res.data;
+  },
+
+  pdf: async (id: string): Promise<Blob> => {
+    return fetchBlobRaw(
+      `/inventory/transfers/${encodeURIComponent(id)}/pdf`,
+      "application/pdf",
+    );
   },
 };
 

@@ -17,17 +17,6 @@ export interface UpdateOrderItemData {
   tax_amount?: number;
 }
 
-export interface ShippingLabelResult {
-  type: "url" | "base64" | "raw";
-  url?: string;
-  content_type?: string;
-  document_base64?: string;
-  source: string;
-  data?: unknown;
-
-  requires_self_design?: boolean;
-}
-
 export const OrderService = {
   list: (params: OrderListParams) => {
     const sp = new URLSearchParams();
@@ -117,14 +106,6 @@ export const OrderService = {
       method: "PUT",
       data: { location_id: locationId },
     });
-  },
-
-  getShippingLabel: (orderId: string, docType?: string) => {
-    const sp = new URLSearchParams();
-    if (docType) sp.set("doc_type", docType);
-    return fetchClient<ApiResponse<ShippingLabelResult>>(
-      `/sales/${orderId}/shipping-label?${sp}`,
-    );
   },
 
   acceptCancelRequest: (orderId: string, reason?: string) => {

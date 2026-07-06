@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import { createMutationHook } from "@/hooks/create-crud-hooks";
 import { toast } from "sonner";
@@ -541,6 +546,20 @@ export function usePacklistDetail(id: string, enabled = true) {
     queryKey: fulfillmentKeys.packlistDetail(id),
     queryFn: () => OutboundService.packlistDetail(id),
     enabled: enabled && !!id,
+  });
+}
+
+/**
+ * Fetch several packlist details in parallel — used by the multi-order packing
+ * station where one session spans multiple scanned orders/packlists.
+ */
+export function usePacklistDetails(ids: string[]) {
+  return useQueries({
+    queries: ids.map((id) => ({
+      queryKey: fulfillmentKeys.packlistDetail(id),
+      queryFn: () => OutboundService.packlistDetail(id),
+      enabled: !!id,
+    })),
   });
 }
 

@@ -6,7 +6,6 @@ import * as React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeftIcon,
   CheckIcon,
   Loader2Icon,
   PackageIcon,
@@ -51,6 +50,7 @@ import { PecahRakDialog } from "@/components/dashboard/proses-pesanan/picking/pe
 import { DeleteOrderDialog } from "@/components/dashboard/proses-pesanan/shared/delete-order-dialog";
 import type { PicklistItem } from "@/types/proses-pesanan/fulfillment";
 import { ScanAutoflowBar } from "@/components/dashboard/shared/scan-autoflow-bar";
+import { useQtyBumpQueue } from "@/hooks/proses-pesanan/use-qty-bump-queue";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { QtyConfirmInput } from "@/components/ui/qty-confirm-input";
 import {
@@ -152,6 +152,29 @@ export function PickingProsesView({ id }: { id: string }) {
 
   const items = React.useMemo(() => pl?.items ?? [], [pl]);
 
+  // Latest items snapshot for scan handlers (avoids stale closures on fast scan).
+  const itemsRef = React.useRef(items);
+  React.useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
+
+  // itemId -> bin_code resolved by the last scanForPick, used by the +1 queue.
+  const pickBinRef = React.useRef<Map<string, string>>(new Map());
+  const commitPick = React.useCallback(
+    (itemId: string, qty: number) => {
+      const binCode = pickBinRef.current.get(itemId);
+      if (!binCode) return Promise.reject(new Error("Rak belum dipilih."));
+      return pickItem.mutateAsync({
+        picklistId: id,
+        itemId,
+        qtyPicked: qty,
+        binCode,
+      });
+    },
+    [pickItem, id],
+  );
+  const { bump: bumpPick } = useQtyBumpQueue(commitPick);
+
   const totalOrdered = items.reduce((s, i) => s + i.qtyOrdered, 0);
   const totalPicked = items.reduce((s, i) => s + i.qtyPicked, 0);
   const failedCount = items.filter((i) => isFailedStatus(i.itemStatus)).length;
@@ -233,19 +256,37 @@ export function PickingProsesView({ id }: { id: string }) {
         binCode: null,
         hintActiveBinCode: scannedBinCode,
       });
-      playScanFeedback("ok");
       setScannedBinCode(res.bin_code);
-      setActiveItemId(res.item_id);
-      setActivePickMax(res.max_pickable);
-      setPickQty(String(res.max_pickable));
-      setActiveCandidates(res.candidates ?? []);
-      setActiveChosenBinCode(res.bin_code);
+
+      // Multiple candidate racks → let the checker pick the rack (dialog).
       if ((res.candidates?.length ?? 0) > 1) {
+        playScanFeedback("ok");
+        setActiveItemId(res.item_id);
+        setActivePickMax(res.max_pickable);
+        setPickQty(String(res.max_pickable));
+        setActiveCandidates(res.candidates ?? []);
+        setActiveChosenBinCode(res.bin_code);
         toast.info(
           `SKU ada di ${res.candidates.length} rak. Default ambil dari ${res.bin_code}. Ganti kalau perlu.`,
         );
+        setTimeout(() => qtyInputRef.current?.focus(), 50);
+        return;
       }
-      setTimeout(() => qtyInputRef.current?.focus(), 50);
+
+      // Single rack → scan-to-increment (+1), stay on the scan bar.
+      const item = itemsRef.current.find((i) => i.id === res.item_id);
+      const base = item?.qtyPicked ?? 0;
+      const max = item?.qtyOrdered ?? base + 1;
+      if (base >= max) {
+        playScanFeedback("error");
+        toast.info(`${item?.sku ?? code} sudah lengkap.`);
+        setSkuRefocusKey((k) => k + 1);
+        return;
+      }
+      pickBinRef.current.set(res.item_id, res.bin_code);
+      playScanFeedback("ok");
+      bumpPick({ itemId: res.item_id, base, max, delta: 1 });
+      setSkuRefocusKey((k) => k + 1);
     } catch (e) {
       playScanFeedback("error");
       toast.error(errMsg(e, `SKU "${code}" tidak bisa diambil.`));
@@ -338,6 +379,7 @@ export function PickingProsesView({ id }: { id: string }) {
     <div className="flex flex-col gap-6">
       <PageTitle
         title={pl ? `Picking - ${pl.picklistNo}` : "Proses Picking"}
+        backHref={LIST_HREF}
         breadcrumb={[
           { label: "Gudang" },
           { label: "Proses Pesanan", href: LIST_HREF },
@@ -346,9 +388,6 @@ export function PickingProsesView({ id }: { id: string }) {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => router.push(LIST_HREF)}>
-              <ArrowLeftIcon /> Kembali
-            </Button>
             <Button
               variant="primary"
               onClick={handleComplete}
@@ -488,8 +527,8 @@ export function PickingProsesView({ id }: { id: string }) {
                     scanPlaceholder="Scan SKU / barcode barang…"
                     hint={
                       scannedBinCode
-                        ? `Rak aktif: ${scannedBinCode}. Enter setelah scan SKU.`
-                        : "Scan SKU langsung — sistem akan sarankan raknya."
+                        ? `Rak aktif: ${scannedBinCode}. Scan SKU = ambil +1; multi-rak minta konfirmasi.`
+                        : "Scan SKU = ambil +1. Kalau ada beberapa rak, muncul pilihan rak."
                     }
                     sound={false}
                   />

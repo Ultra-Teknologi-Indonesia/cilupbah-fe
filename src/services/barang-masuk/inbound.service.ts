@@ -1,4 +1,4 @@
-import { fetchClient } from "@/lib/api-client";
+import { fetchClient, fetchBlobRaw } from "@/lib/api-client";
 import type { ApiResponse, ApiPaginated } from "@/types/api.types";
 import type {
   Inbound,
@@ -101,5 +101,19 @@ export const InboundService = {
       },
     );
     return res.data;
+  },
+
+  barcodesPdf: async (id: string): Promise<Blob> => {
+    return fetchBlobRaw(
+      `/inbounds/${encodeURIComponent(id)}/barcodes`,
+      "application/pdf",
+    );
+  },
+
+  pdf: async (id: string): Promise<Blob> => {
+    return fetchBlobRaw(
+      `/inbounds/${encodeURIComponent(id)}/pdf`,
+      "application/pdf",
+    );
   },
 };
