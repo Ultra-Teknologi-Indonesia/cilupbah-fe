@@ -7,7 +7,7 @@ import { CornerDownLeftIcon,
   CheckCircleIcon,
   XCircleIcon,
   FlagIcon,
-  PlusIcon, Loader2Icon } from "lucide-react";
+  PlusIcon, Loader2Icon, RefreshCwIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -31,6 +31,7 @@ import {
   useAcceptSalesReturn,
   useRejectSalesReturn,
   useCompleteSalesReturn,
+  useSyncReturnTracking,
 } from "@/hooks/barang-masuk/use-sales-return-actions";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import type { SalesReturn } from "@/types/barang-masuk/sales-return";
@@ -77,6 +78,7 @@ export function ReturChannelTab() {
   const acceptMutation = useAcceptSalesReturn();
   const rejectMutation = useRejectSalesReturn();
   const completeMutation = useCompleteSalesReturn();
+  const syncTrackingMutation = useSyncReturnTracking();
 
   const resetPage = useCallback(() => setPage(1), []);
 
@@ -146,6 +148,43 @@ export function ReturChannelTab() {
             {row.original.source === "marketplace" ? "Marketplace" : "Manual"}
           </Badge>
         ),
+      },
+      {
+        accessorKey: "return_tracking_number",
+        header: "No. Resi Retur",
+        cell: ({ row }) => {
+          const item = row.original;
+          const isSyncing =
+            syncTrackingMutation.isPending &&
+            syncTrackingMutation.variables === item.id;
+          return (
+            <div className="flex items-center gap-1.5">
+              <div className="flex min-w-0 flex-col">
+                <span className="font-medium tabular-nums text-foreground">
+                  {item.return_tracking_number ?? "—"}
+                </span>
+                {item.return_carrier && (
+                  <span className="truncate text-xs text-muted-foreground">
+                    {item.return_carrier}
+                  </span>
+                )}
+              </div>
+              {item.source === "marketplace" && (
+                <button
+                  type="button"
+                  title="Sinkron resi dari marketplace"
+                  disabled={isSyncing}
+                  onClick={() => syncTrackingMutation.mutate(item.id)}
+                  className="inline-flex size-6 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+                >
+                  <RefreshCwIcon
+                    className={cn("size-3.5", isSyncing && "animate-spin")}
+                  />
+                </button>
+              )}
+            </div>
+          );
+        },
       },
       {
         accessorKey: "customer_name",
@@ -264,7 +303,7 @@ export function ReturChannelTab() {
     }
 
     return cols;
-  }, [isUnprocessed, subTab]);
+  }, [isUnprocessed, subTab, syncTrackingMutation]);
 
   const items = data?.items ?? [];
   const meta = data?.meta ?? {
@@ -316,7 +355,7 @@ export function ReturChannelTab() {
         <FilterToolbar
           search={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Cari no. retur, pelanggan..."
+          searchPlaceholder="Cari no. resi, no. pesanan, no. retur, pelanggan..."
           align="end"
           onReset={
             hasActiveFilter

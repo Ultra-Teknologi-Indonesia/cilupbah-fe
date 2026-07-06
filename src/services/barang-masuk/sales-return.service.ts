@@ -24,7 +24,7 @@ export const SalesReturnService = {
 
   unprocessed: async (params: SalesReturnListParams = {}) => {
     const sp = new URLSearchParams();
-    if (params.search) sp.set("filter[search]", params.search);
+    if (params.search) sp.set("search", params.search);
     if (params.page) sp.set("page", String(params.page));
     if (params.per_page) sp.set("limit", String(params.per_page));
     if (params["filter[location_id]"])
@@ -43,7 +43,7 @@ export const SalesReturnService = {
 
   list: async (params: SalesReturnListParams = {}) => {
     const sp = new URLSearchParams();
-    if (params.search) sp.set("filter[search]", params.search);
+    if (params.search) sp.set("search", params.search);
     if (params.page) sp.set("page", String(params.page));
     if (params.per_page) sp.set("limit", String(params.per_page));
     if (params["filter[status]"])
@@ -95,6 +95,16 @@ export const SalesReturnService = {
       {
         method: "POST",
         data,
+      },
+    );
+    return res.data;
+  },
+
+  syncTracking: async (id: string) => {
+    const res = await fetchClient<ApiResponse<SalesReturn>>(
+      `/sales/returns/${id}/sync-tracking`,
+      {
+        method: "POST",
       },
     );
     return res.data;

@@ -62,6 +62,25 @@ export function useCreateSalesReturn() {
   });
 }
 
+export function useSyncReturnTracking() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => SalesReturnService.syncTracking(id),
+    onSuccess: (data) => {
+      toast.success(
+        data?.return_tracking_number
+          ? `Resi retur diperbarui: ${data.return_tracking_number}`
+          : "Sinkronisasi selesai — resi belum tersedia di marketplace",
+      );
+      qc.invalidateQueries({ queryKey: ["sales-return"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message || "Gagal sinkron resi retur",
+      ),
+  });
+}
+
 export function useCompleteSalesReturn() {
   const qc = useQueryClient();
   return useMutation({

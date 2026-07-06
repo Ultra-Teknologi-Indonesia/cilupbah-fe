@@ -56,6 +56,7 @@ export interface DocumentTypeConfig {
 
 export type DocumentTypeKey =
   | "picklist"
+  | "picklist-by-orders"
   | "shipping-label"
   | "bin-qr"
   | "putaway"
@@ -63,6 +64,7 @@ export type DocumentTypeKey =
   | "stock-adjustment-bulk"
   | "invoice"
   | "manifest"
+  | "surat-jalan-bulk"
   | "inbound-barcodes"
   | "inbound-receipt"
   | "transfer-out"
@@ -80,6 +82,24 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     backUrl: () => "/dashboard/proses-pesanan",
     filename: (id, meta) =>
       `${(meta?.picklist_no as string | undefined) ?? `PICK-${id}`}.pdf`,
+  },
+
+  "picklist-by-orders": {
+    title: "Picklist (Pesanan Terpilih)",
+    subtitle: (id) => {
+      const count = id.split(",").filter(Boolean).length;
+      return `${count} pesanan`;
+    },
+    fetchPdf: async (id) => {
+      const orderIds = id.split(",").map((s) => s.trim()).filter(Boolean);
+      const blob = await OutboundService.picklistBulkPdf(orderIds);
+      return { blob, meta: { count: orderIds.length } };
+    },
+    backUrl: () => "/dashboard/proses-pesanan",
+    filename: () => {
+      const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      return `Picklist-Bulk-${stamp}.pdf`;
+    },
   },
 
   "shipping-label": {
@@ -251,6 +271,24 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     backUrl: () => "/dashboard/proses-pesanan",
     filename: (id, meta) =>
       `${(meta?.shipment_no as string | undefined) ?? `SHP-${id}`}-manifest.pdf`,
+  },
+
+  "surat-jalan-bulk": {
+    title: "Surat Jalan (Pesanan Terpilih)",
+    subtitle: (id) => {
+      const count = id.split(",").filter(Boolean).length;
+      return `${count} pesanan`;
+    },
+    fetchPdf: async (id) => {
+      const orderIds = id.split(",").map((s) => s.trim()).filter(Boolean);
+      const blob = await OutboundService.manifestBulkPdf(orderIds);
+      return { blob, meta: { count: orderIds.length } };
+    },
+    backUrl: () => "/dashboard/proses-pesanan",
+    filename: () => {
+      const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      return `Manifest-Bulk-${stamp}.pdf`;
+    },
   },
 
   "inbound-barcodes": {

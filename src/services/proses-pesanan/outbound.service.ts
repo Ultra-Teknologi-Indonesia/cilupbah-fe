@@ -1,4 +1,4 @@
-import { fetchBlobRaw, fetchClient } from "@/lib/api-client";
+import { fetchBlobPost, fetchBlobRaw, fetchClient } from "@/lib/api-client";
 import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type {
   Courier,
@@ -923,11 +923,12 @@ export const OutboundService = {
     return (res.data ?? []).map(mapShipResult);
   },
 
-  pickListDoc: async (orderIds: string[]): Promise<unknown> => {
-    const res = await fetchClient<ApiResponse<unknown>>(
-      `/reports/wms/pick-list?order_ids=${orderIds.join(",")}`,
+  picklistBulkPdf: async (orderIds: string[]): Promise<Blob> => {
+    return fetchBlobPost(
+      `/outbound/picklists/documents/bulk/pdf`,
+      { order_ids: orderIds },
+      "application/pdf",
     );
-    return res.data;
   },
 
   pickListByPicklist: async (picklistId: string): Promise<unknown> => {
@@ -958,11 +959,12 @@ export const OutboundService = {
     );
   },
 
-  suratJalanDoc: async (orderIds: string[]): Promise<unknown> => {
-    const res = await fetchClient<ApiResponse<unknown>>(
-      `/reports/wms/shipping-manifest?order_ids=${orderIds.join(",")}`,
+  manifestBulkPdf: async (orderIds: string[]): Promise<Blob> => {
+    return fetchBlobPost(
+      `/outbound/shipments/documents/bulk/manifest-pdf`,
+      { order_ids: orderIds },
+      "application/pdf",
     );
-    return res.data;
   },
 
   shipmentDetail: async (id: string): Promise<ShipmentDetail> => {

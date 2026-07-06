@@ -28,6 +28,10 @@ export interface SalesReturn {
   status: SalesReturnStatus;
   reason: string | null;
   notes: string | null;
+  return_tracking_number?: string | null;
+  return_carrier?: string | null;
+  return_shipped_at?: string | null;
+  tracking_synced_at?: string | null;
   created_by: string;
   processed_by: string | null;
   processed_at: string | null;

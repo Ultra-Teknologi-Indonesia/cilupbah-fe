@@ -70,10 +70,13 @@ async function runShippingLabel(orders: PrintLabelOrderInput[]) {
 export const DocActions = {
   shippingLabel: (input: PrintLabelOrderInput[] | string[]) =>
     runShippingLabel(toOrderInputs(input)),
-  pickList: (ids: string[]) =>
-    run("Picklist", "Menyiapkan picklist…", () =>
-      OutboundService.pickListDoc(ids),
-    ),
+  pickList: (ids: string[]) => {
+    window.open(
+      `/dashboard/document-preview/picklist-by-orders/${ids.join(",")}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  },
   pickListById: (picklistId: string) =>
     run("Picklist", "Menyiapkan picklist…", () =>
       OutboundService.pickListByPicklist(picklistId),
@@ -87,10 +90,13 @@ export const DocActions = {
       );
     }
   },
-  suratJalan: (ids: string[]) =>
-    run("Surat Jalan", "Menyiapkan surat jalan…", () =>
-      OutboundService.suratJalanDoc(ids),
-    ),
+  suratJalan: (ids: string[]) => {
+    window.open(
+      `/dashboard/document-preview/surat-jalan-bulk/${ids.join(",")}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  },
   manifest: (shipmentId: string) => {
     window.open(
       `/dashboard/document-preview/manifest/${shipmentId}`,
