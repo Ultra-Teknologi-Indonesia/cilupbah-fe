@@ -1,9 +1,15 @@
-import { fetchClient, fetchBlobRaw } from "@/lib/api-client";
+import { fetchClient, fetchBlobRaw, fetchBlobPost } from "@/lib/api-client";
 import type { ApiResponse, ApiPaginated } from "@/types/api.types";
 import type {
   InventoryTransfer,
   InventoryTransferListParams,
 } from "@/types/barang-masuk/inventory-transfer";
+
+export interface BulkTransferDeleteResult {
+  deleted: number;
+  reverted: number;
+  failed: Array<{ id: string; reason: string }>;
+}
 
 export interface CreateTransferDraftPayload {
   source_location_id: string;
@@ -214,6 +220,22 @@ export const OutboundTransferService = {
       `/inventory/transfers/${encodeURIComponent(id)}/pdf`,
       "application/pdf",
     );
+  },
+
+  bulkPdf: async (ids: string[]): Promise<Blob> => {
+    return fetchBlobPost(
+      "/inventory/transfers/bulk/pdf",
+      { ids },
+      "application/pdf",
+    );
+  },
+
+  bulkDelete: async (ids: string[]): Promise<BulkTransferDeleteResult> => {
+    const res = await fetchClient<ApiResponse<BulkTransferDeleteResult>>(
+      "/inventory/transfers/bulk/delete",
+      { method: "POST", data: { ids } },
+    );
+    return res.data;
   },
 };
 

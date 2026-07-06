@@ -68,6 +68,7 @@ export type DocumentTypeKey =
   | "inbound-barcodes"
   | "inbound-receipt"
   | "transfer-out"
+  | "transfer-out-bulk"
   | "purchase-return";
 
 export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
@@ -324,6 +325,24 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     backUrl: () => "/dashboard/barang-keluar",
     filename: (id, meta) =>
       `${(meta?.transfer_number as string | undefined) ?? `TRF-${id}`}.pdf`,
+  },
+
+  "transfer-out-bulk": {
+    title: "Transfer Keluar (Bulk)",
+    subtitle: (id) => {
+      const count = id.split(",").filter(Boolean).length;
+      return `${count} dokumen`;
+    },
+    fetchPdf: async (id) => {
+      const ids = id.split(",").map((s) => s.trim()).filter(Boolean);
+      const blob = await OutboundTransferService.bulkPdf(ids);
+      return { blob, meta: { count: ids.length } };
+    },
+    backUrl: () => "/dashboard/barang-keluar",
+    filename: () => {
+      const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      return `Surat-Jalan-Bulk-${stamp}.pdf`;
+    },
   },
 
   "purchase-return": {

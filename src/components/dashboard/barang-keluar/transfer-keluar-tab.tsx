@@ -17,10 +17,11 @@ import type { DateRange } from "react-day-picker";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
 import { DateRangePicker } from "@/components/ui/date-picker";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef, Table as TableInstance } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
@@ -32,6 +33,7 @@ import {
   useSubmitDraft,
   useDeleteTransfer,
   useRevertToDraft,
+  useBulkDeleteTransfer,
 } from "@/hooks/barang-keluar/use-outbound-transfers";
 import { useMe } from "@/hooks/auth/use-auth";
 import { toast } from "sonner";
@@ -85,6 +87,7 @@ function TransferTable({
   resetPage,
   onRowClick,
   actionSlot,
+  bulkActions,
 }: {
   items: InventoryTransfer[];
   isLoading: boolean;
@@ -102,9 +105,40 @@ function TransferTable({
   resetPage: () => void;
   onRowClick: (item: InventoryTransfer) => void;
   actionSlot?: (item: InventoryTransfer) => React.ReactNode;
+  bulkActions?: (
+    selected: InventoryTransfer[],
+    table: TableInstance<InventoryTransfer>,
+  ) => React.ReactNode;
 }) {
   const columns = useMemo<ColumnDef<InventoryTransfer>[]>(
     () => [
+      {
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="Pilih semua"
+          />
+        ),
+        cell: ({ row }) => (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={row.getIsSelected()}
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              aria-label="Pilih baris"
+            />
+          </div>
+        ),
+        enableSorting: false,
+        enableHiding: false,
+        size: 36,
+      },
       {
         accessorKey: "transfer_number",
         header: "No. Transfer",
@@ -180,9 +214,12 @@ function TransferTable({
         <DataTable
           columns={columns}
           data={items}
+          getRowId={(row) => row.id}
           isLoading={isLoading}
           hideToolbar
           manualPagination
+          enableRowSelection={!!bulkActions}
+          bulkActions={bulkActions}
           onRowClick={onRowClick}
           pagination={{
             pageIndex: page - 1,
@@ -219,6 +256,13 @@ export function TransferKeluarTab() {
   const deleteMutation = useDeleteTransfer();
   const revertMutation = useRevertToDraft();
   const isRevertTarget = deleteTarget?.status === "IN_TRANSIT";
+
+  const [bulkDeleteState, setBulkDeleteState] = useState<{
+    ids: string[];
+    onDone: () => void;
+  } | null>(null);
+  const bulkDeleteMutation = useBulkDeleteTransfer();
+  const [bulkPrinting, setBulkPrinting] = useState(false);
 
   const handleEdit = useCallback(
     (item: InventoryTransfer) => {
@@ -274,6 +318,56 @@ export function TransferKeluarTab() {
       openTransferPdf(item.id);
     },
     [openTransferPdf],
+  );
+
+  const openBulkTransferPdf = useCallback((ids: string[]) => {
+    window.open(
+      `/dashboard/document-preview/transfer-out-bulk/${ids.join(",")}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  }, []);
+
+  const handleBulkPrint = useCallback(
+    async (items: InventoryTransfer[], resetSelection: () => void) => {
+      if (bulkPrinting || items.length === 0) return;
+      setBulkPrinting(true);
+      try {
+        const results = await Promise.allSettled(
+          items.map(async (item) => {
+            if (item.status === "DRAFT") {
+              await submitMutation.mutateAsync(item.id);
+            } else if (item.status === "APPROVED") {
+              await shipMutation.mutateAsync({
+                id: item.id,
+                data: { shipped_by: meName },
+              });
+            }
+            return item.id;
+          }),
+        );
+
+        const succeeded = results
+          .filter(
+            (r): r is PromiseFulfilledResult<string> => r.status === "fulfilled",
+          )
+          .map((r) => r.value);
+        const failedCount = results.length - succeeded.length;
+
+        if (failedCount > 0) {
+          toast.warning(
+            `${failedCount} transfer gagal diproses, ${succeeded.length} dilanjutkan cetak`,
+          );
+        }
+        if (succeeded.length > 0) {
+          openBulkTransferPdf(succeeded);
+          resetSelection();
+        }
+      } finally {
+        setBulkPrinting(false);
+      }
+    },
+    [bulkPrinting, submitMutation, shipMutation, meName, openBulkTransferPdf],
   );
 
   const resetPage = useCallback(() => setPage(1), []);
@@ -356,36 +450,40 @@ export function TransferKeluarTab() {
   const draftActions = useCallback(
     (item: InventoryTransfer) => (
       <div className="flex items-center gap-1">
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => handlePrint(item)}
           disabled={printingId === item.id}
+          aria-label="Cetak Surat Jalan & kirim"
           title="Cetak Surat Jalan & kirim"
-          className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+          className="text-primary hover:text-primary"
         >
           {printingId === item.id ? (
             <Loader2Icon className="size-3.5 animate-spin" />
           ) : (
             <PrinterIcon className="size-3.5" />
           )}
-          Cetak
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => handleEdit(item)}
+          aria-label="Ubah transfer"
           title="Ubah transfer"
-          className="inline-flex items-center gap-1 rounded-md bg-muted px-2.5 py-1 text-xs font-medium text-foreground/80 transition-colors hover:bg-muted/70"
         >
           <PencilIcon className="size-3.5" />
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => setDeleteTarget(item)}
+          aria-label="Hapus transfer"
           title="Hapus transfer"
-          className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20"
+          className="text-destructive hover:text-destructive"
         >
           <Trash2Icon className="size-3.5" />
-        </button>
+        </Button>
       </div>
     ),
     [handlePrint, handleEdit, printingId],
@@ -394,35 +492,40 @@ export function TransferKeluarTab() {
   const transitActions = useCallback(
     (item: InventoryTransfer) => (
       <div className="flex items-center gap-1">
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => handleReprint(item)}
           disabled={printingId === item.id}
+          aria-label="Cetak ulang Surat Jalan"
           title="Cetak ulang Surat Jalan"
-          className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+          className="text-primary hover:text-primary"
         >
           {printingId === item.id ? (
             <Loader2Icon className="size-3.5 animate-spin" />
           ) : (
             <PrinterIcon className="size-3.5" />
           )}
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => handleEdit(item)}
+          aria-label="Ubah transfer (dikembalikan ke Baru Dibuat)"
           title="Ubah transfer (dikembalikan ke Baru Dibuat)"
-          className="inline-flex items-center gap-1 rounded-md bg-muted px-2.5 py-1 text-xs font-medium text-foreground/80 transition-colors hover:bg-muted/70"
         >
           <PencilIcon className="size-3.5" />
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => setDeleteTarget(item)}
+          aria-label="Kembalikan ke Baru Dibuat"
           title="Kembalikan ke Baru Dibuat"
-          className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20"
+          className="text-destructive hover:text-destructive"
         >
           <Trash2Icon className="size-3.5" />
-        </button>
+        </Button>
       </div>
     ),
     [handleReprint, handleEdit, printingId],
@@ -431,22 +534,68 @@ export function TransferKeluarTab() {
   const reprintActions = useCallback(
     (item: InventoryTransfer) => (
       <div className="flex items-center gap-1">
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => handleReprint(item)}
           disabled={printingId === item.id}
+          aria-label="Cetak ulang Surat Jalan"
           title="Cetak ulang Surat Jalan"
-          className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+          className="text-primary hover:text-primary"
         >
           {printingId === item.id ? (
             <Loader2Icon className="size-3.5 animate-spin" />
           ) : (
             <PrinterIcon className="size-3.5" />
           )}
-        </button>
+        </Button>
       </div>
     ),
     [handleReprint, printingId],
+  );
+
+  const bulkActionsFor = useCallback(
+    (
+      selected: InventoryTransfer[],
+      table: TableInstance<InventoryTransfer>,
+    ) => {
+      const ids = selected.map((i) => i.id);
+      return (
+        <>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={bulkPrinting}
+            onClick={() =>
+              handleBulkPrint(selected, () => table.resetRowSelection())
+            }
+          >
+            {bulkPrinting ? (
+              <Loader2Icon className="mr-1.5 size-4 animate-spin" />
+            ) : (
+              <PrinterIcon className="mr-1.5 size-4" />
+            )}
+            Cetak {ids.length}
+          </Button>
+          {subTab !== "finished" && (
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() =>
+                setBulkDeleteState({
+                  ids,
+                  onDone: () => table.resetRowSelection(),
+                })
+              }
+            >
+              <Trash2Icon className="mr-1.5 size-4" />
+              {subTab === "transit" ? "Kembalikan" : "Hapus"} {ids.length}
+            </Button>
+          )}
+        </>
+      );
+    },
+    [bulkPrinting, handleBulkPrint, subTab],
   );
 
   return (
@@ -516,6 +665,7 @@ export function TransferKeluarTab() {
         </FilterToolbar>
 
         <TransferTable
+          key={subTab}
           items={items}
           isLoading={activeQuery.isLoading}
           isFetching={activeQuery.isFetching}
@@ -533,6 +683,7 @@ export function TransferKeluarTab() {
                 ? transitActions
                 : reprintActions
           }
+          bulkActions={bulkActionsFor}
         />
       </LiquidGlass>
 
@@ -566,6 +717,33 @@ export function TransferKeluarTab() {
               onSuccess: () => setDeleteTarget(null),
             });
           }
+        }}
+      />
+
+      <ConfirmDialog
+        open={!!bulkDeleteState}
+        onOpenChange={(v) => !v && setBulkDeleteState(null)}
+        title={
+          subTab === "transit"
+            ? "Kembalikan Transfer Terpilih"
+            : "Hapus Transfer Terpilih"
+        }
+        description={
+          subTab === "transit"
+            ? `Kembalikan ${bulkDeleteState?.ids.length ?? 0} transfer ke Baru Dibuat? Pengiriman dibatalkan dan stok dikembalikan ke rak asal.`
+            : `Hapus ${bulkDeleteState?.ids.length ?? 0} transfer? Stok yang sudah dialokasikan akan dikembalikan. Aksi ini tidak bisa dibatalkan.`
+        }
+        confirmLabel={subTab === "transit" ? "Kembalikan" : "Hapus"}
+        variant="destructive"
+        loading={bulkDeleteMutation.isPending}
+        onConfirm={() => {
+          if (!bulkDeleteState) return;
+          bulkDeleteMutation.mutate(bulkDeleteState.ids, {
+            onSuccess: () => {
+              bulkDeleteState.onDone();
+              setBulkDeleteState(null);
+            },
+          });
         }}
       />
     </>

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { OutboundTransferService } from "@/services/barang-keluar/outbound-transfer.service";
 import type { InventoryTransferListParams } from "@/types/barang-masuk/inventory-transfer";
+import type { BulkTransferDeleteResult } from "@/services/barang-keluar/outbound-transfer.service";
 import type {
   CreateTransferDraftPayload,
   AddTransferItemPayload,
@@ -199,6 +200,31 @@ export function useDeleteTransfer() {
     onError: (err) =>
       toast.error(
         (err as { message?: string })?.message || "Gagal menghapus transfer",
+      ),
+  });
+}
+
+export function useBulkDeleteTransfer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: string[]) => OutboundTransferService.bulkDelete(ids),
+    onSuccess: (data: BulkTransferDeleteResult) => {
+      const parts: string[] = [];
+      if (data.deleted > 0) parts.push(`${data.deleted} dihapus`);
+      if (data.reverted > 0)
+        parts.push(`${data.reverted} dikembalikan ke Baru Dibuat`);
+      if (data.failed.length > 0) parts.push(`${data.failed.length} gagal`);
+      const message = parts.join(", ") || "Tidak ada transfer diproses";
+      if (data.failed.length > 0) {
+        toast.warning(message);
+      } else {
+        toast.success(message);
+      }
+      qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message || "Gagal memproses transfer",
       ),
   });
 }
