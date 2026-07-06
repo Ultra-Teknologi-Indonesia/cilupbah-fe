@@ -1,6 +1,7 @@
 "use client";
 
 import { PageTitle } from "@/components/dashboard/page-title";
+import { PengaturanTabBar } from "@/components/dashboard/pengaturan/pengaturan-tab-bar";
 import { SalesReturnSettingForm } from "@/components/dashboard/pengaturan/retur/sales-return-setting-form";
 
 export default function PengaturanReturPage() {
@@ -15,6 +16,9 @@ export default function PengaturanReturPage() {
           { label: "Retur Penjualan" },
         ]}
       />
+
+      <PengaturanTabBar />
+
       <SalesReturnSettingForm />
     </div>
   );

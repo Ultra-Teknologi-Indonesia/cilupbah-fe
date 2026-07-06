@@ -1,4 +1,8 @@
+import { Suspense } from "react";
+
 import { PageTitle } from "@/components/dashboard/page-title";
+import { PengaturanTabBar } from "@/components/dashboard/pengaturan/pengaturan-tab-bar";
+import { TabBarSkeleton } from "@/components/ui/page-skeleton";
 
 export default function PengaturanPage() {
   return (
@@ -11,6 +15,10 @@ export default function PengaturanPage() {
           { label: "Pengaturan" },
         ]}
       />
+
+      <Suspense fallback={<TabBarSkeleton />}>
+        <PengaturanTabBar />
+      </Suspense>
     </div>
   );
 }

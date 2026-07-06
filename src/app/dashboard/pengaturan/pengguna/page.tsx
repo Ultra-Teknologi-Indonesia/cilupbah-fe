@@ -1,7 +1,10 @@
+import { Suspense } from "react";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 import { PageTitle } from "@/components/dashboard/page-title";
+import { PengaturanTabBar } from "@/components/dashboard/pengaturan/pengaturan-tab-bar";
 import { UserListView } from "@/components/dashboard/pengaturan/pengguna/user-list-view";
+import { TabBarSkeleton } from "@/components/ui/page-skeleton";
 import { getServerQueryClient } from "@/lib/api-server";
 import { UserService } from "@/services/pengaturan/user.service";
 import type { UserListParams } from "@/types/pengaturan/user";
@@ -25,6 +28,11 @@ export default async function PenggunaPage() {
           { label: "Daftar Pengguna" },
         ]}
       />
+
+      <Suspense fallback={<TabBarSkeleton />}>
+        <PengaturanTabBar />
+      </Suspense>
+
       <HydrationBoundary state={dehydrate(qc)}>
         <UserListView />
       </HydrationBoundary>

@@ -5,6 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Tabs as TabsPrimitive } from "radix-ui";
 
 import { cn } from "@/lib/utils";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
 
 function Tabs({
   className,
@@ -31,6 +32,7 @@ const tabsListVariants = cva(
       variant: {
         default: "bg-muted",
         line: "gap-1 bg-transparent",
+        glass: "gap-1 bg-transparent",
       },
     },
     defaultVariants: {
@@ -45,13 +47,30 @@ function TabsList({
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.List> &
   VariantProps<typeof tabsListVariants>) {
-  return (
+  const list = (
     <TabsPrimitive.List
       data-slot="tabs-list"
       data-variant={variant}
-      className={cn(tabsListVariants({ variant }), className)}
+      className={cn(
+        tabsListVariants({ variant }),
+        variant !== "glass" && className,
+      )}
       {...props}
     />
+  );
+
+  if (variant !== "glass") return list;
+
+  return (
+    <LiquidGlass
+      radius={16}
+      intensity="subtle"
+      showGlow={false}
+      showShadow={false}
+      className={cn("w-fit bg-white/50 p-1.5 dark:bg-white/[0.06]", className)}
+    >
+      {list}
+    </LiquidGlass>
   );
 }
 
