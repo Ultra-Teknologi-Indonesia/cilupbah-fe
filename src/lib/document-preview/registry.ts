@@ -57,6 +57,15 @@ export interface DocumentTypeConfig {
   filename: (id: string, meta?: DocumentMeta) => string;
 
   resetBeforeRetry?: (id: string) => Promise<void>;
+
+  /**
+   * Opsional: unduh dokumen versi Excel (.xlsx). Bila ada, tombol "Excel"
+   * ditampilkan di header preview di samping tombol Unduh (PDF).
+   */
+  excel?: {
+    fetch: (id: string, query?: URLSearchParams) => Promise<Blob>;
+    filename: (id: string, meta?: DocumentMeta) => string;
+  };
 }
 
 export type DocumentTypeKey =
@@ -297,6 +306,11 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     backUrl: () => "/dashboard/proses-pesanan",
     filename: (id, meta) =>
       `${(meta?.shipment_no as string | undefined) ?? `SHP-${id}`}-manifest.pdf`,
+    excel: {
+      fetch: (id) => OutboundService.manifestExcel(id),
+      filename: (id, meta) =>
+        `${(meta?.shipment_no as string | undefined) ?? `SHP-${id}`}-manifest.xlsx`,
+    },
   },
 
   "surat-jalan-bulk": {

@@ -6,7 +6,9 @@ import dynamic from "next/dynamic";
 import {
   ArrowLeftIcon,
   DownloadIcon,
+  FileSpreadsheetIcon,
   FileWarningIcon,
+  Loader2,
   PrinterIcon,
   RefreshCwIcon,
   XIcon,
@@ -89,6 +91,7 @@ function KnownDocumentPreview({
   const [numPages, setNumPages] = React.useState(0);
   const [scale, setScale] = React.useState(1);
   const [isResetting, setIsResetting] = React.useState(false);
+  const [isExcelLoading, setIsExcelLoading] = React.useState(false);
 
   const handleRetry = React.useCallback(async () => {
     if (config.resetBeforeRetry) {
@@ -170,6 +173,31 @@ function KnownDocumentPreview({
     toast.success(`${filename} diunduh`);
   };
 
+  const handleDownloadExcel = async () => {
+    if (!config.excel || isExcelLoading) return;
+    setIsExcelLoading(true);
+    let objectUrl: string | null = null;
+    try {
+      const blob = await config.excel.fetch(id, new URLSearchParams(queryString));
+      const excelFilename = config.excel.filename(id, meta);
+      objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = excelFilename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      toast.success(`${excelFilename} diunduh`);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Excel gagal diunduh.";
+      toast.error(message);
+    } finally {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      setIsExcelLoading(false);
+    }
+  };
+
   const handlePrint = () => {
     if (state.kind !== "ready") return;
 
@@ -234,6 +262,22 @@ function KnownDocumentPreview({
               <LabelPrintOptions
                 source={(state.meta?.source as string | undefined) ?? null}
               />
+            )}
+            {config.excel && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={handleDownloadExcel}
+                disabled={state.kind !== "ready" || isExcelLoading}
+              >
+                {isExcelLoading ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <FileSpreadsheetIcon className="size-4" />
+                )}
+                <span className="hidden sm:inline">Excel</span>
+              </Button>
             )}
             <Button
               variant="outline"

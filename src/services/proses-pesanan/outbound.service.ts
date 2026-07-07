@@ -974,6 +974,13 @@ export const OutboundService = {
     );
   },
 
+  manifestExcel: async (shipmentId: string): Promise<Blob> => {
+    return fetchBlobRaw(
+      `/outbound/shipments/${encodeURIComponent(shipmentId)}/manifest-excel`,
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
+  },
+
   shipmentDetail: async (id: string): Promise<ShipmentDetail> => {
     const res = await fetchClient<{ data: RawShipmentDetail }>(
       `/outbound/shipments/${encodeURIComponent(id)}`,
