@@ -37,7 +37,6 @@ import {
   type ScanAutoflowLine,
 } from "@/components/dashboard/shared/scan-autoflow-bar";
 import { PageTitle } from "@/components/dashboard/page-title";
-import { PackQtyCell } from "@/components/dashboard/proses-pesanan/packing/pack-qty-cell";
 import { DeleteOrderDialog } from "@/components/dashboard/proses-pesanan/shared/delete-order-dialog";
 import { playScanFeedback } from "@/lib/scan-feedback";
 import { type PacklistItem } from "@/types/proses-pesanan/fulfillment";
@@ -212,7 +211,15 @@ export function PackingDetailView({ id }: { id: string }) {
       }),
     [packItem, id],
   );
-  const { bump, setTarget } = useQtyBumpQueue(commitPack);
+  const { bump } = useQtyBumpQueue(commitPack, {
+    onGiveUp: (itemId) => {
+      const item = pk?.items.find((i) => i.id === itemId);
+      playScanFeedback("error");
+      toast.error(
+        `Gagal menyimpan hasil scan ${item?.sku ?? ""} — scan ulang barang ini.`,
+      );
+    },
+  });
 
   const items = pk?.items ?? [];
   const totalOrdered = items.reduce((s, i) => s + i.qtyOrdered, 0);
@@ -275,14 +282,6 @@ export function PackingDetailView({ id }: { id: string }) {
       delta: 1,
     });
     refocusScan();
-  };
-
-  // Manual bulk entry: checker types an absolute qty directly in the row.
-  const setPackQtyManual = (item: PacklistItem, qty: number) => {
-    const clamped = Math.max(0, Math.min(item.qtyOrdered, qty));
-    if (clamped === item.qtyPacked) return;
-    playScanFeedback("ok");
-    setTarget({ itemId: item.id, value: clamped, max: item.qtyOrdered });
   };
 
   const handleResolve = (line: ScanAutoflowLine) => {
@@ -492,25 +491,18 @@ export function PackingDetailView({ id }: { id: string }) {
                           {item.qtyOrdered}
                         </TableCell>
                         <TableCell className="px-4 py-3 text-center">
-                          {editable ? (
-                            <PackQtyCell
-                              item={item}
-                              onCommit={(qty) => setPackQtyManual(item, qty)}
-                            />
-                          ) : (
-                            <span
-                              className={cn(
-                                "inline-flex h-7 min-w-12 items-center justify-center rounded-xl px-2.5 text-sm font-semibold tabular-nums",
-                                done
-                                  ? "bg-success/10 text-success"
-                                  : item.qtyPacked > 0
-                                    ? "bg-warning/10 text-warning"
-                                    : "bg-muted text-muted-foreground",
-                              )}
-                            >
-                              {item.qtyPacked}
-                            </span>
-                          )}
+                          <span
+                            className={cn(
+                              "inline-flex h-7 min-w-12 items-center justify-center rounded-xl px-2.5 text-sm font-semibold tabular-nums",
+                              done
+                                ? "bg-success/10 text-success"
+                                : item.qtyPacked > 0
+                                  ? "bg-warning/10 text-warning"
+                                  : "bg-muted text-muted-foreground",
+                            )}
+                          >
+                            {item.qtyPacked}
+                          </span>
                         </TableCell>
                         <TableCell className="px-4 py-3 text-center">
                           {done ? (

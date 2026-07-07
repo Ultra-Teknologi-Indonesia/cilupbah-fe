@@ -32,7 +32,6 @@ import {
   ScanAutoflowBar,
   type ScanAutoflowLine,
 } from "@/components/dashboard/shared/scan-autoflow-bar";
-import { PackQtyCell } from "@/components/dashboard/proses-pesanan/packing/pack-qty-cell";
 import {
   useCompletePacklist,
   usePackItem,
@@ -122,17 +121,13 @@ function ProgressBar({ packed, total }: { packed: number; total: number }) {
 function OrderPackCard({
   pl,
   onRemove,
-  onManual,
 }: {
   pl: PacklistDetail;
   onRemove: (id: string) => void;
-  onManual: (item: PacklistItem, qty: number) => void;
 }) {
   const packed = pl.items.reduce((s, i) => s + i.qtyPacked, 0);
   const total = pl.items.reduce((s, i) => s + i.qtyOrdered, 0);
   const done = pl.items.length > 0 && pl.items.every((i) => i.qtyPacked >= i.qtyOrdered);
-  const isTerminal = ["COMPLETED", "CANCELLED"].includes(pl.status);
-  const editable = !isTerminal;
 
   return (
     <div
@@ -225,16 +220,9 @@ function OrderPackCard({
                   {item.qtyOrdered}
                 </TableCell>
                 <TableCell className="px-4 py-3 text-center">
-                  {editable ? (
-                    <PackQtyCell
-                      item={item}
-                      onCommit={(qty) => onManual(item, qty)}
-                    />
-                  ) : (
-                    <span className="tabular-nums font-semibold">
-                      {item.qtyPacked}
-                    </span>
-                  )}
+                  <span className="tabular-nums font-semibold">
+                    {item.qtyPacked}
+                  </span>
                 </TableCell>
                 <TableCell className="px-4 py-3 text-center">
                   {itemDone ? (
@@ -314,7 +302,17 @@ export function PackingProsesView() {
     },
     [packItem],
   );
-  const { bump, setTarget, reset } = useQtyBumpQueue(commitPack);
+  const { bump, reset } = useQtyBumpQueue(commitPack, {
+    onGiveUp: (itemId) => {
+      const item = packlists
+        .flatMap((pl) => pl.items)
+        .find((i) => i.id === itemId);
+      playScanFeedback("error");
+      toast.error(
+        `Gagal menyimpan hasil scan ${item?.sku ?? ""} — scan ulang barang ini.`,
+      );
+    },
+  });
 
   const totalOrdered = packlists.reduce(
     (s, pl) => s + pl.items.reduce((a, i) => a + i.qtyOrdered, 0),
@@ -459,13 +457,6 @@ export function PackingProsesView() {
       max: item.qtyOrdered,
       delta: 1,
     });
-  };
-
-  const setPackQtyManual = (item: PacklistItem, qty: number) => {
-    const clamped = Math.max(0, Math.min(item.qtyOrdered, qty));
-    if (clamped === item.qtyPacked) return;
-    playScanFeedback("ok");
-    setTarget({ itemId: item.id, value: clamped, max: item.qtyOrdered });
   };
 
   const handleResolve = (line: ScanAutoflowLine) => {
@@ -716,7 +707,6 @@ export function PackingProsesView() {
                   key={pl.id}
                   pl={pl}
                   onRemove={removeFromSession}
-                  onManual={setPackQtyManual}
                 />
               ))
             )}

@@ -194,7 +194,15 @@ export function PickingProsesView({ id }: { id: string }) {
     },
     [pickItem, id],
   );
-  const { bump: bumpPick } = useQtyBumpQueue(commitPick);
+  const { bump: bumpPick } = useQtyBumpQueue(commitPick, {
+    onGiveUp: (itemId) => {
+      const item = itemsRef.current.find((i) => i.id === itemId);
+      playScanFeedback("error");
+      toast.error(
+        `Gagal menyimpan hasil scan ${item?.sku ?? ""} — scan ulang barang ini.`,
+      );
+    },
+  });
 
   const totalOrdered = items.reduce((s, i) => s + i.qtyOrdered, 0);
   const totalPicked = items.reduce((s, i) => s + i.qtyPicked, 0);
