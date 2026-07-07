@@ -183,13 +183,6 @@ export function PesananListView() {
         ),
       },
       {
-        id: "bills",
-        header: "No. Tagihan",
-        cell: ({ row }) => (
-          <span>{row.original.bills?.[0]?.bill_number ?? "—"}</span>
-        ),
-      },
-      {
         id: "actions",
         header: "",
         cell: ({ row }) => {
@@ -219,15 +212,6 @@ export function PesananListView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
-        <Button variant="primary" asChild>
-          <Link href="/dashboard/transaksi-pembelian/pesanan/tambah">
-            <PlusIcon className="size-4" />
-            Buat Pesanan
-          </Link>
-        </Button>
-      </div>
-
       <LiquidGlass
         radius={24}
         intensity="default"
@@ -246,6 +230,14 @@ export function PesananListView() {
           hasFilter={hasActiveFilter}
           activeCount={activeCount}
           gridCols={2}
+          trailing={
+            <Button variant="primary" asChild>
+              <Link href="/dashboard/transaksi-pembelian/pesanan/tambah">
+                <PlusIcon className="size-4" />
+                Buat Pesanan
+              </Link>
+            </Button>
+          }
         >
           <Combobox
             options={locationOptions}
