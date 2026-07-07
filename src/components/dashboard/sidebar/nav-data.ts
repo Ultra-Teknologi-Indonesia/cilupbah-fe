@@ -36,6 +36,8 @@ import {
   Warehouse,
   BarChart3,
   Undo2,
+  Barcode,
+  FileSpreadsheet,
 } from "lucide-react";
 import type React from "react";
 import type { Route } from "./nav-main";
@@ -252,6 +254,18 @@ export const dashboardGroups: NavGroup[] = [
         icon: Factory,
         link: "/dashboard/laporan/gudang",
         comingSoon: true,
+      },
+      {
+        id: "laporan-barcode-barang",
+        title: "Barcode Barang",
+        icon: Barcode,
+        link: "/dashboard/laporan/barcode-barang",
+      },
+      {
+        id: "laporan-penyesuaian-stok",
+        title: "Penyesuaian Stok",
+        icon: FileSpreadsheet,
+        link: "/dashboard/laporan/penyesuaian-stok",
       },
     ],
   },

@@ -1,6 +1,11 @@
-import { fetchBlobRaw, fetchClient } from "@/lib/api-client";
+import { fetchBlobPost, fetchBlobRaw, fetchClient } from "@/lib/api-client";
 import type { ApiPaginated, ApiResponse } from "@/types/api.types";
+import type {
+  BarcodeReportParams,
+  BarcodeReportPayload,
+} from "@/types/laporan/barcode";
 import type { HppReportParams, HppReportPayload } from "@/types/laporan/hpp";
+import type { PenyesuaianStokPdfParams } from "@/types/laporan/penyesuaian-stok";
 import type {
   LaporanReturParams,
   LaporanReturRow,
@@ -44,6 +49,21 @@ export const ReportService = {
     return fetchBlobRaw(
       `/sales/returns/report/export?${sp.toString()}`,
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
+  },
+
+  barcodePreview: (params: BarcodeReportParams) => {
+    return fetchClient<ApiResponse<BarcodeReportPayload>>(
+      `/reports/barcode/preview`,
+      { method: "POST", data: params },
+    );
+  },
+
+  penyesuaianStokPdf: (params: PenyesuaianStokPdfParams): Promise<Blob> => {
+    return fetchBlobPost(
+      `/reports/penyesuaian-stok/pdf`,
+      params,
+      "application/pdf",
     );
   },
 };
