@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { SettingsIcon, UsersIcon, Undo2Icon, BoxesIcon } from "lucide-react";
+import {
+  SettingsIcon,
+  UsersIcon,
+  Undo2Icon,
+  BoxesIcon,
+  ArrowLeftRightIcon,
+} from "lucide-react";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -38,6 +44,12 @@ const TABS: Tab[] = [
     icon: BoxesIcon,
     href: "/dashboard/pengaturan/alokasi-stok",
   },
+  {
+    id: "aktivitas-impex",
+    label: "Aktivitas Import dan Export",
+    icon: ArrowLeftRightIcon,
+    href: "/dashboard/aktivitas-impex",
+  },
 ];
 
 function activeId(pathname: string): string {
@@ -45,6 +57,8 @@ function activeId(pathname: string): string {
   if (pathname.startsWith("/dashboard/pengaturan/retur")) return "retur";
   if (pathname.startsWith("/dashboard/pengaturan/alokasi-stok"))
     return "alokasi-stok";
+  if (pathname.startsWith("/dashboard/aktivitas-impex"))
+    return "aktivitas-impex";
   return "umum";
 }
 
