@@ -386,13 +386,17 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
   "laporan-barcode": {
     title: "Barcode Barang",
     subtitle: (id, meta) => {
-      const count = id.split(",").filter(Boolean).length;
+      const count = decodeURIComponent(id).split(",").filter(Boolean).length;
       const harga = meta?.harga as string | undefined;
       const jenis = meta?.jenis === "sku_induk" ? "SKU Induk" : "SKU";
       return harga ? `${count} ${jenis} · ${harga}` : `${count} ${jenis}`;
     },
     fetchPdf: async (id, query) => {
-      const ids = id.split(",").map((s) => s.trim()).filter(Boolean);
+      // `id` bisa ter-encode (%2C) saat dibuka via window.open — decode dulu.
+      const ids = decodeURIComponent(id)
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
       const jenis = (query?.get("jenis") ?? "sku") as BarcodeJenis;
       const harga = (query?.get("harga") ?? "tanpa_harga") as BarcodeHarga;
       const blob = await ReportService.barcodePdf({ jenis, ids, harga });
@@ -408,11 +412,11 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
   "laporan-penyesuaian": {
     title: "Daftar Penyesuaian Stok",
     subtitle: (id) => {
-      const [start, end] = id.split("_");
+      const [start, end] = decodeURIComponent(id).split("_");
       return start && end ? `${start} — ${end}` : "Periode penyesuaian";
     },
     fetchPdf: async (id, query) => {
-      const [start_date, end_date] = id.split("_");
+      const [start_date, end_date] = decodeURIComponent(id).split("_");
       const productRaw = query?.get("product_ids") ?? "";
       const locationRaw = query?.get("location_ids") ?? "";
       const product_ids = productRaw
