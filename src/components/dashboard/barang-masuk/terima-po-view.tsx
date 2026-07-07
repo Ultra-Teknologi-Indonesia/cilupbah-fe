@@ -44,8 +44,10 @@ import { useReceivePurchaseOrder } from "@/hooks/barang-masuk/use-receive-purcha
 
 interface ItemQty {
   purchase_order_item_id: string;
-  qty: number;
-  max: number;
+  accepted: number;
+  rejected: number;
+  rejection_note: string;
+  remaining: number;
   notes: string;
 }
 
@@ -98,8 +100,10 @@ export function TerimaPOView({ id }: { id: string }) {
             if (remaining > 0) {
               next[item.id] = {
                 purchase_order_item_id: item.id,
-                qty: remaining,
-                max: remaining,
+                accepted: remaining,
+                rejected: 0,
+                rejection_note: "",
+                remaining,
                 notes: "",
               };
               hasChanges = true;
@@ -112,46 +116,73 @@ export function TerimaPOView({ id }: { id: string }) {
   }, [items]);
 
   const hasValidQty = useMemo(
-    () => Object.values(itemQtys).some((i) => i.qty > 0),
+    () =>
+      Object.values(itemQtys).some((i) => i.accepted > 0 || i.rejected > 0),
     [itemQtys],
   );
 
-  const canSubmit = hasValidQty && !receiveMutation.isPending;
+  const hasOverQty = useMemo(
+    () =>
+      Object.values(itemQtys).some((i) => i.accepted + i.rejected > i.remaining),
+    [itemQtys],
+  );
+
+  const canSubmit = hasValidQty && !hasOverQty && !receiveMutation.isPending;
 
   const totalAccepted = useMemo(
-    () => Object.values(itemQtys).reduce((s, i) => s + i.qty, 0),
+    () => Object.values(itemQtys).reduce((s, i) => s + i.accepted, 0),
     [itemQtys],
   );
 
-  function handleQtyChange(itemId: string, maxQty: number, value: string) {
-    const num = Math.max(0, Math.min(parseInt(value) || 0, maxQty));
+  const totalRejected = useMemo(
+    () => Object.values(itemQtys).reduce((s, i) => s + i.rejected, 0),
+    [itemQtys],
+  );
+
+  function handleAcceptedChange(itemId: string, remaining: number, value: number) {
     setItemQtys((prev) => {
       const current = prev[itemId];
+      const rejected = current?.rejected ?? 0;
+      const accepted = Math.max(0, Math.min(value, remaining - rejected));
       return {
         ...prev,
         [itemId]: {
           ...current,
           purchase_order_item_id: itemId,
-          max: maxQty,
-          qty: num,
+          remaining,
+          accepted,
         },
       };
     });
   }
 
+  function handleRejectedChange(itemId: string, remaining: number, value: number) {
+    setItemQtys((prev) => {
+      const current = prev[itemId];
+      const accepted = current?.accepted ?? 0;
+      const rejected = Math.max(0, Math.min(value, remaining - accepted));
+      return {
+        ...prev,
+        [itemId]: {
+          ...current,
+          purchase_order_item_id: itemId,
+          remaining,
+          rejected,
+          rejection_note: rejected === 0 ? "" : (current?.rejection_note ?? ""),
+        },
+      };
+    });
+  }
 
-
-  function handleNoteChange(itemId: string, value: string) {
+  function handleRejectionNoteChange(itemId: string, value: string) {
     setItemQtys((prev) => ({
       ...prev,
       [itemId]: {
         ...prev[itemId],
-        notes: value,
+        rejection_note: value,
       },
     }));
   }
-
-
 
   function handleSubmit() {
     if (!canSubmit) return;
@@ -164,10 +195,12 @@ export function TerimaPOView({ id }: { id: string }) {
           location_id: po?.location_id,
           notes: notes.trim() || undefined,
           items: Object.values(itemQtys)
-            .filter((i) => i.qty > 0)
+            .filter((i) => i.accepted > 0 || i.rejected > 0)
             .map((i) => ({
               purchase_order_item_id: i.purchase_order_item_id,
-              qty: i.qty,
+              qty: i.accepted,
+              rejected_qty: i.rejected || undefined,
+              rejection_note: i.rejection_note.trim() || undefined,
               notes: i.notes.trim() || undefined,
             })),
         },
@@ -323,12 +356,20 @@ export function TerimaPOView({ id }: { id: string }) {
                           Diterima
                         </span>
                       </TableHead>
+                      <TableHead className="whitespace-nowrap w-28">
+                        <span className="flex items-center gap-1.5 text-destructive">
+                          <XCircleIcon className="size-3.5" />
+                          Ditolak
+                        </span>
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {items.map((item) => {
                       const remaining = item.qty - item.received_qty;
-                      const currentQty = itemQtys[item.id]?.qty ?? 0;
+                      const row = itemQtys[item.id];
+                      const currentAccepted = row?.accepted ?? 0;
+                      const currentRejected = row?.rejected ?? 0;
                       const variantName = item.variant?.options?.length
                         ? item.variant.options.map((o) => o.value).join(", ")
                         : item.variant?.name;
@@ -391,14 +432,14 @@ export function TerimaPOView({ id }: { id: string }) {
                               {remaining > 0 ? (
                                 <QtyConfirmInput
                                   min={0}
-                                  max={remaining}
-                                  expected={remaining}
-                                  value={currentQty === 0 ? "" : currentQty}
+                                  max={remaining - currentRejected}
+                                  expected={remaining - currentRejected}
+                                  value={currentAccepted === 0 ? "" : currentAccepted}
                                   onChange={(v) =>
-                                    handleQtyChange(
+                                    handleAcceptedChange(
                                       item.id,
                                       remaining,
-                                      v === "" ? "0" : String(v),
+                                      v === "" ? 0 : Number(v),
                                     )
                                   }
                                   onEnter={() => {
@@ -413,7 +454,53 @@ export function TerimaPOView({ id }: { id: string }) {
                                 </span>
                               )}
                             </TableCell>
+                            <TableCell className="px-3 py-3">
+                              {remaining > 0 ? (
+                                <QtyConfirmInput
+                                  min={0}
+                                  max={remaining - currentAccepted}
+                                  expected={0}
+                                  value={currentRejected === 0 ? "" : currentRejected}
+                                  onChange={(v) =>
+                                    handleRejectedChange(
+                                      item.id,
+                                      remaining,
+                                      v === "" ? 0 : Number(v),
+                                    )
+                                  }
+                                  onEnter={() => {
+                                    if (canSubmit) handleSubmit();
+                                  }}
+                                  placeholder="0"
+                                  className="h-9 w-20 tabular-nums border-destructive/40 bg-destructive/10 focus-visible:ring-destructive/30"
+                                />
+                              ) : (
+                                <span className="text-xs text-muted-foreground">—</span>
+                              )}
+                            </TableCell>
                           </TableRow>
+                          {currentRejected > 0 && (
+                            <TableRow className="border-b border-border/20 bg-destructive/[0.03]">
+                              <TableCell colSpan={4} className="px-3 pb-3 pt-0">
+                                <div className="flex items-center gap-2 pl-[52px]">
+                                  <Label className="whitespace-nowrap text-xs font-medium text-destructive">
+                                    Alasan tolak
+                                  </Label>
+                                  <Input
+                                    value={row?.rejection_note ?? ""}
+                                    onChange={(e) =>
+                                      handleRejectionNoteChange(
+                                        item.id,
+                                        e.target.value,
+                                      )
+                                    }
+                                    placeholder="Mis. kemasan rusak, salah kirim, kadaluarsa..."
+                                    className="h-8 flex-1 text-sm"
+                                  />
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
                         </Fragment>
                       );
                     })}
@@ -446,6 +533,17 @@ export function TerimaPOView({ id }: { id: string }) {
                           </span>
                           <span className="ml-1 text-muted-foreground">
                             diterima
+                          </span>
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className="h-2 w-2 rounded-full bg-destructive" />
+                        <span className="text-xs tabular-nums">
+                          <span className="font-semibold text-destructive">
+                            {totalRejected}
+                          </span>
+                          <span className="ml-1 text-muted-foreground">
+                            ditolak
                           </span>
                         </span>
                       </div>

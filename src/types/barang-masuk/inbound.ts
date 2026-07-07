@@ -28,6 +28,8 @@ export interface InboundItem {
   item_id: string;
   expected_qty: number;
   received_qty: number;
+  rejected_qty: number;
+  rejection_note: string | null;
   putaway_qty: number;
   discrepancy_qty: number;
   discrepancy_note: string | null;

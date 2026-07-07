@@ -64,6 +64,8 @@ function handleExportCsv(inbound: Inbound) {
     "Produk",
     "Qty Diharapkan",
     "Qty Diterima",
+    "Qty Ditolak",
+    "Alasan Tolak",
     "Qty Putaway",
     "Selisih",
     "Catatan Selisih",
@@ -76,6 +78,8 @@ function handleExportCsv(inbound: Inbound) {
       "",
     String(item.expected_qty),
     String(item.received_qty),
+    String(item.rejected_qty ?? 0),
+    item.rejection_note ?? "",
     String(item.putaway_qty),
     String(item.discrepancy_qty),
     item.discrepancy_note ?? "",
@@ -373,6 +377,9 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                       />
                     </TableHead>
                     <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Qty Ditolak
+                    </TableHead>
+                    <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       <SortableHeader
                         label="Qty Putaway"
                         field="putaway_qty"
@@ -395,7 +402,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                     <TableRow>
                       <TableCell
                         colSpan={
-                          canCorrect && correctableItems.length > 0 ? 9 : 8
+                          canCorrect && correctableItems.length > 0 ? 10 : 9
                         }
                         className="py-8 text-center text-sm text-muted-foreground"
                       >
@@ -472,6 +479,19 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                         </TableCell>
                         <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
                           {item.received_qty}
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 text-right tabular-nums">
+                          {(item.rejected_qty ?? 0) > 0 ? (
+                            <Badge
+                              variant="outline"
+                              className="border-destructive/30 text-2xs text-destructive"
+                              title={item.rejection_note ?? undefined}
+                            >
+                              {item.rejected_qty}
+                            </Badge>
+                          ) : (
+                            <span className="text-foreground">0</span>
+                          )}
                         </TableCell>
                         <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
                           {item.putaway_qty}
