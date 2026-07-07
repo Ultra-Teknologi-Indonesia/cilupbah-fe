@@ -163,6 +163,7 @@ export interface OrderFinance {
   seller_shipping_borne: number | null;
   platform_shipping_rebate: number | null;
   settlement_amount: number | null;
+  refund_total: number;
   currency: string;
   is_settled: boolean;
   synced_at: string | null;

@@ -68,6 +68,7 @@ export function fulfillmentToOrder(f: FulfillmentOrder): Order {
       seller_shipping_borne: null,
       platform_shipping_rebate: null,
       settlement_amount: null,
+      refund_total: 0,
       currency: "IDR",
       is_settled: false,
       synced_at: null,

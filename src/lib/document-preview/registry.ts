@@ -63,6 +63,7 @@ export type DocumentTypeKey =
   | "stock-adjustment"
   | "stock-adjustment-bulk"
   | "invoice"
+  | "order-breakdown"
   | "manifest"
   | "surat-jalan-bulk"
   | "inbound-barcodes"
@@ -259,6 +260,17 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     },
     backUrl: () => "/dashboard/pesanan",
     filename: (id) => `INV-${id.slice(0, 8)}.pdf`,
+  },
+
+  "order-breakdown": {
+    title: "Rincian Pesanan",
+    subtitle: (id) => `Order ${id.slice(0, 8)}…`,
+    fetchPdf: async (id) => {
+      const blob = await OutboundService.orderBreakdownPdf(id);
+      return { blob };
+    },
+    backUrl: () => "/dashboard/pesanan",
+    filename: (id) => `RINCIAN-${id.slice(0, 8)}.pdf`,
   },
 
   manifest: {

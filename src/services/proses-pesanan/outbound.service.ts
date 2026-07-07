@@ -952,6 +952,13 @@ export const OutboundService = {
     );
   },
 
+  orderBreakdownPdf: async (orderId: string): Promise<Blob> => {
+    return fetchBlobRaw(
+      `/sales/${encodeURIComponent(orderId)}/breakdown`,
+      "application/pdf",
+    );
+  },
+
   manifestPdf: async (shipmentId: string): Promise<Blob> => {
     return fetchBlobRaw(
       `/outbound/shipments/${encodeURIComponent(shipmentId)}/manifest-pdf`,

@@ -9,6 +9,7 @@ import {
   CheckIcon,
   ChevronDownIcon,
   CopyIcon,
+  DownloadIcon,
   FileTextIcon,
   MapPinIcon,
   PackageIcon,
@@ -43,6 +44,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { InfoField } from "@/components/dashboard/shared/info-field";
@@ -132,6 +139,13 @@ function FinancialSummary({ order }: { order: Order }) {
           label={`Qty Total (${order.total_qty} produk)`}
           value={order.sub_total}
         />
+        {(finance?.refund_total ?? 0) > 0 && (
+          <SummaryRow
+            label="Jumlah Pengembalian Dana"
+            value={finance?.refund_total ?? 0}
+            deduction
+          />
+        )}
         <SummaryRow label="Diskon" value={order.total_disc} deduction />
         <SummaryRow label="Diskon Lainnya" value={diskonLainnya} deduction />
         <SummaryRow label="Pajak" value={order.total_tax} />
@@ -189,8 +203,16 @@ function FinancialSummary({ order }: { order: Order }) {
             <span className="text-muted-foreground">
               Diterima Bersih (Settlement)
             </span>
-            <span className="tabular-nums font-medium text-success">
-              {formatCurrency(finance?.settlement_amount ?? 0)}
+            <span
+              className={cn(
+                "tabular-nums font-medium",
+                (finance?.settlement_amount ?? 0) < 0
+                  ? "text-destructive"
+                  : "text-success",
+              )}
+            >
+              {(finance?.settlement_amount ?? 0) < 0 ? "-" : ""}
+              {formatCurrency(Math.abs(finance?.settlement_amount ?? 0))}
             </span>
           </div>
         </div>
@@ -465,6 +487,14 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
     );
   };
 
+  const handlePrintBreakdown = () => {
+    window.open(
+      `/dashboard/document-preview/order-breakdown/${orderId}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
+
   const handlePrintLabel = () => {
     if (isMarketplace) {
       window.open(
@@ -528,15 +558,25 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
-              onClick={handlePrintInvoice}
-            >
-              <FileTextIcon className="size-4" />
-              Cetak Faktur
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1.5">
+                  <DownloadIcon className="size-4" />
+                  Export
+                  <ChevronDownIcon className="size-3.5 opacity-60" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handlePrintBreakdown}>
+                  <FileTextIcon className="size-4" />
+                  Rincian Pesanan
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handlePrintInvoice}>
+                  <FileTextIcon className="size-4" />
+                  Faktur
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             {isMarketplace && order.shipping?.tracking_number && (
               <Button
                 variant="outline"
