@@ -39,7 +39,8 @@ export type Domain =
   | "product-boost-activity"
   | "order-payment"
   | "download-task"
-  | "stock-replenishment";
+  | "stock-replenishment"
+  | "impex-activity";
 
 export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
   "sales-return": {
@@ -193,6 +194,13 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     ACCEPTED: { label: "Disetujui", variant: "info" },
     REJECTED: { label: "Ditolak", variant: "destructive" },
     DONE: { label: "Selesai", variant: "success" },
+  },
+
+  "impex-activity": {
+    pending: { label: "Menunggu", variant: "warning" },
+    processing: { label: "Sedang Proses", variant: "info" },
+    success: { label: "Berhasil", variant: "success" },
+    failed: { label: "Gagal", variant: "destructive" },
   },
 };
 

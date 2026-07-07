@@ -265,6 +265,10 @@ export const settingsRoutes: Route[] = [
     link: "/dashboard/pengaturan",
     subs: [
       { title: "Daftar Pengguna", link: "/dashboard/pengaturan/pengguna" },
+      {
+        title: "Aktivitas Import dan Export",
+        link: "/dashboard/aktivitas-impex",
+      },
     ],
   },
   {
