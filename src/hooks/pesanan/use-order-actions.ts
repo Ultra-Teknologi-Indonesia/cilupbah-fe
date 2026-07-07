@@ -177,3 +177,36 @@ export const useDeleteOrderItem = createMutationHook({
   invalidates: ({ orderId }) => forOrder(orderId),
 });
 
+export const useSaveCourierPickup = createMutationHook({
+  mutationFn: (data: {
+    orderId: string;
+    courier_name?: string | null;
+    courier_phone?: string | null;
+    pickup_code?: string | null;
+  }) =>
+    OrderService.saveCourierPickup(data.orderId, {
+      courier_name: data.courier_name,
+      courier_phone: data.courier_phone,
+      pickup_code: data.pickup_code,
+    }),
+  successMessage: "Bukti pickup kurir tersimpan",
+  errorMessage: "Gagal menyimpan bukti pickup kurir",
+  invalidates: ({ orderId }) => forOrder(orderId),
+});
+
+export const useUploadCourierIdPhoto = createMutationHook({
+  mutationFn: (data: { orderId: string; file: File }) =>
+    OrderService.uploadCourierIdPhoto(data.orderId, data.file),
+  successMessage: "Foto identitas kurir diunggah",
+  errorMessage: "Gagal mengunggah foto identitas kurir",
+  invalidates: ({ orderId }) => forOrder(orderId),
+});
+
+export const useDeleteCourierIdPhoto = createMutationHook({
+  mutationFn: (data: { orderId: string }) =>
+    OrderService.deleteCourierIdPhoto(data.orderId),
+  successMessage: "Foto identitas kurir dihapus",
+  errorMessage: "Gagal menghapus foto identitas kurir",
+  invalidates: ({ orderId }) => forOrder(orderId),
+});
+

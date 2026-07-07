@@ -24,6 +24,10 @@ import {
   MessageCircleIcon,
   CreditCardIcon,
   MessageSquareIcon,
+  IdCardIcon,
+  KeyRoundIcon,
+  ImageIcon,
+  ZapIcon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -75,6 +79,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 
 import { ContactBuyerDialog } from "./contact-buyer-dialog";
+import { CourierPickupDialog } from "./courier-pickup-dialog";
 import { EditOrderItemDialog } from "./edit-order-item-dialog";
 import {
   formatCurrency,
@@ -464,12 +469,132 @@ function InfoRow({
   return <InfoField icon={Icon} label={label} value={children} />;
 }
 
+function CourierPickupCard({
+  order,
+  onEdit,
+}: {
+  order: Order;
+  onEdit: () => void;
+}) {
+  const pickup = order.courier_pickup;
+  const isInstant = Boolean(order.is_instant);
+  const hasData = Boolean(
+    pickup &&
+      (pickup.courier_name ||
+        pickup.courier_phone ||
+        pickup.pickup_code ||
+        pickup.id_photo_url),
+  );
+
+  return (
+    <LiquidGlass
+      radius={16}
+      intensity="subtle"
+      className={cn(
+        "bg-white/30 dark:bg-white/[0.04] p-5",
+        isInstant && "ring-1 ring-primary/30",
+      )}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <SectionTitle>Bukti Pickup Kurir</SectionTitle>
+            {isInstant && (
+              <Badge
+                variant="outline"
+                className="gap-1 border-primary/40 text-primary"
+              >
+                <ZapIcon className="size-3" />
+                Instant / Sameday
+              </Badge>
+            )}
+          </div>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Identitas kurir & kode pengambilan saat pesanan diambil.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5"
+          onClick={onEdit}
+        >
+          <PencilIcon className="size-3.5" />
+          {hasData ? "Ubah" : "Tambah"}
+        </Button>
+      </div>
+
+      {hasData ? (
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <InfoRow icon={UserIcon} label="Nama Kurir">
+            <span>{pickup?.courier_name || "—"}</span>
+          </InfoRow>
+          <InfoRow icon={PhoneIcon} label="No. Telepon">
+            {pickup?.courier_phone ? (
+              <CopyableText
+                text={pickup.courier_phone}
+                label="Salin No. Telepon"
+              />
+            ) : (
+              <span>—</span>
+            )}
+          </InfoRow>
+          <InfoRow icon={KeyRoundIcon} label="Kode Pengambilan">
+            {pickup?.pickup_code ? (
+              <CopyableText
+                text={pickup.pickup_code}
+                label="Salin Kode Pengambilan"
+                mono
+              />
+            ) : (
+              <span>—</span>
+            )}
+          </InfoRow>
+          <InfoRow icon={IdCardIcon} label="Foto Identitas">
+            {pickup?.id_photo_url ? (
+              <a
+                href={pickup.id_photo_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={pickup.id_photo_thumb ?? pickup.id_photo_url}
+                  alt="Foto identitas kurir"
+                  className="h-16 w-16 rounded-xl border border-border/60 object-cover transition-opacity hover:opacity-80"
+                />
+              </a>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+                <ImageIcon className="size-3.5" />
+                Tidak ada
+              </span>
+            )}
+          </InfoRow>
+          {pickup?.recorded_at && (
+            <p className="text-2xs text-muted-foreground sm:col-span-2">
+              Dicatat {formatDateTime(pickup.recorded_at)}
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className="mt-4 flex items-center gap-3 rounded-xl border border-dashed border-border/60 px-4 py-3 text-sm text-muted-foreground">
+          <IdCardIcon className="size-4 shrink-0" />
+          Belum ada bukti pickup kurir untuk pesanan ini.
+        </div>
+      )}
+    </LiquidGlass>
+  );
+}
+
 export function OrderDetailView({ orderId }: { orderId: string }) {
   const { data, isLoading } = useOrder(orderId);
   const setPaid = useSetPaid();
   const markComplete = useMarkComplete();
   const deleteItem = useDeleteOrderItem();
   const [contactOpen, setContactOpen] = React.useState(false);
+  const [pickupOpen, setPickupOpen] = React.useState(false);
   const [editingItem, setEditingItem] = React.useState<OrderItem | null>(null);
   const [deletingItemId, setDeletingItemId] = React.useState<string | null>(
     null,
@@ -931,6 +1056,11 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               </div>
             </LiquidGlass>
           </div>
+
+          <CourierPickupCard
+            order={order}
+            onEdit={() => setPickupOpen(true)}
+          />
         </div>
 
         {}
@@ -1022,6 +1152,14 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         defaultChannel={order.contact_channel ?? undefined}
         defaultDecision={order.customer_decision ?? undefined}
         defaultNote={order.contact_note ?? undefined}
+      />
+
+      <CourierPickupDialog
+        open={pickupOpen}
+        onOpenChange={setPickupOpen}
+        orderId={order.id}
+        orderNo={order.salesorder_no}
+        pickup={order.courier_pickup}
       />
 
       {editingItem && (

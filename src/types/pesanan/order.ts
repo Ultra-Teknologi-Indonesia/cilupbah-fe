@@ -147,8 +147,19 @@ export interface Order {
   driver_call_status?: "pending" | "success" | "failed" | null;
   driver_call_message?: string | null;
   driver_call_attempted_at?: string | null;
+  courier_pickup?: CourierPickup | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface CourierPickup {
+  courier_name: string | null;
+  courier_phone: string | null;
+  pickup_code: string | null;
+  id_photo_url: string | null;
+  id_photo_thumb: string | null;
+  recorded_at: string | null;
+  recorded_by: string | null;
 }
 
 export interface OrderFinance {

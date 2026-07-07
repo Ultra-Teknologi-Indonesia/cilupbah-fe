@@ -232,4 +232,34 @@ export const OrderService = {
       },
     );
   },
+
+  saveCourierPickup: (
+    orderId: string,
+    data: {
+      courier_name?: string | null;
+      courier_phone?: string | null;
+      pickup_code?: string | null;
+    },
+  ) => {
+    return fetchClient<ApiResponse<Order>>(`/sales/${orderId}/courier-pickup`, {
+      method: "PUT",
+      data,
+    });
+  },
+
+  uploadCourierIdPhoto: (orderId: string, file: File) => {
+    const fd = new FormData();
+    fd.append("photo", file);
+    return fetchClient<ApiResponse<Order>>(
+      `/sales/${orderId}/courier-pickup/photo`,
+      { method: "POST", data: fd },
+    );
+  },
+
+  deleteCourierIdPhoto: (orderId: string) => {
+    return fetchClient<ApiResponse<Order>>(
+      `/sales/${orderId}/courier-pickup/photo`,
+      { method: "DELETE" },
+    );
+  },
 };
