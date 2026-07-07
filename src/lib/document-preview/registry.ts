@@ -9,6 +9,11 @@ import { StockAdjustmentService } from "@/services/transaksi-stok/stock-adjustme
 import { InboundService } from "@/services/barang-masuk/inbound.service";
 import { OutboundTransferService } from "@/services/barang-keluar/outbound-transfer.service";
 import { PurchaseReturnService } from "@/services/barang-keluar/purchase-return.service";
+import { ReportService } from "@/services/laporan/report.service";
+import type {
+  BarcodeHarga,
+  BarcodeJenis,
+} from "@/types/laporan/barcode";
 
 function extractApiMessage(err: unknown): string | null {
   if (err && typeof err === "object" && "message" in err) {
@@ -70,7 +75,15 @@ export type DocumentTypeKey =
   | "inbound-receipt"
   | "transfer-out"
   | "transfer-out-bulk"
-  | "purchase-return";
+  | "purchase-return"
+  | "laporan-barcode"
+  | "laporan-penyesuaian";
+
+const HARGA_LABEL: Record<BarcodeHarga, string> = {
+  tanpa_harga: "Tanpa Harga",
+  default: "Dengan Harga",
+  online: "Online (per toko)",
+};
 
 export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
   picklist: {
@@ -368,6 +381,61 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     backUrl: () => "/dashboard/barang-keluar",
     filename: (id, meta) =>
       `${(meta?.return_number as string | undefined) ?? `RTN-${id}`}.pdf`,
+  },
+
+  "laporan-barcode": {
+    title: "Barcode Barang",
+    subtitle: (id, meta) => {
+      const count = id.split(",").filter(Boolean).length;
+      const harga = meta?.harga as string | undefined;
+      const jenis = meta?.jenis === "sku_induk" ? "SKU Induk" : "SKU";
+      return harga ? `${count} ${jenis} · ${harga}` : `${count} ${jenis}`;
+    },
+    fetchPdf: async (id, query) => {
+      const ids = id.split(",").map((s) => s.trim()).filter(Boolean);
+      const jenis = (query?.get("jenis") ?? "sku") as BarcodeJenis;
+      const harga = (query?.get("harga") ?? "tanpa_harga") as BarcodeHarga;
+      const blob = await ReportService.barcodePdf({ jenis, ids, harga });
+      return { blob, meta: { harga: HARGA_LABEL[harga], jenis } };
+    },
+    backUrl: () => "/dashboard/laporan/persediaan",
+    filename: () => {
+      const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      return `Barcode-Barang-${stamp}.pdf`;
+    },
+  },
+
+  "laporan-penyesuaian": {
+    title: "Daftar Penyesuaian Stok",
+    subtitle: (id) => {
+      const [start, end] = id.split("_");
+      return start && end ? `${start} — ${end}` : "Periode penyesuaian";
+    },
+    fetchPdf: async (id, query) => {
+      const [start_date, end_date] = id.split("_");
+      const productRaw = query?.get("product_ids") ?? "";
+      const locationRaw = query?.get("location_ids") ?? "";
+      const product_ids = productRaw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const location_ids = locationRaw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const blob = await ReportService.penyesuaianStokPdf({
+        start_date,
+        end_date,
+        product_ids: product_ids.length ? product_ids : undefined,
+        location_ids: location_ids.length ? location_ids : undefined,
+      });
+      return { blob };
+    },
+    backUrl: () => "/dashboard/laporan/persediaan",
+    filename: (id) => {
+      const [start, end] = id.split("_");
+      return `Daftar-Penyesuaian-${start}_${end}.pdf`;
+    },
   },
 };
 

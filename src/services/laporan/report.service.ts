@@ -1,9 +1,6 @@
 import { fetchBlobPost, fetchBlobRaw, fetchClient } from "@/lib/api-client";
 import type { ApiPaginated, ApiResponse } from "@/types/api.types";
-import type {
-  BarcodeReportParams,
-  BarcodeReportPayload,
-} from "@/types/laporan/barcode";
+import type { BarcodeReportParams } from "@/types/laporan/barcode";
 import type { HppReportParams, HppReportPayload } from "@/types/laporan/hpp";
 import type { PenyesuaianStokPdfParams } from "@/types/laporan/penyesuaian-stok";
 import type {
@@ -52,11 +49,8 @@ export const ReportService = {
     );
   },
 
-  barcodePreview: (params: BarcodeReportParams) => {
-    return fetchClient<ApiResponse<BarcodeReportPayload>>(
-      `/reports/barcode/preview`,
-      { method: "POST", data: params },
-    );
+  barcodePdf: (params: BarcodeReportParams): Promise<Blob> => {
+    return fetchBlobPost(`/reports/barcode/pdf`, params, "application/pdf");
   },
 
   penyesuaianStokPdf: (params: PenyesuaianStokPdfParams): Promise<Blob> => {
