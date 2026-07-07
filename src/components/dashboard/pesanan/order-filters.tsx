@@ -13,7 +13,11 @@ import { cn } from "@/lib/utils";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
 import { useCouriers } from "@/hooks/proses-pesanan/use-fulfillment";
-import { CHANNEL_MAP, type OrderTab } from "@/types/pesanan/order";
+import {
+  CHANNEL_MAP,
+  STATUS_FILTER_OPTIONS,
+  type OrderTab,
+} from "@/types/pesanan/order";
 
 const CONTENT_OPTIONS = [
   { value: "", label: "Semua Isi" },
@@ -63,6 +67,7 @@ export interface FilterState {
   label_printed: string;
   contact_status: string;
   decision: string;
+  status: string[];
 }
 
 const EMPTY: FilterState = {
@@ -77,6 +82,7 @@ const EMPTY: FilterState = {
   label_printed: "",
   contact_status: "",
   decision: "",
+  status: [],
 };
 
 function toDate(s: string): Date | undefined {
@@ -165,19 +171,23 @@ export function OrderFilters({
     label: c.name,
   }));
 
-  const hasActive = Object.values(filters).some(Boolean);
-  const activeCount = [
-    filters.channel,
-    filters.store_id,
-    filters.location_id,
-    filters.content_type,
-    filters.date_from || filters.date_to,
-    filters.shipping_provider,
-    filters.payment,
-    filters.label_printed,
-    filters.contact_status,
-    filters.decision,
-  ].filter(Boolean).length;
+  const hasActive =
+    Object.entries(filters).some(([k, v]) =>
+      k === "status" ? (v as string[]).length > 0 : Boolean(v),
+    );
+  const activeCount =
+    [
+      filters.channel,
+      filters.store_id,
+      filters.location_id,
+      filters.content_type,
+      filters.date_from || filters.date_to,
+      filters.shipping_provider,
+      filters.payment,
+      filters.label_printed,
+      filters.contact_status,
+      filters.decision,
+    ].filter(Boolean).length + (filters.status.length > 0 ? 1 : 0);
 
   const dateRange = useMemo<DateRange | undefined>(() => {
     const from = toDate(filters.date_from);
@@ -198,6 +208,18 @@ export function OrderFilters({
       leading={leading}
       trailing={trailing}
     >
+      {tab === "all" && (
+        <Combobox
+          multiple
+          options={STATUS_FILTER_OPTIONS}
+          value={filters.status}
+          onChange={(v) => onChange({ ...filters, status: v })}
+          placeholder="Status"
+          searchPlaceholder="Cari status"
+          className="h-9 bg-background sm:col-span-2"
+        />
+      )}
+
       <Combobox
         options={[{ value: "", label: "Semua Lokasi" }, ...locations]}
         value={filters.location_id}

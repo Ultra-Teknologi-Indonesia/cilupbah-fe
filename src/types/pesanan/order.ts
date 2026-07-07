@@ -58,7 +58,31 @@ export interface OrderListParams {
   label_printed?: "yes" | "no";
   contact_status?: "contacted" | "not_contacted";
   decision?: CustomerDecision;
+  status?: string[];
 }
+
+/**
+ * Bucket status granular untuk filter multi-select di tab "Semua" — mirip
+ * checklist "Cari status" Jubelio. Key harus sama dengan
+ * SalesOrderRepository::STATUS_FILTER_KEYS di backend. Diurutkan alfabetis
+ * berdasarkan label agar tampilannya konsisten dengan referensi Jubelio.
+ */
+export const STATUS_FILTER_OPTIONS: { value: string; label: string }[] = [
+  { value: "cancelled", label: "Batal" },
+  { value: "unpaid", label: "Belum Bayar" },
+  { value: "failed-pick", label: "Gagal Pengambilan" },
+  { value: "waiting-shipment", label: "Menunggu Kirim" },
+  { value: "picking-belum", label: "Pengambilan Belum" },
+  { value: "picking-diproses", label: "Pengambilan Diproses" },
+  { value: "picking-selesai", label: "Pengambilan Selesai" },
+  { value: "packing-diproses", label: "Pengepakan Diproses" },
+  { value: "cancel-requested", label: "Request Batal" },
+  { value: "completed", label: "Selesai" },
+  { value: "ready-to-ship", label: "Siap Kirim" },
+  { value: "ready-to-process", label: "Siap Proses" },
+  { value: "empty-stock", label: "Stok Kosong" },
+  { value: "in-transit", label: "Sudah Dikirim" },
+];
 
 export interface StatusHistoryEntry {
   action: string;

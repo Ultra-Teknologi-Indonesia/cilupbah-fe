@@ -111,6 +111,7 @@ export function PesananView() {
         undefined,
       decision:
         (filters.decision as OrderListParams["decision"]) || undefined,
+      status: filters.status.length > 0 ? filters.status : undefined,
       page,
       per_page: perPage,
     }),

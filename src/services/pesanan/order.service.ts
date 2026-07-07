@@ -23,18 +23,21 @@ export const OrderService = {
     if (params.tab && params.tab !== "all") sp.set("tab", params.tab);
     if (params.sub) sp.set("sub", params.sub);
     if (params.q) sp.set("q", params.q);
-    if (params.channel) sp.set("channel", params.channel);
-    if (params.store_id) sp.set("store_id", params.store_id);
-    if (params.location_id) sp.set("location_id", params.location_id);
-    if (params.content_type) sp.set("content_type", params.content_type);
-    if (params.date_from) sp.set("date_from", params.date_from);
-    if (params.date_to) sp.set("date_to", params.date_to);
+    if (params.channel) sp.set("filter[channel]", params.channel);
+    if (params.store_id) sp.set("filter[store_id]", params.store_id);
+    if (params.location_id) sp.set("filter[location_id]", params.location_id);
+    if (params.content_type) sp.set("filter[content_type]", params.content_type);
+    if (params.date_from) sp.set("filter[date_from]", params.date_from);
+    if (params.date_to) sp.set("filter[date_to]", params.date_to);
     if (params.shipping_provider)
-      sp.set("shipping_provider", params.shipping_provider);
-    if (params.payment) sp.set("payment", params.payment);
-    if (params.label_printed) sp.set("label_printed", params.label_printed);
-    if (params.contact_status) sp.set("contact_status", params.contact_status);
-    if (params.decision) sp.set("decision", params.decision);
+      sp.set("filter[shipping_provider]", params.shipping_provider);
+    if (params.payment) sp.set("filter[payment]", params.payment);
+    if (params.label_printed)
+      sp.set("filter[label_printed]", params.label_printed);
+    if (params.contact_status)
+      sp.set("filter[contact_status]", params.contact_status);
+    if (params.decision) sp.set("filter[decision]", params.decision);
+    for (const s of params.status ?? []) sp.append("filter[status][]", s);
     if (params.page) sp.set("page", String(params.page));
     if (params.per_page) sp.set("per_page", String(params.per_page));
     if (params.sort_by) sp.set("sort_by", params.sort_by);
