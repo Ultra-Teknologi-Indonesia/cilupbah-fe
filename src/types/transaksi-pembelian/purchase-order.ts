@@ -18,6 +18,9 @@ export interface PurchaseOrderItem {
   unit: string | null;
   qty: number;
   received_qty: number;
+  accepted_qty?: number;
+  rejected_qty?: number;
+  rejection_notes?: string[];
   unit_price: number;
   disc: number;
   disc_amount: number;
@@ -51,6 +54,10 @@ export interface PurchaseOrder {
   created_at: string;
   updated_at: string;
   items: PurchaseOrderItem[];
+  qc_summary?: {
+    total_accepted: number;
+    total_rejected: number;
+  };
 }
 
 export type PurchaseOrderStatus =

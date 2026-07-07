@@ -6,6 +6,7 @@ import Link from "next/link";
 import { PackageIcon, SearchIcon, Trash2Icon, ImageIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -223,6 +224,9 @@ export function PesananDetailView({ id }: { id: string }) {
                       />
                     </TableHead>
                     <TableHead className="whitespace-nowrap text-right text-muted-foreground">
+                      Ditolak
+                    </TableHead>
+                    <TableHead className="whitespace-nowrap text-right text-muted-foreground">
                       Diskon
                     </TableHead>
                     <TableHead className="whitespace-nowrap text-right text-muted-foreground">
@@ -313,17 +317,40 @@ export function PesananDetailView({ id }: { id: string }) {
                           {item.qty}
                         </TableCell>
                         <TableCell className="px-3 py-2.5 text-right tabular-nums">
-                          <span
-                            className={cn(
-                              item.received_qty >= item.qty
-                                ? "text-success"
-                                : item.received_qty > 0
-                                  ? "text-warning"
-                                  : "text-foreground",
-                            )}
-                          >
-                            {item.received_qty}
-                          </span>
+                          {(() => {
+                            const acceptedQty =
+                              item.accepted_qty ?? item.received_qty;
+                            return (
+                              <span
+                                className={cn(
+                                  acceptedQty >= item.qty
+                                    ? "text-success"
+                                    : acceptedQty > 0
+                                      ? "text-warning"
+                                      : "text-foreground",
+                                )}
+                              >
+                                {acceptedQty}
+                              </span>
+                            );
+                          })()}
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 text-right tabular-nums">
+                          {(item.rejected_qty ?? 0) > 0 ? (
+                            <Badge
+                              variant="outline"
+                              className="border-destructive/30 text-2xs text-destructive"
+                              title={
+                                item.rejection_notes?.length
+                                  ? item.rejection_notes.join("; ")
+                                  : undefined
+                              }
+                            >
+                              {item.rejected_qty}
+                            </Badge>
+                          ) : (
+                            <span className="text-foreground">0</span>
+                          )}
                         </TableCell>
                         <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
                           {item.disc > 0 ? `${item.disc}%` : "—"}
@@ -337,7 +364,7 @@ export function PesananDetailView({ id }: { id: string }) {
                   {items.length === 0 && (
                     <TableRow>
                       <TableCell
-                        colSpan={7}
+                        colSpan={8}
                         className="py-8 text-center text-sm text-muted-foreground"
                       >
                         {debouncedSearch
@@ -378,6 +405,39 @@ export function PesananDetailView({ id }: { id: string }) {
                 <span className="text-muted-foreground">Jumlah Produk</span>
                 <span className="font-medium">{itemsMeta?.total ?? 0}</span>
               </div>
+              {po.qc_summary &&
+                (po.qc_summary.total_accepted > 0 ||
+                  po.qc_summary.total_rejected > 0) && (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Lolos QC</span>
+                      <span className="font-medium text-success">
+                        {po.qc_summary.total_accepted}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Tidak Lolos QC
+                      </span>
+                      <span
+                        className={cn(
+                          "font-medium",
+                          po.qc_summary.total_rejected > 0
+                            ? "text-destructive"
+                            : "text-foreground",
+                        )}
+                      >
+                        {po.qc_summary.total_rejected}
+                      </span>
+                    </div>
+                    {po.qc_summary.total_rejected > 0 && (
+                      <p className="text-2xs text-muted-foreground">
+                        Arahkan kursor ke badge &ldquo;Ditolak&rdquo; pada
+                        tabel produk untuk melihat alasan penolakan.
+                      </p>
+                    )}
+                  </>
+                )}
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="tabular-nums">

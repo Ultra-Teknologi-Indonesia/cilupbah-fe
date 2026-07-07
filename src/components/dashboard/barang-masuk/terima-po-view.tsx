@@ -142,8 +142,8 @@ export function TerimaPOView({ id }: { id: string }) {
   function handleAcceptedChange(itemId: string, remaining: number, value: number) {
     setItemQtys((prev) => {
       const current = prev[itemId];
-      const rejected = current?.rejected ?? 0;
-      const accepted = Math.max(0, Math.min(value, remaining - rejected));
+      const accepted = Math.max(0, Math.min(value, remaining));
+      const rejected = remaining - accepted;
       return {
         ...prev,
         [itemId]: {
@@ -151,6 +151,8 @@ export function TerimaPOView({ id }: { id: string }) {
           purchase_order_item_id: itemId,
           remaining,
           accepted,
+          rejected,
+          rejection_note: rejected === 0 ? "" : (current?.rejection_note ?? ""),
         },
       };
     });
@@ -159,14 +161,15 @@ export function TerimaPOView({ id }: { id: string }) {
   function handleRejectedChange(itemId: string, remaining: number, value: number) {
     setItemQtys((prev) => {
       const current = prev[itemId];
-      const accepted = current?.accepted ?? 0;
-      const rejected = Math.max(0, Math.min(value, remaining - accepted));
+      const rejected = Math.max(0, Math.min(value, remaining));
+      const accepted = remaining - rejected;
       return {
         ...prev,
         [itemId]: {
           ...current,
           purchase_order_item_id: itemId,
           remaining,
+          accepted,
           rejected,
           rejection_note: rejected === 0 ? "" : (current?.rejection_note ?? ""),
         },
