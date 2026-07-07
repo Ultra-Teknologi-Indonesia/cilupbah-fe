@@ -7,6 +7,7 @@ import {
   CloudDownloadIcon,
   ImportIcon,
   Package2Icon,
+  RocketIcon,
   UploadCloudIcon,
 } from "lucide-react";
 
@@ -51,9 +52,16 @@ const TABS: Tab[] = [
     icon: ArchiveIcon,
     href: "/dashboard/produk/arsip",
   },
+  {
+    id: "naikkan",
+    label: "Naikkan Produk",
+    icon: RocketIcon,
+    href: "/dashboard/produk/naikkan",
+  },
 ];
 
 function activeId(pathname: string, status: string | null): string {
+  if (pathname.startsWith("/dashboard/produk/naikkan")) return "naikkan";
   if (pathname.startsWith("/dashboard/produk/arsip")) return "arsip";
   if (pathname.startsWith("/dashboard/produk/upload")) return "upload";
   if (pathname.startsWith("/dashboard/produk/download")) return "download";
