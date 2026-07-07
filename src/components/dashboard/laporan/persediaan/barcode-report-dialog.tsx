@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { PrinterIcon } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -36,11 +36,15 @@ const HARGA_OPTIONS: { value: BarcodeHarga; label: string }[] = [
   { value: "online", label: "Online (semua toko + harga)" },
 ];
 
+const JENIS_OPTIONS: { value: BarcodeJenis; label: string }[] = [
+  { value: "sku", label: "SKU" },
+  { value: "sku_induk", label: "SKU Induk" },
+];
+
 export function BarcodeReportDialog({
   open,
   onOpenChange,
 }: BarcodeReportDialogProps) {
-  const router = useRouter();
   const [jenis, setJenis] = React.useState<BarcodeJenis>("sku");
   const [ids, setIds] = React.useState<string[]>([]);
   const [harga, setHarga] = React.useState<BarcodeHarga>("tanpa_harga");
@@ -63,8 +67,10 @@ export function BarcodeReportDialog({
   function handleCetak() {
     if (ids.length === 0) return;
     const params = new URLSearchParams({ jenis, harga });
-    router.push(
+    window.open(
       `/dashboard/document-preview/laporan-barcode/${ids.join(",")}?${params.toString()}`,
+      "_blank",
+      "noopener,noreferrer",
     );
     handleOpenChange(false);
   }
@@ -87,16 +93,22 @@ export function BarcodeReportDialog({
             <RadioGroup
               value={jenis}
               onValueChange={handleJenisChange}
-              className="flex gap-6"
+              className="grid grid-cols-2 gap-2"
             >
-              <label className="flex cursor-pointer items-center gap-2 text-sm">
-                <RadioGroupItem value="sku" />
-                SKU
-              </label>
-              <label className="flex cursor-pointer items-center gap-2 text-sm">
-                <RadioGroupItem value="sku_induk" />
-                SKU Induk
-              </label>
+              {JENIS_OPTIONS.map((o) => (
+                <label
+                  key={o.value}
+                  className={cn(
+                    "flex cursor-pointer items-center gap-2.5 rounded-full border px-4 py-2.5 text-sm transition-colors",
+                    jenis === o.value
+                      ? "border-primary bg-primary/10 font-medium text-primary"
+                      : "border-border hover:bg-muted/50",
+                  )}
+                >
+                  <RadioGroupItem value={o.value} />
+                  {o.label}
+                </label>
+              ))}
             </RadioGroup>
           </div>
 

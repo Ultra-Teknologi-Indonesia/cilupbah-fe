@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { PrinterIcon } from "lucide-react";
 
 import {
@@ -39,7 +38,6 @@ export function PenyesuaianReportDialog({
   open,
   onOpenChange,
 }: PenyesuaianReportDialogProps) {
-  const router = useRouter();
   const [startDate, setStartDate] = React.useState<Date | undefined>(
     startOfMonth(),
   );
@@ -71,10 +69,12 @@ export function PenyesuaianReportDialog({
     if (productIds.length) params.set("product_ids", productIds.join(","));
     if (locationIds.length) params.set("location_ids", locationIds.join(","));
     const qs = params.toString();
-    router.push(
+    window.open(
       `/dashboard/document-preview/laporan-penyesuaian/${start}_${end}${
         qs ? `?${qs}` : ""
       }`,
+      "_blank",
+      "noopener,noreferrer",
     );
     handleOpenChange(false);
   }

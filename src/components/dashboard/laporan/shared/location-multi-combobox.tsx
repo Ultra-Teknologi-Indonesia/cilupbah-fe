@@ -29,6 +29,7 @@ export function LocationMultiCombobox({
   return (
     <Combobox
       multiple
+      wrap
       options={options}
       value={value}
       onChange={onChange}

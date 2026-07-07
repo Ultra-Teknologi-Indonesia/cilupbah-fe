@@ -39,6 +39,11 @@ interface ComboboxBaseProps {
    */
   onQueryChange?: (query: string) => void;
   loading?: boolean;
+  /**
+   * Kalau true: badge terpilih membungkus ke bawah (bukan +N) dan opsi dropdown
+   * ditampilkan penuh (wrap, tanpa truncate). Cocok untuk label panjang.
+   */
+  wrap?: boolean;
 }
 
 interface SingleComboboxProps extends ComboboxBaseProps {
@@ -72,6 +77,7 @@ export function Combobox({
   createLabel = (q) => `Buat "${q}"`,
   onQueryChange,
   loading,
+  wrap,
   multiple,
   maxVisible = 2,
 }: ComboboxProps) {
@@ -130,8 +136,10 @@ export function Combobox({
     }
   }
 
-  const visibleBadges = selectedValues.slice(0, maxVisible);
-  const hiddenCount = selectedValues.length - maxVisible;
+  const visibleBadges = wrap
+    ? selectedValues
+    : selectedValues.slice(0, maxVisible);
+  const hiddenCount = wrap ? 0 : selectedValues.length - maxVisible;
 
   return (
     <Popover
@@ -147,7 +155,8 @@ export function Combobox({
           id={id}
           disabled={disabled}
           className={cn(
-            "flex h-10 w-full items-center justify-between gap-2 rounded-full border border-border bg-background px-3 text-sm outline-none transition-[color,box-shadow]",
+            "flex w-full items-center justify-between gap-2 border border-border bg-background px-3 text-sm outline-none transition-[color,box-shadow]",
+            wrap ? "min-h-10 rounded-3xl py-1.5" : "h-10 rounded-full",
             "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30",
             "disabled:cursor-not-allowed disabled:opacity-50",
             invalid && "border-destructive ring-3 ring-destructive/20",
@@ -155,16 +164,28 @@ export function Combobox({
           )}
         >
           {isMulti && selectedValues.length > 0 ? (
-            <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
+            <div
+              className={cn(
+                "flex min-w-0 flex-1 gap-1.5",
+                wrap
+                  ? "flex-wrap items-center"
+                  : "items-center overflow-hidden",
+              )}
+            >
               {visibleBadges.map((val) => {
                 const opt = options.find((o) => o.value === val);
                 return (
                   <Badge
                     key={val}
                     variant="secondary"
-                    className="shrink-0 gap-1 capitalize"
+                    className={cn(
+                      "gap-1",
+                      wrap
+                        ? "max-w-full whitespace-normal break-all text-left"
+                        : "shrink-0 capitalize",
+                    )}
                   >
-                    {opt?.label ?? val}
+                    {opt?.badgeLabel ?? opt?.label ?? val}
                     <span
                       role="button"
                       tabIndex={0}
@@ -174,7 +195,7 @@ export function Combobox({
                           handleRemove(val, e as unknown as React.MouseEvent);
                         }
                       }}
-                      className="ml-0.5 cursor-pointer rounded-full hover:bg-muted"
+                      className="ml-0.5 shrink-0 cursor-pointer rounded-full hover:bg-muted"
                     >
                       <XIcon className="size-3" />
                     </span>
@@ -254,20 +275,31 @@ export function Combobox({
                     type="button"
                     onClick={() => handleSelect(opt.value)}
                     className={cn(
-                      "flex w-full items-center justify-between gap-2 rounded-full px-2.5 py-2 text-left text-sm transition-colors",
+                      "flex w-full justify-between gap-2 px-2.5 py-2 text-left text-sm transition-colors",
+                      wrap
+                        ? "items-start rounded-2xl"
+                        : "items-center rounded-full",
                       active
                         ? "bg-primary/10 text-primary"
                         : "hover:bg-muted/60",
                     )}
                   >
-                    <span className="flex items-center gap-2">
+                    <span
+                      className={cn(
+                        "flex min-w-0 gap-2",
+                        wrap ? "items-start" : "items-center",
+                      )}
+                    >
                       <CheckIcon
                         className={cn(
-                          "size-4",
+                          "size-4 shrink-0",
+                          wrap && "mt-0.5",
                           active ? "opacity-100" : "opacity-0",
                         )}
                       />
-                      <span className="truncate">{opt.label}</span>
+                      <span className={wrap ? "break-words" : "truncate"}>
+                        {opt.label}
+                      </span>
                     </span>
                     {opt.hint && (
                       <span className="shrink-0 text-xs text-muted-foreground">

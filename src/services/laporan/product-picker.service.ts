@@ -29,7 +29,7 @@ export const ProductPickerService = {
     return (res.data ?? []).map((v) => ({
       value: v.id,
       label: v.product?.name ? `${v.product.name} — ${v.sku}` : v.sku,
-      hint: v.sku,
+      badgeLabel: v.sku,
     }));
   },
 
@@ -48,6 +48,7 @@ export const ProductPickerService = {
       value: p.id,
       label: p.name,
       hint: p.sku ?? undefined,
+      badgeLabel: p.sku ?? p.name,
     }));
   },
 };

@@ -67,6 +67,7 @@ export function ProductPickerCombobox({
   return (
     <Combobox
       multiple
+      wrap
       options={merged}
       value={value}
       onChange={handleChange}
