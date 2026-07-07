@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
   MoreHorizontalIcon,
   PencilIcon,
@@ -32,6 +33,7 @@ import type { Product } from "@/types/master-produk";
 import { useCopyToClipboard } from "@/hooks/shared/use-copy-to-clipboard";
 
 export function ProductRowActions({ product }: { product: Product }) {
+  const router = useRouter();
   const [archiveOpen, setArchiveOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [archiveReason, setArchiveReason] = React.useState("");
@@ -62,11 +64,19 @@ export function ProductRowActions({ product }: { product: Product }) {
           onClick={(e) => e.stopPropagation()}
         >
           <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => notify("Membuka detail")}>
+          <DropdownMenuItem
+            onClick={() =>
+              router.push(`/dashboard/produk/${product.itemGroupId}`)
+            }
+          >
             <EyeIcon className="size-4 text-muted-foreground" />
             Lihat detail
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => notify("Mengedit produk")}>
+          <DropdownMenuItem
+            onClick={() =>
+              router.push(`/dashboard/produk/${product.itemGroupId}/edit`)
+            }
+          >
             <PencilIcon className="size-4 text-muted-foreground" />
             Edit
           </DropdownMenuItem>
