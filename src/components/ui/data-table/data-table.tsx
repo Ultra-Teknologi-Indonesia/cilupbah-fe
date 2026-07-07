@@ -54,7 +54,7 @@ export interface DataTableProps<TData, TValue> {
   columnLabels?: Record<string, string>;
   hideToolbar?: boolean;
 
-  enableRowSelection?: boolean;
+  enableRowSelection?: boolean | ((row: Row<TData>) => boolean);
   enableColumnVisibility?: boolean;
 
   renderSubRow?: (row: TData, rowInstance: Row<TData>) => React.ReactNode;
@@ -310,7 +310,7 @@ export function DataTable<TData, TValue>({
         <DataTablePagination
           table={table}
           pageSizeOptions={pageSizeOptions}
-          showSelectionCount={enableRowSelection}
+          showSelectionCount={!!enableRowSelection}
         />
       )}
     </div>

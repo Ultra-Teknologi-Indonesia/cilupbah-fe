@@ -1,31 +1,25 @@
 "use client";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { PackageCheckIcon, DownloadIcon, LayersIcon, Loader2Icon } from "lucide-react";
+import { toast } from "sonner";
 import { BuatPenempatanManualDialog } from "./buat-penempatan-manual-dialog";
-import { InboundService } from "@/services/barang-masuk/inbound.service";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
-import { StatusBadge } from "@/components/dashboard/shared/status-badge";
-import { getStatusMeta } from "@/lib/status";
 import { useInbounds } from "@/hooks/barang-masuk/use-inbound";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { exportCsv } from "@/lib/export-csv";
-import type {
-  Inbound,
-  InboundStatus,
-  InboundType,
-} from "@/types/barang-masuk/inbound";
+import type { Inbound } from "@/types/barang-masuk/inbound";
 import { formatDate } from "@/lib/format";
 
 
@@ -66,6 +60,22 @@ function ProgressBar({ value, total }: { value: number; total: number }) {
         {value} / {total}
       </span>
     </div>
+  );
+}
+
+/** Penerimaan bisa dibuat penempatan: belum tuntas/batal, tanpa penempatan aktif, masih ada sisa. */
+function isSelectable(item: Inbound): boolean {
+  const hasActivePutaway = item.putaways?.some(
+    (p) => !["COMPLETED", "CANCELLED"].includes(p.status),
+  );
+  const totalRecv = item.items?.reduce((s, i) => s + (i.received_qty || 0), 0) ?? 0;
+  const totalPutaway =
+    item.items?.reduce((s, i) => s + (i.putaway_qty || 0), 0) ?? 0;
+  return (
+    !["COMPLETED", "CANCELLED"].includes(item.status) &&
+    !hasActivePutaway &&
+    totalRecv > 0 &&
+    totalPutaway < totalRecv
   );
 }
 
@@ -143,12 +153,40 @@ export function PenerimaanBarangTab() {
   const { data, isLoading, isFetching } = useInbounds(params);
   const { data: locData } = useLocations({ perPage: 100 });
 
-  const [penempatanTarget, setPenempatanTarget] = useState<Inbound | null>(
-    null,
-  );
+  const [penempatanTargets, setPenempatanTargets] = useState<Inbound[]>([]);
+  // Callback untuk mereset seleksi tabel setelah dokumen gabungan dibuat.
+  const resetSelectionRef = useRef<(() => void) | null>(null);
 
   const columns = useMemo<ColumnDef<Inbound>[]>(
     () => [
+      {
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="Pilih semua"
+          />
+        ),
+        cell: ({ row }) => (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={row.getIsSelected()}
+              disabled={!row.getCanSelect()}
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              aria-label="Pilih baris"
+            />
+          </div>
+        ),
+        enableSorting: false,
+        enableHiding: false,
+        size: 36,
+      },
       {
         accessorKey: "transaction_number",
         header: "No. Penerimaan",
@@ -240,34 +278,20 @@ export function PenerimaanBarangTab() {
         header: "Aksi",
         cell: ({ row }) => {
           const item = row.original;
-          const hasActivePutaway =
-            item.putaways &&
-            item.putaways.some(
-              (p) => !["COMPLETED", "CANCELLED"].includes(p.status),
-            );
-          const totalRecv =
-            item.items?.reduce((s, i) => s + (i.received_qty || 0), 0) ?? 0;
-          const totalPutaway =
-            item.items?.reduce((s, i) => s + (i.putaway_qty || 0), 0) ?? 0;
-
-          const showPenempatan =
-            !["COMPLETED", "CANCELLED"].includes(item.status) &&
-            !hasActivePutaway &&
-            totalRecv > 0 &&
-            totalPutaway < totalRecv;
 
           return (
             <div
               className="flex items-center gap-2"
               onClick={(e) => e.stopPropagation()}
             >
-              {showPenempatan && (
+              {isSelectable(item) && (
                 <Button
                   size="sm"
                   className="h-8 gap-1.5"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setPenempatanTarget(item);
+                    resetSelectionRef.current = null;
+                    setPenempatanTargets([item]);
                   }}
                 >
                   <LayersIcon className="size-4" />
@@ -363,6 +387,36 @@ export function PenerimaanBarangTab() {
             isLoading={isLoading}
             hideToolbar
             manualPagination
+            getRowId={(row) => row.id}
+            enableRowSelection={(row) => isSelectable(row.original)}
+            bulkActions={(selected, table) => {
+              const sameLocation =
+                new Set(selected.map((s) => s.location_id)).size <= 1;
+              return (
+                <Button
+                  size="sm"
+                  className="h-8 gap-1.5"
+                  onClick={() => {
+                    if (!sameLocation) {
+                      toast.warning(
+                        "Penerimaan harus dari lokasi/gudang yang sama untuk digabung.",
+                      );
+                      return;
+                    }
+                    resetSelectionRef.current = () => table.resetRowSelection();
+                    setPenempatanTargets(selected);
+                  }}
+                  title={
+                    sameLocation
+                      ? undefined
+                      : "Pilih penerimaan dari lokasi yang sama"
+                  }
+                >
+                  <LayersIcon className="size-4" />
+                  Buat Penempatan ({selected.length})
+                </Button>
+              );
+            }}
             onRowClick={(row) =>
               router.push(`/dashboard/barang-masuk/penerimaan/${row.id}`)
             }
@@ -385,10 +439,14 @@ export function PenerimaanBarangTab() {
       </LiquidGlass>
 
       <BuatPenempatanManualDialog
-        inbound={penempatanTarget}
-        open={!!penempatanTarget}
+        inbounds={penempatanTargets}
+        open={penempatanTargets.length > 0}
         onOpenChange={(open) => {
-          if (!open) setPenempatanTarget(null);
+          if (!open) setPenempatanTargets([]);
+        }}
+        onSuccess={() => {
+          resetSelectionRef.current?.();
+          resetSelectionRef.current = null;
         }}
       />
     </>

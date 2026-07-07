@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
-import { UsersIcon, Loader2Icon } from "lucide-react";
+import { Loader2Icon } from "lucide-react";
 
 import {
   Dialog,
@@ -14,35 +14,46 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Combobox } from "@/components/ui/combobox";
 import { useUsers } from "@/hooks/pengaturan/use-users";
 import { fetchClient } from "@/lib/api-client";
 import { toast } from "sonner";
 import type { Inbound } from "@/types/barang-masuk/inbound";
-import { useRouter } from "next/navigation";
 
 interface BuatPenempatanManualDialogProps {
-  inbound: Inbound | null;
+  inbounds: Inbound[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Dipanggil setelah dokumen berhasil dibuat (mis. untuk mereset seleksi tabel). */
+  onSuccess?: () => void;
 }
 
 export function BuatPenempatanManualDialog({
-  inbound,
+  inbounds,
   open,
   onOpenChange,
+  onSuccess,
 }: BuatPenempatanManualDialogProps) {
   const queryClient = useQueryClient();
-  const router = useRouter();
   const { data: usersData, isLoading: usersLoading } = useUsers({
     perPage: 100,
     "filter[role]": "putaway",
   });
   const [assignedTo, setAssignedTo] = useState("");
 
-  const totalSku = inbound?.items?.length ?? 0;
-  const totalQty =
-    inbound?.items?.reduce((acc, i) => acc + i.received_qty, 0) ?? 0;
+  // Total SKU = item_id unik lintas penerimaan. Total Qty = jumlah qty lolos QC (received).
+  const { totalSku, totalQty } = useMemo(() => {
+    const skuSet = new Set<string>();
+    let qty = 0;
+    for (const inbound of inbounds) {
+      for (const item of inbound.items ?? []) {
+        skuSet.add(item.item_id);
+        qty += item.received_qty;
+      }
+    }
+    return { totalSku: skuSet.size, totalQty: qty };
+  }, [inbounds]);
 
   const userOptions = (usersData?.items ?? []).map((u) => ({
     value: u.id,
@@ -51,15 +62,17 @@ export function BuatPenempatanManualDialog({
 
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!inbound) throw new Error("Inbound required");
-      const assignedToId = assignedTo;
-      const res = await fetchClient<{ data: any; error?: string }>(`/putaway`, {
-        method: "POST",
-        data: {
-          inbound_id: inbound.id,
-          assigned_to: assignedToId || undefined,
+      if (inbounds.length === 0) throw new Error("Pilih minimal 1 penerimaan");
+      const res = await fetchClient<{ data: unknown; error?: string }>(
+        `/putaway`,
+        {
+          method: "POST",
+          data: {
+            inbound_ids: inbounds.map((i) => i.id),
+            assigned_to: assignedTo || undefined,
+          },
         },
-      });
+      );
       if (res.error) throw new Error(res.error);
       return res.data;
     },
@@ -70,8 +83,9 @@ export function BuatPenempatanManualDialog({
       queryClient.invalidateQueries({ queryKey: ["purchase-order"] });
       onOpenChange(false);
       setAssignedTo("");
+      onSuccess?.();
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || "Gagal membuat penempatan");
     },
   });
@@ -80,10 +94,27 @@ export function BuatPenempatanManualDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Penempatan Manual</DialogTitle>
+          <DialogTitle>
+            {inbounds.length > 1
+              ? `Penempatan Gabungan (${inbounds.length} penerimaan)`
+              : "Penempatan Manual"}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label className="text-sm font-medium text-muted-foreground">
+              Penerimaan
+            </Label>
+            <div className="flex flex-wrap gap-1.5">
+              {inbounds.map((i) => (
+                <Badge key={i.id} variant="secondary">
+                  {i.transaction_number}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
           <div className="grid grid-cols-[120px_1fr] items-center gap-4">
             <Label className="text-sm font-medium text-muted-foreground">
               Total SKU
@@ -125,7 +156,7 @@ export function BuatPenempatanManualDialog({
         <DialogFooter>
           <Button
             onClick={() => mutation.mutate()}
-            disabled={mutation.isPending || !assignedTo}
+            disabled={mutation.isPending || !assignedTo || inbounds.length === 0}
             className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white"
           >
             {mutation.isPending && (
