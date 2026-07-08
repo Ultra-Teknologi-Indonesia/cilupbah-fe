@@ -7,6 +7,7 @@ import {
   ArchiveIcon,
   DownloadIcon,
   PrinterIcon,
+  EyeIcon,
   Loader2Icon,
 } from "lucide-react";
 
@@ -231,6 +232,25 @@ export function PenempatanBarangTab() {
           return (
             <div className="flex items-center gap-1.5">
               <TooltipProvider delayDuration={200}>
+                {item.status === "COMPLETED" && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="Lihat Penempatan"
+                      >
+                        <Link
+                          href={`/dashboard/barang-masuk/penempatan/${item.id}`}
+                        >
+                          <EyeIcon className="size-4" />
+                        </Link>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Lihat Hasil Penempatan</TooltipContent>
+                  </Tooltip>
+                )}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button

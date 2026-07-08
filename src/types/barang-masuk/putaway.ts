@@ -60,6 +60,11 @@ export interface Putaway {
     transaction_number?: string;
     created_at: string;
   };
+  sources?: {
+    id: string;
+    reference_number: string | null;
+    transaction_number: string | null;
+  }[];
   items: PutawayItem[];
 }
 
