@@ -1,11 +1,11 @@
 "use client";
 
 import * as React from "react";
+import { toast } from "sonner";
 import { formatDate, formatDateTime } from "@/lib/format";
 import {
   ArrowLeftIcon,
   ImageIcon,
-  Loader2Icon,
   PrinterIcon,
   DownloadIcon,
   QrCodeIcon,
@@ -57,20 +57,20 @@ function EditableReceivedQty({
   pending: boolean;
   onCommit: (itemId: string, qty: number) => void;
 }) {
+  // State di-reset lewat `key` (remount) saat nilai server berubah — lihat pemanggil.
   const [val, setVal] = React.useState(String(item.received_qty));
-
-  React.useEffect(() => {
-    setVal(String(item.received_qty));
-  }, [item.received_qty]);
 
   const commit = () => {
     const n = Number(val);
-    if (
-      !Number.isInteger(n) ||
-      n < 0 ||
-      n < item.putaway_qty ||
-      n === item.received_qty
-    ) {
+    if (!Number.isInteger(n) || n < 0 || n === item.received_qty) {
+      setVal(String(item.received_qty));
+      return;
+    }
+    // Tidak bisa di bawah yang sudah ditempatkan ke rak — beri arahan yang jelas.
+    if (n < item.putaway_qty) {
+      toast.error(
+        `Tidak bisa di bawah yang sudah ditempatkan ke rak (${item.putaway_qty}). Batalkan/kurangi penempatan dulu.`,
+      );
       setVal(String(item.received_qty));
       return;
     }
@@ -81,7 +81,7 @@ function EditableReceivedQty({
     <Input
       type="number"
       inputMode="numeric"
-      min={item.putaway_qty}
+      min={0}
       value={val}
       disabled={disabled || pending}
       onChange={(e) => setVal(e.target.value)}
@@ -453,6 +453,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                         <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
                           {canEdit ? (
                             <EditableReceivedQty
+                              key={`recv-${item.id}-${item.received_qty}`}
                               item={item}
                               disabled={!canEdit}
                               pending={setReceivedMutation.isPending}
@@ -593,35 +594,6 @@ export function PenerimaanDetailView({ id }: { id: string }) {
               </div>
             </LiquidGlass>
           )}
-
-          <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Koreksi Penerimaan</DialogTitle>
-                <DialogDescription>
-                  Koreksi {selected.size} item terpilih? Qty diterima akan
-                  dikurangi dan stok dikembalikan (dihapus) dari bin inbound.
-                  Hanya qty yang belum di-putaway yang bisa dikoreksi.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter className="gap-2 sm:gap-0">
-                <Button
-                  variant="ghost"
-                  onClick={() => setConfirmOpen(false)}
-                  disabled={correctMutation.isPending}
-                >
-                  Batal
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={submitCorrection}
-                  disabled={correctMutation.isPending}
-                >
-                  {correctMutation.isPending ? "Mengoreksi…" : "Ya, Koreksi"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
         </div>
       )}
     </div>
