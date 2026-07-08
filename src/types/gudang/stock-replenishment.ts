@@ -8,6 +8,7 @@ export interface StockReplenishmentItem {
   id: string;
   item_id: string;
   sku: string;
+  product_name: string | null;
   qty: number;
   reason: string | null;
 }
@@ -46,4 +47,16 @@ export interface StockReplenishmentListParams {
 export interface AcceptReplenishmentPayload {
   assignee_user_id?: string | null;
   note?: string | null;
+}
+
+export interface AddReplenishmentItemPayload {
+  item_id: string;
+  sku?: string | null;
+  qty: number;
+  reason?: string | null;
+}
+
+export interface UpdateReplenishmentItemPayload {
+  qty?: number;
+  reason?: string | null;
 }

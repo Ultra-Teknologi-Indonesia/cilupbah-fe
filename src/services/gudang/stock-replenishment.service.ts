@@ -2,8 +2,10 @@ import { fetchClient } from "@/lib/api-client";
 import type { ApiResponse } from "@/types/api.types";
 import type {
   AcceptReplenishmentPayload,
+  AddReplenishmentItemPayload,
   StockReplenishment,
   StockReplenishmentListParams,
+  UpdateReplenishmentItemPayload,
 } from "@/types/gudang/stock-replenishment";
 
 interface ListResponse {
@@ -56,6 +58,34 @@ export const StockReplenishmentService = {
     const res = await fetchClient<ApiResponse<StockReplenishment>>(
       `/inventory/stock-replenishment/${id}/reject`,
       { method: "POST", data: { reason } },
+    );
+    return res.data;
+  },
+
+  addItem: async (id: string, payload: AddReplenishmentItemPayload) => {
+    const res = await fetchClient<ApiResponse<StockReplenishment>>(
+      `/inventory/stock-replenishment/${id}/items`,
+      { method: "POST", data: payload },
+    );
+    return res.data;
+  },
+
+  updateItem: async (
+    id: string,
+    itemId: string,
+    payload: UpdateReplenishmentItemPayload,
+  ) => {
+    const res = await fetchClient<ApiResponse<StockReplenishment>>(
+      `/inventory/stock-replenishment/${id}/items/${itemId}`,
+      { method: "PATCH", data: payload },
+    );
+    return res.data;
+  },
+
+  removeItem: async (id: string, itemId: string) => {
+    const res = await fetchClient<ApiResponse<StockReplenishment>>(
+      `/inventory/stock-replenishment/${id}/items/${itemId}`,
+      { method: "DELETE" },
     );
     return res.data;
   },

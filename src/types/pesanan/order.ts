@@ -242,6 +242,10 @@ export const TAB_CONFIG: readonly TabConfigItem[] = [
 export const SUB_PILL_CONFIG: Partial<
   Record<OrderTab, { key: string; label: string }[]>
 > = {
+  "empty-stock": [
+    { key: "waiting", label: "Menunggu Konfirmasi" },
+    { key: "confirmed", label: "Sudah Konfirmasi" },
+  ],
   cancellation: [
     { key: "pending", label: "Menunggu" },
     { key: "cancelled", label: "Dibatalkan" },

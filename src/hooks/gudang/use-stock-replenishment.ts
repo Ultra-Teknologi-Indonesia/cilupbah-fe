@@ -6,7 +6,9 @@ import { toast } from "sonner";
 import { StockReplenishmentService } from "@/services/gudang/stock-replenishment.service";
 import type {
   AcceptReplenishmentPayload,
+  AddReplenishmentItemPayload,
   StockReplenishmentListParams,
+  UpdateReplenishmentItemPayload,
 } from "@/types/gudang/stock-replenishment";
 
 const KEYS = {
@@ -78,4 +80,58 @@ export function useRejectReplenishment() {
       toast.error(msg);
     },
   });
+}
+
+function useItemMutation<TVars extends { id: string }>(
+  mutationFn: (vars: TVars) => Promise<unknown>,
+  successMessage: string,
+  fallbackError: string,
+) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn,
+    onSuccess: (_data, vars) => {
+      qc.invalidateQueries({ queryKey: KEYS.detail(vars.id) });
+      qc.invalidateQueries({ queryKey: KEYS.all });
+      toast.success(successMessage);
+    },
+    onError: (err) => {
+      const msg = (err as { message?: string })?.message ?? fallbackError;
+      toast.error(msg);
+    },
+  });
+}
+
+export function useAddReplenishmentItem() {
+  return useItemMutation(
+    ({ id, payload }: { id: string; payload: AddReplenishmentItemPayload }) =>
+      StockReplenishmentService.addItem(id, payload),
+    "Item ditambahkan",
+    "Gagal menambahkan item.",
+  );
+}
+
+export function useUpdateReplenishmentItem() {
+  return useItemMutation(
+    ({
+      id,
+      itemId,
+      payload,
+    }: {
+      id: string;
+      itemId: string;
+      payload: UpdateReplenishmentItemPayload;
+    }) => StockReplenishmentService.updateItem(id, itemId, payload),
+    "Item diperbarui",
+    "Gagal memperbarui item.",
+  );
+}
+
+export function useRemoveReplenishmentItem() {
+  return useItemMutation(
+    ({ id, itemId }: { id: string; itemId: string }) =>
+      StockReplenishmentService.removeItem(id, itemId),
+    "Item dihapus",
+    "Gagal menghapus item.",
+  );
 }

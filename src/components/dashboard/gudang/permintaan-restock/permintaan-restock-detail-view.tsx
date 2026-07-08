@@ -7,11 +7,18 @@ import {
   CheckIcon,
   ExternalLinkIcon,
   PackageIcon,
+  PencilIcon,
+  PlusIcon,
+  Trash2Icon,
+  UserIcon,
   XIcon,
 } from "lucide-react";
 
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { CopySku } from "@/components/dashboard/shared/copy-sku";
+import { StockedProductPickerDialog } from "@/components/dashboard/transaksi-stok/stocked-product-picker-dialog";
+import type { StockedPickedProduct } from "@/components/dashboard/transaksi-stok/stocked-product-picker-dialog";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -23,12 +30,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDateTime } from "@/lib/format";
+import { formatDateTime, formatDateTimeFull } from "@/lib/format";
 import {
+  useAddReplenishmentItem,
   useRejectReplenishment,
+  useRemoveReplenishmentItem,
   useStockReplenishmentDetail,
 } from "@/hooks/gudang/use-stock-replenishment";
+import type { StockReplenishmentItem } from "@/types/gudang/stock-replenishment";
 import { AcceptReplenishmentDialog } from "./accept-replenishment-dialog";
+import { EditReplenishmentItemDialog } from "./edit-replenishment-item-dialog";
 
 interface Props {
   id: string;
@@ -38,7 +49,14 @@ export function PermintaanRestockDetailView({ id }: Props) {
   const { data: req, isLoading } = useStockReplenishmentDetail(id);
   const [acceptOpen, setAcceptOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [editItem, setEditItem] = useState<StockReplenishmentItem | null>(null);
+  const [deleteItem, setDeleteItem] = useState<StockReplenishmentItem | null>(
+    null,
+  );
   const rejectMut = useRejectReplenishment();
+  const addItemMut = useAddReplenishmentItem();
+  const removeItemMut = useRemoveReplenishmentItem();
 
   if (isLoading) {
     return (
@@ -76,6 +94,16 @@ export function PermintaanRestockDetailView({ id }: Props) {
 
   const items = req.items ?? [];
   const totalQty = items.reduce((acc, i) => acc + i.qty, 0);
+  const editable = req.status === "PENDING";
+
+  async function handlePickItems(picked: StockedPickedProduct[]) {
+    for (const p of picked) {
+      await addItemMut.mutateAsync({
+        id: req!.id,
+        payload: { item_id: p.itemId, sku: p.sku, qty: 1 },
+      });
+    }
+  }
 
   return (
     <div className="flex flex-col gap-5">
