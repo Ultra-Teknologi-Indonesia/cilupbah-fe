@@ -114,12 +114,7 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
 
   const locationOptions = useMemo(
     () =>
-      (locData?.items ?? [])
-        .filter((l) => {
-          const name = (l.locationName ?? "").toLowerCase();
-          return !name.includes("transit") && !name.includes("virtual");
-        })
-        .map((l) => ({ value: l.id, label: l.locationName })),
+      (locData?.items ?? []).map((l) => ({ value: l.id, label: l.locationName })),
     [locData],
   );
 

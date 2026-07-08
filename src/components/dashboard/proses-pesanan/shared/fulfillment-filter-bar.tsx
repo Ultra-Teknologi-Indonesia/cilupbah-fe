@@ -195,7 +195,7 @@ export function FulfillmentFilterBar({
   const locationOptions = React.useMemo(() => {
     const list = locations.data?.items ?? [];
     const filtered = excludeTransit
-      ? list.filter((l) => !l.locationName.toLowerCase().includes("transit"))
+      ? list
       : list;
     return filtered.map((l) => ({ value: l.id, label: l.locationName }));
   }, [locations.data, excludeTransit]);
