@@ -118,10 +118,7 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
     [locData],
   );
 
-  const destOptions = useMemo(
-    () => locationOptions.filter((o) => o.value !== sourceLocationId),
-    [locationOptions, sourceLocationId],
-  );
+  const destOptions = locationOptions;
 
   useEffect(() => {
     if (sourceLocationId && mode === "create") scanRef.current?.focus();
@@ -419,7 +416,6 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
   const baseValid =
     !!sourceLocationId &&
     !!destLocationId &&
-    sourceLocationId !== destLocationId &&
     validLines.length === lines.length &&
     lines.length > 0 &&
     !hasDuplicateBin &&
@@ -600,7 +596,6 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                 value={sourceLocationId}
                 onChange={(v) => {
                   setSourceLocationId(v ?? "");
-                  if (v && v === destLocationId) setDestLocationId("");
                   // stale bins after source change — clear rows
                   setLines([]);
                 }}
