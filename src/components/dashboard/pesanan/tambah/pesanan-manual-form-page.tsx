@@ -43,9 +43,10 @@ import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useSalesmen } from "@/hooks/kontak-pemasok/use-salesman";
 import { useActiveInternalStores } from "@/hooks/penjualan/use-internal-stores";
 import { useCouriers } from "@/hooks/proses-pesanan/use-fulfillment";
+import { useProvinces, useCities } from "@/hooks/manajemen-rak/use-regions";
+import { LocationMapPicker } from "@/components/dashboard/manajemen-rak/lokasi/location-map-picker";
 import { formatCurrency } from "@/lib/format";
 import type { ContactItem } from "@/types/kontak-pemasok/contact";
-import type { DeliveryMethod } from "@/types/pesanan/manual-order";
 
 interface LineItem {
   key: string;
@@ -109,15 +110,14 @@ export function PesananManualFormPage() {
   const [recipientName, setRecipientName] = useState("");
   const [recipientPhone, setRecipientPhone] = useState("");
   const [recipientAddress, setRecipientAddress] = useState("");
-  const [recipientCity, setRecipientCity] = useState("");
-  const [recipientProvince, setRecipientProvince] = useState("");
+  const [recipientProvinceId, setRecipientProvinceId] = useState<string | null>(
+    null,
+  );
+  const [recipientCityId, setRecipientCityId] = useState<string | null>(null);
   const [recipientPostCode, setRecipientPostCode] = useState("");
+  const [recipientCoordinate, setRecipientCoordinate] = useState("");
 
   const [isPaid, setIsPaid] = useState(false);
-  const [isCod, setIsCod] = useState(false);
-  const [isJubelio, setIsJubelio] = useState(false);
-  const [deliveryMethod, setDeliveryMethod] =
-    useState<DeliveryMethod>("COURIER");
   const [shippingProvider, setShippingProvider] = useState<string | null>(null);
   const [trackingNumber, setTrackingNumber] = useState("");
   const [totalWeight, setTotalWeight] = useState(0);
@@ -132,6 +132,26 @@ export function PesananManualFormPage() {
   const { data: stores } = useActiveInternalStores();
   const { data: locData } = useLocations({ perPage: 100 });
   const { data: couriers } = useCouriers();
+
+  const provinces = useProvinces();
+  const cities = useCities(recipientProvinceId || undefined);
+
+  const provinceOptions = useMemo(
+    () => (provinces.data ?? []).map((p) => ({ value: p.id, label: p.nama })),
+    [provinces.data],
+  );
+  const cityOptions = useMemo(
+    () => (cities.data ?? []).map((c) => ({ value: c.id, label: c.nama })),
+    [cities.data],
+  );
+  const provinceName = useMemo(
+    () => provinces.data?.find((p) => p.id === recipientProvinceId)?.nama ?? "",
+    [provinces.data, recipientProvinceId],
+  );
+  const cityName = useMemo(
+    () => cities.data?.find((c) => c.id === recipientCityId)?.nama ?? "",
+    [cities.data, recipientCityId],
+  );
 
   const customerOptions = useMemo(
     () =>
@@ -188,15 +208,6 @@ export function PesananManualFormPage() {
           label: c.name,
         })),
     [couriers],
-  );
-
-  const deliveryOptions = useMemo(
-    () => [
-      { value: "COURIER", label: "Kurir" },
-      { value: "SELF_PICKUP", label: "Ambil Sendiri" },
-      { value: "JUBELIO_SHIPMENT", label: "Jubelio Shipment" },
-    ],
-    [],
   );
 
   function updateItem<K extends keyof LineItem>(
@@ -285,12 +296,6 @@ export function PesananManualFormPage() {
     if (!recipientPhone && contact.phone) setRecipientPhone(contact.phone);
     if (!recipientAddress && contact.address)
       setRecipientAddress(contact.address);
-    if (!recipientCity && (contact as unknown as { city?: string }).city)
-      setRecipientCity(
-        (contact as unknown as { city?: string }).city as string,
-      );
-    if (!recipientProvince && contact.province)
-      setRecipientProvince(contact.province);
     if (!recipientPostCode && contact.postal_code)
       setRecipientPostCode(contact.postal_code);
   }
@@ -328,20 +333,21 @@ export function PesananManualFormPage() {
       price_includes_tax: priceIncludesTax,
 
       is_paid: isPaid,
-      is_cod: isCod,
-      is_jubelio_shipment: isJubelio,
+      is_cod: false,
+      is_jubelio_shipment: false,
 
-      delivery_method: deliveryMethod,
-      shipping_provider: deliveryMethod === "COURIER" ? shippingProvider : null,
+      delivery_method: "COURIER",
+      shipping_provider: shippingProvider,
       tracking_number: trackingNumber || null,
       order_weight_gram: totalWeight || null,
 
       shipping_full_name: recipientName || customerName,
       shipping_phone: recipientPhone || null,
       shipping_address: recipientAddress || null,
-      shipping_city: recipientCity || null,
-      shipping_province: recipientProvince || null,
+      shipping_city: cityName || null,
+      shipping_province: provinceName || null,
       shipping_post_code: recipientPostCode || null,
+      shipping_coordinate: recipientCoordinate || null,
 
       items: items.map((it) => ({
         item_id: it.itemId,
@@ -362,6 +368,7 @@ export function PesananManualFormPage() {
     !!customerName &&
     !!tokoId &&
     !!locationId &&
+    !!shippingProvider &&
     items.length > 0 &&
     items.every((it) => it.qty > 0);
 
@@ -713,6 +720,13 @@ export function PesananManualFormPage() {
               <h2 className="text-base font-semibold">Penerima</h2>
             </div>
             <div className="grid gap-4 px-5 py-5 md:grid-cols-2">
+              <div className="flex flex-col gap-1.5 md:col-span-2">
+                <Label className="text-sm font-medium">Pin Lokasi</Label>
+                <LocationMapPicker
+                  value={recipientCoordinate}
+                  onChange={setRecipientCoordinate}
+                />
+              </div>
               <div className="flex flex-col gap-1.5">
                 <Label className="text-sm font-medium">
                   Nama <span className="text-destructive">*</span>
@@ -741,17 +755,29 @@ export function PesananManualFormPage() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label className="text-sm font-medium">Kota</Label>
-                <Input
-                  value={recipientCity}
-                  onChange={(e) => setRecipientCity(e.target.value)}
+                <Label className="text-sm font-medium">Provinsi</Label>
+                <Combobox
+                  options={provinceOptions}
+                  value={recipientProvinceId}
+                  onChange={(v) => {
+                    setRecipientProvinceId(v);
+                    setRecipientCityId(null);
+                  }}
+                  loading={provinces.isLoading}
+                  placeholder="Pilih provinsi"
+                  searchPlaceholder="Cari provinsi"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label className="text-sm font-medium">Provinsi</Label>
-                <Input
-                  value={recipientProvince}
-                  onChange={(e) => setRecipientProvince(e.target.value)}
+                <Label className="text-sm font-medium">Kota</Label>
+                <Combobox
+                  options={cityOptions}
+                  value={recipientCityId}
+                  onChange={setRecipientCityId}
+                  loading={cities.isLoading}
+                  placeholder="Pilih kota"
+                  searchPlaceholder="Cari kota"
+                  disabled={!recipientProvinceId}
                 />
               </div>
               <div className="flex flex-col gap-1.5">
@@ -776,28 +802,13 @@ export function PesananManualFormPage() {
             <div className="grid gap-4 px-5 py-5 md:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <Label className="text-sm font-medium">
-                  Metode Pengiriman <span className="text-destructive">*</span>
+                  Kurir <span className="text-destructive">*</span>
                 </Label>
-                <Combobox
-                  options={deliveryOptions}
-                  value={deliveryMethod}
-                  onChange={(v) => {
-                    if (!v) return;
-                    setDeliveryMethod(v as DeliveryMethod);
-                    if (v !== "COURIER") setShippingProvider(null);
-                    if (v === "SELF_PICKUP") setIsJubelio(false);
-                  }}
-                  placeholder="Pilih metode"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-sm font-medium">Kurir</Label>
                 <Combobox
                   options={courierOptions}
                   value={shippingProvider}
                   onChange={setShippingProvider}
                   placeholder="Pilih kurir"
-                  disabled={deliveryMethod !== "COURIER"}
                 />
               </div>
               <div className="flex flex-col gap-1.5">
@@ -820,18 +831,6 @@ export function PesananManualFormPage() {
                     setTotalWeight(parseCurrency(e.target.value))
                   }
                   placeholder="0"
-                />
-              </div>
-              <div className="flex items-center justify-between rounded-xl border border-border/60 px-4 py-3">
-                <div className="text-sm">COD</div>
-                <Switch checked={isCod} onCheckedChange={setIsCod} />
-              </div>
-              <div className="flex items-center justify-between rounded-xl border border-border/60 px-4 py-3">
-                <div className="text-sm">Jubelio Shipment</div>
-                <Switch
-                  checked={isJubelio}
-                  onCheckedChange={setIsJubelio}
-                  disabled={deliveryMethod === "SELF_PICKUP"}
                 />
               </div>
             </div>

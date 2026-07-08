@@ -54,6 +54,7 @@ export interface ManualOrderPayload {
   shipping_province?: string | null;
   shipping_post_code?: string | null;
   shipping_country?: string | null;
+  shipping_coordinate?: string | null;
 
   items: ManualOrderItemPayload[];
 }
