@@ -179,6 +179,7 @@ export function ShipmentDetailView({ id }: { id: string }) {
     );
   }
 
+  if (!detail) {
     return (
       <div className="py-32 text-center text-sm text-muted-foreground">
         Pengiriman tidak ditemukan.
