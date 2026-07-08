@@ -10,22 +10,12 @@ import {
   DownloadIcon,
   QrCodeIcon,
   SearchIcon,
-  Trash2Icon,
 } from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -46,10 +36,69 @@ import { CopySku } from "@/components/dashboard/shared/copy-sku";
 import {
   useInboundDetail,
   useInboundItems,
-  useCorrectReceivedLines,
+  useSetReceivedQty,
 } from "@/hooks/barang-masuk/use-inbound";
 import { exportCsv } from "@/lib/export-csv";
 import type { Inbound, InboundItem } from "@/types/barang-masuk/inbound";
+
+/**
+ * Input jumlah diterima yang bisa diedit langsung (naik/turun).
+ * Commit saat Enter/blur; Escape membatalkan. Tidak boleh di bawah qty yang
+ * sudah ditempatkan (BE juga menolak sebagai backstop).
+ */
+function EditableReceivedQty({
+  item,
+  disabled,
+  pending,
+  onCommit,
+}: {
+  item: InboundItem;
+  disabled: boolean;
+  pending: boolean;
+  onCommit: (itemId: string, qty: number) => void;
+}) {
+  const [val, setVal] = React.useState(String(item.received_qty));
+
+  React.useEffect(() => {
+    setVal(String(item.received_qty));
+  }, [item.received_qty]);
+
+  const commit = () => {
+    const n = Number(val);
+    if (
+      !Number.isInteger(n) ||
+      n < 0 ||
+      n < item.putaway_qty ||
+      n === item.received_qty
+    ) {
+      setVal(String(item.received_qty));
+      return;
+    }
+    onCommit(item.id, n);
+  };
+
+  return (
+    <Input
+      type="number"
+      inputMode="numeric"
+      min={item.putaway_qty}
+      value={val}
+      disabled={disabled || pending}
+      onChange={(e) => setVal(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.currentTarget.blur();
+        } else if (e.key === "Escape") {
+          setVal(String(item.received_qty));
+          e.currentTarget.blur();
+        }
+      }}
+      aria-label="Edit jumlah diterima"
+      className="ml-auto h-8 w-20 text-right tabular-nums"
+    />
+  );
+}
 
 const TYPE_LABEL: Record<string, string> = {
   PURCHASE_ORDER: "Pesanan Pembelian",
@@ -87,16 +136,9 @@ function handleExportCsv(inbound: Inbound) {
   exportCsv(`penerimaan-${inbound.transaction_number}.csv`, headers, rows);
 }
 
-function isCorrectable(item: InboundItem): boolean {
-  return item.received_qty - item.putaway_qty > 0;
-}
-
 export function PenerimaanDetailView({ id }: { id: string }) {
   const { data: inbound, isLoading } = useInboundDetail(id);
-  const correctMutation = useCorrectReceivedLines(id);
-
-  const [selected, setSelected] = React.useState<Set<string>>(new Set());
-  const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const setReceivedMutation = useSetReceivedQty(id);
 
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(20);
@@ -126,42 +168,10 @@ export function PenerimaanDetailView({ id }: { id: string }) {
     setPage(1);
   };
 
-  const canCorrect = !!inbound && inbound.status !== "CANCELLED";
-  const correctableItems = React.useMemo(
-    () => items.filter(isCorrectable),
-    [items],
-  );
+  const canEdit = !!inbound && inbound.status !== "CANCELLED";
 
-  const toggleOne = (itemId: string) =>
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(itemId)) next.delete(itemId);
-      else next.add(itemId);
-      return next;
-    });
-
-  const allCorrectableSelected =
-    correctableItems.length > 0 &&
-    correctableItems.every((i) => selected.has(i.id));
-
-  const toggleAll = () =>
-    setSelected(
-      allCorrectableSelected
-        ? new Set()
-        : new Set(correctableItems.map((i) => i.id)),
-    );
-
-  const submitCorrection = () => {
-    correctMutation.mutate(
-      Array.from(selected).map((item_id) => ({ item_id })),
-      {
-        onSuccess: () => {
-          setConfirmOpen(false);
-          setSelected(new Set());
-        },
-      },
-    );
-  };
+  const handleReceivedCommit = (itemId: string, qty: number) =>
+    setReceivedMutation.mutate({ itemId, qty });
 
   return (
     <div className="flex flex-col gap-6">
@@ -206,21 +216,6 @@ export function PenerimaanDetailView({ id }: { id: string }) {
       ) : (
         <div className="flex flex-col gap-4 print:gap-2">
           <div className="flex items-center justify-end gap-2 print:hidden">
-            {canCorrect && selected.size > 0 && (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setConfirmOpen(true)}
-                disabled={correctMutation.isPending}
-              >
-                {correctMutation.isPending ? (
-                  <Loader2Icon className="mr-1.5 size-4 animate-spin" />
-                ) : (
-                  <Trash2Icon className="mr-1.5 size-4" />
-                )}
-                Koreksi Terpilih ({selected.size})
-              </Button>
-            )}
             <Button
               variant="outline"
               size="sm"
@@ -338,15 +333,6 @@ export function PenerimaanDetailView({ id }: { id: string }) {
               <Table containerClassName="rounded-lg border border-border/40">
                 <TableHeader>
                   <TableRow className="border-b border-border/60 bg-muted/30">
-                    {canCorrect && correctableItems.length > 0 && (
-                      <TableHead className="w-10 px-3 py-2.5 print:hidden">
-                        <Checkbox
-                          checked={allCorrectableSelected}
-                          onCheckedChange={toggleAll}
-                          aria-label="Pilih semua item yang bisa dikoreksi"
-                        />
-                      </TableHead>
-                    )}
                     <TableHead className="w-12 whitespace-nowrap px-3 py-2.5 text-muted-foreground"></TableHead>
                     <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       <SortableHeader
@@ -401,9 +387,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                   {items.length === 0 && !isFetchingItems && (
                     <TableRow>
                       <TableCell
-                        colSpan={
-                          canCorrect && correctableItems.length > 0 ? 10 : 9
-                        }
+                        colSpan={9}
                         className="py-8 text-center text-sm text-muted-foreground"
                       >
                         {debouncedSearch
@@ -430,17 +414,6 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                         key={item.id}
                         className="border-b border-border/20 last:border-0"
                       >
-                        {canCorrect && correctableItems.length > 0 && (
-                          <TableCell className="px-3 py-2.5 print:hidden">
-                            {isCorrectable(item) ? (
-                              <Checkbox
-                                checked={selected.has(item.id)}
-                                onCheckedChange={() => toggleOne(item.id)}
-                                aria-label="Pilih item"
-                              />
-                            ) : null}
-                          </TableCell>
-                        )}
                         <TableCell className="px-3 py-2.5">
                           <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
                             {imageUrl ? (
@@ -478,7 +451,16 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                           {item.expected_qty}
                         </TableCell>
                         <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
-                          {item.received_qty}
+                          {canEdit ? (
+                            <EditableReceivedQty
+                              item={item}
+                              disabled={!canEdit}
+                              pending={setReceivedMutation.isPending}
+                              onCommit={handleReceivedCommit}
+                            />
+                          ) : (
+                            item.received_qty
+                          )}
                         </TableCell>
                         <TableCell className="px-3 py-2.5 text-right tabular-nums">
                           {(item.rejected_qty ?? 0) > 0 ? (

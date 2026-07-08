@@ -103,6 +103,18 @@ export const InboundService = {
     return res.data;
   },
 
+  /** Set jumlah diterima aktual pada satu baris (boleh naik/turun). */
+  setReceivedQty: async (inboundId: string, itemId: string, qty: number) => {
+    const res = await fetchClient<ApiResponse<Inbound>>(
+      `/inbounds/${inboundId}/items/${itemId}/received-qty`,
+      {
+        method: "PATCH",
+        data: { qty },
+      },
+    );
+    return res.data;
+  },
+
   barcodesPdf: async (id: string): Promise<Blob> => {
     return fetchBlobRaw(
       `/inbounds/${encodeURIComponent(id)}/barcodes`,

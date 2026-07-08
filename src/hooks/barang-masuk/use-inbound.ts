@@ -66,3 +66,24 @@ export function useCorrectReceivedLines(inboundId: string) {
       ),
   });
 }
+
+/** Set jumlah diterima aktual (naik/turun) pada satu baris penerimaan. */
+export function useSetReceivedQty(inboundId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ itemId, qty }: { itemId: string; qty: number }) =>
+      InboundService.setReceivedQty(inboundId, itemId, qty),
+    onSuccess: () => {
+      toast.success("Jumlah diterima diperbarui");
+      qc.invalidateQueries({ queryKey: ["inbound", "detail", inboundId] });
+      qc.invalidateQueries({ queryKey: ["inbound", "items", inboundId] });
+      qc.invalidateQueries({ queryKey: ["inbound", "list"] });
+      qc.invalidateQueries({ queryKey: ["inventory"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message ||
+          "Gagal memperbarui jumlah diterima",
+      ),
+  });
+}
