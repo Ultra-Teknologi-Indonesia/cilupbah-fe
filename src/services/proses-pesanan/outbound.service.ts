@@ -988,6 +988,20 @@ export const OutboundService = {
     return mapShipmentDetail(res.data);
   },
 
+  shipmentOrdersPaginated: async (
+    id: string,
+    params: FulfillmentListParams,
+  ): Promise<ListResult<ShipmentOrderItem>> => {
+    const res = await fetchClient<{
+      success?: boolean;
+      data: RawPaginator<RawShipmentOrder>;
+    }>(`/outbound/shipments/${encodeURIComponent(id)}/orders?${buildQuery(params)}`);
+    return {
+      items: (res.data?.data ?? []).map(mapShipmentOrderItem),
+      meta: paginatorMeta(res.data, params.per_page),
+    };
+  },
+
   scanOrderToShipment: async (
     shipmentId: string,
     barcode: string,

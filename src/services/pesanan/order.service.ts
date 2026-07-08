@@ -98,7 +98,12 @@ export const OrderService = {
   },
 
   moveToReadyToProcess: (orderIds: string[]) => {
-    return fetchClient<ApiResponse>("/sales/orders/move-to-ready", {
+    return fetchClient<
+      ApiResponse<{
+        moved: number;
+        skipped: Array<{ id: string; salesorder_no: string | null }>;
+      }>
+    >("/sales/orders/move-to-ready", {
       method: "POST",
       data: { order_ids: orderIds },
     });

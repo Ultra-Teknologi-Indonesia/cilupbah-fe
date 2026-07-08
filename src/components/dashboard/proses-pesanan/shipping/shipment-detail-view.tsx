@@ -6,6 +6,7 @@ import {
   PackageIcon,
   PrinterIcon,
   ScanBarcodeIcon,
+  SearchIcon,
   Trash2Icon,
   TruckIcon,
   WeightIcon,
@@ -21,6 +22,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { PageTitle } from "@/components/dashboard/page-title";
+import { SimplePagination } from "@/components/ui/simple-pagination";
 import {
   Table,
   TableBody,
@@ -31,6 +33,7 @@ import {
 } from "@/components/ui/table";
 import {
   useShipmentDetail,
+  useShipmentOrdersPaginated,
   useScanOrderToShipment,
   useRemoveOrderFromShipment,
 } from "@/hooks/proses-pesanan/use-fulfillment";
@@ -38,6 +41,7 @@ import { playScanFeedback } from "@/lib/scan-feedback";
 import { ChannelBadge } from "../channel-badge";
 import { DocActions } from "../picking/doc-actions";
 import { DeleteOrderDialog } from "../shared/delete-order-dialog";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const LIST_HREF = "/dashboard/proses-pesanan";
 
@@ -89,6 +93,7 @@ function PickupBadge({
 
 export function ShipmentDetailView({ id }: { id: string }) {
   const [barcode, setBarcode] = React.useState("");
+  const [searchQuery, setSearchQuery] = React.useState("");
   const [removeTarget, setRemoveTarget] = React.useState<{
     orderId: string;
     orderNo: string | null;
@@ -99,7 +104,17 @@ export function ShipmentDetailView({ id }: { id: string }) {
   } | null>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
+  const [page, setPage] = React.useState(1);
+  const [perPage, setPerPage] = React.useState(20);
+  const debouncedSearch = useDebouncedValue(searchQuery, 400);
+
   const { data: detail, isLoading } = useShipmentDetail(id, !!id);
+  const { data: ordersData, isFetching: isFetchingOrders } = useShipmentOrdersPaginated(
+    id,
+    { page, per_page: perPage, q: debouncedSearch },
+    !!id
+  );
+  
   const scanOrder = useScanOrderToShipment();
   const removeOrder = useRemoveOrderFromShipment();
 
@@ -108,6 +123,10 @@ export function ShipmentDetailView({ id }: { id: string }) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isLoading, detail]);
+
+  React.useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
 
   const handleScan = async () => {
     const code = barcode.trim();
@@ -160,13 +179,15 @@ export function ShipmentDetailView({ id }: { id: string }) {
     );
   }
 
-  if (!detail) {
     return (
       <div className="py-32 text-center text-sm text-muted-foreground">
         Pengiriman tidak ditemukan.
       </div>
     );
   }
+
+  const filteredOrders = ordersData?.items ?? [];
+  const meta = ordersData?.meta;
 
   const isScheduled = detail.status === "SCHEDULED";
   const withResi = detail.orders.filter((o) => !!o.trackingNumber).length;
@@ -310,9 +331,21 @@ export function ShipmentDetailView({ id }: { id: string }) {
         className="bg-white/40 dark:bg-white/[0.06]"
       >
         <div className="px-4 py-4 sm:px-5">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium">Daftar Pesanan</p>
-            <Badge>{detail.orders.length}</Badge>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium">Daftar Pesanan</p>
+              <Badge>{meta?.total ?? 0}</Badge>
+            </div>
+
+            <div className="relative w-full sm:w-64">
+              <SearchIcon className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Cari No. Pesanan / Resi..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-8 text-sm"
+              />
+            </div>
           </div>
 
           <ScrollArea className="rounded-lg border border-border">
@@ -331,17 +364,19 @@ export function ShipmentDetailView({ id }: { id: string }) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {detail.orders.length === 0 ? (
+                  {filteredOrders.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={isScheduled ? 8 : 7}
                         className="py-16 text-center text-sm text-muted-foreground"
                       >
-                        Belum ada pesanan. Scan untuk menambahkan.
+                        {searchQuery.trim()
+                          ? "Pesanan tidak ditemukan."
+                          : "Belum ada pesanan. Scan untuk menambahkan."}
                       </TableCell>
                     </TableRow>
                   ) : (
-                    detail.orders.map((o, idx) => (
+                    filteredOrders.map((o, idx) => (
                       <TableRow key={o.id}>
                         <TableCell className="text-center text-xs text-muted-foreground tabular-nums">
                           {idx + 1}
@@ -422,7 +457,21 @@ export function ShipmentDetailView({ id }: { id: string }) {
                 </TableBody>
               </Table>
             </div>
-            <ScrollBar orientation="horizontal" />
+            
+            {meta && (
+              <div className="p-4 border-t border-border bg-muted/20">
+                <SimplePagination
+                  page={meta.current_page}
+                  lastPage={meta.last_page}
+                  perPage={meta.per_page}
+                  total={meta.total}
+                  isFetching={isFetchingOrders}
+                  onPageChange={setPage}
+                  onPerPageChange={setPerPage}
+                  label="pesanan"
+                />
+              </div>
+            )}
           </ScrollArea>
         </div>
       </LiquidGlass>

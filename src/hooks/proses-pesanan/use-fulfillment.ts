@@ -40,6 +40,8 @@ export const fulfillmentKeys = {
   picklistDetail: (id: string) => [...all, "picklist-detail", id] as const,
   packlistDetail: (id: string) => [...all, "packlist-detail", id] as const,
   shipmentDetail: (id: string) => [...all, "shipment-detail", id] as const,
+  shipmentOrders: (id: string, p: FulfillmentListParams) =>
+    [...all, "shipment-orders", id, p] as const,
 };
 
 export function useOrdersByStage(
@@ -716,6 +718,18 @@ export function useShipmentDetail(id: string, enabled = true) {
   return useQuery({
     queryKey: fulfillmentKeys.shipmentDetail(id),
     queryFn: () => OutboundService.shipmentDetail(id),
+    enabled: enabled && !!id,
+  });
+}
+
+export function useShipmentOrdersPaginated(
+  id: string,
+  params: FulfillmentListParams,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: fulfillmentKeys.shipmentOrders(id, params),
+    queryFn: () => OutboundService.shipmentOrdersPaginated(id, params),
     enabled: enabled && !!id,
   });
 }

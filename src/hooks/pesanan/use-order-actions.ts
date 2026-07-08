@@ -65,7 +65,20 @@ export const useDeleteCancelled = createMutationHook({
 export const useMoveToReady = createMutationHook({
   mutationFn: (orderIds: string[]) =>
     OrderService.moveToReadyToProcess(orderIds),
-  successMessage: "Pesanan siap diproses oleh gudang.",
+  successMessage: (res) => {
+    const moved = res.data?.moved ?? 0;
+    const skipped = res.data?.skipped ?? [];
+    if (skipped.length > 0) {
+      const nos = skipped
+        .map((s) => s.salesorder_no)
+        .filter(Boolean)
+        .join(", ");
+      return `${moved} pesanan siap diproses · ${skipped.length} dilewati karena stok kosong${
+        nos ? ` (${nos})` : ""
+      }`;
+    }
+    return "Pesanan siap diproses oleh gudang.";
+  },
   errorMessage: "Gagal memindahkan pesanan",
   invalidates: forBulk,
 });

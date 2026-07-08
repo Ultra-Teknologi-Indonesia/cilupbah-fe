@@ -434,17 +434,22 @@ export function OrderActions({
             {order.contacted_at ? "Ubah Konfirmasi" : "Catat Konfirmasi"}
           </Button>
         )}
-        <Button
-          size="sm"
-          className="h-8 gap-1.5 text-xs"
-          disabled={busy}
-          onClick={() => moveToReady.mutate([order.id])}
-        >
-          <ArrowRightIcon className="size-3.5" />
-          {moveToReady.isPending
-            ? "Memindahkan..."
-            : "Pindahkan ke Perlu Dikirim"}
-        </Button>
+        {/* Order stok kosong tidak boleh langsung diproses — harus diselesaikan
+            dulu (restock / kompensasi item / batal). Tombol proses hanya untuk
+            Gagal Picking. */}
+        {tab === "failed-pick" && (
+          <Button
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            disabled={busy}
+            onClick={() => moveToReady.mutate([order.id])}
+          >
+            <ArrowRightIcon className="size-3.5" />
+            {moveToReady.isPending
+              ? "Memindahkan..."
+              : "Pindahkan ke Perlu Dikirim"}
+          </Button>
+        )}
         {tab === "empty-stock" && (
           <ContactBuyerDialog
             open={contactOpen}
