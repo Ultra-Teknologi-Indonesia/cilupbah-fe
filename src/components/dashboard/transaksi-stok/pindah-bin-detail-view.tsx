@@ -33,6 +33,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { SectionTitle } from "@/components/dashboard/shared/section-title";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
@@ -197,6 +198,12 @@ export function PindahBinDetailView({ id }: { id: string }) {
   }
 
   const timestamp = trf.created_at ?? trf.transfer_date;
+  const printed = !!trf.printed_at || trf.status !== "BARU_DIBUAT";
+  const done = trf.status === "SELESAI";
+  const lastReceipt =
+    trf.receipts && trf.receipts.length > 0
+      ? trf.receipts[trf.receipts.length - 1]
+      : null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -246,12 +253,24 @@ export function PindahBinDetailView({ id }: { id: string }) {
             actor={trf.created_by}
             done
           />
-          <div className="mt-5 h-0.5 flex-1 bg-primary/40" />
+          <div
+            className={`mt-5 h-0.5 flex-1 ${printed ? "bg-primary/40" : "bg-muted-foreground/20"}`}
+          />
+          <TimelineStep
+            label="Sedang Dijalan"
+            timestamp={trf.printed_at}
+            actor={trf.printed_by}
+            done={printed && done}
+            active={printed && !done}
+          />
+          <div
+            className={`mt-5 h-0.5 flex-1 ${done ? "bg-primary/40" : "bg-muted-foreground/20"}`}
+          />
           <TimelineStep
             label="Selesai"
-            timestamp={timestamp}
-            actor={trf.created_by}
-            active
+            timestamp={lastReceipt?.received_at}
+            actor={lastReceipt?.received_by}
+            active={done}
           />
         </div>
       </LiquidGlass>
@@ -271,6 +290,11 @@ export function PindahBinDetailView({ id }: { id: string }) {
           <InfoRow label="No. Transfer Internal" value={trf.transfer_number} />
           <InfoRow label="Lokasi" value={trf.location?.location_name ?? "—"} />
           <InfoRow label="Dibuat Oleh" value={trf.created_by} />
+          <InfoRow
+            label="Status"
+            value={<StatusBadge domain="bin-transfer" status={trf.status} />}
+          />
+          <InfoRow label="Dicetak Oleh" value={trf.printed_by ?? "—"} />
           <div className="sm:col-span-2">
             <InfoRow label="Keterangan" value={trf.notes ?? "—"} />
           </div>
@@ -299,8 +323,11 @@ export function PindahBinDetailView({ id }: { id: string }) {
                 <TableHead className="px-3 py-2.5 text-right text-muted-foreground">
                   Qty
                 </TableHead>
-                <TableHead className="px-3 py-2.5 text-muted-foreground">
-                  Unit
+                <TableHead className="px-3 py-2.5 text-right text-muted-foreground">
+                  Ditempatkan
+                </TableHead>
+                <TableHead className="px-3 py-2.5 text-right text-muted-foreground">
+                  Sisa
                 </TableHead>
                 <TableHead className="px-3 py-2.5 text-muted-foreground">
                   Keterangan
@@ -314,7 +341,7 @@ export function PindahBinDetailView({ id }: { id: string }) {
               {(trf.items ?? []).length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={7}
+                    colSpan={8}
                     className="px-3 py-8 text-center text-sm text-muted-foreground"
                   >
                     Tidak ada produk.
@@ -376,14 +403,23 @@ export function PindahBinDetailView({ id }: { id: string }) {
                       <TableCell className="px-3 py-2.5 text-right font-mono tabular-nums">
                         {it.qty}
                       </TableCell>
-                      <TableCell className="px-3 py-2.5 text-muted-foreground">
-                        Buah
+                      <TableCell className="px-3 py-2.5 text-right font-mono tabular-nums text-foreground">
+                        {it.placed_qty ?? 0}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-right font-mono tabular-nums text-muted-foreground">
+                        {it.remaining_qty ?? 0}
                       </TableCell>
                       <TableCell className="px-3 py-2.5 text-muted-foreground">
                         {it.notes ?? "—"}
                       </TableCell>
                       <TableCell className="px-3 py-2.5 text-right">
-                        <CorrectItemButton transferId={trf.id} item={it} />
+                        {(it.placed_qty ?? 0) > 0 ? (
+                          <CorrectItemButton transferId={trf.id} item={it} />
+                        ) : (
+                          <span className="text-xs text-muted-foreground">
+                            —
+                          </span>
+                        )}
                       </TableCell>
                     </TableRow>
                   );

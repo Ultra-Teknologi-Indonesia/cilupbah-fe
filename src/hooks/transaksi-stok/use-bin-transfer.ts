@@ -17,10 +17,14 @@ export function useLocationBins(locationId: string) {
   });
 }
 
+export type BinTransferStatus =
+  | "BARU_DIBUAT"
+  | "SEDANG_DIJALAN"
+  | "SELESAI";
+
 export interface BinTransferItemPayload {
   item_id: string;
   source_bin_id: string;
-  destination_bin_id: string;
   qty: number;
   batch_no?: string;
   serial_no?: string;
@@ -42,19 +46,40 @@ export interface BinTransferListItem {
   transfer_number: string;
   transfer_date: string;
   location_id: string;
+  status: BinTransferStatus;
   created_by: string;
+  printed_at: string | null;
+  printed_by: string | null;
   notes: string | null;
   created_at: string;
   items_count: number;
   location?: { id: string; location_name: string } | null;
 }
 
+export interface BinTransferReceiptItem {
+  id: string;
+  bin_transfer_item_id?: string;
+  destination_bin?: { id: string; bin_final_code: string } | null;
+  qty: number;
+}
+
+export interface BinTransferReceiptRef {
+  id: string;
+  receipt_number: string;
+  received_by: string | null;
+  received_at: string | null;
+  notes?: string | null;
+  items?: BinTransferReceiptItem[];
+}
+
 export interface BinTransferDetailItem {
   id: string;
   item_id: string;
   source_bin_id: string;
-  destination_bin_id: string;
+  destination_bin_id: string | null;
   qty: number;
+  placed_qty: number;
+  remaining_qty: number;
   batch_no: string | null;
   serial_no: string | null;
   expired_date: string | null;
@@ -72,6 +97,7 @@ export interface BinTransferDetailItem {
 
 export interface BinTransferDetail extends BinTransferListItem {
   items: BinTransferDetailItem[];
+  receipts?: BinTransferReceiptRef[];
 }
 
 interface Paginated<T> {
@@ -90,7 +116,7 @@ export function useBinTransferCreate() {
       return res.data;
     },
     onSuccess: () => {
-      toast.success("Pindah bin berhasil");
+      toast.success("Transfer internal berhasil dibuat");
       qc.invalidateQueries({ queryKey: ["bin-transfers"] });
       qc.invalidateQueries({ queryKey: ["inventory"] });
       qc.invalidateQueries({ queryKey: ["posisi-stok"] });
@@ -98,7 +124,7 @@ export function useBinTransferCreate() {
     },
     onError: (err) =>
       toast.error(
-        (err as { message?: string })?.message || "Gagal memindahkan stok",
+        (err as { message?: string })?.message || "Gagal membuat transfer",
       ),
   });
 }
@@ -111,6 +137,7 @@ export interface BinTransferListParams {
   perPage?: number;
   page?: number;
   q?: string;
+  status?: BinTransferStatus;
   locationId?: string;
   dateFrom?: string;
   dateTo?: string;
@@ -125,6 +152,7 @@ export function useBinTransferList(params: BinTransferListParams = {}) {
       if (params.perPage) q.set("per_page", String(params.perPage));
       if (params.page) q.set("page", String(params.page));
       if (params.q) q.set("filter.q", params.q);
+      if (params.status) q.set("filter.status", params.status);
       if (params.locationId) q.set("filter.location_id", params.locationId);
       if (params.dateFrom) q.set("filter.date_from", params.dateFrom);
       if (params.dateTo) q.set("filter.date_to", params.dateTo);
@@ -167,7 +195,7 @@ export function useBinTransferItemDelete(id: string) {
       return res.data;
     },
     onSuccess: () => {
-      toast.success("Baris pindah bin dikoreksi, stok dikembalikan ke rak asal");
+      toast.success("Baris transfer dikoreksi, stok dikembalikan ke rak asal");
       qc.invalidateQueries({ queryKey: ["bin-transfers"] });
       qc.invalidateQueries({ queryKey: ["bin-transfer", id] });
       qc.invalidateQueries({ queryKey: ["inventory"] });
@@ -176,7 +204,8 @@ export function useBinTransferItemDelete(id: string) {
     },
     onError: (err) =>
       toast.error(
-        (err as { message?: string })?.message || "Gagal mengoreksi baris pindah bin",
+        (err as { message?: string })?.message ||
+          "Gagal mengoreksi baris transfer",
       ),
   });
 }
@@ -198,13 +227,187 @@ export function useBinTransferUpdate(id: string) {
       return res.data;
     },
     onSuccess: () => {
-      toast.success("Pindah bin berhasil diperbarui");
+      toast.success("Transfer internal berhasil diperbarui");
       qc.invalidateQueries({ queryKey: ["bin-transfers"] });
       qc.invalidateQueries({ queryKey: ["bin-transfer", id] });
     },
     onError: (err) =>
       toast.error(
-        (err as { message?: string })?.message || "Gagal memperbarui pindah bin",
+        (err as { message?: string })?.message ||
+          "Gagal memperbarui transfer internal",
       ),
+  });
+}
+
+/** Cetak surat jalan: memindahkan status BARU_DIBUAT -> SEDANG_DIJALAN. */
+export function usePrintBinTransfer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetchClient<{ data: BinTransferDetail }>(
+        `/inventory/bin-transfers/${id}/print`,
+        { method: "POST" },
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["bin-transfers"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message || "Gagal mencetak transfer",
+      ),
+  });
+}
+
+/** Kembalikan ke Baru Dibuat: SEDANG_DIJALAN -> BARU_DIBUAT. */
+export function useRevertBinTransferPrint() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetchClient<{ data: BinTransferDetail }>(
+        `/inventory/bin-transfers/${id}/revert-print`,
+        { method: "POST" },
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["bin-transfers"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message ||
+          "Gagal mengembalikan transfer ke Baru Dibuat",
+      ),
+  });
+}
+
+/** Hapus draft (hanya BARU_DIBUAT). */
+export function useDeleteBinTransfer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await fetchClient<unknown>(`/inventory/bin-transfers/${id}`, {
+        method: "DELETE",
+      });
+      return id;
+    },
+    onSuccess: () => {
+      toast.success("Transfer internal berhasil dihapus");
+      qc.invalidateQueries({ queryKey: ["bin-transfers"] });
+      qc.invalidateQueries({ queryKey: ["inventory"] });
+      qc.invalidateQueries({ queryKey: ["posisi-stok"] });
+      qc.invalidateQueries({ queryKey: ["monitor-stok"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message || "Gagal menghapus transfer",
+      ),
+  });
+}
+
+export interface BinTransferReceivePayload {
+  received_by?: string;
+  notes?: string;
+  items: {
+    bin_transfer_item_id: string;
+    destination_bin_id: string;
+    qty: number;
+  }[];
+}
+
+export function useReceiveBinTransfer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: BinTransferReceivePayload;
+    }) => {
+      const res = await fetchClient<{ data: BinTransferReceiptRef }>(
+        `/inventory/bin-transfers/${id}/receipts`,
+        { method: "POST", data: payload },
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Penerimaan transfer berhasil disimpan");
+      qc.invalidateQueries({ queryKey: ["bin-transfers"] });
+      qc.invalidateQueries({ queryKey: ["bin-transfer-receipts"] });
+      qc.invalidateQueries({ queryKey: ["inventory"] });
+      qc.invalidateQueries({ queryKey: ["posisi-stok"] });
+      qc.invalidateQueries({ queryKey: ["monitor-stok"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message ||
+          "Gagal menyimpan penerimaan transfer",
+      ),
+  });
+}
+
+export interface BinTransferReceiptListItem {
+  id: string;
+  receipt_number: string;
+  bin_transfer?: {
+    id: string;
+    transfer_number: string;
+    transfer_date: string;
+  } | null;
+  location?: { id?: string; location_name: string } | null;
+  received_by: string | null;
+  received_at: string | null;
+  notes?: string | null;
+  items_count: number;
+}
+
+export interface BinTransferReceiptListParams {
+  perPage?: number;
+  page?: number;
+  q?: string;
+  locationId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export function useBinTransferReceiptList(
+  params: BinTransferReceiptListParams = {},
+) {
+  const key = ["bin-transfer-receipts", params] as const;
+  return useQuery({
+    queryKey: key,
+    queryFn: async () => {
+      const q = new URLSearchParams();
+      if (params.perPage) q.set("per_page", String(params.perPage));
+      if (params.page) q.set("page", String(params.page));
+      if (params.q) q.set("filter.q", params.q);
+      if (params.locationId) q.set("filter.location_id", params.locationId);
+      if (params.dateFrom) q.set("filter.date_from", params.dateFrom);
+      if (params.dateTo) q.set("filter.date_to", params.dateTo);
+      const res = await fetchClient<Paginated<BinTransferReceiptListItem>>(
+        `/inventory/bin-transfer-receipts?${q.toString()}`,
+      );
+      return res;
+    },
+    staleTime: 15 * 1000,
+  });
+}
+
+export interface BinTransferReceiptDetail extends BinTransferReceiptListItem {
+  items: BinTransferReceiptItem[];
+}
+
+export function useBinTransferReceiptDetail(id: string) {
+  return useQuery({
+    queryKey: ["bin-transfer-receipt", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const res = await fetchClient<{ data: BinTransferReceiptDetail }>(
+        `/inventory/bin-transfer-receipts/${id}`,
+      );
+      return res.data;
+    },
   });
 }

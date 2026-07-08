@@ -1,3 +1,4 @@
+import { fetchBlobRaw } from "@/lib/api-client";
 import {
   BIN_QR_PAPER_DEFAULT,
   LocationService,
@@ -84,6 +85,7 @@ export type DocumentTypeKey =
   | "inbound-receipt"
   | "transfer-out"
   | "transfer-out-bulk"
+  | "bin-transfer-out"
   | "purchase-return"
   | "laporan-barcode"
   | "laporan-penyesuaian";
@@ -382,6 +384,22 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
       return `Surat-Jalan-Bulk-${stamp}.pdf`;
     },
+  },
+
+  "bin-transfer-out": {
+    title: "Surat Jalan Transfer Internal",
+    subtitle: (id, meta) =>
+      (meta?.transfer_number as string | undefined) ?? `TRFO-${id.slice(0, 8)}…`,
+    fetchPdf: async (id) => {
+      const blob = await fetchBlobRaw(
+        `/inventory/bin-transfers/${encodeURIComponent(id)}/pdf`,
+        "application/pdf",
+      );
+      return { blob };
+    },
+    backUrl: () => "/dashboard/transaksi-stok?tab=transfer",
+    filename: (id, meta) =>
+      `${(meta?.transfer_number as string | undefined) ?? `TRFO-${id}`}.pdf`,
   },
 
   "purchase-return": {

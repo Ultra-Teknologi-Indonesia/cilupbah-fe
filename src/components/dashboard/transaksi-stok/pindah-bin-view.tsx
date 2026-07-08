@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowRightIcon,
   Loader2Icon,
   PackageSearchIcon,
   PlusIcon,
@@ -26,14 +25,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
+import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import { ScanAutoflowBar } from "@/components/dashboard/shared/scan-autoflow-bar";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { QtyConfirmInput } from "@/components/ui/qty-confirm-input";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
-import {
-  useBinTransferCreate,
-  useLocationBins,
-} from "@/hooks/transaksi-stok/use-bin-transfer";
+import { useBinTransferCreate } from "@/hooks/transaksi-stok/use-bin-transfer";
 import {
   StockedProductPickerDialog,
   type StockedPickedProduct,
@@ -65,7 +62,6 @@ interface LineDraft {
   variantLabel: string;
   thumbnail: string | null;
   sourceBinId: string;
-  destBinId: string;
   qty: string;
   notes: string;
   availableBins: AvailableBin[];
@@ -89,7 +85,6 @@ export function PindahBinView() {
   const [scanRefocusKey, setScanRefocusKey] = useState(0);
 
   const { data: locData } = useLocations({ perPage: 100 });
-  const { data: binData, isLoading: binsLoading } = useLocationBins(locationId);
   const createMut = useBinTransferCreate();
 
   const locationOptions = useMemo(
@@ -99,15 +94,6 @@ export function PindahBinView() {
         label: l.locationName,
       })),
     [locData],
-  );
-
-  const binOptions = useMemo(
-    () =>
-      (binData?.items ?? []).map((b) => ({
-        value: b.id,
-        label: b.binFinalCode,
-      })),
-    [binData],
   );
 
   const upsertLineFromVariant = (variant: {
@@ -142,7 +128,6 @@ export function PindahBinView() {
           variantLabel: variant.variant_label ?? "",
           thumbnail: variant.thumbnail_url ?? null,
           sourceBinId: source,
-          destBinId: "",
           qty: sourceOnHand > 0 ? String(sourceOnHand) : "",
           notes: "",
           availableBins,
@@ -217,12 +202,7 @@ export function PindahBinView() {
   const validLines = lines.filter((l) => {
     const q = Number(l.qty);
     return (
-      l.qty !== "" &&
-      !Number.isNaN(q) &&
-      q > 0 &&
-      !!l.sourceBinId &&
-      !!l.destBinId &&
-      l.sourceBinId !== l.destBinId
+      l.qty !== "" && !Number.isNaN(q) && q > 0 && !!l.sourceBinId
     );
   });
 
@@ -250,7 +230,6 @@ export function PindahBinView() {
         items: validLines.map((l) => ({
           item_id: l.itemId,
           source_bin_id: l.sourceBinId,
-          destination_bin_id: l.destBinId,
           qty: Number(l.qty),
           notes: l.notes.trim() || undefined,
         })),
@@ -304,7 +283,7 @@ export function PindahBinView() {
               />
               <p className="text-xs text-muted-foreground">
                 Biarkan <span className="font-mono">[auto]</span> untuk generate
-                otomatis (TRFI-…), atau isi manual.
+                otomatis (TRFO-…), atau isi manual.
               </p>
             </div>
             <div className="flex flex-col gap-1.5">
@@ -368,8 +347,8 @@ export function PindahBinView() {
           <div>
             <p className="text-sm font-medium text-foreground">Pilih Lokasi</p>
             <p className="text-xs text-muted-foreground">
-              Harap pilih Lokasi terlebih dahulu sebelum menambahkan produk.
-              Setiap produk bisa dipindahkan antar rak yang berbeda.
+              Harap pilih Lokasi terlebih dahulu sebelum menambahkan produk. Rak
+              tujuan diisi nanti saat penerimaan transfer.
             </p>
           </div>
         </div>
@@ -402,7 +381,7 @@ export function PindahBinView() {
               autoFocus={!!locationId}
               refocusKey={scanRefocusKey}
               scanPlaceholder="Scan / ketik SKU lalu Enter…"
-              hint="Hanya SKU yang punya stok di gudang ini yang bisa ditransfer. Rak asal & tujuan juga bisa di-scan lewat kolom masing-masing."
+              hint="Hanya SKU yang punya stok di gudang ini yang bisa ditransfer. Rak asal juga bisa di-scan lewat kolom Rak Asal."
               sound={false}
             />
 
@@ -415,11 +394,8 @@ export function PindahBinView() {
                   <TableHead className="px-3 py-2.5 text-muted-foreground">
                     Rak Asal
                   </TableHead>
-                  <TableHead className="px-3 py-2.5 text-muted-foreground">
-                    Rak Tujuan
-                  </TableHead>
                   <TableHead className="px-3 py-2.5 text-right text-muted-foreground">
-                    Qty
+                    Qty Transfer
                   </TableHead>
                   <TableHead className="px-3 py-2.5 text-muted-foreground">
                     Keterangan
@@ -430,7 +406,7 @@ export function PindahBinView() {
               <TableBody className="divide-y divide-border">
                 {lines.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="px-3 py-12 text-center">
+                    <TableCell colSpan={5} className="px-3 py-12 text-center">
                       <div className="flex flex-col items-center gap-2 text-muted-foreground">
                         <PackageSearchIcon className="h-7 w-7 opacity-40" />
                         <p className="text-sm">
@@ -443,12 +419,6 @@ export function PindahBinView() {
                 ) : (
                   lines.map((l) => {
                     const qtyNum = Number(l.qty);
-                    const qtyInvalid =
-                      l.qty !== "" && (Number.isNaN(qtyNum) || qtyNum <= 0);
-                    const sameBin =
-                      !!l.sourceBinId &&
-                      !!l.destBinId &&
-                      l.sourceBinId === l.destBinId;
                     const sourceOptions =
                       l.availableBins.length > 0
                         ? l.availableBins.map((b) => ({
@@ -456,9 +426,6 @@ export function PindahBinView() {
                             label: `${b.code} · ${b.onHand} stok`,
                           }))
                         : [];
-                    const destOptions = binOptions.filter(
-                      (b) => b.value !== l.sourceBinId,
-                    );
                     const sourceBin = l.availableBins.find(
                       (b) => b.id === l.sourceBinId,
                     );
@@ -510,36 +477,13 @@ export function PindahBinView() {
                             searchPlaceholder="Scan / cari rak…"
                             emptyText="Tidak ada rak dengan stok"
                             disabled={sourceOptions.length === 0}
-                            className={cn(
-                              "h-9 min-w-[160px]",
-                              sameBin &&
-                                "border-destructive ring-1 ring-destructive/30",
-                            )}
+                            className="h-9 min-w-[160px]"
                           />
-                        </TableCell>
-                        <TableCell className="px-3 py-2.5">
-                          <div className="flex items-center gap-2">
-                            <ArrowRightIcon className="size-3.5 shrink-0 text-muted-foreground" />
-                            <Combobox
-                              options={destOptions}
-                              value={l.destBinId}
-                              onChange={(v) =>
-                                updateLine(l.itemId, { destBinId: v ?? "" })
-                              }
-                              placeholder={
-                                binsLoading
-                                  ? "Memuat…"
-                                  : "Scan / pilih rak tujuan"
-                              }
-                              searchPlaceholder="Scan / cari rak…"
-                              disabled={binsLoading}
-                              className={cn(
-                                "h-9 min-w-[160px]",
-                                sameBin &&
-                                  "border-destructive ring-1 ring-destructive/30",
-                              )}
-                            />
-                          </div>
+                          {sourceBin && (
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                              Qty di Rak: {sourceBin.onHand}
+                            </p>
+                          )}
                         </TableCell>
                         <TableCell className="px-3 py-2.5 text-right">
                           <QtyConfirmInput
@@ -554,7 +498,11 @@ export function PindahBinView() {
                             }
                             onEnter={() => setScanRefocusKey((k) => k + 1)}
                             placeholder="0"
-                            className="h-9 w-24 text-right"
+                            className={cn(
+                              "h-9 w-24 text-right",
+                              qtyOverStock &&
+                                "border-destructive ring-1 ring-destructive/30",
+                            )}
                           />
                           {sourceBin && (
                             <p className="mt-0.5 text-xs text-muted-foreground">
@@ -594,14 +542,15 @@ export function PindahBinView() {
               <p className="text-xs text-muted-foreground">
                 Total {validLines.length} dari {lines.length} baris siap
                 ditransfer. Setiap baris wajib punya rak asal (dari rak yang
-                menyimpan SKU tsb), rak tujuan berbeda, dan qty &gt; 0.
+                menyimpan SKU tsb) dan qty &gt; 0. Rak tujuan diisi saat
+                penerimaan transfer.
               </p>
             )}
           </div>
         </LiquidGlass>
       )}
 
-      <div className="flex justify-end gap-2">
+      <FormFooter>
         <Button variant="outline" onClick={() => router.push(LIST_HREF)}>
           Batal
         </Button>
@@ -614,7 +563,7 @@ export function PindahBinView() {
           )}
           Simpan
         </Button>
-      </div>
+      </FormFooter>
 
       <StockedProductPickerDialog
         open={pickerOpen}

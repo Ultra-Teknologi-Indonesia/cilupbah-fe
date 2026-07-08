@@ -21,6 +21,7 @@ export type Domain =
   | "sales-return"
   | "purchase-return"
   | "inventory-transfer"
+  | "bin-transfer"
   | "stock-adjustment"
   | "stock-opname"
   | "stock-revaluation"
@@ -65,6 +66,12 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     IN_TRANSIT: { label: "Dikirim", variant: "info" },
     RECEIVED: { label: "Diterima", variant: "success" },
     CANCELLED: { label: "Dibatalkan", variant: "destructive" },
+  },
+
+  "bin-transfer": {
+    BARU_DIBUAT: { label: "Baru Dibuat", variant: "muted" },
+    SEDANG_DIJALAN: { label: "Sedang Dijalan", variant: "info" },
+    SELESAI: { label: "Selesai", variant: "success" },
   },
 
   "stock-adjustment": {
