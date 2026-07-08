@@ -67,6 +67,29 @@ export function useCorrectReceivedLines(inboundId: string) {
   });
 }
 
+/** Batalkan (hapus) beberapa penerimaan sekaligus. */
+export function useBulkCancelInbounds() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: string[]) => InboundService.bulkCancel(ids),
+    onSuccess: (res) => {
+      const failed = res?.failed?.length ?? 0;
+      const ok = res?.cancelled?.length ?? 0;
+      if (failed > 0) {
+        toast.warning(`${ok} penerimaan dihapus, ${failed} gagal`);
+      } else {
+        toast.success(`${ok} penerimaan dihapus`);
+      }
+      qc.invalidateQueries({ queryKey: ["inbound", "list"] });
+      qc.invalidateQueries({ queryKey: ["inventory"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message || "Gagal menghapus penerimaan",
+      ),
+  });
+}
+
 /** Set jumlah diterima aktual (naik/turun) pada satu baris penerimaan. */
 export function useSetReceivedQty(inboundId: string) {
   const qc = useQueryClient();

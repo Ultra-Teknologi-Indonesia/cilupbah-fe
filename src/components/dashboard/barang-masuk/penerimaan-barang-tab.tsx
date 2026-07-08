@@ -9,10 +9,12 @@ import {
   DownloadIcon,
   LayersIcon,
   PlayIcon,
+  Trash2Icon,
   Loader2Icon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { BuatPenempatanManualDialog } from "./buat-penempatan-manual-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,7 +26,10 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
-import { useInbounds } from "@/hooks/barang-masuk/use-inbound";
+import {
+  useInbounds,
+  useBulkCancelInbounds,
+} from "@/hooks/barang-masuk/use-inbound";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useUrlTab } from "@/hooks/use-url-tab";
 import { exportCsv } from "@/lib/export-csv";
@@ -32,12 +37,18 @@ import type { Inbound } from "@/types/barang-masuk/inbound";
 import { formatDate } from "@/lib/format";
 
 /** Sub-tab sumber → filter[type] pada daftar penerimaan. */
-type SourceTab = "semua" | "pesanan" | "transfer";
-const SOURCE_TABS: readonly SourceTab[] = ["semua", "pesanan", "transfer"];
+type SourceTab = "semua" | "pesanan" | "transfer" | "retur";
+const SOURCE_TABS: readonly SourceTab[] = [
+  "semua",
+  "pesanan",
+  "transfer",
+  "retur",
+];
 const TAB_TO_TYPE: Record<SourceTab, string> = {
   semua: "",
   pesanan: "PURCHASE_ORDER",
   transfer: "TRANSIT_IN",
+  retur: "SALES_RETURN",
 };
 
 /** Putaway yang masih berjalan (bisa dilanjutkan prosesnya). */
@@ -192,7 +203,9 @@ export function PenerimaanBarangTab() {
   const { data: locData } = useLocations({ perPage: 100 });
 
   const [penempatanTargets, setPenempatanTargets] = useState<Inbound[]>([]);
-  // Callback untuk mereset seleksi tabel setelah dokumen gabungan dibuat.
+  const [deleteTargets, setDeleteTargets] = useState<Inbound[]>([]);
+  const bulkCancel = useBulkCancelInbounds();
+  // Callback untuk mereset seleksi tabel setelah aksi bulk (assign/hapus).
   const resetSelectionRef = useRef<(() => void) | null>(null);
 
   const columns = useMemo<ColumnDef<Inbound>[]>(
@@ -399,6 +412,7 @@ export function PenerimaanBarangTab() {
               <TabsTrigger value="semua">Semua</TabsTrigger>
               <TabsTrigger value="pesanan">Pesanan Pembelian</TabsTrigger>
               <TabsTrigger value="transfer">Transfer Masuk</TabsTrigger>
+              <TabsTrigger value="retur">Retur Penjualan</TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -459,28 +473,44 @@ export function PenerimaanBarangTab() {
               const sameLocation =
                 new Set(selected.map((s) => s.location_id)).size <= 1;
               return (
-                <Button
-                  size="sm"
-                  className="h-8 gap-1.5"
-                  onClick={() => {
-                    if (!sameLocation) {
-                      toast.warning(
-                        "Penerimaan harus dari lokasi/gudang yang sama untuk digabung.",
-                      );
-                      return;
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    className="h-8 gap-1.5"
+                    onClick={() => {
+                      if (!sameLocation) {
+                        toast.warning(
+                          "Penerimaan harus dari lokasi/gudang yang sama untuk digabung.",
+                        );
+                        return;
+                      }
+                      resetSelectionRef.current = () =>
+                        table.resetRowSelection();
+                      setPenempatanTargets(selected);
+                    }}
+                    title={
+                      sameLocation
+                        ? undefined
+                        : "Pilih penerimaan dari lokasi yang sama"
                     }
-                    resetSelectionRef.current = () => table.resetRowSelection();
-                    setPenempatanTargets(selected);
-                  }}
-                  title={
-                    sameLocation
-                      ? undefined
-                      : "Pilih penerimaan dari lokasi yang sama"
-                  }
-                >
-                  <LayersIcon className="size-4" />
-                  Buat Penempatan ({selected.length})
-                </Button>
+                  >
+                    <LayersIcon className="size-4" />
+                    Buat Penempatan ({selected.length})
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="h-8 gap-1.5"
+                    onClick={() => {
+                      resetSelectionRef.current = () =>
+                        table.resetRowSelection();
+                      setDeleteTargets(selected);
+                    }}
+                  >
+                    <Trash2Icon className="size-4" />
+                    Hapus ({selected.length})
+                  </Button>
+                </div>
               );
             }}
             onRowClick={(row) =>
@@ -522,6 +552,30 @@ export function PenerimaanBarangTab() {
           if (putawayId) {
             router.push(`/dashboard/barang-masuk/putaway/${putawayId}`);
           }
+        }}
+      />
+
+      <ConfirmDialog
+        open={deleteTargets.length > 0}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTargets([]);
+        }}
+        variant="destructive"
+        title={`Hapus ${deleteTargets.length} penerimaan?`}
+        description="Penerimaan dibatalkan dan stok yang belum ditempatkan dikembalikan dari bin inbound. Tindakan ini tidak bisa dibatalkan."
+        confirmLabel="Hapus"
+        loading={bulkCancel.isPending}
+        onConfirm={() => {
+          bulkCancel.mutate(
+            deleteTargets.map((d) => d.id),
+            {
+              onSuccess: () => {
+                resetSelectionRef.current?.();
+                resetSelectionRef.current = null;
+                setDeleteTargets([]);
+              },
+            },
+          );
         }}
       />
     </>

@@ -115,6 +115,20 @@ export const InboundService = {
     return res.data;
   },
 
+  /** Batalkan (hapus) beberapa penerimaan sekaligus. */
+  bulkCancel: async (ids: string[]) => {
+    const res = await fetchClient<
+      ApiResponse<{
+        cancelled: string[];
+        failed: { id: string; message: string }[];
+      }>
+    >(`/inbounds/bulk-cancel`, {
+      method: "POST",
+      data: { ids },
+    });
+    return res.data;
+  },
+
   barcodesPdf: async (id: string): Promise<Blob> => {
     return fetchBlobRaw(
       `/inbounds/${encodeURIComponent(id)}/barcodes`,
