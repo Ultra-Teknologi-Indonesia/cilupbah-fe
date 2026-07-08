@@ -2,8 +2,15 @@
 import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PackageCheckIcon, DownloadIcon, LayersIcon, Loader2Icon } from "lucide-react";
+import {
+  PackageCheckIcon,
+  DownloadIcon,
+  LayersIcon,
+  PlayIcon,
+  Loader2Icon,
+} from "lucide-react";
 import { toast } from "sonner";
 import { BuatPenempatanManualDialog } from "./buat-penempatan-manual-dialog";
 
@@ -13,14 +20,32 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
 import { useInbounds } from "@/hooks/barang-masuk/use-inbound";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
+import { useUrlTab } from "@/hooks/use-url-tab";
 import { exportCsv } from "@/lib/export-csv";
 import type { Inbound } from "@/types/barang-masuk/inbound";
 import { formatDate } from "@/lib/format";
+
+/** Sub-tab sumber → filter[type] pada daftar penerimaan. */
+type SourceTab = "semua" | "pesanan" | "transfer";
+const SOURCE_TABS: readonly SourceTab[] = ["semua", "pesanan", "transfer"];
+const TAB_TO_TYPE: Record<SourceTab, string> = {
+  semua: "",
+  pesanan: "PURCHASE_ORDER",
+  transfer: "TRANSIT_IN",
+};
+
+/** Putaway yang masih berjalan (bisa dilanjutkan prosesnya). */
+function activePutaway(item: Inbound) {
+  return item.putaways?.find(
+    (p) => !["COMPLETED", "CANCELLED"].includes(p.status),
+  );
+}
 
 
 const TYPE_LABEL: Record<string, string> = {
@@ -116,13 +141,25 @@ function handleExportList(items: Inbound[]) {
 
 export function PenerimaanBarangTab() {
   const router = useRouter();
+
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+  const [sourceTab, setSourceTab] = useUrlTab<SourceTab>("tab", "semua", {
+    validValues: SOURCE_TABS,
+  });
 
   const resetPage = useCallback(() => setPage(1), []);
+
+  const handleTabChange = useCallback(
+    (v: SourceTab) => {
+      setSourceTab(v);
+      resetPage();
+    },
+    [setSourceTab, resetPage],
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -146,8 +183,9 @@ export function PenerimaanBarangTab() {
       page,
       per_page: perPage,
       "filter[location_id]": filters.location_id || undefined,
+      "filter[type]": TAB_TO_TYPE[sourceTab] || undefined,
     }),
-    [debouncedSearch, page, perPage, filters],
+    [debouncedSearch, page, perPage, filters, sourceTab],
   );
 
   const { data, isLoading, isFetching } = useInbounds(params);
@@ -278,6 +316,7 @@ export function PenerimaanBarangTab() {
         header: "Aksi",
         cell: ({ row }) => {
           const item = row.original;
+          const active = activePutaway(item);
 
           return (
             <div
@@ -296,6 +335,22 @@ export function PenerimaanBarangTab() {
                 >
                   <LayersIcon className="size-4" />
                   Penempatan
+                </Button>
+              )}
+              {active && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1.5"
+                  asChild
+                >
+                  <Link
+                    href={`/dashboard/barang-masuk/putaway/${active.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <PlayIcon className="size-4" />
+                    Lanjut
+                  </Link>
                 </Button>
               )}
             </div>
@@ -335,8 +390,19 @@ export function PenerimaanBarangTab() {
         intensity="subtle"
         className="bg-white/30 dark:bg-white/[0.04]"
       >
-        {items.length > 0 && (
-          <div className="flex justify-end px-4 pt-3 sm:px-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-3 sm:px-5">
+          <Tabs
+            value={sourceTab}
+            onValueChange={(v) => handleTabChange(v as SourceTab)}
+          >
+            <TabsList variant="line" className="h-auto">
+              <TabsTrigger value="semua">Semua</TabsTrigger>
+              <TabsTrigger value="pesanan">Pesanan Pembelian</TabsTrigger>
+              <TabsTrigger value="transfer">Transfer Masuk</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          {items.length > 0 && (
             <Button
               variant="outline"
               size="sm"
@@ -345,8 +411,8 @@ export function PenerimaanBarangTab() {
               <DownloadIcon className="mr-1.5 size-4" />
               Export CSV
             </Button>
-          </div>
-        )}
+          )}
+        </div>
         <FilterToolbar
           search={search}
           onSearchChange={setSearch}
@@ -444,9 +510,18 @@ export function PenerimaanBarangTab() {
         onOpenChange={(open) => {
           if (!open) setPenempatanTargets([]);
         }}
-        onSuccess={() => {
+        onSuccess={(data) => {
           resetSelectionRef.current?.();
           resetSelectionRef.current = null;
+          // Langsung ke proses penempatan (assign rak) dokumen yang baru dibuat.
+          const putawayId =
+            (data as { id?: string })?.id ??
+            (Array.isArray(data)
+              ? (data[0] as { id?: string })?.id
+              : undefined);
+          if (putawayId) {
+            router.push(`/dashboard/barang-masuk/putaway/${putawayId}`);
+          }
         }}
       />
     </>

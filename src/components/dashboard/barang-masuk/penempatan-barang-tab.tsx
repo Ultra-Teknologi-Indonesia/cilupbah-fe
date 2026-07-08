@@ -3,25 +3,21 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
-import { ArchiveIcon,
-  PlayIcon,
-  UserPlusIcon,
+import {
+  ArchiveIcon,
   DownloadIcon,
-  PrinterIcon, Loader2Icon } from "lucide-react";
+  PrinterIcon,
+  Loader2Icon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Combobox } from "@/components/ui/combobox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
-import { UserSelect } from "@/components/dashboard/shared/user-select";
 import {
   Tooltip,
   TooltipContent,
@@ -29,24 +25,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { usePutaways } from "@/hooks/barang-masuk/use-putaway";
-import {
-  useAssignPutawayStaff,
-  useStartPutaway,
-} from "@/hooks/barang-masuk/use-putaway-actions";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
-import { useUsers } from "@/hooks/pengaturan/use-users";
 import { exportCsv } from "@/lib/export-csv";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { getStatusMeta } from "@/lib/status";
 import type { Putaway } from "@/types/barang-masuk/putaway";
 import { formatDate } from "@/lib/format";
-
-const STATUS_OPTIONS = [
-  { value: "", label: "Semua" },
-  { value: "NOT_STARTED", label: "Belum Mulai" },
-  { value: "IN_PROGRESS", label: "Sedang Diproses" },
-  { value: "COMPLETED", label: "Selesai" },
-];
 
 function ProgressBar({ placed, total }: { placed: number; total: number }) {
   const pct = total > 0 ? Math.round((placed / total) * 100) : 0;
@@ -105,18 +89,6 @@ export function PenempatanBarangTab() {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
-
-  const [assignTarget, setAssignTarget] = useState<Putaway | null>(null);
-  const [assignUserId, setAssignUserId] = useState("");
-  const [assignPerformedBy, setAssignPerformedBy] = useState("");
-  const [startTarget, setStartTarget] = useState<Putaway | null>(null);
-
-  const assignMutation = useAssignPutawayStaff();
-  const startMutation = useStartPutaway();
-  const { data: userData } = useUsers({
-    perPage: 100,
-    "filter[role]": "putaway",
-  });
 
   const resetPage = useCallback(() => setPage(1), []);
 
@@ -230,11 +202,13 @@ export function PenempatanBarangTab() {
         header: "Progress",
         cell: ({ row }) => {
           const totalQty =
-            row.original.items?.reduce((s: number, i: any) => s + i.qty, 0) ??
-            0;
+            row.original.items?.reduce(
+              (s: number, i: { qty: number }) => s + i.qty,
+              0,
+            ) ?? 0;
           const placedQty =
             row.original.items?.reduce(
-              (s: number, i: any) => s + i.putaway_qty,
+              (s: number, i: { putaway_qty: number }) => s + i.putaway_qty,
               0,
             ) ?? 0;
           return <ProgressBar placed={placedQty} total={totalQty} />;
@@ -252,6 +226,8 @@ export function PenempatanBarangTab() {
         header: "Aksi",
         cell: ({ row }) => {
           const item = row.original;
+          // Menu Penempatan = monitoring saja. Proses assign/penempatan
+          // dilakukan dari menu Penerimaan Barang.
           return (
             <div className="flex items-center gap-1.5">
               <TooltipProvider delayDuration={200}>
@@ -275,41 +251,12 @@ export function PenempatanBarangTab() {
                   <TooltipContent>Cetak Laporan Putaway</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              {item.status === "NOT_STARTED" && !item.assignee && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 gap-1.5 text-primary hover:text-primary hover:bg-primary/10"
-                  onClick={() => {
-                    setAssignTarget(item);
-                    setAssignUserId("");
-                    setAssignPerformedBy("");
-                  }}
-                >
-                  <UserPlusIcon className="size-4" />
-                  Assign
-                </Button>
-              )}
-              {(item.status === "NOT_STARTED" ||
-                item.status === "IN_PROGRESS") && (
-                <Button size="sm" className="h-8 gap-1.5" asChild>
-                  <Link href={`/dashboard/barang-masuk/putaway/${item.id}`}>
-                    <PlayIcon className="size-4" />
-                    {item.status === "NOT_STARTED" ? "Mulai" : "Lanjut"}
-                  </Link>
-                </Button>
-              )}
             </div>
           );
         },
       },
     ],
     [],
-  );
-
-  const userOptions = useMemo(
-    () => (userData?.items ?? []).map((u) => ({ value: u.id, label: u.name })),
-    [userData],
   );
 
   const hasActiveFilter = Object.values(filters).some(Boolean);
@@ -408,61 +355,6 @@ export function PenempatanBarangTab() {
           />
         </div>
       </LiquidGlass>
-
-      <ConfirmDialog
-        open={!!assignTarget}
-        onOpenChange={(open) => {
-          if (!open) setAssignTarget(null);
-        }}
-        title="Assign Petugas"
-        description={`Assign petugas untuk ${assignTarget?.putaway_no ?? ""}`}
-        confirmLabel="Assign"
-        loading={assignMutation.isPending}
-        onConfirm={() => {
-          if (!assignTarget || !assignUserId || !assignPerformedBy.trim())
-            return;
-          assignMutation.mutate(
-            {
-              data: [
-                {
-                  putaway_id: assignTarget.id,
-                  assigned_to: Number(assignUserId),
-                },
-              ],
-              performed_by: assignPerformedBy.trim(),
-            },
-            { onSuccess: () => setAssignTarget(null) },
-          );
-        }}
-      >
-        <div className="flex flex-col gap-3 px-1 py-2">
-          <div>
-            <Label htmlFor="assign-user" className="text-sm font-medium">
-              Petugas <span className="text-destructive">*</span>
-            </Label>
-            <Combobox
-              options={userOptions}
-              value={assignUserId}
-              onChange={(v) => setAssignUserId(v ?? "")}
-              placeholder="Pilih petugas"
-              searchPlaceholder="Cari petugas"
-              className="mt-1.5 h-9 bg-background"
-            />
-          </div>
-          <div>
-            <Label htmlFor="assign-by" className="text-sm font-medium">
-              Ditugaskan oleh <span className="text-destructive">*</span>
-            </Label>
-            <UserSelect
-              value={assignPerformedBy}
-              onChange={setAssignPerformedBy}
-              defaultToSelf
-              placeholder="Nama penugasan"
-              className="mt-1.5"
-            />
-          </div>
-        </div>
-      </ConfirmDialog>
     </>
   );
 }

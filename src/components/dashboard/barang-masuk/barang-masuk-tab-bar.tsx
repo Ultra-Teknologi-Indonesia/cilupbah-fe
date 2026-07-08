@@ -2,13 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  ShoppingCartIcon,
-  ArrowRightLeftIcon,
-  Undo2Icon,
-  PackageIcon,
-  LayersIcon,
-} from "lucide-react";
+import { Undo2Icon, PackageIcon, LayersIcon } from "lucide-react";
 
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,29 +10,11 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 type Tab = {
   id: string;
   label: string;
-  icon: typeof ShoppingCartIcon;
+  icon: typeof PackageIcon;
   href?: string;
 };
 
 const TABS: Tab[] = [
-  {
-    id: "pesanan",
-    label: "Pesanan Pembelian",
-    icon: ShoppingCartIcon,
-    href: "/dashboard/barang-masuk/pesanan",
-  },
-  {
-    id: "transfer",
-    label: "Transfer Masuk",
-    icon: ArrowRightLeftIcon,
-    href: "/dashboard/barang-masuk/transfer",
-  },
-  {
-    id: "retur",
-    label: "Retur dari Channel Online",
-    icon: Undo2Icon,
-    href: "/dashboard/barang-masuk/retur",
-  },
   {
     id: "penerimaan",
     label: "Penerimaan Barang",
@@ -51,22 +27,21 @@ const TABS: Tab[] = [
     icon: LayersIcon,
     href: "/dashboard/barang-masuk/penempatan",
   },
+  {
+    id: "retur",
+    label: "Retur dari Channel Online",
+    icon: Undo2Icon,
+    href: "/dashboard/barang-masuk/retur",
+  },
 ];
 
 function activeId(pathname: string): string {
-  if (pathname.startsWith("/dashboard/barang-masuk/transfer"))
-    return "transfer";
   if (pathname.startsWith("/dashboard/barang-masuk/retur")) return "retur";
-
-  if (pathname.startsWith("/dashboard/barang-masuk/penerimaan"))
-    return "penerimaan";
   if (pathname.startsWith("/dashboard/barang-masuk/penempatan"))
     return "penempatan";
-  if (pathname.startsWith("/dashboard/barang-masuk/pesanan")) return "pesanan";
-  if (pathname.startsWith("/dashboard/barang-masuk/terima-po"))
-    return "pesanan";
 
-  return "pesanan";
+  // Penerimaan adalah landing modul; proses putaway diakses dari sini.
+  return "penerimaan";
 }
 
 export function BarangMasukTabBar() {

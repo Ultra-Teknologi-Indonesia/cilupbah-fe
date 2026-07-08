@@ -117,7 +117,7 @@ function resolveTransactionHref(source: string, trxNo: string): string | null {
     case "ORDER_RESTORE":
       return `/dashboard/pesanan?q=${enc}`;
     case "TRANSFER_IN":
-      return `/dashboard/barang-masuk/transfer-masuk?q=${enc}`;
+      return `/dashboard/barang-masuk/penerimaan?tab=transfer&q=${enc}`;
     case "TRANSFER_OUT":
       return `/dashboard/barang-keluar/transfer-keluar?q=${enc}`;
     case "BIN_TRANSFER_IN":

@@ -25,8 +25,11 @@ interface BuatPenempatanManualDialogProps {
   inbounds: Inbound[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Dipanggil setelah dokumen berhasil dibuat (mis. untuk mereset seleksi tabel). */
-  onSuccess?: () => void;
+  /**
+   * Dipanggil setelah dokumen berhasil dibuat (mis. untuk mereset seleksi tabel
+   * atau navigasi ke proses penempatan). `data` adalah payload putaway dari BE.
+   */
+  onSuccess?: (data?: unknown) => void;
 }
 
 export function BuatPenempatanManualDialog({
@@ -76,14 +79,15 @@ export function BuatPenempatanManualDialog({
       if (res.error) throw new Error(res.error);
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Dokumen penempatan berhasil dibuat");
       queryClient.invalidateQueries({ queryKey: ["putaways"] });
       queryClient.invalidateQueries({ queryKey: ["inbounds"] });
+      queryClient.invalidateQueries({ queryKey: ["inbound"] });
       queryClient.invalidateQueries({ queryKey: ["purchase-order"] });
       onOpenChange(false);
       setAssignedTo("");
-      onSuccess?.();
+      onSuccess?.(data);
     },
     onError: (error: Error) => {
       toast.error(error.message || "Gagal membuat penempatan");
