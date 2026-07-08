@@ -773,7 +773,7 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                     !l.binId || qtyNum < 1 || qtyNum > l.binOnHand || dupBin;
                   const binOptsForLine = l.availableBins.map((b) => ({
                     value: b.id,
-                    label: `${b.code} · ${b.onHand} stok`,
+                    label: b.code,
                   }));
                   return (
                     <TableRow key={l.rowId} className="bg-background/50">
