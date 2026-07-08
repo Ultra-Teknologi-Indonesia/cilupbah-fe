@@ -46,6 +46,7 @@ import {
   useItemStock,
   useMovementFilters,
 } from "@/hooks/persediaan/use-stock-position";
+import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import type {
   StockMovement,
   BinInventory,
@@ -553,18 +554,23 @@ function BinSection({ itemId }: { itemId: string }) {
   const { data, isLoading } = useItemStock(itemId);
   const bins: BinInventory[] = data?.data ?? [];
 
+  const { data: locData } = useLocations({ perPage: 100 });
+
   const [locationId, setLocationId] = useState("");
   const [floor, setFloor] = useState("");
   const [row, setRow] = useState("");
   const [col, setCol] = useState("");
 
-  const locationOptions = useMemo(() => {
-    const seen = new Map<string, string>();
-    for (const b of bins)
-      if (b.location_id && !seen.has(b.location_id))
-        seen.set(b.location_id, b.location_name);
-    return Array.from(seen, ([value, label]) => ({ value, label }));
-  }, [bins]);
+  const locationOptions = useMemo(
+    () =>
+      (locData?.items ?? [])
+        .filter((l) => {
+          const name = (l.locationName ?? "").toLowerCase();
+          return !name.includes("transit") && !name.includes("virtual");
+        })
+        .map((l) => ({ value: l.id, label: l.locationName })),
+    [locData],
+  );
 
   const floorOptions = useMemo(() => {
     const set = new Set<string>();
