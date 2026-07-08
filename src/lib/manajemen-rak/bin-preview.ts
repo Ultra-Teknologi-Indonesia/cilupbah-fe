@@ -9,7 +9,6 @@ export function buildBinPreview(
   payload: GenerateBinsPayload,
 ): BinPreviewItem[] {
   const items: BinPreviewItem[] = [];
-  const maxQty = payload.max_qty ?? 0;
 
   for (let f = 1; f <= payload.qty_floor; f++) {
     const floorCode = `${payload.floor_code}${f}`;
@@ -25,7 +24,6 @@ export function buildBinPreview(
             columnCode,
             binCode,
             binFinalCode: [floorCode, rowCode, columnCode, binCode].join("-"),
-            maxQty,
             isStockAcknowledged: true,
             isLargeBin: false,
             category: "",

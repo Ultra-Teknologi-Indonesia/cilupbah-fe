@@ -155,7 +155,6 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
           columnCode: b.columnCode ?? "",
           binCode: b.binCode ?? "",
           binFinalCode: b.binFinalCode,
-          maxQty: b.maxQty,
           isStockAcknowledged: b.isStockAcknowledged,
           isLargeBin: b.isLargeBin,
           category: b.category ?? "",
@@ -194,7 +193,6 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
             .map((b) => ({
               id: b.id!,
               bin_final_code: b.binFinalCode,
-              max_qty: b.maxQty,
               is_stock_acknowledged: b.isStockAcknowledged,
               is_large_bin: b.isLargeBin,
               category: b.category || null,

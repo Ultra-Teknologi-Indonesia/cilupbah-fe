@@ -17,7 +17,6 @@ function mapBin(raw: RawLocationBin): LocationBin & { id: string } {
     columnCode: raw.column_code,
     binCode: raw.bin_code,
     binFinalCode: raw.bin_final_code,
-    maxQty: raw.max_qty,
     isInbound: raw.is_inbound,
     isStockAcknowledged: raw.is_stock_acknowledged ?? true,
     isLargeBin: raw.is_large_bin ?? false,
@@ -31,7 +30,6 @@ function mapPreviewItem(raw: {
   column_code: string;
   bin_code: string;
   bin_final_code: string;
-  max_qty: number;
 }): BinPreviewItem {
   return {
     floorCode: raw.floor_code,
@@ -39,7 +37,6 @@ function mapPreviewItem(raw: {
     columnCode: raw.column_code,
     binCode: raw.bin_code,
     binFinalCode: raw.bin_final_code,
-    maxQty: raw.max_qty,
     isStockAcknowledged: true,
     isLargeBin: false,
     category: "",
@@ -97,7 +94,6 @@ export const LocationBinService = {
         column_code: string;
         bin_code: string;
         bin_final_code: string;
-        max_qty: number;
       }>
     >(`/locations/${locationId}/bins/preview`, {
       method: "POST",

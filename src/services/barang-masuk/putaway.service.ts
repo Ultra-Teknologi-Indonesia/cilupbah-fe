@@ -19,9 +19,7 @@ export interface ProcessItemPayload {
 export interface BinListItem {
   id: string;
   bin_final_code: string;
-  max_qty: number | null;
   current_qty: number;
-  remaining_capacity: number | null;
 }
 
 export interface BinLookupResult {
@@ -30,9 +28,7 @@ export interface BinLookupResult {
   bin_final_code: string;
   bin_label: string | null;
   is_inbound: boolean;
-  max_qty: number | null;
   current_qty: number;
-  remaining_capacity: number | null;
 }
 
 export const PutawayService = {

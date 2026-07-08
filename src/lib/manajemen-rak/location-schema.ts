@@ -44,7 +44,6 @@ export const layoutBuilderSchema = z
     qtyColumn: z.coerce.number().int().min(1, "Minimal 1"),
     binCode: z.string().min(1).max(10).default("R"),
     qtyBin: z.coerce.number().int().min(1, "Minimal 1"),
-    maxQty: z.coerce.number().int().min(0).optional(),
   })
   .refine((v) => v.qtyFloor * v.qtyRow * v.qtyColumn * v.qtyBin <= 2000, {
     message: "Maksimum kombinasi rak adalah 2000",

@@ -144,10 +144,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
       availableBins.map((b) => ({
         value: b.id,
         label: b.bin_final_code,
-        hint:
-          b.remaining_capacity != null
-            ? `sisa ${b.remaining_capacity}`
-            : undefined,
       })),
     [availableBins],
   );
@@ -389,12 +385,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
               <p className="mt-1.5 text-lg font-bold text-foreground">
                 {activeRack ? activeRack.bin_final_code : "Belum dipilih"}
               </p>
-              {activeRack && activeRack.max_qty != null && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Kapasitas: {activeRack.current_qty}/{activeRack.max_qty} (sisa{" "}
-                  {activeRack.remaining_capacity})
-                </p>
-              )}
             </div>
 
             <div className="rounded-lg border border-border bg-card p-4">
@@ -983,12 +973,6 @@ function PlacementRow({
               "border-success ring-1 ring-success/30",
           )}
         />
-        {selectedBin && selectedBin.remaining_capacity != null && (
-          <p className="text-xs text-muted-foreground">
-            Sisa kapasitas: {selectedBin.remaining_capacity}/
-            {selectedBin.max_qty}
-          </p>
-        )}
       </div>
 
       <div className="flex items-center gap-1.5">

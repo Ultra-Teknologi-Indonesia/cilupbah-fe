@@ -17,7 +17,6 @@ function mapBin(raw: RawLocationBin): LocationBin {
     columnCode: raw.column_code,
     binCode: raw.bin_code,
     binFinalCode: raw.bin_final_code,
-    maxQty: raw.max_qty,
     isInbound: raw.is_inbound,
     isStockAcknowledged: raw.is_stock_acknowledged ?? true,
     isLargeBin: raw.is_large_bin ?? false,
@@ -115,7 +114,6 @@ export const LocationService = {
     bins: {
       id: string;
       bin_final_code: string;
-      max_qty: number;
       is_stock_acknowledged: boolean;
       is_large_bin: boolean;
       category: string | null;

@@ -121,7 +121,6 @@ interface UniformDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onApply: (values: {
-    maxQty: number;
     isStockAcknowledged: boolean;
     isLargeBin: boolean;
     category: string;
@@ -137,14 +136,12 @@ function UniformDialog({
   pending,
   scopeLabel,
 }: UniformDialogProps) {
-  const [maxQty, setMaxQty] = React.useState("0");
   const [isStockAcknowledged, setIsStockAcknowledged] = React.useState(true);
   const [isLargeBin, setIsLargeBin] = React.useState(false);
   const [category, setCategory] = React.useState("");
 
   const handleApply = () => {
     onApply({
-      maxQty: Number.parseInt(maxQty, 10) || 0,
       isStockAcknowledged,
       isLargeBin,
       category,
@@ -162,17 +159,6 @@ function UniformDialog({
         </DialogHeader>
 
         <div className="flex flex-col gap-5 py-2">
-          <div className="space-y-2">
-            <Label>Maks. Qty</Label>
-            <Input
-              type="number"
-              min={0}
-              inputMode="numeric"
-              value={maxQty}
-              onChange={(e) => setMaxQty(e.target.value)}
-            />
-          </div>
-
           <div className="space-y-2">
             <Label>Kategori</Label>
             <Input
@@ -635,7 +621,6 @@ export function LayoutGudangTab({
           columnCode: row.columnCode ?? "",
           binCode: row.binCode ?? "",
           binFinalCode: patch.binFinalCode ?? row.binFinalCode,
-          maxQty: patch.maxQty ?? row.maxQty,
           isStockAcknowledged:
             patch.isStockAcknowledged ?? row.isStockAcknowledged,
           isLargeBin: patch.isLargeBin ?? row.isLargeBin,
@@ -724,7 +709,6 @@ export function LayoutGudangTab({
           columnCode: row.columnCode ?? "",
           binCode: row.binCode ?? "",
           binFinalCode: patch.binFinalCode ?? row.binFinalCode,
-          maxQty: patch.maxQty ?? row.maxQty,
           isStockAcknowledged:
             patch.isStockAcknowledged ?? row.isStockAcknowledged,
           isLargeBin: patch.isLargeBin ?? row.isLargeBin,
@@ -793,7 +777,6 @@ export function LayoutGudangTab({
   };
 
   const handleUniformApplyLocal = (values: {
-    maxQty: number;
     isStockAcknowledged: boolean;
     isLargeBin: boolean;
     category: string;
@@ -803,7 +786,6 @@ export function LayoutGudangTab({
         selectedIds.has(b.id)
           ? {
               ...b,
-              maxQty: values.maxQty,
               isStockAcknowledged: values.isStockAcknowledged,
               isLargeBin: values.isLargeBin,
               category: values.category,
@@ -817,7 +799,6 @@ export function LayoutGudangTab({
   };
 
   const handleUniformApplyServer = async (values: {
-    maxQty: number;
     isStockAcknowledged: boolean;
     isLargeBin: boolean;
     category: string;
@@ -831,7 +812,6 @@ export function LayoutGudangTab({
         scope: selectAllAcrossPages ? "all" : "selected",
         ids: selectAllAcrossPages ? undefined : Array.from(selectedIds),
         values: {
-          max_qty: values.maxQty,
           is_stock_acknowledged: values.isStockAcknowledged,
           is_large_bin: values.isLargeBin,
           category: values.category || null,
@@ -1031,14 +1011,6 @@ export function LayoutGudangTab({
                       onSort={setSort}
                     />
                   </TableHead>
-                  <TableHead className="px-3 py-3 text-left">
-                    <SortableHeader
-                      label="Maks. Qty"
-                      field="max_qty"
-                      currentSort={sort}
-                      onSort={setSort}
-                    />
-                  </TableHead>
                   <TableHead className="px-3 py-3 text-center font-medium text-muted-foreground">
                     Akui Stok
                   </TableHead>
@@ -1058,7 +1030,7 @@ export function LayoutGudangTab({
                   totalAll > pageIds.length && (
                     <TableRow className="border-b border-primary/20 bg-primary/5">
                       <TableCell
-                        colSpan={7}
+                        colSpan={6}
                         className="px-3 py-2 text-center text-sm"
                       >
                         Memilih {pageIds.length} rak di halaman ini.{" "}
@@ -1075,7 +1047,7 @@ export function LayoutGudangTab({
                 {serverMode && selectAllAcrossPages && (
                   <TableRow className="border-b border-primary/20 bg-primary/5">
                     <TableCell
-                      colSpan={7}
+                      colSpan={6}
                       className="px-3 py-2 text-center text-sm"
                     >
                       Memilih semua {totalAll.toLocaleString("id-ID")} rak.{" "}
@@ -1092,7 +1064,7 @@ export function LayoutGudangTab({
 
                 {(selectedIds.size > 0 || selectAllAcrossPages) && (
                   <TableRow className="border-b border-primary/20 bg-primary/5">
-                    <TableCell colSpan={7} className="px-3 py-2">
+                    <TableCell colSpan={6} className="px-3 py-2">
                       <div className="flex items-center gap-3">
                         <Checkbox
                           checked={allPageSelected ? true : "indeterminate"}
@@ -1176,22 +1148,6 @@ export function LayoutGudangTab({
                           disabled={disabled}
                           placeholder="Kode rak"
                           className="h-9 max-w-[200px]"
-                        />
-                      </TableCell>
-                      <TableCell className="px-3 py-2.5">
-                        <Input
-                          type="number"
-                          min={0}
-                          inputMode="numeric"
-                          value={b.maxQty}
-                          onChange={(e) => {
-                            const v = Number.parseInt(e.target.value, 10) || 0;
-                            serverMode && b.binId
-                              ? patchEdit(b.binId, "maxQty", v)
-                              : updateLocalBin(b.id, "maxQty", v);
-                          }}
-                          disabled={disabled}
-                          className="h-9 w-24"
                         />
                       </TableCell>
                       <TableCell className="px-3 py-2.5 text-center">

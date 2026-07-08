@@ -76,7 +76,6 @@ export interface RawLocationBin {
   column_code: string | null;
   bin_code: string | null;
   bin_final_code: string;
-  max_qty: number;
   is_inbound: boolean;
   is_stock_acknowledged: boolean;
   is_large_bin: boolean;
@@ -90,7 +89,6 @@ export interface LocationBin {
   columnCode: string | null;
   binCode: string | null;
   binFinalCode: string;
-  maxQty: number;
   isInbound: boolean;
   isStockAcknowledged: boolean;
   isLargeBin: boolean;
@@ -132,7 +130,6 @@ export interface GenerateBinsPayload {
   qty_column: number;
   bin_code: string;
   qty_bin: number;
-  max_qty?: number;
 }
 
 export interface BinListParams {
@@ -153,7 +150,6 @@ export interface UniformApplyPayload {
   scope: "selected" | "all";
   ids?: string[];
   values: {
-    max_qty?: number;
     is_stock_acknowledged?: boolean;
     is_large_bin?: boolean;
     category?: string | null;
@@ -169,7 +165,6 @@ export interface BinPreviewItem {
   columnCode: string;
   binCode: string;
   binFinalCode: string;
-  maxQty: number;
   isStockAcknowledged: boolean;
   isLargeBin: boolean;
   category: string;

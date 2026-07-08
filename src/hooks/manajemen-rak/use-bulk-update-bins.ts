@@ -7,7 +7,6 @@ import { locationKeys } from "@/hooks/manajemen-rak/use-locations";
 interface BulkUpdateBin {
   id: string;
   bin_final_code: string;
-  max_qty: number;
   is_stock_acknowledged: boolean;
   is_large_bin: boolean;
   category: string | null;
