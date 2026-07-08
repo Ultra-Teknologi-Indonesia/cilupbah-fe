@@ -3,6 +3,8 @@ export interface LocationStock {
   location_id: string;
   location_name: string;
   on_hand: number;
+  /** Stok fisik yang sudah diterima tapi belum ditempatkan ke rak. */
+  pending_placement?: number;
   on_order: number;
   reserved: number;
   available: number;
@@ -10,6 +12,8 @@ export interface LocationStock {
 
 export interface TotalStocks {
   on_hand: number;
+  /** Stok fisik yang sudah diterima tapi belum ditempatkan ke rak. */
+  pending_placement?: number;
   on_order: number;
   reserved: number;
   available: number;

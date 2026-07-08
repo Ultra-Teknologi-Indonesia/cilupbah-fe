@@ -180,12 +180,14 @@ function QtyCell({ qty }: { qty: number }) {
 
 function StockSummaryCards({
   onHand,
+  pendingPlacement,
   onOrder,
   reserved,
   available,
   avgCost,
 }: {
   onHand: number;
+  pendingPlacement: number;
   onOrder: number;
   reserved: number;
   available: number;
@@ -193,6 +195,11 @@ function StockSummaryCards({
 }) {
   const cards = [
     { label: "On Hand", value: onHand, color: "" },
+    {
+      label: "Menunggu Penempatan",
+      value: pendingPlacement,
+      color: pendingPlacement > 0 ? "text-warning" : "text-muted-foreground",
+    },
     { label: "On Order", value: onOrder, color: "" },
     {
       label: "Reserved",
@@ -213,7 +220,7 @@ function StockSummaryCards({
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
       {cards.map((c) => (
         <LiquidGlass
           key={c.label}
@@ -851,11 +858,23 @@ export function StockPositionDetailView({ itemId }: { itemId: string }) {
 
           <StockSummaryCards
             onHand={item.total_stocks.on_hand}
+            pendingPlacement={item.total_stocks.pending_placement ?? 0}
             onOrder={item.total_stocks.on_order}
             reserved={item.total_stocks.reserved}
             available={item.total_stocks.available}
             avgCost={Number(item.average_cost)}
           />
+          {(item.total_stocks.pending_placement ?? 0) > 0 && (
+            <div className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
+              <BoxIcon className="mt-0.5 size-4 shrink-0" />
+              <span>
+                <strong>{item.total_stocks.pending_placement}</strong> unit
+                sudah diterima tapi belum ditempatkan ke rak, jadi belum masuk On
+                Hand dan belum bisa dijual/dipick. Lakukan Penempatan (putaway) ke
+                rak final terlebih dahulu.
+              </span>
+            </div>
+          )}
         </>
       ) : (
         <LiquidGlass

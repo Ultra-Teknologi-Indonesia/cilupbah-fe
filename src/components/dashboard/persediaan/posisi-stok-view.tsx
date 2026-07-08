@@ -528,10 +528,21 @@ export function PosisiStokView() {
                         {formatCurrency(Number(item.average_cost))}
                       </TableCell>
                       <TableCell className="whitespace-nowrap px-3 py-3 text-right">
-                        <StockQtyBadge
-                          value={item.total_stocks.on_hand}
-                          variant="default"
-                        />
+                        <div className="flex flex-col items-end gap-0.5">
+                          <StockQtyBadge
+                            value={item.total_stocks.on_hand}
+                            variant="default"
+                          />
+                          {(item.total_stocks.pending_placement ?? 0) > 0 && (
+                            <span
+                              className="text-2xs font-medium text-warning"
+                              title="Sudah diterima tapi belum ditempatkan ke rak"
+                            >
+                              +{item.total_stocks.pending_placement} menunggu
+                              penempatan
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="whitespace-nowrap px-3 py-3 text-right">
                         <StockQtyBadge
