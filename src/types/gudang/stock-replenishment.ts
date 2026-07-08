@@ -9,6 +9,7 @@ export interface StockReplenishmentItem {
   item_id: string;
   sku: string;
   product_name: string | null;
+  thumbnail_url: string | null;
   qty: number;
   reason: string | null;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
   Dialog,
@@ -32,14 +32,16 @@ export function EditReplenishmentItemDialog({
 }: Props) {
   const [qty, setQty] = useState("1");
   const [reason, setReason] = useState("");
+  const [seededId, setSeededId] = useState<string | null>(null);
   const updateMut = useUpdateReplenishmentItem();
 
-  useEffect(() => {
-    if (item) {
-      setQty(String(item.qty));
-      setReason(item.reason ?? "");
-    }
-  }, [item]);
+  // Seed the form from the item during render (avoids an effect); re-seeds
+  // whenever a different item is opened for editing.
+  if (item && item.id !== seededId) {
+    setSeededId(item.id);
+    setQty(String(item.qty));
+    setReason(item.reason ?? "");
+  }
 
   function handleClose() {
     if (updateMut.isPending) return;

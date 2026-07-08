@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import {
   ArrowRightIcon,
   CheckIcon,
   ExternalLinkIcon,
+  ImageIcon,
   PackageIcon,
   PencilIcon,
   PlusIcon,
@@ -13,6 +15,8 @@ import {
   UserIcon,
   XIcon,
 } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
@@ -153,14 +157,13 @@ export function PermintaanRestockDetailView({ id }: Props) {
 
         <div className="grid gap-5 px-5 py-5 md:grid-cols-2 lg:grid-cols-3">
           <InfoField label="Diminta Oleh">
-            {req.requested_by_name ?? (
-              <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-2xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                Sistem
-              </span>
-            )}
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+              <UserIcon className="size-4" />
+              {req.requested_by_name ?? "Sistem"}
+            </span>
           </InfoField>
           <InfoField label="Diminta Pada">
-            {formatDateTime(req.requested_at)}
+            {formatDateTimeFull(req.requested_at)}
           </InfoField>
           <InfoField label="Rute">
             <span className="inline-flex items-center gap-2 text-sm">
@@ -217,30 +220,44 @@ export function PermintaanRestockDetailView({ id }: Props) {
         intensity="subtle"
         className="bg-white/40 dark:bg-white/[0.06]"
       >
-        <div className="flex items-center justify-between border-b border-border/60 px-5 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4">
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <PackageIcon className="size-4" />
             Produk
           </h2>
-          <span className="text-xs text-muted-foreground">
-            {items.length} SKU · {totalQty} qty
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground">
+              {items.length} SKU · {totalQty} qty
+            </span>
+            {editable && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPickerOpen(true)}
+                disabled={addItemMut.isPending}
+              >
+                <PlusIcon className="mr-1 size-4" />
+                Tambah SKU
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>SKU</TableHead>
+                <TableHead>Produk</TableHead>
                 <TableHead className="w-24 text-right">Qty</TableHead>
                 <TableHead>Alasan</TableHead>
+                {editable && <TableHead className="w-24 text-right">Aksi</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {items.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={3}
+                    colSpan={editable ? 4 : 3}
                     className="py-10 text-center text-sm text-muted-foreground"
                   >
                     Tidak ada item pada permintaan ini.
@@ -249,13 +266,67 @@ export function PermintaanRestockDetailView({ id }: Props) {
               ) : (
                 items.map((it) => (
                   <TableRow key={it.id}>
-                    <TableCell className="font-mono text-xs">{it.sku}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
+                          {it.thumbnail_url ? (
+                            <Image
+                              src={it.thumbnail_url}
+                              alt={it.product_name ?? it.sku}
+                              width={44}
+                              height={44}
+                              className="size-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                                e.currentTarget.nextElementSibling?.classList.remove(
+                                  "hidden",
+                                );
+                              }}
+                            />
+                          ) : null}
+                          <ImageIcon
+                            className={cn(
+                              "size-4 text-muted-foreground",
+                              it.thumbnail_url && "hidden",
+                            )}
+                          />
+                        </div>
+                        <div className="flex min-w-0 flex-col gap-0.5">
+                          <span className="text-sm font-medium">
+                            {it.product_name ?? "—"}
+                          </span>
+                          <CopySku sku={it.sku} />
+                        </div>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right font-medium tabular-nums">
                       {it.qty}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {it.reason ?? "—"}
                     </TableCell>
+                    {editable && (
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => setEditItem(it)}
+                            aria-label="Ubah item"
+                          >
+                            <PencilIcon className="size-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => setDeleteItem(it)}
+                            aria-label="Hapus item"
+                          >
+                            <Trash2Icon className="size-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
               )}
@@ -279,6 +350,40 @@ export function PermintaanRestockDetailView({ id }: Props) {
         onConfirm={async () => {
           await rejectMut.mutateAsync({ id: req.id });
           setRejectOpen(false);
+        }}
+      />
+
+      {editable && req.from_location_id && (
+        <StockedProductPickerDialog
+          open={pickerOpen}
+          onOpenChange={setPickerOpen}
+          locationId={req.from_location_id}
+          excludeIds={items.map((it) => it.item_id)}
+          onPick={handlePickItems}
+        />
+      )}
+
+      <EditReplenishmentItemDialog
+        requestId={req.id}
+        item={editItem}
+        open={!!editItem}
+        onOpenChange={(v) => !v && setEditItem(null)}
+      />
+
+      <ConfirmDialog
+        open={!!deleteItem}
+        onOpenChange={(v) => !v && setDeleteItem(null)}
+        title="Hapus item ini?"
+        description={
+          deleteItem
+            ? `${deleteItem.product_name ?? deleteItem.sku} akan dihapus dari permintaan.`
+            : ""
+        }
+        confirmLabel="Hapus"
+        onConfirm={async () => {
+          if (!deleteItem) return;
+          await removeItemMut.mutateAsync({ id: req.id, itemId: deleteItem.id });
+          setDeleteItem(null);
         }}
       />
     </div>
