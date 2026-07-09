@@ -1034,6 +1034,26 @@ export const OutboundService = {
     });
   },
 
+  preManifestCancelList: async (
+    params: FulfillmentListParams,
+  ): Promise<ListResult<FulfillmentOrder>> => {
+    const q = new URLSearchParams();
+    if (params.q) q.set("filter[q]", params.q);
+    if (params.source) q.set("filter[source]", params.source);
+    if (params.location_id) q.set("filter[location_id]", params.location_id);
+    q.set("limit", String(params.per_page ?? 20));
+    q.set("page", String(params.page ?? 1));
+    const res = await fetchClient<{
+      success?: boolean;
+      data: RawFulfillmentOrder[];
+      meta: Meta;
+    }>(`/outbound/pre-manifest/cancelled?${q}`);
+    return {
+      items: (res.data ?? []).map(mapOrder),
+      meta: res.meta ?? FALLBACK_META,
+    };
+  },
+
   preManifestCancelCount: async (): Promise<number> => {
     const res = await fetchClient<{ data: { count: number } }>(
       `/outbound/pre-manifest/cancelled/count`,

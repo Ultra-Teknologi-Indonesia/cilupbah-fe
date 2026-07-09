@@ -3,20 +3,24 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArchiveIcon,
   DownloadIcon,
   PrinterIcon,
-  EyeIcon,
+  Trash2Icon,
   Loader2Icon,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Combobox } from "@/components/ui/combobox";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Progress } from "@/components/ui/progress";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef, Table as TableInstance } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
 import {
@@ -26,12 +30,18 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { usePutaways } from "@/hooks/barang-masuk/use-putaway";
+import {
+  useDeletePutaway,
+  useBulkDeletePutaway,
+} from "@/hooks/barang-masuk/use-putaway-actions";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { exportCsv } from "@/lib/export-csv";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { getStatusMeta } from "@/lib/status";
 import type { Putaway } from "@/types/barang-masuk/putaway";
 import { formatDate } from "@/lib/format";
+
+const BULK_PDF_MAX = 50;
 
 function ProgressBar({ placed, total }: { placed: number; total: number }) {
   const pct = total > 0 ? Math.round((placed / total) * 100) : 0;
@@ -84,12 +94,47 @@ function handleExportPutaway(items: Putaway[]) {
   );
 }
 
+/** Aksi utama per baris menyesuaikan status: Mulai / Lanjutkan / Lihat. */
+function primaryAction(item: Putaway): { label: string; href: string } {
+  if (item.status === "COMPLETED") {
+    return { label: "Lihat", href: `/dashboard/barang-masuk/penempatan/${item.id}` };
+  }
+  const href = `/dashboard/barang-masuk/putaway/${item.id}`;
+  return item.status === "IN_PROGRESS"
+    ? { label: "Lanjutkan", href }
+    : { label: "Mulai", href };
+}
+
+function deleteDescription(p: Putaway | null): string {
+  if (!p) return "";
+  const no = p.putaway_no;
+  switch (p.status) {
+    case "NOT_STARTED":
+      return `Hapus penempatan "${no}"? Dokumen dihapus dan penerimaan dikembalikan (data QC tetap tersimpan).`;
+    case "IN_PROGRESS":
+      return `Reset penempatan "${no}"? Semua stok yang sudah ditempatkan dikembalikan ke rak asal dan status kembali ke Belum Mulai.`;
+    case "COMPLETED":
+      return `Batalkan penyelesaian "${no}"? Semua stok dikembalikan dari rak dan status kembali ke Sedang Diproses.`;
+    default:
+      return `Hapus penempatan "${no}"?`;
+  }
+}
+
 export function PenempatanBarangTab() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+  const [deleteTarget, setDeleteTarget] = useState<Putaway | null>(null);
+  const [bulkDeleteState, setBulkDeleteState] = useState<{
+    ids: string[];
+    onDone: () => void;
+  } | null>(null);
+
+  const deleteMut = useDeletePutaway();
+  const bulkDeleteMut = useBulkDeletePutaway();
 
   const resetPage = useCallback(() => setPage(1), []);
 
@@ -144,6 +189,31 @@ export function PenempatanBarangTab() {
 
   const columns = useMemo<ColumnDef<Putaway>[]>(
     () => [
+      {
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            aria-label="Pilih semua"
+          />
+        ),
+        cell: ({ row }) => (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={row.getIsSelected()}
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              aria-label="Pilih baris"
+            />
+          </div>
+        ),
+        enableSorting: false,
+        enableHiding: false,
+        size: 36,
+      },
       {
         accessorKey: "putaway_no",
         header: "No. Penempatan",
@@ -224,33 +294,19 @@ export function PenempatanBarangTab() {
       },
       {
         id: "actions",
-        header: "Aksi",
+        header: () => <div className="text-right">Aksi</div>,
         cell: ({ row }) => {
           const item = row.original;
-          // Menu Penempatan = monitoring saja. Proses assign/penempatan
-          // dilakukan dari menu Penerimaan Barang.
+          const action = primaryAction(item);
           return (
-            <div className="flex items-center gap-1.5">
+            <div
+              className="flex items-center justify-end gap-1.5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Button asChild variant="outline" size="sm">
+                <Link href={action.href}>{action.label}</Link>
+              </Button>
               <TooltipProvider delayDuration={200}>
-                {item.status === "COMPLETED" && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        asChild
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label="Lihat Penempatan"
-                      >
-                        <Link
-                          href={`/dashboard/barang-masuk/penempatan/${item.id}`}
-                        >
-                          <EyeIcon className="size-4" />
-                        </Link>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Lihat Hasil Penempatan</TooltipContent>
-                  </Tooltip>
-                )}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -261,14 +317,26 @@ export function PenempatanBarangTab() {
                     >
                       <Link
                         href={`/dashboard/document-preview/putaway/${item.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
                       >
                         <PrinterIcon className="size-4" />
                       </Link>
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Cetak Laporan Putaway</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="Hapus"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => setDeleteTarget(item)}
+                    >
+                      <Trash2Icon className="size-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Hapus / Reset Penempatan</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
@@ -277,6 +345,53 @@ export function PenempatanBarangTab() {
       },
     ],
     [],
+  );
+
+  const bulkActions = useCallback(
+    (selected: Putaway[], table: TableInstance<Putaway>) => {
+      const ids = selected.map((r) => r.id);
+      const disablePdf = ids.length > BULK_PDF_MAX;
+      return (
+        <>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={disablePdf}
+            onClick={() => {
+              if (disablePdf) {
+                toast.warning(`Maksimal ${BULK_PDF_MAX} dokumen per cetak`);
+                return;
+              }
+              router.push(
+                `/dashboard/document-preview/putaway-bulk/${ids.join(",")}`,
+              );
+            }}
+            title={
+              disablePdf
+                ? `Maksimal ${BULK_PDF_MAX} dokumen per cetak`
+                : undefined
+            }
+          >
+            <PrinterIcon className="mr-1.5 size-4" />
+            Cetak {ids.length}
+          </Button>
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={() =>
+              setBulkDeleteState({
+                ids,
+                onDone: () => table.resetRowSelection(),
+              })
+            }
+          >
+            <Trash2Icon className="mr-1.5 size-4" />
+            Hapus {ids.length}
+          </Button>
+        </>
+      );
+    },
+    [router],
   );
 
   const hasActiveFilter = Object.values(filters).some(Boolean);
@@ -302,7 +417,7 @@ export function PenempatanBarangTab() {
             <TabsList variant="line" className="h-auto">
               <TabsTrigger value="ALL">Semua</TabsTrigger>
               <TabsTrigger value="NOT_STARTED">Belum Mulai</TabsTrigger>
-              <TabsTrigger value="IN_PROGRESS">Proses</TabsTrigger>
+              <TabsTrigger value="IN_PROGRESS">Sedang Diproses</TabsTrigger>
               <TabsTrigger value="COMPLETED">Selesai</TabsTrigger>
             </TabsList>
           </Tabs>
@@ -358,6 +473,9 @@ export function PenempatanBarangTab() {
             isLoading={isLoading}
             hideToolbar
             manualPagination
+            enableRowSelection
+            getRowId={(row) => row.id}
+            bulkActions={bulkActions}
             pagination={{
               pageIndex: page - 1,
               pageSize: perPage,
@@ -375,6 +493,43 @@ export function PenempatanBarangTab() {
           />
         </div>
       </LiquidGlass>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(v) => !v && setDeleteTarget(null)}
+        title="Hapus / Reset Penempatan"
+        description={deleteDescription(deleteTarget)}
+        confirmLabel={
+          deleteTarget?.status === "NOT_STARTED" ? "Hapus" : "Reset"
+        }
+        variant="destructive"
+        loading={deleteMut.isPending}
+        onConfirm={() => {
+          if (!deleteTarget) return;
+          deleteMut.mutate(deleteTarget.id, {
+            onSuccess: () => setDeleteTarget(null),
+          });
+        }}
+      />
+
+      <ConfirmDialog
+        open={!!bulkDeleteState}
+        onOpenChange={(v) => !v && setBulkDeleteState(null)}
+        title="Hapus Penempatan Terpilih"
+        description={`Proses ${bulkDeleteState?.ids.length ?? 0} penempatan terpilih? Tiap dokumen di-revert sesuai statusnya (Belum Mulai dihapus, Sedang Diproses/Selesai direset & stok dikembalikan).`}
+        confirmLabel="Proses"
+        variant="destructive"
+        loading={bulkDeleteMut.isPending}
+        onConfirm={() => {
+          if (!bulkDeleteState) return;
+          bulkDeleteMut.mutate(bulkDeleteState.ids, {
+            onSuccess: () => {
+              bulkDeleteState.onDone();
+              setBulkDeleteState(null);
+            },
+          });
+        }}
+      />
     </>
   );
 }

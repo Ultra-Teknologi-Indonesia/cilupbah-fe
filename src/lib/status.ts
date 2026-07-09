@@ -19,6 +19,8 @@ export interface StatusMeta {
 
 export type Domain =
   | "sales-return"
+  | "sales-return-reason-category"
+  | "sales-return-marketplace-decision"
   | "purchase-return"
   | "inventory-transfer"
   | "bin-transfer"
@@ -50,6 +52,25 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     REJECTED: { label: "Ditolak", variant: "destructive" },
     COMPLETED: { label: "Selesai", variant: "success" },
     CANCELLED: { label: "Dibatalkan", variant: "muted" },
+  },
+
+  "sales-return-reason-category": {
+    FAILED_DELIVERY: { label: "Gagal Kirim", variant: "warning" },
+    COMPLAINT: { label: "Komplain Pembeli", variant: "info" },
+    CANCEL_SHIPPED: { label: "Cancel Telanjur Kirim", variant: "indigo" },
+    REMORSE: { label: "Berubah Pikiran", variant: "purple" },
+    OTHER: { label: "Lainnya", variant: "muted" },
+  },
+
+  "sales-return-marketplace-decision": {
+    MP_PENDING: { label: "Menunggu Keputusan", variant: "warning" },
+    MP_APPROVED: { label: "Disetujui Marketplace", variant: "info" },
+    MP_REJECTED: { label: "Ditolak Marketplace", variant: "destructive" },
+    MP_DISPUTE: { label: "Dalam Banding", variant: "orange" },
+    MP_JUDGING: { label: "Diarbitrase Marketplace", variant: "indigo" },
+    MP_REFUNDED: { label: "Dana Dikembalikan", variant: "success" },
+    MP_CLOSED: { label: "Ditutup", variant: "muted" },
+    MP_NOT_RETURN: { label: "Bukan Retur", variant: "muted" },
   },
 
   "purchase-return": {

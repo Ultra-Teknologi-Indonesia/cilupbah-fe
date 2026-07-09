@@ -16,7 +16,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { toast } from "sonner";
 
 import { QRCodeSVG } from "qrcode.react";
 import { cn } from "@/lib/utils";
@@ -54,7 +53,6 @@ import { QtyConfirmInput } from "@/components/ui/qty-confirm-input";
 import {
   usePutawayDetail,
   usePutawayItems,
-  useStartPutaway,
   useProcessPutawayItem,
   useDeletePutawayPlacement,
   usePutawayBins,
@@ -85,8 +83,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   } = usePutawayDetail(id);
   const { data: items, refetch: refetchItems } = usePutawayItems(id);
 
-  const startMutation = useStartPutaway();
-
   const [activeRack, setActiveRack] = useState<BinListItem | null>(null);
 
   const [notes, setNotes] = useState("");
@@ -111,6 +107,9 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const isNotStarted = putaway?.status === "NOT_STARTED";
   const isInProgress = putaway?.status === "IN_PROGRESS";
   const isCompleted = putaway?.status === "COMPLETED";
+  // "Mulai" tidak lagi memulai secara eksplisit — penempatan pertama (scan/pilih
+  // barang atau dari mobile) yang meng-auto-start. Jadi input aktif sejak NOT_STARTED.
+  const canEdit = isNotStarted || isInProgress;
 
   const allItems = useMemo<PutawayItem[]>(() => items ?? [], [items]);
 
@@ -118,8 +117,12 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     () =>
       isCompleted
         ? allItems
-        : allItems.filter(
-            (it) => scannedItemIds.has(it.id) || it.putaway_qty > 0,
+        : // Item yang sudah tuntas ditempatkan hilang dari daftar kerja;
+          // hanya sisakan yang masih punya qty untuk ditempatkan.
+          allItems.filter(
+            (it) =>
+              it.qty - it.putaway_qty > 0 &&
+              (scannedItemIds.has(it.id) || it.putaway_qty > 0),
           ),
     [allItems, scannedItemIds, isCompleted],
   );
@@ -208,7 +211,11 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
 
   const scanLines = useMemo<ScanAutoflowLine[]>(
     () =>
-      allItems.map((it) => {
+      allItems
+        // Saat proses: SKU yang sudah tuntas ditempatkan hilang dari daftar
+        // "Pilih manual" & pencocokan scan. Mode selesai tetap tampilkan semua.
+        .filter((it) => isCompleted || it.qty - it.putaway_qty > 0)
+        .map((it) => {
         const sku = it.variant?.sku ?? it.product?.sku ?? "—";
         const opts =
           it.product?.options?.map((o) => o.value).join(" / ") ??
@@ -218,6 +225,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
           primary:
             it.product?.product?.name ?? (opts ? `${sku} — ${opts}` : sku),
           secondary: opts ? `${sku} · ${opts}` : sku,
+          imageUrl: it.product?.media?.[0]?.url,
           codes: [
             it.variant?.sku,
             it.product?.sku,
@@ -227,7 +235,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
           done: it.qty - it.putaway_qty <= 0,
         };
       }),
-    [allItems],
+    [allItems, isCompleted],
   );
 
   const handleResolve = useCallback(
@@ -242,25 +250,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     },
     [allItems, addPlacementForItem],
   );
-
-  const handleStart = () => {
-    const putawayNo = putaway?.putaway_no;
-    startMutation.mutate(id, {
-      onSuccess: () => {
-        refetchDetail();
-        if (putawayNo) {
-          toast.success(`Penempatan dimulai untuk ${putawayNo}.`);
-        }
-      },
-    });
-  };
-
-  useEffect(() => {
-    if (isNotStarted && putaway && !startMutation.isPending) {
-      handleStart();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isNotStarted, putaway?.id]);
 
   const [completedDialogDismissed, setCompletedDialogDismissed] =
     useState(false);
@@ -412,7 +401,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                 placeholder="Pilih rak…"
                 searchPlaceholder="Cari kode rak…"
                 emptyText="Tidak ada rak tersedia."
-                disabled={!isInProgress}
+                disabled={!canEdit}
                 className="mt-3 rounded-xl"
               />
             </div>
@@ -462,7 +451,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                       }
                       return false;
                     }}
-                    disabled={!isInProgress}
+                    disabled={!canEdit}
                     refocusKey={scanFocusKey}
                     hint="Scan rak tujuan → scan SKU/serial/batch → isi qty (keyboard hanya qty)."
                     className="flex-1"
@@ -505,7 +494,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                               : false
                         }
                         onCheckedChange={toggleAll}
-                        disabled={!isInProgress || allSelectable.length === 0}
+                        disabled={!canEdit || allSelectable.length === 0}
                         aria-label="Pilih semua"
                       />
                     </TableHead>
@@ -525,18 +514,9 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                   {visibleList.length === 0 ? (
                     <TableRow className="hover:bg-transparent">
                       <TableCell colSpan={5} className="py-16 text-center">
-                        {startMutation.isPending ? (
-                          <div className="flex flex-col items-center gap-3">
-                            <Loader2Icon className="size-6 animate-spin text-muted-foreground" />
-                            <p className="text-sm text-muted-foreground">
-                              Memulai penempatan...
-                            </p>
-                          </div>
-                        ) : (
-                          <p className="text-sm text-muted-foreground">
-                            Scan kode rak terlebih dahulu, lalu scan SKU produk.
-                          </p>
-                        )}
+                        <p className="text-sm text-muted-foreground">
+                          Scan kode rak terlebih dahulu, lalu scan SKU produk.
+                        </p>
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -546,7 +526,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                         item={item}
                         putawayId={id}
                         locationId={locationId}
-                        editable={isInProgress}
+                        editable={canEdit}
                         correctable={isInProgress || isCompleted}
                         defaultRack={activeRack}
                         binOptions={binOptions}

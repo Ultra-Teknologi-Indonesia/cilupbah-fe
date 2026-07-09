@@ -81,6 +81,62 @@ export function useSyncReturnTracking() {
   });
 }
 
+export function useSyncReturnDetail() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => SalesReturnService.syncDetail(id),
+    onSuccess: () => {
+      toast.success("Sinkronisasi detail marketplace selesai");
+      qc.invalidateQueries({ queryKey: ["sales-return"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message ||
+          "Gagal sinkron detail retur",
+      ),
+  });
+}
+
+export function useChannelAcceptSalesReturn() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => SalesReturnService.channelAccept(id),
+    onSuccess: () => {
+      toast.success("Retur berhasil disetujui di marketplace");
+      qc.invalidateQueries({ queryKey: ["sales-return"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message ||
+          "Gagal menyetujui retur di marketplace",
+      ),
+  });
+}
+
+export function useChannelRejectSalesReturn() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      reason_id,
+      note,
+    }: {
+      id: string;
+      reason_id: string;
+      note?: string;
+    }) => SalesReturnService.channelReject(id, { reason_id, note }),
+    onSuccess: () => {
+      toast.success("Retur berhasil ditolak di marketplace");
+      qc.invalidateQueries({ queryKey: ["sales-return"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message ||
+          "Gagal menolak retur di marketplace",
+      ),
+  });
+}
+
 export function useCompleteSalesReturn() {
   const qc = useQueryClient();
   return useMutation({

@@ -1,6 +1,33 @@
 export type SalesReturnStatus =
   "PENDING" | "ACCEPTED" | "REJECTED" | "COMPLETED" | "CANCELLED";
 
+export type SalesReturnReasonCategory =
+  | "FAILED_DELIVERY"
+  | "COMPLAINT"
+  | "CANCEL_SHIPPED"
+  | "REMORSE"
+  | "OTHER";
+
+export type SalesReturnMarketplaceDecision =
+  | "MP_PENDING"
+  | "MP_APPROVED"
+  | "MP_REJECTED"
+  | "MP_DISPUTE"
+  | "MP_JUDGING"
+  | "MP_REFUNDED"
+  | "MP_CLOSED"
+  | "MP_NOT_RETURN";
+
+export interface SalesReturnAppeal {
+  id: string;
+  sales_return_id: string;
+  record_type: string;
+  operator: "BUYER" | "SELLER" | "PLATFORM";
+  description: string | null;
+  recorded_at: string;
+  created_at: string;
+}
+
 export interface SalesReturnItem {
   id: string;
   sales_return_id: string;
@@ -27,11 +54,22 @@ export interface SalesReturn {
   customer_contact: string | null;
   status: SalesReturnStatus;
   reason: string | null;
+  reason_category: SalesReturnReasonCategory | null;
   notes: string | null;
   return_tracking_number?: string | null;
   return_carrier?: string | null;
   return_shipped_at?: string | null;
   tracking_synced_at?: string | null;
+  marketplace_decision?: SalesReturnMarketplaceDecision | null;
+  marketplace_decision_at?: string | null;
+  marketplace_raw_status?: string | null;
+  channel_reason_code?: string | null;
+  channel_reason_text?: string | null;
+  refund_amount?: number | null;
+  refund_currency?: string | null;
+  shipping_fee_original?: number | null;
+  shipping_fee_return?: number | null;
+  detail_synced_at?: string | null;
   created_by: string;
   processed_by: string | null;
   processed_at: string | null;
@@ -72,6 +110,7 @@ export interface SalesReturnListParams {
   "filter[status]"?: string;
   "filter[source]"?: string;
   "filter[location_id]"?: string;
+  "filter[reason_category]"?: string;
   "filter[date_from]"?: string;
   "filter[date_to]"?: string;
   sort?: string;

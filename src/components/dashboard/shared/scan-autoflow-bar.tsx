@@ -18,6 +18,9 @@ export interface ScanAutoflowLine {
   codes: string[];
 
   done?: boolean;
+
+  /** Thumbnail opsional ditampilkan di dropdown "Pilih manual". */
+  imageUrl?: string;
 }
 
 interface ScanAutoflowBarProps {
@@ -125,6 +128,7 @@ export function ScanAutoflowBar({
       lines.map((l) => ({
         value: l.id,
         label: l.primary,
+        imageUrl: l.imageUrl,
         hint:
           [l.secondary, l.done ? "✓ selesai" : null]
             .filter(Boolean)
@@ -172,11 +176,12 @@ export function ScanAutoflowBar({
         </div>
 
         {lines.length > 0 && (
-          <div className="flex items-center gap-2 sm:w-64">
+          <div className="flex items-center gap-2 sm:w-80">
             <ListChecksIcon className="hidden size-4 shrink-0 text-muted-foreground sm:block" />
             <Combobox
               options={manualOptions}
               value={null}
+              wrap
               onChange={(v) => {
                 if (!v) return;
                 const line = lines.find((l) => l.id === v);
@@ -190,7 +195,7 @@ export function ScanAutoflowBar({
               searchPlaceholder="Cari produk / SKU…"
               emptyText="Tidak ada item."
               disabled={disabled}
-              className="h-11 flex-1"
+              className="min-h-11 flex-1"
             />
           </div>
         )}

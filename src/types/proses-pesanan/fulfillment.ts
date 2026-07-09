@@ -37,6 +37,7 @@ export const STAGE_CONFIG: readonly StageConfigItem[] = [
     subs: [
       { key: "siap-kirim", label: "Siap Kirim" },
       { key: "jadwal", label: "Jadwal Pengiriman" },
+      { key: "batal", label: "Batal Pra-Manifest" },
     ],
   },
   { key: "delivered", label: "Sudah Dikirim", subs: [] },

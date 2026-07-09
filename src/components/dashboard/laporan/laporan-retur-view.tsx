@@ -50,6 +50,56 @@ const SOURCE_OPTIONS = [
   { value: "marketplace", label: "Marketplace" },
 ];
 
+const REASON_CATEGORY_OPTIONS = [
+  { value: "", label: "Semua Kategori" },
+  { value: "FAILED_DELIVERY", label: "Gagal Kirim" },
+  { value: "COMPLAINT", label: "Komplain Pembeli" },
+  { value: "CANCEL_SHIPPED", label: "Cancel Telanjur Kirim" },
+  { value: "REMORSE", label: "Berubah Pikiran" },
+  { value: "OTHER", label: "Lainnya" },
+];
+
+const MARKETPLACE_DECISION_OPTIONS = [
+  { value: "", label: "Semua Keputusan" },
+  { value: "MP_PENDING", label: "Menunggu Keputusan" },
+  { value: "MP_APPROVED", label: "Disetujui Marketplace" },
+  { value: "MP_REJECTED", label: "Ditolak Marketplace" },
+  { value: "MP_DISPUTE", label: "Dalam Banding" },
+  { value: "MP_JUDGING", label: "Diarbitrase Marketplace" },
+  { value: "MP_REFUNDED", label: "Dana Dikembalikan" },
+  { value: "MP_CLOSED", label: "Ditutup" },
+  { value: "MP_NOT_RETURN", label: "Bukan Retur" },
+];
+
+type ReturDatePreset = "custom" | "today" | "this_month" | "last_month";
+
+const DATE_PRESET_OPTIONS: { value: ReturDatePreset; label: string }[] = [
+  { value: "this_month", label: "Bulan Ini" },
+  { value: "last_month", label: "Bulan Lalu" },
+  { value: "today", label: "Hari Ini" },
+  { value: "custom", label: "Rentang Kustom" },
+];
+
+function presetToRange(preset: ReturDatePreset): DateRange | undefined {
+  const now = new Date();
+  if (preset === "today") {
+    return { from: now, to: now };
+  }
+  if (preset === "this_month") {
+    return {
+      from: new Date(now.getFullYear(), now.getMonth(), 1),
+      to: new Date(now.getFullYear(), now.getMonth() + 1, 0),
+    };
+  }
+  if (preset === "last_month") {
+    return {
+      from: new Date(now.getFullYear(), now.getMonth() - 1, 1),
+      to: new Date(now.getFullYear(), now.getMonth(), 0),
+    };
+  }
+  return undefined;
+}
+
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -65,10 +115,15 @@ function toIsoDate(d?: Date): string {
 }
 
 export function LaporanReturView() {
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [datePreset, setDatePreset] = useState<ReturDatePreset>("this_month");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(() =>
+    presetToRange("this_month"),
+  );
   const [locationId, setLocationId] = useState("");
   const [status, setStatus] = useState("");
   const [source, setSource] = useState("");
+  const [reasonCategory, setReasonCategory] = useState("");
+  const [marketplaceDecision, setMarketplaceDecision] = useState("");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
 
@@ -92,10 +147,21 @@ export function LaporanReturView() {
       location_id: locationId || undefined,
       status: status || undefined,
       source: (source as LaporanReturParams["source"]) || undefined,
+      reason_category: reasonCategory || undefined,
+      marketplace_decision: marketplaceDecision || undefined,
       page,
       per_page: perPage,
     }),
-    [dateRange, locationId, status, source, page, perPage],
+    [
+      dateRange,
+      locationId,
+      status,
+      source,
+      reasonCategory,
+      marketplaceDecision,
+      page,
+      perPage,
+    ],
   );
 
   const query = useLaporanRetur(params);
@@ -171,6 +237,45 @@ export function LaporanReturView() {
         ),
       },
       {
+        accessorKey: "reason_category",
+        header: "Kategori Alasan",
+        cell: ({ row }) => (
+          <StatusBadge
+            domain="sales-return-reason-category"
+            status={row.original.reason_category}
+          />
+        ),
+      },
+      {
+        accessorKey: "marketplace_decision",
+        header: "Keputusan MP",
+        cell: ({ row }) =>
+          row.original.source === "marketplace" ? (
+            <StatusBadge
+              domain="sales-return-marketplace-decision"
+              status={row.original.marketplace_decision}
+            />
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          ),
+      },
+      {
+        id: "shipping_fee_diff",
+        header: () => <span className="block text-right">Selisih Ongkir</span>,
+        cell: ({ row }) => {
+          const r = row.original;
+          const diff =
+            r.shipping_fee_original != null && r.shipping_fee_return != null
+              ? r.shipping_fee_return - r.shipping_fee_original
+              : null;
+          return (
+            <div className="text-right tabular-nums text-foreground">
+              {diff != null ? formatCurrency(diff) : "—"}
+            </div>
+          );
+        },
+      },
+      {
         accessorKey: "refund_total",
         header: () => <span className="block text-right">Refund</span>,
         cell: ({ row }) => {
@@ -227,14 +332,37 @@ export function LaporanReturView() {
           <FilterIcon className="size-4" />
           Filter Laporan
         </div>
-        <div className="grid items-end gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          <div className="flex flex-col gap-1.5 lg:col-span-2">
+        <div className="grid items-end gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs text-muted-foreground">
+              Preset Tanggal
+            </Label>
+            <Combobox
+              options={DATE_PRESET_OPTIONS}
+              value={datePreset}
+              onChange={(v) => {
+                const preset = (v as ReturDatePreset) || "custom";
+                onFilter(() => {
+                  setDatePreset(preset);
+                  setDateRange(presetToRange(preset));
+                });
+              }}
+              placeholder="Pilih preset"
+              className="h-9 bg-background"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-2">
             <Label className="text-xs text-muted-foreground">
               Rentang Tanggal Dibuat
             </Label>
             <DateRangePicker
               value={dateRange}
-              onChange={(r) => onFilter(() => setDateRange(r))}
+              onChange={(r) =>
+                onFilter(() => {
+                  setDatePreset("custom");
+                  setDateRange(r);
+                })
+              }
               placeholder="Semua tanggal"
               className="h-9 bg-background"
             />
@@ -269,6 +397,32 @@ export function LaporanReturView() {
               onChange={(v) => onFilter(() => setSource(v ?? ""))}
               placeholder="Semua Sumber"
               searchPlaceholder="Cari sumber..."
+              className="h-9 bg-background"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs text-muted-foreground">
+              Kategori Alasan
+            </Label>
+            <Combobox
+              options={REASON_CATEGORY_OPTIONS}
+              value={reasonCategory}
+              onChange={(v) => onFilter(() => setReasonCategory(v ?? ""))}
+              placeholder="Semua Kategori"
+              searchPlaceholder="Cari kategori..."
+              className="h-9 bg-background"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs text-muted-foreground">
+              Keputusan Marketplace
+            </Label>
+            <Combobox
+              options={MARKETPLACE_DECISION_OPTIONS}
+              value={marketplaceDecision}
+              onChange={(v) => onFilter(() => setMarketplaceDecision(v ?? ""))}
+              placeholder="Semua Keputusan"
+              searchPlaceholder="Cari keputusan..."
               className="h-9 bg-background"
             />
           </div>

@@ -2,6 +2,7 @@ import { fetchClient } from "@/lib/api-client";
 import type { ApiResponse, ApiPaginated } from "@/types/api.types";
 import type {
   SalesReturn,
+  SalesReturnAppeal,
   SalesReturnListParams,
   SalesReturnFormData,
 } from "@/types/barang-masuk/sales-return";
@@ -29,6 +30,8 @@ export const SalesReturnService = {
     if (params.per_page) sp.set("limit", String(params.per_page));
     if (params["filter[location_id]"])
       sp.set("filter[location_id]", params["filter[location_id]"]);
+    if (params["filter[reason_category]"])
+      sp.set("filter[reason_category]", params["filter[reason_category]"]);
     if (params["filter[date_from]"])
       sp.set("filter[date_from]", params["filter[date_from]"]);
     if (params["filter[date_to]"])
@@ -52,6 +55,8 @@ export const SalesReturnService = {
       sp.set("filter[source]", params["filter[source]"]);
     if (params["filter[location_id]"])
       sp.set("filter[location_id]", params["filter[location_id]"]);
+    if (params["filter[reason_category]"])
+      sp.set("filter[reason_category]", params["filter[reason_category]"]);
     if (params["filter[date_from]"])
       sp.set("filter[date_from]", params["filter[date_from]"]);
     if (params["filter[date_to]"])
@@ -108,5 +113,53 @@ export const SalesReturnService = {
       },
     );
     return res.data;
+  },
+
+  syncDetail: async (id: string) => {
+    const res = await fetchClient<ApiResponse<SalesReturn>>(
+      `/sales/returns/${id}/sync-detail`,
+      {
+        method: "POST",
+      },
+    );
+    return res.data;
+  },
+
+  getAppeals: async (id: string) => {
+    const res = await fetchClient<ApiResponse<SalesReturnAppeal[]>>(
+      `/sales/returns/${id}/appeals`,
+    );
+    return res.data ?? [];
+  },
+
+  channelAccept: async (id: string) => {
+    const res = await fetchClient<ApiResponse<SalesReturn>>(
+      `/sales/returns/${id}/channel-accept`,
+      {
+        method: "POST",
+      },
+    );
+    return res.data;
+  },
+
+  channelReject: async (
+    id: string,
+    data: { reason_id: string; note?: string },
+  ) => {
+    const res = await fetchClient<ApiResponse<SalesReturn>>(
+      `/sales/returns/${id}/channel-reject`,
+      {
+        method: "POST",
+        data,
+      },
+    );
+    return res.data;
+  },
+
+  getChannelRejectReasons: async (id: string) => {
+    const res = await fetchClient<
+      ApiResponse<{ id: string; text: string }[]>
+    >(`/sales/returns/${id}/channel-reject-reasons`);
+    return res.data ?? [];
   },
 };

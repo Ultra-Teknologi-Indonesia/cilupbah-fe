@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import {
   CheckIcon,
   ChevronsUpDownIcon,
@@ -297,6 +298,19 @@ export function Combobox({
                           active ? "opacity-100" : "opacity-0",
                         )}
                       />
+                      {opt.imageUrl && (
+                        <Image
+                          src={opt.imageUrl}
+                          alt=""
+                          width={28}
+                          height={28}
+                          unoptimized
+                          className={cn(
+                            "size-7 shrink-0 rounded-md border border-border/60 object-cover",
+                            wrap && "mt-0.5",
+                          )}
+                        />
+                      )}
                       <span className={wrap ? "break-words" : "truncate"}>
                         {opt.label}
                       </span>

@@ -7,11 +7,18 @@ import type {
   AssignStaffPayload,
   ProcessItemPayload,
   BinListItem,
+  PutawayDeleteAction,
 } from "@/services/barang-masuk/putaway.service";
 
 export type { BinListItem };
 
 const STALE = 30 * 1000;
+
+const DELETE_MESSAGE: Record<PutawayDeleteAction, string> = {
+  unassigned: "Penempatan dihapus, penerimaan dikembalikan",
+  reset_not_started: "Penempatan direset ke Belum Mulai",
+  reset_in_progress: "Penempatan dikembalikan ke Sedang Diproses",
+};
 
 export function usePutawayBins(locationId?: string) {
   return useQuery({
@@ -90,6 +97,40 @@ export function useProcessPutawayItem() {
     onError: (err) =>
       toast.error(
         (err as { message?: string })?.message || "Gagal menempatkan item",
+      ),
+  });
+}
+
+export function useDeletePutaway() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => PutawayService.remove(id),
+    onSuccess: (res) => {
+      toast.success(
+        (res && DELETE_MESSAGE[res.action]) || "Penempatan berhasil dihapus",
+      );
+      qc.invalidateQueries({ queryKey: ["putaway"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message || "Gagal menghapus penempatan",
+      ),
+  });
+}
+
+export function useBulkDeletePutaway() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: string[]) => PutawayService.bulkRemove(ids),
+    onSuccess: (res) => {
+      const n = res?.length ?? 0;
+      toast.success(`${n} penempatan berhasil diproses`);
+      qc.invalidateQueries({ queryKey: ["putaway"] });
+    },
+    onError: (err) =>
+      toast.error(
+        (err as { message?: string })?.message ||
+          "Gagal menghapus penempatan terpilih",
       ),
   });
 }

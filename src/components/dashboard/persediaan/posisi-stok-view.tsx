@@ -8,12 +8,21 @@ import { PackageIcon,
   ChevronUpIcon,
   ChevronDownIcon,
   BoxesIcon,
-  BoxIcon, Loader2Icon } from "lucide-react";
+  BoxIcon,
+  MapPinIcon,
+  Loader2Icon } from "lucide-react";
 import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Combobox } from "@/components/ui/combobox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,6 +43,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { InfoIcon } from "lucide-react";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
 import { CopySku } from "@/components/dashboard/shared/copy-sku";
@@ -41,7 +51,12 @@ import {
   useStockPosition,
   usePrefetchStockDetail,
 } from "@/hooks/persediaan/use-stock-position";
-import type { StockItem, StockListParams } from "@/types/persediaan/stock";
+import type {
+  StockItem,
+  StockListParams,
+  LocationStock,
+  TotalStocks,
+} from "@/types/persediaan/stock";
 import { formatCurrency } from "@/lib/format";
 
 type SortField = "item_code" | "average_cost" | "on_hand" | "available";
@@ -58,12 +73,23 @@ const STOCK_FILTER_TABS: {
   { key: "bundle", label: "Bundle", icon: BoxesIcon },
 ];
 
+/** Kolom kiri yang selalu terlihat (sticky) saat scroll horizontal antar lokasi. */
+const PRODUCT_COL_W = 300;
+const COST_COL_W = 120;
+
+/** localStorage: daftar location_id yang disembunyikan dari kolom Posisi Stok. */
+const HIDDEN_LOCATIONS_KEY = "posisi-stok:hidden-locations";
+
 interface FilterState {
-  location_id: string;
   channel: string;
 }
 
-const EMPTY_FILTERS: FilterState = { location_id: "", channel: "" };
+const EMPTY_FILTERS: FilterState = { channel: "" };
+
+/** Field yang bisa di-sort di server (sisanya di-sort client-side pada data halaman). */
+const SERVER_SORT_MAP: Partial<Record<SortField, string>> = {
+  item_code: "product_variants.sku",
+};
 
 function SortHeader({
   label,
@@ -72,42 +98,37 @@ function SortHeader({
   dir,
   onSort,
   align = "left",
+  className,
 }: {
-  label: string;
+  label: React.ReactNode;
   field: SortField;
   activeField: SortField | null;
   dir: SortDir;
   onSort: (f: SortField) => void;
   align?: "left" | "right";
+  className?: string;
 }) {
   const isActive = activeField === field;
   return (
-    <TableHead
+    <span
       className={cn(
-        "whitespace-nowrap px-3 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground",
-        "cursor-pointer select-none transition-colors hover:text-foreground",
-        align === "right" && "text-right",
+        "inline-flex items-center gap-1 cursor-pointer select-none transition-colors hover:text-foreground",
+        align === "right" && "justify-end",
+        className,
       )}
       onClick={() => onSort(field)}
     >
-      <span
-        className={cn(
-          "inline-flex items-center gap-1",
-          align === "right" && "justify-end",
-        )}
-      >
-        {label}
-        {isActive ? (
-          dir === "asc" ? (
-            <ChevronUpIcon className="size-3" />
-          ) : (
-            <ChevronDownIcon className="size-3" />
-          )
+      {label}
+      {isActive ? (
+        dir === "asc" ? (
+          <ChevronUpIcon className="size-3" />
         ) : (
-          <ArrowUpDown className="size-3 opacity-40" />
-        )}
-      </span>
-    </TableHead>
+          <ChevronDownIcon className="size-3" />
+        )
+      ) : (
+        <ArrowUpDown className="size-3 opacity-40" />
+      )}
+    </span>
   );
 }
 
@@ -116,7 +137,7 @@ function StockSkeleton() {
     <div className="flex flex-col">
       <div className="border-b border-border/40 px-3 py-3">
         <div className="flex gap-4">
-          {Array.from({ length: 7 }).map((_, i) => (
+          {Array.from({ length: 8 }).map((_, i) => (
             <Skeleton key={i} className="h-4 flex-1" />
           ))}
         </div>
@@ -126,7 +147,6 @@ function StockSkeleton() {
           <div className="flex items-center gap-4">
             <Skeleton className="h-10 w-10 shrink-0 rounded-xl" />
             <div className="flex flex-1 gap-4">
-              <Skeleton className="size-40" />
               <Skeleton className="h-4 flex-1" />
               <Skeleton className="h-4 w-16" />
               <Skeleton className="h-4 w-16" />
@@ -148,9 +168,9 @@ function StockQtyBadge({
   variant: "default" | "warning" | "success";
 }) {
   const colors = {
-    default: "",
-    warning: value > 0 ? "text-warning" : "",
-    success: value > 0 ? "text-success" : "",
+    default: value > 0 ? "" : "text-muted-foreground/50",
+    warning: value > 0 ? "text-warning" : "text-muted-foreground/50",
+    success: value > 0 ? "text-success" : "text-muted-foreground/50",
   };
   return (
     <span
@@ -164,6 +184,129 @@ function StockQtyBadge({
   );
 }
 
+/**
+ * 4 sel metrik (On Hand · On Order · Reserved · Available) untuk satu lokasi
+ * ataupun untuk kolom Total. `stock` undefined = lokasi tanpa stok → semua 0.
+ */
+function MetricCells({
+  stock,
+  emphasize,
+}: {
+  stock?: LocationStock | TotalStocks;
+  emphasize?: boolean;
+}) {
+  const onHand = stock?.on_hand ?? 0;
+  const onOrder = stock?.on_order ?? 0;
+  const reserved = stock?.reserved ?? 0;
+  const available = stock?.available ?? 0;
+  const pending = stock?.pending_placement ?? 0;
+  const cellCls = cn(
+    "px-2.5 py-3 text-right",
+    emphasize && "bg-muted/30",
+  );
+  return (
+    <>
+      <TableCell className={cellCls}>
+        <div className="flex flex-col items-end gap-0.5">
+          <StockQtyBadge value={onHand} variant="default" />
+          {pending > 0 && (
+            <span
+              className="text-2xs font-medium text-warning"
+              title="Sudah diterima tapi belum ditempatkan ke rak"
+            >
+              +{pending} pending
+            </span>
+          )}
+        </div>
+      </TableCell>
+      <TableCell className={cellCls}>
+        <StockQtyBadge value={onOrder} variant="default" />
+      </TableCell>
+      <TableCell className={cellCls}>
+        <StockQtyBadge value={reserved} variant="warning" />
+      </TableCell>
+      <TableCell className={cellCls}>
+        <StockQtyBadge value={available} variant="success" />
+      </TableCell>
+    </>
+  );
+}
+
+/** Popover pemilih lokasi yang ditampilkan sebagai kolom (default: semua). */
+function VisibleLocationsControl({
+  locations,
+  hidden,
+  onChange,
+}: {
+  locations: { location_id: string; location_name: string }[];
+  hidden: string[];
+  onChange: (next: string[]) => void;
+}) {
+  const hiddenSet = useMemo(() => new Set(hidden), [hidden]);
+  const visibleCount = locations.filter(
+    (l) => !hiddenSet.has(l.location_id),
+  ).length;
+  const allVisible = visibleCount === locations.length;
+
+  const toggle = (id: string) => {
+    onChange(
+      hiddenSet.has(id) ? hidden.filter((x) => x !== id) : [...hidden, id],
+    );
+  };
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9 gap-2 rounded-full"
+          disabled={locations.length === 0}
+        >
+          <MapPinIcon className="size-4" />
+          Lokasi
+          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-2xs font-semibold text-primary-foreground">
+            {visibleCount}
+            {locations.length > 0 && `/${locations.length}`}
+          </span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-64 p-2">
+        <div className="px-2 py-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          Lokasi ditampilkan
+        </div>
+        <button
+          type="button"
+          onClick={() => onChange([])}
+          disabled={allVisible}
+          className={cn(
+            "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-muted disabled:cursor-default disabled:opacity-50",
+          )}
+        >
+          <Checkbox checked={allVisible} className="pointer-events-none" />
+          <span>Semua lokasi</span>
+        </button>
+        <div className="my-1 h-px bg-border/60" />
+        <div className="flex max-h-64 flex-col overflow-y-auto">
+          {locations.map((l) => {
+            const visible = !hiddenSet.has(l.location_id);
+            return (
+              <button
+                key={l.location_id}
+                type="button"
+                onClick={() => toggle(l.location_id)}
+                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-muted"
+              >
+                <Checkbox checked={visible} className="pointer-events-none" />
+                <span className="truncate text-left">{l.location_name}</span>
+              </button>
+            );
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export function PosisiStokView() {
   const router = useRouter();
@@ -176,6 +319,33 @@ export function PosisiStokView() {
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [stockFilter, setStockFilter] = useState<StockFilter>("all");
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+  const [hiddenLocations, setHiddenLocations] = useState<string[]>([]);
+
+  // Muat preferensi lokasi tersembunyi dari localStorage SETELAH mount — bukan lewat
+  // lazy-init useState — agar render awal (SSR + hydration) selalu = "semua kolom" dan
+  // tidak memicu hydration mismatch pada tabel yang di-prefetch di server.
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(HIDDEN_LOCATIONS_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration-safe: apply persisted UI pref post-mount
+        setHiddenLocations(parsed.filter((x) => typeof x === "string"));
+      }
+    } catch {
+      /* abaikan localStorage yang rusak */
+    }
+  }, []);
+
+  const updateHiddenLocations = useCallback((next: string[]) => {
+    setHiddenLocations(next);
+    try {
+      window.localStorage.setItem(HIDDEN_LOCATIONS_KEY, JSON.stringify(next));
+    } catch {
+      /* penyimpanan mungkin tidak tersedia */
+    }
+  }, []);
 
   const resetPage = useCallback(() => setPage(1), []);
 
@@ -230,10 +400,6 @@ export function PosisiStokView() {
     [resetPage],
   );
 
-  const SERVER_SORT_MAP: Partial<Record<SortField, string>> = {
-    item_code: "product_variants.sku",
-  };
-
   const sortParam = useMemo(() => {
     if (!sortField) return undefined;
     const mapped = SERVER_SORT_MAP[sortField];
@@ -254,18 +420,9 @@ export function PosisiStokView() {
       per_page: perPage,
       sort: sortParam,
       "filter[is_bundle]": bundleFilter,
-      "filter[location_id]": filters.location_id || undefined,
       "filter[channel]": filters.channel || undefined,
     }),
-    [
-      debouncedSearch,
-      page,
-      perPage,
-      sortParam,
-      bundleFilter,
-      filters.location_id,
-      filters.channel,
-    ],
+    [debouncedSearch, page, perPage, sortParam, bundleFilter, filters.channel],
   );
 
   const { data, isLoading, isFetching } = useStockPosition(params);
@@ -304,15 +461,14 @@ export function PosisiStokView() {
     locations: [],
   };
 
-  const locationOptions = useMemo(
-    () => [
-      { value: "", label: "Semua Lokasi" },
-      ...meta.locations.map((l) => ({
-        value: l.location_id,
-        label: l.location_name,
-      })),
-    ],
-    [meta.locations],
+  // Lokasi (kolom) yang tampil — meta.locations sudah bebas Transit dari BE.
+  const hiddenSet = useMemo(
+    () => new Set(hiddenLocations),
+    [hiddenLocations],
+  );
+  const visibleLocations = useMemo(
+    () => meta.locations.filter((l) => !hiddenSet.has(l.location_id)),
+    [meta.locations, hiddenSet],
   );
 
   const channelOptions = useMemo(() => {
@@ -329,12 +485,13 @@ export function PosisiStokView() {
   }, [meta.channels]);
 
   const hasActiveFilter = Object.values(filters).some(Boolean);
-  const activeCount = [filters.location_id, filters.channel].filter(
-    Boolean,
-  ).length;
+  const activeCount = [filters.channel].filter(Boolean).length;
 
   const filterTabs = (
-    <Tabs value={stockFilter || ""} onValueChange={(val) => handleStockFilter(val as any)}>
+    <Tabs
+      value={stockFilter || ""}
+      onValueChange={(val) => handleStockFilter(val as StockFilter)}
+    >
       <TabsList variant="line" className="h-auto">
         {STOCK_FILTER_TABS.map(({ key, label, icon: Icon }) => (
           <TabsTrigger key={key} value={key}>
@@ -359,6 +516,13 @@ export function PosisiStokView() {
           searchPlaceholder="Cari produk atau SKU..."
           align="end"
           leading={filterTabs}
+          trailing={
+            <VisibleLocationsControl
+              locations={meta.locations}
+              hidden={hiddenLocations}
+              onChange={updateHiddenLocations}
+            />
+          }
           onReset={
             hasActiveFilter
               ? () => handleFilterChange(EMPTY_FILTERS)
@@ -368,17 +532,6 @@ export function PosisiStokView() {
           activeCount={activeCount}
           gridCols={2}
         >
-          <Combobox
-            options={locationOptions}
-            value={filters.location_id}
-            onChange={(v) =>
-              handleFilterChange({ ...filters, location_id: v ?? "" })
-            }
-            placeholder="Lokasi"
-            searchPlaceholder="Cari lokasi"
-            className="h-9 bg-background"
-          />
-
           <Combobox
             options={channelOptions}
             value={filters.channel}
@@ -401,171 +554,199 @@ export function PosisiStokView() {
           {isLoading ? (
             <StockSkeleton />
           ) : items.length === 0 ? (
-            <EmptyState icon={PackageIcon} title="Belum ada data stok" description="Produk yang memiliki stok akan muncul di sini." />
+            <EmptyState
+              icon={PackageIcon}
+              title="Belum ada data stok"
+              description="Produk yang memiliki stok akan muncul di sini."
+            />
           ) : (
             <div className="flex flex-col gap-3">
-              <Table containerClassName="rounded-lg border border-border/40">
+              <ScrollArea
+                orientation="horizontal"
+                type="auto"
+                className="rounded-lg border border-border/40 bg-background"
+                // Radix membungkus konten viewport dengan div `display:table` yang
+                // mematahkan `position: sticky` pada kolom kiri — paksa jadi block.
+                viewportClassName="[&>div]:!block"
+              >
+                <Table scrollContainer={false}>
                 <TableHeader>
-                  <TableRow className="border-b border-border/60 bg-muted/30">
-                    <SortHeader
-                      label="Produk"
-                      field="item_code"
-                      activeField={sortField}
-                      dir={sortDir}
-                      onSort={handleSort}
-                    />
+                  {/* Baris 1: grup lokasi + Total */}
+                  <TableRow className="border-b border-border/60">
                     <TableHead
-                      className={cn(
-                        "whitespace-nowrap px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground",
-                        "cursor-pointer select-none transition-colors hover:text-foreground",
-                      )}
-                      onClick={() => handleSort("average_cost")}
+                      rowSpan={2}
+                      className="sticky left-0 z-30 bg-background px-3 align-bottom text-xs font-medium uppercase tracking-wider text-muted-foreground"
+                      style={{ width: PRODUCT_COL_W, minWidth: PRODUCT_COL_W }}
+                    >
+                      <SortHeader
+                        label="Produk"
+                        field="item_code"
+                        activeField={sortField}
+                        dir={sortDir}
+                        onSort={handleSort}
+                      />
+                    </TableHead>
+                    <TableHead
+                      rowSpan={2}
+                      className="sticky z-30 border-r border-border/40 bg-background px-3 text-right align-bottom text-xs font-medium uppercase tracking-wider text-muted-foreground"
+                      style={{
+                        left: PRODUCT_COL_W,
+                        width: COST_COL_W,
+                        minWidth: COST_COL_W,
+                      }}
                     >
                       <span className="inline-flex items-center justify-end gap-1">
-                        Harga Pokok
+                        <SortHeader
+                          label="Harga Pokok"
+                          field="average_cost"
+                          activeField={sortField}
+                          dir={sortDir}
+                          onSort={handleSort}
+                          align="right"
+                        />
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <InfoIcon
-                              className="size-3 opacity-60"
-                              onClick={(e) => e.stopPropagation()}
-                            />
+                            <InfoIcon className="size-3 opacity-60" />
                           </TooltipTrigger>
                           <TooltipContent side="top">
                             Metode valuasi: Moving Average (rata-rata
                             tertimbang).
                           </TooltipContent>
                         </Tooltip>
-                        {sortField === "average_cost" ? (
-                          sortDir === "asc" ? (
-                            <ChevronUpIcon className="size-3" />
-                          ) : (
-                            <ChevronDownIcon className="size-3" />
-                          )
-                        ) : (
-                          <ArrowUpDown className="size-3 opacity-40" />
-                        )}
                       </span>
                     </TableHead>
-                    <SortHeader
-                      label="On Hand"
-                      field="on_hand"
-                      activeField={sortField}
-                      dir={sortDir}
-                      onSort={handleSort}
-                      align="right"
-                    />
-                    <TableHead className="whitespace-nowrap px-3 py-3 text-right text-xs text-muted-foreground uppercase tracking-wider text-muted-foreground">
-                      On Order
+
+                    {visibleLocations.map((l) => (
+                      <TableHead
+                        key={l.location_id}
+                        colSpan={4}
+                        className="border-l border-border/40 px-2.5 py-2 text-center text-xs font-semibold text-foreground"
+                      >
+                        <span className="inline-flex items-center gap-1.5">
+                          <MapPinIcon className="size-3 text-muted-foreground" />
+                          {l.location_name}
+                        </span>
+                      </TableHead>
+                    ))}
+
+                    <TableHead
+                      colSpan={4}
+                      className="border-l border-border/60 bg-muted/40 px-2.5 py-2 text-center text-xs font-semibold text-foreground"
+                    >
+                      Total Stok
                     </TableHead>
-                    <TableHead className="whitespace-nowrap px-3 py-3 text-right text-xs text-muted-foreground uppercase tracking-wider text-muted-foreground">
-                      Reserved
-                    </TableHead>
-                    <SortHeader
-                      label="Available"
-                      field="available"
-                      activeField={sortField}
-                      dir={sortDir}
+                  </TableRow>
+
+                  {/* Baris 2: sub-kolom metrik */}
+                  <TableRow className="border-b border-border/60">
+                    {visibleLocations.map((l) => (
+                      <MetricSubHeaders
+                        key={l.location_id}
+                        borderLeft
+                        sortField={sortField}
+                        sortDir={sortDir}
+                      />
+                    ))}
+                    <MetricSubHeaders
+                      total
+                      borderLeft
+                      sortField={sortField}
+                      sortDir={sortDir}
                       onSort={handleSort}
-                      align="right"
                     />
                   </TableRow>
                 </TableHeader>
+
                 <TableBody>
-                  {items.map((item: StockItem) => (
-                    <TableRow
-                      key={item.item_id}
-                      onClick={() =>
-                        router.push(`/dashboard/posisi-stok/${item.item_id}`)
-                      }
-                      onMouseEnter={() => prefetchDetail(item.item_id)}
-                      onFocus={() => prefetchDetail(item.item_id)}
-                      className="cursor-pointer border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
-                    >
-                      <TableCell className="px-3 py-3">
-                        <div className="flex items-center gap-3">
-                          {item.thumbnail ? (
-                            <Image
-                              src={item.thumbnail}
-                              alt={item.item_name ?? item.item_code}
-                              width={40}
-                              height={40}
-                              className="h-10 w-10 shrink-0 rounded-xl border border-border/40 object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted/60">
-                              <PackageIcon className="size-5 text-muted-foreground/60" />
-                            </div>
-                          )}
-                          <div
-                            className="flex min-w-0 flex-col gap-0.5"
-                            style={{ maxWidth: 320 }}
-                          >
-                            <div className="flex flex-wrap items-center gap-1.5">
-                              <span className="whitespace-normal break-words text-sm font-medium text-foreground">
-                                {item.item_name || item.item_code}
-                              </span>
-                              {item.is_bundle && (
-                                <Badge
-                                  variant="outline"
-                                  className="shrink-0 text-2xs leading-tight border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400"
-                                >
-                                  Bundle
-                                </Badge>
-                              )}
-                            </div>
-                            {item.variation_values.length > 0 && (
-                              <span className="whitespace-normal break-words text-xs text-foreground">
-                                {item.variation_values
-                                  .map((v) => v.value)
-                                  .join(", ")}
-                              </span>
+                  {items.map((item: StockItem) => {
+                    const locMap = new Map(
+                      item.location_stocks.map((l) => [l.location_id, l]),
+                    );
+                    return (
+                      <TableRow
+                        key={item.item_id}
+                        onClick={() =>
+                          router.push(`/dashboard/posisi-stok/${item.item_id}`)
+                        }
+                        onMouseEnter={() => prefetchDetail(item.item_id)}
+                        onFocus={() => prefetchDetail(item.item_id)}
+                        className="group cursor-pointer border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
+                      >
+                        <TableCell
+                          className="sticky left-0 z-20 bg-background px-3 py-3"
+                          style={{
+                            width: PRODUCT_COL_W,
+                            minWidth: PRODUCT_COL_W,
+                          }}
+                        >
+                          <div className="flex items-center gap-3">
+                            {item.thumbnail ? (
+                              <Image
+                                src={item.thumbnail}
+                                alt={item.item_name ?? item.item_code}
+                                width={40}
+                                height={40}
+                                className="h-10 w-10 shrink-0 rounded-xl border border-border/40 object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted/60">
+                                <PackageIcon className="size-5 text-muted-foreground/60" />
+                              </div>
                             )}
-                            <CopySku sku={item.item_code} />
+                            <div className="flex min-w-0 flex-col gap-0.5">
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                <span className="whitespace-normal break-words text-sm font-medium text-foreground">
+                                  {item.item_name || item.item_code}
+                                </span>
+                                {item.is_bundle && (
+                                  <Badge
+                                    variant="outline"
+                                    className="shrink-0 text-2xs leading-tight border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400"
+                                  >
+                                    Bundle
+                                  </Badge>
+                                )}
+                              </div>
+                              {item.variation_values.length > 0 && (
+                                <span className="whitespace-normal break-words text-xs text-foreground">
+                                  {item.variation_values
+                                    .map((v) => v.value)
+                                    .join(", ")}
+                                </span>
+                              )}
+                              <CopySku sku={item.item_code} />
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap px-3 py-3 text-right text-sm text-foreground">
-                        {formatCurrency(Number(item.average_cost))}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap px-3 py-3 text-right">
-                        <div className="flex flex-col items-end gap-0.5">
-                          <StockQtyBadge
-                            value={item.total_stocks.on_hand}
-                            variant="default"
+                        </TableCell>
+                        <TableCell
+                          className="sticky z-20 whitespace-nowrap border-r border-border/40 bg-background px-3 py-3 text-right text-sm text-foreground"
+                          style={{ left: PRODUCT_COL_W }}
+                        >
+                          {formatCurrency(Number(item.average_cost))}
+                        </TableCell>
+
+                        {visibleLocations.map((l) => (
+                          <MetricCells
+                            key={l.location_id}
+                            stock={locMap.get(l.location_id)}
                           />
-                          {(item.total_stocks.pending_placement ?? 0) > 0 && (
-                            <span
-                              className="text-2xs font-medium text-warning"
-                              title="Sudah diterima tapi belum ditempatkan ke rak"
-                            >
-                              +{item.total_stocks.pending_placement} menunggu
-                              penempatan
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap px-3 py-3 text-right">
-                        <StockQtyBadge
-                          value={item.total_stocks.on_order}
-                          variant="default"
-                        />
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap px-3 py-3 text-right">
-                        <StockQtyBadge
-                          value={item.total_stocks.reserved}
-                          variant="warning"
-                        />
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap px-3 py-3 text-right">
-                        <StockQtyBadge
-                          value={item.total_stocks.available}
-                          variant="success"
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        ))}
+
+                        <MetricCells stock={item.total_stocks} emphasize />
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
-              </Table>
+                </Table>
+              </ScrollArea>
+
+              {visibleLocations.length === 0 && (
+                <p className="px-1 text-xs text-muted-foreground">
+                  Tidak ada kolom lokasi yang ditampilkan. Gunakan tombol{" "}
+                  <span className="font-medium">Lokasi</span> untuk memunculkan
+                  gudang.
+                </p>
+              )}
 
               <SimplePagination
                 page={meta.current_page}
@@ -585,5 +766,62 @@ export function PosisiStokView() {
         </div>
       </LiquidGlass>
     </div>
+  );
+}
+
+/** Sub-header 4 metrik. Untuk kolom Total, On Hand & Available bisa di-sort. */
+function MetricSubHeaders({
+  total = false,
+  borderLeft = false,
+  sortField,
+  sortDir,
+  onSort,
+}: {
+  total?: boolean;
+  borderLeft?: boolean;
+  sortField: SortField | null;
+  sortDir: SortDir;
+  onSort?: (f: SortField) => void;
+}) {
+  const base =
+    "px-2.5 py-2 text-right text-2xs font-medium uppercase tracking-wide text-muted-foreground";
+  const emphasize = total ? "bg-muted/40" : "";
+  return (
+    <>
+      <TableHead
+        className={cn(base, emphasize, borderLeft && "border-l border-border/40")}
+      >
+        {total && onSort ? (
+          <SortHeader
+            label="On Hand"
+            field="on_hand"
+            activeField={sortField}
+            dir={sortDir}
+            onSort={onSort}
+            align="right"
+            className="text-2xs uppercase"
+          />
+        ) : (
+          "On Hand"
+        )}
+      </TableHead>
+      <TableHead className={cn(base, emphasize)}>On Order</TableHead>
+      <TableHead className={cn(base, emphasize)}>Reserved</TableHead>
+      <TableHead className={cn(base, emphasize)}>
+        {total && onSort ? (
+          <SortHeader
+            label="Avail"
+            field="available"
+            activeField={sortField}
+            dir={sortDir}
+            onSort={onSort}
+            align="right"
+            className="text-2xs uppercase"
+          />
+        ) : (
+          "Avail"
+        )}
+      </TableHead>
+    </>
   );
 }

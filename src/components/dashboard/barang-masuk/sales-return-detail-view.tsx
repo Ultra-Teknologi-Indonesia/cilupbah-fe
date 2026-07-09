@@ -8,12 +8,15 @@ import {
   CheckCircleIcon,
   FlagIcon,
   Loader2Icon,
+  RefreshCwIcon,
   WalletIcon,
   XCircleIcon,
 } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -30,13 +33,40 @@ import {
 import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
-import { useSalesReturn } from "@/hooks/barang-masuk/use-sales-returns";
+import {
+  useSalesReturn,
+  useSalesReturnAppeals,
+  useChannelRejectReasons,
+} from "@/hooks/barang-masuk/use-sales-returns";
 import {
   useAcceptSalesReturn,
   useRejectSalesReturn,
   useCompleteSalesReturn,
+  useSyncReturnDetail,
+  useChannelAcceptSalesReturn,
+  useChannelRejectSalesReturn,
 } from "@/hooks/barang-masuk/use-sales-return-actions";
 import { formatDate } from "@/lib/format";
+
+/** Keputusan MP yang masih bisa ditindaklanjuti (belum final di sisi marketplace). */
+function isMpDecisionActionable(decision?: string | null): boolean {
+  return !decision || decision === "MP_PENDING";
+}
+
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value || 0);
+}
+
+const APPEAL_OPERATOR_LABELS: Record<string, string> = {
+  BUYER: "Pembeli",
+  SELLER: "Penjual",
+  PLATFORM: "Marketplace",
+};
 
 const LIST_HREF = "/dashboard/barang-masuk/retur";
 
@@ -52,16 +82,28 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 export function SalesReturnDetailView({ id }: { id: string }) {
   const router = useRouter();
   const { data: ret, isLoading } = useSalesReturn(id);
+  const isMarketplace = ret?.source === "marketplace";
+  const { data: appeals = [] } = useSalesReturnAppeals(id, isMarketplace);
 
   const acceptMut = useAcceptSalesReturn();
   const rejectMut = useRejectSalesReturn();
   const completeMut = useCompleteSalesReturn();
+  const syncDetailMut = useSyncReturnDetail();
+  const channelAcceptMut = useChannelAcceptSalesReturn();
+  const channelRejectMut = useChannelRejectSalesReturn();
 
-  const [action, setAction] = useState<null | "accept" | "reject" | "complete">(
-    null,
-  );
+  const [action, setAction] = useState<
+    null | "accept" | "reject" | "complete" | "channel-accept" | "channel-reject"
+  >(null);
   const [processedBy, setProcessedBy] = useState("");
   const [reason, setReason] = useState("");
+  const [channelRejectReasonId, setChannelRejectReasonId] = useState("");
+  const [channelRejectNote, setChannelRejectNote] = useState("");
+
+  const { data: channelRejectReasons = [] } = useChannelRejectReasons(
+    id,
+    action === "channel-reject",
+  );
 
   if (isLoading) {
     return (
@@ -84,6 +126,8 @@ export function SalesReturnDetailView({ id }: { id: string }) {
     setAction(null);
     setProcessedBy("");
     setReason("");
+    setChannelRejectReasonId("");
+    setChannelRejectNote("");
   };
 
   return (
@@ -106,6 +150,22 @@ export function SalesReturnDetailView({ id }: { id: string }) {
             >
               <ArrowLeftIcon className="mr-1.5 size-4" /> Kembali
             </Button>
+            {isMarketplace && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => syncDetailMut.mutate(id)}
+                disabled={syncDetailMut.isPending}
+              >
+                <RefreshCwIcon
+                  className={cn(
+                    "mr-1.5 size-4",
+                    syncDetailMut.isPending && "animate-spin",
+                  )}
+                />
+                Sinkron Marketplace
+              </Button>
+            )}
             {ret.status === "PENDING" && (
               <>
                 <Button
@@ -189,10 +249,102 @@ export function SalesReturnDetailView({ id }: { id: string }) {
           />
           <InfoRow label="Tgl. Dibuat" value={formatDate(ret.created_at)} />
           <InfoRow label="Diproses oleh" value={ret.processed_by ?? "—"} />
+          {ret.reason_category && (
+            <InfoRow
+              label="Kategori Alasan"
+              value={
+                <StatusBadge
+                  domain="sales-return-reason-category"
+                  status={ret.reason_category}
+                  className="text-2xs"
+                />
+              }
+            />
+          )}
           {ret.reason && <InfoRow label="Alasan" value={ret.reason} />}
           {ret.notes && <InfoRow label="Catatan" value={ret.notes} />}
         </div>
       </LiquidGlass>
+
+      {isMarketplace && (
+        <LiquidGlass
+          radius={16}
+          intensity="subtle"
+          className="bg-white/40 dark:bg-white/[0.06]"
+        >
+          <div className="flex items-center justify-between gap-2 px-5 pt-5">
+            <p className="text-sm font-medium">Keputusan Marketplace</p>
+            {isMpDecisionActionable(ret.marketplace_decision) && (
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    closeAction();
+                    setAction("channel-accept");
+                  }}
+                  className="bg-success text-white hover:bg-success/90"
+                >
+                  <CheckCircleIcon className="mr-1.5 size-4" /> Setujui di
+                  Marketplace
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    closeAction();
+                    setAction("channel-reject");
+                  }}
+                  className="text-destructive hover:bg-destructive/10"
+                >
+                  <XCircleIcon className="mr-1.5 size-4" /> Tolak di
+                  Marketplace
+                </Button>
+              </div>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4 px-5 py-5 sm:grid-cols-3 lg:grid-cols-4">
+            <InfoRow
+              label="Status Keputusan"
+              value={
+                <StatusBadge
+                  domain="sales-return-marketplace-decision"
+                  status={ret.marketplace_decision}
+                  className="text-2xs"
+                />
+              }
+            />
+            <InfoRow
+              label="Alasan Channel"
+              value={ret.channel_reason_text ?? ret.channel_reason_code ?? "—"}
+            />
+            <InfoRow
+              label="Nominal Refund"
+              value={
+                ret.refund_amount != null
+                  ? formatCurrency(ret.refund_amount)
+                  : "—"
+              }
+            />
+            <InfoRow
+              label="Selisih Ongkir"
+              value={
+                ret.shipping_fee_original != null &&
+                ret.shipping_fee_return != null
+                  ? formatCurrency(
+                      ret.shipping_fee_return - ret.shipping_fee_original,
+                    )
+                  : "—"
+              }
+            />
+            <InfoRow
+              label="Terakhir Disinkron"
+              value={
+                ret.detail_synced_at ? formatDate(ret.detail_synced_at) : "—"
+              }
+            />
+          </div>
+        </LiquidGlass>
+      )}
 
       <LiquidGlass
         radius={16}
@@ -246,6 +398,44 @@ export function SalesReturnDetailView({ id }: { id: string }) {
           </div>
         </div>
       </LiquidGlass>
+
+      {isMarketplace && appeals.length > 0 && (
+        <LiquidGlass
+          radius={16}
+          intensity="subtle"
+          className="bg-white/40 dark:bg-white/[0.06]"
+        >
+          <div className="px-5 py-5">
+            <p className="mb-3 text-sm font-medium">Riwayat Banding</p>
+            <ol className="flex flex-col gap-4">
+              {appeals.map((appeal) => (
+                <li key={appeal.id} className="flex gap-3">
+                  <div className="mt-1 size-2 shrink-0 rounded-full bg-primary" />
+                  <div className="flex flex-col gap-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">
+                        {appeal.record_type}
+                      </span>
+                      <Badge variant="secondary" className="text-2xs">
+                        {APPEAL_OPERATOR_LABELS[appeal.operator] ??
+                          appeal.operator}
+                      </Badge>
+                    </div>
+                    {appeal.description && (
+                      <p className="text-xs text-muted-foreground">
+                        {appeal.description}
+                      </p>
+                    )}
+                    <span className="text-2xs text-muted-foreground">
+                      {formatDate(appeal.recorded_at)}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </LiquidGlass>
+      )}
 
       {}
       <ConfirmDialog
@@ -354,6 +544,71 @@ export function SalesReturnDetailView({ id }: { id: string }) {
             placeholder="Nama petugas"
             className="mt-1.5"
           />
+        </div>
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        open={action === "channel-accept"}
+        onOpenChange={(o) => {
+          if (!o) closeAction();
+        }}
+        title="Setujui Retur di Marketplace"
+        description={`Teruskan persetujuan retur ${ret.return_number} ke marketplace?`}
+        confirmLabel="Setujui"
+        loading={channelAcceptMut.isPending}
+        onConfirm={() => {
+          channelAcceptMut.mutate(ret.id, { onSuccess: closeAction });
+        }}
+      />
+
+      <ConfirmDialog
+        open={action === "channel-reject"}
+        onOpenChange={(o) => {
+          if (!o) closeAction();
+        }}
+        title="Tolak Retur di Marketplace"
+        description={`Teruskan penolakan retur ${ret.return_number} ke marketplace. Alasan diambil dari daftar resmi channel — pilih alasan yang paling sesuai jika retur ini dianggap tidak valid ("bukan retur").`}
+        confirmLabel="Tolak"
+        variant="destructive"
+        loading={channelRejectMut.isPending}
+        onConfirm={() => {
+          if (!channelRejectReasonId) return;
+          channelRejectMut.mutate(
+            {
+              id: ret.id,
+              reason_id: channelRejectReasonId,
+              note: channelRejectNote.trim() || undefined,
+            },
+            { onSuccess: closeAction },
+          );
+        }}
+      >
+        <div className="flex flex-col gap-3 px-1 py-2">
+          <div>
+            <Label className="text-sm font-medium">
+              Alasan <span className="text-destructive">*</span>
+            </Label>
+            <Combobox
+              options={channelRejectReasons.map((r) => ({
+                value: r.id,
+                label: r.text,
+              }))}
+              value={channelRejectReasonId}
+              onChange={(v) => setChannelRejectReasonId(v ?? "")}
+              placeholder="Pilih alasan"
+              searchPlaceholder="Cari alasan"
+              className="mt-1.5 h-9 bg-background"
+            />
+          </div>
+          <div>
+            <Label className="text-sm font-medium">Catatan</Label>
+            <Input
+              value={channelRejectNote}
+              onChange={(e) => setChannelRejectNote(e.target.value)}
+              placeholder="Catatan tambahan (opsional)"
+              className="mt-1.5"
+            />
+          </div>
         </div>
       </ConfirmDialog>
     </div>

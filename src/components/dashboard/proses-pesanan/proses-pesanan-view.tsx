@@ -25,6 +25,7 @@ import { SubStatusTabs } from "./sub-status-pills";
 import { PicklistTable } from "./picking/picklist-table";
 import { ReadyToProcessCardList } from "./picking/ready-to-process-card-list";
 import { PacklistTable } from "./packing/packlist-table";
+import { PreManifestCancelTable } from "./shipping/pre-manifest-cancel-table";
 import { ShipmentTable } from "./shipping/shipment-table";
 import { BuatPengirimanDialog } from "./shipping/buat-pengiriman-dialog";
 import { FulfillmentCardList } from "./shared/completed-order-card-list";
@@ -98,6 +99,7 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
     }
     if (stage === "shipping") {
       if (sub === "jadwal") return <ShipmentTable />;
+      if (sub === "batal") return <PreManifestCancelTable />;
       return (
         <FulfillmentCardList
           stage="finish-pack"

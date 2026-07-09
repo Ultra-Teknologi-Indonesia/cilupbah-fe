@@ -1,4 +1,4 @@
-import { fetchClient, fetchBlobRaw } from "@/lib/api-client";
+import { fetchClient, fetchBlobRaw, fetchBlobPost } from "@/lib/api-client";
 import type { ApiResponse, ApiPaginated } from "@/types/api.types";
 import type {
   Putaway,
@@ -143,4 +143,34 @@ export const PutawayService = {
       "application/pdf",
     );
   },
+
+  bulkPdf: async (ids: string[]): Promise<Blob> => {
+    return fetchBlobPost("/putaway/bulk/pdf", { ids }, "application/pdf");
+  },
+
+  remove: async (id: string) => {
+    const res = await fetchClient<ApiResponse<PutawayDeleteResult>>(
+      `/putaway/${encodeURIComponent(id)}`,
+      { method: "DELETE" },
+    );
+    return res.data;
+  },
+
+  bulkRemove: async (ids: string[]) => {
+    const res = await fetchClient<ApiResponse<PutawayDeleteResult[]>>(
+      "/putaway/bulk",
+      { method: "DELETE", data: { ids } },
+    );
+    return res.data;
+  },
 };
+
+export type PutawayDeleteAction =
+  | "unassigned"
+  | "reset_not_started"
+  | "reset_in_progress";
+
+export interface PutawayDeleteResult {
+  id: string;
+  action: PutawayDeleteAction;
+}

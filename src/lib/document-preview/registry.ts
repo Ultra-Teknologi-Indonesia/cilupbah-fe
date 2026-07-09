@@ -75,6 +75,7 @@ export type DocumentTypeKey =
   | "shipping-label"
   | "bin-qr"
   | "putaway"
+  | "putaway-bulk"
   | "stock-adjustment"
   | "stock-adjustment-bulk"
   | "invoice"
@@ -240,6 +241,24 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     backUrl: () => "/dashboard/barang-masuk/penempatan",
     filename: (id, meta) =>
       `${(meta?.putaway_no as string | undefined) ?? `PUTAWAY-${id}`}.pdf`,
+  },
+
+  "putaway-bulk": {
+    title: "Laporan Putaway (Bulk)",
+    subtitle: (id) => {
+      const count = id.split(",").filter(Boolean).length;
+      return `${count} dokumen`;
+    },
+    fetchPdf: async (id) => {
+      const ids = id.split(",").map((s) => s.trim()).filter(Boolean);
+      const blob = await PutawayService.bulkPdf(ids);
+      return { blob, meta: { count: ids.length } };
+    },
+    backUrl: () => "/dashboard/barang-masuk/penempatan",
+    filename: () => {
+      const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      return `Putaway-Bulk-${stamp}.pdf`;
+    },
   },
 
   "stock-adjustment": {

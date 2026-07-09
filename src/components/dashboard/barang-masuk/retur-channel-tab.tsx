@@ -32,6 +32,7 @@ import {
   useRejectSalesReturn,
   useCompleteSalesReturn,
   useSyncReturnTracking,
+  useSyncReturnDetail,
 } from "@/hooks/barang-masuk/use-sales-return-actions";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import type { SalesReturn } from "@/types/barang-masuk/sales-return";
@@ -53,11 +54,21 @@ const SUBTAB_TO_STATUS: Record<ReturSubTab, string> = {
   completed: "COMPLETED",
 };
 
+const REASON_CATEGORY_OPTIONS = [
+  { value: "", label: "Semua Kategori" },
+  { value: "FAILED_DELIVERY", label: "Gagal Kirim" },
+  { value: "COMPLAINT", label: "Komplain Pembeli" },
+  { value: "CANCEL_SHIPPED", label: "Cancel Telanjur Kirim" },
+  { value: "REMORSE", label: "Berubah Pikiran" },
+  { value: "OTHER", label: "Lainnya" },
+];
+
 interface FilterState {
   location_id: string;
+  reason_category: string;
 }
 
-const EMPTY_FILTERS: FilterState = { location_id: "" };
+const EMPTY_FILTERS: FilterState = { location_id: "", reason_category: "" };
 
 export function ReturChannelTab() {
   const [subTab, setSubTab] = useState<ReturSubTab>("unprocessed");
@@ -79,6 +90,7 @@ export function ReturChannelTab() {
   const rejectMutation = useRejectSalesReturn();
   const completeMutation = useCompleteSalesReturn();
   const syncTrackingMutation = useSyncReturnTracking();
+  const syncDetailMutation = useSyncReturnDetail();
 
   const resetPage = useCallback(() => setPage(1), []);
 
@@ -113,6 +125,7 @@ export function ReturChannelTab() {
       per_page: perPage,
       "filter[status]": statusFilter || undefined,
       "filter[location_id]": filters.location_id || undefined,
+      "filter[reason_category]": filters.reason_category || undefined,
     }),
     [debouncedSearch, page, perPage, statusFilter, filters],
   );
@@ -187,6 +200,57 @@ export function ReturChannelTab() {
         },
       },
       {
+        accessorKey: "marketplace_decision",
+        header: "Keputusan MP",
+        cell: ({ row }) => {
+          const item = row.original;
+          if (item.source !== "marketplace") {
+            return <span className="text-muted-foreground">—</span>;
+          }
+          const isSyncing =
+            syncDetailMutation.isPending &&
+            syncDetailMutation.variables === item.id;
+          return (
+            <div className="flex items-center gap-1.5">
+              <StatusBadge
+                domain="sales-return-marketplace-decision"
+                status={item.marketplace_decision}
+              />
+              <button
+                type="button"
+                title="Sinkron keputusan marketplace"
+                disabled={isSyncing}
+                onClick={() => syncDetailMutation.mutate(item.id)}
+                className="inline-flex size-6 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+              >
+                <RefreshCwIcon
+                  className={cn("size-3.5", isSyncing && "animate-spin")}
+                />
+              </button>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "refund_amount",
+        header: () => <span className="block text-right">Refund</span>,
+        cell: ({ row }) => {
+          const amount = row.original.refund_amount;
+          return (
+            <div className="text-right tabular-nums text-foreground">
+              {amount != null
+                ? new Intl.NumberFormat("id-ID", {
+                    style: "currency",
+                    currency: "IDR",
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  }).format(amount)
+                : "—"}
+            </div>
+          );
+        },
+      },
+      {
         accessorKey: "customer_name",
         header: "Pelanggan",
         cell: ({ row }) => (
@@ -202,6 +266,16 @@ export function ReturChannelTab() {
           <div className="max-w-[160px] truncate text-muted-foreground">
             {row.original.reason ?? "—"}
           </div>
+        ),
+      },
+      {
+        accessorKey: "reason_category",
+        header: "Kategori Alasan",
+        cell: ({ row }) => (
+          <StatusBadge
+            domain="sales-return-reason-category"
+            status={row.original.reason_category}
+          />
         ),
       },
       {
@@ -303,7 +377,7 @@ export function ReturChannelTab() {
     }
 
     return cols;
-  }, [isUnprocessed, subTab, syncTrackingMutation]);
+  }, [isUnprocessed, subTab, syncTrackingMutation, syncDetailMutation]);
 
   const items = data?.items ?? [];
   const meta = data?.meta ?? {
@@ -364,7 +438,7 @@ export function ReturChannelTab() {
           }
           hasFilter={hasActiveFilter}
           activeCount={activeCount}
-          gridCols={2}
+          gridCols={3}
         >
           <Combobox
             options={locationOptions}
@@ -374,6 +448,16 @@ export function ReturChannelTab() {
             }
             placeholder="Lokasi"
             searchPlaceholder="Cari lokasi"
+            className="h-9 bg-background"
+          />
+          <Combobox
+            options={REASON_CATEGORY_OPTIONS}
+            value={filters.reason_category}
+            onChange={(v) =>
+              handleFilterChange({ ...filters, reason_category: v ?? "" })
+            }
+            placeholder="Kategori Alasan"
+            searchPlaceholder="Cari kategori"
             className="h-9 bg-background"
           />
         </FilterToolbar>

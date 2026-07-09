@@ -858,6 +858,14 @@ export function useDownloadPreManifestCancelXlsx() {
   });
 }
 
+export function usePreManifestCancelList(params: import("@/types/proses-pesanan/fulfillment").FulfillmentListParams) {
+  return useQuery({
+    queryKey: [...fulfillmentKeys.board, "pre-manifest-cancel-list", params],
+    queryFn: () => OutboundService.preManifestCancelList(params),
+    staleTime: STALE,
+  });
+}
+
 export function useShippingCounts() {
   const siapKirim = useQuery({
     queryKey: fulfillmentKeys.count("shipping-siap-kirim"),
@@ -875,5 +883,14 @@ export function useShippingCounts() {
       ),
     staleTime: STALE,
   });
-  return { "siap-kirim": siapKirim.data, jadwal: jadwal.data };
+  const batal = useQuery({
+    queryKey: fulfillmentKeys.count("pre-manifest-cancel"),
+    queryFn: () => OutboundService.preManifestCancelCount(),
+    staleTime: STALE,
+  });
+  return {
+    "siap-kirim": siapKirim.data,
+    jadwal: jadwal.data,
+    batal: batal.data,
+  };
 }

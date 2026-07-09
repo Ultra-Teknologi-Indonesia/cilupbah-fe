@@ -7,12 +7,21 @@ import { cn } from "@/lib/utils";
 function Table({
   className,
   containerClassName,
+  scrollContainer = true,
   ...props
-}: React.ComponentProps<"table"> & { containerClassName?: string }) {
+}: React.ComponentProps<"table"> & {
+  containerClassName?: string;
+  /** Set false saat tabel dibungkus scroller lain (mis. ScrollArea) agar tak double-scroll. */
+  scrollContainer?: boolean;
+}) {
   return (
     <div
       data-slot="table-container"
-      className={cn("relative w-full overflow-x-auto", containerClassName)}
+      className={cn(
+        "relative w-full",
+        scrollContainer && "overflow-x-auto",
+        containerClassName,
+      )}
     >
       <table
         data-slot="table"

@@ -16,6 +16,9 @@ function buildReturQuery(params: LaporanReturParams): URLSearchParams {
   if (params.channel_shop_id) sp.set("channel_shop_id", params.channel_shop_id);
   if (params.status) sp.set("status", params.status);
   if (params.source) sp.set("source", params.source);
+  if (params.reason_category) sp.set("reason_category", params.reason_category);
+  if (params.marketplace_decision)
+    sp.set("marketplace_decision", params.marketplace_decision);
   if (params.page) sp.set("page", String(params.page));
   if (params.per_page) sp.set("limit", String(params.per_page));
   return sp;
