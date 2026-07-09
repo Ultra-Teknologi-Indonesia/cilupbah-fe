@@ -512,18 +512,11 @@ export function PesananManualFormPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className="min-w-[240px]">Produk</TableHead>
+                      <TableHead className="w-[260px] min-w-[200px] max-w-[300px]">
+                        Produk
+                      </TableHead>
                       <TableHead className="w-36 text-right">Harga</TableHead>
                       <TableHead className="w-20 text-right">Qty</TableHead>
-                      <TableHead className="w-24 text-right">
-                        Diskon %
-                      </TableHead>
-                      <TableHead className="w-32 text-right">
-                        Diskon (Rp)
-                      </TableHead>
-                      <TableHead className="w-32 text-right">
-                        Ongkos Angkut
-                      </TableHead>
                       <TableHead className="w-36 text-right">Total</TableHead>
                       <TableHead className="w-12" />
                     </TableRow>
@@ -532,7 +525,7 @@ export function PesananManualFormPage() {
                     {items.length === 0 ? (
                       <TableRow className="hover:bg-transparent">
                         <TableCell
-                          colSpan={8}
+                          colSpan={5}
                           className="h-40 text-center align-middle"
                         >
                           <div className="flex flex-col items-center gap-2 text-muted-foreground">
@@ -555,8 +548,8 @@ export function PesananManualFormPage() {
                         const total = Math.max(0, gross - disc) + it.shippingFee;
                         return (
                           <TableRow key={it.key}>
-                            <TableCell className="align-top">
-                              <div className="flex items-center gap-3">
+                            <TableCell className="w-[260px] min-w-[200px] max-w-[300px] whitespace-normal align-top">
+                              <div className="flex items-start gap-3">
                                 <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted/40">
                                   {it.thumbnail ? (
                                     <Image
@@ -571,10 +564,10 @@ export function PesananManualFormPage() {
                                   )}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                  <div className="truncate text-sm font-medium">
+                                  <div className="whitespace-normal break-words text-xs font-medium">
                                     {it.name}
                                   </div>
-                                  <div className="truncate text-xs text-muted-foreground">
+                                  <div className="whitespace-normal break-words text-2xs text-muted-foreground">
                                     {it.sku}
                                     {it.variantLabel
                                       ? ` · ${it.variantLabel}`
@@ -616,65 +609,6 @@ export function PesananManualFormPage() {
                                   )
                                 }
                                 className="h-9 text-right tabular-nums"
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <Input
-                                type="text"
-                                inputMode="numeric"
-                                value={it.discPercent || ""}
-                                onChange={(e) =>
-                                  updateItem(
-                                    idx,
-                                    "discPercent",
-                                    Math.min(
-                                      100,
-                                      parseCurrency(e.target.value),
-                                    ),
-                                  )
-                                }
-                                className="h-9 text-right tabular-nums"
-                                placeholder="0"
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <Input
-                                type="text"
-                                inputMode="numeric"
-                                value={
-                                  it.discAmount
-                                    ? it.discAmount.toLocaleString("id-ID")
-                                    : ""
-                                }
-                                onChange={(e) =>
-                                  updateItem(
-                                    idx,
-                                    "discAmount",
-                                    parseCurrency(e.target.value),
-                                  )
-                                }
-                                className="h-9 text-right tabular-nums"
-                                placeholder="0"
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <Input
-                                type="text"
-                                inputMode="numeric"
-                                value={
-                                  it.shippingFee
-                                    ? it.shippingFee.toLocaleString("id-ID")
-                                    : ""
-                                }
-                                onChange={(e) =>
-                                  updateItem(
-                                    idx,
-                                    "shippingFee",
-                                    parseCurrency(e.target.value),
-                                  )
-                                }
-                                className="h-9 text-right tabular-nums"
-                                placeholder="0"
                               />
                             </TableCell>
                             <TableCell className="text-right font-medium tabular-nums">
