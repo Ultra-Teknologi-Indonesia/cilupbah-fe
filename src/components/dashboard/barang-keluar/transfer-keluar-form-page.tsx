@@ -42,7 +42,7 @@ import { OutboundTransferService } from "@/services/barang-keluar/outbound-trans
 import { cn } from "@/lib/utils";
 import { playScanFeedback } from "@/lib/scan-feedback";
 
-const LIST_HREF = "/dashboard/barang-keluar";
+const LIST_HREF = "/dashboard/barang-keluar?tab=transfer";
 
 interface LineBin {
   id: string;

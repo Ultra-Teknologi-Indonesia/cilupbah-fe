@@ -108,7 +108,7 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => router.push("/dashboard/barang-keluar")}
+          onClick={() => router.push("/dashboard/barang-keluar?tab=retur")}
         >
           Kembali
         </Button>
@@ -124,7 +124,7 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Gudang" },
-          { label: "Barang Keluar", href: "/dashboard/barang-keluar" },
+          { label: "Barang Keluar", href: "/dashboard/barang-keluar?tab=retur" },
           { label: retur.return_number },
         ]}
       />
@@ -133,7 +133,7 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => router.push("/dashboard/barang-keluar")}
+          onClick={() => router.push("/dashboard/barang-keluar?tab=retur")}
         >
           <ArrowLeftIcon className="mr-1.5 size-4" />
           Kembali
@@ -346,7 +346,7 @@ export function PurchaseReturnDetailView({ returnId }: { returnId: string }) {
           deleteMutation.mutate(retur.id, {
             onSuccess: () => {
               setDeleteOpen(false);
-              router.push("/dashboard/barang-keluar");
+              router.push("/dashboard/barang-keluar?tab=retur");
             },
           });
         }}

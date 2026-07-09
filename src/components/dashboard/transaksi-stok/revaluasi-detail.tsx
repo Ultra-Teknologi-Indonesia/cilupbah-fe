@@ -79,7 +79,7 @@ export function RevaluasiDetail({ id }: { id: string }) {
         className="py-20"
         action={
           <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/transaksi-stok">Kembali</Link>
+            <Link href="/dashboard/transaksi-stok?tab=penyesuaian">Kembali</Link>
           </Button>
         }
       />
@@ -181,10 +181,10 @@ export function RevaluasiDetail({ id }: { id: string }) {
     <div className="flex flex-col gap-4">
       <PageTitle
         title={reval.revaluation_no}
-        backHref="/dashboard/transaksi-stok"
+        backHref="/dashboard/transaksi-stok?tab=penyesuaian"
         breadcrumb={[
           { label: "Persediaan" },
-          { label: "Transaksi Stok", href: "/dashboard/transaksi-stok" },
+          { label: "Transaksi Stok", href: "/dashboard/transaksi-stok?tab=penyesuaian" },
           { label: reval.revaluation_no },
         ]}
         actions={

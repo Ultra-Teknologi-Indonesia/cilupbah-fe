@@ -178,10 +178,10 @@ export function PenerimaanDetailView({ id }: { id: string }) {
       <PageTitle
         title="Detail Penerimaan"
         description={inbound ? inbound.transaction_number : "Memuat..."}
-        backHref="/dashboard/barang-masuk"
+        backHref="/dashboard/barang-masuk/penerimaan"
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Barang Masuk", href: "/dashboard/barang-masuk" },
+          { label: "Barang Masuk", href: "/dashboard/barang-masuk/penerimaan" },
           { label: "Detail Penerimaan" },
         ]}
       />
@@ -205,7 +205,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
         >
           <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
             <p className="text-sm font-medium">Penerimaan tidak ditemukan</p>
-            <Link href="/dashboard/barang-masuk">
+            <Link href="/dashboard/barang-masuk/penerimaan">
               <Button variant="outline" size="sm">
                 <ArrowLeftIcon className="mr-1.5 size-4" />
                 Kembali

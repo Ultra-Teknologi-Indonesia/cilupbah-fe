@@ -195,7 +195,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
         <ClipboardListIcon className="size-10" />
         <p className="text-sm">Dokumen tidak ditemukan.</p>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/transaksi-stok">Kembali</Link>
+          <Link href="/dashboard/transaksi-stok?tab=penyesuaian">Kembali</Link>
         </Button>
       </div>
     );
@@ -205,10 +205,10 @@ export function PenyesuaianDetail({ id }: { id: string }) {
     <div className="flex flex-col gap-4">
       <PageTitle
         title={adj.adjustment_no}
-        backHref="/dashboard/transaksi-stok"
+        backHref="/dashboard/transaksi-stok?tab=penyesuaian"
         breadcrumb={[
           { label: "Persediaan" },
-          { label: "Transaksi Stok", href: "/dashboard/transaksi-stok" },
+          { label: "Transaksi Stok", href: "/dashboard/transaksi-stok?tab=penyesuaian" },
           { label: adj.adjustment_no },
         ]}
         actions={
@@ -295,7 +295,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
           deleteMut.mutate(adj.id, {
             onSuccess: () => {
               setDeleteOpen(false);
-              router.push("/dashboard/transaksi-stok");
+              router.push("/dashboard/transaksi-stok?tab=penyesuaian");
             },
           });
         }}

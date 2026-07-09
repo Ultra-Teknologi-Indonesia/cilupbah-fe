@@ -51,7 +51,7 @@ import { DocActions } from "../picking/doc-actions";
 import { DeleteOrderDialog } from "../shared/delete-order-dialog";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
-const LIST_HREF = "/dashboard/proses-pesanan";
+const LIST_HREF = "/dashboard/proses-pesanan/shipping";
 
 function formatWeight(gram: number): string {
   if (!gram) return "0 g";

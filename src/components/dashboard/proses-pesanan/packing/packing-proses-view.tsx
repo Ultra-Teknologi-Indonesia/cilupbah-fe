@@ -49,7 +49,7 @@ import { playScanFeedback } from "@/lib/scan-feedback";
 import { usePrintWithDriverCall } from "@/hooks/proses-pesanan/use-driver-call";
 import { isShopeeInstantOrSameDay } from "@/lib/proses-pesanan/shopee";
 
-const LIST_HREF = "/dashboard/proses-pesanan";
+const LIST_HREF = "/dashboard/proses-pesanan/packing";
 
 function errMsg(err: unknown, fallback: string): string {
   if (err && typeof err === "object" && "message" in err) {

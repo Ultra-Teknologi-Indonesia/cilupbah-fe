@@ -656,7 +656,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         className="py-20"
         action={
           <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/pesanan">Kembali</Link>
+            <Link href="/dashboard/pesanan?tab=all">Kembali</Link>
           </Button>
         }
       />
@@ -676,9 +676,9 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
     <div className="flex flex-col gap-4">
       <PageTitle
         title={order.salesorder_no}
-        backHref="/dashboard/pesanan"
+        backHref="/dashboard/pesanan?tab=all"
         breadcrumb={[
-          { label: "Pesanan", href: "/dashboard/pesanan" },
+          { label: "Pesanan", href: "/dashboard/pesanan?tab=all" },
           { label: order.salesorder_no },
         ]}
         actions={

@@ -106,7 +106,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const blob = await OutboundService.picklistPdf(id);
       return { blob };
     },
-    backUrl: () => "/dashboard/proses-pesanan",
+    backUrl: () => "/dashboard/proses-pesanan/picking",
     filename: (id, meta) =>
       `${(meta?.picklist_no as string | undefined) ?? `PICK-${id}`}.pdf`,
   },
@@ -122,7 +122,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const blob = await OutboundService.picklistBulkPdf(orderIds);
       return { blob, meta: { count: orderIds.length } };
     },
-    backUrl: () => "/dashboard/proses-pesanan",
+    backUrl: () => "/dashboard/proses-pesanan/picking",
     filename: () => {
       const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
       return `Picklist-Bulk-${stamp}.pdf`;
@@ -165,7 +165,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     resetBeforeRetry: async (id) => {
       await OutboundService.retryMarketplaceLabel(id);
     },
-    backUrl: () => "/dashboard/proses-pesanan",
+    backUrl: () => "/dashboard/proses-pesanan/shipping",
     filename: (id) => `shipping-label-${id.slice(0, 8)}.pdf`,
   },
 
@@ -301,7 +301,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const blob = await OutboundService.invoicePdf(id);
       return { blob };
     },
-    backUrl: () => "/dashboard/pesanan",
+    backUrl: () => "/dashboard/pesanan?tab=all",
     filename: (id) => `INV-${id.slice(0, 8)}.pdf`,
   },
 
@@ -312,7 +312,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const blob = await OutboundService.orderBreakdownPdf(id);
       return { blob };
     },
-    backUrl: () => "/dashboard/pesanan",
+    backUrl: () => "/dashboard/pesanan?tab=all",
     filename: (id) => `RINCIAN-${id.slice(0, 8)}.pdf`,
   },
 
@@ -324,7 +324,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const blob = await OutboundService.manifestPdf(id);
       return { blob };
     },
-    backUrl: () => "/dashboard/proses-pesanan",
+    backUrl: () => "/dashboard/proses-pesanan/shipping",
     filename: (id, meta) =>
       `${(meta?.shipment_no as string | undefined) ?? `SHP-${id}`}-manifest.pdf`,
     excel: {
@@ -345,7 +345,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const blob = await OutboundService.manifestBulkPdf(orderIds);
       return { blob, meta: { count: orderIds.length } };
     },
-    backUrl: () => "/dashboard/proses-pesanan",
+    backUrl: () => "/dashboard/proses-pesanan/shipping",
     filename: () => {
       const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
       return `Manifest-Bulk-${stamp}.pdf`;
@@ -359,7 +359,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const blob = await InboundService.barcodesPdf(id);
       return { blob };
     },
-    backUrl: () => "/dashboard/barang-masuk",
+    backUrl: () => "/dashboard/barang-masuk/penerimaan",
     filename: (id) => `barcodes-inbound-${id.slice(0, 8)}.pdf`,
   },
 
@@ -370,7 +370,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const blob = await InboundService.pdf(id);
       return { blob };
     },
-    backUrl: () => "/dashboard/barang-masuk",
+    backUrl: () => "/dashboard/barang-masuk/penerimaan",
     filename: (id) => `penerimaan-${id.slice(0, 8)}.pdf`,
   },
 
@@ -382,7 +382,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const blob = await OutboundTransferService.pdf(id);
       return { blob };
     },
-    backUrl: () => "/dashboard/barang-keluar",
+    backUrl: () => "/dashboard/barang-keluar?tab=transfer",
     filename: (id, meta) =>
       `${(meta?.transfer_number as string | undefined) ?? `TRF-${id}`}.pdf`,
   },
@@ -398,7 +398,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const blob = await OutboundTransferService.bulkPdf(ids);
       return { blob, meta: { count: ids.length } };
     },
-    backUrl: () => "/dashboard/barang-keluar",
+    backUrl: () => "/dashboard/barang-keluar?tab=transfer",
     filename: () => {
       const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
       return `Surat-Jalan-Bulk-${stamp}.pdf`;
@@ -429,7 +429,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const blob = await PurchaseReturnService.pdf(id);
       return { blob };
     },
-    backUrl: () => "/dashboard/barang-keluar",
+    backUrl: () => "/dashboard/barang-keluar?tab=retur",
     filename: (id, meta) =>
       `${(meta?.return_number as string | undefined) ?? `RTN-${id}`}.pdf`,
   },

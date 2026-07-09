@@ -34,7 +34,7 @@ import { useMe } from "@/hooks/auth/use-auth";
 import { useState, useCallback } from "react";
 import { formatDate } from "@/lib/format";
 
-const LIST_HREF = "/dashboard/barang-keluar";
+const LIST_HREF = "/dashboard/barang-keluar?tab=transfer";
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return <InfoField label={label} value={value} />;

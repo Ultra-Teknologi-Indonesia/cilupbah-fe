@@ -64,7 +64,7 @@ import {
 import { playScanFeedback } from "@/lib/scan-feedback";
 import { BIN_CODE_PATTERN } from "@/lib/validators/bin-code";
 
-const LIST_HREF = "/dashboard/proses-pesanan";
+const LIST_HREF = "/dashboard/proses-pesanan/picking";
 
 function errMsg(err: unknown, fallback: string): string {
   if (err && typeof err === "object" && "message" in err) {

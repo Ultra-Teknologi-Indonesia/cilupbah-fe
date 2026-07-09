@@ -74,7 +74,7 @@ export function CadangDetail({ id }: { id: string }) {
         <ShieldIcon className="h-10 w-10" />
         <p className="text-sm">Dokumen tidak ditemukan.</p>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/transaksi-stok">Kembali</Link>
+          <Link href="/dashboard/transaksi-stok?tab=penyesuaian">Kembali</Link>
         </Button>
       </div>
     );
@@ -130,10 +130,10 @@ export function CadangDetail({ id }: { id: string }) {
     <div className="flex flex-col gap-4">
       <PageTitle
         title={stock.reserved_stock_no}
-        backHref="/dashboard/transaksi-stok"
+        backHref="/dashboard/transaksi-stok?tab=penyesuaian"
         breadcrumb={[
           { label: "Persediaan" },
-          { label: "Transaksi Stok", href: "/dashboard/transaksi-stok" },
+          { label: "Transaksi Stok", href: "/dashboard/transaksi-stok?tab=penyesuaian" },
           { label: stock.reserved_stock_no },
         ]}
         actions={

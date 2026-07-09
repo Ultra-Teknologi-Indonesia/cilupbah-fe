@@ -46,7 +46,7 @@ import type {
   ContactItem,
 } from "@/types/kontak-pemasok/contact";
 
-const LIST_HREF = "/dashboard/kontak-pelanggan";
+const LIST_HREF = "/dashboard/kontak-pelanggan?tab=pelanggan";
 
 type Section = "umum" | "pic" | "alamat" | "pajak";
 

@@ -26,7 +26,7 @@ import {
   formatCoordinate,
 } from "@/components/dashboard/manajemen-rak/lokasi/location-map-picker";
 
-const LIST_HREF = "/dashboard/kontak-pelanggan";
+const LIST_HREF = "/dashboard/kontak-pelanggan?tab=pelanggan";
 
 const TAX_TYPE_LABELS: Record<string, string> = {
   PKP: "PKP (Pengusaha Kena Pajak)",

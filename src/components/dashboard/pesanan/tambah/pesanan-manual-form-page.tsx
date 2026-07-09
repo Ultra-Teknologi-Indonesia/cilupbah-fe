@@ -360,7 +360,7 @@ export function PesananManualFormPage() {
       })),
     });
 
-    router.push("/dashboard/pesanan");
+    router.push("/dashboard/pesanan?tab=all");
   }
 
   const canSubmit =
@@ -376,10 +376,10 @@ export function PesananManualFormPage() {
     <div className="flex flex-col gap-5">
       <PageTitle
         title="Tambah Pesanan"
-        backHref="/dashboard/pesanan"
+        backHref="/dashboard/pesanan?tab=all"
         breadcrumb={[
           { label: "Penjualan" },
-          { label: "Pesanan", href: "/dashboard/pesanan" },
+          { label: "Pesanan", href: "/dashboard/pesanan?tab=all" },
           { label: "Tambah Pesanan" },
         ]}
       />
@@ -882,7 +882,7 @@ export function PesananManualFormPage() {
       <FormFooter>
         <Button
           variant="outline"
-          onClick={() => router.push("/dashboard/pesanan")}
+          onClick={() => router.push("/dashboard/pesanan?tab=all")}
           disabled={createMut.isPending}
         >
           Batal

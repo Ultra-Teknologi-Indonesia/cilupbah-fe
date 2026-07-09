@@ -35,7 +35,7 @@ import {
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import { playScanFeedback } from "@/lib/scan-feedback";
 
-const LIST_HREF = "/dashboard/proses-pesanan";
+const LIST_HREF = "/dashboard/proses-pesanan/picking";
 
 function errMsg(err: unknown, fallback: string): string {
   if (err && typeof err === "object" && "message" in err) {

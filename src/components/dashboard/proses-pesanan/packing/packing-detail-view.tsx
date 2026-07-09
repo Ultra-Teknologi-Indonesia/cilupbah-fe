@@ -119,7 +119,7 @@ function PackCorrectButton({
   );
 }
 
-const LIST_HREF = "/dashboard/proses-pesanan";
+const LIST_HREF = "/dashboard/proses-pesanan/packing";
 
 function errMsg(err: unknown, fallback: string): string {
   if (err && typeof err === "object" && "message" in err) {
