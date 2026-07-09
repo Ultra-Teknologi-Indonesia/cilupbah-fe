@@ -438,6 +438,8 @@ export interface Packlist {
   status: PacklistStatus;
   packageCount: number;
   isInstant: boolean;
+  shippingProvider: string | null;
+  shippingType: string | null;
 }
 
 export interface RawPacklistItem {
@@ -520,6 +522,9 @@ export const SHIPMENT_TYPES: { value: ShipmentType; label: string }[] = [
   { value: "INSTANT", label: "Instant" },
 ];
 
+export type DriverCallStatus = "NONE" | "CALLED" | "PICKED_UP" | "FAILED";
+export type DriverCallMethod = "MANUAL" | "SHOPEE_AUTO";
+
 export interface RawShipment {
   id: string;
   shipment_no: string;
@@ -535,6 +540,15 @@ export interface RawShipment {
   total_weight_gram?: number | null;
   has_instant?: boolean;
   created_at?: string | null;
+  driver_name?: string | null;
+  driver_phone?: string | null;
+  driver_vehicle_plate?: string | null;
+  driver_booking_code?: string | null;
+  driver_call_method?: string | null;
+  driver_call_status?: string | null;
+  driver_called_at?: string | null;
+  driver_called_by?: string | null;
+  driver_id_card_url?: string | null;
 }
 
 export interface Shipment {
@@ -552,6 +566,15 @@ export interface Shipment {
   totalWeightGram: number;
   hasInstant: boolean;
   createdAt: string | null;
+  driverName: string | null;
+  driverPhone: string | null;
+  driverVehiclePlate: string | null;
+  driverBookingCode: string | null;
+  driverCallMethod: DriverCallMethod | null;
+  driverCallStatus: DriverCallStatus | null;
+  driverCalledAt: string | null;
+  driverCalledBy: string | null;
+  driverIdCardUrl: string | null;
 }
 
 export const SHIPMENT_STATUS_LABEL: Record<
@@ -597,6 +620,7 @@ export interface RawShipmentOrder {
     source?: string | null;
     channel_order_no?: string | null;
     order_weight_gram?: number | null;
+    channel_status?: string | null;
   } | null;
   packlist?: {
     id: string;
@@ -621,6 +645,7 @@ export interface ShipmentOrderItem {
   grandTotal: number;
   weightGram: number;
   status: string | null;
+  channelStatus: string | null;
   packlistNo: string | null;
   pickupStatus: string | null;
   pickupMessage: string | null;
@@ -629,6 +654,22 @@ export interface ShipmentOrderItem {
 export interface ShipmentDetail extends Shipment {
   orders: ShipmentOrderItem[];
   notes: string | null;
+  createdBy: string | null;
+}
+
+export interface ReconcileSummary {
+  total: number;
+  delivered: number;
+  in_transit: number;
+  anomaly: number;
+  auto_marked_delivered?: boolean;
+  details: {
+    order_id: string;
+    salesorder_no: string;
+    status: string;
+    channel_status: string | null;
+    category: "delivered" | "in_transit" | "anomaly";
+  }[];
 }
 
 export interface RawCourier {

@@ -894,3 +894,96 @@ export function useShippingCounts() {
     batal: batal.data,
   };
 }
+
+export function useRecordDriverCall() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      shipmentId,
+      data,
+      idCardPhoto,
+    }: {
+      shipmentId: string;
+      data: {
+        driver_name: string;
+        driver_phone: string;
+        driver_vehicle_plate?: string;
+        driver_booking_code?: string;
+      };
+      idCardPhoto?: File;
+    }) => OutboundService.recordDriverCall(shipmentId, data, idCardPhoto),
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.shipmentDetail(v.shipmentId),
+      });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+    },
+  });
+}
+
+export function useUpdateDriverCall() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      shipmentId,
+      data,
+      idCardPhoto,
+    }: {
+      shipmentId: string;
+      data: {
+        driver_name?: string;
+        driver_phone?: string;
+        driver_vehicle_plate?: string;
+        driver_booking_code?: string;
+        driver_call_status?: string;
+      };
+      idCardPhoto?: File;
+    }) => OutboundService.updateDriverCall(shipmentId, data, idCardPhoto),
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.shipmentDetail(v.shipmentId),
+      });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+    },
+  });
+}
+
+export function useMarkDelivered() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (shipmentId: string) =>
+      OutboundService.markDelivered(shipmentId),
+    onSuccess: (_d, shipmentId) => {
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.shipmentDetail(shipmentId),
+      });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+    },
+  });
+}
+
+export function useReconcileShipment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (shipmentId: string) =>
+      OutboundService.reconcileShipment(shipmentId),
+    onSuccess: (_d, shipmentId) => {
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.shipmentDetail(shipmentId),
+      });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+    },
+  });
+}
+
+export function useCompletedShipments(
+  params: import("@/types/proses-pesanan/fulfillment").FulfillmentListParams,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: [...fulfillmentKeys.board, "completed-shipments", params],
+    queryFn: () => OutboundService.completedShipments(params),
+    staleTime: STALE,
+    enabled,
+  });
+}

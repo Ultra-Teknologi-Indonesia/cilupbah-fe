@@ -32,6 +32,7 @@ import {
   useShipments,
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import type { Shipment } from "@/types/proses-pesanan/fulfillment";
+import { ShipmentDriverBadge } from "@/components/dashboard/proses-pesanan/shared/driver-call-indicator";
 
 import { DocActions } from "../picking/doc-actions";
 
@@ -41,6 +42,17 @@ function formatWeight(gram: number): string {
   return kg < 1
     ? `${gram} g`
     : `${kg.toLocaleString("id-ID", { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`;
+}
+
+function instantSlaClass(row: Shipment): string | undefined {
+  if (!row.hasInstant || !row.createdAt) return undefined;
+  const ageMs = Date.now() - new Date(row.createdAt).getTime();
+  const ageH = ageMs / 3_600_000;
+  if (ageH > 1.5)
+    return "bg-red-50/60 dark:bg-red-950/20 border-l-4 border-l-red-500";
+  if (ageH > 1)
+    return "bg-yellow-50/60 dark:bg-yellow-950/20 border-l-4 border-l-yellow-500";
+  return "bg-emerald-50/60 dark:bg-emerald-950/20 border-l-4 border-l-emerald-500";
 }
 
 const SHIPMENT_STATUS_OPTIONS = [
@@ -180,6 +192,18 @@ export function ShipmentTable() {
         ),
       },
       {
+        id: "driver",
+        header: "Driver",
+        cell: ({ row }) => (
+          <ShipmentDriverBadge
+            status={row.original.driverCallStatus}
+            driverName={row.original.driverName}
+            driverPhone={row.original.driverPhone}
+            calledAt={row.original.driverCalledAt}
+          />
+        ),
+      },
+      {
         id: "actions",
         header: () => null,
         cell: ({ row }) => (
@@ -255,11 +279,7 @@ export function ShipmentTable() {
           data={shipments}
           isLoading={isLoading}
           hideToolbar
-          getRowClassName={(row) =>
-            row.hasInstant
-              ? "bg-orange-50/60 dark:bg-orange-950/20 border-l-4 border-l-orange-500"
-              : undefined
-          }
+          getRowClassName={(row) => instantSlaClass(row)}
           manualPagination
           pagination={{
             pageIndex: meta.current_page - 1,

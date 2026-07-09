@@ -33,11 +33,8 @@ import {
   SHIPMENT_TYPES,
   type ShipmentType,
 } from "@/types/proses-pesanan/fulfillment";
-import { PrinterIcon } from "lucide-react";
 import { isShopeeInstantOrSameDay } from "@/lib/proses-pesanan/shopee";
 import { guessShipmentTypeFromCourierName } from "@/lib/proses-pesanan/shipment-type";
-import { usePrintWithDriverCall } from "@/hooks/proses-pesanan/use-driver-call";
-import { DriverCallIndicator } from "@/components/dashboard/proses-pesanan/shared/driver-call-indicator";
 
 const MARKETPLACE_SOURCES = ["shopee", "tiktok", "lazada", "tokopedia"];
 
@@ -103,47 +100,6 @@ function PengirimanForm({
       shippingProvider,
       shippingType,
     });
-
-  const printWithDriverCall = usePrintWithDriverCall();
-  const [driverCallResults, setDriverCallResults] = React.useState<
-    Record<string, {
-      status: "pending" | "success" | "failed";
-      message: string | null;
-      attemptedAt: string | null;
-    }>
-  >({});
-  const anyDriverCallPending = printWithDriverCall.isPending;
-  const [forceLabel, setForceLabel] = React.useState(false);
-
-  const handlePrintWithDriverCall = async (): Promise<typeof driverCallResults> => {
-    if (!orderIds || orderIds.length === 0) return {};
-    const nextResults: typeof driverCallResults = {};
-    for (const orderId of orderIds) {
-      try {
-        const res = await printWithDriverCall.mutateAsync({
-          orderId,
-          forceLabel,
-        });
-        nextResults[orderId] = {
-          status: res.driver_call_status,
-          message: res.driver_call_message,
-          attemptedAt: res.driver_call_attempted_at,
-        };
-      } catch (err) {
-        const msg =
-          err && typeof err === "object" && "message" in err
-            ? String((err as { message?: unknown }).message)
-            : "Panggilan driver gagal.";
-        nextResults[orderId] = {
-          status: "failed",
-          message: msg,
-          attemptedAt: new Date().toISOString(),
-        };
-      }
-    }
-    setDriverCallResults((prev) => ({ ...prev, ...nextResults }));
-    return nextResults;
-  };
 
   const [courierId, setCourierId] = React.useState("");
   const [shipmentType, setShipmentType] = React.useState<ShipmentType>(
@@ -271,18 +227,6 @@ function PengirimanForm({
           : "Gagal membuat pengiriman.";
       toast.error(msg);
     }
-  };
-
-  const handlePrintAndShip = async () => {
-    const results = await handlePrintWithDriverCall();
-    const anyFailed = Object.values(results).some((r) => r.status === "failed");
-    if (anyFailed && !forceLabel) {
-      toast.warning(
-        "Panggilan driver gagal untuk beberapa pesanan. Centang \"Tetap cetak meski driver gagal\" bila ingin melanjutkan.",
-      );
-      return;
-    }
-    await handleSubmit();
   };
 
   return (
@@ -457,45 +401,17 @@ function PengirimanForm({
         </div>
 
         {showDriverCall && (
-          <div className="space-y-2 rounded-xl border border-orange-300 bg-orange-50/60 px-3 py-2.5">
-            <div className="flex items-center justify-between gap-2">
-              <div className="text-xs font-medium text-orange-800">
-                Shopee {(shippingType ?? "").toUpperCase() === "SAME_DAY"
-                  ? "Same Day"
-                  : "Instant"}{" "}
-                — SLA ±2 jam
-              </div>
-              <label className="flex items-center gap-1.5 text-2xs text-orange-800">
-                <input
-                  type="checkbox"
-                  className="size-3.5"
-                  checked={forceLabel}
-                  onChange={(e) => setForceLabel(e.target.checked)}
-                />
-                Tetap cetak meski driver gagal
-              </label>
+          <div className="rounded-xl border border-orange-300 bg-orange-50/60 px-3 py-2.5">
+            <div className="text-xs font-medium text-orange-800">
+              Shopee{" "}
+              {(shippingType ?? "").toUpperCase() === "SAME_DAY"
+                ? "Same Day"
+                : "Instant"}{" "}
+              — SLA ±2 jam
             </div>
-            <p className="text-2xs leading-snug text-orange-700">
-              Menekan tombol Cetak Resi/AWB akan memanggil driver Shopee
-              otomatis, lalu membuka PDF label untuk dicetak.
+            <p className="text-2xs leading-snug text-orange-700 mt-1">
+              Driver Shopee akan dipanggil otomatis saat packing selesai.
             </p>
-            {orderIds && orderIds.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-1">
-                {orderIds.map((orderId) => {
-                  const res = driverCallResults[orderId];
-                  if (!res) return null;
-                  return (
-                    <DriverCallIndicator
-                      key={orderId}
-                      orderId={orderId}
-                      status={res.status}
-                      message={res.message}
-                      attemptedAt={res.attemptedAt}
-                    />
-                  );
-                })}
-              </div>
-            )}
           </div>
         )}
       </div>
@@ -504,37 +420,16 @@ function PengirimanForm({
         <Button variant="outline" onClick={() => onOpenChange(false)}>
           Batal
         </Button>
-        {showDriverCall ? (
-          <Button
-            variant="primary"
-            onClick={handlePrintAndShip}
-            disabled={
-              !canSubmit || anyDriverCallPending || createShipment.isPending
-            }
-          >
-            {anyDriverCallPending || createShipment.isPending ? (
-              <Loader2Icon className="animate-spin" />
-            ) : (
-              <PrinterIcon className="size-4" />
-            )}
-            {anyDriverCallPending
-              ? "Memanggil driver…"
-              : createShipment.isPending
-                ? "Membuat pengiriman…"
-                : "Cetak Resi/AWB & Buat Pengiriman"}
-          </Button>
-        ) : (
-          <Button
-            variant="primary"
-            onClick={handleSubmit}
-            disabled={!canSubmit || createShipment.isPending}
-          >
-            {createShipment.isPending && (
-              <Loader2Icon className="animate-spin" />
-            )}
-            Buat Pengiriman
-          </Button>
-        )}
+        <Button
+          variant="primary"
+          onClick={handleSubmit}
+          disabled={!canSubmit || createShipment.isPending}
+        >
+          {createShipment.isPending && (
+            <Loader2Icon className="animate-spin" />
+          )}
+          Buat Pengiriman
+        </Button>
       </div>
     </>
   );

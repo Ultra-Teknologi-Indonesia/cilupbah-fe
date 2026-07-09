@@ -16,6 +16,15 @@ import type {
 
 const STALE = 60 * 1000;
 
+function getErrorMessage(err: unknown, fallback: string): string {
+  const body = err as { message?: string; errors?: Record<string, string[]> };
+  if (body?.errors && typeof body.errors === "object") {
+    const messages = Object.values(body.errors).flat();
+    if (messages.length) return messages.join(" ");
+  }
+  return body?.message || fallback;
+}
+
 export function useContacts(params: ContactListParams = {}) {
   return useQuery({
     queryKey: ["contact", "list", params],
@@ -60,9 +69,7 @@ export function useCreateContact() {
       qc.invalidateQueries({ queryKey: ["contact"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menambahkan kontak",
-      ),
+      toast.error(getErrorMessage(err, "Gagal menambahkan kontak")),
   });
 }
 
@@ -76,9 +83,7 @@ export function useUpdateContact() {
       qc.invalidateQueries({ queryKey: ["contact"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memperbarui kontak",
-      ),
+      toast.error(getErrorMessage(err, "Gagal memperbarui kontak")),
   });
 }
 
@@ -91,9 +96,7 @@ export function useDeleteContact() {
       qc.invalidateQueries({ queryKey: ["contact"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus kontak",
-      ),
+      toast.error(getErrorMessage(err, "Gagal menghapus kontak")),
   });
 }
 
@@ -106,9 +109,7 @@ export function useCreateCategory() {
       qc.invalidateQueries({ queryKey: ["contact", "categories"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menambahkan kategori",
-      ),
+      toast.error(getErrorMessage(err, "Gagal menambahkan kategori")),
   });
 }
 
@@ -122,9 +123,7 @@ export function useUpdateCategory() {
       qc.invalidateQueries({ queryKey: ["contact", "categories"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memperbarui kategori",
-      ),
+      toast.error(getErrorMessage(err, "Gagal memperbarui kategori")),
   });
 }
 
@@ -137,8 +136,6 @@ export function useDeleteCategory() {
       qc.invalidateQueries({ queryKey: ["contact", "categories"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus kategori",
-      ),
+      toast.error(getErrorMessage(err, "Gagal menghapus kategori")),
   });
 }

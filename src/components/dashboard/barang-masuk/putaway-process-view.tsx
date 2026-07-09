@@ -11,6 +11,7 @@ import {
   CheckCircle2Icon,
   ChevronDownIcon,
   ChevronRightIcon,
+  AlertTriangleIcon,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -55,8 +56,10 @@ import {
   usePutawayItems,
   useProcessPutawayItem,
   useDeletePutawayPlacement,
+  useCompleteDiscrepancy,
   usePutawayBins,
   type BinListItem,
+  type CompleteDiscrepancyResult,
 } from "@/hooks/barang-masuk/use-putaway-actions";
 import type { PutawayItem } from "@/types/barang-masuk/putaway";
 
@@ -139,6 +142,45 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   }, [allItems]);
   const progressPct =
     totalQty > 0 ? Math.round((placedQty / totalQty) * 100) : 0;
+
+  const incompleteItems = useMemo(
+    () => allItems.filter((it) => it.qty - it.putaway_qty > 0),
+    [allItems],
+  );
+
+  const completeDiscrepancyMutation = useCompleteDiscrepancy();
+  const [confirmDiscrepancyOpen, setConfirmDiscrepancyOpen] = useState(false);
+  const [discrepancyResult, setDiscrepancyResult] =
+    useState<CompleteDiscrepancyResult | null>(null);
+
+  const handleCompleteDiscrepancy = useCallback(() => {
+    completeDiscrepancyMutation.mutate(id, {
+      onSuccess: (res) => {
+        setConfirmDiscrepancyOpen(false);
+        if (res) setDiscrepancyResult(res);
+        refetchItems();
+        refetchDetail();
+      },
+    });
+  }, [completeDiscrepancyMutation, id, refetchItems, refetchDetail]);
+
+  const goToStockAdjustment = useCallback(() => {
+    if (!discrepancyResult) return;
+    const items = discrepancyResult.discrepancy_items
+      .map((d) => {
+        const src = allItems.find((it) => it.id === d.putaway_item_id);
+        const sku = src?.variant?.sku ?? src?.product?.sku;
+        return sku ? { sku, qty: d.qty, binId: d.bin_id } : null;
+      })
+      .filter((v): v is { sku: string; qty: number; binId: string } => !!v);
+
+    const qs = new URLSearchParams({
+      location_id: locationId,
+      items: JSON.stringify(items),
+    });
+    setDiscrepancyResult(null);
+    router.push(`/dashboard/transaksi-stok/penyesuaian/buat?${qs.toString()}`);
+  }, [discrepancyResult, allItems, locationId, router]);
 
   const { data: availableBins = [] } = usePutawayBins(locationId);
 
@@ -253,7 +295,8 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
 
   const [completedDialogDismissed, setCompletedDialogDismissed] =
     useState(false);
-  const completedDialogOpen = isCompleted && !completedDialogDismissed;
+  const completedDialogOpen =
+    isCompleted && !completedDialogDismissed && !discrepancyResult;
 
   const onProcessed = useCallback(() => {
     refetchItems();
@@ -473,6 +516,27 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                 {scanError && (
                   <p className="-mt-1 text-xs text-destructive">{scanError}</p>
                 )}
+                {isInProgress && incompleteItems.length > 0 && (
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-warning/30 bg-warning/10 px-3.5 py-2.5">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangleIcon className="mt-0.5 size-4 shrink-0 text-warning" />
+                      <p className="text-xs text-foreground">
+                        {incompleteItems.length} item masih ada selisih (fisik
+                        kurang dari data). Kalau memang tidak ada fisiknya
+                        lagi, selesaikan dengan selisih.
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setConfirmDiscrepancyOpen(true)}
+                      className="shrink-0"
+                    >
+                      Selesaikan Selisih
+                    </Button>
+                  </div>
+                )}
               </div>
             </LiquidGlass>
 
@@ -556,6 +620,96 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
           </div>
         </div>
       )}
+
+      <Dialog
+        open={confirmDiscrepancyOpen}
+        onOpenChange={setConfirmDiscrepancyOpen}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Selesaikan dengan Selisih?</DialogTitle>
+            <DialogDescription>
+              {incompleteItems.length} item masih memiliki sisa qty yang
+              belum ditempatkan (fisik tidak mencukupi). Sisa akan
+              dialokasikan ke rak default lokasi ini, lalu dokumen ditutup.
+              Setelah ini kamu perlu membuat Penyesuaian Stok minus agar
+              catatan stok akurat. Lanjutkan?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="ghost"
+              onClick={() => setConfirmDiscrepancyOpen(false)}
+              disabled={completeDiscrepancyMutation.isPending}
+            >
+              Batal
+            </Button>
+            <Button
+              onClick={handleCompleteDiscrepancy}
+              disabled={completeDiscrepancyMutation.isPending}
+            >
+              {completeDiscrepancyMutation.isPending && (
+                <Loader2Icon className="mr-2 size-4 animate-spin" />
+              )}
+              Ya, Selesaikan
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!discrepancyResult}
+        onOpenChange={(open) => {
+          if (!open) setDiscrepancyResult(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Penempatan Diselesaikan dengan Selisih</DialogTitle>
+            <DialogDescription>
+              {discrepancyResult?.discrepancy_items.length ?? 0} item
+              dialokasikan ke rak default. Buat Penyesuaian Stok sekarang
+              agar stok tidak tercatat berlebih.
+            </DialogDescription>
+          </DialogHeader>
+          {discrepancyResult && discrepancyResult.discrepancy_items.length > 0 && (
+            <div className="flex max-h-56 flex-col gap-1.5 overflow-y-auto rounded-lg border border-border bg-muted/20 p-3">
+              {discrepancyResult.discrepancy_items.map((d) => {
+                const src = allItems.find(
+                  (it) => it.id === d.putaway_item_id,
+                );
+                const name =
+                  src?.product?.product?.name ?? src?.variant?.item_name ?? "—";
+                const sku = src?.variant?.sku ?? src?.product?.sku ?? "—";
+                return (
+                  <div
+                    key={d.putaway_item_id}
+                    className="flex items-center justify-between gap-2 text-xs"
+                  >
+                    <span className="truncate text-foreground" title={name}>
+                      {name}{" "}
+                      <span className="font-mono text-muted-foreground">
+                        ({sku})
+                      </span>
+                    </span>
+                    <span className="shrink-0 font-mono font-semibold tabular-nums">
+                      {d.qty} qty
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={() => setDiscrepancyResult(null)}>
+              Nanti Saja
+            </Button>
+            <Button onClick={goToStockAdjustment}>
+              Buat Penyesuaian Stok
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={completedDialogOpen}

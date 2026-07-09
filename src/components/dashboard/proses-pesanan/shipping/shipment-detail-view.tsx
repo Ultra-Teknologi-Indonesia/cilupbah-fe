@@ -2,13 +2,18 @@
 
 import * as React from "react";
 import {
+  CameraIcon,
+  CheckCircle2Icon,
   Loader2Icon,
   PackageIcon,
+  PencilIcon,
+  PhoneIcon,
   PrinterIcon,
   ScanBarcodeIcon,
   SearchIcon,
   Trash2Icon,
   TruckIcon,
+  UserIcon,
   WeightIcon,
   XCircleIcon,
 } from "lucide-react";
@@ -36,7 +41,10 @@ import {
   useShipmentOrdersPaginated,
   useScanOrderToShipment,
   useRemoveOrderFromShipment,
+  useRecordDriverCall,
+  useUpdateDriverCall,
 } from "@/hooks/proses-pesanan/use-fulfillment";
+import { Label } from "@/components/ui/label";
 import { playScanFeedback } from "@/lib/scan-feedback";
 import { ChannelBadge } from "../channel-badge";
 import { DocActions } from "../picking/doc-actions";
@@ -88,6 +96,265 @@ function PickupBadge({
     >
       {cfg.label}
     </Badge>
+  );
+}
+
+const INSTANT_COURIER_RX = /grab|gojek|gosend|gokilat|lalamove/i;
+
+function DriverSection({
+  shipmentId,
+  detail,
+}: {
+  shipmentId: string;
+  detail: import("@/types/proses-pesanan/fulfillment").ShipmentDetail;
+}) {
+  const [editing, setEditing] = React.useState(false);
+  const [name, setName] = React.useState("");
+  const [phone, setPhone] = React.useState("");
+  const [plate, setPlate] = React.useState("");
+  const [bookingCode, setBookingCode] = React.useState("");
+  const [photo, setPhoto] = React.useState<File | null>(null);
+  const fileRef = React.useRef<HTMLInputElement>(null);
+
+  const record = useRecordDriverCall();
+  const update = useUpdateDriverCall();
+
+  const hasDriver =
+    detail.driverCallStatus && detail.driverCallStatus !== "NONE";
+
+  const startEdit = () => {
+    setName(detail.driverName ?? "");
+    setPhone(detail.driverPhone ?? "");
+    setPlate(detail.driverVehiclePlate ?? "");
+    setBookingCode(detail.driverBookingCode ?? "");
+    setPhoto(null);
+    setEditing(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const data = {
+      driver_name: name,
+      driver_phone: phone,
+      driver_vehicle_plate: plate || undefined,
+      driver_booking_code: bookingCode || undefined,
+    };
+
+    try {
+      if (hasDriver) {
+        await update.mutateAsync({
+          shipmentId,
+          data,
+          idCardPhoto: photo ?? undefined,
+        });
+        toast.success("Data driver diperbarui.");
+      } else {
+        await record.mutateAsync({
+          shipmentId,
+          data,
+          idCardPhoto: photo ?? undefined,
+        });
+        toast.success("Data driver berhasil dicatat.");
+      }
+      setEditing(false);
+    } catch (err) {
+      toast.error(errMsg(err, "Gagal menyimpan data driver."));
+    }
+  };
+
+  const isPending = record.isPending || update.isPending;
+
+  if (hasDriver && !editing) {
+    return (
+      <LiquidGlass
+        radius={16}
+        intensity="subtle"
+        className="bg-white/40 dark:bg-white/[0.06]"
+      >
+        <div className="px-4 py-4 sm:px-5">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-medium flex items-center gap-1.5">
+              <UserIcon className="size-4 text-muted-foreground" />
+              Info Driver
+            </p>
+            <Button variant="ghost" size="sm" onClick={startEdit}>
+              <PencilIcon className="size-3.5 mr-1" />
+              Edit
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-4">
+            <div>
+              <span className="text-xs text-muted-foreground">Nama</span>
+              <p className="font-medium">{detail.driverName ?? "—"}</p>
+            </div>
+            <div>
+              <span className="text-xs text-muted-foreground">No. HP</span>
+              <p className="font-medium">{detail.driverPhone ?? "—"}</p>
+            </div>
+            <div>
+              <span className="text-xs text-muted-foreground">
+                Plat Kendaraan
+              </span>
+              <p className="font-medium">
+                {detail.driverVehiclePlate ?? "—"}
+              </p>
+            </div>
+            <div>
+              <span className="text-xs text-muted-foreground">
+                Kode Booking
+              </span>
+              <p className="font-medium">
+                {detail.driverBookingCode ?? "—"}
+              </p>
+            </div>
+          </div>
+          {detail.driverIdCardUrl && (
+            <div className="mt-3">
+              <span className="text-xs text-muted-foreground">
+                Kartu Identitas
+              </span>
+              <a
+                href={detail.driverIdCardUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 block"
+              >
+                <img
+                  src={detail.driverIdCardUrl}
+                  alt="Kartu identitas driver"
+                  className="h-20 rounded-md border border-border object-cover"
+                />
+              </a>
+            </div>
+          )}
+          {detail.driverCalledAt && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Dicatat:{" "}
+              {new Date(detail.driverCalledAt).toLocaleString("id-ID", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+              {detail.driverCalledBy ? ` oleh ${detail.driverCalledBy}` : ""}
+            </p>
+          )}
+        </div>
+      </LiquidGlass>
+    );
+  }
+
+  return (
+    <LiquidGlass
+      radius={16}
+      intensity="subtle"
+      className="bg-white/40 dark:bg-white/[0.06]"
+    >
+      <div className="px-4 py-4 sm:px-5">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-medium flex items-center gap-1.5">
+            <UserIcon className="size-4 text-muted-foreground" />
+            {hasDriver ? "Edit Driver" : "Catat Driver"}
+          </p>
+          {editing && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setEditing(false)}
+            >
+              Batal
+            </Button>
+          )}
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="driver_name">
+                Nama Driver <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="driver_name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Nama lengkap driver"
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="driver_phone">
+                No. HP Driver <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="driver_phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="08xxxxxxxxxx"
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="driver_plate">Plat Kendaraan</Label>
+              <Input
+                id="driver_plate"
+                value={plate}
+                onChange={(e) => setPlate(e.target.value)}
+                placeholder="B 1234 ABC"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="driver_booking">Kode Booking</Label>
+              <Input
+                id="driver_booking"
+                value={bookingCode}
+                onChange={(e) => setBookingCode(e.target.value)}
+                placeholder="Kode booking kurir"
+              />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="driver_id_card">Foto Kartu Identitas</Label>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fileRef.current?.click()}
+              >
+                <CameraIcon className="size-3.5 mr-1" />
+                {photo ? "Ganti Foto" : "Pilih Foto"}
+              </Button>
+              {photo && (
+                <span className="text-xs text-muted-foreground truncate max-w-[200px]">
+                  {photo.name}
+                </span>
+              )}
+              <input
+                ref={fileRef}
+                id="driver_id_card"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="hidden"
+                onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end pt-1">
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+              disabled={isPending || !name.trim() || !phone.trim()}
+            >
+              {isPending && (
+                <Loader2Icon className="size-4 animate-spin mr-1" />
+              )}
+              Simpan
+            </Button>
+          </div>
+        </form>
+      </div>
+    </LiquidGlass>
   );
 }
 
@@ -283,6 +550,12 @@ export function ShipmentDetailView({ id }: { id: string }) {
           </div>
         </LiquidGlass>
       </div>
+
+      {detail.hasInstant &&
+        detail.courierCode &&
+        INSTANT_COURIER_RX.test(detail.courierCode) && (
+          <DriverSection shipmentId={id} detail={detail} />
+        )}
 
       {}
       {isScheduled && (

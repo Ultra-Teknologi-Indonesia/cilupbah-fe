@@ -31,6 +31,20 @@ export interface BinLookupResult {
   current_qty: number;
 }
 
+export interface DiscrepancyItem {
+  putaway_item_id: string;
+  item_id: string;
+  qty: number;
+  bin_id: string;
+  batch_no: string | null;
+  serial_no: string | null;
+}
+
+export interface CompleteDiscrepancyResult {
+  putaway: Putaway;
+  discrepancy_items: DiscrepancyItem[];
+}
+
 export const PutawayService = {
   list: async (params: PutawayListParams = {}) => {
     const sp = new URLSearchParams();
@@ -133,6 +147,16 @@ export const PutawayService = {
   lookupBin: async (code: string, locationId: string) => {
     const res = await fetchClient<ApiResponse<BinLookupResult>>(
       `/putaway/bins/lookup?code=${encodeURIComponent(code)}&location_id=${encodeURIComponent(locationId)}`,
+    );
+    return res.data;
+  },
+
+  completeDiscrepancy: async (id: string) => {
+    const res = await fetchClient<ApiResponse<CompleteDiscrepancyResult>>(
+      `/putaway/${id}/complete-discrepancy`,
+      {
+        method: "POST",
+      },
     );
     return res.data;
   },

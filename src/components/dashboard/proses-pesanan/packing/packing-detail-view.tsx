@@ -48,6 +48,8 @@ import {
   useStartPacklist,
   useVerifyBarcode,
 } from "@/hooks/proses-pesanan/use-fulfillment";
+import { usePrintWithDriverCall } from "@/hooks/proses-pesanan/use-driver-call";
+import { isShopeeInstantOrSameDay } from "@/lib/proses-pesanan/shopee";
 import { useQtyBumpQueue } from "@/hooks/proses-pesanan/use-qty-bump-queue";
 
 function PackCorrectButton({
@@ -231,6 +233,36 @@ export function PackingDetailView({ id }: { id: string }) {
     : false;
   const editable = !!pk && !isTerminal;
 
+  const printWithDriverCall = usePrintWithDriverCall();
+
+  const triggerShopeeDriverCall = React.useCallback(() => {
+    if (!pk?.orderId) return;
+    const isShopeeInstant = isShopeeInstantOrSameDay({
+      shippingProvider: pk.shippingProvider,
+      shippingType: pk.shippingType,
+      isInstant: pk.isInstant,
+    });
+    if (!isShopeeInstant) return;
+
+    printWithDriverCall.mutate(
+      { orderId: pk.orderId },
+      {
+        onSuccess: (res) => {
+          if (res.driver_call_status === "success") {
+            toast.success("Driver Shopee berhasil dipanggil.");
+          } else if (res.driver_call_status === "failed") {
+            toast.warning(
+              `Panggilan driver Shopee gagal: ${res.driver_call_message ?? "Coba lagi nanti."}`,
+            );
+          }
+        },
+        onError: () => {
+          toast.warning("Gagal memanggil driver Shopee otomatis.");
+        },
+      },
+    );
+  }, [pk, printWithDriverCall]);
+
   const didAutoComplete = React.useRef(false);
   React.useEffect(() => {
     if (!pk || didAutoComplete.current) return;
@@ -239,6 +271,7 @@ export function PackingDetailView({ id }: { id: string }) {
       completePacklist.mutate(id, {
         onSuccess: () => {
           toast.success("Semua item sudah dikemas. Packing selesai!");
+          triggerShopeeDriverCall();
           router.push(LIST_HREF);
         },
         onError: (e) => {
@@ -247,7 +280,7 @@ export function PackingDetailView({ id }: { id: string }) {
         },
       });
     }
-  }, [pk, allPacked, id, completePacklist, router]);
+  }, [pk, allPacked, id, completePacklist, router, triggerShopeeDriverCall]);
 
   React.useEffect(() => {
     if (pk && pk.status === "DRAFT") {

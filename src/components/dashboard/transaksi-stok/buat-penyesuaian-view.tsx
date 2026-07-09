@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Loader2Icon,
   PackageSearchIcon,
@@ -68,7 +68,10 @@ function todayStr(): string {
 
 export function BuatPenyesuaianView() {
   const router = useRouter();
-  const [locationId, setLocationId] = useState("");
+  const searchParams = useSearchParams();
+  const [locationId, setLocationId] = useState(
+    () => searchParams.get("location_id") ?? "",
+  );
   const [transactionDate, setTransactionDate] = useState(todayStr);
   const [adjustmentNo, setAdjustmentNo] = useState("[auto]");
   const [notes, setNotes] = useState("");
@@ -95,6 +98,77 @@ export function BuatPenyesuaianView() {
   useEffect(() => {
     if (locationId) scanRef.current?.focus();
   }, [locationId]);
+
+  const prefillAppliedRef = useRef(false);
+
+  useEffect(() => {
+    if (prefillAppliedRef.current) return;
+    const itemsParam = searchParams.get("items");
+    const locParam = searchParams.get("location_id");
+    if (!itemsParam || !locParam) return;
+    prefillAppliedRef.current = true;
+
+    let entries: { sku: string; qty: number; binId: string }[] = [];
+    try {
+      entries = JSON.parse(itemsParam);
+    } catch {
+      return;
+    }
+    if (!Array.isArray(entries) || entries.length === 0) return;
+
+    (async () => {
+      const results = await Promise.all(
+        entries.map((e) =>
+          InventoryStockService.bySku(e.sku, locParam).catch(() => null),
+        ),
+      );
+
+      let addedAny = false;
+
+      setLines((prev) => {
+        const existing = new Set(prev.map((l) => l.itemId));
+        const fresh: LineDraft[] = [];
+
+        results.forEach((res, i) => {
+          const variant = res?.data;
+          if (!variant || existing.has(variant.id)) return;
+          const entry = entries[i];
+          const bin =
+            variant.available_bins.find((b) => b.id === entry.binId) ??
+            variant.primary_bin ??
+            null;
+
+          fresh.push({
+            itemId: variant.id,
+            sku: variant.sku,
+            name: variant.product_name ?? variant.sku,
+            variantLabel: variant.variant_label,
+            thumbnail: variant.thumbnail_url,
+            binId: bin?.id ?? "",
+            binCode: bin?.code ?? "",
+            binOnHand: bin?.on_hand ?? 0,
+            binAvgCost: bin?.avg_cost ?? variant.avg_cost ?? 0,
+            delta: String(-entry.qty),
+            unitCost: bin?.avg_cost != null ? String(bin.avg_cost) : "",
+            notes: "Selisih penempatan (stok fiktif)",
+            availableBins: variant.available_bins.map((b) => ({
+              id: b.id,
+              code: b.code,
+              onHand: b.on_hand,
+              avgCost: b.avg_cost,
+            })),
+          });
+        });
+
+        addedAny = fresh.length > 0;
+        return [...prev, ...fresh];
+      });
+
+      if (addedAny) {
+        setNotes((prev) => prev || "Selisih penempatan (stok fiktif)");
+      }
+    })();
+  }, [searchParams]);
 
   const addLines = (
     products: (PickedProduct & {

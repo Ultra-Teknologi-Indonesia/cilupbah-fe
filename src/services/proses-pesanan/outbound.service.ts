@@ -28,6 +28,7 @@ import type {
   Shipment,
   ShipmentDetail,
   ShipmentOrderItem,
+  ReconcileSummary,
 } from "@/types/proses-pesanan/fulfillment";
 
 export interface CreateShipmentPayload {
@@ -177,6 +178,8 @@ function mapPacklist(raw: RawPacklist): Packlist {
     status: (raw.status ?? "DRAFT") as Packlist["status"],
     packageCount: raw.package_count ?? 1,
     isInstant: Boolean(raw.order?.is_instant),
+    shippingProvider: raw.order?.shipping_provider ?? null,
+    shippingType: raw.order?.shipping_type ?? null,
   };
 }
 
@@ -196,6 +199,15 @@ function mapShipment(raw: RawShipment): Shipment {
     totalWeightGram: Number(raw.total_weight_gram ?? 0),
     hasInstant: Boolean(raw.has_instant),
     createdAt: raw.created_at ?? null,
+    driverName: raw.driver_name ?? null,
+    driverPhone: raw.driver_phone ?? null,
+    driverVehiclePlate: raw.driver_vehicle_plate ?? null,
+    driverBookingCode: raw.driver_booking_code ?? null,
+    driverCallMethod: (raw.driver_call_method as Shipment["driverCallMethod"]) ?? null,
+    driverCallStatus: (raw.driver_call_status as Shipment["driverCallStatus"]) ?? null,
+    driverCalledAt: raw.driver_called_at ?? null,
+    driverCalledBy: raw.driver_called_by ?? null,
+    driverIdCardUrl: raw.driver_id_card_url ?? null,
   };
 }
 
@@ -215,6 +227,7 @@ function mapShipmentOrderItem(raw: RawShipmentOrder): ShipmentOrderItem {
     packlistNo: raw.packlist?.packlist_no ?? null,
     pickupStatus: raw.pickup_status ?? null,
     pickupMessage: raw.pickup_message ?? null,
+    channelStatus: raw.order?.channel_status ?? null,
   };
 }
 
@@ -224,6 +237,7 @@ function mapShipmentDetail(raw: RawShipmentDetail): ShipmentDetail {
     ordersCount: raw.orders?.length ?? raw.orders_count ?? 0,
     orders: (raw.orders ?? []).map(mapShipmentOrderItem),
     notes: raw.notes ?? null,
+    createdBy: raw.created_by ?? null,
   };
 }
 
@@ -439,6 +453,26 @@ export const OutboundService = {
       success?: boolean;
       data: RawPaginator<RawShipment>;
     }>(`/outbound/shipments?${buildQuery(params)}`);
+    return {
+      items: (res.data?.data ?? []).map(mapShipment),
+      meta: paginatorMeta(res.data, params.per_page),
+    };
+  },
+
+  completedShipments: async (
+    params: FulfillmentListParams & {
+      type?: string;
+      courier_codes?: string[];
+    },
+  ): Promise<ListResult<Shipment>> => {
+    const type = encodeURIComponent(params.type ?? "all");
+    const couriers = (params.courier_codes ?? []).join(",") || "all";
+    const res = await fetchClient<{
+      success?: boolean;
+      data: RawPaginator<RawShipment>;
+    }>(
+      `/outbound/shipments/completed/${type}/${encodeURIComponent(couriers)}?${buildQuery(params)}`,
+    );
     return {
       items: (res.data?.data ?? []).map(mapShipment),
       meta: paginatorMeta(res.data, params.per_page),
@@ -913,6 +947,84 @@ export const OutboundService = {
     await fetchClient(`/sales/${orderId}/driver-call/retry`, {
       method: "POST",
     });
+  },
+
+  recordDriverCall: async (
+    shipmentId: string,
+    data: {
+      driver_name: string;
+      driver_phone: string;
+      driver_vehicle_plate?: string;
+      driver_booking_code?: string;
+    },
+    idCardPhoto?: File,
+  ): Promise<ReconcileSummary | null> => {
+    const form = new FormData();
+    form.append("driver_name", data.driver_name);
+    form.append("driver_phone", data.driver_phone);
+    if (data.driver_vehicle_plate)
+      form.append("driver_vehicle_plate", data.driver_vehicle_plate);
+    if (data.driver_booking_code)
+      form.append("driver_booking_code", data.driver_booking_code);
+    if (idCardPhoto) form.append("driver_id_card", idCardPhoto);
+
+    const res = await fetchClient<ApiResponse<unknown>>(
+      `/outbound/shipments/${encodeURIComponent(shipmentId)}/driver-call`,
+      {
+        method: "POST",
+        data: form,
+        headers: { "Content-Type": undefined as unknown as string },
+      },
+    );
+    return res.data as ReconcileSummary | null;
+  },
+
+  updateDriverCall: async (
+    shipmentId: string,
+    data: {
+      driver_name?: string;
+      driver_phone?: string;
+      driver_vehicle_plate?: string;
+      driver_booking_code?: string;
+      driver_call_status?: string;
+    },
+    idCardPhoto?: File,
+  ): Promise<void> => {
+    const form = new FormData();
+    if (data.driver_name) form.append("driver_name", data.driver_name);
+    if (data.driver_phone) form.append("driver_phone", data.driver_phone);
+    if (data.driver_vehicle_plate)
+      form.append("driver_vehicle_plate", data.driver_vehicle_plate);
+    if (data.driver_booking_code)
+      form.append("driver_booking_code", data.driver_booking_code);
+    if (data.driver_call_status)
+      form.append("driver_call_status", data.driver_call_status);
+    if (idCardPhoto) form.append("driver_id_card", idCardPhoto);
+    form.append("_method", "PATCH");
+
+    await fetchClient(
+      `/outbound/shipments/${encodeURIComponent(shipmentId)}/driver-call`,
+      {
+        method: "POST",
+        data: form,
+        headers: { "Content-Type": undefined as unknown as string },
+      },
+    );
+  },
+
+  markDelivered: async (shipmentId: string): Promise<void> => {
+    await fetchClient(
+      `/outbound/shipments/${encodeURIComponent(shipmentId)}/mark-delivered`,
+      { method: "POST" },
+    );
+  },
+
+  reconcileShipment: async (shipmentId: string): Promise<ReconcileSummary> => {
+    const res = await fetchClient<ApiResponse<ReconcileSummary>>(
+      `/outbound/shipments/${encodeURIComponent(shipmentId)}/reconcile`,
+      { method: "POST" },
+    );
+    return res.data;
   },
 
   retryPickup: async (orderIds: string[]): Promise<ReadyToShipResult[]> => {

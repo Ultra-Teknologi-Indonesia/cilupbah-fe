@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
 import { PhoneInput } from "@/components/ui/phone-input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { SectionTitle } from "@/components/dashboard/shared/section-title";
@@ -41,7 +42,7 @@ import type {
 
 const LIST_HREF = "/dashboard/kontak-pemasok";
 
-type Section = "umum" | "pic" | "alamat";
+type Section = "umum" | "pic" | "alamat" | "pajak";
 
 const TYPE_OPTIONS = [
   { value: "SUPPLIER", label: "Pemasok" },
@@ -77,6 +78,7 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
     type: "SUPPLIER",
     is_company: false,
     shipping_same_as_billing: true,
+    tax_type: "NON_PKP",
   });
   const [coordinate, setCoordinate] = React.useState<string>("");
 
@@ -110,6 +112,7 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
         shipping_postal_code: d.shipping_postal_code ?? undefined,
         latitude: d.latitude,
         longitude: d.longitude,
+        tax_type: d.tax_type ?? "NON_PKP",
       });
       if (d.latitude != null && d.longitude != null) {
         setCoordinate(formatCoordinate(d.latitude, d.longitude));
@@ -143,6 +146,16 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
     if (form.fax && !isValidPhone(form.fax)) {
       setSection("pic");
       toast.error("Format Fax tidak valid.");
+      return;
+    }
+    if (!form.address?.trim()) {
+      setSection("alamat");
+      toast.error("Detail alamat penagihan wajib diisi.");
+      return;
+    }
+    if (form.tax_type !== "PKP" && form.tax_type !== "NON_PKP") {
+      setSection("pajak");
+      toast.error("Tipe pajak wajib dipilih.");
       return;
     }
 
@@ -193,6 +206,7 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
     { key: "umum", label: "Umum" },
     { key: "pic", label: "PIC" },
     { key: "alamat", label: "Alamat" },
+    { key: "pajak", label: "Informasi Pajak" },
   ];
 
   return (
@@ -245,6 +259,9 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
               provinceOptions={toRegionOptions(provinces.data)}
               provincesLoading={provinces.isLoading}
             />
+          )}
+          {section === "pajak" && (
+            <PajakTab form={form} set={set} disabled={locked} />
           )}
         </div>
       </div>
@@ -593,6 +610,49 @@ function AlamatTab({
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+function PajakTab({
+  form,
+  set,
+  disabled,
+}: {
+  form: ContactFormData;
+  set: <K extends keyof ContactFormData>(
+    key: K,
+    value: ContactFormData[K],
+  ) => void;
+  disabled: boolean;
+}) {
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <Label>
+          Tipe
+          <Req />
+        </Label>
+        <RadioGroup
+          value={form.tax_type ?? "NON_PKP"}
+          onValueChange={(v) => set("tax_type", v as "PKP" | "NON_PKP")}
+          disabled={disabled}
+          className="flex flex-row items-center gap-6"
+        >
+          <div className="flex items-center gap-2">
+            <RadioGroupItem id="tax_type_non_pkp" value="NON_PKP" />
+            <Label htmlFor="tax_type_non_pkp" className="!mt-0 cursor-pointer">
+              Non PKP
+            </Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <RadioGroupItem id="tax_type_pkp" value="PKP" />
+            <Label htmlFor="tax_type_pkp" className="!mt-0 cursor-pointer">
+              PKP
+            </Label>
+          </div>
+        </RadioGroup>
+      </div>
     </div>
   );
 }

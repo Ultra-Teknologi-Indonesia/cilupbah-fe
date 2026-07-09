@@ -46,6 +46,8 @@ import type {
   PacklistItem,
 } from "@/types/proses-pesanan/fulfillment";
 import { playScanFeedback } from "@/lib/scan-feedback";
+import { usePrintWithDriverCall } from "@/hooks/proses-pesanan/use-driver-call";
+import { isShopeeInstantOrSameDay } from "@/lib/proses-pesanan/shopee";
 
 const LIST_HREF = "/dashboard/proses-pesanan";
 
@@ -337,6 +339,8 @@ export function PackingProsesView() {
   );
 
   // Auto-complete each packlist independently as its items fill up.
+  const printWithDriverCall = usePrintWithDriverCall();
+
   const completedRef = React.useRef<Set<string>>(new Set());
   React.useEffect(() => {
     packlists.forEach((pl) => {
@@ -346,7 +350,34 @@ export function PackingProsesView() {
       if (full && pl.status !== "COMPLETED" && !completedRef.current.has(pl.id)) {
         completedRef.current.add(pl.id);
         completePacklist.mutate(pl.id, {
-          onSuccess: () => toast.success(`Packing ${pl.packlistNo} selesai.`),
+          onSuccess: () => {
+            toast.success(`Packing ${pl.packlistNo} selesai.`);
+            if (
+              pl.orderId &&
+              isShopeeInstantOrSameDay({
+                shippingProvider: pl.shippingProvider,
+                shippingType: pl.shippingType,
+                isInstant: pl.isInstant,
+              })
+            ) {
+              printWithDriverCall.mutate(
+                { orderId: pl.orderId },
+                {
+                  onSuccess: (res) => {
+                    if (res.driver_call_status === "success") {
+                      toast.success("Driver Shopee berhasil dipanggil.");
+                    } else if (res.driver_call_status === "failed") {
+                      toast.warning(
+                        `Panggilan driver Shopee gagal: ${res.driver_call_message ?? "Coba lagi nanti."}`,
+                      );
+                    }
+                  },
+                  onError: () =>
+                    toast.warning("Gagal memanggil driver Shopee otomatis."),
+                },
+              );
+            }
+          },
           onError: (e) => {
             completedRef.current.delete(pl.id);
             toast.error(errMsg(e, "Gagal menyelesaikan packing."));
@@ -354,7 +385,7 @@ export function PackingProsesView() {
         });
       }
     });
-  }, [packlists, completePacklist]);
+  }, [packlists, completePacklist, printWithDriverCall]);
 
   const pickerList = React.useMemo(() => pickers.data ?? [], [pickers.data]);
   const checkerName =

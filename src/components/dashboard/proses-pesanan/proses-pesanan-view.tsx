@@ -28,6 +28,7 @@ import { PacklistTable } from "./packing/packlist-table";
 import { PreManifestCancelTable } from "./shipping/pre-manifest-cancel-table";
 import { ShipmentTable } from "./shipping/shipment-table";
 import { BuatPengirimanDialog } from "./shipping/buat-pengiriman-dialog";
+import { CompletedShipmentTable } from "./shipping/completed-shipment-table";
 import { FulfillmentCardList } from "./shared/completed-order-card-list";
 
 export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
@@ -116,21 +117,7 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
         />
       );
     }
-    if (stage === "delivered")
-      return (
-        <FulfillmentCardList
-          stage="ready-to-ship"
-          tab="in-transit"
-          emptyTitle="Belum ada pesanan dikirim"
-          emptyDescription="Pesanan yang sudah dikirim akan muncul di sini."
-          filterFields={["courier", "status", "date"]}
-          channelStatusOptions={[
-            { value: "SHIPPED", label: "Shipped" },
-            { value: "PROCESSED", label: "Processing" },
-            { value: "COMPLETED", label: "Completed" },
-          ]}
-        />
-      );
+    if (stage === "delivered") return <CompletedShipmentTable />;
     if (stage === "done")
       return (
         <FulfillmentCardList
