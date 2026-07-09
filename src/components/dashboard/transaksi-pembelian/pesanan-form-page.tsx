@@ -452,13 +452,6 @@ export function PesananFormPage({ mode, id }: Props) {
                     </TableHead>
                     <TableHead className="w-28 text-right">Harga</TableHead>
                     <TableHead className="w-20 text-right">Qty</TableHead>
-                    <TableHead className="w-20 text-right">Diskon %</TableHead>
-                    <TableHead className="w-28 text-right">
-                      Diskon (Rp)
-                    </TableHead>
-                    <TableHead className="w-28 text-right">
-                      Ongkos Angkut
-                    </TableHead>
                     <TableHead className="w-32 text-right">Total</TableHead>
                     <TableHead className="w-10" />
                   </TableRow>
@@ -550,52 +543,6 @@ export function PesananFormPage({ mode, id }: Props) {
                             className="h-8 text-right bg-background tabular-nums"
                           />
                         </TableCell>
-                        <TableCell>
-                          <Input
-                            type="number"
-                            min={0}
-                            max={100}
-                            value={item.disc || ""}
-                            onChange={(e) =>
-                              updateItem(idx, "disc", Number(e.target.value))
-                            }
-                            className="h-8 text-right bg-background tabular-nums"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            type="text"
-                            inputMode="numeric"
-                            value={
-                              discAmt ? discAmt.toLocaleString("id-ID") : ""
-                            }
-                            onChange={(e) =>
-                              updateItem(
-                                idx,
-                                "disc_amount",
-                                Number(e.target.value.replace(/\D/g, "")),
-                              )
-                            }
-                            placeholder="0"
-                            className="h-8 text-right bg-background tabular-nums"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            type="text"
-                            inputMode="numeric"
-                            value={ship ? ship.toLocaleString("id-ID") : ""}
-                            onChange={(e) =>
-                              updateItem(
-                                idx,
-                                "shipping_cost",
-                                Number(e.target.value.replace(/\D/g, "")),
-                              )
-                            }
-                            placeholder="0"
-                            className="h-8 text-right bg-background tabular-nums"
-                          />
-                        </TableCell>
                         <TableCell className="text-right font-medium tabular-nums text-foreground">
                           {formatCurrency(total)}
                         </TableCell>
@@ -615,7 +562,7 @@ export function PesananFormPage({ mode, id }: Props) {
                   {activeItems.length === 0 && (
                     <TableRow>
                       <TableCell
-                        colSpan={8}
+                        colSpan={5}
                         className="h-32 text-center text-muted-foreground"
                       >
                         <EmptyState icon={PackageIcon} title="Belum ada produk" description="Klik tombol di bawah untuk menambahkan." />
