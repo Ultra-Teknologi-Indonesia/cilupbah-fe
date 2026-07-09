@@ -438,20 +438,6 @@ function UmumTab({
         </Label>
       </div>
 
-      <Separator />
-
-      <div className="space-y-1.5 sm:max-w-xs">
-        <Label>No. NPWP</Label>
-        <Input
-          value={form.tax_id ?? ""}
-          onChange={(e) => set("tax_id", e.target.value)}
-          placeholder="Masukan No. NPWP"
-          disabled={disabled}
-          aria-invalid={!!errors.tax_id}
-        />
-        <FieldError message={errors.tax_id} />
-      </div>
-
       <div className="space-y-1.5">
         <Label>Keterangan</Label>
         <Textarea

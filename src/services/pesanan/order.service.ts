@@ -130,6 +130,33 @@ export const OrderService = {
     });
   },
 
+  exportOrders: (params: {
+    tab?: string;
+    date_from?: string;
+    date_to?: string;
+    source?: string;
+    search?: string;
+    store_id?: string;
+    location_id?: string;
+  }) => {
+    const sp = new URLSearchParams();
+    if (params.tab) sp.set("tab", params.tab);
+    if (params.date_from) sp.set("date_from", params.date_from);
+    if (params.date_to) sp.set("date_to", params.date_to);
+    if (params.source) sp.set("source", params.source);
+    if (params.search) sp.set("search", params.search);
+    if (params.store_id) sp.set("store_id", params.store_id);
+    if (params.location_id) sp.set("location_id", params.location_id);
+
+    const filename = `pesanan-${params.tab ?? "semua"}-${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+    return fetchBlob(
+      `/sales/orders/export?${sp}`,
+      filename,
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
+  },
+
   exportCancelled: (params: {
     date_from?: string;
     date_to?: string;

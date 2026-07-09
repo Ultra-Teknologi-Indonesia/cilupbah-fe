@@ -696,27 +696,6 @@ function PajakTab({
         </RadioGroup>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label>No. NIK</Label>
-          <Input
-            value={form.nik ?? ""}
-            onChange={(e) => set("nik", e.target.value)}
-            placeholder="Masukkan NIK"
-            disabled={disabled}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label>No. NPWP</Label>
-          <Input
-            value={form.tax_id ?? ""}
-            onChange={(e) => set("tax_id", e.target.value)}
-            placeholder="Masukkan No. NPWP"
-            disabled={disabled}
-          />
-        </div>
-      </div>
-
       <div className="flex items-center gap-2">
         <Checkbox
           id="npwp_use_different"

@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
-import { PlusIcon } from "lucide-react";
+import { ImportIcon, PlusIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -26,6 +26,7 @@ import { OrderFilters, EMPTY_FILTERS, type FilterState } from "./order-filters";
 import { OrderCardList } from "./order-card-list";
 import { BulkActionBar } from "./bulk-action-bar";
 import { ExportCancelDialog } from "./export-cancel-dialog";
+import { ExportOrdersDialog } from "./export-orders-dialog";
 
 const TAB_KEYS = TAB_CONFIG.map((t) => t.key as OrderTab);
 
@@ -180,7 +181,10 @@ export function PesananView() {
               </div>
             )}
           </div>
-          {tab === "cancellation" && <ExportCancelDialog />}
+          <div className="flex items-center gap-2">
+            {tab === "cancellation" && <ExportCancelDialog />}
+            <ExportOrdersDialog tab={tab} />
+          </div>
         </div>
 
         <OrderFilters
@@ -191,12 +195,20 @@ export function PesananView() {
           leading={selectAllCheckbox}
           tab={tab}
           trailing={
-            <Button asChild variant="primary" size="sm" className="h-9 rounded-full gap-1.5">
-              <Link href="/dashboard/pesanan/tambah">
-                <PlusIcon className="size-4" />
-                Buat Pesanan
-              </Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="outline" size="sm" className="h-9 rounded-full gap-1.5">
+                <Link href="/dashboard/pesanan/import">
+                  <ImportIcon className="size-4" />
+                  Import
+                </Link>
+              </Button>
+              <Button asChild variant="primary" size="sm" className="h-9 rounded-full gap-1.5">
+                <Link href="/dashboard/pesanan/tambah">
+                  <PlusIcon className="size-4" />
+                  Buat Pesanan
+                </Link>
+              </Button>
+            </div>
           }
         />
 
