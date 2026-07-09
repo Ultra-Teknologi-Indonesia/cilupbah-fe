@@ -7,7 +7,7 @@ import { CornerDownLeftIcon,
   CheckCircleIcon,
   XCircleIcon,
   FlagIcon,
-  PlusIcon, Loader2Icon, RefreshCwIcon } from "lucide-react";
+  PlusIcon, Loader2Icon, RefreshCwIcon, DownloadIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -36,6 +36,11 @@ import {
 } from "@/hooks/barang-masuk/use-sales-return-actions";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import type { SalesReturn } from "@/types/barang-masuk/sales-return";
+import { SalesReturnService } from "@/services/barang-masuk/sales-return.service";
+import { DateRangePicker } from "@/components/ui/date-picker";
+import { toast } from "sonner";
+import { format } from "date-fns";
+import type { DateRange } from "react-day-picker";
 import { formatDate } from "@/lib/format";
 
 type ReturSubTab = "unprocessed" | "rejected" | "accepted" | "completed";
@@ -86,11 +91,37 @@ export function ReturChannelTab() {
   const [processedBy, setProcessedBy] = useState("");
   const [rejectReason, setRejectReason] = useState("");
 
+  const [exportRange, setExportRange] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: new Date(),
+  });
+  const [isExporting, setIsExporting] = useState(false);
+
   const acceptMutation = useAcceptSalesReturn();
   const rejectMutation = useRejectSalesReturn();
   const completeMutation = useCompleteSalesReturn();
   const syncTrackingMutation = useSyncReturnTracking();
   const syncDetailMutation = useSyncReturnDetail();
+
+  const handleExport = useCallback(async () => {
+    setIsExporting(true);
+    try {
+      await SalesReturnService.exportChannelOnline({
+        date_from: exportRange?.from
+          ? format(exportRange.from, "yyyy-MM-dd")
+          : undefined,
+        date_to: exportRange?.to
+          ? format(exportRange.to, "yyyy-MM-dd")
+          : undefined,
+        location_id: filters.location_id || undefined,
+      });
+      toast.success("File Excel berhasil diunduh");
+    } catch {
+      toast.error("Gagal mengunduh file Excel");
+    } finally {
+      setIsExporting(false);
+    }
+  }, [exportRange, filters.location_id]);
 
   const resetPage = useCallback(() => setPage(1), []);
 
@@ -403,29 +434,45 @@ export function ReturChannelTab() {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <Tabs value={subTab} onValueChange={(val) => setSubTab(val as any)} className="flex flex-col gap-4">
-          <TabsList variant="line" className="h-auto">
-            {SUB_TABS.map(({ key, label }) => (
-              <TabsTrigger key={key} value={key}>
-                {label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-        <Button size="sm" asChild className="gap-1.5">
-          <Link href="/dashboard/barang-masuk/retur/buat">
-            <PlusIcon className="size-4" />
-            Buat Retur
-          </Link>
-        </Button>
-      </div>
-
       <LiquidGlass
         radius={20}
         intensity="subtle"
         className="bg-white/30 dark:bg-white/[0.04]"
       >
+        <div className="flex flex-wrap items-center justify-between gap-2 px-5 pt-4 sm:px-6">
+          <Tabs value={subTab} onValueChange={(val) => setSubTab(val as any)} className="flex flex-col gap-4">
+            <TabsList variant="line" className="h-auto">
+              {SUB_TABS.map(({ key, label }) => (
+                <TabsTrigger key={key} value={key}>
+                  {label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5"
+              disabled={isExporting}
+              onClick={handleExport}
+            >
+              {isExporting ? (
+                <Loader2Icon className="size-4 animate-spin" />
+              ) : (
+                <DownloadIcon className="size-4" />
+              )}
+              Unduh Excel
+            </Button>
+            <Button size="sm" asChild className="gap-1.5">
+              <Link href="/dashboard/barang-masuk/retur/buat">
+                <PlusIcon className="size-4" />
+                Buat Retur
+              </Link>
+            </Button>
+          </div>
+        </div>
+
         <FilterToolbar
           search={search}
           onSearchChange={setSearch}
@@ -458,6 +505,12 @@ export function ReturChannelTab() {
             }
             placeholder="Kategori Alasan"
             searchPlaceholder="Cari kategori"
+            className="h-9 bg-background"
+          />
+          <DateRangePicker
+            value={exportRange}
+            onChange={setExportRange}
+            placeholder="Rentang unduh"
             className="h-9 bg-background"
           />
         </FilterToolbar>

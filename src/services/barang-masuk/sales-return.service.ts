@@ -1,4 +1,4 @@
-import { fetchClient } from "@/lib/api-client";
+import { fetchBlob, fetchClient } from "@/lib/api-client";
 import type { ApiResponse, ApiPaginated } from "@/types/api.types";
 import type {
   SalesReturn,
@@ -161,5 +161,22 @@ export const SalesReturnService = {
       ApiResponse<{ id: string; text: string }[]>
     >(`/sales/returns/${id}/channel-reject-reasons`);
     return res.data ?? [];
+  },
+
+  exportChannelOnline: (params: {
+    date_from?: string;
+    date_to?: string;
+    location_id?: string;
+  }) => {
+    const sp = new URLSearchParams();
+    if (params.date_from) sp.set("date_from", params.date_from);
+    if (params.date_to) sp.set("date_to", params.date_to);
+    if (params.location_id) sp.set("location_id", params.location_id);
+    const filename = `retur-channel-online-${params.date_from ?? "hari-ini"}-${params.date_to ?? "now"}.xlsx`;
+    return fetchBlob(
+      `/sales/returns/channel-online/export?${sp}`,
+      filename,
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
   },
 };
