@@ -270,11 +270,6 @@ export function HppReportView() {
                   sign="+"
                 />
                 <RowLine
-                  label="Ongkos Angkut"
-                  value={d.ongkos_angkut}
-                  sign="+"
-                />
-                <RowLine
                   label="Retur Pembelian"
                   value={d.retur_pembelian}
                   sign="-"
