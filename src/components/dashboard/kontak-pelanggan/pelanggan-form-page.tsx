@@ -32,7 +32,6 @@ import { isValidPhone } from "@/lib/phone";
 import {
   useContactDetail,
   useContactCategories,
-  useAccountPayableOptions,
   useCreateContact,
   useUpdateContact,
 } from "@/hooks/kontak-pemasok/use-contacts";
@@ -79,7 +78,6 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
 
   const detail = useContactDetail(mode === "edit" ? id : undefined);
   const { data: categories = [] } = useContactCategories();
-  const { data: accountPayableOptions = [] } = useAccountPayableOptions();
   const countries = useCountries();
   const provinces = useProvinces();
   const createContact = useCreateContact();
@@ -169,11 +167,6 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
       toast.error("Format No. Telepon tidak valid.");
       return;
     }
-    if (form.fax && !isValidPhone(form.fax)) {
-      setSection("pic");
-      toast.error("Format Fax tidak valid.");
-      return;
-    }
     if (!form.address?.trim()) {
       setSection("alamat");
       toast.error("Detail alamat penagihan wajib diisi.");
@@ -224,11 +217,6 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
       value: c.id,
       label: c.code ? `${c.code} - ${c.name}` : c.name,
     }));
-
-  const apOptions = accountPayableOptions.map((o) => ({
-    value: o.code,
-    label: o.name,
-  }));
 
   const countryOptions = (countries.data ?? []).map((c) => ({
     value: c.name,
@@ -287,7 +275,6 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
               set={set}
               disabled={locked}
               categoryOptions={categoryOptions}
-              apOptions={apOptions}
               countryOptions={countryOptions}
               countriesLoading={countries.isLoading}
             />
@@ -332,7 +319,6 @@ function UmumTab({
   set,
   disabled,
   categoryOptions,
-  apOptions,
   countryOptions,
   countriesLoading,
 }: {
@@ -343,7 +329,6 @@ function UmumTab({
   ) => void;
   disabled: boolean;
   categoryOptions: { value: string; label: string }[];
-  apOptions: { value: string; label: string }[];
   countryOptions: { value: string; label: string }[];
   countriesLoading: boolean;
 }) {
@@ -415,17 +400,6 @@ function UmumTab({
         </div>
       </div>
 
-      <div className="space-y-1.5 sm:max-w-xs">
-        <Label>Akun Hutang</Label>
-        <Combobox
-          options={apOptions}
-          value={form.account_payable ?? null}
-          onChange={(v) => set("account_payable", v ?? undefined)}
-          placeholder="Pilih akun"
-          disabled={disabled}
-        />
-      </div>
-
       <div className="flex items-center gap-2">
         <Checkbox
           id="is_company"
@@ -463,20 +437,6 @@ function UmumTab({
         </div>
       </div>
 
-      <div className="space-y-1.5 sm:max-w-xs">
-        <Label>Termin</Label>
-        <Input
-          type="number"
-          min={0}
-          value={form.payment_term ?? ""}
-          onChange={(e) =>
-            set("payment_term", e.target.value ? Number(e.target.value) : null)
-          }
-          placeholder="0"
-          disabled={disabled}
-        />
-      </div>
-
       <div className="space-y-1.5">
         <Label>Keterangan</Label>
         <Textarea
@@ -505,25 +465,14 @@ function PICTab({
 }) {
   return (
     <div className="space-y-5">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label>Nama</Label>
-          <Input
-            value={form.contact_person ?? ""}
-            onChange={(e) => set("contact_person", e.target.value)}
-            placeholder="Nama penanggung jawab"
-            disabled={disabled}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Jabatan</Label>
-          <Input
-            value={form.pic_title ?? ""}
-            onChange={(e) => set("pic_title", e.target.value)}
-            placeholder="Masukkan jabatan"
-            disabled={disabled}
-          />
-        </div>
+      <div className="space-y-1.5">
+        <Label>Nama</Label>
+        <Input
+          value={form.contact_person ?? ""}
+          onChange={(e) => set("contact_person", e.target.value)}
+          placeholder="Nama penanggung jawab"
+          disabled={disabled}
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -545,16 +494,6 @@ function PICTab({
             disabled={disabled}
           />
         </div>
-      </div>
-
-      <div className="space-y-1.5 sm:max-w-xs">
-        <Label>Fax</Label>
-        <PhoneInput
-          value={form.fax ?? ""}
-          onChange={(v) => set("fax", v || undefined)}
-          placeholder="21 1234 5678"
-          disabled={disabled}
-        />
       </div>
 
       <Separator />

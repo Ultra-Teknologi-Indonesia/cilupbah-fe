@@ -72,6 +72,9 @@ export interface BinInventory {
   floor_code: string | null;
   row_code: string | null;
   column_code: string | null;
+  zone_id: string | null;
+  zone_code: string | null;
+  zone_name: string | null;
   batch_no: string | null;
   serial_no: string | null;
   expired_date: string | null;

@@ -153,6 +153,7 @@ export interface UniformApplyPayload {
     is_stock_acknowledged?: boolean;
     is_large_bin?: boolean;
     category?: string | null;
+    zone_id?: string | null;
   };
 
   filter?: BinListParams["filter"];

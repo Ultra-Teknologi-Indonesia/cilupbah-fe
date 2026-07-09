@@ -5,8 +5,7 @@ import { FormSkeleton } from "@/components/ui/page-skeleton";
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2Icon, LockIcon } from "lucide-react";
-import { toast } from "sonner";
+import { AlertTriangleIcon, Loader2Icon, LockIcon } from "lucide-react";
 
 import { PageTitle } from "@/components/dashboard/page-title";
 import { FormFooter } from "@/components/dashboard/shared/form-footer";
@@ -16,7 +15,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
 import { PhoneInput } from "@/components/ui/phone-input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { SectionTitle } from "@/components/dashboard/shared/section-title";
@@ -42,15 +40,53 @@ import type {
 
 const LIST_HREF = "/dashboard/kontak-pemasok";
 
-type Section = "umum" | "pic" | "alamat" | "pajak";
+type Section = "umum" | "pic" | "alamat";
 
 const TYPE_OPTIONS = [
   { value: "SUPPLIER", label: "Pemasok" },
   { value: "BOTH", label: "Pemasok dan Pelanggan" },
 ];
 
+const FIELD_SECTION_MAP: Partial<Record<keyof ContactFormData, Section>> = {
+  name: "umum",
+  type: "umum",
+  category_id: "umum",
+  is_company: "umum",
+  tax_id: "umum",
+  notes: "umum",
+  contact_person: "pic",
+  phone: "pic",
+  email: "pic",
+  address: "alamat",
+  province: "alamat",
+  postal_code: "alamat",
+  shipping_address: "alamat",
+  shipping_province: "alamat",
+  shipping_postal_code: "alamat",
+  shipping_same_as_billing: "alamat",
+};
+
+type FormErrors = Partial<Record<keyof ContactFormData, string>>;
+
+function validateForm(f: ContactFormData): FormErrors {
+  const errs: FormErrors = {};
+  if (!f.name.trim()) errs.name = "Nama Kontak wajib diisi.";
+  if (f.phone && !isValidPhone(f.phone)) {
+    errs.phone = "Format No. Telepon tidak valid.";
+  }
+  if (!f.address?.trim()) {
+    errs.address = "Detail alamat penagihan wajib diisi.";
+  }
+  return errs;
+}
+
 function Req() {
   return <span className="text-destructive"> *</span>;
+}
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <p className="text-xs font-medium text-destructive">{message}</p>;
 }
 
 function toRegionOptions(items: { id: string; nama: string }[] | undefined) {
@@ -81,6 +117,7 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
     tax_type: "NON_PKP",
   });
   const [coordinate, setCoordinate] = React.useState<string>("");
+  const [errors, setErrors] = React.useState<FormErrors>({});
 
   const prefilledRef = React.useRef(false);
   React.useEffect(() => {
@@ -129,35 +166,30 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
     value: ContactFormData[K],
   ) {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => {
+      if (!(key in prev)) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  }
+
+  function jumpToFirstError(errs: FormErrors) {
+    const firstKey = Object.keys(errs)[0] as keyof ContactFormData | undefined;
+    if (firstKey) {
+      setSection(FIELD_SECTION_MAP[firstKey] ?? "umum");
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name.trim()) {
-      setSection("umum");
-      toast.error("Nama Kontak wajib diisi.");
+    const fieldErrors = validateForm(form);
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
+      jumpToFirstError(fieldErrors);
       return;
     }
-    if (form.phone && !isValidPhone(form.phone)) {
-      setSection("pic");
-      toast.error("Format No. Telepon tidak valid.");
-      return;
-    }
-    if (form.fax && !isValidPhone(form.fax)) {
-      setSection("pic");
-      toast.error("Format Fax tidak valid.");
-      return;
-    }
-    if (!form.address?.trim()) {
-      setSection("alamat");
-      toast.error("Detail alamat penagihan wajib diisi.");
-      return;
-    }
-    if (form.tax_type !== "PKP" && form.tax_type !== "NON_PKP") {
-      setSection("pajak");
-      toast.error("Tipe pajak wajib dipilih.");
-      return;
-    }
+    setErrors({});
 
     const coord = parseCoordinate(coordinate);
     const payload: ContactFormData = {
@@ -173,7 +205,21 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
         await updateContact.mutateAsync({ id, data: payload });
       }
       router.push(LIST_HREF);
-    } catch {}
+    } catch (err) {
+      const body = err as { errors?: Record<string, string[] | string> };
+      if (body?.errors && typeof body.errors === "object") {
+        const backendErrors: FormErrors = {};
+        for (const [key, messages] of Object.entries(body.errors)) {
+          backendErrors[key as keyof ContactFormData] = Array.isArray(
+            messages,
+          )
+            ? messages[0]
+            : String(messages);
+        }
+        setErrors(backendErrors);
+        jumpToFirstError(backendErrors);
+      }
+    }
   }
 
   const title = mode === "create" ? "Buat Pemasok" : "Edit Pemasok";
@@ -206,7 +252,6 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
     { key: "umum", label: "Umum" },
     { key: "pic", label: "PIC" },
     { key: "alamat", label: "Alamat" },
-    { key: "pajak", label: "Informasi Pajak" },
   ];
 
   return (
@@ -227,13 +272,39 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
         </div>
       )}
 
+      {Object.keys(errors).length > 0 && (
+        <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3">
+          <AlertTriangleIcon className="mt-0.5 size-5 shrink-0 text-destructive" />
+          <div className="flex-1 space-y-1">
+            <p className="text-sm font-medium text-destructive">
+              Lengkapi data berikut sebelum menyimpan:
+            </p>
+            <ul className="list-disc space-y-0.5 pl-4 text-sm text-destructive/90">
+              {Object.values(errors).map((msg, i) => (
+                <li key={i}>{msg}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
         <nav className="flex flex-col gap-2">
-          {navItems.map((n) => (
-            <Button key={n.key} type="button" variant="outline" onClick={() => setSection(n.key)} className={cn("h-auto justify-start rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-colors", section === n.key ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/20" : "border-border bg-background hover:bg-muted")}>
-              {n.label}
-            </Button>
-          ))}
+          {navItems.map((n) => {
+            const hasError = Object.keys(errors).some(
+              (f) =>
+                (FIELD_SECTION_MAP[f as keyof ContactFormData] ?? "umum") ===
+                n.key,
+            );
+            return (
+              <Button key={n.key} type="button" variant="outline" onClick={() => setSection(n.key)} className={cn("h-auto justify-start rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-colors", section === n.key ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/20" : "border-border bg-background hover:bg-muted")}>
+                {n.label}
+                {hasError && (
+                  <span className="ml-auto size-1.5 shrink-0 rounded-full bg-destructive" />
+                )}
+              </Button>
+            );
+          })}
         </nav>
 
         <div className="rounded-2xl border border-border bg-card p-6">
@@ -244,10 +315,11 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
               disabled={locked}
               categoryOptions={categoryOptions}
               apOptions={apOptions}
+              errors={errors}
             />
           )}
           {section === "pic" && (
-            <PICTab form={form} set={set} disabled={locked} />
+            <PICTab form={form} set={set} disabled={locked} errors={errors} />
           )}
           {section === "alamat" && (
             <AlamatTab
@@ -258,10 +330,8 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
               disabled={locked}
               provinceOptions={toRegionOptions(provinces.data)}
               provincesLoading={provinces.isLoading}
+              errors={errors}
             />
-          )}
-          {section === "pajak" && (
-            <PajakTab form={form} set={set} disabled={locked} />
           )}
         </div>
       </div>
@@ -287,6 +357,7 @@ function UmumTab({
   disabled,
   categoryOptions,
   apOptions,
+  errors,
 }: {
   form: ContactFormData;
   set: <K extends keyof ContactFormData>(
@@ -296,6 +367,7 @@ function UmumTab({
   disabled: boolean;
   categoryOptions: { value: string; label: string }[];
   apOptions: { value: string; label: string }[];
+  errors: FormErrors;
 }) {
   return (
     <div className="space-y-5">
@@ -309,7 +381,9 @@ function UmumTab({
           onChange={(e) => set("name", e.target.value)}
           placeholder="Masukkan nama kontak"
           disabled={disabled}
+          aria-invalid={!!errors.name}
         />
+        <FieldError message={errors.name} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -341,7 +415,7 @@ function UmumTab({
         </div>
       </div>
 
-      <div className="space-y-1.5">
+      <div className="space-y-1.5 sm:max-w-xs">
         <Label>Akun Hutang</Label>
         <Combobox
           options={apOptions}
@@ -366,39 +440,16 @@ function UmumTab({
 
       <Separator />
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label>No. NPWP</Label>
-          <Input
-            value={form.tax_id ?? ""}
-            onChange={(e) => set("tax_id", e.target.value)}
-            placeholder="Masukan No. NPWP"
-            disabled={disabled}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label>No. NIK</Label>
-          <Input
-            value={form.nik ?? ""}
-            onChange={(e) => set("nik", e.target.value)}
-            placeholder="Masukan NIK"
-            disabled={disabled}
-          />
-        </div>
-      </div>
-
       <div className="space-y-1.5 sm:max-w-xs">
-        <Label>Termin</Label>
+        <Label>No. NPWP</Label>
         <Input
-          type="number"
-          min={0}
-          value={form.payment_term ?? ""}
-          onChange={(e) =>
-            set("payment_term", e.target.value ? Number(e.target.value) : null)
-          }
-          placeholder="0"
+          value={form.tax_id ?? ""}
+          onChange={(e) => set("tax_id", e.target.value)}
+          placeholder="Masukan No. NPWP"
           disabled={disabled}
+          aria-invalid={!!errors.tax_id}
         />
+        <FieldError message={errors.tax_id} />
       </div>
 
       <div className="space-y-1.5">
@@ -409,7 +460,9 @@ function UmumTab({
           placeholder="Masukkan keterangan"
           disabled={disabled}
           rows={3}
+          aria-invalid={!!errors.notes}
         />
+        <FieldError message={errors.notes} />
       </div>
     </div>
   );
@@ -419,6 +472,7 @@ function PICTab({
   form,
   set,
   disabled,
+  errors,
 }: {
   form: ContactFormData;
   set: <K extends keyof ContactFormData>(
@@ -426,28 +480,20 @@ function PICTab({
     value: ContactFormData[K],
   ) => void;
   disabled: boolean;
+  errors: FormErrors;
 }) {
   return (
     <div className="space-y-5">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label>Nama</Label>
-          <Input
-            value={form.contact_person ?? ""}
-            onChange={(e) => set("contact_person", e.target.value)}
-            placeholder="Masukkan nama penagih"
-            disabled={disabled}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Jabatan</Label>
-          <Input
-            value={form.pic_title ?? ""}
-            onChange={(e) => set("pic_title", e.target.value)}
-            placeholder="Masukkan jabatan"
-            disabled={disabled}
-          />
-        </div>
+      <div className="space-y-1.5">
+        <Label>Nama</Label>
+        <Input
+          value={form.contact_person ?? ""}
+          onChange={(e) => set("contact_person", e.target.value)}
+          placeholder="Masukkan nama penagih"
+          disabled={disabled}
+          aria-invalid={!!errors.contact_person}
+        />
+        <FieldError message={errors.contact_person} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -457,7 +503,9 @@ function PICTab({
             value={form.phone ?? ""}
             onChange={(v) => set("phone", v || undefined)}
             disabled={disabled}
+            invalid={!!errors.phone}
           />
+          <FieldError message={errors.phone} />
         </div>
         <div className="space-y-1.5">
           <Label>Email</Label>
@@ -467,18 +515,10 @@ function PICTab({
             onChange={(e) => set("email", e.target.value)}
             placeholder="email@contoh.com"
             disabled={disabled}
+            aria-invalid={!!errors.email}
           />
+          <FieldError message={errors.email} />
         </div>
-      </div>
-
-      <div className="space-y-1.5 sm:max-w-xs">
-        <Label>Fax</Label>
-        <PhoneInput
-          value={form.fax ?? ""}
-          onChange={(v) => set("fax", v || undefined)}
-          placeholder="21 1234 5678"
-          disabled={disabled}
-        />
       </div>
     </div>
   );
@@ -492,6 +532,7 @@ function AlamatTab({
   disabled,
   provinceOptions,
   provincesLoading,
+  errors,
 }: {
   form: ContactFormData;
   set: <K extends keyof ContactFormData>(
@@ -503,6 +544,7 @@ function AlamatTab({
   disabled: boolean;
   provinceOptions: { value: string; label: string }[];
   provincesLoading: boolean;
+  errors: FormErrors;
 }) {
   const showShipping = !(form.shipping_same_as_billing ?? true);
 
@@ -532,7 +574,9 @@ function AlamatTab({
           placeholder="Cth: Blok, Unit No, Patokan"
           disabled={disabled}
           rows={2}
+          aria-invalid={!!errors.address}
         />
+        <FieldError message={errors.address} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -546,6 +590,7 @@ function AlamatTab({
             searchPlaceholder="Cari provinsi"
             disabled={disabled || provincesLoading}
           />
+          <FieldError message={errors.province} />
         </div>
         <div className="space-y-1.5">
           <Label>Kode Pos</Label>
@@ -554,7 +599,9 @@ function AlamatTab({
             onChange={(e) => set("postal_code", e.target.value)}
             placeholder="Kode Pos"
             disabled={disabled}
+            aria-invalid={!!errors.postal_code}
           />
+          <FieldError message={errors.postal_code} />
         </div>
       </div>
 
@@ -583,7 +630,9 @@ function AlamatTab({
               placeholder="Alamat Pengirim"
               disabled={disabled}
               rows={2}
+              aria-invalid={!!errors.shipping_address}
             />
+            <FieldError message={errors.shipping_address} />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -597,6 +646,7 @@ function AlamatTab({
                 searchPlaceholder="Cari provinsi"
                 disabled={disabled || provincesLoading}
               />
+              <FieldError message={errors.shipping_province} />
             </div>
             <div className="space-y-1.5">
               <Label>Kode Pos</Label>
@@ -605,54 +655,13 @@ function AlamatTab({
                 onChange={(e) => set("shipping_postal_code", e.target.value)}
                 placeholder="Kode Pos"
                 disabled={disabled}
+                aria-invalid={!!errors.shipping_postal_code}
               />
+              <FieldError message={errors.shipping_postal_code} />
             </div>
           </div>
         </>
       )}
-    </div>
-  );
-}
-
-function PajakTab({
-  form,
-  set,
-  disabled,
-}: {
-  form: ContactFormData;
-  set: <K extends keyof ContactFormData>(
-    key: K,
-    value: ContactFormData[K],
-  ) => void;
-  disabled: boolean;
-}) {
-  return (
-    <div className="space-y-5">
-      <div className="space-y-2">
-        <Label>
-          Tipe
-          <Req />
-        </Label>
-        <RadioGroup
-          value={form.tax_type ?? "NON_PKP"}
-          onValueChange={(v) => set("tax_type", v as "PKP" | "NON_PKP")}
-          disabled={disabled}
-          className="flex flex-row items-center gap-6"
-        >
-          <div className="flex items-center gap-2">
-            <RadioGroupItem id="tax_type_non_pkp" value="NON_PKP" />
-            <Label htmlFor="tax_type_non_pkp" className="!mt-0 cursor-pointer">
-              Non PKP
-            </Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <RadioGroupItem id="tax_type_pkp" value="PKP" />
-            <Label htmlFor="tax_type_pkp" className="!mt-0 cursor-pointer">
-              PKP
-            </Label>
-          </div>
-        </RadioGroup>
-      </div>
     </div>
   );
 }

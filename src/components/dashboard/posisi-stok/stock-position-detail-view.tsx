@@ -557,6 +557,7 @@ function BinSection({ itemId }: { itemId: string }) {
   const { data: locData } = useLocations({ perPage: 100 });
 
   const [locationId, setLocationId] = useState("");
+  const [zoneId, setZoneId] = useState("");
   const [floor, setFloor] = useState("");
   const [row, setRow] = useState("");
   const [col, setCol] = useState("");
@@ -567,33 +568,47 @@ function BinSection({ itemId }: { itemId: string }) {
     [locData],
   );
 
+  const zoneOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const b of bins) {
+      if (locationId && b.location_id !== locationId) continue;
+      if (b.zone_id && b.zone_name) map.set(b.zone_id, b.zone_name);
+    }
+    return Array.from(map.entries())
+      .sort((a, b) => a[1].localeCompare(b[1]))
+      .map(([id, name]) => ({ value: id, label: name }));
+  }, [bins, locationId]);
+
   const floorOptions = useMemo(() => {
     const set = new Set<string>();
     for (const b of bins) {
       if (locationId && b.location_id !== locationId) continue;
+      if (zoneId && b.zone_id !== zoneId) continue;
       if (b.floor_code) set.add(b.floor_code);
     }
     return Array.from(set)
       .sort()
       .map((v) => ({ value: v, label: v }));
-  }, [bins, locationId]);
+  }, [bins, locationId, zoneId]);
 
   const rowOptions = useMemo(() => {
     const set = new Set<string>();
     for (const b of bins) {
       if (locationId && b.location_id !== locationId) continue;
+      if (zoneId && b.zone_id !== zoneId) continue;
       if (floor && b.floor_code !== floor) continue;
       if (b.row_code) set.add(b.row_code);
     }
     return Array.from(set)
       .sort()
       .map((v) => ({ value: v, label: v }));
-  }, [bins, locationId, floor]);
+  }, [bins, locationId, zoneId, floor]);
 
   const colOptions = useMemo(() => {
     const set = new Set<string>();
     for (const b of bins) {
       if (locationId && b.location_id !== locationId) continue;
+      if (zoneId && b.zone_id !== zoneId) continue;
       if (floor && b.floor_code !== floor) continue;
       if (row && b.row_code !== row) continue;
       if (b.column_code) set.add(b.column_code);
@@ -601,21 +616,22 @@ function BinSection({ itemId }: { itemId: string }) {
     return Array.from(set)
       .sort()
       .map((v) => ({ value: v, label: v }));
-  }, [bins, locationId, floor, row]);
+  }, [bins, locationId, zoneId, floor, row]);
 
   const filtered = useMemo(
     () =>
       bins.filter((b) => {
         if (locationId && b.location_id !== locationId) return false;
+        if (zoneId && b.zone_id !== zoneId) return false;
         if (floor && b.floor_code !== floor) return false;
         if (row && b.row_code !== row) return false;
         if (col && b.column_code !== col) return false;
         return true;
       }),
-    [bins, locationId, floor, row, col],
+    [bins, locationId, zoneId, floor, row, col],
   );
 
-  const activeCount = [locationId, floor, row, col].filter(Boolean).length;
+  const activeCount = [locationId, zoneId, floor, row, col].filter(Boolean).length;
   const hasFilter = activeCount > 0;
 
   const filterBar = (
@@ -627,6 +643,7 @@ function BinSection({ itemId }: { itemId: string }) {
         hasFilter
           ? () => {
               setLocationId("");
+              setZoneId("");
               setFloor("");
               setRow("");
               setCol("");
@@ -639,6 +656,7 @@ function BinSection({ itemId }: { itemId: string }) {
         value={locationId || ALL_VALUE}
         onValueChange={(v) => {
           setLocationId(v === ALL_VALUE ? "" : v);
+          setZoneId("");
           setFloor("");
           setRow("");
           setCol("");
@@ -656,6 +674,19 @@ function BinSection({ itemId }: { itemId: string }) {
           ))}
         </SelectContent>
       </Select>
+      <Combobox
+        options={[{ value: "", label: "Semua Zona" }, ...zoneOptions]}
+        value={zoneId}
+        onChange={(v) => {
+          setZoneId(v ?? "");
+          setFloor("");
+          setRow("");
+          setCol("");
+        }}
+        placeholder="Pilih zona"
+        searchPlaceholder="Cari zona"
+        className="h-9 bg-background"
+      />
       <Combobox
         options={[{ value: "", label: "Semua Lantai" }, ...floorOptions]}
         value={floor}
@@ -726,6 +757,9 @@ function BinSection({ itemId }: { itemId: string }) {
               Lokasi
             </TableHead>
             <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
+              Zona
+            </TableHead>
+            <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
               Kode Rak
             </TableHead>
             <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">
@@ -750,6 +784,9 @@ function BinSection({ itemId }: { itemId: string }) {
                   <MapPinIcon className="size-3 text-muted-foreground" />
                   {b.location_name}
                 </span>
+              </TableCell>
+              <TableCell className="px-3 py-2.5 text-sm">
+                {b.zone_name ?? <span className="text-muted-foreground">—</span>}
               </TableCell>
               <TableCell className="px-3 py-2.5">
                 {b.bin_code ? (

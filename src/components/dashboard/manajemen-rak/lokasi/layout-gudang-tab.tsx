@@ -61,6 +61,7 @@ import {
   useLocationBins,
   useUniformApplyBins,
 } from "@/hooks/manajemen-rak/use-location-bins";
+import { useZones } from "@/hooks/manajemen-rak/use-zones";
 import type {
   BinDraft,
   BinListParams,
@@ -124,9 +125,11 @@ interface UniformDialogProps {
     isStockAcknowledged: boolean;
     isLargeBin: boolean;
     category: string;
+    zoneId: string;
   }) => void;
   pending?: boolean;
   scopeLabel?: string;
+  zoneOptions?: { value: string; label: string }[];
 }
 
 function UniformDialog({
@@ -135,16 +138,19 @@ function UniformDialog({
   onApply,
   pending,
   scopeLabel,
+  zoneOptions = [],
 }: UniformDialogProps) {
   const [isStockAcknowledged, setIsStockAcknowledged] = React.useState(true);
   const [isLargeBin, setIsLargeBin] = React.useState(false);
   const [category, setCategory] = React.useState("");
+  const [zoneId, setZoneId] = React.useState("");
 
   const handleApply = () => {
     onApply({
       isStockAcknowledged,
       isLargeBin,
       category,
+      zoneId,
     });
   };
 
@@ -159,6 +165,25 @@ function UniformDialog({
         </DialogHeader>
 
         <div className="flex flex-col gap-5 py-2">
+          {zoneOptions.length > 0 && (
+            <div className="space-y-2">
+              <Label>Zona</Label>
+              <Select value={zoneId} onValueChange={setZoneId}>
+                <SelectTrigger className="h-9 w-full border-border bg-background">
+                  <SelectValue placeholder="Pilih zona" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Tidak diubah</SelectItem>
+                  {zoneOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label>Kategori</Label>
             <Input
@@ -605,6 +630,15 @@ export function LayoutGudangTab({
 
   const binsQuery = useLocationBins(locationId, params);
   const uniformMut = useUniformApplyBins(locationId);
+  const { data: zonesData } = useZones(locationId);
+  const zoneSelectOptions = React.useMemo(
+    () =>
+      (zonesData ?? []).map((z) => ({
+        value: z.id,
+        label: z.zone_name || z.zone_code,
+      })),
+    [zonesData],
+  );
 
   const onBinsChangeRef = React.useRef(onBinsChange);
   onBinsChangeRef.current = onBinsChange;
@@ -780,6 +814,7 @@ export function LayoutGudangTab({
     isStockAcknowledged: boolean;
     isLargeBin: boolean;
     category: string;
+    zoneId: string;
   }) => {
     setLocalBins((prev) =>
       prev.map((b) =>
@@ -802,6 +837,7 @@ export function LayoutGudangTab({
     isStockAcknowledged: boolean;
     isLargeBin: boolean;
     category: string;
+    zoneId: string;
   }) => {
     if (selectedIds.size === 0 && !selectAllAcrossPages) {
       toast.error("Pilih minimal satu rak.");
@@ -815,6 +851,7 @@ export function LayoutGudangTab({
           is_stock_acknowledged: values.isStockAcknowledged,
           is_large_bin: values.isLargeBin,
           category: values.category || null,
+          zone_id: values.zoneId || null,
         },
         search: selectAllAcrossPages ? debouncedSearch || undefined : undefined,
         filter: selectAllAcrossPages ? filter : undefined,
@@ -1254,6 +1291,7 @@ export function LayoutGudangTab({
         onApply={handleUniformApply}
         pending={uniformMut.isPending}
         scopeLabel={selectionScopeLabel}
+        zoneOptions={zoneSelectOptions}
       />
     </div>
   );
