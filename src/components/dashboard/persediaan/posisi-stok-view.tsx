@@ -467,7 +467,13 @@ export function PosisiStokView() {
     [hiddenLocations],
   );
   const visibleLocations = useMemo(
-    () => meta.locations.filter((l) => !hiddenSet.has(l.location_id)),
+    () => meta.locations.filter((l) => !hiddenSet.has(l.location_id)).sort((a, b) => {
+      const aKecil = a.location_name.toLowerCase().includes("kecil");
+      const bKecil = b.location_name.toLowerCase().includes("kecil");
+      if (aKecil && !bKecil) return -1;
+      if (!aKecil && bKecil) return 1;
+      return a.location_name.localeCompare(b.location_name);
+    }),
     [meta.locations, hiddenSet],
   );
 
