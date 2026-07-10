@@ -301,7 +301,7 @@ export function PenerimaanBarangTab() {
         accessorKey: "created_by",
         header: "Dibuat Oleh",
         cell: ({ row }) => (
-          <span className="text-muted-foreground">
+          <span>
             {row.original.created_by}
           </span>
         ),
