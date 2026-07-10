@@ -147,7 +147,7 @@ function handleExportList(items: Inbound[]) {
       item.transaction_number,
       TYPE_LABEL[item.type] ?? item.type,
       item.reference_number ?? "",
-      formatDateTime(item.created_at),
+      item.expected_date ? formatDateTime(item.expected_date) : formatDateTime(item.created_at),
       item.location?.location_name ?? "",
       item.created_by,
       String(totalRecv),
@@ -205,7 +205,7 @@ export function PenerimaanBarangTab() {
       per_page: perPage,
       "filter[location_id]": filters.location_id || undefined,
       "filter[type]": TAB_TO_TYPE[sourceTab] || undefined,
-      sort: "-created_at",
+      sort: "-expected_date",
     }),
     [debouncedSearch, page, perPage, filters, sourceTab],
   );
@@ -282,7 +282,9 @@ export function PenerimaanBarangTab() {
         header: "Tanggal",
         cell: ({ row }) => (
           <span className="text-muted-foreground">
-            {formatDateTime(row.original.created_at)}
+            {row.original.expected_date
+              ? formatDateTime(row.original.expected_date)
+              : formatDateTime(row.original.created_at)}
           </span>
         ),
       },
