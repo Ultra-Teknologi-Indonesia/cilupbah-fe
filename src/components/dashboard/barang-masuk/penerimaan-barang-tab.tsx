@@ -136,7 +136,7 @@ function handleExportList(items: Inbound[]) {
     "No. Penerimaan",
     "Sumber",
     "No. Referensi",
-    "Tanggal",
+    "Tanggal Transfer Keluar",
     "Lokasi",
     "Dibuat Oleh",
     "Qty Diterima",
@@ -279,7 +279,7 @@ export function PenerimaanBarangTab() {
       },
       {
         id: "tanggal",
-        header: "Tanggal",
+        header: "Tanggal Transfer Keluar",
         cell: ({ row }) => (
           <span className="text-muted-foreground">
             {row.original.expected_date
