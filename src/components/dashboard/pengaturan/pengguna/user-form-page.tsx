@@ -186,12 +186,6 @@ export function UserFormPage({ userId }: UserFormPageProps) {
   const [directPerms, setDirectPerms] = React.useState<string[]>([]);
 
   const isOwnerUser = (user?.roles ?? []).includes("owner");
-  // Izin bawaan dari peran = efektif − langsung (hanya tersedia saat edit).
-  const rolePermsBaseline = React.useMemo(() => {
-    if (!user) return [];
-    const direct = new Set(user.directPermissions ?? []);
-    return (user.permissions ?? []).filter((p) => !direct.has(p));
-  }, [user]);
 
   const form = useForm<FormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -275,6 +269,16 @@ export function UserFormPage({ userId }: UserFormPageProps) {
   }
 
   const selectedRoles = form.watch("roles");
+  // Otomatis tercentang: gabungan hak akses dari peran terpilih (dikunci di sini,
+  // diatur di halaman Peran). Reaktif saat peran diubah.
+  const rolePermsBaseline = React.useMemo(() => {
+    const chosen = new Set(selectedRoles ?? []);
+    const set = new Set<string>();
+    for (const r of roles ?? []) {
+      if (chosen.has(r.name)) (r.permissions ?? []).forEach((p) => set.add(p));
+    }
+    return [...set];
+  }, [roles, selectedRoles]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -283,7 +287,10 @@ export function UserFormPage({ userId }: UserFormPageProps) {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList variant="glass" className="mb-5">
+                <TabsList
+                  variant="line"
+                  className="mb-5 w-full justify-start border-b"
+                >
                   <TabsTrigger value="informasi">Informasi Pengguna</TabsTrigger>
                   <TabsTrigger value="hak-akses">Hak Akses</TabsTrigger>
                 </TabsList>
@@ -523,17 +530,16 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                   ) : (
                     <div className="space-y-3">
                       <p className="text-sm text-muted-foreground">
-                        Hak akses dasar mengikuti peran yang dipilih. Tambahkan
-                        hak akses khusus untuk pengguna ini di luar peran.
-                        {isEdit &&
-                          " Centang abu-abu berasal dari peran dan tidak dapat diubah di sini."}
+                        Centang abu-abu otomatis mengikuti peran yang dipilih dan
+                        diatur di halaman Peran. Tambahkan centang lain untuk
+                        memberi hak akses khusus di luar peran.
                       </p>
                       {catalog ? (
                         <PermissionMatrix
                           catalog={catalog}
                           value={directPerms}
                           onChange={setDirectPerms}
-                          baseline={isEdit ? rolePermsBaseline : []}
+                          baseline={rolePermsBaseline}
                         />
                       ) : (
                         <div className="flex items-center justify-center py-10 text-muted-foreground">

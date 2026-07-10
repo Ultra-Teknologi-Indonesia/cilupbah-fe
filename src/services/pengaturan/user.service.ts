@@ -51,6 +51,8 @@ function mapRole(raw: RawRole): Role {
     id: raw.id,
     name: raw.name,
     description: raw.description,
+    usersCount: raw.users_count,
+    permissions: raw.permissions,
   };
 }
 
