@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { BuatPenempatanManualDialog } from "./buat-penempatan-manual-dialog";
+import { TerimaTransferDialog } from "./terima-transfer-dialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 import { Badge } from "@/components/ui/badge";
@@ -115,6 +116,15 @@ function isSelectable(item: Inbound): boolean {
   );
 }
 
+/** Transfer sedang dijalan yang belum diterima → bisa di-Terima dari web. */
+function isTransitReceivable(item: Inbound): boolean {
+  return (
+    item.type === "TRANSIT_IN" &&
+    item.status === "DRAFT" &&
+    !!item.source_id
+  );
+}
+
 interface FilterState {
   location_id: string;
 }
@@ -195,6 +205,7 @@ export function PenerimaanBarangTab() {
       per_page: perPage,
       "filter[location_id]": filters.location_id || undefined,
       "filter[type]": TAB_TO_TYPE[sourceTab] || undefined,
+      sort: "-created_at",
     }),
     [debouncedSearch, page, perPage, filters, sourceTab],
   );
@@ -203,6 +214,7 @@ export function PenerimaanBarangTab() {
   const { data: locData } = useLocations({ perPage: 100 });
 
   const [penempatanTargets, setPenempatanTargets] = useState<Inbound[]>([]);
+  const [terimaTarget, setTerimaTarget] = useState<Inbound | null>(null);
   const [deleteTargets, setDeleteTargets] = useState<Inbound[]>([]);
   const bulkCancel = useBulkCancelInbounds();
   // Callback untuk mereset seleksi tabel setelah aksi bulk (assign/hapus).
@@ -336,6 +348,19 @@ export function PenerimaanBarangTab() {
               className="flex items-center gap-2"
               onClick={(e) => e.stopPropagation()}
             >
+              {isTransitReceivable(item) && (
+                <Button
+                  size="sm"
+                  className="h-8 gap-1.5"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setTerimaTarget(item);
+                  }}
+                >
+                  <PackageCheckIcon className="size-4" />
+                  Terima
+                </Button>
+              )}
               {isSelectable(item) && (
                 <Button
                   size="sm"
@@ -552,6 +577,15 @@ export function PenerimaanBarangTab() {
           if (putawayId) {
             router.push(`/dashboard/barang-masuk/putaway/${putawayId}`);
           }
+        }}
+      />
+
+      <TerimaTransferDialog
+        key={terimaTarget?.id ?? "none"}
+        inbound={terimaTarget}
+        open={!!terimaTarget}
+        onOpenChange={(open) => {
+          if (!open) setTerimaTarget(null);
         }}
       />
 
