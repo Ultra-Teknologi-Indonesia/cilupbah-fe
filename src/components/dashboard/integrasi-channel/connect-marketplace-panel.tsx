@@ -8,10 +8,12 @@ import { ChannelLogo } from "./channel-logo";
 export function ConnectMarketplacePanel({
   channels,
   onConnect,
+  onConnectWoo,
   pendingCode,
 }: {
   channels: Channel[];
   onConnect: (channel: Channel) => void;
+  onConnectWoo: () => void;
   pendingCode?: ChannelCode | null;
 }) {
   return (
@@ -51,7 +53,11 @@ export function ConnectMarketplacePanel({
                 variant={channel.connectable ? "primary" : "outline"}
                 size="sm"
                 disabled={!channel.connectable || connecting}
-                onClick={() => onConnect(channel)}
+                onClick={() =>
+                  channel.code === "woocommerce"
+                    ? onConnectWoo()
+                    : onConnect(channel)
+                }
                 aria-label={`Hubungkan ${channel.name}`}
                 title={channel.connectable ? undefined : "Belum didukung"}
               >

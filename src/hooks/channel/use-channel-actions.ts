@@ -98,3 +98,33 @@ export function useConnectChannel() {
 
   return { connect, pendingCode };
 }
+
+export function useConnectWooCommerce() {
+  const qc = useQueryClient();
+
+  const auto = useMutation({
+    mutationFn: (storeUrl: string) => ChannelService.getWooAuthUrl(storeUrl),
+    onSuccess: (url) => {
+      window.location.href = url;
+    },
+    onError: (err) =>
+      toast.error(errMessage(err, "Gagal memulai koneksi WooCommerce")),
+  });
+
+  const manual = useMutation({
+    mutationFn: (payload: {
+      storeUrl: string;
+      consumerKey: string;
+      consumerSecret: string;
+      shopName?: string;
+    }) => ChannelService.connectWooCommerce(payload),
+    onSuccess: () => {
+      toast.success("Toko WooCommerce dihubungkan");
+      qc.invalidateQueries({ queryKey: CHANNEL_STORES_KEY });
+    },
+    onError: (err) =>
+      toast.error(errMessage(err, "Gagal menghubungkan WooCommerce")),
+  });
+
+  return { auto, manual };
+}

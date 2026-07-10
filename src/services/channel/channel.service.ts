@@ -56,6 +56,34 @@ export const ChannelService = {
     return res.data.auth_url;
   },
 
+  getWooAuthUrl: async (storeUrl: string): Promise<string> => {
+    const res = await fetchClient<ApiResponse<{ auth_url: string }>>(
+      `/woocommerce/auth?store_url=${encodeURIComponent(storeUrl)}`,
+    );
+    return res.data.auth_url;
+  },
+
+  connectWooCommerce: async (payload: {
+    storeUrl: string;
+    consumerKey: string;
+    consumerSecret: string;
+    shopName?: string;
+  }): Promise<RawConnectedStore> => {
+    const res = await fetchClient<ApiResponse<RawConnectedStore>>(
+      "/woocommerce/connect",
+      {
+        method: "POST",
+        data: {
+          store_url: payload.storeUrl,
+          consumer_key: payload.consumerKey,
+          consumer_secret: payload.consumerSecret,
+          shop_name: payload.shopName,
+        },
+      },
+    );
+    return res.data;
+  },
+
   setStoreFlags: async (
     id: string,
     flags: StoreFlags,

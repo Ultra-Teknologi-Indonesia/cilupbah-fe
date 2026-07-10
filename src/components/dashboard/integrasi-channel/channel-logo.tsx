@@ -5,6 +5,7 @@ const TILE: Record<string, string> = {
   tiktok: "bg-neutral-900",
   shopee: "bg-[#EE4D2D]",
   lazada: "bg-[#0F146D]",
+  woocommerce: "bg-[#7f54b3]",
   tokopedia: "bg-[#03AC0E]",
   blibli: "bg-[#0095DA]",
 };

@@ -1,5 +1,11 @@
 export type ChannelCode =
-  "tiktok" | "lazada" | "shopee" | "tokopedia" | "blibli" | (string & {});
+  | "tiktok"
+  | "lazada"
+  | "shopee"
+  | "woocommerce"
+  | "tokopedia"
+  | "blibli"
+  | (string & {});
 
 export type IntegrationStatus = "normal" | "warning" | "error";
 

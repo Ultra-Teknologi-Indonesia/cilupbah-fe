@@ -20,6 +20,7 @@ import {
 } from "@/hooks/channel/use-channel-actions";
 import { ChannelGroup } from "./channel-group";
 import { ConnectMarketplacePanel } from "./connect-marketplace-panel";
+import { WooCommerceConnectDialog } from "./woocommerce-connect-dialog";
 
 function GroupSkeleton() {
   return (
@@ -49,6 +50,7 @@ export function IntegrasiChannelView() {
   const disconnect = useDisconnectStore();
   const refresh = useRefreshToken();
   const { connect, pendingCode } = useConnectChannel();
+  const [wooOpen, setWooOpen] = React.useState(false);
 
   React.useEffect(() => {
     const sp = new URLSearchParams(window.location.search);
@@ -83,7 +85,8 @@ export function IntegrasiChannelView() {
       store.channel.code === "tokopedia" ? "tiktok" : store.channel.code;
     refresh.mutate({ channel, id: store.id });
   };
-  const onAdd = (group: ChannelGroupType) => connect(group.code);
+  const onAdd = (group: ChannelGroupType) =>
+    group.code === "woocommerce" ? setWooOpen(true) : connect(group.code);
   const onConnect = (channel: Channel) => connect(channel.code);
 
   if (isLoading) {
@@ -135,9 +138,12 @@ export function IntegrasiChannelView() {
         <ConnectMarketplacePanel
           channels={available}
           onConnect={onConnect}
+          onConnectWoo={() => setWooOpen(true)}
           pendingCode={pendingCode}
         />
       )}
+
+      <WooCommerceConnectDialog open={wooOpen} onOpenChange={setWooOpen} />
     </div>
   );
 }

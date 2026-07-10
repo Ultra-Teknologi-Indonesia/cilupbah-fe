@@ -310,4 +310,5 @@ export const CHANNEL_MAP: Record<string, { label: string; color: string }> = {
   shopee: { label: "Shopee", color: "#EE4D2D" },
   tokopedia: { label: "Tokopedia", color: "#42B549" },
   lazada: { label: "Lazada", color: "#0F146D" },
+  woocommerce: { label: "WooCommerce", color: "#7f54b3" },
 };
