@@ -14,7 +14,8 @@ import {
 import { SidebarRailNav } from "./sidebar-rail-nav";
 import { SidebarPanel } from "./sidebar-panel";
 import DashboardNavigation from "./nav-main";
-import { dashboardGroups, findGroupIdForPath, isLeafGroup } from "./nav-data";
+import { findGroupIdForPath, isLeafGroup } from "./nav-data";
+import { useVisibleNav } from "./use-visible-nav";
 
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;
@@ -23,21 +24,22 @@ export function DashboardSidebar() {
   const { open, setOpen, toggleSidebar, isMobile, openMobile, setOpenMobile } =
     useSidebar();
   const pathname = usePathname();
+  const { groups } = useVisibleNav();
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [panelPos, setPanelPos] = React.useState({ top: 72, maxHeight: 0 });
 
   const [activeGroupId, setActiveGroupId] = React.useState(() =>
-    findGroupIdForPath(pathname, dashboardGroups),
+    findGroupIdForPath(pathname, groups),
   );
 
   const [prevPath, setPrevPath] = React.useState(pathname);
   if (pathname !== prevPath) {
     setPrevPath(pathname);
-    setActiveGroupId(findGroupIdForPath(pathname, dashboardGroups));
+    setActiveGroupId(findGroupIdForPath(pathname, groups));
   }
 
   const activeGroup =
-    dashboardGroups.find((g) => g.id === activeGroupId) ?? dashboardGroups[0];
+    groups.find((g) => g.id === activeGroupId) ?? groups[0];
 
   const panelOpen = open && !isLeafGroup(activeGroup);
 
@@ -73,7 +75,7 @@ export function DashboardSidebar() {
 
   const handleSelect = React.useCallback(
     (id: string) => {
-      const group = dashboardGroups.find((g) => g.id === id);
+      const group = groups.find((g) => g.id === id);
       const hasPanel = group && !isLeafGroup(group);
 
       if (!hasPanel) {
@@ -88,7 +90,7 @@ export function DashboardSidebar() {
         if (!open) toggleSidebar();
       }
     },
-    [activeGroupId, open, panelOpen, toggleSidebar],
+    [activeGroupId, open, panelOpen, toggleSidebar, groups],
   );
 
   if (isMobile) {
@@ -100,7 +102,7 @@ export function DashboardSidebar() {
             <SheetDescription>Daftar menu dashboard</SheetDescription>
           </SheetHeader>
           <div className="flex h-full flex-col overflow-y-auto px-2 py-4">
-            {dashboardGroups.map((group) => (
+            {groups.map((group) => (
               <div key={group.id} className="py-2">
                 {group.zone !== "top" && (
                   <div className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">

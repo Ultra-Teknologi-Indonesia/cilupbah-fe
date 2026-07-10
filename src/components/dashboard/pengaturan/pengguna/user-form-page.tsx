@@ -30,12 +30,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Combobox } from "@/components/ui/combobox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PermissionMatrix } from "@/components/dashboard/pengaturan/permission-matrix";
 import {
   useRoles,
   useCreateUser,
   useUpdateUser,
   useUserDetail,
 } from "@/hooks/pengaturan/use-users";
+import { usePermissionCatalog } from "@/hooks/pengaturan/use-permission-catalog";
 import type { UserFormPayload } from "@/types/pengaturan/user";
 
 const PASSWORD_RULES = [
@@ -174,8 +177,21 @@ export function UserFormPage({ userId }: UserFormPageProps) {
 
   const { data: user, isLoading: userLoading } = useUserDetail(userId ?? "");
   const { data: roles, isLoading: rolesLoading } = useRoles();
+  const { data: catalog } = usePermissionCatalog();
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
+
+  const [activeTab, setActiveTab] = React.useState("informasi");
+  // Hak akses langsung (override per-user) di luar bawaan peran.
+  const [directPerms, setDirectPerms] = React.useState<string[]>([]);
+
+  const isOwnerUser = (user?.roles ?? []).includes("owner");
+  // Izin bawaan dari peran = efektif − langsung (hanya tersedia saat edit).
+  const rolePermsBaseline = React.useMemo(() => {
+    if (!user) return [];
+    const direct = new Set(user.directPermissions ?? []);
+    return (user.permissions ?? []).filter((p) => !direct.has(p));
+  }, [user]);
 
   const form = useForm<FormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -200,6 +216,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
         password_confirmation: "",
         roles: user.roles.filter((r) => r !== "owner"),
       });
+      setDirectPerms(user.directPermissions ?? []);
     }
   }, [user, isEdit, form]);
 
@@ -221,6 +238,10 @@ export function UserFormPage({ userId }: UserFormPageProps) {
     if (values.password) {
       payload.password = values.password;
       payload.password_confirmation = values.password_confirmation;
+    }
+    // Hak akses langsung (override). Owner tak pakai override.
+    if (!isOwnerUser) {
+      payload.permissions = directPerms;
     }
 
     if (isEdit && userId) {
@@ -261,6 +282,13 @@ export function UserFormPage({ userId }: UserFormPageProps) {
         <div className="p-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList variant="glass" className="mb-5">
+                  <TabsTrigger value="informasi">Informasi Pengguna</TabsTrigger>
+                  <TabsTrigger value="hak-akses">Hak Akses</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="informasi" className="mt-0">
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -484,6 +512,38 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                   )}
                 />
               </div>
+                </TabsContent>
+
+                <TabsContent value="hak-akses" className="mt-0">
+                  {isOwnerUser ? (
+                    <div className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
+                      Pengguna owner memiliki akses penuh dan tidak dapat diatur
+                      per hak akses.
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <p className="text-sm text-muted-foreground">
+                        Hak akses dasar mengikuti peran yang dipilih. Tambahkan
+                        hak akses khusus untuk pengguna ini di luar peran.
+                        {isEdit &&
+                          " Centang abu-abu berasal dari peran dan tidak dapat diubah di sini."}
+                      </p>
+                      {catalog ? (
+                        <PermissionMatrix
+                          catalog={catalog}
+                          value={directPerms}
+                          onChange={setDirectPerms}
+                          baseline={isEdit ? rolePermsBaseline : []}
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center py-10 text-muted-foreground">
+                          <Loader2Icon className="size-4 animate-spin" />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
 
               <div className="flex justify-end gap-2 pt-4">
                 <Button

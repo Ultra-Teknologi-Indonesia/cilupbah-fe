@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   SettingsIcon,
   UsersIcon,
+  ShieldCheckIcon,
   Undo2Icon,
   BoxesIcon,
   ArrowLeftRightIcon,
@@ -33,6 +34,12 @@ const TABS: Tab[] = [
     href: "/dashboard/pengaturan/pengguna",
   },
   {
+    id: "peran",
+    label: "Peran & Hak Akses",
+    icon: ShieldCheckIcon,
+    href: "/dashboard/pengaturan/peran",
+  },
+  {
     id: "retur",
     label: "Retur Penjualan",
     icon: Undo2Icon,
@@ -54,6 +61,7 @@ const TABS: Tab[] = [
 
 function activeId(pathname: string): string {
   if (pathname.startsWith("/dashboard/pengaturan/pengguna")) return "pengguna";
+  if (pathname.startsWith("/dashboard/pengaturan/peran")) return "peran";
   if (pathname.startsWith("/dashboard/pengaturan/retur")) return "retur";
   if (pathname.startsWith("/dashboard/pengaturan/alokasi-stok"))
     return "alokasi-stok";

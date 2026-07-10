@@ -24,12 +24,11 @@ import { useLogout } from "@/hooks/auth/use-auth";
 import { Logo } from "./logo";
 import { NotificationsPopover } from "./nav-notifications";
 import {
-  dashboardGroups,
-  settingsRoutes,
   isLeafGroup,
   type NavGroup,
   type NavZone,
 } from "./nav-data";
+import { useVisibleNav } from "./use-visible-nav";
 import type { Route } from "./nav-main";
 
 const ZONES: NavZone[] = ["top", "ops", "fin"];
@@ -124,6 +123,7 @@ export function SidebarRailNav({
 }) {
   const pathname = usePathname();
   const logout = useLogout();
+  const { groups: visibleGroups, settings: visibleSettings } = useVisibleNav();
 
   const handleLogout = () => logout.mutate();
 
@@ -142,7 +142,7 @@ export function SidebarRailNav({
 
       <nav className="no-scrollbar flex w-full flex-1 flex-col items-center gap-1 overflow-y-auto py-1">
         {ZONES.map((zone, zi) => {
-          const groups = dashboardGroups.filter((g) => g.zone === zone);
+          const groups = visibleGroups.filter((g) => g.zone === zone);
           if (groups.length === 0) return null;
           return (
             <React.Fragment key={zone}>
@@ -163,7 +163,7 @@ export function SidebarRailNav({
       <div className="flex w-full flex-col items-center gap-1 pt-1">
         <RailDivider />
         <NotificationsPopover />
-        {settingsRoutes.map((route) => {
+        {visibleSettings.map((route) => {
           const isActive =
             pathname === route.link ||
             pathname.startsWith(route.link + "/") ||

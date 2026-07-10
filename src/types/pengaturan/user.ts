@@ -10,6 +10,7 @@ export type RawUser = {
   email: string;
   roles: string[];
   permissions: string[];
+  direct_permissions?: string[];
   nik: string | null;
   warehouse_id: string | null;
   locations: RawUserLocation[];
@@ -23,6 +24,7 @@ export type RawRole = {
   name: string;
   description: string | null;
   users_count?: number;
+  permissions?: string[];
   created_at: string;
   updated_at: string;
 };
@@ -32,6 +34,10 @@ export type User = {
   name: string;
   email: string;
   roles: string[];
+  /** Hak akses efektif (role + langsung). Owner → seluruh permission. */
+  permissions: string[];
+  /** Hak akses langsung (override per-user) di luar bawaan role. */
+  directPermissions: string[];
   nik: string | null;
   warehouseId: string | null;
   locations: UserLocation[];
@@ -48,6 +54,13 @@ export type Role = {
   id: string;
   name: string;
   description: string | null;
+  usersCount?: number;
+  permissions?: string[];
+};
+
+export type RoleFormPayload = {
+  name: string;
+  description?: string | null;
 };
 
 export type UserListParams = {
@@ -98,6 +111,7 @@ export type UserFormPayload = {
   password?: string;
   password_confirmation?: string;
   roles: string[];
+  permissions?: string[];
   nik?: string | null;
   warehouse_id?: string | null;
 };

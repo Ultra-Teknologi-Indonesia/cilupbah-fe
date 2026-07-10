@@ -21,6 +21,8 @@ export type SubRoute = {
   link: string;
   badge?: string | number;
   comingSoon?: boolean;
+  /** Permission (satu, atau salah satu dari daftar) agar item tampil. */
+  permission?: string | string[];
   subs?: {
     title: string;
     link: string;
@@ -35,6 +37,8 @@ export type Route = {
 
   match?: string[];
   comingSoon?: boolean;
+  /** Permission (satu, atau salah satu dari daftar) agar item tampil. */
+  permission?: string | string[];
   subs?: SubRoute[];
 };
 

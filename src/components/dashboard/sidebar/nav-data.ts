@@ -264,6 +264,7 @@ export const settingsRoutes: Route[] = [
     link: "/dashboard/pengaturan",
     subs: [
       { title: "Daftar Pengguna", link: "/dashboard/pengaturan/pengguna" },
+      { title: "Peran & Hak Akses", link: "/dashboard/pengaturan/peran" },
       {
         title: "Aktivitas Import dan Export",
         link: "/dashboard/aktivitas-impex",
@@ -277,6 +278,79 @@ export const settingsRoutes: Route[] = [
     link: "/dashboard/bantuan",
   },
 ];
+
+/**
+ * Peta izin untuk gating menu (per id item nav & per link sub-pengaturan).
+ * Item tanpa entri (Dashboard, Bantuan, Umum) selalu tampil.
+ */
+export const NAV_PERMISSION: Record<string, string | string[]> = {
+  produk: "view-produk",
+  "kategori-merek": "view-kategori",
+  "posisi-stok": "view-posisi-stok",
+  "transaksi-stok": [
+    "view-penyesuaian-stok",
+    "view-pindah-bin",
+    "view-stok-opname",
+    "view-revaluasi-stok",
+  ],
+  "monitor-stok": "view-monitor-stok",
+  pesanan: "view-pesanan",
+  "toko-internal": "view-toko-internal",
+  "retur-penjualan": "view-retur-penjualan",
+  "kontak-pelanggan": "view-kontak-pelanggan",
+  "integrasi-channel": "view-integrasi-channel",
+  "transaksi-pembelian": "view-transaksi-pembelian",
+  "kontak-pemasok": "view-kontak-pemasok",
+  "barang-masuk": ["view-barang-masuk", "view-penempatan"],
+  "barang-keluar": "view-barang-keluar",
+  "proses-pesanan": ["view-picking", "view-packing", "view-pengiriman"],
+  "manajemen-rak": "view-manajemen-rak",
+  "permintaan-restock": "view-permintaan-restock",
+  "laporan-hpp": "view-laporan-hpp",
+  "laporan-retur": "view-laporan-retur",
+  "laporan-penjualan": "view-laporan-penjualan",
+  "laporan-pembelian": "view-laporan-pembelian",
+  "laporan-persediaan": "view-laporan-persediaan",
+  "laporan-gudang": "view-laporan-gudang",
+};
+
+const SETTINGS_SUB_PERMISSION: Record<string, string | string[]> = {
+  "/dashboard/pengaturan/pengguna": "view-user",
+  "/dashboard/pengaturan/peran": ["view-role", "view-permission"],
+  "/dashboard/aktivitas-impex": "view-impex",
+};
+
+type PermCheck = (perm?: string | string[]) => boolean;
+
+/** Filter grup nav berdasar izin; buang item & grup yang tak diizinkan. */
+export function filterNavGroups(
+  groups: NavGroup[],
+  has: PermCheck,
+): NavGroup[] {
+  return groups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => has(NAV_PERMISSION[item.id])),
+    }))
+    .filter((group) => group.items.length > 0);
+}
+
+/** Filter sub-menu Pengaturan; gear tetap tampil (mis. halaman Umum). */
+export function filterSettingsRoutes(
+  routes: Route[],
+  has: PermCheck,
+): Route[] {
+  return routes.map((route) =>
+    route.subs
+      ? {
+          ...route,
+          subs: route.subs.filter((sub) =>
+            has(SETTINGS_SUB_PERMISSION[sub.link]),
+          ),
+        }
+      : route,
+  );
+}
 
 export const sampleNotifications = [
   {

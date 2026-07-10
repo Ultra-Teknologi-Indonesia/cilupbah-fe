@@ -3,7 +3,14 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 import * as React from "react";
 import Link from "next/link";
-import {  Loader2Icon, PlusIcon, SearchIcon, Trash2Icon , SearchXIcon, FileXIcon } from "lucide-react";
+import {
+  Loader2Icon,
+  PlusIcon,
+  SearchIcon,
+  Trash2Icon,
+  SearchXIcon,
+  FileXIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
@@ -14,7 +21,14 @@ import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
-import { useUsers, useDeleteUser } from "@/hooks/pengaturan/use-users";
+import { Can } from "@/components/auth/can";
+import { useMe } from "@/hooks/auth/use-auth";
+import { usePermissions } from "@/hooks/auth/use-permissions";
+import {
+  useUsers,
+  useDeleteUser,
+  useBulkDeleteUsers,
+} from "@/hooks/pengaturan/use-users";
 import type { User } from "@/types/pengaturan/user";
 
 function formatRoles(roles: string[]): string {
@@ -48,11 +62,16 @@ function getErrorMessage(error: unknown, fallback: string): string {
 }
 
 export function UserListView() {
+  const { data: me } = useMe();
+  const { can } = usePermissions();
+  const canDelete = can("delete-user");
+
   const [searchInput, setSearchInput] = React.useState("");
   const [search, setSearch] = React.useState("");
   const [page, setPage] = React.useState(1);
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [deleteTarget, setDeleteTarget] = React.useState<User | null>(null);
+  const [bulkOpen, setBulkOpen] = React.useState(false);
 
   const perPage = 20;
 
@@ -64,16 +83,22 @@ export function UserListView() {
     return () => clearTimeout(t);
   }, [searchInput]);
 
-  const { data, isLoading, isError, isFetching } = useUsers({
-    search,
-    page,
-    perPage,
-  });
+  const { data, isLoading, isError } = useUsers({ search, page, perPage });
   const deleteUser = useDeleteUser();
+  const bulkDelete = useBulkDeleteUsers();
 
-  const users = data?.items ?? [];
+  const users = React.useMemo(() => data?.items ?? [], [data]);
   const total = data?.meta?.total ?? 0;
-  const lastPage = data?.meta?.last_page ?? 1;
+
+  // Owner & akun sendiri tidak boleh dihapus (guard backend juga menolak).
+  const isProtected = React.useCallback(
+    (u: User) => u.roles.includes("owner") || u.id === me?.id,
+    [me?.id],
+  );
+  const selectableIds = React.useMemo(
+    () => users.filter((u) => !isProtected(u)).map((u) => u.id),
+    [users, isProtected],
+  );
 
   function handleToggleSelect(id: string) {
     setSelectedIds((prev) => {
@@ -85,44 +110,47 @@ export function UserListView() {
   }
 
   function handleToggleAll() {
-    if (users.every((u) => selectedIds.has(u.id))) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(users.map((u) => u.id)));
-    }
-  }
-
-  function handleBulkDelete() {
-    if (selectedIds.size === 0) return;
-    const first = users.find((u) => selectedIds.has(u.id));
-    if (first) setDeleteTarget(first);
+    const allSelected =
+      selectableIds.length > 0 &&
+      selectableIds.every((id) => selectedIds.has(id));
+    setSelectedIds(allSelected ? new Set() : new Set(selectableIds));
   }
 
   const columns = React.useMemo<ColumnDef<User>[]>(
     () => [
-      {
-        id: "select",
-        header: ({ table }) => {
-          const allSelected =
-            users.length > 0 && users.every((u) => selectedIds.has(u.id));
-          return (
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={handleToggleAll}
-              aria-label="Pilih semua"
-            />
-          );
-        },
-        cell: ({ row }) => (
-          <Checkbox
-            checked={selectedIds.has(row.original.id)}
-            onCheckedChange={() => handleToggleSelect(row.original.id)}
-            aria-label={`Pilih ${row.original.name}`}
-          />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-      },
+      ...(canDelete
+        ? [
+            {
+              id: "select",
+              header: () => {
+                const allSelected =
+                  selectableIds.length > 0 &&
+                  selectableIds.every((id) => selectedIds.has(id));
+                return (
+                  <Checkbox
+                    checked={allSelected}
+                    disabled={selectableIds.length === 0}
+                    onCheckedChange={handleToggleAll}
+                    aria-label="Pilih semua"
+                  />
+                );
+              },
+              cell: ({ row }) => {
+                const protectedRow = isProtected(row.original);
+                return (
+                  <Checkbox
+                    checked={selectedIds.has(row.original.id)}
+                    disabled={protectedRow}
+                    onCheckedChange={() => handleToggleSelect(row.original.id)}
+                    aria-label={`Pilih ${row.original.name}`}
+                  />
+                );
+              },
+              enableSorting: false,
+              enableHiding: false,
+            } as ColumnDef<User>,
+          ]
+        : []),
       {
         accessorKey: "name",
         header: "Nama Pengguna",
@@ -165,25 +193,24 @@ export function UserListView() {
         header: () => null,
         cell: ({ row }) => {
           const user = row.original;
+          if (isProtected(user) || !canDelete) return null;
           return (
             <div className="flex justify-end">
-              {!user.roles.includes("owner") && (
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="text-destructive hover:text-destructive"
-                  onClick={() => setDeleteTarget(user)}
-                  aria-label={`Hapus ${user.name}`}
-                >
-                  <Trash2Icon className="size-4" />
-                </Button>
-              )}
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="text-destructive hover:text-destructive"
+                onClick={() => setDeleteTarget(user)}
+                aria-label={`Hapus ${user.name}`}
+              >
+                <Trash2Icon className="size-4" />
+              </Button>
             </div>
           );
         },
       },
     ],
-    [selectedIds, users],
+    [selectedIds, selectableIds, isProtected, canDelete],
   );
 
   function handleConfirmDelete() {
@@ -203,10 +230,30 @@ export function UserListView() {
     });
   }
 
+  function handleConfirmBulkDelete() {
+    const ids = [...selectedIds];
+    if (ids.length === 0) return;
+    bulkDelete.mutate(ids, {
+      onSuccess: ({ deleted, failed }) => {
+        if (deleted.length > 0) {
+          toast.success(`${deleted.length} pengguna berhasil dihapus.`);
+        }
+        if (failed.length > 0) {
+          toast.error(
+            `${failed.length} pengguna gagal dihapus: ${failed[0].message}`,
+          );
+        }
+        setSelectedIds(new Set());
+        setBulkOpen(false);
+      },
+      onError: (err) =>
+        toast.error(getErrorMessage(err, "Gagal menghapus pengguna.")),
+    });
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <LiquidGlass radius={24} className="bg-white/40 dark:bg-white/[0.06]">
-        {}
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 pt-4">
           <div className="relative w-full max-w-xs">
             <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -219,23 +266,25 @@ export function UserListView() {
           </div>
 
           <div className="flex items-center gap-2">
-            {selectedIds.size > 0 && (
+            {canDelete && selectedIds.size > 0 && (
               <Button
                 variant="outline"
                 size="sm"
                 className="text-destructive hover:text-destructive"
-                onClick={handleBulkDelete}
+                onClick={() => setBulkOpen(true)}
               >
                 <Trash2Icon className="mr-1 size-4" />
                 Hapus ({selectedIds.size})
               </Button>
             )}
-            <Button size="sm" asChild>
-              <Link href="/dashboard/pengaturan/pengguna/buat">
-                <PlusIcon className="mr-1 size-4" />
-                Buat Pengguna
-              </Link>
-            </Button>
+            <Can permission="create-user">
+              <Button size="sm" asChild>
+                <Link href="/dashboard/pengaturan/pengguna/buat">
+                  <PlusIcon className="mr-1 size-4" />
+                  Buat Pengguna
+                </Link>
+              </Button>
+            </Can>
           </div>
         </div>
 
@@ -245,13 +294,17 @@ export function UserListView() {
 
         {isLoading ? (
           <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
-            <Loader2Icon className="size-4 animate-spin" /></div>
+            <Loader2Icon className="size-4 animate-spin" />
+          </div>
         ) : isError ? (
           <div className="py-16 text-center text-sm text-destructive">
             Gagal memuat data pengguna.
           </div>
         ) : users.length === 0 ? (
-          <EmptyState icon={search ? SearchXIcon : FileXIcon} title={search ? "Tidak ditemukan" : "Belum ada pengguna"} />
+          <EmptyState
+            icon={search ? SearchXIcon : FileXIcon}
+            title={search ? "Tidak ditemukan" : "Belum ada pengguna"}
+          />
         ) : (
           <div className="px-5 pb-5">
             <DataTable
@@ -259,17 +312,15 @@ export function UserListView() {
               data={users}
               hideToolbar
               manualPagination
-              pagination={{
-                pageIndex: page - 1,
-                pageSize: perPage,
-              }}
+              pagination={{ pageIndex: page - 1, pageSize: perPage }}
               rowCount={total}
-              onPaginationChange={(p) => {
-                setPage(p.pageIndex + 1);
-              }}
+              onPaginationChange={(p) => setPage(p.pageIndex + 1)}
               tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
               emptyState={
-                <EmptyState icon={search ? SearchXIcon : FileXIcon} title={search ? "Tidak ditemukan" : "Belum ada pengguna"} />
+                <EmptyState
+                  icon={search ? SearchXIcon : FileXIcon}
+                  title={search ? "Tidak ditemukan" : "Belum ada pengguna"}
+                />
               }
             />
           </div>
@@ -287,6 +338,19 @@ export function UserListView() {
         variant="destructive"
         loading={deleteUser.isPending}
         onConfirm={handleConfirmDelete}
+      />
+
+      <ConfirmDialog
+        open={bulkOpen}
+        onOpenChange={(open) => {
+          if (!open && !bulkDelete.isPending) setBulkOpen(false);
+        }}
+        title="Hapus Pengguna Terpilih"
+        description={`Hapus ${selectedIds.size} pengguna terpilih? Tindakan ini tidak dapat dibatalkan.`}
+        confirmLabel="Hapus"
+        variant="destructive"
+        loading={bulkDelete.isPending}
+        onConfirm={handleConfirmBulkDelete}
       />
     </div>
   );

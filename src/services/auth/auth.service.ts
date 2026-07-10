@@ -7,6 +7,11 @@ export interface CurrentUser {
   name: string;
   email: string;
   roles: string[];
+  /**
+   * Gabungan hak akses dari role + langsung (override per-user). Untuk owner,
+   * backend mengirim seluruh permission. Dipakai oleh `usePermissions()`.
+   */
+  permissions: string[];
   warehouse_id?: string | null;
   locations?: { location_id: string; location_name: string }[];
 }

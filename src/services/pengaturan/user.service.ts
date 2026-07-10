@@ -18,6 +18,8 @@ function mapUser(raw: RawUser): User {
     name: raw.name,
     email: raw.email,
     roles: raw.roles,
+    permissions: raw.permissions ?? [],
+    directPermissions: raw.direct_permissions ?? [],
     nik: raw.nik,
     warehouseId: raw.warehouse_id,
     locations: (raw.locations ?? []).map((l) => ({
@@ -99,6 +101,44 @@ export const UserService = {
 
   delete: async (id: string) => {
     await fetchClient<ApiResponse<null>>(`/users/${id}`, { method: "DELETE" });
+  },
+
+  /**
+   * Hapus banyak pengguna. Reuse endpoint single-delete (yang sudah menjaga
+   * larangan hapus diri-sendiri/owner), jalan paralel, laporkan gagal per-id.
+   */
+  bulkDelete: async (
+    ids: string[],
+  ): Promise<{ deleted: string[]; failed: { id: string; message: string }[] }> => {
+    const results = await Promise.allSettled(
+      ids.map((id) => UserService.delete(id)),
+    );
+    const deleted: string[] = [];
+    const failed: { id: string; message: string }[] = [];
+    results.forEach((r, i) => {
+      if (r.status === "fulfilled") {
+        deleted.push(ids[i]);
+      } else {
+        const reason = r.reason as { message?: unknown } | undefined;
+        failed.push({
+          id: ids[i],
+          message:
+            typeof reason?.message === "string"
+              ? reason.message
+              : "Gagal menghapus pengguna.",
+        });
+      }
+    });
+    return { deleted, failed };
+  },
+
+  /** Sinkronkan hak akses langsung (override per-user). */
+  syncPermissions: async (id: string, permissions: string[]) => {
+    const res = await fetchClient<ApiResponse<RawUser>>(
+      `/users/${id}/permissions`,
+      { method: "PUT", data: { permissions } },
+    );
+    return mapUser(res.data);
   },
 
   loginHistory: async (userId: string, params: LoginHistoryParams = {}) => {
