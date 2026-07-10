@@ -1,23 +1,33 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import type { LucideIcon } from "lucide-react";
-import { ArrowRightIcon } from "lucide-react";
-import type { ColumnDef } from "@tanstack/react-table";
+import { ArrowRightIcon, Loader2Icon, PackageCheckIcon } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { Card, CardHeader, CardTitle, CardAction, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/ui/data-table/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useDashboardQueue } from "@/hooks/dashboard/use-dashboard";
+import { useMoveToReady } from "@/hooks/pesanan/use-order-actions";
 import type {
   DashboardQueue,
   DashboardQueueRow,
 } from "@/types/dashboard/dashboard";
-import { useDashboardQueue } from "@/hooks/dashboard/use-dashboard";
+import { QueueRowActions } from "./queue-row-actions";
 
 interface ActionQueueTableProps {
   queue: DashboardQueue;
@@ -28,7 +38,7 @@ interface ActionQueueTableProps {
   viewAllHref?: string;
 }
 
-const PER_PAGE = 5;
+const PER_PAGE = 10;
 
 export function ActionQueueTable({
   queue,
@@ -38,118 +48,145 @@ export function ActionQueueTable({
   viewAllHref,
 }: ActionQueueTableProps) {
   const router = useRouter();
-  const [page, setPage] = useState(1);
+  const queryClient = useQueryClient();
+  const moveToReady = useMoveToReady();
 
   const { data, isLoading } = useDashboardQueue(queue, {
-    page,
+    page: 1,
     per_page: PER_PAGE,
   });
 
   const items = data?.items ?? [];
-  const meta = data?.meta ?? {
-    current_page: 1,
-    last_page: 1,
-    per_page: PER_PAGE,
-    total: 0,
-  };
+  const total = data?.meta?.total ?? 0;
 
-  const columns = useMemo<ColumnDef<DashboardQueueRow>[]>(
-    () => [
-      {
-        accessorKey: "salesorder_no",
-        header: "No. Pesanan",
-        cell: ({ row }) => (
-          <Link
-            href={`/dashboard/pesanan/${row.original.id}`}
-            className="font-mono text-xs font-medium hover:text-primary hover:underline"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {row.original.salesorder_no || "—"}
-          </Link>
-        ),
-      },
-      {
-        accessorKey: "source",
-        header: "Channel",
-        cell: ({ row }) =>
-          row.original.source ? (
-            <Badge variant="secondary" className="capitalize">
-              {row.original.source}
-            </Badge>
-          ) : (
-            <span className="text-muted-foreground">—</span>
-          ),
-      },
-      {
-        accessorKey: "customer_name",
-        header: "Pelanggan",
-        cell: ({ row }) => (
-          <span className="text-foreground">
-            {row.original.customer_name || "—"}
-          </span>
-        ),
-      },
-      {
-        accessorKey: "grand_total",
-        header: () => <div className="text-right">Total</div>,
-        cell: ({ row }) => (
-          <div className="text-right font-medium tabular-nums">
-            {formatCurrency(row.original.grand_total)}
-          </div>
-        ),
-      },
-      {
-        accessorKey: "transaction_date",
-        header: "Tanggal",
-        cell: ({ row }) => (
-          <span className="text-muted-foreground">
-            {formatDate(row.original.transaction_date)}
-          </span>
-        ),
-      },
-    ],
-    [],
-  );
+  const isProcessQueue = queue === "ready-to-process";
+
+  const handleProcessAll = () =>
+    moveToReady.mutate(
+      items.map((it) => it.id),
+      { onSuccess: () => queryClient.invalidateQueries({ queryKey: ["dashboard"] }) },
+    );
 
   return (
-    <Card className="gap-4">
-      <CardHeader className="border-b pb-4">
-        <CardTitle className="flex items-center gap-2">
-          <Icon className="size-4.5 text-muted-foreground" />
-          {title}
-          {meta.total > 0 ? (
-            <Badge variant="secondary" className="ml-1">
-              {meta.total}
+    <div className="flex flex-col overflow-hidden rounded-4xl bg-card text-sm text-card-foreground shadow-md ring-1 ring-foreground/5 dark:ring-foreground/10">
+      <header className="flex items-center justify-between gap-2 border-b px-4 py-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <Icon className="size-4.5 shrink-0 text-muted-foreground" />
+          <h3 className="truncate font-heading font-semibold">{title}</h3>
+          {total > 0 ? (
+            <Badge variant="secondary" className="tabular-nums">
+              {total}
             </Badge>
           ) : null}
-        </CardTitle>
-        {viewAllHref ? (
-          <CardAction>
-            <Button variant="ghost" size="sm" asChild>
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          {isProcessQueue && items.length > 0 ? (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs"
+              disabled={moveToReady.isPending}
+              onClick={handleProcessAll}
+            >
+              {moveToReady.isPending ? (
+                <Loader2Icon className="size-3.5 animate-spin" />
+              ) : (
+                <PackageCheckIcon className="size-3.5" />
+              )}
+              Proses semua
+            </Button>
+          ) : null}
+          {viewAllHref ? (
+            <Button variant="ghost" size="sm" className="text-xs" asChild>
               <Link href={viewAllHref}>
                 Lihat semua
-                <ArrowRightIcon className="size-4" />
+                <ArrowRightIcon className="size-3.5" />
               </Link>
             </Button>
-          </CardAction>
-        ) : null}
-      </CardHeader>
-      <CardContent>
-        <DataTable
-          columns={columns}
-          data={items}
-          isLoading={isLoading}
-          hideToolbar
-          manualPagination
-          pagination={{ pageIndex: page - 1, pageSize: PER_PAGE }}
-          rowCount={meta.total}
-          onPaginationChange={(p) => setPage(p.pageIndex + 1)}
-          onRowClick={(row) => router.push(`/dashboard/pesanan/${row.id}`)}
-          emptyState={
-            <EmptyState icon={Icon} title="Antrian bersih" description={emptyMessage} />
-          }
-        />
-      </CardContent>
-    </Card>
+          ) : null}
+        </div>
+      </header>
+
+      {isLoading ? (
+        <div className="flex flex-col gap-3 p-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-9 w-full" />
+          ))}
+        </div>
+      ) : items.length === 0 ? (
+        <EmptyState icon={Icon} title="Antrian bersih" description={emptyMessage} />
+      ) : (
+        <ScrollArea orientation="both" viewportClassName="max-h-[19rem]">
+          <Table scrollContainer={false}>
+            <TableHeader className="[&_tr]:border-b-0">
+              <TableRow className="sticky top-0 z-10 bg-muted/80 backdrop-blur-sm hover:bg-muted/80">
+                <TableHead className="h-10">No. Pesanan</TableHead>
+                <TableHead className="h-10">Channel</TableHead>
+                <TableHead className="h-10">Pelanggan</TableHead>
+                <TableHead className="h-10 text-right">Total</TableHead>
+                <TableHead className="h-10">Tanggal</TableHead>
+                <TableHead className="h-10 text-right">Aksi</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {items.map((row) => (
+                <QueueRow key={row.id} queue={queue} row={row} onOpen={router.push} />
+              ))}
+            </TableBody>
+          </Table>
+        </ScrollArea>
+      )}
+    </div>
+  );
+}
+
+function QueueRow({
+  queue,
+  row,
+  onOpen,
+}: {
+  queue: DashboardQueue;
+  row: DashboardQueueRow;
+  onOpen: (href: string) => void;
+}) {
+  return (
+    <TableRow
+      className="cursor-pointer"
+      onClick={() => onOpen(`/dashboard/pesanan/${row.id}`)}
+    >
+      <TableCell>
+        <Link
+          href={`/dashboard/pesanan/${row.id}`}
+          className="font-mono text-xs font-medium hover:text-primary hover:underline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {row.salesorder_no || "—"}
+        </Link>
+      </TableCell>
+      <TableCell>
+        {row.source ? (
+          <Badge variant="secondary" className="capitalize">
+            {row.source}
+          </Badge>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        )}
+      </TableCell>
+      <TableCell className={cn(!row.customer_name && "text-muted-foreground")}>
+        {row.customer_name || "—"}
+      </TableCell>
+      <TableCell className="text-right font-medium tabular-nums">
+        {formatCurrency(row.grand_total)}
+      </TableCell>
+      <TableCell className="text-muted-foreground">
+        {formatDate(row.transaction_date)}
+      </TableCell>
+      <TableCell
+        className="text-right"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <QueueRowActions queue={queue} row={row} />
+      </TableCell>
+    </TableRow>
   );
 }
