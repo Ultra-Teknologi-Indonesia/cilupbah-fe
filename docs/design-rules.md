@@ -1,7 +1,7 @@
 # Aturan Bahasa Visual — cilupbah-fe (anti AI-slop)
 
 > Konstitusi desain. Berlaku untuk SEMUA kode UI baru & sapuan konsistensi.
-> Sumber lengkap + roadmap: `PLANNING-DESIGN-CONSISTENCY.md`. Ini versi ringkas untuk dibaca sebelum menulis UI.
+> Wajib dibaca sebelum menulis UI. Standar koding FE lengkap ada di `../AGENTS.md`.
 
 Prinsip: ini **product UI ERP gudang padat data**, bukan landing page. Slop = keputusan visual acak per-file. Selalu pakai token/komponen shared, jangan meracik sendiri.
 
