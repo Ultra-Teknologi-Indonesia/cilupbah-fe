@@ -272,7 +272,7 @@ export function PenerimaanBarangTab() {
         accessorKey: "reference_number",
         header: "No. Referensi",
         cell: ({ row }) => (
-          <span className="text-muted-foreground">
+          <span>
             {row.original.reference_number ?? "—"}
           </span>
         ),
@@ -281,7 +281,7 @@ export function PenerimaanBarangTab() {
         id: "tanggal",
         header: "Tanggal Transfer Keluar",
         cell: ({ row }) => (
-          <span className="text-muted-foreground">
+          <span>
             {row.original.expected_date
               ? formatDateTime(row.original.expected_date)
               : formatDateTime(row.original.created_at)}
@@ -292,7 +292,7 @@ export function PenerimaanBarangTab() {
         id: "location",
         header: "Lokasi",
         cell: ({ row }) => (
-          <span className="text-muted-foreground">
+          <span>
             {row.original.location?.location_name ?? "—"}
           </span>
         ),
@@ -324,14 +324,14 @@ export function PenerimaanBarangTab() {
         header: "Dikerjakan",
         cell: ({ row }) => {
           const worker = row.original.putaways?.[0]?.assignee?.name;
-          return <span className="text-muted-foreground">{worker ?? "—"}</span>;
+          return <span>{worker ?? "—"}</span>;
         },
       },
       {
         accessorKey: "notes",
         header: "Keterangan",
         cell: ({ row }) => (
-          <span className="text-muted-foreground">
+          <span>
             {row.original.notes ?? "—"}
           </span>
         ),
