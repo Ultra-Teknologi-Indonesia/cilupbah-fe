@@ -35,7 +35,7 @@ import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useUrlTab } from "@/hooks/use-url-tab";
 import { exportCsv } from "@/lib/export-csv";
 import type { Inbound } from "@/types/barang-masuk/inbound";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatDateTime } from "@/lib/format";
 
 /** Sub-tab sumber → filter[type] pada daftar penerimaan. */
 type SourceTab = "semua" | "pesanan" | "transfer" | "retur";
@@ -147,7 +147,7 @@ function handleExportList(items: Inbound[]) {
       item.transaction_number,
       TYPE_LABEL[item.type] ?? item.type,
       item.reference_number ?? "",
-      item.expected_date ?? item.created_at,
+      formatDateTime(item.created_at),
       item.location?.location_name ?? "",
       item.created_by,
       String(totalRecv),
@@ -282,9 +282,7 @@ export function PenerimaanBarangTab() {
         header: "Tanggal",
         cell: ({ row }) => (
           <span className="text-muted-foreground">
-            {row.original.expected_date
-              ? formatDate(row.original.expected_date)
-              : formatDate(row.original.created_at)}
+            {formatDateTime(row.original.created_at)}
           </span>
         ),
       },
