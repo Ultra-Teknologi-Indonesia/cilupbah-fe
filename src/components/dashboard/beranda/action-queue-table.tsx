@@ -146,7 +146,7 @@ export function ActionQueueTable({
           onPaginationChange={(p) => setPage(p.pageIndex + 1)}
           onRowClick={(row) => router.push(`/dashboard/pesanan/${row.id}`)}
           emptyState={
-            <EmptyState icon={Icon} title="Tidak ada antrian" description={emptyMessage} />
+            <EmptyState icon={Icon} title="Antrian bersih" description={emptyMessage} />
           }
         />
       </CardContent>

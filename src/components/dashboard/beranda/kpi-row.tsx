@@ -3,12 +3,8 @@
 import {
   WalletIcon,
   ShoppingCartIcon,
-  PackageCheckIcon,
-  PackageXIcon,
-  AlertTriangleIcon,
-  XCircleIcon,
   TruckIcon,
-  Undo2Icon,
+  BoxesIcon,
 } from "lucide-react";
 
 import { formatCurrency, formatNumber } from "@/lib/format";
@@ -20,6 +16,7 @@ interface KpiRowProps {
   isLoading: boolean;
 }
 
+/** Ikhtisar: metrik pemantauan yang tidak punya tabel antrian di bawah. */
 export function KpiRow({ summary, isLoading }: KpiRowProps) {
   const cards: StatCardProps[] = [
     {
@@ -27,51 +24,26 @@ export function KpiRow({ summary, isLoading }: KpiRowProps) {
       value: formatCurrency(summary?.revenue),
       icon: WalletIcon,
       tone: "success",
+      emphasis: "lg",
     },
     {
       label: "Total Pesanan",
       value: formatNumber(summary?.orders_total),
       icon: ShoppingCartIcon,
-    },
-    {
-      label: "Siap Proses",
-      value: formatNumber(summary?.ready_to_process),
-      hint: "Pesanan menunggu diproses",
-      icon: PackageCheckIcon,
-      tone: "success",
-    },
-    {
-      label: "Stok Kosong",
-      value: formatNumber(summary?.empty_stock),
-      hint: "Pesanan tanpa stok cukup",
-      icon: PackageXIcon,
-      tone: "destructive",
-    },
-    {
-      label: "Gagal Picking",
-      value: formatNumber(summary?.failed_pick),
-      icon: AlertTriangleIcon,
-      tone: "warning",
-    },
-    {
-      label: "Permintaan Batal",
-      value: formatNumber(summary?.pending_cancel),
-      icon: XCircleIcon,
-      tone: "warning",
+      emphasis: "lg",
     },
     {
       label: "Dalam Pengiriman",
       value: formatNumber(summary?.in_transit),
+      hint: "Pesanan menuju pelanggan",
       icon: TruckIcon,
     },
     {
-      label: "Retur Pending",
-      value: formatNumber(summary?.returns_pending),
-      hint: summary
-        ? `Refund ${formatCurrency(summary.returns_refund)}`
-        : undefined,
-      icon: Undo2Icon,
-      tone: "warning",
+      label: "Nilai Stok",
+      value: formatCurrency(summary?.stock_value),
+      hint: "Total persediaan tersimpan",
+      icon: BoxesIcon,
+      href: "/dashboard/monitor-stok",
     },
   ];
 

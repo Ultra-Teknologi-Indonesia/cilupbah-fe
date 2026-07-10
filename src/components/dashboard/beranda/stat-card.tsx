@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -11,6 +12,10 @@ export interface StatCardProps {
   icon?: LucideIcon;
   /** Semantic accent for the icon tile. Defaults to neutral. */
   tone?: "default" | "success" | "warning" | "destructive";
+  /** Bila diisi, kartu jadi tautan ke halaman terkait. */
+  href?: string;
+  /** Emphasis nilai. "lg" untuk metrik utama. */
+  emphasis?: "default" | "lg";
   isLoading?: boolean;
   className?: string;
 }
@@ -28,20 +33,37 @@ export function StatCard({
   hint,
   icon: Icon,
   tone = "default",
+  href,
+  emphasis = "default",
   isLoading = false,
   className,
 }: StatCardProps) {
-  return (
-    <Card size="sm" className={cn("gap-0", className)}>
+  const card = (
+    <Card
+      size="sm"
+      className={cn(
+        "h-full gap-0",
+        href &&
+          "transition-colors hover:border-primary/40 hover:bg-muted/40",
+        className,
+      )}
+    >
       <CardContent className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
           <span className="truncate text-sm font-medium text-muted-foreground">
             {label}
           </span>
           {isLoading ? (
-            <Skeleton className="mt-1 h-7 w-24" />
+            <Skeleton
+              className={cn("mt-1 w-24", emphasis === "lg" ? "h-8" : "h-7")}
+            />
           ) : (
-            <span className="font-heading text-2xl font-semibold tracking-tight">
+            <span
+              className={cn(
+                "font-heading font-semibold tracking-tight",
+                emphasis === "lg" ? "text-3xl" : "text-2xl",
+              )}
+            >
               {value}
             </span>
           )}
@@ -63,5 +85,13 @@ export function StatCard({
         ) : null}
       </CardContent>
     </Card>
+  );
+
+  if (!href) return card;
+
+  return (
+    <Link href={href} className="group block focus-visible:outline-none">
+      {card}
+    </Link>
   );
 }
