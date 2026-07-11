@@ -21,6 +21,13 @@ function mapBin(raw: RawLocationBin): LocationBin {
     isStockAcknowledged: raw.is_stock_acknowledged ?? true,
     isLargeBin: raw.is_large_bin ?? false,
     category: raw.category ?? null,
+    skus: (raw.skus ?? []).map((s) => ({
+      variantId: s.variant_id,
+      sku: s.sku,
+      name: s.name,
+      onHand: s.on_hand,
+      reserved: s.reserved,
+    })),
   };
 }
 

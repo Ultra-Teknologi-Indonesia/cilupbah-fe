@@ -9,6 +9,7 @@ import {
   ArrowDownIcon,
   Loader2Icon,
   PrinterIcon,
+  CopyIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -512,7 +513,80 @@ function WarehouseVisual({
   );
 }
 
-type BinRow = BinPreviewItem & { id: string; binId?: string };
+type BinSkuEntry = {
+  variantId: string;
+  sku: string;
+  name: string;
+  onHand: number;
+  reserved: number;
+};
+
+type BinRow = BinPreviewItem & {
+  id: string;
+  binId?: string;
+  skus?: BinSkuEntry[];
+};
+
+function CopyableSku({ sku }: { sku: string }) {
+  const handleCopy = React.useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(sku);
+      toast.success("SKU berhasil disalin");
+    } catch {
+      toast.error("Gagal menyalin SKU");
+    }
+  }, [sku]);
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="inline-flex items-center gap-1 rounded-xl px-1.5 py-0.5 text-xs text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+      aria-label={`Salin SKU ${sku}`}
+    >
+      <span className="truncate font-mono">{sku}</span>
+      <CopyIcon className="size-3 opacity-70" />
+    </button>
+  );
+}
+
+function IsiRakCell({ skus }: { skus?: BinSkuEntry[] }) {
+  if (!skus || skus.length === 0) {
+    return <span className="text-muted-foreground">—</span>;
+  }
+
+  const [first, ...rest] = skus;
+
+  return (
+    <div className="flex flex-col leading-tight">
+      <span
+        className="truncate text-sm font-medium max-w-[240px]"
+        title={first.name}
+      >
+        {first.name}
+      </span>
+      <CopyableSku sku={first.sku} />
+      {rest.length > 0 && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="mt-0.5 text-xs text-muted-foreground cursor-help">
+              +{rest.length} SKU lain
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            <div className="flex flex-col gap-1">
+              {rest.map((r) => (
+                <span key={r.variantId} className="text-xs">
+                  {r.name} ({r.sku})
+                </span>
+              ))}
+            </div>
+          </TooltipContent>
+        </Tooltip>
+      )}
+    </div>
+  );
+}
 
 let binRowSeq = 0;
 function clientId(): string {
@@ -747,6 +821,7 @@ export function LayoutGudangTab({
             patch.isStockAcknowledged ?? row.isStockAcknowledged,
           isLargeBin: patch.isLargeBin ?? row.isLargeBin,
           category: patch.category ?? row.category ?? "",
+          skus: row.skus,
         };
       })
     : debouncedSearch
@@ -967,7 +1042,7 @@ export function LayoutGudangTab({
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Cari kode rak"
+              placeholder="Cari kode rak atau SKU"
               className="pl-9"
             />
           </div>
@@ -1024,7 +1099,7 @@ export function LayoutGudangTab({
           </div>
         ) : (
           <div className="rounded-2xl border border-border">
-            <Table className="min-w-[800px] border-collapse">
+            <Table className="min-w-[960px] border-collapse">
               <TableHeader>
                 <TableRow className="border-b border-border bg-muted/40">
                   <TableHead className="w-10 px-3 py-3">
@@ -1048,6 +1123,9 @@ export function LayoutGudangTab({
                       onSort={setSort}
                     />
                   </TableHead>
+                  <TableHead className="px-3 py-3 text-left font-medium text-muted-foreground">
+                    Isi Rak
+                  </TableHead>
                   <TableHead className="px-3 py-3 text-center font-medium text-muted-foreground">
                     Akui Stok
                   </TableHead>
@@ -1067,7 +1145,7 @@ export function LayoutGudangTab({
                   totalAll > pageIds.length && (
                     <TableRow className="border-b border-primary/20 bg-primary/5">
                       <TableCell
-                        colSpan={6}
+                        colSpan={7}
                         className="px-3 py-2 text-center text-sm"
                       >
                         Memilih {pageIds.length} rak di halaman ini.{" "}
@@ -1084,7 +1162,7 @@ export function LayoutGudangTab({
                 {serverMode && selectAllAcrossPages && (
                   <TableRow className="border-b border-primary/20 bg-primary/5">
                     <TableCell
-                      colSpan={6}
+                      colSpan={7}
                       className="px-3 py-2 text-center text-sm"
                     >
                       Memilih semua {totalAll.toLocaleString("id-ID")} rak.{" "}
@@ -1101,7 +1179,7 @@ export function LayoutGudangTab({
 
                 {(selectedIds.size > 0 || selectAllAcrossPages) && (
                   <TableRow className="border-b border-primary/20 bg-primary/5">
-                    <TableCell colSpan={6} className="px-3 py-2">
+                    <TableCell colSpan={7} className="px-3 py-2">
                       <div className="flex items-center gap-3">
                         <Checkbox
                           checked={allPageSelected ? true : "indeterminate"}
@@ -1186,6 +1264,9 @@ export function LayoutGudangTab({
                           placeholder="Kode rak"
                           className="h-9 max-w-[200px]"
                         />
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 align-top">
+                        <IsiRakCell skus={b.skus} />
                       </TableCell>
                       <TableCell className="px-3 py-2.5 text-center">
                         <Switch

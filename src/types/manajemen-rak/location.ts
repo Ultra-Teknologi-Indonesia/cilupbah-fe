@@ -67,6 +67,22 @@ export interface Location {
   updatedAt?: string;
 }
 
+export interface RawBinSku {
+  variant_id: string;
+  sku: string;
+  name: string;
+  on_hand: number;
+  reserved: number;
+}
+
+export interface BinSku {
+  variantId: string;
+  sku: string;
+  name: string;
+  onHand: number;
+  reserved: number;
+}
+
 export interface RawLocationBin {
   id: string;
   location_id: string;
@@ -80,6 +96,7 @@ export interface RawLocationBin {
   is_stock_acknowledged: boolean;
   is_large_bin: boolean;
   category: string | null;
+  skus?: RawBinSku[];
 }
 
 export interface LocationBin {
@@ -93,6 +110,7 @@ export interface LocationBin {
   isStockAcknowledged: boolean;
   isLargeBin: boolean;
   category: string | null;
+  skus: BinSku[];
 }
 
 export interface LocationPayload {
