@@ -8,7 +8,9 @@ import {
   ImageIcon,
   PrinterIcon,
   DownloadIcon,
+  Loader2Icon,
   QrCodeIcon,
+  SaveIcon,
   SearchIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -29,52 +31,57 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
+import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { InfoField } from "@/components/dashboard/shared/info-field";
 import { SortableHeader } from "@/components/dashboard/shared/sortable-header";
 import { CopySku } from "@/components/dashboard/shared/copy-sku";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   useInboundDetail,
   useInboundItems,
-  useSetReceivedQty,
+  useSetReceivedQtyBatch,
 } from "@/hooks/barang-masuk/use-inbound";
 import { exportCsv } from "@/lib/export-csv";
 import type { Inbound, InboundItem } from "@/types/barang-masuk/inbound";
 
 /**
- * Input jumlah diterima yang bisa diedit langsung (naik/turun).
- * Commit saat Enter/blur; Escape membatalkan. Tidak boleh di bawah qty yang
- * sudah ditempatkan (BE juga menolak sebagai backstop).
+ * Input jumlah diterima terkontrol. Perubahan dibuffer di parent (dirty map),
+ * baru dikirim ke BE saat pengguna klik Simpan. Escape membatalkan (kembali ke
+ * nilai server). State direset lewat `key` (remount) di pemanggil saat nilai
+ * server berubah — hindari setState dalam useEffect.
  */
 function EditableReceivedQty({
   item,
+  value,
   disabled,
-  pending,
-  onCommit,
+  onChange,
 }: {
   item: InboundItem;
+  value: number;
   disabled: boolean;
-  pending: boolean;
-  onCommit: (itemId: string, qty: number) => void;
+  onChange: (qty: number | null) => void;
 }) {
-  // State di-reset lewat `key` (remount) saat nilai server berubah — lihat pemanggil.
-  const [val, setVal] = React.useState(String(item.received_qty));
+  const [text, setText] = React.useState(String(value));
 
   const commit = () => {
-    const n = Number(val);
-    if (!Number.isInteger(n) || n < 0 || n === item.received_qty) {
-      setVal(String(item.received_qty));
+    const n = Number(text);
+    if (!Number.isInteger(n) || n < 0) {
+      setText(String(value));
       return;
     }
-    // Tidak bisa di bawah yang sudah ditempatkan ke rak — beri arahan yang jelas.
     if (n < item.putaway_qty) {
       toast.error(
         `Tidak bisa di bawah yang sudah ditempatkan ke rak (${item.putaway_qty}). Batalkan/kurangi penempatan dulu.`,
       );
-      setVal(String(item.received_qty));
+      setText(String(value));
       return;
     }
-    onCommit(item.id, n);
+    if (n === item.received_qty) {
+      onChange(null);
+    } else {
+      onChange(n);
+    }
   };
 
   return (
@@ -82,15 +89,16 @@ function EditableReceivedQty({
       type="number"
       inputMode="numeric"
       min={0}
-      value={val}
-      disabled={disabled || pending}
-      onChange={(e) => setVal(e.target.value)}
+      value={text}
+      disabled={disabled}
+      onChange={(e) => setText(e.target.value)}
       onBlur={commit}
       onKeyDown={(e) => {
         if (e.key === "Enter") {
           e.currentTarget.blur();
         } else if (e.key === "Escape") {
-          setVal(String(item.received_qty));
+          setText(String(item.received_qty));
+          onChange(null);
           e.currentTarget.blur();
         }
       }}
@@ -136,15 +144,84 @@ function handleExportCsv(inbound: Inbound) {
   exportCsv(`penerimaan-${inbound.transaction_number}.csv`, headers, rows);
 }
 
+type Totals = {
+  expected: number;
+  received: number;
+  discrepancy: number;
+};
+
+function computeTotals(items: InboundItem[], dirty: Record<string, number>): Totals {
+  let expected = 0;
+  let received = 0;
+  let discrepancy = 0;
+  for (const it of items) {
+    const rcv = dirty[it.id] ?? it.received_qty;
+    expected += it.expected_qty;
+    received += rcv;
+    discrepancy += rcv - it.expected_qty;
+  }
+  return { expected, received, discrepancy };
+}
+
+function TotalsBar({ totals }: { totals: Totals }) {
+  return (
+    <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+      <TotalTile label="Total Qty Diharapkan" value={totals.expected} />
+      <TotalTile label="Total Qty Diterima" value={totals.received} strong />
+      <TotalTile
+        label="Total Selisih"
+        value={totals.discrepancy}
+        tone={totals.discrepancy === 0 ? "muted" : "destructive"}
+        showSign
+      />
+    </div>
+  );
+}
+
+function TotalTile({
+  label,
+  value,
+  strong,
+  tone = "default",
+  showSign,
+}: {
+  label: string;
+  value: number;
+  strong?: boolean;
+  tone?: "default" | "muted" | "destructive";
+  showSign?: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/30 px-3 py-2">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <span
+        className={cn(
+          "text-base tabular-nums",
+          strong ? "font-semibold" : "font-medium",
+          tone === "destructive" && "text-destructive",
+          tone === "muted" && "text-foreground",
+        )}
+      >
+        {showSign && value > 0 ? "+" : ""}
+        {value}
+      </span>
+    </div>
+  );
+}
+
 export function PenerimaanDetailView({ id }: { id: string }) {
   const { data: inbound, isLoading } = useInboundDetail(id);
-  const setReceivedMutation = useSetReceivedQty(id);
+  const batchMutation = useSetReceivedQtyBatch(id);
 
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(20);
   const [search, setSearch] = React.useState("");
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [sort, setSort] = React.useState<string | undefined>(undefined);
+
+  const [dirty, setDirty] = React.useState<Record<string, number>>({});
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const saving = batchMutation.isPending;
 
   React.useEffect(() => {
     const t = setTimeout(() => {
@@ -170,8 +247,105 @@ export function PenerimaanDetailView({ id }: { id: string }) {
 
   const canEdit = !!inbound && inbound.status !== "CANCELLED";
 
-  const handleReceivedCommit = (itemId: string, qty: number) =>
-    setReceivedMutation.mutate({ itemId, qty });
+  const setDirtyFor = React.useCallback((itemId: string, qty: number | null) => {
+    setDirty((prev) => {
+      const next = { ...prev };
+      if (qty === null) {
+        delete next[itemId];
+      } else {
+        next[itemId] = qty;
+      }
+      return next;
+    });
+  }, []);
+
+  const dirtyEntries = React.useMemo(
+    () => Object.entries(dirty),
+    [dirty],
+  );
+  const hasChanges = dirtyEntries.length > 0;
+
+  const totals = React.useMemo(
+    () => computeTotals(inbound?.items ?? [], dirty),
+    [inbound?.items, dirty],
+  );
+
+  const deltaSum = React.useMemo(() => {
+    if (!inbound) return 0;
+    const byId = new Map(inbound.items.map((it) => [it.id, it]));
+    let d = 0;
+    for (const [itemId, qty] of dirtyEntries) {
+      const orig = byId.get(itemId)?.received_qty ?? 0;
+      d += qty - orig;
+    }
+    return d;
+  }, [dirtyEntries, inbound]);
+
+  React.useEffect(() => {
+    if (!hasChanges) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [hasChanges]);
+
+  const resetDirty = () => setDirty({});
+
+  const handleSaveAll = async () => {
+    if (!inbound || dirtyEntries.length === 0) return;
+    const payload = dirtyEntries.map(([itemId, qty]) => ({ itemId, qty }));
+    const results = await batchMutation.mutateAsync(payload);
+
+    const okIds = new Set(results.filter((r) => r.ok).map((r) => r.itemId));
+    const failed = results.filter((r) => !r.ok);
+
+    if (failed.length === 0) {
+      toast.success(`Berhasil menyimpan ${okIds.size} item`);
+      setDirty({});
+      setConfirmOpen(false);
+      return;
+    }
+    if (okIds.size === 0) {
+      toast.error(failed[0].error || "Gagal menyimpan perubahan");
+      return;
+    }
+    toast.warning(
+      `Berhasil ${okIds.size}, gagal ${failed.length} — item gagal tetap ditandai belum tersimpan`,
+    );
+    setDirty((prev) => {
+      const next = { ...prev };
+      for (const id of okIds) delete next[id];
+      return next;
+    });
+    setConfirmOpen(false);
+  };
+
+  const diffRows = React.useMemo(() => {
+    if (!inbound) return [] as Array<{
+      id: string;
+      sku: string;
+      name: string;
+      from: number;
+      to: number;
+    }>;
+    const byId = new Map(inbound.items.map((it) => [it.id, it]));
+    return dirtyEntries.map(([itemId, qty]) => {
+      const it = byId.get(itemId);
+      return {
+        id: itemId,
+        sku: it?.variant?.sku ?? "",
+        name:
+          it?.variant?.product?.name ??
+          it?.variant?.item_name ??
+          it?.variant?.name ??
+          "—",
+        from: it?.received_qty ?? 0,
+        to: qty,
+      };
+    });
+  }, [dirtyEntries, inbound]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -330,6 +504,9 @@ export function PenerimaanDetailView({ id }: { id: string }) {
               <h3 className="mb-3 hidden text-sm font-semibold print:block print:text-base">
                 Daftar Item
               </h3>
+
+              <TotalsBar totals={totals} />
+
               <Table containerClassName="rounded-lg border border-border/40">
                 <TableHeader>
                   <TableRow className="border-b border-border/60 bg-muted/30">
@@ -409,10 +586,17 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                     const imageUrl =
                       item.variant?.media?.[0]?.url ??
                       item.variant?.product?.media?.[0]?.url;
+                    const isDirty = dirty[item.id] !== undefined;
+                    const effectiveQty = dirty[item.id] ?? item.received_qty;
+                    const effectiveDiscrepancy =
+                      effectiveQty - item.expected_qty;
                     return (
                       <TableRow
                         key={item.id}
-                        className="border-b border-border/20 last:border-0"
+                        className={cn(
+                          "border-b border-border/20 last:border-0",
+                          isDirty && "border-l-2 border-l-warning bg-warning/5",
+                        )}
                       >
                         <TableCell className="px-3 py-2.5">
                           <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
@@ -445,6 +629,14 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                             {item.variant?.sku && (
                               <CopySku sku={item.variant.sku} />
                             )}
+                            {isDirty && (
+                              <Badge
+                                variant="outline"
+                                className="mt-1 w-fit border-warning/40 text-2xs text-warning"
+                              >
+                                Belum disimpan
+                              </Badge>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
@@ -453,11 +645,11 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                         <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
                           {canEdit ? (
                             <EditableReceivedQty
-                              key={`recv-${item.id}-${item.received_qty}`}
+                              key={`recv-${item.id}-${item.received_qty}-${isDirty ? "d" : "c"}`}
                               item={item}
-                              disabled={!canEdit}
-                              pending={setReceivedMutation.isPending}
-                              onCommit={handleReceivedCommit}
+                              value={effectiveQty}
+                              disabled={saving}
+                              onChange={(qty) => setDirtyFor(item.id, qty)}
                             />
                           ) : (
                             item.received_qty
@@ -480,13 +672,13 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                           {item.putaway_qty}
                         </TableCell>
                         <TableCell className="px-3 py-2.5 text-right tabular-nums">
-                          {item.discrepancy_qty !== 0 ? (
+                          {effectiveDiscrepancy !== 0 ? (
                             <Badge
                               variant="outline"
                               className="border-destructive/30 text-2xs text-destructive"
                             >
-                              {item.discrepancy_qty > 0 ? "+" : ""}
-                              {item.discrepancy_qty}
+                              {effectiveDiscrepancy > 0 ? "+" : ""}
+                              {effectiveDiscrepancy}
                             </Badge>
                           ) : (
                             <span className="text-foreground">0</span>
@@ -516,6 +708,41 @@ export function PenerimaanDetailView({ id }: { id: string }) {
               )}
             </div>
           </LiquidGlass>
+
+          {canEdit && hasChanges && (
+            <FormFooter className="print:hidden">
+              <div className="mr-auto flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="font-medium text-foreground">
+                  {dirtyEntries.length} item diubah
+                </span>
+                <span>
+                  · Δ {deltaSum > 0 ? "+" : ""}
+                  {deltaSum} qty
+                </span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={resetDirty}
+                disabled={saving}
+              >
+                Batalkan
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setConfirmOpen(true)}
+                disabled={saving}
+              >
+                {saving ? (
+                  <Loader2Icon className="mr-1.5 size-4 animate-spin" />
+                ) : (
+                  <SaveIcon className="mr-1.5 size-4" />
+                )}
+                Simpan Perubahan
+              </Button>
+            </FormFooter>
+          )}
 
           {inbound.assignments && inbound.assignments.length > 0 && (
             <LiquidGlass
@@ -596,6 +823,74 @@ export function PenerimaanDetailView({ id }: { id: string }) {
           )}
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Simpan perubahan qty diterima?"
+        description={`${diffRows.length} item akan diperbarui. Perubahan mempengaruhi stok bin inbound.`}
+        confirmLabel="Simpan"
+        cancelLabel="Batal"
+        loading={saving}
+        onConfirm={handleSaveAll}
+      >
+        {diffRows.length > 0 && (
+          <div className="max-h-64 overflow-y-auto rounded-xl border border-border/60">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/30">
+                  <TableHead className="px-3 py-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    Produk
+                  </TableHead>
+                  <TableHead className="px-3 py-2 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    Sebelum
+                  </TableHead>
+                  <TableHead className="px-3 py-2 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    Sesudah
+                  </TableHead>
+                  <TableHead className="px-3 py-2 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    Δ
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {diffRows.map((r) => {
+                  const delta = r.to - r.from;
+                  return (
+                    <TableRow key={r.id} className="border-b border-border/20 last:border-0">
+                      <TableCell className="px-3 py-2 text-xs">
+                        <div className="flex flex-col">
+                          <span className="text-foreground">{r.name}</span>
+                          {r.sku && (
+                            <span className="text-muted-foreground">{r.sku}</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-3 py-2 text-right text-xs tabular-nums text-muted-foreground">
+                        {r.from}
+                      </TableCell>
+                      <TableCell className="px-3 py-2 text-right text-xs tabular-nums text-foreground">
+                        {r.to}
+                      </TableCell>
+                      <TableCell
+                        className={cn(
+                          "px-3 py-2 text-right text-xs tabular-nums",
+                          delta === 0 && "text-muted-foreground",
+                          delta > 0 && "text-success",
+                          delta < 0 && "text-destructive",
+                        )}
+                      >
+                        {delta > 0 ? "+" : ""}
+                        {delta}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </ConfirmDialog>
     </div>
   );
 }

@@ -392,12 +392,12 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
 
   const validLines = lines.filter((l) => {
     const q = Number(l.qty);
+    // Longgar: qty tak dibatasi binOnHand — BE terima minus (allow_negative_stock).
     return (
       !!l.binId &&
       l.qty !== "" &&
       !Number.isNaN(q) &&
-      q >= 1 &&
-      q <= l.binOnHand
+      q >= 1
     );
   });
 
@@ -759,8 +759,8 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                         o.itemId === l.itemId &&
                         o.binId === l.binId,
                     );
-                  const qtyInvalid =
-                    !l.binId || qtyNum < 1 || qtyNum > l.binOnHand || dupBin;
+                  const qtyInvalid = !l.binId || qtyNum < 1 || dupBin;
+                  const qtyOverStock = qtyNum > l.binOnHand;
                   const binOptsForLine = l.availableBins.map((b) => ({
                     value: b.id,
                     label: b.code,
@@ -836,11 +836,10 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                       >
                         {l.binOnHand}
                       </TableCell>
-                      <TableCell className="px-3 py-2.5 text-right">
+                      <TableCell className="px-3 py-2.5 text-right align-top">
                         <Input
                           type="number"
                           min={1}
-                          max={l.binOnHand}
                           value={l.qty}
                           onChange={(e) =>
                             updateLine(l.rowId, { qty: e.target.value })
@@ -848,13 +847,7 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                           onBlur={(e) => {
                             const v = Number(e.target.value);
                             if (Number.isNaN(v) || v < 1) {
-                              updateLine(l.rowId, {
-                                qty: l.binOnHand > 0 ? "1" : "",
-                              });
-                            } else if (v > l.binOnHand) {
-                              updateLine(l.rowId, {
-                                qty: String(l.binOnHand),
-                              });
+                              updateLine(l.rowId, { qty: "" });
                             }
                           }}
                           placeholder="0"
@@ -862,8 +855,15 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                             "h-9 w-20 text-right",
                             qtyInvalid &&
                               "border-destructive ring-1 ring-destructive/30",
+                            !qtyInvalid && qtyOverStock &&
+                              "border-amber-500 ring-1 ring-amber-500/40",
                           )}
                         />
+                        {qtyOverStock && !qtyInvalid && (
+                          <p className="text-amber-600 text-xs mt-0.5">
+                            Melebihi data sistem (tersedia: {l.binOnHand}) — akan tercatat minus
+                          </p>
+                        )}
                       </TableCell>
                       <TableCell className="px-3 py-2.5">
                         <Input

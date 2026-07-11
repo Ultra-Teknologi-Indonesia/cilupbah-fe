@@ -110,3 +110,39 @@ export function useSetReceivedQty(inboundId: string) {
       ),
   });
 }
+
+/**
+ * Batch-simpan koreksi qty diterima. Hasilnya per-item (fulfilled/rejected)
+ * supaya caller bisa menandai baris yang gagal tetap sebagai dirty.
+ */
+export function useSetReceivedQtyBatch(inboundId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (
+      items: Array<{ itemId: string; qty: number }>,
+    ): Promise<
+      Array<{ itemId: string; ok: boolean; error?: string }>
+    > => {
+      const results = await Promise.allSettled(
+        items.map((it) =>
+          InboundService.setReceivedQty(inboundId, it.itemId, it.qty),
+        ),
+      );
+      return items.map((it, idx) => {
+        const r = results[idx];
+        if (r.status === "fulfilled") return { itemId: it.itemId, ok: true };
+        return {
+          itemId: it.itemId,
+          ok: false,
+          error: (r.reason as { message?: string })?.message,
+        };
+      });
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ["inbound", "detail", inboundId] });
+      qc.invalidateQueries({ queryKey: ["inbound", "items", inboundId] });
+      qc.invalidateQueries({ queryKey: ["inbound", "list"] });
+      qc.invalidateQueries({ queryKey: ["inventory"] });
+    },
+  });
+}

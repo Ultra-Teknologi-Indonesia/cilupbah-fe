@@ -332,13 +332,6 @@ export function PickingProsesView({ id }: { id: string }) {
       toast.error("Masukkan qty yang valid.");
       return;
     }
-    if (qty > activePickMax) {
-      playScanFeedback("error");
-      toast.error(
-        `Qty melebihi maksimum yang bisa diambil (${activePickMax}).`,
-      );
-      return;
-    }
     pickItem.mutate(
       {
         picklistId: id,
@@ -693,24 +686,35 @@ export function PickingProsesView({ id }: { id: string }) {
                         </Select>
                       </div>
                     )}
-                    <div className="flex items-center gap-3 pt-2">
-                      <label className="shrink-0 text-sm font-medium text-foreground">
-                        Qty ambil
-                      </label>
-                      <QtyConfirmInput
-                        inputRef={qtyInputRef}
-                        min={1}
-                        max={activePickMax}
-                        expected={activePickMax}
-                        value={pickQty === "" ? "" : Number(pickQty)}
-                        onChange={(v) =>
-                          setPickQty(v === "" ? "" : String(v))
-                        }
-                        onEnter={handleConfirmPick}
-                        placeholder={`maks ${activePickMax}`}
-                        className="h-10"
-                        disabled={pickItem.isPending}
-                      />
+                    <div className="flex flex-col gap-1 pt-2">
+                      <div className="flex items-center gap-3">
+                        <label className="shrink-0 text-sm font-medium text-foreground">
+                          Qty ambil
+                        </label>
+                        <QtyConfirmInput
+                          inputRef={qtyInputRef}
+                          min={1}
+                          max={activePickMax}
+                          expected={activePickMax}
+                          warnOnly
+                          value={pickQty === "" ? "" : Number(pickQty)}
+                          onChange={(v) =>
+                            setPickQty(v === "" ? "" : String(v))
+                          }
+                          onEnter={handleConfirmPick}
+                          placeholder={`maks ${activePickMax}`}
+                          className="h-10"
+                          disabled={pickItem.isPending}
+                        />
+                      </div>
+                      {(() => {
+                        const q = Number.parseInt(pickQty, 10);
+                        return Number.isFinite(q) && q > activePickMax ? (
+                          <p className="text-amber-600 text-xs">
+                            Melebihi data sistem (tersedia: {activePickMax}) — akan tercatat minus
+                          </p>
+                        ) : null;
+                      })()}
                     </div>
                     <DialogFooter className="gap-2 sm:gap-0">
                       <Button

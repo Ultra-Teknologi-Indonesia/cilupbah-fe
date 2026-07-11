@@ -270,7 +270,8 @@ export function BuatPenyesuaianView() {
 
   const validLines = lines.filter((l) => {
     const d = Number(l.delta);
-    return l.delta !== "" && !Number.isNaN(d) && l.binOnHand + d >= 0;
+    // Longgar: qty akhir boleh minus (allow_negative_stock). BE tetap terima.
+    return l.delta !== "" && !Number.isNaN(d) && d !== 0;
   });
   const canSubmit =
     !!locationId &&
@@ -496,7 +497,7 @@ export function BuatPenyesuaianView() {
                       ? 0
                       : Number(l.delta);
                   const qtyAkhir = l.binOnHand + deltaNum;
-                  const invalid = qtyAkhir < 0;
+                  const willGoNegative = qtyAkhir < 0;
                   const binOptsForLine = l.availableBins.map((b) => ({
                     value: b.id,
                     label: `${b.code} · ${b.onHand} stok`,
@@ -560,7 +561,7 @@ export function BuatPenyesuaianView() {
                         />
                       </TableCell>
                       {}
-                      <TableCell className="px-3 py-2.5 text-right">
+                      <TableCell className="px-3 py-2.5 text-right align-top">
                         <Input
                           type="number"
                           value={l.delta}
@@ -570,20 +571,25 @@ export function BuatPenyesuaianView() {
                           placeholder="0"
                           className={cn(
                             "h-9 w-20 text-right",
-                            invalid &&
-                              "border-destructive ring-1 ring-destructive/30",
+                            willGoNegative &&
+                              "border-amber-500 ring-1 ring-amber-500/40",
                           )}
                         />
+                        {willGoNegative && (
+                          <p className="text-amber-600 text-xs mt-0.5">
+                            Melebihi data sistem (tersedia: {l.binOnHand}) — akan tercatat minus
+                          </p>
+                        )}
                       </TableCell>
                       {}
-                      <TableCell className="px-3 py-2.5 text-right font-mono tabular-nums text-muted-foreground">
+                      <TableCell className="px-3 py-2.5 text-right font-mono tabular-nums text-muted-foreground align-top">
                         {l.binOnHand}
                       </TableCell>
                       {}
                       <TableCell
                         className={cn(
-                          "px-3 py-2.5 text-right font-mono font-semibold tabular-nums",
-                          invalid ? "text-destructive" : "text-foreground",
+                          "px-3 py-2.5 text-right font-mono font-semibold tabular-nums align-top",
+                          willGoNegative ? "text-amber-600" : "text-foreground",
                         )}
                       >
                         {qtyAkhir}

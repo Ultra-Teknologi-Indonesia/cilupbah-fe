@@ -201,6 +201,7 @@ export function PindahBinView() {
 
   const validLines = lines.filter((l) => {
     const q = Number(l.qty);
+    // Longgar: tak lagi memblokir qty > onHand — BE terima minus (allow_negative_stock).
     return (
       l.qty !== "" && !Number.isNaN(q) && q > 0 && !!l.sourceBinId
     );
@@ -490,6 +491,7 @@ export function PindahBinView() {
                             min={1}
                             max={sourceBin?.onHand ?? 0}
                             expected={sourceBin?.onHand ?? 0}
+                            warnOnly
                             value={l.qty === "" ? "" : Number(l.qty)}
                             onChange={(v) =>
                               updateLine(l.itemId, {
@@ -498,15 +500,16 @@ export function PindahBinView() {
                             }
                             onEnter={() => setScanRefocusKey((k) => k + 1)}
                             placeholder="0"
-                            className={cn(
-                              "h-9 w-24 text-right",
-                              qtyOverStock &&
-                                "border-destructive ring-1 ring-destructive/30",
-                            )}
+                            className="h-9 w-24 text-right"
                           />
                           {sourceBin && (
                             <p className="mt-0.5 text-xs text-muted-foreground">
                               dari {sourceBin.onHand}
+                            </p>
+                          )}
+                          {qtyOverStock && sourceBin && (
+                            <p className="text-amber-600 text-xs">
+                              Melebihi data sistem (tersedia: {sourceBin.onHand}) — akan tercatat minus
                             </p>
                           )}
                         </TableCell>

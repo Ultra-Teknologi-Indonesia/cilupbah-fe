@@ -17,6 +17,12 @@ interface QtyConfirmInputProps {
   autoSelectOnFocus?: boolean;
   autoFocus?: boolean;
   allowOverWithConfirm?: boolean;
+  /**
+   * Terima qty berapa pun tanpa toast/blok — over-max hanya diberi ring amber.
+   * Dipakai untuk flow yang boleh mencatat minus (Penempatan/Pengambilan/Transfer/Penyesuaian)
+   * setelah kebijakan longgar stok.
+   */
+  warnOnly?: boolean;
   disabled?: boolean;
   placeholder?: string;
   className?: string;
@@ -34,6 +40,7 @@ export function QtyConfirmInput({
   autoSelectOnFocus = true,
   autoFocus,
   allowOverWithConfirm = false,
+  warnOnly = false,
   disabled,
   placeholder,
   className,
@@ -57,10 +64,10 @@ export function QtyConfirmInput({
     }
     const n = Number.parseInt(raw, 10);
     if (Number.isNaN(n)) return;
-    if (!allowOverWithConfirm) {
-      onChange(Math.max(min, Math.min(max, n)));
-    } else {
+    if (warnOnly || allowOverWithConfirm) {
       onChange(Math.max(min, n));
+    } else {
+      onChange(Math.max(min, Math.min(max, n)));
     }
     setPendingOverConfirm(false);
   };
@@ -76,7 +83,7 @@ export function QtyConfirmInput({
       toast.error("Masukkan qty yang valid.");
       return;
     }
-    if (numeric > max) {
+    if (numeric > max && !warnOnly) {
       if (allowOverWithConfirm) {
         if (!pendingOverConfirm) {
           setPendingOverConfirm(true);
@@ -101,7 +108,7 @@ export function QtyConfirmInput({
       type="number"
       inputMode="numeric"
       min={min}
-      max={allowOverWithConfirm ? undefined : max}
+      max={warnOnly || allowOverWithConfirm ? undefined : max}
       value={displayValue}
       placeholder={placeholder ?? String(expected)}
       disabled={disabled}
@@ -112,8 +119,9 @@ export function QtyConfirmInput({
       className={cn(
         "tabular-nums",
         matchesExpected && "border-primary/40 ring-1 ring-primary/20",
-        overMax && !pendingOverConfirm && "border-destructive ring-1 ring-destructive/30",
-        overMax && pendingOverConfirm && "border-amber-500 ring-1 ring-amber-500/40",
+        overMax && warnOnly && "border-amber-500 ring-1 ring-amber-500/40",
+        overMax && !warnOnly && !pendingOverConfirm && "border-destructive ring-1 ring-destructive/30",
+        overMax && !warnOnly && pendingOverConfirm && "border-amber-500 ring-1 ring-amber-500/40",
         underMin && "border-destructive ring-1 ring-destructive/30",
         className,
       )}

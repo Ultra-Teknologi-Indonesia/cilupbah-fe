@@ -36,6 +36,7 @@ import {
   Warehouse,
   BarChart3,
   Undo2,
+  AlertTriangle,
 } from "lucide-react";
 import type React from "react";
 import type { Route } from "./nav-main";
@@ -252,6 +253,12 @@ export const dashboardGroups: NavGroup[] = [
         link: "/dashboard/laporan/gudang",
         comingSoon: true,
       },
+      {
+        id: "laporan-stok-minus",
+        title: "Riwayat Stok Minus",
+        icon: AlertTriangle,
+        link: "/dashboard/laporan/stok-minus",
+      },
     ],
   },
 ];
@@ -312,6 +319,7 @@ export const NAV_PERMISSION: Record<string, string | string[]> = {
   "laporan-pembelian": "view-laporan-pembelian",
   "laporan-persediaan": "view-laporan-persediaan",
   "laporan-gudang": "view-laporan-gudang",
+  "laporan-stok-minus": "view-laporan-stok-minus",
 };
 
 const SETTINGS_SUB_PERMISSION: Record<string, string | string[]> = {

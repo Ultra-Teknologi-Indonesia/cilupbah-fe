@@ -1109,30 +1109,41 @@ function PlacementRow({
         />
       </div>
 
-      <div className="flex items-center gap-1.5">
-        <QtyConfirmInput
-          inputRef={qtyInputRef}
-          min={1}
-          max={entry.maxQty}
-          expected={entry.maxQty}
-          value={qty === "" ? "" : Number(qty)}
-          disabled={!editable}
-          onChange={(v) => setQty(v === "" ? "" : String(v))}
-          onEnter={() => {
-            if (!selectedBinId) return;
-            clearTimeout(autoSaveTimer.current);
-            const qtyNum = parseInt(qty) || 0;
-            if (qtyNum > lastSavedQty.current)
-              saveNow(selectedBinId, qtyNum, onSaved);
-          }}
-          placeholder="0"
-          className="h-8 w-20 tabular-nums text-xs"
-        />
-        {processMutation.isPending ? (
-          <Loader2Icon className="size-3.5 animate-spin text-warning" />
-        ) : hasSaved ? (
-          <CheckCircle2Icon className="size-3.5 text-success" />
-        ) : null}
+      <div className="flex flex-col gap-0.5">
+        <div className="flex items-center gap-1.5">
+          <QtyConfirmInput
+            inputRef={qtyInputRef}
+            min={1}
+            max={entry.maxQty}
+            expected={entry.maxQty}
+            warnOnly
+            value={qty === "" ? "" : Number(qty)}
+            disabled={!editable}
+            onChange={(v) => setQty(v === "" ? "" : String(v))}
+            onEnter={() => {
+              if (!selectedBinId) return;
+              clearTimeout(autoSaveTimer.current);
+              const qtyNum = parseInt(qty) || 0;
+              if (qtyNum > lastSavedQty.current)
+                saveNow(selectedBinId, qtyNum, onSaved);
+            }}
+            placeholder="0"
+            className="h-8 w-20 tabular-nums text-xs"
+          />
+          {processMutation.isPending ? (
+            <Loader2Icon className="size-3.5 animate-spin text-warning" />
+          ) : hasSaved ? (
+            <CheckCircle2Icon className="size-3.5 text-success" />
+          ) : null}
+        </div>
+        {(() => {
+          const qtyNum = parseInt(qty) || 0;
+          return qtyNum > entry.maxQty ? (
+            <p className="text-amber-600 text-xs">
+              Melebihi data sistem (tersedia: {entry.maxQty}) — akan tercatat minus
+            </p>
+          ) : null;
+        })()}
       </div>
 
       {onRemove && editable && (
