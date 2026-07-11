@@ -1,11 +1,10 @@
 "use client";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo } from "react";
+import { useListState } from "@/hooks/use-list-state";
 import Link from "next/link";
 import { PlusIcon, ClipboardListIcon, Trash2Icon, Loader2Icon } from "lucide-react";
-import { format } from "date-fns";
-import type { DateRange } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -32,17 +31,33 @@ import { formatDate, formatCurrency } from "@/lib/format";
 
 interface FilterState {
   location_id: string;
-  dateRange: DateRange | undefined;
+  date_from: string;
+  date_to: string;
 }
 
-const EMPTY_FILTERS: FilterState = { location_id: "", dateRange: undefined };
+const EMPTY_FILTERS: FilterState = {
+  location_id: "",
+  date_from: "",
+  date_to: "",
+};
 
 export function PesananListView() {
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
-  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+  const list = useListState<FilterState>(EMPTY_FILTERS, {
+    perPage: 20,
+    debounceMs: 300,
+    namespace: "po",
+  });
+  const {
+    search,
+    setSearch,
+    debouncedSearch,
+    page,
+    perPage,
+    filters,
+    setFilters,
+    pagination,
+    onPaginationChange,
+  } = list;
 
   const [deleteTarget, setDeleteTarget] = useState<PurchaseOrder | null>(null);
   const [bulkDeleteTarget, setBulkDeleteTarget] = useState<
@@ -69,24 +84,6 @@ export function PesananListView() {
     });
   }
 
-  const resetPage = useCallback(() => setPage(1), []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search.trim());
-      resetPage();
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [search, resetPage]);
-
-  const handleFilterChange = useCallback(
-    (f: FilterState) => {
-      setFilters(f);
-      resetPage();
-    },
-    [resetPage],
-  );
-
   const params = useMemo<PurchaseOrderListParams>(() => {
     const p: PurchaseOrderListParams = {
       search: debouncedSearch || undefined,
@@ -95,12 +92,8 @@ export function PesananListView() {
       "filter[location_id]": filters.location_id || undefined,
     };
 
-    if (filters.dateRange?.from) {
-      p["filter[date_from]"] = format(filters.dateRange.from, "yyyy-MM-dd");
-    }
-    if (filters.dateRange?.to) {
-      p["filter[date_to]"] = format(filters.dateRange.to, "yyyy-MM-dd");
-    }
+    if (filters.date_from) p["filter[date_from]"] = filters.date_from;
+    if (filters.date_to) p["filter[date_to]"] = filters.date_to;
 
     return p;
   }, [debouncedSearch, page, perPage, filters]);
@@ -115,7 +108,7 @@ export function PesananListView() {
     per_page: perPage,
     total: 0,
   };
-  const activeCount = [filters.location_id, filters.dateRange?.from].filter(
+  const activeCount = [filters.location_id, filters.date_from].filter(
     Boolean,
   ).length;
 
@@ -130,7 +123,7 @@ export function PesananListView() {
   );
 
   const hasActiveFilter = Boolean(
-    filters.location_id || filters.dateRange?.from,
+    filters.location_id || filters.date_from,
   );
 
   const columns = useMemo<ColumnDef<PurchaseOrder>[]>(
@@ -224,7 +217,7 @@ export function PesananListView() {
           align="end"
           onReset={
             hasActiveFilter
-              ? () => handleFilterChange(EMPTY_FILTERS)
+              ? () => setFilters(EMPTY_FILTERS)
               : undefined
           }
           hasFilter={hasActiveFilter}
@@ -243,17 +236,26 @@ export function PesananListView() {
             options={locationOptions}
             value={filters.location_id}
             onChange={(v) =>
-              handleFilterChange({ ...filters, location_id: v ?? "" })
+              setFilters({ ...filters, location_id: v ?? "" })
             }
             placeholder="Lokasi"
             searchPlaceholder="Cari lokasi"
             className="h-9 bg-background"
           />
           <DateRangePicker
-            value={filters.dateRange}
-            onChange={(range) =>
-              handleFilterChange({ ...filters, dateRange: range })
-            }
+            value={{
+              from: filters.date_from ? new Date(filters.date_from) : undefined,
+              to: filters.date_to ? new Date(filters.date_to) : undefined,
+            }}
+            onChange={(range) => {
+              const toStr = (d?: Date) =>
+                d ? d.toISOString().slice(0, 10) : "";
+              setFilters({
+                ...filters,
+                date_from: toStr(range?.from),
+                date_to: toStr(range?.to),
+              });
+            }}
             placeholder="Tanggal Pesanan"
             className="h-9 bg-background"
           />
@@ -284,15 +286,9 @@ export function PesananListView() {
             )}
             hideToolbar
             manualPagination
-            pagination={{
-              pageIndex: page - 1,
-              pageSize: perPage,
-            }}
+            pagination={pagination}
             rowCount={meta.total}
-            onPaginationChange={(p) => {
-              setPage(p.pageIndex + 1);
-              setPerPage(p.pageSize);
-            }}
+            onPaginationChange={onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
               <EmptyState icon={ClipboardListIcon} title="Belum ada pesanan pembelian" description="Buat pesanan baru untuk mulai memesan barang dari pemasok." />

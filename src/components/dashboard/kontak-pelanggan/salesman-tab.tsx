@@ -2,6 +2,7 @@
 import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
+import { useListState } from "@/hooks/use-list-state";
 import {
   PlusIcon,
   PencilIcon,
@@ -64,36 +65,43 @@ const EMPTY_FORM: SalesmanFormData = {
   notes: "",
 };
 
+interface SalesmanFilters {
+  status: string;
+}
+
+const EMPTY_FILTERS: SalesmanFilters = { status: "" };
+
 export function SalesmanTab() {
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
-  const [statusFilter, setStatusFilter] = useState("");
+  const list = useListState<SalesmanFilters>(EMPTY_FILTERS, {
+    perPage: 20,
+    debounceMs: 300,
+    namespace: "salesman",
+  });
+  const {
+    search,
+    setSearch,
+    debouncedSearch,
+    perPage,
+    filters,
+    setFilters,
+    pagination,
+    onPaginationChange,
+  } = list;
+  const statusFilter = filters.status;
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<SalesmanFormData>(EMPTY_FORM);
   const [deleteTarget, setDeleteTarget] = useState<SalesmanItem | null>(null);
 
-  const resetPage = useCallback(() => setPage(1), []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search.trim());
-      resetPage();
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [search, resetPage]);
-
   const params = useMemo(
     () => ({
       search: debouncedSearch || undefined,
-      page,
+      page: pagination.pageIndex + 1,
       per_page: perPage,
       "filter[status]": statusFilter || undefined,
     }),
-    [debouncedSearch, page, perPage, statusFilter],
+    [debouncedSearch, pagination.pageIndex, perPage, statusFilter],
   );
 
   const { data, isLoading, isFetching } = useSalesmen(params);
@@ -283,10 +291,7 @@ export function SalesmanTab() {
           align="end"
           onReset={
             hasFilter
-              ? () => {
-                  setStatusFilter("");
-                  resetPage();
-                }
+              ? () => setFilters(EMPTY_FILTERS)
               : undefined
           }
           hasFilter={hasFilter}
@@ -313,10 +318,7 @@ export function SalesmanTab() {
           <Combobox
             options={STATUS_OPTIONS}
             value={statusFilter}
-            onChange={(v) => {
-              setStatusFilter(v ?? "");
-              resetPage();
-            }}
+            onChange={(v) => setFilters({ status: v ?? "" })}
             placeholder="Status"
             searchPlaceholder="Cari status"
             className="h-9 bg-background"
@@ -336,15 +338,9 @@ export function SalesmanTab() {
             isLoading={isLoading}
             hideToolbar
             manualPagination
-            pagination={{
-              pageIndex: page - 1,
-              pageSize: perPage,
-            }}
+            pagination={pagination}
             rowCount={meta.total}
-            onPaginationChange={(p) => {
-              setPage(p.pageIndex + 1);
-              setPerPage(p.pageSize);
-            }}
+            onPaginationChange={onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
               <EmptyState icon={BadgeCheckIcon} title="Belum ada salesman" description="Buat salesman baru untuk mengelola tim penjualan." />

@@ -27,6 +27,7 @@ import {
   useArchivedProducts,
   useRestoreProduct,
 } from "@/hooks/master-produk/use-archived-products";
+import { useListState } from "@/hooks/use-list-state";
 import type { ArchivedProduct } from "@/types/master-produk";
 import { FilterToolbar } from "../filter-toolbar";
 import { CopySku } from "@/components/dashboard/shared/copy-sku";
@@ -83,22 +84,15 @@ function RestoreButton({
 }
 
 export function ArchiveView() {
-  const [search, setSearch] = React.useState("");
-  const [debounced, setDebounced] = React.useState("");
-  const [page, setPage] = React.useState(1);
-
-  React.useEffect(() => {
-    const t = setTimeout(() => {
-      setDebounced(search);
-      setPage(1);
-    }, 350);
-    return () => clearTimeout(t);
-  }, [search]);
+  const list = useListState<Record<string, never>>(
+    {},
+    { perPage: 20, debounceMs: 350, namespace: "arsip" },
+  );
 
   const { data, isLoading, isError, refetch } = useArchivedProducts({
-    search: debounced || undefined,
-    page,
-    perPage: 20,
+    search: list.debouncedSearch || undefined,
+    page: list.page,
+    perPage: list.perPage,
   });
   const restore = useRestoreProduct();
   const pendingId = restore.isPending ? (restore.variables ?? null) : null;
@@ -197,7 +191,7 @@ export function ArchiveView() {
     [pendingId, restore],
   );
 
-  const hasFilter = search.length > 0;
+  const hasFilter = list.search.length > 0;
 
   return (
     <LiquidGlass
@@ -206,10 +200,10 @@ export function ArchiveView() {
       className="flex flex-col bg-white/40 dark:bg-white/[0.06]"
     >
       <FilterToolbar
-        search={search}
-        onSearchChange={setSearch}
+        search={list.search}
+        onSearchChange={list.setSearch}
         searchPlaceholder="Cari nama / SKU…"
-        onReset={hasFilter ? () => setSearch("") : undefined}
+        onReset={hasFilter ? () => list.setSearch("") : undefined}
         hasFilter={hasFilter}
         activeCount={0}
       />
@@ -252,12 +246,10 @@ export function ArchiveView() {
                       pageIndex: meta.current_page - 1,
                       pageSize: meta.per_page,
                     }
-                  : undefined
+                  : list.pagination
               }
               rowCount={meta?.total ?? 0}
-              onPaginationChange={(p) => {
-                setPage(p.pageIndex + 1);
-              }}
+              onPaginationChange={list.onPaginationChange}
               tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
               emptyState={
                 <div className="flex flex-col items-center gap-2 py-14 text-center">

@@ -32,6 +32,7 @@ import {
   useBulkCancelInbounds,
 } from "@/hooks/barang-masuk/use-inbound";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
+import { useListState } from "@/hooks/use-list-state";
 import { useUrlTab } from "@/hooks/use-url-tab";
 import { exportCsv } from "@/lib/export-csv";
 import type { Inbound } from "@/types/barang-masuk/inbound";
@@ -163,51 +164,33 @@ function handleExportList(items: Inbound[]) {
 export function PenerimaanBarangTab() {
   const router = useRouter();
 
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
-  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+  const list = useListState<FilterState>(EMPTY_FILTERS, {
+    perPage: 20,
+    debounceMs: 300,
+    namespace: "penerimaan",
+  });
   const [sourceTab, setSourceTab] = useUrlTab<SourceTab>("tab", "semua", {
     validValues: SOURCE_TABS,
   });
 
-  const resetPage = useCallback(() => setPage(1), []);
-
   const handleTabChange = useCallback(
     (v: SourceTab) => {
       setSourceTab(v);
-      resetPage();
+      list.resetPage();
     },
-    [setSourceTab, resetPage],
-  );
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search.trim());
-      resetPage();
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [search, resetPage]);
-
-  const handleFilterChange = useCallback(
-    (f: FilterState) => {
-      setFilters(f);
-      resetPage();
-    },
-    [resetPage],
+    [setSourceTab, list],
   );
 
   const params = useMemo(
     () => ({
-      search: debouncedSearch || undefined,
-      page,
-      per_page: perPage,
-      "filter[location_id]": filters.location_id || undefined,
+      search: list.debouncedSearch || undefined,
+      page: list.page,
+      per_page: list.perPage,
+      "filter[location_id]": list.filters.location_id || undefined,
       "filter[type]": TAB_TO_TYPE[sourceTab] || undefined,
       sort: "-expected_date",
     }),
-    [debouncedSearch, page, perPage, filters, sourceTab],
+    [list.debouncedSearch, list.page, list.perPage, list.filters, sourceTab],
   );
 
   const { data, isLoading, isFetching } = useInbounds(params);
@@ -403,7 +386,7 @@ export function PenerimaanBarangTab() {
   const meta = data?.meta ?? {
     current_page: 1,
     last_page: 1,
-    per_page: perPage,
+    per_page: list.perPage,
     total: 0,
   };
 
@@ -418,8 +401,8 @@ export function PenerimaanBarangTab() {
     [locData],
   );
 
-  const hasActiveFilter = Object.values(filters).some(Boolean);
-  const activeCount = Object.values(filters).filter(Boolean).length;
+  const hasActiveFilter = list.hasActiveFilter;
+  const activeCount = list.activeFilterCount;
 
   return (
     <>
@@ -453,15 +436,11 @@ export function PenerimaanBarangTab() {
           )}
         </div>
         <FilterToolbar
-          search={search}
-          onSearchChange={setSearch}
+          search={list.search}
+          onSearchChange={list.setSearch}
           searchPlaceholder="Cari no. penerimaan..."
           align="end"
-          onReset={
-            hasActiveFilter
-              ? () => handleFilterChange(EMPTY_FILTERS)
-              : undefined
-          }
+          onReset={hasActiveFilter ? () => list.resetFilters() : undefined}
           hasFilter={hasActiveFilter}
           activeCount={activeCount}
           gridCols={2}
@@ -469,9 +448,9 @@ export function PenerimaanBarangTab() {
 
           <Combobox
             options={locationOptions}
-            value={filters.location_id}
+            value={list.filters.location_id}
             onChange={(v) =>
-              handleFilterChange({ ...filters, location_id: v ?? "" })
+              list.setFilters({ ...list.filters, location_id: v ?? "" })
             }
             placeholder="Lokasi"
             searchPlaceholder="Cari lokasi"
@@ -541,15 +520,9 @@ export function PenerimaanBarangTab() {
             onRowClick={(row) =>
               router.push(`/dashboard/barang-masuk/penerimaan/${row.id}`)
             }
-            pagination={{
-              pageIndex: page - 1,
-              pageSize: perPage,
-            }}
+            pagination={list.pagination}
             rowCount={meta.total}
-            onPaginationChange={(p) => {
-              setPage(p.pageIndex + 1);
-              setPerPage(p.pageSize);
-            }}
+            onPaginationChange={list.onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
               <EmptyState icon={PackageCheckIcon} title="Belum ada penerimaan barang" description="Dokumen penerimaan dari PO, Transfer, atau Retur akan tampil

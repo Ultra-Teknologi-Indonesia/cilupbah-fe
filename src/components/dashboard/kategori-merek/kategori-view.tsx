@@ -7,20 +7,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useListState } from "@/hooks/use-list-state";
+import { useUrlTab } from "@/hooks/use-url-tab";
 import { KategoriListTab } from "./kategori-list-tab";
 import { KategoriMappingTab } from "./kategori-mapping-tab";
 import { ImportSystemDialog } from "./import-system-dialog";
 import { TambahKategoriDialog } from "./tambah-kategori-dialog";
 
+const KATEGORI_TABS = ["daftar", "pemetaan"] as const;
+type KategoriTab = (typeof KATEGORI_TABS)[number];
+
 export function KategoriView() {
   const [importOpen, setImportOpen] = React.useState(false);
   const [tambahOpen, setTambahOpen] = React.useState(false);
 
-  const [search, setSearch] = React.useState("");
+  const [tab, setTab] = useUrlTab<KategoriTab>("tab", "daftar", {
+    validValues: KATEGORI_TABS,
+  });
+  const list = useListState<Record<string, never>>(
+    {},
+    { debounceMs: 300, namespace: "kategori" },
+  );
 
   return (
     <>
-      <Tabs defaultValue="daftar">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as KategoriTab)}>
         <LiquidGlass
           radius={24}
           intensity="default"
@@ -38,13 +49,13 @@ export function KategoriView() {
               <div className="relative w-full sm:w-64">
                 <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  value={list.search}
+                  onChange={(e) => list.setSearch(e.target.value)}
                   placeholder="Cari kategori…"
                   className="h-9 border-border bg-background pl-9 pr-8"
                 />
-                {search.length > 0 && (
-                  <Button variant="ghost" size="icon" type="button" onClick={() => setSearch("")} aria-label="Bersihkan pencarian" className="absolute right-2.5 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"><XIcon className="size-3.5" /></Button>
+                {list.search.length > 0 && (
+                  <Button variant="ghost" size="icon" type="button" onClick={() => list.setSearch("")} aria-label="Bersihkan pencarian" className="absolute right-2.5 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"><XIcon className="size-3.5" /></Button>
                 )}
               </div>
               <Button
@@ -70,10 +81,10 @@ export function KategoriView() {
 
           <div className="px-4 py-5 sm:px-5">
             <TabsContent value="daftar" className="mt-0">
-              <KategoriListTab search={search} />
+              <KategoriListTab search={list.debouncedSearch} />
             </TabsContent>
             <TabsContent value="pemetaan" className="mt-0">
-              <KategoriMappingTab search={search} />
+              <KategoriMappingTab search={list.debouncedSearch} />
             </TabsContent>
           </div>
         </LiquidGlass>

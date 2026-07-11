@@ -1,7 +1,9 @@
 "use client";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { useListState } from "@/hooks/use-list-state";
+import { useUrlTab } from "@/hooks/use-url-tab";
 import Link from "next/link";
 import { CornerDownLeftIcon,
   CheckCircleIcon,
@@ -76,12 +78,14 @@ interface FilterState {
 const EMPTY_FILTERS: FilterState = { location_id: "", reason_category: "" };
 
 export function ReturChannelTab() {
-  const [subTab, setSubTab] = useState<ReturSubTab>("unprocessed");
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
-  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+  const [subTab, setSubTab] = useUrlTab<ReturSubTab>("tab", "unprocessed", {
+    validValues: ["unprocessed", "rejected", "accepted", "completed"],
+  });
+  const list = useListState<FilterState>(EMPTY_FILTERS, {
+    perPage: 20,
+    debounceMs: 350,
+    namespace: "retur_channel",
+  });
 
   const [acceptTarget, setAcceptTarget] = useState<SalesReturn | null>(null);
   const [rejectTarget, setRejectTarget] = useState<SalesReturn | null>(null);
@@ -113,7 +117,7 @@ export function ReturChannelTab() {
         date_to: exportRange?.to
           ? format(exportRange.to, "yyyy-MM-dd")
           : undefined,
-        location_id: filters.location_id || undefined,
+        location_id: list.filters.location_id || undefined,
       });
       toast.success("File Excel berhasil diunduh");
     } catch {
@@ -121,44 +125,29 @@ export function ReturChannelTab() {
     } finally {
       setIsExporting(false);
     }
-  }, [exportRange, filters.location_id]);
+  }, [exportRange, list.filters.location_id]);
 
-  const resetPage = useCallback(() => setPage(1), []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search.trim());
-      resetPage();
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [search, resetPage]);
-
-  const handleFilterChange = useCallback(
-    (f: FilterState) => {
-      setFilters(f);
-      resetPage();
+  const handleSubTabChange = useCallback(
+    (t: ReturSubTab) => {
+      setSubTab(t);
+      list.setPage(1);
     },
-    [resetPage],
+    [setSubTab, list],
   );
-
-  const handleSubTabChange = useCallback((t: ReturSubTab) => {
-    setSubTab(t);
-    setPage(1);
-  }, []);
 
   const isUnprocessed = subTab === "unprocessed";
   const statusFilter = SUBTAB_TO_STATUS[subTab];
 
   const params = useMemo(
     () => ({
-      search: debouncedSearch || undefined,
-      page,
-      per_page: perPage,
+      search: list.debouncedSearch || undefined,
+      page: list.page,
+      per_page: list.perPage,
       "filter[status]": statusFilter || undefined,
-      "filter[location_id]": filters.location_id || undefined,
-      "filter[reason_category]": filters.reason_category || undefined,
+      "filter[location_id]": list.filters.location_id || undefined,
+      "filter[reason_category]": list.filters.reason_category || undefined,
     }),
-    [debouncedSearch, page, perPage, statusFilter, filters],
+    [list.debouncedSearch, list.page, list.perPage, statusFilter, list.filters],
   );
 
   const unprocessedQuery = useSalesReturnsUnprocessed(
@@ -414,7 +403,7 @@ export function ReturChannelTab() {
   const meta = data?.meta ?? {
     current_page: 1,
     last_page: 1,
-    per_page: perPage,
+    per_page: list.perPage,
     total: 0,
   };
 
@@ -429,9 +418,6 @@ export function ReturChannelTab() {
     [locData],
   );
 
-  const hasActiveFilter = Object.values(filters).some(Boolean);
-  const activeCount = Object.values(filters).filter(Boolean).length;
-
   return (
     <div className="flex flex-col gap-3">
       <LiquidGlass
@@ -440,7 +426,7 @@ export function ReturChannelTab() {
         className="bg-white/30 dark:bg-white/[0.04]"
       >
         <div className="flex flex-wrap items-center justify-between gap-2 px-5 pt-4 sm:px-6">
-          <Tabs value={subTab} onValueChange={(val) => setSubTab(val as any)} className="flex flex-col gap-4">
+          <Tabs value={subTab} onValueChange={(val) => handleSubTabChange(val as ReturSubTab)} className="flex flex-col gap-4">
             <TabsList variant="line" className="h-auto">
               {SUB_TABS.map(({ key, label }) => (
                 <TabsTrigger key={key} value={key}>
@@ -474,24 +460,20 @@ export function ReturChannelTab() {
         </div>
 
         <FilterToolbar
-          search={search}
-          onSearchChange={setSearch}
+          search={list.search}
+          onSearchChange={list.setSearch}
           searchPlaceholder="Cari no. resi, no. pesanan, no. retur, pelanggan..."
           align="end"
-          onReset={
-            hasActiveFilter
-              ? () => handleFilterChange(EMPTY_FILTERS)
-              : undefined
-          }
-          hasFilter={hasActiveFilter}
-          activeCount={activeCount}
+          onReset={list.hasActiveFilter ? list.resetFilters : undefined}
+          hasFilter={list.hasActiveFilter}
+          activeCount={list.activeFilterCount}
           gridCols={3}
         >
           <Combobox
             options={locationOptions}
-            value={filters.location_id}
+            value={list.filters.location_id}
             onChange={(v) =>
-              handleFilterChange({ ...filters, location_id: v ?? "" })
+              list.setFilters({ ...list.filters, location_id: v ?? "" })
             }
             placeholder="Lokasi"
             searchPlaceholder="Cari lokasi"
@@ -499,9 +481,9 @@ export function ReturChannelTab() {
           />
           <Combobox
             options={REASON_CATEGORY_OPTIONS}
-            value={filters.reason_category}
+            value={list.filters.reason_category}
             onChange={(v) =>
-              handleFilterChange({ ...filters, reason_category: v ?? "" })
+              list.setFilters({ ...list.filters, reason_category: v ?? "" })
             }
             placeholder="Kategori Alasan"
             searchPlaceholder="Cari kategori"
@@ -528,15 +510,9 @@ export function ReturChannelTab() {
             isLoading={isLoading}
             hideToolbar
             manualPagination
-            pagination={{
-              pageIndex: page - 1,
-              pageSize: perPage,
-            }}
+            pagination={list.pagination}
             rowCount={meta.total}
-            onPaginationChange={(p) => {
-              setPage(p.pageIndex + 1);
-              setPerPage(p.pageSize);
-            }}
+            onPaginationChange={list.onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
               <EmptyState icon={CornerDownLeftIcon} title="Belum ada retur" description="Retur dari channel online akan tampil di sini." />

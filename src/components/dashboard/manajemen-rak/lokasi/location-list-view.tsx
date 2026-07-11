@@ -24,6 +24,7 @@ import {
   useWarehouseLayoutSetting,
   useSaveWarehouseLayoutSetting,
 } from "@/hooks/manajemen-rak/use-warehouse-layout-setting";
+import { useListState } from "@/hooks/use-list-state";
 import type { Location } from "@/types/manajemen-rak/location";
 
 import { LocationTable } from "./location-table";
@@ -38,24 +39,17 @@ function getErrorMessage(error: unknown, fallback: string): string {
 }
 
 export function LocationListView() {
-  const [searchInput, setSearchInput] = React.useState("");
-  const [search, setSearch] = React.useState("");
-  const [page, setPage] = React.useState(1);
+  const list = useListState<Record<string, never>>(
+    {},
+    { perPage: 20, debounceMs: 350, namespace: "lokasi" },
+  );
   const [deleteTarget, setDeleteTarget] = React.useState<Location | null>(null);
   const [togglingId, setTogglingId] = React.useState<string | null>(null);
 
-  React.useEffect(() => {
-    const t = setTimeout(() => {
-      setSearch(searchInput.trim());
-      setPage(1);
-    }, 350);
-    return () => clearTimeout(t);
-  }, [searchInput]);
-
   const { data, isLoading, isError, isFetching } = useLocations({
-    search,
-    page,
-    perPage: 20,
+    search: list.debouncedSearch,
+    page: list.page,
+    perPage: list.perPage,
     excludeTransit: false,
   });
   const setting = useWarehouseLayoutSetting();
@@ -65,7 +59,7 @@ export function LocationListView() {
 
   const locations = data?.items ?? [];
   const total = data?.meta?.total ?? locations.length;
-  const currentPage = data?.meta?.current_page ?? page;
+  const currentPage = data?.meta?.current_page ?? list.page;
   const lastPage = data?.meta?.last_page ?? 1;
 
   function handleToggleActive(location: Location) {
@@ -134,8 +128,8 @@ export function LocationListView() {
             <div className="relative w-full max-w-xs">
               <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
+                value={list.search}
+                onChange={(e) => list.setSearch(e.target.value)}
                 placeholder="Cari lokasi"
                 className="pl-9"
               />
@@ -178,7 +172,7 @@ export function LocationListView() {
             <SimplePagination
               page={currentPage}
               lastPage={lastPage}
-              onPageChange={setPage}
+              onPageChange={list.setPage}
               total={total}
               label="lokasi"
               isFetching={isFetching}

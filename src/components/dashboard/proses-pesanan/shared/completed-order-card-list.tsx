@@ -16,8 +16,41 @@ import {
 import { OrderTable } from "@/components/dashboard/proses-pesanan/shared/order-table";
 import type { OrderTab } from "@/types/pesanan/order";
 import { useOrdersByStage } from "@/hooks/proses-pesanan/use-fulfillment";
+import { useListState } from "@/hooks/use-list-state";
 import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper";
 import { cn } from "@/lib/utils";
+
+type CardFilterState = {
+  shipping_provider: string;
+  courier_code: string;
+  location_id: string;
+  source: string;
+  channel_shop_id: string;
+  label_printed: string;
+  date_from: string;
+  date_to: string;
+  payment: string;
+  courier_type: string;
+  shipment_type: string;
+  status: string;
+  channel_status: string;
+};
+
+const EMPTY_CARD_FILTERS: CardFilterState = {
+  shipping_provider: "",
+  courier_code: "",
+  location_id: "",
+  source: "",
+  channel_shop_id: "",
+  label_printed: "",
+  date_from: "",
+  date_to: "",
+  payment: "",
+  courier_type: "",
+  shipment_type: "",
+  status: "",
+  channel_status: "",
+};
 
 export function FulfillmentCardList({
   stage,
@@ -40,38 +73,41 @@ export function FulfillmentCardList({
   courierMode?: "shipping_provider" | "courier_code";
   excludeTransit?: boolean;
 }) {
-  const [search, setSearch] = React.useState("");
-  const [debounced, setDebounced] = React.useState("");
-  const [page, setPage] = React.useState(1);
-  const [perPage, setPerPage] = React.useState(20);
-  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
-
-  React.useEffect(() => {
-    const t = setTimeout(() => setDebounced(search.trim()), 350);
-    return () => clearTimeout(t);
-  }, [search]);
+  const list = useListState<CardFilterState>(EMPTY_CARD_FILTERS, {
+    perPage: 20,
+    debounceMs: 350,
+    namespace: stage.replace(/[^a-z0-9]+/gi, "_"),
+  });
 
   const params = React.useMemo(
     () => ({
-      q: debounced || undefined,
-      page,
-      per_page: perPage,
-      shipping_provider: filter.shipping_provider,
-      courier_code: filter.courier_code,
-      location_id: filter.location_id,
-      source: filter.source,
-      channel_shop_id: filter.channel_shop_id,
-      label_printed: filter.label_printed as "yes" | "no" | undefined,
-      date_from: filter.date_from,
-      date_to: filter.date_to,
-      payment: filter.payment as "cod" | "noncod" | undefined,
-      courier_type: filter.courier_type as "instant" | "regular" | undefined,
-      shipment_type: filter.shipment_type,
-      status: filter.status,
-      channel_status: filter.channel_status,
+      q: list.debouncedSearch || undefined,
+      page: list.page,
+      per_page: list.perPage,
+      shipping_provider: list.filters.shipping_provider || undefined,
+      courier_code: list.filters.courier_code || undefined,
+      location_id: list.filters.location_id || undefined,
+      source: list.filters.source || undefined,
+      channel_shop_id: list.filters.channel_shop_id || undefined,
+      label_printed:
+        (list.filters.label_printed as "yes" | "no" | "") || undefined,
+      date_from: list.filters.date_from || undefined,
+      date_to: list.filters.date_to || undefined,
+      payment: (list.filters.payment as "cod" | "noncod" | "") || undefined,
+      courier_type:
+        (list.filters.courier_type as "instant" | "regular" | "") || undefined,
+      shipment_type: list.filters.shipment_type || undefined,
+      status: list.filters.status || undefined,
+      channel_status: list.filters.channel_status || undefined,
       exclude_transit: excludeTransit ? ("1" as const) : undefined,
     }),
-    [debounced, page, perPage, filter, excludeTransit],
+    [
+      list.debouncedSearch,
+      list.page,
+      list.perPage,
+      list.filters,
+      excludeTransit,
+    ],
   );
 
   const { data, isLoading, isFetching, refetch } = useOrdersByStage(
@@ -82,7 +118,7 @@ export function FulfillmentCardList({
   const meta = data?.meta ?? {
     current_page: 1,
     last_page: 1,
-    per_page: perPage,
+    per_page: list.perPage,
     total: 0,
   };
 
@@ -95,21 +131,17 @@ export function FulfillmentCardList({
     <div>
       {}
       <FulfillmentFilterBar
-        value={filter}
-        onChange={(v) => {
-          setFilter(v);
-          setPage(1);
-        }}
+        value={list.filters as FulfillmentFilterValue}
+        onChange={(v) =>
+          list.setFilters({ ...EMPTY_CARD_FILTERS, ...v } as CardFilterState)
+        }
         fields={filterFields ?? []}
         statusOptions={statusOptions}
         channelStatusOptions={channelStatusOptions}
         courierMode={courierMode}
         excludeTransit={excludeTransit}
-        search={search}
-        onSearchChange={(v) => {
-          setSearch(v);
-          setPage(1);
-        }}
+        search={list.search}
+        onSearchChange={list.setSearch}
         searchPlaceholder="Cari no. pesanan…"
       />
       <div className="flex items-center justify-end gap-3 border-b border-border/40 px-4 py-2 text-sm text-muted-foreground sm:px-5">
@@ -166,11 +198,11 @@ export function FulfillmentCardList({
         <SimplePagination
           page={meta.current_page}
           lastPage={meta.last_page}
-          onPageChange={setPage}
-          perPage={perPage}
+          onPageChange={list.setPage}
+          perPage={list.perPage}
           onPerPageChange={(s) => {
-            setPerPage(s);
-            setPage(1);
+            list.setPerPage(s);
+            list.resetPage();
           }}
           pageSizeOptions={GRID_PAGE_SIZES}
           isFetching={isFetching}

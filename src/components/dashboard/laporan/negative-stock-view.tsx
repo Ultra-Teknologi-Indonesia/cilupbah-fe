@@ -30,6 +30,7 @@ import {
   useNegativeStock,
   useNegativeStockExport,
 } from "@/hooks/laporan/use-negative-stock";
+import { useListState } from "@/hooks/use-list-state";
 import type {
   NegativeStockParams,
   NegativeStockRow,
@@ -42,6 +43,16 @@ function toIsoDate(d?: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
+interface NegativeStockFilters {
+  locationId: string;
+  stillNegative: boolean;
+}
+
+const EMPTY_FILTERS: NegativeStockFilters = {
+  locationId: "",
+  stillNegative: false,
+};
+
 export function NegativeStockView() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const now = new Date();
@@ -50,11 +61,11 @@ export function NegativeStockView() {
       to: new Date(now.getFullYear(), now.getMonth() + 1, 0),
     };
   });
-  const [locationId, setLocationId] = useState("");
-  const [search, setSearch] = useState("");
-  const [stillNegative, setStillNegative] = useState(false);
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
+  const list = useListState<NegativeStockFilters>(EMPTY_FILTERS, {
+    perPage: 20,
+    debounceMs: 300,
+    namespace: "negstock",
+  });
 
   const { data: locData } = useLocations({ perPage: 100 });
 
@@ -73,13 +84,20 @@ export function NegativeStockView() {
     () => ({
       from: toIsoDate(dateRange?.from) || undefined,
       to: toIsoDate(dateRange?.to) || undefined,
-      location_id: locationId || undefined,
-      search: search.trim() || undefined,
-      still_negative: stillNegative || undefined,
-      page,
-      per_page: perPage,
+      location_id: list.filters.locationId || undefined,
+      search: list.debouncedSearch || undefined,
+      still_negative: list.filters.stillNegative || undefined,
+      page: list.page,
+      per_page: list.perPage,
     }),
-    [dateRange, locationId, search, stillNegative, page, perPage],
+    [
+      dateRange,
+      list.filters.locationId,
+      list.filters.stillNegative,
+      list.debouncedSearch,
+      list.page,
+      list.perPage,
+    ],
   );
 
   const query = useNegativeStock(params);
@@ -88,10 +106,9 @@ export function NegativeStockView() {
   const rows = query.data?.items ?? [];
   const meta = query.data?.meta ?? EMPTY_META;
 
-  const resetPage = () => setPage(1);
-  const onFilter = (fn: () => void) => {
-    fn();
-    resetPage();
+  const handleDateRangeChange = (r: DateRange | undefined) => {
+    setDateRange(r);
+    list.resetPage();
   };
 
   const columns = useMemo<ColumnDef<NegativeStockRow>[]>(
@@ -225,7 +242,7 @@ export function NegativeStockView() {
             </Label>
             <DateRangePicker
               value={dateRange}
-              onChange={(r) => onFilter(() => setDateRange(r))}
+              onChange={handleDateRangeChange}
               placeholder="Semua tanggal"
               className="h-9 bg-background"
             />
@@ -234,8 +251,10 @@ export function NegativeStockView() {
             <Label className="text-xs text-muted-foreground">Lokasi</Label>
             <Combobox
               options={locationOptions}
-              value={locationId}
-              onChange={(v) => onFilter(() => setLocationId(v ?? ""))}
+              value={list.filters.locationId}
+              onChange={(v) =>
+                list.setFilters({ ...list.filters, locationId: v ?? "" })
+              }
               placeholder="Semua Lokasi"
               searchPlaceholder="Cari lokasi..."
               className="h-9 bg-background"
@@ -248,8 +267,8 @@ export function NegativeStockView() {
             <div className="relative">
               <SearchIcon className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
               <Input
-                value={search}
-                onChange={(e) => onFilter(() => setSearch(e.target.value))}
+                value={list.search}
+                onChange={(e) => list.setSearch(e.target.value)}
                 placeholder="Ketik SKU atau nama..."
                 className="h-9 bg-background pl-9"
               />
@@ -257,8 +276,10 @@ export function NegativeStockView() {
           </div>
           <div className="flex items-center gap-3 sm:col-span-2 lg:col-span-4">
             <Switch
-              checked={stillNegative}
-              onCheckedChange={(v) => onFilter(() => setStillNegative(!!v))}
+              checked={list.filters.stillNegative}
+              onCheckedChange={(v) =>
+                list.setFilters({ ...list.filters, stillNegative: !!v })
+              }
               id="still-negative"
             />
             <Label
@@ -330,10 +351,7 @@ export function NegativeStockView() {
               pageSize: meta.per_page,
             }}
             rowCount={meta.total}
-            onPaginationChange={(p) => {
-              setPage(p.pageIndex + 1);
-              setPerPage(p.pageSize);
-            }}
+            onPaginationChange={list.onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
               <EmptyState

@@ -1,7 +1,7 @@
 "use client";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useMemo, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PackageIcon,
   ArrowUpDown,
@@ -47,6 +47,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { InfoIcon } from "lucide-react";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
 import { CopySku } from "@/components/dashboard/shared/copy-sku";
+import { useListState } from "@/hooks/use-list-state";
+import { useUrlTab } from "@/hooks/use-url-tab";
 import {
   useStockPosition,
   usePrefetchStockDetail,
@@ -72,6 +74,7 @@ const STOCK_FILTER_TABS: {
   { key: "single", label: "Satuan", icon: BoxIcon },
   { key: "bundle", label: "Bundle", icon: BoxesIcon },
 ];
+const STOCK_FILTER_KEYS = STOCK_FILTER_TABS.map((t) => t.key);
 
 /** Kolom kiri yang selalu terlihat (sticky) saat scroll horizontal antar lokasi. */
 const PRODUCT_COL_W = 300;
@@ -308,17 +311,42 @@ function VisibleLocationsControl({
   );
 }
 
+function parseSortParam(raw: string | null): {
+  field: SortField | null;
+  dir: SortDir;
+} {
+  if (!raw) return { field: null, dir: "asc" };
+  const dir: SortDir = raw.startsWith("-") ? "desc" : "asc";
+  const key = raw.replace(/^-/, "") as SortField;
+  const valid: SortField[] = [
+    "item_code",
+    "average_cost",
+    "on_hand",
+    "available",
+  ];
+  return valid.includes(key) ? { field: key, dir } : { field: null, dir: "asc" };
+}
+
 export function PosisiStokView() {
   const router = useRouter();
   const prefetchStockDetail = usePrefetchStockDetail();
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
-  const [sortField, setSortField] = useState<SortField | null>(null);
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
-  const [stockFilter, setStockFilter] = useState<StockFilter>("all");
-  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+
+  const [stockFilter, setStockFilterRaw] = useUrlTab<StockFilter>(
+    "tab",
+    "all",
+    { validValues: STOCK_FILTER_KEYS },
+  );
+  const [sortRaw, setSortRaw] = useUrlTab<string>("sort", "");
+  const { field: sortField, dir: sortDir } = useMemo(
+    () => parseSortParam(sortRaw || null),
+    [sortRaw],
+  );
+
+  const list = useListState<FilterState>(EMPTY_FILTERS, {
+    perPage: 20,
+    debounceMs: 350,
+  });
+
   const [hiddenLocations, setHiddenLocations] = useState<string[]>([]);
 
   // Muat preferensi lokasi tersembunyi dari localStorage SETELAH mount — bukan lewat
@@ -347,8 +375,6 @@ export function PosisiStokView() {
     }
   }, []);
 
-  const resetPage = useCallback(() => setPage(1), []);
-
   const prefetchDetail = useCallback(
     (itemId: string) => {
       router.prefetch(`/dashboard/posisi-stok/${itemId}`);
@@ -357,47 +383,28 @@ export function PosisiStokView() {
     [router, prefetchStockDetail],
   );
 
-  const handleSearch = useCallback((v: string) => {
-    setSearch(v);
-  }, []);
-
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setDebouncedSearch(search);
-      resetPage();
-    }, 350);
-    return () => clearTimeout(t);
-  }, [search, resetPage]);
+  const handleStockFilter = useCallback(
+    (f: StockFilter) => {
+      setStockFilterRaw(f);
+      list.resetPage();
+    },
+    [setStockFilterRaw, list],
+  );
 
   const handleSort = useCallback(
     (field: SortField) => {
-      setSortField((prev) => {
-        if (prev === field) {
-          setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-          return field;
-        }
-        setSortDir("asc");
-        return field;
-      });
-      resetPage();
+      const parsed = parseSortParam(sortRaw || null);
+      let nextDir: SortDir;
+      const nextField: SortField = field;
+      if (parsed.field === field) {
+        nextDir = parsed.dir === "asc" ? "desc" : "asc";
+      } else {
+        nextDir = "asc";
+      }
+      setSortRaw(nextDir === "desc" ? `-${nextField}` : nextField);
+      list.resetPage();
     },
-    [resetPage],
-  );
-
-  const handleStockFilter = useCallback(
-    (f: StockFilter) => {
-      setStockFilter(f);
-      resetPage();
-    },
-    [resetPage],
-  );
-
-  const handleFilterChange = useCallback(
-    (f: FilterState) => {
-      setFilters(f);
-      resetPage();
-    },
-    [resetPage],
+    [sortRaw, setSortRaw, list],
   );
 
   const sortParam = useMemo(() => {
@@ -415,14 +422,21 @@ export function PosisiStokView() {
 
   const params = useMemo<StockListParams>(
     () => ({
-      search: debouncedSearch || undefined,
-      page,
-      per_page: perPage,
+      search: list.debouncedSearch || undefined,
+      page: list.page,
+      per_page: list.perPage,
       sort: sortParam,
       "filter[is_bundle]": bundleFilter,
-      "filter[channel]": filters.channel || undefined,
+      "filter[channel]": list.filters.channel || undefined,
     }),
-    [debouncedSearch, page, perPage, sortParam, bundleFilter, filters.channel],
+    [
+      list.debouncedSearch,
+      list.page,
+      list.perPage,
+      sortParam,
+      bundleFilter,
+      list.filters.channel,
+    ],
   );
 
   const { data, isLoading, isFetching } = useStockPosition(params);
@@ -455,7 +469,7 @@ export function PosisiStokView() {
   const meta = data?.meta ?? {
     current_page: 1,
     last_page: 1,
-    per_page: perPage,
+    per_page: list.perPage,
     total: 0,
     channels: [],
     locations: [],
@@ -490,9 +504,6 @@ export function PosisiStokView() {
     ];
   }, [meta.channels]);
 
-  const hasActiveFilter = Object.values(filters).some(Boolean);
-  const activeCount = [filters.channel].filter(Boolean).length;
-
   const filterTabs = (
     <Tabs
       value={stockFilter || ""}
@@ -517,8 +528,8 @@ export function PosisiStokView() {
         className="bg-white/30 dark:bg-white/[0.04]"
       >
         <FilterToolbar
-          search={search}
-          onSearchChange={handleSearch}
+          search={list.search}
+          onSearchChange={list.setSearch}
           searchPlaceholder="Cari produk atau SKU..."
           align="end"
           leading={filterTabs}
@@ -530,19 +541,17 @@ export function PosisiStokView() {
             />
           }
           onReset={
-            hasActiveFilter
-              ? () => handleFilterChange(EMPTY_FILTERS)
-              : undefined
+            list.hasActiveFilter ? () => list.resetFilters() : undefined
           }
-          hasFilter={hasActiveFilter}
-          activeCount={activeCount}
+          hasFilter={list.hasActiveFilter}
+          activeCount={list.activeFilterCount}
           gridCols={2}
         >
           <Combobox
             options={channelOptions}
-            value={filters.channel}
+            value={list.filters.channel}
             onChange={(v) =>
-              handleFilterChange({ ...filters, channel: v ?? "" })
+              list.setFilters({ ...list.filters, channel: v ?? "" })
             }
             placeholder="Channel"
             searchPlaceholder="Cari channel"
@@ -757,11 +766,11 @@ export function PosisiStokView() {
               <SimplePagination
                 page={meta.current_page}
                 lastPage={meta.last_page}
-                onPageChange={setPage}
+                onPageChange={list.setPage}
                 perPage={meta.per_page}
                 onPerPageChange={(s) => {
-                  setPerPage(s);
-                  resetPage();
+                  list.setPerPage(s);
+                  list.resetPage();
                 }}
                 pageSizeOptions={TABLE_PAGE_SIZES}
                 total={meta.total}

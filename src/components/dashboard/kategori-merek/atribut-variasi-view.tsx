@@ -33,6 +33,7 @@ import {
   useDeleteCategoryAttribute,
   useMapAttributeToChannel,
 } from "@/hooks/kategori-merek/use-kategori";
+import { useListState } from "@/hooks/use-list-state";
 import type {
   CategoryAttributeItem,
   ChannelAttributeItem,
@@ -54,7 +55,10 @@ export function AtributVariasiView({
   categoryId,
   type,
 }: AtributVariasiViewProps) {
-  const [search, setSearch] = React.useState("");
+  const list = useListState<Record<string, never>>(
+    {},
+    { debounceMs: 250, namespace: "atribut" },
+  );
   const [filterOpen, setFilterOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
   const [deleteTarget, setDeleteTarget] =
@@ -67,12 +71,12 @@ export function AtributVariasiView({
   const deleteMut = useDeleteCategoryAttribute();
 
   const items = React.useMemo(() => {
-    const list = type === "spec" ? data?.specifications : data?.variant_types;
-    if (!list) return [];
-    if (!search.trim()) return list;
-    const q = search.toLowerCase();
-    return list.filter((a) => a.name.toLowerCase().includes(q));
-  }, [data, type, search]);
+    const source = type === "spec" ? data?.specifications : data?.variant_types;
+    if (!source) return [];
+    const q = list.debouncedSearch.toLowerCase();
+    if (!q) return source;
+    return source.filter((a) => a.name.toLowerCase().includes(q));
+  }, [data, type, list.debouncedSearch]);
 
   function handleDelete() {
     if (!deleteTarget) return;
@@ -118,8 +122,8 @@ export function AtributVariasiView({
         <FilterShell
           open={filterOpen}
           onOpenChange={setFilterOpen}
-          activeCount={search ? 1 : 0}
-          onReset={search ? () => setSearch("") : undefined}
+          activeCount={list.search ? 1 : 0}
+          onReset={list.search ? () => list.setSearch("") : undefined}
         >
           <div className={cn("sm:col-span-2 lg:col-span-3")}>
             <label className="mb-1.5 block text-sm font-medium text-muted-foreground">
@@ -128,8 +132,8 @@ export function AtributVariasiView({
             <div className="relative">
               <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                value={list.search}
+                onChange={(e) => list.setSearch(e.target.value)}
                 placeholder={`Cari ${label.toLowerCase()}`}
                 className="h-10 pl-9"
               />

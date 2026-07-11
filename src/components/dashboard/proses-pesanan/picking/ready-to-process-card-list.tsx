@@ -28,40 +28,57 @@ import {
   usePickers,
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import { orderKeys } from "@/hooks/pesanan/use-orders";
+import { useListState } from "@/hooks/use-list-state";
 import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper";
 import { cn } from "@/lib/utils";
 
+type ReadyFilterState = {
+  shipping_provider: string;
+  location_id: string;
+  source: string;
+  channel_shop_id: string;
+  label_printed: string;
+  date_from: string;
+  date_to: string;
+};
+
+const EMPTY_READY_FILTERS: ReadyFilterState = {
+  shipping_provider: "",
+  location_id: "",
+  source: "",
+  channel_shop_id: "",
+  label_printed: "",
+  date_from: "",
+  date_to: "",
+};
+
 export function ReadyToProcessCardList() {
   const qc = useQueryClient();
-  const [search, setSearch] = React.useState("");
-  const [debounced, setDebounced] = React.useState("");
-  const [page, setPage] = React.useState(1);
-  const [perPage, setPerPage] = React.useState(20);
+  const list = useListState<ReadyFilterState>(EMPTY_READY_FILTERS, {
+    perPage: 20,
+    debounceMs: 350,
+    namespace: "ready",
+  });
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [pickerId, setPickerId] = React.useState<string>("");
   const [confirmOpen, setConfirmOpen] = React.useState(false);
-  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
-
-  React.useEffect(() => {
-    const t = setTimeout(() => setDebounced(search.trim()), 350);
-    return () => clearTimeout(t);
-  }, [search]);
 
   const params = React.useMemo(
     () => ({
-      q: debounced || undefined,
-      shipping_provider: filter.shipping_provider,
-      location_id: filter.location_id,
-      source: filter.source,
-      channel_shop_id: filter.channel_shop_id,
-      label_printed: filter.label_printed as "yes" | "no" | undefined,
-      date_from: filter.date_from,
-      date_to: filter.date_to,
+      q: list.debouncedSearch || undefined,
+      shipping_provider: list.filters.shipping_provider || undefined,
+      location_id: list.filters.location_id || undefined,
+      source: list.filters.source || undefined,
+      channel_shop_id: list.filters.channel_shop_id || undefined,
+      label_printed:
+        (list.filters.label_printed as "yes" | "no" | "") || undefined,
+      date_from: list.filters.date_from || undefined,
+      date_to: list.filters.date_to || undefined,
       exclude_transit: "1" as const,
-      page,
-      per_page: perPage,
+      page: list.page,
+      per_page: list.perPage,
     }),
-    [debounced, filter, page, perPage],
+    [list.debouncedSearch, list.filters, list.page, list.perPage],
   );
 
   const { data, isLoading, isFetching, refetch } = useOrdersByStage(
@@ -72,7 +89,7 @@ export function ReadyToProcessCardList() {
   const meta = data?.meta ?? {
     current_page: 1,
     last_page: 1,
-    per_page: perPage,
+    per_page: list.perPage,
     total: 0,
   };
 
@@ -175,11 +192,10 @@ export function ReadyToProcessCardList() {
     <div>
       {}
       <FulfillmentFilterBar
-        value={filter}
-        onChange={(v) => {
-          setFilter(v);
-          setPage(1);
-        }}
+        value={list.filters as FulfillmentFilterValue}
+        onChange={(v) =>
+          list.setFilters({ ...EMPTY_READY_FILTERS, ...v } as ReadyFilterState)
+        }
         fields={[
           "courier",
           "location",
@@ -189,11 +205,8 @@ export function ReadyToProcessCardList() {
           "date",
         ]}
         excludeTransit
-        search={search}
-        onSearchChange={(v) => {
-          setSearch(v);
-          setPage(1);
-        }}
+        search={list.search}
+        onSearchChange={list.setSearch}
         searchPlaceholder="Cari no. pesanan…"
       />
 
@@ -313,11 +326,11 @@ export function ReadyToProcessCardList() {
         <SimplePagination
           page={meta.current_page}
           lastPage={meta.last_page}
-          onPageChange={setPage}
-          perPage={perPage}
+          onPageChange={list.setPage}
+          perPage={list.perPage}
           onPerPageChange={(s) => {
-            setPerPage(s);
-            setPage(1);
+            list.setPerPage(s);
+            list.resetPage();
           }}
           pageSizeOptions={GRID_PAGE_SIZES}
           isFetching={isFetching}

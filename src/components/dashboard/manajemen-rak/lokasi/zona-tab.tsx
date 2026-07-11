@@ -39,6 +39,7 @@ import {
   useUpdateZone,
   useDeleteZone,
 } from "@/hooks/manajemen-rak/use-zones";
+import { useListState } from "@/hooks/use-list-state";
 import type { LocationZone, LocationBin } from "@/types/manajemen-rak/location";
 
 interface ZonaTabProps {
@@ -270,7 +271,10 @@ export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
   const [deleteTarget, setDeleteTarget] = React.useState<LocationZone | null>(
     null,
   );
-  const [search, setSearch] = React.useState("");
+  const list = useListState<Record<string, never>>(
+    {},
+    { debounceMs: 250, namespace: "zona" },
+  );
 
   const assignedMap = React.useMemo(() => {
     const map = new Map<string, string>();
@@ -284,14 +288,14 @@ export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
 
   const filtered = React.useMemo(() => {
     if (!zones) return [];
-    if (!search.trim()) return zones;
-    const q = search.trim().toLowerCase();
+    const q = list.debouncedSearch.toLowerCase();
+    if (!q) return zones;
     return zones.filter(
       (z) =>
         z.zone_code.toLowerCase().includes(q) ||
         (z.zone_name ?? "").toLowerCase().includes(q),
     );
-  }, [zones, search]);
+  }, [zones, list.debouncedSearch]);
 
   function openCreate() {
     setDialogMode("create");
@@ -362,8 +366,8 @@ export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
         <div className="relative w-full max-w-xs">
           <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={list.search}
+            onChange={(e) => list.setSearch(e.target.value)}
             placeholder="Cari zona..."
             className="pl-9"
           />
@@ -390,9 +394,9 @@ export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={MapPinIcon}
-          title={search.trim() ? "Zona tidak ditemukan" : "Belum ada zona"}
+          title={list.debouncedSearch ? "Zona tidak ditemukan" : "Belum ada zona"}
           description={
-            search.trim()
+            list.debouncedSearch
               ? "Coba kata kunci lain"
               : "Buat zona untuk mengelompokkan rak dalam gudang"
           }

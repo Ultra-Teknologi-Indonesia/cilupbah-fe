@@ -63,6 +63,7 @@ import {
   useUniformApplyBins,
 } from "@/hooks/manajemen-rak/use-location-bins";
 import { useZones } from "@/hooks/manajemen-rak/use-zones";
+import { useListState } from "@/hooks/use-list-state";
 import type {
   BinDraft,
   BinListParams,
@@ -673,31 +674,27 @@ export function LayoutGudangTab({
     Map<string, Partial<BinPreviewItem>>
   >(() => new Map());
 
-  const [page, setPage] = React.useState(1);
-  const [perPage, setPerPage] = React.useState<number>(50);
-  const [search, setSearch] = React.useState("");
-  const [debouncedSearch, setDebouncedSearch] = React.useState("");
+  const list = useListState<Record<string, never>>(
+    {},
+    { perPage: 50, debounceMs: 300, namespace: "layout" },
+  );
   const [sort, setSort] = React.useState<string | undefined>(undefined);
-  const [filter] = React.useState<BinListParams["filter"]>({});
+  const filter: BinListParams["filter"] = {};
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [selectAllAcrossPages, setSelectAllAcrossPages] = React.useState(false);
   const [uniformOpen, setUniformOpen] = React.useState(false);
   const [paperSize, setPaperSize] =
     React.useState<BinQrPaper>(BIN_QR_PAPER_DEFAULT);
 
+  const resetListPage = list.resetPage;
   React.useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(search.trim()), 300);
-    return () => clearTimeout(t);
-  }, [search]);
-
-  React.useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch, perPage, sort, filter]);
+    resetListPage();
+  }, [sort, resetListPage]);
 
   const params: BinListParams = {
-    page,
-    perPage,
-    search: debouncedSearch || undefined,
+    page: list.page,
+    perPage: list.perPage,
+    search: list.debouncedSearch || undefined,
     sort,
     filter,
   };
@@ -824,9 +821,11 @@ export function LayoutGudangTab({
           skus: row.skus,
         };
       })
-    : debouncedSearch
+    : list.debouncedSearch
       ? localBins.filter((b) =>
-          b.binFinalCode.toLowerCase().includes(debouncedSearch.toLowerCase()),
+          b.binFinalCode
+            .toLowerCase()
+            .includes(list.debouncedSearch.toLowerCase()),
         )
       : localBins;
 
@@ -928,7 +927,9 @@ export function LayoutGudangTab({
           category: values.category || null,
           zone_id: values.zoneId || null,
         },
-        search: selectAllAcrossPages ? debouncedSearch || undefined : undefined,
+        search: selectAllAcrossPages
+          ? list.debouncedSearch || undefined
+          : undefined,
         filter: selectAllAcrossPages ? filter : undefined,
       });
       clearSelection();
@@ -1040,8 +1041,8 @@ export function LayoutGudangTab({
           <div className="relative w-full max-w-xs">
             <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={list.search}
+              onChange={(e) => list.setSearch(e.target.value)}
               placeholder="Cari kode rak atau SKU"
               className="pl-9"
             />
@@ -1344,11 +1345,14 @@ export function LayoutGudangTab({
             {serverMode && lastPage > 1 && (
               <div className="border-t border-border px-3 py-2">
                 <SimplePagination
-                  page={page}
+                  page={list.page}
                   lastPage={lastPage}
-                  onPageChange={setPage}
-                  perPage={perPage}
-                  onPerPageChange={setPerPage}
+                  onPageChange={list.setPage}
+                  perPage={list.perPage}
+                  onPerPageChange={(pp) => {
+                    list.setPerPage(pp);
+                    list.resetPage();
+                  }}
                   pageSizeOptions={[...PER_PAGE_OPTIONS]}
                   total={totalAll}
                   isFetching={binsQuery.isFetching}

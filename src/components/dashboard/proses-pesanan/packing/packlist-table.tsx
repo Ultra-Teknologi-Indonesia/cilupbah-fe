@@ -25,39 +25,51 @@ import {
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import { type Packlist } from "@/types/proses-pesanan/fulfillment";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { useListState } from "@/hooks/use-list-state";
 
 import { DeleteOrderDialog } from "../shared/delete-order-dialog";
 import { UbahPackerDialog } from "./ubah-packer-dialog";
 
+type PageFilterState = {
+  shipping_provider: string;
+  label_printed: string;
+  date_from: string;
+  date_to: string;
+};
+
+const EMPTY_FILTERS: PageFilterState = {
+  shipping_provider: "",
+  label_printed: "",
+  date_from: "",
+  date_to: "",
+};
+
 export function PacklistTable() {
   const router = useRouter();
   const prefetchPacklistDetail = usePrefetchPacklistDetail();
-  const [search, setSearch] = React.useState("");
-  const [debounced, setDebounced] = React.useState("");
-  const [page, setPage] = React.useState(1);
+  const list = useListState<PageFilterState>(EMPTY_FILTERS, {
+    perPage: 20,
+    debounceMs: 350,
+    namespace: "packlist",
+  });
   const [editPacker, setEditPacker] = React.useState<Packlist | null>(null);
   const [deleteTarget, setDeleteTarget] = React.useState<Packlist | null>(
     null,
   );
-  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
-
-  React.useEffect(() => {
-    const t = setTimeout(() => setDebounced(search.trim()), 350);
-    return () => clearTimeout(t);
-  }, [search]);
 
   const params = React.useMemo(
     () => ({
-      q: debounced || undefined,
-      page,
-      per_page: 20,
+      q: list.debouncedSearch || undefined,
+      page: list.page,
+      per_page: list.perPage,
       status: "DRAFT,IN_PROGRESS",
-      shipping_provider: filter.shipping_provider,
-      label_printed: filter.label_printed as "yes" | "no" | undefined,
-      date_from: filter.date_from,
-      date_to: filter.date_to,
+      shipping_provider: list.filters.shipping_provider || undefined,
+      label_printed:
+        (list.filters.label_printed as "yes" | "no" | "") || undefined,
+      date_from: list.filters.date_from || undefined,
+      date_to: list.filters.date_to || undefined,
     }),
-    [debounced, page, filter],
+    [list.debouncedSearch, list.page, list.perPage, list.filters],
   );
   const { data, isLoading, isFetching, refetch } = usePacklists(params);
 
@@ -209,17 +221,13 @@ export function PacklistTable() {
   return (
     <div>
       <FulfillmentFilterBar
-        value={filter}
-        onChange={(v) => {
-          setFilter(v);
-          setPage(1);
-        }}
+        value={list.filters as FulfillmentFilterValue}
+        onChange={(v) =>
+          list.setFilters({ ...EMPTY_FILTERS, ...v } as PageFilterState)
+        }
         fields={["courier", "date", "label_printed"]}
-        search={search}
-        onSearchChange={(v) => {
-          setSearch(v);
-          setPage(1);
-        }}
+        search={list.search}
+        onSearchChange={list.setSearch}
         searchPlaceholder="Cari no. packing…"
       />
       <div className="flex items-center justify-end gap-3 border-b border-border/40 px-4 py-2 text-sm text-muted-foreground sm:px-5">
@@ -250,14 +258,9 @@ export function PacklistTable() {
               : undefined
           }
           manualPagination
-          pagination={{
-            pageIndex: meta.current_page - 1,
-            pageSize: meta.per_page,
-          }}
+          pagination={list.pagination}
           rowCount={meta.total}
-          onPaginationChange={(p) => {
-            setPage(p.pageIndex + 1);
-          }}
+          onPaginationChange={list.onPaginationChange}
           tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
           emptyState={
             <div className="py-16 text-center text-sm text-muted-foreground">

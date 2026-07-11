@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { ImportIcon, PlusIcon } from "lucide-react";
 
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { useOrders } from "@/hooks/pesanan/use-orders";
+import { useListState } from "@/hooks/use-list-state";
 import { useUrlTab } from "@/hooks/use-url-tab";
 import type {
   OrderTab,
@@ -42,59 +43,46 @@ export function PesananView() {
   const [subValue, setSubUrl] = useUrlTab("sub", "", { validValues: subKeys });
   const subFilter: SubFilter = (subValue || null) as SubFilter;
 
-  const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const listSearch = useListState<{ _: string }>(
+    { _: "" },
+    { perPage: 12, debounceMs: 350 },
+  );
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(12);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  const resetPage = useCallback(() => setPage(1), []);
   const clearSelection = useCallback(() => setSelectedIds(new Set()), []);
 
   const handleTabChange = useCallback(
     (t: OrderTab) => {
       setTabUrl(t);
-      resetPage();
+      listSearch.resetPage();
       clearSelection();
     },
-    [setTabUrl, resetPage, clearSelection],
+    [setTabUrl, listSearch, clearSelection],
   );
 
   const handleSubFilterChange = useCallback(
     (s: SubFilter) => {
       setSubUrl(s ?? "");
-      resetPage();
+      listSearch.resetPage();
       clearSelection();
     },
-    [setSubUrl, resetPage, clearSelection],
+    [setSubUrl, listSearch, clearSelection],
   );
-
-  const handleQueryChange = useCallback((v: string) => {
-    setQuery(v);
-  }, []);
-
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setDebouncedQuery(query);
-      resetPage();
-    }, 350);
-    return () => clearTimeout(t);
-  }, [query, resetPage]);
 
   const handleFilterChange = useCallback(
     (f: FilterState) => {
       setFilters(f);
-      resetPage();
+      listSearch.resetPage();
     },
-    [resetPage],
+    [listSearch],
   );
 
   const params = useMemo<OrderListParams>(
     () => ({
       tab,
       sub: subFilter || undefined,
-      q: debouncedQuery || undefined,
+      q: listSearch.debouncedSearch || undefined,
       channel: filters.channel || undefined,
       store_id: filters.store_id || undefined,
       location_id: filters.location_id || undefined,
@@ -113,10 +101,10 @@ export function PesananView() {
       decision:
         (filters.decision as OrderListParams["decision"]) || undefined,
       status: filters.status.length > 0 ? filters.status : undefined,
-      page,
-      per_page: perPage,
+      page: listSearch.page,
+      per_page: listSearch.perPage,
     }),
-    [tab, subFilter, debouncedQuery, filters, page, perPage],
+    [tab, subFilter, listSearch.debouncedSearch, listSearch.page, listSearch.perPage, filters],
   );
 
   const { data, isLoading, isFetching } = useOrders(params);
@@ -125,7 +113,7 @@ export function PesananView() {
   const meta = data?.meta ?? {
     current_page: 1,
     last_page: 1,
-    per_page: perPage,
+    per_page: listSearch.perPage,
     total: 0,
   };
 
@@ -188,8 +176,8 @@ export function PesananView() {
         </div>
 
         <OrderFilters
-          query={query}
-          onQueryChange={handleQueryChange}
+          query={listSearch.search}
+          onQueryChange={listSearch.setSearch}
           filters={filters}
           onChange={handleFilterChange}
           leading={selectAllCheckbox}
@@ -224,10 +212,10 @@ export function PesananView() {
             lastPage={meta.last_page}
             total={meta.total}
             perPage={meta.per_page}
-            onPageChange={setPage}
+            onPageChange={listSearch.setPage}
             onPerPageChange={(s) => {
-              setPerPage(s);
-              resetPage();
+              listSearch.setPerPage(s);
+              listSearch.resetPage();
             }}
             isFetching={isFetching}
           />

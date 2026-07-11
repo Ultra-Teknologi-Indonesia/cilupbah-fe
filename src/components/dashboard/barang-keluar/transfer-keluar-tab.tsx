@@ -2,6 +2,8 @@
 import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useMemo, useCallback } from "react";
+import { useListState } from "@/hooks/use-list-state";
+import { useUrlTab } from "@/hooks/use-url-tab";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -38,7 +40,6 @@ import {
 import { useMe } from "@/hooks/auth/use-auth";
 import { toast } from "sonner";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
-import { useDebouncedSearch } from "@/hooks/shared/use-debounced-search";
 import type { InventoryTransfer } from "@/types/barang-masuk/inventory-transfer";
 import { formatDate } from "@/lib/format";
 
@@ -246,11 +247,14 @@ function TransferTable({
 
 export function TransferKeluarTab() {
   const router = useRouter();
-  const [subTab, setSubTab] = useState<SubTab>("draft");
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
-  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+  const [subTab, setSubTab] = useUrlTab<SubTab>("tab", "draft", {
+    validValues: ["draft", "transit", "finished"],
+  });
+  const list = useListState<FilterState>(EMPTY_FILTERS, {
+    perPage: 20,
+    debounceMs: 350,
+    namespace: "transfer_out",
+  });
 
   const shipMutation = useShipTransfer();
 
@@ -388,40 +392,32 @@ export function TransferKeluarTab() {
     [bulkPrinting, submitMutation, shipMutation, meName, openBulkTransferPdf],
   );
 
-  const resetPage = useCallback(() => setPage(1), []);
-  const debouncedSearch = useDebouncedSearch(search, resetPage);
-
-  const handleFilterChange = useCallback(
-    (f: FilterState) => {
-      setFilters(f);
-      resetPage();
+  const handleSubTabChange = useCallback(
+    (t: SubTab) => {
+      setSubTab(t);
+      list.setPage(1);
     },
-    [resetPage],
+    [setSubTab, list],
   );
-
-  const handleSubTabChange = useCallback((t: SubTab) => {
-    setSubTab(t);
-    setPage(1);
-  }, []);
 
   const params = useMemo(
     () => ({
-      search: debouncedSearch || undefined,
-      page,
-      per_page: perPage,
-      "filter[source_location_id]": filters.location_id || undefined,
-      "filter[date_from]": filters.date_from || undefined,
-      "filter[date_to]": filters.date_to || undefined,
+      search: list.debouncedSearch || undefined,
+      page: list.page,
+      per_page: list.perPage,
+      "filter[source_location_id]": list.filters.location_id || undefined,
+      "filter[date_from]": list.filters.date_from || undefined,
+      "filter[date_to]": list.filters.date_to || undefined,
     }),
-    [debouncedSearch, page, perPage, filters],
+    [list.debouncedSearch, list.page, list.perPage, list.filters],
   );
 
   const dateRange: DateRange | undefined = useMemo(() => {
-    const from = parseDateStr(filters.date_from);
-    const to = parseDateStr(filters.date_to);
+    const from = parseDateStr(list.filters.date_from);
+    const to = parseDateStr(list.filters.date_to);
     if (!from && !to) return undefined;
     return { from, to };
-  }, [filters.date_from, filters.date_to]);
+  }, [list.filters.date_from, list.filters.date_to]);
 
   const draftQuery = useOutboundDrafts(subTab === "draft" ? params : {});
   const transitQuery = useOutboundTransit(subTab === "transit" ? params : {});
@@ -439,7 +435,7 @@ export function TransferKeluarTab() {
   const meta = activeQuery.data?.meta ?? {
     current_page: 1,
     last_page: 1,
-    per_page: perPage,
+    per_page: list.perPage,
     total: 0,
   };
 
@@ -454,9 +450,6 @@ export function TransferKeluarTab() {
     ],
     [locData],
   );
-
-  const hasActiveFilter = Object.values(filters).some(Boolean);
-  const activeCount = Object.values(filters).filter(Boolean).length;
 
   const handleRowClick = useCallback(
     (item: InventoryTransfer) => {
@@ -652,24 +645,20 @@ export function TransferKeluarTab() {
         </div>
 
         <FilterToolbar
-          search={search}
-          onSearchChange={setSearch}
+          search={list.search}
+          onSearchChange={list.setSearch}
           searchPlaceholder="Cari no. transfer..."
           align="end"
-          onReset={
-            hasActiveFilter
-              ? () => handleFilterChange(EMPTY_FILTERS)
-              : undefined
-          }
-          hasFilter={hasActiveFilter}
-          activeCount={activeCount}
+          onReset={list.hasActiveFilter ? list.resetFilters : undefined}
+          hasFilter={list.hasActiveFilter}
+          activeCount={list.activeFilterCount}
           gridCols={2}
         >
           <Combobox
             options={locationOptions}
-            value={filters.location_id}
+            value={list.filters.location_id}
             onChange={(v) =>
-              handleFilterChange({ ...filters, location_id: v ?? "" })
+              list.setFilters({ ...list.filters, location_id: v ?? "" })
             }
             placeholder="Lokasi Asal"
             searchPlaceholder="Cari lokasi"
@@ -678,8 +667,8 @@ export function TransferKeluarTab() {
           <DateRangePicker
             value={dateRange}
             onChange={(range) =>
-              handleFilterChange({
-                ...filters,
+              list.setFilters({
+                ...list.filters,
                 date_from: toDateStr(range?.from),
                 date_to: toDateStr(range?.to),
               })
@@ -695,11 +684,11 @@ export function TransferKeluarTab() {
           isLoading={activeQuery.isLoading}
           isFetching={activeQuery.isFetching}
           meta={meta}
-          page={page}
-          perPage={perPage}
-          setPage={setPage}
-          setPerPage={setPerPage}
-          resetPage={resetPage}
+          page={list.page}
+          perPage={list.perPage}
+          setPage={list.setPage}
+          setPerPage={list.setPerPage}
+          resetPage={list.resetPage}
           onRowClick={handleRowClick}
           actionSlot={
             subTab === "draft"

@@ -1,7 +1,9 @@
 "use client";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { useListState } from "@/hooks/use-list-state";
+import { useUrlTab } from "@/hooks/use-url-tab";
 import Link from "next/link";
 import { PlusIcon,
   PencilIcon,
@@ -55,40 +57,40 @@ interface FilterState {
 
 const EMPTY_FILTERS: FilterState = { category_id: "", status: "" };
 
+const TYPE_VALUES: readonly TypeFilter[] = ["SUPPLIER", "BOTH"];
+
 export function KontakPemasokView() {
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>("SUPPLIER");
-  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+  const list = useListState<FilterState>(EMPTY_FILTERS, {
+    perPage: 20,
+    debounceMs: 300,
+    namespace: "pemasok",
+  });
+  const {
+    search,
+    setSearch,
+    debouncedSearch,
+    page,
+    perPage,
+    filters,
+    setFilters,
+    resetPage,
+    pagination,
+    onPaginationChange,
+  } = list;
+  const [typeFilter, setTypeFilter] = useUrlTab<TypeFilter>(
+    "pemasok_type",
+    "SUPPLIER",
+    { validValues: TYPE_VALUES },
+  );
   const [deleteTarget, setDeleteTarget] = useState<ContactItem | null>(null);
   const [importOpen, setImportOpen] = useState(false);
-
-  const resetPage = useCallback(() => setPage(1), []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search.trim());
-      resetPage();
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [search, resetPage]);
 
   const handleTypeFilter = useCallback(
     (t: TypeFilter) => {
       setTypeFilter(t);
       resetPage();
     },
-    [resetPage],
-  );
-
-  const handleFilterChange = useCallback(
-    (f: FilterState) => {
-      setFilters(f);
-      resetPage();
-    },
-    [resetPage],
+    [setTypeFilter, resetPage],
   );
 
   const params = useMemo<ContactListParams>(
@@ -288,7 +290,7 @@ export function KontakPemasokView() {
           align="end"
           onReset={
             hasActiveFilter
-              ? () => handleFilterChange(EMPTY_FILTERS)
+              ? () => setFilters(EMPTY_FILTERS)
               : undefined
           }
           hasFilter={hasActiveFilter}
@@ -299,7 +301,7 @@ export function KontakPemasokView() {
             options={categoryOptions}
             value={filters.category_id}
             onChange={(v) =>
-              handleFilterChange({ ...filters, category_id: v ?? "" })
+              setFilters({ ...filters, category_id: v ?? "" })
             }
             placeholder="Kategori"
             searchPlaceholder="Cari kategori"
@@ -309,7 +311,7 @@ export function KontakPemasokView() {
             options={statusOptions}
             value={filters.status}
             onChange={(v) =>
-              handleFilterChange({ ...filters, status: v ?? "" })
+              setFilters({ ...filters, status: v ?? "" })
             }
             placeholder="Status"
             searchPlaceholder="Cari status"
@@ -330,15 +332,9 @@ export function KontakPemasokView() {
             isLoading={isLoading}
             hideToolbar
             manualPagination
-            pagination={{
-              pageIndex: page - 1,
-              pageSize: perPage,
-            }}
+            pagination={pagination}
             rowCount={meta.total}
-            onPaginationChange={(p) => {
-              setPage(p.pageIndex + 1);
-              setPerPage(p.pageSize);
-            }}
+            onPaginationChange={onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
               <EmptyState icon={TruckIcon} title="Belum ada kontak pemasok" description="Buat pemasok baru untuk mulai mengelola kontak." />

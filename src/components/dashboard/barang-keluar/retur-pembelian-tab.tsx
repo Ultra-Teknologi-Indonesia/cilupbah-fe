@@ -1,7 +1,8 @@
 "use client";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { useListState } from "@/hooks/use-list-state";
 import { useRouter } from "next/navigation";
 import { CornerUpLeftIcon,
   DownloadIcon,
@@ -72,11 +73,11 @@ function parseDateStr(s: string): Date | undefined {
 
 export function ReturPembelianTab() {
   const router = useRouter();
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
-  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+  const list = useListState<FilterState>(EMPTY_FILTERS, {
+    perPage: 20,
+    debounceMs: 350,
+    namespace: "retur_beli",
+  });
 
   const [processTarget, setProcessTarget] = useState<PurchaseReturn | null>(
     null,
@@ -87,43 +88,25 @@ export function ReturPembelianTab() {
   const [deleteTarget, setDeleteTarget] = useState<PurchaseReturn | null>(null);
   const deleteMutation = useDeletePurchaseReturn();
 
-  const resetPage = useCallback(() => setPage(1), []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search.trim());
-      resetPage();
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [search, resetPage]);
-
-  const handleFilterChange = useCallback(
-    (f: FilterState) => {
-      setFilters(f);
-      resetPage();
-    },
-    [resetPage],
-  );
-
   const params = useMemo(
     () => ({
-      search: debouncedSearch || undefined,
-      page,
-      per_page: perPage,
-      "filter[status]": filters.status || undefined,
-      "filter[location_id]": filters.location_id || undefined,
-      "filter[date_from]": filters.date_from || undefined,
-      "filter[date_to]": filters.date_to || undefined,
+      search: list.debouncedSearch || undefined,
+      page: list.page,
+      per_page: list.perPage,
+      "filter[status]": list.filters.status || undefined,
+      "filter[location_id]": list.filters.location_id || undefined,
+      "filter[date_from]": list.filters.date_from || undefined,
+      "filter[date_to]": list.filters.date_to || undefined,
     }),
-    [debouncedSearch, page, perPage, filters],
+    [list.debouncedSearch, list.page, list.perPage, list.filters],
   );
 
   const dateRange: DateRange | undefined = useMemo(() => {
-    const from = parseDateStr(filters.date_from);
-    const to = parseDateStr(filters.date_to);
+    const from = parseDateStr(list.filters.date_from);
+    const to = parseDateStr(list.filters.date_to);
     if (!from && !to) return undefined;
     return { from, to };
-  }, [filters.date_from, filters.date_to]);
+  }, [list.filters.date_from, list.filters.date_to]);
 
   const { data, isLoading, isFetching } = usePurchaseReturns(params);
   const { data: locData } = useLocations({ perPage: 100 });
@@ -227,7 +210,7 @@ export function ReturPembelianTab() {
   const meta = data?.meta ?? {
     current_page: 1,
     last_page: 1,
-    per_page: perPage,
+    per_page: list.perPage,
     total: 0,
   };
 
@@ -241,9 +224,6 @@ export function ReturPembelianTab() {
     ],
     [locData],
   );
-
-  const hasActiveFilter = Object.values(filters).some(Boolean);
-  const activeCount = Object.values(filters).filter(Boolean).length;
 
   const handleExport = useCallback(() => {
     if (items.length === 0) return;
@@ -278,17 +258,13 @@ export function ReturPembelianTab() {
         className="bg-white/30 dark:bg-white/[0.04]"
       >
         <FilterToolbar
-          search={search}
-          onSearchChange={setSearch}
+          search={list.search}
+          onSearchChange={list.setSearch}
           searchPlaceholder="Cari no. retur, pemasok..."
           align="end"
-          onReset={
-            hasActiveFilter
-              ? () => handleFilterChange(EMPTY_FILTERS)
-              : undefined
-          }
-          hasFilter={hasActiveFilter}
-          activeCount={activeCount}
+          onReset={list.hasActiveFilter ? list.resetFilters : undefined}
+          hasFilter={list.hasActiveFilter}
+          activeCount={list.activeFilterCount}
           gridCols={2}
           leading={
             <Button
@@ -304,9 +280,9 @@ export function ReturPembelianTab() {
         >
           <Combobox
             options={STATUS_OPTIONS}
-            value={filters.status}
+            value={list.filters.status}
             onChange={(v) =>
-              handleFilterChange({ ...filters, status: v ?? "" })
+              list.setFilters({ ...list.filters, status: v ?? "" })
             }
             placeholder="Status"
             searchPlaceholder="Cari status"
@@ -314,9 +290,9 @@ export function ReturPembelianTab() {
           />
           <Combobox
             options={locationOptions}
-            value={filters.location_id}
+            value={list.filters.location_id}
             onChange={(v) =>
-              handleFilterChange({ ...filters, location_id: v ?? "" })
+              list.setFilters({ ...list.filters, location_id: v ?? "" })
             }
             placeholder="Lokasi"
             searchPlaceholder="Cari lokasi"
@@ -325,8 +301,8 @@ export function ReturPembelianTab() {
           <DateRangePicker
             value={dateRange}
             onChange={(range) =>
-              handleFilterChange({
-                ...filters,
+              list.setFilters({
+                ...list.filters,
                 date_from: toDateStr(range?.from),
                 date_to: toDateStr(range?.to),
               })
@@ -352,15 +328,9 @@ export function ReturPembelianTab() {
             onRowClick={(row) =>
               router.push(`/dashboard/barang-keluar/retur/${row.id}`)
             }
-            pagination={{
-              pageIndex: page - 1,
-              pageSize: perPage,
-            }}
+            pagination={list.pagination}
             rowCount={meta.total}
-            onPaginationChange={(p) => {
-              setPage(p.pageIndex + 1);
-              setPerPage(p.pageSize);
-            }}
+            onPaginationChange={list.onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
               <EmptyState icon={CornerUpLeftIcon} title="Belum ada retur pembelian" description="Retur pembelian ke pemasok akan tampil di sini." />

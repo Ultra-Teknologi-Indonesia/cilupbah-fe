@@ -1,7 +1,8 @@
 "use client";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { useListState } from "@/hooks/use-list-state";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -122,11 +123,11 @@ function deleteDescription(p: Putaway | null): string {
 
 export function PenempatanBarangTab() {
   const router = useRouter();
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
-  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+  const list = useListState<FilterState>(EMPTY_FILTERS, {
+    perPage: 20,
+    debounceMs: 350,
+    namespace: "penempatan",
+  });
   const [deleteTarget, setDeleteTarget] = useState<Putaway | null>(null);
   const [bulkDeleteState, setBulkDeleteState] = useState<{
     ids: string[];
@@ -136,33 +137,15 @@ export function PenempatanBarangTab() {
   const deleteMut = useDeletePutaway();
   const bulkDeleteMut = useBulkDeletePutaway();
 
-  const resetPage = useCallback(() => setPage(1), []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search.trim());
-      resetPage();
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [search, resetPage]);
-
-  const handleFilterChange = useCallback(
-    (f: FilterState) => {
-      setFilters(f);
-      resetPage();
-    },
-    [resetPage],
-  );
-
   const params = useMemo(
     () => ({
-      search: debouncedSearch || undefined,
-      page,
-      per_page: perPage,
-      "filter[status]": filters.status || undefined,
-      "filter[location_id]": filters.location_id || undefined,
+      search: list.debouncedSearch || undefined,
+      page: list.page,
+      per_page: list.perPage,
+      "filter[status]": list.filters.status || undefined,
+      "filter[location_id]": list.filters.location_id || undefined,
     }),
-    [debouncedSearch, page, perPage, filters],
+    [list.debouncedSearch, list.page, list.perPage, list.filters],
   );
 
   const { data, isLoading, isFetching } = usePutaways(params);
@@ -172,7 +155,7 @@ export function PenempatanBarangTab() {
   const meta = data?.meta ?? {
     current_page: 1,
     last_page: 1,
-    per_page: perPage,
+    per_page: list.perPage,
     total: 0,
   };
 
@@ -394,9 +377,6 @@ export function PenempatanBarangTab() {
     [router],
   );
 
-  const hasActiveFilter = Object.values(filters).some(Boolean);
-  const activeCount = Object.values(filters).filter(Boolean).length;
-
   return (
     <>
       <LiquidGlass
@@ -406,10 +386,10 @@ export function PenempatanBarangTab() {
       >
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-3 sm:px-5">
           <Tabs
-            value={filters.status || "ALL"}
+            value={list.filters.status || "ALL"}
             onValueChange={(val) =>
-              handleFilterChange({
-                ...filters,
+              list.setFilters({
+                ...list.filters,
                 status: val === "ALL" ? "" : val,
               })
             }
@@ -435,24 +415,20 @@ export function PenempatanBarangTab() {
         </div>
 
         <FilterToolbar
-          search={search}
-          onSearchChange={setSearch}
+          search={list.search}
+          onSearchChange={list.setSearch}
           searchPlaceholder="Cari no. penempatan..."
           align="end"
-          onReset={
-            hasActiveFilter
-              ? () => handleFilterChange(EMPTY_FILTERS)
-              : undefined
-          }
-          hasFilter={hasActiveFilter}
-          activeCount={activeCount}
+          onReset={list.hasActiveFilter ? list.resetFilters : undefined}
+          hasFilter={list.hasActiveFilter}
+          activeCount={list.activeFilterCount}
           gridCols={1}
         >
           <Combobox
             options={locationOptions}
-            value={filters.location_id}
+            value={list.filters.location_id}
             onChange={(v) =>
-              handleFilterChange({ ...filters, location_id: v ?? "" })
+              list.setFilters({ ...list.filters, location_id: v ?? "" })
             }
             placeholder="Lokasi"
             searchPlaceholder="Cari lokasi"
@@ -476,15 +452,9 @@ export function PenempatanBarangTab() {
             enableRowSelection
             getRowId={(row) => row.id}
             bulkActions={bulkActions}
-            pagination={{
-              pageIndex: page - 1,
-              pageSize: perPage,
-            }}
+            pagination={list.pagination}
             rowCount={meta.total}
-            onPaginationChange={(p) => {
-              setPage(p.pageIndex + 1);
-              setPerPage(p.pageSize);
-            }}
+            onPaginationChange={list.onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
               <EmptyState icon={ArchiveIcon} title="Belum ada penempatan barang" description="Dokumen penempatan ke rak akan tampil di sini setelah

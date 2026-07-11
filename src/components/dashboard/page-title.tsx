@@ -1,5 +1,7 @@
+"use client";
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -28,6 +30,19 @@ interface PageTitleProps {
   className?: string;
 }
 
+function hasAppHistory(): boolean {
+  if (typeof window === "undefined") return false;
+  if (window.history.length <= 1) return false;
+  try {
+    const ref = document.referrer;
+    if (!ref) return false;
+    const refOrigin = new URL(ref).origin;
+    return refOrigin === window.location.origin;
+  } catch {
+    return false;
+  }
+}
+
 export function PageTitle({
   title,
   description,
@@ -37,11 +52,34 @@ export function PageTitle({
   sticky,
   className,
 }: PageTitleProps) {
+  const router = useRouter();
+
+  const onBackClick = React.useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      if (
+        e.defaultPrevented ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.shiftKey ||
+        e.altKey ||
+        e.button === 1
+      ) {
+        return;
+      }
+      if (hasAppHistory()) {
+        e.preventDefault();
+        router.back();
+      }
+    },
+    [router],
+  );
+
   return (
     <div className={cn(sticky && "sticky top-0 z-30")}>
       {backHref && (
         <Link
           href={backHref}
+          onClick={onBackClick}
           className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeftIcon className="size-4" />
@@ -65,7 +103,9 @@ export function PageTitle({
                       <BreadcrumbItem>
                         {item.href && !isLast ? (
                           <BreadcrumbLink asChild>
-                            <Link href={item.href}>{item.label}</Link>
+                            <Link href={item.href} onClick={onBackClick}>
+                              {item.label}
+                            </Link>
                           </BreadcrumbLink>
                         ) : (
                           <BreadcrumbPage>{item.label}</BreadcrumbPage>

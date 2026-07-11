@@ -34,8 +34,33 @@ import {
   usePrefetchPicklistDetail,
   useRevertPicklist,
 } from "@/hooks/proses-pesanan/use-fulfillment";
+import { useListState } from "@/hooks/use-list-state";
 import { type Picklist } from "@/types/proses-pesanan/fulfillment";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+
+type PicklistFilterState = {
+  status: string;
+  shipping_provider: string;
+  location_id: string;
+  source: string;
+  channel_shop_id: string;
+  label_printed: string;
+  date_from: string;
+  date_to: string;
+  zone_id: string;
+};
+
+const EMPTY_PICKLIST_FILTERS: PicklistFilterState = {
+  status: "",
+  shipping_provider: "",
+  location_id: "",
+  source: "",
+  channel_shop_id: "",
+  label_printed: "",
+  date_from: "",
+  date_to: "",
+  zone_id: "",
+};
 
 import { UbahPickerDialog } from "./ubah-picker-dialog";
 
@@ -113,37 +138,34 @@ function ProgressCell({ done, total }: { done: number; total: number }) {
 
 export function PicklistTable() {
   const prefetchPicklist = usePrefetchPicklistDetail();
-  const [search, setSearch] = React.useState("");
-  const [debounced, setDebounced] = React.useState("");
-  const [page, setPage] = React.useState(1);
-  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
+  const list = useListState<PicklistFilterState>(EMPTY_PICKLIST_FILTERS, {
+    perPage: 20,
+    debounceMs: 350,
+    namespace: "picklist",
+  });
   const [editPicker, setEditPicker] = React.useState<Picklist | null>(null);
   const [revertTarget, setRevertTarget] = React.useState<Picklist | null>(
     null,
   );
   const revertPicklist = useRevertPicklist();
 
-  React.useEffect(() => {
-    const t = setTimeout(() => setDebounced(search.trim()), 350);
-    return () => clearTimeout(t);
-  }, [search]);
-
   const params = React.useMemo(
     () => ({
-      q: debounced || undefined,
-      status: filter.status || undefined,
-      shipping_provider: filter.shipping_provider,
-      location_id: filter.location_id,
-      source: filter.source,
-      channel_shop_id: filter.channel_shop_id,
-      label_printed: filter.label_printed as "yes" | "no" | undefined,
-      date_from: filter.date_from,
-      date_to: filter.date_to,
-      zone_id: filter.zone_id,
-      page,
-      per_page: 20,
+      q: list.debouncedSearch || undefined,
+      status: list.filters.status || undefined,
+      shipping_provider: list.filters.shipping_provider || undefined,
+      location_id: list.filters.location_id || undefined,
+      source: list.filters.source || undefined,
+      channel_shop_id: list.filters.channel_shop_id || undefined,
+      label_printed:
+        (list.filters.label_printed as "yes" | "no" | "") || undefined,
+      date_from: list.filters.date_from || undefined,
+      date_to: list.filters.date_to || undefined,
+      zone_id: list.filters.zone_id || undefined,
+      page: list.page,
+      per_page: list.perPage,
     }),
-    [debounced, filter, page],
+    [list.debouncedSearch, list.filters, list.page, list.perPage],
   );
   const { data, isLoading, isFetching, refetch } = usePicklists(params);
 
@@ -326,11 +348,10 @@ export function PicklistTable() {
   return (
     <div>
       <FulfillmentFilterBar
-        value={filter}
-        onChange={(v) => {
-          setFilter(v);
-          setPage(1);
-        }}
+        value={list.filters as FulfillmentFilterValue}
+        onChange={(v) =>
+          list.setFilters({ ...EMPTY_PICKLIST_FILTERS, ...v } as PicklistFilterState)
+        }
         fields={[
           "status",
           "courier",
@@ -342,11 +363,8 @@ export function PicklistTable() {
           "zone",
         ]}
         statusOptions={STATUS_OPTIONS}
-        search={search}
-        onSearchChange={(v) => {
-          setSearch(v);
-          setPage(1);
-        }}
+        search={list.search}
+        onSearchChange={list.setSearch}
         searchPlaceholder="Cari no. picklist…"
       />
       <div className="flex flex-wrap items-center justify-end gap-3 border-b border-border/40 px-4 py-2 text-sm text-muted-foreground sm:px-5">
@@ -377,9 +395,7 @@ export function PicklistTable() {
             pageSize: meta.per_page,
           }}
           rowCount={meta.total}
-          onPaginationChange={(p) => {
-            setPage(p.pageIndex + 1);
-          }}
+          onPaginationChange={list.onPaginationChange}
           tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
           emptyState={
             <div className="flex flex-col items-center gap-3 py-16 text-center">

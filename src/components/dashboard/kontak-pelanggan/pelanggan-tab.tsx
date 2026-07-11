@@ -1,7 +1,7 @@
 "use client";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { PlusIcon,
   PencilIcon,
@@ -22,6 +22,8 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
+import { useListState } from "@/hooks/use-list-state";
+import { useUrlTab } from "@/hooks/use-url-tab";
 import {
   useContacts,
   useContactCategories,
@@ -41,6 +43,8 @@ const TYPE_TABS: { key: TypeFilter; label: string; icon: typeof UsersIcon }[] =
     { key: "BOTH", label: "Pemasok dan Pelanggan", icon: ArrowLeftRightIcon },
   ];
 
+const TYPE_VALUES: readonly TypeFilter[] = ["CUSTOMER", "BOTH"];
+
 interface FilterState {
   category_id: string;
   status: string;
@@ -49,38 +53,36 @@ interface FilterState {
 const EMPTY_FILTERS: FilterState = { category_id: "", status: "" };
 
 export function PelangganTab() {
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>("CUSTOMER");
-  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
-  const [deleteTarget, setDeleteTarget] = useState<ContactItem | null>(null);
-
-  const resetPage = useCallback(() => setPage(1), []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search.trim());
-      resetPage();
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [search, resetPage]);
-
-  const handleFilterChange = useCallback(
-    (f: FilterState) => {
-      setFilters(f);
-      resetPage();
-    },
-    [resetPage],
+  const list = useListState<FilterState>(EMPTY_FILTERS, {
+    perPage: 20,
+    debounceMs: 300,
+    namespace: "pelanggan",
+  });
+  const {
+    search,
+    setSearch,
+    debouncedSearch,
+    page,
+    perPage,
+    filters,
+    setFilters,
+    resetPage,
+    pagination,
+    onPaginationChange,
+  } = list;
+  const [typeFilter, setTypeFilter] = useUrlTab<TypeFilter>(
+    "pelanggan_type",
+    "CUSTOMER",
+    { validValues: TYPE_VALUES },
   );
+  const [deleteTarget, setDeleteTarget] = useState<ContactItem | null>(null);
 
   const handleTypeFilter = useCallback(
     (t: TypeFilter) => {
       setTypeFilter(t);
       resetPage();
     },
-    [resetPage],
+    [setTypeFilter, resetPage],
   );
 
   const params = useMemo<ContactListParams>(
@@ -292,7 +294,7 @@ export function PelangganTab() {
           align="end"
           onReset={
             hasActiveFilter
-              ? () => handleFilterChange(EMPTY_FILTERS)
+              ? () => setFilters(EMPTY_FILTERS)
               : undefined
           }
           hasFilter={hasActiveFilter}
@@ -323,7 +325,7 @@ export function PelangganTab() {
             options={categoryOptions}
             value={filters.category_id}
             onChange={(v) =>
-              handleFilterChange({ ...filters, category_id: v ?? "" })
+              setFilters({ ...filters, category_id: v ?? "" })
             }
             placeholder="Kategori"
             searchPlaceholder="Cari kategori"
@@ -333,7 +335,7 @@ export function PelangganTab() {
             options={statusOptions}
             value={filters.status}
             onChange={(v) =>
-              handleFilterChange({ ...filters, status: v ?? "" })
+              setFilters({ ...filters, status: v ?? "" })
             }
             placeholder="Status"
             searchPlaceholder="Cari status"
@@ -354,15 +356,9 @@ export function PelangganTab() {
             isLoading={isLoading}
             hideToolbar
             manualPagination
-            pagination={{
-              pageIndex: page - 1,
-              pageSize: perPage,
-            }}
+            pagination={pagination}
             rowCount={meta.total}
-            onPaginationChange={(p) => {
-              setPage(p.pageIndex + 1);
-              setPerPage(p.pageSize);
-            }}
+            onPaginationChange={onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
               <EmptyState icon={UsersIcon} title="Belum ada kontak pelanggan" description="Buat pelanggan baru untuk mulai mengelola kontak." />

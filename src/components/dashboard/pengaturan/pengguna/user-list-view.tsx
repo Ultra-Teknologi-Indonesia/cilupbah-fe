@@ -29,6 +29,7 @@ import {
   useDeleteUser,
   useBulkDeleteUsers,
 } from "@/hooks/pengaturan/use-users";
+import { useListState } from "@/hooks/use-list-state";
 import type { User } from "@/types/pengaturan/user";
 
 function formatRoles(roles: string[]): string {
@@ -66,24 +67,19 @@ export function UserListView() {
   const { can } = usePermissions();
   const canDelete = can("delete-user");
 
-  const [searchInput, setSearchInput] = React.useState("");
-  const [search, setSearch] = React.useState("");
-  const [page, setPage] = React.useState(1);
+  const list = useListState<Record<string, never>>(
+    {},
+    { perPage: 20, debounceMs: 350, namespace: "users" },
+  );
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [deleteTarget, setDeleteTarget] = React.useState<User | null>(null);
   const [bulkOpen, setBulkOpen] = React.useState(false);
 
-  const perPage = 20;
-
-  React.useEffect(() => {
-    const t = setTimeout(() => {
-      setSearch(searchInput.trim());
-      setPage(1);
-    }, 350);
-    return () => clearTimeout(t);
-  }, [searchInput]);
-
-  const { data, isLoading, isError } = useUsers({ search, page, perPage });
+  const { data, isLoading, isError } = useUsers({
+    search: list.debouncedSearch,
+    page: list.page,
+    perPage: list.perPage,
+  });
   const deleteUser = useDeleteUser();
   const bulkDelete = useBulkDeleteUsers();
 
@@ -258,8 +254,8 @@ export function UserListView() {
           <div className="relative w-full max-w-xs">
             <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
+              value={list.search}
+              onChange={(e) => list.setSearch(e.target.value)}
               placeholder="Cari pengguna"
               className="pl-9"
             />
@@ -302,8 +298,10 @@ export function UserListView() {
           </div>
         ) : users.length === 0 ? (
           <EmptyState
-            icon={search ? SearchXIcon : FileXIcon}
-            title={search ? "Tidak ditemukan" : "Belum ada pengguna"}
+            icon={list.debouncedSearch ? SearchXIcon : FileXIcon}
+            title={
+              list.debouncedSearch ? "Tidak ditemukan" : "Belum ada pengguna"
+            }
           />
         ) : (
           <div className="px-5 pb-5">
@@ -312,14 +310,18 @@ export function UserListView() {
               data={users}
               hideToolbar
               manualPagination
-              pagination={{ pageIndex: page - 1, pageSize: perPage }}
+              pagination={list.pagination}
               rowCount={total}
-              onPaginationChange={(p) => setPage(p.pageIndex + 1)}
+              onPaginationChange={list.onPaginationChange}
               tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
               emptyState={
                 <EmptyState
-                  icon={search ? SearchXIcon : FileXIcon}
-                  title={search ? "Tidak ditemukan" : "Belum ada pengguna"}
+                  icon={list.debouncedSearch ? SearchXIcon : FileXIcon}
+                  title={
+                    list.debouncedSearch
+                      ? "Tidak ditemukan"
+                      : "Belum ada pengguna"
+                  }
                 />
               }
             />

@@ -19,7 +19,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FilterToolbar } from "@/components/dashboard/shared/filter-toolbar";
-import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useListState } from "@/hooks/use-list-state";
 import {
   Dialog,
   DialogContent,
@@ -46,9 +46,13 @@ const EMPTY_FORM: CategoryFormData = {
   name: "",
 };
 
+const EMPTY_FILTERS = {};
+
 export function KategoriTab() {
-  const [search, setSearch] = useState("");
-  const debouncedSearch = useDebouncedValue(search.trim());
+  const { search, setSearch, debouncedSearch } = useListState<typeof EMPTY_FILTERS>(
+    EMPTY_FILTERS,
+    { perPage: 20, debounceMs: 300, namespace: "kat_pelanggan" },
+  );
 
   const {
     data: categories = [],

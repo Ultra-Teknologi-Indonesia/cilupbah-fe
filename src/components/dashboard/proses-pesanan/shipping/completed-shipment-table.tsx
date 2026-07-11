@@ -33,6 +33,7 @@ import type {
 } from "@/types/proses-pesanan/fulfillment";
 import { SHIPMENT_STATUS_LABEL } from "@/types/proses-pesanan/fulfillment";
 import { ShipmentDriverBadge } from "@/components/dashboard/proses-pesanan/shared/driver-call-indicator";
+import { useListState } from "@/hooks/use-list-state";
 import {
   Dialog,
   DialogContent,
@@ -53,6 +54,20 @@ const STATUS_OPTIONS = [
   { value: "IN_TRANSIT", label: "Dikirim" },
   { value: "DELIVERED", label: "Terkirim" },
 ];
+
+type PageFilterState = {
+  status: string;
+  courier_code: string;
+  date_from: string;
+  date_to: string;
+};
+
+const EMPTY_FILTERS: PageFilterState = {
+  status: "",
+  courier_code: "",
+  date_from: "",
+  date_to: "",
+};
 
 function StatusBadge({ status }: { status: ShipmentStatus }) {
   const cfg = SHIPMENT_STATUS_LABEL[status] ?? {
@@ -161,31 +176,27 @@ function ReconcileDialog({
 }
 
 export function CompletedShipmentTable() {
-  const [search, setSearch] = React.useState("");
-  const [debounced, setDebounced] = React.useState("");
-  const [page, setPage] = React.useState(1);
-  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
+  const list = useListState<PageFilterState>(EMPTY_FILTERS, {
+    perPage: 20,
+    debounceMs: 350,
+    namespace: "shipment_done",
+  });
   const [markTarget, setMarkTarget] = React.useState<Shipment | null>(null);
   const [reconcileSummary, setReconcileSummary] =
     React.useState<ReconcileSummary | null>(null);
 
-  React.useEffect(() => {
-    const t = setTimeout(() => setDebounced(search.trim()), 350);
-    return () => clearTimeout(t);
-  }, [search]);
-
   const params = React.useMemo(
     () => ({
-      status: filter.status || undefined,
-      q: debounced || undefined,
-      page,
-      per_page: 20,
-      courier_code: filter.courier_code,
-      date_from: filter.date_from,
-      date_to: filter.date_to,
+      status: list.filters.status || undefined,
+      q: list.debouncedSearch || undefined,
+      page: list.page,
+      per_page: list.perPage,
+      courier_code: list.filters.courier_code || undefined,
+      date_from: list.filters.date_from || undefined,
+      date_to: list.filters.date_to || undefined,
       type: "all",
     }),
-    [debounced, page, filter],
+    [list.debouncedSearch, list.page, list.perPage, list.filters],
   );
   const { data, isLoading, isFetching, refetch } =
     useCompletedShipments(params);
@@ -329,19 +340,15 @@ export function CompletedShipmentTable() {
   return (
     <div>
       <FulfillmentFilterBar
-        value={filter}
-        onChange={(v) => {
-          setFilter(v);
-          setPage(1);
-        }}
+        value={list.filters as FulfillmentFilterValue}
+        onChange={(v) =>
+          list.setFilters({ ...EMPTY_FILTERS, ...v } as PageFilterState)
+        }
         fields={["courier", "status", "date"]}
         courierMode="courier_code"
         statusOptions={STATUS_OPTIONS}
-        search={search}
-        onSearchChange={(v) => {
-          setSearch(v);
-          setPage(1);
-        }}
+        search={list.search}
+        onSearchChange={list.setSearch}
         searchPlaceholder="Cari no. pengiriman…"
       />
       <div className="flex items-center justify-end gap-3 border-b border-border/40 px-4 py-2 text-sm text-muted-foreground sm:px-5">
@@ -367,14 +374,9 @@ export function CompletedShipmentTable() {
           isLoading={isLoading}
           hideToolbar
           manualPagination
-          pagination={{
-            pageIndex: meta.current_page - 1,
-            pageSize: meta.per_page,
-          }}
+          pagination={list.pagination}
           rowCount={meta.total}
-          onPaginationChange={(p) => {
-            setPage(p.pageIndex + 1);
-          }}
+          onPaginationChange={list.onPaginationChange}
           tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
           emptyState={
             <div className="py-16 text-center text-sm text-muted-foreground">

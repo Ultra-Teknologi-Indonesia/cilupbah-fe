@@ -29,6 +29,7 @@ import {
   useUndismissPreManifestCancel,
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment";
+import { useListState } from "@/hooks/use-list-state";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,6 +44,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+type PageFilterState = {
+  source: string;
+  location_id: string;
+};
+
+const EMPTY_FILTERS: PageFilterState = {
+  source: "",
+  location_id: "",
+};
+
 function SourceBadge({ source }: { source: string | null }) {
   if (!source) return <span className="text-muted-foreground">—</span>;
   const label = source.charAt(0).toUpperCase() + source.slice(1);
@@ -54,29 +65,25 @@ function SourceBadge({ source }: { source: string | null }) {
 }
 
 export function PreManifestCancelTable() {
-  const [search, setSearch] = React.useState("");
-  const [debounced, setDebounced] = React.useState("");
-  const [page, setPage] = React.useState(1);
-  const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
+  const list = useListState<PageFilterState>(EMPTY_FILTERS, {
+    perPage: 20,
+    debounceMs: 350,
+    namespace: "premanifest",
+  });
   const [dismissTarget, setDismissTarget] =
     React.useState<FulfillmentOrder | null>(null);
   const [undismissTarget, setUndismissTarget] =
     React.useState<FulfillmentOrder | null>(null);
 
-  React.useEffect(() => {
-    const t = setTimeout(() => setDebounced(search.trim()), 350);
-    return () => clearTimeout(t);
-  }, [search]);
-
   const params = React.useMemo(
     () => ({
-      q: debounced || undefined,
-      source: filter.source,
-      location_id: filter.location_id,
-      page,
-      per_page: 20,
+      q: list.debouncedSearch || undefined,
+      source: list.filters.source || undefined,
+      location_id: list.filters.location_id || undefined,
+      page: list.page,
+      per_page: list.perPage,
     }),
-    [debounced, page, filter],
+    [list.debouncedSearch, list.page, list.perPage, list.filters],
   );
 
   const { data, isLoading, isFetching, refetch } =
@@ -214,17 +221,13 @@ export function PreManifestCancelTable() {
   return (
     <div>
       <FulfillmentFilterBar
-        value={filter}
-        onChange={(v) => {
-          setFilter(v);
-          setPage(1);
-        }}
+        value={list.filters as FulfillmentFilterValue}
+        onChange={(v) =>
+          list.setFilters({ ...EMPTY_FILTERS, ...v } as PageFilterState)
+        }
         fields={["channel", "location"]}
-        search={search}
-        onSearchChange={(v) => {
-          setSearch(v);
-          setPage(1);
-        }}
+        search={list.search}
+        onSearchChange={list.setSearch}
         searchPlaceholder="Cari no. pesanan / resi / pelanggan…"
       />
 
@@ -274,14 +277,9 @@ export function PreManifestCancelTable() {
             "border-l-4 border-l-destructive/60 bg-destructive/[0.03]"
           }
           manualPagination
-          pagination={{
-            pageIndex: meta.current_page - 1,
-            pageSize: meta.per_page,
-          }}
+          pagination={list.pagination}
           rowCount={meta.total}
-          onPaginationChange={(p) => {
-            setPage(p.pageIndex + 1);
-          }}
+          onPaginationChange={list.onPaginationChange}
           tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
           emptyState={
             <EmptyState

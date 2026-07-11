@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 
+import { useListState } from "@/hooks/use-list-state";
+import { useUrlTab } from "@/hooks/use-url-tab";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Combobox } from "@/components/ui/combobox";
@@ -100,31 +102,104 @@ function flattenCategories(
   return result;
 }
 
+interface MonitorFilters {
+  location_id: string;
+  category_id: string;
+  period: number;
+  kron_source: string;
+  kron_direction: string;
+  date_from: string;
+  date_to: string;
+}
+
+const EMPTY_FILTERS: MonitorFilters = {
+  location_id: "",
+  category_id: "",
+  period: 90,
+  kron_source: "",
+  kron_direction: "",
+  date_from: "",
+  date_to: "",
+};
+
+const TAB_VALUES: readonly MonitorTab[] = [
+  "stok-kosong",
+  "menipis",
+  "tidak-laku",
+  "paling-laku",
+  "perkiraan-habis",
+  "sedang-dibeli",
+  "gagal-sync",
+  "kronologi",
+];
+const SUB_VALUES: readonly OutOfStockMode[] = ["habis", "minus", "dipesan"];
+const KRON_VIEW_VALUES: readonly KronologiView[] = ["clean", "attention", "all"];
+
 export function MonitorStokView() {
-  const [tab, setTab] = useState<MonitorTab>("stok-kosong");
-  const [subMode, setSubMode] = useState<OutOfStockMode>("habis");
-  const [period, setPeriod] = useState<number>(90);
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [locationId, setLocationId] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
-  const [kronologiView, setKronologiView] = useState<KronologiView>("clean");
-  const [kronologiSource, setKronologiSource] = useState("");
-  const [kronologiDirection, setKronologiDirection] = useState("");
-  const [kronologiDateFrom, setKronologiDateFrom] = useState<string>("");
-  const [kronologiDateTo, setKronologiDateTo] = useState<string>("");
+  const list = useListState<MonitorFilters>(EMPTY_FILTERS, {
+    perPage: 20,
+    debounceMs: 300,
+    namespace: "monitor",
+  });
+  const {
+    search,
+    setSearch,
+    debouncedSearch,
+    page,
+    perPage,
+    filters,
+    setFilters,
+    resetPage,
+  } = list;
+  const locationId = filters.location_id;
+  const categoryId = filters.category_id;
+  const period = filters.period;
+  const kronologiSource = filters.kron_source;
+  const kronologiDirection = filters.kron_direction;
+  const kronologiDateFrom = filters.date_from;
+  const kronologiDateTo = filters.date_to;
 
-  const resetPage = useCallback(() => setPage(1), []);
+  const [tab, setTab] = useUrlTab<MonitorTab>("monitor_tab", "stok-kosong", {
+    validValues: TAB_VALUES,
+  });
+  const [subMode, setSubMode] = useUrlTab<OutOfStockMode>(
+    "monitor_sub",
+    "habis",
+    { validValues: SUB_VALUES },
+  );
+  const [kronologiView, setKronologiView] = useUrlTab<KronologiView>(
+    "monitor_kview",
+    "clean",
+    { validValues: KRON_VIEW_VALUES },
+  );
 
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setDebouncedSearch(search.trim());
-      resetPage();
-    }, 300);
-    return () => clearTimeout(t);
-  }, [search, resetPage]);
+  const setLocationId = useCallback(
+    (v: string) => setFilters({ ...filters, location_id: v }),
+    [filters, setFilters],
+  );
+  const setCategoryId = useCallback(
+    (v: string) => setFilters({ ...filters, category_id: v }),
+    [filters, setFilters],
+  );
+  const setPeriod = useCallback(
+    (v: number) => setFilters({ ...filters, period: v }),
+    [filters, setFilters],
+  );
+  const setKronologiSource = useCallback(
+    (v: string) => setFilters({ ...filters, kron_source: v }),
+    [filters, setFilters],
+  );
+  const setKronologiDirection = useCallback(
+    (v: string) => setFilters({ ...filters, kron_direction: v }),
+    [filters, setFilters],
+  );
+  const setKronologiDates = useCallback(
+    (from: string, to: string) =>
+      setFilters({ ...filters, date_from: from, date_to: to }),
+    [filters, setFilters],
+  );
+  const setPage = list.setPage;
+  const setPerPage = list.setPerPage;
 
   const baseFilters = useMemo(
     () => ({
@@ -231,7 +306,7 @@ export function MonitorStokView() {
       if (isAnalyticsTab(t)) setPeriod(PERIOD_DEFAULT[t] ?? 30);
       resetPage();
     },
-    [resetPage],
+    [setTab, setPeriod, resetPage],
   );
 
   const changeSub = useCallback(
@@ -239,7 +314,7 @@ export function MonitorStokView() {
       setSubMode(m);
       resetPage();
     },
-    [resetPage],
+    [setSubMode, resetPage],
   );
 
   const onFilter = useCallback(
@@ -417,9 +492,7 @@ export function MonitorStokView() {
                   onChange={(range) => {
                     const toStr = (d?: Date) =>
                       d ? d.toISOString().slice(0, 10) : "";
-                    setKronologiDateFrom(toStr(range?.from));
-                    setKronologiDateTo(toStr(range?.to));
-                    resetPage();
+                    setKronologiDates(toStr(range?.from), toStr(range?.to));
                   }}
                   placeholder="Pilih rentang tanggal"
                   className="h-9 bg-background"

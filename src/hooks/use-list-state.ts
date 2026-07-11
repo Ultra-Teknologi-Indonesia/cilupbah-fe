@@ -4,17 +4,20 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PaginationState } from "@tanstack/react-table";
 
+type FilterPrimitive = string | number | boolean | null | undefined;
+
 export function useListState<F extends object>(
   emptyFilters: F,
   opts?: {
     perPage?: number;
     debounceMs?: number;
     urlSync?: boolean;
-
     namespace?: string;
+    filterUrlSync?: boolean;
   },
 ) {
-  const urlSync = opts?.urlSync ?? false;
+  const urlSync = opts?.urlSync ?? true;
+  const filterUrlSync = opts?.filterUrlSync ?? urlSync;
   const ns = opts?.namespace ? `${opts.namespace}_` : "";
   const defaultPerPage = opts?.perPage ?? 20;
 
@@ -25,14 +28,41 @@ export function useListState<F extends object>(
   const pageKey = `${ns}page`;
   const perPageKey = `${ns}per_page`;
   const searchKey = `${ns}q`;
+  const filterKeyFor = useCallback(
+    (k: string) => `${ns}filter_${k}`,
+    [ns],
+  );
 
-  const readNumber = (key: string, fallback: number) => {
-    if (!urlSync) return fallback;
-    const raw = searchParams.get(key);
-    const n = raw ? Number.parseInt(raw, 10) : NaN;
-    return Number.isFinite(n) && n > 0 ? n : fallback;
-  };
-  const readSearch = () => (urlSync ? (searchParams.get(searchKey) ?? "") : "");
+  const readNumber = useCallback(
+    (key: string, fallback: number) => {
+      if (!urlSync) return fallback;
+      const raw = searchParams.get(key);
+      const n = raw ? Number.parseInt(raw, 10) : NaN;
+      return Number.isFinite(n) && n > 0 ? n : fallback;
+    },
+    [urlSync, searchParams],
+  );
+  const readSearch = useCallback(
+    () => (urlSync ? (searchParams.get(searchKey) ?? "") : ""),
+    [urlSync, searchParams, searchKey],
+  );
+  const readFilters = useCallback((): F => {
+    if (!filterUrlSync) return emptyFilters;
+    const src = emptyFilters as Record<string, FilterPrimitive>;
+    const next = { ...src };
+    for (const k of Object.keys(src)) {
+      const raw = searchParams.get(filterKeyFor(k));
+      if (raw === null) continue;
+      const defaultVal = src[k];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let parsed: any = raw;
+      if (typeof defaultVal === "number") parsed = Number(raw);
+      else if (typeof defaultVal === "boolean") parsed = raw === "true";
+      next[k] = parsed;
+    }
+    return next as F;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterUrlSync, searchParams, filterKeyFor]);
 
   const [search, setSearchRaw] = useState<string>(() => readSearch());
   const [debouncedSearch, setDebouncedSearch] = useState<string>(() =>
@@ -42,13 +72,15 @@ export function useListState<F extends object>(
   const [perPage, setPerPageRaw] = useState<number>(() =>
     readNumber(perPageKey, defaultPerPage),
   );
-  const [filters, setFiltersRaw] = useState<F>(emptyFilters);
+  const [filters, setFiltersRaw] = useState<F>(() => readFilters());
 
   useEffect(() => {
     if (!urlSync) return;
     const nextPage = readNumber(pageKey, 1);
     const nextPerPage = readNumber(perPageKey, defaultPerPage);
     const nextSearch = readSearch();
+    const nextFilters = readFilters();
+    /* eslint-disable react-hooks/set-state-in-effect */
     setPageRaw((prev) => (prev === nextPage ? prev : nextPage));
     setPerPageRaw((prev) => (prev === nextPerPage ? prev : nextPerPage));
     setSearchRaw((prev) => (prev === nextSearch ? prev : nextSearch));
@@ -56,11 +88,20 @@ export function useListState<F extends object>(
       const t = nextSearch.trim();
       return prev === t ? prev : t;
     });
+    setFiltersRaw((prev) => {
+      const prevR = prev as Record<string, FilterPrimitive>;
+      const nextR = nextFilters as Record<string, FilterPrimitive>;
+      for (const k of Object.keys(nextR)) {
+        if (prevR[k] !== nextR[k]) return nextFilters;
+      }
+      return prev;
+    });
+    /* eslint-enable react-hooks/set-state-in-effect */
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlSync, searchParams]);
 
   const writeUrl = useCallback(
-    (updates: Record<string, string | number | null | undefined>) => {
+    (updates: Record<string, string | number | boolean | null | undefined>) => {
       if (!urlSync) return;
       const params = new URLSearchParams(searchParams.toString());
       for (const [key, value] of Object.entries(updates)) {
@@ -132,19 +173,43 @@ export function useListState<F extends object>(
     (f: F) => {
       setFiltersRaw(f);
       setPageRaw(1);
-      if (urlSync) writeUrl({ [pageKey]: 1 });
+      if (!urlSync) return;
+      const updates: Record<string, FilterPrimitive> = { [pageKey]: 1 };
+      if (filterUrlSync) {
+        const fR = f as Record<string, FilterPrimitive>;
+        const defR = emptyFilters as Record<string, FilterPrimitive>;
+        for (const k of Object.keys(fR)) {
+          const val = fR[k];
+          const def = defR[k];
+          updates[filterKeyFor(k)] =
+            val === def || val === "" || val === null || val === undefined
+              ? null
+              : val;
+        }
+      }
+      writeUrl(updates);
     },
-    [urlSync, writeUrl, pageKey],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [urlSync, filterUrlSync, writeUrl, pageKey, filterKeyFor],
   );
 
   const resetFilters = useCallback(
     () => {
       setFiltersRaw(emptyFilters);
       setPageRaw(1);
-      if (urlSync) writeUrl({ [pageKey]: 1 });
+      if (!urlSync) return;
+      const updates: Record<string, FilterPrimitive> = { [pageKey]: 1 };
+      if (filterUrlSync) {
+        for (const k of Object.keys(
+          emptyFilters as Record<string, FilterPrimitive>,
+        )) {
+          updates[filterKeyFor(k)] = null;
+        }
+      }
+      writeUrl(updates);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [urlSync, writeUrl, pageKey],
+    [urlSync, filterUrlSync, writeUrl, pageKey, filterKeyFor],
   );
 
   const hasActiveFilter = Object.values(filters).some(Boolean);
