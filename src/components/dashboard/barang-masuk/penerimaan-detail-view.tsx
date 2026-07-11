@@ -9,6 +9,7 @@ import {
   PrinterIcon,
   DownloadIcon,
   Loader2Icon,
+  MoreHorizontalIcon,
   QrCodeIcon,
   SaveIcon,
   SearchIcon,
@@ -18,6 +19,12 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -163,48 +170,44 @@ function computeTotals(items: InboundItem[], dirty: Record<string, number>): Tot
   return { expected, received, discrepancy };
 }
 
-function TotalsBar({ totals }: { totals: Totals }) {
+function SummaryRail({ totals }: { totals: Totals }) {
+  const hasDiscrepancy = totals.discrepancy !== 0;
   return (
-    <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
-      <TotalTile label="Total Qty Diharapkan" value={totals.expected} />
-      <TotalTile label="Total Qty Diterima" value={totals.received} strong />
-      <TotalTile
-        label="Total Selisih"
-        value={totals.discrepancy}
-        tone={totals.discrepancy === 0 ? "muted" : "destructive"}
-        showSign
-      />
-    </div>
-  );
-}
-
-function TotalTile({
-  label,
-  value,
-  strong,
-  tone = "default",
-  showSign,
-}: {
-  label: string;
-  value: number;
-  strong?: boolean;
-  tone?: "default" | "muted" | "destructive";
-  showSign?: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/30 px-3 py-2">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      <span
-        className={cn(
-          "text-base tabular-nums",
-          strong ? "font-semibold" : "font-medium",
-          tone === "destructive" && "text-destructive",
-          tone === "muted" && "text-foreground",
-        )}
-      >
-        {showSign && value > 0 ? "+" : ""}
-        {value}
-      </span>
+    <div className="px-5 py-4">
+      <h3 className="mb-3 text-sm font-semibold print:text-base">Ringkasan</h3>
+      <div className="grid grid-cols-3 gap-3 lg:grid-cols-1">
+        <div className="rounded-xl border border-border/60 bg-muted/30 px-3 py-3">
+          <div className="text-xs text-muted-foreground">Total Diterima</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums md:text-3xl lg:text-4xl">
+            {totals.received}
+          </div>
+        </div>
+        <div className="rounded-xl border border-border/60 bg-muted/30 px-3 py-3">
+          <div className="text-xs text-muted-foreground">Total Diharapkan</div>
+          <div className="mt-1 text-lg font-medium tabular-nums md:text-xl">
+            {totals.expected}
+          </div>
+        </div>
+        <div
+          className={cn(
+            "rounded-xl border px-3 py-3",
+            hasDiscrepancy
+              ? "border-destructive/30 bg-destructive/5"
+              : "border-border/60 bg-muted/30",
+          )}
+        >
+          <div className="text-xs text-muted-foreground">Total Selisih</div>
+          <div
+            className={cn(
+              "mt-1 text-lg font-medium tabular-nums md:text-xl",
+              hasDiscrepancy && "text-destructive",
+            )}
+          >
+            {totals.discrepancy > 0 ? "+" : ""}
+            {totals.discrepancy}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -393,28 +396,6 @@ export function PenerimaanDetailView({ id }: { id: string }) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleExportCsv(inbound)}
-            >
-              <DownloadIcon className="mr-1.5 size-4" />
-              Export CSV
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                window.open(
-                  `/dashboard/document-preview/inbound-barcodes/${inbound.id}`,
-                  "_blank",
-                  "noopener,noreferrer",
-                )
-              }
-            >
-              <QrCodeIcon className="mr-1.5 size-4" />
-              Cetak Barcode
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
               onClick={() =>
                 window.open(
                   `/dashboard/document-preview/inbound-receipt/${inbound.id}`,
@@ -426,288 +407,335 @@ export function PenerimaanDetailView({ id }: { id: string }) {
               <PrinterIcon className="mr-1.5 size-4" />
               Cetak
             </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  aria-label="Aksi lain"
+                  className="px-2"
+                >
+                  <MoreHorizontalIcon className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onSelect={() =>
+                    window.open(
+                      `/dashboard/document-preview/inbound-barcodes/${inbound.id}`,
+                      "_blank",
+                      "noopener,noreferrer",
+                    )
+                  }
+                >
+                  <QrCodeIcon className="mr-2 size-4" />
+                  Cetak Barcode
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => handleExportCsv(inbound)}>
+                  <DownloadIcon className="mr-2 size-4" />
+                  Export CSV
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
-          <LiquidGlass
-            radius={20}
-            intensity="subtle"
-            className="bg-white/30 dark:bg-white/[0.04] print:border print:border-border print:shadow-none"
-          >
-            <div className="px-5 py-4">
-              <h3 className="mb-3 text-sm font-semibold print:text-base">
-                Informasi Penerimaan
-              </h3>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <InfoField
-                  label="No. Penerimaan"
-                  value={inbound.transaction_number}
-                />
-                <InfoField
-                  label="No. Referensi"
-                  value={inbound.reference_number}
-                />
-                <InfoField
-                  label="Sumber"
-                  value={TYPE_LABEL[inbound.type] ?? inbound.type}
-                />
-                <InfoField
-                  label="Status"
-                  value={
-                    <StatusBadge
-                      domain="inbound"
-                      status={inbound.status}
-                      className="text-2xs"
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 print:grid-cols-1">
+            <LiquidGlass
+              radius={20}
+              intensity="subtle"
+              className="self-start bg-white/30 lg:col-start-3 lg:sticky lg:top-6 dark:bg-white/[0.04] print:col-start-auto print:border print:border-border print:shadow-none"
+            >
+              <SummaryRail totals={totals} />
+            </LiquidGlass>
+
+            <div className="flex min-w-0 flex-col gap-4 lg:col-span-2 lg:col-start-1 lg:row-start-1 print:col-start-auto print:row-start-auto">
+              <LiquidGlass
+                radius={20}
+                intensity="subtle"
+                className="bg-white/30 dark:bg-white/[0.04] print:border print:border-border print:shadow-none"
+              >
+                <div className="px-5 py-4">
+                  <h3 className="mb-3 text-sm font-semibold print:text-base">
+                    Informasi Penerimaan
+                  </h3>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
+                    <InfoField
+                      orientation="horizontal"
+                      label="No. Penerimaan"
+                      value={inbound.transaction_number}
                     />
-                  }
-                />
-                <InfoField
-                  label="Lokasi"
-                  value={inbound.location?.location_name}
-                />
-                <InfoField
-                  label="Tgl. Diharapkan"
-                  value={
-                    inbound.expected_date
-                      ? formatDate(inbound.expected_date)
-                      : undefined
-                  }
-                />
-                <InfoField label="Dibuat Oleh" value={inbound.created_by} />
-                <InfoField
-                  label="Dibuat"
-                  value={formatDateTime(inbound.created_at)}
-                />
-              </div>
-            </div>
-          </LiquidGlass>
-
-          <LiquidGlass
-            radius={20}
-            intensity="subtle"
-            className="bg-white/30 dark:bg-white/[0.04] print:border print:border-border print:shadow-none"
-          >
-            <div className="px-5 py-4">
-              <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between print:hidden">
-                <h3 className="text-sm font-semibold print:text-base">
-                  Daftar Item
-                </h3>
-                <div className="relative w-full sm:w-72">
-                  <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Cari SKU atau nama produk..."
-                    className="pl-8"
-                  />
+                    <InfoField
+                      orientation="horizontal"
+                      label="No. Referensi"
+                      value={inbound.reference_number}
+                    />
+                    <InfoField
+                      orientation="horizontal"
+                      label="Sumber"
+                      value={TYPE_LABEL[inbound.type] ?? inbound.type}
+                    />
+                    <InfoField
+                      orientation="horizontal"
+                      label="Status"
+                      value={
+                        <StatusBadge
+                          domain="inbound"
+                          status={inbound.status}
+                          className="text-2xs"
+                        />
+                      }
+                    />
+                    <InfoField
+                      orientation="horizontal"
+                      label="Lokasi"
+                      value={inbound.location?.location_name}
+                    />
+                    <InfoField
+                      orientation="horizontal"
+                      label="Tgl. Diharapkan"
+                      value={
+                        inbound.expected_date
+                          ? formatDate(inbound.expected_date)
+                          : undefined
+                      }
+                    />
+                    <InfoField
+                      orientation="horizontal"
+                      label="Dibuat Oleh"
+                      value={inbound.created_by}
+                    />
+                    <InfoField
+                      orientation="horizontal"
+                      label="Dibuat"
+                      value={formatDateTime(inbound.created_at)}
+                    />
+                  </div>
                 </div>
-              </div>
-              <h3 className="mb-3 hidden text-sm font-semibold print:block print:text-base">
-                Daftar Item
-              </h3>
+              </LiquidGlass>
 
-              <TotalsBar totals={totals} />
+              <LiquidGlass
+                radius={20}
+                intensity="subtle"
+                className="bg-white/30 dark:bg-white/[0.04] print:border print:border-border print:shadow-none"
+              >
+                <div className="px-5 py-4">
+                  <div className="mb-3 flex flex-col gap-2 print:hidden">
+                    <h3 className="text-sm font-semibold">Daftar Item</h3>
+                    <div className="relative w-full">
+                      <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Cari SKU atau nama produk..."
+                        className="pl-8"
+                      />
+                    </div>
+                  </div>
+                  <h3 className="mb-3 hidden text-sm font-semibold print:block print:text-base">
+                    Daftar Item
+                  </h3>
 
-              <Table containerClassName="rounded-lg border border-border/40">
-                <TableHeader>
-                  <TableRow className="border-b border-border/60 bg-muted/30">
-                    <TableHead className="w-12 whitespace-nowrap px-3 py-2.5 text-muted-foreground"></TableHead>
-                    <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      <SortableHeader
-                        label="Produk"
-                        field="sku"
-                        currentSort={sort}
-                        onSort={handleSort}
-                      />
-                    </TableHead>
-                    <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      <SortableHeader
-                        label="Qty Diharapkan"
-                        field="expected_qty"
-                        currentSort={sort}
-                        onSort={handleSort}
-                        align="right"
-                        className="w-full"
-                      />
-                    </TableHead>
-                    <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      <SortableHeader
-                        label="Qty Diterima"
-                        field="received_qty"
-                        currentSort={sort}
-                        onSort={handleSort}
-                        align="right"
-                        className="w-full"
-                      />
-                    </TableHead>
-                    <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Qty Ditolak
-                    </TableHead>
-                    <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      <SortableHeader
-                        label="Qty Putaway"
-                        field="putaway_qty"
-                        currentSort={sort}
-                        onSort={handleSort}
-                        align="right"
-                        className="w-full"
-                      />
-                    </TableHead>
-                    <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Selisih
-                    </TableHead>
-                    <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Catatan
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {items.length === 0 && !isFetchingItems && (
-                    <TableRow>
-                      <TableCell
-                        colSpan={9}
-                        className="py-8 text-center text-sm text-muted-foreground"
-                      >
-                        {debouncedSearch
-                          ? `Tidak ada item cocok "${debouncedSearch}".`
-                          : "Belum ada item."}
-                      </TableCell>
-                    </TableRow>
-                  )}
-                  {items.map((item: InboundItem) => {
-                    const variantOptions = item.variant?.options
-                      ?.map((o) => o.value)
-                      .filter(Boolean)
-                      .join(", ");
-                    const productName =
-                      item.variant?.product?.name ??
-                      item.variant?.item_name ??
-                      item.variant?.name ??
-                      "—";
-                    const imageUrl =
-                      item.variant?.media?.[0]?.url ??
-                      item.variant?.product?.media?.[0]?.url;
-                    const isDirty = dirty[item.id] !== undefined;
-                    const effectiveQty = dirty[item.id] ?? item.received_qty;
-                    const effectiveDiscrepancy =
-                      effectiveQty - item.expected_qty;
-                    return (
-                      <TableRow
-                        key={item.id}
-                        className={cn(
-                          "border-b border-border/20 last:border-0",
-                          isDirty && "border-l-2 border-l-warning bg-warning/5",
-                        )}
-                      >
-                        <TableCell className="px-3 py-2.5">
-                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
-                            {imageUrl ? (
-                              <img
-                                src={imageUrl}
-                                alt={productName}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
-                                <ImageIcon className="size-4 opacity-50" />
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="px-3 py-2.5">
-                          <div
-                            className="flex min-w-0 flex-col gap-0.5"
-                            style={{ maxWidth: 320 }}
-                          >
-                            <span className="font-medium whitespace-normal break-words text-foreground">
-                              {productName}
-                            </span>
-                            {variantOptions && (
-                              <span className="whitespace-normal break-words text-xs text-foreground">
-                                {variantOptions}
-                              </span>
-                            )}
-                            {item.variant?.sku && (
-                              <CopySku sku={item.variant.sku} />
-                            )}
-                            {isDirty && (
-                              <Badge
-                                variant="outline"
-                                className="mt-1 w-fit border-warning/40 text-2xs text-warning"
-                              >
-                                Belum disimpan
-                              </Badge>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
-                          {item.expected_qty}
-                        </TableCell>
-                        <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
-                          {canEdit ? (
-                            <EditableReceivedQty
-                              key={`recv-${item.id}-${item.received_qty}-${isDirty ? "d" : "c"}`}
-                              item={item}
-                              value={effectiveQty}
-                              disabled={saving}
-                              onChange={(qty) => setDirtyFor(item.id, qty)}
-                            />
-                          ) : (
-                            item.received_qty
-                          )}
-                        </TableCell>
-                        <TableCell className="px-3 py-2.5 text-right tabular-nums">
-                          {(item.rejected_qty ?? 0) > 0 ? (
-                            <Badge
-                              variant="outline"
-                              className="border-destructive/30 text-2xs text-destructive"
-                              title={item.rejection_note ?? undefined}
-                            >
-                              {item.rejected_qty}
-                            </Badge>
-                          ) : (
-                            <span className="text-foreground">0</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
-                          {item.putaway_qty}
-                        </TableCell>
-                        <TableCell className="px-3 py-2.5 text-right tabular-nums">
-                          {effectiveDiscrepancy !== 0 ? (
-                            <Badge
-                              variant="outline"
-                              className="border-destructive/30 text-2xs text-destructive"
-                            >
-                              {effectiveDiscrepancy > 0 ? "+" : ""}
-                              {effectiveDiscrepancy}
-                            </Badge>
-                          ) : (
-                            <span className="text-foreground">0</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="max-w-[200px] truncate whitespace-normal px-3 py-2.5 text-xs text-foreground">
-                          {item.discrepancy_note ?? "—"}
-                        </TableCell>
+                  <Table containerClassName="rounded-xl border border-border/40">
+                    <TableHeader>
+                      <TableRow className="border-b border-border/60 bg-muted/30">
+                        <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          <SortableHeader
+                            label="Produk"
+                            field="sku"
+                            currentSort={sort}
+                            onSort={handleSort}
+                          />
+                        </TableHead>
+                        <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          <SortableHeader
+                            label="Qty Diharapkan"
+                            field="expected_qty"
+                            currentSort={sort}
+                            onSort={handleSort}
+                            align="right"
+                            className="w-full"
+                          />
+                        </TableHead>
+                        <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          <SortableHeader
+                            label="Qty Diterima"
+                            field="received_qty"
+                            currentSort={sort}
+                            onSort={handleSort}
+                            align="right"
+                            className="w-full"
+                          />
+                        </TableHead>
+                        <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          <SortableHeader
+                            label="Qty Putaway"
+                            field="putaway_qty"
+                            currentSort={sort}
+                            onSort={handleSort}
+                            align="right"
+                            className="w-full"
+                          />
+                        </TableHead>
+                        <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Selisih
+                        </TableHead>
+                        <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          Catatan
+                        </TableHead>
                       </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-              {itemsMeta && (
-                <div className="mt-3 print:hidden">
-                  <SimplePagination
-                    page={itemsMeta.current_page}
-                    lastPage={itemsMeta.last_page}
-                    onPageChange={setPage}
-                    perPage={perPage}
-                    onPerPageChange={setPerPage}
-                    isFetching={isFetchingItems}
-                    total={itemsMeta.total}
-                    label="item"
-                  />
+                    </TableHeader>
+                    <TableBody>
+                      {items.length === 0 && !isFetchingItems && (
+                        <TableRow>
+                          <TableCell
+                            colSpan={6}
+                            className="py-8 text-center text-sm text-muted-foreground"
+                          >
+                            {debouncedSearch
+                              ? `Tidak ada item cocok "${debouncedSearch}".`
+                              : "Belum ada item."}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {items.map((item: InboundItem) => {
+                        const variantOptions = item.variant?.options
+                          ?.map((o) => o.value)
+                          .filter(Boolean)
+                          .join(", ");
+                        const productName =
+                          item.variant?.product?.name ??
+                          item.variant?.item_name ??
+                          item.variant?.name ??
+                          "—";
+                        const imageUrl =
+                          item.variant?.media?.[0]?.url ??
+                          item.variant?.product?.media?.[0]?.url;
+                        const isDirty = dirty[item.id] !== undefined;
+                        const effectiveQty =
+                          dirty[item.id] ?? item.received_qty;
+                        const effectiveDiscrepancy =
+                          effectiveQty - item.expected_qty;
+                        const rejectedQty = item.rejected_qty ?? 0;
+                        return (
+                          <TableRow
+                            key={item.id}
+                            className={cn(
+                              "border-b border-border/20 last:border-0",
+                              isDirty &&
+                                "border-l-2 border-l-warning bg-warning/5",
+                            )}
+                          >
+                            <TableCell className="px-3 py-2.5">
+                              <div className="flex items-start gap-3">
+                                <div className="size-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
+                                  {imageUrl ? (
+                                    <img
+                                      src={imageUrl}
+                                      alt={productName}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+                                      <ImageIcon className="size-4 opacity-50" />
+                                    </div>
+                                  )}
+                                </div>
+                                <div
+                                  className="flex min-w-0 flex-col gap-0.5"
+                                  style={{ maxWidth: 320 }}
+                                >
+                                  <span className="font-medium whitespace-normal break-words text-foreground">
+                                    {productName}
+                                  </span>
+                                  {variantOptions && (
+                                    <span className="whitespace-normal break-words text-xs text-foreground">
+                                      {variantOptions}
+                                    </span>
+                                  )}
+                                  {item.variant?.sku && (
+                                    <CopySku sku={item.variant.sku} />
+                                  )}
+                                  {isDirty && (
+                                    <Badge
+                                      variant="outline"
+                                      className="mt-1 w-fit border-warning/40 text-2xs text-warning"
+                                    >
+                                      Belum disimpan
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
+                              {item.expected_qty}
+                            </TableCell>
+                            <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
+                              <div className="flex flex-col items-end gap-0.5">
+                                {canEdit ? (
+                                  <EditableReceivedQty
+                                    key={`recv-${item.id}-${item.received_qty}-${isDirty ? "d" : "c"}`}
+                                    item={item}
+                                    value={effectiveQty}
+                                    disabled={saving}
+                                    onChange={(qty) =>
+                                      setDirtyFor(item.id, qty)
+                                    }
+                                  />
+                                ) : (
+                                  <span>{item.received_qty}</span>
+                                )}
+                                {rejectedQty > 0 && (
+                                  <span
+                                    className="text-2xs text-destructive"
+                                    title={item.rejection_note ?? undefined}
+                                  >
+                                    {rejectedQty} ditolak
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
+                              {item.putaway_qty}
+                            </TableCell>
+                            <TableCell className="px-3 py-2.5 text-right tabular-nums">
+                              {effectiveDiscrepancy !== 0 ? (
+                                <Badge
+                                  variant="outline"
+                                  className="border-destructive/30 text-2xs text-destructive"
+                                >
+                                  {effectiveDiscrepancy > 0 ? "+" : ""}
+                                  {effectiveDiscrepancy}
+                                </Badge>
+                              ) : (
+                                <span className="text-foreground">0</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="max-w-[200px] truncate whitespace-normal px-3 py-2.5 text-xs text-foreground">
+                              {item.discrepancy_note ?? "—"}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                  {itemsMeta && (
+                    <div className="mt-3 print:hidden">
+                      <SimplePagination
+                        page={itemsMeta.current_page}
+                        lastPage={itemsMeta.last_page}
+                        onPageChange={setPage}
+                        perPage={perPage}
+                        onPerPageChange={setPerPage}
+                        isFetching={isFetchingItems}
+                        total={itemsMeta.total}
+                        label="item"
+                      />
+                    </div>
+                  )}
                 </div>
-              )}
+              </LiquidGlass>
             </div>
-          </LiquidGlass>
+          </div>
 
           {canEdit && hasChanges && (
             <FormFooter className="print:hidden">
