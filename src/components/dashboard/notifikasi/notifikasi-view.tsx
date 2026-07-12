@@ -8,7 +8,6 @@ import {
 } from "next/navigation";
 import { BellIcon, CheckCheckIcon, Loader2Icon } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -128,6 +127,42 @@ export function NotifikasiView() {
         description="Pemberitahuan aktivitas dari sistem."
       />
 
+      <Tabs
+        value={tab}
+        onValueChange={(v) => setTab(v as TabKey)}
+        className="flex-none"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <TabsList variant="glass">
+            <TabsTrigger value="all">Semua</TabsTrigger>
+            <TabsTrigger value="unread">
+              Belum dibaca
+              {unreadCount > 0 && (
+                <span className="ml-1.5 rounded-full bg-primary/10 px-1.5 text-2xs font-semibold text-primary">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </TabsTrigger>
+          </TabsList>
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="rounded-full"
+            onClick={() => markAll.mutate()}
+            disabled={disableMarkAll}
+          >
+            {markAll.isPending ? (
+              <Loader2Icon className="animate-spin" />
+            ) : (
+              <CheckCheckIcon />
+            )}
+            Tandai semua dibaca
+          </Button>
+        </div>
+      </Tabs>
+
       <LiquidGlass
         radius={24}
         intensity="default"
@@ -135,60 +170,19 @@ export function NotifikasiView() {
       >
         <div className="flex flex-col gap-4 p-4 sm:p-5">
           <Tabs
-            value={tab}
-            onValueChange={(v) => setTab(v as TabKey)}
-            className="flex-none"
+            value={domain}
+            onValueChange={(v) => setDomain(v as DomainKey)}
+            className="border-b border-border/60"
           >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <TabsList variant="glass">
-                <TabsTrigger value="all">Semua</TabsTrigger>
-                <TabsTrigger value="unread">
-                  Belum dibaca
-                  {unreadCount > 0 && (
-                    <span className="ml-1.5 rounded-full bg-primary/10 px-1.5 text-2xs font-semibold text-primary">
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </span>
-                  )}
+            <TabsList variant="line" className="-mb-px overflow-x-auto">
+              <TabsTrigger value="all">Semua domain</TabsTrigger>
+              {listDomains().map((d) => (
+                <TabsTrigger key={d} value={d}>
+                  {DOMAIN_LABEL[d]}
                 </TabsTrigger>
-              </TabsList>
-
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="rounded-full"
-                onClick={() => markAll.mutate()}
-                disabled={disableMarkAll}
-              >
-                {markAll.isPending ? (
-                  <Loader2Icon className="animate-spin" />
-                ) : (
-                  <CheckCheckIcon />
-                )}
-                Tandai semua dibaca
-              </Button>
-            </div>
+              ))}
+            </TabsList>
           </Tabs>
-
-          <div
-            className="-mx-1 flex flex-wrap items-center gap-1.5 px-1"
-            role="tablist"
-            aria-label="Filter domain"
-          >
-            <DomainPill
-              active={domain === "all"}
-              onClick={() => setDomain("all")}
-              label="Semua domain"
-            />
-            {listDomains().map((d) => (
-              <DomainPill
-                key={d}
-                active={domain === d}
-                onClick={() => setDomain(d)}
-                label={DOMAIN_LABEL[d]}
-              />
-            ))}
-          </div>
 
           <div className="min-h-64">
             {isLoading ? (
@@ -240,30 +234,5 @@ export function NotifikasiView() {
         </div>
       </LiquidGlass>
     </div>
-  );
-}
-
-interface DomainPillProps {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}
-
-function DomainPill({ label, active, onClick }: DomainPillProps) {
-  return (
-    <button
-      type="button"
-      role="tab"
-      aria-selected={active}
-      onClick={onClick}
-      className={cn(
-        "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-        active
-          ? "border-primary bg-primary/10 text-primary"
-          : "border-border text-muted-foreground hover:bg-muted",
-      )}
-    >
-      {label}
-    </button>
   );
 }
