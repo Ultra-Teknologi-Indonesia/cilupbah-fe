@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import type { ReservedStockItem } from "@/types/transaksi-stok/reserved-stock";
 import Link from "next/link";
 import { XCircleIcon, ShieldIcon } from "lucide-react";
 
@@ -53,34 +53,12 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 export function CadangDetail({ id }: { id: string }) {
-  const router = useRouter();
   const { data: stock, isLoading } = useReservedStockDetail(id);
   const cancelMut = useCancelReservedStock();
 
   const [cancelOpen, setCancelOpen] = useState(false);
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col gap-4">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-[400px] w-full" />
-      </div>
-    );
-  }
-
-  if (!stock) {
-    return (
-      <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-        <ShieldIcon className="h-10 w-10" />
-        <p className="text-sm">Dokumen tidak ditemukan.</p>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/transaksi-stok?tab=penyesuaian">Kembali</Link>
-        </Button>
-      </div>
-    );
-  }
-
-  const columns = React.useMemo<ColumnDef<any>[]>(
+  const columns = React.useMemo<ColumnDef<ReservedStockItem>[]>(
     () => [
       {
         accessorKey: "item_name",
@@ -122,6 +100,29 @@ export function CadangDetail({ id }: { id: string }) {
     ],
     [],
   );
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-[400px] w-full" />
+      </div>
+    );
+  }
+
+  if (!stock) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
+        <ShieldIcon className="h-10 w-10" />
+        <p className="text-sm">Dokumen tidak ditemukan.</p>
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/dashboard/transaksi-stok?tab=penyesuaian">Kembali</Link>
+        </Button>
+      </div>
+    );
+  }
+
+
 
   const isActive = stock.status === "ACTIVE";
   const remaining = getRemainingDays(stock.end_date);
