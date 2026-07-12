@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon, SaveIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 import { buatBundleSchema } from "@/schemas/master-produk";
 import type { BuatBundleFormValues } from "@/types/master-produk";
 import { useCreateBundle } from "@/hooks/master-produk/use-create-bundle";
@@ -54,8 +55,7 @@ export function BuatBundleForm() {
       });
       router.push("/dashboard/produk");
     } catch (err) {
-      const body = err as { message?: string };
-      toast.error(body?.message || "Gagal membuat bundle");
+      apiError(err, "Gagal membuat bundle");
     }
   };
 

@@ -39,6 +39,7 @@ import {
 import { PageTitle } from "@/components/dashboard/page-title";
 import { DeleteOrderDialog } from "@/components/dashboard/proses-pesanan/shared/delete-order-dialog";
 import { playScanFeedback } from "@/lib/scan-feedback";
+import { apiError } from "@/lib/toast";
 import { type PacklistItem } from "@/types/proses-pesanan/fulfillment";
 import {
   useCompletePacklist,
@@ -120,14 +121,6 @@ function PackCorrectButton({
 }
 
 const LIST_HREF = "/dashboard/proses-pesanan/packing";
-
-function errMsg(err: unknown, fallback: string): string {
-  if (err && typeof err === "object" && "message" in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === "string" && m) return m;
-  }
-  return fallback;
-}
 
 function ItemImage({
   src,
@@ -276,7 +269,7 @@ export function PackingDetailView({ id }: { id: string }) {
         },
         onError: (e) => {
           didAutoComplete.current = false;
-          toast.error(errMsg(e, "Gagal menyelesaikan packing."));
+          apiError(e, "Gagal menyelesaikan packing.");
         },
       });
     }
@@ -343,7 +336,7 @@ export function PackingDetailView({ id }: { id: string }) {
           }
         },
         onError: (e) => {
-          toast.error(errMsg(e, "Barcode tidak valid."));
+          apiError(e, "Barcode tidak valid.");
           playScanFeedback("error");
         },
       },

@@ -7,14 +7,7 @@ import {
 } from "@/components/dashboard/proses-pesanan/shared/print-label-size-dialog";
 import { OutboundService } from "@/services/proses-pesanan/outbound.service";
 import { printReport } from "@/lib/proses-pesanan/print";
-
-function errMsg(err: unknown, fallback: string): string {
-  if (err && typeof err === "object" && "message" in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === "string" && m) return m;
-  }
-  return fallback;
-}
+import { apiError } from "@/lib/toast";
 
 async function run(
   title: string,
@@ -28,7 +21,7 @@ async function run(
     printReport(title, data);
   } catch (err) {
     toast.dismiss(id);
-    toast.error(errMsg(err, `Gagal menyiapkan ${title}.`));
+    apiError(err, `Gagal menyiapkan ${title}.`);
   }
 }
 

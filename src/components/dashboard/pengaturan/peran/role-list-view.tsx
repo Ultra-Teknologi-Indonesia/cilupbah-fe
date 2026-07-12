@@ -32,17 +32,10 @@ import { usePermissions } from "@/hooks/auth/use-permissions";
 import { useDeleteRole, useRoleList } from "@/hooks/pengaturan/use-roles";
 import type { Role } from "@/types/pengaturan/user";
 import { RoleFormDialog } from "./role-form-dialog";
+import { apiError } from "@/lib/toast";
 
 function titleCase(name: string): string {
   return name.replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === "object" && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    if (typeof msg === "string" && msg) return msg;
-  }
-  return fallback;
 }
 
 export function RoleListView() {
@@ -65,8 +58,7 @@ export function RoleListView() {
         toast.success("Peran berhasil dihapus.");
         setDeleteTarget(null);
       },
-      onError: (err) =>
-        toast.error(getErrorMessage(err, "Gagal menghapus peran.")),
+      onError: (err) => apiError(err, "Gagal menghapus peran."),
     });
   }
 

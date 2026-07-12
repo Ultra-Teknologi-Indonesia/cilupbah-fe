@@ -10,6 +10,7 @@ import type {
   PutawayDeleteAction,
   CompleteDiscrepancyResult,
 } from "@/services/barang-masuk/putaway.service";
+import { apiError } from "@/lib/toast";
 
 export type { BinListItem, CompleteDiscrepancyResult };
 
@@ -58,9 +59,7 @@ export function useAssignPutawayStaff() {
       qc.invalidateQueries({ queryKey: ["putaway"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal assign petugas",
-      ),
+      apiError(err, "Gagal assign petugas"),
   });
 }
 
@@ -73,9 +72,7 @@ export function useStartPutaway() {
       qc.invalidateQueries({ queryKey: ["putaway"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memulai putaway",
-      ),
+      apiError(err, "Gagal memulai putaway"),
   });
 }
 
@@ -96,9 +93,7 @@ export function useProcessPutawayItem() {
       qc.invalidateQueries({ queryKey: ["putaway"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menempatkan item",
-      ),
+      apiError(err, "Gagal menempatkan item"),
   });
 }
 
@@ -116,10 +111,7 @@ export function useCompleteDiscrepancy() {
       qc.invalidateQueries({ queryKey: ["putaway"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal menyelesaikan penempatan dengan selisih",
-      ),
+      apiError(err, "Gagal menyelesaikan penempatan dengan selisih"),
   });
 }
 
@@ -134,9 +126,7 @@ export function useDeletePutaway() {
       qc.invalidateQueries({ queryKey: ["putaway"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus penempatan",
-      ),
+      apiError(err, "Gagal menghapus penempatan"),
   });
 }
 
@@ -150,10 +140,7 @@ export function useBulkDeletePutaway() {
       qc.invalidateQueries({ queryKey: ["putaway"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal menghapus penempatan terpilih",
-      ),
+      apiError(err, "Gagal menghapus penempatan terpilih"),
   });
 }
 
@@ -176,8 +163,6 @@ export function useDeletePutawayPlacement() {
       qc.invalidateQueries({ queryKey: ["putaway"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal mengoreksi penempatan",
-      ),
+      apiError(err, "Gagal mengoreksi penempatan"),
   });
 }

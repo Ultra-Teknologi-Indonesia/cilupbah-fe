@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { apiError } from "@/lib/toast";
 import {
   ProductArchiveService,
   type ArchiveParams,
@@ -29,9 +30,6 @@ export function useRestoreProduct() {
       qc.invalidateQueries({ queryKey: ARCHIVE_KEY });
       qc.invalidateQueries({ queryKey: ["master-produk", "list"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memulihkan produk",
-      ),
+    onError: (err) => apiError(err, "Gagal memulihkan produk"),
   });
 }

@@ -1,9 +1,9 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 
 import { buildCreatePayload } from "@/lib/master-produk/build-create-payload";
+import { apiError } from "@/lib/toast";
 import { MediaService } from "@/services/master-produk/media.service";
 import { ProductCreateService } from "@/services/master-produk/product-create.service";
 import type {
@@ -39,9 +39,6 @@ export function useCreateProduct() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["master-produk"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal membuat produk",
-      ),
+    onError: (err) => apiError(err, "Gagal membuat produk"),
   });
 }

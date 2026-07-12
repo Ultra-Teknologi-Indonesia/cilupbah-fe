@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { InventoryTransferService } from "@/services/barang-masuk/inventory-transfer.service";
+import { apiError } from "@/lib/toast";
 
 interface ReceiveTransferPayload {
   received_by: string;
@@ -26,8 +27,6 @@ export function useReceiveTransfer() {
       qc.invalidateQueries({ queryKey: ["inbound"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menerima transfer",
-      ),
+      apiError(err, "Gagal menerima transfer"),
   });
 }

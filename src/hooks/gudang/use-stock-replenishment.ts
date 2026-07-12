@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { apiError } from "@/lib/toast";
 import { StockReplenishmentService } from "@/services/gudang/stock-replenishment.service";
 import type {
   AcceptReplenishmentPayload,
@@ -57,10 +58,7 @@ export function useAcceptReplenishment() {
       toast.success("Permintaan pengisian stok disetujui");
     },
     onError: (err) => {
-      const msg =
-        (err as { message?: string })?.message ??
-        "Gagal menyetujui permintaan.";
-      toast.error(msg);
+      apiError(err, "Gagal menyetujui permintaan.");
     },
   });
 }
@@ -75,9 +73,7 @@ export function useRejectReplenishment() {
       toast.success("Permintaan ditolak");
     },
     onError: (err) => {
-      const msg =
-        (err as { message?: string })?.message ?? "Gagal menolak permintaan.";
-      toast.error(msg);
+      apiError(err, "Gagal menolak permintaan.");
     },
   });
 }
@@ -96,8 +92,7 @@ function useItemMutation<TVars extends { id: string }>(
       toast.success(successMessage);
     },
     onError: (err) => {
-      const msg = (err as { message?: string })?.message ?? fallbackError;
-      toast.error(msg);
+      apiError(err, fallbackError);
     },
   });
 }

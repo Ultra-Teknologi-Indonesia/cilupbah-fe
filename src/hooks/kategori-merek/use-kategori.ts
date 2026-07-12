@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 import { KategoriService } from "@/services/kategori-merek/kategori.service";
 
 const STALE = 60 * 1000;
@@ -75,10 +76,7 @@ export function useCreateCategoryAttribute() {
       toast.success("Atribut berhasil ditambahkan");
       qc.invalidateQueries({ queryKey: ["kategori", "form-attributes"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menambahkan atribut",
-      ),
+    onError: (err) => apiError(err, "Gagal menambahkan atribut"),
   });
 }
 
@@ -96,10 +94,7 @@ export function useDeleteCategoryAttribute() {
       toast.success("Atribut berhasil dihapus");
       qc.invalidateQueries({ queryKey: ["kategori", "form-attributes"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus atribut",
-      ),
+    onError: (err) => apiError(err, "Gagal menghapus atribut"),
   });
 }
 
@@ -126,10 +121,7 @@ export function useMapCategoryToChannel() {
       toast.success("Kategori berhasil dipetakan ke channel");
       qc.invalidateQueries({ queryKey: ["kategori", "mapping"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memetakan kategori",
-      ),
+    onError: (err) => apiError(err, "Gagal memetakan kategori"),
   });
 }
 
@@ -147,10 +139,7 @@ export function useSyncChannelCategories() {
       toast.success(`${count} kategori ${channelCode} berhasil disinkronkan`);
       qc.invalidateQueries({ queryKey: ["kategori", "channel-categories"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal sinkron kategori",
-      ),
+    onError: (err) => apiError(err, "Gagal sinkron kategori"),
   });
 }
 
@@ -169,10 +158,7 @@ export function useMapAttributeToChannel() {
       toast.success("Atribut berhasil dipetakan ke channel");
       qc.invalidateQueries({ queryKey: ["kategori", "form-attributes"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memetakan atribut",
-      ),
+    onError: (err) => apiError(err, "Gagal memetakan atribut"),
   });
 }
 
@@ -217,11 +203,7 @@ export function useStoreAttributeMapping() {
       toast.success("Mapping atribut berhasil disimpan");
       qc.invalidateQueries({ queryKey: ["kategori", "attribute-mapping"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal menyimpan mapping atribut",
-      ),
+    onError: (err) => apiError(err, "Gagal menyimpan mapping atribut"),
   });
 }
 
@@ -239,11 +221,7 @@ export function useRemoveAttributeMapping() {
       toast.success("Mapping atribut berhasil dihapus");
       qc.invalidateQueries({ queryKey: ["kategori", "attribute-mapping"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal menghapus mapping atribut",
-      ),
+    onError: (err) => apiError(err, "Gagal menghapus mapping atribut"),
   });
 }
 
@@ -261,11 +239,7 @@ export function useStoreVariationMapping() {
       toast.success("Mapping variasi berhasil disimpan");
       qc.invalidateQueries({ queryKey: ["kategori", "variation-mapping"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal menyimpan mapping variasi",
-      ),
+    onError: (err) => apiError(err, "Gagal menyimpan mapping variasi"),
   });
 }
 
@@ -283,11 +257,7 @@ export function useRemoveVariationMapping() {
       toast.success("Mapping variasi berhasil dihapus");
       qc.invalidateQueries({ queryKey: ["kategori", "variation-mapping"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal menghapus mapping variasi",
-      ),
+    onError: (err) => apiError(err, "Gagal menghapus mapping variasi"),
   });
 }
 
@@ -302,10 +272,7 @@ export function useEnableKategori() {
         queryKey: ["master-produk", "lookup", "categories"],
       });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal mengimpor kategori",
-      ),
+    onError: (err) => apiError(err, "Gagal mengimpor kategori"),
   });
 }
 
@@ -320,11 +287,7 @@ export function useDisableKategori() {
         queryKey: ["master-produk", "lookup", "categories"],
       });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal menonaktifkan kategori",
-      ),
+    onError: (err) => apiError(err, "Gagal menonaktifkan kategori"),
   });
 }
 
@@ -339,10 +302,7 @@ export function useCreateKategori() {
         queryKey: ["master-produk", "lookup", "categories"],
       });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal membuat kategori",
-      ),
+    onError: (err) => apiError(err, "Gagal membuat kategori"),
   });
 }
 
@@ -358,10 +318,7 @@ export function useUpdateKategori() {
         queryKey: ["master-produk", "lookup", "categories"],
       });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memperbarui kategori",
-      ),
+    onError: (err) => apiError(err, "Gagal memperbarui kategori"),
   });
 }
 
@@ -376,9 +333,6 @@ export function useDeleteKategori() {
         queryKey: ["master-produk", "lookup", "categories"],
       });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus kategori",
-      ),
+    onError: (err) => apiError(err, "Gagal menghapus kategori"),
   });
 }

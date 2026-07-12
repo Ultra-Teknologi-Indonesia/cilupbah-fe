@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { apiError } from "@/lib/toast";
 import { NotificationService } from "@/services/notification/notification.service";
 import type { NotificationListParams } from "@/types/notification";
 
@@ -42,9 +43,7 @@ export function useMarkNotificationRead() {
       qc.invalidateQueries({ queryKey: KEYS.all });
     },
     onError: (err) => {
-      const msg =
-        (err as { message?: string })?.message ?? "Gagal menandai notifikasi.";
-      toast.error(msg);
+      apiError(err, "Gagal menandai notifikasi.");
     },
   });
 }
@@ -58,10 +57,7 @@ export function useMarkAllNotificationsRead() {
       toast.success("Berhasil menandai semua notifikasi dibaca");
     },
     onError: (err) => {
-      const msg =
-        (err as { message?: string })?.message ??
-        "Gagal menandai semua notifikasi.";
-      toast.error(msg);
+      apiError(err, "Gagal menandai semua notifikasi.");
     },
   });
 }
@@ -75,9 +71,7 @@ export function useDeleteNotification() {
       toast.success("Berhasil menghapus notifikasi");
     },
     onError: (err) => {
-      const msg =
-        (err as { message?: string })?.message ?? "Gagal menghapus notifikasi.";
-      toast.error(msg);
+      apiError(err, "Gagal menghapus notifikasi.");
     },
   });
 }

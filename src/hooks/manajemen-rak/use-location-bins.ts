@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { apiError } from "@/lib/toast";
 import { LocationBinService } from "@/services/manajemen-rak/location-bin.service";
 import type {
   BinListParams,
@@ -75,9 +76,6 @@ export function useUniformApplyBins(locationId?: string) {
       toast.success(`${data.affected} rak berhasil diperbarui`);
       qc.invalidateQueries({ queryKey: locationBinKeys.all });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal seragamkan rak",
-      ),
+    onError: (err) => apiError(err, "Gagal seragamkan rak"),
   });
 }

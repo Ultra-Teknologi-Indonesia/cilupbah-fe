@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { PurchaseOrderService } from "@/services/transaksi-pembelian/purchase-order.service";
 import type { ReceivePOPayload } from "@/services/transaksi-pembelian/purchase-order.service";
+import { apiError } from "@/lib/toast";
 
 export function useReceivePurchaseOrder() {
   const qc = useQueryClient();
@@ -17,8 +18,6 @@ export function useReceivePurchaseOrder() {
       qc.invalidateQueries({ queryKey: ["inbounds"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menyimpan penerimaan",
-      ),
+      apiError(err, "Gagal menyimpan penerimaan"),
   });
 }

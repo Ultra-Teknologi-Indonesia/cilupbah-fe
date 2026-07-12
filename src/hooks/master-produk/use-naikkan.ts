@@ -15,6 +15,7 @@ import {
   type NaikkanHistoryParams,
 } from "@/services/master-produk/naikkan.service";
 import { ChannelProductService } from "@/services/master-produk/channel-product.service";
+import { apiError } from "@/lib/toast";
 
 export type {
   RaiseProductDetail,
@@ -89,9 +90,7 @@ export function useCreateNaikkan() {
       qc.invalidateQueries({ queryKey: [KEY, "list"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal membuat data naikkan",
-      ),
+      apiError(err, "Gagal membuat data naikkan"),
   });
 }
 
@@ -105,9 +104,7 @@ export function useAddNaikkanProduct(raiseProductId: string) {
       qc.invalidateQueries({ queryKey: [KEY, "detail", raiseProductId] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menambahkan produk",
-      ),
+      apiError(err, "Gagal menambahkan produk"),
   });
 }
 
@@ -125,9 +122,7 @@ export function useUpdateNaikkanProduct(raiseProductId: string) {
       qc.invalidateQueries({ queryKey: [KEY, "detail", raiseProductId] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memperbarui produk",
-      ),
+      apiError(err, "Gagal memperbarui produk"),
   });
 }
 
@@ -141,9 +136,7 @@ export function useRemoveNaikkanProduct(raiseProductId: string) {
       qc.invalidateQueries({ queryKey: [KEY, "detail", raiseProductId] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal melepas produk",
-      ),
+      apiError(err, "Gagal melepas produk"),
   });
 }
 
@@ -157,9 +150,7 @@ export function useExecuteRaise(raiseProductId: string) {
       qc.invalidateQueries({ queryKey: [KEY] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menaikkan produk",
-      ),
+      apiError(err, "Gagal menaikkan produk"),
   });
 }
 
@@ -172,9 +163,6 @@ export function useDeleteNaikkan() {
       qc.invalidateQueries({ queryKey: [KEY, "list"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal menghapus data naikkan",
-      ),
+      apiError(err, "Gagal menghapus data naikkan"),
   });
 }

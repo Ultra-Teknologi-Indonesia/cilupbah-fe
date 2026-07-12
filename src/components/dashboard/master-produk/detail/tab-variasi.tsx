@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { apiError } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -168,8 +169,7 @@ export function TabVariasi({ productId }: { productId: string }) {
           setSelected(new Set());
         },
         onError: (err) => {
-          const body = err as { message?: string };
-          toast.error(body?.message || "Aksi gagal");
+          apiError(err, "Aksi gagal");
         },
         onSettled: () => setConfirmDeleteOpen(false),
       },

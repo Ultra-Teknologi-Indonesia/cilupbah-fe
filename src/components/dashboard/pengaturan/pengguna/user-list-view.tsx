@@ -31,6 +31,7 @@ import {
 } from "@/hooks/pengaturan/use-users";
 import { useListState } from "@/hooks/use-list-state";
 import type { User } from "@/types/pengaturan/user";
+import { apiError } from "@/lib/toast";
 
 function formatRoles(roles: string[]): string {
   if (roles.length === 0) return "-";
@@ -52,14 +53,6 @@ function formatDate(iso: string | null): string {
   } catch {
     return "-";
   }
-}
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === "object" && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    if (typeof msg === "string" && msg) return msg;
-  }
-  return fallback;
 }
 
 export function UserListView() {
@@ -221,8 +214,7 @@ export function UserListView() {
           return next;
         });
       },
-      onError: (err) =>
-        toast.error(getErrorMessage(err, "Gagal menghapus pengguna.")),
+      onError: (err) => apiError(err, "Gagal menghapus pengguna."),
     });
   }
 
@@ -242,8 +234,7 @@ export function UserListView() {
         setSelectedIds(new Set());
         setBulkOpen(false);
       },
-      onError: (err) =>
-        toast.error(getErrorMessage(err, "Gagal menghapus pengguna.")),
+      onError: (err) => apiError(err, "Gagal menghapus pengguna."),
     });
   }
 

@@ -14,6 +14,7 @@ import {
   XIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -188,10 +189,8 @@ function KnownDocumentPreview({
       a.click();
       a.remove();
       toast.success(`${excelFilename} diunduh`);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Excel gagal diunduh.";
-      toast.error(message);
+    } catch (err) {
+      apiError(err, "Excel gagal diunduh.");
     } finally {
       if (objectUrl) URL.revokeObjectURL(objectUrl);
       setIsExcelLoading(false);

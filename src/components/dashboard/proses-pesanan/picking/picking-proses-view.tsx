@@ -63,16 +63,9 @@ import {
 } from "@/components/ui/select";
 import { playScanFeedback } from "@/lib/scan-feedback";
 import { BIN_CODE_PATTERN } from "@/lib/validators/bin-code";
+import { apiError } from "@/lib/toast";
 
 const LIST_HREF = "/dashboard/proses-pesanan/picking";
-
-function errMsg(err: unknown, fallback: string): string {
-  if (err && typeof err === "object" && "message" in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === "string" && m) return m;
-  }
-  return fallback;
-}
 
 function ItemImage({ src, alt }: { src: string | null; alt: string }) {
   const [errored, setErrored] = React.useState(false);
@@ -235,7 +228,7 @@ export function PickingProsesView({ id }: { id: string }) {
       startPicklist.mutate(id, {
         onSuccess: () =>
           toast.success(`Picking dimulai untuk ${pl.picklistNo}.`),
-        onError: (e) => toast.error(errMsg(e, "Gagal memulai picking.")),
+        onError: (e) => apiError(e, "Gagal memulai picking."),
       });
     }
   }, [pl, id, startPicklist]);
@@ -253,7 +246,7 @@ export function PickingProsesView({ id }: { id: string }) {
         router.push(LIST_HREF);
       },
       onError: (e) =>
-        toast.error(errMsg(e, "Gagal menyelesaikan picking.")),
+        apiError(e, "Gagal menyelesaikan picking."),
     });
   };
 
@@ -318,7 +311,7 @@ export function PickingProsesView({ id }: { id: string }) {
       setSkuRefocusKey((k) => k + 1);
     } catch (e) {
       playScanFeedback("error");
-      toast.error(errMsg(e, `SKU "${code}" tidak bisa diambil.`));
+      apiError(e, `SKU "${code}" tidak bisa diambil.`);
       setSkuRefocusKey((k) => k + 1);
     }
   };
@@ -354,7 +347,7 @@ export function PickingProsesView({ id }: { id: string }) {
         },
         onError: (e) => {
           playScanFeedback("error");
-          toast.error(errMsg(e, `Gagal pick ${activeItem.sku}.`));
+          apiError(e, `Gagal pick ${activeItem.sku}.`);
         },
       },
     );
@@ -393,7 +386,7 @@ export function PickingProsesView({ id }: { id: string }) {
         toast.success("Picking selesai.");
         router.push(LIST_HREF);
       },
-      onError: (e) => toast.error(errMsg(e, "Gagal menyelesaikan picking.")),
+      onError: (e) => apiError(e, "Gagal menyelesaikan picking."),
     });
   };
 
@@ -872,11 +865,9 @@ export function PickingProsesView({ id }: { id: string }) {
                                       { picklistId: id, itemId: it.id },
                                       {
                                         onError: (e) =>
-                                          toast.error(
-                                            errMsg(
-                                              e,
-                                              "Gagal membatalkan tanda gagal.",
-                                            ),
+                                          apiError(
+                                            e,
+                                            "Gagal membatalkan tanda gagal.",
                                           ),
                                       },
                                     )

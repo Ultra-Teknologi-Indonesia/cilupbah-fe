@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 import {
   Loader2Icon,
   PackageSearchIcon,
@@ -220,10 +221,7 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
         });
         setLines(builtLines);
       } catch (err) {
-        toast.error(
-          (err as { message?: string })?.message ||
-            "Gagal memuat transfer untuk diedit",
-        );
+        apiError(err, "Gagal memuat transfer untuk diedit");
       } finally {
         setLoadingEdit(false);
       }
@@ -531,11 +529,11 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
         await handleCreateSubmit();
       }
     } catch (err) {
-      toast.error(
-        (err as { message?: string })?.message ||
-          (mode === "edit"
-            ? "Gagal memperbarui transfer keluar"
-            : "Gagal membuat transfer keluar"),
+      apiError(
+        err,
+        mode === "edit"
+          ? "Gagal memperbarui transfer keluar"
+          : "Gagal membuat transfer keluar",
       );
     } finally {
       setSubmitting(false);

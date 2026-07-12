@@ -32,6 +32,7 @@ import type {
   Location,
   LocationPayload,
 } from "@/types/manajemen-rak/location";
+import { apiError } from "@/lib/toast";
 
 import { InformasiTab } from "./informasi-tab";
 import { LayoutGudangTab } from "./layout-gudang-tab";
@@ -40,14 +41,6 @@ import { ZonaTab } from "./zona-tab";
 const LIST_HREF = "/dashboard/lokasi";
 
 type Section = "informasi" | "layout" | "zona";
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === "object" && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    if (typeof msg === "string" && msg) return msg;
-  }
-  return fallback;
-}
 
 const createDefaults: LocationFormValues = {
   locationName: "",
@@ -209,7 +202,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
         );
         router.push(LIST_HREF);
       } catch (err) {
-        toast.error(getErrorMessage(err, "Gagal menyimpan lokasi."));
+        apiError(err, "Gagal menyimpan lokasi.");
       }
     },
     () => {

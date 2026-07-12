@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { apiError } from "@/lib/toast";
 import {
   ProductDetailService,
   type LifecycleAction,
@@ -44,9 +45,6 @@ export function useProductLifecycle(id: string) {
       qc.invalidateQueries({ queryKey: productDetailKey(id) });
       qc.invalidateQueries({ queryKey: ["master-produk", "list"] });
     },
-    onError: (err) => {
-      const message = (err as { message?: string })?.message;
-      toast.error(message || "Aksi gagal diproses");
-    },
+    onError: (err) => apiError(err, "Aksi gagal diproses"),
   });
 }

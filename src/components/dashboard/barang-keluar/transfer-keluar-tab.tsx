@@ -39,6 +39,7 @@ import {
 } from "@/hooks/barang-keluar/use-outbound-transfers";
 import { useMe } from "@/hooks/auth/use-auth";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import type { InventoryTransfer } from "@/types/barang-masuk/inventory-transfer";
 import { formatDate } from "@/lib/format";
@@ -316,10 +317,7 @@ export function TransferKeluarTab() {
         }
         openTransferPdf(item.id);
       } catch (err) {
-        toast.error(
-          (err as { message?: string })?.message ||
-            "Gagal memproses cetak transfer",
-        );
+        apiError(err, "Gagal memproses cetak transfer");
       } finally {
         setPrintingId(null);
       }

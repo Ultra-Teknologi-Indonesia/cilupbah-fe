@@ -19,6 +19,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { useUsers } from "@/hooks/pengaturan/use-users";
 import { fetchClient } from "@/lib/api-client";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 import type { Inbound } from "@/types/barang-masuk/inbound";
 
 interface BuatPenempatanManualDialogProps {
@@ -89,8 +90,8 @@ export function BuatPenempatanManualDialog({
       setAssignedTo("");
       onSuccess?.(data);
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Gagal membuat penempatan");
+    onError: (error) => {
+      apiError(error, "Gagal membuat penempatan");
     },
   });
 

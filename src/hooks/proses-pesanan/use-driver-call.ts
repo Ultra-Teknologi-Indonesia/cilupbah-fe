@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { apiError } from "@/lib/toast";
 import { OutboundService } from "@/services/proses-pesanan/outbound.service";
 
 type LabelResult = {
@@ -59,8 +60,8 @@ export function usePrintWithDriverCall() {
       qc.invalidateQueries({ queryKey: ["fulfillment"] });
       qc.invalidateQueries({ queryKey: ["orders"] });
     },
-    onError: (err: Error) => {
-      toast.error(err.message || "Panggilan driver Shopee gagal.");
+    onError: (err) => {
+      apiError(err, "Panggilan driver Shopee gagal.");
     },
   });
 }
@@ -75,8 +76,8 @@ export function useRetryDriverCall() {
       qc.invalidateQueries({ queryKey: ["fulfillment"] });
       qc.invalidateQueries({ queryKey: ["orders"] });
     },
-    onError: (err: Error) => {
-      toast.error(err.message || "Gagal retry panggilan driver.");
+    onError: (err) => {
+      apiError(err, "Gagal retry panggilan driver.");
     },
   });
 }

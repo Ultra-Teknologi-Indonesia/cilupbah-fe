@@ -12,6 +12,7 @@ import type {
   PurchaseReturnListParams,
   CreatePurchaseReturnPayload,
 } from "@/types/barang-keluar/purchase-return";
+import { apiError } from "@/lib/toast";
 
 const STALE = 30 * 1000;
 
@@ -43,9 +44,7 @@ export function useCreatePurchaseReturn() {
       qc.invalidateQueries({ queryKey: ["purchase-return"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal membuat retur",
-      ),
+      apiError(err, "Gagal membuat retur"),
   });
 }
 
@@ -64,9 +63,7 @@ export function useProcessPurchaseReturn() {
       qc.invalidateQueries({ queryKey: ["purchase-return"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memproses retur",
-      ),
+      apiError(err, "Gagal memproses retur"),
   });
 }
 
@@ -79,8 +76,6 @@ export function useDeletePurchaseReturn() {
       qc.invalidateQueries({ queryKey: ["purchase-return"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus retur",
-      ),
+      apiError(err, "Gagal menghapus retur"),
   });
 }

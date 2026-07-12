@@ -7,6 +7,7 @@ import type {
   CreateRefundPayload,
   CreateInvoiceDeductionPayload,
 } from "@/types/barang-masuk/return-settlement";
+import { apiError } from "@/lib/toast";
 
 const KEY = ["return-settlement"];
 
@@ -41,9 +42,7 @@ export function useCreateReturnSettlement() {
       invalidate();
     },
     onError: (e) =>
-      toast.error(
-        (e as { message?: string })?.message || "Gagal membuat settlement",
-      ),
+      apiError(e, "Gagal membuat settlement"),
   });
 }
 
@@ -56,9 +55,7 @@ export function useConfirmReturnSettlement() {
       invalidate();
     },
     onError: (e) =>
-      toast.error(
-        (e as { message?: string })?.message || "Gagal konfirmasi settlement",
-      ),
+      apiError(e, "Gagal konfirmasi settlement"),
   });
 }
 
@@ -71,10 +68,7 @@ export function useCompleteReturnSettlement() {
       invalidate();
     },
     onError: (e) =>
-      toast.error(
-        (e as { message?: string })?.message ||
-          "Gagal menyelesaikan settlement",
-      ),
+      apiError(e, "Gagal menyelesaikan settlement"),
   });
 }
 
@@ -87,9 +81,7 @@ export function useDeleteReturnSettlement() {
       invalidate();
     },
     onError: (e) =>
-      toast.error(
-        (e as { message?: string })?.message || "Gagal menghapus settlement",
-      ),
+      apiError(e, "Gagal menghapus settlement"),
   });
 }
 
@@ -103,9 +95,7 @@ export function useAddRefund() {
       invalidate();
     },
     onError: (e) =>
-      toast.error(
-        (e as { message?: string })?.message || "Gagal menambah refund",
-      ),
+      apiError(e, "Gagal menambah refund"),
   });
 }
 
@@ -118,9 +108,7 @@ export function useRemoveRefund() {
       invalidate();
     },
     onError: (e) =>
-      toast.error(
-        (e as { message?: string })?.message || "Gagal menghapus refund",
-      ),
+      apiError(e, "Gagal menghapus refund"),
   });
 }
 
@@ -134,9 +122,7 @@ export function useAddInvoiceDeduction() {
       invalidate();
     },
     onError: (e) =>
-      toast.error(
-        (e as { message?: string })?.message || "Gagal menambah potong faktur",
-      ),
+      apiError(e, "Gagal menambah potong faktur"),
   });
 }
 
@@ -150,8 +136,6 @@ export function useRemoveInvoiceDeduction() {
       invalidate();
     },
     onError: (e) =>
-      toast.error(
-        (e as { message?: string })?.message || "Gagal menghapus potong faktur",
-      ),
+      apiError(e, "Gagal menghapus potong faktur"),
   });
 }

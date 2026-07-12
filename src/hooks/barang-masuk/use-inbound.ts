@@ -9,6 +9,7 @@ import {
 import { toast } from "sonner";
 import { InboundService } from "@/services/barang-masuk/inbound.service";
 import type { InboundListParams } from "@/types/barang-masuk/inbound";
+import { apiError } from "@/lib/toast";
 
 const STALE = 30 * 1000;
 
@@ -60,10 +61,7 @@ export function useCorrectReceivedLines(inboundId: string) {
       qc.invalidateQueries({ queryKey: ["inventory"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal mengoreksi penerimaan",
-      ),
+      apiError(err, "Gagal mengoreksi penerimaan"),
   });
 }
 
@@ -84,9 +82,7 @@ export function useBulkCancelInbounds() {
       qc.invalidateQueries({ queryKey: ["inventory"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus penerimaan",
-      ),
+      apiError(err, "Gagal menghapus penerimaan"),
   });
 }
 
@@ -104,10 +100,7 @@ export function useSetReceivedQty(inboundId: string) {
       qc.invalidateQueries({ queryKey: ["inventory"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal memperbarui jumlah diterima",
-      ),
+      apiError(err, "Gagal memperbarui jumlah diterima"),
   });
 }
 

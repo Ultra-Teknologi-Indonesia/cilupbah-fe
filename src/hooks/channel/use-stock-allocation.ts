@@ -9,6 +9,7 @@ import {
   type StockAllocationParams,
 } from "@/services/channel/channel.service";
 import type { StockSourceMode } from "@/types/channel";
+import { apiError } from "@/lib/toast";
 import { CHANNEL_STORES_KEY } from "./use-connected-stores";
 
 export type { StockAllocationParams };
@@ -32,11 +33,6 @@ interface UpdateStockAllocationInput {
   storeId: string;
   stockSourceMode: StockSourceMode;
   locationId?: string | null;
-}
-
-function errMessage(err: unknown, fallback: string): string {
-  const m = (err as { message?: string })?.message;
-  return typeof m === "string" && m ? m : fallback;
 }
 
 export function useUpdateStockAllocation(params: StockAllocationParams) {
@@ -79,7 +75,7 @@ export function useUpdateStockAllocation(params: StockAllocationParams) {
     },
     onError: (err, _vars, ctx) => {
       if (ctx?.prev) qc.setQueryData(key, ctx.prev);
-      toast.error(errMessage(err, "Gagal memperbarui sumber stok"));
+      apiError(err, "Gagal memperbarui sumber stok");
     },
     onSuccess: () => toast.success("Berhasil memperbarui sumber stok"),
     onSettled: () => {

@@ -1,6 +1,7 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 import { fetchClient } from "@/lib/api-client";
 import { LocationBinService } from "@/services/manajemen-rak/location-bin.service";
 
@@ -122,10 +123,7 @@ export function useBinTransferCreate() {
       qc.invalidateQueries({ queryKey: ["posisi-stok"] });
       qc.invalidateQueries({ queryKey: ["monitor-stok"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal membuat transfer",
-      ),
+    onError: (err) => apiError(err, "Gagal membuat transfer"),
   });
 }
 
@@ -202,11 +200,7 @@ export function useBinTransferItemDelete(id: string) {
       qc.invalidateQueries({ queryKey: ["posisi-stok"] });
       qc.invalidateQueries({ queryKey: ["monitor-stok"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal mengoreksi baris transfer",
-      ),
+    onError: (err) => apiError(err, "Gagal mengoreksi baris transfer"),
   });
 }
 
@@ -231,11 +225,7 @@ export function useBinTransferUpdate(id: string) {
       qc.invalidateQueries({ queryKey: ["bin-transfers"] });
       qc.invalidateQueries({ queryKey: ["bin-transfer", id] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal memperbarui transfer internal",
-      ),
+    onError: (err) => apiError(err, "Gagal memperbarui transfer internal"),
   });
 }
 
@@ -253,10 +243,7 @@ export function usePrintBinTransfer() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["bin-transfers"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal mencetak transfer",
-      ),
+    onError: (err) => apiError(err, "Gagal mencetak transfer"),
   });
 }
 
@@ -275,10 +262,7 @@ export function useRevertBinTransferPrint() {
       qc.invalidateQueries({ queryKey: ["bin-transfers"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal mengembalikan transfer ke Baru Dibuat",
-      ),
+      apiError(err, "Gagal mengembalikan transfer ke Baru Dibuat"),
   });
 }
 
@@ -299,10 +283,7 @@ export function useDeleteBinTransfer() {
       qc.invalidateQueries({ queryKey: ["posisi-stok"] });
       qc.invalidateQueries({ queryKey: ["monitor-stok"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus transfer",
-      ),
+    onError: (err) => apiError(err, "Gagal menghapus transfer"),
   });
 }
 
@@ -340,11 +321,7 @@ export function useReceiveBinTransfer() {
       qc.invalidateQueries({ queryKey: ["posisi-stok"] });
       qc.invalidateQueries({ queryKey: ["monitor-stok"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal menyimpan penerimaan transfer",
-      ),
+    onError: (err) => apiError(err, "Gagal menyimpan penerimaan transfer"),
   });
 }
 

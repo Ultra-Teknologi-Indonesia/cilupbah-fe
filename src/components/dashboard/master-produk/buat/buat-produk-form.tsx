@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangleIcon, Loader2Icon, SendIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 import { buatProdukSchema } from "@/schemas/master-produk";
 import type { BuatProdukFormValues } from "@/types/master-produk";
 import { useCreateProduct } from "@/hooks/master-produk/use-create-product";
@@ -103,10 +104,10 @@ export function BuatProdukForm() {
     } catch (err) {
       const body = err as { message?: string };
       if (applyServerErrors(err)) {
-        toast.error(body?.message || "Beberapa isian ditolak server");
+        apiError(err, "Beberapa isian ditolak server");
       } else {
         setServerErrors([body?.message || "Gagal menyimpan produk"]);
-        toast.error(body?.message || "Gagal menyimpan produk");
+        apiError(err, "Gagal menyimpan produk");
       }
     }
   };

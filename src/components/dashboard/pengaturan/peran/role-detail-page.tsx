@@ -17,17 +17,10 @@ import {
   useRoleDetail,
   useSyncRolePermissions,
 } from "@/hooks/pengaturan/use-roles";
+import { apiError } from "@/lib/toast";
 
 function titleCase(name: string): string {
   return name.replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === "object" && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    if (typeof msg === "string" && msg) return msg;
-  }
-  return fallback;
 }
 
 function sameSet(a: string[], b: string[]): boolean {
@@ -72,8 +65,7 @@ export function RoleDetailPage({ id }: RoleDetailPageProps) {
       { id, permissions: selected },
       {
         onSuccess: () => toast.success("Hak akses peran berhasil disimpan."),
-        onError: (err) =>
-          toast.error(getErrorMessage(err, "Gagal menyimpan hak akses.")),
+        onError: (err) => apiError(err, "Gagal menyimpan hak akses."),
       },
     );
   }

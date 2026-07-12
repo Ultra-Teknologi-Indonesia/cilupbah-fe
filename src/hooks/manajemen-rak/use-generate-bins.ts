@@ -1,8 +1,8 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 
+import { apiError } from "@/lib/toast";
 import { LocationBinService } from "@/services/manajemen-rak/location-bin.service";
 import { locationKeys } from "@/hooks/manajemen-rak/use-locations";
 import type { GenerateBinsPayload } from "@/types/manajemen-rak/location";
@@ -23,9 +23,6 @@ export function useGenerateBins() {
         queryKey: locationKeys.detail(locationId),
       });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal generate bin",
-      ),
+    onError: (err) => apiError(err, "Gagal generate bin"),
   });
 }

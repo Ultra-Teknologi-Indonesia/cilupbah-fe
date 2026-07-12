@@ -9,6 +9,7 @@ import type {
   CreateTransferDraftPayload,
   AddTransferItemPayload,
 } from "@/services/barang-keluar/outbound-transfer.service";
+import { apiError } from "@/lib/toast";
 
 const STALE = 30 * 1000;
 
@@ -63,9 +64,7 @@ export function useCreateTransferDraft() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal membuat draft",
-      ),
+      apiError(err, "Gagal membuat draft"),
   });
 }
 
@@ -79,9 +78,7 @@ export function useAddTransferItem() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menambah item",
-      ),
+      apiError(err, "Gagal menambah item"),
   });
 }
 
@@ -95,9 +92,7 @@ export function useRemoveTransferItem() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus item",
-      ),
+      apiError(err, "Gagal menghapus item"),
   });
 }
 
@@ -116,9 +111,7 @@ export function useApproveTransfer() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal approve transfer",
-      ),
+      apiError(err, "Gagal approve transfer"),
   });
 }
 
@@ -131,9 +124,7 @@ export function useSubmitDraft() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer", "transit"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal mengirim transfer",
-      ),
+      apiError(err, "Gagal mengirim transfer"),
   });
 }
 
@@ -145,10 +136,7 @@ export function useRevertToDraft() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal mengembalikan transfer ke Baru Dibuat",
-      ),
+      apiError(err, "Gagal mengembalikan transfer ke Baru Dibuat"),
   });
 }
 
@@ -162,9 +150,7 @@ export function useShipTransfer() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal mengirim transfer",
-      ),
+      apiError(err, "Gagal mengirim transfer"),
   });
 }
 
@@ -183,9 +169,7 @@ export function useCancelTransfer() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal membatalkan transfer",
-      ),
+      apiError(err, "Gagal membatalkan transfer"),
   });
 }
 
@@ -198,9 +182,7 @@ export function useDeleteTransfer() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus transfer",
-      ),
+      apiError(err, "Gagal menghapus transfer"),
   });
 }
 
@@ -223,9 +205,7 @@ export function useBulkDeleteTransfer() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memproses transfer",
-      ),
+      apiError(err, "Gagal memproses transfer"),
   });
 }
 
@@ -239,8 +219,6 @@ export function useMarkTransferPrinted() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menandai cetak",
-      ),
+      apiError(err, "Gagal menandai cetak"),
   });
 }

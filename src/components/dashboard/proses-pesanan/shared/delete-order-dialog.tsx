@@ -6,14 +6,7 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useDeleteFulfillmentOrder } from "@/hooks/proses-pesanan/use-fulfillment";
-
-function errMsg(err: unknown, fallback: string): string {
-  if (err && typeof err === "object" && "message" in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === "string" && m) return m;
-  }
-  return fallback;
-}
+import { apiError } from "@/lib/toast";
 
 export function DeleteOrderDialog({
   open,
@@ -50,7 +43,7 @@ export function DeleteOrderDialog({
           onOpenChange(false);
           onDeleted?.();
         },
-        onError: (e) => toast.error(errMsg(e, "Gagal menghapus pesanan.")),
+        onError: (e) => apiError(e, "Gagal menghapus pesanan."),
       },
     );
   };

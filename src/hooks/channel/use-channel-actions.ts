@@ -9,12 +9,8 @@ import {
   type StoreFlags,
 } from "@/services/channel/channel.service";
 import type { ChannelCode, RawConnectedStore } from "@/types/channel";
+import { apiError } from "@/lib/toast";
 import { CHANNEL_STORES_KEY } from "./use-connected-stores";
-
-function errMessage(err: unknown, fallback: string): string {
-  const m = (err as { message?: string })?.message;
-  return typeof m === "string" && m ? m : fallback;
-}
 
 export function useToggleStoreFlag() {
   const qc = useQueryClient();
@@ -32,7 +28,7 @@ export function useToggleStoreFlag() {
     },
     onError: (err, _vars, ctx) => {
       if (ctx?.prev) qc.setQueryData(CHANNEL_STORES_KEY, ctx.prev);
-      toast.error(errMessage(err, "Gagal memperbarui pengaturan toko"));
+      apiError(err, "Gagal memperbarui pengaturan toko");
     },
     onSettled: () => qc.invalidateQueries({ queryKey: CHANNEL_STORES_KEY }),
   });
@@ -53,7 +49,7 @@ export function useDisconnectStore() {
     },
     onError: (err, _id, ctx) => {
       if (ctx?.prev) qc.setQueryData(CHANNEL_STORES_KEY, ctx.prev);
-      toast.error(errMessage(err, "Gagal memutuskan toko"));
+      apiError(err, "Gagal memutuskan toko");
     },
     onSuccess: () => toast.success("Toko diputuskan"),
     onSettled: () => qc.invalidateQueries({ queryKey: CHANNEL_STORES_KEY }),
@@ -71,12 +67,7 @@ export function useRefreshToken() {
       qc.invalidateQueries({ queryKey: CHANNEL_STORES_KEY });
     },
     onError: (err) =>
-      toast.error(
-        errMessage(
-          err,
-          "Gagal memperbarui token. Mungkin perlu hubungkan ulang.",
-        ),
-      ),
+      apiError(err, "Gagal memperbarui token. Mungkin perlu hubungkan ulang."),
   });
 }
 
@@ -92,7 +83,7 @@ export function useConnectChannel() {
       window.location.href = url;
     } catch (err) {
       setPendingCode(null);
-      toast.error(errMessage(err, "Gagal memulai koneksi marketplace"));
+      apiError(err, "Gagal memulai koneksi marketplace");
     }
   }, []);
 
@@ -107,8 +98,7 @@ export function useConnectWooCommerce() {
     onSuccess: (url) => {
       window.location.href = url;
     },
-    onError: (err) =>
-      toast.error(errMessage(err, "Gagal memulai koneksi WooCommerce")),
+    onError: (err) => apiError(err, "Gagal memulai koneksi WooCommerce"),
   });
 
   const manual = useMutation({
@@ -122,8 +112,7 @@ export function useConnectWooCommerce() {
       toast.success("Toko WooCommerce dihubungkan");
       qc.invalidateQueries({ queryKey: CHANNEL_STORES_KEY });
     },
-    onError: (err) =>
-      toast.error(errMessage(err, "Gagal menghubungkan WooCommerce")),
+    onError: (err) => apiError(err, "Gagal menghubungkan WooCommerce"),
   });
 
   return { auto, manual };

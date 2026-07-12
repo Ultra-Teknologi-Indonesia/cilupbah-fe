@@ -7,6 +7,7 @@ import {
   keepPreviousData,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 import { SalesmanService } from "@/services/kontak-pemasok/salesman.service";
 import type {
   SalesmanListParams,
@@ -49,10 +50,7 @@ export function useCreateSalesman() {
       toast.success("Salesman berhasil ditambahkan");
       qc.invalidateQueries({ queryKey: ["salesman"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menambahkan salesman",
-      ),
+    onError: (err) => apiError(err, "Gagal menambahkan salesman"),
   });
 }
 
@@ -65,10 +63,7 @@ export function useUpdateSalesman() {
       toast.success("Salesman berhasil diperbarui");
       qc.invalidateQueries({ queryKey: ["salesman"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memperbarui salesman",
-      ),
+    onError: (err) => apiError(err, "Gagal memperbarui salesman"),
   });
 }
 
@@ -80,9 +75,6 @@ export function useDeleteSalesman() {
       toast.success("Salesman berhasil dihapus");
       qc.invalidateQueries({ queryKey: ["salesman"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus salesman",
-      ),
+    onError: (err) => apiError(err, "Gagal menghapus salesman"),
   });
 }

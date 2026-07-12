@@ -10,9 +10,9 @@ import { ArrowRight, Eye, Loader2, Lock, Mail } from "lucide-react";
 
 import { useLogin } from "@/hooks/auth/use-auth";
 import { setLoginSession } from "@/app/actions/auth.actions";
-import type { ApiResponse } from "@/types/api.types";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/sonner";
+import { apiError } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -78,11 +78,7 @@ export function LoginForm({ className }: { className?: string }) {
         );
       },
       onError: (error) => {
-        toast.error("Gagal masuk", {
-          description:
-            (error as Partial<ApiResponse>)?.message ||
-            "Email atau password salah. Silakan coba lagi.",
-        });
+        apiError(error, "Gagal masuk");
       },
     });
 

@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeftIcon, InfoIcon, Loader2Icon, SaveIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import { apiError } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { buatProdukSchema } from "@/schemas/master-produk";
 import type {
@@ -114,10 +115,8 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
       toast.success("Perubahan produk disimpan");
       router.push(detailHref);
     } catch (err) {
-      const body = err as { message?: string };
-      if (applyServerErrors(err))
-        toast.error(body?.message || "Beberapa isian ditolak server");
-      else toast.error(body?.message || "Gagal menyimpan perubahan");
+      if (applyServerErrors(err)) apiError(err, "Beberapa isian ditolak server");
+      else apiError(err, "Gagal menyimpan perubahan");
     }
   };
 

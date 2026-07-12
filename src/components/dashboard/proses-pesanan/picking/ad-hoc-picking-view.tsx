@@ -34,16 +34,9 @@ import {
   useGetOrderByNo,
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import { playScanFeedback } from "@/lib/scan-feedback";
+import { apiError } from "@/lib/toast";
 
 const LIST_HREF = "/dashboard/proses-pesanan/picking";
-
-function errMsg(err: unknown, fallback: string): string {
-  if (err && typeof err === "object" && "message" in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === "string" && m) return m;
-  }
-  return fallback;
-}
 
 interface AdHocItem {
   id: string;
@@ -196,7 +189,7 @@ export function AdHocPickingView() {
       setTimeout(() => skuScanRef.current?.focus(), 50);
     } catch (e) {
       playScanFeedback("error");
-      toast.error(errMsg(e, "Gagal memuat order."));
+      apiError(e, "Gagal memuat order.");
     } finally {
       setLoadingOrder(false);
     }
@@ -268,7 +261,7 @@ export function AdHocPickingView() {
         },
         onError: (e) => {
           playScanFeedback("error");
-          toast.error(errMsg(e, `Gagal scan ${code}.`));
+          apiError(e, `Gagal scan ${code}.`);
           skuScanRef.current?.focus();
         },
       },

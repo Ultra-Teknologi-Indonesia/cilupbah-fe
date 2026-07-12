@@ -43,6 +43,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { apiError } from "@/lib/toast";
 
 type PageFilterState = {
   source: string;
@@ -100,11 +101,6 @@ export function PreManifestCancelTable() {
     total: 0,
   };
 
-  const errMsg = (err: unknown, fallback: string) =>
-    err && typeof err === "object" && "message" in err
-      ? String((err as { message?: unknown }).message)
-      : fallback;
-
   const handleDismissConfirm = () => {
     if (!dismissTarget) return;
     dismiss.mutate(dismissTarget.id, {
@@ -112,7 +108,7 @@ export function PreManifestCancelTable() {
         toast.success(
           `${dismissTarget.salesorderNo} ditandai sudah dipisahkan.`,
         ),
-      onError: (e) => toast.error(errMsg(e, "Gagal menandai pemisahan.")),
+      onError: (e) => apiError(e, "Gagal menandai pemisahan."),
       onSettled: () => setDismissTarget(null),
     });
   };
@@ -124,7 +120,7 @@ export function PreManifestCancelTable() {
         toast.success(
           `${undismissTarget.salesorderNo} dikembalikan ke daftar.`,
         ),
-      onError: (e) => toast.error(errMsg(e, "Gagal membatalkan pemisahan.")),
+      onError: (e) => apiError(e, "Gagal membatalkan pemisahan."),
       onSettled: () => setUndismissTarget(null),
     });
   };

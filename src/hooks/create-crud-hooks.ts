@@ -8,6 +8,7 @@ import {
   type QueryKey,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 
 const DEFAULT_STALE = 30_000;
 
@@ -103,8 +104,7 @@ export function createMutationHook<TVars, TData = unknown>(
       },
       onError: (err: unknown) => {
         if (config.silentError) return;
-        const message = (err as { message?: string })?.message;
-        toast.error(message || config.errorMessage || "Terjadi kesalahan");
+        apiError(err, config.errorMessage || "Terjadi kesalahan");
       },
     });
   };

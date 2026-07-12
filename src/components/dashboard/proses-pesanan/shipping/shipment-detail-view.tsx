@@ -46,6 +46,7 @@ import {
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import { Label } from "@/components/ui/label";
 import { playScanFeedback } from "@/lib/scan-feedback";
+import { apiError } from "@/lib/toast";
 import { ChannelBadge } from "../channel-badge";
 import { DocActions } from "../picking/doc-actions";
 import { DeleteOrderDialog } from "../shared/delete-order-dialog";
@@ -59,14 +60,6 @@ function formatWeight(gram: number): string {
   return kg < 1
     ? `${gram} g`
     : `${kg.toLocaleString("id-ID", { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`;
-}
-
-function errMsg(err: unknown, fallback: string): string {
-  if (err && typeof err === "object" && "message" in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === "string" && m) return m;
-  }
-  return fallback;
 }
 
 const PICKUP_LABEL: Record<string, { label: string; className: string }> = {
@@ -158,7 +151,7 @@ function DriverSection({
       }
       setEditing(false);
     } catch (err) {
-      toast.error(errMsg(err, "Gagal menyimpan data driver."));
+      apiError(err, "Gagal menyimpan data driver.");
     }
   };
 
@@ -407,7 +400,7 @@ export function ShipmentDetailView({ id }: { id: string }) {
       inputRef.current?.focus();
     } catch (err) {
       playScanFeedback("error");
-      toast.error(errMsg(err, "Gagal menambahkan pesanan."));
+      apiError(err, "Gagal menambahkan pesanan.");
       setBarcode("");
       inputRef.current?.focus();
     }
@@ -432,7 +425,7 @@ export function ShipmentDetailView({ id }: { id: string }) {
         `Pesanan ${removeTarget.orderNo ?? ""} dihapus dari pengiriman.`,
       );
     } catch (err) {
-      toast.error(errMsg(err, "Gagal menghapus pesanan."));
+      apiError(err, "Gagal menghapus pesanan.");
     } finally {
       setRemoveTarget(null);
     }

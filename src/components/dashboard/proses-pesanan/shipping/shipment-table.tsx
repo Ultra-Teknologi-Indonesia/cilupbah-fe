@@ -34,6 +34,7 @@ import {
 import type { Shipment } from "@/types/proses-pesanan/fulfillment";
 import { ShipmentDriverBadge } from "@/components/dashboard/proses-pesanan/shared/driver-call-indicator";
 import { useListState } from "@/hooks/use-list-state";
+import { apiError } from "@/lib/toast";
 
 import { DocActions } from "../picking/doc-actions";
 
@@ -111,11 +112,6 @@ export function ShipmentTable() {
     total: 0,
   };
 
-  const errMsg = (err: unknown, fallback: string) =>
-    err && typeof err === "object" && "message" in err
-      ? String((err as { message?: unknown }).message)
-      : fallback;
-
   const onCancel = (s: Shipment) => {
     setCancelTarget(s);
   };
@@ -124,7 +120,7 @@ export function ShipmentTable() {
     if (!cancelTarget) return;
     cancel.mutate(cancelTarget.id, {
       onSuccess: () => toast.success(`${cancelTarget.shipmentNo} dibatalkan.`),
-      onError: (e) => toast.error(errMsg(e, "Gagal membatalkan pengiriman.")),
+      onError: (e) => apiError(e, "Gagal membatalkan pengiriman."),
       onSettled: () => setCancelTarget(null),
     });
   };

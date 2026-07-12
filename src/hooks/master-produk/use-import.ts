@@ -13,6 +13,7 @@ import {
   type ImportBatchParams,
   type ImportBatchType,
 } from "@/services/master-produk/import.service";
+import { apiError } from "@/lib/toast";
 
 export type {
   ImportBatch,
@@ -75,9 +76,6 @@ export function useImportFile() {
       qc.invalidateQueries({ queryKey: ["master-produk", "import-batches"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal mengupload file import",
-      ),
+      apiError(err, "Gagal mengupload file import"),
   });
 }

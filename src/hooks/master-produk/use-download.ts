@@ -14,6 +14,7 @@ import {
   type DownloadTransactionDetailParams,
   type ChannelSearchItem,
 } from "@/services/master-produk/download.service";
+import { apiError } from "@/lib/toast";
 
 export { channelSearchRowId } from "@/services/master-produk/download.service";
 export type {
@@ -86,9 +87,7 @@ export function useApproveProduct() {
       qc.invalidateQueries({ queryKey: ["master-produk"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menjadikan master",
-      ),
+      apiError(err, "Gagal menjadikan master"),
   });
 }
 
@@ -122,9 +121,7 @@ export function useStartDownload() {
       });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memulai download",
-      ),
+      apiError(err, "Gagal memulai download"),
   });
 }
 
@@ -133,9 +130,7 @@ export function useChannelSearch() {
     mutationFn: (params: { channel: string; shopId: string; q: string }) =>
       DownloadService.searchChannel(params),
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal mencari produk",
-      ),
+      apiError(err, "Gagal mencari produk"),
   });
 }
 
@@ -182,8 +177,6 @@ export function useDownloadProduct() {
       qc.invalidateQueries({ queryKey: ["master-produk"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal mengunduh produk",
-      ),
+      apiError(err, "Gagal mengunduh produk"),
   });
 }

@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { apiError } from "@/lib/toast";
 import {
   OrderImportService,
   type OrderImportBatchParams,
@@ -70,10 +71,6 @@ export function useOrderImportFile() {
       });
       qc.invalidateQueries({ queryKey: ["pesanan", "import-batches"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal mengupload file import",
-      ),
+    onError: (err) => apiError(err, "Gagal mengupload file import"),
   });
 }

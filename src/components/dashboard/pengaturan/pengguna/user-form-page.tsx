@@ -40,6 +40,7 @@ import {
 } from "@/hooks/pengaturan/use-users";
 import { usePermissionCatalog } from "@/hooks/pengaturan/use-permission-catalog";
 import type { UserFormPayload } from "@/types/pengaturan/user";
+import { apiError } from "@/lib/toast";
 
 const PASSWORD_RULES = [
   {
@@ -159,14 +160,6 @@ function generatePassword(length = 14): string {
   return required.join("");
 }
 
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === "object" && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    if (typeof msg === "string" && msg) return msg;
-  }
-  return fallback;
-}
-
 interface UserFormPageProps {
   userId?: string;
 }
@@ -246,8 +239,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
             toast.success("Pengguna berhasil diperbarui.");
             router.push(`/dashboard/pengaturan/pengguna/${userId}`);
           },
-          onError: (err) =>
-            toast.error(getErrorMessage(err, "Gagal memperbarui pengguna.")),
+          onError: (err) => apiError(err, "Gagal memperbarui pengguna."),
         },
       );
     } else {
@@ -256,8 +248,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
           toast.success("Pengguna berhasil ditambahkan.");
           router.push("/dashboard/pengaturan/pengguna");
         },
-        onError: (err) =>
-          toast.error(getErrorMessage(err, "Gagal menambahkan pengguna.")),
+        onError: (err) => apiError(err, "Gagal menambahkan pengguna."),
       });
     }
   }

@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { SalesReturnService } from "@/services/barang-masuk/sales-return.service";
+import { apiError } from "@/lib/toast";
 
 export function useAcceptSalesReturn() {
   const qc = useQueryClient();
@@ -15,9 +16,7 @@ export function useAcceptSalesReturn() {
       qc.invalidateQueries({ queryKey: ["inbound"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menyetujui retur",
-      ),
+      apiError(err, "Gagal menyetujui retur"),
   });
 }
 
@@ -38,9 +37,7 @@ export function useRejectSalesReturn() {
       qc.invalidateQueries({ queryKey: ["sales-return"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menolak retur",
-      ),
+      apiError(err, "Gagal menolak retur"),
   });
 }
 
@@ -56,9 +53,7 @@ export function useCreateSalesReturn() {
       qc.invalidateQueries({ queryKey: ["inbound"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal membuat retur",
-      ),
+      apiError(err, "Gagal membuat retur"),
   });
 }
 
@@ -75,9 +70,7 @@ export function useSyncReturnTracking() {
       qc.invalidateQueries({ queryKey: ["sales-return"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal sinkron resi retur",
-      ),
+      apiError(err, "Gagal sinkron resi retur"),
   });
 }
 
@@ -90,10 +83,7 @@ export function useSyncReturnDetail() {
       qc.invalidateQueries({ queryKey: ["sales-return"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal sinkron detail retur",
-      ),
+      apiError(err, "Gagal sinkron detail retur"),
   });
 }
 
@@ -106,10 +96,7 @@ export function useChannelAcceptSalesReturn() {
       qc.invalidateQueries({ queryKey: ["sales-return"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal menyetujui retur di marketplace",
-      ),
+      apiError(err, "Gagal menyetujui retur di marketplace"),
   });
 }
 
@@ -130,10 +117,7 @@ export function useChannelRejectSalesReturn() {
       qc.invalidateQueries({ queryKey: ["sales-return"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal menolak retur di marketplace",
-      ),
+      apiError(err, "Gagal menolak retur di marketplace"),
   });
 }
 
@@ -148,8 +132,6 @@ export function useCompleteSalesReturn() {
       qc.invalidateQueries({ queryKey: ["inbound"] });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menyelesaikan retur",
-      ),
+      apiError(err, "Gagal menyelesaikan retur"),
   });
 }

@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { apiError } from "@/lib/toast";
 import { InternalStoreService } from "@/services/penjualan/internal-store.service";
 import type {
   InternalStoreFormData,
@@ -52,10 +53,7 @@ export function useCreateInternalStore() {
       toast.success("Toko berhasil ditambahkan");
       qc.invalidateQueries({ queryKey: [KEY] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menambahkan toko",
-      ),
+    onError: (err) => apiError(err, "Gagal menambahkan toko"),
   });
 }
 
@@ -71,10 +69,7 @@ export function useUpdateInternalStore() {
       toast.success("Toko berhasil diperbarui");
       qc.invalidateQueries({ queryKey: [KEY] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memperbarui toko",
-      ),
+    onError: (err) => apiError(err, "Gagal memperbarui toko"),
   });
 }
 
@@ -86,10 +81,7 @@ export function useDeleteInternalStore() {
       toast.success("Toko berhasil dihapus");
       qc.invalidateQueries({ queryKey: [KEY] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus toko",
-      ),
+    onError: (err) => apiError(err, "Gagal menghapus toko"),
   });
 }
 
@@ -101,9 +93,6 @@ export function useDeleteInternalStoreLogo() {
       toast.success("Logo dihapus");
       qc.invalidateQueries({ queryKey: [KEY] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus logo",
-      ),
+    onError: (err) => apiError(err, "Gagal menghapus logo"),
   });
 }

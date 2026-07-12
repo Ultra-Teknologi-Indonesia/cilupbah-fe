@@ -7,6 +7,7 @@ import {
   keepPreviousData,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 import { PurchaseOrderService } from "@/services/transaksi-pembelian/purchase-order.service";
 import type {
   PurchaseOrderListParams,
@@ -59,10 +60,7 @@ export function useCreatePurchaseOrder() {
       toast.success("Pesanan pembelian berhasil dibuat");
       qc.invalidateQueries({ queryKey: ["purchase-order"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal membuat pesanan",
-      ),
+    onError: (err) => apiError(err, "Gagal membuat pesanan"),
   });
 }
 
@@ -75,10 +73,7 @@ export function useUpdatePurchaseOrder() {
       toast.success("Pesanan pembelian berhasil diperbarui");
       qc.invalidateQueries({ queryKey: ["purchase-order"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memperbarui pesanan",
-      ),
+    onError: (err) => apiError(err, "Gagal memperbarui pesanan"),
   });
 }
 
@@ -90,10 +85,7 @@ export function useCancelPurchaseOrder() {
       toast.success("Pesanan berhasil dibatalkan");
       qc.invalidateQueries({ queryKey: ["purchase-order"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal membatalkan pesanan",
-      ),
+    onError: (err) => apiError(err, "Gagal membatalkan pesanan"),
   });
 }
 
@@ -105,10 +97,7 @@ export function useBulkDeletePurchaseOrder() {
       toast.success("Pesanan terpilih berhasil dihapus");
       qc.invalidateQueries({ queryKey: ["purchase-order"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus pesanan",
-      ),
+    onError: (err) => apiError(err, "Gagal menghapus pesanan"),
   });
 }
 
@@ -120,9 +109,6 @@ export function useDeletePurchaseOrder() {
       toast.success("Pesanan berhasil dihapus");
       qc.invalidateQueries({ queryKey: ["purchase-order"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus pesanan",
-      ),
+    onError: (err) => apiError(err, "Gagal menghapus pesanan"),
   });
 }

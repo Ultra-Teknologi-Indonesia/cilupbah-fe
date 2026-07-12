@@ -18,14 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateRole, useUpdateRole } from "@/hooks/pengaturan/use-roles";
 import type { Role } from "@/types/pengaturan/user";
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === "object" && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    if (typeof msg === "string" && msg) return msg;
-  }
-  return fallback;
-}
+import { apiError } from "@/lib/toast";
 
 interface RoleFormDialogProps {
   open: boolean;
@@ -73,8 +66,7 @@ export function RoleFormDialog({
             toast.success("Peran berhasil diperbarui.");
             onOpenChange(false);
           },
-          onError: (err) =>
-            toast.error(getErrorMessage(err, "Gagal memperbarui peran.")),
+          onError: (err) => apiError(err, "Gagal memperbarui peran."),
         },
       );
     } else {
@@ -84,8 +76,7 @@ export function RoleFormDialog({
           onOpenChange(false);
           onCreated?.(created);
         },
-        onError: (err) =>
-          toast.error(getErrorMessage(err, "Gagal membuat peran.")),
+        onError: (err) => apiError(err, "Gagal membuat peran."),
       });
     }
   }

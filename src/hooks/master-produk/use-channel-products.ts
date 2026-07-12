@@ -14,6 +14,7 @@ import {
   type ChannelListingParams,
 } from "@/services/master-produk/channel-product.service";
 import { DownloadService } from "@/services/master-produk/download.service";
+import { apiError } from "@/lib/toast";
 
 export { channelListingRowId } from "@/services/master-produk/channel-product.service";
 export type {
@@ -58,9 +59,7 @@ export function useUnlinkListing() {
       invalidate();
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memutus koneksi",
-      ),
+      apiError(err, "Gagal memutus koneksi"),
   });
 }
 
@@ -86,9 +85,7 @@ export function useBulkUnlinkListing() {
       invalidate();
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memutus koneksi",
-      ),
+      apiError(err, "Gagal memutus koneksi"),
   });
 }
 
@@ -102,14 +99,9 @@ export function useDownloadChannel() {
       invalidate();
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memulai download",
-      ),
+      apiError(err, "Gagal memulai download"),
   });
 }
-
-const actionError = (err: unknown) =>
-  toast.error((err as { message?: string })?.message || "Aksi gagal diproses");
 
 export function useListingMutations() {
   const invalidate = useInvalidateChannelProducts();
@@ -121,7 +113,7 @@ export function useListingMutations() {
       toast.success("Listing diaktifkan");
       invalidate();
     },
-    onError: actionError,
+    onError: (err) => apiError(err, "Aksi gagal diproses"),
   });
 
   const deactivate = useMutation({
@@ -131,7 +123,7 @@ export function useListingMutations() {
       toast.success("Listing dinonaktifkan");
       invalidate();
     },
-    onError: actionError,
+    onError: (err) => apiError(err, "Aksi gagal diproses"),
   });
 
   const sync = useMutation({
@@ -141,7 +133,7 @@ export function useListingMutations() {
       toast.success("Sinkron harga & stok diantrekan");
       invalidate();
     },
-    onError: actionError,
+    onError: (err) => apiError(err, "Aksi gagal diproses"),
   });
 
   return { activate, deactivate, sync };

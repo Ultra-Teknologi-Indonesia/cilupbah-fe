@@ -6,7 +6,6 @@ import {
   SettingsIcon,
   UsersIcon,
   ShieldCheckIcon,
-  Undo2Icon,
   BoxesIcon,
   ArrowLeftRightIcon,
 } from "lucide-react";
@@ -40,12 +39,6 @@ const TABS: Tab[] = [
     href: "/dashboard/pengaturan/peran",
   },
   {
-    id: "retur",
-    label: "Retur Penjualan",
-    icon: Undo2Icon,
-    href: "/dashboard/pengaturan/retur",
-  },
-  {
     id: "alokasi-stok",
     label: "Alokasi Stok & Channel",
     icon: BoxesIcon,
@@ -62,7 +55,6 @@ const TABS: Tab[] = [
 function activeId(pathname: string): string {
   if (pathname.startsWith("/dashboard/pengaturan/pengguna")) return "pengguna";
   if (pathname.startsWith("/dashboard/pengaturan/peran")) return "peran";
-  if (pathname.startsWith("/dashboard/pengaturan/retur")) return "retur";
   if (pathname.startsWith("/dashboard/pengaturan/alokasi-stok"))
     return "alokasi-stok";
   if (pathname.startsWith("/dashboard/aktivitas-impex"))

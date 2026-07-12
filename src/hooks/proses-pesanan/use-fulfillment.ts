@@ -10,6 +10,7 @@ import {
 
 import { createMutationHook } from "@/hooks/create-crud-hooks";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 
 import {
   OutboundService,
@@ -386,15 +387,8 @@ export function useDownloadPicklistPdf() {
     onSuccess: (filename) => {
       toast.success(`Picklist ${filename} berhasil diunduh`);
     },
-    onError: (err: unknown) => {
-      const msg =
-        err &&
-        typeof err === "object" &&
-        "message" in err &&
-        typeof (err as { message?: unknown }).message === "string"
-          ? (err as { message: string }).message
-          : "Gagal mengunduh PDF picklist.";
-      toast.error(msg);
+    onError: (err) => {
+      apiError(err, "Gagal mengunduh PDF picklist.");
     },
   });
 }
@@ -845,15 +839,8 @@ export function useDownloadPreManifestCancelXlsx() {
     onSuccess: (filename) => {
       toast.success(`${filename} berhasil diunduh.`);
     },
-    onError: (err: unknown) => {
-      const msg =
-        err &&
-        typeof err === "object" &&
-        "message" in err &&
-        typeof (err as { message?: unknown }).message === "string"
-          ? (err as { message: string }).message
-          : "Gagal mengunduh XLSX cancel.";
-      toast.error(msg);
+    onError: (err) => {
+      apiError(err, "Gagal mengunduh XLSX cancel.");
     },
   });
 }

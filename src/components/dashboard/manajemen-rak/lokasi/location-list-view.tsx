@@ -26,17 +26,10 @@ import {
 } from "@/hooks/manajemen-rak/use-warehouse-layout-setting";
 import { useListState } from "@/hooks/use-list-state";
 import type { Location } from "@/types/manajemen-rak/location";
+import { apiError } from "@/lib/toast";
 
 import { LocationTable } from "./location-table";
 import { DeleteLocationDialog } from "./delete-location-dialog";
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === "object" && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    if (typeof msg === "string" && msg) return msg;
-  }
-  return fallback;
-}
 
 export function LocationListView() {
   const list = useListState<Record<string, never>>(
@@ -67,8 +60,7 @@ export function LocationListView() {
     toggleActive.mutate(
       { id: location.id, isActive: !location.isActive },
       {
-        onError: (err) =>
-          toast.error(getErrorMessage(err, "Gagal mengubah status aktif.")),
+        onError: (err) => apiError(err, "Gagal mengubah status aktif."),
         onSettled: () => setTogglingId(null),
       },
     );
@@ -81,8 +73,7 @@ export function LocationListView() {
         toast.success("Lokasi berhasil dihapus.");
         setDeleteTarget(null);
       },
-      onError: (err) =>
-        toast.error(getErrorMessage(err, "Gagal menghapus lokasi.")),
+      onError: (err) => apiError(err, "Gagal menghapus lokasi."),
     });
   }
 
@@ -94,8 +85,7 @@ export function LocationListView() {
             ? "Layout gudang diaktifkan."
             : "Layout gudang dinonaktifkan.",
         ),
-      onError: (err) =>
-        toast.error(getErrorMessage(err, "Gagal menyimpan pengaturan.")),
+      onError: (err) => apiError(err, "Gagal menyimpan pengaturan."),
     });
   }
 

@@ -37,6 +37,7 @@ import {
 import { useListState } from "@/hooks/use-list-state";
 import { type Picklist } from "@/types/proses-pesanan/fulfillment";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { apiError } from "@/lib/toast";
 
 type PicklistFilterState = {
   status: string;
@@ -63,14 +64,6 @@ const EMPTY_PICKLIST_FILTERS: PicklistFilterState = {
 };
 
 import { UbahPickerDialog } from "./ubah-picker-dialog";
-
-function errMsg(err: unknown, fallback: string): string {
-  if (err && typeof err === "object" && "message" in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === "string" && m) return m;
-  }
-  return fallback;
-}
 
 const STATUS_OPTIONS = [
   { value: "DRAFT", label: "Draft" },
@@ -341,7 +334,7 @@ export function PicklistTable() {
         );
         setRevertTarget(null);
       },
-      onError: (e) => toast.error(errMsg(e, "Gagal menghapus picklist.")),
+      onError: (e) => apiError(e, "Gagal menghapus picklist."),
     });
   };
 

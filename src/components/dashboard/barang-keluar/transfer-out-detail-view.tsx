@@ -6,6 +6,7 @@ import Image from "next/image";
 import { PrinterIcon, Trash2Icon, ImageIcon, PencilIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import { apiError } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -78,9 +79,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
       }
       openPreview();
     } catch (err) {
-      toast.error(
-        (err as { message?: string })?.message || "Gagal mencetak transfer",
-      );
+      apiError(err, "Gagal mencetak transfer");
     } finally {
       setPrinting(false);
     }

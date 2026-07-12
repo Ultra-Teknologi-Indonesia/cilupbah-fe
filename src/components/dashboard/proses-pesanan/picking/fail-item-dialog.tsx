@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import { Loader2Icon, TriangleAlertIcon } from "lucide-react";
-import { toast } from "sonner";
+
+import { apiError } from "@/lib/toast";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,14 +31,6 @@ const REASONS: PicklistFailReasonCode[] = [
   "MISSING",
   "OTHER",
 ];
-
-function errMsg(err: unknown, fallback: string): string {
-  if (err && typeof err === "object" && "message" in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === "string" && m) return m;
-  }
-  return fallback;
-}
 
 export function FailItemDialog({
   open,
@@ -82,7 +75,7 @@ export function FailItemDialog({
           onOpenChange(false);
         },
         onError: (e) => {
-          toast.error(errMsg(e, "Gagal menandai item gagal."));
+          apiError(e, "Gagal menandai item gagal.");
         },
       },
     );

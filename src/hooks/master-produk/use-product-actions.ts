@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { ProductDetailService } from "@/services/master-produk/product-detail.service";
+import { apiError } from "@/lib/toast";
 
 const LIST_KEY = ["master-produk", "list"] as const;
 const ARCHIVE_KEY = ["master-produk", "archive"] as const;
@@ -18,9 +19,7 @@ export function useDeleteProduct() {
       qc.invalidateQueries({ queryKey: LIST_KEY });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus produk",
-      ),
+      apiError(err, "Gagal menghapus produk"),
   });
 }
 
@@ -40,9 +39,7 @@ export function useArchiveProduct() {
       qc.invalidateQueries({ queryKey: ARCHIVE_KEY });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal mengarsipkan produk",
-      ),
+      apiError(err, "Gagal mengarsipkan produk"),
   });
 }
 
@@ -62,9 +59,7 @@ export function useBulkArchive() {
       qc.invalidateQueries({ queryKey: ARCHIVE_KEY });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal mengarsipkan produk",
-      ),
+      apiError(err, "Gagal mengarsipkan produk"),
   });
 }
 
@@ -83,9 +78,7 @@ export function useBulkRestore() {
       qc.invalidateQueries({ queryKey: ARCHIVE_KEY });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal memulihkan produk",
-      ),
+      apiError(err, "Gagal memulihkan produk"),
   });
 }
 
@@ -103,8 +96,6 @@ export function useBulkDelete() {
       qc.invalidateQueries({ queryKey: LIST_KEY });
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus produk",
-      ),
+      apiError(err, "Gagal menghapus produk"),
   });
 }

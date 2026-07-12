@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { apiError } from "@/lib/toast";
 import { ManualOrderService } from "@/services/pesanan/manual-order.service";
 
 export function useCreateManualOrder() {
@@ -13,9 +14,6 @@ export function useCreateManualOrder() {
       toast.success("Pesanan berhasil dibuat");
       qc.invalidateQueries({ queryKey: ["order"] });
     },
-    onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal membuat pesanan",
-      ),
+    onError: (err) => apiError(err, "Gagal membuat pesanan"),
   });
 }

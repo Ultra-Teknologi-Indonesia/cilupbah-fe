@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import { Loader2Icon, SplitIcon } from "lucide-react";
-import { toast } from "sonner";
+
+import { apiError } from "@/lib/toast";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -115,7 +116,7 @@ export function PecahRakDialog({
       { picklistId, itemId: item.id, allocations },
       {
         onSuccess: () => onOpenChange(false),
-        onError: (e) => toast.error(errMsg(e, "Gagal memecah rak.")),
+        onError: (e) => apiError(e, "Gagal memecah rak."),
       },
     );
   };

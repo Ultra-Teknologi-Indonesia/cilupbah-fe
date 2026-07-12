@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 import { ContactImportService } from "@/services/kontak-pemasok/contact-import.service";
 import type { ImportValidRow } from "@/types/kontak-pemasok/import";
 
@@ -11,9 +12,7 @@ export function useValidateImport() {
   return useMutation({
     mutationFn: (file: File) => ContactImportService.validate(file),
     onError: (err) => {
-      toast.error(
-        (err as { message?: string })?.message ?? "Gagal memvalidasi file",
-      );
+      apiError(err, "Gagal memvalidasi file");
     },
   });
 }
@@ -28,9 +27,7 @@ export function useSaveImport() {
       qc.invalidateQueries({ queryKey: ["contact"] });
     },
     onError: (err) => {
-      toast.error(
-        (err as { message?: string })?.message ?? "Gagal menyimpan data import",
-      );
+      apiError(err, "Gagal menyimpan data import");
     },
   });
 }

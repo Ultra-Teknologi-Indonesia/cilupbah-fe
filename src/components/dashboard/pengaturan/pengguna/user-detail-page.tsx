@@ -34,14 +34,7 @@ import {
   useDeleteUser,
   useLoginHistory,
 } from "@/hooks/pengaturan/use-users";
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === "object" && "message" in error) {
-    const msg = (error as { message?: unknown }).message;
-    if (typeof msg === "string" && msg) return msg;
-  }
-  return fallback;
-}
+import { apiError } from "@/lib/toast";
 
 function formatDate(iso: string | null): string {
   if (!iso) return "-";
@@ -88,8 +81,7 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
         toast.success("Pengguna berhasil dihapus.");
         router.push("/dashboard/pengaturan/pengguna");
       },
-      onError: (err) =>
-        toast.error(getErrorMessage(err, "Gagal menghapus pengguna.")),
+      onError: (err) => apiError(err, "Gagal menghapus pengguna."),
     });
   }
 

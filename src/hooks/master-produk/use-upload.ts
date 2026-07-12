@@ -16,6 +16,7 @@ import {
   type UploadListingParams,
   type BulkUploadResult,
 } from "@/services/master-produk/upload.service";
+import { apiError } from "@/lib/toast";
 
 export type {
   CategoryRules,
@@ -53,10 +54,7 @@ export function useMatchListing(productId: string) {
   return useMutation({
     mutationFn: (storeIds: string[]) =>
       UploadService.match(productId, storeIds),
-    onError: (err) => {
-      const message = (err as { message?: string })?.message;
-      toast.error(message || "Gagal mencocokkan data master");
-    },
+    onError: (err) => apiError(err, "Gagal mencocokkan data master"),
   });
 }
 
@@ -96,10 +94,7 @@ export function useUploadToStores(productId: string) {
       }
       invalidate();
     },
-    onError: (err) => {
-      const message = (err as { message?: string })?.message;
-      toast.error(message || "Upload gagal diproses");
-    },
+    onError: (err) => apiError(err, "Upload gagal diproses"),
   });
 }
 
@@ -151,10 +146,7 @@ export function useUploadWithAttributes(productId: string) {
       }
       invalidate();
     },
-    onError: (err) => {
-      const message = (err as { message?: string })?.message;
-      toast.error(message || "Upload gagal diproses");
-    },
+    onError: (err) => apiError(err, "Upload gagal diproses"),
   });
 }
 
@@ -176,9 +168,7 @@ export function useUploadDraft() {
       invalidate();
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal mengupload draft",
-      ),
+      apiError(err, "Gagal mengupload draft"),
   });
 }
 
@@ -197,9 +187,7 @@ export function useDeleteDraft() {
       invalidate();
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus draft",
-      ),
+      apiError(err, "Gagal menghapus draft"),
   });
 }
 
@@ -221,10 +209,7 @@ export function useReuploadHistory() {
       invalidate();
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message ||
-          "Gagal mengantrekan upload ulang",
-      ),
+      apiError(err, "Gagal mengantrekan upload ulang"),
   });
 }
 
@@ -237,8 +222,6 @@ export function useBulkDeleteHistories() {
       invalidate();
     },
     onError: (err) =>
-      toast.error(
-        (err as { message?: string })?.message || "Gagal menghapus riwayat",
-      ),
+      apiError(err, "Gagal menghapus riwayat"),
   });
 }

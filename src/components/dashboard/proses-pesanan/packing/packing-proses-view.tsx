@@ -48,16 +48,9 @@ import type {
 import { playScanFeedback } from "@/lib/scan-feedback";
 import { usePrintWithDriverCall } from "@/hooks/proses-pesanan/use-driver-call";
 import { isShopeeInstantOrSameDay } from "@/lib/proses-pesanan/shopee";
+import { apiError } from "@/lib/toast";
 
 const LIST_HREF = "/dashboard/proses-pesanan/packing";
-
-function errMsg(err: unknown, fallback: string): string {
-  if (err && typeof err === "object" && "message" in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === "string" && m) return m;
-  }
-  return fallback;
-}
 
 function ItemImage({
   src,
@@ -380,7 +373,7 @@ export function PackingProsesView() {
           },
           onError: (e) => {
             completedRef.current.delete(pl.id);
-            toast.error(errMsg(e, "Gagal menyelesaikan packing."));
+            apiError(e, "Gagal menyelesaikan packing.");
           },
         });
       }
@@ -465,11 +458,9 @@ export function PackingProsesView() {
       refocusScan();
     } catch (err) {
       playScanFeedback("error");
-      toast.error(
-        errMsg(
-          err,
-          `Pesanan "${code}" tidak ditemukan atau belum siap packing.`,
-        ),
+      apiError(
+        err,
+        `Pesanan "${code}" tidak ditemukan atau belum siap packing.`,
       );
       orderScanRef.current?.focus();
     }

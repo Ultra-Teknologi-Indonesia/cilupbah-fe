@@ -55,7 +55,18 @@ export async function fetchClient<T>(
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw error.response.data;
+      const body = error.response.data;
+      const payload =
+        body && typeof body === "object" ? { ...body } : { message: body };
+      throw { status: error.response.status, ...payload };
+    }
+    if (axios.isAxiosError(error)) {
+      throw {
+        status: 0,
+        title: "Tidak dapat terhubung ke server",
+        message:
+          "Periksa koneksi internet Anda, lalu coba lagi. Jika masalah berlanjut, laporkan ke admin/developer terkait masalah ini.",
+      };
     }
     throw error;
   }
