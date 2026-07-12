@@ -9,7 +9,6 @@ import {
   PackageCheck,
   ShoppingBag,
   Store,
-  CornerDownLeft,
   Users,
   MonitorSmartphone,
   LinkIcon,
@@ -29,13 +28,11 @@ import {
   TrendingDown,
   PackageOpen,
   Factory,
-  CircleDollarSign,
   Settings,
   HelpCircle,
   Layers,
   Warehouse,
   BarChart3,
-  Undo2,
   AlertTriangle,
 } from "lucide-react";
 import type React from "react";
@@ -127,13 +124,6 @@ export const dashboardGroups: NavGroup[] = [
         link: "/dashboard/toko-internal",
       },
       {
-        id: "retur-penjualan",
-        title: "Retur Penjualan",
-        icon: CornerDownLeft,
-        link: "/dashboard/retur-penjualan",
-        comingSoon: true,
-      },
-      {
         id: "kontak-pelanggan",
         title: "Kontak Pelanggan",
         icon: Users,
@@ -215,18 +205,6 @@ export const dashboardGroups: NavGroup[] = [
     zone: "fin",
     items: [
       {
-        id: "laporan-hpp",
-        title: "Laporan HPP",
-        icon: CircleDollarSign,
-        link: "/dashboard/laporan/hpp",
-      },
-      {
-        id: "laporan-retur",
-        title: "Laporan Retur",
-        icon: Undo2,
-        link: "/dashboard/laporan/retur",
-      },
-      {
         id: "laporan-penjualan",
         title: "Laporan Penjualan",
         icon: TrendingUp,
@@ -303,7 +281,6 @@ export const NAV_PERMISSION: Record<string, string | string[]> = {
   "monitor-stok": "view-monitor-stok",
   pesanan: "view-pesanan",
   "toko-internal": "view-toko-internal",
-  "retur-penjualan": "view-retur-penjualan",
   "kontak-pelanggan": "view-kontak-pelanggan",
   "integrasi-channel": "view-integrasi-channel",
   "transaksi-pembelian": "view-transaksi-pembelian",
@@ -313,8 +290,6 @@ export const NAV_PERMISSION: Record<string, string | string[]> = {
   "proses-pesanan": ["view-picking", "view-packing", "view-pengiriman"],
   "manajemen-rak": "view-manajemen-rak",
   "permintaan-restock": "view-permintaan-restock",
-  "laporan-hpp": "view-laporan-hpp",
-  "laporan-retur": "view-laporan-retur",
   "laporan-penjualan": "view-laporan-penjualan",
   "laporan-pembelian": "view-laporan-pembelian",
   "laporan-persediaan": "view-laporan-persediaan",
