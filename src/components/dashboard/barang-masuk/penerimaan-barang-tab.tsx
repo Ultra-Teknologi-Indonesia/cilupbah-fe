@@ -1,7 +1,7 @@
 "use client";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -9,6 +9,7 @@ import {
   DownloadIcon,
   LayersIcon,
   PlayIcon,
+  PlusIcon,
   Trash2Icon,
   Loader2Icon,
 } from "lucide-react";
@@ -36,7 +37,7 @@ import { useListState } from "@/hooks/use-list-state";
 import { useUrlTab } from "@/hooks/use-url-tab";
 import { exportCsv } from "@/lib/export-csv";
 import type { Inbound } from "@/types/barang-masuk/inbound";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 
 /** Sub-tab sumber → filter[type] pada daftar penerimaan. */
 type SourceTab = "semua" | "pesanan" | "transfer" | "retur";
@@ -424,16 +425,24 @@ export function PenerimaanBarangTab() {
             </TabsList>
           </Tabs>
 
-          {items.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleExportList(items)}
-            >
-              <DownloadIcon className="mr-1.5 size-4" />
-              Export CSV
+          <div className="flex items-center gap-2">
+            {items.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleExportList(items)}
+              >
+                <DownloadIcon className="mr-1.5 size-4" />
+                Export CSV
+              </Button>
+            )}
+            <Button size="sm" asChild>
+              <Link href="/dashboard/barang-masuk/penerimaan/tambah">
+                <PlusIcon className="mr-1.5 size-4" />
+                Tambah Penerimaan
+              </Link>
             </Button>
-          )}
+          </div>
         </div>
         <FilterToolbar
           search={list.search}
