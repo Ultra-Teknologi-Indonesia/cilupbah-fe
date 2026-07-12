@@ -4,9 +4,13 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { useState, useMemo } from "react";
 import { useListState } from "@/hooks/use-list-state";
 import Link from "next/link";
-import { PlusIcon, ClipboardListIcon, Trash2Icon, Loader2Icon } from "lucide-react";
+import {
+  PlusIcon,
+  ClipboardListIcon,
+  Trash2Icon,
+  Loader2Icon,
+} from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -122,9 +126,7 @@ export function PesananListView() {
     [locData],
   );
 
-  const hasActiveFilter = Boolean(
-    filters.location_id || filters.date_from,
-  );
+  const hasActiveFilter = Boolean(filters.location_id || filters.date_from);
 
   const columns = useMemo<ColumnDef<PurchaseOrder>[]>(
     () => [
@@ -216,9 +218,7 @@ export function PesananListView() {
           searchPlaceholder="Cari no. pesanan, pemasok..."
           align="end"
           onReset={
-            hasActiveFilter
-              ? () => setFilters(EMPTY_FILTERS)
-              : undefined
+            hasActiveFilter ? () => setFilters(EMPTY_FILTERS) : undefined
           }
           hasFilter={hasActiveFilter}
           activeCount={activeCount}
@@ -235,9 +235,7 @@ export function PesananListView() {
           <Combobox
             options={locationOptions}
             value={filters.location_id}
-            onChange={(v) =>
-              setFilters({ ...filters, location_id: v ?? "" })
-            }
+            onChange={(v) => setFilters({ ...filters, location_id: v ?? "" })}
             placeholder="Lokasi"
             searchPlaceholder="Cari lokasi"
             className="h-9 bg-background"
@@ -291,7 +289,11 @@ export function PesananListView() {
             onPaginationChange={onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <EmptyState icon={ClipboardListIcon} title="Belum ada pesanan pembelian" description="Buat pesanan baru untuk mulai memesan barang dari pemasok." />
+              <EmptyState
+                icon={ClipboardListIcon}
+                title="Belum ada pesanan pembelian"
+                description="Buat pesanan baru untuk mulai memesan barang dari pemasok."
+              />
             }
           />
         </div>

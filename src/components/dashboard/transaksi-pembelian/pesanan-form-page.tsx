@@ -125,35 +125,35 @@ export function PesananFormPage({ mode, id }: Props) {
   });
   const { data: locData } = useLocations({ perPage: 100 });
 
-  useEffect(() => {
-    if (mode === "edit" && existingPO) {
-      setPoNumber(existingPO.po_number);
-      setPoNumberAuto(false);
-      setContactId(existingPO.contact_id);
-      setLocationId(existingPO.location_id);
-      setOrderDate(
-        existingPO.order_date ? new Date(existingPO.order_date) : undefined,
-      );
-      setRefNo(existingPO.ref_no ?? "");
-      setPaymentTerm(existingPO.payment_term?.toString() ?? "0");
-      setNotes(existingPO.notes ?? "");
-      setItems(
-        existingPO.items.map((it) => ({
-          item_id: it.item_id,
-          product_name: it.product?.name ?? "",
-          product_sku: it.product?.sku ?? "",
-          description: it.description ?? "",
-          unit: it.unit ?? "",
-          qty: it.qty,
-          unit_price: Number(it.unit_price),
-          disc: Number(it.disc),
-          disc_amount: Number(it.disc_amount ?? 0),
-          shipping_cost: Number(it.shipping_cost ?? 0),
-          thumbnail: null,
-        })),
-      );
-    }
-  }, [mode, existingPO]);
+  const [prevExistingId, setPrevExistingId] = useState(existingPO?.id);
+  if (mode === "edit" && existingPO && prevExistingId !== existingPO.id) {
+    setPrevExistingId(existingPO.id);
+    setPoNumber(existingPO.po_number);
+    setPoNumberAuto(false);
+    setContactId(existingPO.contact_id);
+    setLocationId(existingPO.location_id);
+    setOrderDate(
+      existingPO.order_date ? new Date(existingPO.order_date) : undefined,
+    );
+    setRefNo(existingPO.ref_no ?? "");
+    setPaymentTerm(existingPO.payment_term?.toString() ?? "0");
+    setNotes(existingPO.notes ?? "");
+    setItems(
+      existingPO.items.map((it) => ({
+        item_id: it.item_id,
+        product_name: it.product?.name ?? "",
+        product_sku: it.product?.sku ?? "",
+        description: it.description ?? "",
+        unit: it.unit ?? "",
+        qty: it.qty,
+        unit_price: Number(it.unit_price),
+        disc: Number(it.disc),
+        disc_amount: Number(it.disc_amount ?? 0),
+        shipping_cost: Number(it.shipping_cost ?? 0),
+        thumbnail: null,
+      })),
+    );
+  }
 
   const contactOptions = useMemo(
     () =>
@@ -249,9 +249,11 @@ export function PesananFormPage({ mode, id }: Props) {
 
   const canSubmit = Boolean(contactId && locationId && orderDate && itemsValid);
   const isPending = createMut.isPending || updateMut.isPending;
-  const mutationError = (createMut.error || updateMut.error) as any;
-  const validationErrors = mutationError?.errors as
-    Record<string, string[]> | undefined;
+  const mutationError = (createMut.error || updateMut.error) as
+    | { errors?: Record<string, string[]> }
+    | undefined
+    | null;
+  const validationErrors = mutationError?.errors;
   const itemErrors = useMemo(() => {
     if (!validationErrors) return [];
     return Object.entries(validationErrors)
