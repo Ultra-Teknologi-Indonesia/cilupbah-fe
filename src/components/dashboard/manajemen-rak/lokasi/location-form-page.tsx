@@ -27,7 +27,6 @@ import { useBulkUpdateBins } from "@/hooks/manajemen-rak/use-bulk-update-bins";
 import { useWarehouseLayoutSetting } from "@/hooks/manajemen-rak/use-warehouse-layout-setting";
 import type {
   BinDraft,
-  BinPreviewItem,
   GenerateBinsPayload,
   Location,
   LocationPayload,
@@ -214,9 +213,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
   const title = mode === "create" ? "Buat Lokasi" : "Edit Lokasi";
 
   if (mode === "edit" && detail.isLoading) {
-    return (
-      <FormSkeleton />
-    );
+    return <FormSkeleton />;
   }
 
   if (mode === "edit" && detail.isError) {

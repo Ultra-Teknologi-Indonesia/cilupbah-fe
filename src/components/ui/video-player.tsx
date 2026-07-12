@@ -102,7 +102,7 @@ export function VideoPlayer({
       onMouseLeave={() => playing && setShowControls(false)}
       {...props}
     >
-      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+      { }
       <video
         ref={videoRef}
         src={src}
@@ -213,7 +213,7 @@ export function VideoThumbnail({
 
   return (
     <div className={cn("relative overflow-hidden", className)} {...props}>
-      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+      { }
       <video
         ref={videoRef}
         src={src}

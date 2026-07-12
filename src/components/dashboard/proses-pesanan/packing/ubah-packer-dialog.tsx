@@ -40,9 +40,13 @@ export function UbahPackerDialog({
   const pickers = usePickers(locationId ?? undefined, "packer", open);
   const assignPacker = useAssignPacker();
 
-  React.useEffect(() => {
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  const [prevCurrent, setPrevCurrent] = React.useState(currentPackerId);
+  if (open !== prevOpen || currentPackerId !== prevCurrent) {
+    setPrevOpen(open);
+    setPrevCurrent(currentPackerId);
     if (open) setPackerId(currentPackerId ?? "");
-  }, [open, currentPackerId]);
+  }
 
   const handleSubmit = async () => {
     if (!packlistId || !packerId) return;

@@ -223,7 +223,7 @@ export function ProductMediaManager({
         </p>
         {video ? (
           <div className="relative w-40 overflow-hidden rounded-xl border border-border/60 bg-muted/30">
-            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+            { }
             <video
               src={video.url}
               muted

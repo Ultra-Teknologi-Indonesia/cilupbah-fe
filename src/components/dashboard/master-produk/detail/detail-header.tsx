@@ -118,7 +118,7 @@ function Gallery({
               >
                 {item.type === "video" ? (
                   <div className="relative size-full bg-muted/60">
-                    {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+                    { }
                     <video
                       src={item.url}
                       muted
