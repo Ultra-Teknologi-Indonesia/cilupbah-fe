@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -468,9 +469,6 @@ export function BuatPenyesuaianView() {
                 <TableHead className="px-3 py-2.5 text-right text-muted-foreground">
                   Qty Akhir
                 </TableHead>
-                <TableHead className="px-3 py-2.5 text-right text-muted-foreground">
-                  Harga Pokok
-                </TableHead>
                 <TableHead className="px-3 py-2.5 text-muted-foreground">
                   Keterangan
                 </TableHead>
@@ -480,7 +478,7 @@ export function BuatPenyesuaianView() {
             <TableBody className="divide-y divide-border">
               {lines.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="px-3 py-12 text-center">
+                  <TableCell colSpan={7} className="px-3 py-12 text-center">
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
                       <PackageSearchIcon className="size-7 opacity-40" />
                       <p className="text-sm">
@@ -507,7 +505,7 @@ export function BuatPenyesuaianView() {
                       <TableCell className="px-3 py-2.5">
                         <div className="flex max-w-[260px] items-center gap-3">
                           {l.thumbnail ? (
-                            <img
+                            <Image unoptimized width={400} height={400}
                               src={l.thumbnail}
                               alt={l.name}
                               className="h-11 w-11 shrink-0 rounded-xl border border-border object-cover"
@@ -591,19 +589,6 @@ export function BuatPenyesuaianView() {
                         )}
                       >
                         {qtyAkhir}
-                      </TableCell>
-                      {}
-                      <TableCell className="px-3 py-2.5 text-right">
-                        <Input
-                          type="number"
-                          min={0}
-                          value={l.unitCost}
-                          onChange={(e) =>
-                            updateLine(l.itemId, { unitCost: e.target.value })
-                          }
-                          placeholder="0"
-                          className="h-9 w-28 text-right"
-                        />
                       </TableCell>
                       {}
                       <TableCell className="px-3 py-2.5">

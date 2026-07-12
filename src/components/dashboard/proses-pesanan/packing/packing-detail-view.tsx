@@ -413,7 +413,7 @@ export function PackingDetailView({ id }: { id: string }) {
         }
       />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_420px]">
         {}
         <div className="flex flex-col gap-4">
           {}
@@ -500,6 +500,7 @@ export function PackingDetailView({ id }: { id: string }) {
                             <ItemImage
                               src={item.imageUrl}
                               alt={item.description ?? item.sku}
+                              size={80}
                             />
                             <div className="min-w-0 flex-1">
                               <p className="font-medium text-foreground truncate">
@@ -568,7 +569,7 @@ export function PackingDetailView({ id }: { id: string }) {
               <p className="mb-3 text-xs font-medium text-muted-foreground">
                 Produk dalam paket
               </p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 {items.map((item) => {
                   const done = item.qtyPacked >= item.qtyOrdered;
                   return (
@@ -582,16 +583,19 @@ export function PackingDetailView({ id }: { id: string }) {
                       <ItemImage
                         src={item.imageUrl}
                         alt={item.description ?? item.sku}
-                        size={96}
+                        size={192}
                       />
                       {done && (
                         <div className="absolute inset-0 flex items-center justify-center bg-success/20">
-                          <CheckCircle2Icon className="size-6 text-success" />
+                          <CheckCircle2Icon className="size-10 text-success" />
                         </div>
                       )}
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-1.5">
-                        <p className="truncate text-2xs font-medium text-white">
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                        <p className="truncate text-xs font-semibold text-white">
                           {item.qtyPacked}/{item.qtyOrdered}
+                        </p>
+                        <p className="truncate text-2xs text-white/80">
+                          {item.description ?? item.sku}
                         </p>
                       </div>
                     </div>

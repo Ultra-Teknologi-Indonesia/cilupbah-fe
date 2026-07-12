@@ -258,7 +258,6 @@ export const NAV_PERMISSION: Record<string, string | string[]> = {
     "view-penyesuaian-stok",
     "view-pindah-bin",
     "view-stok-opname",
-    "view-revaluasi-stok",
   ],
   "monitor-stok": "view-monitor-stok",
   pesanan: "view-pesanan",

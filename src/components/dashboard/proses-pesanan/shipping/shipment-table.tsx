@@ -262,20 +262,60 @@ export function ShipmentTable() {
         onSearchChange={list.setSearch}
         searchPlaceholder="Cari no. pengiriman…"
       />
-      <div className="flex items-center justify-end gap-3 border-b border-border/40 px-4 py-2 text-sm text-muted-foreground sm:px-5">
-        <button
-          type="button"
-          onClick={() => refetch()}
-          className="rounded-full p-1.5 transition-colors hover:bg-muted"
-          aria-label="Muat ulang"
-        >
-          <RefreshCwIcon
-            className={cn("size-4", isFetching && "animate-spin")}
-          />
-        </button>
-        <span className="flex items-center gap-1.5">
-          Total <Badge>{meta.total}</Badge>
-        </span>
+      <div className="flex items-center justify-between gap-3 border-b border-border/40 px-4 py-2 text-sm text-muted-foreground sm:px-5">
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() =>
+              list.setFilters({
+                ...(list.filters as PageFilterState),
+                shipment_type: "",
+              } as PageFilterState)
+            }
+            className={cn(
+              "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+              !list.filters.shipment_type
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border bg-background hover:bg-muted",
+            )}
+          >
+            Semua
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              list.setFilters({
+                ...(list.filters as PageFilterState),
+                shipment_type: "INSTANT",
+              } as PageFilterState)
+            }
+            className={cn(
+              "flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+              list.filters.shipment_type === "INSTANT"
+                ? "border-orange-500 bg-orange-500 text-white"
+                : "border-border bg-background hover:bg-muted",
+            )}
+            aria-label="Filter Kurir Instan"
+          >
+            <ZapIcon className="size-3" />
+            Kurir Instan
+          </button>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="rounded-full p-1.5 transition-colors hover:bg-muted"
+            aria-label="Muat ulang"
+          >
+            <RefreshCwIcon
+              className={cn("size-4", isFetching && "animate-spin")}
+            />
+          </button>
+          <span className="flex items-center gap-1.5">
+            Total <Badge>{meta.total}</Badge>
+          </span>
+        </div>
       </div>
 
       <div className="px-4 pb-4 sm:px-5">
