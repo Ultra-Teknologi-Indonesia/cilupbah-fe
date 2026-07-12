@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import * as React from "react";
 import type { ColumnDef, Table as TableInstance } from "@tanstack/react-table";
 import type { LucideIcon } from "lucide-react";
-import {  DownloadIcon, Loader2Icon , SearchXIcon } from "lucide-react";
+import { DownloadIcon, SearchXIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -108,17 +108,12 @@ export function ResourceListView<T>({
         {filterControls}
       </FilterToolbar>
 
-      {isFetching && !isLoading && (
-        <div className="flex justify-center py-1">
-          <Loader2Icon className="size-4 animate-spin text-primary" />
-        </div>
-      )}
-
       <div className="px-5 py-5 sm:px-6">
         <DataTable
           columns={columns}
           data={rows}
           isLoading={isLoading}
+          isFetching={isFetching}
           hideToolbar
           manualPagination
           pagination={list.pagination}

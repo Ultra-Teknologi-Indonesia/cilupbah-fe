@@ -12,7 +12,7 @@ import { PlusIcon,
   UsersIcon,
   TruckIcon,
   ArrowLeftRightIcon,
-  UploadIcon, Loader2Icon } from "lucide-react";
+  UploadIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -318,17 +318,12 @@ export function KontakPemasokView() {
           />
         </FilterToolbar>
 
-        {isFetching && !isLoading && (
-          <div className="flex justify-center py-1">
-            <Loader2Icon className="size-4 animate-spin text-primary" />
-          </div>
-        )}
-
         <div className="px-5 py-5 sm:px-6">
           <DataTable
             columns={columns}
             data={items}
             isLoading={isLoading}
+            isFetching={isFetching}
             hideToolbar
             manualPagination
             pagination={pagination}

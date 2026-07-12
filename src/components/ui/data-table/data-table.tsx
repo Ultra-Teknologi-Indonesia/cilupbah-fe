@@ -77,6 +77,7 @@ export interface DataTableProps<TData, TValue> {
   onPaginationChange?: (p: PaginationState) => void;
 
   isLoading?: boolean;
+  isFetching?: boolean;
 
   loadingRows?: number;
   emptyState?: React.ReactNode;
@@ -116,6 +117,7 @@ export function DataTable<TData, TValue>({
   pagination: paginationProp,
   onPaginationChange,
   isLoading = false,
+  isFetching = false,
   loadingRows = 8,
   emptyState,
   errorState,
@@ -186,6 +188,9 @@ export function DataTable<TData, TValue>({
     .rows.map((r) => r.original);
   const colSpan = table.getVisibleLeafColumns().length || columns.length;
 
+  const showSkeleton = isLoading && data.length === 0;
+  const isRefreshing = (isFetching || isLoading) && data.length > 0;
+
   return (
     <div className={cn("flex flex-col gap-4", className)}>
       {!hideToolbar && (
@@ -211,9 +216,11 @@ export function DataTable<TData, TValue>({
 
       <div
         className={cn(
-          "overflow-hidden rounded-t-2xl border border-border bg-card backdrop-blur-xl",
+          "overflow-hidden rounded-t-2xl border border-border bg-card backdrop-blur-xl transition-opacity duration-200",
+          isRefreshing && "pointer-events-none opacity-60",
           tableContainerClassName,
         )}
+        aria-busy={isRefreshing || showSkeleton}
       >
         <ScrollArea className="w-full whitespace-nowrap">
           <Table>
@@ -243,7 +250,7 @@ export function DataTable<TData, TValue>({
             </TableHeader>
 
             <TableBody>
-              {isLoading ? (
+              {showSkeleton ? (
                 Array.from({ length: loadingRows }).map((_, i) => (
                   <TableRow key={`skeleton-${i}`}>
                     {table.getVisibleLeafColumns().map((col) => (

@@ -8,8 +8,7 @@ import {
   PlusIcon,
   ClipboardListIcon,
   Trash2Icon,
-  Loader2Icon,
-} from "lucide-react";
+  } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
@@ -259,17 +258,12 @@ export function PesananListView() {
           />
         </FilterToolbar>
 
-        {isFetching && !isLoading && (
-          <div className="flex justify-center py-2">
-            <Loader2Icon className="size-4 animate-spin text-primary" />
-          </div>
-        )}
-
         <div className="px-5 py-5 sm:px-6">
           <DataTable
             columns={columns}
             data={items}
             isLoading={isLoading}
+            isFetching={isFetching}
             enableRowSelection
             bulkActions={(selected, _table) => (
               <Button

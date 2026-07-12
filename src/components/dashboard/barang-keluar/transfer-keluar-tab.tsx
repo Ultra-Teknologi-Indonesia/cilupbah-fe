@@ -210,18 +210,13 @@ function TransferTable({
   );
   return (
     <>
-      {isFetching && !isLoading && (
-        <div className="flex justify-center py-1">
-          <Loader2Icon className="size-4 animate-spin text-primary" />
-        </div>
-      )}
-
       <div className="px-5 py-5 sm:px-6">
         <DataTable
           columns={columns}
           data={items}
           getRowId={(row) => row.id}
           isLoading={isLoading}
+          isFetching={isFetching}
           hideToolbar
           manualPagination
           enableRowSelection={!!bulkActions}

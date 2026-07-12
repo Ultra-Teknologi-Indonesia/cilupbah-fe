@@ -10,8 +10,7 @@ import {
   DownloadIcon,
   PrinterIcon,
   Trash2Icon,
-  Loader2Icon,
-} from "lucide-react";
+  } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -436,17 +435,12 @@ export function PenempatanBarangTab() {
           />
         </FilterToolbar>
 
-        {isFetching && !isLoading && (
-          <div className="flex justify-center py-1">
-            <Loader2Icon className="size-4 animate-spin text-primary" />
-          </div>
-        )}
-
         <div className="px-5 py-5 sm:px-6">
           <DataTable
             columns={columns}
             data={items}
             isLoading={isLoading}
+            isFetching={isFetching}
             hideToolbar
             manualPagination
             enableRowSelection

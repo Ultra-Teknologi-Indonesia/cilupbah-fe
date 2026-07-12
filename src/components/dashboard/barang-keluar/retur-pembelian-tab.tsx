@@ -9,8 +9,7 @@ import {
   DownloadIcon,
   PlayIcon,
   Trash2Icon,
-  Loader2Icon,
-} from "lucide-react";
+  } from "lucide-react";
 
 import type { DateRange } from "react-day-picker";
 
@@ -204,7 +203,7 @@ export function ReturPembelianTab() {
     [],
   );
 
-  const items = data?.items ?? [];
+  const items = useMemo(() => data?.items ?? [], [data?.items]);
   const meta = data?.meta ?? {
     current_page: 1,
     last_page: 1,
@@ -310,17 +309,12 @@ export function ReturPembelianTab() {
           />
         </FilterToolbar>
 
-        {isFetching && !isLoading && (
-          <div className="flex justify-center py-1">
-            <Loader2Icon className="size-4 animate-spin text-primary" />
-          </div>
-        )}
-
         <div className="px-5 py-5 sm:px-6">
           <DataTable
             columns={columns}
             data={items}
             isLoading={isLoading}
+            isFetching={isFetching}
             hideToolbar
             manualPagination
             onRowClick={(row) =>
