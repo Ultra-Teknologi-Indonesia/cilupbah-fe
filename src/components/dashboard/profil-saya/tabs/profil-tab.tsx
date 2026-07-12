@@ -34,7 +34,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/phone-input";
-import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import { InfoField } from "@/components/dashboard/shared/info-field";
 import { useMe } from "@/hooks/auth/use-auth";
 import { useUpdateProfile } from "@/hooks/auth/use-profile";
@@ -188,32 +187,30 @@ export function ProfilTab() {
               />
             </CardContent>
 
-            <div className="px-6 pb-6">
-              <FormFooter>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => form.reset()}
-                  disabled={updateProfile.isPending || !form.formState.isDirty}
-                >
-                  Batal
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={
-                    updateProfile.isPending || !form.formState.isDirty
-                  }
-                >
-                  {updateProfile.isPending ? (
-                    <>
-                      <Loader2 className="size-4 animate-spin" />
-                      Menyimpan…
-                    </>
-                  ) : (
-                    "Simpan"
-                  )}
-                </Button>
-              </FormFooter>
+            <div className="flex items-center justify-end gap-2 px-6 pb-6">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => form.reset()}
+                disabled={updateProfile.isPending || !form.formState.isDirty}
+              >
+                Batal
+              </Button>
+              <Button
+                type="submit"
+                disabled={
+                  updateProfile.isPending || !form.formState.isDirty
+                }
+              >
+                {updateProfile.isPending ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    Menyimpan…
+                  </>
+                ) : (
+                  "Simpan"
+                )}
+              </Button>
             </div>
           </form>
         </Form>

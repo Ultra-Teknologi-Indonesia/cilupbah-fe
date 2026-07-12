@@ -33,7 +33,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import {
   useChangePassword,
   useMySessions,
@@ -156,33 +155,31 @@ function UbahKataSandiCard() {
             />
           </CardContent>
 
-          <div className="px-6 pb-6">
-            <FormFooter>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() =>
-                  form.reset({
-                    current_password: "",
-                    new_password: "",
-                    new_password_confirmation: "",
-                  })
-                }
-                disabled={changePassword.isPending}
-              >
-                Batal
-              </Button>
-              <Button type="submit" disabled={changePassword.isPending}>
-                {changePassword.isPending ? (
-                  <>
-                    <Loader2 className="size-4 animate-spin" />
-                    Menyimpan…
-                  </>
-                ) : (
-                  "Simpan kata sandi baru"
-                )}
-              </Button>
-            </FormFooter>
+          <div className="flex items-center justify-end gap-2 px-6 pb-6">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() =>
+                form.reset({
+                  current_password: "",
+                  new_password: "",
+                  new_password_confirmation: "",
+                })
+              }
+              disabled={changePassword.isPending}
+            >
+              Batal
+            </Button>
+            <Button type="submit" disabled={changePassword.isPending}>
+              {changePassword.isPending ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Menyimpan…
+                </>
+              ) : (
+                "Simpan kata sandi baru"
+              )}
+            </Button>
           </div>
         </form>
       </Form>
