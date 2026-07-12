@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import * as React from "react";
 import { UploadCloudIcon, XIcon, ImageIcon, PlayIcon } from "lucide-react";
@@ -100,7 +101,7 @@ export function MediaUploader({
                 key={img.id}
                 className="group relative aspect-square overflow-hidden rounded-xl border border-border bg-muted/40"
               >
-                <img
+                <Image unoptimized width={400} height={400}
                   src={img.url}
                   alt={img.name}
                   className="size-full object-cover"

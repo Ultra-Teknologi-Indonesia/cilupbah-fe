@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useCallback, useMemo } from "react";
@@ -82,7 +83,7 @@ function ProductImage({ src, alt }: { src?: string | null; alt: string }) {
   return (
     <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
       {src && !failed ? (
-        <img
+        <Image unoptimized width={400} height={400}
           src={src}
           alt={alt}
           className="size-full object-cover"

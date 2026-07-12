@@ -248,6 +248,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       setIsStyleLoaded(false);
       setMapInstance(null);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -938,6 +939,7 @@ function MapPopup({
       .setLngLat([longitude, latitude]);
 
     return popupInstance;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -956,6 +958,7 @@ function MapPopup({
         popup.remove();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map]);
 
   useLayoutEffect(() => {
@@ -1068,6 +1071,7 @@ function MapRoute({
         if (map.getSource(sourceId)) map.removeSource(sourceId);
       } catch {}
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, map]);
 
   useEffect(() => {
@@ -1353,6 +1357,7 @@ function MapArc<T extends MapArcDatum = MapArcDatum>({
         if (map.getSource(sourceId)) map.removeSource(sourceId);
       } catch {}
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, map]);
 
   useEffect(() => {
@@ -1592,6 +1597,7 @@ function MapClusterLayer<
         if (map.getSource(sourceId)) map.removeSource(sourceId);
       } catch {}
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, map, sourceId]);
 
   useEffect(() => {

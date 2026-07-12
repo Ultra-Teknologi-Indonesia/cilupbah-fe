@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import * as React from "react";
 import Link from "next/link";
@@ -93,7 +94,7 @@ function Gallery({
         ) : current.type === "video" ? (
           <VideoPlayer src={current.url} className="size-full" />
         ) : (
-          <img
+          <Image unoptimized width={400} height={400}
             src={current.url}
             alt={name}
             className="size-full object-contain"
@@ -134,7 +135,7 @@ function Gallery({
                     </div>
                   </div>
                 ) : (
-                  <img
+                  <Image unoptimized width={400} height={400}
                     src={item.url}
                     alt={`${name} ${i + 1}`}
                     className="size-full object-cover"

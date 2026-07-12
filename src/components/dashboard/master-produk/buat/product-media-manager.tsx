@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import * as React from "react";
 import {
@@ -158,8 +159,7 @@ export function ProductMediaManager({
                 dragIdx === idx && "opacity-50",
               )}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={item.url} alt="" className="size-full object-cover" />
+              <Image unoptimized width={400} height={400} src={item.url} alt="" className="size-full object-cover" />
 
               {item.isPrimary && (
                 <span className="absolute left-1 top-1 rounded-xl bg-primary px-1.5 py-0.5 text-2xs font-medium text-primary-foreground">

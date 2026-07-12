@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -435,7 +436,7 @@ export function PindahBinView() {
                         <TableCell className="px-3 py-2.5 align-top">
                           <div className="flex max-w-[280px] items-start gap-3">
                             {l.thumbnail ? (
-                              <img
+                              <Image unoptimized width={400} height={400}
                                 src={l.thumbnail}
                                 alt={l.name}
                                 className="h-11 w-11 shrink-0 rounded-md border border-border object-cover"

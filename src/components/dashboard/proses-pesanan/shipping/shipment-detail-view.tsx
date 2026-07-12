@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import * as React from "react";
 import {
@@ -210,7 +211,7 @@ function DriverSection({
                 rel="noopener noreferrer"
                 className="mt-1 block"
               >
-                <img
+                <Image unoptimized width={400} height={400}
                   src={detail.driverIdCardUrl}
                   alt="Kartu identitas driver"
                   className="h-20 rounded-md border border-border object-cover"

@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import * as React from "react";
 import Link from "next/link";
@@ -132,7 +133,7 @@ export function TransactionDetailSheet({
                   <div key={p.itemId} className="flex items-center gap-3 py-3">
                     <div className="size-10 shrink-0 overflow-hidden rounded-xl bg-muted/40">
                       {p.imgUrl ? (
-                        <img
+                        <Image unoptimized width={400} height={400}
                           src={p.imgUrl}
                           alt={p.itemName}
                           className="size-full object-cover"

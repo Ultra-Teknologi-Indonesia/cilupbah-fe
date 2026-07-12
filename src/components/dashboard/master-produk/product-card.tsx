@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import Link from "next/link";
 import { ImageIcon } from "lucide-react";
@@ -39,7 +40,7 @@ export function ProductCard({
 
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted/40">
         {product.thumbnail ? (
-          <img
+          <Image unoptimized width={400} height={400}
             src={product.thumbnail}
             alt={product.itemName}
             className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"

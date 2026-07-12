@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import * as React from "react";
 import {
@@ -119,7 +120,7 @@ export function NaikkanProdukPickerDialog({
                   >
                     <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
                       {item.thumbnail ? (
-                        <img
+                        <Image unoptimized width={400} height={400}
                           src={item.thumbnail}
                           alt={item.itemGroupName ?? ""}
                           className="size-full object-cover"

@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import * as React from "react";
 import { Loader2Icon, UploadIcon, XIcon } from "lucide-react";
@@ -166,8 +167,7 @@ export function CourierPickupDialog({
 
             {previewUrl ? (
               <div className="relative w-fit">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image unoptimized width={400} height={400}
                   src={previewUrl}
                   alt="Pratinjau foto identitas kurir"
                   className="h-40 w-auto rounded-xl border border-border/60 object-cover"
@@ -183,8 +183,7 @@ export function CourierPickupDialog({
               </div>
             ) : existingPhoto ? (
               <div className="flex items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image unoptimized width={400} height={400}
                   src={pickup?.id_photo_thumb ?? existingPhoto}
                   alt="Foto identitas kurir"
                   className="h-16 w-16 rounded-xl border border-border/60 object-cover"

@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import * as React from "react";
 import Link from "next/link";
@@ -84,7 +85,7 @@ export const productColumns: ColumnDef<Product>[] = [
 
           <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
             {p.thumbnail ? (
-              <img
+              <Image unoptimized width={400} height={400}
                 src={p.thumbnail}
                 alt={p.itemName}
                 className="size-full object-cover"

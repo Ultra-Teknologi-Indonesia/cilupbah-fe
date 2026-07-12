@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import * as React from "react";
 import { toast } from "sonner";
@@ -629,7 +630,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                               <div className="flex items-start gap-3">
                                 <div className="size-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
                                   {imageUrl ? (
-                                    <img
+                                    <Image unoptimized width={400} height={400}
                                       src={imageUrl}
                                       alt={productName}
                                       className="h-full w-full object-cover"

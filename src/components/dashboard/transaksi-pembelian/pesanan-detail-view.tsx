@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -253,7 +254,7 @@ export function PesananDetailView({ id }: { id: string }) {
                         <TableCell className="px-3 py-2.5">
                           <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
                             {imageUrl ? (
-                              <img
+                              <Image unoptimized width={400} height={400}
                                 src={imageUrl}
                                 alt={productDisplayName}
                                 className="h-full w-full object-cover"

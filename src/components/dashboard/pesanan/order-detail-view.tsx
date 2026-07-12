@@ -558,8 +558,7 @@ function CourierPickupCard({
                 rel="noopener noreferrer"
                 className="inline-block"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image unoptimized width={400} height={400}
                   src={pickup.id_photo_thumb ?? pickup.id_photo_url}
                   alt="Foto identitas kurir"
                   className="h-16 w-16 rounded-xl border border-border/60 object-cover transition-opacity hover:opacity-80"
