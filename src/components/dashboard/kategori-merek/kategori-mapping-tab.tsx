@@ -31,9 +31,9 @@ export function KategoriMappingTab({ search }: { search: string }) {
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(20);
 
-  const prevSearch = React.useRef(search);
-  if (prevSearch.current !== search) {
-    prevSearch.current = search;
+  const [prevSearch, setPrevSearch] = React.useState(search);
+  if (prevSearch !== search) {
+    setPrevSearch(search);
     if (page !== 1) setPage(1);
   }
 

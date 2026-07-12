@@ -712,7 +712,9 @@ export function LayoutGudangTab({
   );
 
   const onBinsChangeRef = React.useRef(onBinsChange);
-  onBinsChangeRef.current = onBinsChange;
+  React.useEffect(() => {
+    onBinsChangeRef.current = onBinsChange;
+  });
   React.useEffect(() => {
     if (serverMode) {
       const items: BinDraft[] = [];

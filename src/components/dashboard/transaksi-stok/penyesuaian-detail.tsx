@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import type { StockAdjustmentItem } from "@/types/transaksi-stok/stock-adjustment";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -81,7 +82,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
     );
   };
 
-  const columns = React.useMemo<ColumnDef<any>[]>(
+  const columns = React.useMemo<ColumnDef<StockAdjustmentItem>[]>(
     () => [
       {
         accessorKey: "item_name",

@@ -113,9 +113,13 @@ export function EditKategoriDialog({
   const updateMut = useUpdateKategori();
   const { data: tree } = useEnabledCategories();
 
-  React.useEffect(() => {
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  const [prevCurrentName, setPrevCurrentName] = React.useState(currentName);
+  if (open !== prevOpen || currentName !== prevCurrentName) {
+    setPrevOpen(open);
+    setPrevCurrentName(currentName);
     if (open) setName(currentName);
-  }, [open, currentName]);
+  }
 
   const pathIds = React.useMemo(() => {
     if (!tree || !categoryId) return [];

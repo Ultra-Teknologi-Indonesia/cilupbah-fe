@@ -77,7 +77,7 @@ export function PesananListView() {
     });
   }
 
-  function handleBulkDelete(table: any) {
+  function handleBulkDelete(table: { toggleAllPageRowsSelected: () => void }) {
     if (!bulkDeleteTarget) return;
     const ids = bulkDeleteTarget.map((p) => p.id);
     bulkDeleteMut.mutate(ids, {

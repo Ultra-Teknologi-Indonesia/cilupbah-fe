@@ -7,8 +7,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeftIcon,
-  CheckIcon,
-  Loader2Icon,
   PackageIcon,
   ScanBarcodeIcon,
   ScanLineIcon,
@@ -508,7 +506,10 @@ export function AdHocPickingView() {
                 ) : (
                   order.items.map((it) => {
                     const done = it.qtyPicked >= it.qtyOrdered;
-                    const itemStatus = getItemStatus(it.qtyPicked, it.qtyOrdered);
+                    const itemStatus = getItemStatus(
+                      it.qtyPicked,
+                      it.qtyOrdered,
+                    );
                     const itemBin = pickedBinByItem[it.id] ?? null;
                     return (
                       <TableRow
@@ -557,7 +558,10 @@ export function AdHocPickingView() {
                           </span>
                         </TableCell>
                         <TableCell className="px-3 py-3">
-                          <StatusBadge domain="picking-item" status={itemStatus} />
+                          <StatusBadge
+                            domain="picking-item"
+                            status={itemStatus}
+                          />
                         </TableCell>
                       </TableRow>
                     );

@@ -36,7 +36,7 @@ export default function BarangKeluarPage() {
         ]}
       />
 
-      <Tabs value={tab} onValueChange={(val) => handleTabChange(val as any)} className="flex flex-col gap-4">
+      <Tabs value={tab} onValueChange={(val) => handleTabChange(val as OutboundTab)} className="flex flex-col gap-4">
         <LiquidGlass
           radius={16}
           intensity="subtle"

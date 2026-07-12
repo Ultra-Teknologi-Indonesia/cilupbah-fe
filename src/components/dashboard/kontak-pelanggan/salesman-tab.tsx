@@ -118,8 +118,11 @@ export function SalesmanTab() {
     total: 0,
   };
 
-  const prefilledRef = useCallback(() => {}, []);
-  useEffect(() => {
+  const [prevEditId, setPrevEditId] = React.useState(editId);
+  const [prevEditDetail, setPrevEditDetail] = React.useState(editDetail);
+  if (editId !== prevEditId || editDetail !== prevEditDetail) {
+    setPrevEditId(editId);
+    setPrevEditDetail(editDetail);
     if (editId && editDetail) {
       setForm({
         name: editDetail.name,
@@ -129,7 +132,7 @@ export function SalesmanTab() {
         notes: editDetail.notes ?? "",
       });
     }
-  }, [editId, editDetail]);
+  }
 
   function openCreate() {
     setEditId(null);

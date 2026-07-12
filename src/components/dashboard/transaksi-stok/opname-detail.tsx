@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import type { StockOpnameItem } from "@/types/transaksi-stok/stock-opname";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -97,8 +98,8 @@ export function OpnameDetail({ id }: { id: string }) {
     cancelMut.isPending ||
     deleteMut.isPending;
 
-  const columns = React.useMemo<ColumnDef<any>[]>(() => {
-    const cols: ColumnDef<any>[] = [
+  const columns = React.useMemo<ColumnDef<StockOpnameItem>[]>(() => {
+    const cols: ColumnDef<StockOpnameItem>[] = [
       {
         accessorKey: "item_name",
         header: "Nama Produk",

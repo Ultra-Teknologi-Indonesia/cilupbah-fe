@@ -176,19 +176,24 @@ export function PetakanKategoriDialog({
       .slice(0, 50);
   }, [search, flat]);
 
-  React.useEffect(() => {
-    if (!open) return;
-    setSearch("");
-
-    if (mappedExternalId && flat.length > 0) {
-      const match = flat.find((f) => f.node.external_id === mappedExternalId);
-      if (match) {
-        setPath(match.path);
-        return;
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  const [prevMappedId, setPrevMappedId] = React.useState(mappedExternalId);
+  const [prevFlatLen, setPrevFlatLen] = React.useState(flat.length);
+  if (open !== prevOpen || mappedExternalId !== prevMappedId || flat.length !== prevFlatLen) {
+    setPrevOpen(open);
+    setPrevMappedId(mappedExternalId);
+    setPrevFlatLen(flat.length);
+    if (open) {
+      setSearch("");
+      if (mappedExternalId && flat.length > 0) {
+        const match = flat.find((f) => f.node.external_id === mappedExternalId);
+        if (match) setPath(match.path);
+        else setPath([]);
+      } else {
+        setPath([]);
       }
     }
-    setPath([]);
-  }, [open, mappedExternalId, flat]);
+  }
 
   const allColumns = React.useMemo(() => {
     const cols: { nodes: ChannelCategoryNode[]; level: number }[] = [

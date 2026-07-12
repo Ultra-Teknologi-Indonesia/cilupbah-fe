@@ -103,9 +103,11 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
 
   const locationId = putaway?.location_id ?? "";
 
-  useEffect(() => {
+  const [prevNotes, setPrevNotes] = useState(putaway?.notes);
+  if (putaway?.notes !== prevNotes) {
+    setPrevNotes(putaway?.notes);
     if (putaway?.notes != null) setNotes(putaway.notes);
-  }, [putaway?.notes]);
+  }
 
   const isNotStarted = putaway?.status === "NOT_STARTED";
   const isInProgress = putaway?.status === "IN_PROGRESS";

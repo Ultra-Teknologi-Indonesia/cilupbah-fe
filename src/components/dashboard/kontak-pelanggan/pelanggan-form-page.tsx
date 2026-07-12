@@ -96,9 +96,15 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
   });
   const [coordinate, setCoordinate] = React.useState<string>("");
 
-  const prefilledRef = React.useRef(false);
-  React.useEffect(() => {
-    if (mode === "edit" && detail.data && !prefilledRef.current) {
+  const [prefilled, setPrefilled] = React.useState(false);
+  const [prevData, setPrevData] = React.useState(detail.data);
+  const [prevMode, setPrevMode] = React.useState(mode);
+  
+  if (mode !== prevMode || detail.data !== prevData) {
+    setPrevMode(mode);
+    setPrevData(detail.data);
+    if (mode === "edit" && detail.data && !prefilled) {
+      setPrefilled(true);
       const d = detail.data;
       setForm({
         name: d.name,
@@ -141,9 +147,8 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
       if (d.latitude != null && d.longitude != null) {
         setCoordinate(formatCoordinate(d.latitude, d.longitude));
       }
-      prefilledRef.current = true;
     }
-  }, [mode, detail.data]);
+  }
 
   const locked = mode === "edit" && Boolean(detail.data?.is_system);
   const saving = createContact.isPending || updateContact.isPending;

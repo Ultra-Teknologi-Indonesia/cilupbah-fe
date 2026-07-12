@@ -180,7 +180,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
   const isOwnerUser = (user?.roles ?? []).includes("owner");
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(isEdit ? editSchema : createSchema) as any,
+    resolver: zodResolver(isEdit ? editSchema : createSchema) as unknown as import("react-hook-form").Resolver<FormValues>,
     defaultValues: {
       name: "",
       email: "",
@@ -250,12 +250,6 @@ export function UserFormPage({ userId }: UserFormPageProps) {
     }
   }
 
-  if (isEdit && userLoading) {
-    return (
-      <FormSkeleton />
-    );
-  }
-
   const selectedRoles = form.watch("roles");
   const rolePermsBaseline = React.useMemo(() => {
     const chosen = new Set(selectedRoles ?? []);
@@ -265,6 +259,12 @@ export function UserFormPage({ userId }: UserFormPageProps) {
     }
     return [...set];
   }, [roles, selectedRoles]);
+
+  if (isEdit && userLoading) {
+    return (
+      <FormSkeleton />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">

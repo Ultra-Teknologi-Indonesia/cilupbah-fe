@@ -15,10 +15,7 @@ import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { FormSectionCard } from "@/components/ui/form-section-card";
 import { CategoryPicker } from "./category-picker";
 import { BundleBuilder } from "./bundle-builder";
-import type {
-  BuatProdukFormValues,
-  SelectedCategory,
-} from "@/types/master-produk";
+import type { SelectedCategory } from "@/types/master-produk";
 import { useCategoryTree } from "@/hooks/master-produk/use-master-data";
 
 export function FormDetailSection({
@@ -29,7 +26,6 @@ export function FormDetailSection({
   mode?: "full" | "bundle";
 } = {}) {
   const { control } = useFormContext();
-  const isBundle = mode === "bundle";
   const { data: categoryTree = [] } = useCategoryTree();
 
   return (

@@ -248,7 +248,7 @@ export function KontakPemasokView() {
   }
 
   const filterTabs = (
-    <Tabs value={typeFilter || ""} onValueChange={(val) => handleTypeFilter(val as any)}>
+    <Tabs value={typeFilter || ""} onValueChange={(val) => handleTypeFilter(val as TypeFilter)}>
       <TabsList variant="line" className="h-auto">
         {TYPE_TABS.map(({ key, label, icon: Icon }) => (
           <TabsTrigger key={key} value={key}>
