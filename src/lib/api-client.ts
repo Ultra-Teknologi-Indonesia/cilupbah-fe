@@ -5,6 +5,7 @@ const apiClient = axios.create({
   baseURL: "/api/app",
   headers: {
     "Content-Type": "application/json",
+    "X-Client-Type": "web",
   },
 });
 

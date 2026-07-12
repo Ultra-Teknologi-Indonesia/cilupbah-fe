@@ -16,6 +16,7 @@ async function proxyRequest(
 
   const headers = new Headers();
   headers.set("accept", "application/json");
+  headers.set("x-client-type", "web");
 
   const contentType = request.headers.get("content-type");
   if (contentType) {
