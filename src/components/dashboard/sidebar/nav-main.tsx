@@ -49,9 +49,9 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
   const pathname = usePathname();
   const shouldReduceMotion = useReducedMotion();
 
-  const prevPathnameRef = React.useRef(pathname);
-  if (prevPathnameRef.current !== pathname) {
-    prevPathnameRef.current = pathname;
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
     setOpenCollapsible(null);
   }
 

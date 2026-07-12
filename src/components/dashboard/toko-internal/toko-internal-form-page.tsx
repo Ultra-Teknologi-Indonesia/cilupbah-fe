@@ -45,9 +45,9 @@ export function TokoInternalFormPage({ mode, id }: Props) {
   );
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const prevExistingIdRef = useRef(existing?.id);
-  if (existing && prevExistingIdRef.current !== existing.id) {
-    prevExistingIdRef.current = existing.id;
+  const [prevExistingId, setPrevExistingId] = useState(existing?.id);
+  if (existing && prevExistingId !== existing.id) {
+    setPrevExistingId(existing.id);
     setName(existing.name);
     setIsActive(existing.is_active);
     setExistingLogo(existing.logo_thumb ?? existing.logo_url ?? null);
