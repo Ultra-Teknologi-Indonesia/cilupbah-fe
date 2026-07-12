@@ -54,21 +54,19 @@ export function ProductPickerDialog({
   excludeIds = [],
   initialSearch,
 }: ProductPickerDialogProps) {
-  const [searchInput, setSearchInput] = React.useState("");
-  const [search, setSearch] = React.useState("");
+  const [searchInput, setSearchInput] = React.useState(
+    () => initialSearch ?? "",
+  );
+  const [search, setSearch] = React.useState(() => initialSearch ?? "");
   const [selected, setSelected] = React.useState<Map<string, PickedProduct>>(
     new Map(),
   );
 
   React.useEffect(() => {
-    if (open && initialSearch) {
-      setSearchInput(initialSearch);
-      setSearch(initialSearch);
-    }
-  }, [open, initialSearch]);
-
-  React.useEffect(() => {
-    const t = setTimeout(() => setSearch(searchInput), 350);
+    const t = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 350);
     return () => clearTimeout(t);
   }, [searchInput]);
 
@@ -85,9 +83,7 @@ export function ProductPickerDialog({
     onOpenChange(next);
   };
 
-  React.useEffect(() => {
-    setPage(1);
-  }, [search]);
+
 
   const { data, isLoading, isFetching } = useMasterProducts({
     search: search || undefined,
