@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PanelLeft, SettingsIcon, LogOutIcon } from "lucide-react";
+import { PanelLeft, UserCog, LogOutIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import {
@@ -20,7 +20,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useLogout } from "@/hooks/auth/use-auth";
+import { useLogout, useMe } from "@/hooks/auth/use-auth";
+import { getInitials } from "@/lib/format";
 import { Logo } from "./logo";
 import { NotificationsPopover } from "./nav-notifications";
 import {
@@ -123,9 +124,12 @@ export function SidebarRailNav({
 }) {
   const pathname = usePathname();
   const logout = useLogout();
+  const me = useMe();
   const { groups: visibleGroups, settings: visibleSettings } = useVisibleNav();
 
   const handleLogout = () => logout.mutate();
+  const initials = getInitials(me.data?.name ?? "");
+  const displayName = me.data?.name ?? "Akun";
 
   return (
     <aside
@@ -189,13 +193,13 @@ export function SidebarRailNav({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              aria-label="Akun"
+              aria-label={displayName}
               className="mt-1 rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/30"
             >
               <Avatar className="size-9">
-                <AvatarImage src="" />
+                <AvatarImage src={me.data?.avatar_url ?? ""} alt={displayName} />
                 <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                  DA
+                  {initials || "?"}
                 </AvatarFallback>
               </Avatar>
             </button>
@@ -203,9 +207,9 @@ export function SidebarRailNav({
           <DropdownMenuContent side="right" align="end" className="w-52">
             <DropdownMenuLabel>Akun</DropdownMenuLabel>
             <DropdownMenuItem asChild>
-              <Link href="/dashboard/pengaturan">
-                <SettingsIcon className="size-4 text-muted-foreground" />
-                Pengaturan
+              <Link href="/dashboard/profil-saya">
+                <UserCog className="size-4 text-muted-foreground" />
+                Profil Saya
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
