@@ -15,7 +15,6 @@ const INITIAL_ORDER_PARAMS: OrderListParams = {
 };
 
 export default async function PesananPage() {
-  // dari modul "use client"; impor ke Server Component akan menjadikannya
 
   const qc = getServerQueryClient();
   await Promise.all([

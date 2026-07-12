@@ -61,7 +61,6 @@ export function CourierPickupDialog({
     }
   }, [open, pickup]);
 
-  // Bersihkan object URL preview agar tidak bocor memori.
   React.useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -72,7 +71,6 @@ export function CourierPickupDialog({
     const picked = e.target.files?.[0];
     if (!picked) return;
     if (picked.size > MAX_PHOTO_BYTES) {
-      // toast lewat mutation error tidak berlaku di sini; validasi ringan inline.
       alert("Ukuran foto maksimal 4MB.");
       e.target.value = "";
       return;

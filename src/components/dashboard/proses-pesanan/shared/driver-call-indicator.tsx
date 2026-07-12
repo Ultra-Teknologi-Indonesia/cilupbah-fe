@@ -81,7 +81,6 @@ export function DriverCallIndicator({
     );
   }
 
-  // failed
   const label = retry.isPending ? "Mencoba ulang…" : "Driver gagal";
   const disabled = retry.isPending;
 

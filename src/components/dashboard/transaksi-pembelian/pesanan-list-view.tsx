@@ -316,7 +316,6 @@ export function PesananListView() {
         confirmLabel="Hapus"
         variant="destructive"
         loading={bulkDeleteMut.isPending}
-        // @ts-ignore
         onConfirm={(table) =>
           handleBulkDelete({ toggleAllPageRowsSelected: () => {} })
         }

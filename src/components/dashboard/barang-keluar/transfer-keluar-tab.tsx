@@ -285,8 +285,6 @@ export function TransferKeluarTab() {
   const meName = me?.name ?? "";
   const [printingId, setPrintingId] = useState<string | null>(null);
 
-  // Konsisten dengan komponen lain: preview PDF via halaman document-preview,
-  // bukan blob URL. (lihat transfer-out-detail-view, penyesuaian-tab, dst.)
   const openTransferPdf = useCallback((id: string) => {
     window.open(
       `/dashboard/document-preview/transfer-out/${id}`,

@@ -93,7 +93,6 @@ function Gallery({
         ) : current.type === "video" ? (
           <VideoPlayer src={current.url} className="size-full" />
         ) : (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={current.url}
             alt={name}
@@ -135,7 +134,6 @@ function Gallery({
                     </div>
                   </div>
                 ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={item.url}
                     alt={`${name} ${i + 1}`}

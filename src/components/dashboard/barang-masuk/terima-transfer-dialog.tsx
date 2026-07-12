@@ -43,7 +43,6 @@ export function TerimaTransferDialog({
 
   const items = useMemo(() => inbound?.items ?? [], [inbound]);
 
-  // Diinisialisasi dari qty kirim; komponen di-remount per transfer via `key`.
   const [qtyMap, setQtyMap] = useState<Record<string, number>>(() =>
     Object.fromEntries(items.map((i) => [i.item_id, i.expected_qty])),
   );

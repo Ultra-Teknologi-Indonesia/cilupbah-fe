@@ -49,7 +49,6 @@ export function buildProdukColumns(opts: {
           <div className="flex items-center gap-3">
             <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
               {thumb ? (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={thumb}
                   alt={d.itemGroupName ?? ""}

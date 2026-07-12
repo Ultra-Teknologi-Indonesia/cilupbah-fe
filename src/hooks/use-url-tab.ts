@@ -36,7 +36,6 @@ export function useUrlTab<T extends string>(
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       router,
       pathname,

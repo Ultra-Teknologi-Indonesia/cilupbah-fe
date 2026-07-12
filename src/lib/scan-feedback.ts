@@ -158,9 +158,7 @@ function zzfx(
   source.start();
 }
 
-// prettier-ignore
 const SFX_SUCCESS = [2,0,987,.005,.04,.5,0,1.5,,500,.05,,,.8] as const;
-// prettier-ignore
 const SFX_ERROR   = [2,0,523,.01,.12,.25,0,1,,-120,.08,,,.8] as const;
 
 export function playScanFeedback(kind: ScanFeedbackKind): void {

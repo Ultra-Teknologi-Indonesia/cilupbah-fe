@@ -12,10 +12,8 @@ async function writeToClipboard(text: string): Promise<boolean> {
       return true;
     }
   } catch {
-    // fall through to legacy fallback below
   }
 
-  // Fallback for insecure contexts / older browsers where the async API is unavailable.
   try {
     const textarea = document.createElement("textarea");
     textarea.value = text;

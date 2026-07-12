@@ -100,7 +100,6 @@ export function DraftTab({
             <div className="flex items-center gap-3">
               <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
                 {d.thumbnail ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={d.thumbnail}
                     alt={d.itemGroupName ?? ""}

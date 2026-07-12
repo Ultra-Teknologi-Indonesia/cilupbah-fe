@@ -110,8 +110,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const isNotStarted = putaway?.status === "NOT_STARTED";
   const isInProgress = putaway?.status === "IN_PROGRESS";
   const isCompleted = putaway?.status === "COMPLETED";
-  // "Mulai" tidak lagi memulai secara eksplisit — penempatan pertama (scan/pilih
-  // barang atau dari mobile) yang meng-auto-start. Jadi input aktif sejak NOT_STARTED.
   const canEdit = isNotStarted || isInProgress;
 
   const allItems = useMemo<PutawayItem[]>(() => items ?? [], [items]);
@@ -121,7 +119,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
       isCompleted
         ? allItems
         : // Item yang sudah tuntas ditempatkan hilang dari daftar kerja;
-          // hanya sisakan yang masih punya qty untuk ditempatkan.
           allItems.filter(
             (it) =>
               it.qty - it.putaway_qty > 0 &&
@@ -254,8 +251,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const scanLines = useMemo<ScanAutoflowLine[]>(
     () =>
       allItems
-        // Saat proses: SKU yang sudah tuntas ditempatkan hilang dari daftar
-        // "Pilih manual" & pencocokan scan. Mode selesai tetap tampilkan semua.
         .filter((it) => isCompleted || it.qty - it.putaway_qty > 0)
         .map((it) => {
         const sku = it.variant?.sku ?? it.product?.sku ?? "—";
@@ -1013,7 +1008,6 @@ function PlacementRow({
     }
     if (defaultRack) return defaultRack.id;
     return null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [selectedBinId, setSelectedBinId] = useState<string | null>(
@@ -1044,7 +1038,6 @@ function PlacementRow({
     if (focusTarget === "qty") {
       setTimeout(() => qtyInputRef.current?.focus(), 50);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => () => clearTimeout(autoSaveTimer.current), []);

@@ -11,7 +11,6 @@ export interface InventoryTransferItem {
   serial_no?: string | null;
   source_bin_id: string | null;
   source_bin?: { id: string; bin_final_code: string } | null;
-  // Relasi `product` = ProductVariant (dimuat oleh BE untuk detail).
   product?: {
     id: string;
     sku: string;

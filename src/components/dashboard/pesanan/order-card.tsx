@@ -543,8 +543,6 @@ export function OrderActions({
   }
 
   if (tab === "all") {
-    // Order yang sudah diserahkan ke gudang jadi milik modul Proses Pesanan —
-    // di sini murni history/audit, tanpa action, biar tidak dobel-eksekusi.
     const inWarehouseProcessing =
       !!order.handed_to_warehouse_at &&
       order.status !== "shipped" &&

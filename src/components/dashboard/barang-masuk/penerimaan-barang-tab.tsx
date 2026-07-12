@@ -201,7 +201,6 @@ export function PenerimaanBarangTab() {
   const [terimaTarget, setTerimaTarget] = useState<Inbound | null>(null);
   const [deleteTargets, setDeleteTargets] = useState<Inbound[]>([]);
   const bulkCancel = useBulkCancelInbounds();
-  // Callback untuk mereset seleksi tabel setelah aksi bulk (assign/hapus).
   const resetSelectionRef = useRef<(() => void) | null>(null);
 
   const columns = useMemo<ColumnDef<Inbound>[]>(
@@ -550,7 +549,6 @@ export function PenerimaanBarangTab() {
         onSuccess={(data) => {
           resetSelectionRef.current?.();
           resetSelectionRef.current = null;
-          // Langsung ke proses penempatan (assign rak) dokumen yang baru dibuat.
           const putawayId =
             (data as { id?: string })?.id ??
             (Array.isArray(data)

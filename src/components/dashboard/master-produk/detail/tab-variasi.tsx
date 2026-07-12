@@ -306,7 +306,6 @@ export function TabVariasi({ productId }: { productId: string }) {
                   <div className="flex items-center gap-2.5">
                     <div className="size-9 shrink-0 overflow-hidden rounded-xl border border-border/60 bg-muted/40">
                       {v.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={v.image}
                           alt={v.sku}

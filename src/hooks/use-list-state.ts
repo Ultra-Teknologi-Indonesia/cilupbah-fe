@@ -54,14 +54,12 @@ export function useListState<F extends object>(
       const raw = searchParams.get(filterKeyFor(k));
       if (raw === null) continue;
       const defaultVal = src[k];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let parsed: any = raw;
       if (typeof defaultVal === "number") parsed = Number(raw);
       else if (typeof defaultVal === "boolean") parsed = raw === "true";
       next[k] = parsed;
     }
     return next as F;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterUrlSync, searchParams, filterKeyFor]);
 
   const [search, setSearchRaw] = useState<string>(() => readSearch());
@@ -97,7 +95,6 @@ export function useListState<F extends object>(
       return prev;
     });
     /* eslint-enable react-hooks/set-state-in-effect */
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlSync, searchParams]);
 
   const writeUrl = useCallback(
@@ -189,7 +186,6 @@ export function useListState<F extends object>(
       }
       writeUrl(updates);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [urlSync, filterUrlSync, writeUrl, pageKey, filterKeyFor],
   );
 
@@ -208,7 +204,6 @@ export function useListState<F extends object>(
       }
       writeUrl(updates);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [urlSync, filterUrlSync, writeUrl, pageKey, filterKeyFor],
   );
 

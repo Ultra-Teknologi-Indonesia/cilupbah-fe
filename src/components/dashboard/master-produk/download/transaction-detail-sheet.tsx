@@ -132,7 +132,6 @@ export function TransactionDetailSheet({
                   <div key={p.itemId} className="flex items-center gap-3 py-3">
                     <div className="size-10 shrink-0 overflow-hidden rounded-xl bg-muted/40">
                       {p.imgUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={p.imgUrl}
                           alt={p.itemName}

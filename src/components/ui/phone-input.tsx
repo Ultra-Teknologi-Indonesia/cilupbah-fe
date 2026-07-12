@@ -55,13 +55,9 @@ export function PhoneInput({
   const dial = parsed?.dial ?? selected.dial;
   const national = parsed?.national ?? "";
 
-  // Beberapa negara berbagi dial code; pertahankan pilihan pengguna
-  // selama dial-nya masih cocok dengan nilai yang tersimpan.
   const country =
     selected.dial === dial ? selected : (findCountryByDial(dial) ?? selected);
 
-  // Sinkronkan pilihan negara saat nilai luar memakai dial code lain,
-  // agar dial tidak melompat balik ketika nomor dikosongkan.
   if (country.iso !== selectedIso) {
     setSelectedIso(country.iso);
   }

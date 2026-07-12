@@ -50,7 +50,6 @@ export function PenerimaanTransferView() {
   const [lines, setLines] = useState<Record<string, ReceiveLine>>({});
   const [primedKey, setPrimedKey] = useState<string | null>(null);
 
-  // Daftar transfer SEDANG_DIJALAN untuk combobox "No. Transfer Asal".
   const { data: transitData, isLoading: transitLoading } = useBinTransferList({
     status: "SEDANG_DIJALAN",
     perPage: 100,
@@ -84,14 +83,11 @@ export function PenerimaanTransferView() {
     [binData],
   );
 
-  // Item yang masih punya sisa (remaining_qty > 0) — hanya SKU pada tiket ini.
   const pendingItems: BinTransferDetailItem[] = useMemo(
     () => (trf?.items ?? []).filter((it) => (it.remaining_qty ?? 0) > 0),
     [trf],
   );
 
-  // Prime baris (qty default = remaining_qty) saat transfer berubah — dilakukan
-  // saat render (pola resmi "adjust state while rendering") agar tidak butuh effect.
   const currentKey = trf
     ? `${trf.id}:${pendingItems.map((it) => `${it.id}-${it.remaining_qty}`).join(",")}`
     : "";
@@ -135,7 +131,6 @@ export function PenerimaanTransferView() {
 
   const handleSubmit = () => {
     if (!canSubmit) return;
-    // Validasi klien: qty tidak boleh melebihi sisa.
     const over = pendingItems.find((it) => {
       const l = lines[it.id];
       return l && Number(l.qty) > (it.remaining_qty ?? 0);

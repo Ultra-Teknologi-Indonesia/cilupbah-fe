@@ -125,7 +125,6 @@ export function PindahBinListTable({
     return { from, to };
   }, [list.filters.dateFrom, list.filters.dateTo]);
 
-  // Cetak dari Baru Dibuat: pindahkan status lalu buka PDF.
   const handlePrint = useCallback(
     async (item: BinTransferListItem) => {
       if (printingId) return;
@@ -135,7 +134,6 @@ export function PindahBinListTable({
         toast.success("Surat jalan dicetak — pindah ke Sedang Dijalan");
         openBinTransferPdf(item.id);
       } catch {
-        // toast handled in hook
       } finally {
         setPrintingId(null);
       }
@@ -143,7 +141,6 @@ export function PindahBinListTable({
     [printingId, printMut],
   );
 
-  // Cetak ulang dari Sedang Dijalan: cukup buka PDF-nya lagi.
   const handleReprint = useCallback((item: BinTransferListItem) => {
     openBinTransferPdf(item.id);
   }, []);

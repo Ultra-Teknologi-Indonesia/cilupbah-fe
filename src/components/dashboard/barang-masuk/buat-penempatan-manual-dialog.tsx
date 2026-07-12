@@ -46,7 +46,6 @@ export function BuatPenempatanManualDialog({
   });
   const [assignedTo, setAssignedTo] = useState("");
 
-  // Total SKU = item_id unik lintas penerimaan. Total Qty = jumlah qty lolos QC (received).
   const { totalSku, totalQty } = useMemo(() => {
     const skuSet = new Set<string>();
     let qty = 0;

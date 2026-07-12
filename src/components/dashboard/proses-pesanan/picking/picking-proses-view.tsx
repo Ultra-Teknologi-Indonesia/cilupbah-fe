@@ -166,13 +166,11 @@ export function PickingProsesView({ id }: { id: string }) {
 
   const items = React.useMemo(() => pl?.items ?? [], [pl]);
 
-  // Latest items snapshot for scan handlers (avoids stale closures on fast scan).
   const itemsRef = React.useRef(items);
   React.useEffect(() => {
     itemsRef.current = items;
   }, [items]);
 
-  // itemId -> bin_code resolved by the last scanForPick, used by the +1 queue.
   const pickBinRef = React.useRef<Map<string, string>>(new Map());
   const commitPick = React.useCallback(
     (itemId: string, qty: number) => {
@@ -280,7 +278,6 @@ export function PickingProsesView({ id }: { id: string }) {
       });
       setScannedBinCode(res.bin_code);
 
-      // Multiple candidate racks → let the checker pick the rack (dialog).
       if ((res.candidates?.length ?? 0) > 1) {
         playScanFeedback("ok");
         setActiveItemId(res.item_id);
@@ -295,7 +292,6 @@ export function PickingProsesView({ id }: { id: string }) {
         return;
       }
 
-      // Single rack → scan-to-increment (+1), stay on the scan bar.
       const item = itemsRef.current.find((i) => i.id === res.item_id);
       const base = item?.qtyPicked ?? 0;
       const max = item?.qtyOrdered ?? base + 1;

@@ -6,7 +6,6 @@ import { getServerQueryClient } from "@/lib/api-server";
 import { MonitorStockService } from "@/services/monitor-stok/monitor-stok.service";
 import type { MonitorListParams } from "@/types/monitor-stok/monitor";
 
-// useMonitorSummary: ["monitor-stok","summary", params] dari modul "use client".
 const INITIAL_LIST_PARAMS: MonitorListParams = { page: 1, per_page: 20 };
 const INITIAL_SUMMARY_PARAMS: MonitorListParams = {};
 

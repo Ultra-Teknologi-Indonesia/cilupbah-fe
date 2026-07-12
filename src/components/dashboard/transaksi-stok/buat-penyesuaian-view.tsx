@@ -270,7 +270,6 @@ export function BuatPenyesuaianView() {
 
   const validLines = lines.filter((l) => {
     const d = Number(l.delta);
-    // Longgar: qty akhir boleh minus (allow_negative_stock). BE tetap terima.
     return l.delta !== "" && !Number.isNaN(d) && d !== 0;
   });
   const canSubmit =
@@ -508,7 +507,6 @@ export function BuatPenyesuaianView() {
                       <TableCell className="px-3 py-2.5">
                         <div className="flex max-w-[260px] items-center gap-3">
                           {l.thumbnail ? (
-                            // eslint-disable-next-line @next/next/no-img-element
                             <img
                               src={l.thumbnail}
                               alt={l.name}

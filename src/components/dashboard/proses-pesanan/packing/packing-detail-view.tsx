@@ -281,7 +281,6 @@ export function PackingDetailView({ id }: { id: string }) {
         onError: () => {},
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pk?.id]);
 
   const scanLines: ScanAutoflowLine[] = items.map((i) => ({
@@ -292,7 +291,6 @@ export function PackingDetailView({ id }: { id: string }) {
     done: i.qtyPacked >= i.qtyOrdered,
   }));
 
-  // Scan = qty pack +1 (cashier-style). No popup; focus stays on the scan bar.
   const increment = (item: PacklistItem) => {
     const remaining = item.qtyOrdered - item.qtyPacked;
     if (remaining <= 0) {

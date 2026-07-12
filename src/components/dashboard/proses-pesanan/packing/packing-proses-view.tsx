@@ -271,7 +271,6 @@ export function PackingProsesView() {
   );
   const anyDetailLoading = detailQueries.some((q) => q.isLoading);
 
-  // itemId -> packlistId, kept in a ref so the commit closure stays stable.
   const itemIndexRef = React.useRef<Map<string, string>>(new Map());
   React.useEffect(() => {
     const m = new Map<string, string>();
@@ -319,8 +318,6 @@ export function PackingProsesView() {
   );
   const allItems = packlists.flatMap((pl) => pl.items);
 
-  // FIFO across orders: scanLines follow packlist scan order, so the scan bar
-  // resolves the earliest not-done match first when a SKU spans orders.
   const scanLines: ScanAutoflowLine[] = packlists.flatMap((pl) =>
     pl.items.map((it) => ({
       id: it.id,
@@ -331,7 +328,6 @@ export function PackingProsesView() {
     })),
   );
 
-  // Auto-complete each packlist independently as its items fill up.
   const printWithDriverCall = usePrintWithDriverCall();
 
   const completedRef = React.useRef<Set<string>>(new Set());
@@ -508,7 +504,6 @@ export function PackingProsesView() {
           }
         }
       } catch {
-        // barcode not in this packlist — try the next one
       }
     }
     playScanFeedback("error");

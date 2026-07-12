@@ -64,8 +64,6 @@ export function KategoriListTab({ search }: { search: string }) {
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
 
   const { data: tree, isLoading, isError } = useEnabledCategories();
-  // Search lewat API BE (min. 2 karakter); hasil dipetakan ke fullPath
-  // dari tree lokal yang memang sudah dimuat untuk tampilan hierarki.
   const searchQuery = useSearchKategori(debouncedSearch);
   const deleteMut = useDeleteKategori();
   const disableMut = useDisableKategori();

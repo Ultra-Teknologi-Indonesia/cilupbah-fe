@@ -23,15 +23,12 @@ export function useVisibleNav() {
     [canAny],
   );
 
-  // isOwner/permissions ikut sebagai dependensi agar recompute saat sesi berubah.
   const groups = React.useMemo(
     () => filterNavGroups(dashboardGroups, has),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [has, isOwner, permissions],
   );
   const settings = React.useMemo(
     () => filterSettingsRoutes(settingsRoutes, has),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [has, isOwner, permissions],
   );
 

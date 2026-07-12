@@ -49,7 +49,6 @@ export function BarcodeReportDialog({
   const [ids, setIds] = React.useState<string[]>([]);
   const [harga, setHarga] = React.useState<BarcodeHarga>("tanpa_harga");
 
-  // Reset saat dialog ditutup, supaya pembukaan berikutnya selalu bersih.
   function handleOpenChange(next: boolean) {
     if (!next) {
       setJenis("sku");

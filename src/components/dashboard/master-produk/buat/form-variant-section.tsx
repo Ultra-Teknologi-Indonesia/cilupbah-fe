@@ -70,7 +70,6 @@ function VariantImageCell({
   return (
     <label className="group relative flex size-12 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-border transition-colors hover:border-primary/50 hover:bg-muted/40">
       {src ? (
-        // eslint-disable-next-line @next/next/no-img-element
         <img src={src} alt="" className="size-full object-cover" />
       ) : (
         <ImageIcon className="size-4 text-muted-foreground" />
@@ -199,7 +198,6 @@ export function FormVariantSection({
       };
     });
     setValue("variants", next, { shouldDirty: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [typesKey, baseSku]);
 
   const [selected, setSelected] = React.useState<Set<string>>(new Set());

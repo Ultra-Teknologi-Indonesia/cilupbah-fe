@@ -43,7 +43,6 @@ export function DashboardSidebar() {
 
   const panelOpen = open && !isLeafGroup(activeGroup);
 
-  // Sejajarkan puncak panel floating dengan ikon rail yang sedang aktif.
   useIsomorphicLayoutEffect(() => {
     if (!panelOpen) return;
     const container = containerRef.current;

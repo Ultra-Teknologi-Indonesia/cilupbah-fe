@@ -175,13 +175,11 @@ export function UserFormPage({ userId }: UserFormPageProps) {
   const updateUser = useUpdateUser();
 
   const [activeTab, setActiveTab] = React.useState("informasi");
-  // Hak akses langsung (override per-user) di luar bawaan peran.
   const [directPerms, setDirectPerms] = React.useState<string[]>([]);
 
   const isOwnerUser = (user?.roles ?? []).includes("owner");
 
   const form = useForm<FormValues>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(isEdit ? editSchema : createSchema) as any,
     defaultValues: {
       name: "",
@@ -226,7 +224,6 @@ export function UserFormPage({ userId }: UserFormPageProps) {
       payload.password = values.password;
       payload.password_confirmation = values.password_confirmation;
     }
-    // Hak akses langsung (override). Owner tak pakai override.
     if (!isOwnerUser) {
       payload.permissions = directPerms;
     }
@@ -260,8 +257,6 @@ export function UserFormPage({ userId }: UserFormPageProps) {
   }
 
   const selectedRoles = form.watch("roles");
-  // Otomatis tercentang: gabungan hak akses dari peran terpilih (dikunci di sini,
-  // diatur di halaman Peran). Reaktif saat peran diubah.
   const rolePermsBaseline = React.useMemo(() => {
     const chosen = new Set(selectedRoles ?? []);
     const set = new Set<string>();

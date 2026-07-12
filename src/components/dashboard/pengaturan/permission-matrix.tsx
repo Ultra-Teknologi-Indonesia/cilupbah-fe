@@ -97,7 +97,6 @@ export function PermissionMatrix({
   const countChecked = (perms: string[]) =>
     perms.filter((p) => isChecked(p)).length;
 
-  // Filter berdasar pencarian (nama menu/fitur).
   const q = query.trim().toLowerCase();
   const filtered = React.useMemo(() => {
     if (!q) return catalog;

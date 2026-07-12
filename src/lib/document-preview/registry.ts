@@ -443,7 +443,6 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       return harga ? `${count} ${jenis} · ${harga}` : `${count} ${jenis}`;
     },
     fetchPdf: async (id, query) => {
-      // `id` bisa ter-encode (%2C) saat dibuka via window.open — decode dulu.
       const ids = decodeURIComponent(id)
         .split(",")
         .map((s) => s.trim())

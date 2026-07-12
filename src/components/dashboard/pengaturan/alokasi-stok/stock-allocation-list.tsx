@@ -41,9 +41,6 @@ function StockAllocationRow({
     locationId: store.locationId,
   });
 
-  // Sinkronkan state lokal saat data server berubah dari luar (mis. invalidate
-  // dari halaman lain) — dilakukan saat render, bukan di useEffect, supaya
-  // tidak ada commit tambahan (pola "Adjusting state when a prop changes").
   if (
     synced.mode !== store.stockSourceMode ||
     synced.locationId !== store.locationId

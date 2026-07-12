@@ -8,7 +8,6 @@ import { getServerQueryClient } from "@/lib/api-server";
 import { InventoryStockService } from "@/services/persediaan/inventory.service";
 import type { StockListParams } from "@/types/persediaan/stock";
 
-// ["inventory","list", params] dari modul "use client".
 const INITIAL_PARAMS: StockListParams = { page: 1, per_page: 20 };
 
 export default async function PosisiStokPage() {

@@ -79,7 +79,6 @@ export function UserListView() {
   const users = React.useMemo(() => data?.items ?? [], [data]);
   const total = data?.meta?.total ?? 0;
 
-  // Owner & akun sendiri tidak boleh dihapus (guard backend juga menolak).
   const isProtected = React.useCallback(
     (u: User) => u.roles.includes("owner") || u.id === me?.id,
     [me?.id],

@@ -79,8 +79,6 @@ function InfoField({ label, children }: { label: string; children: React.ReactNo
 export function PutawayReviewView({ id }: PutawayReviewViewProps) {
   const { data: putaway, isLoading } = usePutawayDetail(id);
 
-  // Detail endpoint sudah memuat SELURUH item (dengan placements + bin) tanpa
-  // paginasi, jadi pakai putaway.items langsung agar item >50 tidak terpotong.
   const allItems = useMemo<PutawayItem[]>(
     () => putaway?.items ?? [],
     [putaway],

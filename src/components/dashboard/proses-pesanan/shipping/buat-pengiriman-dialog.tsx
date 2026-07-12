@@ -106,11 +106,9 @@ function PengirimanForm({
     () => (showDriverCall ? "INSTANT" : "REGULAR"),
   );
   const [notes, setNotes] = React.useState("");
-  // Mode pesanan: tanggal saja
   const [shipmentDateObj, setShipmentDateObj] = React.useState<Date | undefined>(
     () => new Date(),
   );
-  // Mode standalone
   const [shipmentNo, setShipmentNo] = React.useState("");
   const [standaloneLocationId, setStandaloneLocationId] = React.useState("");
   const [shipmentDateTime, setShipmentDateTime] = React.useState<

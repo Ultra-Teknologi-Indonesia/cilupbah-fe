@@ -446,7 +446,6 @@ export function useRevertPicklist() {
   return useMutation({
     mutationFn: (id: string) => OutboundService.revertPicklist(id),
     onSuccess: () => {
-      // Order anggota kembali ke queue sebelumnya — invalidate seluruh board.
       qc.invalidateQueries({ queryKey: fulfillmentKeys.all });
     },
   });
@@ -772,8 +771,6 @@ export function useDeleteFulfillmentOrder() {
     mutationFn: ({ orderId, reason }: { orderId: string; reason?: string }) =>
       OutboundService.deleteFulfillmentOrder(orderId, reason),
     onSuccess: () => {
-      // Hapus pesanan memengaruhi semua tampilan: orders-by-stage, picklist,
-      // packlist, shipment (list + detail) dan counts — invalidate root key.
       qc.invalidateQueries({ queryKey: fulfillmentKeys.all });
     },
   });

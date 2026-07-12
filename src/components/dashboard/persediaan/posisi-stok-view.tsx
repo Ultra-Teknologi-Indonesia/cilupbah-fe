@@ -349,16 +349,12 @@ export function PosisiStokView() {
 
   const [hiddenLocations, setHiddenLocations] = useState<string[]>([]);
 
-  // Muat preferensi lokasi tersembunyi dari localStorage SETELAH mount — bukan lewat
-  // lazy-init useState — agar render awal (SSR + hydration) selalu = "semua kolom" dan
-  // tidak memicu hydration mismatch pada tabel yang di-prefetch di server.
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(HIDDEN_LOCATIONS_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration-safe: apply persisted UI pref post-mount
         setHiddenLocations(parsed.filter((x) => typeof x === "string"));
       }
     } catch {
@@ -475,7 +471,6 @@ export function PosisiStokView() {
     locations: [],
   };
 
-  // Lokasi (kolom) yang tampil — meta.locations sudah bebas Transit dari BE.
   const hiddenSet = useMemo(
     () => new Set(hiddenLocations),
     [hiddenLocations],
@@ -580,8 +575,6 @@ export function PosisiStokView() {
                 orientation="horizontal"
                 type="auto"
                 className="rounded-lg border border-border/40 bg-background"
-                // Radix membungkus konten viewport dengan div `display:table` yang
-                // mematahkan `position: sticky` pada kolom kiri — paksa jadi block.
                 viewportClassName="[&>div]:!block"
               >
                 <Table scrollContainer={false}>

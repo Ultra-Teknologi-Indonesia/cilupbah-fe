@@ -9,7 +9,6 @@ import { getServerQueryClient } from "@/lib/api-server";
 import { UserService } from "@/services/pengaturan/user.service";
 import type { UserListParams } from "@/types/pengaturan/user";
 
-// ["pengaturan","pengguna","list", params] dari modul "use client".
 const INITIAL_PARAMS: UserListParams = { search: "", page: 1, perPage: 20 };
 
 export default async function PenggunaPage() {

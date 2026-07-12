@@ -86,8 +86,6 @@ export function CategoryPicker({
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Search lewat API BE (min. 2 karakter); hasilnya dipetakan kembali ke
-  // path di tree lokal agar navigasi kolom tetap bekerja.
   const searchQuery = useSearchKategori(debouncedSearch);
 
   const searchResults = React.useMemo(() => {

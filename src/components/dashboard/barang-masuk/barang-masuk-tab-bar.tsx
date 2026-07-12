@@ -40,7 +40,6 @@ function activeId(pathname: string): string {
   if (pathname.startsWith("/dashboard/barang-masuk/penempatan"))
     return "penempatan";
 
-  // Penerimaan adalah landing modul; proses putaway diakses dari sini.
   return "penerimaan";
 }
 

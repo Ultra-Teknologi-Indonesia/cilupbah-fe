@@ -172,7 +172,6 @@ export function DestinationTable({
     if (!key || key === requestedKey.current) return;
     requestedKey.current = key;
     runMatch(storeIds);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rows]);
 
   const columns = React.useMemo<ColumnDef<UploadDestination>[]>(

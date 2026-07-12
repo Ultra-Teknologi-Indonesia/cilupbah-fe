@@ -6,7 +6,6 @@ import { getServerQueryClient } from "@/lib/api-server";
 import { ChannelService } from "@/services/channel/channel.service";
 
 export default async function IntegrasiChannelPage() {
-  // "use client"; impor ke Server Component akan menjadikannya client-reference.
 
   const qc = getServerQueryClient();
   await qc.prefetchQuery({

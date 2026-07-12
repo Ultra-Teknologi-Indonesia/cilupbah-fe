@@ -35,8 +35,6 @@ export function EditReplenishmentItemDialog({
   const [seededId, setSeededId] = useState<string | null>(null);
   const updateMut = useUpdateReplenishmentItem();
 
-  // Seed the form from the item during render (avoids an effect); re-seeds
-  // whenever a different item is opened for editing.
   if (item && item.id !== seededId) {
     setSeededId(item.id);
     setQty(String(item.qty));

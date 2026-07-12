@@ -57,7 +57,6 @@ export function useQtyBumpQueue(
     if (inflightRef.current.has(itemId)) return;
     inflightRef.current.add(itemId);
     try {
-      // Keep committing until the target stops changing mid-flight.
       for (;;) {
         const target = targetRef.current.get(itemId);
         if (target === undefined) break;
@@ -79,16 +78,11 @@ export function useQtyBumpQueue(
         }
 
         if (!committed) {
-          // Every attempt failed: drop the local target so the next bump
-          // re-seeds from server truth (the mutation rolls its own
-          // optimistic state back on error), and surface it — this is the
-          // only failure signal available since there's no manual retry UI.
           targetRef.current.delete(itemId);
           optionsRef.current?.onGiveUp?.(itemId);
           break;
         }
 
-        // Only clear if no newer scan arrived while this commit was in flight.
         if (targetRef.current.get(itemId) === target) {
           targetRef.current.delete(itemId);
           break;

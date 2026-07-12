@@ -45,7 +45,6 @@ export function PenyesuaianReportDialog({
   const [productIds, setProductIds] = React.useState<string[]>([]);
   const [locationIds, setLocationIds] = React.useState<string[]>([]);
 
-  // Reset saat dialog ditutup, supaya pembukaan berikutnya selalu bersih.
   function handleOpenChange(next: boolean) {
     if (!next) {
       setStartDate(startOfMonth());

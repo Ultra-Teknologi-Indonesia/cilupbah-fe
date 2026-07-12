@@ -53,9 +53,7 @@ interface LineBin {
 
 interface LineDraft {
   rowId: string;
-  // id item transfer di server (hanya untuk baris yang sudah tersimpan / mode edit)
   serverItemId?: string;
-  // id ProductVariant
   itemId: string;
   sku: string;
   name: string;
@@ -66,7 +64,6 @@ interface LineDraft {
   qty: string;
   notes: string;
   availableBins: LineBin[];
-  // nilai awal (untuk deteksi perubahan saat submit edit)
   origBinId: string;
   origQty: number;
 }
@@ -125,9 +122,6 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
     if (sourceLocationId && mode === "create") scanRef.current?.focus();
   }, [sourceLocationId, mode]);
 
-  // Mode edit: muat transfer, kembalikan ke DRAFT bila masih APPROVED/IN_TRANSIT,
-  // lalu isi form dari data item (satu baris per item — SKU yang dipecah ke
-  // beberapa rak jadi beberapa baris).
   useEffect(() => {
     if (mode !== "edit" || !id || editLoadedRef.current) return;
     editLoadedRef.current = true;
@@ -183,7 +177,6 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
             code: b.code,
             onHand: b.on_hand,
           }));
-          // Pastikan rak asal saat ini selalu ada sebagai opsi.
           if (
             it.source_bin?.id &&
             !bins.some((b) => b.id === it.source_bin!.id)
@@ -241,7 +234,6 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
   const removeLine = (rowId: string) =>
     setLines((prev) => prev.filter((l) => l.rowId !== rowId));
 
-  // "Tambah rak": kloning baris SKU yang sama ke rak lain (qty terpisah).
   const addRakRow = (rowId: string) =>
     setLines((prev) => {
       const idx = prev.findIndex((l) => l.rowId === rowId);
@@ -314,7 +306,6 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
 
       const existing = lines.find((l) => l.itemId === stock.id);
       if (existing) {
-        // sudah ada — tambah qty baris pertama jika masih muat, else flash err
         const cur = Number(existing.qty) || 0;
         if (cur < existing.binOnHand) {
           updateLine(existing.rowId, { qty: String(cur + 1) });
@@ -348,10 +339,6 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
     }
   };
 
-  // Manual add via StockedProductPickerDialog: dialog itself only lists
-  // products that have stock at sourceLocationId, so the "no stock" skip
-  // below is just a defensive fallback (e.g. stock changed mid-pick).
-  // We still look up bySku per item to get the per-bin breakdown.
   const handlePicked = async (products: StockedPickedProduct[]) => {
     setPickerOpen(false);
     setPickerSearch(undefined);
@@ -390,7 +377,6 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
 
   const validLines = lines.filter((l) => {
     const q = Number(l.qty);
-    // Longgar: qty tak dibatasi binOnHand — BE terima minus (allow_negative_stock).
     return (
       !!l.binId &&
       l.qty !== "" &&
@@ -399,7 +385,6 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
     );
   });
 
-  // Cegah dua baris memakai rak yang sama untuk SKU yang sama.
   const hasDuplicateBin = useMemo(() => {
     const seen = new Set<string>();
     for (const l of lines) {
@@ -473,7 +458,6 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
       notes: notes.trim() || undefined,
     });
 
-    // Hapus item yang tak lagi ada di form.
     const keptServerIds = new Set(
       validLines.map((l) => l.serverItemId).filter(Boolean) as string[],
     );
@@ -594,7 +578,6 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                 value={sourceLocationId}
                 onChange={(v) => {
                   setSourceLocationId(v ?? "");
-                  // stale bins after source change — clear rows
                   setLines([]);
                 }}
                 placeholder="Pilih lokasi asal…"
