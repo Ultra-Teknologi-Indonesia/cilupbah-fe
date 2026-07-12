@@ -19,6 +19,7 @@ import {
   useNotifications,
   useUnreadNotificationCount,
 } from "@/hooks/notification/use-notifications";
+import { sortByPriority } from "@/lib/notification";
 
 export function NotificationsPopover() {
   const [open, setOpen] = React.useState(false);
@@ -26,7 +27,10 @@ export function NotificationsPopover() {
   const { data, isLoading } = useNotifications({ per_page: 5 });
   const markAll = useMarkAllNotificationsRead();
 
-  const items = data?.items ?? [];
+  const items = React.useMemo(
+    () => sortByPriority(data?.items ?? []),
+    [data?.items],
+  );
   const disableMarkAll = markAll.isPending || unreadCount === 0;
 
   return (

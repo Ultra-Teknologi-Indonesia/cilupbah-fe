@@ -1,8 +1,14 @@
 "use client";
 
 import * as React from "react";
+import {
+  useRouter,
+  useSearchParams,
+  usePathname,
+} from "next/navigation";
 import { BellIcon, CheckCheckIcon, Loader2Icon } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -16,10 +22,18 @@ import {
   useNotifications,
   useUnreadNotificationCount,
 } from "@/hooks/notification/use-notifications";
+import {
+  DOMAIN_LABEL,
+  getNotificationMeta,
+  listDomains,
+  type NotificationDomain,
+} from "@/lib/notification";
 
 type TabKey = "all" | "unread";
+type DomainKey = NotificationDomain | "all";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
+const DEFAULT_PAGE_SIZE = 20;
 
 function ItemSkeleton() {
   return (
@@ -34,14 +48,56 @@ function ItemSkeleton() {
   );
 }
 
-export function NotifikasiView() {
-  const [tab, setTab] = React.useState<TabKey>("all");
-  const [page, setPage] = React.useState(1);
-  const [perPage, setPerPage] = React.useState(20);
+function parseTab(v: string | null): TabKey {
+  return v === "unread" ? "unread" : "all";
+}
 
-  React.useEffect(() => {
-    setPage(1);
-  }, [tab, perPage]);
+function parseDomain(v: string | null): DomainKey {
+  if (!v) return "all";
+  const domains = listDomains();
+  return (domains as string[]).includes(v) ? (v as DomainKey) : "all";
+}
+
+function parsePositive(v: string | null, fallback: number): number {
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
+}
+
+export function NotifikasiView() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const tab = parseTab(searchParams.get("tab"));
+  const domain = parseDomain(searchParams.get("domain"));
+  const page = parsePositive(searchParams.get("page"), 1);
+  const perPage = parsePositive(
+    searchParams.get("per_page"),
+    DEFAULT_PAGE_SIZE,
+  );
+
+  const setParams = React.useCallback(
+    (next: Partial<Record<string, string | number | undefined>>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      Object.entries(next).forEach(([k, v]) => {
+        if (v === undefined || v === "" || v === "all") {
+          params.delete(k);
+        } else {
+          params.set(k, String(v));
+        }
+      });
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [router, pathname, searchParams],
+  );
+
+  const setTab = (v: TabKey) => setParams({ tab: v, page: undefined });
+  const setDomain = (v: DomainKey) =>
+    setParams({ domain: v, page: undefined });
+  const setPage = (v: number) => setParams({ page: v });
+  const setPerPage = (v: number) =>
+    setParams({ per_page: v, page: undefined });
 
   const { data: unreadCount = 0 } = useUnreadNotificationCount();
   const { data, isLoading, isFetching } = useNotifications({
@@ -51,10 +107,18 @@ export function NotifikasiView() {
   });
   const markAll = useMarkAllNotificationsRead();
 
-  const items = data?.items ?? [];
+  const rawItems = data?.items ?? [];
   const meta = data?.meta;
   const total = meta?.total ?? 0;
   const lastPage = meta?.last_page ?? 0;
+
+  const items = React.useMemo(() => {
+    if (domain === "all") return rawItems;
+    return rawItems.filter(
+      (n) => getNotificationMeta(n.type).domain === domain,
+    );
+  }, [rawItems, domain]);
+
   const disableMarkAll = markAll.isPending || unreadCount === 0;
 
   return (
@@ -106,6 +170,26 @@ export function NotifikasiView() {
             </div>
           </Tabs>
 
+          <div
+            className="-mx-1 flex flex-wrap items-center gap-1.5 px-1"
+            role="tablist"
+            aria-label="Filter domain"
+          >
+            <DomainPill
+              active={domain === "all"}
+              onClick={() => setDomain("all")}
+              label="Semua domain"
+            />
+            {listDomains().map((d) => (
+              <DomainPill
+                key={d}
+                active={domain === d}
+                onClick={() => setDomain(d)}
+                label={DOMAIN_LABEL[d]}
+              />
+            ))}
+          </div>
+
           <div className="min-h-64">
             {isLoading ? (
               <div className="divide-y divide-border/60">
@@ -119,7 +203,9 @@ export function NotifikasiView() {
                 title={
                   tab === "unread"
                     ? "Semua notifikasi sudah dibaca"
-                    : "Belum ada notifikasi"
+                    : domain === "all"
+                      ? "Belum ada notifikasi"
+                      : `Belum ada notifikasi ${DOMAIN_LABEL[domain as NotificationDomain].toLowerCase()}`
                 }
                 description={
                   tab === "unread"
@@ -154,5 +240,30 @@ export function NotifikasiView() {
         </div>
       </LiquidGlass>
     </div>
+  );
+}
+
+interface DomainPillProps {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}
+
+function DomainPill({ label, active, onClick }: DomainPillProps) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      onClick={onClick}
+      className={cn(
+        "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+        active
+          ? "border-primary bg-primary/10 text-primary"
+          : "border-border text-muted-foreground hover:bg-muted",
+      )}
+    >
+      {label}
+    </button>
   );
 }

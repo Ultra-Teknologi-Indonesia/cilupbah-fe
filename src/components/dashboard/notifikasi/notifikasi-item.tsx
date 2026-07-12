@@ -25,8 +25,10 @@ import {
   useMarkNotificationRead,
 } from "@/hooks/notification/use-notifications";
 import {
+  DOMAIN_LABEL,
   getNotificationMeta,
   notificationToneClass,
+  severityBorderClass,
 } from "@/lib/notification";
 import type { AppNotification } from "@/types/notification";
 
@@ -109,9 +111,15 @@ export function NotifikasiItem({
             {notification.message}
           </p>
         )}
-        <p className="mt-0.5 text-xs text-muted-foreground/80">
-          {relativeTime(notification.created_at)}
-        </p>
+        <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+          <span className="rounded-full bg-muted px-1.5 text-2xs font-medium text-muted-foreground">
+            {DOMAIN_LABEL[meta.domain]}
+          </span>
+          <span className="text-2xs text-muted-foreground/80">·</span>
+          <span className="text-2xs text-muted-foreground/80">
+            {relativeTime(notification.created_at)}
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -120,6 +128,7 @@ export function NotifikasiItem({
     const commonClass = cn(
       "block w-full rounded-xl px-3 py-2 text-left transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none",
       unread && "bg-muted/40",
+      severityBorderClass(meta.severity),
     );
     if (link) {
       return (
@@ -145,6 +154,7 @@ export function NotifikasiItem({
       className={cn(
         "relative flex items-start gap-2 rounded-xl px-3 py-3 transition-colors hover:bg-muted",
         unread && "bg-muted/30",
+        severityBorderClass(meta.severity),
       )}
     >
       <div
