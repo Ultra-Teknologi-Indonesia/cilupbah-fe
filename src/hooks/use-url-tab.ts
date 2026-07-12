@@ -16,6 +16,7 @@ export function useUrlTab<T extends string>(
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { validValues, clearKeys } = options ?? {};
+  const clearKeysKey = JSON.stringify(clearKeys);
 
   const raw = searchParams.get(key);
   const value =
@@ -42,7 +43,7 @@ export function useUrlTab<T extends string>(
       searchParams,
       key,
       defaultValue,
-      JSON.stringify(clearKeys),
+      clearKeysKey,
     ],
   );
 

@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { ImageIcon, Loader2Icon, SearchIcon, SearchXIcon } from "lucide-react";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useStockedItems } from "@/hooks/persediaan/use-stocked-items";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +28,6 @@ import {
 } from "@/components/ui/table";
 import { SimplePagination } from "@/components/ui/simple-pagination";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { InventoryStockService } from "@/services/persediaan/inventory.service";
 
 export interface StockedPickedProduct {
   itemId: string;
@@ -67,8 +66,10 @@ export function StockedProductPickerDialog({
   excludeIds = [],
   initialSearch,
 }: StockedProductPickerDialogProps) {
-  const [searchInput, setSearchInput] = React.useState("");
-  const [search, setSearch] = React.useState("");
+  const [searchInput, setSearchInput] = React.useState(
+    () => initialSearch ?? "",
+  );
+  const [search, setSearch] = React.useState(() => initialSearch ?? "");
   const [selected, setSelected] = React.useState<
     Map<string, StockedPickedProduct>
   >(new Map());
@@ -76,20 +77,12 @@ export function StockedProductPickerDialog({
   const perPage = 20;
 
   React.useEffect(() => {
-    if (open && initialSearch) {
-      setSearchInput(initialSearch);
-      setSearch(initialSearch);
-    }
-  }, [open, initialSearch]);
-
-  React.useEffect(() => {
-    const t = setTimeout(() => setSearch(searchInput), 350);
+    const t = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 350);
     return () => clearTimeout(t);
   }, [searchInput]);
-
-  React.useEffect(() => {
-    setPage(1);
-  }, [search, locationId]);
 
   const handleOpenChange = (next: boolean) => {
     if (!next) {
@@ -101,18 +94,12 @@ export function StockedProductPickerDialog({
     onOpenChange(next);
   };
 
-  const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["stocked-items", locationId, search, page, perPage],
-    enabled: open && !!locationId,
-    placeholderData: keepPreviousData,
-    queryFn: () =>
-      InventoryStockService.stockedItems({
-        locationId,
-        search: search || undefined,
-        page,
-        perPage,
-      }),
-    staleTime: 30 * 1000,
+  const { data, isLoading, isFetching } = useStockedItems({
+    locationId,
+    search,
+    page,
+    perPage,
+    enabled: open,
   });
 
   const rows = ((data?.data ?? []) as RawRow[]).filter(

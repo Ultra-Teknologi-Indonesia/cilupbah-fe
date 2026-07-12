@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { DownloadIcon, XCircleIcon, DollarSignIcon } from "lucide-react";
 
@@ -21,6 +20,7 @@ import {
   useStockRevaluationDetail,
   useCancelStockRevaluation,
 } from "@/hooks/transaksi-stok/use-stock-revaluations";
+import type { StockRevaluationItem } from "@/types/transaksi-stok/stock-revaluation";
 import { exportCsv } from "@/lib/export-csv";
 import { formatDate, formatCurrency } from "@/lib/format";
 
@@ -36,59 +36,12 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 export function RevaluasiDetail({ id }: { id: string }) {
-  const router = useRouter();
   const { data: reval, isLoading } = useStockRevaluationDetail(id);
   const cancelMut = useCancelStockRevaluation();
 
   const [cancelOpen, setCancelOpen] = useState(false);
 
-  const handleExport = () => {
-    if (!reval || !reval.items?.length) return;
-    exportCsv(
-      `ubah-nilai-stok-${reval.revaluation_no}.csv`,
-      ["SKU", "Nama Produk", "Bin", "Qty", "HPP Lama", "HPP Baru", "Selisih"],
-      reval.items.map((item) => {
-        const diff = (item.new_cost ?? 0) - (item.old_cost ?? 0);
-        return [
-          item.item?.sku ?? "",
-          item.item?.item_name ?? "",
-          item.bin?.code ?? "",
-          String(item.qty ?? 0),
-          String(item.old_cost ?? 0),
-          String(item.new_cost ?? 0),
-          String(diff),
-        ];
-      }),
-    );
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col gap-4">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-[400px] w-full" />
-      </div>
-    );
-  }
-
-  if (!reval) {
-    return (
-      <EmptyState
-        icon={DollarSignIcon}
-        title="Dokumen tidak ditemukan."
-        className="py-20"
-        action={
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/transaksi-stok?tab=penyesuaian">Kembali</Link>
-          </Button>
-        }
-      />
-    );
-  }
-
-  const isApproved = reval.status === "APPROVED";
-
-  const columns = React.useMemo<ColumnDef<any>[]>(
+  const columns = React.useMemo<ColumnDef<StockRevaluationItem>[]>(
     () => [
       {
         accessorKey: "item_name",
@@ -171,6 +124,55 @@ export function RevaluasiDetail({ id }: { id: string }) {
     [],
   );
 
+  const handleExport = () => {
+    if (!reval || !reval.items?.length) return;
+    exportCsv(
+      `ubah-nilai-stok-${reval.revaluation_no}.csv`,
+      ["SKU", "Nama Produk", "Bin", "Qty", "HPP Lama", "HPP Baru", "Selisih"],
+      reval.items.map((item) => {
+        const diff = (item.new_cost ?? 0) - (item.old_cost ?? 0);
+        return [
+          item.item?.sku ?? "",
+          item.item?.item_name ?? "",
+          item.bin?.code ?? "",
+          String(item.qty ?? 0),
+          String(item.old_cost ?? 0),
+          String(item.new_cost ?? 0),
+          String(diff),
+        ];
+      }),
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-[400px] w-full" />
+      </div>
+    );
+  }
+
+  if (!reval) {
+    return (
+      <EmptyState
+        icon={DollarSignIcon}
+        title="Dokumen tidak ditemukan."
+        className="py-20"
+        action={
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/transaksi-stok?tab=penyesuaian">
+              Kembali
+            </Link>
+          </Button>
+        }
+      />
+    );
+  }
+
+
+  const isApproved = reval.status === "APPROVED";
+
   const totalSelisih = (reval.items ?? []).reduce((sum, item) => {
     return (
       sum + ((item.new_cost ?? 0) - (item.old_cost ?? 0)) * (item.qty ?? 0)
@@ -184,7 +186,10 @@ export function RevaluasiDetail({ id }: { id: string }) {
         backHref="/dashboard/transaksi-stok?tab=penyesuaian"
         breadcrumb={[
           { label: "Persediaan" },
-          { label: "Transaksi Stok", href: "/dashboard/transaksi-stok?tab=penyesuaian" },
+          {
+            label: "Transaksi Stok",
+            href: "/dashboard/transaksi-stok?tab=penyesuaian",
+          },
           { label: reval.revaluation_no },
         ]}
         actions={
@@ -255,7 +260,9 @@ export function RevaluasiDetail({ id }: { id: string }) {
             hideToolbar
             manualPagination={false}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
-            emptyState={<EmptyState title="Belum ada item." className="py-12" />}
+            emptyState={
+              <EmptyState title="Belum ada item." className="py-12" />
+            }
           />
           {reval.items && reval.items.length > 0 && (
             <div className="flex items-center justify-end gap-6 border-t border-border/60 bg-muted/20 px-3 py-3">

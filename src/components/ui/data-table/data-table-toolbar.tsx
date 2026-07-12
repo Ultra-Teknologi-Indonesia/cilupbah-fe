@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import type { Table } from "@tanstack/react-table";
+import type { Column, Table } from "@tanstack/react-table";
 import { SearchIcon, XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -90,7 +90,7 @@ export function DataTableToolbar<TData>({
           if (filter.render) {
             return (
               <React.Fragment key={filter.columnId}>
-                {filter.render(col)}
+                {filter.render(col as Column<unknown, unknown>)}
               </React.Fragment>
             );
           }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ImageIcon, Trash2Icon, UploadIcon } from "lucide-react";
@@ -36,30 +36,22 @@ export function TokoInternalFormPage({ mode, id }: Props) {
     isEdit ? id : undefined,
   );
 
-  const [name, setName] = useState("");
-  const [isActive, setIsActive] = useState(true);
+  const [name, setName] = useState(() => existing?.name ?? "");
+  const [isActive, setIsActive] = useState(() => existing?.is_active ?? true);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [existingLogo, setExistingLogo] = useState<string | null>(null);
+  const [existingLogo, setExistingLogo] = useState<string | null>(
+    () => existing?.logo_thumb ?? existing?.logo_url ?? null,
+  );
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (existing) {
-      setName(existing.name);
-      setIsActive(existing.is_active);
-      setExistingLogo(existing.logo_thumb ?? existing.logo_url ?? null);
-    }
-  }, [existing]);
-
-  useEffect(() => {
-    if (!logoFile) {
-      setLogoPreview(null);
-      return;
-    }
-    const url = URL.createObjectURL(logoFile);
-    setLogoPreview(url);
-    return () => URL.revokeObjectURL(url);
-  }, [logoFile]);
+  const prevExistingIdRef = useRef(existing?.id);
+  if (existing && prevExistingIdRef.current !== existing.id) {
+    prevExistingIdRef.current = existing.id;
+    setName(existing.name);
+    setIsActive(existing.is_active);
+    setExistingLogo(existing.logo_thumb ?? existing.logo_url ?? null);
+  }
 
   const createMut = useCreateInternalStore();
   const updateMut = useUpdateInternalStore();
@@ -76,7 +68,9 @@ export function TokoInternalFormPage({ mode, id }: Props) {
       alert(`Ukuran file maksimal ${MAX_MB} MB`);
       return;
     }
+    if (logoPreview) URL.revokeObjectURL(logoPreview);
     setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
   }
 
   async function handleSubmit(e: React.FormEvent) {

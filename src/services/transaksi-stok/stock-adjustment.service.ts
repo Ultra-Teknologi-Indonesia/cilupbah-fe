@@ -2,6 +2,7 @@ import { fetchClient, fetchBlobRaw, fetchBlobPost } from "@/lib/api-client";
 import type { ApiResponse, ApiPaginated } from "@/types/api.types";
 import type {
   StockAdjustment,
+  StockAdjustmentItem,
   StockAdjustmentListParams,
   StockAdjustmentFormData,
 } from "@/types/transaksi-stok/stock-adjustment";
@@ -47,7 +48,7 @@ export const StockAdjustmentService = {
     if (params.per_page) sp.set("per_page", String(params.per_page));
     if (params.sort) sp.set("sort", params.sort);
 
-    const res = await fetchClient<ApiPaginated<any>>(
+    const res = await fetchClient<ApiPaginated<StockAdjustmentItem>>(
       `${BASE}/${id}/items?${sp}`,
     );
     return { items: res.data ?? [], meta: res.meta };

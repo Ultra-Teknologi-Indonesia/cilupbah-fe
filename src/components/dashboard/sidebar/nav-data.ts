@@ -10,26 +10,18 @@ import {
   ShoppingBag,
   Store,
   Users,
-  MonitorSmartphone,
   LinkIcon,
   ClipboardList,
-  CornerUpLeft,
   Truck,
   Inbox,
   Send,
   Archive,
-  ReceiptText,
   HandCoins,
-  Landmark,
-  BookOpen,
-  Building2,
-  Map,
   TrendingUp,
   TrendingDown,
   PackageOpen,
   Factory,
   Settings,
-  HelpCircle,
   Layers,
   Warehouse,
   BarChart3,
@@ -258,10 +250,6 @@ export const settingsRoutes: Route[] = [
   },
 ];
 
-/**
- * Peta izin untuk gating menu (per id item nav & per link sub-pengaturan).
- * Item tanpa entri (Dashboard, Bantuan, Umum) selalu tampil.
- */
 export const NAV_PERMISSION: Record<string, string | string[]> = {
   produk: "view-produk",
   "kategori-merek": "view-kategori",
@@ -299,7 +287,6 @@ const SETTINGS_SUB_PERMISSION: Record<string, string | string[]> = {
 
 type PermCheck = (perm?: string | string[]) => boolean;
 
-/** Filter grup nav berdasar izin; buang item & grup yang tak diizinkan. */
 export function filterNavGroups(
   groups: NavGroup[],
   has: PermCheck,
@@ -312,11 +299,7 @@ export function filterNavGroups(
     .filter((group) => group.items.length > 0);
 }
 
-/** Filter sub-menu Pengaturan; gear tetap tampil (mis. halaman Umum). */
-export function filterSettingsRoutes(
-  routes: Route[],
-  has: PermCheck,
-): Route[] {
+export function filterSettingsRoutes(routes: Route[], has: PermCheck): Route[] {
   return routes.map((route) =>
     route.subs
       ? {

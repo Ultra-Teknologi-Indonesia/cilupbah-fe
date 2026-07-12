@@ -14,5 +14,5 @@ export interface FacetedFilter {
   title: string;
   options?: FacetedFilterOption[];
 
-  render?: (column: Column<any, any>) => React.ReactNode;
+  render?: (column: Column<unknown, unknown>) => React.ReactNode;
 }

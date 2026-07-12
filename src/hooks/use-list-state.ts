@@ -54,7 +54,7 @@ export function useListState<F extends object>(
       const raw = searchParams.get(filterKeyFor(k));
       if (raw === null) continue;
       const defaultVal = src[k];
-      let parsed: any = raw;
+      let parsed: FilterPrimitive = raw;
       if (typeof defaultVal === "number") parsed = Number(raw);
       else if (typeof defaultVal === "boolean") parsed = raw === "true";
       next[k] = parsed;
