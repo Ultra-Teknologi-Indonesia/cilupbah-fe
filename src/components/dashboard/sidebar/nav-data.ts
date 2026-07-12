@@ -256,12 +256,6 @@ export const settingsRoutes: Route[] = [
       },
     ],
   },
-  {
-    id: "bantuan",
-    title: "Bantuan",
-    icon: HelpCircle,
-    link: "/dashboard/bantuan",
-  },
 ];
 
 /**

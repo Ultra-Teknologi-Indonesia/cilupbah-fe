@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PanelLeft, UserCog, LogOutIcon } from "lucide-react";
+import { UserCog, LogOutIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import {
@@ -176,19 +176,6 @@ export function SidebarRailNav({
             );
           return <RailLink key={route.id} route={route} active={isActive} />;
         })}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              type="button"
-              aria-label="Sembunyikan / tampilkan panel"
-              onClick={onTogglePanel}
-              className="grid size-10 place-items-center rounded-xl text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
-            >
-              <PanelLeft className="size-5" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="right">Toggle panel (⌘B)</TooltipContent>
-        </Tooltip>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
