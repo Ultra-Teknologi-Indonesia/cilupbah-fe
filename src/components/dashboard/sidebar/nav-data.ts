@@ -26,6 +26,7 @@ import {
   Warehouse,
   BarChart3,
   AlertTriangle,
+  SlidersHorizontal,
 } from "lucide-react";
 import type React from "react";
 import type { Route } from "./nav-main";
@@ -94,6 +95,12 @@ export const dashboardGroups: NavGroup[] = [
         title: "Monitor Stok",
         icon: Eye,
         link: "/dashboard/monitor-stok",
+      },
+      {
+        id: "pengaturan-persediaan",
+        title: "Pengaturan Persediaan",
+        icon: SlidersHorizontal,
+        link: "/dashboard/pengaturan-persediaan",
       },
     ],
   },
@@ -260,6 +267,7 @@ export const NAV_PERMISSION: Record<string, string | string[]> = {
     "view-stok-opname",
   ],
   "monitor-stok": "view-monitor-stok",
+  "pengaturan-persediaan": "view-pengaturan-persediaan",
   pesanan: "view-pesanan",
   "toko-internal": "view-toko-internal",
   "kontak-pelanggan": "view-kontak-pelanggan",
