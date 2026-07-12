@@ -29,7 +29,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -318,7 +317,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     setItemPlacements((prev) => {
       const list = prev[itemId]?.filter((p) => p.id !== placementId);
       if (!list || list.length === 0) {
-        const { [itemId]: _, ...rest } = prev;
+        const { [itemId]: __, ...rest } = prev;
         return rest;
       }
       return { ...prev, [itemId]: list };
@@ -767,7 +766,7 @@ interface PutawayItemRowProps {
 function PutawayItemRow({
   item,
   putawayId,
-  locationId,
+  locationId: _locationId,
   editable,
   correctable,
   defaultRack,

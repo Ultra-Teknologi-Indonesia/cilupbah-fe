@@ -56,8 +56,11 @@ export function PecahRakDialog({
   React.useEffect(() => {
     if (!open) return;
     let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
+     
     setLoadError(null);
+     
     setQtyByBin({});
     OutboundService.scanForPick(picklistId, {
       sku: item.sku,
@@ -169,7 +172,7 @@ export function PecahRakDialog({
           </div>
         ) : (
           <div className="flex max-h-[320px] flex-col gap-2 overflow-y-auto">
-            {parsedQtys.map(({ candidate, qty, overAvailable }) => {
+            {parsedQtys.map(({ candidate, qty: _qty, overAvailable }) => {
               const maxForBin = Math.min(candidate.on_hand, remaining);
               return (
                 <div

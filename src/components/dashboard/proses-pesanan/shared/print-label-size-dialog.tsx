@@ -128,6 +128,7 @@ function ChannelSection({
   React.useEffect(() => {
     if (isLoading || resolvedRef.current) return;
     resolvedRef.current = true;
+     
     onCapabilitiesResolved(source, caps ?? null);
   }, [caps, isLoading, onCapabilitiesResolved, source]);
 
@@ -227,14 +228,19 @@ export function PrintLabelSizeDialog() {
     }));
   }, [orders]);
 
-  React.useEffect(() => {
-    if (!open) return;
-    const seed: PrintLabelChoiceMap = {};
-    for (const g of groups) {
-      seed[g.source] = readPref(g.source);
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  const [prevGroups, setPrevGroups] = React.useState(groups);
+  if (open !== prevOpen || groups !== prevGroups) {
+    setPrevOpen(open);
+    setPrevGroups(groups);
+    if (open) {
+      const seed: PrintLabelChoiceMap = {};
+      for (const g of groups) {
+        seed[g.source] = readPref(g.source);
+      }
+      setChoices(seed);
     }
-    setChoices(seed);
-  }, [open, groups]);
+  }
 
   const handleCapabilitiesResolved = React.useCallback(
     (source: string, caps: PrintLabelCapabilities | null) => {

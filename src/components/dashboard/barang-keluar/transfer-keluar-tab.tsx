@@ -90,7 +90,7 @@ function TransferTable({
   perPage,
   setPage,
   setPerPage,
-  resetPage,
+  resetPage: _resetPage,
   onRowClick,
   actionSlot,
   bulkActions,

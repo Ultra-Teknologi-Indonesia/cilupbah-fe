@@ -33,7 +33,7 @@ function nextId(): string {
 function ensurePrimary(items: EditMediaItem[]): EditMediaItem[] {
   const imgs = items.filter((i) => i.mediaType === "image");
   const hasPrimary = imgs.some((i) => i.isPrimary);
-  return items.map((i, idx) => {
+  return items.map((i, _idx) => {
     if (i.mediaType !== "image") return { ...i, isPrimary: false };
     if (!hasPrimary && i.localId === imgs[0]?.localId)
       return { ...i, isPrimary: true };

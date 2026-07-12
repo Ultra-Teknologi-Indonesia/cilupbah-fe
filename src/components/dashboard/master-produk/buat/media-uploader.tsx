@@ -26,7 +26,9 @@ export function MediaUploader({
   const imgInput = React.useRef<HTMLInputElement>(null);
   const vidInput = React.useRef<HTMLInputElement>(null);
   const onChangeRef = React.useRef(onChange);
-  onChangeRef.current = onChange;
+  React.useEffect(() => {
+    onChangeRef.current = onChange;
+  });
 
   React.useEffect(() => {
     onChangeRef.current?.(images.map((i) => i.file));

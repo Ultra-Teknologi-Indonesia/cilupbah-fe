@@ -44,7 +44,7 @@ export function MonitorStockTable({
   rows,
   meta,
   isLoading,
-  isFetching,
+  isFetching: _isFetching,
   locationLabel,
   showRestock = false,
   emptyText = "Tidak ada produk pada kategori ini.",

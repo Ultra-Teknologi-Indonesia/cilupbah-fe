@@ -45,9 +45,11 @@ export function RoleDetailPage({ id }: RoleDetailPageProps) {
   const isOwner = role?.name === "owner";
   const canEdit = can("edit-role") && !isOwner;
 
-  React.useEffect(() => {
+  const [prevRolePerms, setPrevRolePerms] = React.useState(role?.permissions);
+  if (role?.permissions !== prevRolePerms) {
+    setPrevRolePerms(role?.permissions);
     if (role?.permissions) setSelected(role.permissions);
-  }, [role?.permissions]);
+  }
 
   if (isLoading || catalogLoading) return <FormSkeleton />;
   if (!role || !catalog) {

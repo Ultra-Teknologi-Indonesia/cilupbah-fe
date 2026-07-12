@@ -50,13 +50,13 @@ import {
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment";
 import { useCopyToClipboard } from "@/hooks/shared/use-copy-to-clipboard";
-import { CHANNEL_MAP, STATUS_LABELS } from "@/types/pesanan/order";
+import { CHANNEL_MAP } from "@/types/pesanan/order";
 import {
   SimplePagination,
   TABLE_PAGE_SIZES,
 } from "@/components/ui/simple-pagination";
 
-import { ChannelBadge, OrderStatusBadge } from "../channel-badge";
+import { OrderStatusBadge } from "../channel-badge";
 import { BuatPicklistDialog } from "../picking/buat-picklist-dialog";
 import { BuatPengirimanDialog } from "../shipping/buat-pengiriman-dialog";
 import { DocActions } from "../picking/doc-actions";
@@ -734,22 +734,26 @@ export function FulfillmentOrdersTable({
     React.useState<FulfillmentOrder | null>(null);
   const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
 
-  React.useEffect(() => {
+  const [prevStage, setPrevStage] = React.useState(stage);
+  if (stage !== prevStage) {
+    setPrevStage(stage);
     setSelected(new Set());
     setPage(1);
     setSearch("");
     setDebounced("");
     setFilter({});
-  }, [stage]);
+  }
 
   React.useEffect(() => {
     const t = setTimeout(() => setDebounced(search.trim()), 350);
     return () => clearTimeout(t);
   }, [search]);
 
-  React.useEffect(() => {
+  const [prevFilter, setPrevFilter] = React.useState(filter);
+  if (filter !== prevFilter) {
+    setPrevFilter(filter);
     setPage(1);
-  }, [filter]);
+  }
 
   const params = React.useMemo(
     () => ({

@@ -45,10 +45,12 @@ function useObjectUrl(file: File | undefined) {
   const [url, setUrl] = React.useState<string | null>(null);
   React.useEffect(() => {
     if (!(file instanceof File)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUrl(null);
       return;
     }
     const u = URL.createObjectURL(file);
+     
     setUrl(u);
     return () => URL.revokeObjectURL(u);
   }, [file]);
@@ -206,9 +208,11 @@ export function FormVariantSection({
   >("sellPrice");
   const [bulkValue, setBulkValue] = React.useState("");
 
-  React.useEffect(() => {
+  const [prevTypesKey, setPrevTypesKey] = React.useState(typesKey);
+  if (typesKey !== prevTypesKey) {
+    setPrevTypesKey(typesKey);
     setSelected(new Set());
-  }, [typesKey]);
+  }
 
   if (!category) return null;
 

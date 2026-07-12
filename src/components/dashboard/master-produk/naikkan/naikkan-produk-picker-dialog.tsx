@@ -41,13 +41,15 @@ export function NaikkanProdukPickerDialog({
   const [appliedSearch, setAppliedSearch] = React.useState("");
   const [page, setPage] = React.useState(1);
 
-  React.useEffect(() => {
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
     if (!open) {
       setSearch("");
       setAppliedSearch("");
       setPage(1);
     }
-  }, [open]);
+  }
 
   const query = useNaikkanProductPicker(shopId, appliedSearch, page, open);
 

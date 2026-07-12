@@ -3,11 +3,9 @@
 import * as React from "react";
 import {
   CameraIcon,
-  CheckCircle2Icon,
   Loader2Icon,
   PackageIcon,
   PencilIcon,
-  PhoneIcon,
   PrinterIcon,
   ScanBarcodeIcon,
   SearchIcon,
@@ -25,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { SimplePagination } from "@/components/ui/simple-pagination";
 import {
@@ -384,9 +382,11 @@ export function ShipmentDetailView({ id }: { id: string }) {
     }
   }, [isLoading, detail]);
 
-  React.useEffect(() => {
+  const [prevDebouncedSearch, setPrevDebouncedSearch] = React.useState(debouncedSearch);
+  if (debouncedSearch !== prevDebouncedSearch) {
+    setPrevDebouncedSearch(debouncedSearch);
     setPage(1);
-  }, [debouncedSearch]);
+  }
 
   const handleScan = async () => {
     const code = barcode.trim();

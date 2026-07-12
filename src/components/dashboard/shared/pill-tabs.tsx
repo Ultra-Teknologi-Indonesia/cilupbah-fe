@@ -20,7 +20,7 @@ export function PillTab<T extends string>({
   item,
   active,
   variant = "solid",
-  onSelect,
+  onSelect: _onSelect,
 }: {
   item: PillTabItem<T>;
   active: boolean;

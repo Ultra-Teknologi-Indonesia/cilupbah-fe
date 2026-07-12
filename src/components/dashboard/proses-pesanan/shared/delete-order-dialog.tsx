@@ -24,9 +24,11 @@ export function DeleteOrderDialog({
   const [reason, setReason] = React.useState("");
   const deleteOrder = useDeleteFulfillmentOrder();
 
-  React.useEffect(() => {
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
     if (!open) setReason("");
-  }, [open]);
+  }
 
   const handleConfirm = () => {
     if (!orderId || !reason.trim()) return;

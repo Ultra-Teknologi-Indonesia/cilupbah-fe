@@ -12,7 +12,7 @@ import { CornerDownLeftIcon,
   PlusIcon, Loader2Icon, RefreshCwIcon, DownloadIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";

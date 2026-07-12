@@ -86,7 +86,7 @@ export function DestinationTable({
   search?: string;
   channel?: string;
 }) {
-  const router = useRouter();
+  const _router = useRouter();
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 20,

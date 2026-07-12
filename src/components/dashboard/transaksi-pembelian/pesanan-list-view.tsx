@@ -77,7 +77,7 @@ export function PesananListView() {
     });
   }
 
-  function handleBulkDelete(table: { toggleAllPageRowsSelected: () => void }) {
+  function handleBulkDelete(table: { toggleAllPageRowsSelected: (value?: boolean) => void }) {
     if (!bulkDeleteTarget) return;
     const ids = bulkDeleteTarget.map((p) => p.id);
     bulkDeleteMut.mutate(ids, {
@@ -271,7 +271,7 @@ export function PesananListView() {
             data={items}
             isLoading={isLoading}
             enableRowSelection
-            bulkActions={(selected, table) => (
+            bulkActions={(selected, _table) => (
               <Button
                 variant="destructive"
                 size="sm"

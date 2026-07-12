@@ -44,7 +44,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
   const [globalFilter, setGlobalFilter] = useState("");
 
-  const { data: itemsData, isLoading: itemsLoading } = useStockAdjustmentItems(
+  const { data: itemsData, isLoading: _itemsLoading } = useStockAdjustmentItems(
     id,
     {
       page: pagination.pageIndex + 1,

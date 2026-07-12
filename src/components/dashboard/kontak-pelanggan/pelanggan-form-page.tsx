@@ -43,7 +43,6 @@ import {
 } from "@/components/dashboard/manajemen-rak/lokasi/location-map-picker";
 import type {
   ContactFormData,
-  ContactItem,
 } from "@/types/kontak-pemasok/contact";
 
 const LIST_HREF = "/dashboard/kontak-pelanggan?tab=pelanggan";

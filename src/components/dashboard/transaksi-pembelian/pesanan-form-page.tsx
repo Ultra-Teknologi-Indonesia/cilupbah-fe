@@ -1,7 +1,7 @@
 "use client";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {

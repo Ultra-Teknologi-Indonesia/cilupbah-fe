@@ -42,12 +42,16 @@ export function RoleFormDialog({
   const updateRole = useUpdateRole();
   const isPending = createRole.isPending || updateRole.isPending;
 
-  React.useEffect(() => {
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  const [prevRole, setPrevRole] = React.useState(role);
+  if (open !== prevOpen || role !== prevRole) {
+    setPrevOpen(open);
+    setPrevRole(role);
     if (open) {
       setName(role?.name ?? "");
       setDescription(role?.description ?? "");
     }
-  }, [open, role]);
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

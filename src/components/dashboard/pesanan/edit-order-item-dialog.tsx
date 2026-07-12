@@ -35,14 +35,18 @@ export function EditOrderItemDialog({
   const [qty, setQty] = React.useState(String(item.qty_in_base));
   const [price, setPrice] = React.useState(String(item.price));
 
-  React.useEffect(() => {
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  const [prevItem, setPrevItem] = React.useState(item);
+  if (open !== prevOpen || item !== prevItem) {
+    setPrevOpen(open);
+    setPrevItem(item);
     if (open) {
       setSku(item.sku);
       setDescription(item.description ?? "");
       setQty(String(item.qty_in_base));
       setPrice(String(item.price));
     }
-  }, [open, item]);
+  }
 
   const updateItem = useUpdateOrderItem();
 

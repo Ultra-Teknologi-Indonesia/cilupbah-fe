@@ -36,9 +36,11 @@ export function NaikkanTambahDialog({
     null,
   );
 
-  React.useEffect(() => {
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
     if (!open) setSelectedShopId(null);
-  }, [open]);
+  }
 
   const options = stores
     .filter((s) => !existingStoreIds.includes(s.id))

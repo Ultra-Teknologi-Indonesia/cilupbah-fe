@@ -48,12 +48,14 @@ export function FailItemDialog({
   const [note, setNote] = React.useState("");
   const failItem = useFailPickItem();
 
-  React.useEffect(() => {
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
     if (open) {
       setReasonCode("STOCK_EMPTY");
       setNote("");
     }
-  }, [open]);
+  }
 
   const remaining = Math.max(0, item.qtyOrdered - item.qtyPicked);
   const requiresNote = reasonCode === "OTHER";

@@ -355,6 +355,7 @@ export function PosisiStokView() {
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setHiddenLocations(parsed.filter((x) => typeof x === "string"));
       }
     } catch {

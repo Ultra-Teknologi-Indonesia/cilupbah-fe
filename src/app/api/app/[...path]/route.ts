@@ -8,7 +8,7 @@ const BACKEND_URL =
 
 async function proxyRequest(
   request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> },
+  { params: _params }: { params: Promise<{ path: string[] }> },
 ) {
   const url = new URL(request.url);
   const targetPath = url.pathname.replace(/^\/api\/app\//, "/api/v1/");

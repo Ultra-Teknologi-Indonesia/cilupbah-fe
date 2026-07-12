@@ -1,7 +1,8 @@
 "use client";
+import React from "react";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useListState } from "@/hooks/use-list-state";
 import {
   PlusIcon,
@@ -23,7 +24,6 @@ import { Label } from "@/components/ui/label";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { Textarea } from "@/components/ui/textarea";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -292,11 +292,7 @@ export function SalesmanTab() {
           onSearchChange={setSearch}
           searchPlaceholder="Cari nama, kode, email..."
           align="end"
-          onReset={
-            hasFilter
-              ? () => setFilters(EMPTY_FILTERS)
-              : undefined
-          }
+          onReset={hasFilter ? () => setFilters(EMPTY_FILTERS) : undefined}
           hasFilter={hasFilter}
           activeCount={activeCount}
           gridCols={2}
@@ -346,7 +342,11 @@ export function SalesmanTab() {
             onPaginationChange={onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <EmptyState icon={BadgeCheckIcon} title="Belum ada salesman" description="Buat salesman baru untuk mengelola tim penjualan." />
+              <EmptyState
+                icon={BadgeCheckIcon}
+                title="Belum ada salesman"
+                description="Buat salesman baru untuk mengelola tim penjualan."
+              />
             }
           />
         </div>

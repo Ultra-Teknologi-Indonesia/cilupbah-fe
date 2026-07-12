@@ -9,7 +9,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
   CheckIcon,
-  CopyIcon,
   DicesIcon,
   EyeIcon,
   EyeOffIcon,
@@ -191,7 +190,11 @@ export function UserFormPage({ userId }: UserFormPageProps) {
     },
   });
 
-  React.useEffect(() => {
+  const [prevUser, setPrevUser] = React.useState(user);
+  const [prevIsEdit, setPrevIsEdit] = React.useState(isEdit);
+  if (user !== prevUser || isEdit !== prevIsEdit) {
+    setPrevUser(user);
+    setPrevIsEdit(isEdit);
     if (user && isEdit) {
       form.reset({
         name: user.name,
@@ -203,7 +206,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
       });
       setDirectPerms(user.directPermissions ?? []);
     }
-  }, [user, isEdit, form]);
+  }
 
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);

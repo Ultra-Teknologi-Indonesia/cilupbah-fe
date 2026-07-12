@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { PackageOpenIcon, RefreshCwIcon, CheckIcon } from "lucide-react";
+import { RefreshCwIcon, CheckIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { formatDateTime } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -56,7 +55,7 @@ export function MonitorSyncFailedTable({
   rows,
   meta,
   isLoading,
-  isFetching,
+  isFetching: _isFetching,
   onPageChange,
   onPerPageChange,
 }: MonitorSyncFailedTableProps) {
@@ -99,7 +98,7 @@ export function MonitorSyncFailedTable({
     () => [
       {
         id: "select",
-        header: ({ table }) => (
+        header: ({ table: _table }) => (
           <Checkbox
             checked={selected.size === rows.length && rows.length > 0}
             onCheckedChange={toggleAll}

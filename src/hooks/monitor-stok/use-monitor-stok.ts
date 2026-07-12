@@ -120,7 +120,7 @@ export function useMonitorSummary(params: MonitorListParams) {
   });
 }
 
-const EMPTY_SYNC = { items: [] as MonitorSyncFailedRow[], meta: EMPTY_META };
+const _EMPTY_SYNC = { items: [] as MonitorSyncFailedRow[], meta: EMPTY_META };
 
 export function useFailedSync(tab: MonitorTab, params: FailedSyncParams) {
   return useQuery({

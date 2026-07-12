@@ -187,10 +187,14 @@ function ZoneFormDialog({
   loading: boolean;
 }) {
   const [form, setForm] = React.useState<ZoneFormState>(initial);
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  const [prevInitial, setPrevInitial] = React.useState(initial);
 
-  React.useEffect(() => {
+  if (open !== prevOpen || initial !== prevInitial) {
+    setPrevOpen(open);
+    setPrevInitial(initial);
     if (open) setForm(initial);
-  }, [open, initial]);
+  }
 
   const valid = form.zone_code.trim().length > 0;
 

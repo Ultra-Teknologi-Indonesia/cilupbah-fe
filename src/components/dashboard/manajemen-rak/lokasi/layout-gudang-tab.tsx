@@ -601,7 +601,7 @@ function toRow(item: BinDraft): BinRow {
 }
 
 function toDraft(row: BinRow): BinDraft {
-  const { id: _clientId, binId, ...rest } = row;
+  const { id: __clientId, binId, ...rest } = row;
   return { ...rest, id: binId };
 }
 

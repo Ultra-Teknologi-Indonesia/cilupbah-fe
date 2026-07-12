@@ -107,7 +107,7 @@ export function EditKategoriDialog({
   onOpenChange,
   categoryId,
   currentName,
-  fullPath,
+  fullPath: _fullPath,
 }: EditKategoriDialogProps) {
   const [name, setName] = React.useState(currentName);
   const updateMut = useUpdateKategori();

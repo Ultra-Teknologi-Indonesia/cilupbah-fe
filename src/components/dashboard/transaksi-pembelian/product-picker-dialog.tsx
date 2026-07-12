@@ -62,6 +62,9 @@ export function ProductPickerDialog({
     new Map(),
   );
 
+  const [page, setPage] = React.useState(1);
+  const [perPage, setPerPage] = React.useState(20);
+
   React.useEffect(() => {
     const t = setTimeout(() => {
       setSearch(searchInput);
@@ -69,9 +72,6 @@ export function ProductPickerDialog({
     }, 350);
     return () => clearTimeout(t);
   }, [searchInput]);
-
-  const [page, setPage] = React.useState(1);
-  const [perPage, setPerPage] = React.useState(20);
 
   const handleOpenChange = (next: boolean) => {
     if (!next) {

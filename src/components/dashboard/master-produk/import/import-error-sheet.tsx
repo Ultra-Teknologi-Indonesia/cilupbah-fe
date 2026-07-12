@@ -59,9 +59,11 @@ export function ImportErrorSheet({ batch, open, onOpenChange }: Props) {
     pageSize: 20,
   });
 
-  React.useEffect(() => {
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
     if (open) setPagination((p) => ({ ...p, pageIndex: 0 }));
-  }, [open]);
+  }
 
   const query = useImportBatchErrors(batch?.id ?? null, {
     page: pagination.pageIndex + 1,

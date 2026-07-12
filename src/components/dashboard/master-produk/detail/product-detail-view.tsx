@@ -54,11 +54,13 @@ export function ProductDetailView({ id }: { id: string }) {
     : tabs[0].id;
   const [active, setActive] = React.useState(initialTab);
 
-  React.useEffect(() => {
-    setActive(
-      tabs.some((t) => t.id === urlTab) ? (urlTab as string) : tabs[0].id,
-    );
-  }, [urlTab, tabs]);
+  const [prevUrlTab, setPrevUrlTab] = React.useState(urlTab);
+  const [prevTabs, setPrevTabs] = React.useState(tabs);
+  if (urlTab !== prevUrlTab || tabs !== prevTabs) {
+    setPrevUrlTab(urlTab);
+    setPrevTabs(tabs);
+    setActive(tabs.some((t) => t.id === urlTab) ? (urlTab as string) : tabs[0].id);
+  }
 
   const setTab = (next: string) => {
     setActive(next);

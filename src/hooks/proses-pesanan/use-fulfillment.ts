@@ -423,7 +423,7 @@ export function useAdHocPickScan() {
       qty?: number;
       bin_id?: string | null;
     }) => OutboundService.adHocPickScan(payload),
-    onSuccess: (_d, _v) => {
+    onSuccess: (__d, __v) => {
       qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
     },
   });

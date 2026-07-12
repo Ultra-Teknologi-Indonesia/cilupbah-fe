@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useProductChannelListings } from "@/hooks/master-produk/use-product-tabs";
-import { TabPagination, SyncStatusBadge } from "./tab-pagination";
+import { SyncStatusBadge } from "./tab-pagination";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import type { ChannelListingRow } from "@/hooks/master-produk/use-product-tabs";
@@ -20,7 +20,7 @@ export function TabChannel({ productId }: { productId: string }) {
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(20);
 
-  const { data, isLoading, isError, refetch, isFetching } =
+  const { data, isLoading, isError, refetch, isFetching: _isFetching } =
     useProductChannelListings(
       productId,
       { page, perPage, channel: channel || undefined },
@@ -28,7 +28,7 @@ export function TabChannel({ productId }: { productId: string }) {
     );
   const rows = React.useMemo(() => data?.items ?? [], [data]);
   const meta = data?.meta;
-  const lastPage = meta?.last_page ?? 1;
+  const _lastPage = meta?.last_page ?? 1;
   const total = meta?.total ?? 0;
 
   const channelOptions = React.useMemo(() => {

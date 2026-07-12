@@ -17,6 +17,7 @@ import {
   useProductUploadHistories,
   useReuploadHistory,
 } from "@/hooks/master-produk/use-product-tabs";
+import type { UploadHistoryRow } from "@/services/master-produk/product-tabs.service";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 
@@ -32,7 +33,7 @@ export function TabRiwayat({ productId }: { productId: string }) {
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(20);
 
-  const { data, isLoading, isError, refetch, isFetching } =
+  const { data, isLoading, isError, refetch, isFetching: _isFetching } =
     useProductUploadHistories(
       productId,
       { page, perPage, status: status || undefined },
@@ -42,7 +43,7 @@ export function TabRiwayat({ productId }: { productId: string }) {
   const lastPage = data?.meta?.last_page ?? 1;
 
   const reupload = useReuploadHistory(productId);
-  const columns = React.useMemo<ColumnDef<any>[]>(
+  const columns = React.useMemo<ColumnDef<UploadHistoryRow>[]>(
     () => [
       {
         accessorKey: "uploadDate",

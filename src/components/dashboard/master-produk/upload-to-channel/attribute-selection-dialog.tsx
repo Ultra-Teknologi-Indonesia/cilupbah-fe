@@ -37,7 +37,7 @@ export function AttributeSelectionDialog({
   onConfirm,
   isUploading,
 }: AttributeSelectionDialogProps) {
-  const { data, isLoading, isError, error, refetch } = useRequiredAttributes(
+  const { data, isLoading, isError, error, refetch: _refetch } = useRequiredAttributes(
     productId,
     open ? shopId : null,
   );
@@ -56,11 +56,13 @@ export function AttributeSelectionDialog({
     [data],
   );
 
-  React.useEffect(() => {
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
     if (!open) {
       setSelections({});
     }
-  }, [open]);
+  }
 
   React.useEffect(() => {
     if (!data || isLoading) return;

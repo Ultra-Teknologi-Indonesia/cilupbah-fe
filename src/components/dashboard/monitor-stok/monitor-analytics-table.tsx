@@ -3,7 +3,6 @@
 import * as React from "react";
 import { PackageOpenIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -31,7 +30,7 @@ interface MonitorAnalyticsTableProps {
   onPerPageChange: (size: number) => void;
 }
 
-const EXTRA_COLS: Record<AnalyticsKind, string[]> = {
+const _EXTRA_COLS: Record<AnalyticsKind, string[]> = {
   "tidak-laku": ["Terjual Terakhir", "Idle (hari)"],
   "paling-laku": ["Terjual", "Rata-rata/hari"],
   "perkiraan-habis": ["Rata-rata/hari", "Estimasi Hari", "Perkiraan Habis"],
@@ -54,7 +53,7 @@ export function MonitorAnalyticsTable({
   rows,
   meta,
   isLoading,
-  isFetching,
+  isFetching: _isFetching,
   emptyText = "Tidak ada produk pada kategori ini.",
   onPageChange,
   onPerPageChange,

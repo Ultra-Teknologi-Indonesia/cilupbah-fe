@@ -65,14 +65,27 @@ export function ContactBuyerDialog({
   );
   const [note, setNote] = React.useState(defaultNote ?? "");
 
-  React.useEffect(() => {
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  const [prevDefaultChannel, setPrevDefaultChannel] = React.useState(defaultChannel);
+  const [prevDefaultDecision, setPrevDefaultDecision] = React.useState(defaultDecision);
+  const [prevDefaultNote, setPrevDefaultNote] = React.useState(defaultNote);
+  if (
+    open !== prevOpen ||
+    defaultChannel !== prevDefaultChannel ||
+    defaultDecision !== prevDefaultDecision ||
+    defaultNote !== prevDefaultNote
+  ) {
+    setPrevOpen(open);
+    setPrevDefaultChannel(defaultChannel);
+    setPrevDefaultDecision(defaultDecision);
+    setPrevDefaultNote(defaultNote);
     if (open) {
       setChannel(defaultChannel ?? "marketplace_chat");
       setIncludeDecision(Boolean(defaultDecision));
       setDecision(defaultDecision ?? "waiting");
       setNote(defaultNote ?? "");
     }
-  }, [open, defaultChannel, defaultDecision, defaultNote]);
+  }
 
   const markContacted = useMarkContacted();
   const setCustomerDecision = useSetCustomerDecision();

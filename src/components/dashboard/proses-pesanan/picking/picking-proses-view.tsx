@@ -6,7 +6,6 @@ import * as React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
-  CheckIcon,
   Loader2Icon,
   PackageIcon,
   RotateCcwIcon,
@@ -20,7 +19,6 @@ import { cn } from "@/lib/utils";
 import { formatPickingDuration } from "@/lib/format";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,

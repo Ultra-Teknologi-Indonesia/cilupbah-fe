@@ -36,7 +36,6 @@ import {
 import { useListState } from "@/hooks/use-list-state";
 import type {
   CategoryAttributeItem,
-  ChannelAttributeItem,
 } from "@/types/kategori-merek/kategori";
 
 const CHANNELS = [
@@ -249,7 +248,7 @@ function AtributRow({
 
 function ChannelMappingCell({
   channelCode,
-  channelName,
+  channelName: _channelName,
   attributeId,
   categoryId,
   mapped,

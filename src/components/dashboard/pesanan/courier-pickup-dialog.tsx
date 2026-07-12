@@ -51,7 +51,11 @@ export function CourierPickupDialog({
   const loading =
     save.isPending || uploadPhoto.isPending || deletePhoto.isPending;
 
-  React.useEffect(() => {
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  const [prevPickup, setPrevPickup] = React.useState(pickup);
+  if (open !== prevOpen || pickup !== prevPickup) {
+    setPrevOpen(open);
+    setPrevPickup(pickup);
     if (open) {
       setCourierName(pickup?.courier_name ?? "");
       setCourierPhone(pickup?.courier_phone ?? "");
@@ -59,7 +63,7 @@ export function CourierPickupDialog({
       setFile(null);
       setPreviewUrl(null);
     }
-  }, [open, pickup]);
+  }
 
   React.useEffect(() => {
     return () => {

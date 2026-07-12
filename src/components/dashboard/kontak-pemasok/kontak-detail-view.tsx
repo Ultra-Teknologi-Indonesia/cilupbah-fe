@@ -6,11 +6,10 @@ import { formatPhoneDisplay } from "@/lib/phone";
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2Icon, LockIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { LockIcon, PencilIcon, Trash2Icon } from "lucide-react";
 
 import { PageTitle } from "@/components/dashboard/page-title";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { SectionTitle } from "@/components/dashboard/shared/section-title";

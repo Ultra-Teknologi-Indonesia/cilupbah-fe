@@ -116,7 +116,7 @@ function RailLink({ route, active }: { route: Route; active?: boolean }) {
 export function SidebarRailNav({
   activeGroupId,
   onSelect,
-  onTogglePanel,
+  onTogglePanel: _onTogglePanel,
 }: {
   activeGroupId: string;
   onSelect: (id: string) => void;

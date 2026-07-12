@@ -4,11 +4,13 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { useState, useMemo, useCallback } from "react";
 import { useListState } from "@/hooks/use-list-state";
 import { useRouter } from "next/navigation";
-import { CornerUpLeftIcon,
+import {
+  CornerUpLeftIcon,
   DownloadIcon,
   PlayIcon,
   Trash2Icon,
-  PlusIcon, Loader2Icon } from "lucide-react";
+  Loader2Icon,
+} from "lucide-react";
 
 import type { DateRange } from "react-day-picker";
 
@@ -17,7 +19,6 @@ import { Combobox } from "@/components/ui/combobox";
 import { DateRangePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -32,10 +33,7 @@ import {
 } from "@/hooks/barang-keluar/use-purchase-returns";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { exportCsv } from "@/lib/export-csv";
-import type {
-  PurchaseReturn,
-  PurchaseReturnStatus,
-} from "@/types/barang-keluar/purchase-return";
+import type { PurchaseReturn } from "@/types/barang-keluar/purchase-return";
 import { formatDate, formatCurrency } from "@/lib/format";
 
 const STATUS_OPTIONS = [
@@ -333,7 +331,11 @@ export function ReturPembelianTab() {
             onPaginationChange={list.onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <EmptyState icon={CornerUpLeftIcon} title="Belum ada retur pembelian" description="Retur pembelian ke pemasok akan tampil di sini." />
+              <EmptyState
+                icon={CornerUpLeftIcon}
+                title="Belum ada retur pembelian"
+                description="Retur pembelian ke pemasok akan tampil di sini."
+              />
             }
           />
         </div>

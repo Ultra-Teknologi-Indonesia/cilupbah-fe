@@ -695,6 +695,7 @@ function ShipByDeadline({ date }: { date?: string | null }) {
     );
   }
 
+  // eslint-disable-next-line react-hooks/purity
   const now = Date.now();
   const diffMs = deadline.getTime() - now;
   const isOverdue = diffMs < 0;

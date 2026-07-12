@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -191,13 +191,18 @@ export function PesananManualFormPage() {
     [locData],
   );
 
-  useEffect(() => {
-    if (locationId) return;
-    const kecil = (locData?.items ?? []).find(
-      (l) => l.locationCode === "WH-KECIL",
-    );
-    if (kecil) setLocationId(kecil.id);
-  }, [locData, locationId]);
+  const [prevLocData, setPrevLocData] = useState(locData);
+  const [prevLocationId, setPrevLocationId] = useState(locationId);
+  if (locData !== prevLocData || locationId !== prevLocationId) {
+    setPrevLocData(locData);
+    setPrevLocationId(locationId);
+    if (!locationId) {
+      const kecil = (locData?.items ?? []).find(
+        (l) => l.locationCode === "WH-KECIL",
+      );
+      if (kecil) setLocationId(kecil.id);
+    }
+  }
 
   const courierOptions = useMemo(
     () =>

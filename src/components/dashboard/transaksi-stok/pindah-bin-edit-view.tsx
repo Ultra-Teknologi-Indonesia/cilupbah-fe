@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { InfoIcon, Loader2Icon, PackageSearchIcon } from "lucide-react";
@@ -32,14 +32,16 @@ export function PindahBinEditView({ id }: { id: string }) {
   const [createdBy, setCreatedBy] = useState("");
   const [notes, setNotes] = useState("");
 
-  useEffect(() => {
+  const [prevTrf, setPrevTrf] = useState(trf);
+  if (trf !== prevTrf) {
+    setPrevTrf(trf);
     if (trf) {
       const raw = (trf.transfer_date ?? "").slice(0, 10);
       setTransferDate(raw ? new Date(`${raw}T00:00:00`) : undefined);
       setCreatedBy(trf.created_by ?? "");
       setNotes(trf.notes ?? "");
     }
-  }, [trf]);
+  }
 
   const toDateString = (d?: Date): string | undefined => {
     if (!d) return undefined;

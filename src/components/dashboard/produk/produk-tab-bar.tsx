@@ -60,7 +60,7 @@ const TABS: Tab[] = [
   },
 ];
 
-function activeId(pathname: string, status: string | null): string {
+function activeId(pathname: string, _status: string | null): string {
   if (pathname.startsWith("/dashboard/produk/naikkan")) return "naikkan";
   if (pathname.startsWith("/dashboard/produk/arsip")) return "arsip";
   if (pathname.startsWith("/dashboard/produk/upload")) return "upload";

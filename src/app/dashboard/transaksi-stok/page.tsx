@@ -3,9 +3,7 @@
 import { Suspense } from "react";
 import {
   SlidersHorizontalIcon,
-  ClipboardCheckIcon,
   ArrowLeftRightIcon,
-  ShieldIcon,
 } from "lucide-react";
 
 import { LiquidGlass } from "@/components/ui/liquid-glass";

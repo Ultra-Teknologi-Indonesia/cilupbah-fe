@@ -108,7 +108,7 @@ export function PesananDetailView({ id }: { id: string }) {
     );
   }
 
-  const isDraft = po.status === "DRAFT";
+  const _isDraft = po.status === "DRAFT";
 
   return (
     <div className="flex flex-col gap-4">

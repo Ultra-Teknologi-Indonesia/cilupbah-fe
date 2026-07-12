@@ -1,12 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { formatIDR } from "../product-columns";
 import { useProductPriceBook } from "@/hooks/master-produk/use-product-tabs";
-import { TabPagination } from "./tab-pagination";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import type { PriceBookRow } from "@/hooks/master-produk/use-product-tabs";
@@ -24,15 +21,15 @@ export function TabBukuHarga({ productId }: { productId: string }) {
   const [perPage, setPerPage] = React.useState(20);
   const [sort, setSort] = React.useState("");
 
-  const { data, isLoading, isError, refetch, isFetching } = useProductPriceBook(
+  const { data, isLoading, isError, refetch, isFetching: _isFetching } = useProductPriceBook(
     productId,
     { page, perPage, sort: sort || undefined },
     true,
   );
   const rows = data?.items ?? [];
-  const lastPage = data?.meta?.last_page ?? 1;
+  const _lastPage = data?.meta?.last_page ?? 1;
 
-  const onSortChange = (columnId: string, isDesc: boolean) => {
+  const _onSortChange = (columnId: string, isDesc: boolean) => {
     setSort(`${isDesc ? "-" : ""}${columnId}`);
     setPage(1);
   };

@@ -120,13 +120,18 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
     defaultValues: createDefaults,
   });
 
-  const prefilledRef = React.useRef(false);
-  React.useEffect(() => {
-    if (mode === "edit" && detail.data && !prefilledRef.current) {
+  const [prefilled, setPrefilled] = React.useState(false);
+  const [prevData, setPrevData] = React.useState(detail.data);
+  const [prevMode, setPrevMode] = React.useState(mode);
+
+  if (mode !== prevMode || detail.data !== prevData) {
+    setPrevMode(mode);
+    setPrevData(detail.data);
+    if (mode === "edit" && detail.data && !prefilled) {
+      setPrefilled(true);
       form.reset(toFormValues(detail.data));
-      prefilledRef.current = true;
     }
-  }, [mode, detail.data, form]);
+  }
 
   const locked = mode === "edit" && Boolean(detail.data?.isLocked);
   const layoutEnabled = layoutSetting.data?.useWarehouseLayout ?? false;
@@ -155,6 +160,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
   );
 
   const onSubmit = form.handleSubmit(
+    // eslint-disable-next-line react-hooks/refs
     async (values) => {
       try {
         const payload = buildPayload(values);

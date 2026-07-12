@@ -13,7 +13,6 @@ import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -37,7 +36,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Combobox } from "@/components/ui/combobox";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { FilterToolbar } from "@/components/dashboard/shared/filter-toolbar";
 import {

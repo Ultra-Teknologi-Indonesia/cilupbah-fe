@@ -13,7 +13,7 @@ export const locationKeys = {
 };
 
 export function useLocations(params: LocationListParams = {}, enabled = true) {
-  const excludeTransit = params.excludeTransit ?? true;
+  const _excludeTransit = params.excludeTransit ?? true;
 
   return useQuery({
     enabled,

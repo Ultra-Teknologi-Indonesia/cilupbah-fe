@@ -3,7 +3,6 @@
 import * as React from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
-import { cn } from "@/lib/utils";
 import DashboardNavigation from "./nav-main";
 import type { NavGroup } from "./nav-data";
 

@@ -591,7 +591,7 @@ function CourierPickupCard({
 export function OrderDetailView({ orderId }: { orderId: string }) {
   const { data, isLoading } = useOrder(orderId);
   const setPaid = useSetPaid();
-  const markComplete = useMarkComplete();
+  const _markComplete = useMarkComplete();
   const deleteItem = useDeleteOrderItem();
   const [contactOpen, setContactOpen] = React.useState(false);
   const [pickupOpen, setPickupOpen] = React.useState(false);
