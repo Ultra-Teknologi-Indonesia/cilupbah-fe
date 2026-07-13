@@ -289,10 +289,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     [allItems, addPlacementForItem],
   );
 
-  const [completedDialogDismissed, setCompletedDialogDismissed] =
-    useState(false);
-  const completedDialogOpen =
-    isCompleted && !completedDialogDismissed && !discrepancyResult;
+
 
   const onProcessed = useCallback(() => {
     refetchItems();
@@ -707,37 +704,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
         </DialogContent>
       </Dialog>
 
-      <Dialog
-        open={completedDialogOpen}
-        onOpenChange={(open) => {
-          if (!open) setCompletedDialogDismissed(true);
-        }}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Penempatan Selesai</DialogTitle>
-            <DialogDescription>
-              Semua item pada {putaway?.putaway_no ?? "penempatan"} sudah
-              ditempatkan. Kembali ke daftar penempatan?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              variant="ghost"
-              onClick={() => setCompletedDialogDismissed(true)}
-            >
-              Tetap di Halaman
-            </Button>
-            <Button
-              onClick={() =>
-                router.push("/dashboard/barang-masuk/penempatan")
-              }
-            >
-              Kembali ke Daftar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
     </div>
   );
 }
