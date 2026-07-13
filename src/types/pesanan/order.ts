@@ -150,6 +150,8 @@ export interface Order {
   courier_pickup?: CourierPickup | null;
   picker_name?: string | null;
   packer_name?: string | null;
+  picklist_id?: string | null;
+  picklist_no?: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -141,6 +141,8 @@ export interface RawFulfillmentOrder {
   driver_call_attempted_at?: string | null;
   picker_name?: string | null;
   packer_name?: string | null;
+  picklist_id?: string | null;
+  picklist_no?: string | null;
   items?: RawFulfillmentOrderItem[] | null;
 }
 
@@ -193,6 +195,8 @@ export interface FulfillmentOrder {
   driverCallAttemptedAt: string | null;
   pickerName: string | null;
   packerName: string | null;
+  picklistId: string | null;
+  picklistNo: string | null;
   items: FulfillmentOrderItem[];
 }
 

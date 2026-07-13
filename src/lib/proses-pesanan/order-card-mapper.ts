@@ -100,6 +100,8 @@ export function fulfillmentToOrder(f: FulfillmentOrder): Order {
     driver_call_attempted_at: f.driverCallAttemptedAt,
     picker_name: f.pickerName,
     packer_name: f.packerName,
+    picklist_id: f.picklistId,
+    picklist_no: f.picklistNo,
     created_at: f.transactionDate ?? "",
     updated_at: f.transactionDate ?? "",
   };

@@ -140,6 +140,8 @@ function mapOrder(raw: RawFulfillmentOrder): FulfillmentOrder {
     driverCallAttemptedAt: raw.driver_call_attempted_at ?? null,
     pickerName: raw.picker_name ?? null,
     packerName: raw.packer_name ?? null,
+    picklistId: raw.picklist_id ?? null,
+    picklistNo: raw.picklist_no ?? null,
     items: (raw.items ?? []).map((i) => ({
       id: i.id,
       sku: i.sku,

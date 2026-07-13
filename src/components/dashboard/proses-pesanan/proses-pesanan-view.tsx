@@ -30,6 +30,7 @@ import { ShipmentTable } from "./shipping/shipment-table";
 import { BuatPengirimanDialog } from "./shipping/buat-pengiriman-dialog";
 import { CompletedShipmentTable } from "./shipping/completed-shipment-table";
 import { FulfillmentCardList } from "./shared/completed-order-card-list";
+import { PicklistLinkCell } from "./shared/picklist-link-cell";
 
 export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
   const subs = useMemo(() => stageConfig(stage)?.subs ?? [], [stage]);
@@ -75,6 +76,16 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
           ]}
           extraColumns={[
             {
+              key: "picklist_no",
+              header: "No. Picklist",
+              cell: (o) => (
+                <PicklistLinkCell
+                  picklistId={o.picklist_id}
+                  picklistNo={o.picklist_no}
+                />
+              ),
+            },
+            {
               key: "picker",
               header: "Picker",
               cell: (o) => (
@@ -98,6 +109,18 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
             emptyTitle="Belum ada pesanan siap packing"
             emptyDescription="Pesanan yang sudah selesai dipick akan muncul di sini."
             filterFields={["courier", "date", "label_printed"]}
+            extraColumns={[
+              {
+                key: "picklist_no",
+                header: "No. Picklist",
+                cell: (o) => (
+                  <PicklistLinkCell
+                    picklistId={o.picklist_id}
+                    picklistNo={o.picklist_no}
+                  />
+                ),
+              },
+            ]}
           />
         );
       if (sub === "diproses") return <PacklistTable />;
