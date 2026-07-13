@@ -129,6 +129,24 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     },
   },
 
+  "invoice-bulk": {
+    title: "Faktur (Pesanan Terpilih)",
+    subtitle: (id) => {
+      const count = id.split(",").filter(Boolean).length;
+      return `${count} faktur`;
+    },
+    fetchPdf: async (id) => {
+      const orderIds = id.split(",").map((s) => s.trim()).filter(Boolean);
+      const blob = await OutboundService.invoiceBulkPdf(orderIds);
+      return { blob, meta: { count: orderIds.length } };
+    },
+    backUrl: () => "/dashboard/proses-pesanan/packing",
+    filename: () => {
+      const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      return `Faktur-Bulk-${stamp}.pdf`;
+    },
+  },
+
   "shipping-label": {
     title: "Label Pengiriman",
     subtitle: (id) => `Order ${id.slice(0, 8)}…`,

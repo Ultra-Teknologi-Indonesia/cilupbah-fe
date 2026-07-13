@@ -156,6 +156,14 @@ export function PacklistTable() {
     void DocActions.shippingLabel(orderInputs);
   }, [packlists, selectedIds]);
 
+  const handlePrintInvoice = React.useCallback(() => {
+    const ids = packlists
+      .filter((p) => p.orderId && selectedIds.has(p.orderId))
+      .map((p) => p.orderId as string);
+    if (ids.length === 0) return;
+    DocActions.invoice(ids);
+  }, [packlists, selectedIds]);
+
   const columns = React.useMemo<ColumnDef<Packlist>[]>(
     () => [
       {
@@ -384,6 +392,7 @@ export function PacklistTable() {
             selectedCount={selectedIds.size}
             onReset={() => setSelectedIds(new Set())}
             onPrintLabel={handlePrintLabel}
+            onPrintInvoice={handlePrintInvoice}
           />
         </div>
         <DataTable

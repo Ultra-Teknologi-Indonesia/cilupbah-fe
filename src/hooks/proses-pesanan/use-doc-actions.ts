@@ -114,13 +114,20 @@ export const DocActions = {
       OutboundService.pickListByPicklist(picklistId),
     ),
   invoice: (ids: string[]) => {
-    for (const id of ids) {
+    if (ids.length === 0) return;
+    if (ids.length === 1) {
       window.open(
-        `/dashboard/document-preview/invoice/${id}`,
+        `/dashboard/document-preview/invoice/${ids[0]}`,
         "_blank",
         "noopener,noreferrer",
       );
+      return;
     }
+    window.open(
+      `/dashboard/document-preview/invoice-bulk/${ids.join(",")}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
   },
   suratJalan: (ids: string[]) => {
     window.open(

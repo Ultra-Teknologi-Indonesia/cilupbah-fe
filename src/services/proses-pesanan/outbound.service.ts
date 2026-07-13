@@ -1058,6 +1058,14 @@ export const OutboundService = {
     );
   },
 
+  invoiceBulkPdf: async (orderIds: string[]): Promise<Blob> => {
+    return fetchBlobPost(
+      `/sales/invoices/bulk-pdf`,
+      { order_ids: orderIds },
+      "application/pdf",
+    );
+  },
+
   createBulkShippingLabelBatch: async (
     orderIds: string[],
     perChannel: Record<string, { document_type?: string; document_size?: string }>,

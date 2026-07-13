@@ -3,7 +3,12 @@
 import * as React from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
-import { Loader2Icon, PackageOpenIcon, RefreshCwIcon } from "lucide-react";
+import {
+  Loader2Icon,
+  PackageOpenIcon,
+  PrinterIcon,
+  RefreshCwIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +19,7 @@ import {
   GRID_PAGE_SIZES,
 } from "@/components/ui/simple-pagination";
 import { OrderTable } from "@/components/dashboard/proses-pesanan/shared/order-table";
+import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
 import { BulkBuatPicklistConfirmDialog } from "@/components/dashboard/proses-pesanan/picking/bulk-buat-picklist-confirm-dialog";
 import {
   FulfillmentFilterBar,
@@ -301,6 +307,24 @@ export function ReadyToProcessCardList() {
                         <Loader2Icon className="animate-spin" />
                       )}
                       Buat Picklist
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full"
+                      onClick={() => {
+                        const orderInputs = mappedOrders
+                          .filter((m) => selected.has(m.ui.id))
+                          .map((m) => ({
+                            id: m.ui.id,
+                            source: m.ui.source ?? null,
+                          }));
+                        if (orderInputs.length === 0) return;
+                        void DocActions.shippingLabel(orderInputs);
+                      }}
+                    >
+                      <PrinterIcon className="size-4" />
+                      Cetak Label
                     </Button>
                   </>
                 )

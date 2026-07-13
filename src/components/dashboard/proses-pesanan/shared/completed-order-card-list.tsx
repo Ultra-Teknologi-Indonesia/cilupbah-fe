@@ -205,6 +205,14 @@ export function FulfillmentCardList({
     void DocActions.shippingLabel(orderInputs);
   }, [mappedOrders, selectedIds]);
 
+  const handlePrintInvoice = React.useCallback(() => {
+    const ids = mappedOrders
+      .filter((m) => selectedIds.has(m.ui.id))
+      .map((m) => m.ui.id);
+    if (ids.length === 0) return;
+    DocActions.invoice(ids);
+  }, [mappedOrders, selectedIds]);
+
   return (
     <div>
       {}
@@ -268,6 +276,7 @@ export function FulfillmentCardList({
                 selectedCount={selectedIds.size}
                 onReset={() => setSelectedIds(new Set())}
                 onPrintLabel={handlePrintLabel}
+                onPrintInvoice={handlePrintInvoice}
               />
             </div>
             <OrderTable
