@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import {
   Loader2Icon,
   PackageIcon,
-  RotateCcwIcon,
   ScanBarcodeIcon,
   Trash2Icon,
 } from "lucide-react";
@@ -41,9 +40,7 @@ import {
   usePickItem,
   useScanForPick,
   useCompletePicklist,
-  useUnfailPickItem,
 } from "@/hooks/proses-pesanan/use-fulfillment";
-import { FailItemDialog } from "@/components/dashboard/proses-pesanan/picking/fail-item-dialog";
 import { DeleteOrderDialog } from "@/components/dashboard/proses-pesanan/shared/delete-order-dialog";
 import type { PicklistItem } from "@/types/proses-pesanan/fulfillment";
 import { ScanAutoflowBar } from "@/components/dashboard/shared/scan-autoflow-bar";
@@ -149,10 +146,6 @@ export function PickingProsesView({ id }: { id: string }) {
   const pickItem = usePickItem();
   const scanForPick = useScanForPick();
   const completePicklist = useCompletePicklist();
-  const unfailPickItem = useUnfailPickItem();
-
-  const [failItemTarget, setFailItemTarget] =
-    React.useState<PicklistItem | null>(null);
   const [deleteOrderTarget, setDeleteOrderTarget] = React.useState<{
     orderId: string;
     orderNo: string | null;
@@ -843,48 +836,26 @@ export function PickingProsesView({ id }: { id: string }) {
                         <TableCell className="w-[120px] px-3 py-3 text-right">
                           {editable ? (
                             <div className="flex items-center justify-end gap-1">
-                              {isFailedStatus(it.itemStatus) ? (
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  aria-label="Batalkan tanda gagal"
-                                  title="Batalkan tanda gagal"
-                                  disabled={unfailPickItem.isPending}
-                                  onClick={() =>
-                                    unfailPickItem.mutate(
-                                      { picklistId: id, itemId: it.id },
-                                      {
-                                        onError: (e) =>
-                                          apiError(
-                                            e,
-                                            "Gagal membatalkan tanda gagal.",
-                                          ),
-                                      },
-                                    )
-                                  }
-                                >
-                                  {unfailPickItem.isPending ? (
-                                    <Loader2Icon className="size-4 animate-spin" />
-                                  ) : (
-                                    <RotateCcwIcon className="size-4" />
-                                  )}
-                                </Button>
-                              ) : (
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  aria-label="Tandai gagal"
-                                  title={
-                                    done
-                                      ? "Item sudah selesai"
-                                      : "Tandai item gagal"
-                                  }
-                                  disabled={done}
-                                  onClick={() => setFailItemTarget(it)}
-                                >
-                                  <Trash2Icon className="size-4 text-destructive" />
-                                </Button>
-                              )}
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                aria-label="Hapus pesanan dari picking"
+                                title={
+                                  done
+                                    ? "Item sudah selesai"
+                                    : "Hapus pesanan (gagalkan picking)"
+                                }
+                                disabled={done}
+                                onClick={() => {
+                                  if (!it.orderId) return;
+                                  setDeleteOrderTarget({
+                                    orderId: it.orderId,
+                                    orderNo: it.orderNo,
+                                  });
+                                }}
+                              >
+                                <Trash2Icon className="size-4 text-destructive" />
+                              </Button>
                             </div>
                           ) : (
                             <span className="text-xs text-muted-foreground">
@@ -951,16 +922,7 @@ export function PickingProsesView({ id }: { id: string }) {
         </DialogContent>
       </Dialog>
 
-      {failItemTarget && (
-        <FailItemDialog
-          open={!!failItemTarget}
-          onOpenChange={(open) => {
-            if (!open) setFailItemTarget(null);
-          }}
-          picklistId={id}
-          item={failItemTarget}
-        />
-      )}
+
 
 
       <DeleteOrderDialog
