@@ -19,6 +19,7 @@ import {
 } from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import {
   usePacklists,
   usePrefetchPacklistDetail,
@@ -68,8 +69,10 @@ export function PacklistTable() {
         (list.filters.label_printed as "yes" | "no" | "") || undefined,
       date_from: list.filters.date_from || undefined,
       date_to: list.filters.date_to || undefined,
+      sort_by: list.sorting[0]?.id || undefined,
+      sort_dir: list.sorting[0] ? (list.sorting[0].desc ? "desc" : "asc") : undefined,
     }),
-    [list.debouncedSearch, list.page, list.perPage, list.filters],
+    [list.debouncedSearch, list.page, list.perPage, list.filters, list.sorting],
   );
   const { data, isLoading, isFetching, refetch } = usePacklists(params);
 
@@ -92,8 +95,11 @@ export function PacklistTable() {
   const columns = React.useMemo<ColumnDef<Packlist>[]>(
     () => [
       {
-        accessorKey: "packlistNo",
-        header: "No. Packing",
+        id: "packlist_no",
+        accessorFn: (row) => row.packlistNo,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Packing" />
+        ),
         cell: ({ row }) => (
           <button
             type="button"
@@ -111,8 +117,11 @@ export function PacklistTable() {
         ),
       },
       {
-        accessorKey: "orderNo",
-        header: "No. Pesanan",
+        id: "order_no",
+        accessorFn: (row) => row.orderNo,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Pesanan" />
+        ),
         cell: ({ row }) => (
           <div className="flex items-center gap-1.5">
             <span
@@ -140,8 +149,11 @@ export function PacklistTable() {
         ),
       },
       {
-        accessorKey: "customerName",
-        header: "Pelanggan",
+        id: "customer_name",
+        accessorFn: (row) => row.customerName,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Pelanggan" />
+        ),
         cell: ({ row }) => (
           <span className="text-foreground">
             {row.original.customerName ?? "—"}
@@ -149,8 +161,11 @@ export function PacklistTable() {
         ),
       },
       {
-        accessorKey: "locationName",
-        header: "Lokasi",
+        id: "location_id",
+        accessorFn: (row) => row.locationName,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Lokasi" />
+        ),
         cell: ({ row }) => (
           <span className="text-foreground">
             {row.original.locationName ?? "—"}
@@ -158,13 +173,19 @@ export function PacklistTable() {
         ),
       },
       {
-        accessorKey: "packerName",
-        header: "Packer",
+        id: "packer_id",
+        accessorFn: (row) => row.packerName,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Packer" />
+        ),
         cell: ({ row }) => <span>{row.original.packerName ?? "—"}</span>,
       },
       {
-        accessorKey: "status",
-        header: "Status",
+        id: "status",
+        accessorFn: (row) => row.status,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Status" />
+        ),
         cell: ({ row }) => (
           <StatusBadge domain="packlist" status={row.original.status} />
         ),
@@ -258,6 +279,9 @@ export function PacklistTable() {
               : undefined
           }
           manualPagination
+          manualSorting
+          sorting={list.sorting}
+          onSortingChange={list.setSorting}
           pagination={list.pagination}
           rowCount={meta.total}
           onPaginationChange={list.onPaginationChange}

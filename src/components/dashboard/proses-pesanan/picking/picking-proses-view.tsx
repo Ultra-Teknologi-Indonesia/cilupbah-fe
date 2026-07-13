@@ -25,6 +25,9 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/components/ui/data-table/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import {
   Table,
   TableBody,
@@ -230,8 +233,7 @@ export function PickingProsesView({ id }: { id: string }) {
         setCompleteDialogDismissed(true);
         router.push(LIST_HREF);
       },
-      onError: (e) =>
-        apiError(e, "Gagal menyelesaikan picking."),
+      onError: (e) => apiError(e, "Gagal menyelesaikan picking."),
     });
   };
 
@@ -373,6 +375,178 @@ export function PickingProsesView({ id }: { id: string }) {
     });
   };
 
+  const columns = React.useMemo<ColumnDef<PicklistItem>[]>(
+    () => [
+      {
+        id: "produk",
+        accessorFn: (row) => row.name ?? row.sku,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Produk" />
+        ),
+        cell: ({ row }) => {
+          const it = row.original;
+          return (
+            <div className="flex items-start gap-3 py-1">
+              <ItemImage src={it.imageUrl} alt={it.name ?? it.sku} />
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="whitespace-normal break-words font-medium text-foreground">
+                  {it.name ?? it.sku}
+                </span>
+                <span className="whitespace-normal break-all font-mono text-xs text-foreground/70">
+                  {it.sku}
+                </span>
+                {it.variantName && (
+                  <span className="whitespace-normal break-words text-xs text-muted-foreground">
+                    {it.variantName}
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        },
+        size: 320,
+      },
+      {
+        accessorKey: "qtyOrdered",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Qty Pesan" />
+        ),
+        cell: ({ row }) => (
+          <span className="tabular-nums text-foreground">
+            {row.original.qtyOrdered}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "binCode",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Kode Rak" />
+        ),
+        cell: ({ row }) => (
+          <span className="font-mono text-xs text-foreground">
+            {row.original.binCode ?? "—"}
+          </span>
+        ),
+      },
+      {
+        id: "qtyPicked",
+        accessorFn: (row) => row.qtyPicked,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Qty Ambil / Pesan" />
+        ),
+        cell: ({ row }) => {
+          const it = row.original;
+          const done = it.qtyPicked >= it.qtyOrdered;
+          return (
+            <span
+              className={cn(
+                "inline-flex h-6 min-w-10 items-center justify-center rounded-xl px-2 text-xs font-medium tabular-nums",
+                done
+                  ? "bg-success/10 text-success"
+                  : it.qtyPicked > 0
+                    ? "bg-warning/10 text-warning"
+                    : "text-muted-foreground",
+              )}
+            >
+              {it.qtyPicked} / {it.qtyOrdered}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: "orderNo",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Pesanan" />
+        ),
+        cell: ({ row }) => (
+          <span className="font-mono text-xs text-foreground">
+            {row.original.orderNo ?? "—"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "packageNo",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Paket" />
+        ),
+        cell: ({ row }) => (
+          <span className="font-mono text-xs text-foreground">
+            {row.original.packageNo ?? "—"}
+          </span>
+        ),
+      },
+      {
+        id: "status",
+        accessorFn: (row) =>
+          getItemStatus(row.qtyPicked, row.qtyOrdered, row.itemStatus),
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Status" />
+        ),
+        cell: ({ row }) => {
+          const itemStatus = getItemStatus(
+            row.original.qtyPicked,
+            row.original.qtyOrdered,
+            row.original.itemStatus,
+          );
+          return <StatusBadge domain="picking-item" status={itemStatus} />;
+        },
+      },
+      {
+        accessorKey: "trackingNumber",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Resi" />
+        ),
+        cell: ({ row }) => (
+          <span className="font-mono text-xs text-foreground">
+            {row.original.trackingNumber ?? "—"}
+          </span>
+        ),
+      },
+      {
+        id: "aksi",
+        header: () => <span className="flex justify-end pr-2">Aksi</span>,
+        cell: ({ row }) => {
+          const it = row.original;
+          const done = it.qtyPicked >= it.qtyOrdered;
+          if (!editable) {
+            return (
+              <div className="flex justify-end pr-2">
+                <span className="text-xs text-muted-foreground">—</span>
+              </div>
+            );
+          }
+          return (
+            <div className="flex items-center justify-end gap-1 pr-2">
+              <Button
+                size="icon"
+                variant="ghost"
+                aria-label="Hapus pesanan dari picking"
+                title={
+                  done
+                    ? "Item sudah selesai"
+                    : "Hapus pesanan (gagalkan picking)"
+                }
+                disabled={done}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!it.orderId) return;
+                  setDeleteOrderTarget({
+                    orderId: it.orderId,
+                    orderNo: it.orderNo,
+                  });
+                }}
+              >
+                <Trash2Icon className="size-4 text-destructive" />
+              </Button>
+            </div>
+          );
+        },
+        size: 100,
+      },
+    ],
+    [editable],
+  );
+
   return (
     <div className="flex flex-col gap-6">
       <PageTitle
@@ -511,7 +685,6 @@ export function PickingProsesView({ id }: { id: string }) {
                 disabled={!editable}
               />
             </div>
-
           </aside>
 
           <section className="flex flex-col gap-4">
@@ -526,9 +699,7 @@ export function PickingProsesView({ id }: { id: string }) {
                     onResolve={() => {}}
                     onUnmatched={handleScanSku}
                     disabled={
-                      !editable ||
-                      pickItem.isPending ||
-                      scanForPick.isPending
+                      !editable || pickItem.isPending || scanForPick.isPending
                     }
                     autoFocus
                     refocusKey={skuRefocusKey}
@@ -687,7 +858,8 @@ export function PickingProsesView({ id }: { id: string }) {
                         const q = Number.parseInt(pickQty, 10);
                         return Number.isFinite(q) && q > activePickMax ? (
                           <p className="text-amber-600 text-xs">
-                            Melebihi data sistem (tersedia: {activePickMax}) — akan tercatat minus
+                            Melebihi data sistem (tersedia: {activePickMax}) —
+                            akan tercatat minus
                           </p>
                         ) : null;
                       })()}
@@ -715,160 +887,29 @@ export function PickingProsesView({ id }: { id: string }) {
               </DialogContent>
             </Dialog>
 
-            <Table
-              containerClassName="rounded-lg border border-border bg-card"
-              className="min-w-[1100px] border-collapse"
-            >
-              <TableHeader>
-                <TableRow className="border-b border-border bg-muted/40 text-left text-muted-foreground">
-                  <TableHead className="w-[320px] max-w-[320px] px-3 py-3 text-muted-foreground">
-                    Produk
-                  </TableHead>
-                  <TableHead className="px-3 py-3 text-muted-foreground">
-                    Qty Pesan
-                  </TableHead>
-                  <TableHead className="px-3 py-3 text-muted-foreground">
-                    Kode Rak
-                  </TableHead>
-                  <TableHead className="px-3 py-3 text-muted-foreground">
-                    Qty Ambil / Pesan
-                  </TableHead>
-                  <TableHead className="px-3 py-3 text-muted-foreground">
-                    No. Pesanan
-                  </TableHead>
-                  <TableHead className="px-3 py-3 text-muted-foreground">
-                    No. Paket
-                  </TableHead>
-                  <TableHead className="px-3 py-3 text-muted-foreground">
-                    Status
-                  </TableHead>
-                  <TableHead className="px-3 py-3 text-muted-foreground">
-                    No. Resi
-                  </TableHead>
-                  <TableHead className="w-[120px] px-3 py-3 text-right text-muted-foreground">
-                    Aksi
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {items.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={9}
-                      className="py-12 text-center text-sm text-muted-foreground"
-                    >
-                      Tidak ada item dalam picklist ini.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  items.map((it) => {
-                    const done = it.qtyPicked >= it.qtyOrdered;
-                    const itemStatus = getItemStatus(
-                      it.qtyPicked,
-                      it.qtyOrdered,
-                      it.itemStatus,
-                    );
-                    return (
-                      <TableRow
-                        key={it.id}
-                        className={cn(
-                          "border-b border-border/60 last:border-0",
-                          done && "bg-success/[0.04]",
-                          activeItemId === it.id &&
-                            "bg-primary/[0.06] ring-1 ring-inset ring-primary/20",
-                        )}
-                      >
-                        <TableCell className="w-[320px] max-w-[320px] px-3 py-3 align-top">
-                          <div className="flex items-start gap-3">
-                            <ItemImage
-                              src={it.imageUrl}
-                              alt={it.name ?? it.sku}
-                            />
-                            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                              <span className="whitespace-normal break-words font-medium text-foreground">
-                                {it.name ?? it.sku}
-                              </span>
-                              <span className="whitespace-normal break-all font-mono text-xs text-foreground/70">
-                                {it.sku}
-                              </span>
-                              {it.variantName && (
-                                <span className="whitespace-normal break-words text-xs text-muted-foreground">
-                                  {it.variantName}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="px-3 py-3 tabular-nums text-foreground">
-                          {it.qtyOrdered}
-                        </TableCell>
-                        <TableCell className="px-3 py-3">
-                          <span className="font-mono text-xs text-foreground">
-                            {it.binCode ?? "—"}
-                          </span>
-                        </TableCell>
-                        <TableCell className="px-3 py-3">
-                          <span
-                            className={cn(
-                              "inline-flex h-6 min-w-10 items-center justify-center rounded-xl px-2 text-xs font-medium tabular-nums",
-                              done
-                                ? "bg-success/10 text-success"
-                                : it.qtyPicked > 0
-                                  ? "bg-warning/10 text-warning"
-                                  : "text-muted-foreground",
-                            )}
-                          >
-                            {it.qtyPicked} / {it.qtyOrdered}
-                          </span>
-                        </TableCell>
-                        <TableCell className="px-3 py-3 font-mono text-xs text-foreground">
-                          {it.orderNo ?? "—"}
-                        </TableCell>
-                        <TableCell className="px-3 py-3 font-mono text-xs text-foreground">
-                          {it.packageNo ?? "—"}
-                        </TableCell>
-                        <TableCell className="px-3 py-3">
-                          <StatusBadge domain="picking-item" status={itemStatus} />
-                        </TableCell>
-                        <TableCell className="px-3 py-3 font-mono text-xs text-foreground">
-                          {it.trackingNumber ?? "—"}
-                        </TableCell>
-                        <TableCell className="w-[120px] px-3 py-3 text-right">
-                          {editable ? (
-                            <div className="flex items-center justify-end gap-1">
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                aria-label="Hapus pesanan dari picking"
-                                title={
-                                  done
-                                    ? "Item sudah selesai"
-                                    : "Hapus pesanan (gagalkan picking)"
-                                }
-                                disabled={done}
-                                onClick={() => {
-                                  if (!it.orderId) return;
-                                  setDeleteOrderTarget({
-                                    orderId: it.orderId,
-                                    orderNo: it.orderNo,
-                                  });
-                                }}
-                              >
-                                <Trash2Icon className="size-4 text-destructive" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">
-                              —
-                            </span>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
+            <DataTable
+              columns={columns}
+              data={items}
+              hideToolbar
+              hidePagination
+              manualPagination={false}
+              manualSorting={false}
+              tableContainerClassName="rounded-lg border border-border bg-card shadow-sm"
+              className="min-w-full"
+              getRowClassName={(row) =>
+                cn(
+                  "border-b border-border/60 last:border-0",
+                  row.qtyPicked >= row.qtyOrdered && "bg-success/[0.04]",
+                  activeItemId === row.id &&
+                    "bg-primary/[0.06] ring-1 ring-inset ring-primary/20",
+                )
+              }
+              emptyState={
+                <div className="py-12 text-center text-sm text-muted-foreground">
+                  Tidak ada item dalam picklist ini.
+                </div>
+              }
+            />
           </section>
         </div>
       )}
@@ -921,9 +962,6 @@ export function PickingProsesView({ id }: { id: string }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-
-
 
       <DeleteOrderDialog
         open={!!deleteOrderTarget}

@@ -27,6 +27,7 @@ import {
 } from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import {
   useCancelShipment,
   useShipments,
@@ -98,8 +99,10 @@ export function ShipmentTable() {
       shipment_type: list.filters.shipment_type || undefined,
       date_from: list.filters.date_from || undefined,
       date_to: list.filters.date_to || undefined,
+      sort_by: list.sorting[0]?.id || undefined,
+      sort_dir: list.sorting[0] ? (list.sorting[0].desc ? "desc" : "asc") : undefined,
     }),
-    [list.debouncedSearch, list.page, list.perPage, list.filters],
+    [list.debouncedSearch, list.page, list.perPage, list.filters, list.sorting],
   );
   const { data, isLoading, isFetching, refetch } = useShipments(params);
   const cancel = useCancelShipment();
@@ -128,8 +131,11 @@ export function ShipmentTable() {
   const columns = React.useMemo<ColumnDef<Shipment>[]>(
     () => [
       {
-        accessorKey: "shipmentNo",
-        header: "No. Pengiriman",
+        id: "shipment_no",
+        accessorFn: (row) => row.shipmentNo,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Pengiriman" />
+        ),
         cell: ({ row }) => (
           <div className="flex items-center gap-1.5">
             <Link
@@ -162,13 +168,19 @@ export function ShipmentTable() {
         ),
       },
       {
-        accessorKey: "courierName",
-        header: "Kurir",
+        id: "courier_code",
+        accessorFn: (row) => row.courierName,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Kurir" />
+        ),
         cell: ({ row }) => <span>{row.original.courierName ?? "—"}</span>,
       },
       {
-        accessorKey: "shipmentType",
-        header: "Tipe",
+        id: "shipment_type",
+        accessorFn: (row) => row.shipmentType,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Tipe" />
+        ),
         cell: ({ row }) => (
           <span className="text-foreground">
             {row.original.shipmentType ?? "—"}
@@ -176,15 +188,21 @@ export function ShipmentTable() {
         ),
       },
       {
-        accessorKey: "ordersCount",
-        header: "Jml. Pesanan",
+        id: "orders_count",
+        accessorFn: (row) => row.ordersCount,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Jml. Pesanan" />
+        ),
         cell: ({ row }) => (
           <span className="tabular-nums">{row.original.ordersCount}</span>
         ),
       },
       {
-        accessorKey: "totalWeightGram",
-        header: "Total Berat",
+        id: "total_weight_gram",
+        accessorFn: (row) => row.totalWeightGram,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Total Berat" />
+        ),
         cell: ({ row }) => (
           <span className="tabular-nums">
             {formatWeight(row.original.totalWeightGram)}
@@ -192,8 +210,11 @@ export function ShipmentTable() {
         ),
       },
       {
-        accessorKey: "createdAt",
-        header: "Dibuat",
+        id: "created_at",
+        accessorFn: (row) => row.createdAt,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Dibuat" />
+        ),
         cell: ({ row }) => (
           <span className="text-foreground text-xs">
             {formatDateTime(row.original.createdAt)}
@@ -326,6 +347,9 @@ export function ShipmentTable() {
           hideToolbar
           getRowClassName={(row) => instantSlaClass(row)}
           manualPagination
+          manualSorting
+          sorting={list.sorting}
+          onSortingChange={list.setSorting}
           pagination={list.pagination}
           rowCount={meta.total}
           onPaginationChange={list.onPaginationChange}

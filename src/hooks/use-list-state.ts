@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import type { PaginationState } from "@tanstack/react-table";
+import type { PaginationState, SortingState } from "@tanstack/react-table";
 
 type FilterPrimitive = string | number | boolean | null | undefined;
 
@@ -72,12 +72,27 @@ export function useListState<F extends object>(
   );
   const [filters, setFiltersRaw] = useState<F>(() => readFilters());
 
+  const sortByRawKey = `${ns}sort_by`;
+  const sortDirRawKey = `${ns}sort_dir`;
+  const [sorting, setSortingRaw] = useState<SortingState>(() => {
+    if (!urlSync) return [];
+    const id = searchParams.get(sortByRawKey);
+    const dir = searchParams.get(sortDirRawKey);
+    if (id) {
+      return [{ id, desc: dir === "desc" }];
+    }
+    return [];
+  });
+
   useEffect(() => {
     if (!urlSync) return;
     const nextPage = readNumber(pageKey, 1);
     const nextPerPage = readNumber(perPageKey, defaultPerPage);
     const nextSearch = readSearch();
     const nextFilters = readFilters();
+    const nextSortBy = searchParams.get(sortByRawKey);
+    const nextSortDir = searchParams.get(sortDirRawKey);
+    
     /* eslint-disable react-hooks/set-state-in-effect */
     setPageRaw((prev) => (prev === nextPage ? prev : nextPage));
     setPerPageRaw((prev) => (prev === nextPerPage ? prev : nextPerPage));
@@ -93,6 +108,13 @@ export function useListState<F extends object>(
         if (prevR[k] !== nextR[k]) return nextFilters;
       }
       return prev;
+    });
+    setSortingRaw((prev) => {
+      if (!nextSortBy) return prev.length === 0 ? prev : [];
+      if (prev.length === 1 && prev[0].id === nextSortBy && prev[0].desc === (nextSortDir === "desc")) {
+        return prev;
+      }
+      return [{ id: nextSortBy, desc: nextSortDir === "desc" }];
     });
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [urlSync, searchParams]);
@@ -207,6 +229,32 @@ export function useListState<F extends object>(
     [urlSync, filterUrlSync, writeUrl, pageKey, filterKeyFor],
   );
 
+  const setSorting = useCallback(
+    (updaterOrValue: SortingState | ((old: SortingState) => SortingState)) => {
+      setSortingRaw((old) => {
+        const next =
+          typeof updaterOrValue === "function"
+            ? updaterOrValue(old)
+            : updaterOrValue;
+        if (urlSync) {
+          if (next.length > 0) {
+            writeUrl({
+              [sortByRawKey]: next[0].id,
+              [sortDirRawKey]: next[0].desc ? "desc" : "asc",
+            });
+          } else {
+            writeUrl({
+              [sortByRawKey]: null,
+              [sortDirRawKey]: null,
+            });
+          }
+        }
+        return next;
+      });
+    },
+    [writeUrl, urlSync, sortByRawKey, sortDirRawKey],
+  );
+
   const hasActiveFilter = Object.values(filters).some(Boolean);
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
@@ -238,6 +286,8 @@ export function useListState<F extends object>(
     filters,
     setFilters,
     resetFilters,
+    sorting,
+    setSorting,
     hasActiveFilter,
     activeFilterCount,
     pagination,

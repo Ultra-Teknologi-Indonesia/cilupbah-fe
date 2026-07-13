@@ -23,6 +23,7 @@ import {
 } from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import {
   Tooltip,
   TooltipContent,
@@ -155,10 +156,12 @@ export function PicklistTable() {
       date_from: list.filters.date_from || undefined,
       date_to: list.filters.date_to || undefined,
       zone_id: list.filters.zone_id || undefined,
+      sort_by: list.sorting[0]?.id || undefined,
+      sort_dir: list.sorting[0] ? (list.sorting[0].desc ? "desc" : "asc") : undefined,
       page: list.page,
       per_page: list.perPage,
     }),
-    [list.debouncedSearch, list.filters, list.page, list.perPage],
+    [list.debouncedSearch, list.filters, list.page, list.perPage, list.sorting],
   );
   const { data, isLoading, isFetching, refetch } = usePicklists(params);
 
@@ -174,8 +177,11 @@ export function PicklistTable() {
   const columns = React.useMemo<ColumnDef<Picklist>[]>(
     () => [
       {
-        accessorKey: "picklistNo",
-        header: "No. Picklist",
+        id: "picklist_no",
+        accessorFn: (row) => row.picklistNo,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Picklist" />
+        ),
         cell: ({ row }) => (
           <div className="flex items-center gap-1.5">
             <Link
@@ -211,8 +217,11 @@ export function PicklistTable() {
         ),
       },
       {
-        accessorKey: "locationName",
-        header: "Lokasi",
+        id: "location_id",
+        accessorFn: (row) => row.locationName,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Lokasi" />
+        ),
         cell: ({ row }) => (
           <span className="text-foreground">
             {row.original.locationName ?? "—"}
@@ -220,8 +229,11 @@ export function PicklistTable() {
         ),
       },
       {
-        accessorKey: "pickerName",
-        header: "Picker",
+        id: "picker_id",
+        accessorFn: (row) => row.pickerName,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Picker" />
+        ),
         cell: ({ row }) => <span>{row.original.pickerName ?? "—"}</span>,
       },
       {
@@ -254,7 +266,9 @@ export function PicklistTable() {
       },
       {
         accessorKey: "status",
-        header: "Status",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Status" />
+        ),
         cell: ({ row }) => (
           <StatusBadge domain="picklist" status={row.original.status} />
         ),
@@ -383,6 +397,9 @@ export function PicklistTable() {
           isLoading={isLoading}
           hideToolbar
           manualPagination
+          manualSorting
+          sorting={list.sorting}
+          onSortingChange={list.setSorting}
           pagination={{
             pageIndex: meta.current_page - 1,
             pageSize: meta.per_page,

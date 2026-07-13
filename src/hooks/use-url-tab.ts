@@ -27,6 +27,7 @@ export function useUrlTab<T extends string>(
 
   const [localValue, setLocalValue] = useState<T>(urlValue);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     setLocalValue(urlValue);
   }, [urlValue]);

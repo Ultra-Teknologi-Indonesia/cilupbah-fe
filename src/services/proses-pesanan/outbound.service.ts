@@ -84,6 +84,10 @@ function buildQuery(
   if (params.courier_name) q.set("filter[courier_name]", params.courier_name);
   if (params.shipment_type)
     q.set("filter[shipment_type]", params.shipment_type);
+  if (params.sort_by) {
+    const prefix = params.sort_dir === "desc" ? "-" : "";
+    q.set("sort", prefix + params.sort_by);
+  }
   q.set("limit", String(params.per_page ?? 20));
   q.set("page", String(params.page ?? 1));
   if (extra) for (const [k, v] of Object.entries(extra)) q.set(k, v);

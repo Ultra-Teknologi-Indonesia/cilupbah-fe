@@ -22,6 +22,7 @@ import {
 } from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import {
   useDismissPreManifestCancel,
   useDownloadPreManifestCancelXlsx,
@@ -83,8 +84,10 @@ export function PreManifestCancelTable() {
       location_id: list.filters.location_id || undefined,
       page: list.page,
       per_page: list.perPage,
+      sort_by: list.sorting[0]?.id || undefined,
+      sort_dir: list.sorting[0] ? (list.sorting[0].desc ? "desc" : "asc") : undefined,
     }),
-    [list.debouncedSearch, list.page, list.perPage, list.filters],
+    [list.debouncedSearch, list.page, list.perPage, list.filters, list.sorting],
   );
 
   const { data, isLoading, isFetching, refetch } =
@@ -128,8 +131,11 @@ export function PreManifestCancelTable() {
   const columns = React.useMemo<ColumnDef<FulfillmentOrder>[]>(
     () => [
       {
-        accessorKey: "salesorderNo",
-        header: "No. Pesanan",
+        id: "salesorder_no",
+        accessorFn: (row) => row.salesorderNo,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Pesanan" />
+        ),
         cell: ({ row }) => (
           <div className="flex flex-col gap-0.5">
             <span className="font-medium text-foreground">
@@ -144,13 +150,19 @@ export function PreManifestCancelTable() {
         ),
       },
       {
-        accessorKey: "source",
-        header: "Channel",
+        id: "source",
+        accessorFn: (row) => row.source,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Channel" />
+        ),
         cell: ({ row }) => <SourceBadge source={row.original.source} />,
       },
       {
-        accessorKey: "customerName",
-        header: "Pelanggan",
+        id: "customer_name",
+        accessorFn: (row) => row.customerName,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Pelanggan" />
+        ),
         cell: ({ row }) => (
           <span className="max-w-[180px] truncate">
             {row.original.customerName ?? "—"}
@@ -158,8 +170,11 @@ export function PreManifestCancelTable() {
         ),
       },
       {
-        accessorKey: "trackingNumber",
-        header: "No. Resi",
+        id: "tracking_number",
+        accessorFn: (row) => row.trackingNumber,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Resi" />
+        ),
         cell: ({ row }) => (
           <span className="font-mono text-xs">
             {row.original.trackingNumber ?? "—"}
@@ -167,8 +182,11 @@ export function PreManifestCancelTable() {
         ),
       },
       {
-        accessorKey: "cancelReason",
-        header: "Alasan Batal",
+        id: "cancel_reason",
+        accessorFn: (row) => row.cancelReason,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Alasan Batal" />
+        ),
         cell: ({ row }) => (
           <span className="max-w-[200px] truncate text-xs">
             {row.original.cancelReason ?? "—"}
@@ -176,8 +194,11 @@ export function PreManifestCancelTable() {
         ),
       },
       {
-        accessorKey: "cancelAcceptedAt",
-        header: "Waktu Batal",
+        id: "cancel_accepted_at",
+        accessorFn: (row) => row.cancelAcceptedAt,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Waktu Batal" />
+        ),
         cell: ({ row }) => (
           <span className="text-xs text-foreground">
             {formatDateTime(row.original.cancelAcceptedAt)}
@@ -273,6 +294,9 @@ export function PreManifestCancelTable() {
             "border-l-4 border-l-destructive/60 bg-destructive/[0.03]"
           }
           manualPagination
+          manualSorting
+          sorting={list.sorting}
+          onSortingChange={list.setSorting}
           pagination={list.pagination}
           rowCount={meta.total}
           onPaginationChange={list.onPaginationChange}

@@ -17,6 +17,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { formatDateTime } from "@/lib/format";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import {
   FulfillmentFilterBar,
   type FulfillmentFilterValue,
@@ -195,8 +196,10 @@ export function CompletedShipmentTable() {
       date_from: list.filters.date_from || undefined,
       date_to: list.filters.date_to || undefined,
       type: "all",
+      sort_by: list.sorting[0]?.id || undefined,
+      sort_dir: list.sorting[0] ? (list.sorting[0].desc ? "desc" : "asc") : undefined,
     }),
-    [list.debouncedSearch, list.page, list.perPage, list.filters],
+    [list.debouncedSearch, list.page, list.perPage, list.filters, list.sorting],
   );
   const { data, isLoading, isFetching, refetch } =
     useCompletedShipments(params);
@@ -251,8 +254,11 @@ export function CompletedShipmentTable() {
   const columns = React.useMemo<ColumnDef<Shipment>[]>(
     () => [
       {
-        accessorKey: "shipmentNo",
-        header: "No. Pengiriman",
+        id: "shipment_no",
+        accessorFn: (row) => row.shipmentNo,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Pengiriman" />
+        ),
         cell: ({ row }) => (
           <Link
             href={`/dashboard/proses-pesanan/shipping/${row.original.id}`}
@@ -263,20 +269,29 @@ export function CompletedShipmentTable() {
         ),
       },
       {
-        accessorKey: "courierName",
-        header: "Kurir",
+        id: "courier_code",
+        accessorFn: (row) => row.courierName,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Kurir" />
+        ),
         cell: ({ row }) => <span>{row.original.courierName ?? "—"}</span>,
       },
       {
-        accessorKey: "ordersCount",
-        header: "Pesanan",
+        id: "orders_count",
+        accessorFn: (row) => row.ordersCount,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Pesanan" />
+        ),
         cell: ({ row }) => (
           <span className="tabular-nums">{row.original.ordersCount}</span>
         ),
       },
       {
-        accessorKey: "status",
-        header: "Status",
+        id: "status",
+        accessorFn: (row) => row.status,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Status" />
+        ),
         cell: ({ row }) => <StatusBadge status={row.original.status} />,
       },
       {
@@ -292,8 +307,11 @@ export function CompletedShipmentTable() {
         ),
       },
       {
-        accessorKey: "handedOverAt",
-        header: "Diserahkan",
+        id: "handed_over_at",
+        accessorFn: (row) => row.handedOverAt,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Diserahkan" />
+        ),
         cell: ({ row }) => (
           <span className="text-xs text-foreground">
             {formatDateTime(row.original.handedOverAt)}
@@ -374,6 +392,9 @@ export function CompletedShipmentTable() {
           isLoading={isLoading}
           hideToolbar
           manualPagination
+          manualSorting
+          sorting={list.sorting}
+          onSortingChange={list.setSorting}
           pagination={list.pagination}
           rowCount={meta.total}
           onPaginationChange={list.onPaginationChange}

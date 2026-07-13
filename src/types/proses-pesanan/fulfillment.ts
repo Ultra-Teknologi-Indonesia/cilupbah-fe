@@ -82,6 +82,8 @@ export interface FulfillmentListParams {
   courier_code?: string;
   courier_name?: string;
   shipment_type?: string;
+  sort_by?: string;
+  sort_dir?: string;
 }
 
 export interface RawFulfillmentOrderItem {
