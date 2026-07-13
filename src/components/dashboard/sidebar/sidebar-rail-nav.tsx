@@ -167,14 +167,19 @@ export function SidebarRailNav({
       <div className="flex w-full flex-col items-center gap-1 pt-1">
         <RailDivider />
         <NotificationsPopover />
-        {visibleSettings.map((route) => {
+        {visibleSettings.map((route, i) => {
           const isActive =
             pathname === route.link ||
             pathname.startsWith(route.link + "/") ||
             route.subs?.some(
               (s) => pathname === s.link || pathname.startsWith(s.link + "/"),
             );
-          return <RailLink key={route.id} route={route} active={isActive} />;
+          return (
+            <React.Fragment key={route.id}>
+              {i > 0 && <RailDivider />}
+              <RailLink route={route} active={isActive} />
+            </React.Fragment>
+          );
         })}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
