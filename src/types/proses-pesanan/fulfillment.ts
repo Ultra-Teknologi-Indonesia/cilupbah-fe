@@ -139,6 +139,8 @@ export interface RawFulfillmentOrder {
   driver_call_status?: "pending" | "success" | "failed" | null;
   driver_call_message?: string | null;
   driver_call_attempted_at?: string | null;
+  picker_name?: string | null;
+  packer_name?: string | null;
   items?: RawFulfillmentOrderItem[] | null;
 }
 
@@ -189,6 +191,8 @@ export interface FulfillmentOrder {
   driverCallStatus: "pending" | "success" | "failed" | null;
   driverCallMessage: string | null;
   driverCallAttemptedAt: string | null;
+  pickerName: string | null;
+  packerName: string | null;
   items: FulfillmentOrderItem[];
 }
 

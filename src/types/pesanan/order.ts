@@ -148,6 +148,8 @@ export interface Order {
   driver_call_message?: string | null;
   driver_call_attempted_at?: string | null;
   courier_pickup?: CourierPickup | null;
+  picker_name?: string | null;
+  packer_name?: string | null;
   created_at: string;
   updated_at: string;
 }

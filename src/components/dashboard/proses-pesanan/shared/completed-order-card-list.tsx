@@ -13,7 +13,10 @@ import {
   type FulfillmentFilterField,
   type FulfillmentFilterValue,
 } from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar";
-import { OrderTable } from "@/components/dashboard/proses-pesanan/shared/order-table";
+import {
+  OrderTable,
+  type OrderTableExtraColumn,
+} from "@/components/dashboard/proses-pesanan/shared/order-table";
 import type { OrderTab } from "@/types/pesanan/order";
 import { useOrdersByStage } from "@/hooks/proses-pesanan/use-fulfillment";
 import { useListState } from "@/hooks/use-list-state";
@@ -62,6 +65,7 @@ export function FulfillmentCardList({
   channelStatusOptions,
   courierMode,
   excludeTransit,
+  extraColumns,
 }: {
   stage: string;
   tab?: OrderTab;
@@ -72,6 +76,7 @@ export function FulfillmentCardList({
   channelStatusOptions?: { value: string; label: string }[];
   courierMode?: "shipping_provider" | "courier_code";
   excludeTransit?: boolean;
+  extraColumns?: OrderTableExtraColumn[];
 }) {
   const list = useListState<CardFilterState>(EMPTY_CARD_FILTERS, {
     perPage: 20,
@@ -189,6 +194,7 @@ export function FulfillmentCardList({
               orders={mappedOrders.map((m) => m.ui)}
               tab={tab}
               variant="sales"
+              extraColumns={extraColumns}
             />
           </div>
         )}

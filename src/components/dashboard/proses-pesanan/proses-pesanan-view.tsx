@@ -73,6 +73,19 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
             "label_printed",
             "date",
           ]}
+          extraColumns={[
+            {
+              key: "picker",
+              header: "Picker",
+              cell: (o) => (
+                <span className="block max-w-[140px] truncate text-sm">
+                  {o.picker_name?.trim() || (
+                    <span className="text-muted-foreground">—</span>
+                  )}
+                </span>
+              ),
+            },
+          ]}
         />
       );
     }
@@ -95,6 +108,19 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
           emptyTitle="Belum ada pesanan selesai packing"
           emptyDescription="Pesanan yang sudah selesai dipacking akan muncul di sini."
           filterFields={["courier", "date", "label_printed"]}
+          extraColumns={[
+            {
+              key: "packer",
+              header: "Packer",
+              cell: (o) => (
+                <span className="block max-w-[140px] truncate text-sm">
+                  {o.packer_name?.trim() || (
+                    <span className="text-muted-foreground">—</span>
+                  )}
+                </span>
+              ),
+            },
+          ]}
         />
       );
     }

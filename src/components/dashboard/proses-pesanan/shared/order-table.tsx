@@ -31,6 +31,14 @@ import {
   type OrderCardVariant,
 } from "@/components/dashboard/pesanan/order-card";
 
+export interface OrderTableExtraColumn {
+  key: string;
+  header: string;
+  cell: (order: Order) => React.ReactNode;
+  headClassName?: string;
+  cellClassName?: string;
+}
+
 interface OrderTableProps {
   orders: Order[];
   tab: OrderTab;
@@ -42,6 +50,8 @@ interface OrderTableProps {
   allSelected?: boolean;
   someSelected?: boolean;
   onToggleAll?: () => void;
+  /** Extra columns rendered before the Aksi column. */
+  extraColumns?: OrderTableExtraColumn[];
 }
 
 function ItemSummary({ order }: { order: Order }) {
@@ -80,6 +90,7 @@ function OrderRow({
   selectable,
   selected,
   onToggle,
+  extraColumns,
 }: {
   order: Order;
   tab: OrderTab;
@@ -87,6 +98,7 @@ function OrderRow({
   selectable: boolean;
   selected: boolean;
   onToggle?: (id: string, checked: boolean) => void;
+  extraColumns?: OrderTableExtraColumn[];
 }) {
   const { copy } = useCopyToClipboard();
 
@@ -223,6 +235,12 @@ function OrderRow({
         </span>
       </TableCell>
 
+      {extraColumns?.map((col) => (
+        <TableCell key={col.key} className={col.cellClassName}>
+          {col.cell(order)}
+        </TableCell>
+      ))}
+
       <TableCell>
         <div className="flex items-center justify-end gap-2">
           {variant === "sales" && (
@@ -247,6 +265,7 @@ export function OrderTable({
   allSelected = false,
   someSelected = false,
   onToggleAll,
+  extraColumns,
 }: OrderTableProps) {
   return (
     <Table containerClassName="rounded-xl border border-border/60">
@@ -271,6 +290,11 @@ export function OrderTable({
           <TableHead>Total</TableHead>
           <TableHead>Kurir</TableHead>
           <TableHead>Tanggal</TableHead>
+          {extraColumns?.map((col) => (
+            <TableHead key={col.key} className={col.headClassName}>
+              {col.header}
+            </TableHead>
+          ))}
           <TableHead className="text-right">Aksi</TableHead>
         </TableRow>
       </TableHeader>
@@ -284,6 +308,7 @@ export function OrderTable({
             selectable={selectable}
             selected={selectedIds?.has(order.id) ?? false}
             onToggle={onToggle}
+            extraColumns={extraColumns}
           />
         ))}
       </TableBody>

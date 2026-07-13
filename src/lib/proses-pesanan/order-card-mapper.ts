@@ -98,6 +98,8 @@ export function fulfillmentToOrder(f: FulfillmentOrder): Order {
     driver_call_status: f.driverCallStatus,
     driver_call_message: f.driverCallMessage,
     driver_call_attempted_at: f.driverCallAttemptedAt,
+    picker_name: f.pickerName,
+    packer_name: f.packerName,
     created_at: f.transactionDate ?? "",
     updated_at: f.transactionDate ?? "",
   };
