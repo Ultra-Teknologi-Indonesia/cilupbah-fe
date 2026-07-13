@@ -39,6 +39,11 @@ export interface OrderTableExtraColumn {
   cellClassName?: string;
 }
 
+export interface RowSelectability {
+  selectable: boolean;
+  reason?: string;
+}
+
 interface OrderTableProps {
   orders: Order[];
   tab: OrderTab;
@@ -52,6 +57,8 @@ interface OrderTableProps {
   onToggleAll?: () => void;
   /** Extra columns rendered before the Aksi column. */
   extraColumns?: OrderTableExtraColumn[];
+  /** Per-row eligibility. Rows returning `selectable: false` render a disabled checkbox with tooltip. */
+  getRowSelectable?: (order: Order) => RowSelectability;
 }
 
 function ItemSummary({ order }: { order: Order }) {
@@ -91,6 +98,7 @@ function OrderRow({
   selected,
   onToggle,
   extraColumns,
+  rowSelectability,
 }: {
   order: Order;
   tab: OrderTab;
@@ -99,6 +107,7 @@ function OrderRow({
   selected: boolean;
   onToggle?: (id: string, checked: boolean) => void;
   extraColumns?: OrderTableExtraColumn[];
+  rowSelectability?: RowSelectability;
 }) {
   const { copy } = useCopyToClipboard();
 
@@ -113,11 +122,28 @@ function OrderRow({
     >
       {selectable && (
         <TableCell>
-          <Checkbox
-            checked={selected}
-            onCheckedChange={(v) => onToggle?.(order.id, !!v)}
-            aria-label="Pilih pesanan"
-          />
+          {rowSelectability && !rowSelectability.selectable ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex">
+                  <Checkbox
+                    checked={false}
+                    disabled
+                    aria-label={rowSelectability.reason ?? "Tidak bisa dipilih"}
+                  />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                {rowSelectability.reason ?? "Tidak bisa dipilih"}
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <Checkbox
+              checked={selected}
+              onCheckedChange={(v) => onToggle?.(order.id, !!v)}
+              aria-label="Pilih pesanan"
+            />
+          )}
         </TableCell>
       )}
 
@@ -266,6 +292,7 @@ export function OrderTable({
   someSelected = false,
   onToggleAll,
   extraColumns,
+  getRowSelectable,
 }: OrderTableProps) {
   return (
     <Table containerClassName="rounded-xl border border-border/60">
@@ -309,6 +336,7 @@ export function OrderTable({
             selected={selectedIds?.has(order.id) ?? false}
             onToggle={onToggle}
             extraColumns={extraColumns}
+            rowSelectability={getRowSelectable?.(order)}
           />
         ))}
       </TableBody>

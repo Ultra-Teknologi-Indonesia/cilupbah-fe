@@ -1058,6 +1058,39 @@ export const OutboundService = {
     );
   },
 
+  createBulkShippingLabelBatch: async (
+    orderIds: string[],
+    perChannel: Record<string, { document_type?: string; document_size?: string }>,
+  ): Promise<{ batch_id: string }> => {
+    const res = await fetchClient<{ batch_id: string }>(
+      `/sales/shipping-labels/bulk`,
+      {
+        method: "POST",
+        data: { order_ids: orderIds, per_channel: perChannel },
+      },
+    );
+    return res as unknown as { batch_id: string };
+  },
+
+  getBulkShippingLabelBatch: async (
+    batchId: string,
+  ): Promise<import("@/types/proses-pesanan/bulk-label").BulkLabelBatch> => {
+    const res = await fetchClient<
+      import("@/types/proses-pesanan/bulk-label").BulkLabelBatch
+    >(`/sales/shipping-labels/bulk/${encodeURIComponent(batchId)}`);
+    return res as unknown as import("@/types/proses-pesanan/bulk-label").BulkLabelBatch;
+  },
+
+  retryFailedBulkShippingLabels: async (
+    batchId: string,
+  ): Promise<{ batch_id: string }> => {
+    const res = await fetchClient<{ batch_id: string }>(
+      `/sales/shipping-labels/bulk/${encodeURIComponent(batchId)}/retry-failed`,
+      { method: "POST" },
+    );
+    return res as unknown as { batch_id: string };
+  },
+
   pickListByPicklist: async (picklistId: string): Promise<unknown> => {
     const res = await fetchClient<ApiResponse<unknown>>(
       `/reports/wms/pick-list?picklist_id=${encodeURIComponent(picklistId)}`,

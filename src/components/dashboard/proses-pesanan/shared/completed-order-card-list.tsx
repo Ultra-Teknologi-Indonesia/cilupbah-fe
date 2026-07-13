@@ -16,12 +16,35 @@ import {
 import {
   OrderTable,
   type OrderTableExtraColumn,
+  type RowSelectability,
 } from "@/components/dashboard/proses-pesanan/shared/order-table";
-import type { OrderTab } from "@/types/pesanan/order";
+import { FulfillmentBulkActionBar } from "@/components/dashboard/proses-pesanan/shared/fulfillment-bulk-action-bar";
+import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
+import type { Order, OrderTab } from "@/types/pesanan/order";
 import { useOrdersByStage } from "@/hooks/proses-pesanan/use-fulfillment";
 import { useListState } from "@/hooks/use-list-state";
 import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper";
 import { cn } from "@/lib/utils";
+
+const SHIPPING_LABEL_CHANNELS = new Set(["shopee", "tiktok"]);
+
+function shippingLabelSelectability(order: Order): RowSelectability {
+  const src = (order.source ?? "").toLowerCase();
+  if (!src) {
+    return { selectable: false, reason: "Pesanan manual tanpa kanal" };
+  }
+  if (!SHIPPING_LABEL_CHANNELS.has(src)) {
+    return {
+      selectable: false,
+      reason: "Kanal ini belum mendukung cetak resi otomatis",
+    };
+  }
+  const awb = order.shipping?.tracking_number;
+  if (!awb) {
+    return { selectable: false, reason: "Belum ada nomor resi" };
+  }
+  return { selectable: true };
+}
 
 type CardFilterState = {
   shipping_provider: string;
@@ -132,6 +155,56 @@ export function FulfillmentCardList({
     [orders],
   );
 
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+
+  React.useEffect(() => {
+    setSelectedIds(new Set());
+  }, [stage, tab]);
+
+  const eligibleIds = React.useMemo(() => {
+    const ids = new Set<string>();
+    for (const m of mappedOrders) {
+      if (shippingLabelSelectability(m.ui).selectable) ids.add(m.ui.id);
+    }
+    return ids;
+  }, [mappedOrders]);
+
+  const toggleId = React.useCallback((id: string, checked: boolean) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }, []);
+
+  const allSelected =
+    eligibleIds.size > 0 &&
+    [...eligibleIds].every((id) => selectedIds.has(id));
+  const someSelected =
+    !allSelected && [...eligibleIds].some((id) => selectedIds.has(id));
+
+  const toggleAll = React.useCallback(() => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      const allOn = [...eligibleIds].every((id) => next.has(id));
+      if (allOn) {
+        for (const id of eligibleIds) next.delete(id);
+      } else {
+        for (const id of eligibleIds) next.add(id);
+      }
+      return next;
+    });
+  }, [eligibleIds]);
+
+  const handlePrintLabel = React.useCallback(() => {
+    const orderInputs = mappedOrders
+      .filter((m) => selectedIds.has(m.ui.id))
+      .map((m) => ({ id: m.ui.id, source: m.ui.source ?? null }));
+    if (orderInputs.length === 0) return;
+    void DocActions.shippingLabel(orderInputs);
+  }, [mappedOrders, selectedIds]);
+
   return (
     <div>
       {}
@@ -190,11 +263,25 @@ export function FulfillmentCardList({
           </div>
         ) : (
           <div className="py-2">
+            <div className="mb-2">
+              <FulfillmentBulkActionBar
+                selectedCount={selectedIds.size}
+                onReset={() => setSelectedIds(new Set())}
+                onPrintLabel={handlePrintLabel}
+              />
+            </div>
             <OrderTable
               orders={mappedOrders.map((m) => m.ui)}
               tab={tab}
               variant="sales"
               extraColumns={extraColumns}
+              selectable
+              selectedIds={selectedIds}
+              onToggle={toggleId}
+              allSelected={allSelected}
+              someSelected={someSelected}
+              onToggleAll={toggleAll}
+              getRowSelectable={shippingLabelSelectability}
             />
           </div>
         )}

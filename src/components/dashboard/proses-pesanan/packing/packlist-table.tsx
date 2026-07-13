@@ -29,7 +29,25 @@ import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { useListState } from "@/hooks/use-list-state";
 
 import { DeleteOrderDialog } from "../shared/delete-order-dialog";
+import { FulfillmentBulkActionBar } from "../shared/fulfillment-bulk-action-bar";
 import { UbahPackerDialog } from "./ubah-packer-dialog";
+import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
+import { Checkbox } from "@/components/ui/checkbox";
+
+const PACKLIST_LABEL_CHANNELS = new Set(["shopee", "tiktok"]);
+
+function packlistLabelEligible(p: Packlist): {
+  eligible: boolean;
+  reason?: string;
+} {
+  const src = (p.source ?? "").toLowerCase();
+  if (!src) return { eligible: false, reason: "Pesanan manual" };
+  if (!PACKLIST_LABEL_CHANNELS.has(src))
+    return { eligible: false, reason: "Kanal belum didukung" };
+  if (!p.trackingNumber)
+    return { eligible: false, reason: "Belum ada nomor resi" };
+  return { eligible: true };
+}
 
 type PageFilterState = {
   shipping_provider: string;
@@ -57,6 +75,7 @@ export function PacklistTable() {
   const [deleteTarget, setDeleteTarget] = React.useState<Packlist | null>(
     null,
   );
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
 
   const params = React.useMemo(
     () => ({
@@ -92,8 +111,92 @@ export function PacklistTable() {
     [router, prefetchPacklistDetail],
   );
 
+  const eligibleOrderIds = React.useMemo(() => {
+    const ids: string[] = [];
+    for (const p of packlists) {
+      const el = packlistLabelEligible(p);
+      if (el.eligible && p.orderId) ids.push(p.orderId);
+    }
+    return ids;
+  }, [packlists]);
+
+  const toggleOrder = React.useCallback((orderId: string, checked: boolean) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(orderId);
+      else next.delete(orderId);
+      return next;
+    });
+  }, []);
+
+  const allSelected =
+    eligibleOrderIds.length > 0 &&
+    eligibleOrderIds.every((id) => selectedIds.has(id));
+  const someSelected =
+    !allSelected && eligibleOrderIds.some((id) => selectedIds.has(id));
+
+  const toggleAll = React.useCallback(() => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      const allOn = eligibleOrderIds.every((id) => next.has(id));
+      if (allOn) {
+        for (const id of eligibleOrderIds) next.delete(id);
+      } else {
+        for (const id of eligibleOrderIds) next.add(id);
+      }
+      return next;
+    });
+  }, [eligibleOrderIds]);
+
+  const handlePrintLabel = React.useCallback(() => {
+    const orderInputs = packlists
+      .filter((p) => p.orderId && selectedIds.has(p.orderId))
+      .map((p) => ({ id: p.orderId as string, source: p.source ?? null }));
+    if (orderInputs.length === 0) return;
+    void DocActions.shippingLabel(orderInputs);
+  }, [packlists, selectedIds]);
+
   const columns = React.useMemo<ColumnDef<Packlist>[]>(
     () => [
+      {
+        id: "select",
+        header: () => (
+          <Checkbox
+            checked={
+              allSelected ? true : someSelected ? "indeterminate" : false
+            }
+            onCheckedChange={toggleAll}
+            aria-label="Pilih semua"
+          />
+        ),
+        cell: ({ row }) => {
+          const el = packlistLabelEligible(row.original);
+          if (!el.eligible || !row.original.orderId) {
+            return (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-flex">
+                      <Checkbox disabled checked={false} aria-label={el.reason} />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>{el.reason ?? "Tidak dapat dipilih"}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          }
+          return (
+            <Checkbox
+              checked={selectedIds.has(row.original.orderId)}
+              onCheckedChange={(v) =>
+                toggleOrder(row.original.orderId as string, !!v)
+              }
+              aria-label="Pilih pesanan"
+            />
+          );
+        },
+        enableSorting: false,
+      },
       {
         id: "packlist_no",
         accessorFn: (row) => row.packlistNo,
@@ -236,7 +339,15 @@ export function PacklistTable() {
         ),
       },
     ],
-    [router, prefetchPacklist],
+    [
+      router,
+      prefetchPacklist,
+      selectedIds,
+      allSelected,
+      someSelected,
+      toggleAll,
+      toggleOrder,
+    ],
   );
 
   return (
@@ -268,6 +379,13 @@ export function PacklistTable() {
       </div>
 
       <div className="px-4 pb-4 sm:px-5">
+        <div className="mb-2">
+          <FulfillmentBulkActionBar
+            selectedCount={selectedIds.size}
+            onReset={() => setSelectedIds(new Set())}
+            onPrintLabel={handlePrintLabel}
+          />
+        </div>
         <DataTable
           columns={columns}
           data={packlists}

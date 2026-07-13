@@ -33,19 +33,29 @@ function toOrderInputs(
   );
 }
 
-async function runShippingLabel(orders: PrintLabelOrderInput[]) {
-  const marketplaceOrders = orders.filter((o) => (o.source ?? "").length > 0);
+const SUPPORTED_LABEL_CHANNELS = new Set(["shopee", "tiktok"]);
 
-  if (marketplaceOrders.length === 0) {
-    toast.error("Cetak resi hanya tersedia untuk pesanan marketplace.");
+async function runShippingLabel(orders: PrintLabelOrderInput[]) {
+  const eligible = orders.filter((o) => {
+    const src = (o.source ?? "").toLowerCase();
+    return SUPPORTED_LABEL_CHANNELS.has(src);
+  });
+
+  const skipped = orders.length - eligible.length;
+  if (eligible.length === 0) {
+    toast.error("Kanal terpilih belum mendukung cetak resi otomatis.");
     return;
+  }
+  if (skipped > 0) {
+    toast.info(`${skipped} pesanan dilewati (kanal belum didukung).`);
   }
 
   const choices: PrintLabelChoiceMap | null =
-    await openPrintLabelSizeDialog(marketplaceOrders);
+    await openPrintLabelSizeDialog(eligible);
   if (choices === null) return;
 
-  for (const o of marketplaceOrders) {
+  if (eligible.length === 1) {
+    const o = eligible[0];
     const src = (o.source ?? "").toLowerCase();
     const choice = choices[src];
     const params = new URLSearchParams();
@@ -57,6 +67,35 @@ async function runShippingLabel(orders: PrintLabelOrderInput[]) {
       "_blank",
       "noopener,noreferrer",
     );
+    return;
+  }
+
+  const perChannel: Record<
+    string,
+    { document_type?: string; document_size?: string }
+  > = {};
+  for (const [src, ch] of Object.entries(choices)) {
+    perChannel[src] = {
+      document_type: ch.document_type,
+      document_size: ch.document_size,
+    };
+  }
+
+  const loadingId = toast.loading("Mengantre pencetakan label…");
+  try {
+    const { batch_id } = await OutboundService.createBulkShippingLabelBatch(
+      eligible.map((o) => o.id),
+      perChannel,
+    );
+    toast.dismiss(loadingId);
+    window.open(
+      `/dashboard/document-preview/shipping-label-bulk-async/${batch_id}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  } catch (err) {
+    toast.dismiss(loadingId);
+    apiError(err, "Gagal memulai batch cetak label.");
   }
 }
 
