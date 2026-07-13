@@ -79,7 +79,10 @@ export function KontakPemasokView() {
   const [typeFilter, setTypeFilter] = useUrlTab<TypeFilter>(
     "pemasok_type",
     "SUPPLIER",
-    { validValues: TYPE_VALUES },
+    { 
+      validValues: TYPE_VALUES,
+      clearKeys: ["pemasok_page"],
+    },
   );
   const [deleteTarget, setDeleteTarget] = useState<ContactItem | null>(null);
   const [importOpen, setImportOpen] = useState(false);
@@ -87,9 +90,8 @@ export function KontakPemasokView() {
   const handleTypeFilter = useCallback(
     (t: TypeFilter) => {
       setTypeFilter(t);
-      resetPage();
     },
-    [setTypeFilter, resetPage],
+    [setTypeFilter],
   );
 
   const params = useMemo<ContactListParams>(

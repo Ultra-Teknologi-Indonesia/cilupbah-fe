@@ -230,8 +230,7 @@ export function PickingProsesView({ id }: { id: string }) {
         setCompleteDialogDismissed(true);
         router.push(LIST_HREF);
       },
-      onError: (e) =>
-        apiError(e, "Gagal menyelesaikan picking."),
+      onError: (e) => apiError(e, "Gagal menyelesaikan picking."),
     });
   };
 
@@ -511,7 +510,6 @@ export function PickingProsesView({ id }: { id: string }) {
                 disabled={!editable}
               />
             </div>
-
           </aside>
 
           <section className="flex flex-col gap-4">
@@ -526,9 +524,7 @@ export function PickingProsesView({ id }: { id: string }) {
                     onResolve={() => {}}
                     onUnmatched={handleScanSku}
                     disabled={
-                      !editable ||
-                      pickItem.isPending ||
-                      scanForPick.isPending
+                      !editable || pickItem.isPending || scanForPick.isPending
                     }
                     autoFocus
                     refocusKey={skuRefocusKey}
@@ -687,7 +683,8 @@ export function PickingProsesView({ id }: { id: string }) {
                         const q = Number.parseInt(pickQty, 10);
                         return Number.isFinite(q) && q > activePickMax ? (
                           <p className="text-amber-600 text-xs">
-                            Melebihi data sistem (tersedia: {activePickMax}) — akan tercatat minus
+                            Melebihi data sistem (tersedia: {activePickMax}) —
+                            akan tercatat minus
                           </p>
                         ) : null;
                       })()}
@@ -828,7 +825,10 @@ export function PickingProsesView({ id }: { id: string }) {
                           {it.packageNo ?? "—"}
                         </TableCell>
                         <TableCell className="px-3 py-3">
-                          <StatusBadge domain="picking-item" status={itemStatus} />
+                          <StatusBadge
+                            domain="picking-item"
+                            status={itemStatus}
+                          />
                         </TableCell>
                         <TableCell className="px-3 py-3 font-mono text-xs text-foreground">
                           {it.trackingNumber ?? "—"}
@@ -921,9 +921,6 @@ export function PickingProsesView({ id }: { id: string }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-
-
 
       <DeleteOrderDialog
         open={!!deleteOrderTarget}

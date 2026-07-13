@@ -70,16 +70,18 @@ export function PelangganTab() {
   const [typeFilter, setTypeFilter] = useUrlTab<TypeFilter>(
     "pelanggan_type",
     "CUSTOMER",
-    { validValues: TYPE_VALUES },
+    { 
+      validValues: TYPE_VALUES,
+      clearKeys: ["pelanggan_page"],
+    },
   );
   const [deleteTarget, setDeleteTarget] = useState<ContactItem | null>(null);
 
   const handleTypeFilter = useCallback(
     (t: TypeFilter) => {
       setTypeFilter(t);
-      resetPage();
     },
-    [setTypeFilter, resetPage],
+    [setTypeFilter],
   );
 
   const params = useMemo<ContactListParams>(
