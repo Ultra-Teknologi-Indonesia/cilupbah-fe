@@ -34,13 +34,16 @@ const TAB_KEYS = TAB_CONFIG.map((t) => t.key as OrderTab);
 export function PesananView() {
   const [tab, setTabUrl] = useUrlTab<OrderTab>("tab", "all", {
     validValues: TAB_KEYS,
-    clearKeys: ["sub"],
+    clearKeys: ["page", "sub"],
   });
   const subKeys = useMemo(
     () => (SUB_PILL_CONFIG[tab] ?? []).map((p) => p.key),
     [tab],
   );
-  const [subValue, setSubUrl] = useUrlTab("sub", "", { validValues: subKeys });
+  const [subValue, setSubUrl] = useUrlTab("sub", "", { 
+    validValues: subKeys,
+    clearKeys: ["page"],
+  });
   const subFilter: SubFilter = (subValue || null) as SubFilter;
 
   const listSearch = useListState<{ _: string }>(
@@ -55,19 +58,17 @@ export function PesananView() {
   const handleTabChange = useCallback(
     (t: OrderTab) => {
       setTabUrl(t);
-      listSearch.resetPage();
       clearSelection();
     },
-    [setTabUrl, listSearch, clearSelection],
+    [setTabUrl, clearSelection],
   );
 
   const handleSubFilterChange = useCallback(
     (s: SubFilter) => {
       setSubUrl(s ?? "");
-      listSearch.resetPage();
       clearSelection();
     },
-    [setSubUrl, listSearch, clearSelection],
+    [setSubUrl, clearSelection],
   );
 
   const handleFilterChange = useCallback(

@@ -171,14 +171,14 @@ export function PenerimaanBarangTab() {
   });
   const [sourceTab, setSourceTab] = useUrlTab<SourceTab>("tab", "semua", {
     validValues: SOURCE_TABS,
+    clearKeys: ["penerimaan_page"],
   });
 
   const handleTabChange = useCallback(
     (v: SourceTab) => {
       setSourceTab(v);
-      list.resetPage();
     },
-    [setSourceTab, list],
+    [setSourceTab],
   );
 
   const params = useMemo(
