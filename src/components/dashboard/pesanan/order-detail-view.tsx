@@ -28,6 +28,8 @@ import {
   KeyRoundIcon,
   ImageIcon,
   ZapIcon,
+  HistoryIcon,
+  MoreHorizontalIcon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -81,6 +83,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ContactBuyerDialog } from "./contact-buyer-dialog";
 import { CourierPickupDialog } from "./courier-pickup-dialog";
 import { EditOrderItemDialog } from "./edit-order-item-dialog";
+import { RiwayatPesananDialog } from "./riwayat-pesanan-dialog";
 import {
   formatCurrency,
   formatDateLong,
@@ -594,6 +597,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
   const deleteItem = useDeleteOrderItem();
   const [contactOpen, setContactOpen] = React.useState(false);
   const [pickupOpen, setPickupOpen] = React.useState(false);
+  const [riwayatOpen, setRiwayatOpen] = React.useState(false);
   const [editingItem, setEditingItem] = React.useState<OrderItem | null>(null);
   const [deletingItemId, setDeletingItemId] = React.useState<string | null>(
     null,
@@ -698,6 +702,24 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 <DropdownMenuItem onClick={handlePrintInvoice}>
                   <FileTextIcon className="size-4" />
                   Faktur
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  aria-label="Menu lainnya"
+                >
+                  <MoreHorizontalIcon className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setRiwayatOpen(true)}>
+                  <HistoryIcon className="size-4" />
+                  Riwayat
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -1159,6 +1181,12 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         orderId={order.id}
         orderNo={order.salesorder_no}
         pickup={order.courier_pickup}
+      />
+
+      <RiwayatPesananDialog
+        open={riwayatOpen}
+        onOpenChange={setRiwayatOpen}
+        orderId={order.id}
       />
 
       {editingItem && (
