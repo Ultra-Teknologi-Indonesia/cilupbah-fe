@@ -129,22 +129,9 @@ function ProgressCell({ done, total }: { done: number; total: number }) {
   );
 }
 
-export function PicklistTable({
-  defaultStatus,
-}: {
-  defaultStatus?: string;
-} = {}) {
+export function PicklistTable() {
   const prefetchPicklist = usePrefetchPicklistDetail();
-
-  const initialFilters = React.useMemo(
-    () => ({
-      ...EMPTY_PICKLIST_FILTERS,
-      status: defaultStatus ?? EMPTY_PICKLIST_FILTERS.status,
-    }),
-    [defaultStatus],
-  );
-
-  const list = useListState<PicklistFilterState>(initialFilters, {
+  const list = useListState<PicklistFilterState>(EMPTY_PICKLIST_FILTERS, {
     perPage: 20,
     debounceMs: 350,
     namespace: "picklist",

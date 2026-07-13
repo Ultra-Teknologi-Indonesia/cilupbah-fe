@@ -59,10 +59,34 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
     if (stage === "picking") {
       if (sub === "belum") return <ReadyToProcessCardList />;
       if (sub === "diproses") return <PicklistTable />;
-      return <PicklistTable defaultStatus="COMPLETED" />;
+      return (
+        <FulfillmentCardList
+          stage="finish-pick"
+          tab="all"
+          emptyTitle="Belum ada pesanan selesai pick"
+          emptyDescription="Pesanan yang sudah selesai dipick akan muncul di sini."
+          filterFields={[
+            "courier",
+            "location",
+            "channel",
+            "store",
+            "label_printed",
+            "date",
+          ]}
+        />
+      );
     }
     if (stage === "packing") {
-      if (sub === "belum") return <PicklistTable defaultStatus="COMPLETED" />;
+      if (sub === "belum")
+        return (
+          <FulfillmentCardList
+            stage="finish-pick"
+            tab="all"
+            emptyTitle="Belum ada pesanan siap packing"
+            emptyDescription="Pesanan yang sudah selesai dipick akan muncul di sini."
+            filterFields={["courier", "date", "label_printed"]}
+          />
+        );
       if (sub === "diproses") return <PacklistTable />;
       return (
         <FulfillmentCardList
