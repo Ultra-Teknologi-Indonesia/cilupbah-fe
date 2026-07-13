@@ -30,17 +30,25 @@ interface PageTitleProps {
   className?: string;
 }
 
-function hasAppHistory(): boolean {
+let appNavigated = false;
+let previousPathname = "";
+
+if (typeof window !== "undefined") {
+  const originalPushState = window.history.pushState;
+  window.history.pushState = function (...args) {
+    appNavigated = true;
+    previousPathname = window.location.pathname;
+    return originalPushState.apply(window.history, args);
+  };
+  
+  window.addEventListener('popstate', () => {
+    appNavigated = false;
+  });
+}
+
+function canGoBackTo(targetPathname: string): boolean {
   if (typeof window === "undefined") return false;
-  if (window.history.length <= 1) return false;
-  try {
-    const ref = document.referrer;
-    if (!ref) return false;
-    const refOrigin = new URL(ref).origin;
-    return refOrigin === window.location.origin;
-  } catch {
-    return false;
-  }
+  return appNavigated && window.history.length > 1 && previousPathname === targetPathname;
 }
 
 export function PageTitle({
@@ -66,9 +74,15 @@ export function PageTitle({
       ) {
         return;
       }
-      if (hasAppHistory()) {
-        e.preventDefault();
-        router.back();
+      
+      try {
+        const targetUrl = new URL(e.currentTarget.href);
+        if (canGoBackTo(targetUrl.pathname)) {
+          e.preventDefault();
+          router.back();
+        }
+      } catch {
+        // Fallback to default link behavior if URL parsing fails
       }
     },
     [router],
