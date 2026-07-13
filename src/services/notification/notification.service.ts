@@ -1,5 +1,5 @@
 import { fetchClient } from "@/lib/api-client";
-import type { ApiResponse } from "@/types/api.types";
+import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type {
   AppNotification,
   NotificationListParams,
@@ -7,8 +7,10 @@ import type {
 } from "@/types/notification";
 
 export const NotificationService = {
-  list: async (params: NotificationListParams = {}) => {
-    const res = await fetchClient<ApiResponse<NotificationListResponse>>(
+  list: async (
+    params: NotificationListParams = {},
+  ): Promise<NotificationListResponse> => {
+    const res = await fetchClient<ApiPaginated<AppNotification>>(
       "/notifications",
       {
         method: "GET",
@@ -18,7 +20,10 @@ export const NotificationService = {
         >,
       },
     );
-    return res.data;
+    return {
+      items: res.data,
+      meta: res.meta,
+    };
   },
 
   unreadCount: async () => {
