@@ -27,6 +27,7 @@ import {
   BarChart3,
   AlertTriangle,
   SlidersHorizontal,
+  HelpCircle,
 } from "lucide-react";
 import type React from "react";
 import type { Route } from "./nav-main";
@@ -254,6 +255,12 @@ export const settingsRoutes: Route[] = [
         link: "/dashboard/aktivitas-impex",
       },
     ],
+  },
+  {
+    id: "bantuan",
+    title: "Bantuan",
+    icon: HelpCircle,
+    link: "/dashboard/bantuan",
   },
 ];
 

@@ -1,0 +1,2536 @@
+{
+    "slug": "report",
+    "name": "Report",
+    "description": "Laporan HPP, persediaan, retur, stok minus, dsb.",
+    "endpoints_count": 16,
+    "undocumented": 0,
+    "endpoints": [
+        {
+            "id": "api.lazada.get-document",
+            "module_slug": "report",
+            "module_name": "Report",
+            "method": "GET",
+            "path": "/api/v1/lazada/get-document",
+            "summary": "Ambil daftar Lazada",
+            "description": "Ambil daftar Lazada.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
+            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Report\\Http\\Controllers\\ReportController",
+            "action": "lazadaGetDocument",
+            "auth": "auth:sanctum",
+            "roles": [],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [
+                {
+                    "name": "order_id",
+                    "type": "string",
+                    "description": "ID order (referensi ke resource order).",
+                    "required": false
+                },
+                {
+                    "name": "shop_id",
+                    "type": "string",
+                    "description": "ID toko marketplace.",
+                    "required": false
+                },
+                {
+                    "name": "doc_type",
+                    "type": "string",
+                    "description": "Field doc type (tipe string).",
+                    "required": false
+                }
+            ],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": []
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Berhasil.",
+                "data": []
+            },
+            "response_resource": "Modules\\Report\\Http\\Resources\\LazadaDocumentResource",
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Gagal mengambil dokumen Lazada.",
+                    "body": {
+                        "success": false,
+                        "message": "Gagal mengambil dokumen Lazada."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.reports.putaway",
+                    "method": "GET",
+                    "path": "/api/v1/reports/putaway",
+                    "summary": "Tempatkan ke rak penempatan"
+                },
+                {
+                    "id": "api.reports.receive",
+                    "method": "GET",
+                    "path": "/api/v1/reports/receive",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.adjustment",
+                    "method": "GET",
+                    "path": "/api/v1/reports/adjustment",
+                    "summary": "Sesuaikan laporan"
+                },
+                {
+                    "id": "api.reports.stock-opname",
+                    "method": "GET",
+                    "path": "/api/v1/reports/stock-opname",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.purchaseorder",
+                    "method": "GET",
+                    "path": "/api/v1/reports/purchaseorder",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.invoice",
+                    "method": "GET",
+                    "path": "/api/v1/reports/invoice",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.consign",
+                    "method": "GET",
+                    "path": "/api/v1/reports/consign",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.item-receive-notplace",
+                    "method": "GET",
+                    "path": "/api/v1/reports/item-receive-notplace",
+                    "summary": "Terima laporan"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.reports.adjustment",
+            "module_slug": "report",
+            "module_name": "Report",
+            "method": "GET",
+            "path": "/api/v1/reports/adjustment",
+            "summary": "Sesuaikan laporan",
+            "description": "Sesuaikan laporan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-laporan-persediaan].",
+            "purpose": "Membutuhkan izin: owner, view-laporan-persediaan. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Report\\Http\\Controllers\\ReportController",
+            "action": "adjustment",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-laporan-persediaan"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Stock adjustment report berhasil diambil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.reports.putaway",
+                    "method": "GET",
+                    "path": "/api/v1/reports/putaway",
+                    "summary": "Tempatkan ke rak penempatan"
+                },
+                {
+                    "id": "api.reports.receive",
+                    "method": "GET",
+                    "path": "/api/v1/reports/receive",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.stock-opname",
+                    "method": "GET",
+                    "path": "/api/v1/reports/stock-opname",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.purchaseorder",
+                    "method": "GET",
+                    "path": "/api/v1/reports/purchaseorder",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.invoice",
+                    "method": "GET",
+                    "path": "/api/v1/reports/invoice",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.consign",
+                    "method": "GET",
+                    "path": "/api/v1/reports/consign",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.item-receive-notplace",
+                    "method": "GET",
+                    "path": "/api/v1/reports/item-receive-notplace",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.wms.pick-list",
+                    "method": "GET",
+                    "path": "/api/v1/reports/wms/pick-list",
+                    "summary": "Pick (ambil dari rak) laporan"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.reports.barcode.pdf",
+            "module_slug": "report",
+            "module_name": "Report",
+            "method": "POST",
+            "path": "/api/v1/reports/barcode/pdf",
+            "summary": "Buat laporan",
+            "description": "Buat laporan.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, export-laporan-persediaan].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, export-laporan-persediaan. Membuat resource baru atau memicu aksi domain.",
+            "controller": "Modules\\Report\\Http\\Controllers\\ReportController",
+            "action": "barcodePdf",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "export-laporan-persediaan"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": "Modules\\Report\\Http\\Requests\\BarcodeReportRequest",
+            "path_params": [],
+            "query_params": [],
+            "body_schema": {
+                "jenis": {
+                    "type": "string",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "in:sku,sku_induk"
+                    ],
+                    "enum": [
+                        "sku",
+                        "sku_induk"
+                    ],
+                    "description": "Field jenis (tipe string)."
+                },
+                "ids": {
+                    "type": "array",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "array",
+                        "min:1"
+                    ],
+                    "constraints": {
+                        "min": 1
+                    },
+                    "description": "Field ids (tipe array)."
+                },
+                "ids.*": {
+                    "type": "uuid",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "uuid"
+                    ],
+                    "description": "Field ids (tipe uuid)."
+                },
+                "harga": {
+                    "type": "string",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "in:tanpa_harga,default,online"
+                    ],
+                    "enum": [
+                        "tanpa_harga",
+                        "default",
+                        "online"
+                    ],
+                    "description": "Field harga (tipe string)."
+                },
+                "download": {
+                    "type": "boolean",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "boolean"
+                    ],
+                    "description": "Field download (tipe boolean)."
+                }
+            },
+            "body_example": {
+                "jenis": "sku",
+                "ids": [
+                    []
+                ],
+                "harga": "tanpa_harga",
+                "download": false
+            },
+            "validation": [
+                "jenis: required|in:sku,sku_induk",
+                "ids: required|array|min:1",
+                "ids.*: required|uuid",
+                "harga: required|in:tanpa_harga,default,online",
+                "download: nullable|boolean"
+            ],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "mixed"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Berhasil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                201,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.reports.putaway",
+                    "method": "GET",
+                    "path": "/api/v1/reports/putaway",
+                    "summary": "Tempatkan ke rak penempatan"
+                },
+                {
+                    "id": "api.reports.receive",
+                    "method": "GET",
+                    "path": "/api/v1/reports/receive",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.adjustment",
+                    "method": "GET",
+                    "path": "/api/v1/reports/adjustment",
+                    "summary": "Sesuaikan laporan"
+                },
+                {
+                    "id": "api.reports.stock-opname",
+                    "method": "GET",
+                    "path": "/api/v1/reports/stock-opname",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.purchaseorder",
+                    "method": "GET",
+                    "path": "/api/v1/reports/purchaseorder",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.invoice",
+                    "method": "GET",
+                    "path": "/api/v1/reports/invoice",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.consign",
+                    "method": "GET",
+                    "path": "/api/v1/reports/consign",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.item-receive-notplace",
+                    "method": "GET",
+                    "path": "/api/v1/reports/item-receive-notplace",
+                    "summary": "Terima laporan"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.reports.consign",
+            "module_slug": "report",
+            "module_name": "Report",
+            "method": "GET",
+            "path": "/api/v1/reports/consign",
+            "summary": "Ambil daftar laporan",
+            "description": "Ambil daftar laporan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-laporan-pembelian].",
+            "purpose": "Membutuhkan izin: owner, view-laporan-pembelian. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Report\\Http\\Controllers\\ReportController",
+            "action": "consign",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-laporan-pembelian"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Consignment bill report berhasil diambil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.reports.putaway",
+                    "method": "GET",
+                    "path": "/api/v1/reports/putaway",
+                    "summary": "Tempatkan ke rak penempatan"
+                },
+                {
+                    "id": "api.reports.receive",
+                    "method": "GET",
+                    "path": "/api/v1/reports/receive",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.adjustment",
+                    "method": "GET",
+                    "path": "/api/v1/reports/adjustment",
+                    "summary": "Sesuaikan laporan"
+                },
+                {
+                    "id": "api.reports.stock-opname",
+                    "method": "GET",
+                    "path": "/api/v1/reports/stock-opname",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.purchaseorder",
+                    "method": "GET",
+                    "path": "/api/v1/reports/purchaseorder",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.invoice",
+                    "method": "GET",
+                    "path": "/api/v1/reports/invoice",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.item-receive-notplace",
+                    "method": "GET",
+                    "path": "/api/v1/reports/item-receive-notplace",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.wms.pick-list",
+                    "method": "GET",
+                    "path": "/api/v1/reports/wms/pick-list",
+                    "summary": "Pick (ambil dari rak) laporan"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.reports.hpp",
+            "module_slug": "report",
+            "module_name": "Report",
+            "method": "GET",
+            "path": "/api/v1/reports/hpp",
+            "summary": "Ambil daftar laporan",
+            "description": "Ambil daftar laporan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-laporan-hpp].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, view-laporan-hpp. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Report\\Http\\Controllers\\ReportController",
+            "action": "hpp",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-laporan-hpp"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": "Modules\\Report\\Http\\Requests\\HppReportRequest",
+            "path_params": [],
+            "query_params": [
+                {
+                    "name": "date_from",
+                    "type": "string",
+                    "description": "Field date from (tipe string).",
+                    "required": false
+                },
+                {
+                    "name": "date_to",
+                    "type": "string",
+                    "description": "Field date to (tipe string).",
+                    "required": false
+                },
+                {
+                    "name": "location_id",
+                    "type": "string",
+                    "description": "ID lokasi/gudang — referensi ke tabel locations.",
+                    "required": false
+                }
+            ],
+            "body_schema": {
+                "date_from": {
+                    "type": "date",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "date"
+                    ],
+                    "description": "Field date from (tipe date)."
+                },
+                "date_to": {
+                    "type": "date",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "date",
+                        "after_or_equal:date_from"
+                    ],
+                    "description": "Field date to (tipe date)."
+                },
+                "location_id": {
+                    "type": "uuid",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "uuid",
+                        "exists:locations,id"
+                    ],
+                    "exists": "locations,id",
+                    "description": "ID lokasi/gudang — referensi ke tabel locations."
+                }
+            },
+            "body_example": {
+                "date_from": "2026-07-13",
+                "date_to": "2026-07-13",
+                "location_id": "00000000-0000-0000-0000-000000000000"
+            },
+            "validation": [
+                "date_from: required|date",
+                "date_to: required|date|after_or_equal:date_from",
+                "location_id: nullable|uuid|exists:locations,id"
+            ],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Laporan HPP berhasil diambil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.reports.putaway",
+                    "method": "GET",
+                    "path": "/api/v1/reports/putaway",
+                    "summary": "Tempatkan ke rak penempatan"
+                },
+                {
+                    "id": "api.reports.receive",
+                    "method": "GET",
+                    "path": "/api/v1/reports/receive",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.adjustment",
+                    "method": "GET",
+                    "path": "/api/v1/reports/adjustment",
+                    "summary": "Sesuaikan laporan"
+                },
+                {
+                    "id": "api.reports.stock-opname",
+                    "method": "GET",
+                    "path": "/api/v1/reports/stock-opname",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.purchaseorder",
+                    "method": "GET",
+                    "path": "/api/v1/reports/purchaseorder",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.invoice",
+                    "method": "GET",
+                    "path": "/api/v1/reports/invoice",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.consign",
+                    "method": "GET",
+                    "path": "/api/v1/reports/consign",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.item-receive-notplace",
+                    "method": "GET",
+                    "path": "/api/v1/reports/item-receive-notplace",
+                    "summary": "Terima laporan"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.reports.invoice",
+            "module_slug": "report",
+            "module_name": "Report",
+            "method": "GET",
+            "path": "/api/v1/reports/invoice",
+            "summary": "Ambil daftar laporan",
+            "description": "Ambil daftar laporan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-laporan-pembelian].",
+            "purpose": "Membutuhkan izin: owner, view-laporan-pembelian. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Report\\Http\\Controllers\\ReportController",
+            "action": "invoice",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-laporan-pembelian"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Invoice report berhasil diambil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.reports.putaway",
+                    "method": "GET",
+                    "path": "/api/v1/reports/putaway",
+                    "summary": "Tempatkan ke rak penempatan"
+                },
+                {
+                    "id": "api.reports.receive",
+                    "method": "GET",
+                    "path": "/api/v1/reports/receive",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.adjustment",
+                    "method": "GET",
+                    "path": "/api/v1/reports/adjustment",
+                    "summary": "Sesuaikan laporan"
+                },
+                {
+                    "id": "api.reports.stock-opname",
+                    "method": "GET",
+                    "path": "/api/v1/reports/stock-opname",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.purchaseorder",
+                    "method": "GET",
+                    "path": "/api/v1/reports/purchaseorder",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.consign",
+                    "method": "GET",
+                    "path": "/api/v1/reports/consign",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.item-receive-notplace",
+                    "method": "GET",
+                    "path": "/api/v1/reports/item-receive-notplace",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.wms.pick-list",
+                    "method": "GET",
+                    "path": "/api/v1/reports/wms/pick-list",
+                    "summary": "Pick (ambil dari rak) laporan"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.reports.item-receive-notplace",
+            "module_slug": "report",
+            "module_name": "Report",
+            "method": "GET",
+            "path": "/api/v1/reports/item-receive-notplace",
+            "summary": "Terima laporan",
+            "description": "Terima laporan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-laporan-persediaan].",
+            "purpose": "Membutuhkan izin: owner, view-laporan-persediaan. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Report\\Http\\Controllers\\ReportController",
+            "action": "itemReceiveNotPlace",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-laporan-persediaan"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Item receive not placed report berhasil diambil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.reports.putaway",
+                    "method": "GET",
+                    "path": "/api/v1/reports/putaway",
+                    "summary": "Tempatkan ke rak penempatan"
+                },
+                {
+                    "id": "api.reports.receive",
+                    "method": "GET",
+                    "path": "/api/v1/reports/receive",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.adjustment",
+                    "method": "GET",
+                    "path": "/api/v1/reports/adjustment",
+                    "summary": "Sesuaikan laporan"
+                },
+                {
+                    "id": "api.reports.stock-opname",
+                    "method": "GET",
+                    "path": "/api/v1/reports/stock-opname",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.purchaseorder",
+                    "method": "GET",
+                    "path": "/api/v1/reports/purchaseorder",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.invoice",
+                    "method": "GET",
+                    "path": "/api/v1/reports/invoice",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.consign",
+                    "method": "GET",
+                    "path": "/api/v1/reports/consign",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.wms.pick-list",
+                    "method": "GET",
+                    "path": "/api/v1/reports/wms/pick-list",
+                    "summary": "Pick (ambil dari rak) laporan"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.reports.negative-stock",
+            "module_slug": "report",
+            "module_name": "Report",
+            "method": "GET",
+            "path": "/api/v1/reports/negative-stock",
+            "summary": "Ambil daftar laporan",
+            "description": "Ambil daftar laporan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-laporan-stok-minus].",
+            "purpose": "Membutuhkan izin: owner, view-laporan-stok-minus. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Report\\Http\\Controllers\\ReportController",
+            "action": "negativeStock",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-laporan-stok-minus"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Riwayat stok minus berhasil diambil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.reports.putaway",
+                    "method": "GET",
+                    "path": "/api/v1/reports/putaway",
+                    "summary": "Tempatkan ke rak penempatan"
+                },
+                {
+                    "id": "api.reports.receive",
+                    "method": "GET",
+                    "path": "/api/v1/reports/receive",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.adjustment",
+                    "method": "GET",
+                    "path": "/api/v1/reports/adjustment",
+                    "summary": "Sesuaikan laporan"
+                },
+                {
+                    "id": "api.reports.stock-opname",
+                    "method": "GET",
+                    "path": "/api/v1/reports/stock-opname",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.purchaseorder",
+                    "method": "GET",
+                    "path": "/api/v1/reports/purchaseorder",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.invoice",
+                    "method": "GET",
+                    "path": "/api/v1/reports/invoice",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.consign",
+                    "method": "GET",
+                    "path": "/api/v1/reports/consign",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.item-receive-notplace",
+                    "method": "GET",
+                    "path": "/api/v1/reports/item-receive-notplace",
+                    "summary": "Terima laporan"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.reports.negative-stock.export",
+            "module_slug": "report",
+            "module_name": "Report",
+            "method": "GET",
+            "path": "/api/v1/reports/negative-stock/export",
+            "summary": "Ekspor ke file laporan",
+            "description": "Ekspor ke file laporan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, export-laporan-stok-minus].",
+            "purpose": "Membutuhkan izin: owner, export-laporan-stok-minus. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Report\\Http\\Controllers\\ReportController",
+            "action": "negativeStockExport",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "export-laporan-stok-minus"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Ekspor sedang diproses. Cek di Aktivitas Impex.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.reports.putaway",
+                    "method": "GET",
+                    "path": "/api/v1/reports/putaway",
+                    "summary": "Tempatkan ke rak penempatan"
+                },
+                {
+                    "id": "api.reports.receive",
+                    "method": "GET",
+                    "path": "/api/v1/reports/receive",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.adjustment",
+                    "method": "GET",
+                    "path": "/api/v1/reports/adjustment",
+                    "summary": "Sesuaikan laporan"
+                },
+                {
+                    "id": "api.reports.stock-opname",
+                    "method": "GET",
+                    "path": "/api/v1/reports/stock-opname",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.purchaseorder",
+                    "method": "GET",
+                    "path": "/api/v1/reports/purchaseorder",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.invoice",
+                    "method": "GET",
+                    "path": "/api/v1/reports/invoice",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.consign",
+                    "method": "GET",
+                    "path": "/api/v1/reports/consign",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.item-receive-notplace",
+                    "method": "GET",
+                    "path": "/api/v1/reports/item-receive-notplace",
+                    "summary": "Terima laporan"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.reports.penyesuaian-stok.pdf",
+            "module_slug": "report",
+            "module_name": "Report",
+            "method": "POST",
+            "path": "/api/v1/reports/penyesuaian-stok/pdf",
+            "summary": "Buat laporan",
+            "description": "Buat laporan.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, export-laporan-persediaan].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, export-laporan-persediaan. Membuat resource baru atau memicu aksi domain.",
+            "controller": "Modules\\Report\\Http\\Controllers\\ReportController",
+            "action": "penyesuaianStokPdf",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "export-laporan-persediaan"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": "Modules\\Report\\Http\\Requests\\PenyesuaianStokPdfRequest",
+            "path_params": [],
+            "query_params": [],
+            "body_schema": {
+                "start_date": {
+                    "type": "date",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "date"
+                    ],
+                    "description": "Field start date (tipe date)."
+                },
+                "end_date": {
+                    "type": "date",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "date",
+                        "after_or_equal:start_date"
+                    ],
+                    "description": "Field end date (tipe date)."
+                },
+                "product_ids": {
+                    "type": "array",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "array"
+                    ],
+                    "description": "Field product ids (tipe array)."
+                },
+                "product_ids.*": {
+                    "type": "uuid",
+                    "required": false,
+                    "rules": [
+                        "uuid",
+                        "exists:product_variants,id"
+                    ],
+                    "exists": "product_variants,id",
+                    "description": "Field product ids (tipe uuid)."
+                },
+                "location_ids": {
+                    "type": "array",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "array"
+                    ],
+                    "description": "Field location ids (tipe array)."
+                },
+                "location_ids.*": {
+                    "type": "uuid",
+                    "required": false,
+                    "rules": [
+                        "uuid",
+                        "exists:locations,id"
+                    ],
+                    "exists": "locations,id",
+                    "description": "Field location ids (tipe uuid)."
+                },
+                "download": {
+                    "type": "boolean",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "boolean"
+                    ],
+                    "description": "Field download (tipe boolean)."
+                }
+            },
+            "body_example": {
+                "start_date": "2026-07-13",
+                "end_date": "2026-07-13",
+                "product_ids": [
+                    []
+                ],
+                "location_ids": [
+                    []
+                ],
+                "download": false
+            },
+            "validation": [
+                "start_date: required|date",
+                "end_date: required|date|after_or_equal:start_date",
+                "product_ids: nullable|array",
+                "product_ids.*: uuid|exists:product_variants,id",
+                "location_ids: nullable|array",
+                "location_ids.*: uuid|exists:locations,id",
+                "download: nullable|boolean"
+            ],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "mixed"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Berhasil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                201,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.reports.putaway",
+                    "method": "GET",
+                    "path": "/api/v1/reports/putaway",
+                    "summary": "Tempatkan ke rak penempatan"
+                },
+                {
+                    "id": "api.reports.receive",
+                    "method": "GET",
+                    "path": "/api/v1/reports/receive",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.adjustment",
+                    "method": "GET",
+                    "path": "/api/v1/reports/adjustment",
+                    "summary": "Sesuaikan laporan"
+                },
+                {
+                    "id": "api.reports.stock-opname",
+                    "method": "GET",
+                    "path": "/api/v1/reports/stock-opname",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.purchaseorder",
+                    "method": "GET",
+                    "path": "/api/v1/reports/purchaseorder",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.invoice",
+                    "method": "GET",
+                    "path": "/api/v1/reports/invoice",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.consign",
+                    "method": "GET",
+                    "path": "/api/v1/reports/consign",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.item-receive-notplace",
+                    "method": "GET",
+                    "path": "/api/v1/reports/item-receive-notplace",
+                    "summary": "Terima laporan"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.reports.purchaseorder",
+            "module_slug": "report",
+            "module_name": "Report",
+            "method": "GET",
+            "path": "/api/v1/reports/purchaseorder",
+            "summary": "Ambil daftar laporan",
+            "description": "Ambil daftar laporan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-laporan-pembelian].",
+            "purpose": "Membutuhkan izin: owner, view-laporan-pembelian. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Report\\Http\\Controllers\\ReportController",
+            "action": "purchaseOrder",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-laporan-pembelian"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Purchase order report berhasil diambil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.reports.putaway",
+                    "method": "GET",
+                    "path": "/api/v1/reports/putaway",
+                    "summary": "Tempatkan ke rak penempatan"
+                },
+                {
+                    "id": "api.reports.receive",
+                    "method": "GET",
+                    "path": "/api/v1/reports/receive",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.adjustment",
+                    "method": "GET",
+                    "path": "/api/v1/reports/adjustment",
+                    "summary": "Sesuaikan laporan"
+                },
+                {
+                    "id": "api.reports.stock-opname",
+                    "method": "GET",
+                    "path": "/api/v1/reports/stock-opname",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.invoice",
+                    "method": "GET",
+                    "path": "/api/v1/reports/invoice",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.consign",
+                    "method": "GET",
+                    "path": "/api/v1/reports/consign",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.item-receive-notplace",
+                    "method": "GET",
+                    "path": "/api/v1/reports/item-receive-notplace",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.wms.pick-list",
+                    "method": "GET",
+                    "path": "/api/v1/reports/wms/pick-list",
+                    "summary": "Pick (ambil dari rak) laporan"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.reports.putaway",
+            "module_slug": "report",
+            "module_name": "Report",
+            "method": "GET",
+            "path": "/api/v1/reports/putaway",
+            "summary": "Tempatkan ke rak penempatan",
+            "description": "Tempatkan ke rak penempatan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-laporan-persediaan].",
+            "purpose": "Membutuhkan izin: owner, view-laporan-persediaan. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Report\\Http\\Controllers\\ReportController",
+            "action": "putaway",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-laporan-persediaan"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Putaway report berhasil diambil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.reports.receive",
+                    "method": "GET",
+                    "path": "/api/v1/reports/receive",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.adjustment",
+                    "method": "GET",
+                    "path": "/api/v1/reports/adjustment",
+                    "summary": "Sesuaikan laporan"
+                },
+                {
+                    "id": "api.reports.stock-opname",
+                    "method": "GET",
+                    "path": "/api/v1/reports/stock-opname",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.purchaseorder",
+                    "method": "GET",
+                    "path": "/api/v1/reports/purchaseorder",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.invoice",
+                    "method": "GET",
+                    "path": "/api/v1/reports/invoice",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.consign",
+                    "method": "GET",
+                    "path": "/api/v1/reports/consign",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.item-receive-notplace",
+                    "method": "GET",
+                    "path": "/api/v1/reports/item-receive-notplace",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.wms.pick-list",
+                    "method": "GET",
+                    "path": "/api/v1/reports/wms/pick-list",
+                    "summary": "Pick (ambil dari rak) laporan"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.reports.receive",
+            "module_slug": "report",
+            "module_name": "Report",
+            "method": "GET",
+            "path": "/api/v1/reports/receive",
+            "summary": "Terima laporan",
+            "description": "Terima laporan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-laporan-persediaan].",
+            "purpose": "Membutuhkan izin: owner, view-laporan-persediaan. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Report\\Http\\Controllers\\ReportController",
+            "action": "receive",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-laporan-persediaan"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Receive bill report berhasil diambil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.reports.putaway",
+                    "method": "GET",
+                    "path": "/api/v1/reports/putaway",
+                    "summary": "Tempatkan ke rak penempatan"
+                },
+                {
+                    "id": "api.reports.adjustment",
+                    "method": "GET",
+                    "path": "/api/v1/reports/adjustment",
+                    "summary": "Sesuaikan laporan"
+                },
+                {
+                    "id": "api.reports.stock-opname",
+                    "method": "GET",
+                    "path": "/api/v1/reports/stock-opname",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.purchaseorder",
+                    "method": "GET",
+                    "path": "/api/v1/reports/purchaseorder",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.invoice",
+                    "method": "GET",
+                    "path": "/api/v1/reports/invoice",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.consign",
+                    "method": "GET",
+                    "path": "/api/v1/reports/consign",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.item-receive-notplace",
+                    "method": "GET",
+                    "path": "/api/v1/reports/item-receive-notplace",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.wms.pick-list",
+                    "method": "GET",
+                    "path": "/api/v1/reports/wms/pick-list",
+                    "summary": "Pick (ambil dari rak) laporan"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.reports.stock-opname",
+            "module_slug": "report",
+            "module_name": "Report",
+            "method": "GET",
+            "path": "/api/v1/reports/stock-opname",
+            "summary": "Ambil daftar laporan",
+            "description": "Ambil daftar laporan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-laporan-persediaan].",
+            "purpose": "Membutuhkan izin: owner, view-laporan-persediaan. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Report\\Http\\Controllers\\ReportController",
+            "action": "stockOpname",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-laporan-persediaan"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Stock opname report berhasil diambil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.reports.putaway",
+                    "method": "GET",
+                    "path": "/api/v1/reports/putaway",
+                    "summary": "Tempatkan ke rak penempatan"
+                },
+                {
+                    "id": "api.reports.receive",
+                    "method": "GET",
+                    "path": "/api/v1/reports/receive",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.adjustment",
+                    "method": "GET",
+                    "path": "/api/v1/reports/adjustment",
+                    "summary": "Sesuaikan laporan"
+                },
+                {
+                    "id": "api.reports.purchaseorder",
+                    "method": "GET",
+                    "path": "/api/v1/reports/purchaseorder",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.invoice",
+                    "method": "GET",
+                    "path": "/api/v1/reports/invoice",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.consign",
+                    "method": "GET",
+                    "path": "/api/v1/reports/consign",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.item-receive-notplace",
+                    "method": "GET",
+                    "path": "/api/v1/reports/item-receive-notplace",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.wms.pick-list",
+                    "method": "GET",
+                    "path": "/api/v1/reports/wms/pick-list",
+                    "summary": "Pick (ambil dari rak) laporan"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.reports.wms.pick-list",
+            "module_slug": "report",
+            "module_name": "Report",
+            "method": "GET",
+            "path": "/api/v1/reports/wms/pick-list",
+            "summary": "Pick (ambil dari rak) laporan",
+            "description": "Pick (ambil dari rak) laporan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-laporan-gudang].",
+            "purpose": "Membutuhkan izin: owner, view-laporan-gudang. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Report\\Http\\Controllers\\ReportController",
+            "action": "pickList",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-laporan-gudang"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Picklist report berhasil diambil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.reports.putaway",
+                    "method": "GET",
+                    "path": "/api/v1/reports/putaway",
+                    "summary": "Tempatkan ke rak penempatan"
+                },
+                {
+                    "id": "api.reports.receive",
+                    "method": "GET",
+                    "path": "/api/v1/reports/receive",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.adjustment",
+                    "method": "GET",
+                    "path": "/api/v1/reports/adjustment",
+                    "summary": "Sesuaikan laporan"
+                },
+                {
+                    "id": "api.reports.stock-opname",
+                    "method": "GET",
+                    "path": "/api/v1/reports/stock-opname",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.purchaseorder",
+                    "method": "GET",
+                    "path": "/api/v1/reports/purchaseorder",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.invoice",
+                    "method": "GET",
+                    "path": "/api/v1/reports/invoice",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.consign",
+                    "method": "GET",
+                    "path": "/api/v1/reports/consign",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.item-receive-notplace",
+                    "method": "GET",
+                    "path": "/api/v1/reports/item-receive-notplace",
+                    "summary": "Terima laporan"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.reports.wms.shipping-manifest",
+            "module_slug": "report",
+            "module_name": "Report",
+            "method": "GET",
+            "path": "/api/v1/reports/wms/shipping-manifest",
+            "summary": "Kirim laporan",
+            "description": "Kirim laporan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-laporan-gudang].",
+            "purpose": "Membutuhkan izin: owner, view-laporan-gudang. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Report\\Http\\Controllers\\ReportController",
+            "action": "shippingManifest",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-laporan-gudang"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Shipping manifest report berhasil diambil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.reports.putaway",
+                    "method": "GET",
+                    "path": "/api/v1/reports/putaway",
+                    "summary": "Tempatkan ke rak penempatan"
+                },
+                {
+                    "id": "api.reports.receive",
+                    "method": "GET",
+                    "path": "/api/v1/reports/receive",
+                    "summary": "Terima laporan"
+                },
+                {
+                    "id": "api.reports.adjustment",
+                    "method": "GET",
+                    "path": "/api/v1/reports/adjustment",
+                    "summary": "Sesuaikan laporan"
+                },
+                {
+                    "id": "api.reports.stock-opname",
+                    "method": "GET",
+                    "path": "/api/v1/reports/stock-opname",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.purchaseorder",
+                    "method": "GET",
+                    "path": "/api/v1/reports/purchaseorder",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.invoice",
+                    "method": "GET",
+                    "path": "/api/v1/reports/invoice",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.consign",
+                    "method": "GET",
+                    "path": "/api/v1/reports/consign",
+                    "summary": "Ambil daftar laporan"
+                },
+                {
+                    "id": "api.reports.item-receive-notplace",
+                    "method": "GET",
+                    "path": "/api/v1/reports/item-receive-notplace",
+                    "summary": "Terima laporan"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        }
+    ]
+}
