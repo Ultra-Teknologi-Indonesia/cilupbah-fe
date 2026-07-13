@@ -27,7 +27,7 @@ export function useListState<F extends object>(
 
   const pageKey = `${ns}page`;
   const perPageKey = `${ns}per_page`;
-  const searchKey = `${ns}q`;
+  const searchKey = `${ns}search`;
   const filterKeyFor = useCallback(
     (k: string) => `${ns}filter_${k}`,
     [ns],
