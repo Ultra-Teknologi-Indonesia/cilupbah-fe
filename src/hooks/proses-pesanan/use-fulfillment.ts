@@ -499,28 +499,6 @@ export function useUnfailPickItem() {
   });
 }
 
-export function useSplitPickItem() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      picklistId,
-      itemId,
-      allocations,
-    }: {
-      picklistId: string;
-      itemId: string;
-      allocations: Array<{ binCode: string; qty: number }>;
-    }) =>
-      OutboundService.splitPickItem(picklistId, itemId, { allocations }),
-    onSuccess: (_d, v) => {
-      toast.success("Item berhasil di-pick lintas rak.");
-      qc.invalidateQueries({
-        queryKey: fulfillmentKeys.picklistDetail(v.picklistId),
-      });
-      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
-    },
-  });
-}
 
 export function useScanOrder() {
   const qc = useQueryClient();

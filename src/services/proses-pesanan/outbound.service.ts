@@ -586,25 +586,7 @@ export const OutboundService = {
     );
     return mapPicklistDetail(res.data);
   },
-  splitPickItem: async (
-    picklistId: string,
-    itemId: string,
-    payload: { allocations: Array<{ binCode: string; qty: number }> },
-  ): Promise<PicklistDetail> => {
-    const res = await fetchClient<{ data: RawPicklistDetail }>(
-      `/outbound/picklists/${picklistId}/items/${itemId}/split-pick`,
-      {
-        method: "POST",
-        data: {
-          allocations: payload.allocations.map((a) => ({
-            bin_code: a.binCode,
-            qty: a.qty,
-          })),
-        },
-      },
-    );
-    return mapPicklistDetail(res.data);
-  },
+
   scanForPick: async (
     picklistId: string,
     payload: {

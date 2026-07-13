@@ -10,7 +10,6 @@ import {
   PackageIcon,
   RotateCcwIcon,
   ScanBarcodeIcon,
-  SplitIcon,
   Trash2Icon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -45,7 +44,6 @@ import {
   useUnfailPickItem,
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import { FailItemDialog } from "@/components/dashboard/proses-pesanan/picking/fail-item-dialog";
-import { PecahRakDialog } from "@/components/dashboard/proses-pesanan/picking/pecah-rak-dialog";
 import { DeleteOrderDialog } from "@/components/dashboard/proses-pesanan/shared/delete-order-dialog";
 import type { PicklistItem } from "@/types/proses-pesanan/fulfillment";
 import { ScanAutoflowBar } from "@/components/dashboard/shared/scan-autoflow-bar";
@@ -154,8 +152,6 @@ export function PickingProsesView({ id }: { id: string }) {
   const unfailPickItem = useUnfailPickItem();
 
   const [failItemTarget, setFailItemTarget] =
-    React.useState<PicklistItem | null>(null);
-  const [pecahRakTarget, setPecahRakTarget] =
     React.useState<PicklistItem | null>(null);
   const [deleteOrderTarget, setDeleteOrderTarget] = React.useState<{
     orderId: string;
@@ -889,22 +885,6 @@ export function PickingProsesView({ id }: { id: string }) {
                                   <Trash2Icon className="size-4 text-destructive" />
                                 </Button>
                               )}
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                aria-label="Pecah rak"
-                                title={
-                                  done
-                                    ? "Item sudah selesai"
-                                    : isFailedStatus(it.itemStatus)
-                                      ? "Item sudah ditandai gagal"
-                                      : "Pecah pengambilan ke beberapa rak"
-                                }
-                                disabled={done || isFailedStatus(it.itemStatus)}
-                                onClick={() => setPecahRakTarget(it)}
-                              >
-                                <SplitIcon className="size-4" />
-                              </Button>
                             </div>
                           ) : (
                             <span className="text-xs text-muted-foreground">
@@ -982,16 +962,6 @@ export function PickingProsesView({ id }: { id: string }) {
         />
       )}
 
-      {pecahRakTarget && (
-        <PecahRakDialog
-          open={!!pecahRakTarget}
-          onOpenChange={(open) => {
-            if (!open) setPecahRakTarget(null);
-          }}
-          picklistId={id}
-          item={pecahRakTarget}
-        />
-      )}
 
       <DeleteOrderDialog
         open={!!deleteOrderTarget}
