@@ -33,6 +33,7 @@ export const fulfillmentKeys = {
   ordersByStage: (stage: string, p: FulfillmentListParams) =>
     [...board, "orders", stage, p] as const,
   picklists: (p: FulfillmentListParams) => [...board, "picklists", p] as const,
+  picklistItems: (id: string) => [...board, "picklists", id, "items"] as const,
   packlists: (p: FulfillmentListParams) => [...board, "packlists", p] as const,
   shipments: (p: FulfillmentListParams) => [...board, "shipments", p] as const,
   count: (key: string) => [...board, "count", key] as const,
@@ -230,6 +231,14 @@ export function usePicklistDetail(id: string, enabled = true) {
     queryKey: fulfillmentKeys.picklistDetail(id),
     queryFn: () => OutboundService.picklistDetail(id),
     enabled: enabled && !!id,
+  });
+}
+
+export function usePicklistItems(id: string, params: FulfillmentListParams) {
+  return useQuery({
+    queryKey: fulfillmentKeys.picklistItems(id),
+    queryFn: () => OutboundService.picklistItems(id, params),
+    enabled: !!id,
   });
 }
 

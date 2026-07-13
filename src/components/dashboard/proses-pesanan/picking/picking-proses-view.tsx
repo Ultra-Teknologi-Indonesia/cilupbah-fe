@@ -39,13 +39,20 @@ import {
 import { PageTitle } from "@/components/dashboard/page-title";
 import {
   usePicklistDetail,
+  usePicklistItems,
   useStartPicklist,
   usePickItem,
   useScanForPick,
   useCompletePicklist,
+  fulfillmentKeys,
 } from "@/hooks/proses-pesanan/use-fulfillment";
+import { useListState } from "@/hooks/use-list-state";
+import { OutboundService } from "@/services/proses-pesanan/outbound.service";
 import { DeleteOrderDialog } from "@/components/dashboard/proses-pesanan/shared/delete-order-dialog";
-import type { PicklistItem } from "@/types/proses-pesanan/fulfillment";
+import type {
+  FulfillmentListParams,
+  PicklistItem,
+} from "@/types/proses-pesanan/fulfillment";
 import { ScanAutoflowBar } from "@/components/dashboard/shared/scan-autoflow-bar";
 import { useQtyBumpQueue } from "@/hooks/proses-pesanan/use-qty-bump-queue";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
@@ -144,7 +151,31 @@ export function PickingProsesView({ id }: { id: string }) {
     string | null
   >(null);
 
-  const { data: pl, isLoading, isError } = usePicklistDetail(id);
+  const {
+    data: pl,
+    isLoading: isPicklistLoading,
+    isError,
+  } = usePicklistDetail(id);
+  const list = useListState(
+    {},
+    {
+      perPage: 1000,
+      namespace: "items",
+    },
+  );
+
+  const params = React.useMemo(() => {
+    return {
+      page: list.page,
+      per_page: list.perPage,
+      sort_by: list.sorting[0]?.id,
+      sort_dir: list.sorting[0]?.desc ? "desc" : "asc",
+    } as FulfillmentListParams;
+  }, [list.page, list.perPage, list.sorting]);
+
+  const itemsQuery = usePicklistItems(id, params);
+
+  const isLoading = isPicklistLoading || itemsQuery.isLoading;
   const startPicklist = useStartPicklist();
   const pickItem = usePickItem();
   const scanForPick = useScanForPick();
@@ -154,7 +185,10 @@ export function PickingProsesView({ id }: { id: string }) {
     orderNo: string | null;
   } | null>(null);
 
-  const items = React.useMemo(() => pl?.items ?? [], [pl]);
+  const items = React.useMemo(
+    () => itemsQuery.data?.data ?? [],
+    [itemsQuery.data?.data],
+  );
 
   const itemsRef = React.useRef(items);
   React.useEffect(() => {
@@ -407,6 +441,7 @@ export function PickingProsesView({ id }: { id: string }) {
         size: 320,
       },
       {
+        id: "qty_ordered",
         accessorKey: "qtyOrdered",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Qty Pesan" />
@@ -418,6 +453,7 @@ export function PickingProsesView({ id }: { id: string }) {
         ),
       },
       {
+        id: "bin_code",
         accessorKey: "binCode",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Kode Rak" />
@@ -429,7 +465,7 @@ export function PickingProsesView({ id }: { id: string }) {
         ),
       },
       {
-        id: "qtyPicked",
+        id: "qty_picked",
         accessorFn: (row) => row.qtyPicked,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Qty Ambil / Pesan" />
@@ -454,6 +490,7 @@ export function PickingProsesView({ id }: { id: string }) {
         },
       },
       {
+        id: "order_no",
         accessorKey: "orderNo",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="No. Pesanan" />
@@ -465,6 +502,7 @@ export function PickingProsesView({ id }: { id: string }) {
         ),
       },
       {
+        id: "package_no",
         accessorKey: "packageNo",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="No. Paket" />
@@ -476,7 +514,7 @@ export function PickingProsesView({ id }: { id: string }) {
         ),
       },
       {
-        id: "status",
+        id: "item_status",
         accessorFn: (row) =>
           getItemStatus(row.qtyPicked, row.qtyOrdered, row.itemStatus),
         header: ({ column }) => (
@@ -492,6 +530,7 @@ export function PickingProsesView({ id }: { id: string }) {
         },
       },
       {
+        id: "tracking_number",
         accessorKey: "trackingNumber",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="No. Resi" />
@@ -892,8 +931,10 @@ export function PickingProsesView({ id }: { id: string }) {
               data={items}
               hideToolbar
               hidePagination
-              manualPagination={false}
-              manualSorting={false}
+              manualPagination={true}
+              manualSorting={true}
+              sorting={list.sorting}
+              onSortingChange={list.setSorting}
               tableContainerClassName="rounded-lg border border-border bg-card shadow-sm"
               className="min-w-full"
               getRowClassName={(row) =>

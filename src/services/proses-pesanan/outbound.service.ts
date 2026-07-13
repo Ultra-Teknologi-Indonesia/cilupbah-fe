@@ -534,6 +534,33 @@ export const OutboundService = {
     );
     return mapPicklistDetail(res.data);
   },
+  picklistItems: async (
+    id: string,
+    params: FulfillmentListParams,
+  ): Promise<ApiPaginated<PicklistItem>> => {
+    const q = new URLSearchParams();
+    if (params.sort_by) {
+      const prefix = params.sort_dir === "desc" ? "-" : "";
+      q.set("sort", prefix + params.sort_by);
+    }
+    q.set("limit", String(params.per_page ?? 1000));
+    q.set("page", String(params.page ?? 1));
+
+    const res = await fetchClient<ApiPaginated<RawPicklistItem>>(
+      `/outbound/picklists/${id}/items?${q.toString()}`,
+    );
+    return {
+      status: res.status,
+      message: res.message,
+      data: (res.data ?? []).map(mapPicklistItem),
+      meta: res.meta ?? {
+        total: 0,
+        current_page: 1,
+        last_page: 1,
+        per_page: 1000,
+      },
+    };
+  },
   startPicklist: async (id: string): Promise<void> => {
     await fetchClient(`/outbound/picklists/${id}/start`, { method: "POST" });
   },
