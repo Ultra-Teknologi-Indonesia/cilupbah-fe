@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
@@ -45,12 +46,57 @@ import {
   useMovementFilters,
 } from "@/hooks/persediaan/use-stock-position";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
+import { useUrlTab } from "@/hooks/use-url-tab";
 import type {
   StockMovement,
   BinInventory,
   MovementView,
 } from "@/types/persediaan/stock";
 import { formatCurrency, formatDateTime } from "@/lib/format";
+
+type MovementUrlKey =
+  | "view"
+  | "source"
+  | "direction"
+  | "location_id"
+  | "store_id"
+  | "page"
+  | "per_page";
+
+const MOVEMENT_RESET_KEYS = [
+  "source",
+  "direction",
+  "location_id",
+  "store_id",
+  "page",
+] as const;
+
+const MOVEMENT_VIEW_VALUES: readonly MovementView[] = [
+  "all",
+  "clean",
+  "attention",
+];
+
+const DIRECTION_VALUES = ["in", "out"] as const;
+type Direction = (typeof DIRECTION_VALUES)[number] | "";
+
+function parseMovementView(raw: string | null): MovementView {
+  return raw && (MOVEMENT_VIEW_VALUES as readonly string[]).includes(raw)
+    ? (raw as MovementView)
+    : "all";
+}
+
+function parseDirection(raw: string | null): Direction {
+  return raw && (DIRECTION_VALUES as readonly string[]).includes(raw)
+    ? (raw as Direction)
+    : "";
+}
+
+function parseIntParam(raw: string | null, fallback: number): number {
+  if (!raw) return fallback;
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
 
 const CATEGORY_COLOR: Record<string, string> = {
   BILL: "text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-500/10 dark:border-green-500/20",
@@ -238,13 +284,69 @@ function StockSummaryCards({
 }
 
 function MovementsSection({ itemId }: { itemId: string }) {
-  const [view, setView] = useState<MovementView>("all");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
-  const [source, setSource] = useState("");
-  const [direction, setDirection] = useState<"" | "in" | "out">("");
-  const [locationId, setLocationId] = useState("");
-  const [storeId, setStoreId] = useState("");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const view = parseMovementView(searchParams.get("view"));
+  const source = searchParams.get("source") ?? "";
+  const direction = parseDirection(searchParams.get("direction"));
+  const locationId = searchParams.get("location_id") ?? "";
+  const storeId = searchParams.get("store_id") ?? "";
+  const page = parseIntParam(searchParams.get("page"), 1);
+  const perPage = parseIntParam(searchParams.get("per_page"), 20);
+
+  const updateUrl = useCallback(
+    (patch: Partial<Record<MovementUrlKey, string>>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      for (const [key, val] of Object.entries(patch)) {
+        if (val === undefined || val === "") {
+          params.delete(key);
+        } else {
+          params.set(key, val);
+        }
+      }
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [router, pathname, searchParams],
+  );
+
+  const setView = useCallback(
+    (v: MovementView) =>
+      updateUrl({ view: v === "all" ? "" : v, page: "" }),
+    [updateUrl],
+  );
+  const setSource = useCallback(
+    (v: string) => updateUrl({ source: v, page: "" }),
+    [updateUrl],
+  );
+  const setDirection = useCallback(
+    (v: Direction) => updateUrl({ direction: v, page: "" }),
+    [updateUrl],
+  );
+  const setLocationId = useCallback(
+    (v: string) => updateUrl({ location_id: v, page: "" }),
+    [updateUrl],
+  );
+  const setStoreId = useCallback(
+    (v: string) => updateUrl({ store_id: v, page: "" }),
+    [updateUrl],
+  );
+  const setPage = useCallback(
+    (n: number) => updateUrl({ page: n === 1 ? "" : String(n) }),
+    [updateUrl],
+  );
+  const setPerPage = useCallback(
+    (n: number) =>
+      updateUrl({ per_page: n === 20 ? "" : String(n), page: "" }),
+    [updateUrl],
+  );
+  const resetFilters = useCallback(() => {
+    const patch: Partial<Record<string, string>> = {};
+    for (const k of MOVEMENT_RESET_KEYS) patch[k] = "";
+    updateUrl(patch);
+  }, [updateUrl]);
 
   const { data: filterOptions } = useMovementFilters();
   const sourceOptions = filterOptions?.data?.sources ?? [];
@@ -290,10 +392,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
             key={t.value}
             type="button"
             title={t.description}
-            onClick={() => {
-              setView(t.value);
-              setPage(1);
-            }}
+            onClick={() => setView(t.value)}
             className={cn(
               "inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors",
               isActive
@@ -313,25 +412,12 @@ function MovementsSection({ itemId }: { itemId: string }) {
       align="end"
       hasFilter={hasActiveFilter}
       activeCount={activeCount}
-      onReset={
-        hasActiveFilter
-          ? () => {
-              setSource("");
-              setDirection("");
-              setLocationId("");
-              setStoreId("");
-              setPage(1);
-            }
-          : undefined
-      }
+      onReset={hasActiveFilter ? resetFilters : undefined}
       gridCols={2}
     >
       <Select
         value={source || ALL_VALUE}
-        onValueChange={(v) => {
-          setSource(v === ALL_VALUE ? "" : v);
-          setPage(1);
-        }}
+        onValueChange={(v) => setSource(v === ALL_VALUE ? "" : v)}
       >
         <SelectTrigger className="h-9 w-full rounded-full border-border bg-background">
           <SelectValue placeholder="Pilih sumber" />
@@ -347,10 +433,9 @@ function MovementsSection({ itemId }: { itemId: string }) {
       </Select>
       <Select
         value={direction || ALL_VALUE}
-        onValueChange={(v) => {
-          setDirection((v === ALL_VALUE ? "" : v) as "" | "in" | "out");
-          setPage(1);
-        }}
+        onValueChange={(v) =>
+          setDirection((v === ALL_VALUE ? "" : v) as Direction)
+        }
       >
         <SelectTrigger className="h-9 w-full rounded-full border-border bg-background">
           <SelectValue placeholder="Pilih mutasi" />
@@ -366,10 +451,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
       </Select>
       <Select
         value={locationId || ALL_VALUE}
-        onValueChange={(v) => {
-          setLocationId(v === ALL_VALUE ? "" : v);
-          setPage(1);
-        }}
+        onValueChange={(v) => setLocationId(v === ALL_VALUE ? "" : v)}
       >
         <SelectTrigger className="h-9 w-full rounded-full border-border bg-background">
           <SelectValue placeholder="Pilih lokasi" />
@@ -385,10 +467,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
       </Select>
       <Select
         value={storeId || ALL_VALUE}
-        onValueChange={(v) => {
-          setStoreId(v === ALL_VALUE ? "" : v);
-          setPage(1);
-        }}
+        onValueChange={(v) => setStoreId(v === ALL_VALUE ? "" : v)}
       >
         <SelectTrigger className="h-9 w-full rounded-full border-border bg-background">
           <SelectValue placeholder="Pilih toko" />
@@ -535,10 +614,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
           lastPage={meta.last_page}
           onPageChange={setPage}
           perPage={meta.per_page}
-          onPerPageChange={(s) => {
-            setPerPage(s);
-            setPage(1);
-          }}
+          onPerPageChange={setPerPage}
           pageSizeOptions={TABLE_PAGE_SIZES}
           total={meta.total}
           label="mutasi"
@@ -813,7 +889,11 @@ function BinSection({ itemId }: { itemId: string }) {
 }
 
 export function StockPositionDetailView({ itemId }: { itemId: string }) {
-  const [activeTab, setActiveTab] = useState<"kronologi" | "rak">("kronologi");
+  const [activeTab, setActiveTab] = useUrlTab<"kronologi" | "rak">(
+    "tab",
+    "kronologi",
+    { validValues: ["kronologi", "rak"] as const },
+  );
 
   const { data, isLoading } = useStockItem(itemId);
   const item = data?.data ?? null;

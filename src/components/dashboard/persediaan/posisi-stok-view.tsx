@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 import { useMemo, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { PackageIcon,
   ArrowUpDown,
   ChevronUpIcon,
@@ -60,6 +61,10 @@ import type {
   TotalStocks,
 } from "@/types/persediaan/stock";
 import { formatCurrency } from "@/lib/format";
+import {
+  buildStockDrillHref,
+  type DrillMetric,
+} from "@/lib/persediaan/stock-drilldown";
 
 type SortField = "item_code" | "average_cost" | "on_hand" | "available";
 type SortDir = "asc" | "desc";
@@ -187,16 +192,51 @@ function StockQtyBadge({
   );
 }
 
+function DrillableQty({
+  value,
+  variant,
+  itemId,
+  locationId,
+  metric,
+  title,
+}: {
+  value: number;
+  variant: "default" | "warning" | "success";
+  itemId?: string;
+  locationId?: string;
+  metric: DrillMetric;
+  title: string;
+}) {
+  if (!itemId || value <= 0) {
+    return <StockQtyBadge value={value} variant={variant} />;
+  }
+  return (
+    <Link
+      href={buildStockDrillHref(itemId, metric, locationId)}
+      title={title}
+      className="rounded-full transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+    >
+      <StockQtyBadge value={value} variant={variant} />
+    </Link>
+  );
+}
+
 /**
  * 4 sel metrik (On Hand · On Order · Reserved · Available) untuk satu lokasi
  * ataupun untuk kolom Total. `stock` undefined = lokasi tanpa stok → semua 0.
+ * On Hand / On Order / Reserved bisa di-klik untuk drill-down ke Kronologi Stok
+ * yang otomatis terfilter (mimic Jubelio).
  */
 function MetricCells({
   stock,
   emphasize,
+  itemId,
+  locationId,
 }: {
   stock?: LocationStock | TotalStocks;
   emphasize?: boolean;
+  itemId?: string;
+  locationId?: string;
 }) {
   const onHand = stock?.on_hand ?? 0;
   const onOrder = stock?.on_order ?? 0;
@@ -207,11 +247,19 @@ function MetricCells({
     "px-2.5 py-3 text-right",
     emphasize && "bg-muted/30",
   );
+  const scopeLabel = locationId ? "di lokasi ini" : "di semua lokasi";
   return (
     <>
       <TableCell className={cellCls}>
         <div className="flex flex-col items-end gap-0.5">
-          <StockQtyBadge value={onHand} variant="default" />
+          <DrillableQty
+            value={onHand}
+            variant="default"
+            itemId={itemId}
+            locationId={locationId}
+            metric="on_hand"
+            title={`Lihat kronologi stok ${scopeLabel}`}
+          />
           {pending > 0 && (
             <span
               className="text-2xs font-medium text-warning"
@@ -223,10 +271,24 @@ function MetricCells({
         </div>
       </TableCell>
       <TableCell className={cellCls}>
-        <StockQtyBadge value={onOrder} variant="default" />
+        <DrillableQty
+          value={onOrder}
+          variant="default"
+          itemId={itemId}
+          locationId={locationId}
+          metric="on_order"
+          title={`Lihat pesanan yang menahan stok ${scopeLabel}`}
+        />
       </TableCell>
       <TableCell className={cellCls}>
-        <StockQtyBadge value={reserved} variant="warning" />
+        <DrillableQty
+          value={reserved}
+          variant="warning"
+          itemId={itemId}
+          locationId={locationId}
+          metric="reserved"
+          title={`Lihat faktur yang me-reserve stok ${scopeLabel}`}
+        />
       </TableCell>
       <TableCell className={cellCls}>
         <StockQtyBadge value={available} variant="success" />
@@ -738,10 +800,16 @@ export function PosisiStokView() {
                           <MetricCells
                             key={l.location_id}
                             stock={locMap.get(l.location_id)}
+                            itemId={item.item_id}
+                            locationId={l.location_id}
                           />
                         ))}
 
-                        <MetricCells stock={item.total_stocks} emphasize />
+                        <MetricCells
+                          stock={item.total_stocks}
+                          emphasize
+                          itemId={item.item_id}
+                        />
                       </TableRow>
                     );
                   })}
