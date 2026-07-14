@@ -1011,6 +1011,17 @@ export function PickingProsesView({ id }: { id: string }) {
         }}
         orderId={deleteOrderTarget?.orderId ?? null}
         orderNo={deleteOrderTarget?.orderNo ?? null}
+        onDeleted={() => {
+          const deletedOrderId = deleteOrderTarget?.orderId;
+          const remainingOrderIds = new Set(
+            items
+              .filter((i) => i.orderId && i.orderId !== deletedOrderId)
+              .map((i) => i.orderId),
+          );
+          if (remainingOrderIds.size === 0) {
+            router.replace(LIST_HREF);
+          }
+        }}
       />
     </div>
   );
