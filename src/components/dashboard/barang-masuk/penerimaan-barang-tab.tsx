@@ -111,7 +111,7 @@ function isSelectable(item: Inbound): boolean {
   const totalPutaway =
     item.items?.reduce((s, i) => s + (i.putaway_qty || 0), 0) ?? 0;
   return (
-    !["COMPLETED", "CANCELLED"].includes(item.status) &&
+    !["DRAFT", "COMPLETED", "CANCELLED"].includes(item.status) &&
     !hasActivePutaway &&
     totalRecv > 0 &&
     totalPutaway < totalRecv
