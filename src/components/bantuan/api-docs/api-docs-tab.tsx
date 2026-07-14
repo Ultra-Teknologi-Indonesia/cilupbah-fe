@@ -11,7 +11,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { EmptyState } from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
 
-import { CopyJsonButton } from "@/components/bantuan/copy-json-button";
 import { MethodBadge } from "./method-badge";
 import { EndpointDetail } from "./endpoint-detail";
 import type { ApiDocIndex, ApiDocModule, ApiDocEndpoint } from "@/lib/bantuan/types";
@@ -100,53 +99,44 @@ export function ApiDocsTab() {
     );
   }
 
+  const panelHeight = "h-[calc(100dvh-340px)] min-h-[420px]";
+
   return (
     <div className="flex flex-col gap-4">
       {/* Header stats */}
       <Card className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap gap-4 text-sm">
-          <div>
+        <div className="flex flex-wrap items-stretch gap-x-6 gap-y-3 divide-x divide-border/60 text-sm">
+          <div className="pr-6">
             <div className="text-xs text-muted-foreground">Modul</div>
-            <div className="font-semibold">{index.totals.modules}</div>
+            <div className="text-lg font-semibold tabular-nums">{index.totals.modules}</div>
           </div>
-          <div>
-            <div className="text-xs text-muted-foreground">Total endpoint</div>
-            <div className="font-semibold">{index.totals.endpoints}</div>
+          <div className="pr-6 pl-0 sm:pl-6">
+            <div className="text-xs text-muted-foreground">Endpoint</div>
+            <div className="text-lg font-semibold tabular-nums">{index.totals.endpoints}</div>
           </div>
-          <div>
+          <div className="pr-6 pl-0 sm:pl-6">
             <div className="text-xs text-muted-foreground">Belum ber-PHPDoc</div>
-            <div className="font-semibold text-warning">{index.totals.undocumented}</div>
+            <div className="text-lg font-semibold tabular-nums text-warning">{index.totals.undocumented}</div>
           </div>
-          <div>
+          <div className="pl-0 sm:pl-6">
             <div className="text-xs text-muted-foreground">Digenerate</div>
             <div className="font-mono text-xs">{new Date(index.generated_at).toLocaleString("id-ID")}</div>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <a
-            href={INDEX_URL}
-            download="api-docs-index.json"
-            className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted"
-          >
-            <DownloadIcon className="size-3.5" /> Download index.json
+        <Button asChild size="sm" variant="outline">
+          <a href={INDEX_URL} download="api-docs-index.json">
+            <DownloadIcon className="size-3.5" /> Unduh index.json
           </a>
-          {activeModule && (
-            <CopyJsonButton
-              data={activeModule}
-              label={`Copy JSON modul ${activeModule.name}`}
-              successMessage={`Modul ${activeModule.name} disalin`}
-            />
-          )}
-        </div>
+        </Button>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[280px_320px_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[260px_320px_1fr]">
         {/* Column 1: Module list */}
-        <Card className="flex flex-col gap-2 p-3">
+        <Card className={cn("flex flex-col gap-2 overflow-hidden p-3", panelHeight)}>
           <div className="px-2 pt-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
             Modul BE
           </div>
-          <ScrollArea className="h-[calc(100vh-360px)] pr-1">
+          <ScrollArea className="-mr-1 flex-1 pr-1">
             <div className="flex flex-col gap-1">
               {index.modules.map((m) => {
                 const active = m.slug === activeModuleSlug;
@@ -172,7 +162,7 @@ export function ApiDocsTab() {
         </Card>
 
         {/* Column 2: Endpoint list */}
-        <Card className="flex flex-col gap-2 p-3">
+        <Card className={cn("flex flex-col gap-2 overflow-hidden p-3", panelHeight)}>
           <div className="flex flex-col gap-2 px-1">
             <div className="relative">
               <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -190,14 +180,14 @@ export function ApiDocsTab() {
                   size="sm"
                   variant={methodFilter === m ? "default" : "outline"}
                   onClick={() => setMethodFilter(m)}
-                  className="h-7 px-2 text-[10px] font-mono"
+                  className="h-7 px-2 font-mono text-[10px]"
                 >
                   {m}
                 </Button>
               ))}
             </div>
           </div>
-          <ScrollArea className="h-[calc(100vh-440px)] pr-1">
+          <ScrollArea className="-mr-1 flex-1 pr-1">
             {moduleLoading ? (
               <div className="flex items-center justify-center py-10">
                 <Loader2 className="size-5 animate-spin text-muted-foreground" />
@@ -228,11 +218,11 @@ export function ApiDocsTab() {
                           </span>
                         )}
                       </div>
-                      <code className={cn("text-xs font-mono truncate", active ? "text-primary" : "text-foreground")}>
+                      <code className={cn("truncate font-mono text-xs", active ? "text-primary" : "text-foreground")}>
                         {e.path}
                       </code>
                       {e.summary && (
-                        <span className="text-[11px] text-muted-foreground truncate">{e.summary}</span>
+                        <span className="truncate text-[11px] text-muted-foreground">{e.summary}</span>
                       )}
                     </button>
                   );
@@ -243,15 +233,13 @@ export function ApiDocsTab() {
         </Card>
 
         {/* Column 3: Endpoint detail */}
-        <div>
-          {activeEndpoint ? (
-            <EndpointDetail endpoint={activeEndpoint} />
-          ) : (
-            <Card className="p-8">
-              <EmptyState title="Pilih endpoint" description="Pilih endpoint dari kolom kiri." />
-            </Card>
-          )}
-        </div>
+        {activeEndpoint ? (
+          <EndpointDetail endpoint={activeEndpoint} className={panelHeight} />
+        ) : (
+          <Card className={cn("flex items-center justify-center p-8", panelHeight)}>
+            <EmptyState title="Pilih endpoint" description="Pilih endpoint dari kolom kiri." />
+          </Card>
+        )}
       </div>
     </div>
   );

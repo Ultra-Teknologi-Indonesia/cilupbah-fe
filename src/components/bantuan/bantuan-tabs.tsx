@@ -34,14 +34,14 @@ export function BantuanTabs() {
 
   return (
     <Tabs value={tab} onValueChange={changeTab} className="w-full">
-      <TabsList className="w-full max-w-lg">
+      <TabsList variant="glass">
         <TabsTrigger value="faq" className="gap-1.5">
           <HelpCircleIcon className="size-4" />
           FAQ
         </TabsTrigger>
         <TabsTrigger value="panduan" className="gap-1.5">
           <BookOpenIcon className="size-4" />
-          Panduan Pengguna
+          Panduan
         </TabsTrigger>
         <TabsTrigger value="api" className="gap-1.5">
           <CodeIcon className="size-4" />

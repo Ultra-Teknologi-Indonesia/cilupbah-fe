@@ -3,10 +3,11 @@
 import * as React from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { SearchIcon, ExternalLinkIcon, BookOpenIcon } from "lucide-react";
+import { SearchIcon, ExternalLinkIcon, BookOpenIcon, XIcon } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -51,20 +52,34 @@ export function ManualTab() {
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });
   };
 
+  const detailHeight = "h-[calc(100dvh-260px)]";
+
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
-      <Card className="flex flex-col gap-3 p-4">
-        <div className="relative">
+      <Card className={cn("flex flex-col gap-3 overflow-hidden p-4", detailHeight)}>
+        <div className="relative shrink-0">
           <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Cari panduan..."
-            className="pl-9"
+            className="pr-9 pl-9"
           />
+          {query && (
+            <Button
+              type="button"
+              size="icon-xs"
+              variant="ghost"
+              onClick={() => setQuery("")}
+              className="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground"
+              aria-label="Hapus pencarian"
+            >
+              <XIcon className="size-4" />
+            </Button>
+          )}
         </div>
 
-        <ScrollArea className="h-[calc(100vh-320px)] pr-2">
+        <ScrollArea className="-mr-2 flex-1 pr-2">
           <nav className="flex flex-col gap-4">
             {MANUAL_GROUPS.map((group) => {
               const items = grouped.get(group);
@@ -106,37 +121,40 @@ export function ManualTab() {
       </Card>
 
       {active ? (
-        <Card className="p-6 lg:p-8">
-          <div className="mb-4 flex items-start justify-between gap-4">
-            <div>
+        <Card className={cn("flex flex-col overflow-hidden p-0", detailHeight)}>
+          <div className="flex shrink-0 items-start justify-between gap-4 border-b border-border px-6 py-5 lg:px-8">
+            <div className="min-w-0 flex-1">
               <div className="mb-1 text-xs font-medium text-muted-foreground">{active.moduleGroup}</div>
-              <h1 className="text-2xl font-semibold text-foreground">{active.title}</h1>
+              <h1 className="truncate text-2xl font-semibold tracking-tight text-balance text-foreground">{active.title}</h1>
               {active.description && (
                 <p className="mt-1 text-sm text-muted-foreground">{active.description}</p>
               )}
+              {active.keywords && active.keywords.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {active.keywords.map((k) => (
+                    <Badge key={k} variant="outline" className="rounded-full text-xs">
+                      {k}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
             {active.route && (
-              <Link
-                href={active.route}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted"
-              >
-                Buka halaman <ExternalLinkIcon className="size-3.5" />
-              </Link>
+              <Button asChild size="sm" variant="outline" className="shrink-0">
+                <Link href={active.route}>
+                  Buka halaman <ExternalLinkIcon className="size-3.5" />
+                </Link>
+              </Button>
             )}
           </div>
-          {active.keywords && active.keywords.length > 0 && (
-            <div className="mb-4 flex flex-wrap gap-1.5">
-              {active.keywords.map((k) => (
-                <Badge key={k} variant="outline" className="rounded-full text-xs">
-                  {k}
-                </Badge>
-              ))}
+          <ScrollArea className="flex-1">
+            <div className="px-6 py-6 lg:px-8">
+              <Markdown>{active.content || "_Panduan belum tersedia._"}</Markdown>
             </div>
-          )}
-          <Markdown>{active.content || "_Panduan belum tersedia._"}</Markdown>
+          </ScrollArea>
         </Card>
       ) : (
-        <Card className="p-8">
+        <Card className={cn("flex items-center justify-center p-8", detailHeight)}>
           <EmptyState title="Pilih panduan" description="Pilih panduan dari sidebar kiri untuk melihat isinya." />
         </Card>
       )}

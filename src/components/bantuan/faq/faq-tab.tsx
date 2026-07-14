@@ -55,19 +55,20 @@ export function FaqTab() {
             className="pr-9 pl-9"
           />
           {query && (
-            <button
+            <Button
               type="button"
+              size="icon-xs"
+              variant="ghost"
               onClick={() => setQuery("")}
-              className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted"
+              className="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground"
               aria-label="Hapus pencarian"
             >
               <XIcon className="size-4" />
-            </button>
+            </Button>
           )}
         </div>
-        <div className="text-xs text-muted-foreground">
-          Menampilkan <span className="font-medium text-foreground">{filtered.length}</span> dari{" "}
-          <span className="font-medium text-foreground">{totalCount}</span> FAQ
+        <div className="text-xs text-muted-foreground tabular-nums">
+          <span className="font-medium text-foreground">{filtered.length}</span> / {totalCount} FAQ
         </div>
       </div>
 
