@@ -5,9 +5,9 @@
       {
         "name": "01-daftar",
         "url": "/dashboard/pesanan",
-        "waitFor": "table, [data-slot='table']",
-        "settleMs": 600,
-        "caption": "Daftar pesanan — kolom, filter, sort"
+        "waitFor": "[data-slot='page-title'], main",
+        "settleMs": 1500,
+        "caption": "Daftar pesanan lintas channel — tab status, filter, sort, kolom"
       }
     ]
   },
@@ -16,24 +16,32 @@
     "shots": [
       {
         "name": "01-belum-mulai",
-        "url": "/dashboard/proses-pesanan/picking?tab=belum-mulai",
-        "waitFor": "table, [data-slot='table']",
-        "settleMs": 600,
-        "caption": "Tab Belum Mulai — daftar order siap dipick"
+        "url": "/dashboard/proses-pesanan/picking",
+        "waitFor": "[data-slot='page-title']",
+        "settleMs": 1200,
+        "caption": "Sub-tab \"Belum Mulai\" — order siap dipick"
       },
       {
-        "name": "02-berjalan",
-        "url": "/dashboard/proses-pesanan/picking?tab=berjalan",
-        "waitFor": "table, [data-slot='table']",
-        "settleMs": 600,
-        "caption": "Tab Berjalan — sesi picking aktif"
+        "name": "02-diproses",
+        "url": "/dashboard/proses-pesanan/picking",
+        "waitFor": "[data-slot='page-title']",
+        "steps": [
+          { "type": "waitTime", "text": "800" },
+          { "type": "click", "selector": "[role='tab']:nth-of-type(2), button:has-text('Diproses')" }
+        ],
+        "settleMs": 1200,
+        "caption": "Sub-tab \"Diproses\" — sesi picking aktif"
       },
       {
         "name": "03-selesai",
-        "url": "/dashboard/proses-pesanan/picking?tab=selesai",
-        "waitFor": "table, [data-slot='table']",
-        "settleMs": 600,
-        "caption": "Tab Selesai — picklist yang sudah diproses"
+        "url": "/dashboard/proses-pesanan/picking",
+        "waitFor": "[data-slot='page-title']",
+        "steps": [
+          { "type": "waitTime", "text": "800" },
+          { "type": "click", "selector": "[role='tab']:nth-of-type(3), button:has-text('Selesai')" }
+        ],
+        "settleMs": 1200,
+        "caption": "Sub-tab \"Selesai\" — picklist yang sudah selesai diproses"
       }
     ]
   },
@@ -42,9 +50,9 @@
     "shots": [
       {
         "name": "01-belum-mulai",
-        "url": "/dashboard/proses-pesanan/packing?tab=belum-mulai",
-        "waitFor": "table, [data-slot='table']",
-        "settleMs": 600,
+        "url": "/dashboard/proses-pesanan/packing",
+        "waitFor": "[data-slot='page-title']",
+        "settleMs": 1200,
         "caption": "Packing — antrian order siap packing"
       }
     ]
@@ -55,8 +63,8 @@
       {
         "name": "01-siap-kirim",
         "url": "/dashboard/proses-pesanan/shipping",
-        "waitFor": "table, [data-slot='table']",
-        "settleMs": 600,
+        "waitFor": "[data-slot='page-title']",
+        "settleMs": 1200,
         "caption": "Shipping — cetak resi & pickup kurir"
       }
     ]
@@ -67,8 +75,8 @@
       {
         "name": "01-daftar-inbound",
         "url": "/dashboard/barang-masuk?tab=penerimaan",
-        "waitFor": "table, [data-slot='table']",
-        "settleMs": 500,
+        "waitFor": "[data-slot='page-title']",
+        "settleMs": 1200,
         "caption": "Daftar penerimaan yang menunggu putaway"
       }
     ]
@@ -79,21 +87,21 @@
       {
         "name": "01-form-tambah",
         "url": "/dashboard/produk/tambah",
-        "waitFor": "form, [data-slot='card']",
-        "settleMs": 400,
+        "waitFor": "form, input",
+        "settleMs": 2500,
         "caption": "Form tambah produk baru"
       }
     ]
   },
   {
-    "slug": "integrasi-channel/shopee",
+    "slug": "integrasi-channel/daftar",
     "shots": [
       {
         "name": "01-daftar-channel",
-        "url": "/dashboard/channel",
-        "waitFor": "table, [data-slot='table']",
-        "settleMs": 500,
-        "caption": "Daftar channel — Shopee/Lazada/TikTok/WC"
+        "url": "/dashboard/integrasi-channel",
+        "waitFor": "[data-slot='page-title']",
+        "settleMs": 1500,
+        "caption": "Daftar channel — Shopee/Lazada/TikTok/WooCommerce yang terhubung"
       }
     ]
   }

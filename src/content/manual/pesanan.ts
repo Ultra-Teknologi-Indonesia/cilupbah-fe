@@ -25,6 +25,8 @@ export const pesananDaftar = `## Daftar Pesanan
 
 Halaman \`/dashboard/pesanan\` menampilkan seluruh pesanan lintas channel dalam satu tabel terpadu. Gunakan filter dan search untuk mempersempit hasil sebelum bekerja.
 
+![Daftar pesanan lintas channel dengan tab status, filter, sort, dan kolom yang dapat dikustom](/bantuan/media/pesanan/daftar-pesanan/01-daftar.png "Halaman /dashboard/pesanan — tab status di atas, kartu order per baris")
+
 ### Filter & search
 
 1. **Filter Channel** (dropdown multi-pilih): Shopee, Lazada, TikTok, WooCommerce, Manual, Internal.

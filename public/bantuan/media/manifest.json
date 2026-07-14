@@ -1,0 +1,61 @@
+{
+  "generated_at": "2026-07-14T04:20:49.554Z",
+  "shots": [
+    {
+      "slug": "pesanan/daftar-pesanan",
+      "name": "01-daftar",
+      "path": "/bantuan/media/pesanan/daftar-pesanan/01-daftar.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/pesanan",
+      "caption": "Daftar pesanan lintas channel — tab status, filter, sort, kolom",
+      "capturedAt": "2026-07-14T04:18:59.376Z"
+    },
+    {
+      "slug": "proses-pesanan/picking",
+      "name": "01-belum-mulai",
+      "path": "/bantuan/media/proses-pesanan/picking/01-belum-mulai.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/proses-pesanan/picking",
+      "caption": "Sub-tab \"Belum Mulai\" — order siap dipick",
+      "capturedAt": "2026-07-14T04:19:12.494Z"
+    },
+    {
+      "slug": "proses-pesanan/packing",
+      "name": "01-belum-mulai",
+      "path": "/bantuan/media/proses-pesanan/packing/01-belum-mulai.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/proses-pesanan/packing",
+      "caption": "Packing — antrian order siap packing",
+      "capturedAt": "2026-07-14T04:19:59.868Z"
+    },
+    {
+      "slug": "proses-pesanan/shipping",
+      "name": "01-siap-kirim",
+      "path": "/bantuan/media/proses-pesanan/shipping/01-siap-kirim.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/proses-pesanan/shipping",
+      "caption": "Shipping — cetak resi & pickup kurir",
+      "capturedAt": "2026-07-14T04:20:13.466Z"
+    },
+    {
+      "slug": "barang-masuk/penerimaan",
+      "name": "01-daftar-inbound",
+      "path": "/bantuan/media/barang-masuk/penerimaan/01-daftar-inbound.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/barang-masuk?tab=penerimaan",
+      "caption": "Daftar penerimaan yang menunggu putaway",
+      "capturedAt": "2026-07-14T04:20:24.889Z"
+    },
+    {
+      "slug": "produk/tambah",
+      "name": "01-form-tambah",
+      "path": "/bantuan/media/produk/tambah/01-form-tambah.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/produk/tambah",
+      "caption": "Form tambah produk baru",
+      "capturedAt": "2026-07-14T04:20:37.463Z"
+    },
+    {
+      "slug": "integrasi-channel/daftar",
+      "name": "01-daftar-channel",
+      "path": "/bantuan/media/integrasi-channel/daftar/01-daftar-channel.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/integrasi-channel",
+      "caption": "Daftar channel — Shopee/Lazada/TikTok/WooCommerce yang terhubung",
+      "capturedAt": "2026-07-14T04:20:49.554Z"
+    }
+  ]
+}
