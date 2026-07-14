@@ -2,9 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import {
-  ArrowLeftIcon,
   CheckCircle2Icon,
   Loader2Icon,
   PackageIcon,
@@ -242,7 +240,6 @@ function OrderPackCard({
 }
 
 export function PackingProsesView() {
-  const router = useRouter();
 
   const checkerInputRef = React.useRef<HTMLInputElement>(null);
   const orderScanRef = React.useRef<HTMLInputElement>(null);
@@ -365,6 +362,15 @@ export function PackingProsesView() {
                     toast.warning("Gagal memanggil driver Shopee otomatis."),
                 },
               );
+            }
+            const remaining = packlistIdsRef.current.filter(
+              (x) => x !== pl.id,
+            );
+            setPacklistIds(remaining);
+            if (remaining.length === 0) {
+              setTimeout(() => orderScanRef.current?.focus(), 60);
+            } else {
+              refocusScan();
             }
           },
           onError: (e) => {
@@ -533,11 +539,7 @@ export function PackingProsesView() {
           { label: "Packing" },
           { label: "Proses Packing" },
         ]}
-        actions={
-          <Button variant="outline" onClick={() => router.push(LIST_HREF)}>
-            <ArrowLeftIcon /> Kembali
-          </Button>
-        }
+        backHref={LIST_HREF}
       />
 
       {stage === "checker" ? (
