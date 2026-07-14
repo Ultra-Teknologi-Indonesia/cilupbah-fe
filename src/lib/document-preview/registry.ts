@@ -79,6 +79,7 @@ export type DocumentTypeKey =
   | "stock-adjustment"
   | "stock-adjustment-bulk"
   | "invoice"
+  | "invoice-bulk"
   | "order-breakdown"
   | "manifest"
   | "surat-jalan-bulk"

@@ -432,6 +432,8 @@ export interface RawPacklist {
     is_instant?: boolean;
     shipping_provider?: string | null;
     shipping_type?: string | null;
+    source?: string | null;
+    tracking_number?: string | null;
   } | null;
 }
 
@@ -450,6 +452,8 @@ export interface Packlist {
   isInstant: boolean;
   shippingProvider: string | null;
   shippingType: string | null;
+  source: string | null;
+  trackingNumber: string | null;
 }
 
 export interface RawPacklistItem {

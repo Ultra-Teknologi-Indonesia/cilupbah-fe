@@ -188,6 +188,8 @@ function mapPacklist(raw: RawPacklist): Packlist {
     isInstant: Boolean(raw.order?.is_instant),
     shippingProvider: raw.order?.shipping_provider ?? null,
     shippingType: raw.order?.shipping_type ?? null,
+    source: raw.order?.source ?? null,
+    trackingNumber: raw.order?.tracking_number ?? null,
   };
 }
 
