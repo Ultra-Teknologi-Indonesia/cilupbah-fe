@@ -327,6 +327,7 @@ export function PenerimaanBarangTab() {
         cell: ({ row }) => {
           const item = row.original;
           const active = activePutaway(item);
+          const canDelete = !["COMPLETED", "CANCELLED"].includes(item.status);
 
           return (
             <div
@@ -374,6 +375,22 @@ export function PenerimaanBarangTab() {
                     <PlayIcon className="size-4" />
                     Lanjut
                   </Link>
+                </Button>
+              )}
+              {canDelete && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    resetSelectionRef.current = null;
+                    setDeleteTargets([item]);
+                  }}
+                  aria-label="Hapus penerimaan"
+                  title="Hapus penerimaan"
+                >
+                  <Trash2Icon className="size-4" />
                 </Button>
               )}
             </div>
