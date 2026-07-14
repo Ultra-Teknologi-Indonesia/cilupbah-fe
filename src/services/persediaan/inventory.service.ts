@@ -96,6 +96,28 @@ export const InventoryStockService = {
     >(`/inventory/stock/items?${q.toString()}`);
   },
 
+  aggregatedStocksByIds: (ids: string[]) => {
+    return fetchClient<
+      ApiResponse<
+        {
+          item_id: string;
+          location_id: string;
+          total_on_hand: number;
+          total_reserved: number;
+          total_available: number;
+          location: {
+            id: string;
+            location_code: string;
+            location_name: string;
+          } | null;
+        }[]
+      >
+    >(`/inventory/items/all-stocks`, {
+      method: "POST",
+      data: { ids },
+    });
+  },
+
   bySku: (
     sku: string,
     locationId?: string,

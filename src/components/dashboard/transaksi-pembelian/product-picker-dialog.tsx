@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/table";
 import { SimplePagination } from "@/components/ui/simple-pagination";
 import { useMasterProducts } from "@/hooks/master-produk/use-master-products";
+import { useAggregatedStocksByIds } from "@/hooks/persediaan/use-stock-position";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export interface PickedProduct {
@@ -128,6 +129,22 @@ export function ProductPickerDialog({
     return result;
   }, [data, excludeIds]);
 
+  const visibleItemIds = React.useMemo(
+    () => products.flatMap((p) => p.variants.map((v) => v.itemId)),
+    [products],
+  );
+
+  const { data: stocksData } = useAggregatedStocksByIds(visibleItemIds);
+
+  const stockByItemId = React.useMemo(() => {
+    const map = new Map<string, number>();
+    for (const row of stocksData?.data ?? []) {
+      if (row.location?.location_code !== "WH-KECIL") continue;
+      map.set(row.item_id, Number(row.total_available ?? 0));
+    }
+    return map;
+  }, [stocksData]);
+
   const toggleSelect = (
     product: (typeof products)[0],
     variant: (typeof products)[0]["variants"][0],
@@ -198,13 +215,14 @@ export function ProductPickerDialog({
                     <TableHead className="h-9">Varian</TableHead>
                     <TableHead className="h-9">SKU</TableHead>
                     <TableHead className="h-9">Atribut</TableHead>
+                    <TableHead className="h-9 w-24 text-right">Stok</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {products.map((p) => (
                     <React.Fragment key={p.itemGroupId}>
                       <TableRow className="bg-muted/40 hover:bg-muted/40">
-                        <TableCell colSpan={4} className="py-2">
+                        <TableCell colSpan={5} className="py-2">
                           <div className="flex items-center gap-3">
                             <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
                               {p.thumbnail ? (
@@ -296,6 +314,25 @@ export function ProductPickerDialog({
                                   </Badge>
                                 ))}
                               </div>
+                            </TableCell>
+                            <TableCell className="py-2 text-right tabular-nums">
+                              {stockByItemId.has(v.itemId) ? (
+                                <span
+                                  className={cn(
+                                    "text-sm font-medium",
+                                    (stockByItemId.get(v.itemId) ?? 0) <= 0 &&
+                                      "text-muted-foreground",
+                                  )}
+                                >
+                                  {(
+                                    stockByItemId.get(v.itemId) ?? 0
+                                  ).toLocaleString("id-ID")}
+                                </span>
+                              ) : (
+                                <span className="text-sm text-muted-foreground">
+                                  —
+                                </span>
+                              )}
                             </TableCell>
                           </TableRow>
                         );

@@ -21,7 +21,18 @@ export const inventoryKeys = {
     [...all, "movements", params] as const,
   itemStock: (itemId: string) => [...all, "item-stock", itemId] as const,
   movementFilters: () => [...all, "movement-filters"] as const,
+  aggregatedByIds: (ids: string[]) =>
+    [...all, "aggregated-by-ids", [...ids].sort()] as const,
 };
+
+export function useAggregatedStocksByIds(itemIds: string[]) {
+  return useQuery({
+    queryKey: inventoryKeys.aggregatedByIds(itemIds),
+    queryFn: () => InventoryStockService.aggregatedStocksByIds(itemIds),
+    staleTime: STALE,
+    enabled: itemIds.length > 0,
+  });
+}
 
 export function useStockPosition(params: StockListParams) {
   return useQuery({
