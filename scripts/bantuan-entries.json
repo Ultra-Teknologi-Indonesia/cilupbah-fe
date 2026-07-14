@@ -71,7 +71,7 @@
   },
   {
     "slug": "proses-pesanan/alokasi-stok",
-    "route": "/dashboard/proses-pesanan/alokasi-stok",
+    "route": "/dashboard/pengaturan/alokasi-stok",
     "moduleGroup": "Proses Pesanan",
     "title": "Alokasi Stok (reserve otomatis vs manual)",
     "exportName": "prosesAlokasiStok"
@@ -316,7 +316,7 @@
   },
   {
     "slug": "kategori-merek/dasar",
-    "route": "/dashboard/kategori-merek",
+    "route": "/dashboard/kategori-merek/kategori",
     "moduleGroup": "Kategori & Merek",
     "title": "Mengelola kategori (tree) & merek",
     "exportName": "kategoriMerek"
@@ -393,21 +393,21 @@
   },
   {
     "slug": "retur/terima-retur",
-    "route": "/dashboard/pengaturan/retur",
+    "route": "/dashboard/barang-masuk/retur",
     "moduleGroup": "Retur",
     "title": "Terima retur channel",
     "exportName": "returTerima"
   },
   {
     "slug": "retur/retur-manual",
-    "route": "/dashboard/pengaturan/retur",
+    "route": "/dashboard/barang-masuk/retur",
     "moduleGroup": "Retur",
     "title": "Retur manual",
     "exportName": "returManual"
   },
   {
     "slug": "retur/laporan-bulanan",
-    "route": "/dashboard/laporan",
+    "route": "/dashboard/laporan/retur",
     "moduleGroup": "Retur",
     "title": "Laporan retur bulanan",
     "exportName": "returLaporan"
@@ -442,14 +442,14 @@
   },
   {
     "slug": "laporan/daftar",
-    "route": "/dashboard/laporan",
+    "route": "/dashboard/laporan/persediaan",
     "moduleGroup": "Laporan",
     "title": "Daftar laporan yang tersedia",
     "exportName": "laporanDaftar"
   },
   {
     "slug": "laporan/filter-export",
-    "route": "/dashboard/laporan",
+    "route": "/dashboard/laporan/persediaan",
     "moduleGroup": "Laporan",
     "title": "Filter, periode, export",
     "exportName": "laporanFilterExport"

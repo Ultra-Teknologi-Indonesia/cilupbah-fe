@@ -66,7 +66,9 @@ async function main() {
 
   const shotBySlug = new Map();
   for (const shot of manifest.shots ?? []) {
-    if (shot.slug.startsWith("routes/")) shotBySlug.set(shot.slug, shot);
+    if (!shot.slug.startsWith("routes/")) continue;
+    const existing = shotBySlug.get(shot.slug);
+    if (!existing || shot.name < existing.name) shotBySlug.set(shot.slug, shot);
   }
 
   const contentFiles = await loadContentFiles();

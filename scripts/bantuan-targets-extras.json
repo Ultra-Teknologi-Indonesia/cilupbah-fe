@@ -1,0 +1,177 @@
+[
+  {
+    "slug": "routes/dashboard-proses-pesanan-picking",
+    "shots": [
+      {
+        "name": "02-diproses",
+        "url": "/dashboard/proses-pesanan/picking",
+        "waitFor": "main",
+        "steps": [
+          { "type": "waitTime", "text": "1000" },
+          { "type": "clickText", "text": "Diproses", "tag": "button" }
+        ],
+        "settleMs": 1200,
+        "caption": "Sub-tab \"Diproses\" — picklist yang sedang dikerjakan"
+      },
+      {
+        "name": "03-selesai",
+        "url": "/dashboard/proses-pesanan/picking",
+        "waitFor": "main",
+        "steps": [
+          { "type": "waitTime", "text": "1000" },
+          { "type": "clickText", "text": "Selesai", "tag": "button" }
+        ],
+        "settleMs": 1200,
+        "caption": "Sub-tab \"Selesai\" — picklist yang sudah tuntas"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-proses-pesanan-packing",
+    "shots": [
+      {
+        "name": "02-diproses",
+        "url": "/dashboard/proses-pesanan/packing",
+        "waitFor": "main",
+        "steps": [
+          { "type": "waitTime", "text": "1000" },
+          { "type": "clickText", "text": "Diproses", "tag": "button" }
+        ],
+        "settleMs": 1200,
+        "caption": "Sub-tab \"Diproses\" — sesi packing aktif"
+      },
+      {
+        "name": "03-selesai",
+        "url": "/dashboard/proses-pesanan/packing",
+        "waitFor": "main",
+        "steps": [
+          { "type": "waitTime", "text": "1000" },
+          { "type": "clickText", "text": "Selesai", "tag": "button" }
+        ],
+        "settleMs": 1200,
+        "caption": "Sub-tab \"Selesai\" — packing yang sudah rampung"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-barang-masuk",
+    "shots": [
+      {
+        "name": "02-penempatan",
+        "url": "/dashboard/barang-masuk/penempatan",
+        "waitFor": "main",
+        "settleMs": 1200,
+        "caption": "Tab Penempatan — putaway via scan"
+      },
+      {
+        "name": "03-retur",
+        "url": "/dashboard/barang-masuk/retur",
+        "waitFor": "main",
+        "settleMs": 1200,
+        "caption": "Tab Retur dari Channel Online"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-produk",
+    "shots": [
+      {
+        "name": "02-import",
+        "url": "/dashboard/produk/import",
+        "waitFor": "main",
+        "settleMs": 1200,
+        "caption": "Tab Import — upload CSV/XLSX produk"
+      },
+      {
+        "name": "03-arsip",
+        "url": "/dashboard/produk/arsip",
+        "waitFor": "main",
+        "settleMs": 1200,
+        "caption": "Tab Arsip — produk yang di-archive"
+      },
+      {
+        "name": "04-buat",
+        "url": "/dashboard/produk/buat",
+        "waitFor": "form, input",
+        "settleMs": 2000,
+        "caption": "Form buat produk tunggal / dengan varian"
+      },
+      {
+        "name": "05-buat-bundle",
+        "url": "/dashboard/produk/buat-bundle",
+        "waitFor": "form, input",
+        "settleMs": 2000,
+        "caption": "Form buat produk bundle (paket beberapa SKU)"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-pesanan",
+    "shots": [
+      {
+        "name": "02-tambah",
+        "url": "/dashboard/pesanan/tambah",
+        "waitFor": "form, input",
+        "settleMs": 2000,
+        "caption": "Form tambah pesanan manual (offline/POS)"
+      },
+      {
+        "name": "03-import",
+        "url": "/dashboard/pesanan/import",
+        "waitFor": "main",
+        "settleMs": 1500,
+        "caption": "Import pesanan dari CSV/XLSX"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-transaksi-stok",
+    "shots": [
+      {
+        "name": "02-penerimaan-transfer",
+        "url": "/dashboard/transaksi-stok/penerimaan-transfer",
+        "waitFor": "main",
+        "settleMs": 1200,
+        "caption": "Sub-halaman Penerimaan Transfer (transfer masuk antar gudang)"
+      },
+      {
+        "name": "03-pindah-bin",
+        "url": "/dashboard/transaksi-stok/pindah-bin",
+        "waitFor": "main",
+        "settleMs": 1200,
+        "caption": "Sub-halaman Pindah Bin (transfer internal rak-ke-rak)"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-lokasi",
+    "shots": [
+      {
+        "name": "02-buat",
+        "url": "/dashboard/lokasi/buat",
+        "waitFor": "form, input",
+        "settleMs": 2000,
+        "caption": "Form buat lokasi (gudang / zone / rak)"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-laporan-persediaan",
+    "shots": [
+      {
+        "name": "02-hpp",
+        "url": "/dashboard/laporan/hpp",
+        "waitFor": "main",
+        "settleMs": 1500,
+        "caption": "Laporan HPP (Harga Pokok Penjualan) per SKU / kategori"
+      },
+      {
+        "name": "03-stok-minus",
+        "url": "/dashboard/laporan/stok-minus",
+        "waitFor": "main",
+        "settleMs": 1500,
+        "caption": "Laporan Stok Minus — sub-menu wajib review harian"
+      }
+    ]
+  }
+]

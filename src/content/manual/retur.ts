@@ -1,5 +1,7 @@
 export const returTerima = `## Menerima Retur dari Channel
 
+![Terima retur channel](/bantuan/media/routes/dashboard-barang-masuk-retur/01-halaman.png "Terima retur channel")
+
 Modul Retur memproses barang kembali dari pelanggan marketplace. Retur channel masuk otomatis via webhook (Shopee/Lazada/TikTok) atau via handler \`detectAndHandleRefunds()\` untuk WooCommerce.
 
 ### Langkah Terima Retur
@@ -24,6 +26,8 @@ Modul Retur memproses barang kembali dari pelanggan marketplace. Retur channel m
 Shortcut: filter **Status: Perlu Diproses** + urut tanggal terlama untuk memproses backlog retur lebih dahulu.`;
 
 export const returManual = `## Input Retur Manual
+
+![Retur manual](/bantuan/media/routes/dashboard-barang-masuk-retur/01-halaman.png "Retur manual")
 
 Retur manual dipakai untuk kanal offline (POS/Toko Internal) atau kasus channel yang tidak terintegrasi. Anda menginput retur secara manual dengan referensi pesanan asal.
 
@@ -50,6 +54,8 @@ Retur manual dipakai untuk kanal offline (POS/Toko Internal) atau kasus channel 
 Shortcut: klik **Duplikat** pada retur existing untuk mempercepat input jika alasannya sama (batch retur produk cacat).`;
 
 export const returLaporan = `## Laporan Retur Bulanan (Wajib Audit)
+
+![Laporan retur bulanan](/bantuan/media/routes/dashboard-laporan-retur/01-halaman.png "Laporan retur bulanan")
 
 Laporan retur bulanan wajib disusun untuk kepentingan audit — termasuk saat outcome retur adalah tolak/dispute. Ini mencakup retur channel maupun retur manual.
 

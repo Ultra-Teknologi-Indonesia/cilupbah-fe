@@ -75,12 +75,34 @@ async function login(page) {
   console.log(`[bantuan-screenshot] login OK → ${url}`);
 }
 
+async function clickByText(page, text, tag = "*") {
+  const handle = await page.evaluateHandle(
+    (t, tg) => {
+      const nodes = Array.from(document.querySelectorAll(tg));
+      const target = t.trim().toLowerCase();
+      return nodes.find((n) => {
+        if (!(n instanceof HTMLElement) || n.offsetParent === null) return false;
+        const own = (n.textContent ?? "").trim().toLowerCase();
+        return own === target || own.startsWith(target) || own.endsWith(target);
+      }) ?? null;
+    },
+    text,
+    tag,
+  );
+  const el = handle.asElement();
+  if (!el) throw new Error(`Element dengan text "${text}" tidak ketemu`);
+  await el.click();
+}
+
 async function runStep(page, step) {
-  const { type, selector, text, delay = 250, waitFor } = step;
+  const { type, selector, text, delay = 250, waitFor, tag } = step;
   switch (type) {
     case "click":
       await page.waitForSelector(selector, { timeout: 5_000 });
       await page.click(selector);
+      break;
+    case "clickText":
+      await clickByText(page, text ?? "", tag ?? "button, a, [role='tab']");
       break;
     case "type":
       await page.waitForSelector(selector, { timeout: 5_000 });
@@ -96,6 +118,96 @@ async function runStep(page, step) {
       console.warn(`  · unknown step type: ${type}`);
   }
   if (delay) await new Promise((r) => setTimeout(r, delay));
+}
+
+/**
+ * Inject numbered callout overlays before screenshot.
+ * annotations: [{ selector, label, position? }]
+ *   position: "tl" | "tr" | "bl" | "br" (default "tl")
+ * Returns nothing — overlays remain until page navigation.
+ */
+async function injectAnnotations(page, annotations) {
+  if (!annotations?.length) return;
+  await page.evaluate((anns) => {
+    document.querySelectorAll("[data-bantuan-annot]").forEach((n) => n.remove());
+    const style = document.createElement("style");
+    style.setAttribute("data-bantuan-annot", "style");
+    style.textContent = `
+      .bantuan-annot {
+        position: absolute; z-index: 99999;
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 4px 10px 4px 4px;
+        background: #0f766e; color: #fff;
+        border-radius: 999px;
+        font: 600 12px/1.2 -apple-system,BlinkMacSystemFont,sans-serif;
+        box-shadow: 0 4px 14px rgb(15 118 110 / 40%), 0 0 0 3px rgb(255 255 255 / 90%);
+        pointer-events: none;
+        white-space: nowrap;
+        max-width: 260px;
+      }
+      .bantuan-annot::before {
+        content: attr(data-num);
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 20px; height: 20px; border-radius: 50%;
+        background: #fff; color: #0f766e; font-size: 11px; font-weight: 700;
+      }
+      .bantuan-annot-ring {
+        position: absolute; z-index: 99998;
+        border: 2px solid #0f766e;
+        border-radius: 12px;
+        pointer-events: none;
+        box-shadow: 0 0 0 4px rgb(15 118 110 / 15%);
+      }
+    `;
+    document.head.appendChild(style);
+
+    function resolveEl(sel) {
+      if (sel.startsWith("text=")) {
+        const target = sel.slice(5).trim().toLowerCase();
+        const nodes = Array.from(document.querySelectorAll("button, a, [role='tab'], h1, h2, h3, label, [data-slot]"));
+        return nodes.find((n) => {
+          if (!(n instanceof HTMLElement) || n.offsetParent === null) return false;
+          const own = (n.textContent ?? "").trim().toLowerCase();
+          return own === target || own.startsWith(target) || own.includes(target);
+        });
+      }
+      return document.querySelector(sel);
+    }
+
+    anns.forEach((a, idx) => {
+      const el = resolveEl(a.selector);
+      if (!(el instanceof HTMLElement)) return;
+      const r = el.getBoundingClientRect();
+      const scrollX = window.scrollX, scrollY = window.scrollY;
+
+      const ring = document.createElement("div");
+      ring.className = "bantuan-annot-ring";
+      ring.setAttribute("data-bantuan-annot", "ring");
+      Object.assign(ring.style, {
+        top: `${r.top + scrollY - 4}px`,
+        left: `${r.left + scrollX - 4}px`,
+        width: `${r.width + 8}px`,
+        height: `${r.height + 8}px`,
+      });
+      document.body.appendChild(ring);
+
+      const badge = document.createElement("div");
+      badge.className = "bantuan-annot";
+      badge.setAttribute("data-bantuan-annot", "badge");
+      badge.setAttribute("data-num", String(idx + 1));
+      badge.textContent = a.label ?? "";
+      const pos = a.position ?? "tl";
+      const w = 200, h = 26;
+      let top = r.top + scrollY, left = r.left + scrollX;
+      if (pos === "tr") left = r.right + scrollX - w + 8;
+      if (pos === "bl") top = r.bottom + scrollY + 6;
+      if (pos === "br") { top = r.bottom + scrollY + 6; left = r.right + scrollX - w + 8; }
+      if (pos === "tl") { top = top - h - 4; }
+      Object.assign(badge.style, { top: `${top}px`, left: `${Math.max(4, left)}px` });
+      document.body.appendChild(badge);
+    });
+  }, annotations);
+  await new Promise((r) => setTimeout(r, 120));
 }
 
 async function detectPageIssue(page, expectedPath) {
@@ -148,6 +260,8 @@ async function shoot(page, target, shot, manifestEntries, failed) {
     }
   }
   await new Promise((r) => setTimeout(r, shot.settleMs ?? 400));
+
+  await injectAnnotations(page, shot.annotations);
 
   const clip = shot.clipSelector
     ? await page.evaluate((sel) => {

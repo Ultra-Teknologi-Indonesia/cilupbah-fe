@@ -1,5 +1,7 @@
 export const prosesAlokasiStok = `## Alokasi Stok
 
+![Alokasi Stok (reserve otomatis vs manual)](/bantuan/media/routes/dashboard-pengaturan-alokasi-stok/01-halaman.png "Alokasi Stok (reserve otomatis vs manual)")
+
 Alokasi menahan (\`reserve\`) stok WH-KECIL agar tidak dipakai pesanan lain sampai fulfillment selesai atau dibatalkan. Pahami dua mode alokasi berikut sebelum menangani pesanan bermasalah.
 
 ### Reserve otomatis

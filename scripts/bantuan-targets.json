@@ -8,15 +8,29 @@
         "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
         "settleMs": 1500,
         "caption": "Arti setiap status pesanan · Daftar pesanan: filter, search, sort, kolom · Detail pesanan & panel Alokasi"
+      },
+      {
+        "name": "02-tambah",
+        "url": "/dashboard/pesanan/tambah",
+        "waitFor": "form, input",
+        "settleMs": 2000,
+        "caption": "Form tambah pesanan manual (offline/POS)"
+      },
+      {
+        "name": "03-import",
+        "url": "/dashboard/pesanan/import",
+        "waitFor": "main",
+        "settleMs": 1500,
+        "caption": "Import pesanan dari CSV/XLSX"
       }
     ]
   },
   {
-    "slug": "routes/dashboard-proses-pesanan-alokasi-stok",
+    "slug": "routes/dashboard-pengaturan-alokasi-stok",
     "shots": [
       {
         "name": "01-halaman",
-        "url": "/dashboard/proses-pesanan/alokasi-stok",
+        "url": "/dashboard/pengaturan/alokasi-stok",
         "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
         "settleMs": 1500,
         "caption": "Alokasi Stok (reserve otomatis vs manual)"
@@ -32,6 +46,42 @@
         "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
         "settleMs": 1500,
         "caption": "Picking (Belum Mulai → Berjalan → Selesai)"
+      },
+      {
+        "name": "02-diproses",
+        "url": "/dashboard/proses-pesanan/picking",
+        "waitFor": "main",
+        "steps": [
+          {
+            "type": "waitTime",
+            "text": "1000"
+          },
+          {
+            "type": "clickText",
+            "text": "Diproses",
+            "tag": "button"
+          }
+        ],
+        "settleMs": 1200,
+        "caption": "Sub-tab \"Diproses\" — picklist yang sedang dikerjakan"
+      },
+      {
+        "name": "03-selesai",
+        "url": "/dashboard/proses-pesanan/picking",
+        "waitFor": "main",
+        "steps": [
+          {
+            "type": "waitTime",
+            "text": "1000"
+          },
+          {
+            "type": "clickText",
+            "text": "Selesai",
+            "tag": "button"
+          }
+        ],
+        "settleMs": 1200,
+        "caption": "Sub-tab \"Selesai\" — picklist yang sudah tuntas"
       }
     ]
   },
@@ -44,6 +94,42 @@
         "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
         "settleMs": 1500,
         "caption": "Packing (multi-order, timbang, ukur)"
+      },
+      {
+        "name": "02-diproses",
+        "url": "/dashboard/proses-pesanan/packing",
+        "waitFor": "main",
+        "steps": [
+          {
+            "type": "waitTime",
+            "text": "1000"
+          },
+          {
+            "type": "clickText",
+            "text": "Diproses",
+            "tag": "button"
+          }
+        ],
+        "settleMs": 1200,
+        "caption": "Sub-tab \"Diproses\" — sesi packing aktif"
+      },
+      {
+        "name": "03-selesai",
+        "url": "/dashboard/proses-pesanan/packing",
+        "waitFor": "main",
+        "steps": [
+          {
+            "type": "waitTime",
+            "text": "1000"
+          },
+          {
+            "type": "clickText",
+            "text": "Selesai",
+            "tag": "button"
+          }
+        ],
+        "settleMs": 1200,
+        "caption": "Sub-tab \"Selesai\" — packing yang sudah rampung"
       }
     ]
   },
@@ -92,6 +178,34 @@
         "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
         "settleMs": 1500,
         "caption": "Tambah produk (single, varian, bundle) · Mapping SKU ke channel · Sync stok & harga per store"
+      },
+      {
+        "name": "02-import",
+        "url": "/dashboard/produk/import",
+        "waitFor": "main",
+        "settleMs": 1200,
+        "caption": "Tab Import — upload CSV/XLSX produk"
+      },
+      {
+        "name": "03-arsip",
+        "url": "/dashboard/produk/arsip",
+        "waitFor": "main",
+        "settleMs": 1200,
+        "caption": "Tab Arsip — produk yang di-archive"
+      },
+      {
+        "name": "04-buat",
+        "url": "/dashboard/produk/buat",
+        "waitFor": "form, input",
+        "settleMs": 2000,
+        "caption": "Form buat produk tunggal / dengan varian"
+      },
+      {
+        "name": "05-buat-bundle",
+        "url": "/dashboard/produk/buat-bundle",
+        "waitFor": "form, input",
+        "settleMs": 2000,
+        "caption": "Form buat produk bundle (paket beberapa SKU)"
       }
     ]
   },
@@ -104,6 +218,20 @@
         "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
         "settleMs": 1500,
         "caption": "Penerimaan (PO / Transfer Masuk) · Penempatan (Putaway) via scan · Assign penerimaan ke petugas"
+      },
+      {
+        "name": "02-penempatan",
+        "url": "/dashboard/barang-masuk/penempatan",
+        "waitFor": "main",
+        "settleMs": 1200,
+        "caption": "Tab Penempatan — putaway via scan"
+      },
+      {
+        "name": "03-retur",
+        "url": "/dashboard/barang-masuk/retur",
+        "waitFor": "main",
+        "settleMs": 1200,
+        "caption": "Tab Retur dari Channel Online"
       }
     ]
   },
@@ -128,6 +256,20 @@
         "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
         "settleMs": 1500,
         "caption": "Tab Transfer (Pindah Bin only) · Penempatan · Pengambilan"
+      },
+      {
+        "name": "02-penerimaan-transfer",
+        "url": "/dashboard/transaksi-stok/penerimaan-transfer",
+        "waitFor": "main",
+        "settleMs": 1200,
+        "caption": "Sub-halaman Penerimaan Transfer (transfer masuk antar gudang)"
+      },
+      {
+        "name": "03-pindah-bin",
+        "url": "/dashboard/transaksi-stok/pindah-bin",
+        "waitFor": "main",
+        "settleMs": 1200,
+        "caption": "Sub-halaman Pindah Bin (transfer internal rak-ke-rak)"
       }
     ]
   },
@@ -164,15 +306,22 @@
         "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
         "settleMs": 1500,
         "caption": "Buat gudang, zone, rak · Bulk-assign rak ke zone · Deactivate lokasi"
+      },
+      {
+        "name": "02-buat",
+        "url": "/dashboard/lokasi/buat",
+        "waitFor": "form, input",
+        "settleMs": 2000,
+        "caption": "Form buat lokasi (gudang / zone / rak)"
       }
     ]
   },
   {
-    "slug": "routes/dashboard-kategori-merek",
+    "slug": "routes/dashboard-kategori-merek-kategori",
     "shots": [
       {
         "name": "01-halaman",
-        "url": "/dashboard/kategori-merek",
+        "url": "/dashboard/kategori-merek/kategori",
         "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
         "settleMs": 1500,
         "caption": "Mengelola kategori (tree) & merek"
@@ -228,11 +377,11 @@
     ]
   },
   {
-    "slug": "routes/dashboard-pengaturan-retur",
+    "slug": "routes/dashboard-barang-masuk-retur",
     "shots": [
       {
         "name": "01-halaman",
-        "url": "/dashboard/pengaturan/retur",
+        "url": "/dashboard/barang-masuk/retur",
         "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
         "settleMs": 1500,
         "caption": "Terima retur channel · Retur manual"
@@ -240,14 +389,14 @@
     ]
   },
   {
-    "slug": "routes/dashboard-laporan",
+    "slug": "routes/dashboard-laporan-retur",
     "shots": [
       {
         "name": "01-halaman",
-        "url": "/dashboard/laporan",
+        "url": "/dashboard/laporan/retur",
         "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
         "settleMs": 1500,
-        "caption": "Laporan retur bulanan · Daftar laporan yang tersedia · Filter, periode, export"
+        "caption": "Laporan retur bulanan"
       }
     ]
   },
@@ -272,6 +421,32 @@
         "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
         "settleMs": 1500,
         "caption": "Request restock antar cabang"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-laporan-persediaan",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/laporan/persediaan",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Daftar laporan yang tersedia · Filter, periode, export"
+      },
+      {
+        "name": "02-hpp",
+        "url": "/dashboard/laporan/hpp",
+        "waitFor": "main",
+        "settleMs": 1500,
+        "caption": "Laporan HPP (Harga Pokok Penjualan) per SKU / kategori"
+      },
+      {
+        "name": "03-stok-minus",
+        "url": "/dashboard/laporan/stok-minus",
+        "waitFor": "main",
+        "settleMs": 1500,
+        "caption": "Laporan Stok Minus — sub-menu wajib review harian"
       }
     ]
   },

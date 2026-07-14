@@ -15,6 +15,7 @@
  */
 
 import { readFile, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -23,6 +24,7 @@ const ROOT = resolve(__dirname, "..");
 const REGISTRY = join(ROOT, "src", "lib", "bantuan", "manual.registry.ts");
 const TARGETS_OUT = join(__dirname, "bantuan-targets.json");
 const ENTRIES_OUT = join(__dirname, "bantuan-entries.json");
+const EXTRAS_FILE = join(__dirname, "bantuan-targets-extras.json");
 
 function sanitizeRoute(route) {
   return route
@@ -91,12 +93,32 @@ async function main() {
   const withoutRoute = entries.filter((e) => !e.route);
 
   const targets = buildTargets(entries);
+
+  // Merge extras: shot manual (sub-tab, dialog, annotated). Extras yang punya
+  // slug sama dengan auto akan MERGE shots (append), bukan replace.
+  let extras = [];
+  if (existsSync(EXTRAS_FILE)) {
+    extras = JSON.parse(await readFile(EXTRAS_FILE, "utf8"));
+    const bySlug = new Map(targets.map((t) => [t.slug, t]));
+    for (const ex of extras) {
+      if (bySlug.has(ex.slug)) {
+        bySlug.get(ex.slug).shots.push(...ex.shots);
+      } else {
+        targets.push(ex);
+      }
+    }
+  }
+
   await writeFile(TARGETS_OUT, JSON.stringify(targets, null, 2) + "\n");
   await writeFile(ENTRIES_OUT, JSON.stringify(entries, null, 2) + "\n");
 
   console.log(`[bantuan-plan] ${entries.length} entries dibaca`);
   console.log(`  · ${withRoute.length} punya route → ${targets.length} unique target`);
   console.log(`  · ${withoutRoute.length} tanpa route (SOP/konseptual, skip)`);
+  if (extras.length) {
+    const extraShots = extras.reduce((sum, e) => sum + e.shots.length, 0);
+    console.log(`  · ${extras.length} extras merged (${extraShots} shot tambahan)`);
+  }
   console.log(`  → ${TARGETS_OUT}`);
   console.log(`  → ${ENTRIES_OUT}`);
 }

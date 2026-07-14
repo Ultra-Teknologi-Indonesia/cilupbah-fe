@@ -1,5 +1,7 @@
 export const kategoriMerek = `## Kategori dan Merek Produk
 
+![Mengelola kategori (tree) & merek](/bantuan/media/routes/dashboard-kategori-merek-kategori/01-halaman.png "Mengelola kategori (tree) & merek")
+
 Modul **Kategori & Merek** (\`/dashboard/kategori-merek\`) mengatur klasifikasi produk yang menjadi acuan filter di modul **Produk**, **Posisi Stok**, dan **Laporan**.
 
 ### Kategori (tree)

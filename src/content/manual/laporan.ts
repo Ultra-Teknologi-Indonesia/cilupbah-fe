@@ -1,5 +1,7 @@
 export const laporanDaftar = `## Daftar Laporan Tersedia
 
+![Daftar laporan yang tersedia](/bantuan/media/routes/dashboard-laporan-persediaan/01-halaman.png "Daftar laporan yang tersedia")
+
 Modul **Laporan** menyediakan tujuh jenis laporan operasional yang menjadi sumber kebenaran untuk audit, akuntansi, dan pengambilan keputusan manajerial.
 
 ### Menu laporan
@@ -21,6 +23,8 @@ Modul **Laporan** menyediakan tujuh jenis laporan operasional yang menjadi sumbe
 `;
 
 export const laporanFilterExport = `## Filter & Ekspor Laporan
+
+![Filter, periode, export](/bantuan/media/routes/dashboard-laporan-persediaan/01-halaman.png "Filter, periode, export")
 
 Setiap laporan menyediakan panel filter yang sama untuk memudahkan Anda menyaring data sebelum mengekspor.
 

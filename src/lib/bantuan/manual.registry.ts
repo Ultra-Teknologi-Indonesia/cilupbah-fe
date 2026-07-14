@@ -50,7 +50,7 @@ export const MANUAL_ENTRIES: ManualEntry[] = [
   { slug: "pesanan/batalkan", moduleGroup: "Pesanan", title: "Membatalkan pesanan", route: "/dashboard/pesanan", content: g(pesananBatalkan) },
 
   // PROSES PESANAN
-  { slug: "proses-pesanan/alokasi-stok", moduleGroup: "Proses Pesanan", title: "Alokasi Stok (reserve otomatis vs manual)", route: "/dashboard/proses-pesanan/alokasi-stok", content: g(prosesAlokasiStok) },
+  { slug: "proses-pesanan/alokasi-stok", moduleGroup: "Proses Pesanan", title: "Alokasi Stok (reserve otomatis vs manual)", route: "/dashboard/pengaturan/alokasi-stok", content: g(prosesAlokasiStok) },
   { slug: "proses-pesanan/picking", moduleGroup: "Proses Pesanan", title: "Picking (Belum Mulai → Berjalan → Selesai)", route: "/dashboard/proses-pesanan/picking", content: g(prosesPicking) },
   { slug: "proses-pesanan/packing", moduleGroup: "Proses Pesanan", title: "Packing (multi-order, timbang, ukur)", route: "/dashboard/proses-pesanan/packing", content: g(prosesPacking) },
   { slug: "proses-pesanan/shipping", moduleGroup: "Proses Pesanan", title: "Shipping (cetak resi & pickup)", route: "/dashboard/proses-pesanan/shipping", content: g(prosesShipping) },
@@ -101,7 +101,7 @@ export const MANUAL_ENTRIES: ManualEntry[] = [
   { slug: "lokasi/deactivate", moduleGroup: "Lokasi", title: "Deactivate lokasi", route: "/dashboard/lokasi", content: g(lokasiDeactivate) },
 
   // KATEGORI & MEREK
-  { slug: "kategori-merek/dasar", moduleGroup: "Kategori & Merek", title: "Mengelola kategori (tree) & merek", route: "/dashboard/kategori-merek", content: g(kategoriMerek) },
+  { slug: "kategori-merek/dasar", moduleGroup: "Kategori & Merek", title: "Mengelola kategori (tree) & merek", route: "/dashboard/kategori-merek/kategori", content: g(kategoriMerek) },
 
   // KONTAK
   { slug: "kontak/pelanggan", moduleGroup: "Kontak", title: "Kontak Pelanggan (import/export, phone E.164)", route: "/dashboard/kontak-pelanggan", content: g(kontakPelanggan) },
@@ -120,9 +120,9 @@ export const MANUAL_ENTRIES: ManualEntry[] = [
   { slug: "toko-internal/setup", moduleGroup: "Toko Internal", title: "Setup toko internal (POS/offline)", route: "/dashboard/toko-internal", content: g(tokoInternalSetup) },
 
   // RETUR
-  { slug: "retur/terima-retur", moduleGroup: "Retur", title: "Terima retur channel", route: "/dashboard/pengaturan/retur", content: g(returTerima) },
-  { slug: "retur/retur-manual", moduleGroup: "Retur", title: "Retur manual", route: "/dashboard/pengaturan/retur", content: g(returManual) },
-  { slug: "retur/laporan-bulanan", moduleGroup: "Retur", title: "Laporan retur bulanan", route: "/dashboard/laporan", content: g(returLaporan) },
+  { slug: "retur/terima-retur", moduleGroup: "Retur", title: "Terima retur channel", route: "/dashboard/barang-masuk/retur", content: g(returTerima) },
+  { slug: "retur/retur-manual", moduleGroup: "Retur", title: "Retur manual", route: "/dashboard/barang-masuk/retur", content: g(returManual) },
+  { slug: "retur/laporan-bulanan", moduleGroup: "Retur", title: "Laporan retur bulanan", route: "/dashboard/laporan/retur", content: g(returLaporan) },
 
   // PEMBELIAN
   { slug: "pembelian/buat-po", moduleGroup: "Pembelian", title: "Buat Purchase Order", route: "/dashboard/transaksi-pembelian", content: g(pembelianBuatPo) },
@@ -133,8 +133,8 @@ export const MANUAL_ENTRIES: ManualEntry[] = [
   { slug: "permintaan-restock/request", moduleGroup: "Permintaan Restock", title: "Request restock antar cabang", route: "/dashboard/permintaan-restock", content: g(permintaanRestockRequest) },
 
   // LAPORAN
-  { slug: "laporan/daftar", moduleGroup: "Laporan", title: "Daftar laporan yang tersedia", route: "/dashboard/laporan", content: g(laporanDaftar) },
-  { slug: "laporan/filter-export", moduleGroup: "Laporan", title: "Filter, periode, export", route: "/dashboard/laporan", content: g(laporanFilterExport) },
+  { slug: "laporan/daftar", moduleGroup: "Laporan", title: "Daftar laporan yang tersedia", route: "/dashboard/laporan/persediaan", content: g(laporanDaftar) },
+  { slug: "laporan/filter-export", moduleGroup: "Laporan", title: "Filter, periode, export", route: "/dashboard/laporan/persediaan", content: g(laporanFilterExport) },
   { slug: "laporan/paste-ai", moduleGroup: "Laporan", title: "Cara paste laporan ke AI", content: g(laporanPasteAi) },
 
   // NOTIFIKASI
