@@ -216,13 +216,13 @@ export function PindahBinListTable({
 
     base.push({
       id: "actions",
-      header: () => <div>Aksi</div>,
+      header: () => <div className="text-right">Aksi</div>,
       cell: ({ row }) => {
         const item = row.original;
         const busy = printingId === item.id;
         if (isTransit) {
           return (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center justify-end gap-1">
               <Button
                 variant="ghost"
                 size="icon-sm"

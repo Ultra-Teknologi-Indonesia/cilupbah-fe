@@ -184,7 +184,7 @@ export const productColumns: ColumnDef<Product>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => (
-      <div className="flex items-center gap-2">
+      <div className="text-right">
         <ProductRowActions product={row.original} />
       </div>
     ),

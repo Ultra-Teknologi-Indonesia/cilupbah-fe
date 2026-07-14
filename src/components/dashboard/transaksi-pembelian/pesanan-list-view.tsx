@@ -185,7 +185,7 @@ export function PesananListView() {
             row.original.status === "DRAFT"
           ) {
             return (
-              <div className="flex items-center gap-2">
+              <div className="flex justify-end">
                 <Button
                   variant="ghost"
                   size="icon-sm"

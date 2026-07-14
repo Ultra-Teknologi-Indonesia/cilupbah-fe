@@ -245,12 +245,12 @@ export function HasilTab({
       },
       {
         id: "actions",
-        header: () => <div>Tindakan</div>,
+        header: () => <div className="text-right">Tindakan</div>,
         enableSorting: false,
         cell: ({ row }) => {
           const h = row.original;
           return (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center justify-end gap-1">
               {h.channelUrl && (
                 <Button variant="ghost" size="icon" className="size-8" asChild>
                   <a

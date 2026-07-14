@@ -183,7 +183,7 @@ export function UserListView() {
           const user = row.original;
           if (isProtected(user) || !canDelete) return null;
           return (
-            <div className="flex items-center gap-2">
+            <div className="flex justify-end">
               <Button
                 variant="ghost"
                 size="icon-sm"

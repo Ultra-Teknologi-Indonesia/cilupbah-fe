@@ -58,7 +58,7 @@ export function buildStoreColumns(
       cell: ({ row }) => {
         const s = row.original;
         return (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center justify-end gap-1">
             <Button variant="ghost" size="sm" className="h-8 gap-1.5" asChild>
               <Link href={`/dashboard/produk/naikkan/${s.raiseproductId}`}>
                 <EyeIcon className="size-4" />

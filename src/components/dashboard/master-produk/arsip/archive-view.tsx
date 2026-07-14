@@ -170,12 +170,12 @@ export function ArchiveView() {
       },
       {
         id: "actions",
-        header: () => <div>Aksi</div>,
+        header: () => <div className="text-right">Aksi</div>,
         cell: ({ row }) => {
           const item = row.original;
           return (
             <div
-              className="flex items-center gap-2"
+              className="flex justify-end"
               onClick={(e) => e.stopPropagation()}
             >
               <RestoreButton

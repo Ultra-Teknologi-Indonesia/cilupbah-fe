@@ -209,7 +209,7 @@ export function PreManifestCancelTable() {
         id: "actions",
         header: () => null,
         cell: ({ row }) => (
-          <div className="flex items-center gap-2">
+          <div className="flex justify-end">
             <TooltipProvider delayDuration={200}>
               <Tooltip>
                 <TooltipTrigger asChild>
