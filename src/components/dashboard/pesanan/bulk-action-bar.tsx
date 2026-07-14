@@ -18,7 +18,10 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import type { OrderTab, SubFilter } from "@/types/pesanan/order";
-import { useBulkMarkContacted } from "@/hooks/pesanan/use-order-actions";
+import {
+  useBulkMarkContacted,
+  useMoveToReady,
+} from "@/hooks/pesanan/use-order-actions";
 
 export function BulkActionBar({
   tab,
@@ -80,6 +83,7 @@ function TabBulkActions({
   onDone: () => void;
 }) {
   const bulkContact = useBulkMarkContacted();
+  const moveToReady = useMoveToReady();
 
   const placeholder = (label: string) => () =>
     toast.info(`${label} untuk ${count} pesanan akan segera tersedia`);
@@ -178,10 +182,15 @@ function TabBulkActions({
         <Button
           size="sm"
           className="h-8 gap-1.5 text-xs"
-          onClick={placeholder("Pindahkan ke Perlu Dikirim")}
+          disabled={moveToReady.isPending || selectedIds.length === 0}
+          onClick={() =>
+            moveToReady.mutate(selectedIds, { onSuccess: () => onDone() })
+          }
         >
           <ArrowRightIcon className="size-3.5" />
-          Pindahkan ke Perlu Dikirim
+          {moveToReady.isPending
+            ? "Memindahkan..."
+            : "Pindahkan ke Perlu Dikirim"}
         </Button>
       </>
     );
