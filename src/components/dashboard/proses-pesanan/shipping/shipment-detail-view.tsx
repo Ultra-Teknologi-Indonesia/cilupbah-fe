@@ -4,10 +4,12 @@ import Image from "next/image";
 import * as React from "react";
 import {
   CameraIcon,
+  ClockIcon,
   Loader2Icon,
   PackageIcon,
   PencilIcon,
   PrinterIcon,
+  RefreshCwIcon,
   ScanBarcodeIcon,
   SearchIcon,
   Trash2Icon,
@@ -43,13 +45,28 @@ import {
   useRecordDriverCall,
   useUpdateDriverCall,
 } from "@/hooks/proses-pesanan/use-fulfillment";
+import {
+  useRefreshShipmentTracking,
+  useShipmentTrackingEvents,
+} from "@/hooks/proses-pesanan/use-driver-call";
 import { Label } from "@/components/ui/label";
+import { UserSelectById } from "@/components/dashboard/shared/user-select-by-id";
+import { useMe } from "@/hooks/auth/use-auth";
+import { useUsers } from "@/hooks/pengaturan/use-users";
 import { playScanFeedback } from "@/lib/scan-feedback";
 import { apiError } from "@/lib/toast";
 import { ChannelBadge } from "../channel-badge";
 import { DocActions } from "../picking/doc-actions";
 import { DeleteOrderDialog } from "../shared/delete-order-dialog";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+
+const SHIPPER_ROLES = [
+  "Shipper",
+  "Warehouse Staff",
+  "Packer",
+  "Fulfillment",
+  "Admin",
+];
 
 const LIST_HREF = "/dashboard/proses-pesanan/shipping";
 
@@ -105,11 +122,26 @@ function DriverSection({
   const [phone, setPhone] = React.useState("");
   const [plate, setPlate] = React.useState("");
   const [bookingCode, setBookingCode] = React.useState("");
+  const [shipperId, setShipperId] = React.useState("");
   const [photo, setPhoto] = React.useState<File | null>(null);
   const fileRef = React.useRef<HTMLInputElement>(null);
 
   const record = useRecordDriverCall();
   const update = useUpdateDriverCall();
+  const { data: me } = useMe();
+  const { data: usersData, isLoading: usersLoading } = useUsers({
+    perPage: 50,
+    "filter[role]": SHIPPER_ROLES,
+  });
+  const shipperOptions = React.useMemo(
+    () =>
+      (usersData?.items ?? []).map((u) => ({
+        id: String(u.id),
+        name: u.name ?? u.email ?? String(u.id),
+        hint: u.roles?.join(", "),
+      })),
+    [usersData?.items],
+  );
 
   const hasDriver =
     detail.driverCallStatus && detail.driverCallStatus !== "NONE";
@@ -119,6 +151,7 @@ function DriverSection({
     setPhone(detail.driverPhone ?? "");
     setPlate(detail.driverVehiclePlate ?? "");
     setBookingCode(detail.driverBookingCode ?? "");
+    setShipperId(detail.shipperId ?? "");
     setPhoto(null);
     setEditing(true);
   };
@@ -130,6 +163,7 @@ function DriverSection({
       driver_phone: phone,
       driver_vehicle_plate: plate || undefined,
       driver_booking_code: bookingCode || undefined,
+      shipper_id: shipperId || undefined,
     };
 
     try {
@@ -169,10 +203,13 @@ function DriverSection({
               <UserIcon className="size-4 text-muted-foreground" />
               Info Driver
             </p>
-            <Button variant="ghost" size="sm" onClick={startEdit}>
-              <PencilIcon className="size-3.5 mr-1" />
-              Edit
-            </Button>
+            <div className="flex items-center gap-1">
+              <RefreshTrackingButton shipmentId={shipmentId} />
+              <Button variant="ghost" size="sm" onClick={startEdit}>
+                <PencilIcon className="size-3.5 mr-1" />
+                Edit
+              </Button>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-4">
             <div>
@@ -219,6 +256,14 @@ function DriverSection({
               </a>
             </div>
           )}
+          {detail.shipperName && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Shipper:{" "}
+              <span className="font-medium text-foreground">
+                {detail.shipperName}
+              </span>
+            </p>
+          )}
           {detail.driverCalledAt && (
             <p className="mt-2 text-xs text-muted-foreground">
               Dicatat:{" "}
@@ -260,6 +305,20 @@ function DriverSection({
           )}
         </div>
         <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="driver-call-shipper">Shipper</Label>
+            <UserSelectById
+              id="driver-call-shipper"
+              value={shipperId}
+              onChange={(id) => setShipperId(id)}
+              options={shipperOptions}
+              isLoading={usersLoading}
+              currentUserId={me?.id ? String(me.id) : undefined}
+              defaultToSelf
+              placeholder="Pilih shipper (warehouse staff)…"
+              emptyText="Tidak ada petugas."
+            />
+          </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="driver_name">
@@ -345,6 +404,122 @@ function DriverSection({
             </Button>
           </div>
         </form>
+      </div>
+    </LiquidGlass>
+  );
+}
+
+function RefreshTrackingButton({ shipmentId }: { shipmentId: string }) {
+  const refresh = useRefreshShipmentTracking();
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={() => refresh.mutate(shipmentId)}
+      disabled={refresh.isPending}
+      title="Perbarui data tracking dari kurir"
+    >
+      <RefreshCwIcon
+        className={cn("size-3.5 mr-1", refresh.isPending && "animate-spin")}
+      />
+      Refresh
+    </Button>
+  );
+}
+
+function extractDescription(ev: {
+  event_type: string;
+  raw_payload?: unknown;
+}): string | null {
+  const raw = (ev as unknown as { raw_payload?: Record<string, unknown> })
+    .raw_payload;
+  if (!raw || typeof raw !== "object") return null;
+  const desc = (raw as Record<string, unknown>).description;
+  if (typeof desc === "string" && desc.trim()) return desc;
+  const msg = (raw as Record<string, unknown>).message;
+  if (typeof msg === "string" && msg.trim()) return msg;
+  return null;
+}
+
+const TRACKING_EVENT_LABEL: Record<string, string> = {
+  driver_assigned: "Driver ditugaskan",
+  driver_arrived: "Driver tiba",
+  picked_up: "Paket dijemput",
+  in_transit: "Dalam perjalanan",
+  delivered: "Terkirim",
+  failed: "Gagal",
+  tracking_number_assigned: "No. resi ter-assign",
+  polled_update: "Update tracking",
+};
+
+function TrackingTimelineSection({ shipmentId }: { shipmentId: string }) {
+  const { data: events, isLoading } = useShipmentTrackingEvents(shipmentId);
+  const items = events ?? [];
+
+  return (
+    <LiquidGlass
+      radius={16}
+      intensity="subtle"
+      className="bg-white/40 dark:bg-white/[0.06]"
+    >
+      <div className="px-4 py-4 sm:px-5">
+        <p className="mb-3 text-sm font-medium flex items-center gap-1.5">
+          <ClockIcon className="size-4 text-muted-foreground" />
+          Riwayat Tracking Driver
+        </p>
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground">Memuat…</p>
+        ) : items.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Belum ada event tracking dari kurir.
+          </p>
+        ) : (
+          <ol className="space-y-3">
+            {items.map((ev) => (
+              <li
+                key={String(ev.id)}
+                className="rounded-xl border border-border/60 bg-background/60 px-3 py-2"
+              >
+                <div className="flex items-center justify-between gap-2 text-sm">
+                  <span className="font-medium">
+                    {TRACKING_EVENT_LABEL[ev.event_type] ?? ev.event_type}
+                  </span>
+                  <span className="text-xs uppercase text-muted-foreground">
+                    {ev.source}
+                  </span>
+                </div>
+                {(ev.driver_name ||
+                  ev.driver_phone ||
+                  ev.driver_vehicle_plate) && (
+                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                    {ev.driver_name && <span>Driver: {ev.driver_name}</span>}
+                    {ev.driver_phone && <span>{ev.driver_phone}</span>}
+                    {ev.driver_vehicle_plate && (
+                      <span>Plat: {ev.driver_vehicle_plate}</span>
+                    )}
+                  </div>
+                )}
+                {!ev.driver_name &&
+                  !ev.driver_phone &&
+                  !ev.driver_vehicle_plate &&
+                  extractDescription(ev) && (
+                    <p className="mt-1 text-xs text-muted-foreground italic">
+                      {extractDescription(ev)}
+                    </p>
+                  )}
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {new Date(ev.occurred_at).toLocaleString("id-ID", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </li>
+            ))}
+          </ol>
+        )}
       </div>
     </LiquidGlass>
   );
@@ -548,7 +723,10 @@ export function ShipmentDetailView({ id }: { id: string }) {
       {detail.hasInstant &&
         detail.courierCode &&
         INSTANT_COURIER_RX.test(detail.courierCode) && (
-          <DriverSection shipmentId={id} detail={detail} />
+          <>
+            <DriverSection shipmentId={id} detail={detail} />
+            <TrackingTimelineSection shipmentId={id} />
+          </>
         )}
 
       {}

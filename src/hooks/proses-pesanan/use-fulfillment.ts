@@ -880,6 +880,7 @@ export function useRecordDriverCall() {
         driver_phone: string;
         driver_vehicle_plate?: string;
         driver_booking_code?: string;
+        shipper_id?: string | number;
       };
       idCardPhoto?: File;
     }) => OutboundService.recordDriverCall(shipmentId, data, idCardPhoto),
@@ -907,6 +908,7 @@ export function useUpdateDriverCall() {
         driver_vehicle_plate?: string;
         driver_booking_code?: string;
         driver_call_status?: string;
+        shipper_id?: string | number;
       };
       idCardPhoto?: File;
     }) => OutboundService.updateDriverCall(shipmentId, data, idCardPhoto),

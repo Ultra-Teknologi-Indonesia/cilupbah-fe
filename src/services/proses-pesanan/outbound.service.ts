@@ -218,6 +218,9 @@ function mapShipment(raw: RawShipment): Shipment {
     driverCalledAt: raw.driver_called_at ?? null,
     driverCalledBy: raw.driver_called_by ?? null,
     driverIdCardUrl: raw.driver_id_card_url ?? null,
+    shipperId:
+      raw.shipper_id != null ? String(raw.shipper_id) : raw.shipper?.id != null ? String(raw.shipper.id) : null,
+    shipperName: raw.shipper?.name ?? raw.shipper?.email ?? null,
   };
 }
 
@@ -968,6 +971,92 @@ export const OutboundService = {
     });
   },
 
+  shipmentTrackingEvents: async (
+    shipmentId: string,
+  ): Promise<
+    Array<{
+      id: number | string;
+      shipment_id: string;
+      source: string;
+      event_type: string;
+      driver_name: string | null;
+      driver_phone: string | null;
+      driver_vehicle_plate: string | null;
+      occurred_at: string;
+      received_at: string;
+    }>
+  > => {
+    const res = await fetchClient<
+      ApiResponse<
+        Array<{
+          id: number | string;
+          shipment_id: string;
+          source: string;
+          event_type: string;
+          driver_name: string | null;
+          driver_phone: string | null;
+          driver_vehicle_plate: string | null;
+          occurred_at: string;
+          received_at: string;
+        }>
+      >
+    >(`/outbound/shipments/${encodeURIComponent(shipmentId)}/tracking-events`);
+    return res.data ?? [];
+  },
+
+  refreshShipmentTracking: async (shipmentId: string): Promise<void> => {
+    await fetchClient(
+      `/outbound/shipments/${encodeURIComponent(shipmentId)}/refresh-tracking`,
+      { method: "POST" },
+    );
+  },
+
+  callInstantDriverBulk: async (payload: {
+    shipper_id: string | number;
+    order_ids?: string[];
+    shipment_ids?: string[];
+  }): Promise<{
+    summary: {
+      success: number;
+      failed: Array<{ order_id: string; status: string; reason: string | null }>;
+    };
+    results: Array<{
+      order_id: string;
+      status: string;
+      message?: string | null;
+      tracking_number?: string | null;
+    }>;
+  }> => {
+    const res = await fetchClient<
+      ApiResponse<{
+        summary: {
+          success: number;
+          failed: Array<{
+            order_id: string;
+            status: string;
+            reason: string | null;
+          }>;
+        };
+        results: Array<{
+          order_id: string;
+          status: string;
+          message?: string | null;
+          tracking_number?: string | null;
+        }>;
+      }>
+    >("/outbound/orders/instant-driver-call", {
+      method: "POST",
+      data: {
+        shipper_id: payload.shipper_id,
+        ...(payload.order_ids?.length ? { order_ids: payload.order_ids } : {}),
+        ...(payload.shipment_ids?.length
+          ? { shipment_ids: payload.shipment_ids }
+          : {}),
+      },
+    });
+    return res.data;
+  },
+
   recordDriverCall: async (
     shipmentId: string,
     data: {
@@ -975,6 +1064,7 @@ export const OutboundService = {
       driver_phone: string;
       driver_vehicle_plate?: string;
       driver_booking_code?: string;
+      shipper_id?: string | number;
     },
     idCardPhoto?: File,
   ): Promise<ReconcileSummary | null> => {
@@ -985,6 +1075,8 @@ export const OutboundService = {
       form.append("driver_vehicle_plate", data.driver_vehicle_plate);
     if (data.driver_booking_code)
       form.append("driver_booking_code", data.driver_booking_code);
+    if (data.shipper_id != null)
+      form.append("shipper_id", String(data.shipper_id));
     if (idCardPhoto) form.append("driver_id_card", idCardPhoto);
 
     const res = await fetchClient<ApiResponse<unknown>>(
@@ -1006,6 +1098,7 @@ export const OutboundService = {
       driver_vehicle_plate?: string;
       driver_booking_code?: string;
       driver_call_status?: string;
+      shipper_id?: string | number;
     },
     idCardPhoto?: File,
   ): Promise<void> => {
@@ -1018,6 +1111,8 @@ export const OutboundService = {
       form.append("driver_booking_code", data.driver_booking_code);
     if (data.driver_call_status)
       form.append("driver_call_status", data.driver_call_status);
+    if (data.shipper_id != null)
+      form.append("shipper_id", String(data.shipper_id));
     if (idCardPhoto) form.append("driver_id_card", idCardPhoto);
     form.append("_method", "PATCH");
 

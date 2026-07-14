@@ -13,6 +13,8 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
+import { UserSelectById } from "@/components/dashboard/shared/user-select-by-id";
+import { useMe } from "@/hooks/auth/use-auth";
 import {
   useAssignPacker,
   usePickers,
@@ -38,6 +40,7 @@ export function UbahPackerDialog({
   const [packerId, setPackerId] = React.useState("");
 
   const pickers = usePickers(locationId ?? undefined, "packer", open);
+  const { data: me } = useMe();
   const assignPacker = useAssignPacker();
 
   const [prevOpen, setPrevOpen] = React.useState(open);
@@ -47,6 +50,15 @@ export function UbahPackerDialog({
     setPrevCurrent(currentPackerId);
     if (open) setPackerId(currentPackerId ?? "");
   }
+
+  const packerOptions = React.useMemo(
+    () =>
+      (pickers.data ?? []).map((p) => ({
+        id: p.id,
+        name: p.name,
+      })),
+    [pickers.data],
+  );
 
   const handleSubmit = async () => {
     if (!packlistId || !packerId) return;
@@ -80,19 +92,16 @@ export function UbahPackerDialog({
 
           <div className="space-y-1.5">
             <Label htmlFor="assign-packer">Packer</Label>
-            <select
+            <UserSelectById
               id="assign-packer"
               value={packerId}
-              onChange={(e) => setPackerId(e.target.value)}
-              className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-            >
-              <option value="">— Pilih packer —</option>
-              {pickers.data?.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+              onChange={(id) => setPackerId(id)}
+              options={packerOptions}
+              isLoading={pickers.isLoading}
+              currentUserId={me?.id}
+              placeholder="— Pilih packer —"
+              emptyText="Tidak ada packer di lokasi ini."
+            />
             {pickers.isLoading && (
               <p className="text-xs text-muted-foreground">
                 Memuat daftar packer…

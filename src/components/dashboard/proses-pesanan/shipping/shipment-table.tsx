@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   RefreshCwIcon,
   PrinterIcon,
+  TruckIcon,
   XCircleIcon,
   ZapIcon,
 } from "lucide-react";
@@ -38,6 +39,7 @@ import { useListState } from "@/hooks/use-list-state";
 import { apiError } from "@/lib/toast";
 
 import { DocActions } from "../picking/doc-actions";
+import { PanggilDriverBulkDialog } from "./panggil-driver-bulk-dialog";
 
 type PageFilterState = {
   status: string;
@@ -88,6 +90,9 @@ export function ShipmentTable() {
   const [cancelTarget, setCancelTarget] = React.useState<Shipment | null>(
     null,
   );
+  const [driverCallTargets, setDriverCallTargets] = React.useState<
+    Shipment[] | null
+  >(null);
 
   const params = React.useMemo(
     () => ({
@@ -238,6 +243,20 @@ export function ShipmentTable() {
         header: () => null,
         cell: ({ row }) => (
           <div className="flex justify-end items-center gap-2">
+            {row.original.status === "SCHEDULED" && (
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+              >
+                <Link
+                  href={`/dashboard/proses-pesanan/shipping/masukkan-ke-pengiriman?shipmentId=${encodeURIComponent(row.original.id)}&from=${encodeURIComponent("/dashboard/proses-pesanan/shipping")}`}
+                >
+                  <TruckIcon className="size-3.5" />
+                  Masukkan ke Pengiriman
+                </Link>
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -345,6 +364,22 @@ export function ShipmentTable() {
           data={shipments}
           isLoading={isLoading}
           hideToolbar
+          getRowId={(row) => row.id}
+          enableRowSelection={(row) => Boolean(row.original.hasInstant)}
+          bulkActions={(selected) => {
+            const eligible = selected.filter((s) => s.hasInstant);
+            return (
+              <Button
+                size="sm"
+                variant="primary"
+                disabled={eligible.length === 0}
+                onClick={() => setDriverCallTargets(eligible)}
+              >
+                <TruckIcon className="size-3.5" />
+                Panggil Driver ({eligible.length})
+              </Button>
+            );
+          }}
           getRowClassName={(row) => instantSlaClass(row)}
           manualPagination
           manualSorting
@@ -373,6 +408,15 @@ export function ShipmentTable() {
         variant="destructive"
         loading={cancel.isPending}
         onConfirm={handleCancelConfirm}
+      />
+
+      <PanggilDriverBulkDialog
+        open={!!driverCallTargets}
+        onOpenChange={(o) => {
+          if (!o) setDriverCallTargets(null);
+        }}
+        shipments={driverCallTargets ?? []}
+        onSuccess={() => refetch()}
       />
     </div>
   );

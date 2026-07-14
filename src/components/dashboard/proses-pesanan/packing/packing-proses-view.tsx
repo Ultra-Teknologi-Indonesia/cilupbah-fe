@@ -16,7 +16,6 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Combobox } from "@/components/ui/combobox";
 import {
   Table,
   TableBody,
@@ -30,6 +29,8 @@ import {
   ScanAutoflowBar,
   type ScanAutoflowLine,
 } from "@/components/dashboard/shared/scan-autoflow-bar";
+import { UserSelectById } from "@/components/dashboard/shared/user-select-by-id";
+import { useMe } from "@/hooks/auth/use-auth";
 import {
   useCompletePacklist,
   usePackItem,
@@ -240,7 +241,6 @@ function OrderPackCard({
 }
 
 export function PackingProsesView() {
-
   const checkerInputRef = React.useRef<HTMLInputElement>(null);
   const orderScanRef = React.useRef<HTMLInputElement>(null);
 
@@ -253,6 +253,7 @@ export function PackingProsesView() {
   const refocusScan = () => setScanFocusKey((k) => k + 1);
 
   const pickers = usePickers(undefined, "packer");
+  const { data: me } = useMe();
   const scanOrder = useScanOrder();
   const packItem = usePackItem();
   const verifyBarcode = useVerifyBarcode();
@@ -386,49 +387,26 @@ export function PackingProsesView() {
   const checkerName =
     pickerList.find((p) => p.id === checkerId)?.name ?? null;
 
-  const checkerMatches = React.useMemo(() => {
-    const q = checkerQuery.trim().toLowerCase();
-    if (!q) return [];
-    return pickerList.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        (p.email ?? "").toLowerCase().includes(q),
-    );
-  }, [checkerQuery, pickerList]);
+  const packerOptions = React.useMemo(
+    () =>
+      pickerList.map((p) => ({
+        id: p.id,
+        name: p.name,
+        hint: p.email ?? undefined,
+      })),
+    [pickerList],
+  );
 
   const selectChecker = (id: string) => {
+    if (!id) return;
     setCheckerId(id);
     setStage("packing");
-    setCheckerQuery("");
     playScanFeedback("ok");
     setTimeout(() => orderScanRef.current?.focus(), 80);
   };
 
-  const resolveChecker = () => {
-    const q = checkerQuery.trim();
-    if (!q) return;
-    if (checkerMatches.length === 1) {
-      selectChecker(checkerMatches[0].id);
-      return;
-    }
-    const exact = checkerMatches.find(
-      (p) => p.name.toLowerCase() === q.toLowerCase(),
-    );
-    if (exact) {
-      selectChecker(exact.id);
-      return;
-    }
-    if (checkerMatches.length === 0) {
-      playScanFeedback("error");
-      toast.error(`Checker "${q}" tidak ditemukan.`);
-      return;
-    }
-    toast.info("Beberapa checker cocok — pilih dari daftar.");
-  };
-
   const changeChecker = () => {
     setStage("checker");
-    setTimeout(() => checkerInputRef.current?.focus(), 60);
   };
 
   const handleScanOrder = async () => {
@@ -549,76 +527,22 @@ export function PackingProsesView() {
               <UserIcon className="size-6 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-semibold">Siapa checker-nya?</p>
+              <p className="text-sm font-semibold">Siapa packer-nya?</p>
               <p className="text-xs text-muted-foreground">
-                Scan badge atau ketik username checker, lalu Enter.
+                Pilih packer dari daftar, atau tekan &quot;Saya sendiri&quot;.
               </p>
             </div>
           </div>
 
-          <div className="relative">
-            <ScanBarcodeIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              ref={checkerInputRef}
-              autoFocus
-              value={checkerQuery}
-              onChange={(e) => setCheckerQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  resolveChecker();
-                }
-              }}
-              placeholder="Scan badge / ketik username checker…"
-              className="h-11 pl-9"
-              disabled={pickers.isLoading}
-            />
-          </div>
-
-          {checkerQuery.trim() && (
-            <div className="flex flex-col gap-1">
-              {checkerMatches.length === 0 ? (
-                <p className="px-1 text-xs text-muted-foreground">
-                  Tidak ada checker cocok.
-                </p>
-              ) : (
-                checkerMatches.slice(0, 6).map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => selectChecker(p.id)}
-                    className="flex items-center justify-between rounded-xl border border-border px-3 py-2 text-left text-sm transition-colors hover:bg-muted/50"
-                  >
-                    <span className="font-medium">{p.name}</span>
-                    {p.email && (
-                      <span className="text-xs text-muted-foreground">
-                        {p.email}
-                      </span>
-                    )}
-                  </button>
-                ))
-              )}
-            </div>
-          )}
-
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="h-px flex-1 bg-border" />
-            atau pilih manual
-            <span className="h-px flex-1 bg-border" />
-          </div>
-
-          <Combobox
-            options={pickerList.map((p) => ({
-              value: p.id,
-              label: p.name,
-              hint: p.email ?? undefined,
-            }))}
-            value={checkerId}
-            onChange={(v) => v && selectChecker(v)}
-            placeholder="Pilih checker…"
-            searchPlaceholder="Cari checker…"
-            emptyText="Checker tidak ditemukan."
-            disabled={pickers.isLoading}
+          <UserSelectById
+            options={packerOptions}
+            value={checkerId ?? ""}
+            onChange={(id) => selectChecker(id)}
+            isLoading={pickers.isLoading}
+            currentUserId={me?.id}
+            defaultToSelf
+            placeholder={pickers.isLoading ? "Memuat…" : "Pilih packer…"}
+            emptyText="Tidak ada packer."
           />
         </div>
       ) : (

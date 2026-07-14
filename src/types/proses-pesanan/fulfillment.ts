@@ -537,7 +537,12 @@ export const SHIPMENT_TYPES: { value: ShipmentType; label: string }[] = [
 ];
 
 export type DriverCallStatus = "NONE" | "CALLED" | "PICKED_UP" | "FAILED";
-export type DriverCallMethod = "MANUAL" | "SHOPEE_AUTO";
+export type DriverCallMethod =
+  | "MANUAL"
+  | "SHOPEE_AUTO"
+  | "SHOPEE_INSTANT"
+  | "TIKTOK_INSTANT"
+  | "LAZADA_INSTANT";
 
 export interface RawShipment {
   id: string;
@@ -563,6 +568,8 @@ export interface RawShipment {
   driver_called_at?: string | null;
   driver_called_by?: string | null;
   driver_id_card_url?: string | null;
+  shipper_id?: string | number | null;
+  shipper?: { id: string | number; name?: string | null; email?: string | null } | null;
 }
 
 export interface Shipment {
@@ -589,6 +596,8 @@ export interface Shipment {
   driverCalledAt: string | null;
   driverCalledBy: string | null;
   driverIdCardUrl: string | null;
+  shipperId: string | null;
+  shipperName: string | null;
 }
 
 export const SHIPMENT_STATUS_LABEL: Record<
