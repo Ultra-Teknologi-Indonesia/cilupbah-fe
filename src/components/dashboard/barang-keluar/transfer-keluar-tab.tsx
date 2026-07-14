@@ -196,10 +196,13 @@ function TransferTable({
       },
       {
         id: "actions",
-        header: "Aksi",
+        header: () => <div className="text-right">Aksi</div>,
         cell: ({ row }) => {
           return (
-            <div onClick={(e) => e.stopPropagation()}>
+            <div
+              className="flex items-center justify-end"
+              onClick={(e) => e.stopPropagation()}
+            >
               {actionSlot?.(row.original)}
             </div>
           );

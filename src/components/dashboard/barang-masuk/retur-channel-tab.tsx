@@ -341,11 +341,11 @@ export function ReturChannelTab() {
     if (isUnprocessed) {
       cols.push({
         id: "actions",
-        header: "Aksi",
+        header: () => <div className="text-right">Aksi</div>,
         cell: ({ row }) => {
           const item = row.original;
           return (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center justify-end gap-1.5">
               <button
                 type="button"
                 onClick={() => {
@@ -376,21 +376,23 @@ export function ReturChannelTab() {
     } else if (subTab === "accepted") {
       cols.push({
         id: "actions",
-        header: "Aksi",
+        header: () => <div className="text-right">Aksi</div>,
         cell: ({ row }) => {
           const item = row.original;
           return (
-            <button
-              type="button"
-              onClick={() => {
-                setCompleteTarget(item);
-                setProcessedBy("");
-              }}
-              className="inline-flex items-center gap-1 rounded-md bg-success/10 px-2 py-1 text-xs font-medium text-success transition-colors hover:bg-success/20"
-            >
-              <FlagIcon className="size-3.5" />
-              Selesaikan
-            </button>
+            <div className="flex items-center justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setCompleteTarget(item);
+                  setProcessedBy("");
+                }}
+                className="inline-flex items-center gap-1 rounded-md bg-success/10 px-2 py-1 text-xs font-medium text-success transition-colors hover:bg-success/20"
+              >
+                <FlagIcon className="size-3.5" />
+                Selesaikan
+              </button>
+            </div>
           );
         },
       });

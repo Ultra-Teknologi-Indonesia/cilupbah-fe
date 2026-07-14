@@ -323,7 +323,7 @@ export function PenerimaanBarangTab() {
       },
       {
         id: "actions",
-        header: "Aksi",
+        header: () => <div className="text-right">Aksi</div>,
         cell: ({ row }) => {
           const item = row.original;
           const active = activePutaway(item);
@@ -331,7 +331,7 @@ export function PenerimaanBarangTab() {
 
           return (
             <div
-              className="flex items-center gap-2"
+              className="flex items-center justify-end gap-2"
               onClick={(e) => e.stopPropagation()}
             >
               {isTransitReceivable(item) && (

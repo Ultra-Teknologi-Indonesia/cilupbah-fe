@@ -127,14 +127,16 @@ export function buildProdukColumns(opts: {
       id: "actions",
       header: "",
       cell: ({ row }) => (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 text-destructive hover:text-destructive"
-          onClick={() => opts.onRemove(row.original)}
-        >
-          <Trash2Icon className="size-4" />
-        </Button>
+        <div className="flex items-center justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 text-destructive hover:text-destructive"
+            onClick={() => opts.onRemove(row.original)}
+          >
+            <Trash2Icon className="size-4" />
+          </Button>
+        </div>
       ),
     },
   ];

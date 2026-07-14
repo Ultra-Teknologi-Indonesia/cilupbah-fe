@@ -226,23 +226,25 @@ export function OpnameDetail({ id }: { id: string }) {
           const isCounted = item.qty_actual != null;
           if (!isCounted) {
             return (
-              <button
-                type="button"
-                onClick={() =>
-                  setCountDialog({
-                    open: true,
-                    itemId: item.id,
-                    productName: item.item?.item_name ?? "",
-                    qtyActual: "",
-                    reason: "",
-                    countedBy: "",
-                  })
-                }
-                className="inline-flex items-center gap-1 rounded-md bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-500/20"
-              >
-                <CalculatorIcon className="size-3.5" />
-                Hitung
-              </button>
+              <div className="flex items-center justify-end">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCountDialog({
+                      open: true,
+                      itemId: item.id,
+                      productName: item.item?.item_name ?? "",
+                      qtyActual: "",
+                      reason: "",
+                      countedBy: "",
+                    })
+                  }
+                  className="inline-flex items-center gap-1 rounded-md bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-500/20"
+                >
+                  <CalculatorIcon className="size-3.5" />
+                  Hitung
+                </button>
+              </div>
             );
           }
           return null;

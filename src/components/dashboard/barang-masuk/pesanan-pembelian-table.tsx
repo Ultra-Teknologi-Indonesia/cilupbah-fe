@@ -128,12 +128,12 @@ export function PesananPembelianTable({
       },
       {
         id: "actions",
-        header: "Aksi",
+        header: () => <div className="text-right">Aksi</div>,
         cell: ({ row }) => {
           const po = row.original;
           return (
             <div
-              className="flex items-center gap-2"
+              className="flex items-center justify-end gap-2"
               onClick={(e) => e.stopPropagation()}
             >
               <Button size="sm" className="h-8 gap-1.5" asChild>

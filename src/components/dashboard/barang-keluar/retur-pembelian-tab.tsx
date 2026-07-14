@@ -166,12 +166,12 @@ export function ReturPembelianTab() {
       },
       {
         id: "actions",
-        header: "Aksi",
+        header: () => <div className="text-right">Aksi</div>,
         cell: ({ row }) => {
           const item = row.original;
           return (
             <div onClick={(e) => e.stopPropagation()}>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center justify-end gap-1">
                 {item.status === "DRAFT" && (
                   <>
                     <button
