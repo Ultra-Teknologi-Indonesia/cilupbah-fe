@@ -3,6 +3,8 @@ export type BarcodeHarga = "tanpa_harga" | "default" | "online";
 export type BarcodePaper =
   | "thermal_50x40"
   | "thermal_80x40"
+  | "thermal_40x30"
+  | "thermal_30x20"
   | "a4_single"
   | "a4_multi";
 
@@ -11,6 +13,8 @@ export const BARCODE_PAPER_DEFAULT: BarcodePaper = "thermal_50x40";
 export const BARCODE_PAPER_OPTIONS: { value: BarcodePaper; label: string }[] = [
   { value: "thermal_50x40", label: "Thermal 50x40mm (SHELVING)" },
   { value: "thermal_80x40", label: "Thermal 80x40mm" },
+  { value: "thermal_40x30", label: "Thermal 40x30mm" },
+  { value: "thermal_30x20", label: "Thermal 30x20mm" },
   { value: "a4_single", label: "A4 (1 label per halaman)" },
   { value: "a4_multi", label: "A4 (8 label per halaman)" },
 ];
