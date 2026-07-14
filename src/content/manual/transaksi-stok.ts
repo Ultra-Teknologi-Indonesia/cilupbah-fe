@@ -1,5 +1,7 @@
 export const transaksiStokTabTransfer = `## Tab Transfer di Transaksi Stok
 
+![Tab Transfer (Pindah Bin only)](/bantuan/media/routes/dashboard-transaksi-stok/01-halaman.png "Tab Transfer (Pindah Bin only)")
+
 Menu **Transaksi Stok** menampung seluruh mutasi stok internal gudang. Salah satu tab yang sering menimbulkan kebingungan adalah tab **Transfer**.
 
 ### Cakupan Tab Transfer
@@ -23,6 +25,8 @@ Menu **Transaksi Stok** menampung seluruh mutasi stok internal gudang. Salah sat
 > Gotcha: tab default halaman Transaksi Stok bukan Transfer — sesuaikan URL \`?tab=transfer\` atau klik chip tab.`;
 
 export const transaksiStokPenempatan = `## Penempatan Stok (Non-Penerimaan)
+
+![Penempatan](/bantuan/media/routes/dashboard-transaksi-stok/01-halaman.png "Penempatan")
 
 Modul Penempatan pada menu Transaksi Stok digunakan untuk menempatkan stok ke rak di luar alur penerimaan standar (mis. barang temuan, hasil koreksi).
 
@@ -49,6 +53,8 @@ Modul Penempatan pada menu Transaksi Stok digunakan untuk menempatkan stok ke ra
 > Gotcha: penempatan tanpa dokumen sumber sulit ditelusuri saat audit. Selalu isi field **Catatan** dengan alasan singkat.`;
 
 export const transaksiStokPengambilan = `## Pengambilan Stok (Non-Sales)
+
+![Pengambilan](/bantuan/media/routes/dashboard-transaksi-stok/01-halaman.png "Pengambilan")
 
 Pengambilan digunakan untuk mengeluarkan stok dari rak untuk keperluan non-penjualan: sampel promosi, barang rusak, pemakaian internal, hibah.
 
@@ -78,6 +84,8 @@ Pengambilan digunakan untuk mengeluarkan stok dari rak untuk keperluan non-penju
 
 export const transaksiStokPenyesuaian = `## Penyesuaian Stok (Stock Opname)
 
+![Penyesuaian (opname / koreksi)](/bantuan/media/routes/dashboard-transaksi-stok/01-halaman.png "Penyesuaian (opname / koreksi)")
+
 Penyesuaian digunakan untuk mengoreksi qty stok berdasarkan hasil opname fisik atau untuk mencatat susut/loss.
 
 ### Alur Penyesuaian
@@ -103,6 +111,8 @@ Penyesuaian digunakan untuk mengoreksi qty stok berdasarkan hasil opname fisik a
 > Gotcha: field \`bin_id\` di \`stock_adjustment_items\` SELALU merepresentasikan rak fisik tempat opname, bukan usulan sistem.`;
 
 export const transaksiStokTransferBin = `## Transfer Bin (Pindah Rak)
+
+![Transfer Bin (2-langkah)](/bantuan/media/routes/dashboard-transaksi-stok/01-halaman.png "Transfer Bin (2-langkah)")
 
 Pindah Bin adalah perpindahan barang antar rak dalam satu gudang, sekarang menggunakan alur 2-langkah agar aman terhadap barang yang sedang dijalan.
 
@@ -130,6 +140,8 @@ Pindah Bin adalah perpindahan barang antar rak dalam satu gudang, sekarang mengg
 > Gotcha: bila dokumen dihapus di status **Sedang Dijalan**, sistem menjalankan revert stok ke rak asal.`;
 
 export const transaksiStokRiwayat = `## Riwayat Mutasi Stok
+
+![Riwayat mutasi stok](/bantuan/media/routes/dashboard-transaksi-stok/01-halaman.png "Riwayat mutasi stok")
 
 Riwayat Mutasi menampilkan seluruh gerakan stok (movement log) di gudang untuk audit dan investigasi selisih.
 

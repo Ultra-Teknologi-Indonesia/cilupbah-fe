@@ -1,5 +1,7 @@
 export const produkTambah = `## Menambah Produk Baru
 
+![Tambah produk (single, varian, bundle)](/bantuan/media/routes/dashboard-produk/01-halaman.png "Tambah produk (single, varian, bundle)")
+
 Modul Produk digunakan untuk mengelola master data barang di Cilupbah SuperApp. Anda dapat membuat produk tunggal, produk dengan varian (ukuran, warna, dll), atau bundle (paket beberapa SKU).
 
 ### Langkah Umum
@@ -51,6 +53,8 @@ Cilupbah memisahkan tiga konsep master data dengan perilaku inventory yang berbe
 
 export const produkMappingChannel = `## Mapping Produk ke Channel Marketplace
 
+![Mapping SKU ke channel](/bantuan/media/routes/dashboard-produk/01-halaman.png "Mapping SKU ke channel")
+
 Setiap SKU harus dipetakan ke listing di marketplace agar pesanan dari Shopee, Lazada, TikTok, dan WooCommerce dapat diproses otomatis oleh Cilupbah.
 
 ### Langkah Mapping
@@ -70,6 +74,8 @@ Setiap SKU harus dipetakan ke listing di marketplace agar pesanan dari Shopee, L
 Shortcut: gunakan menu **Naikkan Produk** di \`/dashboard/produk/naikkan\` untuk push produk baru ke channel yang belum memiliki listing.`;
 
 export const produkSyncStokHarga = `## Sinkronisasi Stok & Harga per Toko
+
+![Sync stok & harga per store](/bantuan/media/routes/dashboard-produk/01-halaman.png "Sync stok & harga per store")
 
 Cilupbah menyediakan matriks kontrol sinkronisasi harga & stok per pasangan (SKU × Toko) agar Anda dapat memilih channel mana yang di-push otomatis.
 

@@ -1,5 +1,7 @@
 export const barangKeluarTransfer = `## Transfer Keluar Manual (Antar Gudang)
 
+![Transfer keluar manual antar gudang](/bantuan/media/routes/dashboard-barang-keluar/01-halaman.png "Transfer keluar manual antar gudang")
+
 Menu **Barang Keluar** digunakan untuk mengirim stok antar gudang secara manual (mis. WH-BESAR ke WH-KECIL). Modul ini mengikuti state machine yang ketat agar stok reserve & transit tidak bocor.
 
 ### Membuat Transfer Keluar
@@ -25,6 +27,8 @@ Menu **Barang Keluar** digunakan untuk mengirim stok antar gudang secara manual 
 
 export const barangKeluarSuratJalan = `## Cetak Surat Jalan & Pemotongan Stok
 
+![Cetak Surat Jalan (submit = IN_TRANSIT)](/bantuan/media/routes/dashboard-barang-keluar/01-halaman.png "Cetak Surat Jalan (submit = IN_TRANSIT)")
+
 Cetak Surat Jalan bukan sekadar aksi print — ini adalah titik commit yang mengubah status ke IN_TRANSIT dan memotong stok gudang asal.
 
 ### Alur Cetak
@@ -49,6 +53,8 @@ Cetak Surat Jalan bukan sekadar aksi print — ini adalah titik commit yang meng
 > Gotcha: kebijakan allow-negative-stock berlaku — sistem tidak memblokir bila rak asal minus, tetapi laporan **Riwayat Stok Minus** wajib direview.`;
 
 export const barangKeluarRevert = `## Revert & Delete Transfer Keluar
+
+![Revert draft & delete in-transit](/bantuan/media/routes/dashboard-barang-keluar/01-halaman.png "Revert draft & delete in-transit")
 
 Untuk mengoreksi kesalahan atau membatalkan pengiriman, Cilupbah menyediakan mekanisme revert dan delete yang aman terhadap sinkronisasi channel.
 

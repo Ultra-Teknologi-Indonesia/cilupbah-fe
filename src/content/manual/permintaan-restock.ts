@@ -1,5 +1,7 @@
 export const permintaanRestockRequest = `## Permintaan Restock Antar Cabang
 
+![Request restock antar cabang](/bantuan/media/routes/dashboard-permintaan-restock/01-halaman.png "Request restock antar cabang")
+
 Modul Permintaan Restock memfasilitasi permintaan pasokan barang dari satu cabang (gudang pemohon) ke cabang lain (gudang sumber). Setelah permintaan disetujui, sistem otomatis membuat **Transfer Keluar** di gudang sumber.
 
 ### Peran Cabang

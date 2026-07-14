@@ -1,5 +1,7 @@
 export const monitorStokWatchlist = `## Watchlist Stok Minus
 
+![Watchlist stok minus](/bantuan/media/routes/dashboard-monitor-stok/01-halaman.png "Watchlist stok minus")
+
 Laporan **Stok Minus** memantau seluruh SKU dengan \`on_hand < 0\` sebagai konsekuensi kebijakan allow-negative-stock pada modul Penempatan, Pengambilan, Transfer, dan Penyesuaian.
 
 ### Langkah review harian
@@ -24,6 +26,8 @@ Laporan **Stok Minus** memantau seluruh SKU dengan \`on_hand < 0\` sebagai konse
 `;
 
 export const monitorStokReorderPoint = `## Reorder Point Alert
+
+![Reorder point alert](/bantuan/media/routes/dashboard-monitor-stok/01-halaman.png "Reorder point alert")
 
 Modul **Reorder Point** memberi peringatan otomatis ketika stok suatu SKU turun di bawah ambang batas yang Anda tetapkan agar tim purchasing dapat segera membuat PO.
 

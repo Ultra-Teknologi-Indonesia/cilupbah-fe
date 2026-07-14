@@ -1,5 +1,7 @@
 export const lokasiGudangZoneRak = `## Struktur Lokasi: Gudang, Zona, dan Rak
 
+![Buat gudang, zone, rak](/bantuan/media/routes/dashboard-lokasi/01-halaman.png "Buat gudang, zone, rak")
+
 Hierarki lokasi di Cilupbah SuperApp terdiri dari tiga level: **Gudang** (Location) → **Zona** (LocationZone) → **Rak** (LocationBin). Struktur ini menjadi acuan seluruh transaksi stok.
 
 ### Langkah pembuatan
@@ -24,6 +26,8 @@ Hierarki lokasi di Cilupbah SuperApp terdiri dari tiga level: **Gudang** (Locati
 `;
 
 export const lokasiBulkAssign = `## Bulk Assign Rak ke Zona
+
+![Bulk-assign rak ke zone](/bantuan/media/routes/dashboard-lokasi/01-halaman.png "Bulk-assign rak ke zone")
 
 **LocationZone** menjadi surface untuk memisahkan rak fisik yang berbeda gedung, misalnya rak di **Gudang Pusat** vs rak yang dititip di **Ruko** sekalipun secara Location masih satu unit.
 
@@ -50,6 +54,8 @@ export const lokasiBulkAssign = `## Bulk Assign Rak ke Zona
 `;
 
 export const lokasiDeactivate = `## Menonaktifkan Lokasi
+
+![Deactivate lokasi](/bantuan/media/routes/dashboard-lokasi/01-halaman.png "Deactivate lokasi")
 
 Gudang atau rak yang tidak lagi digunakan sebaiknya **dinonaktifkan**, bukan dihapus, untuk menjaga integritas riwayat movement dan laporan historis.
 

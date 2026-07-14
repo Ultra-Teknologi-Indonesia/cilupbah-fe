@@ -1,0 +1,590 @@
+[
+  {
+    "slug": "onboarding/login-aktivasi",
+    "route": null,
+    "moduleGroup": "Onboarding",
+    "title": "Aktivasi akun & login pertama",
+    "exportName": "onboardingLoginAktivasi"
+  },
+  {
+    "slug": "onboarding/tur-cepat",
+    "route": null,
+    "moduleGroup": "Onboarding",
+    "title": "Tur cepat sidebar & layout",
+    "exportName": "onboardingTurCepat"
+  },
+  {
+    "slug": "onboarding/setup-profil",
+    "route": null,
+    "moduleGroup": "Onboarding",
+    "title": "Setup Profil Saya (4 tab)",
+    "exportName": "onboardingSetupProfil"
+  },
+  {
+    "slug": "pesanan/status-pesanan",
+    "route": "/dashboard/pesanan",
+    "moduleGroup": "Pesanan",
+    "title": "Arti setiap status pesanan",
+    "exportName": "pesananStatus"
+  },
+  {
+    "slug": "pesanan/daftar-pesanan",
+    "route": "/dashboard/pesanan",
+    "moduleGroup": "Pesanan",
+    "title": "Daftar pesanan: filter, search, sort, kolom",
+    "exportName": "pesananDaftar"
+  },
+  {
+    "slug": "pesanan/detail-timeline",
+    "route": "/dashboard/pesanan",
+    "moduleGroup": "Pesanan",
+    "title": "Detail pesanan & panel Alokasi",
+    "exportName": "pesananDetailTimeline"
+  },
+  {
+    "slug": "pesanan/riwayat-pesanan",
+    "route": "/dashboard/pesanan",
+    "moduleGroup": "Pesanan",
+    "title": "Riwayat Pesanan (timeline lifecycle)",
+    "exportName": "pesananRiwayat"
+  },
+  {
+    "slug": "pesanan/input-manual",
+    "route": "/dashboard/pesanan",
+    "moduleGroup": "Pesanan",
+    "title": "Input pesanan manual (offline/POS)",
+    "exportName": "pesananInputManual"
+  },
+  {
+    "slug": "pesanan/import-export",
+    "route": "/dashboard/pesanan",
+    "moduleGroup": "Pesanan",
+    "title": "Import & export pesanan",
+    "exportName": "pesananImportExport"
+  },
+  {
+    "slug": "pesanan/batalkan",
+    "route": "/dashboard/pesanan",
+    "moduleGroup": "Pesanan",
+    "title": "Membatalkan pesanan",
+    "exportName": "pesananBatalkan"
+  },
+  {
+    "slug": "proses-pesanan/alokasi-stok",
+    "route": "/dashboard/proses-pesanan/alokasi-stok",
+    "moduleGroup": "Proses Pesanan",
+    "title": "Alokasi Stok (reserve otomatis vs manual)",
+    "exportName": "prosesAlokasiStok"
+  },
+  {
+    "slug": "proses-pesanan/picking",
+    "route": "/dashboard/proses-pesanan/picking",
+    "moduleGroup": "Proses Pesanan",
+    "title": "Picking (Belum Mulai → Berjalan → Selesai)",
+    "exportName": "prosesPicking"
+  },
+  {
+    "slug": "proses-pesanan/packing",
+    "route": "/dashboard/proses-pesanan/packing",
+    "moduleGroup": "Proses Pesanan",
+    "title": "Packing (multi-order, timbang, ukur)",
+    "exportName": "prosesPacking"
+  },
+  {
+    "slug": "proses-pesanan/shipping",
+    "route": "/dashboard/proses-pesanan/shipping",
+    "moduleGroup": "Proses Pesanan",
+    "title": "Shipping (cetak resi & pickup)",
+    "exportName": "prosesShipping"
+  },
+  {
+    "slug": "proses-pesanan/delivered",
+    "route": "/dashboard/proses-pesanan/delivered",
+    "moduleGroup": "Proses Pesanan",
+    "title": "Terkirim (Delivered)",
+    "exportName": "prosesTerkirim"
+  },
+  {
+    "slug": "proses-pesanan/selesai",
+    "route": "/dashboard/proses-pesanan/done",
+    "moduleGroup": "Proses Pesanan",
+    "title": "Selesai (Done) — arsip",
+    "exportName": "prosesSelesai"
+  },
+  {
+    "slug": "proses-pesanan/scan-autoflow",
+    "route": null,
+    "moduleGroup": "Proses Pesanan",
+    "title": "Scan Autoflow Bar (SOP scan)",
+    "exportName": "prosesScanAutoflow"
+  },
+  {
+    "slug": "proses-pesanan/bukti-pickup",
+    "route": null,
+    "moduleGroup": "Proses Pesanan",
+    "title": "Bukti Pickup Kurir",
+    "exportName": "prosesBuktiPickup"
+  },
+  {
+    "slug": "proses-pesanan/kurir-instan",
+    "route": null,
+    "moduleGroup": "Proses Pesanan",
+    "title": "Kurir Instan (Grab/Gojek) manual",
+    "exportName": "prosesKurirInstan"
+  },
+  {
+    "slug": "produk/tambah",
+    "route": "/dashboard/produk",
+    "moduleGroup": "Produk",
+    "title": "Tambah produk (single, varian, bundle)",
+    "exportName": "produkTambah"
+  },
+  {
+    "slug": "produk/varian-bundle",
+    "route": null,
+    "moduleGroup": "Produk",
+    "title": "Perbedaan Produk / Varian / Bundle",
+    "exportName": "produkVarianBundle"
+  },
+  {
+    "slug": "produk/mapping-channel",
+    "route": "/dashboard/produk",
+    "moduleGroup": "Produk",
+    "title": "Mapping SKU ke channel",
+    "exportName": "produkMappingChannel"
+  },
+  {
+    "slug": "produk/sync-stok-harga",
+    "route": "/dashboard/produk",
+    "moduleGroup": "Produk",
+    "title": "Sync stok & harga per store",
+    "exportName": "produkSyncStokHarga"
+  },
+  {
+    "slug": "produk/download-marketplace",
+    "route": null,
+    "moduleGroup": "Produk",
+    "title": "Download produk baru dari marketplace",
+    "exportName": "produkDownloadMarketplace"
+  },
+  {
+    "slug": "produk/archive-delete",
+    "route": null,
+    "moduleGroup": "Produk",
+    "title": "Archive vs Delete produk",
+    "exportName": "produkArchiveDelete"
+  },
+  {
+    "slug": "barang-masuk/penerimaan",
+    "route": "/dashboard/barang-masuk",
+    "moduleGroup": "Barang Masuk",
+    "title": "Penerimaan (PO / Transfer Masuk)",
+    "exportName": "barangMasukPenerimaan"
+  },
+  {
+    "slug": "barang-masuk/putaway",
+    "route": "/dashboard/barang-masuk",
+    "moduleGroup": "Barang Masuk",
+    "title": "Penempatan (Putaway) via scan",
+    "exportName": "barangMasukPutaway"
+  },
+  {
+    "slug": "barang-masuk/assign",
+    "route": "/dashboard/barang-masuk",
+    "moduleGroup": "Barang Masuk",
+    "title": "Assign penerimaan ke petugas",
+    "exportName": "barangMasukAssign"
+  },
+  {
+    "slug": "barang-keluar/transfer-antar-gudang",
+    "route": "/dashboard/barang-keluar",
+    "moduleGroup": "Barang Keluar",
+    "title": "Transfer keluar manual antar gudang",
+    "exportName": "barangKeluarTransfer"
+  },
+  {
+    "slug": "barang-keluar/surat-jalan",
+    "route": "/dashboard/barang-keluar",
+    "moduleGroup": "Barang Keluar",
+    "title": "Cetak Surat Jalan (submit = IN_TRANSIT)",
+    "exportName": "barangKeluarSuratJalan"
+  },
+  {
+    "slug": "barang-keluar/revert",
+    "route": "/dashboard/barang-keluar",
+    "moduleGroup": "Barang Keluar",
+    "title": "Revert draft & delete in-transit",
+    "exportName": "barangKeluarRevert"
+  },
+  {
+    "slug": "transaksi-stok/tab-transfer",
+    "route": "/dashboard/transaksi-stok",
+    "moduleGroup": "Transaksi Stok",
+    "title": "Tab Transfer (Pindah Bin only)",
+    "exportName": "transaksiStokTabTransfer"
+  },
+  {
+    "slug": "transaksi-stok/penempatan",
+    "route": "/dashboard/transaksi-stok",
+    "moduleGroup": "Transaksi Stok",
+    "title": "Penempatan",
+    "exportName": "transaksiStokPenempatan"
+  },
+  {
+    "slug": "transaksi-stok/pengambilan",
+    "route": "/dashboard/transaksi-stok",
+    "moduleGroup": "Transaksi Stok",
+    "title": "Pengambilan",
+    "exportName": "transaksiStokPengambilan"
+  },
+  {
+    "slug": "transaksi-stok/penyesuaian",
+    "route": "/dashboard/transaksi-stok",
+    "moduleGroup": "Transaksi Stok",
+    "title": "Penyesuaian (opname / koreksi)",
+    "exportName": "transaksiStokPenyesuaian"
+  },
+  {
+    "slug": "transaksi-stok/transfer-bin",
+    "route": "/dashboard/transaksi-stok",
+    "moduleGroup": "Transaksi Stok",
+    "title": "Transfer Bin (2-langkah)",
+    "exportName": "transaksiStokTransferBin"
+  },
+  {
+    "slug": "transaksi-stok/riwayat",
+    "route": "/dashboard/transaksi-stok",
+    "moduleGroup": "Transaksi Stok",
+    "title": "Riwayat mutasi stok",
+    "exportName": "transaksiStokRiwayat"
+  },
+  {
+    "slug": "posisi-stok/baca",
+    "route": "/dashboard/posisi-stok",
+    "moduleGroup": "Posisi Stok",
+    "title": "Membaca kolom per-lokasi (4 metrik + Total)",
+    "exportName": "posisiStokBaca"
+  },
+  {
+    "slug": "posisi-stok/toggle-lokasi",
+    "route": "/dashboard/posisi-stok",
+    "moduleGroup": "Posisi Stok",
+    "title": "Toggle Lokasi (persist localStorage)",
+    "exportName": "posisiStokToggleLokasi"
+  },
+  {
+    "slug": "posisi-stok/export",
+    "route": "/dashboard/posisi-stok",
+    "moduleGroup": "Posisi Stok",
+    "title": "Export posisi stok",
+    "exportName": "posisiStokExport"
+  },
+  {
+    "slug": "monitor-stok/watchlist",
+    "route": "/dashboard/monitor-stok",
+    "moduleGroup": "Monitor Stok",
+    "title": "Watchlist stok minus",
+    "exportName": "monitorStokWatchlist"
+  },
+  {
+    "slug": "monitor-stok/reorder-point",
+    "route": "/dashboard/monitor-stok",
+    "moduleGroup": "Monitor Stok",
+    "title": "Reorder point alert",
+    "exportName": "monitorStokReorderPoint"
+  },
+  {
+    "slug": "lokasi/gudang-zone-rak",
+    "route": "/dashboard/lokasi",
+    "moduleGroup": "Lokasi",
+    "title": "Buat gudang, zone, rak",
+    "exportName": "lokasiGudangZoneRak"
+  },
+  {
+    "slug": "lokasi/bulk-assign",
+    "route": "/dashboard/lokasi",
+    "moduleGroup": "Lokasi",
+    "title": "Bulk-assign rak ke zone",
+    "exportName": "lokasiBulkAssign"
+  },
+  {
+    "slug": "lokasi/deactivate",
+    "route": "/dashboard/lokasi",
+    "moduleGroup": "Lokasi",
+    "title": "Deactivate lokasi",
+    "exportName": "lokasiDeactivate"
+  },
+  {
+    "slug": "kategori-merek/dasar",
+    "route": "/dashboard/kategori-merek",
+    "moduleGroup": "Kategori & Merek",
+    "title": "Mengelola kategori (tree) & merek",
+    "exportName": "kategoriMerek"
+  },
+  {
+    "slug": "kontak/pelanggan",
+    "route": "/dashboard/kontak-pelanggan",
+    "moduleGroup": "Kontak",
+    "title": "Kontak Pelanggan (import/export, phone E.164)",
+    "exportName": "kontakPelanggan"
+  },
+  {
+    "slug": "kontak/pemasok",
+    "route": "/dashboard/kontak-pemasok",
+    "moduleGroup": "Kontak",
+    "title": "Kontak Pemasok",
+    "exportName": "kontakPemasok"
+  },
+  {
+    "slug": "integrasi-channel/koneksi",
+    "route": "/dashboard/integrasi-channel",
+    "moduleGroup": "Integrasi Channel",
+    "title": "Ringkasan koneksi channel",
+    "exportName": "integrasiKoneksi"
+  },
+  {
+    "slug": "integrasi-channel/shopee",
+    "route": "/dashboard/integrasi-channel",
+    "moduleGroup": "Integrasi Channel",
+    "title": "Connect Shopee (OAuth)",
+    "exportName": "integrasiShopee"
+  },
+  {
+    "slug": "integrasi-channel/lazada",
+    "route": "/dashboard/integrasi-channel",
+    "moduleGroup": "Integrasi Channel",
+    "title": "Connect Lazada (state 10 menit)",
+    "exportName": "integrasiLazada"
+  },
+  {
+    "slug": "integrasi-channel/tiktok",
+    "route": "/dashboard/integrasi-channel",
+    "moduleGroup": "Integrasi Channel",
+    "title": "Connect TikTok Shop",
+    "exportName": "integrasiTikTok"
+  },
+  {
+    "slug": "integrasi-channel/woocommerce",
+    "route": "/dashboard/integrasi-channel",
+    "moduleGroup": "Integrasi Channel",
+    "title": "Connect WooCommerce (Basic Auth)",
+    "exportName": "integrasiWooCommerce"
+  },
+  {
+    "slug": "integrasi-channel/refresh-token",
+    "route": "/dashboard/integrasi-channel",
+    "moduleGroup": "Integrasi Channel",
+    "title": "Refresh token yang expired",
+    "exportName": "integrasiRefreshToken"
+  },
+  {
+    "slug": "integrasi-channel/toggle-sync",
+    "route": "/dashboard/integrasi-channel",
+    "moduleGroup": "Integrasi Channel",
+    "title": "Toggle sync per fitur",
+    "exportName": "integrasiToggleSync"
+  },
+  {
+    "slug": "toko-internal/setup",
+    "route": "/dashboard/toko-internal",
+    "moduleGroup": "Toko Internal",
+    "title": "Setup toko internal (POS/offline)",
+    "exportName": "tokoInternalSetup"
+  },
+  {
+    "slug": "retur/terima-retur",
+    "route": "/dashboard/pengaturan/retur",
+    "moduleGroup": "Retur",
+    "title": "Terima retur channel",
+    "exportName": "returTerima"
+  },
+  {
+    "slug": "retur/retur-manual",
+    "route": "/dashboard/pengaturan/retur",
+    "moduleGroup": "Retur",
+    "title": "Retur manual",
+    "exportName": "returManual"
+  },
+  {
+    "slug": "retur/laporan-bulanan",
+    "route": "/dashboard/laporan",
+    "moduleGroup": "Retur",
+    "title": "Laporan retur bulanan",
+    "exportName": "returLaporan"
+  },
+  {
+    "slug": "pembelian/buat-po",
+    "route": "/dashboard/transaksi-pembelian",
+    "moduleGroup": "Pembelian",
+    "title": "Buat Purchase Order",
+    "exportName": "pembelianBuatPo"
+  },
+  {
+    "slug": "pembelian/approval",
+    "route": "/dashboard/transaksi-pembelian",
+    "moduleGroup": "Pembelian",
+    "title": "Approval PO",
+    "exportName": "pembelianApproval"
+  },
+  {
+    "slug": "pembelian/po-bayar",
+    "route": "/dashboard/transaksi-pembelian",
+    "moduleGroup": "Pembelian",
+    "title": "PO → Penerimaan → Bayar",
+    "exportName": "pembelianPoBayar"
+  },
+  {
+    "slug": "permintaan-restock/request",
+    "route": "/dashboard/permintaan-restock",
+    "moduleGroup": "Permintaan Restock",
+    "title": "Request restock antar cabang",
+    "exportName": "permintaanRestockRequest"
+  },
+  {
+    "slug": "laporan/daftar",
+    "route": "/dashboard/laporan",
+    "moduleGroup": "Laporan",
+    "title": "Daftar laporan yang tersedia",
+    "exportName": "laporanDaftar"
+  },
+  {
+    "slug": "laporan/filter-export",
+    "route": "/dashboard/laporan",
+    "moduleGroup": "Laporan",
+    "title": "Filter, periode, export",
+    "exportName": "laporanFilterExport"
+  },
+  {
+    "slug": "laporan/paste-ai",
+    "route": null,
+    "moduleGroup": "Laporan",
+    "title": "Cara paste laporan ke AI",
+    "exportName": "laporanPasteAi"
+  },
+  {
+    "slug": "notifikasi/bell",
+    "route": "/dashboard/notifikasi",
+    "moduleGroup": "Notifikasi",
+    "title": "Bell icon, filter, mark read",
+    "exportName": "notifikasiBell"
+  },
+  {
+    "slug": "notifikasi/kanal",
+    "route": "/dashboard/notifikasi",
+    "moduleGroup": "Notifikasi",
+    "title": "Kanal notifikasi (in-app, WA, email)",
+    "exportName": "notifikasiKanal"
+  },
+  {
+    "slug": "impex/status",
+    "route": "/dashboard/aktivitas-impex",
+    "moduleGroup": "Aktivitas Impex",
+    "title": "Cek status import/export",
+    "exportName": "impexStatus"
+  },
+  {
+    "slug": "impex/download",
+    "route": "/dashboard/aktivitas-impex",
+    "moduleGroup": "Aktivitas Impex",
+    "title": "Download hasil / error log",
+    "exportName": "impexDownload"
+  },
+  {
+    "slug": "pengaturan/umum",
+    "route": "/dashboard/pengaturan",
+    "moduleGroup": "Pengaturan",
+    "title": "Pengaturan Umum (identitas, kebijakan, SLA)",
+    "exportName": "pengaturanUmum"
+  },
+  {
+    "slug": "pengaturan/pengguna",
+    "route": "/dashboard/pengaturan/pengguna",
+    "moduleGroup": "Pengaturan",
+    "title": "Pengguna (invite, edit, deactivate)",
+    "exportName": "pengaturanPengguna"
+  },
+  {
+    "slug": "pengaturan/rbac",
+    "route": "/dashboard/pengaturan/peran",
+    "moduleGroup": "Pengaturan",
+    "title": "Peran / RBAC (matriks izin)",
+    "exportName": "pengaturanRbac"
+  },
+  {
+    "slug": "pengaturan/persediaan",
+    "route": "/dashboard/pengaturan-persediaan",
+    "moduleGroup": "Pengaturan",
+    "title": "Pengaturan Persediaan (alokasi, safety stock)",
+    "exportName": "pengaturanPersediaan"
+  },
+  {
+    "slug": "profil-saya/tab-profil",
+    "route": "/dashboard/profil-saya",
+    "moduleGroup": "Profil Saya",
+    "title": "Tab Profil (nama, HP, email, foto)",
+    "exportName": "profilTabProfil"
+  },
+  {
+    "slug": "profil-saya/keamanan",
+    "route": "/dashboard/profil-saya",
+    "moduleGroup": "Profil Saya",
+    "title": "Tab Keamanan (password, 2FA)",
+    "exportName": "profilKeamanan"
+  },
+  {
+    "slug": "profil-saya/sesi-riwayat",
+    "route": "/dashboard/profil-saya",
+    "moduleGroup": "Profil Saya",
+    "title": "Tab Sesi & Riwayat",
+    "exportName": "profilSesiRiwayat"
+  },
+  {
+    "slug": "profil-saya/preferensi",
+    "route": "/dashboard/profil-saya",
+    "moduleGroup": "Profil Saya",
+    "title": "Tab Preferensi",
+    "exportName": "profilPreferensi"
+  },
+  {
+    "slug": "standar/search",
+    "route": null,
+    "moduleGroup": "Standar Umum",
+    "title": "Cara pakai search & filter (Spatie Query Builder)",
+    "exportName": "standarSearch"
+  },
+  {
+    "slug": "standar/tabel",
+    "route": null,
+    "moduleGroup": "Standar Umum",
+    "title": "Cara pakai tabel: sort, pagination, kolom",
+    "exportName": "standarTabel"
+  },
+  {
+    "slug": "standar/scan",
+    "route": null,
+    "moduleGroup": "Standar Umum",
+    "title": "Standar Scan Autoflow",
+    "exportName": "standarScan"
+  },
+  {
+    "slug": "standar/user-select",
+    "route": null,
+    "moduleGroup": "Standar Umum",
+    "title": "UserSelect (search API + Saya sendiri)",
+    "exportName": "standarUserSelect"
+  },
+  {
+    "slug": "standar/phone",
+    "route": null,
+    "moduleGroup": "Standar Umum",
+    "title": "PhoneInput (E.164)",
+    "exportName": "standarPhone"
+  },
+  {
+    "slug": "standar/kembali",
+    "route": null,
+    "moduleGroup": "Standar Umum",
+    "title": "Tombol Kembali & breadcrumb (pertahankan posisi)",
+    "exportName": "standarKembali"
+  }
+]

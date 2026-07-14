@@ -1,5 +1,7 @@
 export const pengaturanUmum = `## Pengaturan Umum
 
+![Pengaturan Umum (identitas, kebijakan, SLA)](/bantuan/media/routes/dashboard-pengaturan/01-halaman.png "Pengaturan Umum (identitas, kebijakan, SLA)")
+
 Tab **Umum** adalah pusat konfigurasi tunggal untuk satu perusahaan, mencakup identitas, kebijakan stok, dan SLA operasional.
 
 ### Langkah mengakses
@@ -35,6 +37,8 @@ Tab **Umum** adalah pusat konfigurasi tunggal untuk satu perusahaan, mencakup id
 
 export const pengaturanPengguna = `## Pengaturan Pengguna
 
+![Pengguna (invite, edit, deactivate)](/bantuan/media/routes/dashboard-pengaturan-pengguna/01-halaman.png "Pengguna (invite, edit, deactivate)")
+
 Modul ini mengelola user aplikasi, invitasi, peran, dan status aktif/nonaktif.
 
 ### Langkah CRUD pengguna
@@ -66,6 +70,8 @@ Modul ini mengelola user aplikasi, invitasi, peran, dan status aktif/nonaktif.
 `;
 
 export const pengaturanRbac = `## Pengaturan RBAC (Hak Akses)
+
+![Peran / RBAC (matriks izin)](/bantuan/media/routes/dashboard-pengaturan-peran/01-halaman.png "Peran / RBAC (matriks izin)")
 
 Matriks hak akses berbasis kombinasi modul × aksi × role dengan opsi override per user untuk kasus khusus.
 
@@ -100,6 +106,8 @@ Matriks hak akses berbasis kombinasi modul × aksi × role dengan opsi override 
 `;
 
 export const pengaturanPersediaan = `## Pengaturan Persediaan
+
+![Pengaturan Persediaan (alokasi, safety stock)](/bantuan/media/routes/dashboard-pengaturan-persediaan/01-halaman.png "Pengaturan Persediaan (alokasi, safety stock)")
 
 Kebijakan persediaan mengatur perilaku default sistem terkait alokasi stok, gudang default, dan guard stok negatif per modul.
 

@@ -1,61 +1,239 @@
 {
-  "generated_at": "2026-07-14T04:20:49.554Z",
+  "generated_at": "2026-07-14T04:31:42.450Z",
   "shots": [
     {
-      "slug": "pesanan/daftar-pesanan",
-      "name": "01-daftar",
-      "path": "/bantuan/media/pesanan/daftar-pesanan/01-daftar.png",
+      "slug": "routes/dashboard-pesanan",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-pesanan/01-halaman.png",
       "url": "https://cilupbah-fe.vercel.app/dashboard/pesanan",
-      "caption": "Daftar pesanan lintas channel — tab status, filter, sort, kolom",
-      "capturedAt": "2026-07-14T04:18:59.376Z"
+      "caption": "Arti setiap status pesanan · Daftar pesanan: filter, search, sort, kolom · Detail pesanan & panel Alokasi",
+      "capturedAt": "2026-07-14T04:29:13.821Z"
     },
     {
-      "slug": "proses-pesanan/picking",
-      "name": "01-belum-mulai",
-      "path": "/bantuan/media/proses-pesanan/picking/01-belum-mulai.png",
+      "slug": "routes/dashboard-proses-pesanan-picking",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-proses-pesanan-picking/01-halaman.png",
       "url": "https://cilupbah-fe.vercel.app/dashboard/proses-pesanan/picking",
-      "caption": "Sub-tab \"Belum Mulai\" — order siap dipick",
-      "capturedAt": "2026-07-14T04:19:12.494Z"
+      "caption": "Picking (Belum Mulai → Berjalan → Selesai)",
+      "capturedAt": "2026-07-14T04:29:22.459Z"
     },
     {
-      "slug": "proses-pesanan/packing",
-      "name": "01-belum-mulai",
-      "path": "/bantuan/media/proses-pesanan/packing/01-belum-mulai.png",
+      "slug": "routes/dashboard-proses-pesanan-packing",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-proses-pesanan-packing/01-halaman.png",
       "url": "https://cilupbah-fe.vercel.app/dashboard/proses-pesanan/packing",
-      "caption": "Packing — antrian order siap packing",
-      "capturedAt": "2026-07-14T04:19:59.868Z"
+      "caption": "Packing (multi-order, timbang, ukur)",
+      "capturedAt": "2026-07-14T04:29:27.541Z"
     },
     {
-      "slug": "proses-pesanan/shipping",
-      "name": "01-siap-kirim",
-      "path": "/bantuan/media/proses-pesanan/shipping/01-siap-kirim.png",
+      "slug": "routes/dashboard-proses-pesanan-shipping",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-proses-pesanan-shipping/01-halaman.png",
       "url": "https://cilupbah-fe.vercel.app/dashboard/proses-pesanan/shipping",
-      "caption": "Shipping — cetak resi & pickup kurir",
-      "capturedAt": "2026-07-14T04:20:13.466Z"
+      "caption": "Shipping (cetak resi & pickup)",
+      "capturedAt": "2026-07-14T04:29:32.910Z"
     },
     {
-      "slug": "barang-masuk/penerimaan",
-      "name": "01-daftar-inbound",
-      "path": "/bantuan/media/barang-masuk/penerimaan/01-daftar-inbound.png",
-      "url": "https://cilupbah-fe.vercel.app/dashboard/barang-masuk?tab=penerimaan",
-      "caption": "Daftar penerimaan yang menunggu putaway",
-      "capturedAt": "2026-07-14T04:20:24.889Z"
+      "slug": "routes/dashboard-proses-pesanan-delivered",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-proses-pesanan-delivered/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/proses-pesanan/delivered",
+      "caption": "Terkirim (Delivered)",
+      "capturedAt": "2026-07-14T04:29:38.313Z"
     },
     {
-      "slug": "produk/tambah",
-      "name": "01-form-tambah",
-      "path": "/bantuan/media/produk/tambah/01-form-tambah.png",
-      "url": "https://cilupbah-fe.vercel.app/dashboard/produk/tambah",
-      "caption": "Form tambah produk baru",
-      "capturedAt": "2026-07-14T04:20:37.463Z"
+      "slug": "routes/dashboard-proses-pesanan-done",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-proses-pesanan-done/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/proses-pesanan/done",
+      "caption": "Selesai (Done) — arsip",
+      "capturedAt": "2026-07-14T04:29:45.003Z"
     },
     {
-      "slug": "integrasi-channel/daftar",
-      "name": "01-daftar-channel",
-      "path": "/bantuan/media/integrasi-channel/daftar/01-daftar-channel.png",
+      "slug": "routes/dashboard-produk",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-produk/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/produk",
+      "caption": "Tambah produk (single, varian, bundle) · Mapping SKU ke channel · Sync stok & harga per store",
+      "capturedAt": "2026-07-14T04:29:56.098Z"
+    },
+    {
+      "slug": "routes/dashboard-barang-masuk",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-barang-masuk/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/barang-masuk",
+      "caption": "Penerimaan (PO / Transfer Masuk) · Penempatan (Putaway) via scan · Assign penerimaan ke petugas",
+      "capturedAt": "2026-07-14T04:30:04.504Z"
+    },
+    {
+      "slug": "routes/dashboard-barang-keluar",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-barang-keluar/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/barang-keluar",
+      "caption": "Transfer keluar manual antar gudang · Cetak Surat Jalan (submit = IN_TRANSIT) · Revert draft & delete in-transit",
+      "capturedAt": "2026-07-14T04:30:10.220Z"
+    },
+    {
+      "slug": "routes/dashboard-transaksi-stok",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-transaksi-stok/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/transaksi-stok",
+      "caption": "Tab Transfer (Pindah Bin only) · Penempatan · Pengambilan",
+      "capturedAt": "2026-07-14T04:30:15.988Z"
+    },
+    {
+      "slug": "routes/dashboard-posisi-stok",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-posisi-stok/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/posisi-stok",
+      "caption": "Membaca kolom per-lokasi (4 metrik + Total) · Toggle Lokasi (persist localStorage) · Export posisi stok",
+      "capturedAt": "2026-07-14T04:30:19.544Z"
+    },
+    {
+      "slug": "routes/dashboard-monitor-stok",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-monitor-stok/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/monitor-stok",
+      "caption": "Watchlist stok minus · Reorder point alert",
+      "capturedAt": "2026-07-14T04:30:23.728Z"
+    },
+    {
+      "slug": "routes/dashboard-lokasi",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-lokasi/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/lokasi",
+      "caption": "Buat gudang, zone, rak · Bulk-assign rak ke zone · Deactivate lokasi",
+      "capturedAt": "2026-07-14T04:30:29.070Z"
+    },
+    {
+      "slug": "routes/dashboard-kontak-pelanggan",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-kontak-pelanggan/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/kontak-pelanggan",
+      "caption": "Kontak Pelanggan (import/export, phone E.164)",
+      "capturedAt": "2026-07-14T04:30:37.048Z"
+    },
+    {
+      "slug": "routes/dashboard-kontak-pemasok",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-kontak-pemasok/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/kontak-pemasok",
+      "caption": "Kontak Pemasok",
+      "capturedAt": "2026-07-14T04:30:45.099Z"
+    },
+    {
+      "slug": "routes/dashboard-integrasi-channel",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-integrasi-channel/01-halaman.png",
       "url": "https://cilupbah-fe.vercel.app/dashboard/integrasi-channel",
-      "caption": "Daftar channel — Shopee/Lazada/TikTok/WooCommerce yang terhubung",
-      "capturedAt": "2026-07-14T04:20:49.554Z"
+      "caption": "Ringkasan koneksi channel · Connect Shopee (OAuth) · Connect Lazada (state 10 menit)",
+      "capturedAt": "2026-07-14T04:30:48.827Z"
+    },
+    {
+      "slug": "routes/dashboard-toko-internal",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-toko-internal/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/toko-internal",
+      "caption": "Setup toko internal (POS/offline)",
+      "capturedAt": "2026-07-14T04:30:54.030Z"
+    },
+    {
+      "slug": "routes/dashboard-transaksi-pembelian",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-transaksi-pembelian/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/transaksi-pembelian",
+      "caption": "Buat Purchase Order · Approval PO · PO → Penerimaan → Bayar",
+      "capturedAt": "2026-07-14T04:31:02.396Z"
+    },
+    {
+      "slug": "routes/dashboard-permintaan-restock",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-permintaan-restock/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/permintaan-restock",
+      "caption": "Request restock antar cabang",
+      "capturedAt": "2026-07-14T04:31:07.159Z"
+    },
+    {
+      "slug": "routes/dashboard-notifikasi",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-notifikasi/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/notifikasi",
+      "caption": "Bell icon, filter, mark read · Kanal notifikasi (in-app, WA, email)",
+      "capturedAt": "2026-07-14T04:31:12.322Z"
+    },
+    {
+      "slug": "routes/dashboard-aktivitas-impex",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-aktivitas-impex/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/aktivitas-impex",
+      "caption": "Cek status import/export · Download hasil / error log",
+      "capturedAt": "2026-07-14T04:31:17.814Z"
+    },
+    {
+      "slug": "routes/dashboard-pengaturan",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-pengaturan/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/pengaturan",
+      "caption": "Pengaturan Umum (identitas, kebijakan, SLA)",
+      "capturedAt": "2026-07-14T04:31:21.814Z"
+    },
+    {
+      "slug": "routes/dashboard-pengaturan-pengguna",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-pengaturan-pengguna/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/pengaturan/pengguna",
+      "caption": "Pengguna (invite, edit, deactivate)",
+      "capturedAt": "2026-07-14T04:31:28.108Z"
+    },
+    {
+      "slug": "routes/dashboard-pengaturan-peran",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-pengaturan-peran/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/pengaturan/peran",
+      "caption": "Peran / RBAC (matriks izin)",
+      "capturedAt": "2026-07-14T04:31:33.495Z"
+    },
+    {
+      "slug": "routes/dashboard-pengaturan-persediaan",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-pengaturan-persediaan/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/pengaturan-persediaan",
+      "caption": "Pengaturan Persediaan (alokasi, safety stock)",
+      "capturedAt": "2026-07-14T04:31:37.954Z"
+    },
+    {
+      "slug": "routes/dashboard-profil-saya",
+      "name": "01-halaman",
+      "path": "/bantuan/media/routes/dashboard-profil-saya/01-halaman.png",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/profil-saya",
+      "caption": "Tab Profil (nama, HP, email, foto) · Tab Keamanan (password, 2FA) · Tab Sesi & Riwayat",
+      "capturedAt": "2026-07-14T04:31:42.450Z"
+    }
+  ],
+  "failed": [
+    {
+      "slug": "routes/dashboard-proses-pesanan-alokasi-stok",
+      "name": "01-halaman",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/proses-pesanan/alokasi-stok",
+      "reason": "page-not-found"
+    },
+    {
+      "slug": "routes/dashboard-kategori-merek",
+      "name": "01-halaman",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/kategori-merek",
+      "reason": "page-not-found"
+    },
+    {
+      "slug": "routes/dashboard-pengaturan-retur",
+      "name": "01-halaman",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/pengaturan/retur",
+      "reason": "page-not-found"
+    },
+    {
+      "slug": "routes/dashboard-laporan",
+      "name": "01-halaman",
+      "url": "https://cilupbah-fe.vercel.app/dashboard/laporan",
+      "reason": "page-not-found"
     }
   ]
 }

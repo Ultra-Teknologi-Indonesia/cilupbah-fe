@@ -98,14 +98,40 @@ async function runStep(page, step) {
   if (delay) await new Promise((r) => setTimeout(r, delay));
 }
 
-async function shoot(page, target, shot, manifestEntries) {
+async function detectPageIssue(page, expectedPath) {
+  const url = page.url();
+  const path = new URL(url).pathname;
+  if (path.startsWith("/login")) return "redirect-to-login";
+  if (path.startsWith("/_error") || path.includes("/404")) return "next-error";
+  const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
+  const first500 = bodyText.slice(0, 500).toLowerCase();
+  if (/404|this page could not be found|not[- ]found|tidak ditemukan/.test(first500)) {
+    return "page-not-found";
+  }
+  const expected = expectedPath.split("?")[0].replace(/\/+$/, "");
+  const actual = path.replace(/\/+$/, "");
+  if (expected && actual !== expected && !actual.startsWith(expected)) {
+    return `redirected-to-${actual}`;
+  }
+  return null;
+}
+
+async function shoot(page, target, shot, manifestEntries, failed) {
   const outDir = join(MEDIA_ROOT, target.slug);
-  await mkdir(outDir, { recursive: true });
   const outPath = join(outDir, `${shot.name}.png`);
+  const relPath = `/bantuan/media/${target.slug}/${shot.name}.png`;
 
   const fullUrl = new URL(shot.url, BASE_URL).toString();
+  const expectedPath = new URL(fullUrl).pathname;
   console.log(`  · shoot ${target.slug}/${shot.name} → ${fullUrl}`);
   await page.goto(fullUrl, { waitUntil: "networkidle2", timeout: 20_000 });
+
+  const issue = await detectPageIssue(page, expectedPath);
+  if (issue) {
+    console.warn(`    ✗ SKIP: ${issue}`);
+    failed.push({ slug: target.slug, name: shot.name, url: fullUrl, reason: issue });
+    return;
+  }
 
   if (shot.waitFor) {
     try {
@@ -115,7 +141,11 @@ async function shoot(page, target, shot, manifestEntries) {
     }
   }
   for (const step of shot.steps ?? []) {
-    await runStep(page, step);
+    try {
+      await runStep(page, step);
+    } catch (err) {
+      console.warn(`    ! step ${step.type} gagal: ${err.message}`);
+    }
   }
   await new Promise((r) => setTimeout(r, shot.settleMs ?? 400));
 
@@ -128,6 +158,7 @@ async function shoot(page, target, shot, manifestEntries) {
       }, shot.clipSelector)
     : null;
 
+  await mkdir(outDir, { recursive: true });
   await page.screenshot({
     path: outPath,
     clip: clip ?? undefined,
@@ -137,7 +168,7 @@ async function shoot(page, target, shot, manifestEntries) {
   manifestEntries.push({
     slug: target.slug,
     name: shot.name,
-    path: `/bantuan/media/${target.slug}/${shot.name}.png`,
+    path: relPath,
     url: fullUrl,
     caption: shot.caption ?? "",
     capturedAt: new Date().toISOString(),
@@ -159,23 +190,33 @@ async function main() {
     await mkdir(MEDIA_ROOT, { recursive: true });
 
     const manifestEntries = [];
+    const failed = [];
     for (const target of targets) {
       console.log(`[${target.slug}]`);
       for (const shot of target.shots) {
         try {
-          await shoot(page, target, shot, manifestEntries);
+          await shoot(page, target, shot, manifestEntries, failed);
         } catch (err) {
           console.error(`    ✗ ${shot.name}: ${err.message}`);
+          failed.push({ slug: target.slug, name: shot.name, reason: `error: ${err.message}` });
         }
       }
     }
 
     await writeFile(
       MANIFEST_FILE,
-      JSON.stringify({ generated_at: new Date().toISOString(), shots: manifestEntries }, null, 2),
+      JSON.stringify(
+        {
+          generated_at: new Date().toISOString(),
+          shots: manifestEntries,
+          failed,
+        },
+        null,
+        2,
+      ),
     );
     console.log(`[bantuan-screenshot] selesai. Manifest: ${MANIFEST_FILE}`);
-    console.log(`  ${manifestEntries.length} shot tersimpan.`);
+    console.log(`  ${manifestEntries.length} shot tersimpan, ${failed.length} gagal (lihat manifest.failed).`);
   } finally {
     await browser.close();
   }

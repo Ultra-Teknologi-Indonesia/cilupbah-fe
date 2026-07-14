@@ -1,5 +1,7 @@
 export const pesananStatus = `## Arti Setiap Status Pesanan
 
+![Arti setiap status pesanan](/bantuan/media/routes/dashboard-pesanan/01-halaman.png "Arti setiap status pesanan")
+
 Setiap pesanan bergerak melalui rangkaian status yang mencerminkan tahap fulfillment. Memahami arti tiap status penting untuk memilih aksi yang benar dan menghindari salah revert.
 
 ### Status utama
@@ -23,9 +25,9 @@ Setiap pesanan bergerak melalui rangkaian status yang mencerminkan tahap fulfill
 
 export const pesananDaftar = `## Daftar Pesanan
 
-Halaman \`/dashboard/pesanan\` menampilkan seluruh pesanan lintas channel dalam satu tabel terpadu. Gunakan filter dan search untuk mempersempit hasil sebelum bekerja.
+![Daftar pesanan: filter, search, sort, kolom](/bantuan/media/routes/dashboard-pesanan/01-halaman.png "Daftar pesanan: filter, search, sort, kolom")
 
-![Daftar pesanan lintas channel dengan tab status, filter, sort, dan kolom yang dapat dikustom](/bantuan/media/pesanan/daftar-pesanan/01-daftar.png "Halaman /dashboard/pesanan — tab status di atas, kartu order per baris")
+Halaman \`/dashboard/pesanan\` menampilkan seluruh pesanan lintas channel dalam satu tabel terpadu. Gunakan filter dan search untuk mempersempit hasil sebelum bekerja.
 
 ### Filter & search
 
@@ -49,6 +51,8 @@ Halaman \`/dashboard/pesanan\` menampilkan seluruh pesanan lintas channel dalam 
 `;
 
 export const pesananDetailTimeline = `## Detail Pesanan
+
+![Detail pesanan & panel Alokasi](/bantuan/media/routes/dashboard-pesanan/01-halaman.png "Detail pesanan & panel Alokasi")
 
 Halaman \`/dashboard/pesanan/[id]\` menampilkan seluruh informasi pesanan dalam tiga panel utama plus header ringkas. Semua panel dapat dikonsumsi tanpa scroll horizontal.
 
@@ -79,6 +83,8 @@ Halaman \`/dashboard/pesanan/[id]\` menampilkan seluruh informasi pesanan dalam 
 
 export const pesananRiwayat = `## Riwayat Pesanan
 
+![Riwayat Pesanan (timeline lifecycle)](/bantuan/media/routes/dashboard-pesanan/01-halaman.png "Riwayat Pesanan (timeline lifecycle)")
+
 Dialog **Riwayat Pesanan** memperlihatkan lifecycle penuh sebuah pesanan dalam bentuk timeline, sehingga Anda dapat menelusuri kapan dan siapa yang mengubah apa.
 
 ### Cara membuka
@@ -104,6 +110,8 @@ Dialog **Riwayat Pesanan** memperlihatkan lifecycle penuh sebuah pesanan dalam b
 `;
 
 export const pesananInputManual = `## Input Pesanan Manual
+
+![Input pesanan manual (offline/POS)](/bantuan/media/routes/dashboard-pesanan/01-halaman.png "Input pesanan manual (offline/POS)")
 
 Fitur input manual dipakai untuk pesanan telepon, walk-in, atau pesanan lintas toko internal yang tidak lewat channel marketplace. Akses via \`/dashboard/pesanan/tambah\`.
 
@@ -134,6 +142,8 @@ Klik **Simpan** di footer card. Pesanan langsung berstatus **Baru** dan lanjut k
 
 export const pesananImportExport = `## Import & Export Pesanan
 
+![Import & export pesanan](/bantuan/media/routes/dashboard-pesanan/01-halaman.png "Import & export pesanan")
+
 Untuk operasi bulk (migrasi awal, penyesuaian massal, laporan eksternal), gunakan menu Import/Export di \`/dashboard/pesanan\` toolbar kanan atas.
 
 ### Import pesanan
@@ -159,6 +169,8 @@ Untuk operasi bulk (migrasi awal, penyesuaian massal, laporan eksternal), gunaka
 `;
 
 export const pesananBatalkan = `## Batalkan Pesanan
+
+![Membatalkan pesanan](/bantuan/media/routes/dashboard-pesanan/01-halaman.png "Membatalkan pesanan")
 
 Pembatalan memutus lifecycle pesanan dan mengembalikan stok yang telah di-reserve. Aksi ini permanen dan tidak dapat dibatalkan; koreksi lanjutan hanya lewat input pesanan baru.
 

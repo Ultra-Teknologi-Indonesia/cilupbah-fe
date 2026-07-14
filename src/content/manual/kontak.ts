@@ -1,5 +1,7 @@
 export const kontakPelanggan = `## Kontak Pelanggan
 
+![Kontak Pelanggan (import/export, phone E.164)](/bantuan/media/routes/dashboard-kontak-pelanggan/01-halaman.png "Kontak Pelanggan (import/export, phone E.164)")
+
 Modul **Kontak Pelanggan** (\`/dashboard/kontak-pelanggan\`) menyimpan data pelanggan yang menjadi acuan **Tambah Pesanan** manual, invoicing, dan pengiriman.
 
 ### Langkah tambah pelanggan
@@ -25,6 +27,8 @@ Modul **Kontak Pelanggan** (\`/dashboard/kontak-pelanggan\`) menyimpan data pela
 `;
 
 export const kontakPemasok = `## Kontak Pemasok
+
+![Kontak Pemasok](/bantuan/media/routes/dashboard-kontak-pemasok/01-halaman.png "Kontak Pemasok")
 
 Modul **Kontak Pemasok** (\`/dashboard/kontak-pemasok\`) menyimpan data supplier yang menjadi acuan **Pesanan Pembelian** dan pembayaran ke vendor.
 

@@ -20,6 +20,8 @@ Alokasi menahan (\`reserve\`) stok WH-KECIL agar tidak dipakai pesanan lain samp
 
 export const prosesPicking = `## Picking
 
+![Picking (Belum Mulai → Berjalan → Selesai)](/bantuan/media/routes/dashboard-proses-pesanan-picking/01-halaman.png "Picking (Belum Mulai → Berjalan → Selesai)")
+
 Modul Picking berada di \`/dashboard/proses-pesanan\` tab **Picking** dan mengatur pengambilan barang dari rak WH-KECIL menuju area packing.
 
 ### Tiga sub-tab
@@ -45,6 +47,8 @@ Modul Picking berada di \`/dashboard/proses-pesanan\` tab **Picking** dan mengat
 
 export const prosesPacking = `## Packing
 
+![Packing (multi-order, timbang, ukur)](/bantuan/media/routes/dashboard-proses-pesanan-packing/01-halaman.png "Packing (multi-order, timbang, ukur)")
+
 Modul Packing di \`/dashboard/proses-pesanan\` tab **Packing** mengubah barang yang sudah dipick menjadi paket siap kirim, lengkap dengan berat dan dimensi.
 
 ### Tiga sub-tab
@@ -69,6 +73,8 @@ Modul Packing di \`/dashboard/proses-pesanan\` tab **Packing** mengubah barang y
 `;
 
 export const prosesShipping = `## Shipping
+
+![Shipping (cetak resi & pickup)](/bantuan/media/routes/dashboard-proses-pesanan-shipping/01-halaman.png "Shipping (cetak resi & pickup)")
 
 Modul Shipping di \`/dashboard/proses-pesanan\` tab **Shipping** mengatur pencetakan resi, pickup, dan penyerahan paket ke kurir.
 
@@ -96,6 +102,8 @@ Modul Shipping di \`/dashboard/proses-pesanan\` tab **Shipping** mengatur pencet
 
 export const prosesTerkirim = `## Terkirim (Delivered)
 
+![Terkirim (Delivered)](/bantuan/media/routes/dashboard-proses-pesanan-delivered/01-halaman.png "Terkirim (Delivered)")
+
 Sub-tab **Delivered** di \`/dashboard/proses-pesanan\` memperlihatkan paket yang sudah dilaporkan sampai oleh kurir tetapi belum masuk **Selesai**.
 
 ### Sumber status
@@ -119,6 +127,8 @@ Sub-tab **Delivered** di \`/dashboard/proses-pesanan\` memperlihatkan paket yang
 `;
 
 export const prosesSelesai = `## Selesai
+
+![Selesai (Done) — arsip](/bantuan/media/routes/dashboard-proses-pesanan-done/01-halaman.png "Selesai (Done) — arsip")
 
 Sub-tab **Selesai** di \`/dashboard/proses-pesanan\` adalah arsip akhir untuk pesanan yang seluruh proses fulfillment-nya tuntas dan dana sudah diakui.
 

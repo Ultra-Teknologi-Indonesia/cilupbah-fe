@@ -1,107 +1,361 @@
 [
   {
-    "slug": "pesanan/daftar-pesanan",
+    "slug": "routes/dashboard-pesanan",
     "shots": [
       {
-        "name": "01-daftar",
+        "name": "01-halaman",
         "url": "/dashboard/pesanan",
-        "waitFor": "[data-slot='page-title'], main",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
         "settleMs": 1500,
-        "caption": "Daftar pesanan lintas channel — tab status, filter, sort, kolom"
+        "caption": "Arti setiap status pesanan · Daftar pesanan: filter, search, sort, kolom · Detail pesanan & panel Alokasi"
       }
     ]
   },
   {
-    "slug": "proses-pesanan/picking",
+    "slug": "routes/dashboard-proses-pesanan-alokasi-stok",
     "shots": [
       {
-        "name": "01-belum-mulai",
-        "url": "/dashboard/proses-pesanan/picking",
-        "waitFor": "[data-slot='page-title']",
-        "settleMs": 1200,
-        "caption": "Sub-tab \"Belum Mulai\" — order siap dipick"
-      },
-      {
-        "name": "02-diproses",
-        "url": "/dashboard/proses-pesanan/picking",
-        "waitFor": "[data-slot='page-title']",
-        "steps": [
-          { "type": "waitTime", "text": "800" },
-          { "type": "click", "selector": "[role='tab']:nth-of-type(2), button:has-text('Diproses')" }
-        ],
-        "settleMs": 1200,
-        "caption": "Sub-tab \"Diproses\" — sesi picking aktif"
-      },
-      {
-        "name": "03-selesai",
-        "url": "/dashboard/proses-pesanan/picking",
-        "waitFor": "[data-slot='page-title']",
-        "steps": [
-          { "type": "waitTime", "text": "800" },
-          { "type": "click", "selector": "[role='tab']:nth-of-type(3), button:has-text('Selesai')" }
-        ],
-        "settleMs": 1200,
-        "caption": "Sub-tab \"Selesai\" — picklist yang sudah selesai diproses"
+        "name": "01-halaman",
+        "url": "/dashboard/proses-pesanan/alokasi-stok",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Alokasi Stok (reserve otomatis vs manual)"
       }
     ]
   },
   {
-    "slug": "proses-pesanan/packing",
+    "slug": "routes/dashboard-proses-pesanan-picking",
     "shots": [
       {
-        "name": "01-belum-mulai",
+        "name": "01-halaman",
+        "url": "/dashboard/proses-pesanan/picking",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Picking (Belum Mulai → Berjalan → Selesai)"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-proses-pesanan-packing",
+    "shots": [
+      {
+        "name": "01-halaman",
         "url": "/dashboard/proses-pesanan/packing",
-        "waitFor": "[data-slot='page-title']",
-        "settleMs": 1200,
-        "caption": "Packing — antrian order siap packing"
-      }
-    ]
-  },
-  {
-    "slug": "proses-pesanan/shipping",
-    "shots": [
-      {
-        "name": "01-siap-kirim",
-        "url": "/dashboard/proses-pesanan/shipping",
-        "waitFor": "[data-slot='page-title']",
-        "settleMs": 1200,
-        "caption": "Shipping — cetak resi & pickup kurir"
-      }
-    ]
-  },
-  {
-    "slug": "barang-masuk/penerimaan",
-    "shots": [
-      {
-        "name": "01-daftar-inbound",
-        "url": "/dashboard/barang-masuk?tab=penerimaan",
-        "waitFor": "[data-slot='page-title']",
-        "settleMs": 1200,
-        "caption": "Daftar penerimaan yang menunggu putaway"
-      }
-    ]
-  },
-  {
-    "slug": "produk/tambah",
-    "shots": [
-      {
-        "name": "01-form-tambah",
-        "url": "/dashboard/produk/tambah",
-        "waitFor": "form, input",
-        "settleMs": 2500,
-        "caption": "Form tambah produk baru"
-      }
-    ]
-  },
-  {
-    "slug": "integrasi-channel/daftar",
-    "shots": [
-      {
-        "name": "01-daftar-channel",
-        "url": "/dashboard/integrasi-channel",
-        "waitFor": "[data-slot='page-title']",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
         "settleMs": 1500,
-        "caption": "Daftar channel — Shopee/Lazada/TikTok/WooCommerce yang terhubung"
+        "caption": "Packing (multi-order, timbang, ukur)"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-proses-pesanan-shipping",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/proses-pesanan/shipping",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Shipping (cetak resi & pickup)"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-proses-pesanan-delivered",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/proses-pesanan/delivered",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Terkirim (Delivered)"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-proses-pesanan-done",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/proses-pesanan/done",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Selesai (Done) — arsip"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-produk",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/produk",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Tambah produk (single, varian, bundle) · Mapping SKU ke channel · Sync stok & harga per store"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-barang-masuk",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/barang-masuk",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Penerimaan (PO / Transfer Masuk) · Penempatan (Putaway) via scan · Assign penerimaan ke petugas"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-barang-keluar",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/barang-keluar",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Transfer keluar manual antar gudang · Cetak Surat Jalan (submit = IN_TRANSIT) · Revert draft & delete in-transit"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-transaksi-stok",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/transaksi-stok",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Tab Transfer (Pindah Bin only) · Penempatan · Pengambilan"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-posisi-stok",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/posisi-stok",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Membaca kolom per-lokasi (4 metrik + Total) · Toggle Lokasi (persist localStorage) · Export posisi stok"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-monitor-stok",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/monitor-stok",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Watchlist stok minus · Reorder point alert"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-lokasi",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/lokasi",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Buat gudang, zone, rak · Bulk-assign rak ke zone · Deactivate lokasi"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-kategori-merek",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/kategori-merek",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Mengelola kategori (tree) & merek"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-kontak-pelanggan",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/kontak-pelanggan",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Kontak Pelanggan (import/export, phone E.164)"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-kontak-pemasok",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/kontak-pemasok",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Kontak Pemasok"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-integrasi-channel",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/integrasi-channel",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Ringkasan koneksi channel · Connect Shopee (OAuth) · Connect Lazada (state 10 menit)"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-toko-internal",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/toko-internal",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Setup toko internal (POS/offline)"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-pengaturan-retur",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/pengaturan/retur",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Terima retur channel · Retur manual"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-laporan",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/laporan",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Laporan retur bulanan · Daftar laporan yang tersedia · Filter, periode, export"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-transaksi-pembelian",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/transaksi-pembelian",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Buat Purchase Order · Approval PO · PO → Penerimaan → Bayar"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-permintaan-restock",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/permintaan-restock",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Request restock antar cabang"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-notifikasi",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/notifikasi",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Bell icon, filter, mark read · Kanal notifikasi (in-app, WA, email)"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-aktivitas-impex",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/aktivitas-impex",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Cek status import/export · Download hasil / error log"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-pengaturan",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/pengaturan",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Pengaturan Umum (identitas, kebijakan, SLA)"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-pengaturan-pengguna",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/pengaturan/pengguna",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Pengguna (invite, edit, deactivate)"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-pengaturan-peran",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/pengaturan/peran",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Peran / RBAC (matriks izin)"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-pengaturan-persediaan",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/pengaturan-persediaan",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Pengaturan Persediaan (alokasi, safety stock)"
+      }
+    ]
+  },
+  {
+    "slug": "routes/dashboard-profil-saya",
+    "shots": [
+      {
+        "name": "01-halaman",
+        "url": "/dashboard/profil-saya",
+        "waitFor": "main, [data-slot='page-title'], [data-slot='card']",
+        "settleMs": 1500,
+        "caption": "Tab Profil (nama, HP, email, foto) · Tab Keamanan (password, 2FA) · Tab Sesi & Riwayat"
       }
     ]
   }

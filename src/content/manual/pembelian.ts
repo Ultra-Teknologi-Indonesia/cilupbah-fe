@@ -1,5 +1,7 @@
 export const pembelianBuatPo = `## Membuat Purchase Order (PO)
 
+![Buat Purchase Order](/bantuan/media/routes/dashboard-transaksi-pembelian/01-halaman.png "Buat Purchase Order")
+
 Modul Transaksi Pembelian mengelola siklus pengadaan barang dari pemasok, mulai dari PO, penerimaan barang, hingga pembayaran invoice.
 
 ### Langkah Buat PO
@@ -31,6 +33,8 @@ Shortcut: klik **Duplikat PO** pada PO existing untuk mempercepat pembuatan PO b
 
 export const pembelianApproval = `## Alur Approval Purchase Order
 
+![Approval PO](/bantuan/media/routes/dashboard-transaksi-pembelian/01-halaman.png "Approval PO")
+
 PO melalui alur status berjenjang sebelum menjadi PO aktif. Approval memakai RBAC — hanya role dengan izin tertentu (mis. **Manager Pembelian**) yang dapat menyetujui.
 
 ### Diagram Status
@@ -60,6 +64,8 @@ PO melalui alur status berjenjang sebelum menjadi PO aktif. Approval memakai RBA
 Shortcut: gunakan notifikasi bell untuk menuju langsung ke PO yang menunggu approval Anda.`;
 
 export const pembelianPoBayar = `## Alur PO → Barang Datang → Bill → Bayar
+
+![PO → Penerimaan → Bayar](/bantuan/media/routes/dashboard-transaksi-pembelian/01-halaman.png "PO → Penerimaan → Bayar")
 
 PO Approved memicu siklus operasional: barang datang → dicatat sebagai Penerimaan → Bill/Invoice dibuat → Pembayaran.
 

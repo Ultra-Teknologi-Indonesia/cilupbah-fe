@@ -1,5 +1,7 @@
 export const integrasiKoneksi = `## Ringkasan Koneksi Channel
 
+![Ringkasan koneksi channel](/bantuan/media/routes/dashboard-integrasi-channel/01-halaman.png "Ringkasan koneksi channel")
+
 Modul Integrasi Channel menghubungkan Cilupbah dengan marketplace: **Shopee**, **Lazada**, **TikTok Shop**, dan **WooCommerce**. Setiap toko yang terhubung memiliki token akses tersendiri dan indikator status sinkronisasi.
 
 ### Langkah Umum
@@ -19,6 +21,8 @@ Modul Integrasi Channel menghubungkan Cilupbah dengan marketplace: **Shopee**, *
 Shortcut: gunakan tombol **Uji Koneksi** pada baris toko untuk memverifikasi token tanpa menunggu jadwal sync.`;
 
 export const integrasiShopee = `## Menghubungkan Shopee
+
+![Connect Shopee (OAuth)](/bantuan/media/routes/dashboard-integrasi-channel/01-halaman.png "Connect Shopee (OAuth)")
 
 Koneksi Shopee memakai **OAuth 2.0** via Shopee Open Platform. Token disimpan terenkripsi di kolom \`access_token\`/\`refresh_token\` dan diperbarui otomatis oleh scheduler.
 
@@ -41,6 +45,8 @@ Shortcut: klik **Download Produk** setelah koneksi berhasil untuk menarik katalo
 
 export const integrasiLazada = `## Menghubungkan Lazada
 
+![Connect Lazada (state 10 menit)](/bantuan/media/routes/dashboard-integrasi-channel/01-halaman.png "Connect Lazada (state 10 menit)")
+
 Lazada memakai **OAuth 2.0** dengan **host autentikasi khusus** yang berbeda dari host API. Salah host = error \`Missing parameter\`.
 
 ### Langkah Connect
@@ -61,6 +67,8 @@ Lazada memakai **OAuth 2.0** dengan **host autentikasi khusus** yang berbeda dar
 Shortcut: tombol **Refresh Token** di baris toko memicu refresh manual jika notifikasi bell menandai kegagalan auto-refresh.`;
 
 export const integrasiTikTok = `## Menghubungkan TikTok Shop
+
+![Connect TikTok Shop](/bantuan/media/routes/dashboard-integrasi-channel/01-halaman.png "Connect TikTok Shop")
 
 TikTok Shop memakai **OAuth 2.0** dengan tambahan langkah sinkronisasi atribut per kategori sebelum produk dapat di-push.
 
@@ -87,6 +95,8 @@ TikTok Shop memakai **OAuth 2.0** dengan tambahan langkah sinkronisasi atribut p
 Shortcut: gunakan filter **Belum Dimapping** pada tab Kategori untuk mengidentifikasi kategori yang menghalangi push produk massal.`;
 
 export const integrasiWooCommerce = `## Menghubungkan WooCommerce
+
+![Connect WooCommerce (Basic Auth)](/bantuan/media/routes/dashboard-integrasi-channel/01-halaman.png "Connect WooCommerce (Basic Auth)")
 
 WooCommerce memakai **Basic Auth** per-toko (bukan OAuth). Anda perlu \`store_url\`, \`consumer_key\`, dan \`consumer_secret\` yang di-generate dari admin WordPress toko.
 
@@ -117,6 +127,8 @@ Shortcut: tombol **Regenerate Webhook** membuat ulang endpoint webhook di WordPr
 
 export const integrasiRefreshToken = `## Refresh Token & Notifikasi Expired
 
+![Refresh token yang expired](/bantuan/media/routes/dashboard-integrasi-channel/01-halaman.png "Refresh token yang expired")
+
 Setiap channel OAuth (Shopee/Lazada/TikTok) memiliki \`access_token\` dengan masa berlaku terbatas. Cilupbah otomatis me-refresh menggunakan \`refresh_token\`, tetapi ada kondisi yang butuh intervensi manual.
 
 ### Refresh Otomatis
@@ -139,6 +151,8 @@ Setiap channel OAuth (Shopee/Lazada/TikTok) memiliki \`access_token\` dengan mas
 Shortcut: filter **Status: Perlu Reconnect** pada daftar toko untuk menampilkan hanya toko yang butuh aksi.`;
 
 export const integrasiToggleSync = `## Toggle Sinkronisasi per Fitur & per Toko
+
+![Toggle sync per fitur](/bantuan/media/routes/dashboard-integrasi-channel/01-halaman.png "Toggle sync per fitur")
 
 Cilupbah memisahkan sinkronisasi berdasarkan fitur (stok, harga, pesanan, produk) sehingga Anda dapat mengaktifkan hanya sebagian sync per toko.
 

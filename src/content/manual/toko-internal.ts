@@ -1,5 +1,7 @@
 export const tokoInternalSetup = `## Setup Toko Internal (POS/Offline)
 
+![Setup toko internal (POS/offline)](/bantuan/media/routes/dashboard-toko-internal/01-halaman.png "Setup toko internal (POS/offline)")
+
 Toko Internal adalah representasi outlet fisik atau kanal offline (POS) di Cilupbah. Setiap Toko Internal memiliki identitas sendiri dan dipakai saat membuat pesanan manual sehingga penjualan offline dapat dilacak terpisah dari channel marketplace.
 
 ### Langkah Setup

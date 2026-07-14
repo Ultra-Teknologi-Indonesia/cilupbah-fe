@@ -1,5 +1,7 @@
 export const barangMasukPenerimaan = `## Penerimaan Barang Masuk
 
+![Penerimaan (PO / Transfer Masuk)](/bantuan/media/routes/dashboard-barang-masuk/01-halaman.png "Penerimaan (PO / Transfer Masuk)")
+
 Menu **Barang Masuk** menyatukan seluruh arus barang yang masuk ke gudang: Pesanan Pembelian (PO) dari supplier dan Transfer Masuk dari gudang lain.
 
 ### Struktur Halaman
@@ -24,6 +26,8 @@ Menu **Barang Masuk** menyatukan seluruh arus barang yang masuk ke gudang: Pesan
 
 export const barangMasukPutaway = `## Penempatan (Putaway) Barang
 
+![Penempatan (Putaway) via scan](/bantuan/media/routes/dashboard-barang-masuk/01-halaman.png "Penempatan (Putaway) via scan")
+
 Putaway adalah proses memindahkan barang dari Bin Inbound ke rak tujuan menggunakan scan. Hanya setelah putaway selesai, stok resmi tersedia untuk penjualan.
 
 ### Alur Penempatan via Scan
@@ -47,6 +51,8 @@ Putaway adalah proses memindahkan barang dari Bin Inbound ke rak tujuan mengguna
 > Peringatan: koreksi hasil scan bukan hard-delete. Sistem menjalankan reversal (\`reverseBinMove\`) yang tercatat sebagai movement \`*_REVERSAL\`.`;
 
 export const barangMasukAssign = `## Assign Petugas Penerimaan
+
+![Assign penerimaan ke petugas](/bantuan/media/routes/dashboard-barang-masuk/01-halaman.png "Assign penerimaan ke petugas")
 
 Cilupbah memisahkan tanggung jawab: **web** untuk assign & monitoring, **mobile** untuk aksi lapangan (Terima, QC, pindah qty).
 

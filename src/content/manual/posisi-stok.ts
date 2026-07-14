@@ -1,5 +1,7 @@
 export const posisiStokBaca = `## Membaca Posisi Stok
 
+![Membaca kolom per-lokasi (4 metrik + Total)](/bantuan/media/routes/dashboard-posisi-stok/01-halaman.png "Membaca kolom per-lokasi (4 metrik + Total)")
+
 Halaman **Posisi Stok** (\`/dashboard/posisi-stok\`) menampilkan snapshot stok setiap SKU secara berdampingan per lokasi sehingga Anda dapat membandingkan ketersediaan antar gudang tanpa berpindah tab.
 
 ### Langkah membaca kolom
@@ -25,6 +27,8 @@ Halaman **Posisi Stok** (\`/dashboard/posisi-stok\`) menampilkan snapshot stok s
 `;
 
 export const posisiStokToggleLokasi = `## Mengatur Lokasi yang Ditampilkan
+
+![Toggle Lokasi (persist localStorage)](/bantuan/media/routes/dashboard-posisi-stok/01-halaman.png "Toggle Lokasi (persist localStorage)")
 
 Anda dapat memilih lokasi mana saja yang muncul di tabel **Posisi Stok** untuk fokus pada gudang tertentu.
 
@@ -52,6 +56,8 @@ Rak fisik dapat dikelompokkan dalam **LocationZone** untuk memisahkan area Gudan
 `;
 
 export const posisiStokExport = `## Ekspor Posisi Stok
+
+![Export posisi stok](/bantuan/media/routes/dashboard-posisi-stok/01-halaman.png "Export posisi stok")
 
 Ekspor XLSX berguna untuk audit stok bulanan, rekonsiliasi manual, atau berbagi snapshot dengan tim keuangan.
 

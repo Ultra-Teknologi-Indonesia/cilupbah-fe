@@ -1,5 +1,7 @@
 export const impexStatus = `## Status Job Impor/Ekspor
 
+![Cek status import/export](/bantuan/media/routes/dashboard-aktivitas-impex/01-halaman.png "Cek status import/export")
+
 Halaman **Aktivitas Impex** mencatat setiap pekerjaan impor dan ekspor yang Anda atau tim jalankan sehingga dapat dipantau progres dan hasilnya.
 
 ### Langkah membuka daftar job
@@ -30,6 +32,8 @@ Halaman **Aktivitas Impex** mencatat setiap pekerjaan impor dan ekspor yang Anda
 `;
 
 export const impexDownload = `## Unduh Hasil & Error Log
+
+![Download hasil / error log](/bantuan/media/routes/dashboard-aktivitas-impex/01-halaman.png "Download hasil / error log")
 
 Setiap job yang selesai (baik sukses maupun gagal) menyediakan artefak untuk diunduh.
 

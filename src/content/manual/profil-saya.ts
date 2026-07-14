@@ -1,5 +1,7 @@
 export const profilTabProfil = `## Profil Saya - Tab Profil
 
+![Tab Profil (nama, HP, email, foto)](/bantuan/media/routes/dashboard-profil-saya/01-halaman.png "Tab Profil (nama, HP, email, foto)")
+
 Tab **Profil** memuat data identitas dasar Anda yang tampil di seluruh aplikasi (avatar, aktivitas log, chat internal).
 
 ### Langkah mengubah profil
@@ -31,6 +33,8 @@ Tab **Profil** memuat data identitas dasar Anda yang tampil di seluruh aplikasi 
 `;
 
 export const profilKeamanan = `## Profil Saya - Tab Keamanan
+
+![Tab Keamanan (password, 2FA)](/bantuan/media/routes/dashboard-profil-saya/01-halaman.png "Tab Keamanan (password, 2FA)")
 
 Tab **Keamanan** mengelola kredensial dan lapisan otentikasi tambahan (2FA).
 
@@ -66,6 +70,8 @@ Tab **Keamanan** mengelola kredensial dan lapisan otentikasi tambahan (2FA).
 
 export const profilSesiRiwayat = `## Profil Saya - Sesi & Riwayat
 
+![Tab Sesi & Riwayat](/bantuan/media/routes/dashboard-profil-saya/01-halaman.png "Tab Sesi & Riwayat")
+
 Tab ini memperlihatkan semua sesi login aktif Anda beserta riwayat aktivitas kritikal, berguna untuk deteksi akses tidak sah.
 
 ### Langkah review sesi
@@ -95,6 +101,8 @@ Tab ini memperlihatkan semua sesi login aktif Anda beserta riwayat aktivitas kri
 `;
 
 export const profilPreferensi = `## Profil Saya - Preferensi
+
+![Tab Preferensi](/bantuan/media/routes/dashboard-profil-saya/01-halaman.png "Tab Preferensi")
 
 Tab **Preferensi** mengatur tampilan dan perilaku aplikasi mengikuti selera Anda tanpa memengaruhi user lain.
 

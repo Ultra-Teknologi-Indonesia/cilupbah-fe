@@ -1,5 +1,7 @@
 export const notifikasiBell = `## Notifikasi Bell
 
+![Bell icon, filter, mark read](/bantuan/media/routes/dashboard-notifikasi/01-halaman.png "Bell icon, filter, mark read")
+
 Bell icon di header aplikasi adalah pusat notifikasi real-time untuk peristiwa yang relevan dengan peran Anda.
 
 ### Langkah membuka notifikasi
@@ -30,6 +32,8 @@ Bell icon di header aplikasi adalah pusat notifikasi real-time untuk peristiwa y
 `;
 
 export const notifikasiKanal = `## Kanal & Preferensi Notifikasi
+
+![Kanal notifikasi (in-app, WA, email)](/bantuan/media/routes/dashboard-notifikasi/01-halaman.png "Kanal notifikasi (in-app, WA, email)")
 
 Notifikasi dapat dikirim melalui beberapa kanal sesuai preferensi Anda dan konfigurasi role.
 
