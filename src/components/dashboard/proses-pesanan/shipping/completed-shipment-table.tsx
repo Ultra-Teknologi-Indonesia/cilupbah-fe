@@ -325,7 +325,7 @@ export function CompletedShipmentTable() {
           const s = row.original;
           if (s.status === "DELIVERED") return null;
           return (
-            <div className="flex justify-end items-center gap-1.5">
+            <div className="flex items-center gap-1.5">
               <Button
                 variant="outline"
                 size="sm"

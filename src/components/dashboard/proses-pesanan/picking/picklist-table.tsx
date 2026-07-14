@@ -277,7 +277,7 @@ export function PicklistTable() {
         id: "actions",
         header: () => null,
         cell: ({ row }) => (
-          <div className="flex items-center justify-end gap-1.5">
+          <div className="flex items-center gap-1.5">
             <TooltipProvider delayDuration={200}>
               <Tooltip>
                 <TooltipTrigger asChild>

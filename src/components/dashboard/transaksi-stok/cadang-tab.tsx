@@ -136,13 +136,13 @@ export function CadangTab() {
       },
       {
         id: "actions",
-        header: () => <div className="text-right">Aksi</div>,
+        header: () => <div>Aksi</div>,
         cell: ({ row }) => {
           const item = row.original;
           if (item.status === "ACTIVE") {
             return (
               <div
-                className="flex items-center justify-end"
+                className="flex items-center"
                 onClick={(e) => e.stopPropagation()}
               >
                 <Button

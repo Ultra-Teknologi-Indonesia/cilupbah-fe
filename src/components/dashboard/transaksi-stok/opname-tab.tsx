@@ -133,13 +133,13 @@ export function OpnameTab() {
       },
       {
         id: "actions",
-        header: () => <div className="text-right">Aksi</div>,
+        header: () => <div>Aksi</div>,
         cell: ({ row }) => {
           const item = row.original;
           if (item.status === "DRAFT") {
             return (
               <div
-                className="flex items-center justify-end gap-1"
+                className="flex items-center gap-1"
                 onClick={(e) => e.stopPropagation()}
               >
                 <Button

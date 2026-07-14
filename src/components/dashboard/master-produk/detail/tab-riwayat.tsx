@@ -92,11 +92,11 @@ export function TabRiwayat({ productId }: { productId: string }) {
       },
       {
         id: "actions",
-        header: () => <div className="text-right">Aksi</div>,
+        header: () => <div>Aksi</div>,
         cell: ({ row }) => {
           const r = row.original;
           return (
-            <div className="flex items-center justify-end gap-1">
+            <div className="flex items-center gap-1">
               {r.channelUrl && (
                 <Button variant="ghost" size="icon" className="size-8" asChild>
                   <a

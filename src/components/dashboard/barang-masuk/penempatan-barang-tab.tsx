@@ -276,13 +276,13 @@ export function PenempatanBarangTab() {
       },
       {
         id: "actions",
-        header: () => <div className="text-right">Aksi</div>,
+        header: () => <div>Aksi</div>,
         cell: ({ row }) => {
           const item = row.original;
           const action = primaryAction(item);
           return (
             <div
-              className="flex items-center justify-end gap-1.5"
+              className="flex items-center gap-1.5"
               onClick={(e) => e.stopPropagation()}
             >
               <Button asChild variant="outline" size="sm">
