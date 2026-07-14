@@ -23,7 +23,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ProductPickerCombobox } from "@/components/dashboard/laporan/shared/product-picker-combobox";
-import type { BarcodeHarga, BarcodeJenis } from "@/types/laporan/barcode";
+import {
+  BARCODE_PAPER_DEFAULT,
+  BARCODE_PAPER_OPTIONS,
+  type BarcodeHarga,
+  type BarcodeJenis,
+  type BarcodePaper,
+} from "@/types/laporan/barcode";
 
 interface BarcodeReportDialogProps {
   open: boolean;
@@ -48,12 +54,14 @@ export function BarcodeReportDialog({
   const [jenis, setJenis] = React.useState<BarcodeJenis>("sku");
   const [ids, setIds] = React.useState<string[]>([]);
   const [harga, setHarga] = React.useState<BarcodeHarga>("tanpa_harga");
+  const [paper, setPaper] = React.useState<BarcodePaper>(BARCODE_PAPER_DEFAULT);
 
   function handleOpenChange(next: boolean) {
     if (!next) {
       setJenis("sku");
       setIds([]);
       setHarga("tanpa_harga");
+      setPaper(BARCODE_PAPER_DEFAULT);
     }
     onOpenChange(next);
   }
@@ -65,7 +73,7 @@ export function BarcodeReportDialog({
 
   function handleCetak() {
     if (ids.length === 0) return;
-    const params = new URLSearchParams({ jenis, harga });
+    const params = new URLSearchParams({ jenis, harga, paper });
     window.open(
       `/dashboard/document-preview/laporan-barcode/${ids.join(",")}?${params.toString()}`,
       "_blank",
@@ -133,6 +141,27 @@ export function BarcodeReportDialog({
               </SelectTrigger>
               <SelectContent>
                 {HARGA_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label className="text-xs text-muted-foreground">
+              Ukuran Kertas
+            </Label>
+            <Select
+              value={paper}
+              onValueChange={(v) => setPaper(v as BarcodePaper)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {BARCODE_PAPER_OPTIONS.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
                   </SelectItem>

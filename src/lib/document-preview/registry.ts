@@ -11,9 +11,11 @@ import { InboundService } from "@/services/barang-masuk/inbound.service";
 import { OutboundTransferService } from "@/services/barang-keluar/outbound-transfer.service";
 import { PurchaseReturnService } from "@/services/barang-keluar/purchase-return.service";
 import { ReportService } from "@/services/laporan/report.service";
-import type {
-  BarcodeHarga,
-  BarcodeJenis,
+import {
+  BARCODE_PAPER_DEFAULT,
+  type BarcodeHarga,
+  type BarcodeJenis,
+  type BarcodePaper,
 } from "@/types/laporan/barcode";
 
 function extractApiMessage(err: unknown): string | null {
@@ -468,7 +470,16 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
         .filter(Boolean);
       const jenis = (query?.get("jenis") ?? "sku") as BarcodeJenis;
       const harga = (query?.get("harga") ?? "tanpa_harga") as BarcodeHarga;
-      const blob = await ReportService.barcodePdf({ jenis, ids, harga });
+      const paperRaw = query?.get("paper");
+      const paper: BarcodePaper = isBarcodePaper(paperRaw)
+        ? paperRaw
+        : BARCODE_PAPER_DEFAULT;
+      const blob = await ReportService.barcodePdf({
+        jenis,
+        ids,
+        harga,
+        paper,
+      });
       return { blob, meta: { harga: HARGA_LABEL[harga], jenis } };
     },
     backUrl: () => "/dashboard/laporan/persediaan",
@@ -513,6 +524,17 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
 };
 
 function isBinQrPaper(value: string | null | undefined): value is BinQrPaper {
+  return (
+    value === "thermal_50x40" ||
+    value === "thermal_80x40" ||
+    value === "a4_single" ||
+    value === "a4_multi"
+  );
+}
+
+function isBarcodePaper(
+  value: string | null | undefined,
+): value is BarcodePaper {
   return (
     value === "thermal_50x40" ||
     value === "thermal_80x40" ||
