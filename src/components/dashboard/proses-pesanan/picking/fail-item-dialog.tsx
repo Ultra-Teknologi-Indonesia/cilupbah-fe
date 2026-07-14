@@ -27,7 +27,6 @@ import {
 const REASONS: PicklistFailReasonCode[] = [
   "STOCK_EMPTY",
   "DAMAGED",
-  "REJECTED",
   "MISSING",
   "OTHER",
 ];
