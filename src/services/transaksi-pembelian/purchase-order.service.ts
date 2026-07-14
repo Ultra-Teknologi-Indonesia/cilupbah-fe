@@ -21,26 +21,38 @@ export interface ReceivePOPayload {
   }[];
 }
 
+const buildListParams = (params: PurchaseOrderListParams) => {
+  const sp = new URLSearchParams();
+  if (params.search) sp.set("filter[search]", params.search);
+  if (params.page) sp.set("page", String(params.page));
+  if (params.per_page) sp.set("limit", String(params.per_page));
+  if (params["filter[status]"])
+    sp.set("filter[status]", params["filter[status]"]);
+  if (params["filter[contact_id]"])
+    sp.set("filter[contact_id]", params["filter[contact_id]"]);
+  if (params["filter[location_id]"])
+    sp.set("filter[location_id]", params["filter[location_id]"]);
+  if (params["filter[date_from]"])
+    sp.set("filter[date_from]", params["filter[date_from]"]);
+  if (params["filter[date_to]"])
+    sp.set("filter[date_to]", params["filter[date_to]"]);
+  if (params.sort) sp.set("sort", params.sort);
+  return sp;
+};
+
 export const PurchaseOrderService = {
   list: async (params: PurchaseOrderListParams = {}) => {
-    const sp = new URLSearchParams();
-    if (params.search) sp.set("filter[search]", params.search);
-    if (params.page) sp.set("page", String(params.page));
-    if (params.per_page) sp.set("limit", String(params.per_page));
-    if (params["filter[status]"])
-      sp.set("filter[status]", params["filter[status]"]);
-    if (params["filter[contact_id]"])
-      sp.set("filter[contact_id]", params["filter[contact_id]"]);
-    if (params["filter[location_id]"])
-      sp.set("filter[location_id]", params["filter[location_id]"]);
-    if (params["filter[date_from]"])
-      sp.set("filter[date_from]", params["filter[date_from]"]);
-    if (params["filter[date_to]"])
-      sp.set("filter[date_to]", params["filter[date_to]"]);
-    if (params.sort) sp.set("sort", params.sort);
-
+    const sp = buildListParams(params);
     const res = await fetchClient<ApiPaginated<PurchaseOrder>>(
       `/purchase/orders?${sp}`,
+    );
+    return { items: res.data ?? [], meta: res.meta };
+  },
+
+  listReceivable: async (params: PurchaseOrderListParams = {}) => {
+    const sp = buildListParams(params);
+    const res = await fetchClient<ApiPaginated<PurchaseOrder>>(
+      `/purchase/orders/receivable?${sp}`,
     );
     return { items: res.data ?? [], meta: res.meta };
   },

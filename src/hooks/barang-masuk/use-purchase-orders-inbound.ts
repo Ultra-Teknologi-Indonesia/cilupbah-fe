@@ -12,7 +12,7 @@ export function useReceivablePurchaseOrders(
   return useQuery({
     queryKey: ["purchase-order", "list", { ...params, receivable: true }],
     placeholderData: keepPreviousData,
-    queryFn: () => PurchaseOrderService.list(params),
+    queryFn: () => PurchaseOrderService.listReceivable(params),
     staleTime: STALE,
   });
 }

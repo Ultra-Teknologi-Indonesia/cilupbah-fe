@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
   Loader2Icon,
@@ -96,7 +96,9 @@ function todayIso() {
 }
 
 export function TambahPenerimaanFormPage() {
-  const [poId, setPoId] = React.useState<string>("");
+  const searchParams = useSearchParams();
+  const initialPoId = searchParams.get("po") ?? "";
+  const [poId, setPoId] = React.useState<string>(initialPoId);
   const [poQuery, setPoQuery] = React.useState("");
 
   const receivable = useReceivablePurchaseOrders({

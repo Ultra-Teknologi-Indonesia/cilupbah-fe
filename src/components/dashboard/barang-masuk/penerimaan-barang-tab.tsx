@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 import { BuatPenempatanManualDialog } from "./buat-penempatan-manual-dialog";
 import { TerimaTransferDialog } from "./terima-transfer-dialog";
+import { PesananPembelianTable } from "./pesanan-pembelian-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 import { Badge } from "@/components/ui/badge";
@@ -193,7 +194,9 @@ export function PenerimaanBarangTab() {
     [list.debouncedSearch, list.page, list.perPage, list.filters, sourceTab],
   );
 
-  const { data, isLoading, isFetching } = useInbounds(params);
+  const { data, isLoading, isFetching } = useInbounds(params, {
+    enabled: sourceTab !== "pesanan",
+  });
   const { data: locData } = useLocations({ perPage: 100 });
 
   const [penempatanTargets, setPenempatanTargets] = useState<Inbound[]>([]);
@@ -445,7 +448,11 @@ export function PenerimaanBarangTab() {
         <FilterToolbar
           search={list.search}
           onSearchChange={list.setSearch}
-          searchPlaceholder="Cari no. penerimaan..."
+          searchPlaceholder={
+            sourceTab === "pesanan"
+              ? "Cari no. pesanan / pemasok..."
+              : "Cari no. penerimaan..."
+          }
           align="end"
           onReset={hasActiveFilter ? () => list.resetFilters() : undefined}
           hasFilter={hasActiveFilter}
@@ -465,6 +472,14 @@ export function PenerimaanBarangTab() {
           />
         </FilterToolbar>
 
+        {sourceTab === "pesanan" ? (
+          <PesananPembelianTable
+            search={list.debouncedSearch}
+            locationId={list.filters.location_id}
+            pagination={list.pagination}
+            onPaginationChange={list.onPaginationChange}
+          />
+        ) : (
         <div className="px-5 py-5 sm:px-6">
           <DataTable
             columns={columns}
@@ -532,6 +547,7 @@ export function PenerimaanBarangTab() {
             }
           />
         </div>
+        )}
       </LiquidGlass>
 
       <BuatPenempatanManualDialog

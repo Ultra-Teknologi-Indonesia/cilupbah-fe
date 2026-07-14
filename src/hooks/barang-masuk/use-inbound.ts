@@ -13,12 +13,16 @@ import { apiError } from "@/lib/toast";
 
 const STALE = 30 * 1000;
 
-export function useInbounds(params: InboundListParams = {}) {
+export function useInbounds(
+  params: InboundListParams = {},
+  options: { enabled?: boolean } = {},
+) {
   return useQuery({
     queryKey: ["inbound", "list", params],
     placeholderData: keepPreviousData,
     queryFn: () => InboundService.list(params),
     staleTime: STALE,
+    enabled: options.enabled ?? true,
   });
 }
 
