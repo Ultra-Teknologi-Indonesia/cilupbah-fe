@@ -113,7 +113,7 @@ Kebijakan persediaan mengatur perilaku default sistem terkait alokasi stok, guda
 
 ### Langkah membuka
 
-1. Buka menu **Pengaturan Persediaan** (\`/dashboard/pengaturan-persediaan\`).
+1. Buka menu **Pengaturan → Sinkronisasi Stok & Harga** (\`/dashboard/pengaturan/persediaan\`).
 2. Halaman terdiri dari kartu: **Kebijakan Alokasi**, **Gudang Default**, **Guard Stok Negatif**.
 
 ### Kebijakan alokasi

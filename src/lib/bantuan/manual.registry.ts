@@ -149,7 +149,7 @@ export const MANUAL_ENTRIES: ManualEntry[] = [
   { slug: "pengaturan/umum", moduleGroup: "Pengaturan", title: "Pengaturan Umum (identitas, kebijakan, SLA)", route: "/dashboard/pengaturan", content: g(pengaturanUmum) },
   { slug: "pengaturan/pengguna", moduleGroup: "Pengaturan", title: "Pengguna (invite, edit, deactivate)", route: "/dashboard/pengaturan/pengguna", content: g(pengaturanPengguna) },
   { slug: "pengaturan/rbac", moduleGroup: "Pengaturan", title: "Peran / RBAC (matriks izin)", route: "/dashboard/pengaturan/peran", content: g(pengaturanRbac) },
-  { slug: "pengaturan/persediaan", moduleGroup: "Pengaturan", title: "Pengaturan Persediaan (alokasi, safety stock)", route: "/dashboard/pengaturan-persediaan", content: g(pengaturanPersediaan) },
+  { slug: "pengaturan/persediaan", moduleGroup: "Pengaturan", title: "Sinkronisasi Stok & Harga (per store)", route: "/dashboard/pengaturan/persediaan", content: g(pengaturanPersediaan) },
 
   // PROFIL SAYA
   { slug: "profil-saya/tab-profil", moduleGroup: "Profil Saya", title: "Tab Profil (nama, HP, email, foto)", route: "/dashboard/profil-saya", content: g(profilTabProfil) },

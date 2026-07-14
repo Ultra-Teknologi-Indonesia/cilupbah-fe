@@ -26,7 +26,6 @@ import {
   Warehouse,
   BarChart3,
   AlertTriangle,
-  SlidersHorizontal,
   HelpCircle,
 } from "lucide-react";
 import type React from "react";
@@ -96,12 +95,6 @@ export const dashboardGroups: NavGroup[] = [
         title: "Monitor Stok",
         icon: Eye,
         link: "/dashboard/monitor-stok",
-      },
-      {
-        id: "pengaturan-persediaan",
-        title: "Pengaturan Persediaan",
-        icon: SlidersHorizontal,
-        link: "/dashboard/pengaturan-persediaan",
       },
     ],
   },
@@ -251,6 +244,10 @@ export const settingsRoutes: Route[] = [
       { title: "Daftar Pengguna", link: "/dashboard/pengaturan/pengguna" },
       { title: "Peran & Hak Akses", link: "/dashboard/pengaturan/peran" },
       {
+        title: "Sinkronisasi Stok & Harga",
+        link: "/dashboard/pengaturan/persediaan",
+      },
+      {
         title: "Aktivitas Import dan Export",
         link: "/dashboard/aktivitas-impex",
       },
@@ -274,7 +271,6 @@ export const NAV_PERMISSION: Record<string, string | string[]> = {
     "view-stok-opname",
   ],
   "monitor-stok": "view-monitor-stok",
-  "pengaturan-persediaan": "view-pengaturan-persediaan",
   pesanan: "view-pesanan",
   "toko-internal": "view-toko-internal",
   "kontak-pelanggan": "view-kontak-pelanggan",
@@ -296,6 +292,7 @@ export const NAV_PERMISSION: Record<string, string | string[]> = {
 const SETTINGS_SUB_PERMISSION: Record<string, string | string[]> = {
   "/dashboard/pengaturan/pengguna": "view-user",
   "/dashboard/pengaturan/peran": ["view-role", "view-permission"],
+  "/dashboard/pengaturan/persediaan": "view-pengaturan-persediaan",
   "/dashboard/aktivitas-impex": "view-impex",
 };
 

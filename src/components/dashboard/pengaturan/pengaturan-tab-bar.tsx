@@ -8,6 +8,7 @@ import {
   ShieldCheckIcon,
   BoxesIcon,
   ArrowLeftRightIcon,
+  SlidersHorizontalIcon,
 } from "lucide-react";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -45,6 +46,12 @@ const TABS: Tab[] = [
     href: "/dashboard/pengaturan/alokasi-stok",
   },
   {
+    id: "persediaan",
+    label: "Sinkronisasi Stok & Harga",
+    icon: SlidersHorizontalIcon,
+    href: "/dashboard/pengaturan/persediaan",
+  },
+  {
     id: "aktivitas-impex",
     label: "Aktivitas Import dan Export",
     icon: ArrowLeftRightIcon,
@@ -57,6 +64,8 @@ function activeId(pathname: string): string {
   if (pathname.startsWith("/dashboard/pengaturan/peran")) return "peran";
   if (pathname.startsWith("/dashboard/pengaturan/alokasi-stok"))
     return "alokasi-stok";
+  if (pathname.startsWith("/dashboard/pengaturan/persediaan"))
+    return "persediaan";
   if (pathname.startsWith("/dashboard/aktivitas-impex"))
     return "aktivitas-impex";
   return "umum";
