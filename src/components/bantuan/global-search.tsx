@@ -171,7 +171,7 @@ export function GlobalHelpSearch() {
         next.delete("id");
         next.delete("slug");
       }
-      router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+      router.push(`${pathname}?${next.toString()}`, { scroll: false });
       setOpen(false);
       setQuery("");
       inputRef.current?.blur();

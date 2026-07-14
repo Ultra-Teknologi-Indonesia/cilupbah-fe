@@ -45,12 +45,7 @@ export function ManualTab() {
 
   const active = MANUAL_ENTRIES.find((e) => e.slug === activeSlug);
 
-  const selectSlug = (slug: string) => {
-    const next = new URLSearchParams(Array.from(params.entries()));
-    next.set("tab", "panduan");
-    next.set("slug", slug);
-    router.replace(`${pathname}?${next.toString()}`, { scroll: false });
-  };
+
 
   const detailHeight = "h-[calc(100dvh-260px)]";
 
@@ -92,10 +87,11 @@ export function ManualTab() {
                   {items.map((item) => {
                     const isActive = item.slug === activeSlug;
                     return (
-                      <button
+                      <Link
                         key={item.slug}
-                        type="button"
-                        onClick={() => selectSlug(item.slug)}
+                        href={`?tab=panduan&slug=${encodeURIComponent(item.slug)}`}
+                        replace
+                        scroll={false}
                         className={cn(
                           "flex items-start gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors",
                           isActive
@@ -105,7 +101,7 @@ export function ManualTab() {
                       >
                         <BookOpenIcon className="mt-0.5 size-4 shrink-0" />
                         <span className="flex-1">{item.title}</span>
-                      </button>
+                      </Link>
                     );
                   })}
                 </div>
