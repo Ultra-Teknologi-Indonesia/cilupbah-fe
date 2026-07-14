@@ -79,7 +79,7 @@ export function ManualTab() {
           )}
         </div>
 
-        <ScrollArea className="-mr-2 flex-1 pr-2">
+        <ScrollArea className="-mr-2 min-h-0 flex-1 pr-2">
           <nav className="flex flex-col gap-4">
             {MANUAL_GROUPS.map((group) => {
               const items = grouped.get(group);
@@ -147,7 +147,7 @@ export function ManualTab() {
               </Button>
             )}
           </div>
-          <ScrollArea className="flex-1">
+          <ScrollArea className="min-h-0 flex-1">
             <div className="px-6 py-6 lg:px-8">
               <Markdown>{active.content || "_Panduan belum tersedia._"}</Markdown>
             </div>

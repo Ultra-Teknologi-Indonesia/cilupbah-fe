@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FaqTab } from "@/components/bantuan/faq/faq-tab";
 import { ManualTab } from "@/components/bantuan/manual/manual-tab";
 import { ApiDocsTab } from "@/components/bantuan/api-docs/api-docs-tab";
+import { GlobalHelpSearch } from "@/components/bantuan/global-search";
 
 const TAB_KEYS = ["faq", "panduan", "api"] as const;
 type TabKey = (typeof TAB_KEYS)[number];
@@ -34,7 +35,8 @@ export function BantuanTabs() {
 
   return (
     <Tabs value={tab} onValueChange={changeTab} className="w-full">
-      <TabsList variant="glass">
+      <div className="mb-6 flex flex-col-reverse gap-4 md:flex-row md:items-center md:justify-between">
+        <TabsList variant="glass">
         <TabsTrigger value="faq" className="gap-1.5">
           <HelpCircleIcon className="size-4" />
           FAQ
@@ -47,15 +49,19 @@ export function BantuanTabs() {
           <CodeIcon className="size-4" />
           Dokumentasi API
         </TabsTrigger>
-      </TabsList>
+        </TabsList>
+        <div className="md:ml-auto md:max-w-md md:flex-1">
+          <GlobalHelpSearch />
+        </div>
+      </div>
 
-      <TabsContent value="faq" className="mt-6">
+      <TabsContent value="faq" className="mt-0">
         <FaqTab />
       </TabsContent>
-      <TabsContent value="panduan" className="mt-6">
+      <TabsContent value="panduan" className="mt-0">
         <ManualTab />
       </TabsContent>
-      <TabsContent value="api" className="mt-6">
+      <TabsContent value="api" className="mt-0">
         <ApiDocsTab />
       </TabsContent>
     </Tabs>

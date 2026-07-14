@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { SearchIcon, DownloadIcon, Loader2, InfoIcon } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
@@ -25,9 +26,14 @@ async function fetchJson<T>(url: string): Promise<T> {
 }
 
 export function ApiDocsTab() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const moduleFromUrl = params.get("module");
+
   const [index, setIndex] = React.useState<ApiDocIndex | null>(null);
   const [indexErr, setIndexErr] = React.useState<string | null>(null);
-  const [activeModuleSlug, setActiveModuleSlug] = React.useState<string | null>(null);
+  const [activeModuleSlug, setActiveModuleSlug] = React.useState<string | null>(moduleFromUrl);
   const [activeModule, setActiveModule] = React.useState<ApiDocModule | null>(null);
   const [activeEndpointId, setActiveEndpointId] = React.useState<string | null>(null);
   const [query, setQuery] = React.useState("");
@@ -40,10 +46,31 @@ export function ApiDocsTab() {
     fetchJson<ApiDocIndex>(INDEX_URL)
       .then((d) => {
         setIndex(d);
-        if (d.modules[0]) setActiveModuleSlug(d.modules[0].slug);
+        setActiveModuleSlug((prev) => {
+          if (prev && d.modules.some((m) => m.slug === prev)) return prev;
+          return d.modules[0]?.slug ?? null;
+        });
       })
       .catch((e) => setIndexErr(String(e)));
   }, []);
+
+  // Sync activeModuleSlug when URL `?module=` changes (e.g. from global search)
+  React.useEffect(() => {
+    if (!moduleFromUrl || !index) return;
+    if (!index.modules.some((m) => m.slug === moduleFromUrl)) return;
+    setActiveModuleSlug(moduleFromUrl);
+  }, [moduleFromUrl, index]);
+
+  const selectModule = React.useCallback(
+    (slug: string) => {
+      setActiveModuleSlug(slug);
+      const next = new URLSearchParams(Array.from(params.entries()));
+      next.set("tab", "api");
+      next.set("module", slug);
+      router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+    },
+    [params, pathname, router],
+  );
 
   // Load module on selection
   React.useEffect(() => {
@@ -136,7 +163,7 @@ export function ApiDocsTab() {
           <div className="px-2 pt-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
             Modul BE
           </div>
-          <ScrollArea className="-mr-1 flex-1 pr-1">
+          <ScrollArea className="-mr-1 min-h-0 flex-1 pr-1">
             <div className="flex flex-col gap-1">
               {index.modules.map((m) => {
                 const active = m.slug === activeModuleSlug;
@@ -144,7 +171,7 @@ export function ApiDocsTab() {
                   <button
                     key={m.slug}
                     type="button"
-                    onClick={() => setActiveModuleSlug(m.slug)}
+                    onClick={() => selectModule(m.slug)}
                     className={cn(
                       "flex items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors",
                       active ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted",
@@ -187,7 +214,7 @@ export function ApiDocsTab() {
               ))}
             </div>
           </div>
-          <ScrollArea className="-mr-1 flex-1 pr-1">
+          <ScrollArea className="-mr-1 min-h-0 flex-1 pr-1">
             {moduleLoading ? (
               <div className="flex items-center justify-center py-10">
                 <Loader2 className="size-5 animate-spin text-muted-foreground" />

@@ -3,6 +3,7 @@
 import * as React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { ExternalLinkIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -10,6 +11,8 @@ interface MarkdownProps {
   children: string;
   className?: string;
 }
+
+const VIDEO_EXT = /\.(mp4|webm|mov)$/i;
 
 export function Markdown({ children, className }: MarkdownProps) {
   return (
@@ -36,7 +39,84 @@ export function Markdown({ children, className }: MarkdownProps) {
         className,
       )}
     >
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{children}</ReactMarkdown>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          img: MediaFigure,
+          a: LinkOrEmbed,
+        }}
+      >
+        {children}
+      </ReactMarkdown>
     </div>
+  );
+}
+
+/**
+ * Renders `![alt](src "title")` as a figure with caption.
+ * When src is a video file, renders <video> instead.
+ * Otherwise renders zoomable <img> (opens full-size in new tab on click).
+ */
+function MediaFigure({
+  src,
+  alt,
+  title,
+}: React.ComponentProps<"img">) {
+  const source = typeof src === "string" ? src : "";
+  if (!source) return null;
+  const caption = title || alt || "";
+  const isVideo = VIDEO_EXT.test(source);
+
+  return (
+    <figure className="my-4 flex flex-col gap-2 overflow-hidden rounded-xl border border-border bg-surface">
+      {isVideo ? (
+        <video
+          src={source}
+          controls
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          className="w-full bg-black"
+        />
+      ) : (
+        <a
+          href={source}
+          target="_blank"
+          rel="noreferrer"
+          title="Buka gambar ukuran penuh"
+          className="block bg-muted/40 no-underline transition-opacity hover:opacity-90"
+        >
+          <img
+            src={source}
+            alt={alt ?? ""}
+            loading="lazy"
+            className="mx-auto block max-h-[520px] w-full object-contain"
+          />
+        </a>
+      )}
+      {caption && (
+        <figcaption className="border-t border-border bg-background px-4 py-2 text-xs text-muted-foreground">
+          {caption}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
+
+/**
+ * External links get a target="_blank" + icon; internal (starts with "/") stays SPA.
+ */
+function LinkOrEmbed({ href, children }: React.ComponentProps<"a">) {
+  const url = href ?? "";
+  const external = /^https?:\/\//i.test(url);
+  if (!external) {
+    return <a href={url}>{children}</a>;
+  }
+  return (
+    <a href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1">
+      {children}
+      <ExternalLinkIcon className="size-3" />
+    </a>
   );
 }

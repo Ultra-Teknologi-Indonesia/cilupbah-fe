@@ -76,7 +76,7 @@ export function EndpointDetail({
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="min-h-0 flex-1">
         <div className="flex flex-col gap-5 px-6 py-6">
           {/* Meta grid */}
           <div className="grid grid-cols-1 gap-3 rounded-xl bg-muted/50 p-3 text-xs tabular-nums sm:grid-cols-2 lg:grid-cols-4">

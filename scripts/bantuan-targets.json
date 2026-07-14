@@ -1,0 +1,100 @@
+[
+  {
+    "slug": "pesanan/daftar-pesanan",
+    "shots": [
+      {
+        "name": "01-daftar",
+        "url": "/dashboard/pesanan",
+        "waitFor": "table, [data-slot='table']",
+        "settleMs": 600,
+        "caption": "Daftar pesanan — kolom, filter, sort"
+      }
+    ]
+  },
+  {
+    "slug": "proses-pesanan/picking",
+    "shots": [
+      {
+        "name": "01-belum-mulai",
+        "url": "/dashboard/proses-pesanan/picking?tab=belum-mulai",
+        "waitFor": "table, [data-slot='table']",
+        "settleMs": 600,
+        "caption": "Tab Belum Mulai — daftar order siap dipick"
+      },
+      {
+        "name": "02-berjalan",
+        "url": "/dashboard/proses-pesanan/picking?tab=berjalan",
+        "waitFor": "table, [data-slot='table']",
+        "settleMs": 600,
+        "caption": "Tab Berjalan — sesi picking aktif"
+      },
+      {
+        "name": "03-selesai",
+        "url": "/dashboard/proses-pesanan/picking?tab=selesai",
+        "waitFor": "table, [data-slot='table']",
+        "settleMs": 600,
+        "caption": "Tab Selesai — picklist yang sudah diproses"
+      }
+    ]
+  },
+  {
+    "slug": "proses-pesanan/packing",
+    "shots": [
+      {
+        "name": "01-belum-mulai",
+        "url": "/dashboard/proses-pesanan/packing?tab=belum-mulai",
+        "waitFor": "table, [data-slot='table']",
+        "settleMs": 600,
+        "caption": "Packing — antrian order siap packing"
+      }
+    ]
+  },
+  {
+    "slug": "proses-pesanan/shipping",
+    "shots": [
+      {
+        "name": "01-siap-kirim",
+        "url": "/dashboard/proses-pesanan/shipping",
+        "waitFor": "table, [data-slot='table']",
+        "settleMs": 600,
+        "caption": "Shipping — cetak resi & pickup kurir"
+      }
+    ]
+  },
+  {
+    "slug": "barang-masuk/penerimaan",
+    "shots": [
+      {
+        "name": "01-daftar-inbound",
+        "url": "/dashboard/barang-masuk?tab=penerimaan",
+        "waitFor": "table, [data-slot='table']",
+        "settleMs": 500,
+        "caption": "Daftar penerimaan yang menunggu putaway"
+      }
+    ]
+  },
+  {
+    "slug": "produk/tambah",
+    "shots": [
+      {
+        "name": "01-form-tambah",
+        "url": "/dashboard/produk/tambah",
+        "waitFor": "form, [data-slot='card']",
+        "settleMs": 400,
+        "caption": "Form tambah produk baru"
+      }
+    ]
+  },
+  {
+    "slug": "integrasi-channel/shopee",
+    "shots": [
+      {
+        "name": "01-daftar-channel",
+        "url": "/dashboard/channel",
+        "waitFor": "table, [data-slot='table']",
+        "settleMs": 500,
+        "caption": "Daftar channel — Shopee/Lazada/TikTok/WC"
+      }
+    ]
+  }
+]
