@@ -142,7 +142,6 @@ function handleExportList(items: Inbound[]) {
     "No. Referensi",
     "Tanggal Transfer Keluar",
     "Lokasi",
-    "Dibuat Oleh",
     "Qty Diterima",
   ];
   const rows = items.map((item) => {
@@ -153,7 +152,6 @@ function handleExportList(items: Inbound[]) {
       item.reference_number ?? "",
       item.expected_date ? formatDateTime(item.expected_date) : formatDateTime(item.created_at),
       item.location?.location_name ?? "",
-      item.created_by,
       String(totalRecv),
     ];
   });
@@ -282,25 +280,6 @@ export function PenerimaanBarangTab() {
           <span>
             {row.original.location?.location_name ?? "—"}
           </span>
-        ),
-      },
-      {
-        accessorKey: "created_by",
-        header: "Dibuat Oleh",
-        cell: ({ row }) => (
-          <span>
-            {row.original.created_by}
-          </span>
-        ),
-      },
-      {
-        id: "sedang_di",
-        header: "Sedang di",
-        cell: ({ row }) => (
-          <AssignedBadge
-            assignedToName={row.original.assignee?.name ?? null}
-            isUnlockedOnce={row.original.once_received_at != null}
-          />
         ),
       },
 
