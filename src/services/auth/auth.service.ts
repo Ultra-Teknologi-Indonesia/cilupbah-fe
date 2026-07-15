@@ -2,14 +2,18 @@ import { fetchClient } from "@/lib/api-client";
 import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type {
   ChangePasswordPayload,
+  ForgotPasswordPayload,
   LoginHistoryEntry,
   LoginRequest,
   LoginResponse,
   MediaUploadResult,
   MyProfile,
+  ResetPasswordPayload,
   UpdateProfilePayload,
   UserHistoryEntry,
   UserSession,
+  VerifyResetOtpPayload,
+  VerifyResetOtpResult,
 } from "@/types/auth/auth.types";
 
 export type CurrentUser = MyProfile;
@@ -109,5 +113,32 @@ export const AuthService = {
       "/profile/login-histories",
       { params },
     );
+  },
+
+  forgotPassword: async (
+    payload: ForgotPasswordPayload,
+  ): Promise<ApiResponse<null>> => {
+    return fetchClient<ApiResponse<null>>("/auth/forgot-password", {
+      method: "POST",
+      data: payload,
+    });
+  },
+
+  verifyResetOtp: async (
+    payload: VerifyResetOtpPayload,
+  ): Promise<ApiResponse<VerifyResetOtpResult>> => {
+    return fetchClient<ApiResponse<VerifyResetOtpResult>>(
+      "/auth/forgot-password/verify-otp",
+      { method: "POST", data: payload },
+    );
+  },
+
+  resetPassword: async (
+    payload: ResetPasswordPayload,
+  ): Promise<ApiResponse<null>> => {
+    return fetchClient<ApiResponse<null>>("/auth/forgot-password/reset", {
+      method: "POST",
+      data: payload,
+    });
   },
 };

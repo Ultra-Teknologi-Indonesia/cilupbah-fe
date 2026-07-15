@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { motion } from "framer-motion";
-import { ArrowRight, Eye, Loader2, Lock, Mail } from "lucide-react";
+import { ArrowRight, Loader2, Mail } from "lucide-react";
 
 import { useLogin } from "@/hooks/auth/use-auth";
 import { setLoginSession } from "@/app/actions/auth.actions";
@@ -15,6 +15,7 @@ import { toast } from "@/components/ui/sonner";
 import { apiError } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/auth/password-input";
 import {
   Form,
   FormControl,
@@ -40,7 +41,6 @@ type LoginValues = z.infer<typeof loginSchema>;
 export function LoginForm({ className }: { className?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (searchParams.get("logout") === "success") {
@@ -119,49 +119,19 @@ export function LoginForm({ className }: { className?: string }) {
             <FormItem>
               <div className="flex items-center justify-between">
                 <FormLabel className="text-foreground/70">Password</FormLabel>
-                <a
-                  href="#"
+                <Link
+                  href="/lupa-password"
                   className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
                 >
                   Lupa password?
-                </a>
+                </Link>
               </div>
               <FormControl>
-                <div className="group relative">
-                  <Lock className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-foreground" />
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    placeholder="••••••••"
-                    className="h-11 border-white/20 bg-background/40 px-10 backdrop-blur-md"
-                    {...field}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((s) => !s)}
-                    className="absolute top-1/2 right-3 grid size-7 -translate-y-1/2 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
-                    aria-label={
-                      showPassword
-                        ? "Sembunyikan password"
-                        : "Tampilkan password"
-                    }
-                    aria-pressed={showPassword}
-                  >
-                    <span className="relative grid size-4 place-items-center">
-                      <Eye className="size-4" />
-                      <span className="pointer-events-none absolute inset-0 grid place-items-center">
-                        <span className="block h-[1.6px] w-[22px] -rotate-45">
-                          <motion.span
-                            className="block h-full w-full origin-right rounded-full bg-current"
-                            initial={false}
-                            animate={{ scaleX: showPassword ? 0 : 1 }}
-                            transition={{ duration: 0.22, ease: "easeInOut" }}
-                          />
-                        </span>
-                      </span>
-                    </span>
-                  </button>
-                </div>
+                <PasswordInput
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

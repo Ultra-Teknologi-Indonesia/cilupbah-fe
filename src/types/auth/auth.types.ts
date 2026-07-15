@@ -96,3 +96,24 @@ export interface MediaUploadResult {
   mime_type?: string;
   size?: number;
 }
+
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface VerifyResetOtpPayload {
+  email: string;
+  otp: string;
+}
+
+export interface VerifyResetOtpResult {
+  reset_token: string;
+  expires_at: string;
+}
+
+export interface ResetPasswordPayload {
+  email: string;
+  reset_token: string;
+  password: string;
+  password_confirmation: string;
+}
