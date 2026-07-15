@@ -44,8 +44,16 @@ import {
   usePickItem,
   useScanForPick,
   useCompletePicklist,
+  useUnassignPicklist,
+  useResetPicklistAssignment,
   fulfillmentKeys,
 } from "@/hooks/proses-pesanan/use-fulfillment";
+import {
+  AssignmentLockBanner,
+  ResetAssignmentDialog,
+  UnassignReasonDialog,
+} from "@/components/shared/channel-lock";
+import { useMe } from "@/hooks/auth/use-auth";
 import { useListState } from "@/hooks/use-list-state";
 import { OutboundService } from "@/services/proses-pesanan/outbound.service";
 import { DeleteOrderDialog } from "@/components/dashboard/proses-pesanan/shared/delete-order-dialog";
@@ -156,6 +164,20 @@ export function PickingProsesView({ id }: { id: string }) {
     isLoading: isPicklistLoading,
     isError,
   } = usePicklistDetail(id);
+
+  const { data: me } = useMe();
+  const roles = me?.roles ?? [];
+  const canUnassign = roles.some((r) =>
+    ["owner", "admin", "kepala gudang", "leader outbound"].includes(r),
+  );
+  const canReset = roles.some((r) =>
+    ["owner", "admin", "kepala gudang"].includes(r),
+  );
+
+  const [unassignOpen, setUnassignOpen] = React.useState(false);
+  const [resetOpen, setResetOpen] = React.useState(false);
+  const unassignMutation = useUnassignPicklist(id);
+  const resetMutation = useResetPicklistAssignment(id);
   const list = useListState(
     {},
     {
@@ -233,7 +255,11 @@ export function PickingProsesView({ id }: { id: string }) {
   const isTerminal = pl
     ? ["COMPLETED", "FAILED", "CANCELLED"].includes(pl.status)
     : false;
-  const editable = !!pl && !isTerminal;
+  // Channel lock: kalau assigned ke picker (mobile) dan belum COMPLETED,
+  // web tidak boleh proses (banner + tombol disabled).
+  const isChannelLocked =
+    !!pl && pl.pickerId != null && pl.completedAt == null;
+  const editable = !!pl && !isTerminal && !isChannelLocked;
 
   React.useEffect(() => {
     if (pl && pl.status === "COMPLETED") {
@@ -612,6 +638,19 @@ export function PickingProsesView({ id }: { id: string }) {
           </div>
         }
       />
+
+      {pl && (
+        <AssignmentLockBanner
+          assignedToName={pl.pickerName ?? null}
+          assignedAt={pl.assignedAt ?? null}
+          isUnlockedOnce={pl.completedAt != null}
+          status={pl.status}
+          onUnassign={() => setUnassignOpen(true)}
+          onReset={() => setResetOpen(true)}
+          canUnassign={canUnassign && !!pl.pickerId}
+          canReset={canReset && !!pl.pickerId}
+        />
+      )}
 
       {isLoading ? (
         <DetailSkeleton />
@@ -1022,6 +1061,21 @@ export function PickingProsesView({ id }: { id: string }) {
             router.replace(LIST_HREF);
           }
         }}
+      />
+
+      <UnassignReasonDialog
+        open={unassignOpen}
+        onOpenChange={setUnassignOpen}
+        isSubmitting={unassignMutation.isPending}
+        onSubmit={(payload) => unassignMutation.mutateAsync(payload)}
+      />
+
+      <ResetAssignmentDialog
+        open={resetOpen}
+        onOpenChange={setResetOpen}
+        isSubmitting={resetMutation.isPending}
+        destructiveDescription="Semua alokasi pick akan dilepas dan qty picked kembali 0. Dokumen kembali antrian bersih."
+        onSubmit={(payload) => resetMutation.mutateAsync(payload)}
       />
     </div>
   );

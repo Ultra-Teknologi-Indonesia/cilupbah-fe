@@ -960,3 +960,41 @@ export function useCompletedShipments(
     enabled,
   });
 }
+
+/** Channel Lock — Tombol A "Alihkan Tugas" — TAHAN alokasi pick. */
+export function useUnassignPicklist(picklistId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: {
+      reason_code: string;
+      reason_note?: string;
+      new_assignee_id?: string;
+    }) => OutboundService.unassignPicklist(picklistId, payload),
+    onSuccess: (_data, vars) => {
+      toast.success(
+        vars.new_assignee_id
+          ? "Tugas picking berhasil dialihkan"
+          : "Assignment picking dibatalkan",
+      );
+      qc.invalidateQueries({ queryKey: ["fulfillment"] });
+      qc.invalidateQueries({ queryKey: ["picklists"] });
+    },
+    onError: (err) => apiError(err, "Gagal mengalihkan tugas picking"),
+  });
+}
+
+/** Channel Lock — Tombol B "Reset & Alihkan" — clear allocation. */
+export function useResetPicklistAssignment(picklistId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { reason_note: string; new_assignee_id?: string }) =>
+      OutboundService.resetPicklistAssignment(picklistId, payload),
+    onSuccess: () => {
+      toast.success("Picklist berhasil di-reset, alokasi pick dikembalikan");
+      qc.invalidateQueries({ queryKey: ["fulfillment"] });
+      qc.invalidateQueries({ queryKey: ["picklists"] });
+      qc.invalidateQueries({ queryKey: ["inventory"] });
+    },
+    onError: (err) => apiError(err, "Gagal reset picklist"),
+  });
+}

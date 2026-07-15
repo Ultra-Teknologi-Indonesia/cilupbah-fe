@@ -22,6 +22,7 @@ import {
   type FulfillmentFilterValue,
 } from "@/components/dashboard/proses-pesanan/shared/fulfillment-filter-bar";
 import type { ColumnDef } from "@tanstack/react-table";
+import { AssignedBadge } from "@/components/shared/channel-lock";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import {
@@ -232,9 +233,14 @@ export function PicklistTable() {
         id: "picker_id",
         accessorFn: (row) => row.pickerName,
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Picker" />
+          <DataTableColumnHeader column={column} title="Sedang di" />
         ),
-        cell: ({ row }) => <span>{row.original.pickerName ?? "—"}</span>,
+        cell: ({ row }) => (
+          <AssignedBadge
+            assignedToName={row.original.pickerName ?? null}
+            isUnlockedOnce={row.original.completedAt != null}
+          />
+        ),
       },
       {
         accessorKey: "itemsCount",

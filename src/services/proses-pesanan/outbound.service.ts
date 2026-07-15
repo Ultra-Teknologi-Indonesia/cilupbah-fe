@@ -161,9 +161,12 @@ function mapPicklist(raw: RawPicklist): Picklist {
     locationName: raw.location?.location_name ?? null,
     pickerId: raw.picker_id ?? raw.picker?.id ?? null,
     pickerName: raw.picker?.name ?? null,
+    assignedBy: raw.assigned_by ?? null,
+    assignedAt: raw.assigned_at ?? null,
     status,
     startedAt: raw.started_at ?? null,
     completedAt: raw.completed_at ?? null,
+    updatedVersionAt: raw.updated_version_at ?? null,
     notes: raw.notes ?? null,
     itemsCount: raw.items_count ?? 0,
     qtyOrdered: raw.items_sum_qty_ordered ?? 0,
@@ -1356,5 +1359,33 @@ export const OutboundService = {
       `/outbound/pre-manifest/cancelled/export${qs}`,
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
+  },
+
+  /** Tombol A "Alihkan Tugas" — TAHAN alokasi pick. */
+  unassignPicklist: async (
+    picklistId: string,
+    payload: {
+      reason_code: string;
+      reason_note?: string;
+      new_assignee_id?: string;
+    },
+  ) => {
+    const res = await fetchClient<{ data: unknown }>(
+      `/outbound/picklists/${picklistId}/assignment`,
+      { method: "DELETE", data: payload },
+    );
+    return res.data;
+  },
+
+  /** Tombol B "Reset & Alihkan" — clear allocation + reset picked_qty. */
+  resetPicklistAssignment: async (
+    picklistId: string,
+    payload: { reason_note: string; new_assignee_id?: string },
+  ) => {
+    const res = await fetchClient<{ data: unknown }>(
+      `/outbound/picklists/${picklistId}/assignment/reset`,
+      { method: "POST", data: payload },
+    );
+    return res.data;
   },
 };

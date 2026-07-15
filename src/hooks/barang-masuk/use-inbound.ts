@@ -90,12 +90,20 @@ export function useBulkCancelInbounds() {
   });
 }
 
-/** Set jumlah diterima aktual (naik/turun) pada satu baris penerimaan. */
+/** Set jumlah diterima aktual (naik/turun) pada satu baris penerimaan.
+ *  Optional expectedUpdatedAt → optimistic lock (fix H4). */
 export function useSetReceivedQty(inboundId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ itemId, qty }: { itemId: string; qty: number }) =>
-      InboundService.setReceivedQty(inboundId, itemId, qty),
+    mutationFn: ({
+      itemId,
+      qty,
+      expectedUpdatedAt,
+    }: {
+      itemId: string;
+      qty: number;
+      expectedUpdatedAt?: string | null;
+    }) => InboundService.setReceivedQty(inboundId, itemId, qty, expectedUpdatedAt),
     onSuccess: () => {
       toast.success("Jumlah diterima diperbarui");
       qc.invalidateQueries({ queryKey: ["inbound", "detail", inboundId] });
@@ -103,8 +111,14 @@ export function useSetReceivedQty(inboundId: string) {
       qc.invalidateQueries({ queryKey: ["inbound", "list"] });
       qc.invalidateQueries({ queryKey: ["inventory"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal memperbarui jumlah diterima"),
+    onError: (err: unknown) => {
+      const code = (err as { errors?: { code?: string } })?.errors?.code;
+      if (code === "STALE_WRITE") {
+        qc.invalidateQueries({ queryKey: ["inbound", "detail", inboundId] });
+        qc.invalidateQueries({ queryKey: ["inbound", "items", inboundId] });
+      }
+      apiError(err, "Gagal memperbarui jumlah diterima");
+    },
   });
 }
 
@@ -154,14 +168,21 @@ export function useResetInboundAssignment(inboundId: string) {
 export function useSetReceivedQtyBatch(inboundId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (
-      items: Array<{ itemId: string; qty: number }>,
-    ): Promise<
-      Array<{ itemId: string; ok: boolean; error?: string }>
-    > => {
+    mutationFn: async ({
+      items,
+      expectedUpdatedAt,
+    }: {
+      items: Array<{ itemId: string; qty: number }>;
+      expectedUpdatedAt?: string | null;
+    }): Promise<Array<{ itemId: string; ok: boolean; error?: string }>> => {
       const results = await Promise.allSettled(
         items.map((it) =>
-          InboundService.setReceivedQty(inboundId, it.itemId, it.qty),
+          InboundService.setReceivedQty(
+            inboundId,
+            it.itemId,
+            it.qty,
+            expectedUpdatedAt,
+          ),
         ),
       );
       return items.map((it, idx) => {

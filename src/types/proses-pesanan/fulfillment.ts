@@ -208,9 +208,12 @@ export interface RawPicklist {
   picklist_no: string;
   location_id?: string | null;
   picker_id?: string | null;
+  assigned_by?: string | null;
+  assigned_at?: string | null;
   status?: string | null;
   started_at?: string | null;
   completed_at?: string | null;
+  updated_version_at?: string | null;
   notes?: string | null;
   created_by?: string | null;
   created_at?: string | null;
@@ -234,9 +237,12 @@ export interface Picklist {
   locationName: string | null;
   pickerId: string | null;
   pickerName: string | null;
+  assignedBy: string | null;
+  assignedAt: string | null;
   status: PicklistStatus;
   startedAt: string | null;
   completedAt: string | null;
+  updatedVersionAt: string | null;
   notes: string | null;
   itemsCount: number;
   qtyOrdered: number;

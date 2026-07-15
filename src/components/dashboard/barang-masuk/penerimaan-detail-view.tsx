@@ -327,8 +327,13 @@ export function PenerimaanDetailView({ id }: { id: string }) {
 
   const handleSaveAll = async () => {
     if (!inbound || dirtyEntries.length === 0) return;
-    const payload = dirtyEntries.map(([itemId, qty]) => ({ itemId, qty }));
-    const results = await batchMutation.mutateAsync(payload);
+    const items = dirtyEntries.map(([itemId, qty]) => ({ itemId, qty }));
+    // Optimistic lock (fix H4): kirim updated_version_at server terkini.
+    // Kalau ada admin lain edit di antara load & submit, BE akan 412.
+    const results = await batchMutation.mutateAsync({
+      items,
+      expectedUpdatedAt: inbound.updated_version_at ?? inbound.updated_at,
+    });
 
     const okIds = new Set(results.filter((r) => r.ok).map((r) => r.itemId));
     const failed = results.filter((r) => !r.ok);

@@ -103,13 +103,22 @@ export const InboundService = {
     return res.data;
   },
 
-  /** Set jumlah diterima aktual pada satu baris (boleh naik/turun). */
-  setReceivedQty: async (inboundId: string, itemId: string, qty: number) => {
+  /** Set jumlah diterima aktual pada satu baris (boleh naik/turun).
+   *  Kalau expectedUpdatedAt diberikan, BE akan cek optimistic lock (fix H4)
+   *  dan throw 412 STALE_WRITE kalau data server sudah berubah. */
+  setReceivedQty: async (
+    inboundId: string,
+    itemId: string,
+    qty: number,
+    expectedUpdatedAt?: string | null,
+  ) => {
     const res = await fetchClient<ApiResponse<Inbound>>(
       `/inbounds/${inboundId}/items/${itemId}/received-qty`,
       {
         method: "PATCH",
-        data: { qty },
+        data: expectedUpdatedAt
+          ? { qty, _expected_updated_at: expectedUpdatedAt }
+          : { qty },
       },
     );
     return res.data;
