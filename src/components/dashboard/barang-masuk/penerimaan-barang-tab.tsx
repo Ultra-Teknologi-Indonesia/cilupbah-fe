@@ -10,6 +10,7 @@ import {
   LayersIcon,
   PlayIcon,
   PlusIcon,
+  PrinterIcon,
   Trash2Icon,
   } from "lucide-react";
 import { toast } from "sonner";
@@ -339,6 +340,8 @@ export function PenerimaanBarangTab() {
           const item = row.original;
           const active = activePutaway(item);
           const canDelete = !["DRAFT", "CANCELLED"].includes(item.status);
+          const canPrintPO =
+            item.source_type === "purchase_order" && !!item.source_id;
 
           return (
             <div
@@ -385,6 +388,23 @@ export function PenerimaanBarangTab() {
                   >
                     <PlayIcon className="size-4" />
                     Lanjut
+                  </Link>
+                </Button>
+              )}
+              {canPrintPO && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="size-8"
+                  asChild
+                  aria-label="Pratinjau & cetak PO"
+                  title="Pratinjau & cetak Barang Masuk Pembelian"
+                >
+                  <Link
+                    href={`/dashboard/document-preview/purchase-order/${item.source_id}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <PrinterIcon className="size-4" />
                   </Link>
                 </Button>
               )}
