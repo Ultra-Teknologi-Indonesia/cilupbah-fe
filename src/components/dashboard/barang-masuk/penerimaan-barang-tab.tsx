@@ -327,6 +327,39 @@ export function PenerimaanBarangTab() {
               className="flex items-center justify-end gap-2"
               onClick={(e) => e.stopPropagation()}
             >
+              {canPrintPO && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="size-8"
+                  asChild
+                  aria-label="Pratinjau & cetak PO"
+                  title="Pratinjau & cetak Barang Masuk Pembelian"
+                >
+                  <Link
+                    href={`/dashboard/document-preview/purchase-order/${item.source_id}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <PrinterIcon className="size-4" />
+                  </Link>
+                </Button>
+              )}
+              {canDelete && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    resetSelectionRef.current = null;
+                    setDeleteTargets([item]);
+                  }}
+                  aria-label="Hapus penerimaan"
+                  title="Hapus penerimaan"
+                >
+                  <Trash2Icon className="size-4" />
+                </Button>
+              )}
               {isTransitReceivable(item) && (
                 <Button
                   size="sm"
@@ -368,39 +401,6 @@ export function PenerimaanBarangTab() {
                     <PlayIcon className="size-4" />
                     Lanjut
                   </Link>
-                </Button>
-              )}
-              {canPrintPO && (
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="size-8"
-                  asChild
-                  aria-label="Pratinjau & cetak PO"
-                  title="Pratinjau & cetak Barang Masuk Pembelian"
-                >
-                  <Link
-                    href={`/dashboard/document-preview/purchase-order/${item.source_id}`}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <PrinterIcon className="size-4" />
-                  </Link>
-                </Button>
-              )}
-              {canDelete && (
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    resetSelectionRef.current = null;
-                    setDeleteTargets([item]);
-                  }}
-                  aria-label="Hapus penerimaan"
-                  title="Hapus penerimaan"
-                >
-                  <Trash2Icon className="size-4" />
                 </Button>
               )}
             </div>
