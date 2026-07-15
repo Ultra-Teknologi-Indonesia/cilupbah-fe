@@ -84,6 +84,8 @@ export function useBulkCancelInbounds() {
       }
       qc.invalidateQueries({ queryKey: ["inbound", "list"] });
       qc.invalidateQueries({ queryKey: ["inventory"] });
+      qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
+      qc.invalidateQueries({ queryKey: ["purchase-order"] });
     },
     onError: (err) =>
       apiError(err, "Gagal menghapus penerimaan"),

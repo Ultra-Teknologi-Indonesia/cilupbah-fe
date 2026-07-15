@@ -338,7 +338,7 @@ export function PenerimaanBarangTab() {
         cell: ({ row }) => {
           const item = row.original;
           const active = activePutaway(item);
-          const canDelete = !["COMPLETED", "CANCELLED"].includes(item.status);
+          const canDelete = !["DRAFT", "CANCELLED"].includes(item.status);
 
           return (
             <div
@@ -614,14 +614,40 @@ export function PenerimaanBarangTab() {
         }}
         variant="destructive"
         title={`Hapus ${deleteTargets.length} penerimaan?`}
-        description={
-          deleteTargets.length > 0 &&
-          deleteTargets.every((d) => d.source_type === "transfer")
-            ? deleteTargets.length === 1
-              ? `Penerimaan ${deleteTargets[0].transaction_number} akan dihapus dan Transfer Keluar terkait dikembalikan ke Sedang Dijalan. Barang bisa diterima ulang.`
-              : "Penerimaan transfer dihapus dan Transfer Keluar terkait dikembalikan ke Sedang Dijalan. Barang bisa diterima ulang."
-            : "Penerimaan dibatalkan dan stok yang belum ditempatkan dikembalikan dari bin inbound. Tindakan ini tidak bisa dibatalkan."
-        }
+        description={(() => {
+          if (deleteTargets.length === 0) return "";
+          const isSingle = deleteTargets.length === 1;
+          const target = deleteTargets[0];
+          const allTransfer = deleteTargets.every(
+            (d) => d.source_type === "transfer",
+          );
+          const allPO = deleteTargets.every(
+            (d) => d.source_type === "purchase_order",
+          );
+          const hasCompleted = deleteTargets.some(
+            (d) => d.status === "COMPLETED",
+          );
+
+          if (allTransfer && hasCompleted) {
+            return isSingle
+              ? `Penerimaan ${target.transaction_number} sudah selesai (barang di rak). Menghapus akan membalik penempatan ke rak inbound dan mengembalikan Transfer Keluar terkait ke Sedang Dijalan. Barang bisa diterima ulang.`
+              : "Sebagian penerimaan sudah selesai. Menghapus akan membalik penempatan ke rak inbound dan mengembalikan Transfer Keluar terkait ke Sedang Dijalan.";
+          }
+
+          if (allTransfer) {
+            return isSingle
+              ? `Penerimaan ${target.transaction_number} akan dihapus dan Transfer Keluar terkait dikembalikan ke Sedang Dijalan. Barang bisa diterima ulang.`
+              : "Penerimaan transfer dihapus dan Transfer Keluar terkait dikembalikan ke Sedang Dijalan. Barang bisa diterima ulang.";
+          }
+
+          if (allPO && hasCompleted) {
+            return isSingle
+              ? `Penerimaan ${target.transaction_number} sudah selesai (barang di rak). Menghapus akan membalik penempatan dan mengembalikan Pesanan Pembelian ke status Belum Diterima agar bisa diterima ulang.`
+              : "Sebagian penerimaan PO sudah selesai. Menghapus akan membalik penempatan dan mengembalikan Pesanan Pembelian ke Belum Diterima.";
+          }
+
+          return "Penerimaan dibatalkan dan stok yang belum ditempatkan dikembalikan dari bin inbound. Tindakan ini tidak bisa dibatalkan.";
+        })()}
         confirmLabel="Hapus"
         loading={bulkCancel.isPending}
         onConfirm={() => {
