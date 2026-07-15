@@ -13,6 +13,7 @@ import {
   RotateCcwIcon,
   FilterXIcon,
   PackageOpenIcon,
+  InfoIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -130,25 +131,36 @@ export function TambahPenerimaanFormPage() {
         backHref="/dashboard/barang-masuk?tab=pesanan"
       />
 
+      <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm">
+        <InfoIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+        <p className="text-muted-foreground">
+          Form ini khusus <span className="font-medium text-foreground">Pesanan Pembelian</span>.
+          <span className="font-medium text-foreground"> Transfer masuk</span> dan{" "}
+          <span className="font-medium text-foreground">retur penjualan</span> otomatis muncul
+          di daftar Penerimaan (tab masing-masing) tanpa perlu ditambah manual di sini.
+        </p>
+      </div>
+
       <div className="rounded-2xl border border-border bg-card px-5 py-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-4">
-          <div className="min-w-0 flex-1 space-y-1.5">
-            <Label htmlFor="po">Pesanan Pembelian *</Label>
-            <Combobox
-              id="po"
-              options={poOptions}
-              value={poId || null}
-              onChange={(v) => setPoId(v ?? "")}
-              placeholder="Pilih PO"
-              searchPlaceholder="Cari No. PO / pemasok"
-              emptyText={receivable.isFetching ? "Memuat…" : "Tidak ada PO"}
-              onQueryChange={setPoQuery}
-              loading={receivable.isFetching}
-            />
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Hanya PO berstatus <span className="font-medium">Sedang Berjalan</span> /{" "}
-            <span className="font-medium">Diterima Sebagian</span>.
+        <div className="space-y-1.5">
+          <Label htmlFor="po">
+            Pesanan Pembelian <span className="text-destructive">*</span>
+          </Label>
+          <Combobox
+            id="po"
+            options={poOptions}
+            value={poId || null}
+            onChange={(v) => setPoId(v ?? "")}
+            placeholder="Pilih PO"
+            searchPlaceholder="Cari No. PO / pemasok"
+            emptyText={receivable.isFetching ? "Memuat…" : "Tidak ada PO"}
+            onQueryChange={setPoQuery}
+            loading={receivable.isFetching}
+          />
+          <p className="text-xs text-muted-foreground">
+            Hanya PO berstatus{" "}
+            <span className="font-medium text-foreground">Sedang Berjalan</span> /{" "}
+            <span className="font-medium text-foreground">Diterima Sebagian</span>.
           </p>
         </div>
       </div>
