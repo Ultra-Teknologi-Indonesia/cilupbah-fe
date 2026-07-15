@@ -22,6 +22,8 @@ import type {
   RawPicklistItem,
   RawReadyToShipResult,
   RawShipment,
+  RawCompletedShipmentOrderRow,
+  CompletedShipmentOrderRow,
   RawShipmentDetail,
   RawShipmentOrder,
   ReadyToShipResult,
@@ -224,6 +226,35 @@ function mapShipment(raw: RawShipment): Shipment {
     shipperId:
       raw.shipper_id != null ? String(raw.shipper_id) : raw.shipper?.id != null ? String(raw.shipper.id) : null,
     shipperName: raw.shipper?.name ?? raw.shipper?.email ?? null,
+  };
+}
+
+function mapCompletedShipmentOrderRow(
+  raw: RawCompletedShipmentOrderRow,
+): CompletedShipmentOrderRow {
+  return {
+    orderId: raw.order_id ?? null,
+    salesorderNo: raw.salesorder_no ?? null,
+    customerName: raw.customer_name ?? null,
+    trackingNumber: raw.tracking_number ?? null,
+    source: raw.source ?? null,
+    channelStatus: raw.channel_status ?? null,
+    channelOrderNo: raw.channel_order_no ?? null,
+    transactionDate: raw.transaction_date ?? null,
+    shippingProvider: raw.shipping_provider ?? null,
+    courierName: raw.courier_name ?? null,
+    shippingAddress: raw.shipping_address ?? null,
+    shippingCity: raw.shipping_city ?? null,
+    shippingProvince: raw.shipping_province ?? null,
+    shipmentId: raw.shipment_id ?? null,
+    shipmentNo: raw.shipment_no ?? null,
+    shipmentType: raw.shipment_type ?? null,
+    shipmentStatus: raw.shipment_status,
+    shipmentDate: raw.shipment_date ?? null,
+    handedOverAt: raw.handed_over_at ?? null,
+    locationName: raw.location_name ?? null,
+    picklistNo: raw.picklist_no ?? null,
+    qtyGiven: raw.qty_given ?? null,
   };
 }
 
@@ -480,18 +511,32 @@ export const OutboundService = {
       type?: string;
       courier_codes?: string[];
     },
-  ): Promise<ListResult<Shipment>> => {
+  ): Promise<ListResult<CompletedShipmentOrderRow>> => {
     const type = encodeURIComponent(params.type ?? "all");
     const couriers = (params.courier_codes ?? []).join(",") || "all";
     const res = await fetchClient<{
       success?: boolean;
-      data: RawPaginator<RawShipment>;
+      data: {
+        data: RawCompletedShipmentOrderRow[];
+        meta: {
+          current_page: number;
+          per_page: number;
+          last_page: number;
+          total: number;
+        };
+      };
     }>(
       `/outbound/shipments/completed/${type}/${encodeURIComponent(couriers)}?${buildQuery(params)}`,
     );
+    const payload = res.data;
     return {
-      items: (res.data?.data ?? []).map(mapShipment),
-      meta: paginatorMeta(res.data, params.per_page),
+      items: (payload?.data ?? []).map(mapCompletedShipmentOrderRow),
+      meta: payload?.meta ?? {
+        current_page: 1,
+        per_page: params.per_page ?? 20,
+        last_page: 1,
+        total: 0,
+      },
     };
   },
 

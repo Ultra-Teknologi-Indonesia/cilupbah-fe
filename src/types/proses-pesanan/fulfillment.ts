@@ -716,3 +716,53 @@ export interface Courier {
   logoUrl: string | null;
   isActive: boolean;
 }
+
+export interface RawCompletedShipmentOrderRow {
+  order_id: string | null;
+  salesorder_no: string | null;
+  customer_name: string | null;
+  tracking_number: string | null;
+  source: string | null;
+  channel_status: string | null;
+  channel_order_no: string | null;
+  transaction_date: string | null;
+  shipping_provider: string | null;
+  courier_name: string | null;
+  shipping_address: string | null;
+  shipping_city: string | null;
+  shipping_province: string | null;
+  shipment_id: string | null;
+  shipment_no: string | null;
+  shipment_type: string | null;
+  shipment_status: ShipmentStatus;
+  shipment_date: string | null;
+  handed_over_at: string | null;
+  location_name: string | null;
+  picklist_no: string | null;
+  qty_given: number | null;
+}
+
+export interface CompletedShipmentOrderRow {
+  orderId: string | null;
+  salesorderNo: string | null;
+  customerName: string | null;
+  trackingNumber: string | null;
+  source: string | null;
+  channelStatus: string | null;
+  channelOrderNo: string | null;
+  transactionDate: string | null;
+  shippingProvider: string | null;
+  courierName: string | null;
+  shippingAddress: string | null;
+  shippingCity: string | null;
+  shippingProvince: string | null;
+  shipmentId: string | null;
+  shipmentNo: string | null;
+  shipmentType: string | null;
+  shipmentStatus: ShipmentStatus;
+  shipmentDate: string | null;
+  handedOverAt: string | null;
+  locationName: string | null;
+  picklistNo: string | null;
+  qtyGiven: number | null;
+}
