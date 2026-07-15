@@ -35,6 +35,7 @@ export type Domain =
   | "purchase-order"
   | "sales-order"
   | "inbound"
+  | "inbound-participant"
   | "putaway"
   | "channel-integration"
   | "picking-item"
@@ -87,6 +88,12 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     IN_TRANSIT: { label: "Dikirim", variant: "info" },
     RECEIVED: { label: "Diterima", variant: "success" },
     CANCELLED: { label: "Dibatalkan", variant: "destructive" },
+  },
+
+  "inbound-participant": {
+    ACTIVE: { label: "Sedang input", variant: "info" },
+    DONE: { label: "Selesai", variant: "success" },
+    WITHDRAWN: { label: "Ditarik", variant: "muted" },
   },
 
   "bin-transfer": {

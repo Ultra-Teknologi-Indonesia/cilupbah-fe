@@ -26,12 +26,13 @@ export function useInbounds(
   });
 }
 
-export function useInboundDetail(id?: string) {
+export function useInboundDetail(id?: string, opts: { pollMs?: number } = {}) {
   return useQuery({
     queryKey: ["inbound", "detail", id],
     queryFn: () => InboundService.getById(id!),
     enabled: !!id,
     staleTime: STALE,
+    refetchInterval: opts.pollMs ?? false,
   });
 }
 
@@ -160,6 +161,38 @@ export function useResetInboundAssignment(inboundId: string) {
       qc.invalidateQueries({ queryKey: ["inventory"] });
     },
     onError: (err) => apiError(err, "Gagal reset penerimaan"),
+  });
+}
+
+/** Fase 2: admin tarik participant sesi mobile. */
+export function useWithdrawParticipant(inboundId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { userId: string; reasonNote?: string }) =>
+      InboundService.withdrawParticipant(
+        inboundId,
+        payload.userId,
+        payload.reasonNote,
+      ),
+    onSuccess: () => {
+      toast.success("Peserta ditarik dari sesi");
+      qc.invalidateQueries({ queryKey: ["inbound", "detail", inboundId] });
+    },
+    onError: (err) => apiError(err, "Gagal menarik peserta"),
+  });
+}
+
+/** F5: buat Inbound susulan dari PO. */
+export function useReceiveAdditional() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (poId: string) => InboundService.receiveAdditional(poId),
+    onSuccess: () => {
+      toast.success("Penerimaan susulan dibuat");
+      qc.invalidateQueries({ queryKey: ["inbound", "list"] });
+      qc.invalidateQueries({ queryKey: ["purchase-order"] });
+    },
+    onError: (err) => apiError(err, "Gagal membuat penerimaan susulan"),
   });
 }
 

@@ -51,11 +51,13 @@ import {
   useResetInboundAssignment,
   useSetReceivedQtyBatch,
   useUnassignInbound,
+  useWithdrawParticipant,
 } from "@/hooks/barang-masuk/use-inbound";
 import { exportCsv } from "@/lib/export-csv";
 import type { Inbound, InboundItem } from "@/types/barang-masuk/inbound";
 import {
   AssignmentLockBanner,
+  MobileSessionPanel,
   ResetAssignmentDialog,
   UnassignReasonDialog,
 } from "@/components/shared/channel-lock";
@@ -222,7 +224,7 @@ function SummaryRail({ totals }: { totals: Totals }) {
 }
 
 export function PenerimaanDetailView({ id }: { id: string }) {
-  const { data: inbound, isLoading } = useInboundDetail(id);
+  const { data: inbound, isLoading } = useInboundDetail(id, { pollMs: 10000 });
   const batchMutation = useSetReceivedQtyBatch(id);
 
   const [page, setPage] = React.useState(1);
@@ -257,13 +259,16 @@ export function PenerimaanDetailView({ id }: { id: string }) {
     setPage(1);
   };
 
-  // Channel lock: web boleh edit kalau dokumen sudah pernah RECEIVED
-  // (once_received_at != null) atau belum di-assign ke siapa pun.
-  // Kalau assigned ke user mobile dan belum RECEIVED → banner + input disabled.
-  const isLocked =
+  // Channel lock:
+  // Fase 1 (assignee tunggal) → assigned_to + belum RECEIVED.
+  // Fase 2 (multi participant) → BE mengembalikan edit_lock. Kalau ada participant
+  // ACTIVE web tetap read-only walaupun once_received_at sudah set.
+  const legacyAssignmentLock =
     !!inbound &&
     inbound.assigned_to != null &&
     inbound.once_received_at == null;
+  const sessionLock = inbound?.edit_lock?.locked ?? false;
+  const isLocked = legacyAssignmentLock || sessionLock;
   const canEdit =
     !!inbound && inbound.status !== "CANCELLED" && !isLocked;
 
@@ -278,6 +283,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
   const [resetOpen, setResetOpen] = React.useState(false);
   const unassignMutation = useUnassignInbound(id);
   const resetMutation = useResetInboundAssignment(id);
+  const withdrawMutation = useWithdrawParticipant(id);
 
   const setDirtyFor = React.useCallback((itemId: string, qty: number | null) => {
     setDirty((prev) => {
@@ -435,6 +441,15 @@ export function PenerimaanDetailView({ id }: { id: string }) {
             onReset={() => setResetOpen(true)}
             canUnassign={canUnassign && !!inbound.assigned_to}
             canReset={canReset && !!inbound.assigned_to}
+          />
+          <MobileSessionPanel
+            participants={inbound.participants ?? []}
+            editLock={inbound.edit_lock}
+            receivingStartedAt={inbound.receiving_started_at ?? null}
+            canWithdraw={canUnassign}
+            onWithdraw={(userId) =>
+              withdrawMutation.mutate({ userId })
+            }
           />
           <div className="flex items-center justify-end gap-2 print:hidden">
             <Button

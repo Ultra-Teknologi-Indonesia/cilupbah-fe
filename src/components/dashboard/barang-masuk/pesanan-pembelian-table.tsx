@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PackageCheckIcon, ShoppingCartIcon } from "lucide-react";
+import { PackageCheckIcon, PackagePlusIcon, ShoppingCartIcon } from "lucide-react";
 import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { DataTable } from "@/components/ui/data-table/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Progress } from "@/components/ui/progress";
 import { useReceivablePurchaseOrders } from "@/hooks/barang-masuk/use-purchase-orders-inbound";
+import { useReceiveAdditional } from "@/hooks/barang-masuk/use-inbound";
 import type { PurchaseOrder } from "@/types/transaksi-pembelian/purchase-order";
 import { formatDate } from "@/lib/format";
 
@@ -57,6 +58,7 @@ export function PesananPembelianTable({
   );
 
   const { data, isLoading, isFetching } = useReceivablePurchaseOrders(params);
+  const receiveAdditional = useReceiveAdditional();
   const items = data?.items ?? [];
   const meta = data?.meta ?? {
     current_page: 1,
@@ -131,11 +133,36 @@ export function PesananPembelianTable({
         header: () => <div className="text-right">Aksi</div>,
         cell: ({ row }) => {
           const po = row.original;
+          const received = sumQty(po, "received_qty");
+          const total = sumQty(po, "qty");
+          const isPartial = received > 0 && received < total;
           return (
             <div
               className="flex items-center justify-end gap-2"
               onClick={(e) => e.stopPropagation()}
             >
+              {isPartial ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1.5"
+                  disabled={receiveAdditional.isPending}
+                  onClick={() => {
+                    receiveAdditional.mutate(po.id, {
+                      onSuccess: (created) => {
+                        if (created?.id) {
+                          router.push(
+                            `/dashboard/barang-masuk/penerimaan/${created.id}`,
+                          );
+                        }
+                      },
+                    });
+                  }}
+                >
+                  <PackagePlusIcon className="size-4" />
+                  Terima Susulan
+                </Button>
+              ) : null}
               <Button size="sm" className="h-8 gap-1.5" asChild>
                 <Link
                   href={`/dashboard/barang-masuk/penerimaan/tambah?po=${po.id}`}
@@ -149,7 +176,7 @@ export function PesananPembelianTable({
         },
       },
     ],
-    [],
+    [receiveAdditional, router],
   );
 
   return (

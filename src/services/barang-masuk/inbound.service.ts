@@ -179,4 +179,29 @@ export const InboundService = {
       "application/pdf",
     );
   },
+
+  /** Fase 2 multi-staff: admin tarik participant dari web. */
+  withdrawParticipant: async (
+    inboundId: string,
+    userId: string,
+    reasonNote?: string,
+  ) => {
+    const res = await fetchClient<ApiResponse<Inbound>>(
+      `/inbounds/${inboundId}/participants/${userId}/withdraw`,
+      {
+        method: "POST",
+        data: reasonNote ? { reason_note: reasonNote } : {},
+      },
+    );
+    return res.data;
+  },
+
+  /** F5: buat Inbound susulan dari PO (delivery bertahap). */
+  receiveAdditional: async (poId: string) => {
+    const res = await fetchClient<ApiResponse<Inbound>>(
+      `/purchase-orders/${poId}/receive-additional`,
+      { method: "POST" },
+    );
+    return res.data;
+  },
 };

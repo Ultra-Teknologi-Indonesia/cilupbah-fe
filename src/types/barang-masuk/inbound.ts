@@ -51,6 +51,28 @@ export interface InboundItem {
   receipts?: InboundReceipt[];
 }
 
+export type InboundParticipantStatus = "ACTIVE" | "DONE" | "WITHDRAWN";
+
+export interface InboundParticipant {
+  id: string;
+  user_id: string;
+  name: string;
+  role: string;
+  status: InboundParticipantStatus;
+  joined_at: string | null;
+  completed_at: string | null;
+  withdrawn_at: string | null;
+  withdraw_reason: string | null;
+  receipts_count: number;
+  receipts_qty_sum: number;
+}
+
+export interface InboundEditLock {
+  locked: boolean;
+  reason: "mobile_session_active" | null;
+  active_participants: { user_id: string; name: string }[];
+}
+
 export interface InboundAssignment {
   id: string;
   inbound_id: string;
@@ -88,6 +110,9 @@ export interface Inbound {
   assignedByUser?: { id: string; name: string } | null;
   items: InboundItem[];
   assignments?: InboundAssignment[];
+  participants?: InboundParticipant[];
+  edit_lock?: InboundEditLock;
+  receiving_started_at?: string | null;
   putaways?: {
     id: string;
     source_id: string;
