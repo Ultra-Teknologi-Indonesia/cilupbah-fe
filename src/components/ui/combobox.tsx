@@ -276,49 +276,71 @@ export function Combobox({
                     type="button"
                     onClick={() => handleSelect(opt.value)}
                     className={cn(
-                      "flex w-full justify-between gap-2 px-2.5 py-2 text-left text-sm transition-colors",
+                      "flex w-full gap-2 px-2.5 py-2 text-left text-sm transition-colors",
                       wrap
                         ? "items-start rounded-2xl"
-                        : "items-center rounded-full",
+                        : "items-center justify-between rounded-full",
                       active
                         ? "bg-primary/10 text-primary"
                         : "hover:bg-muted/60",
                     )}
                   >
-                    <span
-                      className={cn(
-                        "flex min-w-0 gap-2",
-                        wrap ? "items-start" : "items-center",
-                      )}
-                    >
-                      <CheckIcon
-                        className={cn(
-                          "size-4 shrink-0",
-                          wrap && "mt-0.5",
-                          active ? "opacity-100" : "opacity-0",
-                        )}
-                      />
-                      {opt.imageUrl && (
-                        <Image
-                          src={opt.imageUrl}
-                          alt=""
-                          width={28}
-                          height={28}
-                          unoptimized
+                    {wrap ? (
+                      <>
+                        <CheckIcon
                           className={cn(
-                            "size-7 shrink-0 rounded-md border border-border/60 object-cover",
-                            wrap && "mt-0.5",
+                            "mt-0.5 size-4 shrink-0",
+                            active ? "opacity-100" : "opacity-0",
                           )}
                         />
-                      )}
-                      <span className={wrap ? "break-words" : "truncate"}>
-                        {opt.label}
-                      </span>
-                    </span>
-                    {opt.hint && (
-                      <span className="shrink-0 text-xs text-muted-foreground">
-                        {opt.hint}
-                      </span>
+                        {opt.imageUrl && (
+                          <Image
+                            src={opt.imageUrl}
+                            alt=""
+                            width={28}
+                            height={28}
+                            unoptimized
+                            className="mt-0.5 size-7 shrink-0 rounded-md border border-border/60 object-cover"
+                          />
+                        )}
+                        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                          <span className="line-clamp-2 break-words leading-snug">
+                            {opt.label}
+                          </span>
+                          {opt.hint && (
+                            <span className="truncate text-xs text-muted-foreground">
+                              {opt.hint}
+                            </span>
+                          )}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="flex min-w-0 items-center gap-2">
+                          <CheckIcon
+                            className={cn(
+                              "size-4 shrink-0",
+                              active ? "opacity-100" : "opacity-0",
+                            )}
+                          />
+                          {opt.imageUrl && (
+                            <Image
+                              src={opt.imageUrl}
+                              alt=""
+                              width={28}
+                              height={28}
+                              unoptimized
+                              className="size-7 shrink-0 rounded-md border border-border/60 object-cover"
+                            />
+                          )}
+                          <span className="truncate">{opt.label}</span>
+                        </span>
+                        {opt.hint && (
+                          <span className="shrink-0 text-xs text-muted-foreground">
+                            {opt.hint}
+                          </span>
+                        )}
+                      </>
                     )}
                   </button>
                 </li>
