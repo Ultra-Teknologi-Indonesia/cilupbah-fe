@@ -57,10 +57,18 @@ import {
   useDeletePutawayPlacement,
   useCompleteDiscrepancy,
   usePutawayBins,
+  useUnassignPutaway,
+  useResetPutawayAssignment,
   type BinListItem,
   type CompleteDiscrepancyResult,
 } from "@/hooks/barang-masuk/use-putaway-actions";
 import type { PutawayItem } from "@/types/barang-masuk/putaway";
+import {
+  AssignmentLockBanner,
+  ResetAssignmentDialog,
+  UnassignReasonDialog,
+} from "@/components/shared/channel-lock";
+import { useMe } from "@/hooks/auth/use-auth";
 
 interface PutawayProcessViewProps {
   id: string;
@@ -111,7 +119,25 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const isNotStarted = putaway?.status === "NOT_STARTED";
   const isInProgress = putaway?.status === "IN_PROGRESS";
   const isCompleted = putaway?.status === "COMPLETED";
-  const canEdit = isNotStarted || isInProgress;
+  // Channel lock: kalau putaway assigned ke user (mobile) dan belum COMPLETED,
+  // web tidak boleh proses. Kalau belum di-assign atau sudah COMPLETED, web bisa.
+  const isChannelLocked =
+    !!putaway &&
+    putaway.assigned_to != null &&
+    putaway.completed_at == null;
+  const canEdit = (isNotStarted || isInProgress) && !isChannelLocked;
+
+  const { data: me } = useMe();
+  const roles = me?.roles ?? [];
+  const canUnassign = roles.some((r) =>
+    ["owner", "admin", "kepala gudang", "leader inbound"].includes(r),
+  );
+  const canReset = roles.some((r) => ["owner", "admin"].includes(r));
+
+  const [unassignOpen, setUnassignOpen] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
+  const unassignMutation = useUnassignPutaway(id);
+  const resetMutation = useResetPutawayAssignment(id);
 
   const allItems = useMemo<PutawayItem[]>(() => items ?? [], [items]);
 
@@ -370,6 +396,19 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
           },
         ]}
       />
+
+      {putaway && (
+        <AssignmentLockBanner
+          assignedToName={putaway.assignee?.name ?? null}
+          assignedAt={putaway.assigned_at ?? null}
+          isUnlockedOnce={putaway.completed_at != null}
+          status={putaway.status}
+          onUnassign={() => setUnassignOpen(true)}
+          onReset={() => setResetOpen(true)}
+          canUnassign={canUnassign && !!putaway.assigned_to}
+          canReset={canReset && !!putaway.assigned_to}
+        />
+      )}
 
       {isLoading ? (
         <LiquidGlass
@@ -705,6 +744,20 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
       </Dialog>
 
 
+      <UnassignReasonDialog
+        open={unassignOpen}
+        onOpenChange={setUnassignOpen}
+        isSubmitting={unassignMutation.isPending}
+        onSubmit={(payload) => unassignMutation.mutateAsync(payload)}
+      />
+
+      <ResetAssignmentDialog
+        open={resetOpen}
+        onOpenChange={setResetOpen}
+        isSubmitting={resetMutation.isPending}
+        destructiveDescription="Semua penempatan yang sudah masuk rak akan dibongkar dan stok dikembalikan ke Bin Inbound. Dokumen kembali ke status NOT_STARTED."
+        onSubmit={(payload) => resetMutation.mutateAsync(payload)}
+      />
     </div>
   );
 }

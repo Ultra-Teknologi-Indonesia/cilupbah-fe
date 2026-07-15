@@ -78,7 +78,14 @@ export interface Inbound {
   created_by: string;
   created_at: string;
   updated_at: string;
+  assigned_to: string | null;
+  assigned_by: string | null;
+  assigned_at: string | null;
+  once_received_at: string | null;
+  updated_version_at: string | null;
   location?: { id: string; location_name: string };
+  assignee?: { id: string; name: string } | null;
+  assignedByUser?: { id: string; name: string } | null;
   items: InboundItem[];
   assignments?: InboundAssignment[];
   putaways?: {

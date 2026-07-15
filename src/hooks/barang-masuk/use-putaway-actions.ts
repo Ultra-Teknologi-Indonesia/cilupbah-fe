@@ -166,3 +166,39 @@ export function useDeletePutawayPlacement() {
       apiError(err, "Gagal mengoreksi penempatan"),
   });
 }
+
+/** Tombol A "Alihkan Tugas" — TAHAN placement. */
+export function useUnassignPutaway(putawayId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: {
+      reason_code: string;
+      reason_note?: string;
+      new_assignee_id?: string;
+    }) => PutawayService.unassign(putawayId, payload),
+    onSuccess: (_data, vars) => {
+      toast.success(
+        vars.new_assignee_id
+          ? "Tugas putaway berhasil dialihkan"
+          : "Assignment putaway dibatalkan",
+      );
+      qc.invalidateQueries({ queryKey: ["putaway"] });
+    },
+    onError: (err) => apiError(err, "Gagal mengalihkan tugas putaway"),
+  });
+}
+
+/** Tombol B "Reset & Alihkan" — reverse semua placement. */
+export function useResetPutawayAssignment(putawayId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { reason_note: string; new_assignee_id?: string }) =>
+      PutawayService.resetAssignment(putawayId, payload),
+    onSuccess: () => {
+      toast.success("Putaway berhasil di-reset, semua penempatan dibalik");
+      qc.invalidateQueries({ queryKey: ["putaway"] });
+      qc.invalidateQueries({ queryKey: ["inventory"] });
+    },
+    onError: (err) => apiError(err, "Gagal reset putaway"),
+  });
+}

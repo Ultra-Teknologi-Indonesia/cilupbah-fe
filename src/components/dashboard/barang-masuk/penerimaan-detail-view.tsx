@@ -48,10 +48,18 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   useInboundDetail,
   useInboundItems,
+  useResetInboundAssignment,
   useSetReceivedQtyBatch,
+  useUnassignInbound,
 } from "@/hooks/barang-masuk/use-inbound";
 import { exportCsv } from "@/lib/export-csv";
 import type { Inbound, InboundItem } from "@/types/barang-masuk/inbound";
+import {
+  AssignmentLockBanner,
+  ResetAssignmentDialog,
+  UnassignReasonDialog,
+} from "@/components/shared/channel-lock";
+import { useMe } from "@/hooks/auth/use-auth";
 
 /**
  * Input jumlah diterima terkontrol. Perubahan dibuffer di parent (dirty map),
@@ -249,7 +257,27 @@ export function PenerimaanDetailView({ id }: { id: string }) {
     setPage(1);
   };
 
-  const canEdit = !!inbound && inbound.status !== "CANCELLED";
+  // Channel lock: web boleh edit kalau dokumen sudah pernah RECEIVED
+  // (once_received_at != null) atau belum di-assign ke siapa pun.
+  // Kalau assigned ke user mobile dan belum RECEIVED → banner + input disabled.
+  const isLocked =
+    !!inbound &&
+    inbound.assigned_to != null &&
+    inbound.once_received_at == null;
+  const canEdit =
+    !!inbound && inbound.status !== "CANCELLED" && !isLocked;
+
+  const { data: me } = useMe();
+  const roles = me?.roles ?? [];
+  const canUnassign = roles.some((r) =>
+    ["owner", "admin", "kepala gudang", "leader inbound"].includes(r),
+  );
+  const canReset = roles.some((r) => ["owner", "admin"].includes(r));
+
+  const [unassignOpen, setUnassignOpen] = React.useState(false);
+  const [resetOpen, setResetOpen] = React.useState(false);
+  const unassignMutation = useUnassignInbound(id);
+  const resetMutation = useResetInboundAssignment(id);
 
   const setDirtyFor = React.useCallback((itemId: string, qty: number | null) => {
     setDirty((prev) => {
@@ -393,6 +421,16 @@ export function PenerimaanDetailView({ id }: { id: string }) {
         </LiquidGlass>
       ) : (
         <div className="flex flex-col gap-4 print:gap-2">
+          <AssignmentLockBanner
+            assignedToName={inbound.assignee?.name ?? null}
+            assignedAt={inbound.assigned_at ?? null}
+            isUnlockedOnce={inbound.once_received_at != null}
+            status={inbound.status}
+            onUnassign={() => setUnassignOpen(true)}
+            onReset={() => setResetOpen(true)}
+            canUnassign={canUnassign && !!inbound.assigned_to}
+            canReset={canReset && !!inbound.assigned_to}
+          />
           <div className="flex items-center justify-end gap-2 print:hidden">
             <Button
               variant="outline"
@@ -920,6 +958,21 @@ export function PenerimaanDetailView({ id }: { id: string }) {
           </div>
         )}
       </ConfirmDialog>
+
+      <UnassignReasonDialog
+        open={unassignOpen}
+        onOpenChange={setUnassignOpen}
+        isSubmitting={unassignMutation.isPending}
+        onSubmit={(payload) => unassignMutation.mutateAsync(payload)}
+      />
+
+      <ResetAssignmentDialog
+        open={resetOpen}
+        onOpenChange={setResetOpen}
+        isSubmitting={resetMutation.isPending}
+        destructiveDescription="Semua qty yang sudah diterima akan dibatalkan dan stok Bin Inbound dikembalikan ke 0. Dokumen kembali ke status DRAFT."
+        onSubmit={(payload) => resetMutation.mutateAsync(payload)}
+      />
     </div>
   );
 }

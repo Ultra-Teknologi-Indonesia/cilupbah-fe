@@ -108,6 +108,45 @@ export function useSetReceivedQty(inboundId: string) {
   });
 }
 
+/** Tombol A "Alihkan Tugas" — TAHAN progress. */
+export function useUnassignInbound(inboundId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: {
+      reason_code: string;
+      reason_note?: string;
+      new_assignee_id?: string;
+    }) => InboundService.unassign(inboundId, payload),
+    onSuccess: (_data, vars) => {
+      toast.success(
+        vars.new_assignee_id
+          ? "Tugas berhasil dialihkan"
+          : "Assignment berhasil dibatalkan",
+      );
+      qc.invalidateQueries({ queryKey: ["inbound", "detail", inboundId] });
+      qc.invalidateQueries({ queryKey: ["inbound", "list"] });
+    },
+    onError: (err) => apiError(err, "Gagal mengalihkan tugas"),
+  });
+}
+
+/** Tombol B "Reset & Alihkan" — reverse stok Bin Inbound + audit. */
+export function useResetInboundAssignment(inboundId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { reason_note: string; new_assignee_id?: string }) =>
+      InboundService.resetAssignment(inboundId, payload),
+    onSuccess: () => {
+      toast.success("Penerimaan berhasil di-reset");
+      qc.invalidateQueries({ queryKey: ["inbound", "detail", inboundId] });
+      qc.invalidateQueries({ queryKey: ["inbound", "items", inboundId] });
+      qc.invalidateQueries({ queryKey: ["inbound", "list"] });
+      qc.invalidateQueries({ queryKey: ["inventory"] });
+    },
+    onError: (err) => apiError(err, "Gagal reset penerimaan"),
+  });
+}
+
 /**
  * Batch-simpan koreksi qty diterima. Hasilnya per-item (fulfilled/rejected)
  * supaya caller bisa menandai baris yang gagal tetap sebagai dirty.

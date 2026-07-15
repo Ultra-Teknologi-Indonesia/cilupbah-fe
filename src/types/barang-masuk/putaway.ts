@@ -45,8 +45,10 @@ export interface Putaway {
   status: PutawayStatus;
   assigned_to: string | null;
   assigned_by: string | null;
+  assigned_at: string | null;
   started_at: string | null;
   completed_at: string | null;
+  updated_version_at: string | null;
   notes: string | null;
   created_by: string;
   created_at: string;

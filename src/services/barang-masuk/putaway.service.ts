@@ -187,6 +187,34 @@ export const PutawayService = {
     );
     return res.data;
   },
+
+  /** Tombol A "Alihkan Tugas" — TAHAN placement. */
+  unassign: async (
+    putawayId: string,
+    payload: {
+      reason_code: string;
+      reason_note?: string;
+      new_assignee_id?: string;
+    },
+  ) => {
+    const res = await fetchClient<ApiResponse<Putaway>>(
+      `/putaway/${putawayId}/assignment`,
+      { method: "DELETE", data: payload },
+    );
+    return res.data;
+  },
+
+  /** Tombol B "Reset & Alihkan" — reverse semua placement. */
+  resetAssignment: async (
+    putawayId: string,
+    payload: { reason_note: string; new_assignee_id?: string },
+  ) => {
+    const res = await fetchClient<ApiResponse<Putaway>>(
+      `/putaway/${putawayId}/assignment/reset`,
+      { method: "POST", data: payload },
+    );
+    return res.data;
+  },
 };
 
 export type PutawayDeleteAction =

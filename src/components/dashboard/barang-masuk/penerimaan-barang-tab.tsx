@@ -26,6 +26,7 @@ import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ColumnDef } from "@tanstack/react-table";
+import { AssignedBadge } from "@/components/shared/channel-lock";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
 import {
@@ -289,6 +290,16 @@ export function PenerimaanBarangTab() {
           <span>
             {row.original.created_by}
           </span>
+        ),
+      },
+      {
+        id: "sedang_di",
+        header: "Sedang di",
+        cell: ({ row }) => (
+          <AssignedBadge
+            assignedToName={row.original.assignee?.name ?? null}
+            isUnlockedOnce={row.original.once_received_at != null}
+          />
         ),
       },
 

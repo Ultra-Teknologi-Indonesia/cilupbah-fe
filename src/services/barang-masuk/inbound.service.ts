@@ -129,6 +129,34 @@ export const InboundService = {
     return res.data;
   },
 
+  /** Tombol A "Alihkan Tugas" — TAHAN progress, opsional reassign ke user baru. */
+  unassign: async (
+    inboundId: string,
+    payload: {
+      reason_code: string;
+      reason_note?: string;
+      new_assignee_id?: string;
+    },
+  ) => {
+    const res = await fetchClient<ApiResponse<Inbound>>(
+      `/inbounds/${inboundId}/assignment`,
+      { method: "DELETE", data: payload },
+    );
+    return res.data;
+  },
+
+  /** Tombol B "Reset & Alihkan" — reverse received_qty ke 0 + audit. */
+  resetAssignment: async (
+    inboundId: string,
+    payload: { reason_note: string; new_assignee_id?: string },
+  ) => {
+    const res = await fetchClient<ApiResponse<Inbound>>(
+      `/inbounds/${inboundId}/assignment/reset`,
+      { method: "POST", data: payload },
+    );
+    return res.data;
+  },
+
   barcodesPdf: async (id: string): Promise<Blob> => {
     return fetchBlobRaw(
       `/inbounds/${encodeURIComponent(id)}/barcodes`,
