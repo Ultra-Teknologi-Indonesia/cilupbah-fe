@@ -218,6 +218,7 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
           </div>
 
           <div className="flex items-center gap-2">
+            <div id="proses-pesanan-filter-portal" className="flex flex-wrap items-center gap-2" />
             {showAdHocPickingButton && (
               <Button asChild variant="primary" size="sm" className="h-9">
                 <Link href="/dashboard/proses-pesanan/picking/proses-pesanan">

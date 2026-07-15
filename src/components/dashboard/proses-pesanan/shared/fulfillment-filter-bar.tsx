@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { FilterIcon, SearchIcon, XIcon } from "lucide-react";
 import { format, parse, isValid } from "date-fns";
 import type { DateRange } from "react-day-picker";
@@ -260,65 +261,81 @@ export function FulfillmentFilterBar({
     else patch({ status: v ?? undefined });
   }
 
-  return (
-    <div className={cn("border-b border-border/40", className)}>
-      <div className="flex flex-wrap items-center gap-2 px-4 py-2.5 sm:px-5">
-        {hasFilter && (
-          <button
-            type="button"
-            onClick={reset}
-            className="flex items-center gap-1 text-sm font-medium text-destructive transition-colors hover:text-destructive/80"
-          >
-            <XIcon className="size-3.5" />
-            Reset
-          </button>
+  const [portalTarget, setPortalTarget] = React.useState<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    setPortalTarget(document.getElementById("proses-pesanan-filter-portal"));
+  }, []);
+
+  const topBar = (
+    <React.Fragment>
+      {hasFilter && (
+        <button
+          type="button"
+          onClick={reset}
+          className="flex items-center gap-1 text-sm font-medium text-destructive transition-colors hover:text-destructive/80"
+        >
+          <XIcon className="size-3.5" />
+          Reset
+        </button>
+      )}
+
+      <div className={cn("flex flex-wrap items-center gap-2", !portalTarget && "ml-auto")}>
+        {onSearchChange != null && (
+          <div className="relative w-full sm:w-auto sm:min-w-[220px]">
+            <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search ?? ""}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder={searchPlaceholder}
+              className="h-9 rounded-full bg-background pl-9 pr-8"
+            />
+            {(search?.length ?? 0) > 0 && (
+              <button
+                type="button"
+                onClick={() => onSearchChange("")}
+                aria-label="Bersihkan pencarian"
+                className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <XIcon className="size-3.5" />
+              </button>
+            )}
+          </div>
         )}
 
-        <div className="ml-auto flex flex-wrap items-center gap-2">
-          {onSearchChange != null && (
-            <div className="relative w-full sm:w-auto sm:min-w-[220px]">
-              <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={search ?? ""}
-                onChange={(e) => onSearchChange(e.target.value)}
-                placeholder={searchPlaceholder}
-                className="h-9 rounded-full bg-background pl-9 pr-8"
-              />
-              {(search?.length ?? 0) > 0 && (
-                <button
-                  type="button"
-                  onClick={() => onSearchChange("")}
-                  aria-label="Bersihkan pencarian"
-                  className="absolute right-2.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <XIcon className="size-3.5" />
-                </button>
-              )}
-            </div>
-          )}
-
-          {hasChildren && (
-            <Button
-              variant={open ? "secondary" : "outline"}
-              size="sm"
-              className={cn(
-                "h-9 gap-2 rounded-full transition-colors",
-                open && "bg-primary/10 text-primary hover:bg-primary/15",
-                !open && activeCount > 0 && "border-primary/40 text-primary",
-              )}
-              onClick={() => setOpen(!open)}
-            >
-              <FilterIcon className="size-4" />
-              Filter
-              {activeCount > 0 && (
-                <span className="flex size-5 items-center justify-center rounded-full bg-primary text-2xs font-semibold text-primary-foreground">
-                  {activeCount}
-                </span>
-              )}
-            </Button>
-          )}
-        </div>
+        {hasChildren && (
+          <Button
+            variant={open ? "secondary" : "outline"}
+            size="sm"
+            className={cn(
+              "h-9 gap-2 rounded-full transition-colors",
+              open && "bg-primary/10 text-primary hover:bg-primary/15",
+              !open && activeCount > 0 && "border-primary/40 text-primary",
+            )}
+            onClick={() => setOpen(!open)}
+          >
+            <FilterIcon className="size-4" />
+            Filter
+            {activeCount > 0 && (
+              <span className="flex size-5 items-center justify-center rounded-full bg-primary text-2xs font-semibold text-primary-foreground">
+                {activeCount}
+              </span>
+            )}
+          </Button>
+        )}
       </div>
+    </React.Fragment>
+  );
+
+  return (
+    <div className={cn(!portalTarget && "border-b border-border/40", className)}>
+      {portalTarget ? (
+        createPortal(topBar, portalTarget)
+      ) : (
+        <div className="flex flex-wrap items-center gap-2 px-4 py-2.5 sm:px-5">
+          {topBar}
+        </div>
+      )}
 
       {hasChildren && (
         <div
