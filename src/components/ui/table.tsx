@@ -25,7 +25,11 @@ function Table({
     >
       <table
         data-slot="table"
-        className={cn("w-full caption-bottom text-sm", className)}
+        className={cn(
+          "w-full caption-bottom text-sm text-foreground",
+          "[&_.text-muted-foreground]:text-foreground",
+          className,
+        )}
         {...props}
       />
     </div>

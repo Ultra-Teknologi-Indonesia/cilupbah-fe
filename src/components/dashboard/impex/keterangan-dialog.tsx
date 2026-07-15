@@ -56,7 +56,7 @@ export function KeteranganDialog({
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-muted/40 text-left text-muted-foreground">
+                <tr className="border-b bg-muted/40 text-left text-foreground">
                   <th className="px-4 py-2 font-medium">ID</th>
                   <th className="px-4 py-2 font-medium">Keterangan</th>
                 </tr>
@@ -65,7 +65,7 @@ export function KeteranganDialog({
                 {items.map((item, idx) => (
                   <tr key={`${item.id}-${idx}`} className="border-b last:border-0">
                     <td className="px-4 py-2 text-foreground">{item.id}</td>
-                    <td className="px-4 py-2 text-muted-foreground">
+                    <td className="px-4 py-2 text-foreground">
                       {item.description}
                     </td>
                   </tr>
