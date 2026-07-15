@@ -83,8 +83,14 @@ export function ReadyToProcessCardList() {
       exclude_transit: "1" as const,
       page: list.page,
       per_page: list.perPage,
+      sort_by: list.sorting[0]?.id || undefined,
+      sort_dir: list.sorting[0]
+        ? list.sorting[0].desc
+          ? "desc"
+          : "asc"
+        : undefined,
     }),
-    [list.debouncedSearch, list.filters, list.page, list.perPage],
+    [list.debouncedSearch, list.filters, list.page, list.perPage, list.sorting],
   );
 
   const { data, isLoading, isFetching, refetch } = useOrdersByStage(
@@ -341,6 +347,8 @@ export function ReadyToProcessCardList() {
               allSelected={allSelected}
               someSelected={someSelected}
               onToggleAll={toggleAll}
+              sorting={list.sorting}
+              onSortingChange={list.setSorting}
             />
           </div>
         )}

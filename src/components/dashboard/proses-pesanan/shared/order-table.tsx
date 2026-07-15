@@ -2,10 +2,18 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { TruckIcon, ZapIcon } from "lucide-react";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  ChevronsUpDownIcon,
+  TruckIcon,
+  ZapIcon,
+} from "lucide-react";
+import type { SortingState } from "@tanstack/react-table";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -59,6 +67,59 @@ interface OrderTableProps {
   extraColumns?: OrderTableExtraColumn[];
   /** Per-row eligibility. Rows returning `selectable: false` render a disabled checkbox with tooltip. */
   getRowSelectable?: (order: Order) => RowSelectability;
+  sorting?: SortingState;
+  onSortingChange?: (sorting: SortingState) => void;
+}
+
+function SortableTableHead({
+  id,
+  title,
+  sorting,
+  onSortingChange,
+  className,
+}: {
+  id: string;
+  title: string;
+  sorting?: SortingState;
+  onSortingChange?: (sorting: SortingState) => void;
+  className?: string;
+}) {
+  if (!onSortingChange || !sorting) {
+    return <TableHead className={className}>{title}</TableHead>;
+  }
+
+  const currentSort = sorting.find((s) => s.id === id);
+  const isSorted = currentSort ? (currentSort.desc ? "desc" : "asc") : false;
+
+  const toggleSort = () => {
+    if (isSorted === "desc") {
+      onSortingChange([]); // Reset
+    } else if (isSorted === "asc") {
+      onSortingChange([{ id, desc: true }]);
+    } else {
+      onSortingChange([{ id, desc: false }]);
+    }
+  };
+
+  return (
+    <TableHead className={className}>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="-ml-3 h-8 gap-1.5 px-3 font-semibold hover:bg-muted/50"
+        onClick={toggleSort}
+      >
+        <span>{title}</span>
+        {isSorted === "desc" ? (
+          <ArrowDownIcon className="size-3.5" />
+        ) : isSorted === "asc" ? (
+          <ArrowUpIcon className="size-3.5" />
+        ) : (
+          <ChevronsUpDownIcon className="size-3.5 opacity-50" />
+        )}
+      </Button>
+    </TableHead>
+  );
 }
 
 function ItemSummary({ order }: { order: Order }) {
@@ -293,6 +354,8 @@ export function OrderTable({
   onToggleAll,
   extraColumns,
   getRowSelectable,
+  sorting,
+  onSortingChange,
 }: OrderTableProps) {
   return (
     <Table containerClassName="rounded-xl border border-border/60">
@@ -309,14 +372,34 @@ export function OrderTable({
               />
             </TableHead>
           )}
-          <TableHead>No. Pesanan</TableHead>
+          <SortableTableHead
+            id="salesorder_no"
+            title="No. Pesanan"
+            sorting={sorting}
+            onSortingChange={onSortingChange}
+          />
           <TableHead>Pelanggan</TableHead>
           <TableHead>Produk</TableHead>
-          <TableHead>Status</TableHead>
+          <SortableTableHead
+            id="status"
+            title="Status"
+            sorting={sorting}
+            onSortingChange={onSortingChange}
+          />
           <TableHead>Lokasi</TableHead>
-          <TableHead>Total</TableHead>
+          <SortableTableHead
+            id="grand_total"
+            title="Total"
+            sorting={sorting}
+            onSortingChange={onSortingChange}
+          />
           <TableHead>Kurir</TableHead>
-          <TableHead>Tanggal</TableHead>
+          <SortableTableHead
+            id="transaction_date"
+            title="Tanggal"
+            sorting={sorting}
+            onSortingChange={onSortingChange}
+          />
           {extraColumns?.map((col) => (
             <TableHead key={col.key} className={col.headClassName}>
               {col.header}
