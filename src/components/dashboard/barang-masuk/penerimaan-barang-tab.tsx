@@ -307,7 +307,7 @@ export function PenerimaanBarangTab() {
         accessorKey: "notes",
         header: "Keterangan",
         cell: ({ row }) => (
-          <span>
+          <span className="inline-block max-w-[200px] whitespace-normal break-words">
             {row.original.notes ?? "—"}
           </span>
         ),
