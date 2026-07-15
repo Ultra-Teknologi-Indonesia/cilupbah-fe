@@ -6,8 +6,6 @@ export const companyProfileSchema = z.object({
     .trim()
     .min(1, "Nama perusahaan wajib diisi")
     .max(255, "Maksimal 255 karakter"),
-  brandName: z.string().trim().max(255).nullish(),
-  npwp: z.string().trim().max(64).nullish(),
   address: z.string().trim().max(1000).nullish(),
   city: z.string().trim().max(255).nullish(),
   postalCode: z.string().trim().max(16).nullish(),

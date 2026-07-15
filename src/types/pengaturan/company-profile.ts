@@ -1,7 +1,5 @@
 export interface CompanyProfile {
   legalName: string;
-  brandName: string | null;
-  npwp: string | null;
   address: string | null;
   city: string | null;
   postalCode: string | null;
@@ -15,8 +13,6 @@ export interface CompanyProfile {
 
 export interface SaveCompanyProfileInput {
   legalName: string;
-  brandName?: string | null;
-  npwp?: string | null;
   address?: string | null;
   city?: string | null;
   postalCode?: string | null;

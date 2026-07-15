@@ -9,8 +9,6 @@ const BASE = "/systemsetting/company";
 
 interface RawCompanyProfile {
   legal_name: string;
-  brand_name: string | null;
-  npwp: string | null;
   address: string | null;
   city: string | null;
   postal_code: string | null;
@@ -25,8 +23,6 @@ interface RawCompanyProfile {
 function mapProfile(raw: RawCompanyProfile): CompanyProfile {
   return {
     legalName: raw.legal_name,
-    brandName: raw.brand_name,
-    npwp: raw.npwp,
     address: raw.address,
     city: raw.city,
     postalCode: raw.postal_code,
@@ -42,8 +38,6 @@ function mapProfile(raw: RawCompanyProfile): CompanyProfile {
 function toPayload(input: SaveCompanyProfileInput) {
   return {
     legal_name: input.legalName,
-    brand_name: input.brandName ?? null,
-    npwp: input.npwp ?? null,
     address: input.address ?? null,
     city: input.city ?? null,
     postal_code: input.postalCode ?? null,

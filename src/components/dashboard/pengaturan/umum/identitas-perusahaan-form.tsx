@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,6 +25,8 @@ import {
   useCompanyProfile,
   useSaveCompanyProfile,
 } from "@/hooks/pengaturan/use-company-profile";
+import { useCities, useProvinces } from "@/hooks/manajemen-rak/use-regions";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { usePermissions } from "@/hooks/auth/use-permissions";
 import {
   companyProfileSchema,
@@ -32,8 +35,6 @@ import {
 
 const EMPTY: CompanyProfileFormValues = {
   legalName: "",
-  brandName: "",
-  npwp: "",
   address: "",
   city: "",
   postalCode: "",
@@ -68,18 +69,45 @@ export function IdentitasPerusahaanForm() {
     control,
     reset,
     setValue,
+    watch,
     formState: { errors, isDirty },
   } = useForm<CompanyProfileFormValues>({
     resolver: zodResolver(companyProfileSchema),
     defaultValues: EMPTY,
   });
 
+  const [provinceId, setProvinceId] = React.useState<string | null>(null);
+  const [provinceQuery, setProvinceQuery] = React.useState("");
+  const [cityQuery, setCityQuery] = React.useState("");
+  const debouncedProvinceQuery = useDebouncedValue(provinceQuery, 300);
+  const debouncedCityQuery = useDebouncedValue(cityQuery, 300);
+  const provinces = useProvinces(debouncedProvinceQuery || undefined);
+  const cities = useCities(
+    provinceId ?? undefined,
+    debouncedCityQuery || undefined,
+  );
+
+  const provinceOptions = React.useMemo(
+    () => (provinces.data ?? []).map((p) => ({ value: p.id, label: p.nama })),
+    [provinces.data],
+  );
+
+  const currentCity = watch("city") ?? "";
+  const cityOptions = React.useMemo(() => {
+    const fromApi = (cities.data ?? []).map((c) => ({
+      value: c.nama,
+      label: c.nama,
+    }));
+    if (currentCity && !fromApi.some((o) => o.value === currentCity)) {
+      return [{ value: currentCity, label: currentCity }, ...fromApi];
+    }
+    return fromApi;
+  }, [cities.data, currentCity]);
+
   React.useEffect(() => {
     if (!data) return;
     reset({
       legalName: data.legalName ?? "",
-      brandName: data.brandName ?? "",
-      npwp: data.npwp ?? "",
       address: data.address ?? "",
       city: data.city ?? "",
       postalCode: data.postalCode ?? "",
@@ -88,14 +116,15 @@ export function IdentitasPerusahaanForm() {
       logoMediaId: data.logoMediaId,
       signatureMediaId: data.signatureMediaId,
     });
+    setProvinceId(null);
+    setProvinceQuery("");
+    setCityQuery("");
   }, [data, reset]);
 
   const onSubmit = handleSubmit((values) => {
     save.mutate(
       {
         legalName: values.legalName,
-        brandName: values.brandName || null,
-        npwp: values.npwp || null,
         address: values.address || null,
         city: values.city || null,
         postalCode: values.postalCode || null,
@@ -116,14 +145,15 @@ export function IdentitasPerusahaanForm() {
   const handleReset = () => {
     setLogoOverride(null);
     setSignatureOverride(null);
+    setProvinceId(null);
+    setProvinceQuery("");
+    setCityQuery("");
     if (!data) {
       reset(EMPTY);
       return;
     }
     reset({
       legalName: data.legalName ?? "",
-      brandName: data.brandName ?? "",
-      npwp: data.npwp ?? "",
       address: data.address ?? "",
       city: data.city ?? "",
       postalCode: data.postalCode ?? "",
@@ -172,24 +202,6 @@ export function IdentitasPerusahaanForm() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="brandName">Merek / Brand</Label>
-            <Input
-              id="brandName"
-              placeholder="Cilupbah"
-              {...register("brandName")}
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="npwp">NPWP</Label>
-            <Input
-              id="npwp"
-              placeholder="00.000.000.0-000.000"
-              {...register("npwp")}
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
             <Label htmlFor="phone">Telepon</Label>
             <Controller
               control={control}
@@ -230,8 +242,43 @@ export function IdentitasPerusahaanForm() {
           </div>
 
           <div className="flex flex-col gap-2">
+            <Label htmlFor="province">Provinsi</Label>
+            <Combobox
+              id="province"
+              options={provinceOptions}
+              value={provinceId}
+              onChange={(v) => {
+                setProvinceId(v);
+                setCityQuery("");
+                setValue("city", "", { shouldDirty: true });
+              }}
+              onQueryChange={setProvinceQuery}
+              loading={provinces.isLoading || provinces.isFetching}
+              placeholder="Pilih provinsi"
+              searchPlaceholder="Cari provinsi"
+              disabled={!canEdit}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
             <Label htmlFor="city">Kota</Label>
-            <Input id="city" placeholder="Bandung" {...register("city")} />
+            <Controller
+              control={control}
+              name="city"
+              render={({ field }) => (
+                <Combobox
+                  id="city"
+                  options={cityOptions}
+                  value={field.value ?? null}
+                  onChange={(v) => field.onChange(v ?? "")}
+                  onQueryChange={setCityQuery}
+                  loading={cities.isLoading || cities.isFetching}
+                  placeholder="Pilih kota"
+                  searchPlaceholder="Cari kota"
+                  disabled={!canEdit || !provinceId}
+                />
+              )}
+            />
           </div>
 
           <div className="flex flex-col gap-2">

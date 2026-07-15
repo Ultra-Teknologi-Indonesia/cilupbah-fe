@@ -52,29 +52,43 @@ export const RegionService = {
     }));
   },
 
-  provinces: async (): Promise<RegionOption[]> => {
-    const res =
-      await fetchClient<ApiResponse<RawRegion[]>>(`/regions/provinces`);
-    return (res.data ?? []).map(mapRegion);
-  },
-
-  cities: async (provinceId: string): Promise<RegionOption[]> => {
+  provinces: async (search?: string): Promise<RegionOption[]> => {
+    const qs = search ? `?search=${encodeURIComponent(search)}` : "";
     const res = await fetchClient<ApiResponse<RawRegion[]>>(
-      `/regions/cities/${provinceId}`,
+      `/regions/provinces${qs}`,
     );
     return (res.data ?? []).map(mapRegion);
   },
 
-  districts: async (cityId: string): Promise<RegionOption[]> => {
+  cities: async (
+    provinceId: string,
+    search?: string,
+  ): Promise<RegionOption[]> => {
+    const qs = search ? `?search=${encodeURIComponent(search)}` : "";
     const res = await fetchClient<ApiResponse<RawRegion[]>>(
-      `/regions/districts/${cityId}`,
+      `/regions/cities/${provinceId}${qs}`,
     );
     return (res.data ?? []).map(mapRegion);
   },
 
-  villages: async (districtId: string): Promise<RegionOption[]> => {
+  districts: async (
+    cityId: string,
+    search?: string,
+  ): Promise<RegionOption[]> => {
+    const qs = search ? `?search=${encodeURIComponent(search)}` : "";
     const res = await fetchClient<ApiResponse<RawRegion[]>>(
-      `/regions/villages/${districtId}`,
+      `/regions/districts/${cityId}${qs}`,
+    );
+    return (res.data ?? []).map(mapRegion);
+  },
+
+  villages: async (
+    districtId: string,
+    search?: string,
+  ): Promise<RegionOption[]> => {
+    const qs = search ? `?search=${encodeURIComponent(search)}` : "";
+    const res = await fetchClient<ApiResponse<RawRegion[]>>(
+      `/regions/villages/${districtId}${qs}`,
     );
     return (res.data ?? []).map(mapRegion);
   },
