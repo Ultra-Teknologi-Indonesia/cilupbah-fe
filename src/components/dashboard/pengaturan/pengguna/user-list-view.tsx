@@ -5,6 +5,7 @@ import * as React from "react";
 import Link from "next/link";
 import {
   Loader2Icon,
+  PencilIcon,
   PlusIcon,
   SearchIcon,
   Trash2Icon,
@@ -181,18 +182,32 @@ export function UserListView() {
         header: () => null,
         cell: ({ row }) => {
           const user = row.original;
-          if (isProtected(user) || !canDelete) return null;
+          const showDelete = canDelete && !isProtected(user);
           return (
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-1">
               <Button
                 variant="ghost"
                 size="icon-sm"
-                className="text-destructive hover:text-destructive"
-                onClick={() => setDeleteTarget(user)}
-                aria-label={`Hapus ${user.name}`}
+                asChild
+                aria-label={`Edit ${user.name}`}
               >
-                <Trash2Icon className="size-4" />
+                <Link
+                  href={`/dashboard/pengaturan/pengguna/${user.id}/edit`}
+                >
+                  <PencilIcon className="size-4" />
+                </Link>
               </Button>
+              {showDelete && (
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => setDeleteTarget(user)}
+                  aria-label={`Hapus ${user.name}`}
+                >
+                  <Trash2Icon className="size-4" />
+                </Button>
+              )}
             </div>
           );
         },
