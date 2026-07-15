@@ -56,7 +56,7 @@ export const ContactService = {
 
   getCategories: async (params: { search?: string } = {}) => {
     const sp = new URLSearchParams();
-    if (params.search) sp.set("filter[search]", params.search);
+    if (params.search) sp.set("search", params.search);
     const qs = sp.toString();
     const res = await fetchClient<ApiResponse<ContactCategory[]>>(
       `/contact/category${qs ? `?${qs}` : ""}`,

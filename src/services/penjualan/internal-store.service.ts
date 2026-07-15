@@ -13,7 +13,7 @@ export const InternalStoreService = {
     const sp = new URLSearchParams();
     if (params.page) sp.set("page", String(params.page));
     if (params.per_page) sp.set("per_page", String(params.per_page));
-    if (params.search) sp.set("filter[search]", params.search);
+    if (params.search) sp.set("search", params.search);
     if (params["filter[is_active]"] !== undefined)
       sp.set("filter[is_active]", String(Number(!!params["filter[is_active]"])));
     if (params.sort) sp.set("sort", params.sort);

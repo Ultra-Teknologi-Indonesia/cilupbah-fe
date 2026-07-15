@@ -60,7 +60,7 @@ function buildQuery(
   extra?: Record<string, string>,
 ): string {
   const q = new URLSearchParams();
-  if (params.q) q.set("filter[q]", params.q);
+  if (params.q) q.set("search", params.q);
   if (params.location_id) q.set("filter[location_id]", params.location_id);
   if (params.source) q.set("filter[source]", params.source);
   if (params.status) q.set("filter[status]", params.status);
@@ -1308,7 +1308,7 @@ export const OutboundService = {
     params: FulfillmentListParams,
   ): Promise<ListResult<FulfillmentOrder>> => {
     const q = new URLSearchParams();
-    if (params.q) q.set("filter[q]", params.q);
+    if (params.q) q.set("search", params.q);
     if (params.source) q.set("filter[source]", params.source);
     if (params.location_id) q.set("filter[location_id]", params.location_id);
     q.set("limit", String(params.per_page ?? 20));

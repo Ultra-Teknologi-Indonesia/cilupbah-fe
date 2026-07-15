@@ -8,7 +8,7 @@ import type {
 export const InventoryTransferService = {
   listIncoming: async (params: InventoryTransferListParams = {}) => {
     const sp = new URLSearchParams();
-    if (params.search) sp.set("filter[search]", params.search);
+    if (params.search) sp.set("search", params.search);
     if (params.page) sp.set("page", String(params.page));
     if (params.per_page) sp.set("limit", String(params.per_page));
     if (params["filter[status]"])
