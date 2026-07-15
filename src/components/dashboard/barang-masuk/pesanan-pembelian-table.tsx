@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -8,7 +8,6 @@ import {
   PackagePlusIcon,
   PrinterIcon,
   ShoppingCartIcon,
-  Loader2,
 } from "lucide-react";
 import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 
@@ -18,10 +17,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Progress } from "@/components/ui/progress";
 import { useReceivablePurchaseOrders } from "@/hooks/barang-masuk/use-purchase-orders-inbound";
 import { useReceiveAdditional } from "@/hooks/barang-masuk/use-inbound";
-import { PurchaseOrderService } from "@/services/transaksi-pembelian/purchase-order.service";
 import type { PurchaseOrder } from "@/types/transaksi-pembelian/purchase-order";
 import { formatDate } from "@/lib/format";
-import { apiError } from "@/lib/toast";
 
 function ProgressBar({ value, total }: { value: number; total: number }) {
   const pct = total > 0 ? Math.round((value / total) * 100) : 0;
@@ -67,18 +64,6 @@ export function PesananPembelianTable({
 
   const { data, isLoading, isFetching } = useReceivablePurchaseOrders(params);
   const receiveAdditional = useReceiveAdditional();
-  const [printingId, setPrintingId] = useState<string | null>(null);
-
-  const handlePrint = async (po: PurchaseOrder) => {
-    setPrintingId(po.id);
-    try {
-      await PurchaseOrderService.openPdf(po.id, po.po_number);
-    } catch (err) {
-      apiError(err, "Gagal membuka dokumen PO");
-    } finally {
-      setPrintingId(null);
-    }
-  };
   const items = data?.items ?? [];
   const meta = data?.meta ?? {
     current_page: 1,
@@ -156,7 +141,6 @@ export function PesananPembelianTable({
           const received = sumQty(po, "received_qty");
           const total = sumQty(po, "qty");
           const isPartial = received > 0 && received < total;
-          const isPrinting = printingId === po.id;
           return (
             <div
               className="flex items-center justify-end gap-2"
@@ -166,16 +150,15 @@ export function PesananPembelianTable({
                 size="icon"
                 variant="ghost"
                 className="size-8"
-                disabled={isPrinting}
-                onClick={() => handlePrint(po)}
-                aria-label="Cetak PO"
-                title="Cetak Barang Masuk Pembelian"
+                asChild
+                aria-label="Pratinjau & cetak PO"
+                title="Pratinjau & cetak Barang Masuk Pembelian"
               >
-                {isPrinting ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
+                <Link
+                  href={`/dashboard/document-preview/purchase-order/${po.id}`}
+                >
                   <PrinterIcon className="size-4" />
-                )}
+                </Link>
               </Button>
               {isPartial ? (
                 <Button
@@ -212,7 +195,7 @@ export function PesananPembelianTable({
         },
       },
     ],
-    [receiveAdditional, router, printingId],
+    [receiveAdditional, router],
   );
 
   return (

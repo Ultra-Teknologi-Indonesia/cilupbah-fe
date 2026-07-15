@@ -147,21 +147,6 @@ export const PurchaseOrderService = {
     });
   },
 
-  openPdf: async (id: string, poNumber: string) => {
-    const blob = await fetchBlobRaw(
-      `/purchase/orders/${id}/pdf`,
-      "application/pdf",
-    );
-    const url = URL.createObjectURL(blob);
-    const win = window.open(url, "_blank");
-    if (!win) {
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `PO-${poNumber}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    }
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  },
+  pdf: async (id: string): Promise<Blob> =>
+    fetchBlobRaw(`/purchase/orders/${id}/pdf`, "application/pdf"),
 };

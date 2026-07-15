@@ -10,6 +10,7 @@ import { StockAdjustmentService } from "@/services/transaksi-stok/stock-adjustme
 import { InboundService } from "@/services/barang-masuk/inbound.service";
 import { OutboundTransferService } from "@/services/barang-keluar/outbound-transfer.service";
 import { PurchaseReturnService } from "@/services/barang-keluar/purchase-return.service";
+import { PurchaseOrderService } from "@/services/transaksi-pembelian/purchase-order.service";
 import { ReportService } from "@/services/laporan/report.service";
 import {
   BARCODE_PAPER_DEFAULT,
@@ -91,6 +92,7 @@ export type DocumentTypeKey =
   | "transfer-out-bulk"
   | "bin-transfer-out"
   | "purchase-return"
+  | "purchase-order"
   | "laporan-barcode"
   | "laporan-penyesuaian";
 
@@ -453,6 +455,19 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     backUrl: () => "/dashboard/barang-keluar?tab=retur",
     filename: (id, meta) =>
       `${(meta?.return_number as string | undefined) ?? `RTN-${id}`}.pdf`,
+  },
+
+  "purchase-order": {
+    title: "Barang Masuk Pembelian",
+    subtitle: (id, meta) =>
+      (meta?.po_number as string | undefined) ?? `PO-${id.slice(0, 8)}…`,
+    fetchPdf: async (id) => {
+      const blob = await PurchaseOrderService.pdf(id);
+      return { blob };
+    },
+    backUrl: () => "/dashboard/barang-masuk/penerimaan?tab=pesanan",
+    filename: (id, meta) =>
+      `${(meta?.po_number as string | undefined) ?? `PO-${id}`}.pdf`,
   },
 
   "laporan-barcode": {
