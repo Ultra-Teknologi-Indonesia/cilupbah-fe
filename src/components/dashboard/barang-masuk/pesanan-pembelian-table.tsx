@@ -78,9 +78,9 @@ export function PesananPembelianTable({
         accessorKey: "po_number",
         header: "No. Pesanan",
         cell: ({ row }) => (
-          <span className="font-medium text-primary underline-offset-2 hover:underline">
+          <Link href={`/dashboard/transaksi-pembelian/pesanan/${row.original.id}`} className="font-medium text-primary underline-offset-2 hover:underline">
             {row.original.po_number}
-          </span>
+          </Link>
         ),
       },
       {
@@ -208,9 +208,7 @@ export function PesananPembelianTable({
         hideToolbar
         manualPagination
         getRowId={(row) => row.id}
-        onRowClick={(row) =>
-          router.push(`/dashboard/transaksi-pembelian/pesanan/${row.id}`)
-        }
+
         pagination={pagination}
         rowCount={meta.total}
         onPaginationChange={onPaginationChange}

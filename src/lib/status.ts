@@ -44,7 +44,8 @@ export type Domain =
   | "order-payment"
   | "download-task"
   | "stock-replenishment"
-  | "impex-activity";
+  | "impex-activity"
+  | "bulk-label-item";
 
 export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
   "sales-return": {
@@ -236,6 +237,15 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     processing: { label: "Sedang Proses", variant: "info" },
     success: { label: "Berhasil", variant: "success" },
     failed: { label: "Gagal", variant: "destructive" },
+  },
+
+  "bulk-label-item": {
+    pending: { label: "Menunggu", variant: "muted" },
+    downloading: { label: "Mengambil", variant: "info" },
+    waiting_shopee_prep: { label: "Menunggu Shopee", variant: "warning" },
+    done: { label: "Berhasil", variant: "success" },
+    failed: { label: "Gagal", variant: "destructive" },
+    skipped_instant: { label: "Instant courier", variant: "orange" },
   },
 };
 

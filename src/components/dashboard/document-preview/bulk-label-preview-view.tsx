@@ -7,6 +7,7 @@ import {
   AlertTriangleIcon,
   CheckCircle2Icon,
   DownloadIcon,
+  ExternalLinkIcon,
   Loader2,
   PrinterIcon,
   RefreshCcwIcon,
@@ -14,8 +15,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import {
   Table,
   TableBody,
@@ -27,9 +28,10 @@ import {
 import { OutboundService } from "@/services/proses-pesanan/outbound.service";
 import type {
   BulkLabelBatch,
-  BulkLabelItemStatus,
+  BulkLabelBatchItem,
 } from "@/types/proses-pesanan/bulk-label";
 import { apiError } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 
 const CHANNEL_LABEL: Record<string, string> = {
   shopee: "Shopee",
@@ -39,42 +41,81 @@ const CHANNEL_LABEL: Record<string, string> = {
   manual: "Manual",
 };
 
-const ITEM_STATUS_TEXT: Record<BulkLabelItemStatus, string> = {
-  pending: "Menunggu",
-  downloading: "Mengunduh",
-  waiting_shopee_prep: "Menunggu Shopee",
-  done: "Selesai",
-  failed: "Gagal",
-};
-
-const REASON_TEXT: Record<string, string> = {
-  no_awb: "Belum ada resi",
-  channel_unsupported: "Kanal belum didukung",
-  shopee_prep_timeout: "Shopee timeout",
-  self_design: "Butuh label kustom",
-  batch_crashed: "Batch terhenti",
-  shopee_prep_failed: "Shopee gagal siapkan",
-};
-
-function itemStatusVariant(
-  status: BulkLabelItemStatus,
-): "success" | "warning" | "destructive" | "outline" {
-  switch (status) {
-    case "done":
-      return "success";
-    case "failed":
-      return "destructive";
-    case "waiting_shopee_prep":
-    case "downloading":
-      return "warning";
-    default:
-      return "outline";
+function fmtDate(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "—";
+    return d.toLocaleString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return "—";
   }
 }
 
-function humanizeReason(reason: string | null): string {
-  if (!reason) return "—";
-  return REASON_TEXT[reason] ?? reason;
+function ItemRow({ item }: { item: BulkLabelBatchItem }) {
+  const isInstant = item.is_instant || item.status === "skipped_instant";
+  const isTransient =
+    item.status === "pending" ||
+    item.status === "downloading" ||
+    item.status === "waiting_shopee_prep";
+
+  return (
+    <TableRow
+      className={cn(
+        isInstant && "bg-orange-500/5",
+        item.status === "failed" && "bg-destructive/5",
+      )}
+    >
+      <TableCell className="align-top">
+        <div className="font-mono text-xs font-medium">
+          {item.salesorder_no ?? item.order_id}
+        </div>
+        <div className="text-[10px] text-muted-foreground">
+          {CHANNEL_LABEL[item.channel] ?? item.channel}
+        </div>
+      </TableCell>
+      <TableCell className="align-top text-xs">
+        {item.no_paket ?? "—"}
+      </TableCell>
+      <TableCell className="align-top text-xs">
+        {fmtDate(item.tgl_pesanan)}
+      </TableCell>
+      <TableCell className="align-top text-xs">
+        {fmtDate(item.tgl_pengiriman)}
+      </TableCell>
+      <TableCell className="align-top text-xs">
+        {item.courier_name ?? "—"}
+      </TableCell>
+      <TableCell className="align-top">
+        {isTransient ? (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="size-3 animate-spin" />
+            <span>Mengambil…</span>
+          </div>
+        ) : item.tracking_number ? (
+          <span className="font-mono text-xs">{item.tracking_number}</span>
+        ) : (
+          <span className="text-xs text-muted-foreground">—</span>
+        )}
+      </TableCell>
+      <TableCell className="align-top">
+        <div className="flex flex-col gap-1">
+          <StatusBadge domain="bulk-label-item" status={item.status} />
+          {item.status_message && (
+            <span className="text-[11px] leading-snug text-muted-foreground">
+              {item.status_message}
+            </span>
+          )}
+        </div>
+      </TableCell>
+    </TableRow>
+  );
 }
 
 export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
@@ -93,7 +134,7 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
     setRetrying(true);
     try {
       const res = await OutboundService.retryFailedBulkShippingLabels(batchId);
-      toast.success("Batch baru untuk item gagal dimulai.");
+      toast.success("Berhasil membuat batch retry untuk item gagal.");
       router.replace(
         `/dashboard/document-preview/shipping-label-bulk-async/${res.batch_id}`,
       );
@@ -132,12 +173,12 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
   const isReady = data.status === "ready";
   const isFailed = data.status === "failed";
   const isProcessing = data.status === "processing";
-  const failedCount = data.items.filter((i) => i.status === "failed").length;
-  const hasRecoverableFailure = data.items.some(
-    (i) =>
-      i.status === "failed" &&
-      (i.reason === "shopee_prep_timeout" || i.reason === "batch_crashed"),
-  );
+  const skipped = data.skipped ?? 0;
+  const retryableCount =
+    data.retryable_count ??
+    data.items.filter((i) => i.status === "failed" && i.is_retryable).length;
+  const canPrint = isReady && !!data.pdf_url;
+  const anyDone = data.done > 0;
 
   return (
     <div className="flex h-full min-h-screen flex-col">
@@ -152,25 +193,27 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
           )}
           <div>
             <p className="text-sm font-semibold">
-              {isProcessing && "Menyiapkan label…"}
-              {isReady && "Label siap"}
-              {isFailed && "Batch gagal"}
+              {isProcessing && "Mengambil No. Resi…"}
+              {isReady && "Resi siap dicetak"}
+              {isFailed && !anyDone && "Semua item gagal"}
+              {isFailed && anyDone && "Sebagian selesai"}
             </p>
             <p className="text-xs text-muted-foreground">
-              {data.done}/{data.total} selesai
+              {data.done}/{data.total} berhasil
+              {skipped > 0 && ` · ${skipped} dilewati (instant courier)`}
+              {data.failed > 0 && ` · ${data.failed} gagal`}
               {data.waiting_shopee > 0 &&
                 ` · ${data.waiting_shopee} menunggu Shopee`}
-              {failedCount > 0 && ` · ${failedCount} gagal`}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {hasRecoverableFailure && (
+          {retryableCount > 0 && (
             <Button
               size="sm"
               variant="outline"
               onClick={handleRetry}
-              disabled={retrying}
+              disabled={retrying || isProcessing}
               className="rounded-full"
             >
               {retrying ? (
@@ -178,10 +221,10 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
               ) : (
                 <RefreshCcwIcon className="size-4" />
               )}
-              Coba Ulang yang Gagal
+              Coba Lagi ({retryableCount})
             </Button>
           )}
-          {isReady && data.pdf_url && (
+          {canPrint && (
             <>
               <Button
                 size="sm"
@@ -193,9 +236,24 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
                 Cetak
               </Button>
               <Button asChild size="sm" className="rounded-full">
-                <a href={data.pdf_url} download>
+                <a href={data.pdf_url!} download>
                   <DownloadIcon className="size-4" />
                   Unduh PDF
+                </a>
+              </Button>
+              <Button
+                asChild
+                size="sm"
+                variant="outline"
+                className="rounded-full"
+              >
+                <a
+                  href={data.pdf_url!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLinkIcon className="size-4" />
+                  Buka
                 </a>
               </Button>
             </>
@@ -203,11 +261,11 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
         </div>
       </div>
 
-      {isReady && data.pdf_url ? (
+      {canPrint ? (
         <div className="flex-1 bg-muted/40">
           <iframe
             id="bulk-label-frame"
-            src={data.pdf_url}
+            src={data.pdf_url!}
             className="h-[calc(100vh-4rem)] w-full border-0"
             title="Label pengiriman"
           />
@@ -218,29 +276,20 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
             <TableHeader className="bg-muted/40">
               <TableRow>
                 <TableHead>No. Pesanan</TableHead>
-                <TableHead>Kanal</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Keterangan</TableHead>
+                <TableHead>No. Paket</TableHead>
+                <TableHead>Tgl. Pesanan</TableHead>
+                <TableHead>Tgl. Pengiriman</TableHead>
+                <TableHead>Kurir</TableHead>
+                <TableHead>No. Resi</TableHead>
+                <TableHead>Status Pengambilan</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.items.map((item) => (
-                <TableRow key={item.order_id}>
-                  <TableCell className="font-mono text-xs">
-                    {item.order_id}
-                  </TableCell>
-                  <TableCell>
-                    {CHANNEL_LABEL[item.channel] ?? item.channel}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={itemStatusVariant(item.status)}>
-                      {ITEM_STATUS_TEXT[item.status]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {humanizeReason(item.reason)}
-                  </TableCell>
-                </TableRow>
+                <ItemRow
+                  key={item.id ?? item.order_id}
+                  item={item}
+                />
               ))}
             </TableBody>
           </Table>

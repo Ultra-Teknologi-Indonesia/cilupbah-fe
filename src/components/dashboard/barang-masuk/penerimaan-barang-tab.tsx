@@ -241,9 +241,9 @@ export function PenerimaanBarangTab() {
         accessorKey: "transaction_number",
         header: "No. Penerimaan",
         cell: ({ row }) => (
-          <span className="font-medium text-primary underline-offset-2 hover:underline">
+          <Link href={`/dashboard/barang-masuk/penerimaan/${row.original.id}`} className="font-medium text-primary underline-offset-2 hover:underline">
             {row.original.transaction_number}
-          </span>
+          </Link>
         ),
       },
       {
@@ -582,9 +582,7 @@ export function PenerimaanBarangTab() {
                 </div>
               );
             }}
-            onRowClick={(row) =>
-              router.push(`/dashboard/barang-masuk/penerimaan/${row.id}`)
-            }
+
             pagination={list.pagination}
             rowCount={meta.total}
             onPaginationChange={list.onPaginationChange}
