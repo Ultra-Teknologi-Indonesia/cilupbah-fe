@@ -1,4 +1,4 @@
-import { fetchClient } from "@/lib/api-client";
+import { fetchClient, fetchBlobRaw } from "@/lib/api-client";
 import type { ApiResponse, ApiPaginated } from "@/types/api.types";
 import type {
   PurchaseOrder,
@@ -145,5 +145,23 @@ export const PurchaseOrderService = {
     await fetchClient(`/purchase/orders/${id}`, {
       method: "DELETE",
     });
+  },
+
+  openPdf: async (id: string, poNumber: string) => {
+    const blob = await fetchBlobRaw(
+      `/purchase/orders/${id}/pdf`,
+      "application/pdf",
+    );
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, "_blank");
+    if (!win) {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `PO-${poNumber}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
   },
 };
