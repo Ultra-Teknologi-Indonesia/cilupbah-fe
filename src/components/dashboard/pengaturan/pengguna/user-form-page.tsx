@@ -188,25 +188,24 @@ export function UserFormPage({ userId }: UserFormPageProps) {
       password_confirmation: "",
       roles: [],
     },
+    values:
+      user && isEdit
+        ? {
+            name: user.name,
+            email: user.email,
+            nik: user.nik ?? "",
+            password: "",
+            password_confirmation: "",
+            roles: user.roles.filter((r) => r !== "owner"),
+          }
+        : undefined,
   });
 
-  const [prevUser, setPrevUser] = React.useState(user);
-  const [prevIsEdit, setPrevIsEdit] = React.useState(isEdit);
-  if (user !== prevUser || isEdit !== prevIsEdit) {
-    setPrevUser(user);
-    setPrevIsEdit(isEdit);
+  React.useEffect(() => {
     if (user && isEdit) {
-      form.reset({
-        name: user.name,
-        email: user.email,
-        nik: user.nik ?? "",
-        password: "",
-        password_confirmation: "",
-        roles: user.roles.filter((r) => r !== "owner"),
-      });
       setDirectPerms(user.directPermissions ?? []);
     }
-  }
+  }, [user, isEdit]);
 
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);

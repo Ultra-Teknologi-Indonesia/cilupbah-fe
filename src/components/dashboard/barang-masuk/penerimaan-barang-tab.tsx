@@ -614,7 +614,14 @@ export function PenerimaanBarangTab() {
         }}
         variant="destructive"
         title={`Hapus ${deleteTargets.length} penerimaan?`}
-        description="Penerimaan dibatalkan dan stok yang belum ditempatkan dikembalikan dari bin inbound. Tindakan ini tidak bisa dibatalkan."
+        description={
+          deleteTargets.length > 0 &&
+          deleteTargets.every((d) => d.source_type === "transfer")
+            ? deleteTargets.length === 1
+              ? `Penerimaan ${deleteTargets[0].transaction_number} akan dihapus dan Transfer Keluar terkait dikembalikan ke Sedang Dijalan. Barang bisa diterima ulang.`
+              : "Penerimaan transfer dihapus dan Transfer Keluar terkait dikembalikan ke Sedang Dijalan. Barang bisa diterima ulang."
+            : "Penerimaan dibatalkan dan stok yang belum ditempatkan dikembalikan dari bin inbound. Tindakan ini tidak bisa dibatalkan."
+        }
         confirmLabel="Hapus"
         loading={bulkCancel.isPending}
         onConfirm={() => {
