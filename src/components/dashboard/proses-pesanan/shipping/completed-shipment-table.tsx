@@ -168,6 +168,19 @@ export function CompletedShipmentTable() {
         ),
       },
       {
+        id: "pickup_code",
+        accessorFn: (row) => row.pickupCode,
+        header: "Kode Ambil",
+        cell: ({ row }) =>
+          row.original.pickupCode ? (
+            <Badge className="font-mono tracking-wider">
+              {row.original.pickupCode}
+            </Badge>
+          ) : (
+            <span className="text-xs text-muted-foreground">—</span>
+          ),
+      },
+      {
         id: "shipment_no",
         accessorFn: (row) => row.shipmentNo,
         header: ({ column }) => (

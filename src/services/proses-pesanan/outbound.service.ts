@@ -255,6 +255,7 @@ function mapCompletedShipmentOrderRow(
     locationName: raw.location_name ?? null,
     picklistNo: raw.picklist_no ?? null,
     qtyGiven: raw.qty_given ?? null,
+    pickupCode: raw.pickup_code ?? null,
   };
 }
 

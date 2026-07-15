@@ -740,6 +740,7 @@ export interface RawCompletedShipmentOrderRow {
   location_name: string | null;
   picklist_no: string | null;
   qty_given: number | null;
+  pickup_code: string | null;
 }
 
 export interface CompletedShipmentOrderRow {
@@ -765,4 +766,5 @@ export interface CompletedShipmentOrderRow {
   locationName: string | null;
   picklistNo: string | null;
   qtyGiven: number | null;
+  pickupCode: string | null;
 }
