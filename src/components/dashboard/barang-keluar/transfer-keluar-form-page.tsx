@@ -7,12 +7,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { apiError } from "@/lib/toast";
 import {
+  CopyPlusIcon,
   Loader2Icon,
   PackageSearchIcon,
   PlusIcon,
   SaveIcon,
   ScanBarcodeIcon,
-  SplitIcon,
   Trash2Icon,
 } from "lucide-react";
 
@@ -381,7 +381,8 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
       !!l.binId &&
       l.qty !== "" &&
       !Number.isNaN(q) &&
-      q >= 1
+      q >= 1 &&
+      q <= l.binOnHand
     );
   });
 
@@ -740,8 +741,9 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                         o.itemId === l.itemId &&
                         o.binId === l.binId,
                     );
-                  const qtyInvalid = !l.binId || qtyNum < 1 || dupBin;
                   const qtyOverStock = qtyNum > l.binOnHand;
+                  const qtyInvalid =
+                    !l.binId || qtyNum < 1 || dupBin || qtyOverStock;
                   const binOptsForLine = l.availableBins.map((b) => ({
                     value: b.id,
                     label: b.code,
@@ -817,14 +819,26 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                       >
                         {l.binOnHand}
                       </TableCell>
-                      <TableCell className="px-3 py-2.5 text-right align-top">
+                      <TableCell className="px-3 py-2.5 text-right">
                         <Input
                           type="number"
                           min={1}
+                          max={l.binOnHand > 0 ? l.binOnHand : undefined}
                           value={l.qty}
-                          onChange={(e) =>
-                            updateLine(l.rowId, { qty: e.target.value })
-                          }
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            if (raw === "") {
+                              updateLine(l.rowId, { qty: "" });
+                              return;
+                            }
+                            const n = Number(raw);
+                            if (Number.isNaN(n)) return;
+                            const clamped =
+                              l.binOnHand > 0
+                                ? Math.min(n, l.binOnHand)
+                                : n;
+                            updateLine(l.rowId, { qty: String(clamped) });
+                          }}
                           onBlur={(e) => {
                             const v = Number(e.target.value);
                             if (Number.isNaN(v) || v < 1) {
@@ -836,13 +850,11 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                             "h-9 w-20 text-right",
                             qtyInvalid &&
                               "border-destructive ring-1 ring-destructive/30",
-                            !qtyInvalid && qtyOverStock &&
-                              "border-amber-500 ring-1 ring-amber-500/40",
                           )}
                         />
-                        {qtyOverStock && !qtyInvalid && (
-                          <p className="text-amber-600 text-xs mt-0.5">
-                            Melebihi data sistem (tersedia: {l.binOnHand}) — akan tercatat minus
+                        {qtyOverStock && (
+                          <p className="text-destructive text-xs mt-0.5">
+                            Maks. sesuai stok tersedia: {l.binOnHand}
                           </p>
                         )}
                       </TableCell>
@@ -865,7 +877,7 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                             aria-label="Tambah rak untuk SKU ini"
                             title="Ambil SKU ini dari rak lain"
                           >
-                            <SplitIcon className="size-4" />
+                            <CopyPlusIcon className="size-4" />
                           </Button>
                           <Button
                             variant="ghost"

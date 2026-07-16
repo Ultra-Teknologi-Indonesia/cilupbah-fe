@@ -468,7 +468,6 @@ export function TransferKeluarTab() {
               ? "Pilih rak asal untuk semua item dulu"
               : "Cetak Surat Jalan & kirim"
           }
-          className="text-primary hover:text-primary"
         >
           {printingId === item.id ? (
             <Loader2Icon className="size-3.5 animate-spin" />
@@ -491,7 +490,7 @@ export function TransferKeluarTab() {
           onClick={() => setDeleteTarget(item)}
           aria-label="Hapus transfer"
           title="Hapus transfer"
-          className="text-destructive hover:text-destructive"
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
         >
           <Trash2Icon className="size-3.5" />
         </Button>
@@ -511,7 +510,6 @@ export function TransferKeluarTab() {
           disabled={printingId === item.id}
           aria-label="Cetak ulang Surat Jalan"
           title="Cetak ulang Surat Jalan"
-          className="text-primary hover:text-primary"
         >
           {printingId === item.id ? (
             <Loader2Icon className="size-3.5 animate-spin" />
@@ -534,7 +532,7 @@ export function TransferKeluarTab() {
           onClick={() => setDeleteTarget(item)}
           aria-label="Kembalikan ke Baru Dibuat"
           title="Kembalikan ke Baru Dibuat"
-          className="text-destructive hover:text-destructive"
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
         >
           <Trash2Icon className="size-3.5" />
         </Button>
@@ -553,7 +551,6 @@ export function TransferKeluarTab() {
           disabled={printingId === item.id}
           aria-label="Cetak ulang Surat Jalan"
           title="Cetak ulang Surat Jalan"
-          className="text-primary hover:text-primary"
         >
           {printingId === item.id ? (
             <Loader2Icon className="size-3.5 animate-spin" />
