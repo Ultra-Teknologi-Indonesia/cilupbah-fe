@@ -269,7 +269,6 @@ export function PenerimaanDetailView({ id }: { id: string }) {
     if (!editTarget || !inbound) return;
     const results = await batchMutation.mutateAsync({
       items: [{ itemId: editTarget.item.id, qty }],
-      expectedUpdatedAt: inbound.updated_version_at ?? inbound.updated_at,
     });
     const first = results[0];
     if (first?.ok) {
@@ -461,7 +460,6 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                 <Table containerClassName="rounded-xl border border-border/40">
                   <TableHeader>
                     <TableRow className="border-b border-border/60 bg-muted/30">
-                      <TableHead className="w-10 px-2 py-2.5" />
                       <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                         <SortableHeader
                           label="Produk"
@@ -506,6 +504,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                       <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                         Catatan
                       </TableHead>
+                      <TableHead className="w-40 px-3 py-2.5" />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -543,33 +542,6 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                           <TableRow
                             className="border-b border-border/20 last:border-0"
                           >
-                            <TableCell className="px-2 py-2.5">
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="size-7"
-                                onClick={() =>
-                                  setOpenItemId(isOpen ? null : item.id)
-                                }
-                                aria-label={
-                                  isOpen
-                                    ? "Sembunyikan kronologi"
-                                    : "Lihat kronologi"
-                                }
-                                title={
-                                  isOpen
-                                    ? "Sembunyikan kronologi"
-                                    : "Lihat kronologi penerimaan"
-                                }
-                              >
-                                <ChevronDownIcon
-                                  className={cn(
-                                    "size-4 transition-transform",
-                                    isOpen && "rotate-180",
-                                  )}
-                                />
-                              </Button>
-                            </TableCell>
                             <TableCell className="px-3 py-2.5">
                               <div className="flex items-start gap-3">
                                 <div className="size-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
@@ -654,6 +626,25 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                             <TableCell className="max-w-[200px] truncate whitespace-normal px-3 py-2.5 text-xs text-foreground">
                               {item.discrepancy_note ?? "—"}
                             </TableCell>
+                            <TableCell className="px-3 py-2.5 text-right">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setOpenItemId(isOpen ? null : item.id)
+                                }
+                                className="inline-flex items-center gap-1 text-xs font-medium text-primary underline-offset-2 hover:underline"
+                              >
+                                {isOpen
+                                  ? "Sembunyikan histori"
+                                  : "Lihat histori penerimaan"}
+                                <ChevronDownIcon
+                                  className={cn(
+                                    "size-3.5 transition-transform",
+                                    isOpen && "rotate-180",
+                                  )}
+                                />
+                              </button>
+                            </TableCell>
                           </TableRow>
                           {isOpen && (
                             <TableRow className="border-b border-border/20 bg-muted/20 hover:bg-muted/20">
@@ -661,16 +652,11 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                                 colSpan={7}
                                 className="px-5 py-4"
                               >
-                                <div className="flex flex-col gap-2">
-                                  <p className="text-xs font-medium text-muted-foreground">
-                                    Kronologi Penerimaan
-                                  </p>
-                                  <KronologiPenerimaanItem
-                                    inboundId={inbound.id}
-                                    itemId={item.id}
-                                    enabled={isOpen}
-                                  />
-                                </div>
+                                <KronologiPenerimaanItem
+                                  inboundId={inbound.id}
+                                  itemId={item.id}
+                                  enabled={isOpen}
+                                />
                               </TableCell>
                             </TableRow>
                           )}

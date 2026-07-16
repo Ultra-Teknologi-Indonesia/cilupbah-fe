@@ -4,6 +4,14 @@ import * as React from "react";
 import { Loader2Icon, PackageIcon } from "lucide-react";
 
 import { EmptyState } from "@/components/ui/empty-state";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { useInboundReceipts } from "@/hooks/barang-masuk/use-inbound";
 
@@ -23,22 +31,17 @@ const BULAN = [
   "Desember",
 ];
 
-function formatFullDateTime(iso: string): string {
+function formatTanggal(iso: string): string {
   const d = new Date(iso);
-  const tanggal = `${HARI[d.getDay()]}, ${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`;
-  const jam = d.toLocaleTimeString("id-ID", {
+  return `${HARI[d.getDay()]}, ${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function formatJam(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleTimeString("id-ID", {
     hour: "2-digit",
     minute: "2-digit",
   });
-  return `${tanggal} · ${jam}`;
-}
-
-function initials(name?: string | null): string {
-  if (!name) return "?";
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
 export function KronologiPenerimaanItem({
@@ -83,43 +86,59 @@ export function KronologiPenerimaanItem({
   }
 
   return (
-    <ol className="flex flex-col gap-2">
-      {rows.map((r) => {
-        const staffName = r.received_by_user?.name ?? "Staff dihapus";
-        const damage = r.condition === "DAMAGE";
-        return (
-          <li
-            key={r.id}
-            className={cn(
-              "flex items-center gap-3 rounded-xl border border-border/60 bg-background/70 px-3 py-2.5",
-            )}
-          >
-            <div
-              className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-2xs font-semibold text-foreground"
-              aria-hidden
+    <Table containerClassName="rounded-xl border border-border/40 bg-background/70">
+      <TableHeader>
+        <TableRow className="border-b border-border/60 bg-muted/30">
+          <TableHead className="px-3 py-2 text-2xs uppercase tracking-wider text-muted-foreground">
+            Tanggal
+          </TableHead>
+          <TableHead className="px-3 py-2 text-2xs uppercase tracking-wider text-muted-foreground">
+            Jam
+          </TableHead>
+          <TableHead className="px-3 py-2 text-2xs uppercase tracking-wider text-muted-foreground">
+            Oleh
+          </TableHead>
+          <TableHead className="px-3 py-2 text-right text-2xs uppercase tracking-wider text-muted-foreground">
+            Qty
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.map((r) => {
+          const staffName = r.received_by_user?.name ?? "Staff dihapus";
+          const damage = r.condition === "DAMAGE";
+          return (
+            <TableRow
+              key={r.id}
+              className="border-b border-border/20 last:border-0"
             >
-              {initials(staffName)}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">{staffName}</p>
-              <p className="text-2xs text-muted-foreground">
-                {formatFullDateTime(r.received_date)}
-              </p>
-            </div>
-            <span
-              className={cn(
-                "shrink-0 rounded-full px-2.5 py-0.5 text-sm font-semibold tabular-nums",
-                damage
-                  ? "bg-destructive/10 text-destructive"
-                  : "bg-primary/10 text-primary",
-              )}
-            >
-              {damage ? "" : "+"}
-              {r.qty}
-            </span>
-          </li>
-        );
-      })}
-    </ol>
+              <TableCell className="px-3 py-2 text-xs text-foreground">
+                {formatTanggal(r.received_date)}
+              </TableCell>
+              <TableCell className="px-3 py-2 text-xs tabular-nums text-muted-foreground">
+                {formatJam(r.received_date)}
+              </TableCell>
+              <TableCell className="px-3 py-2 text-xs text-foreground">
+                {staffName}
+              </TableCell>
+              <TableCell
+                className={cn(
+                  "px-3 py-2 text-right text-xs font-semibold tabular-nums",
+                  damage ? "text-destructive" : "text-foreground",
+                )}
+              >
+                {damage ? "" : "+"}
+                {r.qty}
+                {damage && (
+                  <span className="ml-1 text-2xs font-normal text-destructive">
+                    (rusak)
+                  </span>
+                )}
+              </TableCell>
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
   );
 }
