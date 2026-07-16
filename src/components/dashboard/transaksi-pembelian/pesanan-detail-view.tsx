@@ -127,6 +127,11 @@ export function PesananDetailView({ id }: { id: string }) {
         ]}
         actions={
           <div className="flex items-center gap-2">
+            <StatusBadge
+              domain="purchase-order"
+              status={po.status}
+              className="text-xs"
+            />
             {(po.status === "OPEN" || po.status === "DRAFT") && (
               <Button
                 variant="outline"
@@ -138,11 +143,6 @@ export function PesananDetailView({ id }: { id: string }) {
                 Hapus
               </Button>
             )}
-            <StatusBadge
-              domain="purchase-order"
-              status={po.status}
-              className="text-xs"
-            />
           </div>
         }
       />
