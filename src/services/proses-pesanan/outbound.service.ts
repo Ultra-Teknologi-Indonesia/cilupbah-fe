@@ -379,7 +379,11 @@ function mapPicklistItem(raw: RawPicklistItem): PicklistItem {
     orderId: raw.order_id ?? null,
     orderNo: raw.order?.salesorder_no ?? null,
     trackingNumber: raw.order?.tracking_number ?? null,
-    packageNo: raw.order?.package_no ?? raw.order?.shipment_no ?? null,
+    packageNo:
+      raw.order?.shipmentOrders?.[0]?.shipment?.shipment_no ??
+      raw.order?.package_no ??
+      raw.order?.shipment_no ??
+      null,
     itemStatus: normalizeItemStatus(raw.item_status ?? raw.status),
     failReasonCode: normalizeFailReason(raw.fail_reason_code),
     failReasonNote: raw.fail_reason_note ?? null,

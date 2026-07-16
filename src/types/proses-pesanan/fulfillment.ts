@@ -349,6 +349,11 @@ export interface RawPicklistItem {
     tracking_number?: string | null;
     package_no?: string | null;
     shipment_no?: string | null;
+    shipmentOrders?:
+      | Array<{
+          shipment?: { shipment_no?: string | null } | null;
+        }>
+      | null;
   } | null;
   orderItem?: {
     description?: string | null;
