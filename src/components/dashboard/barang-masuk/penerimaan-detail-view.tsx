@@ -2,18 +2,15 @@
 import Image from "next/image";
 
 import * as React from "react";
-import { toast } from "sonner";
 import { formatDate, formatDateTime } from "@/lib/format";
 import {
   ArrowLeftIcon,
   CheckCircle2Icon,
+  ChevronDownIcon,
   ImageIcon,
+  PencilIcon,
   PrinterIcon,
-  DownloadIcon,
   Loader2Icon,
-  MoreHorizontalIcon,
-  QrCodeIcon,
-  SaveIcon,
   SearchIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -21,12 +18,6 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -39,15 +30,22 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { PageTitle } from "@/components/dashboard/page-title";
-import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { InfoField } from "@/components/dashboard/shared/info-field";
 import { SortableHeader } from "@/components/dashboard/shared/sortable-header";
 import { CopySku } from "@/components/dashboard/shared/copy-sku";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { KronologiPenerimaanTab } from "@/components/dashboard/barang-masuk/kronologi-penerimaan-tab";
+import { KronologiPenerimaanItem } from "@/components/dashboard/barang-masuk/kronologi-penerimaan-tab";
 import {
   useFinalizeInbound,
   useInboundDetail,
@@ -57,7 +55,6 @@ import {
   useUnassignInbound,
   useWithdrawParticipant,
 } from "@/hooks/barang-masuk/use-inbound";
-import { exportCsv } from "@/lib/export-csv";
 import type { Inbound, InboundItem } from "@/types/barang-masuk/inbound";
 import {
   AssignmentLockBanner,
@@ -66,69 +63,7 @@ import {
   UnassignReasonDialog,
 } from "@/components/shared/channel-lock";
 import { useMe } from "@/hooks/auth/use-auth";
-
-/**
- * Input jumlah diterima terkontrol. Perubahan dibuffer di parent (dirty map),
- * baru dikirim ke BE saat pengguna klik Simpan. Escape membatalkan (kembali ke
- * nilai server). State direset lewat `key` (remount) di pemanggil saat nilai
- * server berubah — hindari setState dalam useEffect.
- */
-function EditableReceivedQty({
-  item,
-  value,
-  disabled,
-  onChange,
-}: {
-  item: InboundItem;
-  value: number;
-  disabled: boolean;
-  onChange: (qty: number | null) => void;
-}) {
-  const [text, setText] = React.useState(String(value));
-
-  const commit = () => {
-    const n = Number(text);
-    if (!Number.isInteger(n) || n < 0) {
-      setText(String(value));
-      return;
-    }
-    if (n < item.putaway_qty) {
-      toast.error(
-        `Tidak bisa di bawah yang sudah ditempatkan ke rak (${item.putaway_qty}). Batalkan/kurangi penempatan dulu.`,
-      );
-      setText(String(value));
-      return;
-    }
-    if (n === item.received_qty) {
-      onChange(null);
-    } else {
-      onChange(n);
-    }
-  };
-
-  return (
-    <Input
-      type="number"
-      inputMode="numeric"
-      min={0}
-      value={text}
-      disabled={disabled}
-      onChange={(e) => setText(e.target.value)}
-      onBlur={commit}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          e.currentTarget.blur();
-        } else if (e.key === "Escape") {
-          setText(String(item.received_qty));
-          onChange(null);
-          e.currentTarget.blur();
-        }
-      }}
-      aria-label="Edit jumlah diterima"
-      className="ml-auto h-8 w-20 text-right tabular-nums"
-    />
-  );
-}
+import { toast } from "sonner";
 
 const TYPE_LABEL: Record<string, string> = {
   PURCHASE_ORDER: "Pesanan Pembelian",
@@ -137,93 +72,128 @@ const TYPE_LABEL: Record<string, string> = {
   CONSIGNMENT: "Konsinyasi",
 };
 
-function handleExportCsv(inbound: Inbound) {
-  const headers = [
-    "SKU",
-    "Produk",
-    "Qty Diharapkan",
-    "Qty Diterima",
-    "Qty Ditolak",
-    "Alasan Tolak",
-    "Qty Putaway",
-    "Selisih",
-    "Catatan Selisih",
-  ];
-  const rows = inbound.items.map((item) => [
-    item.variant?.sku ?? "",
-    item.variant?.product?.name ??
-      item.variant?.item_name ??
-      item.variant?.name ??
-      "",
-    String(item.expected_qty),
-    String(item.received_qty),
-    String(item.rejected_qty ?? 0),
-    item.rejection_note ?? "",
-    String(item.putaway_qty),
-    String(item.discrepancy_qty),
-    item.discrepancy_note ?? "",
-  ]);
-  exportCsv(`penerimaan-${inbound.transaction_number}.csv`, headers, rows);
+interface EditTarget {
+  item: InboundItem;
+  productName: string;
 }
 
-type Totals = {
-  expected: number;
-  received: number;
-  discrepancy: number;
-};
+function EditQtyDialog({
+  target,
+  onClose,
+  onSubmit,
+  saving,
+}: {
+  target: EditTarget | null;
+  onClose: () => void;
+  onSubmit: (qty: number) => void;
+  saving: boolean;
+}) {
+  const [text, setText] = React.useState("");
 
-function computeTotals(items: InboundItem[], dirty: Record<string, number>): Totals {
-  let expected = 0;
-  let received = 0;
-  let discrepancy = 0;
-  for (const it of items) {
-    const rcv = dirty[it.id] ?? it.received_qty;
-    expected += it.expected_qty;
-    received += rcv;
-    discrepancy += rcv - it.expected_qty;
-  }
-  return { expected, received, discrepancy };
-}
+  React.useEffect(() => {
+    if (target) setText(String(target.item.received_qty));
+  }, [target]);
 
-function SummaryRail({ totals }: { totals: Totals }) {
-  const hasDiscrepancy = totals.discrepancy !== 0;
+  const open = !!target;
+  const item = target?.item;
+  const minQty = item?.putaway_qty ?? 0;
+
+  const parsed = Number(text);
+  const isValid =
+    text.trim() !== "" && Number.isInteger(parsed) && parsed >= 0;
+  const belowPutaway = isValid && parsed < minQty;
+  const unchanged = isValid && item && parsed === item.received_qty;
+  const disabled = !isValid || belowPutaway || unchanged || saving;
+
+  const handleSubmit = () => {
+    if (!item) return;
+    if (belowPutaway) {
+      toast.error(
+        `Tidak bisa di bawah yang sudah ditempatkan ke rak (${minQty}).`,
+      );
+      return;
+    }
+    onSubmit(parsed);
+  };
+
   return (
-    <div className="px-5 py-4">
-      <h3 className="mb-3 text-sm font-semibold print:text-base">Ringkasan</h3>
-      <div className="grid grid-cols-3 gap-3 lg:grid-cols-1">
-        <div className="rounded-xl border border-border/60 bg-muted/30 px-3 py-3">
-          <div className="text-xs text-muted-foreground">Total Diterima</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums md:text-3xl lg:text-4xl">
-            {totals.received}
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Qty Diterima</DialogTitle>
+          <DialogDescription>
+            {target?.productName ?? "—"}
+            {item?.variant?.sku ? ` · ${item.variant.sku}` : ""}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-3 gap-2 text-xs">
+            <div className="rounded-xl border border-border/60 bg-muted/30 px-3 py-2">
+              <div className="text-muted-foreground">Diharapkan</div>
+              <div className="text-base font-semibold tabular-nums">
+                {item?.expected_qty ?? 0}
+              </div>
+            </div>
+            <div className="rounded-xl border border-border/60 bg-muted/30 px-3 py-2">
+              <div className="text-muted-foreground">Sebelumnya</div>
+              <div className="text-base font-semibold tabular-nums">
+                {item?.received_qty ?? 0}
+              </div>
+            </div>
+            <div className="rounded-xl border border-border/60 bg-muted/30 px-3 py-2">
+              <div className="text-muted-foreground">Sudah di rak</div>
+              <div className="text-base font-semibold tabular-nums">
+                {minQty}
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="rounded-xl border border-border/60 bg-muted/30 px-3 py-3">
-          <div className="text-xs text-muted-foreground">Total Diharapkan</div>
-          <div className="mt-1 text-lg font-medium tabular-nums md:text-xl">
-            {totals.expected}
-          </div>
-        </div>
-        <div
-          className={cn(
-            "rounded-xl border px-3 py-3",
-            hasDiscrepancy
-              ? "border-destructive/30 bg-destructive/5"
-              : "border-border/60 bg-muted/30",
-          )}
-        >
-          <div className="text-xs text-muted-foreground">Total Selisih</div>
-          <div
-            className={cn(
-              "mt-1 text-lg font-medium tabular-nums md:text-xl",
-              hasDiscrepancy && "text-destructive",
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="edit-qty">Jumlah diterima baru</Label>
+            <Input
+              id="edit-qty"
+              type="number"
+              inputMode="numeric"
+              min={minQty}
+              value={text}
+              disabled={saving}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !disabled) handleSubmit();
+              }}
+              autoFocus
+            />
+            {belowPutaway && (
+              <p className="text-2xs text-destructive">
+                Tidak bisa di bawah yang sudah ditempatkan ke rak ({minQty}).
+              </p>
             )}
-          >
-            {totals.discrepancy > 0 ? "+" : ""}
-            {totals.discrepancy}
+            <p className="text-2xs text-muted-foreground">
+              Riwayat penerimaan tidak akan berubah — koreksi ini hanya
+              menyesuaikan total qty diterima.
+            </p>
           </div>
         </div>
-      </div>
-    </div>
+
+        <DialogFooter>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onClose}
+            disabled={saving}
+          >
+            Batal
+          </Button>
+          <Button size="sm" onClick={handleSubmit} disabled={disabled}>
+            {saving ? (
+              <Loader2Icon className="mr-1.5 size-4 animate-spin" />
+            ) : null}
+            Simpan
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -236,10 +206,8 @@ export function PenerimaanDetailView({ id }: { id: string }) {
   const [search, setSearch] = React.useState("");
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [sort, setSort] = React.useState<string | undefined>(undefined);
-
-  const [dirty, setDirty] = React.useState<Record<string, number>>({});
-  const [confirmOpen, setConfirmOpen] = React.useState(false);
-  const saving = batchMutation.isPending;
+  const [openItemId, setOpenItemId] = React.useState<string | null>(null);
+  const [editTarget, setEditTarget] = React.useState<EditTarget | null>(null);
 
   React.useEffect(() => {
     const t = setTimeout(() => {
@@ -263,10 +231,6 @@ export function PenerimaanDetailView({ id }: { id: string }) {
     setPage(1);
   };
 
-  // Channel lock:
-  // Fase 1 (assignee tunggal) → assigned_to + belum RECEIVED.
-  // Fase 2 (multi participant) → BE mengembalikan edit_lock. Kalau ada participant
-  // ACTIVE web tetap read-only walaupun once_received_at sudah set.
   const legacyAssignmentLock =
     !!inbound &&
     inbound.assigned_to != null &&
@@ -301,110 +265,20 @@ export function PenerimaanDetailView({ id }: { id: string }) {
 
   const activeParticipants = inbound?.edit_lock?.active_participants ?? [];
 
-  const setDirtyFor = React.useCallback((itemId: string, qty: number | null) => {
-    setDirty((prev) => {
-      const next = { ...prev };
-      if (qty === null) {
-        delete next[itemId];
-      } else {
-        next[itemId] = qty;
-      }
-      return next;
-    });
-  }, []);
-
-  const dirtyEntries = React.useMemo(
-    () => Object.entries(dirty),
-    [dirty],
-  );
-  const hasChanges = dirtyEntries.length > 0;
-
-  const totals = React.useMemo(
-    () => computeTotals(inbound?.items ?? [], dirty),
-    [inbound?.items, dirty],
-  );
-
-  const deltaSum = React.useMemo(() => {
-    if (!inbound) return 0;
-    const byId = new Map(inbound.items.map((it) => [it.id, it]));
-    let d = 0;
-    for (const [itemId, qty] of dirtyEntries) {
-      const orig = byId.get(itemId)?.received_qty ?? 0;
-      d += qty - orig;
-    }
-    return d;
-  }, [dirtyEntries, inbound]);
-
-  React.useEffect(() => {
-    if (!hasChanges) return;
-    const handler = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = "";
-    };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
-  }, [hasChanges]);
-
-  const resetDirty = () => setDirty({});
-
-  const handleSaveAll = async () => {
-    if (!inbound || dirtyEntries.length === 0) return;
-    const items = dirtyEntries.map(([itemId, qty]) => ({ itemId, qty }));
-    // Optimistic lock (fix H4): kirim updated_version_at server terkini.
-    // Kalau ada admin lain edit di antara load & submit, BE akan 412.
+  const handleSaveEditQty = async (qty: number) => {
+    if (!editTarget || !inbound) return;
     const results = await batchMutation.mutateAsync({
-      items,
+      items: [{ itemId: editTarget.item.id, qty }],
       expectedUpdatedAt: inbound.updated_version_at ?? inbound.updated_at,
     });
-
-    const okIds = new Set(results.filter((r) => r.ok).map((r) => r.itemId));
-    const failed = results.filter((r) => !r.ok);
-
-    if (failed.length === 0) {
-      toast.success(`Berhasil menyimpan ${okIds.size} item`);
-      setDirty({});
-      setConfirmOpen(false);
-      return;
+    const first = results[0];
+    if (first?.ok) {
+      toast.success("Berhasil menyimpan qty diterima");
+      setEditTarget(null);
+    } else {
+      toast.error(first?.error || "Gagal menyimpan qty diterima");
     }
-    if (okIds.size === 0) {
-      toast.error(failed[0].error || "Gagal menyimpan perubahan");
-      return;
-    }
-    toast.warning(
-      `Berhasil ${okIds.size}, gagal ${failed.length} — item gagal tetap ditandai belum tersimpan`,
-    );
-    setDirty((prev) => {
-      const next = { ...prev };
-      for (const id of okIds) delete next[id];
-      return next;
-    });
-    setConfirmOpen(false);
   };
-
-  const diffRows = React.useMemo(() => {
-    if (!inbound) return [] as Array<{
-      id: string;
-      sku: string;
-      name: string;
-      from: number;
-      to: number;
-    }>;
-    const byId = new Map(inbound.items.map((it) => [it.id, it]));
-    return dirtyEntries.map(([itemId, qty]) => {
-      const it = byId.get(itemId);
-      return {
-        id: itemId,
-        sku: it?.variant?.sku ?? "",
-        name:
-          it?.variant?.product?.name ??
-          it?.variant?.item_name ??
-          it?.variant?.name ??
-          "—",
-        from: it?.received_qty ?? 0,
-        to: qty,
-      };
-    });
-  }, [dirtyEntries, inbound]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -468,20 +342,6 @@ export function PenerimaanDetailView({ id }: { id: string }) {
             }
           />
           <div className="flex items-center justify-end gap-2 print:hidden">
-            {canFinalize && (
-              <Button
-                size="sm"
-                onClick={() => setFinalizeOpen(true)}
-                disabled={finalizeMutation.isPending}
-              >
-                {finalizeMutation.isPending ? (
-                  <Loader2Icon className="mr-1.5 size-4 animate-spin" />
-                ) : (
-                  <CheckCircle2Icon className="mr-1.5 size-4" />
-                )}
-                Selesaikan Penerimaan
-              </Button>
-            )}
             <Button
               variant="outline"
               size="sm"
@@ -496,230 +356,220 @@ export function PenerimaanDetailView({ id }: { id: string }) {
               <PrinterIcon className="mr-1.5 size-4" />
               Cetak
             </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  aria-label="Aksi lain"
-                  className="px-2"
-                >
-                  <MoreHorizontalIcon className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onSelect={() =>
-                    window.open(
-                      `/dashboard/document-preview/inbound-barcodes/${inbound.id}`,
-                      "_blank",
-                      "noopener,noreferrer",
-                    )
-                  }
-                >
-                  <QrCodeIcon className="mr-2 size-4" />
-                  Cetak Barcode
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => handleExportCsv(inbound)}>
-                  <DownloadIcon className="mr-2 size-4" />
-                  Export CSV
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {canFinalize && (
+              <Button
+                size="sm"
+                onClick={() => setFinalizeOpen(true)}
+                disabled={finalizeMutation.isPending}
+              >
+                {finalizeMutation.isPending ? (
+                  <Loader2Icon className="mr-1.5 size-4 animate-spin" />
+                ) : (
+                  <CheckCircle2Icon className="mr-1.5 size-4" />
+                )}
+                Selesaikan Penerimaan
+              </Button>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 print:grid-cols-1">
+          <div className="flex flex-col gap-4 print:gap-2">
             <LiquidGlass
               radius={20}
               intensity="subtle"
-              className="self-start bg-white/30 lg:col-start-3 lg:sticky lg:top-6 dark:bg-white/[0.04] print:col-start-auto print:border print:border-border print:shadow-none"
+              className="bg-white/30 dark:bg-white/[0.04] print:border print:border-border print:shadow-none"
             >
-              <SummaryRail totals={totals} />
+              <div className="px-5 py-4">
+                <h3 className="mb-3 text-sm font-semibold print:text-base">
+                  Informasi Penerimaan
+                </h3>
+                <div className="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
+                  <InfoField
+                    orientation="horizontal"
+                    label="No. Penerimaan"
+                    value={inbound.transaction_number}
+                  />
+                  <InfoField
+                    orientation="horizontal"
+                    label="No. Referensi"
+                    value={inbound.reference_number}
+                  />
+                  <InfoField
+                    orientation="horizontal"
+                    label="Sumber"
+                    value={TYPE_LABEL[inbound.type] ?? inbound.type}
+                  />
+                  <InfoField
+                    orientation="horizontal"
+                    label="Status"
+                    value={
+                      <StatusBadge
+                        domain="inbound"
+                        status={inbound.status}
+                        className="text-2xs"
+                      />
+                    }
+                  />
+                  <InfoField
+                    orientation="horizontal"
+                    label="Lokasi"
+                    value={inbound.location?.location_name}
+                  />
+                  <InfoField
+                    orientation="horizontal"
+                    label="Tgl. Diharapkan"
+                    value={
+                      inbound.expected_date
+                        ? formatDate(inbound.expected_date)
+                        : undefined
+                    }
+                  />
+                  <InfoField
+                    orientation="horizontal"
+                    label="Dibuat Oleh"
+                    value={inbound.created_by}
+                  />
+                  <InfoField
+                    orientation="horizontal"
+                    label="Dibuat"
+                    value={formatDateTime(inbound.created_at)}
+                  />
+                </div>
+              </div>
             </LiquidGlass>
 
-            <div className="flex min-w-0 flex-col gap-4 lg:col-span-2 lg:col-start-1 lg:row-start-1 print:col-start-auto print:row-start-auto">
-              <LiquidGlass
-                radius={20}
-                intensity="subtle"
-                className="bg-white/30 dark:bg-white/[0.04] print:border print:border-border print:shadow-none"
-              >
-                <div className="px-5 py-4">
-                  <h3 className="mb-3 text-sm font-semibold print:text-base">
-                    Informasi Penerimaan
-                  </h3>
-                  <div className="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
-                    <InfoField
-                      orientation="horizontal"
-                      label="No. Penerimaan"
-                      value={inbound.transaction_number}
-                    />
-                    <InfoField
-                      orientation="horizontal"
-                      label="No. Referensi"
-                      value={inbound.reference_number}
-                    />
-                    <InfoField
-                      orientation="horizontal"
-                      label="Sumber"
-                      value={TYPE_LABEL[inbound.type] ?? inbound.type}
-                    />
-                    <InfoField
-                      orientation="horizontal"
-                      label="Status"
-                      value={
-                        <StatusBadge
-                          domain="inbound"
-                          status={inbound.status}
-                          className="text-2xs"
-                        />
-                      }
-                    />
-                    <InfoField
-                      orientation="horizontal"
-                      label="Lokasi"
-                      value={inbound.location?.location_name}
-                    />
-                    <InfoField
-                      orientation="horizontal"
-                      label="Tgl. Diharapkan"
-                      value={
-                        inbound.expected_date
-                          ? formatDate(inbound.expected_date)
-                          : undefined
-                      }
-                    />
-                    <InfoField
-                      orientation="horizontal"
-                      label="Dibuat Oleh"
-                      value={inbound.created_by}
-                    />
-                    <InfoField
-                      orientation="horizontal"
-                      label="Dibuat"
-                      value={formatDateTime(inbound.created_at)}
-                    />
-                  </div>
-                </div>
-              </LiquidGlass>
-
-              <LiquidGlass
-                radius={20}
-                intensity="subtle"
-                className="bg-white/30 dark:bg-white/[0.04] print:border print:border-border print:shadow-none"
-              >
-                <div className="px-5 py-4">
-                  <Tabs defaultValue="items" className="print:!block">
-                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2 print:hidden">
-                    <TabsList>
-                      <TabsTrigger value="items">Daftar Item</TabsTrigger>
-                      <TabsTrigger value="kronologi">Kronologi Penerimaan</TabsTrigger>
-                    </TabsList>
-                  </div>
-                  <h3 className="mb-3 hidden text-sm font-semibold print:block print:text-base">
+            <LiquidGlass
+              radius={20}
+              intensity="subtle"
+              className="bg-white/30 dark:bg-white/[0.04] print:border print:border-border print:shadow-none"
+            >
+              <div className="flex flex-col gap-3 px-5 py-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="text-sm font-semibold print:text-base">
                     Daftar Item
                   </h3>
+                </div>
+                <div className="relative w-full print:hidden">
+                  <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Cari SKU atau nama produk..."
+                    className="pl-8"
+                  />
+                </div>
 
-                  <TabsContent value="items" className="flex flex-col gap-3">
-                  <div className="relative w-full print:hidden">
-                    <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      placeholder="Cari SKU atau nama produk..."
-                      className="pl-8"
-                    />
-                  </div>
-
-                  <Table containerClassName="rounded-xl border border-border/40">
-                    <TableHeader>
-                      <TableRow className="border-b border-border/60 bg-muted/30">
-                        <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                          <SortableHeader
-                            label="Produk"
-                            field="sku"
-                            currentSort={sort}
-                            onSort={handleSort}
-                          />
-                        </TableHead>
-                        <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                          <SortableHeader
-                            label="Qty Diharapkan"
-                            field="expected_qty"
-                            currentSort={sort}
-                            onSort={handleSort}
-                            align="right"
-                            className="w-full"
-                          />
-                        </TableHead>
-                        <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                          <SortableHeader
-                            label="Qty Diterima"
-                            field="received_qty"
-                            currentSort={sort}
-                            onSort={handleSort}
-                            align="right"
-                            className="w-full"
-                          />
-                        </TableHead>
-                        <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                          <SortableHeader
-                            label="Qty Putaway"
-                            field="putaway_qty"
-                            currentSort={sort}
-                            onSort={handleSort}
-                            align="right"
-                            className="w-full"
-                          />
-                        </TableHead>
-                        <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                          Selisih
-                        </TableHead>
-                        <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                          Catatan
-                        </TableHead>
+                <Table containerClassName="rounded-xl border border-border/40">
+                  <TableHeader>
+                    <TableRow className="border-b border-border/60 bg-muted/30">
+                      <TableHead className="w-10 px-2 py-2.5" />
+                      <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        <SortableHeader
+                          label="Produk"
+                          field="sku"
+                          currentSort={sort}
+                          onSort={handleSort}
+                        />
+                      </TableHead>
+                      <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        <SortableHeader
+                          label="Qty Diharapkan"
+                          field="expected_qty"
+                          currentSort={sort}
+                          onSort={handleSort}
+                          align="right"
+                          className="w-full"
+                        />
+                      </TableHead>
+                      <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        <SortableHeader
+                          label="Qty Diterima"
+                          field="received_qty"
+                          currentSort={sort}
+                          onSort={handleSort}
+                          align="right"
+                          className="w-full"
+                        />
+                      </TableHead>
+                      <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        <SortableHeader
+                          label="Qty Putaway"
+                          field="putaway_qty"
+                          currentSort={sort}
+                          onSort={handleSort}
+                          align="right"
+                          className="w-full"
+                        />
+                      </TableHead>
+                      <TableHead className="px-3 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Selisih
+                      </TableHead>
+                      <TableHead className="px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Catatan
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {items.length === 0 && !isFetchingItems && (
+                      <TableRow>
+                        <TableCell
+                          colSpan={7}
+                          className="py-8 text-center text-sm text-muted-foreground"
+                        >
+                          {debouncedSearch
+                            ? `Tidak ada item cocok "${debouncedSearch}".`
+                            : "Belum ada item."}
+                        </TableCell>
                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {items.length === 0 && !isFetchingItems && (
-                        <TableRow>
-                          <TableCell
-                            colSpan={6}
-                            className="py-8 text-center text-sm text-muted-foreground"
-                          >
-                            {debouncedSearch
-                              ? `Tidak ada item cocok "${debouncedSearch}".`
-                              : "Belum ada item."}
-                          </TableCell>
-                        </TableRow>
-                      )}
-                      {items.map((item: InboundItem) => {
-                        const variantOptions = item.variant?.options
-                          ?.map((o) => o.value)
-                          .filter(Boolean)
-                          .join(", ");
-                        const productName =
-                          item.variant?.product?.name ??
-                          item.variant?.item_name ??
-                          item.variant?.name ??
-                          "—";
-                        const imageUrl =
-                          item.variant?.media?.[0]?.url ??
-                          item.variant?.product?.media?.[0]?.url;
-                        const isDirty = dirty[item.id] !== undefined;
-                        const effectiveQty =
-                          dirty[item.id] ?? item.received_qty;
-                        const effectiveDiscrepancy =
-                          effectiveQty - item.expected_qty;
-                        const rejectedQty = item.rejected_qty ?? 0;
-                        return (
+                    )}
+                    {items.map((item: InboundItem) => {
+                      const variantOptions = item.variant?.options
+                        ?.map((o) => o.value)
+                        .filter(Boolean)
+                        .join(", ");
+                      const productName =
+                        item.variant?.product?.name ??
+                        item.variant?.item_name ??
+                        item.variant?.name ??
+                        "—";
+                      const imageUrl =
+                        item.variant?.media?.[0]?.url ??
+                        item.variant?.product?.media?.[0]?.url;
+                      const discrepancy =
+                        item.received_qty - item.expected_qty;
+                      const rejectedQty = item.rejected_qty ?? 0;
+                      const isOpen = openItemId === item.id;
+                      return (
+                        <React.Fragment key={item.id}>
                           <TableRow
-                            key={item.id}
-                            className={cn(
-                              "border-b border-border/20 last:border-0",
-                              isDirty &&
-                                "border-l-2 border-l-warning bg-warning/5",
-                            )}
+                            className="border-b border-border/20 last:border-0"
                           >
+                            <TableCell className="px-2 py-2.5">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="size-7"
+                                onClick={() =>
+                                  setOpenItemId(isOpen ? null : item.id)
+                                }
+                                aria-label={
+                                  isOpen
+                                    ? "Sembunyikan kronologi"
+                                    : "Lihat kronologi"
+                                }
+                                title={
+                                  isOpen
+                                    ? "Sembunyikan kronologi"
+                                    : "Lihat kronologi penerimaan"
+                                }
+                              >
+                                <ChevronDownIcon
+                                  className={cn(
+                                    "size-4 transition-transform",
+                                    isOpen && "rotate-180",
+                                  )}
+                                />
+                              </Button>
+                            </TableCell>
                             <TableCell className="px-3 py-2.5">
                               <div className="flex items-start gap-3">
                                 <div className="size-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
@@ -750,14 +600,6 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                                   {item.variant?.sku && (
                                     <CopySku sku={item.variant.sku} />
                                   )}
-                                  {isDirty && (
-                                    <Badge
-                                      variant="outline"
-                                      className="mt-1 w-fit border-warning/40 text-2xs text-warning"
-                                    >
-                                      Belum disimpan
-                                    </Badge>
-                                  )}
                                 </div>
                               </div>
                             </TableCell>
@@ -765,41 +607,45 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                               {item.expected_qty}
                             </TableCell>
                             <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
-                              <div className="flex flex-col items-end gap-0.5">
-                                {canEdit ? (
-                                  <EditableReceivedQty
-                                    key={`recv-${item.id}-${item.received_qty}-${isDirty ? "d" : "c"}`}
-                                    item={item}
-                                    value={effectiveQty}
-                                    disabled={saving}
-                                    onChange={(qty) =>
-                                      setDirtyFor(item.id, qty)
+                              <div className="flex items-center justify-end gap-1.5">
+                                <span className="tabular-nums">
+                                  {item.received_qty}
+                                </span>
+                                {canEdit && (
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="size-7"
+                                    onClick={() =>
+                                      setEditTarget({ item, productName })
                                     }
-                                  />
-                                ) : (
-                                  <span>{item.received_qty}</span>
-                                )}
-                                {rejectedQty > 0 && (
-                                  <span
-                                    className="text-2xs text-destructive"
-                                    title={item.rejection_note ?? undefined}
+                                    aria-label="Edit qty diterima"
+                                    title="Edit qty diterima"
                                   >
-                                    {rejectedQty} ditolak
-                                  </span>
+                                    <PencilIcon className="size-3.5" />
+                                  </Button>
                                 )}
                               </div>
+                              {rejectedQty > 0 && (
+                                <div
+                                  className="text-2xs text-destructive"
+                                  title={item.rejection_note ?? undefined}
+                                >
+                                  {rejectedQty} ditolak
+                                </div>
+                              )}
                             </TableCell>
                             <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
                               {item.putaway_qty}
                             </TableCell>
                             <TableCell className="px-3 py-2.5 text-right tabular-nums">
-                              {effectiveDiscrepancy !== 0 ? (
+                              {discrepancy !== 0 ? (
                                 <Badge
                                   variant="outline"
                                   className="border-destructive/30 text-2xs text-destructive"
                                 >
-                                  {effectiveDiscrepancy > 0 ? "+" : ""}
-                                  {effectiveDiscrepancy}
+                                  {discrepancy > 0 ? "+" : ""}
+                                  {discrepancy}
                                 </Badge>
                               ) : (
                                 <span className="text-foreground">0</span>
@@ -809,69 +655,47 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                               {item.discrepancy_note ?? "—"}
                             </TableCell>
                           </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                  {itemsMeta && (
-                    <div className="mt-3 print:hidden">
-                      <SimplePagination
-                        page={itemsMeta.current_page}
-                        lastPage={itemsMeta.last_page}
-                        onPageChange={setPage}
-                        perPage={perPage}
-                        onPerPageChange={setPerPage}
-                        isFetching={isFetchingItems}
-                        total={itemsMeta.total}
-                        label="item"
-                      />
-                    </div>
-                  )}
-                  </TabsContent>
-
-                  <TabsContent value="kronologi" className="print:hidden">
-                    <KronologiPenerimaanTab inbound={inbound} />
-                  </TabsContent>
-                  </Tabs>
-                </div>
-              </LiquidGlass>
-            </div>
-          </div>
-
-          {canEdit && hasChanges && (
-            <FormFooter className="print:hidden">
-              <div className="mr-auto flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">
-                  {dirtyEntries.length} item diubah
-                </span>
-                <span>
-                  · Δ {deltaSum > 0 ? "+" : ""}
-                  {deltaSum} qty
-                </span>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={resetDirty}
-                disabled={saving}
-              >
-                Batalkan
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => setConfirmOpen(true)}
-                disabled={saving}
-              >
-                {saving ? (
-                  <Loader2Icon className="mr-1.5 size-4 animate-spin" />
-                ) : (
-                  <SaveIcon className="mr-1.5 size-4" />
+                          {isOpen && (
+                            <TableRow className="border-b border-border/20 bg-muted/20 hover:bg-muted/20">
+                              <TableCell
+                                colSpan={7}
+                                className="px-5 py-4"
+                              >
+                                <div className="flex flex-col gap-2">
+                                  <p className="text-xs font-medium text-muted-foreground">
+                                    Kronologi Penerimaan
+                                  </p>
+                                  <KronologiPenerimaanItem
+                                    inboundId={inbound.id}
+                                    itemId={item.id}
+                                    enabled={isOpen}
+                                  />
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+                {itemsMeta && (
+                  <div className="mt-3 print:hidden">
+                    <SimplePagination
+                      page={itemsMeta.current_page}
+                      lastPage={itemsMeta.last_page}
+                      onPageChange={setPage}
+                      perPage={perPage}
+                      onPerPageChange={setPerPage}
+                      isFetching={isFetchingItems}
+                      total={itemsMeta.total}
+                      label="item"
+                    />
+                  </div>
                 )}
-                Simpan Perubahan
-              </Button>
-            </FormFooter>
-          )}
+              </div>
+            </LiquidGlass>
+          </div>
 
           {inbound.assignments && inbound.assignments.length > 0 && (
             <LiquidGlass
@@ -953,73 +777,12 @@ export function PenerimaanDetailView({ id }: { id: string }) {
         </div>
       )}
 
-      <ConfirmDialog
-        open={confirmOpen}
-        onOpenChange={setConfirmOpen}
-        title="Simpan perubahan qty diterima?"
-        description={`${diffRows.length} item akan diperbarui. Perubahan mempengaruhi stok bin inbound.`}
-        confirmLabel="Simpan"
-        cancelLabel="Batal"
-        loading={saving}
-        onConfirm={handleSaveAll}
-      >
-        {diffRows.length > 0 && (
-          <div className="max-h-64 overflow-y-auto rounded-xl border border-border/60">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/30">
-                  <TableHead className="px-3 py-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Produk
-                  </TableHead>
-                  <TableHead className="px-3 py-2 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Sebelum
-                  </TableHead>
-                  <TableHead className="px-3 py-2 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Sesudah
-                  </TableHead>
-                  <TableHead className="px-3 py-2 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Δ
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {diffRows.map((r) => {
-                  const delta = r.to - r.from;
-                  return (
-                    <TableRow key={r.id} className="border-b border-border/20 last:border-0">
-                      <TableCell className="px-3 py-2 text-xs">
-                        <div className="flex flex-col">
-                          <span className="text-foreground">{r.name}</span>
-                          {r.sku && (
-                            <span className="text-muted-foreground">{r.sku}</span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-3 py-2 text-right text-xs tabular-nums text-muted-foreground">
-                        {r.from}
-                      </TableCell>
-                      <TableCell className="px-3 py-2 text-right text-xs tabular-nums text-foreground">
-                        {r.to}
-                      </TableCell>
-                      <TableCell
-                        className={cn(
-                          "px-3 py-2 text-right text-xs tabular-nums",
-                          delta === 0 && "text-muted-foreground",
-                          delta > 0 && "text-success",
-                          delta < 0 && "text-destructive",
-                        )}
-                      >
-                        {delta > 0 ? "+" : ""}
-                        {delta}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-      </ConfirmDialog>
+      <EditQtyDialog
+        target={editTarget}
+        onClose={() => setEditTarget(null)}
+        onSubmit={handleSaveEditQty}
+        saving={batchMutation.isPending}
+      />
 
       <UnassignReasonDialog
         open={unassignOpen}
