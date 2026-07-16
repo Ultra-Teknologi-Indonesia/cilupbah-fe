@@ -233,6 +233,16 @@ export const InboundService = {
     return res.data;
   },
 
+  /** Admin selesaikan penerimaan: status → RECEIVED, semua participant ACTIVE
+   *  otomatis di-withdraw, session mobile ditutup. */
+  finalize: async (id: string) => {
+    const res = await fetchClient<ApiResponse<Inbound>>(
+      `/inbounds/${id}/close-receiving`,
+      { method: "POST" },
+    );
+    return res.data;
+  },
+
   /** F5: buat Inbound susulan dari PO (delivery bertahap). */
   receiveAdditional: async (poId: string) => {
     const res = await fetchClient<ApiResponse<Inbound>>(

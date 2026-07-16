@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { formatDate, formatDateTime } from "@/lib/format";
 import {
   ArrowLeftIcon,
+  CheckCircle2Icon,
   ImageIcon,
   PrinterIcon,
   DownloadIcon,
@@ -48,6 +49,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { KronologiPenerimaanTab } from "@/components/dashboard/barang-masuk/kronologi-penerimaan-tab";
 import {
+  useFinalizeInbound,
   useInboundDetail,
   useInboundItems,
   useResetInboundAssignment,
@@ -283,9 +285,21 @@ export function PenerimaanDetailView({ id }: { id: string }) {
 
   const [unassignOpen, setUnassignOpen] = React.useState(false);
   const [resetOpen, setResetOpen] = React.useState(false);
+  const [finalizeOpen, setFinalizeOpen] = React.useState(false);
   const unassignMutation = useUnassignInbound(id);
   const resetMutation = useResetInboundAssignment(id);
   const withdrawMutation = useWithdrawParticipant(id);
+  const finalizeMutation = useFinalizeInbound(id);
+
+  const canFinalize = React.useMemo(() => {
+    if (!inbound) return false;
+    if (!roles.some((r) => ["owner", "admin", "kepala gudang", "leader inbound"].includes(r))) {
+      return false;
+    }
+    return ["DRAFT", "PARTIAL"].includes(inbound.status);
+  }, [inbound, roles]);
+
+  const activeParticipants = inbound?.edit_lock?.active_participants ?? [];
 
   const setDirtyFor = React.useCallback((itemId: string, qty: number | null) => {
     setDirty((prev) => {
@@ -454,6 +468,20 @@ export function PenerimaanDetailView({ id }: { id: string }) {
             }
           />
           <div className="flex items-center justify-end gap-2 print:hidden">
+            {canFinalize && (
+              <Button
+                size="sm"
+                onClick={() => setFinalizeOpen(true)}
+                disabled={finalizeMutation.isPending}
+              >
+                {finalizeMutation.isPending ? (
+                  <Loader2Icon className="mr-1.5 size-4 animate-spin" />
+                ) : (
+                  <CheckCircle2Icon className="mr-1.5 size-4" />
+                )}
+                Selesaikan Penerimaan
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -1007,6 +1035,42 @@ export function PenerimaanDetailView({ id }: { id: string }) {
         destructiveDescription="Semua qty yang sudah diterima akan dibatalkan dan stok Bin Inbound dikembalikan ke 0. Dokumen kembali ke status DRAFT."
         onSubmit={(payload) => resetMutation.mutateAsync(payload)}
       />
+
+      <ConfirmDialog
+        open={finalizeOpen}
+        onOpenChange={setFinalizeOpen}
+        title="Selesaikan penerimaan?"
+        description={
+          activeParticipants.length > 0
+            ? `Masih ada ${activeParticipants.length} staff yang sedang scan di mobile. Menyelesaikan akan menutup sesi mereka dan mencatat discrepancy antara qty diterima dan yang diharapkan. Aksi ini mengunci dokumen ke status RECEIVED.`
+            : "Status dokumen akan naik ke RECEIVED dan discrepancy tercatat. Setelah ini penerimaan tidak bisa menerima scan baru; putaway sudah bisa dijalankan."
+        }
+        confirmLabel="Ya, selesaikan"
+        cancelLabel="Batal"
+        loading={finalizeMutation.isPending}
+        onConfirm={async () => {
+          await finalizeMutation.mutateAsync();
+          setFinalizeOpen(false);
+        }}
+      >
+        {activeParticipants.length > 0 && (
+          <div className="rounded-xl border border-warning/30 bg-warning/5 p-3">
+            <p className="text-xs font-semibold text-warning">
+              Staff yang masih aktif ({activeParticipants.length})
+            </p>
+            <ul className="mt-2 flex flex-wrap gap-1.5">
+              {activeParticipants.map((p) => (
+                <li
+                  key={p.user_id}
+                  className="rounded-full border border-warning/40 bg-background px-2 py-0.5 text-2xs text-foreground"
+                >
+                  {p.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </ConfirmDialog>
     </div>
   );
 }

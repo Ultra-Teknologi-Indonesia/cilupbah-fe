@@ -71,6 +71,21 @@ export function useInboundReceipts(
   });
 }
 
+export function useFinalizeInbound(inboundId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => InboundService.finalize(inboundId),
+    onSuccess: () => {
+      toast.success("Berhasil menyelesaikan penerimaan");
+      qc.invalidateQueries({ queryKey: ["inbound", "detail", inboundId] });
+      qc.invalidateQueries({ queryKey: ["inbound", "items", inboundId] });
+      qc.invalidateQueries({ queryKey: ["inbound", "receipts", inboundId] });
+      qc.invalidateQueries({ queryKey: ["inbound", "list"] });
+    },
+    onError: (err) => apiError(err, "Gagal menyelesaikan penerimaan"),
+  });
+}
+
 export function useCorrectReceivedLines(inboundId: string) {
   const qc = useQueryClient();
   return useMutation({
