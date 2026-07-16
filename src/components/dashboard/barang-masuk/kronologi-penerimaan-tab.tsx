@@ -107,6 +107,16 @@ export function KronologiPenerimaanItem({
         {rows.map((r) => {
           const staffName = r.received_by_user?.name ?? "Staff dihapus";
           const damage = r.condition === "DAMAGE";
+          const adjustment = r.condition === "ADJUSTMENT";
+          const isNegative = r.qty < 0;
+          const qtyClass = adjustment
+            ? isNegative
+              ? "text-destructive"
+              : "text-success"
+            : damage
+              ? "text-destructive"
+              : "text-foreground";
+          const prefix = r.qty > 0 ? "+" : "";
           return (
             <TableRow
               key={r.id}
@@ -119,21 +129,26 @@ export function KronologiPenerimaanItem({
                 {formatJam(r.received_date)}
               </TableCell>
               <TableCell className="px-3 py-2 text-xs text-foreground">
-                {staffName}
+                <div className="flex flex-col">
+                  <span>{staffName}</span>
+                  {adjustment && (
+                    <span className="text-2xs text-muted-foreground">
+                      Koreksi qty
+                    </span>
+                  )}
+                  {damage && (
+                    <span className="text-2xs text-destructive">Rusak</span>
+                  )}
+                </div>
               </TableCell>
               <TableCell
                 className={cn(
                   "px-3 py-2 text-right text-xs font-semibold tabular-nums",
-                  damage ? "text-destructive" : "text-foreground",
+                  qtyClass,
                 )}
               >
-                {damage ? "" : "+"}
+                {prefix}
                 {r.qty}
-                {damage && (
-                  <span className="ml-1 text-2xs font-normal text-destructive">
-                    (rusak)
-                  </span>
-                )}
               </TableCell>
             </TableRow>
           );
