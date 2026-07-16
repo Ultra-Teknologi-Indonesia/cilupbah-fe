@@ -196,7 +196,7 @@ export function PesananFormPage({ mode, id }: Props) {
             item_id: p.itemId,
             product_name: p.name,
             product_sku: p.sku,
-            qty: 1,
+            qty: 0,
 
             unit_price: 0,
             disc: 0,
@@ -537,11 +537,12 @@ export function PesananFormPage({ mode, id }: Props) {
                             type="text"
                             inputMode="numeric"
                             value={item.qty}
+                            onFocus={(e) => e.currentTarget.select()}
                             onChange={(e) => {
                               const n = Number(
                                 e.target.value.replace(/\D/g, ""),
                               );
-                              updateItem(idx, "qty", n < 1 ? 1 : n);
+                              updateItem(idx, "qty", n < 0 ? 0 : n);
                             }}
                             className="h-8 text-right bg-background tabular-nums"
                           />
