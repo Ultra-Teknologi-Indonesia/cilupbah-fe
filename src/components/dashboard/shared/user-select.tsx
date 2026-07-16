@@ -76,6 +76,7 @@ export function UserSelect({
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <Popover
+        modal={true}
         open={open}
         onOpenChange={(o) => {
           setOpen(o);
