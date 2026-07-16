@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
-import { Loader2Icon } from "lucide-react";
+import { ImageIcon, Loader2Icon } from "lucide-react";
 
 import {
   Dialog,
@@ -21,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { CopySku } from "@/components/dashboard/shared/copy-sku";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { useReceiveTransfer } from "@/hooks/barang-masuk/use-receive-transfer";
 import type { Inbound } from "@/types/barang-masuk/inbound";
@@ -79,7 +81,7 @@ export function TerimaTransferDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[560px]">
+      <DialogContent className="sm:max-w-[720px]">
         <DialogHeader>
           <DialogTitle>
             Terima Transfer {inbound?.reference_number ?? inbound?.transaction_number}
@@ -103,34 +105,79 @@ export function TerimaTransferDialog({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>SKU</TableHead>
-                  <TableHead className="text-right">Qty Kirim</TableHead>
+                  <TableHead>Produk</TableHead>
+                  <TableHead className="w-24 text-right">Qty Kirim</TableHead>
                   <TableHead className="w-28 text-right">Qty Terima</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {items.map((i) => (
-                  <TableRow key={i.item_id}>
-                    <TableCell className="font-medium">
-                      {i.variant?.sku ?? i.item_id}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums text-muted-foreground">
-                      {i.expected_qty}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Input
-                        type="number"
-                        min={0}
-                        max={i.expected_qty}
-                        value={qtyMap[i.item_id] ?? i.expected_qty}
-                        onChange={(e) =>
-                          setQty(i.item_id, i.expected_qty, e.target.value)
-                        }
-                        className="h-8 text-right"
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {items.map((i) => {
+                  const productName =
+                    i.variant?.product?.name ??
+                    i.variant?.item_name ??
+                    i.variant?.name ??
+                    "—";
+                  const variantOptions = i.variant?.options
+                    ?.map((o) => o.value)
+                    .filter(Boolean)
+                    .join(", ");
+                  const imageUrl =
+                    i.variant?.media?.[0]?.url ??
+                    i.variant?.product?.media?.[0]?.url;
+                  return (
+                    <TableRow key={i.item_id}>
+                      <TableCell className="px-3 py-2.5">
+                        <div className="flex items-start gap-3">
+                          <div className="size-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
+                            {imageUrl ? (
+                              <Image
+                                unoptimized
+                                width={400}
+                                height={400}
+                                src={imageUrl}
+                                alt={productName}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+                                <ImageIcon className="size-4 opacity-50" />
+                              </div>
+                            )}
+                          </div>
+                          <div
+                            className="flex min-w-0 flex-col gap-0.5"
+                            style={{ maxWidth: 320 }}
+                          >
+                            <span className="font-medium whitespace-normal break-words text-foreground">
+                              {productName}
+                            </span>
+                            {variantOptions && (
+                              <span className="whitespace-normal break-words text-xs text-foreground">
+                                {variantOptions}
+                              </span>
+                            )}
+                            {i.variant?.sku && <CopySku sku={i.variant.sku} />}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums text-muted-foreground">
+                        {i.expected_qty}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Input
+                          type="number"
+                          min={0}
+                          max={i.expected_qty}
+                          value={qtyMap[i.item_id] ?? i.expected_qty}
+                          onChange={(e) =>
+                            setQty(i.item_id, i.expected_qty, e.target.value)
+                          }
+                          className="h-8 text-right"
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>

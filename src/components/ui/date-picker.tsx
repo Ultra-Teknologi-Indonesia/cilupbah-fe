@@ -33,7 +33,7 @@ export function DatePicker({
   id,
 }: DatePickerProps) {
   return (
-    <Popover>
+    <Popover modal={true}>
       <PopoverTrigger asChild>
         <Button
           id={id}
@@ -122,7 +122,7 @@ export function DateTimePicker({
   now.setHours(0, 0, 0, 0);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover modal={true} open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           id={id}
@@ -188,7 +188,7 @@ export function DateRangePicker({
     : null;
 
   return (
-    <Popover>
+    <Popover modal={true}>
       <PopoverTrigger asChild>
         <Button
           id={id}

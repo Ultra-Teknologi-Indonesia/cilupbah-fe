@@ -94,6 +94,7 @@ export function PhoneInput({
     >
       <InputGroupAddon align="inline-start" className="py-0">
         <Popover
+          modal={true}
           open={open}
           onOpenChange={(o) => {
             setOpen(o);

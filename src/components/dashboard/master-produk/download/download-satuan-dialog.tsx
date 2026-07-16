@@ -68,6 +68,7 @@ function StoreMultiSelect({
 
   return (
     <Popover
+      modal={true}
       open={open}
       onOpenChange={(o) => {
         setOpen(o);

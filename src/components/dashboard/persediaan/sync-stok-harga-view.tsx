@@ -94,7 +94,7 @@ function VisibleStoresControl({
   };
 
   return (
-    <Popover>
+    <Popover modal={true}>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="h-9 gap-2 rounded-full">
           <SlidersHorizontalIcon className="size-4" />
@@ -156,7 +156,7 @@ function StoreColumnHeader({
         {store.shopName}
       </span>
       {mode === "sync" && (
-        <Popover>
+        <Popover modal={true}>
           <PopoverTrigger asChild>
             <button
               type="button"
