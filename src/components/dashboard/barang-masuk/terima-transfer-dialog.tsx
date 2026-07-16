@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import { CopySku } from "@/components/dashboard/shared/copy-sku";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
+import { useInboundDetail } from "@/hooks/barang-masuk/use-inbound";
 import { useReceiveTransfer } from "@/hooks/barang-masuk/use-receive-transfer";
 import type { Inbound } from "@/types/barang-masuk/inbound";
 
@@ -43,7 +44,11 @@ export function TerimaTransferDialog({
   const receive = useReceiveTransfer();
   const [receivedBy, setReceivedBy] = useState("");
 
-  const items = useMemo(() => inbound?.items ?? [], [inbound]);
+  const detail = useInboundDetail(open ? inbound?.id : undefined);
+  const items = useMemo(
+    () => detail.data?.items ?? inbound?.items ?? [],
+    [detail.data, inbound],
+  );
 
   const [qtyMap, setQtyMap] = useState<Record<string, number>>(() =>
     Object.fromEntries(items.map((i) => [i.item_id, i.expected_qty])),

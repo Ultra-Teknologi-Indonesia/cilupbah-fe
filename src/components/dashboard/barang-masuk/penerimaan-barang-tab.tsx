@@ -399,7 +399,7 @@ export function PenerimaanBarangTab() {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <PlayIcon className="size-4" />
-                    Lanjut
+                    Pantau
                   </Link>
                 </Button>
               )}
