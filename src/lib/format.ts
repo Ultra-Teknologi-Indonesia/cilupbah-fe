@@ -2,12 +2,14 @@ const dateShort = new Intl.DateTimeFormat("id-ID", {
   day: "2-digit",
   month: "short",
   year: "numeric",
+  timeZone: "Asia/Jakarta",
 });
 
 const dateLong = new Intl.DateTimeFormat("id-ID", {
   day: "2-digit",
   month: "long",
   year: "numeric",
+  timeZone: "Asia/Jakarta",
 });
 
 const dateTime = new Intl.DateTimeFormat("id-ID", {
@@ -16,6 +18,7 @@ const dateTime = new Intl.DateTimeFormat("id-ID", {
   year: "numeric",
   hour: "2-digit",
   minute: "2-digit",
+  timeZone: "Asia/Jakarta",
 });
 
 const dateTimeFull = new Intl.DateTimeFormat("id-ID", {

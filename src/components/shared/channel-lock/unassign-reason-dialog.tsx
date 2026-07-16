@@ -15,6 +15,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
+  UserSelectById,
+  type UserSelectByIdOption,
+} from "@/components/dashboard/shared/user-select-by-id";
+import {
   UNASSIGN_REASON_CODES,
   UNASSIGN_REASON_LABELS,
   requiresNote,
@@ -32,6 +36,11 @@ interface Props {
   isSubmitting?: boolean;
   title?: string;
   description?: string;
+  staff?: UserSelectByIdOption[];
+  staffLoading?: boolean;
+  currentUserId?: string;
+  assigneeLabel?: string;
+  assigneeHint?: string;
 }
 
 export function UnassignReasonDialog({
@@ -41,14 +50,21 @@ export function UnassignReasonDialog({
   isSubmitting,
   title = "Alihkan Tugas",
   description = "Progress qty/placement dipertahankan. Assignee baru meneruskan dari titik terakhir.",
+  staff,
+  staffLoading,
+  currentUserId,
+  assigneeLabel = "Alihkan ke petugas",
+  assigneeHint = "Kosongkan kalau mau tugas jadi bebas diklaim mobile worker lain.",
 }: Props) {
   const [reason, setReason] = React.useState<UnassignReasonCode | null>(null);
   const [note, setNote] = React.useState("");
+  const [assigneeId, setAssigneeId] = React.useState("");
 
   React.useEffect(() => {
     if (!open) {
       setReason(null);
       setNote("");
+      setAssigneeId("");
     }
   }, [open]);
 
@@ -62,6 +78,7 @@ export function UnassignReasonDialog({
       await onSubmit({
         reason_code: reason,
         reason_note: note.trim() || undefined,
+        new_assignee_id: assigneeId || undefined,
       });
       onOpenChange(false);
     } catch {}
@@ -113,6 +130,23 @@ export function UnassignReasonDialog({
               }
             />
           </div>
+
+          {staff !== undefined && (
+            <div className="space-y-2">
+              <Label htmlFor="reason-assignee">{assigneeLabel}</Label>
+              <UserSelectById
+                id="reason-assignee"
+                value={assigneeId}
+                onChange={(id) => setAssigneeId(id)}
+                options={staff}
+                isLoading={staffLoading}
+                currentUserId={currentUserId}
+                placeholder="— Kosongkan untuk lepas tugas —"
+                emptyText="Tidak ada petugas di lokasi ini."
+              />
+              <p className="text-xs text-muted-foreground">{assigneeHint}</p>
+            </div>
+          )}
         </div>
 
         <DialogFooter>

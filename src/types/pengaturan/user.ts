@@ -68,6 +68,8 @@ export type UserListParams = {
   page?: number;
   perPage?: number;
   "filter[role]"?: string | string[];
+  "filter[warehouse_id]"?: string;
+  "filter[warehouse_id_or_global]"?: string;
 };
 
 export type RawLoginHistory = {

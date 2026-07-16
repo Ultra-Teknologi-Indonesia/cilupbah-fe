@@ -13,6 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  UserSelectById,
+  type UserSelectByIdOption,
+} from "@/components/dashboard/shared/user-select-by-id";
 
 interface Props {
   open: boolean;
@@ -24,6 +28,11 @@ interface Props {
   isSubmitting?: boolean;
   title?: string;
   destructiveDescription: string;
+  staff?: UserSelectByIdOption[];
+  staffLoading?: boolean;
+  currentUserId?: string;
+  assigneeLabel?: string;
+  assigneeHint?: string;
 }
 
 export function ResetAssignmentDialog({
@@ -33,14 +42,21 @@ export function ResetAssignmentDialog({
   isSubmitting,
   title = "Reset & Alihkan",
   destructiveDescription,
+  staff,
+  staffLoading,
+  currentUserId,
+  assigneeLabel = "Alihkan ke petugas",
+  assigneeHint = "Kosongkan kalau mau tugas jadi bebas diklaim mobile worker lain.",
 }: Props) {
   const [note, setNote] = React.useState("");
   const [confirmed, setConfirmed] = React.useState(false);
+  const [assigneeId, setAssigneeId] = React.useState("");
 
   React.useEffect(() => {
     if (!open) {
       setNote("");
       setConfirmed(false);
+      setAssigneeId("");
     }
   }, [open]);
 
@@ -49,7 +65,10 @@ export function ResetAssignmentDialog({
   const handleSubmit = async () => {
     if (!canSubmit) return;
     try {
-      await onSubmit({ reason_note: note.trim() });
+      await onSubmit({
+        reason_note: note.trim(),
+        new_assignee_id: assigneeId || undefined,
+      });
       onOpenChange(false);
     } catch {}
   };
@@ -86,6 +105,23 @@ export function ResetAssignmentDialog({
               {note.trim().length}/500 karakter
             </div>
           </div>
+
+          {staff !== undefined && (
+            <div className="space-y-2">
+              <Label htmlFor="reset-assignee">{assigneeLabel}</Label>
+              <UserSelectById
+                id="reset-assignee"
+                value={assigneeId}
+                onChange={(id) => setAssigneeId(id)}
+                options={staff}
+                isLoading={staffLoading}
+                currentUserId={currentUserId}
+                placeholder="— Kosongkan untuk lepas tugas —"
+                emptyText="Tidak ada petugas di lokasi ini."
+              />
+              <p className="text-xs text-muted-foreground">{assigneeHint}</p>
+            </div>
+          )}
 
           <label className="flex items-start gap-2 cursor-pointer">
             <Checkbox

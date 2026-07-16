@@ -69,6 +69,7 @@ import {
   UnassignReasonDialog,
 } from "@/components/shared/channel-lock";
 import { useMe } from "@/hooks/auth/use-auth";
+import { useUsers } from "@/hooks/pengaturan/use-users";
 
 interface PutawayProcessViewProps {
   id: string;
@@ -128,16 +129,24 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const canEdit = (isNotStarted || isInProgress) && !isChannelLocked;
 
   const { data: me } = useMe();
-  const roles = me?.roles ?? [];
-  const canUnassign = roles.some((r) =>
-    ["owner", "admin", "kepala gudang", "leader inbound"].includes(r),
-  );
-  const canReset = roles.some((r) => ["owner", "admin"].includes(r));
 
   const [unassignOpen, setUnassignOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const unassignMutation = useUnassignPutaway(id);
   const resetMutation = useResetPutawayAssignment(id);
+
+  const staffQuery = useUsers({
+    "filter[role]": "putaway",
+    "filter[warehouse_id_or_global]": locationId || undefined,
+    perPage: 50,
+  });
+  const staffOptions = useMemo(
+    () =>
+      (staffQuery.data?.items ?? [])
+        .filter((u) => u.id !== putaway?.assigned_to)
+        .map((u) => ({ id: u.id, name: u.name })),
+    [staffQuery.data, putaway?.assigned_to],
+  );
 
   const allItems = useMemo<PutawayItem[]>(() => items ?? [], [items]);
 
@@ -405,8 +414,8 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
           status={putaway.status}
           onUnassign={() => setUnassignOpen(true)}
           onReset={() => setResetOpen(true)}
-          canUnassign={canUnassign && !!putaway.assigned_to}
-          canReset={canReset && !!putaway.assigned_to}
+          canUnassign={!!putaway.assigned_to}
+          canReset={!!putaway.assigned_to}
         />
       )}
 
@@ -749,6 +758,9 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
         onOpenChange={setUnassignOpen}
         isSubmitting={unassignMutation.isPending}
         onSubmit={(payload) => unassignMutation.mutateAsync(payload)}
+        staff={staffOptions}
+        staffLoading={staffQuery.isLoading}
+        currentUserId={me?.id}
       />
 
       <ResetAssignmentDialog
@@ -757,6 +769,9 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
         isSubmitting={resetMutation.isPending}
         destructiveDescription="Semua penempatan yang sudah masuk rak akan dibongkar dan stok dikembalikan ke Bin Inbound. Dokumen kembali ke status NOT_STARTED."
         onSubmit={(payload) => resetMutation.mutateAsync(payload)}
+        staff={staffOptions}
+        staffLoading={staffQuery.isLoading}
+        currentUserId={me?.id}
       />
     </div>
   );

@@ -70,6 +70,13 @@ export const UserService = {
         qs.set("filter[role]", roles);
       }
     }
+    if (params["filter[warehouse_id]"])
+      qs.set("filter[warehouse_id]", params["filter[warehouse_id]"]);
+    if (params["filter[warehouse_id_or_global]"])
+      qs.set(
+        "filter[warehouse_id_or_global]",
+        params["filter[warehouse_id_or_global]"],
+      );
 
     const res = await fetchClient<ApiPaginated<RawUser>>(
       `/users?${qs.toString()}`,
