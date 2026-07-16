@@ -10,7 +10,6 @@ import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageTitle } from "@/components/dashboard/page-title";
-import { UserSelectById } from "@/components/dashboard/shared/user-select-by-id";
 import {
   Table,
   TableBody,
@@ -20,8 +19,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
-import { useMe } from "@/hooks/auth/use-auth";
-import { useUsers } from "@/hooks/pengaturan/use-users";
 import {
   useRemoveOrderFromShipment,
   useScanOrderToShipment,
@@ -32,24 +29,16 @@ import { formatShipmentLabel } from "@/lib/proses-pesanan/shipment-type";
 import { apiError } from "@/lib/toast";
 import { ChannelBadge } from "../channel-badge";
 
-const SHIPPER_ROLES = ["shipper"];
-
 export function MasukkanKePengirimanView() {
   const router = useRouter();
   const search = useSearchParams();
   const from = search.get("from");
   const initialShipmentId = search.get("shipmentId") ?? "";
 
-  const [shipperId, setShipperId] = React.useState("");
   const [shipmentId, setShipmentId] = React.useState(initialShipmentId);
   const [barcode, setBarcode] = React.useState("");
   const scanRef = React.useRef<HTMLInputElement>(null);
 
-  const { data: me } = useMe();
-  const { data: usersData, isLoading: usersLoading } = useUsers({
-    perPage: 50,
-    "filter[role]": SHIPPER_ROLES,
-  });
   const shipmentsList = useShipments({
     status: "SCHEDULED",
     per_page: 50,
@@ -61,16 +50,6 @@ export function MasukkanKePengirimanView() {
   );
   const scanOrder = useScanOrderToShipment();
   const removeOrder = useRemoveOrderFromShipment();
-
-  const shipperOptions = React.useMemo(
-    () =>
-      (usersData?.items ?? []).map((u) => ({
-        id: String(u.id),
-        name: u.name ?? u.email ?? String(u.id),
-        hint: u.roles?.join(", "),
-      })),
-    [usersData?.items],
-  );
 
   const shipmentOptions = React.useMemo(
     () =>
@@ -119,38 +98,20 @@ export function MasukkanKePengirimanView() {
       <PageTitle title="Masukkan ke Pengiriman" backHref={backHref} />
 
       <div className="rounded-4xl border border-border/60 bg-background/80 p-4 sm:p-5">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="mkp-shipper">
-              Shipper <span className="text-destructive">*</span>
-            </Label>
-            <UserSelectById
-              id="mkp-shipper"
-              value={shipperId}
-              onChange={(id) => setShipperId(id)}
-              options={shipperOptions}
-              isLoading={usersLoading}
-              currentUserId={me?.id ? String(me.id) : undefined}
-              defaultToSelf
-              placeholder="Pilih shipper (warehouse staff)…"
-              emptyText="Tidak ada petugas."
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="mkp-shipment">
-              No. Pengiriman <span className="text-destructive">*</span>
-            </Label>
-            <Combobox
-              id="mkp-shipment"
-              options={shipmentOptions}
-              value={shipmentId || null}
-              onChange={(v) => setShipmentId(v ?? "")}
-              placeholder="Pilih no. pengiriman…"
-              searchPlaceholder="Cari no. pengiriman…"
-              emptyText="Belum ada pengiriman terjadwal."
-              loading={shipmentsList.isLoading}
-            />
-          </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="mkp-shipment">
+            No. Pengiriman <span className="text-destructive">*</span>
+          </Label>
+          <Combobox
+            id="mkp-shipment"
+            options={shipmentOptions}
+            value={shipmentId || null}
+            onChange={(v) => setShipmentId(v ?? "")}
+            placeholder="Pilih no. pengiriman…"
+            searchPlaceholder="Cari no. pengiriman…"
+            emptyText="Belum ada pengiriman terjadwal."
+            loading={shipmentsList.isLoading}
+          />
         </div>
       </div>
 
@@ -260,7 +221,7 @@ export function MasukkanKePengirimanView() {
         <Button
           variant="primary"
           onClick={handleBack}
-          disabled={!shipperId || !shipmentId}
+          disabled={!shipmentId}
         >
           Selesai
         </Button>
