@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CopySku } from "@/components/dashboard/shared/copy-sku";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
@@ -260,15 +261,11 @@ export function StockedProductPickerDialog({
                           <TableRow
                             key={v.item_id}
                             data-state={isSelected ? "selected" : undefined}
-                            onClick={() => toggleSelect(g, v)}
-                            className="cursor-pointer"
                           >
                             <TableCell className="py-2">
                               <Checkbox
                                 checked={isSelected}
-                                aria-hidden
-                                tabIndex={-1}
-                                className="pointer-events-none"
+                                onCheckedChange={() => toggleSelect(g, v)}
                               />
                             </TableCell>
                             <TableCell className="py-2">
@@ -276,8 +273,8 @@ export function StockedProductPickerDialog({
                                 {v.variant_label || "Default"}
                               </span>
                             </TableCell>
-                            <TableCell className="py-2 font-mono text-xs text-muted-foreground">
-                              {v.sku || "—"}
+                            <TableCell className="py-2 text-xs text-muted-foreground">
+                              {v.sku ? <CopySku sku={v.sku} /> : "—"}
                             </TableCell>
                             <TableCell className="py-2">
                               <div className="flex flex-wrap gap-1">
