@@ -32,13 +32,7 @@ import { formatShipmentLabel } from "@/lib/proses-pesanan/shipment-type";
 import { apiError } from "@/lib/toast";
 import { ChannelBadge } from "../channel-badge";
 
-const SHIPPER_ROLES = [
-  "Shipper",
-  "Warehouse Staff",
-  "Packer",
-  "Fulfillment",
-  "Admin",
-];
+const SHIPPER_ROLES = ["shipper"];
 
 export function MasukkanKePengirimanView() {
   const router = useRouter();
