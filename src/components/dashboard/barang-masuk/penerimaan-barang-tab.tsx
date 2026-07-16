@@ -5,6 +5,7 @@ import { useState, useMemo, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  EyeIcon,
   PackageCheckIcon,
   DownloadIcon,
   LayersIcon,
@@ -387,22 +388,38 @@ export function PenerimaanBarangTab() {
                   Penempatan
                 </Button>
               )}
-              {active && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-8 gap-1.5"
-                  asChild
-                >
-                  <Link
-                    href={`/dashboard/barang-masuk/putaway/${active.id}`}
-                    onClick={(e) => e.stopPropagation()}
+              {active && (() => {
+                const totalRecv =
+                  item.items?.reduce(
+                    (s, i) => s + (i.received_qty || 0),
+                    0,
+                  ) ?? 0;
+                const totalPutaway =
+                  item.items?.reduce(
+                    (s, i) => s + (i.putaway_qty || 0),
+                    0,
+                  ) ?? 0;
+                const isFullyPutaway =
+                  totalRecv > 0 && totalPutaway >= totalRecv;
+                const Icon = isFullyPutaway ? EyeIcon : PlayIcon;
+                const label = isFullyPutaway ? "Lihat" : "Pantau";
+                return (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 gap-1.5"
+                    asChild
                   >
-                    <PlayIcon className="size-4" />
-                    Pantau
-                  </Link>
-                </Button>
-              )}
+                    <Link
+                      href={`/dashboard/barang-masuk/putaway/${active.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Icon className="size-4" />
+                      {label}
+                    </Link>
+                  </Button>
+                );
+              })()}
             </div>
           );
         },
