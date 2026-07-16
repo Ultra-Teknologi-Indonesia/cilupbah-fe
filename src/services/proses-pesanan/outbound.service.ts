@@ -380,7 +380,7 @@ function mapPicklistItem(raw: RawPicklistItem): PicklistItem {
     orderNo: raw.order?.salesorder_no ?? null,
     trackingNumber: raw.order?.tracking_number ?? null,
     packageNo:
-      raw.order?.shipmentOrders?.[0]?.shipment?.shipment_no ??
+      raw.order?.shipment_orders?.[0]?.shipment?.shipment_no ??
       raw.order?.package_no ??
       raw.order?.shipment_no ??
       null,
