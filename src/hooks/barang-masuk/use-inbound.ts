@@ -7,7 +7,10 @@ import {
   keepPreviousData,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { InboundService } from "@/services/barang-masuk/inbound.service";
+import {
+  InboundService,
+  type InboundReceiptsParams,
+} from "@/services/barang-masuk/inbound.service";
 import type { InboundListParams } from "@/types/barang-masuk/inbound";
 import { apiError } from "@/lib/toast";
 
@@ -50,6 +53,20 @@ export function useInboundItems(
     placeholderData: keepPreviousData,
     queryFn: () => InboundService.getItems(id!, params),
     enabled: !!id,
+    staleTime: STALE,
+  });
+}
+
+export function useInboundReceipts(
+  id?: string,
+  params: InboundReceiptsParams = {},
+  options: { enabled?: boolean } = {},
+) {
+  return useQuery({
+    queryKey: ["inbound", "receipts", id, params],
+    placeholderData: keepPreviousData,
+    queryFn: () => InboundService.getReceipts(id!, params),
+    enabled: !!id && (options.enabled ?? true),
     staleTime: STALE,
   });
 }

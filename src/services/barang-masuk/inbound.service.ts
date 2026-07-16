@@ -4,7 +4,19 @@ import type {
   Inbound,
   InboundItem,
   InboundListParams,
+  InboundReceipt,
 } from "@/types/barang-masuk/inbound";
+
+export interface InboundReceiptsParams {
+  page?: number;
+  per_page?: number;
+  "filter[received_by_user_id]"?: string;
+  "filter[inbound_item_id]"?: string;
+  "filter[condition]"?: string;
+  "filter[date_from]"?: string;
+  "filter[date_to]"?: string;
+  sort?: string;
+}
 
 export interface ScanPutawayPayload {
   inbound_item_id: string;
@@ -59,6 +71,31 @@ export const InboundService = {
     const res = await fetchClient<ApiPaginated<InboundItem>>(
       `/inbounds/${id}/items`,
       { params: query },
+    );
+    return res;
+  },
+
+  getReceipts: async (id: string, params: InboundReceiptsParams = {}) => {
+    const sp = new URLSearchParams();
+    if (params.page) sp.set("page", String(params.page));
+    if (params.per_page) sp.set("per_page", String(params.per_page));
+    if (params["filter[received_by_user_id]"])
+      sp.set(
+        "filter[received_by_user_id]",
+        params["filter[received_by_user_id]"],
+      );
+    if (params["filter[inbound_item_id]"])
+      sp.set("filter[inbound_item_id]", params["filter[inbound_item_id]"]);
+    if (params["filter[condition]"])
+      sp.set("filter[condition]", params["filter[condition]"]);
+    if (params["filter[date_from]"])
+      sp.set("filter[date_from]", params["filter[date_from]"]);
+    if (params["filter[date_to]"])
+      sp.set("filter[date_to]", params["filter[date_to]"]);
+    if (params.sort) sp.set("sort", params.sort);
+
+    const res = await fetchClient<ApiPaginated<InboundReceipt>>(
+      `/inbounds/${id}/receipts?${sp}`,
     );
     return res;
   },

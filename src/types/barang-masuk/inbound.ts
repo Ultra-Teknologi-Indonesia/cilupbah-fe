@@ -17,9 +17,18 @@ export interface InboundReceipt {
   batch_no: string | null;
   serial_no: string | null;
   condition: string | null;
-  received_by: string;
+  received_by_user_id: string;
   received_date: string;
-  bin?: { id: string; code: string };
+  bin?: { id: string; bin_final_code?: string; code?: string };
+  received_by_user?: { id: string; name: string } | null;
+  inbound_item?: {
+    id: string;
+    variant?: {
+      id: string;
+      sku: string;
+      product?: { id: string; name: string };
+    };
+  };
 }
 
 export interface InboundItem {
@@ -28,6 +37,8 @@ export interface InboundItem {
   item_id: string;
   expected_qty: number;
   received_qty: number;
+  received_total?: number;
+  received_by_me?: number;
   rejected_qty: number;
   rejection_note: string | null;
   putaway_qty: number;
@@ -105,6 +116,8 @@ export interface Inbound {
   assigned_at: string | null;
   once_received_at: string | null;
   updated_version_at: string | null;
+  received_total?: number;
+  received_by_me?: number;
   location?: { id: string; location_name: string };
   assignee?: { id: string; name: string } | null;
   assignedByUser?: { id: string; name: string } | null;

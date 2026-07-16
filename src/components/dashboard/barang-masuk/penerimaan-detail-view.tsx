@@ -45,6 +45,8 @@ import { InfoField } from "@/components/dashboard/shared/info-field";
 import { SortableHeader } from "@/components/dashboard/shared/sortable-header";
 import { CopySku } from "@/components/dashboard/shared/copy-sku";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { KronologiPenerimaanTab } from "@/components/dashboard/barang-masuk/kronologi-penerimaan-tab";
 import {
   useInboundDetail,
   useInboundItems,
@@ -578,21 +580,27 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                 className="bg-white/30 dark:bg-white/[0.04] print:border print:border-border print:shadow-none"
               >
                 <div className="px-5 py-4">
-                  <div className="mb-3 flex flex-col gap-2 print:hidden">
-                    <h3 className="text-sm font-semibold">Daftar Item</h3>
-                    <div className="relative w-full">
-                      <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Cari SKU atau nama produk..."
-                        className="pl-8"
-                      />
-                    </div>
+                  <Tabs defaultValue="items" className="print:!block">
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2 print:hidden">
+                    <TabsList>
+                      <TabsTrigger value="items">Daftar Item</TabsTrigger>
+                      <TabsTrigger value="kronologi">Kronologi Penerimaan</TabsTrigger>
+                    </TabsList>
                   </div>
                   <h3 className="mb-3 hidden text-sm font-semibold print:block print:text-base">
                     Daftar Item
                   </h3>
+
+                  <TabsContent value="items" className="flex flex-col gap-3">
+                  <div className="relative w-full print:hidden">
+                    <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      placeholder="Cari SKU atau nama produk..."
+                      className="pl-8"
+                    />
+                  </div>
 
                   <Table containerClassName="rounded-xl border border-border/40">
                     <TableHeader>
@@ -791,6 +799,12 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                       />
                     </div>
                   )}
+                  </TabsContent>
+
+                  <TabsContent value="kronologi" className="print:hidden">
+                    <KronologiPenerimaanTab inbound={inbound} />
+                  </TabsContent>
+                  </Tabs>
                 </div>
               </LiquidGlass>
             </div>
