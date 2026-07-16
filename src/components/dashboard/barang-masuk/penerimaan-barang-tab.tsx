@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   EyeIcon,
+  LockIcon,
   PackageCheckIcon,
   DownloadIcon,
   LayersIcon,
@@ -219,16 +220,30 @@ export function PenerimaanBarangTab() {
             aria-label="Pilih semua"
           />
         ),
-        cell: ({ row }) => (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={row.getIsSelected()}
-              disabled={!row.getCanSelect()}
-              onCheckedChange={(value) => row.toggleSelected(!!value)}
-              aria-label="Pilih baris"
-            />
-          </div>
-        ),
+        cell: ({ row }) => {
+          const locked = !!activePutaway(row.original);
+          if (locked) {
+            return (
+              <div
+                className="flex size-4 items-center justify-center text-muted-foreground"
+                title="Terkunci — sudah di-assign ke penempatan"
+                aria-label="Terkunci"
+              >
+                <LockIcon className="size-4" />
+              </div>
+            );
+          }
+          return (
+            <div onClick={(e) => e.stopPropagation()}>
+              <Checkbox
+                checked={row.getIsSelected()}
+                disabled={!row.getCanSelect()}
+                onCheckedChange={(value) => row.toggleSelected(!!value)}
+                aria-label="Pilih baris"
+              />
+            </div>
+          );
+        },
         enableSorting: false,
         enableHiding: false,
         size: 36,
@@ -316,7 +331,8 @@ export function PenerimaanBarangTab() {
         cell: ({ row }) => {
           const item = row.original;
           const active = activePutaway(item);
-          const canDelete = !["DRAFT", "CANCELLED"].includes(item.status);
+          const canDelete =
+            !["DRAFT", "CANCELLED"].includes(item.status) && !active;
           const canPrintPO =
             item.source_type === "purchase_order" && !!item.source_id;
 
