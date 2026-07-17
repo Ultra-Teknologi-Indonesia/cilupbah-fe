@@ -103,7 +103,7 @@ export function BuatPenempatanManualDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="flex max-h-[90vh] flex-col gap-4 sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
             {inbounds.length > 1
@@ -112,7 +112,7 @@ export function BuatPenempatanManualDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
+        <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto py-4">
           <div className="grid gap-2">
             <Label className="text-sm font-medium text-muted-foreground">
               Penerimaan

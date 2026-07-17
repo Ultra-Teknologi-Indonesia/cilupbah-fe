@@ -112,7 +112,7 @@ export function ContactBuyerDialog({
 
   return (
     <Dialog open={open} onOpenChange={loading ? undefined : onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="flex max-h-[90vh] max-w-md flex-col gap-4">
         <DialogHeader>
           <DialogTitle>Catat Konfirmasi Pembeli</DialogTitle>
           <DialogDescription>
@@ -122,7 +122,7 @@ export function ContactBuyerDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 py-2">
+        <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto py-2">
           <div className="grid gap-2">
             <Label>Channel Kontak</Label>
             <RadioGroup

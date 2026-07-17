@@ -67,12 +67,12 @@ export function TambahPelangganDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="flex max-h-[90vh] flex-col gap-4 sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Tambah Pelanggan</DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto md:grid-cols-2">
           <div>
             <Label>
               Nama <span className="text-destructive">*</span>

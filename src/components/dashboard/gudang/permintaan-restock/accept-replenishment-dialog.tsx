@@ -69,7 +69,7 @@ export function AcceptReplenishmentDialog({ open, onOpenChange, request }: Props
 
   return (
     <Dialog open={open} onOpenChange={(v) => (!v ? handleClose() : onOpenChange(v))}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="flex max-h-[90vh] flex-col gap-4 sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Terima Permintaan Pengisian Stok</DialogTitle>
           <DialogDescription>
@@ -80,7 +80,7 @@ export function AcceptReplenishmentDialog({ open, onOpenChange, request }: Props
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
           <div className="rounded-lg border border-border/60 bg-muted/30 p-3 text-sm">
             <div className="mb-1 font-medium">Daftar Barang</div>
             <ul className="space-y-1 text-xs text-muted-foreground">

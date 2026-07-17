@@ -89,7 +89,7 @@ export function FailItemDialog({
         if (!failItem.isPending) onOpenChange(v);
       }}
     >
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="flex max-h-[90vh] flex-col gap-4 sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <TriangleAlertIcon className="size-4 text-destructive" />
@@ -101,6 +101,7 @@ export function FailItemDialog({
           </DialogDescription>
         </DialogHeader>
 
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
         <div className="rounded-md border border-border bg-muted/30 p-3 text-sm">
           <div className="font-medium text-foreground">
             {item.name ?? item.sku}
@@ -158,6 +159,7 @@ export function FailItemDialog({
               Catatan minimal 5 karakter.
             </p>
           )}
+        </div>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">

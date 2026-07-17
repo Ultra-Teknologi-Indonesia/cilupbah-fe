@@ -86,14 +86,14 @@ export function TerimaTransferDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[720px]">
+      <DialogContent className="flex max-h-[90vh] flex-col gap-4 sm:max-w-[720px]">
         <DialogHeader>
           <DialogTitle>
             Terima Transfer {inbound?.reference_number ?? inbound?.transaction_number}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-4 py-2">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto py-2">
           <div className="grid gap-2">
             <Label className="text-sm font-medium text-muted-foreground">
               Diterima Oleh
