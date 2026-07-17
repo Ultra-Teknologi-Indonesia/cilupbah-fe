@@ -4,7 +4,13 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { PackageIcon, SearchIcon, Trash2Icon, ImageIcon } from "lucide-react";
+import {
+  PackageIcon,
+  SearchIcon,
+  Trash2Icon,
+  ImageIcon,
+  SquarePenIcon,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -132,6 +138,16 @@ export function PesananDetailView({ id }: { id: string }) {
               status={po.status}
               className="text-xs"
             />
+            {po.status === "OPEN" && (
+              <Button size="sm" asChild>
+                <Link
+                  href={`/dashboard/transaksi-pembelian/pesanan/${po.id}/edit`}
+                >
+                  <SquarePenIcon className="mr-2 size-4" />
+                  Edit
+                </Link>
+              </Button>
+            )}
             {(po.status === "OPEN" || po.status === "DRAFT") && (
               <Button
                 variant="outline"
