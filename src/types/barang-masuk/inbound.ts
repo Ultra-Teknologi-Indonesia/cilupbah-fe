@@ -42,6 +42,7 @@ export interface InboundItem {
   rejected_qty: number;
   rejection_note: string | null;
   putaway_qty: number;
+  reserved_qty?: number;
   discrepancy_qty: number;
   discrepancy_note: string | null;
   condition: string | null;

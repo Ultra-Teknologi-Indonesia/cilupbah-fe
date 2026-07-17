@@ -105,19 +105,17 @@ function ProgressBar({ value, total }: { value: number; total: number }) {
   );
 }
 
-/** Penerimaan bisa dibuat penempatan: belum tuntas/batal, tanpa penempatan aktif, masih ada sisa. */
+/** Penerimaan bisa dibuat penempatan: belum tuntas/batal, masih ada qty pending (received - putaway - reserved). */
 function isSelectable(item: Inbound): boolean {
-  const hasActivePutaway = item.putaways?.some(
-    (p) => !["COMPLETED", "CANCELLED"].includes(p.status),
-  );
   const totalRecv = item.items?.reduce((s, i) => s + (i.received_qty || 0), 0) ?? 0;
   const totalPutaway =
     item.items?.reduce((s, i) => s + (i.putaway_qty || 0), 0) ?? 0;
+  const totalReserved =
+    item.items?.reduce((s, i) => s + (i.reserved_qty || 0), 0) ?? 0;
   return (
     !["DRAFT", "COMPLETED", "CANCELLED"].includes(item.status) &&
-    !hasActivePutaway &&
     totalRecv > 0 &&
-    totalPutaway < totalRecv
+    totalPutaway + totalReserved < totalRecv
   );
 }
 
@@ -221,13 +219,13 @@ export function PenerimaanBarangTab() {
           />
         ),
         cell: ({ row }) => {
-          const locked = !!activePutaway(row.original);
-          if (locked) {
+          const selectable = isSelectable(row.original);
+          if (!selectable) {
             return (
               <div
                 className="flex size-4 items-center justify-center text-muted-foreground"
-                title="Terkunci — sudah di-assign ke penempatan"
-                aria-label="Terkunci"
+                title="Tidak ada qty pending untuk penempatan baru"
+                aria-label="Tidak ada pending"
               >
                 <LockIcon className="size-4" />
               </div>

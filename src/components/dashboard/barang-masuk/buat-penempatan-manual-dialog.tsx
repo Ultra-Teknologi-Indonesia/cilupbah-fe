@@ -51,8 +51,15 @@ export function BuatPenempatanManualDialog({
     let qty = 0;
     for (const inbound of inbounds) {
       for (const item of inbound.items ?? []) {
+        const pending = Math.max(
+          0,
+          (item.received_qty || 0) -
+            (item.putaway_qty || 0) -
+            (item.reserved_qty || 0),
+        );
+        if (pending <= 0) continue;
         skuSet.add(item.item_id);
-        qty += item.received_qty;
+        qty += pending;
       }
     }
     return { totalSku: skuSet.size, totalQty: qty };
