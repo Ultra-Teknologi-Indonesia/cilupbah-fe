@@ -44,10 +44,10 @@ import { formatDateTime } from "@/lib/format";
 /** Sub-tab sumber → filter[type] pada daftar penerimaan. */
 type SourceTab = "semua" | "pesanan" | "transfer" | "retur";
 const SOURCE_TABS: readonly SourceTab[] = [
-  "semua",
   "pesanan",
   "transfer",
   "retur",
+  "semua",
 ];
 const TAB_TO_TYPE: Record<SourceTab, string> = {
   semua: "",
@@ -168,7 +168,7 @@ export function PenerimaanBarangTab() {
     debounceMs: 300,
     namespace: "penerimaan",
   });
-  const [sourceTab, setSourceTab] = useUrlTab<SourceTab>("tab", "semua", {
+  const [sourceTab, setSourceTab] = useUrlTab<SourceTab>("tab", "pesanan", {
     validValues: SOURCE_TABS,
     clearKeys: ["penerimaan_page"],
   });
@@ -473,10 +473,10 @@ export function PenerimaanBarangTab() {
             onValueChange={(v) => handleTabChange(v as SourceTab)}
           >
             <TabsList variant="line" className="h-auto">
-              <TabsTrigger value="semua">Semua</TabsTrigger>
               <TabsTrigger value="pesanan">Pesanan Pembelian</TabsTrigger>
               <TabsTrigger value="transfer">Transfer Masuk</TabsTrigger>
               <TabsTrigger value="retur">Retur Penjualan</TabsTrigger>
+              <TabsTrigger value="semua">Semua</TabsTrigger>
             </TabsList>
           </Tabs>
 
