@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { History, Loader2 } from "lucide-react";
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { useOrderActivities } from "@/hooks/pesanan/use-order-activities";
 import {
   formatRiwayatValue,
@@ -28,26 +29,63 @@ interface RiwayatPesananDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+interface Cluster {
+  key: string;
+  head: OrderActivity;
+  members: OrderActivity[];
+}
+
 interface DayGroup {
   key: string;
   label: string;
-  items: OrderActivity[];
+  clusters: Cluster[];
 }
 
-function groupByDay(items: OrderActivity[]): DayGroup[] {
-  const groups = new Map<string, DayGroup>();
+const CLUSTER_WINDOW_MS = 60_000;
+
+function clusterActivities(items: OrderActivity[]): Cluster[] {
+  const clusters: Cluster[] = [];
+  let current: Cluster | null = null;
+  for (const item of items) {
+    const time = new Date(item.action_date).getTime();
+    const canAppend =
+      current &&
+      current.head.email === item.email &&
+      current.head.action_label === item.action_label &&
+      Math.abs(new Date(current.head.action_date).getTime() - time) <=
+        CLUSTER_WINDOW_MS;
+    if (canAppend && current) {
+      current.members.push(item);
+    } else {
+      current = { key: item.id, head: item, members: [item] };
+      clusters.push(current);
+    }
+  }
+  return clusters;
+}
+
+function groupByDay(items: OrderActivity[], cluster: boolean): DayGroup[] {
+  const buckets = new Map<string, OrderActivity[]>();
+  const order: string[] = [];
   for (const item of items) {
     const date = new Date(item.action_date);
     const key = format(date, "yyyy-MM-dd");
-    const label = format(date, "d MMM yyyy", { locale: idLocale });
-    const existing = groups.get(key);
-    if (existing) {
-      existing.items.push(item);
-    } else {
-      groups.set(key, { key, label, items: [item] });
+    if (!buckets.has(key)) {
+      buckets.set(key, []);
+      order.push(key);
     }
+    buckets.get(key)!.push(item);
   }
-  return Array.from(groups.values());
+  return order.map((key) => {
+    const bucket = buckets.get(key)!;
+    const label = format(new Date(bucket[0]!.action_date), "d MMM yyyy", {
+      locale: idLocale,
+    });
+    const clusters = cluster
+      ? clusterActivities(bucket)
+      : bucket.map((item) => ({ key: item.id, head: item, members: [item] }));
+    return { key, label, clusters };
+  });
 }
 
 function ChangeCard({ activity }: { activity: OrderActivity }) {
@@ -102,16 +140,37 @@ function ChangeCard({ activity }: { activity: OrderActivity }) {
   );
 }
 
-function TimelineRow({ activity }: { activity: OrderActivity }) {
-  const time = format(new Date(activity.action_date), "HH:mm");
+function TimelineRow({ cluster }: { cluster: Cluster }) {
+  const [expanded, setExpanded] = useState(false);
+  const head = cluster.head;
+  const time = format(new Date(head.action_date), "HH:mm");
+  const extra = cluster.members.length - 1;
   return (
     <li className="relative flex gap-3 pb-4 pl-6 last:pb-0">
       <span className="absolute left-0 top-1.5 size-3 rounded-full bg-primary" />
       <span className="absolute left-[5px] top-4 h-full w-px bg-border" />
       <div className="flex-1 space-y-1">
-        <div className="text-xs text-muted-foreground">{time}</div>
-        <div className="text-sm font-medium">{activity.email}</div>
-        <ChangeCard activity={activity} />
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span>{time}</span>
+          {extra > 0 ? (
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-foreground"
+            >
+              {expanded ? "Ciutkan" : `${cluster.members.length} aksi berturut`}
+            </button>
+          ) : null}
+        </div>
+        <div className="text-sm font-medium">{head.email}</div>
+        <ChangeCard activity={head} />
+        {expanded && extra > 0 ? (
+          <div className="space-y-2 pt-2">
+            {cluster.members.slice(1).map((member) => (
+              <ChangeCard key={member.id} activity={member} />
+            ))}
+          </div>
+        ) : null}
       </div>
     </li>
   );
@@ -122,12 +181,13 @@ export function RiwayatPesananDialog({
   open,
   onOpenChange,
 }: RiwayatPesananDialogProps) {
+  const [cluster, setCluster] = useState(true);
   const query = useOrderActivities(orderId, open);
   const items = useMemo(
     () => query.data?.pages.flatMap((page) => page.data) ?? [],
     [query.data],
   );
-  const groups = useMemo(() => groupByDay(items), [items]);
+  const groups = useMemo(() => groupByDay(items, cluster), [items, cluster]);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -146,7 +206,13 @@ export function RiwayatPesananDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Riwayat</DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle>Riwayat</DialogTitle>
+            <label className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Switch checked={cluster} onCheckedChange={setCluster} />
+              Ringkas
+            </label>
+          </div>
         </DialogHeader>
 
         <div className="max-h-[70vh] overflow-y-auto pr-1">
@@ -184,8 +250,8 @@ export function RiwayatPesananDialog({
                 <section key={group.key}>
                   <h3 className="mb-3 text-sm font-semibold">{group.label}</h3>
                   <ol className="relative">
-                    {group.items.map((activity) => (
-                      <TimelineRow key={activity.id} activity={activity} />
+                    {group.clusters.map((cluster) => (
+                      <TimelineRow key={cluster.key} cluster={cluster} />
                     ))}
                   </ol>
                 </section>

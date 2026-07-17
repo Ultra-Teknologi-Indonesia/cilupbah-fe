@@ -1,8 +1,12 @@
+export type OrderActivityEntity = "ORDER" | "ITEM";
+
 export interface OrderActivity {
   id: string;
   action_date: string;
   email: string;
   actor_name: string | null;
+  entity_type: OrderActivityEntity;
+  entity_id: string | null;
   entity_no: string | null;
   action: "C" | "U" | "D";
   action_id: string;

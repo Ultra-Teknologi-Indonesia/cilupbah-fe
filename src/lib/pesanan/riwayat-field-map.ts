@@ -31,7 +31,10 @@ export const RIWAYAT_FIELD_LABELS: Record<string, string> = {
   location_id: "Lokasi",
   location_name: "Lokasi",
   zone_id: "Zona",
-  zone_name: "Zona",
+  zone_name: "Zona Rak",
+  district_cd: "Kode Distrik",
+  shipping_subdistrict: "Kecamatan Kirim",
+  due_date: "Batas Kirim",
   return_zone_id: "Zona Retur",
   dispute_outcome: "Keputusan Retur",
   completed_date: "Waktu Selesai",
@@ -58,6 +61,8 @@ export const RIWAYAT_ACTION_LABELS: Record<string, string> = {
   SHIPPED: "Dikirim",
   COMPLETED: "Selesai",
   CANCELLED: "Dibatalkan",
+  ZONE_ASSIGNED: "Zona Ditetapkan",
+  ITEM_CREATED: "Item Dibuat",
   FIELD_CHANGED: "Perubahan Data",
 };
 
