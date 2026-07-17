@@ -60,6 +60,16 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
     if (stage === "picking") {
       if (sub === "belum") return <ReadyToProcessCardList />;
       if (sub === "diproses") return <PicklistTable />;
+      if (sub === "kosong")
+        return (
+          <FulfillmentCardList
+            stage="empty-stock"
+            tab="all"
+            emptyTitle="Tidak ada pesanan Empty Stock"
+            emptyDescription="Pesanan dengan stok kurang di gudang picking akan muncul di sini sampai stok tersedia atau SKU diganti."
+            filterFields={["location", "channel", "store", "date"]}
+          />
+        );
       return (
         <FulfillmentCardList
           stage="finish-pick"

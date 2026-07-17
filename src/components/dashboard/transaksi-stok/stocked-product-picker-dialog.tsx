@@ -47,6 +47,7 @@ interface StockedProductPickerDialogProps {
   locationId: string;
   excludeIds?: string[];
   initialSearch?: string;
+  includeZero?: boolean;
 }
 
 interface RawRow {
@@ -68,6 +69,7 @@ export function StockedProductPickerDialog({
   locationId,
   excludeIds = [],
   initialSearch,
+  includeZero = false,
 }: StockedProductPickerDialogProps) {
   const [searchInput, setSearchInput] = React.useState(
     () => initialSearch ?? "",
@@ -103,6 +105,7 @@ export function StockedProductPickerDialog({
     page,
     perPage,
     enabled: open,
+    includeZero,
   });
 
   const rows = ((data?.data ?? []) as RawRow[]).filter(

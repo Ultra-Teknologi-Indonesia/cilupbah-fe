@@ -20,6 +20,7 @@ export const STAGE_CONFIG: readonly StageConfigItem[] = [
       { key: "belum", label: "Belum Mulai" },
       { key: "diproses", label: "Diproses" },
       { key: "selesai", label: "Selesai" },
+      { key: "kosong", label: "Empty Stock" },
     ],
   },
   {

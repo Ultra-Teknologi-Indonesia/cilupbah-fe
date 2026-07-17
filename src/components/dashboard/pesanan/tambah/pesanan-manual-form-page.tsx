@@ -483,8 +483,8 @@ export function PesananManualFormPage() {
                   searchPlaceholder="Cari lokasi…"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Pilih gudang dulu untuk menampilkan produk yang punya stok di
-                  sana.
+                  Pilih gudang dulu. Produk stok 0 tetap bisa dipilih — pesanan
+                  akan masuk tab Empty Stock sampai stok tersedia.
                 </p>
               </div>
               <div className="flex flex-col gap-1.5">
@@ -556,7 +556,7 @@ export function PesananManualFormPage() {
                             <p className="text-xs">
                               {locationId
                                 ? "Klik tombol di bawah untuk menambahkan."
-                                : "Produk yang bisa dipilih tergantung stok di gudang."}
+                                : "Produk stok 0 juga bisa dipilih."}
                             </p>
                           </div>
                         </TableCell>
@@ -642,6 +642,11 @@ export function PesananManualFormPage() {
                                 }
                                 className="h-9 text-right tabular-nums"
                               />
+                              {it.qty > it.totalOnHand ? (
+                                <p className="mt-1 text-2xs text-warning">
+                                  Stok kurang, masuk Empty Stock
+                                </p>
+                              ) : null}
                             </TableCell>
                             <TableCell className="text-right font-medium tabular-nums">
                               {formatCurrency(total)}
@@ -947,6 +952,7 @@ export function PesananManualFormPage() {
         onPick={handleProductsPicked}
         locationId={locationId ?? ""}
         excludeIds={items.map((it) => it.itemId)}
+        includeZero
       />
     </div>
   );

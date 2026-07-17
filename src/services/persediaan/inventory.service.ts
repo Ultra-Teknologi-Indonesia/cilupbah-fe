@@ -78,12 +78,14 @@ export const InventoryStockService = {
     search?: string;
     page?: number;
     perPage?: number;
+    includeZero?: boolean;
   }) => {
     const q = new URLSearchParams();
     q.set("location_id", params.locationId);
     if (params.search) q.set("search", params.search);
     if (params.page) q.set("page", String(params.page));
     q.set("per_page", String(params.perPage ?? 20));
+    if (params.includeZero) q.set("include_zero", "1");
     return fetchClient<
       ApiPaginated<{
         item_id: string;

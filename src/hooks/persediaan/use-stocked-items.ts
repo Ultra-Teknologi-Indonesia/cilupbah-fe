@@ -8,6 +8,7 @@ interface UseStockedItemsParams {
   page?: number;
   perPage?: number;
   enabled?: boolean;
+  includeZero?: boolean;
 }
 
 export function useStockedItems({
@@ -16,9 +17,10 @@ export function useStockedItems({
   page,
   perPage = 20,
   enabled = true,
+  includeZero = false,
 }: UseStockedItemsParams) {
   return useQuery({
-    queryKey: ["stocked-items", locationId, search, page, perPage],
+    queryKey: ["stocked-items", locationId, search, page, perPage, includeZero],
     enabled: enabled && !!locationId,
     placeholderData: keepPreviousData,
     queryFn: () =>
@@ -27,6 +29,7 @@ export function useStockedItems({
         search: search || undefined,
         page,
         perPage,
+        includeZero,
       }),
     staleTime: 30 * 1000,
   });
