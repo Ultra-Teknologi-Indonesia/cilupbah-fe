@@ -3,20 +3,16 @@ export interface LocationStock {
   location_id: string;
   location_name: string;
   on_hand: number;
-  /** Stok fisik yang sudah diterima tapi belum ditempatkan ke rak. */
-  pending_placement?: number;
   on_order: number;
-  reserved: number;
   available: number;
 }
 
 export interface TotalStocks {
   on_hand: number;
-  /** Stok fisik yang sudah diterima tapi belum ditempatkan ke rak. */
-  pending_placement?: number;
   on_order: number;
-  reserved: number;
   available: number;
+  /** Stok fisik yang sedang berpindah antar gudang (transfer keluar belum diterima). */
+  transit: number;
 }
 
 export interface VariationValue {
@@ -80,7 +76,6 @@ export interface BinInventory {
   expired_date: string | null;
   on_hand: number;
   on_order: number;
-  reserved: number;
   available: number;
   avg_cost: number;
 }

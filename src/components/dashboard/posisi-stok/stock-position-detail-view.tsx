@@ -9,11 +9,14 @@ import {
   PackageIcon,
   MapPinIcon,
   BoxIcon,
+  ExternalLinkIcon,
+  ShoppingCartIcon,
 } from "lucide-react";
 import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -45,6 +48,7 @@ import {
   useItemStock,
   useMovementFilters,
 } from "@/hooks/persediaan/use-stock-position";
+import { useOrders } from "@/hooks/pesanan/use-orders";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useUrlTab } from "@/hooks/use-url-tab";
 import type {
@@ -52,7 +56,9 @@ import type {
   BinInventory,
   MovementView,
 } from "@/types/persediaan/stock";
-import { formatCurrency, formatDateTime } from "@/lib/format";
+import { CHANNEL_MAP, STATUS_LABELS } from "@/types/pesanan/order";
+import type { Order } from "@/types/pesanan/order";
+import { formatCurrency, formatDateTime, formatDate } from "@/lib/format";
 
 type MovementUrlKey =
   | "view"
@@ -225,36 +231,29 @@ function QtyCell({ qty }: { qty: number }) {
 
 function StockSummaryCards({
   onHand,
-  pendingPlacement,
   onOrder,
-  reserved,
+  transit,
   available,
   avgCost,
 }: {
   onHand: number;
-  pendingPlacement: number;
   onOrder: number;
-  reserved: number;
+  transit: number;
   available: number;
   avgCost: number;
 }) {
   const cards = [
     { label: "On Hand", value: onHand, color: "" },
-    {
-      label: "Menunggu Penempatan",
-      value: pendingPlacement,
-      color: pendingPlacement > 0 ? "text-warning" : "text-muted-foreground",
-    },
     { label: "On Order", value: onOrder, color: "" },
     {
-      label: "Reserved",
-      value: reserved,
-      color: "text-warning",
+      label: "Transit",
+      value: transit,
+      color: transit > 0 ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground",
     },
     {
       label: "Available",
       value: available,
-      color: "text-success",
+      color: available < 0 ? "text-destructive" : "text-success",
     },
     {
       label: "Harga Pokok",
@@ -265,7 +264,7 @@ function StockSummaryCards({
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
       {cards.map((c) => (
         <LiquidGlass
           key={c.label}
@@ -840,7 +839,7 @@ function BinSection({ itemId }: { itemId: string }) {
               On Hand
             </TableHead>
             <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">
-              Reserved
+              On Order
             </TableHead>
             <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">
               Available
@@ -875,9 +874,14 @@ function BinSection({ itemId }: { itemId: string }) {
                 {b.on_hand}
               </TableCell>
               <TableCell className="px-3 py-2.5 text-right tabular-nums text-warning">
-                {b.reserved}
+                {b.on_order}
               </TableCell>
-              <TableCell className="px-3 py-2.5 text-right font-semibold tabular-nums text-success">
+              <TableCell
+                className={cn(
+                  "px-3 py-2.5 text-right font-semibold tabular-nums",
+                  b.available < 0 ? "text-destructive" : "text-success",
+                )}
+              >
                 {b.available}
               </TableCell>
             </TableRow>
@@ -888,11 +892,244 @@ function BinSection({ itemId }: { itemId: string }) {
   );
 }
 
+function PesananSection({ itemId }: { itemId: string }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const locationId = searchParams.get("location_id") ?? "";
+  const page = parseIntParam(searchParams.get("page"), 1);
+  const perPage = parseIntParam(searchParams.get("per_page"), 20);
+
+  const updateUrl = useCallback(
+    (patch: Partial<Record<string, string>>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      for (const [key, val] of Object.entries(patch)) {
+        if (val === undefined || val === "") params.delete(key);
+        else params.set(key, val);
+      }
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [router, pathname, searchParams],
+  );
+
+  const setLocationId = useCallback(
+    (v: string) => updateUrl({ location_id: v, page: "" }),
+    [updateUrl],
+  );
+  const setPage = useCallback(
+    (n: number) => updateUrl({ page: n === 1 ? "" : String(n) }),
+    [updateUrl],
+  );
+  const setPerPage = useCallback(
+    (n: number) =>
+      updateUrl({ per_page: n === 20 ? "" : String(n), page: "" }),
+    [updateUrl],
+  );
+
+  const { data: locData } = useLocations({ perPage: 100 });
+  const locationOptions = useMemo(
+    () =>
+      (locData?.items ?? []).map((l) => ({ value: l.id, label: l.locationName })),
+    [locData],
+  );
+
+  const { data, isLoading } = useOrders({
+    item_id: itemId,
+    location_id: locationId || undefined,
+    status: ["open"],
+    page,
+    per_page: perPage,
+    sort_by: "transaction_date",
+    sort_dir: "desc",
+  });
+
+  const orders = data?.data ?? [];
+  const meta = data?.meta ?? {
+    current_page: 1,
+    last_page: 1,
+    per_page: perPage,
+    total: 0,
+  };
+
+  const hasFilter = Boolean(locationId);
+
+  const filterBar = (
+    <FilterToolbar
+      align="end"
+      hasFilter={hasFilter}
+      activeCount={hasFilter ? 1 : 0}
+      onReset={hasFilter ? () => setLocationId("") : undefined}
+      gridCols={1}
+    >
+      <Select
+        value={locationId || ALL_VALUE}
+        onValueChange={(v) => setLocationId(v === ALL_VALUE ? "" : v)}
+      >
+        <SelectTrigger className="h-9 w-full rounded-full border-border bg-background">
+          <SelectValue placeholder="Pilih lokasi" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={ALL_VALUE}>Semua Lokasi</SelectItem>
+          {locationOptions.map((o) => (
+            <SelectItem key={o.value} value={o.value}>
+              {o.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </FilterToolbar>
+  );
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-3">
+        {filterBar}
+        <div className="space-y-2 p-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-10 w-full" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (orders.length === 0) {
+    return (
+      <div className="flex flex-col gap-3">
+        {filterBar}
+        <EmptyState
+          icon={ShoppingCartIcon}
+          className="py-16"
+          title="Tidak ada pesanan pelanggan aktif untuk SKU ini di lokasi tersebut."
+        />
+      </div>
+    );
+  }
+
+  const itemQty = (o: Order) =>
+    o.items.reduce(
+      (sum, it) => (it.item_id === itemId ? sum + Number(it.qty_in_base || 0) : sum),
+      0,
+    ) || o.total_qty;
+
+  return (
+    <div className="flex flex-col gap-3">
+      {filterBar}
+      <Table>
+        <TableHeader>
+          <TableRow className="border-b border-border/60 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="px-3 py-2.5">No. SO</TableHead>
+            <TableHead className="px-3 py-2.5">Channel</TableHead>
+            <TableHead className="px-3 py-2.5">Tanggal</TableHead>
+            <TableHead className="px-3 py-2.5 text-right">Qty</TableHead>
+            <TableHead className="px-3 py-2.5">Lokasi</TableHead>
+            <TableHead className="px-3 py-2.5">Status</TableHead>
+            <TableHead className="px-3 py-2.5 text-right">Aksi</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {orders.map((o: Order) => {
+            const channelMeta = o.source
+              ? CHANNEL_MAP[o.source.toLowerCase()]
+              : undefined;
+            const statusMeta = STATUS_LABELS[o.status];
+            return (
+              <TableRow
+                key={o.id}
+                className="border-b border-border/30 transition-colors hover:bg-muted/30"
+              >
+                <TableCell className="px-3 py-2.5">
+                  <Link
+                    href={`/dashboard/pesanan/${o.id}`}
+                    className="font-mono text-xs text-primary hover:underline"
+                  >
+                    {o.salesorder_no}
+                  </Link>
+                </TableCell>
+                <TableCell className="px-3 py-2.5">
+                  {channelMeta ? (
+                    <Badge
+                      variant="outline"
+                      className="text-2xs font-medium"
+                      style={{
+                        color: channelMeta.color,
+                        borderColor: channelMeta.color,
+                      }}
+                    >
+                      {channelMeta.label}
+                    </Badge>
+                  ) : (
+                    <span className="text-muted-foreground">{o.source ?? "—"}</span>
+                  )}
+                </TableCell>
+                <TableCell className="px-3 py-2.5 text-muted-foreground">
+                  {o.transaction_date ? formatDate(o.transaction_date) : "—"}
+                </TableCell>
+                <TableCell className="px-3 py-2.5 text-right font-mono text-sm font-semibold tabular-nums">
+                  {itemQty(o)}
+                </TableCell>
+                <TableCell className="px-3 py-2.5">
+                  <span className="inline-flex items-center gap-1">
+                    <MapPinIcon className="size-3 text-muted-foreground" />
+                    {o.location_name ?? "—"}
+                  </span>
+                </TableCell>
+                <TableCell className="px-3 py-2.5">
+                  {statusMeta ? (
+                    <Badge
+                      variant="outline"
+                      className={cn("text-2xs font-medium", statusMeta.className)}
+                    >
+                      {statusMeta.label}
+                    </Badge>
+                  ) : (
+                    <span className="text-muted-foreground">{o.status}</span>
+                  )}
+                </TableCell>
+                <TableCell className="px-3 py-2.5 text-right">
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 gap-1 rounded-full"
+                  >
+                    <Link href={`/dashboard/pesanan/${o.id}`}>
+                      <ExternalLinkIcon className="size-3" />
+                      Buka
+                    </Link>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+
+      <div className="px-3">
+        <SimplePagination
+          page={meta.current_page}
+          lastPage={meta.last_page}
+          onPageChange={setPage}
+          perPage={meta.per_page}
+          onPerPageChange={setPerPage}
+          pageSizeOptions={TABLE_PAGE_SIZES}
+          total={meta.total}
+          label="pesanan"
+        />
+      </div>
+    </div>
+  );
+}
+
+type DetailTab = "kronologi" | "rak" | "pesanan";
+
 export function StockPositionDetailView({ itemId }: { itemId: string }) {
-  const [activeTab, setActiveTab] = useUrlTab<"kronologi" | "rak">(
+  const [activeTab, setActiveTab] = useUrlTab<DetailTab>(
     "tab",
     "kronologi",
-    { validValues: ["kronologi", "rak"] as const },
+    { validValues: ["kronologi", "rak", "pesanan"] as const },
   );
 
   const { data, isLoading } = useStockItem(itemId);
@@ -974,23 +1211,11 @@ export function StockPositionDetailView({ itemId }: { itemId: string }) {
 
           <StockSummaryCards
             onHand={item.total_stocks.on_hand}
-            pendingPlacement={item.total_stocks.pending_placement ?? 0}
             onOrder={item.total_stocks.on_order}
-            reserved={item.total_stocks.reserved}
+            transit={item.total_stocks.transit ?? 0}
             available={item.total_stocks.available}
             avgCost={Number(item.average_cost)}
           />
-          {(item.total_stocks.pending_placement ?? 0) > 0 && (
-            <div className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
-              <BoxIcon className="mt-0.5 size-4 shrink-0" />
-              <span>
-                <strong>{item.total_stocks.pending_placement}</strong> unit
-                sudah diterima tapi belum ditempatkan ke rak, jadi belum masuk On
-                Hand dan belum bisa dijual/dipick. Lakukan Penempatan (putaway) ke
-                rak final terlebih dahulu.
-              </span>
-            </div>
-          )}
         </>
       ) : (
         <LiquidGlass
@@ -1011,42 +1236,38 @@ export function StockPositionDetailView({ itemId }: { itemId: string }) {
         >
           <div className="border-b border-border/60">
             <div className="flex gap-0 px-5">
-              <button
-                type="button"
-                onClick={() => setActiveTab("kronologi")}
-                className={cn(
-                  "relative px-4 py-3 text-sm font-medium transition-colors",
-                  activeTab === "kronologi"
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                Kronologi Stok
-                {activeTab === "kronologi" && (
-                  <span className="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-primary" />
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("rak")}
-                className={cn(
-                  "relative px-4 py-3 text-sm font-medium transition-colors",
-                  activeTab === "rak"
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                Persediaan di Rak
-                {activeTab === "rak" && (
-                  <span className="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-primary" />
-                )}
-              </button>
+              {(
+                [
+                  { key: "kronologi", label: "Kronologi Stok" },
+                  { key: "rak", label: "Persediaan di Rak" },
+                  { key: "pesanan", label: "Pesanan Pelanggan" },
+                ] as const
+              ).map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => setActiveTab(t.key)}
+                  className={cn(
+                    "relative px-4 py-3 text-sm font-medium transition-colors",
+                    activeTab === t.key
+                      ? "text-primary"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {t.label}
+                  {activeTab === t.key && (
+                    <span className="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-primary" />
+                  )}
+                </button>
+              ))}
             </div>
           </div>
 
           <div className="p-4 sm:p-5">
             {activeTab === "kronologi" ? (
               <MovementsSection itemId={item.item_id} />
+            ) : activeTab === "pesanan" ? (
+              <PesananSection itemId={item.item_id} />
             ) : (
               <BinSection itemId={item.item_id} />
             )}

@@ -37,6 +37,7 @@ export const OrderService = {
     if (params.contact_status)
       sp.set("filter[contact_status]", params.contact_status);
     if (params.decision) sp.set("filter[decision]", params.decision);
+    if (params.item_id) sp.set("filter[item_id]", params.item_id);
     for (const s of params.status ?? []) sp.append("filter[status][]", s);
     if (params.page) sp.set("page", String(params.page));
     if (params.per_page) sp.set("per_page", String(params.per_page));

@@ -173,12 +173,20 @@ function StockQtyBadge({
   variant,
 }: {
   value: number;
-  variant: "default" | "warning" | "success";
+  variant: "default" | "warning" | "success" | "info" | "negative";
 }) {
+  if (variant === "negative") {
+    return (
+      <span className="inline-flex min-w-8 items-center justify-center rounded-full bg-red-100 px-2 py-0.5 font-mono text-sm font-bold tabular-nums text-red-700 dark:bg-red-500/15 dark:text-red-400">
+        {value}
+      </span>
+    );
+  }
   const colors = {
     default: value > 0 ? "" : "text-muted-foreground/50",
     warning: value > 0 ? "text-warning" : "text-muted-foreground/50",
     success: value > 0 ? "text-success" : "text-muted-foreground/50",
+    info: value > 0 ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground/50",
   };
   return (
     <span
@@ -201,7 +209,7 @@ function DrillableQty({
   title,
 }: {
   value: number;
-  variant: "default" | "warning" | "success";
+  variant: "default" | "warning" | "success" | "info" | "negative";
   itemId?: string;
   locationId?: string;
   metric: DrillMetric;
@@ -222,10 +230,11 @@ function DrillableQty({
 }
 
 /**
- * 4 sel metrik (On Hand · On Order · Reserved · Available) untuk satu lokasi
+ * 3 sel metrik (On Hand · On Order · Available) untuk satu lokasi
  * ataupun untuk kolom Total. `stock` undefined = lokasi tanpa stok → semua 0.
- * On Hand / On Order / Reserved bisa di-klik untuk drill-down ke Kronologi Stok
- * yang otomatis terfilter (mimic Jubelio).
+ * On Hand & On Order bisa di-klik untuk drill-down (Kronologi / Pesanan) yang
+ * otomatis terfilter. Available yang negatif ditampilkan dengan badge merah
+ * mengikuti gaya Jubelio.
  */
 function MetricCells({
   stock,
@@ -240,9 +249,7 @@ function MetricCells({
 }) {
   const onHand = stock?.on_hand ?? 0;
   const onOrder = stock?.on_order ?? 0;
-  const reserved = stock?.reserved ?? 0;
   const available = stock?.available ?? 0;
-  const pending = stock?.pending_placement ?? 0;
   const cellCls = cn(
     "px-2.5 py-3 text-right",
     emphasize && "bg-muted/30",
@@ -251,24 +258,14 @@ function MetricCells({
   return (
     <>
       <TableCell className={cellCls}>
-        <div className="flex flex-col items-end gap-0.5">
-          <DrillableQty
-            value={onHand}
-            variant="default"
-            itemId={itemId}
-            locationId={locationId}
-            metric="on_hand"
-            title={`Lihat kronologi stok ${scopeLabel}`}
-          />
-          {pending > 0 && (
-            <span
-              className="text-2xs font-medium text-warning"
-              title="Sudah diterima tapi belum ditempatkan ke rak"
-            >
-              +{pending} pending
-            </span>
-          )}
-        </div>
+        <DrillableQty
+          value={onHand}
+          variant="default"
+          itemId={itemId}
+          locationId={locationId}
+          metric="on_hand"
+          title={`Lihat kronologi stok ${scopeLabel}`}
+        />
       </TableCell>
       <TableCell className={cellCls}>
         <DrillableQty
@@ -277,21 +274,14 @@ function MetricCells({
           itemId={itemId}
           locationId={locationId}
           metric="on_order"
-          title={`Lihat pesanan yang menahan stok ${scopeLabel}`}
+          title={`Lihat pesanan pelanggan aktif ${scopeLabel}`}
         />
       </TableCell>
       <TableCell className={cellCls}>
-        <DrillableQty
-          value={reserved}
-          variant="warning"
-          itemId={itemId}
-          locationId={locationId}
-          metric="reserved"
-          title={`Lihat faktur yang me-reserve stok ${scopeLabel}`}
+        <StockQtyBadge
+          value={available}
+          variant={available < 0 ? "negative" : "success"}
         />
-      </TableCell>
-      <TableCell className={cellCls}>
-        <StockQtyBadge value={available} variant="success" />
       </TableCell>
     </>
   );
@@ -690,7 +680,7 @@ export function PosisiStokView() {
                     {visibleLocations.map((l) => (
                       <TableHead
                         key={l.location_id}
-                        colSpan={4}
+                        colSpan={3}
                         className="border-l border-border/40 px-2.5 py-2 text-center text-xs font-semibold text-foreground"
                       >
                         <span className="inline-flex items-center gap-1.5">
@@ -701,7 +691,14 @@ export function PosisiStokView() {
                     ))}
 
                     <TableHead
-                      colSpan={4}
+                      rowSpan={2}
+                      className="border-l border-border/60 px-2.5 align-bottom text-right text-2xs font-medium uppercase tracking-wide text-muted-foreground"
+                    >
+                      Transit
+                    </TableHead>
+
+                    <TableHead
+                      colSpan={3}
                       className="border-l border-border/60 bg-muted/40 px-2.5 py-2 text-center text-xs font-semibold text-foreground"
                     >
                       Total Stok
@@ -805,6 +802,16 @@ export function PosisiStokView() {
                           />
                         ))}
 
+                        <TableCell className="border-l border-border/60 px-2.5 py-3 text-right">
+                          <DrillableQty
+                            value={item.total_stocks.transit ?? 0}
+                            variant="info"
+                            itemId={item.item_id}
+                            metric="transit"
+                            title="Lihat kronologi transfer antar gudang"
+                          />
+                        </TableCell>
+
                         <MetricCells
                           stock={item.total_stocks}
                           emphasize
@@ -846,7 +853,7 @@ export function PosisiStokView() {
   );
 }
 
-/** Sub-header 4 metrik. Untuk kolom Total, On Hand & Available bisa di-sort. */
+/** Sub-header 3 metrik. Untuk kolom Total, On Hand & Available bisa di-sort. */
 function MetricSubHeaders({
   total = false,
   borderLeft = false,
@@ -883,7 +890,6 @@ function MetricSubHeaders({
         )}
       </TableHead>
       <TableHead className={cn(base, emphasize)}>On Order</TableHead>
-      <TableHead className={cn(base, emphasize)}>Reserved</TableHead>
       <TableHead className={cn(base, emphasize)}>
         {total && onSort ? (
           <SortHeader

@@ -59,6 +59,7 @@ export interface OrderListParams {
   contact_status?: "contacted" | "not_contacted";
   decision?: CustomerDecision;
   status?: string[];
+  item_id?: string;
 }
 
 /**
