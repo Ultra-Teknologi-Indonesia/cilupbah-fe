@@ -341,6 +341,7 @@ function KnownDocumentPreview({
               file={state.objectUrl}
               pageNumber={pageNumber}
               scale={scale}
+              pageWidth={type === "shipping-label" ? 480 : undefined}
               onLoadSuccess={({ numPages }) => setNumPages(numPages)}
               onLoadError={(err) =>
                 setState({

@@ -16,6 +16,7 @@ export interface PdfViewerProps {
   onLoadSuccess: (info: { numPages: number }) => void;
   onLoadError: (err: Error) => void;
   className?: string;
+  pageWidth?: number;
 }
 
 const loadingNode = (
@@ -37,6 +38,7 @@ export function PdfViewer({
   onLoadSuccess,
   onLoadError,
   className,
+  pageWidth = 820,
 }: PdfViewerProps) {
   const fileProp = React.useMemo(() => file ?? null, [file]);
 
@@ -51,7 +53,7 @@ export function PdfViewer({
           error={errorNode}
           className="flex flex-col items-center gap-4"
         >
-          <PdfPage pageNumber={pageNumber} scale={scale} />
+          <PdfPage pageNumber={pageNumber} scale={scale} width={pageWidth} />
         </Document>
       ) : (
         loadingNode
@@ -60,7 +62,15 @@ export function PdfViewer({
   );
 }
 
-function PdfPage({ pageNumber, scale }: { pageNumber: number; scale: number }) {
+function PdfPage({
+  pageNumber,
+  scale,
+  width,
+}: {
+  pageNumber: number;
+  scale: number;
+  width: number;
+}) {
   return (
     <div className="overflow-hidden rounded-xl bg-white shadow-[0_1px_3px_rgba(15,23,42,0.06),0_8px_24px_-12px_rgba(15,23,42,0.18)] ring-1 ring-black/[0.04]">
       <Page
@@ -69,9 +79,12 @@ function PdfPage({ pageNumber, scale }: { pageNumber: number; scale: number }) {
         renderTextLayer
         renderAnnotationLayer
 
-        width={820}
+        width={width}
         loading={
-          <div className="flex h-[60vh] w-[min(820px,90vw)] items-center justify-center text-sm text-muted-foreground">
+          <div
+            className="flex h-[60vh] items-center justify-center text-sm text-muted-foreground"
+            style={{ width: `min(${width}px, 90vw)` }}
+          >
             Merender halaman…
           </div>
         }
