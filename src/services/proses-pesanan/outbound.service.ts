@@ -378,6 +378,7 @@ function mapPicklistItem(raw: RawPicklistItem): PicklistItem {
         : null,
     orderId: raw.order_id ?? null,
     orderNo: raw.order?.salesorder_no ?? null,
+    source: raw.order?.source ?? null,
     trackingNumber: raw.order?.tracking_number ?? null,
     packageNo:
       raw.order?.shipment_orders?.[0]?.shipment?.shipment_no ??
@@ -1220,13 +1221,13 @@ export const OutboundService = {
 
   createBulkShippingLabelBatch: async (
     orderIds: string[],
-    perChannel: Record<string, { document_type?: string; document_size?: string }>,
+    documentSize: "thermal_100x150" | "thermal_100x120",
   ): Promise<{ batch_id: string }> => {
     const res = await fetchClient<{ batch_id: string }>(
       `/sales/shipping-labels/bulk`,
       {
         method: "POST",
-        data: { order_ids: orderIds, per_channel: perChannel },
+        data: { order_ids: orderIds, document_size: documentSize },
       },
     );
     return res as unknown as { batch_id: string };

@@ -34,7 +34,7 @@ import { UbahPackerDialog } from "./ubah-packer-dialog";
 import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
 import { Checkbox } from "@/components/ui/checkbox";
 
-const PACKLIST_LABEL_CHANNELS = new Set(["shopee", "tiktok"]);
+const PACKLIST_LABEL_CHANNELS = new Set(["shopee", "tiktok", "lazada"]);
 
 function packlistLabelEligible(p: Packlist): {
   eligible: boolean;

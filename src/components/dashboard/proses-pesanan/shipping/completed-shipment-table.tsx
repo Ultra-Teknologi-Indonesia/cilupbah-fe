@@ -2,10 +2,11 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { RefreshCwIcon } from "lucide-react";
+import { PrinterIcon, RefreshCwIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { formatDateTime } from "@/lib/format";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -18,6 +19,7 @@ import {
 import { useCompletedShipments } from "@/hooks/proses-pesanan/use-fulfillment";
 import type { CompletedShipmentOrderRow } from "@/types/proses-pesanan/fulfillment";
 import { useListState } from "@/hooks/use-list-state";
+import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
 
 const STATUS_OPTIONS = [
   { value: "HANDED_OVER", label: "Diserahkan" },
@@ -271,6 +273,35 @@ export function CompletedShipmentTable() {
           data={rows}
           isLoading={isLoading}
           hideToolbar
+          getRowId={(row) => row.orderId ?? ""}
+          enableRowSelection={(row) =>
+            Boolean(row.original.orderId) &&
+            (row.original.source ?? "").toLowerCase() !== "woocommerce"
+          }
+          bulkActions={(selected) => {
+            const eligible = selected
+              .filter(
+                (r) =>
+                  r.orderId &&
+                  (r.source ?? "").toLowerCase() !== "woocommerce",
+              )
+              .map((r) => ({ id: r.orderId as string, source: r.source }));
+            return (
+              <Button
+                size="sm"
+                variant="primary"
+                className="rounded-full"
+                disabled={eligible.length === 0}
+                onClick={() => {
+                  if (eligible.length === 0) return;
+                  void DocActions.shippingLabel(eligible);
+                }}
+              >
+                <PrinterIcon className="size-4" />
+                Cetak Label ({eligible.length})
+              </Button>
+            );
+          }}
           manualPagination
           manualSorting
           sorting={list.sorting}

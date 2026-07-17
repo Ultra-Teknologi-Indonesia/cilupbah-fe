@@ -19,24 +19,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { usePrintLabelCapabilities } from "@/hooks/channel/use-print-label-capabilities";
-import type {
-  PrintCapabilityOption,
-  PrintLabelCapabilities,
-} from "@/types/channel";
 
 export interface PrintLabelOrderInput {
   id: string;
   source?: string | null;
 }
 
+export type PrintLabelSize = "thermal_100x150" | "thermal_100x120";
+
 export interface PrintLabelChoice {
-  document_type?: string;
-  document_size?: string;
+  document_size: PrintLabelSize;
 }
 
-export type PrintLabelChoiceMap = Record<string, PrintLabelChoice>;
+export type PrintLabelChoiceMap = PrintLabelChoice;
 
 interface DialogState {
   open: boolean;
@@ -70,150 +65,52 @@ export function openPrintLabelSizeDialog(
   return useDialogStore.getState().openDialog(orders);
 }
 
-const PREF_KEY = (source: string) => `pref:print-label:${source.toLowerCase()}`;
+const PREF_KEY = "pref:print-label-size";
+const DEFAULT_SIZE: PrintLabelSize = "thermal_100x150";
 
-function readPref(source: string): PrintLabelChoice {
-  if (typeof window === "undefined") return {};
+const SIZE_OPTIONS: { value: PrintLabelSize; label: string }[] = [
+  { value: "thermal_100x150", label: "10×15 cm (Thermal)" },
+  { value: "thermal_100x120", label: "10×12 cm (Thermal)" },
+];
+
+function readPref(): PrintLabelSize {
+  if (typeof window === "undefined") return DEFAULT_SIZE;
   try {
-    const raw = window.localStorage.getItem(PREF_KEY(source));
-    return raw ? (JSON.parse(raw) as PrintLabelChoice) : {};
+    const raw = window.localStorage.getItem(PREF_KEY);
+    if (raw === "thermal_100x150" || raw === "thermal_100x120") return raw;
   } catch {
-    return {};
+    /* ignore */
   }
+  return DEFAULT_SIZE;
 }
 
-function writePref(source: string, choice: PrintLabelChoice) {
+function writePref(size: PrintLabelSize) {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(PREF_KEY(source), JSON.stringify(choice));
+    window.localStorage.setItem(PREF_KEY, size);
   } catch {
     /* ignore quota */
   }
-}
-
-function defaultValue(options: PrintCapabilityOption[]): string {
-  return options.find((o) => o.default)?.value ?? options[0]?.value ?? "";
 }
 
 const CHANNEL_LABEL: Record<string, string> = {
   tiktok: "TikTok",
   shopee: "Shopee",
   lazada: "Lazada",
+  woocommerce: "WooCommerce",
   tokopedia: "Tokopedia",
   blibli: "Blibli",
   bukalapak: "Bukalapak",
 };
 
-interface ChannelSectionProps {
-  source: string;
-  count: number;
-  value: PrintLabelChoice;
-  onChange: (v: PrintLabelChoice) => void;
-  onCapabilitiesResolved: (
-    source: string,
-    caps: PrintLabelCapabilities | null,
-  ) => void;
-}
-
-function ChannelSection({
-  source,
-  count,
-  value,
-  onChange,
-  onCapabilitiesResolved,
-}: ChannelSectionProps) {
-  const { data: caps, isLoading } = usePrintLabelCapabilities(source);
-  const resolvedRef = React.useRef(false);
-
-  React.useEffect(() => {
-    if (isLoading || resolvedRef.current) return;
-    resolvedRef.current = true;
-     
-    onCapabilitiesResolved(source, caps ?? null);
-  }, [caps, isLoading, onCapabilitiesResolved, source]);
-
-  const title = CHANNEL_LABEL[source] ?? source.toUpperCase();
-
-  return (
-    <div className="rounded-md border p-3">
-      <div className="mb-3 flex items-center justify-between">
-        <div className="text-sm font-medium">{title}</div>
-        <div className="text-muted-foreground text-xs">{count} pesanan</div>
-      </div>
-
-      {isLoading ? (
-        <div className="flex items-center gap-2">
-          <Skeleton className="h-8 w-32 rounded-md" />
-          <Skeleton className="h-8 w-24 rounded-md" />
-        </div>
-      ) : caps &&
-        (caps.document_types.length > 0 || caps.document_sizes.length > 0) ? (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {caps.document_types.length > 0 && (
-            <div className="space-y-1.5">
-              <Label className="text-muted-foreground text-xs">
-                Jenis dokumen
-              </Label>
-              <Select
-                value={value.document_type ?? defaultValue(caps.document_types)}
-                onValueChange={(v) =>
-                  onChange({ ...value, document_type: v || undefined })
-                }
-              >
-                <SelectTrigger size="sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {caps.document_types.map((o) => (
-                    <SelectItem key={o.value} value={o.value}>
-                      {o.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-          {caps.document_sizes.length > 0 && (
-            <div className="space-y-1.5">
-              <Label className="text-muted-foreground text-xs">
-                Ukuran kertas
-              </Label>
-              <Select
-                value={value.document_size ?? defaultValue(caps.document_sizes)}
-                onValueChange={(v) =>
-                  onChange({ ...value, document_size: v || undefined })
-                }
-              >
-                <SelectTrigger size="sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {caps.document_sizes.map((o) => (
-                    <SelectItem key={o.value} value={o.value}>
-                      {o.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-        </div>
-      ) : (
-        <p className="text-muted-foreground text-xs">
-          Channel ini belum mendukung opsi ukuran cetak — akan menggunakan label
-          standar.
-        </p>
-      )}
-    </div>
-  );
-}
+const SUPPORTED_LABEL_CHANNELS = new Set(["shopee", "tiktok", "lazada"]);
 
 export function PrintLabelSizeDialog() {
   const open = useDialogStore((s) => s.open);
   const orders = useDialogStore((s) => s.orders);
   const finish = useDialogStore((s) => s.finish);
 
-  const [choices, setChoices] = React.useState<PrintLabelChoiceMap>({});
+  const [size, setSize] = React.useState<PrintLabelSize>(DEFAULT_SIZE);
 
   const groups = React.useMemo(() => {
     const map = new Map<string, number>();
@@ -222,53 +119,26 @@ export function PrintLabelSizeDialog() {
       if (!src) continue;
       map.set(src, (map.get(src) ?? 0) + 1);
     }
-    return Array.from(map.entries()).map(([source, count]) => ({
-      source,
-      count,
-    }));
+    return Array.from(map.entries())
+      .map(([source, count]) => ({ source, count }))
+      .sort((a, b) => b.count - a.count);
   }, [orders]);
 
   const [prevOpen, setPrevOpen] = React.useState(open);
-  const [prevGroups, setPrevGroups] = React.useState(groups);
-  if (open !== prevOpen || groups !== prevGroups) {
+  if (open !== prevOpen) {
     setPrevOpen(open);
-    setPrevGroups(groups);
-    if (open) {
-      const seed: PrintLabelChoiceMap = {};
-      for (const g of groups) {
-        seed[g.source] = readPref(g.source);
-      }
-      setChoices(seed);
-    }
+    if (open) setSize(readPref());
   }
 
-  const handleCapabilitiesResolved = React.useCallback(
-    (source: string, caps: PrintLabelCapabilities | null) => {
-      setChoices((prev) => {
-        const current = prev[source] ?? {};
-        const next: PrintLabelChoice = { ...current };
-        if (!next.document_type && caps?.document_types.length) {
-          next.document_type = defaultValue(caps.document_types);
-        }
-        if (!next.document_size && caps?.document_sizes.length) {
-          next.document_size = defaultValue(caps.document_sizes);
-        }
-        return { ...prev, [source]: next };
-      });
-    },
-    [],
-  );
-
   const handleConfirm = () => {
-    for (const g of groups) {
-      writePref(g.source, choices[g.source] ?? {});
-    }
-    finish(choices);
+    writePref(size);
+    finish({ document_size: size });
   };
 
   const handleCancel = () => finish(null);
 
   const totalOrders = orders.length;
+  const unsupported = groups.filter((g) => !SUPPORTED_LABEL_CHANNELS.has(g.source));
 
   return (
     <Dialog
@@ -277,33 +147,51 @@ export function PrintLabelSizeDialog() {
         if (!v) handleCancel();
       }}
     >
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Cetak Label Resi</DialogTitle>
           <p className="text-muted-foreground text-sm">
-            {totalOrders} pesanan siap dicetak. Pilih ukuran per channel.
+            {totalOrders} pesanan siap dicetak. 1 lembar = 1 resi.
           </p>
         </DialogHeader>
 
-        <div className="max-h-[60vh] space-y-3 overflow-y-auto">
-          {groups.length === 0 ? (
-            <p className="text-muted-foreground text-sm">
-              Tidak ada channel marketplace terdeteksi — label akan dicetak
-              dengan format standar.
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label className="text-muted-foreground text-xs">Ukuran kertas</Label>
+            <Select value={size} onValueChange={(v) => setSize(v as PrintLabelSize)}>
+              <SelectTrigger size="sm" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SIZE_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {groups.length > 0 && (
+            <div className="text-muted-foreground space-y-1 text-xs">
+              <div>Pesanan per channel:</div>
+              <ul className="ml-4 list-disc">
+                {groups.map((g) => (
+                  <li key={g.source}>
+                    {CHANNEL_LABEL[g.source] ?? g.source.toUpperCase()}: {g.count}
+                    {!SUPPORTED_LABEL_CHANNELS.has(g.source) && (
+                      <span className="text-destructive"> — belum didukung</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {unsupported.length > 0 && (
+            <p className="text-muted-foreground text-xs">
+              Channel yang belum didukung akan dilewati; pesanannya perlu dicetak manual.
             </p>
-          ) : (
-            groups.map((g) => (
-              <ChannelSection
-                key={g.source}
-                source={g.source}
-                count={g.count}
-                value={choices[g.source] ?? {}}
-                onChange={(v) =>
-                  setChoices((prev) => ({ ...prev, [g.source]: v }))
-                }
-                onCapabilitiesResolved={handleCapabilitiesResolved}
-              />
-            ))
           )}
         </div>
 

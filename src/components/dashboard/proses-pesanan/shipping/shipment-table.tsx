@@ -10,6 +10,7 @@ import {
   ZapIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Tooltip,
   TooltipContent,
@@ -30,10 +31,15 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import {
+  fulfillmentKeys,
   useCancelShipment,
   useShipments,
 } from "@/hooks/proses-pesanan/use-fulfillment";
-import type { Shipment } from "@/types/proses-pesanan/fulfillment";
+import type {
+  Shipment,
+  ShipmentDetail,
+} from "@/types/proses-pesanan/fulfillment";
+import { OutboundService } from "@/services/proses-pesanan/outbound.service";
 import { ShipmentDriverBadge } from "@/components/dashboard/proses-pesanan/shared/driver-call-indicator";
 import { useListState } from "@/hooks/use-list-state";
 import { apiError } from "@/lib/toast";
@@ -82,6 +88,7 @@ const SHIPMENT_STATUS_OPTIONS = [
 ];
 
 export function ShipmentTable() {
+  const qc = useQueryClient();
   const list = useListState<PageFilterState>(EMPTY_FILTERS, {
     perPage: 20,
     debounceMs: 350,
@@ -93,6 +100,49 @@ export function ShipmentTable() {
   const [driverCallTargets, setDriverCallTargets] = React.useState<
     Shipment[] | null
   >(null);
+  const [printLabelPending, setPrintLabelPending] = React.useState(false);
+
+  const handleBulkPrintLabel = React.useCallback(
+    async (selectedShipments: Shipment[]) => {
+      if (selectedShipments.length === 0) return;
+      setPrintLabelPending(true);
+      const loadingId = toast.loading("Mengumpulkan pesanan dari pengiriman…");
+      try {
+        const details = await Promise.all(
+          selectedShipments.map((s) =>
+            qc.fetchQuery<ShipmentDetail>({
+              queryKey: fulfillmentKeys.shipmentDetail(s.id),
+              queryFn: () => OutboundService.shipmentDetail(s.id),
+            }),
+          ),
+        );
+        const seen = new Set<string>();
+        const orderInputs: { id: string; source: string | null }[] = [];
+        for (const d of details) {
+          for (const o of d.orders ?? []) {
+            if (!o.orderId || seen.has(o.orderId)) continue;
+            if ((o.source ?? "").toLowerCase() === "woocommerce") continue;
+            seen.add(o.orderId);
+            orderInputs.push({ id: o.orderId, source: o.source ?? null });
+          }
+        }
+        toast.dismiss(loadingId);
+        if (orderInputs.length === 0) {
+          toast.error(
+            "Tidak ada pesanan yang mendukung cetak label pada pilihan.",
+          );
+          return;
+        }
+        await DocActions.shippingLabel(orderInputs);
+      } catch (err) {
+        toast.dismiss(loadingId);
+        apiError(err, "Gagal menyiapkan cetak label.");
+      } finally {
+        setPrintLabelPending(false);
+      }
+    },
+    [qc],
+  );
 
   const params = React.useMemo(
     () => ({
@@ -365,19 +415,32 @@ export function ShipmentTable() {
           isLoading={isLoading}
           hideToolbar
           getRowId={(row) => row.id}
-          enableRowSelection={(row) => Boolean(row.original.hasInstant)}
+          enableRowSelection
           bulkActions={(selected) => {
-            const eligible = selected.filter((s) => s.hasInstant);
+            const instantEligible = selected.filter((s) => s.hasInstant);
             return (
-              <Button
-                size="sm"
-                variant="primary"
-                disabled={eligible.length === 0}
-                onClick={() => setDriverCallTargets(eligible)}
-              >
-                <TruckIcon className="size-3.5" />
-                Panggil Driver ({eligible.length})
-              </Button>
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="rounded-full"
+                  disabled={selected.length === 0 || printLabelPending}
+                  onClick={() => handleBulkPrintLabel(selected)}
+                >
+                  <PrinterIcon className="size-4" />
+                  Cetak Label ({selected.length})
+                </Button>
+                <Button
+                  size="sm"
+                  variant="primary"
+                  className="rounded-full"
+                  disabled={instantEligible.length === 0}
+                  onClick={() => setDriverCallTargets(instantEligible)}
+                >
+                  <TruckIcon className="size-3.5" />
+                  Panggil Driver ({instantEligible.length})
+                </Button>
+              </>
             );
           }}
           getRowClassName={(row) => instantSlaClass(row)}

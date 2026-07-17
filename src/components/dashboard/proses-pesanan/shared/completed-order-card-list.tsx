@@ -26,7 +26,7 @@ import { useListState } from "@/hooks/use-list-state";
 import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper";
 import { cn } from "@/lib/utils";
 
-const SHIPPING_LABEL_CHANNELS = new Set(["shopee", "tiktok"]);
+const SHIPPING_LABEL_CHANNELS = new Set(["shopee", "tiktok", "lazada"]);
 
 function shippingLabelSelectability(order: Order): RowSelectability {
   const src = (order.source ?? "").toLowerCase();

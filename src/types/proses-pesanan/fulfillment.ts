@@ -349,6 +349,7 @@ export interface RawPicklistItem {
     tracking_number?: string | null;
     package_no?: string | null;
     shipment_no?: string | null;
+    source?: string | null;
     shipment_orders?:
       | Array<{
           shipment?: { shipment_no?: string | null } | null;
@@ -371,6 +372,7 @@ export interface PicklistItem {
   binCode: string | null;
   orderId: string | null;
   orderNo: string | null;
+  source: string | null;
   trackingNumber: string | null;
   packageNo: string | null;
   itemStatus: PicklistItemStatus | null;

@@ -33,7 +33,7 @@ function toOrderInputs(
   );
 }
 
-const SUPPORTED_LABEL_CHANNELS = new Set(["shopee", "tiktok"]);
+const SUPPORTED_LABEL_CHANNELS = new Set(["shopee", "tiktok", "lazada"]);
 
 async function runShippingLabel(orders: PrintLabelOrderInput[]) {
   const eligible = orders.filter((o) => {
@@ -50,42 +50,28 @@ async function runShippingLabel(orders: PrintLabelOrderInput[]) {
     toast.info(`${skipped} pesanan dilewati (kanal belum didukung).`);
   }
 
-  const choices: PrintLabelChoiceMap | null =
+  const choice: PrintLabelChoiceMap | null =
     await openPrintLabelSizeDialog(eligible);
-  if (choices === null) return;
+  if (choice === null) return;
+  const documentSize = choice.document_size;
 
   if (eligible.length === 1) {
     const o = eligible[0];
-    const src = (o.source ?? "").toLowerCase();
-    const choice = choices[src];
     const params = new URLSearchParams();
-    if (choice?.document_type) params.set("document_type", choice.document_type);
-    if (choice?.document_size) params.set("document_size", choice.document_size);
-    const qs = params.toString() ? `?${params}` : "";
+    params.set("document_size", documentSize);
     window.open(
-      `/dashboard/document-preview/shipping-label/${o.id}${qs}`,
+      `/dashboard/document-preview/shipping-label/${o.id}?${params}`,
       "_blank",
       "noopener,noreferrer",
     );
     return;
   }
 
-  const perChannel: Record<
-    string,
-    { document_type?: string; document_size?: string }
-  > = {};
-  for (const [src, ch] of Object.entries(choices)) {
-    perChannel[src] = {
-      document_type: ch.document_type,
-      document_size: ch.document_size,
-    };
-  }
-
   const loadingId = toast.loading("Mengantre pencetakan label…");
   try {
     const { batch_id } = await OutboundService.createBulkShippingLabelBatch(
       eligible.map((o) => o.id),
-      perChannel,
+      documentSize,
     );
     toast.dismiss(loadingId);
     window.open(

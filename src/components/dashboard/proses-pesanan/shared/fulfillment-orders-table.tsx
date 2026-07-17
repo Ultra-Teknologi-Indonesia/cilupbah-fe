@@ -18,6 +18,7 @@ import {
   CheckCircle2Icon,
   AlertTriangleIcon,
   Trash2Icon,
+  PrinterIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -1027,12 +1028,18 @@ export function FulfillmentOrdersTable({
             <Button
               size="sm"
               variant="outline"
+              className="rounded-full"
               onClick={() =>
                 DocActions.shippingLabel(
-                  selectedOrders.map((o) => ({ id: o.id, source: o.source })),
+                  selectedOrders
+                    .filter(
+                      (o) => (o.source ?? "").toLowerCase() !== "woocommerce",
+                    )
+                    .map((o) => ({ id: o.id, source: o.source })),
                 )
               }
             >
+              <PrinterIcon className="size-4" />
               Cetak Label
             </Button>
           )}
