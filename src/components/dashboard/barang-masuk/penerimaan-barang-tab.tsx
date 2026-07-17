@@ -11,7 +11,6 @@ import {
   DownloadIcon,
   LayersIcon,
   PlayIcon,
-  PlusIcon,
   PrinterIcon,
   Trash2Icon,
   } from "lucide-react";
@@ -492,12 +491,6 @@ export function PenerimaanBarangTab() {
                 Export CSV
               </Button>
             )}
-            <Button size="sm" asChild>
-              <Link href="/dashboard/barang-masuk/penerimaan/tambah">
-                <PlusIcon className="mr-1.5 size-4" />
-                Tambah Penerimaan
-              </Link>
-            </Button>
           </div>
         </div>
         <FilterToolbar
