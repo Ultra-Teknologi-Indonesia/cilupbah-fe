@@ -92,6 +92,7 @@ export const InventoryStockService = {
         variant_label: string;
         thumbnail_url: string | null;
         total_on_hand: number;
+        sell_price: number;
       }>
     >(`/inventory/stock/items?${q.toString()}`);
   },

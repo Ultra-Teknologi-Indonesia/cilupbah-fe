@@ -16,8 +16,10 @@ import {
 import { PageTitle } from "@/components/dashboard/page-title";
 import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import { TambahPelangganDialog } from "@/components/dashboard/shared/tambah-pelanggan-dialog";
-import { ProductPickerDialog } from "@/components/dashboard/transaksi-pembelian/product-picker-dialog";
-import type { PickedProduct } from "@/components/dashboard/transaksi-pembelian/product-picker-dialog";
+import {
+  StockedProductPickerDialog,
+  type StockedPickedProduct,
+} from "@/components/dashboard/transaksi-stok/stocked-product-picker-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
@@ -60,6 +62,7 @@ interface LineItem {
   discPercent: number;
   discAmount: number;
   shippingFee: number;
+  totalOnHand: number;
 }
 
 function toDateOnly(d: Date | undefined) {
@@ -229,7 +232,7 @@ export function PesananManualFormPage() {
     setItems((prev) => prev.filter((_, i) => i !== idx));
   }
 
-  function handleProductsPicked(picked: PickedProduct[]) {
+  function handleProductsPicked(picked: StockedPickedProduct[]) {
     setItems((prev) => {
       const existingIds = new Set(prev.map((it) => it.itemId));
       const fresh: LineItem[] = picked
@@ -246,6 +249,7 @@ export function PesananManualFormPage() {
           discPercent: 0,
           discAmount: 0,
           shippingFee: 0,
+          totalOnHand: p.totalOnHand,
         }));
       return [...prev, ...fresh];
     });
@@ -471,9 +475,17 @@ export function PesananManualFormPage() {
                 <Combobox
                   options={locationOptions}
                   value={locationId}
-                  onChange={setLocationId}
+                  onChange={(v) => {
+                    if (v !== locationId) setItems([]);
+                    setLocationId(v);
+                  }}
                   placeholder="Pilih lokasi"
+                  searchPlaceholder="Cari lokasi…"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Pilih gudang dulu untuk menampilkan produk yang punya stok di
+                  sana.
+                </p>
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label className="text-sm font-medium">Salesman</Label>
@@ -520,6 +532,7 @@ export function PesananManualFormPage() {
                       <TableHead className="w-[260px] min-w-[200px] max-w-[300px]">
                         Produk
                       </TableHead>
+                      <TableHead className="w-20 text-right">Stok</TableHead>
                       <TableHead className="w-36 text-right">Harga</TableHead>
                       <TableHead className="w-20 text-right">Qty</TableHead>
                       <TableHead className="w-36 text-right">Total</TableHead>
@@ -530,16 +543,20 @@ export function PesananManualFormPage() {
                     {items.length === 0 ? (
                       <TableRow className="hover:bg-transparent">
                         <TableCell
-                          colSpan={5}
+                          colSpan={6}
                           className="h-40 text-center align-middle"
                         >
                           <div className="flex flex-col items-center gap-2 text-muted-foreground">
                             <PackageIcon className="size-8 opacity-40" />
                             <p className="text-sm font-medium">
-                              Belum ada produk
+                              {locationId
+                                ? "Belum ada produk"
+                                : "Pilih gudang dulu"}
                             </p>
                             <p className="text-xs">
-                              Klik tombol di bawah untuk menambahkan.
+                              {locationId
+                                ? "Klik tombol di bawah untuk menambahkan."
+                                : "Produk yang bisa dipilih tergantung stok di gudang."}
                             </p>
                           </div>
                         </TableCell>
@@ -580,6 +597,16 @@ export function PesananManualFormPage() {
                                   </div>
                                 </div>
                               </div>
+                            </TableCell>
+                            <TableCell
+                              className={cn(
+                                "text-right font-mono tabular-nums text-sm",
+                                it.totalOnHand <= 0
+                                  ? "text-warning"
+                                  : "text-muted-foreground",
+                              )}
+                            >
+                              {it.totalOnHand}
                             </TableCell>
                             <TableCell>
                               <Input
@@ -636,15 +663,21 @@ export function PesananManualFormPage() {
                 </Table>
               </div>
 
-              <div>
+              <div className="flex items-center gap-3">
                 <Button
                   type="button"
                   variant="primary"
                   onClick={() => setProductPickerOpen(true)}
+                  disabled={!locationId}
                 >
                   <PlusIcon className="mr-1 size-4" />
                   Tambah Baru
                 </Button>
+                {!locationId && (
+                  <p className="text-xs text-muted-foreground">
+                    Pilih gudang dulu untuk menambah produk.
+                  </p>
+                )}
               </div>
             </div>
           </LiquidGlass>
@@ -908,10 +941,11 @@ export function PesananManualFormPage() {
         onCreated={(c) => handleCustomerSelected(c)}
       />
 
-      <ProductPickerDialog
+      <StockedProductPickerDialog
         open={productPickerOpen}
         onOpenChange={setProductPickerOpen}
         onPick={handleProductsPicked}
+        locationId={locationId ?? ""}
         excludeIds={items.map((it) => it.itemId)}
       />
     </div>

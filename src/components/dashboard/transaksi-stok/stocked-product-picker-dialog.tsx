@@ -37,6 +37,7 @@ export interface StockedPickedProduct {
   variantLabel: string;
   thumbnail: string | null;
   totalOnHand: number;
+  sellPrice: number;
 }
 
 interface StockedProductPickerDialogProps {
@@ -57,6 +58,7 @@ interface RawRow {
   variation_values: { label: string; value: string }[];
   thumbnail_url: string | null;
   total_on_hand: number;
+  sell_price: number;
 }
 
 export function StockedProductPickerDialog({
@@ -156,6 +158,7 @@ export function StockedProductPickerDialog({
           variantLabel: variant.variant_label,
           thumbnail: group.thumbnail ?? variant.thumbnail_url,
           totalOnHand: variant.total_on_hand,
+          sellPrice: Number(variant.sell_price ?? 0),
         });
       }
       return next;
