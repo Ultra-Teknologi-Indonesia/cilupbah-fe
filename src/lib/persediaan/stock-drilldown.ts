@@ -1,5 +1,12 @@
 export type DrillMetric = "on_hand" | "on_order" | "transit";
 
+const TRANSIT_SOURCES = [
+  "TRANSFER_IN",
+  "TRANSFER_OUT",
+  "BIN_TRANSFER_IN",
+  "BIN_TRANSFER_OUT",
+].join(",");
+
 export function buildStockDrillHref(
   itemId: string,
   metric: DrillMetric,
@@ -17,7 +24,8 @@ export function buildStockDrillHref(
       break;
     case "transit":
       p.set("tab", "kronologi");
-      p.set("source", "TRANSFER");
+      p.set("source", TRANSIT_SOURCES);
+      if (locationId) p.set("location_id", locationId);
       break;
   }
   return `/dashboard/posisi-stok/${encodeURIComponent(itemId)}?${p.toString()}`;
