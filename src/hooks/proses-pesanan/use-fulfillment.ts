@@ -18,9 +18,10 @@ import {
 } from "@/services/proses-pesanan/outbound.service";
 import type {
   FulfillmentListParams,
-  PicklistDetail,
+  PicklistItem,
   PacklistDetail,
 } from "@/types/proses-pesanan/fulfillment";
+import type { ApiPaginated } from "@/types/api.types";
 
 const STALE = 30_000;
 const all = ["proses-pesanan"] as const;
@@ -243,11 +244,26 @@ export function usePicklistDetail(id: string, enabled = true) {
   });
 }
 
-export function usePicklistItems(id: string, params: FulfillmentListParams) {
+/**
+ * `params` wajib masuk query key, kalau tidak ganti sort tidak memicu refetch.
+ * `fulfillmentKeys.picklistItems(id)` tetap dipakai sebagai prefix untuk
+ * invalidate/optimistic update lintas semua variasi params.
+ *
+ * Polling dipakai karena picking free-for-all: beberapa orang bisa menggarap
+ * picklist yang sama, dan tidak ada infra realtime di BE. Hanya aktif selagi
+ * picklist masih dikerjakan supaya tidak membebani server sia-sia.
+ */
+export function usePicklistItems(
+  id: string,
+  params: FulfillmentListParams,
+  options?: { live?: boolean },
+) {
   return useQuery({
-    queryKey: fulfillmentKeys.picklistItems(id),
+    queryKey: [...fulfillmentKeys.picklistItems(id), params] as const,
     queryFn: () => OutboundService.picklistItems(id, params),
     enabled: !!id,
+    refetchInterval: options?.live ? 5_000 : false,
+    refetchIntervalInBackground: false,
   });
 }
 
@@ -277,52 +293,77 @@ export function usePrefetchPacklistDetail() {
   );
 }
 
+/**
+ * `qtyDelta` untuk alur scan (aman konkuren), `qtyPicked` untuk koreksi manual.
+ *
+ * Optimistic update menyasar cache `picklistItems` — itulah yang dibaca tabel.
+ * Sebelumnya menulis ke `picklistDetail`, sehingga hasil scan tidak pernah
+ * terlihat sampai reload manual.
+ */
 export function usePickItem() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({
       picklistId,
       itemId,
+      qtyDelta,
       qtyPicked,
       binCode,
     }: {
       picklistId: string;
       itemId: string;
-      qtyPicked: number;
       binCode: string;
+      qtyDelta?: number;
+      qtyPicked?: number;
     }) =>
-      OutboundService.pickItem(picklistId, itemId, {
-        qty_picked: qtyPicked,
-        bin_code: binCode,
-      }),
+      OutboundService.pickItem(
+        picklistId,
+        itemId,
+        qtyDelta != null
+          ? { qty_delta: qtyDelta, bin_code: binCode }
+          : { qty_picked: qtyPicked as number, bin_code: binCode },
+      ),
 
     onMutate: async (v) => {
-      const key = fulfillmentKeys.picklistDetail(v.picklistId);
-      await qc.cancelQueries({ queryKey: key });
-      const prev = qc.getQueryData<PicklistDetail>(key);
-      if (prev) {
-        qc.setQueryData<PicklistDetail>(key, {
-          ...prev,
-          items: prev.items.map((it) =>
-            it.id === v.itemId
-              ? {
-                  ...it,
-                  qtyPicked: v.qtyPicked,
-                  binCode: v.binCode || it.binCode,
-                }
-              : it,
-          ),
-        });
-      }
-      return { key, prev };
+      const itemsKey = fulfillmentKeys.picklistItems(v.picklistId);
+      await qc.cancelQueries({ queryKey: itemsKey });
+      const prev = qc.getQueriesData({ queryKey: itemsKey });
+
+      qc.setQueriesData<ApiPaginated<PicklistItem>>(
+        { queryKey: itemsKey },
+        (old) => {
+          if (!old?.data) return old;
+          return {
+            ...old,
+            data: old.data.map((it) =>
+              it.id === v.itemId
+                ? {
+                    ...it,
+                    qtyPicked:
+                      v.qtyDelta != null
+                        ? Math.min(it.qtyOrdered, it.qtyPicked + v.qtyDelta)
+                        : (v.qtyPicked as number),
+                    binCode: v.binCode || it.binCode,
+                  }
+                : it,
+            ),
+          };
+        },
+      );
+
+      return { prev };
     },
     onError: (_e, _v, ctx) => {
-      if (ctx?.prev) qc.setQueryData(ctx.key, ctx.prev);
+      ctx?.prev?.forEach(([key, data]) => qc.setQueryData(key, data));
     },
-    onSettled: (_d, _e, v) =>
+    onSettled: (_d, _e, v) => {
+      qc.invalidateQueries({
+        queryKey: fulfillmentKeys.picklistItems(v.picklistId),
+      });
       qc.invalidateQueries({
         queryKey: fulfillmentKeys.picklistDetail(v.picklistId),
-      }),
+      });
+    },
   });
 }
 

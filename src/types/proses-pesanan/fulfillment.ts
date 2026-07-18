@@ -330,6 +330,8 @@ export interface RawPicklistItem {
   fail_reason_code?: string | null;
   fail_reason_note?: string | null;
   failed_qty?: number | null;
+  last_picked_by_name?: string | null;
+  last_picked_at?: string | null;
 
   image_url?: string | null;
   product?: {
@@ -382,6 +384,8 @@ export interface PicklistItem {
   failedQty: number | null;
   qtyOrdered: number;
   qtyPicked: number;
+  lastPickedByName: string | null;
+  lastPickedAt: string | null;
 }
 
 export const PICKLIST_ITEM_STATUS_LABEL: Record<

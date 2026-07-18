@@ -391,6 +391,8 @@ function mapPicklistItem(raw: RawPicklistItem): PicklistItem {
     failedQty: raw.failed_qty ?? null,
     qtyOrdered: raw.qty_ordered ?? 0,
     qtyPicked: raw.qty_picked ?? 0,
+    lastPickedByName: raw.last_picked_by_name ?? null,
+    lastPickedAt: raw.last_picked_at ?? null,
   };
 }
 
@@ -627,10 +629,19 @@ export const OutboundService = {
   startPicklist: async (id: string): Promise<void> => {
     await fetchClient(`/outbound/picklists/${id}/start`, { method: "POST" });
   },
+  /**
+   * Dua mode, wajib salah satu:
+   * - qty_delta  : penambahan relatif, dipakai semua alur scan. Server yang
+   *                menghitung total di dalam row lock, jadi aman walau beberapa
+   *                orang menggarap picklist yang sama sekaligus.
+   * - qty_picked : nilai absolut, khusus koreksi manual.
+   */
   pickItem: async (
     picklistId: string,
     itemId: string,
-    payload: { qty_picked: number; bin_code: string },
+    payload:
+      | { qty_delta: number; bin_code: string }
+      | { qty_picked: number; bin_code: string },
   ): Promise<void> => {
     await fetchClient(
       `/outbound/picklists/${picklistId}/items/${itemId}/pick`,

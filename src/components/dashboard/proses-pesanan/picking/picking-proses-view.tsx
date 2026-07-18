@@ -62,7 +62,7 @@ import type {
   PicklistItem,
 } from "@/types/proses-pesanan/fulfillment";
 import { ScanAutoflowBar } from "@/components/dashboard/shared/scan-autoflow-bar";
-import { useQtyBumpQueue } from "@/hooks/proses-pesanan/use-qty-bump-queue";
+import { useScanDeltaQueue } from "@/hooks/proses-pesanan/use-scan-delta-queue";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { QtyConfirmInput } from "@/components/ui/qty-confirm-input";
 import {
@@ -77,6 +77,27 @@ import { BIN_CODE_PATTERN } from "@/lib/validators/bin-code";
 import { apiError } from "@/lib/toast";
 
 const LIST_HREF = "/dashboard/proses-pesanan/picking";
+
+type ApiErrorShape = {
+  status?: number;
+  message?: string | null;
+  errors?: Record<string, unknown> | null;
+};
+
+/**
+ * 409 dari BE saat item sudah dituntaskan picker lain. Dibedakan dari error
+ * biasa supaya picking bersama tidak terasa seperti kegagalan.
+ */
+function isItemAlreadyFull(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const body = err as ApiErrorShape;
+  return body.status === 409 && body.errors?.code === "ITEM_ALREADY_FULL";
+}
+
+function readApiMessage(err: unknown): string | null {
+  if (!err || typeof err !== "object") return null;
+  return (err as ApiErrorShape).message?.trim() || null;
+}
 
 function ItemImage({ src, alt }: { src: string | null; alt: string }) {
   const [errored, setErrored] = React.useState(false);
@@ -195,7 +216,11 @@ export function PickingProsesView({ id }: { id: string }) {
     } as FulfillmentListParams;
   }, [list.page, list.perPage, list.sorting]);
 
-  const itemsQuery = usePicklistItems(id, params);
+  // Polling menyala selagi picklist masih dikerjakan: picking free-for-all, jadi
+  // rekan lain bisa menambah progres pada picklist yang sama kapan saja.
+  const itemsQuery = usePicklistItems(id, params, {
+    live: pl?.status === "IN_PROGRESS" || pl?.status === "DRAFT",
+  });
 
   const isLoading = isPicklistLoading || itemsQuery.isLoading;
   const startPicklist = useStartPicklist();
@@ -219,24 +244,37 @@ export function PickingProsesView({ id }: { id: string }) {
 
   const pickBinRef = React.useRef<Map<string, string>>(new Map());
   const commitPick = React.useCallback(
-    (itemId: string, qty: number) => {
+    async (itemId: string, deltaQty: number) => {
       const binCode = pickBinRef.current.get(itemId);
-      if (!binCode) return Promise.reject(new Error("Rak belum dipilih."));
-      return pickItem.mutateAsync({
-        picklistId: id,
-        itemId,
-        qtyPicked: qty,
-        binCode,
-      });
+      if (!binCode) throw new Error("Rak belum dipilih.");
+      try {
+        await pickItem.mutateAsync({
+          picklistId: id,
+          itemId,
+          qtyDelta: deltaQty,
+          binCode,
+        });
+      } catch (e) {
+        // Rekan lain lebih dulu menuntaskan item ini. Ini kejadian normal pada
+        // picking bersama, bukan kegagalan teknis: beri tahu dengan ramah dan
+        // selaraskan layar, jangan suruh scan ulang.
+        if (isItemAlreadyFull(e)) {
+          playScanFeedback("error");
+          toast.info(readApiMessage(e) ?? "Barang ini sudah lengkap.");
+          void itemsQuery.refetch();
+          return;
+        }
+        throw e;
+      }
     },
-    [pickItem, id],
+    [pickItem, id, itemsQuery],
   );
-  const { bump: bumpPick } = useQtyBumpQueue(commitPick, {
-    onGiveUp: (itemId) => {
+  const { bump: bumpPick } = useScanDeltaQueue(commitPick, {
+    onGiveUp: (itemId, lostQty) => {
       const item = itemsRef.current.find((i) => i.id === itemId);
       playScanFeedback("error");
       toast.error(
-        `Gagal menyimpan hasil scan ${item?.sku ?? ""} — scan ulang barang ini.`,
+        `Gagal menyimpan ${lostQty} scan ${item?.sku ?? ""} — scan ulang barang ini.`,
       );
     },
   });
@@ -255,11 +293,10 @@ export function PickingProsesView({ id }: { id: string }) {
   const isTerminal = pl
     ? ["COMPLETED", "FAILED", "CANCELLED"].includes(pl.status)
     : false;
-  // Channel lock: kalau assigned ke picker (mobile) dan belum COMPLETED,
-  // web tidak boleh proses (banner + tombol disabled).
-  const isChannelLocked =
-    !!pl && pl.pickerId != null && pl.completedAt == null;
-  const editable = !!pl && !isTerminal && !isChannelLocked;
+  // Picking free-for-all: web boleh ikut menggarap picklist yang sedang
+  // dipegang picker mobile. Tidak ada lagi channel lock — keamanan datanya
+  // dijaga di BE (row lock + kontrak qty_delta), bukan dengan menutup UI.
+  const editable = !!pl && !isTerminal;
 
   React.useEffect(() => {
     if (pl && pl.status === "COMPLETED") {
@@ -342,17 +379,18 @@ export function PickingProsesView({ id }: { id: string }) {
       }
 
       const item = itemsRef.current.find((i) => i.id === res.item_id);
-      const base = item?.qtyPicked ?? 0;
-      const max = item?.qtyOrdered ?? base + 1;
-      if (base >= max) {
+      // Penjaga lokal supaya tidak mengirim request yang jelas akan ditolak.
+      // Datanya bisa basi (rekan lain mungkin baru saja menambah), jadi otoritas
+      // tetap di BE yang membalas 409 ITEM_ALREADY_FULL.
+      if (item && item.qtyPicked >= item.qtyOrdered) {
         playScanFeedback("error");
-        toast.info(`${item?.sku ?? code} sudah lengkap.`);
+        toast.info(`${item.sku} sudah lengkap.`);
         setSkuRefocusKey((k) => k + 1);
         return;
       }
       pickBinRef.current.set(res.item_id, res.bin_code);
       playScanFeedback("ok");
-      bumpPick({ itemId: res.item_id, base, max, delta: 1 });
+      bumpPick({ itemId: res.item_id, delta: 1 });
       setSkuRefocusKey((k) => k + 1);
     } catch (e) {
       playScanFeedback("error");
@@ -374,14 +412,14 @@ export function PickingProsesView({ id }: { id: string }) {
       {
         picklistId: id,
         itemId: activeItem.id,
-        qtyPicked: activeItem.qtyPicked + qty,
+        qtyDelta: qty,
         binCode: binCodeForCommit,
       },
       {
         onSuccess: () => {
           playScanFeedback("ok");
           toast.success(
-            `Stok terpotong: ${activeItem.sku} × ${qty} @ ${binCodeForCommit} (${activeItem.qtyPicked + qty}/${activeItem.qtyOrdered}).`,
+            `Stok terpotong: ${activeItem.sku} × ${qty} @ ${binCodeForCommit}.`,
           );
           setScannedBinCode(binCodeForCommit);
           setActiveItemId(null);
@@ -392,6 +430,13 @@ export function PickingProsesView({ id }: { id: string }) {
         },
         onError: (e) => {
           playScanFeedback("error");
+          if (isItemAlreadyFull(e)) {
+            toast.info(readApiMessage(e) ?? `${activeItem.sku} sudah lengkap.`);
+            void itemsQuery.refetch();
+            setActiveItemId(null);
+            setPickQty("");
+            return;
+          }
           apiError(e, `Gagal pick ${activeItem.sku}.`);
         },
       },
@@ -500,18 +545,25 @@ export function PickingProsesView({ id }: { id: string }) {
           const it = row.original;
           const done = it.qtyPicked >= it.qtyOrdered;
           return (
-            <span
-              className={cn(
-                "inline-flex h-6 min-w-10 items-center justify-center rounded-xl px-2 text-xs font-medium tabular-nums",
-                done
-                  ? "bg-success/10 text-success"
-                  : it.qtyPicked > 0
-                    ? "bg-warning/10 text-warning"
-                    : "text-muted-foreground",
+            <div className="space-y-0.5">
+              <span
+                className={cn(
+                  "inline-flex h-6 min-w-10 items-center justify-center rounded-xl px-2 text-xs font-medium tabular-nums",
+                  done
+                    ? "bg-success/10 text-success"
+                    : it.qtyPicked > 0
+                      ? "bg-warning/10 text-warning"
+                      : "text-muted-foreground",
+                )}
+              >
+                {it.qtyPicked} / {it.qtyOrdered}
+              </span>
+              {it.lastPickedByName && (
+                <div className="text-[11px] text-muted-foreground">
+                  oleh {it.lastPickedByName}
+                </div>
               )}
-            >
-              {it.qtyPicked} / {it.qtyOrdered}
-            </span>
+            </div>
           );
         },
       },
@@ -641,6 +693,7 @@ export function PickingProsesView({ id }: { id: string }) {
 
       {pl && (
         <AssignmentLockBanner
+          mode="collaborative"
           assignedToName={pl.pickerName ?? null}
           assignedAt={pl.assignedAt ?? null}
           isUnlockedOnce={pl.completedAt != null}
