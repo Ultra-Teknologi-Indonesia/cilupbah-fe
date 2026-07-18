@@ -1046,17 +1046,15 @@ function PlacementRow({
   const deletePlacementMutation = useDeletePutawayPlacement();
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
-  const binLocked = !!(item.recommended_bin_locked && item.recommended_bin);
-
   const initialBinId = useMemo(() => {
-    if (binLocked && item.recommended_bin) return item.recommended_bin.id;
+    if (defaultRack) return defaultRack.id;
     if (entry.initialBinCode) {
       const match = availableBins.find(
         (b) => b.bin_final_code === entry.initialBinCode,
       );
       if (match) return match.id;
     }
-    if (defaultRack) return defaultRack.id;
+    if (item.recommended_bin) return item.recommended_bin.id;
     return null;
   }, []);
 
@@ -1096,10 +1094,6 @@ function PlacementRow({
     (binId: string, targetQty: number, afterSave?: () => void) => {
       const delta = targetQty - lastSavedQty.current;
       if (delta <= 0 || processMutation.isPending) return;
-      // Jaring pengaman: SKU yang sudah punya rak tetap hanya boleh ke rak itu.
-      if (binLocked && item.recommended_bin && binId !== item.recommended_bin.id) {
-        return;
-      }
       processMutation.mutate(
         {
           putawayId,
@@ -1116,7 +1110,7 @@ function PlacementRow({
         },
       );
     },
-    [processMutation, putawayId, item.id, onProcessed, binLocked, item.recommended_bin],
+    [processMutation, putawayId, item.id, onProcessed],
   );
 
   useEffect(() => {
@@ -1147,18 +1141,13 @@ function PlacementRow({
           placeholder="Pilih rak…"
           searchPlaceholder="Cari kode rak…"
           emptyText="Tidak ada rak."
-          disabled={!editable || binLocked}
+          disabled={!editable}
           className={cn(
             "h-8 w-52 rounded-lg text-xs",
             selectedBin &&
               "border-success ring-1 ring-success/30",
           )}
         />
-        {binLocked && (
-          <p className="text-xs text-muted-foreground">
-            Rak tetap SKU — terkunci
-          </p>
-        )}
       </div>
 
       <div className="flex flex-col gap-0.5">
