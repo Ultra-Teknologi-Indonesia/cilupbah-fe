@@ -36,7 +36,12 @@ const REFRESH_TIMEOUT_MS = 10_000;
 const inFlight = new Map<string, Promise<TokenPair | null>>();
 
 export type SessionState =
+  /** Ada sesi hidup — pakai token ini. */
   | { status: "ok"; accessToken: string }
+  /** Belum pernah login sama sekali. Endpoint publik (login, lupa password)
+   *  harus tetap diteruskan tanpa header Authorization. */
+  | { status: "anonymous" }
+  /** Pernah punya sesi, tapi sudah tidak bisa diselamatkan — harus login ulang. */
   | { status: "expired" };
 
 async function requestNewPair(refreshToken: string): Promise<TokenPair | null> {
@@ -117,6 +122,14 @@ export async function refreshSession(): Promise<TokenPair | null> {
 export async function getValidAccessToken(): Promise<SessionState> {
   const jar = await cookies();
   const accessToken = jar.get(ACCESS_TOKEN_COOKIE)?.value;
+  const refreshToken = jar.get(REFRESH_TOKEN_COOKIE)?.value;
+
+  // Tidak ada jejak sesi sama sekali. Jangan blokir di sini — request bisa
+  // saja menuju endpoint publik seperti /auth/login atau /auth/forgot-password.
+  if (!accessToken && !refreshToken) {
+    return { status: "anonymous" };
+  }
+
   const remaining = accessTokenRemainingMs(
     jar.get(ACCESS_EXPIRES_COOKIE)?.value,
   );
@@ -129,9 +142,9 @@ export async function getValidAccessToken(): Promise<SessionState> {
 
   if (pair) return { status: "ok", accessToken: pair.access_token };
 
-  // Tidak ada refresh token, tapi access token masih ada — mis. sesi lama
-  // dari sebelum fitur ini ada. Pakai apa adanya; backend yang memutuskan.
-  if (accessToken && remaining > 0) {
+  // Sesi lama dari sebelum fitur ini ada hanya punya cookie access tanpa
+  // penanda kedaluwarsa. Teruskan apa adanya; backend yang memutuskan.
+  if (accessToken && !refreshToken) {
     return { status: "ok", accessToken };
   }
 

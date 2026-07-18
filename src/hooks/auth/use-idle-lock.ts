@@ -95,11 +95,15 @@ export function useIdleLock(enabled: boolean) {
     };
 
     const onVisibility = () => {
-      // Saat laptop tidur, setInterval tidak berjalan. Tanpa pemeriksaan
-      // di sini, user membuka laptop setelah berjam-jam dan layar tidak
+      // Hanya memeriksa saat tab kembali terlihat. Sengaja TIDAK menandai
+      // aktivitas saat tab disembunyikan: pindah ke tab lain bukan aktivitas
+      // di aplikasi ini, dan menandainya justru memundurkan waktu kunci.
+      //
+      // Pemeriksaan di sini wajib karena setInterval tidak berjalan (atau
+      // di-throttle berat) saat laptop tidur / tab di latar belakang —
+      // tanpa ini, user membuka laptop setelah berjam-jam dan layar tidak
       // terkunci.
       if (document.visibilityState === "visible") checkIdle();
-      else markActive();
     };
 
     const onStorage = (event: StorageEvent) => {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { Loader2, Lock } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import { useMe, useUnlock } from "@/hooks/auth/use-auth";
 import {
@@ -129,18 +129,14 @@ function IdleLockPrompt({ email }: { email?: string }) {
           </DialogHeader>
 
           <div className="my-6 space-y-2">
-            <div className="group relative">
-              <Lock className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-foreground" />
-              <PasswordInput
-                autoFocus
-                autoComplete="current-password"
-                placeholder="Password"
-                className="pl-10"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={unlock.isPending}
-              />
-            </div>
+            <PasswordInput
+              autoFocus
+              autoComplete="current-password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={unlock.isPending}
+            />
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
           </div>
 

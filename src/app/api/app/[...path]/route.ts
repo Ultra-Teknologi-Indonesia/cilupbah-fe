@@ -50,7 +50,11 @@ async function proxyRequest(
     return sessionExpiredResponse();
   }
 
-  headers.set("authorization", `Bearer ${session.accessToken}`);
+  // status "anonymous" tetap diteruskan tanpa Authorization — endpoint
+  // publik seperti /auth/login dan /auth/forgot-password lewat sini juga.
+  if (session.status === "ok") {
+    headers.set("authorization", `Bearer ${session.accessToken}`);
+  }
 
   const hasBody = request.method !== "GET" && request.method !== "HEAD";
   // Body dibuffer supaya request bisa diulang setelah refresh — stream
@@ -67,7 +71,11 @@ async function proxyRequest(
     // Jaring pengaman: token ditolak walaupun menurut cookie masih berlaku
     // (mis. sesi dicabut admin, atau selisih jam server). Coba segarkan
     // sekali lalu ulangi request yang sama.
-    if (response.status === 401) {
+    //
+    // Hanya untuk request yang memang membawa sesi. Tanpa penjagaan ini,
+    // login dengan password salah — yang juga membalas 401 — akan diubah
+    // jadi SESSION_EXPIRED dan pesan aslinya tertelan redirect ke /login.
+    if (response.status === 401 && session.status === "ok") {
       const pair = await refreshSession();
 
       if (!pair) {
