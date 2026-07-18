@@ -162,31 +162,31 @@ function resolveTransactionHref(source: string, trxNo: string): string | null {
   const enc = encodeURIComponent(trxNo);
   switch (source) {
     case "BILL":
-      return `/dashboard/transaksi-pembelian/tagihan?q=${enc}`;
+      return `/dashboard/transaksi-pembelian/tagihan?search=${enc}`;
     case "ADJUSTMENT":
     case "STOCK_OPNAME":
-      return `/dashboard/transaksi-stok/penyesuaian?q=${enc}`;
+      return `/dashboard/transaksi-stok/penyesuaian?search=${enc}`;
     case "PURCHASE_RETURN":
-      return `/dashboard/barang-keluar/retur-pembelian?q=${enc}`;
+      return `/dashboard/barang-keluar/retur-pembelian?search=${enc}`;
     case "SALES_RETURN":
-      return `/dashboard/barang-masuk/retur-channel?q=${enc}`;
+      return `/dashboard/barang-masuk/retur-channel?search=${enc}`;
     case "INVOICE":
     case "ORDER_SHIP":
     case "ORDER_PICK":
     case "ORDER_RESTORE":
-      return `/dashboard/pesanan?q=${enc}`;
+      return `/dashboard/pesanan?search=${enc}`;
     case "TRANSFER_IN":
-      return `/dashboard/barang-masuk/penerimaan?tab=transfer&q=${enc}`;
+      return `/dashboard/barang-masuk/penerimaan?tab=transfer&search=${enc}`;
     case "TRANSFER_OUT":
-      return `/dashboard/barang-keluar/transfer-keluar?q=${enc}`;
+      return `/dashboard/barang-keluar/transfer-keluar?search=${enc}`;
     case "BIN_TRANSFER_IN":
     case "BIN_TRANSFER_OUT":
-      return `/dashboard/transaksi-stok/transfer?q=${enc}`;
+      return `/dashboard/transaksi-stok/transfer?search=${enc}`;
     case "PUTAWAY_IN":
     case "PUTAWAY_OUT":
-      return `/dashboard/barang-masuk/penempatan?q=${enc}`;
+      return `/dashboard/barang-masuk/penempatan?search=${enc}`;
     case "REVALUATION":
-      return `/dashboard/transaksi-stok/revaluasi?q=${enc}`;
+      return `/dashboard/transaksi-stok/revaluasi?search=${enc}`;
     default:
       return null;
   }
@@ -201,7 +201,7 @@ function resolveTransactionDisplay(m: StockMovement) {
   if (isPick && m.order_no) {
     return {
       label: m.order_no,
-      href: `/dashboard/pesanan?q=${encodeURIComponent(m.order_no)}`,
+      href: `/dashboard/pesanan?search=${encodeURIComponent(m.order_no)}`,
       hint: m.transaction_number,
       extraOrders: Math.max(0, (m.order_count ?? 1) - 1),
     };
