@@ -60,7 +60,7 @@ interface FilterState {
   location_id: string;
 }
 
-const EMPTY_FILTERS: FilterState = { status: "", location_id: "" };
+const EMPTY_FILTERS: FilterState = { status: "NOT_STARTED", location_id: "" };
 
 function handleExportPutaway(items: Putaway[]) {
   const headers = [
@@ -394,10 +394,10 @@ export function PenempatanBarangTab() {
             }
           >
             <TabsList variant="line" className="h-auto">
-              <TabsTrigger value="ALL">Semua</TabsTrigger>
               <TabsTrigger value="NOT_STARTED">Belum Mulai</TabsTrigger>
               <TabsTrigger value="IN_PROGRESS">Sedang Diproses</TabsTrigger>
               <TabsTrigger value="COMPLETED">Selesai</TabsTrigger>
+              <TabsTrigger value="ALL">Semua</TabsTrigger>
             </TabsList>
           </Tabs>
 
