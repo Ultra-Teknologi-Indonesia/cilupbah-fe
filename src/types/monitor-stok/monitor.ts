@@ -104,6 +104,7 @@ export interface KronologiRow {
   bin_id: string | null;
   bin_code: string | null;
   transaction_number: string | null;
+  order_no: string | null;
   source: string;
   source_category: string;
   source_label: string;

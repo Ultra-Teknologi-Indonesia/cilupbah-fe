@@ -46,6 +46,8 @@ export interface StockMovement {
   bin_id: string | null;
   bin_code: string | null;
   transaction_number: string;
+  order_no: string | null;
+  order_count: number | null;
   reference_number: string | null;
   note: string | null;
   source: string;

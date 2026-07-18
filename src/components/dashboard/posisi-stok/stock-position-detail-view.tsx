@@ -192,6 +192,29 @@ function resolveTransactionHref(source: string, trxNo: string): string | null {
   }
 }
 
+// Mutasi picking mencatat no. picklist, tapi yang relevan buat pengguna adalah
+// pesanan yang mengambil SKU ini. Backend meresolusi order_no-nya; no. picklist
+// tetap disimpan sebagai hint di tooltip.
+function resolveTransactionDisplay(m: StockMovement) {
+  const isPick = m.source === "PICKING" || m.source === "PICKING_REVERSAL";
+
+  if (isPick && m.order_no) {
+    return {
+      label: m.order_no,
+      href: `/dashboard/pesanan?q=${encodeURIComponent(m.order_no)}`,
+      hint: m.transaction_number,
+      extraOrders: Math.max(0, (m.order_count ?? 1) - 1),
+    };
+  }
+
+  return {
+    label: m.transaction_number,
+    href: resolveTransactionHref(m.source, m.transaction_number),
+    hint: undefined,
+    extraOrders: 0,
+  };
+}
+
 function SourceBadge({
   category,
   label,
@@ -653,20 +676,28 @@ function MovementsSection({ itemId }: { itemId: string }) {
               </TableCell>
               <TableCell className="px-3 py-2.5">
                 {(() => {
-                  const href = resolveTransactionHref(
-                    m.source,
-                    m.transaction_number,
-                  );
-                  return href ? (
-                    <Link
-                      href={href}
-                      className="font-mono text-xs text-primary hover:underline"
+                  const { label, href, hint, extraOrders } =
+                    resolveTransactionDisplay(m);
+                  return (
+                    <span
+                      className="inline-flex items-baseline gap-1"
+                      title={hint}
                     >
-                      {m.transaction_number}
-                    </Link>
-                  ) : (
-                    <span className="font-mono text-xs">
-                      {m.transaction_number}
+                      {href ? (
+                        <Link
+                          href={href}
+                          className="font-mono text-xs text-primary hover:underline"
+                        >
+                          {label}
+                        </Link>
+                      ) : (
+                        <span className="font-mono text-xs">{label}</span>
+                      )}
+                      {extraOrders > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          +{extraOrders}
+                        </span>
+                      )}
                     </span>
                   );
                 })()}

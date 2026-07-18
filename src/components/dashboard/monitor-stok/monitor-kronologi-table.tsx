@@ -155,11 +155,21 @@ export function MonitorKronologiTable({
       {
         accessorKey: "transaction_number",
         header: "No. Transaksi",
-        cell: ({ row }) => (
-          <span className="font-mono text-xs text-muted-foreground">
-            {row.original.transaction_number ?? "—"}
-          </span>
-        ),
+        cell: ({ row }) => {
+          const r = row.original;
+          const isPick =
+            r.source === "PICKING" || r.source === "PICKING_REVERSAL";
+          return (
+            <span
+              className="font-mono text-xs text-muted-foreground"
+              title={
+                (isPick && r.order_no ? r.transaction_number : null) ?? undefined
+              }
+            >
+              {(isPick && r.order_no ? r.order_no : r.transaction_number) ?? "—"}
+            </span>
+          );
+        },
       },
     ],
     [],
