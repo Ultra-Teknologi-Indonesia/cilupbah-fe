@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { LiquidGlassFilter } from "@/components/ui/liquid-glass-filter";
 import { PhantomProvider } from "@/components/providers/phantom-provider";
 import { PrintLabelSizeDialog } from "@/components/dashboard/proses-pesanan/shared/print-label-size-dialog";
+import { IdleLockDialog } from "@/components/auth/idle-lock-dialog";
 
 const sfPro = localFont({
   src: [
@@ -54,6 +55,7 @@ export default function RootLayout({
         <QueryProvider>
           {children}
           <PrintLabelSizeDialog />
+          <IdleLockDialog />
         </QueryProvider>
         <PhantomProvider />
         <Toaster />

@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
+
+import { getValidAccessToken, refreshSession } from "@/lib/auth/token-refresh";
 
 const BACKEND_URL =
   process.env.API_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
   "http://localhost:8000";
+
+function sessionExpiredResponse() {
+  return NextResponse.json(
+    { code: "SESSION_EXPIRED", message: "Sesi Anda telah berakhir." },
+    { status: 401 },
+  );
+}
 
 async function proxyRequest(
   request: NextRequest,
@@ -36,24 +44,47 @@ async function proxyRequest(
     headers.set("x-client-ip", clientIp);
   }
 
-  const cookieStore = await cookies();
-  const token =
-    cookieStore.get("token")?.value || cookieStore.get("session")?.value;
+  const session = await getValidAccessToken();
 
-  if (token) {
-    headers.set("authorization", `Bearer ${token}`);
+  if (session.status === "expired") {
+    return sessionExpiredResponse();
   }
 
-  const hasBody = request.method !== "GET" && request.method !== "HEAD";
+  headers.set("authorization", `Bearer ${session.accessToken}`);
 
-  const fetchOptions: RequestInit = {
-    method: request.method,
-    headers,
-    body: hasBody ? await request.arrayBuffer() : undefined,
-  };
+  const hasBody = request.method !== "GET" && request.method !== "HEAD";
+  // Body dibuffer supaya request bisa diulang setelah refresh — stream
+  // hanya bisa dibaca sekali.
+  const body = hasBody ? await request.arrayBuffer() : undefined;
 
   try {
-    const response = await fetch(targetUrl, fetchOptions);
+    let response = await fetch(targetUrl, {
+      method: request.method,
+      headers,
+      body,
+    });
+
+    // Jaring pengaman: token ditolak walaupun menurut cookie masih berlaku
+    // (mis. sesi dicabut admin, atau selisih jam server). Coba segarkan
+    // sekali lalu ulangi request yang sama.
+    if (response.status === 401) {
+      const pair = await refreshSession();
+
+      if (!pair) {
+        return sessionExpiredResponse();
+      }
+
+      headers.set("authorization", `Bearer ${pair.access_token}`);
+      response = await fetch(targetUrl, {
+        method: request.method,
+        headers,
+        body,
+      });
+
+      if (response.status === 401) {
+        return sessionExpiredResponse();
+      }
+    }
 
     const passthroughHeaders = new Headers();
     for (const header of [

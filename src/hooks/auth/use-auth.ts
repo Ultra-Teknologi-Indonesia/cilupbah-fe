@@ -38,6 +38,12 @@ export function useLogout() {
   });
 }
 
+export function useUnlock() {
+  return useMutation({
+    mutationFn: (password: string) => AuthService.unlock(password),
+  });
+}
+
 export function useForgotPassword() {
   return useMutation({
     mutationFn: (payload: ForgotPasswordPayload) =>

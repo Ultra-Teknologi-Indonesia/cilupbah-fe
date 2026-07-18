@@ -35,6 +35,13 @@ export const AuthService = {
     await fetchClient("/auth/logout", { method: "POST" });
   },
 
+  unlock: async (password: string): Promise<void> => {
+    await fetchClient("/auth/unlock", {
+      method: "POST",
+      data: { password },
+    });
+  },
+
   profile: async (): Promise<CurrentUser> => {
     const res = await fetchClient<ApiResponse<CurrentUser>>("/profile");
     return res.data;

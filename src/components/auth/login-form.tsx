@@ -60,8 +60,13 @@ export function LoginForm({ className }: { className?: string }) {
   const onSubmit = (values: LoginValues) =>
     mutation.mutate(values, {
       onSuccess: async (res) => {
-        if (res.data?.access_token) {
-          await setLoginSession(res.data.access_token);
+        if (res.data?.access_token && res.data?.refresh_token) {
+          await setLoginSession({
+            access_token: res.data.access_token,
+            refresh_token: res.data.refresh_token,
+            expires_in: res.data.expires_in,
+            refresh_expires_in: res.data.refresh_expires_in,
+          });
         }
         toast.success("Berhasil masuk", {
           description: res.data?.user?.name

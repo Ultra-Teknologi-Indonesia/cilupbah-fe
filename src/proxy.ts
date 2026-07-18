@@ -4,30 +4,155 @@ import type { NextRequest } from "next/server";
 const guestRoutes = ["/login", "/register"];
 const protectedRoutes = ["/dashboard", "/profile"];
 
+const ACCESS_TOKEN_COOKIE = "token";
+const REFRESH_TOKEN_COOKIE = "refresh_token";
+const ACCESS_EXPIRES_COOKIE = "token_expires_at";
+const REFRESH_EXPIRES_COOKIE = "refresh_expires_at";
+const SESSION_COOKIES = [
+  ACCESS_TOKEN_COOKIE,
+  REFRESH_TOKEN_COOKIE,
+  ACCESS_EXPIRES_COOKIE,
+  REFRESH_EXPIRES_COOKIE,
+];
+
+const REFRESH_SKEW_MS = 60_000;
+
 function redirectToLogin(request: NextRequest, pathname: string) {
   const loginUrl = new URL("/login", request.url);
   loginUrl.searchParams.set("callbackUrl", pathname);
   const res = NextResponse.redirect(loginUrl);
-  res.cookies.delete("token");
+  for (const name of SESSION_COOKIES) {
+    res.cookies.delete(name);
+  }
   return res;
 }
 
-export function proxy(request: NextRequest) {
-  const token = request.cookies.get("token")?.value;
+function timestamp(raw?: string): number | null {
+  const value = Number(raw);
+  return Number.isFinite(value) && value > 0 ? value : null;
+}
+
+/**
+ * Render Server Component tidak boleh menulis cookie, jadi fetcher RSC
+ * (lib/api-server.ts) tidak bisa menyegarkan token sendiri. Di sinilah
+ * penyegaran untuk navigasi halaman terjadi — sebelum render dimulai.
+ *
+ * Penyegaran dilakukan lewat HTTP ke /api/auth/refresh, bukan dengan
+ * mengimpor token-refresh.ts langsung: proxy dimuat di instance modul
+ * terpisah dari Route Handler, jadi impor langsung akan menghasilkan Map
+ * single-flight kedua dan penguncian antar-request-nya bocor.
+ */
+async function refreshViaFunnel(
+  request: NextRequest,
+): Promise<string[] | null> {
+  try {
+    const res = await fetch(new URL("/api/auth/refresh", request.url), {
+      method: "POST",
+      headers: { cookie: request.headers.get("cookie") ?? "" },
+      cache: "no-store",
+    });
+
+    if (!res.ok) return null;
+
+    return res.headers.getSetCookie();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Gabungkan nilai cookie sesi yang baru ke header cookie request lama,
+ * supaya RSC pada request yang sama membaca token hasil refresh.
+ */
+function rewriteCookieHeader(original: string, setCookies: string[]): string {
+  const fresh = new Map<string, string>();
+
+  for (const raw of setCookies) {
+    const [pair] = raw.split(";");
+    const index = pair.indexOf("=");
+    if (index <= 0) continue;
+    const name = pair.slice(0, index).trim();
+    if (!SESSION_COOKIES.includes(name)) continue;
+    fresh.set(name, pair.slice(index + 1).trim());
+  }
+
+  if (fresh.size === 0) return original;
+
+  const kept = original
+    .split(";")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .filter((part) => {
+      const name = part.slice(0, part.indexOf("=")).trim();
+      return !fresh.has(name);
+    });
+
+  for (const [name, value] of fresh) {
+    kept.push(`${name}=${value}`);
+  }
+
+  return kept.join("; ");
+}
+
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isProtectedRoute = protectedRoutes.some((r) => pathname.startsWith(r));
   const isGuestRoute = guestRoutes.some((r) => pathname.startsWith(r));
 
-  if (isProtectedRoute && !token) {
+  const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE)?.value;
+  const refreshExpiresAt = timestamp(
+    request.cookies.get(REFRESH_EXPIRES_COOKIE)?.value,
+  );
+  const accessToken = request.cookies.get(ACCESS_TOKEN_COOKIE)?.value;
+  const accessExpiresAt = timestamp(
+    request.cookies.get(ACCESS_EXPIRES_COOKIE)?.value,
+  );
+
+  // Sesi dianggap hidup selama refresh token masih dalam jendelanya —
+  // access token yang basi bukan alasan melempar user ke halaman login,
+  // karena masih bisa ditukar. Sesi lama dari sebelum fitur ini ada hanya
+  // punya cookie access, jadi tetap diterima.
+  const hasLiveSession = refreshToken
+    ? refreshExpiresAt === null || refreshExpiresAt > Date.now()
+    : Boolean(accessToken);
+
+  if (isProtectedRoute && !hasLiveSession) {
     return redirectToLogin(request, pathname);
   }
 
-  if (isGuestRoute && token) {
+  if (isGuestRoute && hasLiveSession) {
     const callbackUrl = request.nextUrl.searchParams.get("callbackUrl");
     const dest =
       callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : "/dashboard";
     return NextResponse.redirect(new URL(dest, request.url));
+  }
+
+  const accessStale =
+    accessExpiresAt === null || accessExpiresAt - Date.now() < REFRESH_SKEW_MS;
+
+  if (isProtectedRoute && refreshToken && accessStale) {
+    const setCookies = await refreshViaFunnel(request);
+
+    if (!setCookies) {
+      return redirectToLogin(request, pathname);
+    }
+
+    // Cookie baru harus ikut ke DUA arah: ke browser lewat set-cookie, dan
+    // ke request yang sedang berjalan — kalau tidak, RSC di bawah ini masih
+    // membaca token lama dari header cookie asli dan tetap kena 401.
+    const requestHeaders = new Headers(request.headers);
+    const rewritten = rewriteCookieHeader(
+      request.headers.get("cookie") ?? "",
+      setCookies,
+    );
+    requestHeaders.set("cookie", rewritten);
+
+    const res = NextResponse.next({ request: { headers: requestHeaders } });
+    for (const cookie of setCookies) {
+      res.headers.append("set-cookie", cookie);
+    }
+    return res;
   }
 
   return NextResponse.next();
