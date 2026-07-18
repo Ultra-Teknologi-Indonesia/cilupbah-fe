@@ -72,6 +72,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useUsers } from "@/hooks/pengaturan/use-users";
 import { playScanFeedback } from "@/lib/scan-feedback";
 import { BIN_CODE_PATTERN } from "@/lib/validators/bin-code";
 import { apiError } from "@/lib/toast";
@@ -199,6 +200,19 @@ export function PickingProsesView({ id }: { id: string }) {
   const [resetOpen, setResetOpen] = React.useState(false);
   const unassignMutation = useUnassignPicklist(id);
   const resetMutation = useResetPicklistAssignment(id);
+
+  const staffQuery = useUsers({
+    "filter[role]": "picker",
+    "filter[warehouse_id_or_global]": pl?.locationId || undefined,
+    perPage: 50,
+  });
+  const staffOptions = React.useMemo(
+    () =>
+      (staffQuery.data?.items ?? [])
+        .filter((u) => u.id !== pl?.pickerId)
+        .map((u) => ({ id: u.id, name: u.name })),
+    [staffQuery.data, pl?.pickerId],
+  );
   const list = useListState(
     {},
     {
@@ -1121,6 +1135,10 @@ export function PickingProsesView({ id }: { id: string }) {
         onOpenChange={setUnassignOpen}
         isSubmitting={unassignMutation.isPending}
         onSubmit={(payload) => unassignMutation.mutateAsync(payload)}
+        staff={staffOptions}
+        staffLoading={staffQuery.isLoading}
+        currentUserId={me?.id}
+        assigneeHint="Kosongkan kalau picklist mau dikembalikan ke antrian tanpa penanggung jawab."
       />
 
       <ResetAssignmentDialog
@@ -1129,6 +1147,10 @@ export function PickingProsesView({ id }: { id: string }) {
         isSubmitting={resetMutation.isPending}
         destructiveDescription="Semua alokasi pick akan dilepas dan qty picked kembali 0. Dokumen kembali antrian bersih."
         onSubmit={(payload) => resetMutation.mutateAsync(payload)}
+        staff={staffOptions}
+        staffLoading={staffQuery.isLoading}
+        currentUserId={me?.id}
+        assigneeHint="Kosongkan kalau picklist mau dikembalikan ke antrian tanpa penanggung jawab."
       />
     </div>
   );
