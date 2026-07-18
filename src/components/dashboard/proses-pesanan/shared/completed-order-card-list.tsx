@@ -89,6 +89,7 @@ export function FulfillmentCardList({
   courierMode,
   excludeTransit,
   extraColumns,
+  searchPlaceholder = "Cari no. pesanan…",
 }: {
   stage: string;
   tab?: OrderTab;
@@ -100,6 +101,7 @@ export function FulfillmentCardList({
   courierMode?: "shipping_provider" | "courier_code";
   excludeTransit?: boolean;
   extraColumns?: OrderTableExtraColumn[];
+  searchPlaceholder?: string;
 }) {
   const list = useListState<CardFilterState>(EMPTY_CARD_FILTERS, {
     perPage: 20,
@@ -228,7 +230,7 @@ export function FulfillmentCardList({
         excludeTransit={excludeTransit}
         search={list.search}
         onSearchChange={list.setSearch}
-        searchPlaceholder="Cari no. pesanan…"
+        searchPlaceholder={searchPlaceholder}
       />
       <div className="flex items-center justify-end gap-3 border-b border-border/40 px-4 py-2 text-sm text-muted-foreground sm:px-5">
         <button

@@ -131,19 +131,10 @@ export function usePickingCounts() {
       ),
     staleTime: STALE,
   });
-  const kosong = useQuery({
-    queryKey: fulfillmentKeys.count("picking-kosong"),
-    queryFn: () =>
-      OutboundService.ordersByStage("empty-stock", { per_page: 1 }).then(
-        (r) => r.meta.total,
-      ),
-    staleTime: STALE,
-  });
   return {
     belum: belum.data,
     diproses: diproses.data,
     selesai: selesai.data,
-    kosong: kosong.data,
   };
 }
 
