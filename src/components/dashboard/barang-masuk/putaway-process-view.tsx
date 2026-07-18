@@ -319,6 +319,9 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
         setScanError("Item ini sudah selesai ditempatkan.");
         return;
       }
+      // Rak divalidasi BE saat penempatan diproses (guard BinOccupancy /
+      // SkuHomeBin). Pesan penolakannya ditampilkan apa adanya dari BE, jadi
+      // di sini tidak ada aturan rak yang digandakan.
       addPlacementForItem(match);
     },
     [allItems, addPlacementForItem],
@@ -908,6 +911,14 @@ function PutawayItemRow({
               <p className="truncate font-mono text-xs text-muted-foreground">
                 {displaySku}
               </p>
+              {item.recommended_bin_locked && item.recommended_bin && (
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                  Rak:{" "}
+                  <span className="font-mono font-medium text-foreground">
+                    {item.recommended_bin.bin_final_code}
+                  </span>
+                </p>
+              )}
             </div>
           </div>
         </TableCell>
@@ -1035,7 +1046,10 @@ function PlacementRow({
   const deletePlacementMutation = useDeletePutawayPlacement();
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
+  const binLocked = !!(item.recommended_bin_locked && item.recommended_bin);
+
   const initialBinId = useMemo(() => {
+    if (binLocked && item.recommended_bin) return item.recommended_bin.id;
     if (entry.initialBinCode) {
       const match = availableBins.find(
         (b) => b.bin_final_code === entry.initialBinCode,
@@ -1082,6 +1096,10 @@ function PlacementRow({
     (binId: string, targetQty: number, afterSave?: () => void) => {
       const delta = targetQty - lastSavedQty.current;
       if (delta <= 0 || processMutation.isPending) return;
+      // Jaring pengaman: SKU yang sudah punya rak tetap hanya boleh ke rak itu.
+      if (binLocked && item.recommended_bin && binId !== item.recommended_bin.id) {
+        return;
+      }
       processMutation.mutate(
         {
           putawayId,
@@ -1098,7 +1116,7 @@ function PlacementRow({
         },
       );
     },
-    [processMutation, putawayId, item.id, onProcessed],
+    [processMutation, putawayId, item.id, onProcessed, binLocked, item.recommended_bin],
   );
 
   useEffect(() => {
@@ -1129,13 +1147,18 @@ function PlacementRow({
           placeholder="Pilih rak…"
           searchPlaceholder="Cari kode rak…"
           emptyText="Tidak ada rak."
-          disabled={!editable}
+          disabled={!editable || binLocked}
           className={cn(
             "h-8 w-52 rounded-lg text-xs",
             selectedBin &&
               "border-success ring-1 ring-success/30",
           )}
         />
+        {binLocked && (
+          <p className="text-xs text-muted-foreground">
+            Rak tetap SKU — terkunci
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col gap-0.5">

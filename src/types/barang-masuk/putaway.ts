@@ -27,6 +27,10 @@ export interface PutawayItem {
   };
   source_bin?: { id: string; bin_final_code: string } | null;
   destination_bin?: { id: string; bin_final_code: string } | null;
+  /** Rak tetap SKU di lokasi strict (WH-KECIL). null bila SKU belum punya rak tetap. */
+  recommended_bin?: { id: string; bin_final_code: string } | null;
+  /** true bila SKU sudah punya rak tetap → scan/penempatan wajib ke rak itu. */
+  recommended_bin_locked?: boolean;
   placements?: {
     id: string;
     putaway_item_id: string;
