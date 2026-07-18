@@ -21,6 +21,12 @@ const dateTime = new Intl.DateTimeFormat("id-ID", {
   timeZone: "Asia/Jakarta",
 });
 
+const timeOnly = new Intl.DateTimeFormat("id-ID", {
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Asia/Jakarta",
+});
+
 const dateTimeFull = new Intl.DateTimeFormat("id-ID", {
   weekday: "long",
   day: "2-digit",
@@ -66,6 +72,13 @@ export function formatDateTime(
 ): string {
   const date = toDate(d);
   return date ? dateTime.format(date) : "—";
+}
+
+export function formatTime(
+  d: string | number | Date | null | undefined,
+): string {
+  const date = toDate(d);
+  return date ? timeOnly.format(date) : "—";
 }
 
 export function formatDateTimeFull(

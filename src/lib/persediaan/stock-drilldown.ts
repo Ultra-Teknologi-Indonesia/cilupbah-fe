@@ -7,6 +7,10 @@ const TRANSIT_SOURCES = [
   "BIN_TRANSFER_OUT",
 ].join(",");
 
+// On Order = stok yang dialokasikan untuk pesanan. Ledger alokasinya dicatat
+// dengan source ORDER_RESERVE (alokasi) & ORDER_RELEASE (alokasi dilepas).
+const ALLOCATION_SOURCES = ["ORDER_RESERVE", "ORDER_RELEASE"].join(",");
+
 export function buildStockDrillHref(
   itemId: string,
   metric: DrillMetric,
@@ -19,7 +23,8 @@ export function buildStockDrillHref(
       if (locationId) p.set("location_id", locationId);
       break;
     case "on_order":
-      p.set("tab", "pesanan");
+      p.set("tab", "kronologi");
+      p.set("source", ALLOCATION_SOURCES);
       if (locationId) p.set("location_id", locationId);
       break;
     case "transit":

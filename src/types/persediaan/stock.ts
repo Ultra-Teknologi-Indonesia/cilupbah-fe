@@ -46,6 +46,8 @@ export interface StockMovement {
   bin_id: string | null;
   bin_code: string | null;
   transaction_number: string;
+  reference_number: string | null;
+  note: string | null;
   source: string;
   source_category: string;
   source_label: string;
@@ -56,6 +58,7 @@ export interface StockMovement {
   transaction_date: string;
   created_by: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface BinInventory {

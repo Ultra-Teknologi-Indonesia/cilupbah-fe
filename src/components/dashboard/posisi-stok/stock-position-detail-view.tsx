@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, Fragment } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -11,6 +11,7 @@ import {
   BoxIcon,
   ExternalLinkIcon,
   ShoppingCartIcon,
+  CalendarIcon,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -58,7 +59,12 @@ import type {
 } from "@/types/persediaan/stock";
 import { CHANNEL_MAP, STATUS_LABELS } from "@/types/pesanan/order";
 import type { Order } from "@/types/pesanan/order";
-import { formatCurrency, formatDateTime, formatDate } from "@/lib/format";
+import {
+  formatCurrency,
+  formatDate,
+  formatTime,
+  formatDateTime,
+} from "@/lib/format";
 
 type MovementUrlKey =
   | "view"
@@ -114,6 +120,8 @@ const CATEGORY_COLOR: Record<string, string> = {
     "text-teal-600 bg-teal-50 border-teal-200 dark:text-teal-400 dark:bg-teal-500/10 dark:border-teal-500/20",
   PICKING:
     "text-emerald-600 bg-emerald-50 border-emerald-200 dark:text-emerald-400 dark:bg-emerald-500/10 dark:border-emerald-500/20",
+  ALOKASI:
+    "text-indigo-600 bg-indigo-50 border-indigo-200 dark:text-indigo-400 dark:bg-indigo-500/10 dark:border-indigo-500/20",
   PESANAN:
     "text-sky-600 bg-sky-50 border-sky-200 dark:text-sky-400 dark:bg-sky-500/10 dark:border-sky-500/20",
   INVOICE:
@@ -282,6 +290,48 @@ function StockSummaryCards({
   );
 }
 
+type MovementDayGroup = {
+  key: string;
+  label: string;
+  items: StockMovement[];
+  netQty: number;
+};
+
+/**
+ * Kelompokkan mutasi per hari kalender (Asia/Jakarta). Mengandalkan data yang
+ * sudah terurut menurun berdasarkan `transaction_date`, sehingga cukup memecah
+ * saat tanggalnya berganti. `netQty` = jumlah bersih pergerakan hari itu.
+ */
+function groupMovementsByDay(movements: StockMovement[]): MovementDayGroup[] {
+  const groups: MovementDayGroup[] = [];
+  let current: MovementDayGroup | null = null;
+  for (const m of movements) {
+    const label = formatDate(m.transaction_date);
+    if (!current || current.label !== label) {
+      current = { key: m.id, label, items: [], netQty: 0 };
+      groups.push(current);
+    }
+    current.items.push(m);
+    current.netQty += m.qty;
+  }
+  return groups;
+}
+
+function DayNetBadge({ net }: { net: number }) {
+  const cls =
+    net > 0
+      ? "text-success"
+      : net < 0
+        ? "text-destructive"
+        : "text-muted-foreground";
+  return (
+    <span className={cn("font-mono text-xs font-semibold tabular-nums", cls)}>
+      {net > 0 ? "+" : net < 0 ? "" : "±"}
+      {net} bersih
+    </span>
+  );
+}
+
 function MovementsSection({ itemId }: { itemId: string }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -370,6 +420,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
 
   const { data, isLoading } = useStockMovements(params);
   const movements = data?.data ?? [];
+  const dayGroups = useMemo(() => groupMovementsByDay(movements), [movements]);
   const meta = data?.meta ?? {
     current_page: 1,
     last_page: 1,
@@ -523,7 +574,10 @@ function MovementsSection({ itemId }: { itemId: string }) {
         <TableHeader>
           <TableRow className="border-b border-border/60 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
             <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
-              Tanggal
+              Waktu
+            </TableHead>
+            <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
+              Terakhir Diubah
             </TableHead>
             <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
               Lokasi
@@ -535,6 +589,9 @@ function MovementsSection({ itemId }: { itemId: string }) {
               No. Transaksi
             </TableHead>
             <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
+              No. Ref
+            </TableHead>
+            <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
               Sumber
             </TableHead>
             <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">
@@ -543,16 +600,41 @@ function MovementsSection({ itemId }: { itemId: string }) {
             <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">
               Sisa
             </TableHead>
+            <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
+              Keterangan
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {movements.map((m: StockMovement) => (
-            <TableRow
-              key={m.id}
-              className="border-b border-border/30 transition-colors hover:bg-muted/30"
-            >
-              <TableCell className="px-3 py-2.5 text-muted-foreground">
-                {formatDateTime(m.transaction_date)}
+          {dayGroups.map((g) => (
+            <Fragment key={g.key}>
+              <TableRow className="border-y border-border/60 bg-muted/40 hover:bg-muted/40">
+                <TableCell
+                  colSpan={7}
+                  className="px-3 py-1.5 text-xs font-semibold text-foreground"
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    <CalendarIcon className="size-3 text-muted-foreground" />
+                    {g.label}
+                    <span className="font-normal text-muted-foreground">
+                      · {g.items.length} mutasi
+                    </span>
+                  </span>
+                </TableCell>
+                <TableCell colSpan={3} className="px-3 py-1.5 text-right">
+                  <DayNetBadge net={g.netQty} />
+                </TableCell>
+              </TableRow>
+              {g.items.map((m: StockMovement) => (
+                <TableRow
+                  key={m.id}
+                  className="border-b border-border/30 transition-colors hover:bg-muted/30"
+                >
+                  <TableCell className="px-3 py-2.5 font-mono text-xs text-muted-foreground tabular-nums">
+                    {formatTime(m.transaction_date)}
+                  </TableCell>
+              <TableCell className="px-3 py-2.5 text-xs text-muted-foreground">
+                {formatDateTime(m.updated_at)}
               </TableCell>
               <TableCell className="px-3 py-2.5">
                 <span className="inline-flex items-center gap-1">
@@ -590,6 +672,15 @@ function MovementsSection({ itemId }: { itemId: string }) {
                 })()}
               </TableCell>
               <TableCell className="px-3 py-2.5">
+                {m.reference_number ? (
+                  <span className="font-mono text-xs text-muted-foreground">
+                    {m.reference_number}
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground">—</span>
+                )}
+              </TableCell>
+              <TableCell className="px-3 py-2.5">
                 <SourceBadge
                   category={m.source_category}
                   label={m.source_label}
@@ -599,10 +690,19 @@ function MovementsSection({ itemId }: { itemId: string }) {
               <TableCell className="px-3 py-2.5 text-right">
                 <QtyCell qty={m.qty} />
               </TableCell>
-              <TableCell className="px-3 py-2.5 text-right font-mono text-sm tabular-nums">
-                {m.balance}
-              </TableCell>
-            </TableRow>
+                  <TableCell className="px-3 py-2.5 text-right font-mono text-sm tabular-nums">
+                    {m.balance}
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 text-xs text-muted-foreground">
+                    {m.note ? (
+                      m.note
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </Fragment>
           ))}
         </TableBody>
       </Table>
