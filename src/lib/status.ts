@@ -21,7 +21,6 @@ export type Domain =
   | "sales-return"
   | "sales-return-reason-category"
   | "sales-return-marketplace-decision"
-  | "purchase-return"
   | "inventory-transfer"
   | "bin-transfer"
   | "stock-adjustment"
@@ -75,13 +74,6 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     MP_NOT_RETURN: { label: "Bukan Retur", variant: "muted" },
   },
 
-  "purchase-return": {
-    DRAFT: { label: "Draft", variant: "muted" },
-    SUBMITTED: { label: "Diajukan", variant: "info" },
-    APPROVED: { label: "Disetujui", variant: "indigo" },
-    COMPLETED: { label: "Selesai", variant: "success" },
-    CANCELLED: { label: "Dibatalkan", variant: "destructive" },
-  },
 
   "inventory-transfer": {
     DRAFT: { label: "Draft", variant: "muted" },

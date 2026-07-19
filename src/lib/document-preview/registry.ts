@@ -9,7 +9,6 @@ import { PutawayService } from "@/services/barang-masuk/putaway.service";
 import { StockAdjustmentService } from "@/services/transaksi-stok/stock-adjustment.service";
 import { InboundService } from "@/services/barang-masuk/inbound.service";
 import { OutboundTransferService } from "@/services/barang-keluar/outbound-transfer.service";
-import { PurchaseReturnService } from "@/services/barang-keluar/purchase-return.service";
 import { PurchaseOrderService } from "@/services/transaksi-pembelian/purchase-order.service";
 import { ReportService } from "@/services/laporan/report.service";
 import {
@@ -91,7 +90,6 @@ export type DocumentTypeKey =
   | "transfer-out"
   | "transfer-out-bulk"
   | "bin-transfer-out"
-  | "purchase-return"
   | "purchase-order"
   | "laporan-barcode"
   | "laporan-penyesuaian";
@@ -444,18 +442,6 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       `${(meta?.transfer_number as string | undefined) ?? `TRFO-${id}`}.pdf`,
   },
 
-  "purchase-return": {
-    title: "Retur Pembelian",
-    subtitle: (id, meta) =>
-      (meta?.return_number as string | undefined) ?? `RTN-${id.slice(0, 8)}…`,
-    fetchPdf: async (id) => {
-      const blob = await PurchaseReturnService.pdf(id);
-      return { blob };
-    },
-    backUrl: () => "/dashboard/barang-keluar?tab=retur",
-    filename: (id, meta) =>
-      `${(meta?.return_number as string | undefined) ?? `RTN-${id}`}.pdf`,
-  },
 
   "purchase-order": {
     title: "Barang Masuk Pembelian",
