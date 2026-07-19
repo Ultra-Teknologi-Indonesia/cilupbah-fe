@@ -48,7 +48,7 @@ export const LaporanGudangService = {
     const sp = new URLSearchParams();
     sp.set("from", params.from);
     sp.set("to", params.to);
-    if (params.channel_status) sp.set("channel_status", params.channel_status);
+    if (params.status_mp) sp.set("status_mp", params.status_mp);
     params.courier_ids?.forEach((id) => sp.append("courier_ids[]", id));
 
     return fetchBlobRaw(

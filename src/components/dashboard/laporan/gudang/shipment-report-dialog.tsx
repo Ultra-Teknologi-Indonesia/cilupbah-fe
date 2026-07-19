@@ -75,7 +75,7 @@ export function ShipmentReportDialog({
         from: formatDateISO(startDate),
         to: formatDateISO(endDate),
         courier_ids: courierIds.length ? courierIds : undefined,
-        channel_status: status || undefined,
+        status_mp: status || undefined,
       });
       toast.success("Berhasil mengunduh daftar pengiriman");
       handleOpenChange(false);
