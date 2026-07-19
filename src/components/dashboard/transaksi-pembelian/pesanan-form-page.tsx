@@ -140,7 +140,7 @@ export function PesananFormPage({ mode, id }: Props) {
     setPaymentTerm(existingPO.payment_term?.toString() ?? "0");
     setNotes(existingPO.notes ?? "");
     setItems(
-      existingPO.items.map((it) => ({
+      (existingPO.items ?? []).map((it) => ({
         id: it.id,
         received_qty: Number(it.received_qty ?? 0),
         item_id: it.item_id,

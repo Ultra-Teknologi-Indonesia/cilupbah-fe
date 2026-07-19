@@ -19,7 +19,7 @@ export const InventoryService = {
     if (itemIds.length === 0) return {};
 
     const res = await fetchClient<ApiResponse<RawStockRow[]>>(
-      "/inventory/items/all-stocks",
+      "/inventory/items/variant-stocks",
       { method: "POST", data: { item_ids: itemIds } },
     );
 
