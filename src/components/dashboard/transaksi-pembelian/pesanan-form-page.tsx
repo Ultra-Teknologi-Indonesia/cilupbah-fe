@@ -141,6 +141,8 @@ export function PesananFormPage({ mode, id }: Props) {
     setNotes(existingPO.notes ?? "");
     setItems(
       existingPO.items.map((it) => ({
+        id: it.id,
+        received_qty: Number(it.received_qty ?? 0),
         item_id: it.item_id,
         product_name: it.product?.name ?? "",
         product_sku: it.product?.sku ?? "",
@@ -273,6 +275,7 @@ export function PesananFormPage({ mode, id }: Props) {
       notes: notes || undefined,
       po_number: poNumberAuto ? undefined : poNumber || undefined,
       items: items.map((it) => ({
+        id: it.id,
         item_id: it.item_id,
         sku: it.product_sku,
         name: it.product_name,
@@ -314,6 +317,9 @@ export function PesananFormPage({ mode, id }: Props) {
   }
 
   const activeItems = items.filter((it) => it.item_id);
+  const showReceivedColumn = activeItems.some(
+    (it) => Number(it.received_qty ?? 0) > 0,
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -431,6 +437,16 @@ export function PesananFormPage({ mode, id }: Props) {
             intensity="subtle"
             className="bg-white/30 dark:bg-white/[0.04] p-5"
           >
+            {showReceivedColumn && (
+              <div className="mb-4 flex items-start gap-3 rounded-lg border border-warning/20 bg-warning/10 p-4 text-sm text-warning">
+                <AlertCircleIcon className="mt-0.5 size-5 shrink-0" />
+                <div>
+                  Sebagian produk di pesanan ini sudah diterima. Kuantitasnya
+                  tidak bisa diturunkan di bawah jumlah yang sudah diterima, dan
+                  barisnya tidak bisa dihapus.
+                </div>
+              </div>
+            )}
             {itemErrors.length > 0 && (
               <div className="mb-4 flex items-start gap-3 rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">
                 <AlertCircleIcon className="mt-0.5 size-5 shrink-0" />
@@ -454,6 +470,11 @@ export function PesananFormPage({ mode, id }: Props) {
                       Produk
                     </TableHead>
                     <TableHead className="w-28 text-right">Harga</TableHead>
+                    {showReceivedColumn && (
+                      <TableHead className="w-20 text-right">
+                        Diterima
+                      </TableHead>
+                    )}
                     <TableHead className="w-20 text-right">Qty</TableHead>
                     <TableHead className="w-32 text-right">Total</TableHead>
                     <TableHead className="w-10" />
@@ -470,6 +491,8 @@ export function PesananFormPage({ mode, id }: Props) {
                       item.qty > 0
                         ? item.unit_price - discAmt / item.qty + ship / item.qty
                         : item.unit_price;
+                    const receivedQty = Number(item.received_qty ?? 0);
+                    const isReceived = receivedQty > 0;
                     return (
                       <TableRow key={item.item_id}>
                         <TableCell className="w-[260px] min-w-[200px] max-w-[300px] whitespace-normal">
@@ -532,6 +555,11 @@ export function PesananFormPage({ mode, id }: Props) {
                             )}
                           />
                         </TableCell>
+                        {showReceivedColumn && (
+                          <TableCell className="text-right tabular-nums text-muted-foreground">
+                            {isReceived ? receivedQty : "—"}
+                          </TableCell>
+                        )}
                         <TableCell>
                           <Input
                             type="text"
@@ -542,8 +570,18 @@ export function PesananFormPage({ mode, id }: Props) {
                               const n = Number(
                                 e.target.value.replace(/\D/g, ""),
                               );
-                              updateItem(idx, "qty", n < 0 ? 0 : n);
+                              updateItem(idx, "qty", Math.max(n, receivedQty));
                             }}
+                            aria-invalid={
+                              isReceived && item.qty < receivedQty
+                                ? true
+                                : undefined
+                            }
+                            title={
+                              isReceived
+                                ? `Minimal ${receivedQty} karena sudah diterima`
+                                : undefined
+                            }
                             className="h-8 text-right bg-background tabular-nums"
                           />
                         </TableCell>
@@ -551,14 +589,16 @@ export function PesananFormPage({ mode, id }: Props) {
                           {formatCurrency(total)}
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => removeItem(idx)}
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                          >
-                            <Trash2Icon className="size-3.5" />
-                          </Button>
+                          {!isReceived && (
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              onClick={() => removeItem(idx)}
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash2Icon className="size-3.5" />
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     );
@@ -566,7 +606,7 @@ export function PesananFormPage({ mode, id }: Props) {
                   {activeItems.length === 0 && (
                     <TableRow>
                       <TableCell
-                        colSpan={5}
+                        colSpan={showReceivedColumn ? 6 : 5}
                         className="h-32 text-center text-muted-foreground"
                       >
                         <EmptyState icon={PackageIcon} title="Belum ada produk" description="Klik tombol di bawah untuk menambahkan." />

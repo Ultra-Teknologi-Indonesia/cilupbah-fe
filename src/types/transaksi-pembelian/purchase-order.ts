@@ -76,6 +76,8 @@ export interface PurchaseOrderListParams {
 }
 
 export interface PurchaseOrderItemFormData {
+  id?: string;
+  received_qty?: number;
   item_id: string;
   product_name?: string;
   product_sku?: string;

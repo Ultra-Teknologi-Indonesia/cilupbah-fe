@@ -10,6 +10,7 @@ import {
   Trash2Icon,
   ImageIcon,
   SquarePenIcon,
+  HistoryIcon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -27,6 +28,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { RiwayatPesananPembelianDialog } from "./riwayat-pesanan-pembelian-dialog";
 
 import { PageTitle } from "@/components/dashboard/page-title";
 import {
@@ -83,6 +85,7 @@ export function PesananDetailView({ id }: { id: string }) {
   const deleteMut = useDeletePurchaseOrder();
 
   const [confirmAction, setConfirmAction] = useState<"delete" | null>(null);
+  const [riwayatOpen, setRiwayatOpen] = useState(false);
 
   function handleDelete() {
     if (!po) return;
@@ -138,7 +141,15 @@ export function PesananDetailView({ id }: { id: string }) {
               status={po.status}
               className="text-xs"
             />
-            {po.status === "OPEN" && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setRiwayatOpen(true)}
+            >
+              <HistoryIcon className="mr-2 size-4" />
+              Riwayat
+            </Button>
+            {po.status !== "CANCELLED" && (
               <Button size="sm" asChild>
                 <Link
                   href={`/dashboard/transaksi-pembelian/pesanan/${po.id}/edit`}
@@ -504,6 +515,13 @@ export function PesananDetailView({ id }: { id: string }) {
         variant="destructive"
         loading={deleteMut.isPending}
         onConfirm={handleDelete}
+      />
+
+      <RiwayatPesananPembelianDialog
+        poId={po.id}
+        poNumber={po.po_number}
+        open={riwayatOpen}
+        onOpenChange={setRiwayatOpen}
       />
     </div>
   );
