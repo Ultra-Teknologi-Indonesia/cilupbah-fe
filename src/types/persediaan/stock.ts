@@ -104,6 +104,8 @@ export interface StockMovementParams {
   "filter[location_id]"?: string;
   "filter[store_id]"?: string;
   "filter[source]"?: string;
+  /** Scope drill-down Posisi Stok; definisi source-nya dimiliki BE (DRILL_SCOPES). */
+  "filter[drill]"?: "transit" | "allocation";
   "filter[direction]"?: "in" | "out";
   "filter[date_from]"?: string;
   "filter[date_to]"?: string;

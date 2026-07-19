@@ -33,26 +33,16 @@ export const InventoryStockService = {
     return fetchClient<StockListResponse>(`/inventory?${sp}`);
   },
 
+  // Diteruskan generik dari StockMovementParams, bukan whitelist manual: pola
+  // lama membuang param baru tanpa suara (filter[drill] sempat hilang di sini
+  // dan bikin drill-down On Order menampilkan seluruh mutasi). Kunci kontraknya
+  // ada di tipe StockMovementParams -- menambah field di sana sudah cukup.
   movements: (params: StockMovementParams) => {
     const sp = new URLSearchParams();
-    if (params.page) sp.set("page", String(params.page));
-    if (params.per_page) sp.set("per_page", String(params.per_page));
-    if (params.view) sp.set("view", params.view);
-    if (params["filter[item_id]"])
-      sp.set("filter[item_id]", params["filter[item_id]"]);
-    if (params["filter[location_id]"])
-      sp.set("filter[location_id]", params["filter[location_id]"]);
-    if (params["filter[store_id]"])
-      sp.set("filter[store_id]", params["filter[store_id]"]);
-    if (params["filter[source]"])
-      sp.set("filter[source]", params["filter[source]"]);
-    if (params["filter[direction]"])
-      sp.set("filter[direction]", params["filter[direction]"]);
-    if (params["filter[date_from]"])
-      sp.set("filter[date_from]", params["filter[date_from]"]);
-    if (params["filter[date_to]"])
-      sp.set("filter[date_to]", params["filter[date_to]"]);
-    if (params.sort) sp.set("sort", params.sort);
+    for (const [key, value] of Object.entries(params)) {
+      if (value === undefined || value === null || value === "") continue;
+      sp.set(key, String(value));
+    }
 
     return fetchClient<ApiPaginated<StockMovement>>(`/inventory/history?${sp}`);
   },

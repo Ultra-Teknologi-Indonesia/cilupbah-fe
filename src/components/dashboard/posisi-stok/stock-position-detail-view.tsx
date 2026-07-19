@@ -94,10 +94,19 @@ const MOVEMENT_VIEW_VALUES: readonly MovementView[] = [
 const DIRECTION_VALUES = ["in", "out"] as const;
 type Direction = (typeof DIRECTION_VALUES)[number] | "";
 
+const DRILL_VALUES = ["transit", "allocation"] as const;
+type Drill = (typeof DRILL_VALUES)[number] | "";
+
 function parseMovementView(raw: string | null): MovementView {
   return raw && (MOVEMENT_VIEW_VALUES as readonly string[]).includes(raw)
     ? (raw as MovementView)
     : "all";
+}
+
+function parseDrill(raw: string | null): Drill {
+  return raw && (DRILL_VALUES as readonly string[]).includes(raw)
+    ? (raw as Drill)
+    : "";
 }
 
 function parseDirection(raw: string | null): Direction {
@@ -372,7 +381,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
 
   const view = parseMovementView(searchParams.get("view"));
   const source = searchParams.get("source") ?? "";
-  const drill = searchParams.get("drill") ?? "";
+  const drill = parseDrill(searchParams.get("drill"));
   const direction = parseDirection(searchParams.get("direction"));
   const locationId = searchParams.get("location_id") ?? "";
   const storeId = searchParams.get("store_id") ?? "";
