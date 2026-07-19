@@ -153,7 +153,12 @@ export function PesananFormPage({ mode, id }: Props) {
         disc: Number(it.disc),
         disc_amount: Number(it.disc_amount ?? 0),
         shipping_cost: Number(it.shipping_cost ?? 0),
-        thumbnail: null,
+        thumbnail:
+          it.variant?.media?.[0]?.url ??
+          it.product?.media?.[0]?.url ??
+          it.product?.image_url ??
+          null,
+        variant_label: it.variant?.options?.map((o) => o.value).join(", "),
       })),
     );
   }
@@ -174,16 +179,18 @@ export function PesananFormPage({ mode, id }: Props) {
   );
 
   const updateItem = useCallback(
-    (index: number, field: string, value: string | number) => {
+    (itemId: string, field: string, value: string | number) => {
       setItems((prev) =>
-        prev.map((it, i) => (i === index ? { ...it, [field]: value } : it)),
+        prev.map((it) =>
+          it.item_id === itemId ? { ...it, [field]: value } : it,
+        ),
       );
     },
     [],
   );
 
-  const removeItem = useCallback((index: number) => {
-    setItems((prev) => prev.filter((_, i) => i !== index));
+  const removeItem = useCallback((itemId: string) => {
+    setItems((prev) => prev.filter((it) => it.item_id !== itemId));
   }, []);
 
   const handlePickProducts = useCallback((picked: PickedProduct[]) => {
@@ -441,9 +448,11 @@ export function PesananFormPage({ mode, id }: Props) {
               <div className="mb-4 flex items-start gap-3 rounded-lg border border-warning/20 bg-warning/10 p-4 text-sm text-warning">
                 <AlertCircleIcon className="mt-0.5 size-5 shrink-0" />
                 <div>
-                  Sebagian produk di pesanan ini sudah diterima. Kuantitasnya
-                  tidak bisa diturunkan di bawah jumlah yang sudah diterima, dan
-                  barisnya tidak bisa dihapus.
+                  Sebagian produk di pesanan ini sudah diterima. Menurunkan
+                  kuantitasnya di bawah jumlah yang sudah diterima — atau
+                  menghapus barisnya — akan menarik balik stoknya dari rak. Jika
+                  barangnya sudah dipicking, dipindah, atau terjual, perubahan
+                  akan ditolak.
                 </div>
               </div>
             )}
@@ -481,7 +490,7 @@ export function PesananFormPage({ mode, id }: Props) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {activeItems.map((item, idx) => {
+                  {activeItems.map((item) => {
                     const lineTotal = item.qty * item.unit_price;
                     const discPct = lineTotal * (item.disc / 100);
                     const discAmt = Number(item.disc_amount ?? 0);
@@ -538,7 +547,7 @@ export function PesananFormPage({ mode, id }: Props) {
                             }
                             onChange={(e) =>
                               updateItem(
-                                idx,
+                                item.item_id,
                                 "unit_price",
                                 Number(e.target.value.replace(/\D/g, "")),
                               )
@@ -570,16 +579,11 @@ export function PesananFormPage({ mode, id }: Props) {
                               const n = Number(
                                 e.target.value.replace(/\D/g, ""),
                               );
-                              updateItem(idx, "qty", Math.max(n, receivedQty));
+                              updateItem(item.item_id, "qty", n < 0 ? 0 : n);
                             }}
-                            aria-invalid={
-                              isReceived && item.qty < receivedQty
-                                ? true
-                                : undefined
-                            }
                             title={
-                              isReceived
-                                ? `Minimal ${receivedQty} karena sudah diterima`
+                              isReceived && item.qty < receivedQty
+                                ? `${receivedQty - item.qty} unit yang sudah diterima akan ditarik balik dari rak`
                                 : undefined
                             }
                             className="h-8 text-right bg-background tabular-nums"
@@ -589,16 +593,19 @@ export function PesananFormPage({ mode, id }: Props) {
                           {formatCurrency(total)}
                         </TableCell>
                         <TableCell>
-                          {!isReceived && (
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              onClick={() => removeItem(idx)}
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2Icon className="size-3.5" />
-                            </Button>
-                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => removeItem(item.item_id)}
+                            title={
+                              isReceived
+                                ? `Menghapus baris ini akan menarik balik ${receivedQty} unit yang sudah diterima dari rak`
+                                : undefined
+                            }
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2Icon className="size-3.5" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     );
