@@ -222,7 +222,6 @@ export const dashboardGroups: NavGroup[] = [
         title: "Laporan Gudang",
         icon: Factory,
         link: "/dashboard/laporan/gudang",
-        comingSoon: true,
       },
       {
         id: "laporan-stok-minus",
