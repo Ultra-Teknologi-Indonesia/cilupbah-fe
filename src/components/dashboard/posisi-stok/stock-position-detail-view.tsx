@@ -69,6 +69,7 @@ import {
 type MovementUrlKey =
   | "view"
   | "source"
+  | "drill"
   | "direction"
   | "location_id"
   | "store_id"
@@ -77,6 +78,7 @@ type MovementUrlKey =
 
 const MOVEMENT_RESET_KEYS = [
   "source",
+  "drill",
   "direction",
   "location_id",
   "store_id",
@@ -111,7 +113,10 @@ function parseIntParam(raw: string | null, fallback: number): number {
 }
 
 const CATEGORY_COLOR: Record<string, string> = {
-  BILL: "text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-500/10 dark:border-green-500/20",
+  PURCHASE:
+    "text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-500/10 dark:border-green-500/20",
+  CONSIGNMENT:
+    "text-lime-600 bg-lime-50 border-lime-200 dark:text-lime-400 dark:bg-lime-500/10 dark:border-lime-500/20",
   ADJUSTMENT:
     "text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20",
   PURCHASE_RETURN:
@@ -140,19 +145,20 @@ const VIEW_TABS: {
   {
     value: "all",
     label: "Semua",
-    description: "Semua sumber, termasuk Faktur.",
+    description:
+      "Semua sumber, termasuk alokasi pesanan yang belum diproses.",
   },
   {
     value: "clean",
     label: "Kronologi Bersih",
     description:
-      "Pergerakan stok yang sudah jelas: pick per-scan, transfer, retur, adjustment.",
+      "Hanya pergerakan fisik yang benar-benar terjadi: pick per-scan, pembatalan, retur, penempatan, transfer. Pesanan yang belum diproses tidak muncul.",
   },
   {
     value: "attention",
     label: "Perlu Perhatian",
     description:
-      "Entri Faktur — indikasi stok nyangkut / kesalahan scan lokasi yang perlu ditelusuri.",
+      "Entri Faktur lama (pra-refactor) — indikasi stok nyangkut yang perlu ditelusuri. Wajar kosong untuk data baru.",
   },
 ];
 
@@ -161,8 +167,10 @@ const ALL_VALUE = "__all__";
 function resolveTransactionHref(source: string, trxNo: string): string | null {
   const enc = encodeURIComponent(trxNo);
   switch (source) {
+    case "PURCHASE":
     case "BILL":
-      return `/dashboard/transaksi-pembelian/tagihan?search=${enc}`;
+    case "CONSIGNMENT":
+      return `/dashboard/barang-masuk/penerimaan?search=${enc}`;
     case "ADJUSTMENT":
     case "STOCK_OPNAME":
       return `/dashboard/transaksi-stok/penyesuaian?search=${enc}`;
@@ -176,6 +184,8 @@ function resolveTransactionHref(source: string, trxNo: string): string | null {
     case "ORDER_RESTORE":
       return `/dashboard/pesanan?search=${enc}`;
     case "TRANSFER_IN":
+    case "TRANSIT_IN":
+    case "TRANSIT_OUT":
       return `/dashboard/barang-masuk/penerimaan?tab=transfer&search=${enc}`;
     case "TRANSFER_OUT":
       return `/dashboard/barang-keluar/transfer-keluar?search=${enc}`;
@@ -362,6 +372,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
 
   const view = parseMovementView(searchParams.get("view"));
   const source = searchParams.get("source") ?? "";
+  const drill = searchParams.get("drill") ?? "";
   const direction = parseDirection(searchParams.get("direction"));
   const locationId = searchParams.get("location_id") ?? "";
   const storeId = searchParams.get("store_id") ?? "";
@@ -430,6 +441,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
     () => ({
       "filter[item_id]": itemId,
       "filter[source]": source || undefined,
+      "filter[drill]": drill || undefined,
       "filter[direction]": direction || undefined,
       "filter[location_id]": locationId || undefined,
       "filter[store_id]": storeId || undefined,
@@ -438,7 +450,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
       per_page: perPage,
       sort: "-transaction_date",
     }),
-    [itemId, source, direction, locationId, storeId, view, page, perPage],
+    [itemId, source, drill, direction, locationId, storeId, view, page, perPage],
   );
 
   const { data, isLoading } = useStockMovements(params);
@@ -451,7 +463,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
     total: 0,
   };
 
-  const activeCount = [source, direction, locationId, storeId].filter(
+  const activeCount = [source, drill, direction, locationId, storeId].filter(
     Boolean,
   ).length;
   const hasActiveFilter = activeCount > 0;
