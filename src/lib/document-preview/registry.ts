@@ -11,6 +11,7 @@ import { InboundService } from "@/services/barang-masuk/inbound.service";
 import { OutboundTransferService } from "@/services/barang-keluar/outbound-transfer.service";
 import { PurchaseOrderService } from "@/services/transaksi-pembelian/purchase-order.service";
 import { ReportService } from "@/services/laporan/report.service";
+import { LaporanGudangService } from "@/services/laporan/laporan-gudang.service";
 import {
   BARCODE_PAPER_DEFAULT,
   type BarcodeHarga,
@@ -92,6 +93,7 @@ export type DocumentTypeKey =
   | "bin-transfer-out"
   | "purchase-order"
   | "laporan-barcode"
+  | "laporan-picklist"
   | "laporan-penyesuaian";
 
 const HARGA_LABEL: Record<BarcodeHarga, string> = {
@@ -488,6 +490,28 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
       return `Barcode-Barang-${stamp}.pdf`;
     },
+  },
+
+  "laporan-picklist": {
+    title: "Detail Picklist",
+    subtitle: (id, meta) =>
+      (meta?.picklist_no as string | undefined) ??
+      `Picklist ${decodeURIComponent(id).slice(0, 8)}`,
+    fetchPdf: async (id, query) => {
+      const orderRaw = query?.get("order_ids") ?? "";
+      const order_ids = orderRaw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const blob = await LaporanGudangService.picklistDetailPdf({
+        picklist_id: decodeURIComponent(id),
+        order_ids: order_ids.length ? order_ids : undefined,
+      });
+      return { blob, meta: { picklist_no: query?.get("no") ?? undefined } };
+    },
+    backUrl: () => "/dashboard/laporan/gudang",
+    filename: (id, meta) =>
+      `Detail-Picklist-${(meta?.picklist_no as string | undefined) ?? decodeURIComponent(id).slice(0, 8)}.pdf`,
   },
 
   "laporan-penyesuaian": {

@@ -19,8 +19,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TransferReportDialog } from "./transfer-report-dialog";
+import { PicklistReportDialog } from "./picklist-report-dialog";
 
-type ActiveDialog = "transfer" | null;
+type ActiveDialog = "transfer" | "picklist" | null;
 
 export function LaporanGudangView() {
   const [active, setActive] = React.useState<ActiveDialog>(null);
@@ -38,8 +39,9 @@ export function LaporanGudangView() {
         <ReportCard
           icon={<ClipboardListIcon className="size-5" />}
           title="Daftar Picklist"
-          description="Daftar transaksi produk yang terjual di setiap channel."
-          comingSoon
+          description="Rekap picklist per rentang tanggal, atau detail satu picklist berikut foto dan rak."
+          actionLabel="Cetak Picklist"
+          onClick={() => setActive("picklist")}
         />
         <ReportCard
           icon={<TruckIcon className="size-5" />}
@@ -76,6 +78,10 @@ export function LaporanGudangView() {
       <TransferReportDialog
         open={active === "transfer"}
         onOpenChange={(o) => setActive(o ? "transfer" : null)}
+      />
+      <PicklistReportDialog
+        open={active === "picklist"}
+        onOpenChange={(o) => setActive(o ? "picklist" : null)}
       />
     </>
   );
