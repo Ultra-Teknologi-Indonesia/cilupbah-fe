@@ -3,6 +3,8 @@ import type {
   PicklistDetailPdfParams,
   PicklistExportParams,
   PicklistLookupItem,
+  ShipmentExportParams,
+  ShipmentFilterOptions,
   TransferReportParams,
 } from "@/types/laporan/laporan-gudang";
 
@@ -40,6 +42,26 @@ export const LaporanGudangService = {
       params,
       "application/pdf",
     );
+  },
+
+  exportShipmentList: async (params: ShipmentExportParams): Promise<Blob> => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    if (params.channel_status) sp.set("channel_status", params.channel_status);
+    params.courier_ids?.forEach((id) => sp.append("courier_ids[]", id));
+
+    return fetchBlobRaw(
+      `/reports/wms/shipment/export?${sp.toString()}`,
+      XLSX_MIME,
+    );
+  },
+
+  shipmentFilterOptions: async (): Promise<ShipmentFilterOptions> => {
+    const res = await fetchClient<{ data: ShipmentFilterOptions }>(
+      `/reports/wms/shipment/options`,
+    );
+    return res.data ?? { couriers: [], statuses: [] };
   },
 
   searchPicklists: async (search: string): Promise<PicklistLookupItem[]> => {

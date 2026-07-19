@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { LaporanGudangService } from "@/services/laporan/laporan-gudang.service";
 import type {
   PicklistExportParams,
+  ShipmentExportParams,
   TransferReportParams,
 } from "@/types/laporan/laporan-gudang";
 
@@ -33,6 +34,29 @@ export function useExportPicklistReport() {
       a.click();
       URL.revokeObjectURL(url);
     },
+  });
+}
+
+export function useExportShipmentList() {
+  return useMutation({
+    mutationFn: async (params: ShipmentExportParams) => {
+      const blob = await LaporanGudangService.exportShipmentList(params);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `daftar-pengiriman-${params.from}-${params.to}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+  });
+}
+
+export function useShipmentFilterOptions(enabled = true) {
+  return useQuery({
+    queryKey: ["laporan", "gudang", "shipment-options"],
+    queryFn: () => LaporanGudangService.shipmentFilterOptions(),
+    staleTime: 5 * 60_000,
+    enabled,
   });
 }
 

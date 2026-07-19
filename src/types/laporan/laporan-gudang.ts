@@ -29,3 +29,20 @@ export interface PicklistLookupItem {
   label: string;
   orders: PicklistLookupOrder[];
 }
+
+export interface ShipmentExportParams {
+  from: string;
+  to: string;
+  courier_ids?: string[];
+  channel_status?: string;
+}
+
+export interface ShipmentFilterOption {
+  value: string;
+  label: string;
+}
+
+export interface ShipmentFilterOptions {
+  couriers: ShipmentFilterOption[];
+  statuses: ShipmentFilterOption[];
+}

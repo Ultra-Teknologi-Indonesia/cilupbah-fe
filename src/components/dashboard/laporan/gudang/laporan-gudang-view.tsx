@@ -20,8 +20,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TransferReportDialog } from "./transfer-report-dialog";
 import { PicklistReportDialog } from "./picklist-report-dialog";
+import { ShipmentReportDialog } from "./shipment-report-dialog";
 
-type ActiveDialog = "transfer" | "picklist" | null;
+type ActiveDialog = "transfer" | "picklist" | "pengiriman" | null;
 
 export function LaporanGudangView() {
   const [active, setActive] = React.useState<ActiveDialog>(null);
@@ -47,7 +48,8 @@ export function LaporanGudangView() {
           icon={<TruckIcon className="size-5" />}
           title="Daftar Pengiriman"
           description="Laporan manifest pengiriman berikut kurir, resi, dan status pesanan."
-          comingSoon
+          actionLabel="Cetak Pengiriman"
+          onClick={() => setActive("pengiriman")}
         />
         <ReportCard
           icon={<BarChart3Icon className="size-5" />}
@@ -82,6 +84,10 @@ export function LaporanGudangView() {
       <PicklistReportDialog
         open={active === "picklist"}
         onOpenChange={(o) => setActive(o ? "picklist" : null)}
+      />
+      <ShipmentReportDialog
+        open={active === "pengiriman"}
+        onOpenChange={(o) => setActive(o ? "pengiriman" : null)}
       />
     </>
   );
