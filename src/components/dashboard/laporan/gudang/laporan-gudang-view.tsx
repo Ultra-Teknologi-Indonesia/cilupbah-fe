@@ -82,12 +82,6 @@ export function LaporanGudangView() {
           actionLabel="Cetak Penempatan Barang"
           onClick={() => setActive("penempatan-barang")}
         />
-        <ReportCard
-          icon={<TruckIcon className="size-5" />}
-          title="Pengiriman per Ekspedisi"
-          description="Rekap pesanan dan kuantitas dikelompokkan per ekspedisi."
-          comingSoon
-        />
       </div>
 
       <TransferReportDialog
