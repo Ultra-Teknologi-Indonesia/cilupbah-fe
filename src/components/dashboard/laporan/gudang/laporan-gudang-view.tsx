@@ -23,6 +23,7 @@ import { PicklistReportDialog } from "./picklist-report-dialog";
 import { ShipmentReportDialog } from "./shipment-report-dialog";
 import { OrderPerformanceDialog } from "./order-performance-dialog";
 import { PutawayPerformanceDialog } from "./putaway-performance-dialog";
+import { PutawayListDialog } from "./putaway-list-dialog";
 
 type ActiveDialog =
   | "transfer"
@@ -30,6 +31,7 @@ type ActiveDialog =
   | "pengiriman"
   | "performa-pesanan"
   | "performa-penempatan"
+  | "penempatan-barang"
   | null;
 
 export function LaporanGudangView() {
@@ -76,8 +78,9 @@ export function LaporanGudangView() {
         <ReportCard
           icon={<PackageCheckIcon className="size-5" />}
           title="Penempatan Barang"
-          description="Daftar penempatan barang di gudang berdasarkan tanggal."
-          comingSoon
+          description="Rincian isi penempatan per tanggal dan lokasi, berikut sumber penerimaan dan rak tujuan."
+          actionLabel="Cetak Penempatan Barang"
+          onClick={() => setActive("penempatan-barang")}
         />
         <ReportCard
           icon={<TruckIcon className="size-5" />}
@@ -106,6 +109,10 @@ export function LaporanGudangView() {
       <PutawayPerformanceDialog
         open={active === "performa-penempatan"}
         onOpenChange={(o) => setActive(o ? "performa-penempatan" : null)}
+      />
+      <PutawayListDialog
+        open={active === "penempatan-barang"}
+        onOpenChange={(o) => setActive(o ? "penempatan-barang" : null)}
       />
     </>
   );

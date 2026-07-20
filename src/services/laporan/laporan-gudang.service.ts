@@ -4,8 +4,10 @@ import type {
   PicklistExportParams,
   OrderPerformanceParams,
   PicklistLookupItem,
+  PutawayListParams,
   PutawayPerformanceParams,
   ShipmentExportParams,
+  ShipmentFilterOption,
   ShipmentFilterOptions,
   TransferReportParams,
 } from "@/types/laporan/laporan-gudang";
@@ -44,6 +46,26 @@ export const LaporanGudangService = {
       params,
       "application/pdf",
     );
+  },
+
+  putawayListPdf: (params: PutawayListParams): Promise<Blob> => {
+    return fetchBlobPost(
+      `/reports/wms/putaway-list/pdf`,
+      params,
+      "application/pdf",
+    );
+  },
+
+  searchPutawayNumbers: async (
+    date: string,
+    locationId: string,
+  ): Promise<ShipmentFilterOption[]> => {
+    const sp = new URLSearchParams({ date, location_id: locationId });
+
+    const res = await fetchClient<{ data: ShipmentFilterOption[] }>(
+      `/reports/wms/putaway-list/lookup?${sp.toString()}`,
+    );
+    return res.data ?? [];
   },
 
   putawayPerformancePdf: (

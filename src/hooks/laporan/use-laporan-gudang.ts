@@ -60,6 +60,19 @@ export function useShipmentFilterOptions(enabled = true) {
   });
 }
 
+export function usePutawayNumbers(
+  date: string,
+  locationId: string,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: ["laporan", "gudang", "putaway-numbers", date, locationId],
+    queryFn: () => LaporanGudangService.searchPutawayNumbers(date, locationId),
+    staleTime: 30_000,
+    enabled: enabled && Boolean(date && locationId),
+  });
+}
+
 export function usePicklistSearch(search: string, enabled = true) {
   return useQuery({
     queryKey: ["laporan", "gudang", "picklist-lookup", search],

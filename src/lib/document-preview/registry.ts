@@ -97,6 +97,7 @@ export type DocumentTypeKey =
   | "bin-transfer-out"
   | "purchase-order"
   | "laporan-barcode"
+  | "laporan-penempatan-barang"
   | "laporan-performa-penempatan"
   | "laporan-performa-pesanan"
   | "laporan-picklist"
@@ -496,6 +497,26 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
       return `Barcode-Barang-${stamp}.pdf`;
     },
+  },
+
+  "laporan-penempatan-barang": {
+    title: "Penempatan Barang",
+    subtitle: (id) => `Tanggal ${decodeURIComponent(id)}`,
+    fetchPdf: async (id, query) => {
+      const putawayRaw = query?.get("putaway_ids") ?? "";
+      const putaway_ids = putawayRaw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const blob = await LaporanGudangService.putawayListPdf({
+        date: decodeURIComponent(id),
+        location_id: query?.get("location_id") ?? "",
+        putaway_ids: putaway_ids.length ? putaway_ids : undefined,
+      });
+      return { blob };
+    },
+    backUrl: () => "/dashboard/laporan/gudang",
+    filename: (id) => `Daftar-Penempatan-Barang-${decodeURIComponent(id)}.pdf`,
   },
 
   "laporan-performa-penempatan": {
