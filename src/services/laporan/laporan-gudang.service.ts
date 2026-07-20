@@ -2,6 +2,7 @@ import { fetchBlobPost, fetchBlobRaw, fetchClient } from "@/lib/api-client";
 import type {
   PicklistDetailPdfParams,
   PicklistExportParams,
+  OrderPerformanceParams,
   PicklistLookupItem,
   ShipmentExportParams,
   ShipmentFilterOptions,
@@ -33,6 +34,14 @@ export const LaporanGudangService = {
     return fetchBlobRaw(
       `/reports/wms/pick-list/export?${sp.toString()}`,
       XLSX_MIME,
+    );
+  },
+
+  orderPerformancePdf: (params: OrderPerformanceParams): Promise<Blob> => {
+    return fetchBlobPost(
+      `/reports/wms/order-performance/pdf`,
+      params,
+      "application/pdf",
     );
   },
 

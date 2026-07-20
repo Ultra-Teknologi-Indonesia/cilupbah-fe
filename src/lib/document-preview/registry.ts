@@ -12,6 +12,10 @@ import { OutboundTransferService } from "@/services/barang-keluar/outbound-trans
 import { PurchaseOrderService } from "@/services/transaksi-pembelian/purchase-order.service";
 import { ReportService } from "@/services/laporan/report.service";
 import { LaporanGudangService } from "@/services/laporan/laporan-gudang.service";
+import type {
+  OrderPerformanceJenis,
+  OrderPerformanceMode,
+} from "@/types/laporan/laporan-gudang";
 import {
   BARCODE_PAPER_DEFAULT,
   type BarcodeHarga,
@@ -93,6 +97,7 @@ export type DocumentTypeKey =
   | "bin-transfer-out"
   | "purchase-order"
   | "laporan-barcode"
+  | "laporan-performa-pesanan"
   | "laporan-picklist"
   | "laporan-penyesuaian";
 
@@ -489,6 +494,37 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     filename: () => {
       const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
       return `Barcode-Barang-${stamp}.pdf`;
+    },
+  },
+
+  "laporan-performa-pesanan": {
+    title: "Performa Proses Pesanan",
+    subtitle: (id) => {
+      const [jenis, mode, from, to] = decodeURIComponent(id).split("_");
+      const label = jenis ? jenis[0].toUpperCase() + jenis.slice(1) : "Laporan";
+      const modeLabel = mode === "summary" ? "Summary" : "Detail";
+      return `${label} · ${modeLabel} · ${from} — ${to}`;
+    },
+    fetchPdf: async (id, query) => {
+      const [jenis, mode, from, to] = decodeURIComponent(id).split("_");
+      const locationRaw = query?.get("location_ids") ?? "";
+      const location_ids = locationRaw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const blob = await LaporanGudangService.orderPerformancePdf({
+        jenis: jenis as OrderPerformanceJenis,
+        mode: mode as OrderPerformanceMode,
+        from,
+        to,
+        location_ids: location_ids.length ? location_ids : undefined,
+      });
+      return { blob };
+    },
+    backUrl: () => "/dashboard/laporan/gudang",
+    filename: (id) => {
+      const [jenis, mode, from, to] = decodeURIComponent(id).split("_");
+      return `Laporan-Performa-${jenis}-${mode}-${from}-${to}.pdf`;
     },
   },
 

@@ -21,8 +21,14 @@ import { Button } from "@/components/ui/button";
 import { TransferReportDialog } from "./transfer-report-dialog";
 import { PicklistReportDialog } from "./picklist-report-dialog";
 import { ShipmentReportDialog } from "./shipment-report-dialog";
+import { OrderPerformanceDialog } from "./order-performance-dialog";
 
-type ActiveDialog = "transfer" | "picklist" | "pengiriman" | null;
+type ActiveDialog =
+  | "transfer"
+  | "picklist"
+  | "pengiriman"
+  | "performa-pesanan"
+  | null;
 
 export function LaporanGudangView() {
   const [active, setActive] = React.useState<ActiveDialog>(null);
@@ -54,8 +60,9 @@ export function LaporanGudangView() {
         <ReportCard
           icon={<BarChart3Icon className="size-5" />}
           title="Performa Proses Pesanan"
-          description="Performa picker dan packer per pengguna, dalam mode detail atau ringkasan."
-          comingSoon
+          description="Performa picker, packer, shipper, dan kurir, atau rincian durasi tiap tahapan pesanan."
+          actionLabel="Cetak Performa"
+          onClick={() => setActive("performa-pesanan")}
         />
         <ReportCard
           icon={<BarChart3Icon className="size-5" />}
@@ -88,6 +95,10 @@ export function LaporanGudangView() {
       <ShipmentReportDialog
         open={active === "pengiriman"}
         onOpenChange={(o) => setActive(o ? "pengiriman" : null)}
+      />
+      <OrderPerformanceDialog
+        open={active === "performa-pesanan"}
+        onOpenChange={(o) => setActive(o ? "performa-pesanan" : null)}
       />
     </>
   );

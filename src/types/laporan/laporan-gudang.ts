@@ -47,3 +47,20 @@ export interface ShipmentFilterOptions {
   couriers: ShipmentFilterOption[];
   statuses: ShipmentFilterOption[];
 }
+
+export type OrderPerformanceJenis =
+  | "picker"
+  | "packer"
+  | "shipper"
+  | "pesanan"
+  | "kurir";
+
+export type OrderPerformanceMode = "detail" | "summary";
+
+export interface OrderPerformanceParams {
+  jenis: OrderPerformanceJenis;
+  mode: OrderPerformanceMode;
+  from: string;
+  to: string;
+  location_ids?: string[];
+}
