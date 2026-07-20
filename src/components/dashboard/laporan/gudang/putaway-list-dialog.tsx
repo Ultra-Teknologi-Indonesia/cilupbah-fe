@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Combobox } from "@/components/ui/combobox";
 import { DatePicker } from "@/components/ui/date-picker";
-import { LocationMultiCombobox } from "@/components/dashboard/laporan/shared/location-multi-combobox";
+import { LocationCombobox } from "@/components/dashboard/laporan/shared/location-combobox";
 import { usePutawayNumbers } from "@/hooks/laporan/use-laporan-gudang";
 
 interface PutawayListDialogProps {
@@ -35,10 +35,9 @@ export function PutawayListDialog({
   onOpenChange,
 }: PutawayListDialogProps) {
   const [date, setDate] = React.useState<Date | undefined>(new Date());
-  const [locationIds, setLocationIds] = React.useState<string[]>([]);
+  const [locationId, setLocationId] = React.useState("");
   const [putawayIds, setPutawayIds] = React.useState<string[]>([]);
 
-  const locationId = locationIds[0] ?? "";
   const dateISO = date ? formatDateISO(date) : "";
 
   const { data: putawayOptions, isFetching } = usePutawayNumbers(
@@ -54,15 +53,15 @@ export function PutawayListDialog({
     setPutawayIds([]);
   }
 
-  function handleLocationChange(next: string[]) {
-    setLocationIds(next.slice(-1));
+  function handleLocationChange(next: string) {
+    setLocationId(next);
     setPutawayIds([]);
   }
 
   function handleOpenChange(next: boolean) {
     if (!next) {
       setDate(new Date());
-      setLocationIds([]);
+      setLocationId("");
       setPutawayIds([]);
     }
     onOpenChange(next);
@@ -107,13 +106,10 @@ export function PutawayListDialog({
 
           <div className="flex flex-col gap-2">
             <Label className="text-xs text-muted-foreground">Lokasi</Label>
-            <LocationMultiCombobox
-              value={locationIds}
+            <LocationCombobox
+              value={locationId}
               onChange={handleLocationChange}
             />
-            <p className="text-xs text-muted-foreground">
-              Laporan ini dicetak untuk satu lokasi.
-            </p>
           </div>
 
           <div className="flex flex-col gap-2">
