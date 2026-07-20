@@ -31,6 +31,22 @@ export interface PutawayItem {
   recommended_bin?: { id: string; bin_final_code: string } | null;
   /** true bila SKU sudah punya rak tetap → scan/penempatan wajib ke rak itu. */
   recommended_bin_locked?: boolean;
+  /**
+   * Penerimaan asal baris ini, untuk koreksi qty langsung dari layar Penempatan.
+   * Bisa lebih dari satu kalau penempatan digabung dari beberapa penerimaan —
+   * dalam hal itu user yang memilih sumber mana yang dikoreksi.
+   */
+  inbound_sources?: {
+    inbound_id: string;
+    inbound_item_id: string;
+    transaction_number: string | null;
+    expected_qty: number;
+    received_qty: number;
+    putaway_qty: number;
+    qty_in_putaway: number;
+    /** Dikirim balik sebagai _expected_updated_at → optimistic lock inbound. */
+    updated_version_at: string | null;
+  }[];
   placements?: {
     id: string;
     putaway_item_id: string;

@@ -8,7 +8,6 @@ import {
   CheckCircle2Icon,
   ChevronDownIcon,
   ImageIcon,
-  PencilIcon,
   PrinterIcon,
   Loader2Icon,
   SearchIcon,
@@ -30,20 +29,12 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { InfoField } from "@/components/dashboard/shared/info-field";
 import { SortableHeader } from "@/components/dashboard/shared/sortable-header";
 import { CopySku } from "@/components/dashboard/shared/copy-sku";
+import { InlineQtyEdit } from "@/components/dashboard/barang-masuk/inline-qty-edit";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { KronologiPenerimaanItem } from "@/components/dashboard/barang-masuk/kronologi-penerimaan-tab";
 import {
@@ -55,7 +46,7 @@ import {
   useUnassignInbound,
   useWithdrawParticipant,
 } from "@/hooks/barang-masuk/use-inbound";
-import type { Inbound, InboundItem } from "@/types/barang-masuk/inbound";
+import type { InboundItem } from "@/types/barang-masuk/inbound";
 import {
   AssignmentLockBanner,
   MobileSessionPanel,
@@ -72,131 +63,6 @@ const TYPE_LABEL: Record<string, string> = {
   CONSIGNMENT: "Konsinyasi",
 };
 
-interface EditTarget {
-  item: InboundItem;
-  productName: string;
-}
-
-function EditQtyDialog({
-  target,
-  onClose,
-  onSubmit,
-  saving,
-}: {
-  target: EditTarget | null;
-  onClose: () => void;
-  onSubmit: (qty: number) => void;
-  saving: boolean;
-}) {
-  const [text, setText] = React.useState("");
-
-  React.useEffect(() => {
-    if (target) setText(String(target.item.received_qty));
-  }, [target]);
-
-  const open = !!target;
-  const item = target?.item;
-  const minQty = item?.putaway_qty ?? 0;
-
-  const parsed = Number(text);
-  const isValid =
-    text.trim() !== "" && Number.isInteger(parsed) && parsed >= 0;
-  const belowPutaway = isValid && parsed < minQty;
-  const unchanged = isValid && item && parsed === item.received_qty;
-  const disabled = !isValid || belowPutaway || unchanged || saving;
-
-  const handleSubmit = () => {
-    if (!item) return;
-    if (belowPutaway) {
-      toast.error(
-        `Tidak bisa di bawah yang sudah ditempatkan ke rak (${minQty}).`,
-      );
-      return;
-    }
-    onSubmit(parsed);
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Edit Qty Diterima</DialogTitle>
-          <DialogDescription>
-            {target?.productName ?? "—"}
-            {item?.variant?.sku ? ` · ${item.variant.sku}` : ""}
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="flex flex-col gap-3">
-          <div className="grid grid-cols-3 gap-2 text-xs">
-            <div className="rounded-xl border border-border/60 bg-muted/30 px-3 py-2">
-              <div className="text-muted-foreground">Diharapkan</div>
-              <div className="text-base font-semibold tabular-nums">
-                {item?.expected_qty ?? 0}
-              </div>
-            </div>
-            <div className="rounded-xl border border-border/60 bg-muted/30 px-3 py-2">
-              <div className="text-muted-foreground">Sebelumnya</div>
-              <div className="text-base font-semibold tabular-nums">
-                {item?.received_qty ?? 0}
-              </div>
-            </div>
-            <div className="rounded-xl border border-border/60 bg-muted/30 px-3 py-2">
-              <div className="text-muted-foreground">Sudah di rak</div>
-              <div className="text-base font-semibold tabular-nums">
-                {minQty}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-qty">Jumlah diterima baru</Label>
-            <Input
-              id="edit-qty"
-              type="number"
-              inputMode="numeric"
-              min={minQty}
-              value={text}
-              disabled={saving}
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !disabled) handleSubmit();
-              }}
-              autoFocus
-            />
-            {belowPutaway && (
-              <p className="text-2xs text-destructive">
-                Tidak bisa di bawah yang sudah ditempatkan ke rak ({minQty}).
-              </p>
-            )}
-            <p className="text-2xs text-muted-foreground">
-              Riwayat penerimaan tidak akan berubah — koreksi ini hanya
-              menyesuaikan total qty diterima.
-            </p>
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onClose}
-            disabled={saving}
-          >
-            Batal
-          </Button>
-          <Button size="sm" onClick={handleSubmit} disabled={disabled}>
-            {saving ? (
-              <Loader2Icon className="mr-1.5 size-4 animate-spin" />
-            ) : null}
-            Simpan
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 export function PenerimaanDetailView({ id }: { id: string }) {
   const { data: inbound, isLoading } = useInboundDetail(id, { pollMs: 10000 });
   const batchMutation = useSetReceivedQtyBatch(id);
@@ -207,7 +73,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [sort, setSort] = React.useState<string | undefined>(undefined);
   const [openItemId, setOpenItemId] = React.useState<string | null>(null);
-  const [editTarget, setEditTarget] = React.useState<EditTarget | null>(null);
+  const [savingItemId, setSavingItemId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     const t = setTimeout(() => {
@@ -265,17 +131,21 @@ export function PenerimaanDetailView({ id }: { id: string }) {
 
   const activeParticipants = inbound?.edit_lock?.active_participants ?? [];
 
-  const handleSaveEditQty = async (qty: number) => {
-    if (!editTarget || !inbound) return;
-    const results = await batchMutation.mutateAsync({
-      items: [{ itemId: editTarget.item.id, qty }],
-    });
-    const first = results[0];
-    if (first?.ok) {
-      toast.success("Berhasil menyimpan qty diterima");
-      setEditTarget(null);
-    } else {
-      toast.error(first?.error || "Gagal menyimpan qty diterima");
+  const saveReceivedQty = async (itemId: string, qty: number) => {
+    if (!inbound) return;
+    setSavingItemId(itemId);
+    try {
+      const results = await batchMutation.mutateAsync({
+        items: [{ itemId, qty }],
+      });
+      const first = results[0];
+      if (first?.ok) {
+        toast.success("Berhasil menyimpan qty diterima");
+      } else {
+        toast.error(first?.error || "Gagal menyimpan qty diterima");
+      }
+    } finally {
+      setSavingItemId(null);
     }
   };
 
@@ -579,24 +449,14 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                               {item.expected_qty}
                             </TableCell>
                             <TableCell className="px-3 py-2.5 text-right tabular-nums text-foreground">
-                              <div className="flex items-center justify-end gap-1.5">
-                                <span className="tabular-nums">
-                                  {item.received_qty}
-                                </span>
-                                {canEdit && (
-                                  <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    className="size-7"
-                                    onClick={() =>
-                                      setEditTarget({ item, productName })
-                                    }
-                                    aria-label="Edit qty diterima"
-                                    title="Edit qty diterima"
-                                  >
-                                    <PencilIcon className="size-3.5" />
-                                  </Button>
-                                )}
+                              <div className="flex items-center justify-end">
+                                <InlineQtyEdit
+                                  value={item.received_qty}
+                                  minQty={item.putaway_qty ?? 0}
+                                  disabled={!canEdit}
+                                  saving={savingItemId === item.id}
+                                  onSave={(qty) => saveReceivedQty(item.id, qty)}
+                                />
                               </div>
                               {rejectedQty > 0 && (
                                 <div
@@ -762,13 +622,6 @@ export function PenerimaanDetailView({ id }: { id: string }) {
           )}
         </div>
       )}
-
-      <EditQtyDialog
-        target={editTarget}
-        onClose={() => setEditTarget(null)}
-        onSubmit={handleSaveEditQty}
-        saving={batchMutation.isPending}
-      />
 
       <UnassignReasonDialog
         open={unassignOpen}

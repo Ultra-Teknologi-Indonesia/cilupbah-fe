@@ -8,11 +8,10 @@ import type {
   ProcessItemPayload,
   BinListItem,
   PutawayDeleteAction,
-  CompleteDiscrepancyResult,
 } from "@/services/barang-masuk/putaway.service";
 import { apiError } from "@/lib/toast";
 
-export type { BinListItem, CompleteDiscrepancyResult };
+export type { BinListItem };
 
 const STALE = 30 * 1000;
 
@@ -94,24 +93,6 @@ export function useProcessPutawayItem() {
     },
     onError: (err) =>
       apiError(err, "Gagal menempatkan item"),
-  });
-}
-
-export function useCompleteDiscrepancy() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => PutawayService.completeDiscrepancy(id),
-    onSuccess: (res: CompleteDiscrepancyResult | undefined) => {
-      const n = res?.discrepancy_items?.length ?? 0;
-      toast.success(
-        n > 0
-          ? `Penempatan diselesaikan, ${n} item selisih dialokasikan ke rak default`
-          : "Penempatan berhasil diselesaikan",
-      );
-      qc.invalidateQueries({ queryKey: ["putaway"] });
-    },
-    onError: (err) =>
-      apiError(err, "Gagal menyelesaikan penempatan dengan selisih"),
   });
 }
 

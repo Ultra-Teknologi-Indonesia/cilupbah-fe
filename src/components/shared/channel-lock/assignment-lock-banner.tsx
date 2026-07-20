@@ -15,11 +15,14 @@ interface AssignmentLockBannerProps {
   canUnassign?: boolean;
   canReset?: boolean;
   /**
-   * "lock" (default) — dokumen terkunci untuk assignee-nya (Penerimaan, Putaway).
+   * "lock" (default) — dokumen terkunci untuk assignee-nya.
    * "collaborative" — dokumen boleh digarap siapa saja, nama assignee sekadar
    * informasi (Picking). Jangan tampilkan bahasa "dinonaktifkan" di mode ini.
+   * "advisory" — dokumen dipegang mobile tapi web TETAP boleh mengedit
+   * (Penempatan & Penerimaan, keputusan klien 20 Jul 2026). Tetap kuning
+   * sebagai pengingat koordinasi, tapi jangan bilang edit dinonaktifkan.
    */
-  mode?: "lock" | "collaborative";
+  mode?: "lock" | "collaborative" | "advisory";
 }
 
 export function AssignmentLockBanner({
@@ -50,6 +53,7 @@ export function AssignmentLockBanner({
   if (!assignedToName) return null;
 
   const isCollaborative = mode === "collaborative";
+  const isAdvisory = mode === "advisory";
 
   return (
     <div
@@ -64,6 +68,8 @@ export function AssignmentLockBanner({
       <div className="flex items-start gap-3">
         {isCollaborative ? (
           <UsersIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+        ) : isAdvisory ? (
+          <UsersIcon className="mt-0.5 size-4 shrink-0 text-warning" />
         ) : (
           <LockIcon className="mt-0.5 size-4 shrink-0 text-warning" />
         )}
@@ -76,7 +82,9 @@ export function AssignmentLockBanner({
           <div className="text-xs text-muted-foreground">
             {isCollaborative
               ? "Boleh dikerjakan bersama — progres tiap scan langsung terlihat di semua perangkat."
-              : "Kolom edit dinonaktifkan sampai tim menandai selesai."}
+              : isAdvisory
+                ? "Kamu tetap bisa mengedit dari web. Koordinasikan dulu dengan staff supaya angka tidak bentrok."
+                : "Kolom edit dinonaktifkan sampai tim menandai selesai."}
             {assignedAt ? ` Ditugaskan ${formatWhen(assignedAt)}.` : ""}
           </div>
         </div>

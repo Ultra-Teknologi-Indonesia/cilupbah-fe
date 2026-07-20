@@ -138,7 +138,8 @@ export function useSetReceivedQty(inboundId: string) {
       itemId: string;
       qty: number;
       expectedUpdatedAt?: string | null;
-    }) => InboundService.setReceivedQty(inboundId, itemId, qty, expectedUpdatedAt),
+    }) =>
+      InboundService.setReceivedQty(inboundId, itemId, qty, expectedUpdatedAt),
     onSuccess: () => {
       toast.success("Jumlah diterima diperbarui");
       qc.invalidateQueries({ queryKey: ["inbound", "detail", inboundId] });

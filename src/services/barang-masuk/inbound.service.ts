@@ -141,8 +141,10 @@ export const InboundService = {
   },
 
   /** Set jumlah diterima aktual pada satu baris (boleh naik/turun).
-   *  Kalau expectedUpdatedAt diberikan, BE akan cek optimistic lock (fix H4)
-   *  dan throw 412 STALE_WRITE kalau data server sudah berubah. */
+   *  Selisihnya otomatis dibuatkan dokumen Penyesuaian Stok; remarks-nya
+   *  disusun otomatis oleh BE, jadi FE tidak perlu mengirim alasan.
+   *  Kalau expectedUpdatedAt diberikan, BE cek optimistic lock dan balas
+   *  412 STALE_WRITE kalau data server sudah berubah. */
   setReceivedQty: async (
     inboundId: string,
     itemId: string,
