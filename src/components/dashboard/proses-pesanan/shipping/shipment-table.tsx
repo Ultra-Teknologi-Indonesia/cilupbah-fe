@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import {
+  CheckCircle2Icon,
   RefreshCwIcon,
   PrinterIcon,
   TruckIcon,
@@ -33,8 +34,10 @@ import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-col
 import {
   fulfillmentKeys,
   useCancelShipment,
+  useHandOverShipment,
   useShipments,
 } from "@/hooks/proses-pesanan/use-fulfillment";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 import type {
   Shipment,
   ShipmentDetail,
@@ -95,6 +98,9 @@ export function ShipmentTable() {
     namespace: "shipment",
   });
   const [cancelTarget, setCancelTarget] = React.useState<Shipment | null>(
+    null,
+  );
+  const [finishTarget, setFinishTarget] = React.useState<Shipment | null>(
     null,
   );
   const [driverCallTargets, setDriverCallTargets] = React.useState<
@@ -161,6 +167,8 @@ export function ShipmentTable() {
   );
   const { data, isLoading, isFetching, refetch } = useShipments(params);
   const cancel = useCancelShipment();
+  const handOver = useHandOverShipment();
+  const { can } = usePermissions();
 
   const shipments = data?.items ?? [];
   const meta = data?.meta ?? {
@@ -180,6 +188,16 @@ export function ShipmentTable() {
       onSuccess: () => toast.success(`${cancelTarget.shipmentNo} dibatalkan.`),
       onError: (e) => apiError(e, "Gagal membatalkan pengiriman."),
       onSettled: () => setCancelTarget(null),
+    });
+  };
+
+  const handleFinishConfirm = () => {
+    if (!finishTarget) return;
+    handOver.mutate(finishTarget.id, {
+      onSuccess: () =>
+        toast.success(`Berhasil menyelesaikan ${finishTarget.shipmentNo}.`),
+      onError: (e) => apiError(e, "Gagal menyelesaikan pengiriman."),
+      onSettled: () => setFinishTarget(null),
     });
   };
 
@@ -307,6 +325,31 @@ export function ShipmentTable() {
                 </Link>
               </Button>
             )}
+            {row.original.status === "SCHEDULED" &&
+              can("edit-pengiriman") && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="inline-flex">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={row.original.ordersCount === 0}
+                          onClick={() => setFinishTarget(row.original)}
+                        >
+                          <CheckCircle2Icon className="size-3.5" />
+                          Selesaikan
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {row.original.ordersCount === 0
+                        ? "Belum ada pesanan dalam pengiriman ini."
+                        : "Tutup manifest dan tandai pesanannya terkirim."}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             <Button
               variant="outline"
               size="sm"
@@ -335,7 +378,7 @@ export function ShipmentTable() {
         ),
       },
     ],
-    [],
+    [can],
   );
 
   return (
@@ -471,6 +514,18 @@ export function ShipmentTable() {
         variant="destructive"
         loading={cancel.isPending}
         onConfirm={handleCancelConfirm}
+      />
+
+      <ConfirmDialog
+        open={!!finishTarget}
+        onOpenChange={(o) => {
+          if (!o) setFinishTarget(null);
+        }}
+        title="Selesaikan Pengiriman"
+        description={`Tutup manifest ${finishTarget?.shipmentNo ?? ""} berisi ${finishTarget?.ordersCount ?? 0} pesanan? Seluruh pesanan di dalamnya ditandai terkirim. Setelah ditutup, pengiriman ini tidak bisa dibatalkan dan tidak bisa ditambah resi lagi.`}
+        confirmLabel="Selesaikan"
+        loading={handOver.isPending}
+        onConfirm={handleFinishConfirm}
       />
 
       <PanggilDriverBulkDialog

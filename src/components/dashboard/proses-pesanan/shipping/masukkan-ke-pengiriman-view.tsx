@@ -214,16 +214,13 @@ export function MasukkanKePengirimanView() {
         )}
       </div>
 
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-col items-end gap-2">
+        <p className="text-xs text-muted-foreground">
+          Pengiriman ini masih terbuka dan bisa ditambah resi kapan saja. Tutup
+          lewat tombol Selesaikan di daftar Jadwal Pengiriman.
+        </p>
         <Button variant="outline" onClick={handleBack}>
-          Batal
-        </Button>
-        <Button
-          variant="primary"
-          onClick={handleBack}
-          disabled={!shipmentId}
-        >
-          Selesai
+          Tutup
         </Button>
       </div>
     </div>
