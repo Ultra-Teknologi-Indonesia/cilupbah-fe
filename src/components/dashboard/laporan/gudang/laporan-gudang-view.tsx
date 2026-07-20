@@ -22,12 +22,14 @@ import { TransferReportDialog } from "./transfer-report-dialog";
 import { PicklistReportDialog } from "./picklist-report-dialog";
 import { ShipmentReportDialog } from "./shipment-report-dialog";
 import { OrderPerformanceDialog } from "./order-performance-dialog";
+import { PutawayPerformanceDialog } from "./putaway-performance-dialog";
 
 type ActiveDialog =
   | "transfer"
   | "picklist"
   | "pengiriman"
   | "performa-pesanan"
+  | "performa-penempatan"
   | null;
 
 export function LaporanGudangView() {
@@ -67,8 +69,9 @@ export function LaporanGudangView() {
         <ReportCard
           icon={<BarChart3Icon className="size-5" />}
           title="Performa Proses Penempatan"
-          description="Performa putaway per pengguna berikut rata-rata durasi per SKU."
-          comingSoon
+          description="Performa putaway per petugas berikut rata-rata durasi penempatan."
+          actionLabel="Cetak Penempatan"
+          onClick={() => setActive("performa-penempatan")}
         />
         <ReportCard
           icon={<PackageCheckIcon className="size-5" />}
@@ -99,6 +102,10 @@ export function LaporanGudangView() {
       <OrderPerformanceDialog
         open={active === "performa-pesanan"}
         onOpenChange={(o) => setActive(o ? "performa-pesanan" : null)}
+      />
+      <PutawayPerformanceDialog
+        open={active === "performa-penempatan"}
+        onOpenChange={(o) => setActive(o ? "performa-penempatan" : null)}
       />
     </>
   );

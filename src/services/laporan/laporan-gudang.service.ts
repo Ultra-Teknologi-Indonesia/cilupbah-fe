@@ -4,6 +4,7 @@ import type {
   PicklistExportParams,
   OrderPerformanceParams,
   PicklistLookupItem,
+  PutawayPerformanceParams,
   ShipmentExportParams,
   ShipmentFilterOptions,
   TransferReportParams,
@@ -40,6 +41,16 @@ export const LaporanGudangService = {
   orderPerformancePdf: (params: OrderPerformanceParams): Promise<Blob> => {
     return fetchBlobPost(
       `/reports/wms/order-performance/pdf`,
+      params,
+      "application/pdf",
+    );
+  },
+
+  putawayPerformancePdf: (
+    params: PutawayPerformanceParams,
+  ): Promise<Blob> => {
+    return fetchBlobPost(
+      `/reports/wms/putaway-performance/pdf`,
       params,
       "application/pdf",
     );

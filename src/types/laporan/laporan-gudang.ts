@@ -57,6 +57,13 @@ export type OrderPerformanceJenis =
 
 export type OrderPerformanceMode = "detail" | "summary";
 
+export interface PutawayPerformanceParams {
+  mode: OrderPerformanceMode;
+  from: string;
+  to: string;
+  location_ids?: string[];
+}
+
 export interface OrderPerformanceParams {
   jenis: OrderPerformanceJenis;
   mode: OrderPerformanceMode;
