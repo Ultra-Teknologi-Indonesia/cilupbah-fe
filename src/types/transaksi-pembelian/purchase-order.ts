@@ -61,7 +61,7 @@ export interface PurchaseOrder {
 }
 
 export type PurchaseOrderStatus =
-  "DRAFT" | "OPEN" | "PARTIAL_RECEIVED" | "FULLY_RECEIVED" | "CANCELLED";
+  "DRAFT" | "OPEN" | "PARTIAL_RECEIVED" | "FULLY_RECEIVED";
 
 export interface PurchaseOrderListParams {
   search?: string;

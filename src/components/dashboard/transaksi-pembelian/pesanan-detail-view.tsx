@@ -149,27 +149,23 @@ export function PesananDetailView({ id }: { id: string }) {
               <HistoryIcon className="mr-2 size-4" />
               Riwayat
             </Button>
-            {po.status !== "CANCELLED" && (
-              <Button size="sm" asChild>
-                <Link
-                  href={`/dashboard/transaksi-pembelian/pesanan/${po.id}/edit`}
-                >
-                  <SquarePenIcon className="mr-2 size-4" />
-                  Edit
-                </Link>
-              </Button>
-            )}
-            {(po.status === "OPEN" || po.status === "DRAFT") && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                onClick={() => setConfirmAction("delete")}
+            <Button size="sm" asChild>
+              <Link
+                href={`/dashboard/transaksi-pembelian/pesanan/${po.id}/edit`}
               >
-                <Trash2Icon className="mr-2 size-4" />
-                Hapus
-              </Button>
-            )}
+                <SquarePenIcon className="mr-2 size-4" />
+                Edit
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              onClick={() => setConfirmAction("delete")}
+            >
+              <Trash2Icon className="mr-2 size-4" />
+              Hapus
+            </Button>
           </div>
         }
       />

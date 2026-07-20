@@ -40,7 +40,6 @@ const ACTION_LABELS: Record<PurchaseActivityAction, string> = {
   RECEIPT_REVERSED: "Penerimaan ditarik balik",
   RECEIVED: "Barang diterima",
   STATUS_CHANGED: "Status berubah",
-  CANCELLED: "Pesanan dibatalkan",
 };
 
 export function labelForAction(action: PurchaseActivityAction): string {

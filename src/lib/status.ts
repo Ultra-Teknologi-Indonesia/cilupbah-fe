@@ -153,7 +153,6 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     PARTIAL_RECEIVED: { label: "Diterima Sebagian", variant: "info" },
     CLOSED: { label: "Ditutup", variant: "muted" },
     FULLY_RECEIVED: { label: "Selesai", variant: "success" },
-    CANCELLED: { label: "Dibatalkan", variant: "destructive" },
   },
 
   "sales-order": {

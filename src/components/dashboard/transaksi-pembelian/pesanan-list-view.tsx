@@ -4,12 +4,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { useState, useMemo } from "react";
 import { useListState } from "@/hooks/use-list-state";
 import Link from "next/link";
-import {
-  PlusIcon,
-  ClipboardListIcon,
-  Trash2Icon,
-  BanIcon,
-  } from "lucide-react";
+import { PlusIcon, ClipboardListIcon, Trash2Icon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
@@ -25,7 +20,6 @@ import {
   usePurchaseOrders,
   useDeletePurchaseOrder,
   useBulkDeletePurchaseOrder,
-  useCancelPurchaseOrder,
 } from "@/hooks/transaksi-pembelian/use-purchase-orders";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import type {
@@ -65,25 +59,16 @@ export function PesananListView() {
   } = list;
 
   const [deleteTarget, setDeleteTarget] = useState<PurchaseOrder | null>(null);
-  const [cancelTarget, setCancelTarget] = useState<PurchaseOrder | null>(null);
   const [bulkDeleteTarget, setBulkDeleteTarget] = useState<
     PurchaseOrder[] | null
   >(null);
   const deleteMut = useDeletePurchaseOrder();
-  const cancelMut = useCancelPurchaseOrder();
   const bulkDeleteMut = useBulkDeletePurchaseOrder();
 
   function handleDelete() {
     if (!deleteTarget) return;
     deleteMut.mutate(deleteTarget.id, {
       onSuccess: () => setDeleteTarget(null),
-    });
-  }
-
-  function handleCancel() {
-    if (!cancelTarget) return;
-    cancelMut.mutate(cancelTarget.id, {
-      onSuccess: () => setCancelTarget(null),
     });
   }
 
@@ -97,9 +82,6 @@ export function PesananListView() {
       },
     });
   }
-
-  const isDeletable = (status: string) =>
-    status === "DRAFT" || status === "CANCELLED";
 
   const params = useMemo<PurchaseOrderListParams>(() => {
     const p: PurchaseOrderListParams = {
@@ -193,40 +175,19 @@ export function PesananListView() {
       {
         id: "actions",
         header: "",
-        cell: ({ row }) => {
-          const status = row.original.status;
-          if (status === "DRAFT" || status === "CANCELLED") {
-            return (
-              <div className="flex justify-end">
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={() => setDeleteTarget(row.original)}
-                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                  title="Hapus"
-                >
-                  <Trash2Icon className="size-3.5" />
-                </Button>
-              </div>
-            );
-          }
-          if (status === "OPEN") {
-            return (
-              <div className="flex justify-end">
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={() => setCancelTarget(row.original)}
-                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                  title="Batalkan"
-                >
-                  <BanIcon className="size-3.5" />
-                </Button>
-              </div>
-            );
-          }
-          return null;
-        },
+        cell: ({ row }) => (
+          <div className="flex justify-end">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setDeleteTarget(row.original)}
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              title="Hapus"
+            >
+              <Trash2Icon className="size-3.5" />
+            </Button>
+          </div>
+        ),
       },
     ],
     [],
@@ -292,7 +253,7 @@ export function PesananListView() {
             data={items}
             isLoading={isLoading}
             isFetching={isFetching}
-            enableRowSelection={(row) => isDeletable(row.original.status)}
+            enableRowSelection
             bulkActions={(selected, _table) => (
               <Button
                 variant="destructive"
@@ -330,17 +291,6 @@ export function PesananListView() {
         variant="destructive"
         loading={deleteMut.isPending}
         onConfirm={handleDelete}
-      />
-
-      <ConfirmDialog
-        open={!!cancelTarget}
-        onOpenChange={(v) => !v && setCancelTarget(null)}
-        title="Batalkan Pesanan"
-        description={`Batalkan pesanan "${cancelTarget?.po_number}"? Status akan berubah menjadi CANCELLED dan tidak bisa diterima lagi.`}
-        confirmLabel="Batalkan Pesanan"
-        variant="destructive"
-        loading={cancelMut.isPending}
-        onConfirm={handleCancel}
       />
 
       <ConfirmDialog

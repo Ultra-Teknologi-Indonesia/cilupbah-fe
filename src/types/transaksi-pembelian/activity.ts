@@ -8,8 +8,7 @@ export type PurchaseActivityAction =
   | "ITEM_REMOVED"
   | "RECEIPT_REVERSED"
   | "RECEIVED"
-  | "STATUS_CHANGED"
-  | "CANCELLED";
+  | "STATUS_CHANGED";
 
 export interface PurchaseOrderActivity {
   id: string;
