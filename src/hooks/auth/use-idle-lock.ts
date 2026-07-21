@@ -53,6 +53,18 @@ export const useIdleLockStore = create<IdleLockState>((set) => ({
   },
 }));
 
+/**
+ * Bersihkan sisa status kunci dari sesi sebelumnya. Wajib dipanggil saat
+ * login sukses: tanpa ini, `auth:locked` atau `auth:last-activity` yang basi
+ * membuat layar langsung terkunci begitu dashboard ter-mount.
+ */
+export function resetIdleLock() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(LOCKED_KEY);
+  window.localStorage.setItem(LAST_ACTIVITY_KEY, String(Date.now()));
+  useIdleLockStore.setState({ locked: false });
+}
+
 function readLastActivity(): number {
   const raw = window.localStorage.getItem(LAST_ACTIVITY_KEY);
   const value = Number(raw);

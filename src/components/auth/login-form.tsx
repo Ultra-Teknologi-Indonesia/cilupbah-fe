@@ -9,6 +9,7 @@ import { z } from "zod";
 import { ArrowRight, Loader2, Mail } from "lucide-react";
 
 import { useLogin } from "@/hooks/auth/use-auth";
+import { resetIdleLock } from "@/hooks/auth/use-idle-lock";
 import { setLoginSession } from "@/app/actions/auth.actions";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/sonner";
@@ -60,6 +61,9 @@ export function LoginForm({ className }: { className?: string }) {
   const onSubmit = (values: LoginValues) =>
     mutation.mutate(values, {
       onSuccess: async (res) => {
+        // Buang sisa status kunci sesi lama sebelum masuk dashboard, kalau
+        // tidak layar bisa langsung terkunci karena flag idle-lock basi.
+        resetIdleLock();
         if (res.data?.access_token && res.data?.refresh_token) {
           await setLoginSession({
             access_token: res.data.access_token,
