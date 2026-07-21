@@ -148,6 +148,19 @@ export function PutawayReviewView({ id }: PutawayReviewViewProps) {
                   </Link>
                 </Button>
               )}
+              {(putaway.status === "NOT_STARTED" ||
+                putaway.status === "IN_PROGRESS") && (
+                <Button asChild size="sm">
+                  <Link
+                    href={`/dashboard/barang-masuk/putaway/${putaway.id}`}
+                  >
+                    <PackageIcon className="mr-1.5 size-4" />
+                    {putaway.status === "IN_PROGRESS"
+                      ? "Lanjutkan Penempatan"
+                      : "Mulai Penempatan"}
+                  </Link>
+                </Button>
+              )}
               <Button
                 asChild
                 variant="outline"

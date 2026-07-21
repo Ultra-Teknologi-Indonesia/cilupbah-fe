@@ -118,6 +118,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   >({});
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [didAutoExpand, setDidAutoExpand] = useState(false);
+  const [scannedItemIds, setScannedItemIds] = useState<Set<string>>(new Set());
   const [focusPlacementId, setFocusPlacementId] = useState<string | null>(null);
   const [scanFocusKey, setScanFocusKey] = useState(0);
   const refocusScan = useCallback(() => setScanFocusKey((k) => k + 1), []);
@@ -163,7 +164,13 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
 
   const allItems = useMemo<PutawayItem[]>(() => items ?? [], [items]);
 
-  const visibleList = allItems;
+  const visibleList = useMemo(
+    () =>
+      allItems.filter(
+        (it) => it.putaway_qty > 0 || scannedItemIds.has(it.id),
+      ),
+    [allItems, scannedItemIds],
+  );
 
   useEffect(() => {
     if (allItems.length > 0 && !didAutoExpand) {
@@ -296,9 +303,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
         setScanError("Item ini sudah selesai ditempatkan.");
         return;
       }
-      // Rak divalidasi BE saat penempatan diproses (guard BinOccupancy /
-      // SkuHomeBin). Pesan penolakannya ditampilkan apa adanya dari BE, jadi
-      // di sini tidak ada aturan rak yang digandakan.
+      setScannedItemIds((prev) => new Set(prev).add(match.id));
       addPlacementForItem(match);
     },
     [allItems, addPlacementForItem],
