@@ -35,7 +35,7 @@ import type {
 
 export interface CreateShipmentPayload {
   shipment_no?: string | null;
-  location_id: string;
+  location_id?: string | null;
   courier_name?: string | null;
   courier_code?: string | null;
   shipment_type: string;
