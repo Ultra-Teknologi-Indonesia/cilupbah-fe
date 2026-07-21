@@ -166,23 +166,21 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
 
   const visibleList = useMemo<PutawayItem[]>(
     () =>
-      isCompleted
-        ? allItems
-        : // Item yang sudah tuntas ditempatkan hilang dari daftar kerja;
-          allItems.filter(
-            (it) =>
-              it.qty - it.putaway_qty > 0 &&
-              (scannedItemIds.has(it.id) || it.putaway_qty > 0),
-          ),
-    [allItems, scannedItemIds, isCompleted],
+      allItems.filter(
+        (it) => scannedItemIds.has(it.id) || it.putaway_qty > 0,
+      ),
+    [allItems, scannedItemIds],
   );
 
   useEffect(() => {
-    if (isCompleted && allItems.length > 0 && !didAutoExpand) {
-      setExpandedItems(new Set(allItems.map((it) => it.id)));
-      setDidAutoExpand(true);
+    if (allItems.length > 0 && !didAutoExpand) {
+      const placed = allItems.filter((it) => it.putaway_qty > 0);
+      if (placed.length > 0) {
+        setExpandedItems(new Set(placed.map((it) => it.id)));
+        setDidAutoExpand(true);
+      }
     }
-  }, [isCompleted, allItems, didAutoExpand]);
+  }, [allItems, didAutoExpand]);
 
   const { totalQty, placedQty } = useMemo(() => {
     return allItems.reduce(
