@@ -112,7 +112,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const [notes, setNotes] = useState("");
   const [scanError, setScanError] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [scannedItemIds, setScannedItemIds] = useState<Set<string>>(new Set());
 
   const [itemPlacements, setItemPlacements] = useState<
     Record<string, PlacementEntry[]>
@@ -164,13 +163,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
 
   const allItems = useMemo<PutawayItem[]>(() => items ?? [], [items]);
 
-  const visibleList = useMemo<PutawayItem[]>(
-    () =>
-      allItems.filter(
-        (it) => scannedItemIds.has(it.id) || it.putaway_qty > 0,
-      ),
-    [allItems, scannedItemIds],
-  );
+  const visibleList = allItems;
 
   useEffect(() => {
     if (allItems.length > 0 && !didAutoExpand) {
@@ -224,7 +217,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
 
   const addPlacementForItem = useCallback((match: PutawayItem) => {
     setScanError("");
-    setScannedItemIds((prev) => new Set(prev).add(match.id));
 
     const newId = `${match.id}-p-${Date.now()}`;
     const newEntry: PlacementEntry = {
