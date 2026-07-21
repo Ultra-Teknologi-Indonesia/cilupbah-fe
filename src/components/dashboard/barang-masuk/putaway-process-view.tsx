@@ -980,7 +980,10 @@ function PlacementRow({
   const deletePlacementMutation = useDeletePutawayPlacement();
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
+  const binLocked = !!(item.recommended_bin_locked && item.recommended_bin);
+
   const initialBinId = useMemo(() => {
+    if (binLocked) return item.recommended_bin!.id;
     if (defaultRack) return defaultRack.id;
     if (entry.initialBinCode) {
       const match = availableBins.find(
@@ -1061,9 +1064,10 @@ function PlacementRow({
   }, [qty, selectedBinId, processMutation.isPending, saveNow, onSaved]);
 
   const handleSelectBin = useCallback((binId: string | null) => {
+    if (binLocked) return;
     setSelectedBinId(binId);
     if (binId) setTimeout(() => qtyInputRef.current?.focus(), 50);
-  }, []);
+  }, [binLocked]);
 
   return (
     <div className="flex items-start gap-3">
@@ -1075,13 +1079,19 @@ function PlacementRow({
           placeholder="Pilih rak…"
           searchPlaceholder="Cari kode rak…"
           emptyText="Tidak ada rak."
-          disabled={!editable}
+          disabled={!editable || binLocked}
           className={cn(
             "h-8 w-52 rounded-lg text-xs",
+            binLocked && "opacity-80",
             selectedBin &&
               "border-success ring-1 ring-success/30",
           )}
         />
+        {binLocked && (
+          <p className="text-[10px] text-muted-foreground">
+            Rak terkunci (1 SKU = 1 rak)
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col gap-0.5">
