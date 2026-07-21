@@ -75,6 +75,19 @@ export function useStartPutaway() {
   });
 }
 
+export function useCompletePutaway() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => PutawayService.complete(id),
+    onSuccess: () => {
+      toast.success("Penempatan berhasil diselesaikan");
+      qc.invalidateQueries({ queryKey: ["putaway"] });
+    },
+    onError: (err) =>
+      apiError(err, "Gagal menyelesaikan penempatan"),
+  });
+}
+
 export function useProcessPutawayItem() {
   const qc = useQueryClient();
   return useMutation({

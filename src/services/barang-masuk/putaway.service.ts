@@ -92,6 +92,16 @@ export const PutawayService = {
     return res.data;
   },
 
+  complete: async (id: string) => {
+    const res = await fetchClient<ApiResponse<Putaway>>(
+      `/putaway/${id}/complete`,
+      {
+        method: "POST",
+      },
+    );
+    return res.data;
+  },
+
   processItem: async (
     id: string,
     itemId: string,

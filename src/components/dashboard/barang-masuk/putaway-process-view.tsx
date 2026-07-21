@@ -49,10 +49,12 @@ import {
   type ScanAutoflowLine,
 } from "@/components/dashboard/shared/scan-autoflow-bar";
 import { QtyConfirmInput } from "@/components/ui/qty-confirm-input";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   usePutawayDetail,
   usePutawayItems,
   useProcessPutawayItem,
+  useCompletePutaway,
   useDeletePutawayPlacement,
   usePutawayBins,
   useUnassignPutaway,
@@ -129,6 +131,9 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const [resetOpen, setResetOpen] = useState(false);
   const unassignMutation = useUnassignPutaway(id);
   const resetMutation = useResetPutawayAssignment(id);
+
+  const [completeOpen, setCompleteOpen] = useState(false);
+  const completeMutation = useCompletePutaway();
 
   const staffQuery = useUsers({
     "filter[role]": "putaway",
@@ -511,11 +516,16 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                     className="flex-1"
                   />
                   <div className="flex min-w-44 flex-col gap-1.5 lg:w-56">
-                    <span className="text-sm font-semibold tabular-nums">
+                    <span className="flex items-center gap-2 text-sm font-semibold tabular-nums">
                       {placedQty} / {totalQty} Qty
+                      {placedQty > totalQty && (
+                        <span className="rounded-full bg-warning/15 px-2 py-0.5 text-xs font-medium text-warning">
+                          +{placedQty - totalQty} kelebihan
+                        </span>
+                      )}
                     </span>
                     <Progress
-                      value={progressPct}
+                      value={Math.min(progressPct, 100)}
                       className={cn(
                         "h-2.5",
                         progressPct >= 100 &&
@@ -619,9 +629,44 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                 </TableBody>
               </Table>
             </LiquidGlass>
+
+            {isInProgress && (
+              <div className="flex justify-end">
+                <Button
+                  variant="primary"
+                  onClick={() => setCompleteOpen(true)}
+                  disabled={completeMutation.isPending}
+                >
+                  {completeMutation.isPending ? (
+                    <Loader2Icon className="animate-spin" />
+                  ) : (
+                    <CheckCircle2Icon className="size-4" />
+                  )}
+                  Selesaikan Penempatan
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={completeOpen}
+        onOpenChange={setCompleteOpen}
+        title="Selesaikan penempatan?"
+        description={
+          incompleteItems.length > 0
+            ? `Masih ada ${incompleteItems.length} item dengan selisih (fisik kurang dari data). Selisihnya otomatis dicatat sebagai Penyesuaian Stok. Dokumen dikunci setelah diselesaikan.`
+            : placedQty > totalQty
+              ? `Ada kelebihan ${placedQty - totalQty} qty dari rencana. Dokumen dikunci setelah diselesaikan.`
+              : "Dokumen dikunci setelah diselesaikan dan tidak bisa diedit lagi."
+        }
+        confirmLabel="Selesaikan"
+        loading={completeMutation.isPending}
+        onConfirm={() =>
+          completeMutation.mutate(id, { onSuccess: () => setCompleteOpen(false) })
+        }
+      />
 
       <UnassignReasonDialog
         open={unassignOpen}
