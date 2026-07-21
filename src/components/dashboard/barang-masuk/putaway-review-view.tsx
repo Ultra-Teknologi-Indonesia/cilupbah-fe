@@ -9,6 +9,7 @@ import {
   PrinterIcon,
   ChevronDownIcon,
   ChevronRightIcon,
+  PenLineIcon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -128,21 +129,33 @@ export function PutawayReviewView({ id }: PutawayReviewViewProps) {
         ]}
         actions={
           putaway ? (
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-              aria-label="Cetak Putaway"
-            >
-              <Link
-                href={`/dashboard/document-preview/putaway/${putaway.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
+            <div className="flex items-center gap-2">
+              {putaway.status === "COMPLETED" && (
+                <Button asChild variant="outline" size="sm">
+                  <Link
+                    href={`/dashboard/barang-masuk/putaway/${putaway.id}`}
+                  >
+                    <PenLineIcon className="mr-1.5 size-4" />
+                    Koreksi Penempatan
+                  </Link>
+                </Button>
+              )}
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                aria-label="Cetak Putaway"
               >
-                <PrinterIcon className="mr-1.5 size-4" />
-                Cetak
-              </Link>
-            </Button>
+                <Link
+                  href={`/dashboard/document-preview/putaway/${putaway.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <PrinterIcon className="mr-1.5 size-4" />
+                  Cetak
+                </Link>
+              </Button>
+            </div>
           ) : undefined
         }
       />

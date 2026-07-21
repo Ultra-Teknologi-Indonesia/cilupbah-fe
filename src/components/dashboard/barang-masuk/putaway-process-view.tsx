@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 
 import { QRCodeSVG } from "qrcode.react";
@@ -94,7 +96,18 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   } = usePutawayDetail(id);
   const { data: items, refetch: refetchItems } = usePutawayItems(id);
 
+  const router = useRouter();
   const [activeRack, setActiveRack] = useState<BinListItem | null>(null);
+  const prevStatusRef = useRef(putaway?.status);
+
+  useEffect(() => {
+    const prev = prevStatusRef.current;
+    prevStatusRef.current = putaway?.status;
+    if (prev === "IN_PROGRESS" && putaway?.status === "COMPLETED") {
+      toast.success("Penempatan otomatis selesai — semua kuota terpenuhi");
+      router.push(`/dashboard/barang-masuk/penempatan/${id}`);
+    }
+  }, [putaway?.status, id, router]);
 
   const [notes, setNotes] = useState("");
   const [scanError, setScanError] = useState("");
@@ -518,11 +531,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                   <div className="flex min-w-44 flex-col gap-1.5 lg:w-56">
                     <span className="flex items-center gap-2 text-sm font-semibold tabular-nums">
                       {placedQty} / {totalQty} Qty
-                      {placedQty > totalQty && (
-                        <span className="rounded-full bg-warning/15 px-2 py-0.5 text-xs font-medium text-warning">
-                          +{placedQty - totalQty} kelebihan
-                        </span>
-                      )}
                     </span>
                     <Progress
                       value={Math.min(progressPct, 100)}
@@ -656,10 +664,8 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
         title="Selesaikan penempatan?"
         description={
           incompleteItems.length > 0
-            ? `Masih ada ${incompleteItems.length} item dengan selisih (fisik kurang dari data). Selisihnya otomatis dicatat sebagai Penyesuaian Stok. Dokumen dikunci setelah diselesaikan.`
-            : placedQty > totalQty
-              ? `Ada kelebihan ${placedQty - totalQty} qty dari rencana. Dokumen dikunci setelah diselesaikan.`
-              : "Dokumen dikunci setelah diselesaikan dan tidak bisa diedit lagi."
+            ? `Masih ada ${incompleteItems.length} item yang belum penuh. Sisa kuota akan dirilis dan tersedia untuk penempatan baru. Setelah selesai, admin masih bisa mengoreksi qty penempatan.`
+            : "Setelah selesai, admin masih bisa mengoreksi qty penempatan. Selisih koreksi otomatis tercatat sebagai Penyesuaian Stok."
         }
         confirmLabel="Selesaikan"
         loading={completeMutation.isPending}
@@ -1079,7 +1085,6 @@ function PlacementRow({
             min={1}
             max={entry.maxQty}
             expected={entry.maxQty}
-            warnOnly
             value={qty === "" ? "" : Number(qty)}
             disabled={!editable}
             onChange={(v) => setQty(v === "" ? "" : String(v))}
