@@ -20,6 +20,7 @@ import { Separator } from "@/components/ui/separator";
 import type { OrderTab, SubFilter } from "@/types/pesanan/order";
 import {
   useBulkMarkContacted,
+  useMarkComplete,
   useMoveToReady,
 } from "@/hooks/pesanan/use-order-actions";
 
@@ -84,6 +85,7 @@ function TabBulkActions({
 }) {
   const bulkContact = useBulkMarkContacted();
   const moveToReady = useMoveToReady();
+  const markComplete = useMarkComplete();
 
   const placeholder = (label: string) => () =>
     toast.info(`${label} untuk ${count} pesanan akan segera tersedia`);
@@ -94,10 +96,13 @@ function TabBulkActions({
         <Button
           size="sm"
           className="h-8 gap-1.5 text-xs"
-          onClick={placeholder("Proses Pesanan")}
+          disabled={moveToReady.isPending || selectedIds.length === 0}
+          onClick={() =>
+            moveToReady.mutate(selectedIds, { onSuccess: () => onDone() })
+          }
         >
           <PlayIcon className="size-3.5" />
-          Proses Pesanan
+          {moveToReady.isPending ? "Memproses..." : "Proses Pesanan"}
         </Button>
         <Button
           variant="outline"
@@ -112,10 +117,13 @@ function TabBulkActions({
           variant="outline"
           size="sm"
           className="h-8 gap-1.5 text-xs"
-          onClick={placeholder("Selesaikan")}
+          disabled={markComplete.isPending || selectedIds.length === 0}
+          onClick={() =>
+            markComplete.mutate(selectedIds, { onSuccess: () => onDone() })
+          }
         >
           <CheckCircleIcon className="size-3.5" />
-          Selesaikan
+          {markComplete.isPending ? "Menyelesaikan..." : "Selesaikan"}
         </Button>
       </>
     );
