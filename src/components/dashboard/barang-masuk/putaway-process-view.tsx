@@ -118,6 +118,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     Record<string, PlacementEntry[]>
   >({});
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [didAutoExpand, setDidAutoExpand] = useState(false);
   const [focusPlacementId, setFocusPlacementId] = useState<string | null>(null);
   const [scanFocusKey, setScanFocusKey] = useState(0);
   const refocusScan = useCallback(() => setScanFocusKey((k) => k + 1), []);
@@ -175,6 +176,13 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
           ),
     [allItems, scannedItemIds, isCompleted],
   );
+
+  useEffect(() => {
+    if (isCompleted && allItems.length > 0 && !didAutoExpand) {
+      setExpandedItems(new Set(allItems.map((it) => it.id)));
+      setDidAutoExpand(true);
+    }
+  }, [isCompleted, allItems, didAutoExpand]);
 
   const { totalQty, placedQty } = useMemo(() => {
     return allItems.reduce(

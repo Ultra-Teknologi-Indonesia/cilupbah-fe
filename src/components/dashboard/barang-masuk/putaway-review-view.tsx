@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -86,6 +86,7 @@ export function PutawayReviewView({ id }: PutawayReviewViewProps) {
   );
 
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [didAutoExpand, setDidAutoExpand] = useState(false);
   const toggleExpand = (itemId: string) =>
     setExpandedItems((prev) => {
       const next = new Set(prev);
@@ -93,6 +94,13 @@ export function PutawayReviewView({ id }: PutawayReviewViewProps) {
       else next.add(itemId);
       return next;
     });
+
+  useEffect(() => {
+    if (allItems.length > 0 && !didAutoExpand) {
+      setExpandedItems(new Set(allItems.map((it) => it.id)));
+      setDidAutoExpand(true);
+    }
+  }, [allItems, didAutoExpand]);
 
   const { totalQty, placedQty } = useMemo(
     () =>
