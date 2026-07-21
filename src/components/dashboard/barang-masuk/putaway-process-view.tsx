@@ -1005,7 +1005,6 @@ function PlacementRow({
   const [hasSaved, setHasSaved] = useState(entry.initialBinQty > 0);
 
   const qtyInputRef = useRef<HTMLInputElement>(null);
-  const autoSaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const lastSavedQty = useRef(entry.initialSavedQty);
 
   const selectedBin = useMemo(
@@ -1021,8 +1020,6 @@ function PlacementRow({
       setTimeout(() => qtyInputRef.current?.focus(), 50);
     }
   }, []);
-
-  useEffect(() => () => clearTimeout(autoSaveTimer.current), []);
 
   const saveNow = useCallback(
     (binId: string, targetQty: number, afterSave?: () => void) => {
@@ -1047,18 +1044,12 @@ function PlacementRow({
     [processMutation, putawayId, item.id, onProcessed],
   );
 
-  useEffect(() => {
-    clearTimeout(autoSaveTimer.current);
+  const handleSave = useCallback(() => {
+    if (!selectedBinId || processMutation.isPending) return;
     const qtyNum = parseInt(qty) || 0;
-    const delta = qtyNum - lastSavedQty.current;
-    if (delta <= 0 || !selectedBinId || processMutation.isPending) return;
-
-    autoSaveTimer.current = setTimeout(() => {
+    if (qtyNum > lastSavedQty.current)
       saveNow(selectedBinId, qtyNum, onSaved);
-    }, 800);
-
-    return () => clearTimeout(autoSaveTimer.current);
-  }, [qty, selectedBinId, processMutation.isPending, saveNow, onSaved]);
+  }, [selectedBinId, qty, processMutation.isPending, saveNow, onSaved]);
 
   const handleSelectBin = useCallback((binId: string | null) => {
     if (binLocked) return;
@@ -1101,17 +1092,24 @@ function PlacementRow({
             value={qty === "" ? "" : Number(qty)}
             disabled={!editable}
             onChange={(v) => setQty(v === "" ? "" : String(v))}
-            onEnter={() => {
-              if (!selectedBinId) return;
-              clearTimeout(autoSaveTimer.current);
-              const qtyNum = parseInt(qty) || 0;
-              if (qtyNum > lastSavedQty.current)
-                saveNow(selectedBinId, qtyNum, onSaved);
-            }}
+            onEnter={handleSave}
             placeholder="0"
             className="h-8 w-20 tabular-nums text-xs"
           />
-          {processMutation.isPending ? (
+          {editable && !hasSaved ? (
+            <Button
+              type="button"
+              size="sm"
+              disabled={!selectedBinId || processMutation.isPending || (parseInt(qty) || 0) <= lastSavedQty.current}
+              onClick={handleSave}
+              className="h-8 px-3 text-xs"
+            >
+              {processMutation.isPending ? (
+                <Loader2Icon className="mr-1 size-3.5 animate-spin" />
+              ) : null}
+              Simpan
+            </Button>
+          ) : processMutation.isPending ? (
             <Loader2Icon className="size-3.5 animate-spin text-warning" />
           ) : hasSaved ? (
             <CheckCircle2Icon className="size-3.5 text-success" />
