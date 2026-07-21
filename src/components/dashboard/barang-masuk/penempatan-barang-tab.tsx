@@ -136,6 +136,11 @@ export function PenempatanBarangTab() {
   const deleteMut = useDeletePutaway();
   const bulkDeleteMut = useBulkDeletePutaway();
 
+  const sortByStatus: Record<string, string> = {
+    COMPLETED: "-completed_at",
+    IN_PROGRESS: "-started_at",
+  };
+
   const params = useMemo(
     () => ({
       search: list.debouncedSearch || undefined,
@@ -143,6 +148,7 @@ export function PenempatanBarangTab() {
       per_page: list.perPage,
       "filter[status]": list.filters.status || undefined,
       "filter[location_id]": list.filters.location_id || undefined,
+      sort: sortByStatus[list.filters.status] ?? undefined,
     }),
     [list.debouncedSearch, list.page, list.perPage, list.filters],
   );
@@ -168,6 +174,8 @@ export function PenempatanBarangTab() {
     ],
     [locData],
   );
+
+  const activeStatus = list.filters.status;
 
   const columns = useMemo<ColumnDef<Putaway>[]>(
     () => [
@@ -205,23 +213,37 @@ export function PenempatanBarangTab() {
       },
       {
         id: "no_pembelian",
-        header: "No. Pembelian",
-        cell: ({ row }) => (
-          <span className="text-foreground">
-            {row.original.inbound?.reference_number ?? "—"}
-          </span>
-        ),
+        header: "No. Penerimaan",
+        cell: ({ row }) => {
+          const sources = row.original.sources;
+          const ref = sources?.[0]?.reference_number ?? row.original.inbound?.reference_number;
+          return (
+            <span className="text-foreground">{ref ?? "—"}</span>
+          );
+        },
       },
       {
         id: "tanggal",
-        header: "Tgl. Pembelian",
-        cell: ({ row }) => (
-          <span className="text-foreground">
-            {row.original.inbound?.created_at
-              ? formatDate(row.original.inbound.created_at)
-              : "—"}
-          </span>
-        ),
+        header:
+          activeStatus === "COMPLETED"
+            ? "Tgl. Selesai"
+            : activeStatus === "IN_PROGRESS"
+              ? "Tgl. Mulai"
+              : "Tgl. Dibuat",
+        cell: ({ row }) => {
+          const r = row.original;
+          const date =
+            activeStatus === "COMPLETED"
+              ? r.completed_at
+              : activeStatus === "IN_PROGRESS"
+                ? r.started_at
+                : r.created_at;
+          return (
+            <span className="text-foreground">
+              {date ? formatDate(date) : "—"}
+            </span>
+          );
+        },
       },
       {
         id: "location",
@@ -326,7 +348,7 @@ export function PenempatanBarangTab() {
         },
       },
     ],
-    [],
+    [activeStatus],
   );
 
   const bulkActions = useCallback(
