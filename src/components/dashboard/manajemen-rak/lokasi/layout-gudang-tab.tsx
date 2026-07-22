@@ -612,14 +612,16 @@ function BinSkuAssignCell({
         )
         .map((s) => ({
           value: s.variantId,
-          label: `${s.name} — ${s.sku}`,
+          label: s.name,
+          hint: s.sku,
           badgeLabel: s.sku,
+          imageUrl: s.thumbnail ?? undefined,
         })),
     [pendingSkus, stagedVariantIds, staged?.variantId],
   );
 
   return (
-    <div className="min-w-[220px] max-w-[280px] space-y-1">
+    <div className="min-w-[260px] max-w-[340px] space-y-1">
       <Combobox
         options={options}
         value={staged?.variantId ?? null}

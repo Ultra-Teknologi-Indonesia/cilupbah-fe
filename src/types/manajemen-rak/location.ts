@@ -191,6 +191,7 @@ export interface RawPendingPutawaySku {
   sku: string;
   name: string;
   pending_qty: number;
+  thumbnail: string | null;
 }
 
 export interface PendingPutawaySku {
@@ -198,6 +199,7 @@ export interface PendingPutawaySku {
   sku: string;
   name: string;
   pendingQty: number;
+  thumbnail: string | null;
 }
 
 export interface LocationListParams {

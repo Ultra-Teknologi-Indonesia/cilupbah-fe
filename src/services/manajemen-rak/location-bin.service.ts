@@ -163,6 +163,7 @@ export const LocationBinService = {
       sku: s.sku,
       name: s.name,
       pendingQty: s.pending_qty,
+      thumbnail: s.thumbnail ?? null,
     }));
   },
 
