@@ -20,7 +20,6 @@ function mapBin(raw: RawLocationBin): LocationBin {
     isInbound: raw.is_inbound,
     isStockAcknowledged: raw.is_stock_acknowledged ?? true,
     isLargeBin: raw.is_large_bin ?? false,
-    category: raw.category ?? null,
     skus: (raw.skus ?? []).map((s) => ({
       variantId: s.variant_id,
       sku: s.sku,
@@ -123,7 +122,6 @@ export const LocationService = {
       bin_final_code: string;
       is_stock_acknowledged: boolean;
       is_large_bin: boolean;
-      category: string | null;
     }[],
   ): Promise<{ updated: number }> => {
     const res = await fetchClient<ApiResponse<{ updated: number }>>(

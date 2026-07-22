@@ -41,6 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
 import {
   Table,
   TableBody,
@@ -63,6 +64,7 @@ import {
   useLocationBins,
   useUniformApplyBins,
 } from "@/hooks/manajemen-rak/use-location-bins";
+import { usePendingPutawaySkus } from "@/hooks/manajemen-rak/use-pending-putaway-skus";
 import { useZones } from "@/hooks/manajemen-rak/use-zones";
 import { useListState } from "@/hooks/use-list-state";
 import type {
@@ -70,7 +72,13 @@ import type {
   BinListParams,
   BinPreviewItem,
   GenerateBinsPayload,
+  PendingPutawaySku,
 } from "@/types/manajemen-rak/location";
+
+export interface BinSkuAssignment {
+  binId: string;
+  itemId: string;
+}
 
 const PER_PAGE_OPTIONS = [50, 100, 200] as const;
 
@@ -127,7 +135,6 @@ interface UniformDialogProps {
   onApply: (values: {
     isStockAcknowledged: boolean;
     isLargeBin: boolean;
-    category: string;
     zoneId: string;
   }) => void;
   pending?: boolean;
@@ -145,14 +152,12 @@ function UniformDialog({
 }: UniformDialogProps) {
   const [isStockAcknowledged, setIsStockAcknowledged] = React.useState(true);
   const [isLargeBin, setIsLargeBin] = React.useState(false);
-  const [category, setCategory] = React.useState("");
   const [zoneId, setZoneId] = React.useState("");
 
   const handleApply = () => {
     onApply({
       isStockAcknowledged,
       isLargeBin,
-      category,
       zoneId,
     });
   };
@@ -186,15 +191,6 @@ function UniformDialog({
               </Select>
             </div>
           )}
-
-          <div className="space-y-2">
-            <Label>Kategori</Label>
-            <Input
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              placeholder="Kategori"
-            />
-          </div>
 
           <div className="flex items-center justify-between">
             <Label>Gudang Besar</Label>
@@ -591,6 +587,59 @@ function IsiRakCell({ skus }: { skus?: BinSkuEntry[] }) {
   );
 }
 
+function BinSkuAssignCell({
+  staged,
+  pendingSkus,
+  stagedVariantIds,
+  loading,
+  disabled,
+  onChange,
+}: {
+  staged: PendingPutawaySku | null;
+  pendingSkus: PendingPutawaySku[];
+  stagedVariantIds: Set<string>;
+  loading?: boolean;
+  disabled?: boolean;
+  onChange: (variantId: string | null) => void;
+}) {
+  const options: ComboboxOption[] = React.useMemo(
+    () =>
+      pendingSkus
+        .filter(
+          (s) =>
+            s.variantId === staged?.variantId ||
+            !stagedVariantIds.has(s.variantId),
+        )
+        .map((s) => ({
+          value: s.variantId,
+          label: `${s.name} — ${s.sku}`,
+          badgeLabel: s.sku,
+        })),
+    [pendingSkus, stagedVariantIds, staged?.variantId],
+  );
+
+  return (
+    <div className="min-w-[220px] max-w-[280px] space-y-1">
+      <Combobox
+        options={options}
+        value={staged?.variantId ?? null}
+        onChange={onChange}
+        placeholder="Pilih SKU siap putaway"
+        searchPlaceholder="Cari SKU / nama"
+        emptyText={loading ? "Memuat…" : "Tidak ada SKU siap putaway."}
+        loading={loading}
+        disabled={disabled}
+        wrap
+      />
+      {staged && (
+        <p className="text-2xs text-primary">
+          Akan ditempatkan ke rak ini saat Simpan.
+        </p>
+      )}
+    </div>
+  );
+}
+
 let binRowSeq = 0;
 function clientId(): string {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -648,20 +697,25 @@ function SortableHeader({
 interface LayoutGudangTabProps {
   disabled?: boolean;
   locationId?: string;
+  locationCode?: string;
   initialBins?: BinDraft[];
   onApply: (payload: GenerateBinsPayload | null) => void;
 
   onBinsChange?: (bins: BinDraft[]) => void;
+  onAssignmentsChange?: (assignments: BinSkuAssignment[]) => void;
 }
 
 export function LayoutGudangTab({
   disabled = false,
   locationId,
+  locationCode,
   initialBins,
   onApply,
   onBinsChange,
+  onAssignmentsChange,
 }: LayoutGudangTabProps) {
   const serverMode = !!locationId;
+  const isSmallWarehouse = serverMode && locationCode === "WH-KECIL";
 
   const [floorCode, setFloorCode] = React.useState("L");
   const [rowCode, setRowCode] = React.useState("B");
@@ -677,6 +731,10 @@ export function LayoutGudangTab({
   );
 
   const [pendingBins, setPendingBins] = React.useState<BinRow[]>([]);
+
+  const [assignMap, setAssignMap] = React.useState<
+    Map<string, PendingPutawaySku>
+  >(() => new Map());
 
   const [editedMap, setEditedMap] = React.useState<
     Map<string, Partial<BinPreviewItem>>
@@ -709,6 +767,41 @@ export function LayoutGudangTab({
 
   const binsQuery = useLocationBins(locationId, params);
   const uniformMut = useUniformApplyBins(locationId);
+  const pendingSkusQuery = usePendingPutawaySkus(locationId, isSmallWarehouse);
+  const pendingSkus = React.useMemo(
+    () => pendingSkusQuery.data ?? [],
+    [pendingSkusQuery.data],
+  );
+  const stagedVariantIds = React.useMemo(
+    () => new Set(Array.from(assignMap.values()).map((s) => s.variantId)),
+    [assignMap],
+  );
+
+  const handleAssignChange = (binId: string, variantId: string | null) => {
+    setAssignMap((prev) => {
+      const next = new Map(prev);
+      if (!variantId) {
+        next.delete(binId);
+      } else {
+        const sku = pendingSkus.find((s) => s.variantId === variantId);
+        if (sku) next.set(binId, sku);
+        else next.delete(binId);
+      }
+      return next;
+    });
+  };
+
+  const onAssignmentsChangeRef = React.useRef(onAssignmentsChange);
+  React.useEffect(() => {
+    onAssignmentsChangeRef.current = onAssignmentsChange;
+  });
+  React.useEffect(() => {
+    const items: BinSkuAssignment[] = Array.from(assignMap.entries()).map(
+      ([binId, sku]) => ({ binId, itemId: sku.variantId }),
+    );
+    onAssignmentsChangeRef.current?.(items);
+  }, [assignMap]);
+
   const { data: zonesData } = useZones(locationId);
   const zoneSelectOptions = React.useMemo(
     () =>
@@ -739,7 +832,6 @@ export function LayoutGudangTab({
           isStockAcknowledged:
             patch.isStockAcknowledged ?? row.isStockAcknowledged,
           isLargeBin: patch.isLargeBin ?? row.isLargeBin,
-          category: patch.category ?? row.category ?? "",
         });
       }
       onBinsChangeRef.current?.(items);
@@ -835,7 +927,6 @@ export function LayoutGudangTab({
           isStockAcknowledged:
             patch.isStockAcknowledged ?? row.isStockAcknowledged,
           isLargeBin: patch.isLargeBin ?? row.isLargeBin,
-          category: patch.category ?? row.category ?? "",
           skus: row.skus,
         };
       })
@@ -920,7 +1011,6 @@ export function LayoutGudangTab({
   const handleUniformApplyLocal = (values: {
     isStockAcknowledged: boolean;
     isLargeBin: boolean;
-    category: string;
     zoneId: string;
   }) => {
     setLocalBins((prev) =>
@@ -930,7 +1020,6 @@ export function LayoutGudangTab({
               ...b,
               isStockAcknowledged: values.isStockAcknowledged,
               isLargeBin: values.isLargeBin,
-              category: values.category,
             }
           : b,
       ),
@@ -943,7 +1032,6 @@ export function LayoutGudangTab({
   const handleUniformApplyServer = async (values: {
     isStockAcknowledged: boolean;
     isLargeBin: boolean;
-    category: string;
     zoneId: string;
   }) => {
     if (selectedIds.size === 0 && !selectAllAcrossPages) {
@@ -957,7 +1045,6 @@ export function LayoutGudangTab({
         values: {
           is_stock_acknowledged: values.isStockAcknowledged,
           is_large_bin: values.isLargeBin,
-          category: values.category || null,
           zone_id: values.zoneId || null,
         },
         search: selectAllAcrossPages
@@ -1172,9 +1259,6 @@ export function LayoutGudangTab({
                   <TableHead className="px-3 py-3 text-center font-medium text-muted-foreground">
                     Gudang Besar
                   </TableHead>
-                  <TableHead className="px-3 py-3 text-left font-medium text-muted-foreground">
-                    Kategori
-                  </TableHead>
                   <TableHead className="w-24 px-3 py-3" />
                 </TableRow>
 
@@ -1185,7 +1269,7 @@ export function LayoutGudangTab({
                   totalAll > pageIds.length && (
                     <TableRow className="border-b border-primary/20 bg-primary/5">
                       <TableCell
-                        colSpan={7}
+                        colSpan={6}
                         className="px-3 py-2 text-center text-sm"
                       >
                         Memilih {pageIds.length} rak di halaman ini.{" "}
@@ -1202,7 +1286,7 @@ export function LayoutGudangTab({
                 {serverMode && selectAllAcrossPages && (
                   <TableRow className="border-b border-primary/20 bg-primary/5">
                     <TableCell
-                      colSpan={7}
+                      colSpan={6}
                       className="px-3 py-2 text-center text-sm"
                     >
                       Memilih semua {totalAll.toLocaleString("id-ID")} rak.{" "}
@@ -1219,7 +1303,7 @@ export function LayoutGudangTab({
 
                 {(selectedIds.size > 0 || selectAllAcrossPages) && (
                   <TableRow className="border-b border-primary/20 bg-primary/5">
-                    <TableCell colSpan={7} className="px-3 py-2">
+                    <TableCell colSpan={6} className="px-3 py-2">
                       <div className="flex items-center gap-3">
                         <Checkbox
                           checked={allPageSelected ? true : "indeterminate"}
@@ -1316,7 +1400,22 @@ export function LayoutGudangTab({
                         </div>
                       </TableCell>
                       <TableCell className="px-3 py-2.5 align-top">
-                        <IsiRakCell skus={b.skus} />
+                        {b.skus && b.skus.length > 0 ? (
+                          <IsiRakCell skus={b.skus} />
+                        ) : isSmallWarehouse && b.binId && !isPending ? (
+                          <BinSkuAssignCell
+                            staged={assignMap.get(b.binId) ?? null}
+                            pendingSkus={pendingSkus}
+                            stagedVariantIds={stagedVariantIds}
+                            loading={pendingSkusQuery.isLoading}
+                            disabled={disabled}
+                            onChange={(variantId) =>
+                              handleAssignChange(b.binId!, variantId)
+                            }
+                          />
+                        ) : (
+                          <IsiRakCell skus={b.skus} />
+                        )}
                       </TableCell>
                       <TableCell className="px-3 py-2.5 text-center">
                         <Switch
@@ -1338,19 +1437,6 @@ export function LayoutGudangTab({
                               : updateLocalBin(b.id, "isLargeBin", v)
                           }
                           disabled={disabled || isPending}
-                        />
-                      </TableCell>
-                      <TableCell className="px-3 py-2.5">
-                        <Input
-                          value={b.category}
-                          onChange={(e) =>
-                            serverMode && b.binId
-                              ? patchEdit(b.binId, "category", e.target.value)
-                              : updateLocalBin(b.id, "category", e.target.value)
-                          }
-                          disabled={disabled || isPending}
-                          placeholder="Kategori"
-                          className="h-9 max-w-[180px]"
                         />
                       </TableCell>
                       <TableCell className="px-3 py-2.5">
@@ -1432,6 +1518,13 @@ export function LayoutGudangTab({
           <p className="text-xs text-muted-foreground">
             {editedMap.size} rak diubah belum disimpan. Klik{" "}
             <strong>Simpan</strong> di atas untuk menerapkan.
+          </p>
+        )}
+
+        {isSmallWarehouse && assignMap.size > 0 && (
+          <p className="text-xs text-muted-foreground">
+            {assignMap.size} SKU akan ditempatkan ke rak kosong. Klik{" "}
+            <strong>Simpan</strong> untuk menjalankan penempatan (putaway).
           </p>
         )}
       </div>

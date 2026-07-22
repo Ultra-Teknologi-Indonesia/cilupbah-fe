@@ -26,7 +26,6 @@ export function buildBinPreview(
             binFinalCode: [floorCode, rowCode, columnCode, binCode].join("-"),
             isStockAcknowledged: true,
             isLargeBin: false,
-            category: "",
           });
         }
       }

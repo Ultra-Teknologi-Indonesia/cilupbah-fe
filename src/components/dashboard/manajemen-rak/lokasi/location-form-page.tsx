@@ -24,6 +24,7 @@ import { useCreateLocation } from "@/hooks/manajemen-rak/use-create-location";
 import { useUpdateLocation } from "@/hooks/manajemen-rak/use-update-location";
 import { useGenerateBins } from "@/hooks/manajemen-rak/use-generate-bins";
 import { useBulkUpdateBins } from "@/hooks/manajemen-rak/use-bulk-update-bins";
+import { useAssignBinSku } from "@/hooks/manajemen-rak/use-assign-bin-sku";
 import { useWarehouseLayoutSetting } from "@/hooks/manajemen-rak/use-warehouse-layout-setting";
 import type {
   BinDraft,
@@ -34,7 +35,10 @@ import type {
 import { apiError } from "@/lib/toast";
 
 import { InformasiTab } from "./informasi-tab";
-import { LayoutGudangTab } from "./layout-gudang-tab";
+import {
+  LayoutGudangTab,
+  type BinSkuAssignment,
+} from "./layout-gudang-tab";
 import { ZonaTab } from "./zona-tab";
 
 const LIST_HREF = "/dashboard/lokasi";
@@ -113,7 +117,9 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
   const updateLocation = useUpdateLocation();
   const generateBins = useGenerateBins();
   const bulkUpdate = useBulkUpdateBins(id);
+  const assignBinSku = useAssignBinSku(id);
   const binsRef = React.useRef<BinDraft[]>([]);
+  const assignmentsRef = React.useRef<BinSkuAssignment[]>([]);
 
   const form = useForm<LocationFormValues>({
     resolver: zodResolver(locationFormSchema),
@@ -139,7 +145,8 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
     createLocation.isPending ||
     updateLocation.isPending ||
     generateBins.isPending ||
-    bulkUpdate.isPending;
+    bulkUpdate.isPending ||
+    assignBinSku.isPending;
 
   const initialBins: BinDraft[] = React.useMemo(
     () =>
@@ -154,7 +161,6 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
           binFinalCode: b.binFinalCode,
           isStockAcknowledged: b.isStockAcknowledged,
           isLargeBin: b.isLargeBin,
-          category: b.category ?? "",
         })),
     [detail.data],
   );
@@ -193,10 +199,15 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
               bin_final_code: b.binFinalCode,
               is_stock_acknowledged: b.isStockAcknowledged,
               is_large_bin: b.isLargeBin,
-              category: b.category || null,
             }));
           if (existingBins.length > 0) {
             await bulkUpdate.mutateAsync(existingBins);
+          }
+        }
+
+        if (layoutEnabled && locationId && assignmentsRef.current.length > 0) {
+          for (const a of assignmentsRef.current) {
+            await assignBinSku.mutateAsync({ binId: a.binId, itemId: a.itemId });
           }
         }
 
@@ -287,10 +298,14 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
               <LayoutGudangTab
                 disabled={locked}
                 locationId={mode === "edit" ? id : undefined}
+                locationCode={detail.data?.locationCode}
                 initialBins={initialBins}
                 onApply={setAppliedPayload}
                 onBinsChange={(bins) => {
                   binsRef.current = bins;
+                }}
+                onAssignmentsChange={(assignments) => {
+                  assignmentsRef.current = assignments;
                 }}
               />
             ) : (

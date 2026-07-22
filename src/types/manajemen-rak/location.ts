@@ -95,7 +95,6 @@ export interface RawLocationBin {
   is_inbound: boolean;
   is_stock_acknowledged: boolean;
   is_large_bin: boolean;
-  category: string | null;
   skus?: RawBinSku[];
 }
 
@@ -109,7 +108,6 @@ export interface LocationBin {
   isInbound: boolean;
   isStockAcknowledged: boolean;
   isLargeBin: boolean;
-  category: string | null;
   skus: BinSku[];
 }
 
@@ -159,7 +157,6 @@ export interface BinListParams {
     is_inbound?: boolean;
     is_stock_acknowledged?: boolean;
     is_large_bin?: boolean;
-    category?: string;
     zone_id?: string;
   };
 }
@@ -170,7 +167,6 @@ export interface UniformApplyPayload {
   values: {
     is_stock_acknowledged?: boolean;
     is_large_bin?: boolean;
-    category?: string | null;
     zone_id?: string | null;
   };
 
@@ -186,10 +182,23 @@ export interface BinPreviewItem {
   binFinalCode: string;
   isStockAcknowledged: boolean;
   isLargeBin: boolean;
-  category: string;
 }
 
 export type BinDraft = BinPreviewItem & { id?: string };
+
+export interface RawPendingPutawaySku {
+  variant_id: string;
+  sku: string;
+  name: string;
+  pending_qty: number;
+}
+
+export interface PendingPutawaySku {
+  variantId: string;
+  sku: string;
+  name: string;
+  pendingQty: number;
+}
 
 export interface LocationListParams {
   search?: string;

@@ -9,7 +9,6 @@ interface BulkUpdateBin {
   bin_final_code: string;
   is_stock_acknowledged: boolean;
   is_large_bin: boolean;
-  category: string | null;
 }
 
 export function useBulkUpdateBins(locationId?: string) {

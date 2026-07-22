@@ -5,7 +5,9 @@ import type {
   BinPreviewItem,
   GenerateBinsPayload,
   LocationBin,
+  PendingPutawaySku,
   RawLocationBin,
+  RawPendingPutawaySku,
   UniformApplyPayload,
 } from "@/types/manajemen-rak/location";
 
@@ -20,7 +22,6 @@ function mapBin(raw: RawLocationBin): LocationBin & { id: string } {
     isInbound: raw.is_inbound,
     isStockAcknowledged: raw.is_stock_acknowledged ?? true,
     isLargeBin: raw.is_large_bin ?? false,
-    category: raw.category ?? null,
     skus: (raw.skus ?? []).map((s) => ({
       variantId: s.variant_id,
       sku: s.sku,
@@ -46,7 +47,6 @@ function mapPreviewItem(raw: {
     binFinalCode: raw.bin_final_code,
     isStockAcknowledged: true,
     isLargeBin: false,
-    category: "",
   };
 }
 
@@ -147,6 +147,36 @@ export const LocationBinService = {
         },
       },
     );
+    return res.data;
+  },
+
+  listPendingPutawaySkus: async (
+    locationId: string,
+    search?: string,
+  ): Promise<PendingPutawaySku[]> => {
+    const qs = search ? `?search=${encodeURIComponent(search)}` : "";
+    const res = await fetchClient<ApiResponse<RawPendingPutawaySku[]>>(
+      `/locations/${locationId}/pending-putaway-skus${qs}`,
+    );
+    return (res.data ?? []).map((s) => ({
+      variantId: s.variant_id,
+      sku: s.sku,
+      name: s.name,
+      pendingQty: s.pending_qty,
+    }));
+  },
+
+  assignSku: async (
+    locationId: string,
+    binId: string,
+    itemId: string,
+  ): Promise<{ bin_id: string; item_id: string; placed_qty: number }> => {
+    const res = await fetchClient<
+      ApiResponse<{ bin_id: string; item_id: string; placed_qty: number }>
+    >(`/locations/${locationId}/bins/${binId}/assign-sku`, {
+      method: "POST",
+      data: { item_id: itemId },
+    });
     return res.data;
   },
 };
