@@ -74,7 +74,7 @@ import {
 } from "@/components/ui/select";
 import { useUsers } from "@/hooks/pengaturan/use-users";
 import { playScanFeedback } from "@/lib/scan-feedback";
-import { BIN_CODE_PATTERN } from "@/lib/validators/bin-code";
+import { matchesKnownBin } from "@/lib/validators/bin-code";
 import { apiError } from "@/lib/toast";
 
 const LIST_HREF = "/dashboard/proses-pesanan/picking";
@@ -356,15 +356,15 @@ export function PickingProsesView({ id }: { id: string }) {
     const code = rawCode.trim();
     if (!code) return;
     if (!editable) return;
-    if (BIN_CODE_PATTERN.test(code)) {
+    const knownBins = [
+      scannedBinCode,
+      activeChosenBinCode,
+      ...activeCandidates.map((c) => c.bin_code),
+      ...Array.from(pickBinRef.current.values()),
+    ];
+    if (matchesKnownBin(code, knownBins)) {
       playScanFeedback("error");
       toast.error(`"${code}" adalah kode rak, bukan SKU produk.`);
-      setSkuRefocusKey((k) => k + 1);
-      return;
-    }
-    if (scannedBinCode && code === scannedBinCode) {
-      playScanFeedback("error");
-      toast.error(`"${code}" adalah kode rak aktif, bukan SKU produk.`);
       setSkuRefocusKey((k) => k + 1);
       return;
     }

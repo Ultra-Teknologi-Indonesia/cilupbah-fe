@@ -88,6 +88,41 @@ export const LocationBinService = {
     return { generatedCount: res.data?.generated_count ?? 0 };
   },
 
+  importPreview: (
+    locationId: string,
+    file: File,
+  ): Promise<
+    ApiResponse<{
+      total: number;
+      new: number;
+      existing: number;
+      sample_new: string[];
+    }>
+  > => {
+    const form = new FormData();
+    form.append("file", file);
+    return fetchClient(`/locations/${locationId}/bins/import/preview`, {
+      method: "POST",
+      data: form,
+      headers: { "Content-Type": undefined as unknown as string },
+    });
+  },
+
+  import: (
+    locationId: string,
+    file: File,
+  ): Promise<
+    ApiResponse<{ created: number; existing: number; zones_created: number }>
+  > => {
+    const form = new FormData();
+    form.append("file", file);
+    return fetchClient(`/locations/${locationId}/bins/import`, {
+      method: "POST",
+      data: form,
+      headers: { "Content-Type": undefined as unknown as string },
+    });
+  },
+
   preview: async (
     locationId: string,
     payload: GenerateBinsPayload,

@@ -11,6 +11,7 @@ import {
   PrinterIcon,
   CopyIcon,
   SparklesIcon,
+  UploadIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -65,6 +66,10 @@ import {
   useUniformApplyBins,
 } from "@/hooks/manajemen-rak/use-location-bins";
 import { usePendingPutawaySkus } from "@/hooks/manajemen-rak/use-pending-putaway-skus";
+import {
+  useImportBins,
+  useImportBinsPreview,
+} from "@/hooks/manajemen-rak/use-import-bins";
 import { useZones } from "@/hooks/manajemen-rak/use-zones";
 import { useListState } from "@/hooks/use-list-state";
 import type {
@@ -210,6 +215,139 @@ function UniformDialog({
           <Button variant="primary" onClick={handleApply} disabled={pending}>
             {pending && <Loader2Icon className="mr-2 size-3.5 animate-spin" />}
             Terapkan
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ImportBinsDialog({
+  open,
+  onOpenChange,
+  locationId,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  locationId: string;
+}) {
+  const [file, setFile] = React.useState<File | null>(null);
+  const [preview, setPreview] = React.useState<{
+    total: number;
+    new: number;
+    existing: number;
+    sample_new: string[];
+  } | null>(null);
+  const previewMut = useImportBinsPreview();
+  const importMut = useImportBins();
+
+  const reset = () => {
+    setFile(null);
+    setPreview(null);
+  };
+
+  const handleFile = (f: File | null) => {
+    setFile(f);
+    setPreview(null);
+    if (f) {
+      previewMut.mutate(
+        { locationId, file: f },
+        { onSuccess: (res) => setPreview(res.data ?? null) },
+      );
+    }
+  };
+
+  const handleImport = () => {
+    if (!file) return;
+    importMut.mutate(
+      { locationId, file },
+      {
+        onSuccess: (res) => {
+          toast.success(
+            `Berhasil import: ${res.data?.created ?? 0} rak baru, ${res.data?.existing ?? 0} sudah ada.`,
+          );
+          reset();
+          onOpenChange(false);
+        },
+      },
+    );
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) reset();
+        onOpenChange(o);
+      }}
+    >
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Import Kode Rak</DialogTitle>
+          <DialogClose />
+        </DialogHeader>
+
+        <div className="flex flex-col gap-4 py-2">
+          <div className="space-y-2">
+            <Label>File (.xlsx / .csv)</Label>
+            <Input
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+            />
+            <p className="text-2xs text-muted-foreground">
+              Butuh kolom kode rak (nama kolom{" "}
+              <span className="font-mono">kode_rak</span>,{" "}
+              <span className="font-mono">rak</span>, atau{" "}
+              <span className="font-mono">No Rak</span>). Format bebas, mis.{" "}
+              <span className="font-mono">IN-A1-K1-P1</span>.
+            </p>
+          </div>
+
+          {previewMut.isPending && (
+            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2Icon className="size-4 animate-spin" /> Membaca file…
+            </p>
+          )}
+
+          {preview && (
+            <div className="rounded-xl border border-border bg-muted/40 p-3 text-sm">
+              <div className="flex flex-wrap gap-x-6 gap-y-1">
+                <span>
+                  Total kode:{" "}
+                  <strong>{preview.total.toLocaleString("id-ID")}</strong>
+                </span>
+                <span className="text-primary">
+                  Baru: <strong>{preview.new.toLocaleString("id-ID")}</strong>
+                </span>
+                <span className="text-muted-foreground">
+                  Sudah ada:{" "}
+                  <strong>{preview.existing.toLocaleString("id-ID")}</strong>
+                </span>
+              </div>
+              {preview.sample_new.length > 0 && (
+                <p className="mt-2 truncate font-mono text-2xs text-muted-foreground">
+                  Contoh baru: {preview.sample_new.slice(0, 8).join(", ")}
+                  {preview.new > 8 ? " …" : ""}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Batal
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleImport}
+            disabled={!preview || preview.new === 0 || importMut.isPending}
+          >
+            {importMut.isPending && (
+              <Loader2Icon className="mr-2 size-3.5 animate-spin" />
+            )}
+            Import{preview && preview.new > 0 ? ` ${preview.new} rak` : ""}
           </Button>
         </div>
       </DialogContent>
@@ -719,11 +857,10 @@ export function LayoutGudangTab({
   const serverMode = !!locationId;
   const isSmallWarehouse = serverMode && locationCode === "WH-KECIL";
 
-  const [floorCode, setFloorCode] = React.useState("L");
+  const [zoneCode, setZoneCode] = React.useState("");
   const [rowCode, setRowCode] = React.useState("B");
   const [columnCode, setColumnCode] = React.useState("K");
   const [binCode, setBinCode] = React.useState("R");
-  const [qtyFloor, setQtyFloor] = React.useState("");
   const [qtyRow, setQtyRow] = React.useState("");
   const [qtyColumn, setQtyColumn] = React.useState("");
   const [qtyBin, setQtyBin] = React.useState("");
@@ -751,6 +888,7 @@ export function LayoutGudangTab({
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [selectAllAcrossPages, setSelectAllAcrossPages] = React.useState(false);
   const [uniformOpen, setUniformOpen] = React.useState(false);
+  const [importOpen, setImportOpen] = React.useState(false);
   const [paperSize, setPaperSize] =
     React.useState<BinQrPaper>(BIN_QR_PAPER_DEFAULT);
 
@@ -843,9 +981,14 @@ export function LayoutGudangTab({
   }, [serverMode, localBins, editedMap, binsQuery.data]);
 
   function handleGenerate() {
+    const zone = zoneCode.trim();
+    if (!zone) {
+      toast.error("Kode zona wajib diisi.");
+      return;
+    }
+
     const payload: GenerateBinsPayload = {
-      floor_code: floorCode || "L",
-      qty_floor: Number.parseInt(qtyFloor, 10) || 0,
+      zone_code: zone,
       row_code: rowCode || "B",
       qty_row: Number.parseInt(qtyRow, 10) || 0,
       column_code: columnCode || "K",
@@ -854,13 +997,8 @@ export function LayoutGudangTab({
       qty_bin: Number.parseInt(qtyBin, 10) || 0,
     };
 
-    if (
-      payload.qty_floor < 1 ||
-      payload.qty_row < 1 ||
-      payload.qty_column < 1 ||
-      payload.qty_bin < 1
-    ) {
-      toast.error("Jumlah lantai, baris, kolom, dan rak minimal 1.");
+    if (payload.qty_row < 1 || payload.qty_column < 1 || payload.qty_bin < 1) {
+      toast.error("Jumlah baris, kolom, dan rak minimal 1.");
       return;
     }
 
@@ -1099,14 +1237,27 @@ export function LayoutGudangTab({
     <div className="space-y-6">
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-4">
-          <DimensionRow
-            label="Lantai"
-            qty={qtyFloor}
-            code={floorCode}
-            onQty={setQtyFloor}
-            onCode={setFloorCode}
-            disabled={disabled}
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>
+                Zona
+                <span className="text-destructive"> *</span>
+              </Label>
+              <Input
+                value={zoneCode}
+                onChange={(e) => setZoneCode(e.target.value)}
+                disabled={disabled}
+                maxLength={20}
+                placeholder="mis. IN, O, GK"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Contoh kode</Label>
+              <p className="pt-2 font-mono text-xs text-muted-foreground">
+                {`${zoneCode.trim() || "ZONA"}-${rowCode || "B"}1-${columnCode || "K"}1-${binCode || "R"}1`}
+              </p>
+            </div>
+          </div>
           <DimensionRow
             label="Baris"
             qty={qtyRow}
@@ -1133,14 +1284,28 @@ export function LayoutGudangTab({
           />
 
           <div>
-            <Button
-              type="button"
-              variant="primary"
-              onClick={handleGenerate}
-              disabled={disabled}
-            >
-              Buat
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="primary"
+                onClick={handleGenerate}
+                disabled={disabled}
+              >
+                Buat
+              </Button>
+              {serverMode && locationId && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="gap-1.5"
+                  onClick={() => setImportOpen(true)}
+                  disabled={disabled}
+                >
+                  <UploadIcon className="size-4" />
+                  Import Excel
+                </Button>
+              )}
+            </div>
             <p className="mt-2 text-xs text-destructive">
               * Maksimum kombinasi rak adalah{" "}
               {MAX_BIN_COMBINATIONS.toLocaleString("id-ID")}
@@ -1150,7 +1315,7 @@ export function LayoutGudangTab({
 
         <div className="hidden lg:flex items-start justify-center">
           <WarehouseVisual
-            floors={Number.parseInt(qtyFloor, 10) || 0}
+            floors={qtyRow || qtyColumn || qtyBin ? 1 : 0}
             rows={Number.parseInt(qtyRow, 10) || 0}
             columns={Number.parseInt(qtyColumn, 10) || 0}
             bins={Number.parseInt(qtyBin, 10) || 0}
@@ -1539,6 +1704,14 @@ export function LayoutGudangTab({
         scopeLabel={selectionScopeLabel}
         zoneOptions={zoneSelectOptions}
       />
+
+      {serverMode && locationId && (
+        <ImportBinsDialog
+          open={importOpen}
+          onOpenChange={setImportOpen}
+          locationId={locationId}
+        />
+      )}
     </div>
   );
 }

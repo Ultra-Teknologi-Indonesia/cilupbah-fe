@@ -138,8 +138,7 @@ export interface WarehouseLayoutSetting {
 }
 
 export interface GenerateBinsPayload {
-  floor_code: string;
-  qty_floor: number;
+  zone_code: string;
   row_code: string;
   qty_row: number;
   column_code: string;
