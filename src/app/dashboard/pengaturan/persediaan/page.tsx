@@ -2,19 +2,19 @@ import { Suspense } from "react";
 
 import { PageTitle } from "@/components/dashboard/page-title";
 import { PengaturanTabBar } from "@/components/dashboard/pengaturan/pengaturan-tab-bar";
-import { SyncStokHargaView } from "@/components/dashboard/persediaan/sync-stok-harga-view";
+import { InventorySettingsView } from "@/components/dashboard/persediaan/inventory-settings-view";
 import { TabBarSkeleton } from "@/components/ui/page-skeleton";
 
 export default function PengaturanPersediaanPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageTitle
-        title="Sinkronisasi Stok & Harga"
-        description="Atur sinkronisasi stok & harga tiap produk ke masing-masing store channel."
+        title="Pengaturan Persediaan"
+        description="Atur batas stok, alokasi rak, dan sinkronisasi stok & harga tiap produk."
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Pengaturan", href: "/dashboard/pengaturan" },
-          { label: "Sinkronisasi Stok & Harga" },
+          { label: "Pengaturan Persediaan" },
         ]}
       />
 
@@ -22,7 +22,7 @@ export default function PengaturanPersediaanPage() {
         <PengaturanTabBar />
       </Suspense>
 
-      <SyncStokHargaView />
+      <InventorySettingsView />
     </div>
   );
 }

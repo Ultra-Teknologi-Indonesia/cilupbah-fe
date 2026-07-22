@@ -191,7 +191,11 @@ function StoreColumnHeader({
   );
 }
 
-export function SyncStokHargaView() {
+export function SyncStokHargaView({
+  embedded = false,
+}: {
+  embedded?: boolean;
+} = {}) {
   const [mode, setMode] = useState<Mode>("sync");
   const [hiddenStores, setHiddenStores] = useState<string[]>([]);
 
@@ -300,7 +304,7 @@ export function SyncStokHargaView() {
           onSearchChange={list.setSearch}
           searchPlaceholder="Cari produk atau SKU..."
           align="end"
-          leading={modeTabs}
+          leading={embedded ? undefined : modeTabs}
           trailing={
             <VisibleStoresControl
               stores={storesCatalog}
