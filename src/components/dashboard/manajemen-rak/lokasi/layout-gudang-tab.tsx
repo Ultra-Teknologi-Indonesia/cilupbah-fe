@@ -10,6 +10,7 @@ import {
   Loader2Icon,
   PrinterIcon,
   CopyIcon,
+  SparklesIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -526,6 +527,7 @@ type BinRow = BinPreviewItem & {
   id: string;
   binId?: string;
   skus?: BinSkuEntry[];
+  isNew?: boolean;
 };
 
 function CopyableSku({ sku }: { sku: string }) {
@@ -600,8 +602,12 @@ function toRow(item: BinDraft): BinRow {
   return { ...item, id: clientId(), binId: item.id };
 }
 
+function toNewRow(item: BinPreviewItem): BinRow {
+  return { ...item, id: clientId(), isNew: true };
+}
+
 function toDraft(row: BinRow): BinDraft {
-  const { id: __clientId, binId, ...rest } = row;
+  const { id: __clientId, binId, isNew: __isNew, ...rest } = row;
   return { ...rest, id: binId };
 }
 
@@ -669,6 +675,8 @@ export function LayoutGudangTab({
   const [localBins, setLocalBins] = React.useState<BinRow[]>(() =>
     serverMode ? [] : (initialBins ?? []).map(toRow),
   );
+
+  const [pendingBins, setPendingBins] = React.useState<BinRow[]>([]);
 
   const [editedMap, setEditedMap] = React.useState<
     Map<string, Partial<BinPreviewItem>>
@@ -770,17 +778,25 @@ export function LayoutGudangTab({
       return;
     }
 
-    if (!serverMode) {
-      const generated = buildBinPreview(payload).map(toRow);
+    const generated = buildBinPreview(payload).map(toNewRow);
+    if (serverMode) {
+      setPendingBins(generated);
+      resetListPage();
+    } else {
       setLocalBins(generated);
     }
     onApply(payload);
     toast.success(
       serverMode
-        ? `${total} kombinasi rak siap di-generate. Klik Simpan untuk menambah ke gudang.`
+        ? `${total} kombinasi rak baru muncul sebagai pratinjau. Klik Simpan untuk menambah ke gudang.`
         : `${total} kombinasi rak siap disimpan.`,
     );
   }
+
+  const clearPending = () => {
+    setPendingBins([]);
+    onApply(null);
+  };
 
   const updateLocalBin = (
     id: string,
@@ -805,7 +821,7 @@ export function LayoutGudangTab({
     });
   };
 
-  const pageItems: BinRow[] = serverMode
+  const serverRows: BinRow[] = serverMode
     ? (binsQuery.data?.items ?? []).map((row) => {
         const patch = editedMap.get(row.id) ?? {};
         return {
@@ -823,6 +839,21 @@ export function LayoutGudangTab({
           skus: row.skus,
         };
       })
+    : [];
+
+  const pendingVisible: BinRow[] =
+    serverMode && list.page === 1
+      ? list.debouncedSearch
+        ? pendingBins.filter((b) =>
+            b.binFinalCode
+              .toLowerCase()
+              .includes(list.debouncedSearch.toLowerCase()),
+          )
+        : pendingBins
+      : [];
+
+  const pageItems: BinRow[] = serverMode
+    ? [...pendingVisible, ...serverRows]
     : list.debouncedSearch
       ? localBins.filter((b) =>
           b.binFinalCode
@@ -835,7 +866,7 @@ export function LayoutGudangTab({
   const totalAll = serverMode ? (meta?.total ?? 0) : localBins.length;
   const lastPage = serverMode ? (meta?.last_page ?? 1) : 1;
 
-  const pageIds = pageItems.map((b) => b.id);
+  const pageIds = pageItems.filter((b) => !b.isNew).map((b) => b.id);
   const allPageSelected =
     pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id));
   const somePageSelected = pageIds.some((id) => selectedIds.has(id));
@@ -1050,9 +1081,15 @@ export function LayoutGudangTab({
             />
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">
-              Total{" "}
-              <Badge className="ml-1">{totalAll.toLocaleString("id-ID")}</Badge>
+            <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              Total
+              <Badge>{totalAll.toLocaleString("id-ID")}</Badge>
+              {serverMode && pendingBins.length > 0 && (
+                <Badge variant="outline" className="gap-1 text-primary">
+                  <SparklesIcon className="size-3" />+
+                  {pendingBins.length.toLocaleString("id-ID")} baru
+                </Badge>
+              )}
             </span>
             {canPrintQr && totalAll > 0 && (
               <>
@@ -1230,43 +1267,53 @@ export function LayoutGudangTab({
               </TableHeader>
               <TableBody>
                 {pageItems.map((b) => {
+                  const isPending = serverMode && b.isNew === true;
                   const isSelected =
-                    selectedIds.has(b.id) || selectAllAcrossPages;
+                    !isPending &&
+                    (selectedIds.has(b.id) || selectAllAcrossPages);
                   return (
                     <TableRow
                       key={b.id}
                       className={cn(
                         "border-b border-border/60 last:border-0",
-                        isSelected && "bg-primary/5",
+                        (isSelected || isPending) && "bg-primary/5",
                       )}
                     >
                       <TableCell className="px-3 py-2.5">
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => toggleOne(b.id)}
-                          disabled={disabled || selectAllAcrossPages}
+                          disabled={disabled || selectAllAcrossPages || isPending}
                         />
                       </TableCell>
                       <TableCell className="px-3 py-2.5">
-                        <Input
-                          value={b.binFinalCode}
-                          onChange={(e) =>
-                            serverMode && b.binId
-                              ? patchEdit(
-                                  b.binId,
-                                  "binFinalCode",
-                                  e.target.value,
-                                )
-                              : updateLocalBin(
-                                  b.id,
-                                  "binFinalCode",
-                                  e.target.value,
-                                )
-                          }
-                          disabled={disabled}
-                          placeholder="Kode rak"
-                          className="h-9 max-w-[200px]"
-                        />
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={b.binFinalCode}
+                            onChange={(e) =>
+                              serverMode && b.binId
+                                ? patchEdit(
+                                    b.binId,
+                                    "binFinalCode",
+                                    e.target.value,
+                                  )
+                                : updateLocalBin(
+                                    b.id,
+                                    "binFinalCode",
+                                    e.target.value,
+                                  )
+                            }
+                            disabled={disabled || isPending}
+                            placeholder="Kode rak"
+                            className="h-9 max-w-[200px]"
+                          />
+                          {b.isNew && (
+                            <Badge className="shrink-0 gap-1 px-2 py-0.5 text-2xs">
+                              <SparklesIcon className="size-3" />
+                              Baru
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="px-3 py-2.5 align-top">
                         <IsiRakCell skus={b.skus} />
@@ -1279,7 +1326,7 @@ export function LayoutGudangTab({
                               ? patchEdit(b.binId, "isStockAcknowledged", v)
                               : updateLocalBin(b.id, "isStockAcknowledged", v)
                           }
-                          disabled={disabled}
+                          disabled={disabled || isPending}
                         />
                       </TableCell>
                       <TableCell className="px-3 py-2.5 text-center">
@@ -1290,7 +1337,7 @@ export function LayoutGudangTab({
                               ? patchEdit(b.binId, "isLargeBin", v)
                               : updateLocalBin(b.id, "isLargeBin", v)
                           }
-                          disabled={disabled}
+                          disabled={disabled || isPending}
                         />
                       </TableCell>
                       <TableCell className="px-3 py-2.5">
@@ -1301,7 +1348,7 @@ export function LayoutGudangTab({
                               ? patchEdit(b.binId, "category", e.target.value)
                               : updateLocalBin(b.id, "category", e.target.value)
                           }
-                          disabled={disabled}
+                          disabled={disabled || isPending}
                           placeholder="Kategori"
                           className="h-9 max-w-[180px]"
                         />
@@ -1362,6 +1409,23 @@ export function LayoutGudangTab({
               </div>
             )}
           </div>
+        )}
+
+        {serverMode && pendingBins.length > 0 && (
+          <p className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+            <SparklesIcon className="size-3.5 text-primary" />
+            {pendingBins.length.toLocaleString("id-ID")} kombinasi rak baru
+            ditandai <strong>Baru</strong> dan belum disimpan. Klik{" "}
+            <strong>Simpan</strong> untuk menambah ke gudang.
+            <button
+              type="button"
+              className="font-medium text-primary underline"
+              onClick={clearPending}
+              disabled={disabled}
+            >
+              Batalkan
+            </button>
+          </p>
         )}
 
         {serverMode && editedMap.size > 0 && (
