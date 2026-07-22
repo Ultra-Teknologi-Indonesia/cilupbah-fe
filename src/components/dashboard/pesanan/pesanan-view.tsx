@@ -229,6 +229,9 @@ export function PesananView() {
         count={selectedIds.size}
         onClear={clearSelection}
         selectedIds={Array.from(selectedIds)}
+        selectedLabelInputs={orders
+          .filter((o) => selectedIds.has(o.id))
+          .map((o) => ({ id: o.id, source: o.source }))}
       />
     </div>
   );

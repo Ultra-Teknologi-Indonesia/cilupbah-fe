@@ -18,11 +18,17 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import type { OrderTab, SubFilter } from "@/types/pesanan/order";
+import type { PrintLabelOrderInput } from "@/components/dashboard/proses-pesanan/shared/print-label-size-dialog";
 import {
   useBulkMarkContacted,
   useMarkComplete,
   useMoveToReady,
+  useBulkAcceptCancelRequest,
+  useBulkRejectCancelRequest,
+  useBulkAcceptReturn,
+  useBulkRejectReturn,
 } from "@/hooks/pesanan/use-order-actions";
+import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
 
 export function BulkActionBar({
   tab,
@@ -30,12 +36,14 @@ export function BulkActionBar({
   count,
   onClear,
   selectedIds,
+  selectedLabelInputs,
 }: {
   tab: OrderTab;
   subFilter: SubFilter;
   count: number;
   onClear: () => void;
   selectedIds?: string[];
+  selectedLabelInputs?: PrintLabelOrderInput[];
 }) {
   if (count === 0) return null;
 
@@ -63,6 +71,7 @@ export function BulkActionBar({
           subFilter={subFilter}
           count={count}
           selectedIds={selectedIds ?? []}
+          selectedLabelInputs={selectedLabelInputs ?? []}
           onDone={onClear}
         />
       </div>
@@ -75,17 +84,23 @@ function TabBulkActions({
   subFilter,
   count,
   selectedIds,
+  selectedLabelInputs,
   onDone,
 }: {
   tab: OrderTab;
   subFilter: SubFilter;
   count: number;
   selectedIds: string[];
+  selectedLabelInputs: PrintLabelOrderInput[];
   onDone: () => void;
 }) {
   const bulkContact = useBulkMarkContacted();
   const moveToReady = useMoveToReady();
   const markComplete = useMarkComplete();
+  const acceptCancel = useBulkAcceptCancelRequest();
+  const rejectCancel = useBulkRejectCancelRequest();
+  const acceptReturn = useBulkAcceptReturn();
+  const rejectReturn = useBulkRejectReturn();
 
   const placeholder = (label: string) => () =>
     toast.info(`${label} untuk ${count} pesanan akan segera tersedia`);
@@ -136,7 +151,8 @@ function TabBulkActions({
           variant="outline"
           size="sm"
           className="h-8 gap-1.5 text-xs"
-          onClick={placeholder("Cetak Resi")}
+          disabled={selectedLabelInputs.length === 0}
+          onClick={() => DocActions.shippingLabel(selectedLabelInputs)}
         >
           <PrinterIcon className="size-3.5" />
           Cetak Resi
@@ -144,10 +160,13 @@ function TabBulkActions({
         <Button
           size="sm"
           className="h-8 gap-1.5 text-xs"
-          onClick={placeholder("Selesaikan")}
+          disabled={markComplete.isPending || selectedIds.length === 0}
+          onClick={() =>
+            markComplete.mutate(selectedIds, { onSuccess: () => onDone() })
+          }
         >
           <CheckCircleIcon className="size-3.5" />
-          Selesaikan
+          {markComplete.isPending ? "Menyelesaikan..." : "Selesaikan"}
         </Button>
       </>
     );
@@ -159,7 +178,8 @@ function TabBulkActions({
         variant="outline"
         size="sm"
         className="h-8 gap-1.5 text-xs"
-        onClick={placeholder("Cetak Faktur")}
+        disabled={selectedIds.length === 0}
+        onClick={() => DocActions.invoice(selectedIds)}
       >
         <FileTextIcon className="size-3.5" />
         Cetak Faktur
@@ -206,24 +226,31 @@ function TabBulkActions({
 
   if (tab === "cancellation") {
     if (subFilter === "cancelled") return null;
+    const cancelBusy = acceptCancel.isPending || rejectCancel.isPending;
     return (
       <>
         <Button
           size="sm"
           className="h-8 gap-1.5 text-xs"
-          onClick={placeholder("Terima Pembatalan")}
+          disabled={cancelBusy || selectedIds.length === 0}
+          onClick={() =>
+            acceptCancel.mutate(selectedIds, { onSuccess: () => onDone() })
+          }
         >
           <CheckIcon className="size-3.5" />
-          Terima Pembatalan
+          {acceptCancel.isPending ? "Memproses..." : "Terima Pembatalan"}
         </Button>
         <Button
           variant="outline"
           size="sm"
           className="h-8 gap-1.5 text-xs"
-          onClick={placeholder("Tolak Pembatalan")}
+          disabled={cancelBusy || selectedIds.length === 0}
+          onClick={() =>
+            rejectCancel.mutate(selectedIds, { onSuccess: () => onDone() })
+          }
         >
           <XIcon className="size-3.5" />
-          Tolak Pembatalan
+          {rejectCancel.isPending ? "Memproses..." : "Tolak Pembatalan"}
         </Button>
       </>
     );
@@ -236,31 +263,39 @@ function TabBulkActions({
           variant="outline"
           size="sm"
           className="h-8 gap-1.5 text-xs"
-          onClick={placeholder("Cetak Faktur")}
+          disabled={selectedIds.length === 0}
+          onClick={() => DocActions.invoice(selectedIds)}
         >
           <FileTextIcon className="size-3.5" />
           Cetak Faktur
         </Button>
       );
     }
+    const returnBusy = acceptReturn.isPending || rejectReturn.isPending;
     return (
       <>
         <Button
           size="sm"
           className="h-8 gap-1.5 text-xs"
-          onClick={placeholder("Terima Retur")}
+          disabled={returnBusy || selectedIds.length === 0}
+          onClick={() =>
+            acceptReturn.mutate(selectedIds, { onSuccess: () => onDone() })
+          }
         >
           <CheckIcon className="size-3.5" />
-          Terima Retur
+          {acceptReturn.isPending ? "Memproses..." : "Terima Retur"}
         </Button>
         <Button
           variant="outline"
           size="sm"
           className="h-8 gap-1.5 text-xs"
-          onClick={placeholder("Tolak Retur")}
+          disabled={returnBusy || selectedIds.length === 0}
+          onClick={() =>
+            rejectReturn.mutate(selectedIds, { onSuccess: () => onDone() })
+          }
         >
           <XIcon className="size-3.5" />
-          Tolak Retur
+          {rejectReturn.isPending ? "Memproses..." : "Tolak Retur"}
         </Button>
       </>
     );
