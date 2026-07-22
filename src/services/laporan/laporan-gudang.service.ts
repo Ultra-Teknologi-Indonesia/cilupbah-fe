@@ -6,6 +6,7 @@ import type {
   PicklistLookupItem,
   PutawayListParams,
   PutawayPerformanceParams,
+  ShipmentByCourierParams,
   ShipmentExportParams,
   ShipmentFilterOption,
   ShipmentFilterOptions,
@@ -66,6 +67,14 @@ export const LaporanGudangService = {
       `/reports/wms/putaway-list/lookup?${sp.toString()}`,
     );
     return res.data ?? [];
+  },
+
+  shipmentByCourierPdf: (params: ShipmentByCourierParams): Promise<Blob> => {
+    return fetchBlobPost(
+      `/reports/wms/shipment-by-courier/pdf`,
+      params,
+      "application/pdf",
+    );
   },
 
   putawayPerformancePdf: (

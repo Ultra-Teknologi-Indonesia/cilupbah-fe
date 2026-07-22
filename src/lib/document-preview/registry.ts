@@ -98,6 +98,7 @@ export type DocumentTypeKey =
   | "purchase-order"
   | "laporan-barcode"
   | "laporan-penempatan-barang"
+  | "laporan-pengiriman-ekspedisi"
   | "laporan-performa-penempatan"
   | "laporan-performa-pesanan"
   | "laporan-picklist"
@@ -517,6 +518,35 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     },
     backUrl: () => "/dashboard/laporan/gudang",
     filename: (id) => `Daftar-Penempatan-Barang-${decodeURIComponent(id)}.pdf`,
+  },
+
+  "laporan-pengiriman-ekspedisi": {
+    title: "Pengiriman per Ekspedisi",
+    subtitle: (id) => {
+      const [mode, from, to] = decodeURIComponent(id).split("_");
+      const modeLabel = mode === "summary" ? "Summary" : "Detail";
+      return `${modeLabel} · ${from} — ${to}`;
+    },
+    fetchPdf: async (id, query) => {
+      const [mode, from, to] = decodeURIComponent(id).split("_");
+      const locationRaw = query?.get("location_ids") ?? "";
+      const location_ids = locationRaw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const blob = await LaporanGudangService.shipmentByCourierPdf({
+        mode: mode as OrderPerformanceMode,
+        from,
+        to,
+        location_ids: location_ids.length ? location_ids : undefined,
+      });
+      return { blob };
+    },
+    backUrl: () => "/dashboard/laporan/gudang",
+    filename: (id) => {
+      const [mode, from, to] = decodeURIComponent(id).split("_");
+      return `Laporan-Pengiriman-Ekspedisi-${mode}-${from}-${to}.pdf`;
+    },
   },
 
   "laporan-performa-penempatan": {

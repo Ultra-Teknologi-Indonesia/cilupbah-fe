@@ -70,6 +70,13 @@ export interface PutawayPerformanceParams {
   location_ids?: string[];
 }
 
+export interface ShipmentByCourierParams {
+  mode: OrderPerformanceMode;
+  from: string;
+  to: string;
+  location_ids?: string[];
+}
+
 export interface OrderPerformanceParams {
   jenis: OrderPerformanceJenis;
   mode: OrderPerformanceMode;

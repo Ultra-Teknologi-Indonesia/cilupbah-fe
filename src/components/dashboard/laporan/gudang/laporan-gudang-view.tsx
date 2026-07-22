@@ -24,6 +24,7 @@ import { ShipmentReportDialog } from "./shipment-report-dialog";
 import { OrderPerformanceDialog } from "./order-performance-dialog";
 import { PutawayPerformanceDialog } from "./putaway-performance-dialog";
 import { PutawayListDialog } from "./putaway-list-dialog";
+import { ShipmentByCourierDialog } from "./shipment-by-courier-dialog";
 
 type ActiveDialog =
   | "transfer"
@@ -32,6 +33,7 @@ type ActiveDialog =
   | "performa-pesanan"
   | "performa-penempatan"
   | "penempatan-barang"
+  | "pengiriman-ekspedisi"
   | null;
 
 export function LaporanGudangView() {
@@ -82,6 +84,13 @@ export function LaporanGudangView() {
           actionLabel="Cetak Penempatan Barang"
           onClick={() => setActive("penempatan-barang")}
         />
+        <ReportCard
+          icon={<TruckIcon className="size-5" />}
+          title="Pengiriman per Ekspedisi"
+          description="Rekap pesanan dan kuantitas dikelompokkan per ekspedisi, dalam mode detail atau ringkasan."
+          actionLabel="Cetak Pengiriman per Ekspedisi"
+          onClick={() => setActive("pengiriman-ekspedisi")}
+        />
       </div>
 
       <TransferReportDialog
@@ -107,6 +116,10 @@ export function LaporanGudangView() {
       <PutawayListDialog
         open={active === "penempatan-barang"}
         onOpenChange={(o) => setActive(o ? "penempatan-barang" : null)}
+      />
+      <ShipmentByCourierDialog
+        open={active === "pengiriman-ekspedisi"}
+        onOpenChange={(o) => setActive(o ? "pengiriman-ekspedisi" : null)}
       />
     </>
   );
