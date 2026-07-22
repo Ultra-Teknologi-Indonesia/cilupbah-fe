@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, PrinterIcon } from "lucide-react";
+import { DownloadIcon, Loader2, PrinterIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
@@ -19,6 +19,11 @@ import { Combobox } from "@/components/ui/combobox";
 import { DatePicker } from "@/components/ui/date-picker";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
+  ReportFormatRadio,
+  type ReportFormat,
+} from "@/components/dashboard/laporan/shared/report-format-radio";
+import {
+  useExportPicklistDetail,
   useExportPicklistReport,
   usePicklistSearch,
 } from "@/hooks/laporan/use-laporan-gudang";
@@ -61,8 +66,10 @@ export function PicklistReportDialog({
   const [orderIds, setOrderIds] = React.useState<string[]>([]);
   const [rawQuery, setRawQuery] = React.useState("");
   const [query, setQuery] = React.useState("");
+  const [format, setFormat] = React.useState<ReportFormat>("pdf");
 
   const exportPicklist = useExportPicklistReport();
+  const exportDetail = useExportPicklistDetail();
 
   React.useEffect(() => {
     const t = setTimeout(() => setQuery(rawQuery), DEBOUNCE_MS);
@@ -92,6 +99,7 @@ export function PicklistReportDialog({
     setOrderIds([]);
     setRawQuery("");
     setQuery("");
+    setFormat("pdf");
   }
 
   function handleOpenChange(next: boolean) {
@@ -113,7 +121,12 @@ export function PicklistReportDialog({
       ? Boolean(startDate && endDate) &&
         !invalidRange &&
         !exportPicklist.isPending
-      : Boolean(picklistId);
+      : Boolean(picklistId) && !exportDetail.isPending;
+
+  // Output Excel: mode Tanggal selalu unduh XLSX; mode No Picklist mengikuti
+  // pilihan Format (PDF pratinjau vs XLSX berfoto).
+  const isExcelOutput = mode === "tanggal" || format === "excel";
+  const busy = exportPicklist.isPending || exportDetail.isPending;
 
   async function handleCetak() {
     if (mode === "tanggal") {
@@ -132,6 +145,21 @@ export function PicklistReportDialog({
     }
 
     if (!picklistId) return;
+
+    if (format === "excel") {
+      try {
+        await exportDetail.mutateAsync({
+          picklist_id: picklistId,
+          order_ids: orderIds.length ? orderIds : undefined,
+        });
+        toast.success("Berhasil mengunduh detail picklist");
+        handleOpenChange(false);
+      } catch {
+        toast.error("Gagal mengunduh detail picklist");
+      }
+      return;
+    }
+
     const params = new URLSearchParams();
     if (orderIds.length) params.set("order_ids", orderIds.join(","));
     if (selected?.label) params.set("no", selected.label);
@@ -251,6 +279,13 @@ export function PicklistReportDialog({
                   emptyText="Tidak ada pesanan."
                 />
               </div>
+
+              <ReportFormatRadio value={format} onChange={setFormat} />
+              {format === "excel" && (
+                <p className="text-xs text-muted-foreground">
+                  Excel menyertakan foto produk tiap baris.
+                </p>
+              )}
             </>
           )}
         </div>
@@ -260,12 +295,14 @@ export function PicklistReportDialog({
             Batal
           </Button>
           <Button variant="primary" onClick={handleCetak} disabled={!canCetak}>
-            {exportPicklist.isPending ? (
+            {busy ? (
               <Loader2 className="size-4 animate-spin" />
+            ) : isExcelOutput ? (
+              <DownloadIcon className="size-4" />
             ) : (
               <PrinterIcon className="size-4" />
             )}
-            Cetak
+            {isExcelOutput ? "Unduh Excel" : "Cetak"}
           </Button>
         </DialogFooter>
       </DialogContent>

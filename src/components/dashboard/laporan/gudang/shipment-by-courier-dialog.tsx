@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { PrinterIcon } from "lucide-react";
+import { DownloadIcon, Loader2, PrinterIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import {
@@ -17,6 +17,11 @@ import { Label } from "@/components/ui/label";
 import { DatePicker } from "@/components/ui/date-picker";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { LocationMultiCombobox } from "@/components/dashboard/laporan/shared/location-multi-combobox";
+import {
+  ReportFormatRadio,
+  type ReportFormat,
+} from "@/components/dashboard/laporan/shared/report-format-radio";
+import { useExportShipmentByCourier } from "@/hooks/laporan/use-laporan-gudang";
 import type { OrderPerformanceMode } from "@/types/laporan/laporan-gudang";
 
 interface ShipmentByCourierDialogProps {
@@ -46,15 +51,18 @@ export function ShipmentByCourierDialog({
   onOpenChange,
 }: ShipmentByCourierDialogProps) {
   const [mode, setMode] = React.useState<OrderPerformanceMode>("detail");
+  const [format, setFormat] = React.useState<ReportFormat>("pdf");
   const [startDate, setStartDate] = React.useState<Date | undefined>(
     startOfMonth(),
   );
   const [endDate, setEndDate] = React.useState<Date | undefined>(new Date());
   const [locationIds, setLocationIds] = React.useState<string[]>([]);
+  const exportXlsx = useExportShipmentByCourier();
 
   function handleOpenChange(next: boolean) {
     if (!next) {
       setMode("detail");
+      setFormat("pdf");
       setStartDate(startOfMonth());
       setEndDate(new Date());
       setLocationIds([]);
@@ -65,12 +73,25 @@ export function ShipmentByCourierDialog({
   const invalidRange = Boolean(
     startDate && endDate && endDate.getTime() < startDate.getTime(),
   );
-  const canCetak = Boolean(startDate && endDate) && !invalidRange;
+  const canCetak =
+    Boolean(startDate && endDate) && !invalidRange && !exportXlsx.isPending;
 
   function handleCetak() {
     if (!startDate || !endDate || invalidRange) return;
 
-    const id = `${mode}_${formatDateISO(startDate)}_${formatDateISO(endDate)}`;
+    const from = formatDateISO(startDate);
+    const to = formatDateISO(endDate);
+    const location_ids = locationIds.length ? locationIds : undefined;
+
+    if (format === "excel") {
+      exportXlsx.mutate(
+        { mode, from, to, location_ids },
+        { onSuccess: () => handleOpenChange(false) },
+      );
+      return;
+    }
+
+    const id = `${mode}_${from}_${to}`;
     const params = new URLSearchParams();
     if (locationIds.length) params.set("location_ids", locationIds.join(","));
     const qs = params.toString();
@@ -157,6 +178,8 @@ export function ShipmentByCourierDialog({
               ))}
             </RadioGroup>
           </div>
+
+          <ReportFormatRadio value={format} onChange={setFormat} />
         </div>
 
         <DialogFooter>
@@ -164,8 +187,14 @@ export function ShipmentByCourierDialog({
             Batal
           </Button>
           <Button variant="primary" onClick={handleCetak} disabled={!canCetak}>
-            <PrinterIcon className="size-4" />
-            Cetak
+            {exportXlsx.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : format === "excel" ? (
+              <DownloadIcon className="size-4" />
+            ) : (
+              <PrinterIcon className="size-4" />
+            )}
+            {format === "excel" ? "Unduh Excel" : "Cetak"}
           </Button>
         </DialogFooter>
       </DialogContent>

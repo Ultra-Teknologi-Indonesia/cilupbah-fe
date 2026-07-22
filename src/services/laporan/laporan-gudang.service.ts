@@ -49,6 +49,68 @@ export const LaporanGudangService = {
     );
   },
 
+  exportOrderPerformance: async (
+    params: OrderPerformanceParams,
+  ): Promise<Blob> => {
+    const sp = new URLSearchParams();
+    sp.set("jenis", params.jenis);
+    sp.set("mode", params.mode);
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    params.location_ids?.forEach((id) => sp.append("location_ids[]", id));
+
+    return fetchBlobRaw(
+      `/reports/wms/order-performance/export?${sp.toString()}`,
+      XLSX_MIME,
+    );
+  },
+
+  exportPutawayPerformance: async (
+    params: PutawayPerformanceParams,
+  ): Promise<Blob> => {
+    const sp = new URLSearchParams();
+    sp.set("mode", params.mode);
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    params.location_ids?.forEach((id) => sp.append("location_ids[]", id));
+
+    return fetchBlobRaw(
+      `/reports/wms/putaway-performance/export?${sp.toString()}`,
+      XLSX_MIME,
+    );
+  },
+
+  exportPutawayList: async (params: PutawayListParams): Promise<Blob> => {
+    const sp = new URLSearchParams();
+    sp.set("date", params.date);
+    sp.set("location_id", params.location_id);
+    params.putaway_ids?.forEach((id) => sp.append("putaway_ids[]", id));
+
+    return fetchBlobRaw(
+      `/reports/wms/putaway-list/export?${sp.toString()}`,
+      XLSX_MIME,
+    );
+  },
+
+  exportShipmentByCourier: async (
+    params: ShipmentByCourierParams,
+  ): Promise<Blob> => {
+    const sp = new URLSearchParams();
+    sp.set("mode", params.mode);
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    params.location_ids?.forEach((id) => sp.append("location_ids[]", id));
+
+    return fetchBlobRaw(
+      `/reports/wms/shipment-by-courier/export?${sp.toString()}`,
+      XLSX_MIME,
+    );
+  },
+
+  exportPicklistDetail: (params: PicklistDetailPdfParams): Promise<Blob> => {
+    return fetchBlobPost(`/reports/wms/pick-list/xlsx`, params, XLSX_MIME);
+  },
+
   putawayListPdf: (params: PutawayListParams): Promise<Blob> => {
     return fetchBlobPost(
       `/reports/wms/putaway-list/pdf`,
