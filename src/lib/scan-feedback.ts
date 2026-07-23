@@ -1,4 +1,9 @@
-export type ScanFeedbackKind = "ok" | "error";
+export type ScanFeedbackKind =
+  | "ok"
+  | "error"
+  | "order_canceled"
+  | "order_cancel_requested"
+  | "courier_mismatch";
 
 let zzfxCtx: AudioContext | null = null;
 
@@ -158,17 +163,61 @@ function zzfx(
   source.start();
 }
 
-const SFX_SUCCESS = [2,0,987,.005,.04,.5,0,1.5,,500,.05,,,.8] as const;
-const SFX_ERROR   = [2,0,523,.01,.12,.25,0,1,,-120,.08,,,.8] as const;
+const SFX_SUCCESS          = [2,0,987,.005,.04,.5,0,1.5,,500,.05,,,.8] as const;
+const SFX_ERROR            = [2,0,523,.01,.12,.25,0,1,,-120,.08,,,.8] as const;
+const SFX_CANCELED         = [2,0,180,.01,.16,.3,1,1,,-60,.1,,,.7] as const;
+const SFX_CANCEL_REQUESTED = [2,0,700,.01,.09,.2,0,1,,90,.06,,,.6] as const;
+const SFX_COURIER_MISMATCH = [2,0,340,.01,.2,.3,0,1,,-260,.14,,,.9] as const;
+
+export function primeScanAudio(): void {
+  getCtx();
+}
+
+export function scanFeedbackFromErrorCode(
+  code: string | null | undefined,
+): ScanFeedbackKind {
+  switch (code) {
+    case "order_canceled":
+      return "order_canceled";
+    case "order_cancel_requested":
+      return "order_cancel_requested";
+    case "courier_mismatch":
+      return "courier_mismatch";
+    default:
+      return "error";
+  }
+}
 
 export function playScanFeedback(kind: ScanFeedbackKind): void {
-  const params = kind === "ok" ? SFX_SUCCESS : SFX_ERROR;
-  zzfx(...params);
+  switch (kind) {
+    case "ok":
+      zzfx(...SFX_SUCCESS);
+      break;
+    case "order_canceled":
+      zzfx(...SFX_CANCELED);
+      break;
+    case "order_cancel_requested":
+      zzfx(...SFX_CANCEL_REQUESTED);
+      break;
+    case "courier_mismatch":
+      zzfx(...SFX_COURIER_MISMATCH);
+      break;
+    default:
+      zzfx(...SFX_ERROR);
+  }
 
   if (
     typeof navigator !== "undefined" &&
     typeof navigator.vibrate === "function"
   ) {
-    navigator.vibrate(kind === "ok" ? 35 : [60, 40, 60]);
+    const pattern: number | number[] =
+      kind === "ok"
+        ? 35
+        : kind === "order_canceled"
+          ? [100, 60, 100, 60, 100]
+          : kind === "courier_mismatch"
+            ? [140, 70, 140]
+            : [60, 40, 60];
+    navigator.vibrate(pattern);
   }
 }

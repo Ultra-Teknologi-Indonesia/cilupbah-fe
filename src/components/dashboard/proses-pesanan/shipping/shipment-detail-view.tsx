@@ -53,7 +53,11 @@ import { Label } from "@/components/ui/label";
 import { UserSelectById } from "@/components/dashboard/shared/user-select-by-id";
 import { useMe } from "@/hooks/auth/use-auth";
 import { useUsers } from "@/hooks/pengaturan/use-users";
-import { playScanFeedback } from "@/lib/scan-feedback";
+import {
+  playScanFeedback,
+  primeScanAudio,
+  scanFeedbackFromErrorCode,
+} from "@/lib/scan-feedback";
 import { apiError } from "@/lib/toast";
 import { ChannelBadge } from "../channel-badge";
 import { DocActions } from "../picking/doc-actions";
@@ -565,6 +569,7 @@ export function ShipmentDetailView({ id }: { id: string }) {
   }
 
   const handleScan = async () => {
+    primeScanAudio();
     const code = barcode.trim();
     if (!code) return;
 
@@ -575,7 +580,8 @@ export function ShipmentDetailView({ id }: { id: string }) {
       setBarcode("");
       inputRef.current?.focus();
     } catch (err) {
-      playScanFeedback("error");
+      const code = (err as { errors?: { code?: string } })?.errors?.code;
+      playScanFeedback(scanFeedbackFromErrorCode(code));
       apiError(err, "Gagal menambahkan pesanan.");
       setBarcode("");
       inputRef.current?.focus();
@@ -583,6 +589,7 @@ export function ShipmentDetailView({ id }: { id: string }) {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    primeScanAudio();
     if (e.key === "Enter") {
       e.preventDefault();
       handleScan();

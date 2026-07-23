@@ -6,7 +6,7 @@ import { ScanBarcodeIcon, ListChecksIcon, CheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Combobox } from "@/components/ui/combobox";
-import { playScanFeedback } from "@/lib/scan-feedback";
+import { playScanFeedback, primeScanAudio } from "@/lib/scan-feedback";
 
 export interface ScanAutoflowLine {
   id: string;
@@ -161,6 +161,7 @@ export function ScanAutoflowBar({
             disabled={disabled}
             onChange={(e) => setCode(e.target.value)}
             onKeyDown={(e) => {
+              primeScanAudio();
               if (e.key === "Enter") {
                 e.preventDefault();
                 resolveByCode(code);
@@ -187,6 +188,7 @@ export function ScanAutoflowBar({
               value={null}
               wrap
               onChange={(v) => {
+                primeScanAudio();
                 if (!v) return;
                 const line = lines.find((l) => l.id === v);
                 if (line) {
