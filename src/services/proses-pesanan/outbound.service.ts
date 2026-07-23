@@ -31,6 +31,8 @@ import type {
   ShipmentDetail,
   ShipmentOrderItem,
   ReconcileSummary,
+  OutboundMonitoring,
+  RawOutboundMonitoring,
 } from "@/types/proses-pesanan/fulfillment";
 
 export interface CreateShipmentPayload {
@@ -473,6 +475,35 @@ export const OutboundService = {
     return {
       items: (res.data?.data ?? []).map(mapOrder),
       meta: paginatorMeta(res.data, params.per_page),
+    };
+  },
+
+  monitoring: async (): Promise<OutboundMonitoring> => {
+    const res = await fetchClient<ApiResponse<RawOutboundMonitoring>>(
+      `/outbound/orders/monitoring`,
+    );
+    const raw = res.data;
+    const s = raw?.summary;
+    return {
+      summary: {
+        today: s?.today ?? 0,
+        yest: s?.yest ?? 0,
+        mtd: s?.mtd ?? 0,
+        prevMonth: s?.prev_month ?? 0,
+        readyToPick: s?.ready_to_pick ?? 0,
+        readyToPick2days: s?.ready_to_pick_2days ?? 0,
+        pickedToday: s?.picked_today ?? 0,
+        pickedYest: s?.picked_yest ?? 0,
+      },
+      periods: (raw?.periods ?? []).map((p) => ({
+        dayTerm: p.day_term,
+        readyToProcess: p.ready_to_process,
+        pick: p.pick,
+        pending: p.pending,
+        pack: p.pack,
+        readyToShip: p.ready_to_ship,
+        waitingShip: p.waiting_ship,
+      })),
     };
   },
 

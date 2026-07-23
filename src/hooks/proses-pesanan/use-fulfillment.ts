@@ -38,6 +38,7 @@ export const fulfillmentKeys = {
   packlists: (p: FulfillmentListParams) => [...board, "packlists", p] as const,
   shipments: (p: FulfillmentListParams) => [...board, "shipments", p] as const,
   count: (key: string) => [...board, "count", key] as const,
+  monitoring: () => [...board, "monitoring"] as const,
   pickers: (locationId?: string, role?: string) =>
     [...all, "pickers", locationId ?? "", role ?? ""] as const,
   picklistDetail: (id: string) => [...all, "picklist-detail", id] as const,
@@ -83,6 +84,16 @@ export function useShipments(params: FulfillmentListParams, enabled = true) {
     queryKey: fulfillmentKeys.shipments(params),
     queryFn: () => OutboundService.shipments(params),
     staleTime: STALE,
+    enabled,
+  });
+}
+
+export function useOutboundMonitoring(enabled = true) {
+  return useQuery({
+    queryKey: fulfillmentKeys.monitoring(),
+    queryFn: () => OutboundService.monitoring(),
+    staleTime: STALE,
+    refetchInterval: 60_000,
     enabled,
   });
 }

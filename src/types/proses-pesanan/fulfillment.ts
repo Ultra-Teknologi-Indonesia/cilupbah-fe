@@ -1,5 +1,5 @@
 export type FulfillmentStage =
-  "picking" | "packing" | "shipping" | "delivered" | "done";
+  "pantauan" | "picking" | "packing" | "shipping" | "delivered" | "done";
 
 export interface StageSub {
   key: string;
@@ -13,6 +13,7 @@ export interface StageConfigItem {
 }
 
 export const STAGE_CONFIG: readonly StageConfigItem[] = [
+  { key: "pantauan", label: "Pantauan", subs: [] },
   {
     key: "picking",
     label: "Picking",
@@ -53,6 +54,60 @@ export function stageConfig(
 export function defaultSubFor(stage: FulfillmentStage): string | null {
   const cfg = stageConfig(stage);
   return cfg && cfg.subs.length ? cfg.subs[0].key : null;
+}
+
+// ── Pantauan (monitoring) ─────────────────────────────────────────────
+
+export interface RawOutboundMonitoringPeriod {
+  day_term: number;
+  ready_to_process: number;
+  pick: number;
+  pending: number;
+  pack: number;
+  ready_to_ship: number;
+  waiting_ship: number;
+}
+
+export interface RawOutboundMonitoringSummary {
+  today: number;
+  yest: number;
+  mtd: number;
+  prev_month: number;
+  ready_to_pick: number;
+  ready_to_pick_2days: number;
+  picked_today: number;
+  picked_yest: number;
+}
+
+export interface RawOutboundMonitoring {
+  summary: RawOutboundMonitoringSummary;
+  periods: RawOutboundMonitoringPeriod[];
+}
+
+export interface OutboundMonitoringPeriod {
+  dayTerm: number;
+  readyToProcess: number;
+  pick: number;
+  pending: number;
+  pack: number;
+  readyToShip: number;
+  waitingShip: number;
+}
+
+export interface OutboundMonitoringSummary {
+  today: number;
+  yest: number;
+  mtd: number;
+  prevMonth: number;
+  readyToPick: number;
+  readyToPick2days: number;
+  pickedToday: number;
+  pickedYest: number;
+}
+
+export interface OutboundMonitoring {
+  summary: OutboundMonitoringSummary;
+  periods: OutboundMonitoringPeriod[];
 }
 
 export const PICKING_ORDER_STAGE = {

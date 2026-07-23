@@ -21,6 +21,7 @@ import {
 } from "@/types/proses-pesanan/fulfillment";
 
 import { StageTabs } from "./stage-tabs";
+import { PantauanView } from "./pantauan/pantauan-view";
 import { SubStatusTabs } from "./sub-status-pills";
 import { PicklistTable } from "./picking/picklist-table";
 import { ReadyToProcessCardList } from "./picking/ready-to-process-card-list";
@@ -33,6 +34,19 @@ import { FulfillmentCardList } from "./shared/completed-order-card-list";
 import { PicklistLinkCell } from "./shared/picklist-link-cell";
 
 export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <StageTabs />
+      {stage === "pantauan" ? (
+        <PantauanView />
+      ) : (
+        <FulfillmentBoard stage={stage} />
+      )}
+    </div>
+  );
+}
+
+function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
   const subs = useMemo(() => stageConfig(stage)?.subs ?? [], [stage]);
 
   const [subValue, handleSubChange] = useUrlTab(
@@ -194,9 +208,7 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
     stage === "shipping" && sub === "siap-kirim";
 
   return (
-    <div className="flex flex-col gap-4">
-      <StageTabs />
-
+    <>
       <LiquidGlass
         radius={24}
         intensity="default"
@@ -255,6 +267,6 @@ export function ProsesPesananView({ stage }: { stage: FulfillmentStage }) {
         open={showTambahPengiriman}
         onOpenChange={setShowTambahPengiriman}
       />
-    </div>
+    </>
   );
 }
