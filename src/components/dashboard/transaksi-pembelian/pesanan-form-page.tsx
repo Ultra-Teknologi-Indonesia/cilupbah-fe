@@ -126,7 +126,9 @@ export function PesananFormPage({ mode, id }: Props) {
   });
   const { data: locData } = useLocations({ perPage: 100 });
 
-  const [prevExistingId, setPrevExistingId] = useState(existingPO?.id);
+  const [prevExistingId, setPrevExistingId] = useState<string | undefined>(
+    undefined,
+  );
   if (mode === "edit" && existingPO && prevExistingId !== existingPO.id) {
     setPrevExistingId(existingPO.id);
     setPoNumber(existingPO.po_number);
