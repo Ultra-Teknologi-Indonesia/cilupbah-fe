@@ -23,12 +23,14 @@ import { PenjualanDialog } from "./penjualan-dialog";
 import { PenjualanProdukDialog } from "./penjualan-produk-dialog";
 import { PenjualanReturDialog } from "./penjualan-retur-dialog";
 import { RincianPendapatanDialog } from "./rincian-pendapatan-dialog";
+import { DaftarPelangganDialog } from "./daftar-pelanggan-dialog";
 
 type ActiveDialog =
   | "penjualan"
   | "penjualan-produk"
   | "retur-penjualan"
   | "rincian-pendapatan"
+  | "daftar-pelanggan"
   | null;
 
 export function PenjualanView() {
@@ -74,8 +76,9 @@ export function PenjualanView() {
         <ReportCard
           icon={<UsersIcon className="size-5" />}
           title="Daftar Pelanggan"
-          description="Daftar pelanggan berikut kontak dan ringkasan transaksi."
-          comingSoon
+          description="Daftar pelanggan (kontak) berikut alamat, sumber, dan kategori — unduh Excel."
+          actionLabel="Unduh Excel"
+          onClick={() => setActive("daftar-pelanggan")}
         />
         <ReportCard
           icon={<ReceiptTextIcon className="size-5" />}
@@ -100,6 +103,10 @@ export function PenjualanView() {
       <RincianPendapatanDialog
         open={active === "rincian-pendapatan"}
         onOpenChange={(o) => setActive(o ? "rincian-pendapatan" : null)}
+      />
+      <DaftarPelangganDialog
+        open={active === "daftar-pelanggan"}
+        onOpenChange={(o) => setActive(o ? "daftar-pelanggan" : null)}
       />
     </>
   );
