@@ -204,7 +204,11 @@ function OrderPackCard({
                       <p className="truncate font-medium text-foreground">
                         {item.description ?? item.sku}
                       </p>
-                      <p className="font-mono text-2xs text-muted-foreground">
+                      <p
+                        className="select-none font-mono text-2xs text-muted-foreground"
+                        onCopy={(e) => e.preventDefault()}
+                        onContextMenu={(e) => e.preventDefault()}
+                      >
                         {item.sku}
                       </p>
                     </div>
@@ -616,6 +620,7 @@ export function PackingProsesView() {
                         onResolve={handleResolve}
                         onUnmatched={handleUnmatched}
                         refocusKey={scanFocusKey}
+                        hideManualSelect
                         scanPlaceholder="Scan SKU → qty +1…"
                         hint="Scan SKU = +1 tiap scan. Bulk: ketik qty di kolom QTY Pack lalu Enter."
                       />

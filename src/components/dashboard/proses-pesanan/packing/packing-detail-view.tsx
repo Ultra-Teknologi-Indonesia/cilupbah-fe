@@ -451,6 +451,7 @@ export function PackingDetailView({ id }: { id: string }) {
                 onResolve={handleResolve}
                 onUnmatched={handleUnmatched}
                 refocusKey={scanFocusKey}
+                hideManualSelect
                 hint="Scan SKU/barcode → qty pack +1 tiap scan. Untuk bulk, ketik qty di kolom QTY Pack lalu Enter."
                 className="mt-1.5"
               />
@@ -506,7 +507,11 @@ export function PackingDetailView({ id }: { id: string }) {
                               <p className="font-medium text-foreground truncate">
                                 {item.description ?? item.sku}
                               </p>
-                              <p className="font-mono text-2xs text-muted-foreground">
+                              <p
+                                className="select-none font-mono text-2xs text-muted-foreground"
+                                onCopy={(e) => e.preventDefault()}
+                                onContextMenu={(e) => e.preventDefault()}
+                              >
                                 {item.sku}
                               </p>
                             </div>

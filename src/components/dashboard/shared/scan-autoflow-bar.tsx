@@ -33,6 +33,9 @@ interface ScanAutoflowBarProps {
   autoFocus?: boolean;
   scanPlaceholder?: string;
   manualPlaceholder?: string;
+
+  /** Sembunyikan dropdown "Pilih manual" agar resolusi hanya lewat scan. */
+  hideManualSelect?: boolean;
   hint?: string;
   className?: string;
 
@@ -55,6 +58,7 @@ export function ScanAutoflowBar({
   autoFocus = true,
   scanPlaceholder = "Scan / ketik kode lalu Enter…",
   manualPlaceholder = "Pilih manual…",
+  hideManualSelect = false,
   hint = "Gunakan scanner, atau pilih manual lewat dropdown.",
   className,
   refocusKey,
@@ -175,7 +179,7 @@ export function ScanAutoflowBar({
           />
         </div>
 
-        {lines.length > 0 && (
+        {lines.length > 0 && !hideManualSelect && (
           <div className="flex items-center gap-2 sm:w-80">
             <ListChecksIcon className="hidden size-4 shrink-0 text-muted-foreground sm:block" />
             <Combobox
