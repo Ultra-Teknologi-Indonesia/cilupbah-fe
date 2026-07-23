@@ -104,7 +104,8 @@ function ProgressBar({ value, total }: { value: number; total: number }) {
   );
 }
 
-/** Penerimaan bisa dibuat penempatan: belum tuntas/batal, masih ada qty pending (received - putaway - reserved). */
+/** Penerimaan bisa dibuat penempatan: masih ada qty pending (received - putaway - reserved).
+ *  COMPLETED = penerimaan selesai (bukan putaway selesai) → tetap bisa di-putaway selama qty pending > 0. */
 function isSelectable(item: Inbound): boolean {
   const totalRecv = item.items?.reduce((s, i) => s + (i.received_qty || 0), 0) ?? 0;
   const totalPutaway =
@@ -112,7 +113,7 @@ function isSelectable(item: Inbound): boolean {
   const totalReserved =
     item.items?.reduce((s, i) => s + (i.reserved_qty || 0), 0) ?? 0;
   return (
-    !["DRAFT", "COMPLETED", "CANCELLED"].includes(item.status) &&
+    !["DRAFT", "CANCELLED"].includes(item.status) &&
     totalRecv > 0 &&
     totalPutaway + totalReserved < totalRecv
   );
@@ -635,8 +636,8 @@ export function PenerimaanBarangTab() {
 
           if (allTransfer && hasCompleted) {
             return isSingle
-              ? `Penerimaan ${target.transaction_number} sudah selesai (barang di rak). Menghapus akan membalik penempatan ke rak inbound dan mengembalikan Transfer Keluar terkait ke Sedang Dijalan. Barang bisa diterima ulang.`
-              : "Sebagian penerimaan sudah selesai. Menghapus akan membalik penempatan ke rak inbound dan mengembalikan Transfer Keluar terkait ke Sedang Dijalan.";
+              ? `Penerimaan ${target.transaction_number} sudah selesai diterima. Menghapus akan membalik penempatan yang sudah masuk rak dan mengembalikan Transfer Keluar terkait ke Sedang Dijalan. Barang bisa diterima ulang.`
+              : "Sebagian penerimaan sudah selesai diterima. Menghapus akan membalik penempatan yang sudah masuk rak dan mengembalikan Transfer Keluar terkait ke Sedang Dijalan.";
           }
 
           if (allTransfer) {
@@ -647,8 +648,8 @@ export function PenerimaanBarangTab() {
 
           if (allPO && hasCompleted) {
             return isSingle
-              ? `Penerimaan ${target.transaction_number} sudah selesai (barang di rak). Menghapus akan membalik penempatan dan mengembalikan Pesanan Pembelian ke status Belum Diterima agar bisa diterima ulang.`
-              : "Sebagian penerimaan PO sudah selesai. Menghapus akan membalik penempatan dan mengembalikan Pesanan Pembelian ke Belum Diterima.";
+              ? `Penerimaan ${target.transaction_number} sudah selesai diterima. Menghapus akan membalik penempatan yang sudah masuk rak dan mengembalikan Pesanan Pembelian ke status Belum Diterima agar bisa diterima ulang.`
+              : "Sebagian penerimaan PO sudah selesai diterima. Menghapus akan membalik penempatan yang sudah masuk rak dan mengembalikan Pesanan Pembelian ke Belum Diterima.";
           }
 
           return "Penerimaan dibatalkan dan stok yang belum ditempatkan dikembalikan dari bin inbound. Tindakan ini tidak bisa dibatalkan.";

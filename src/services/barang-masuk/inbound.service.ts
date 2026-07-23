@@ -235,8 +235,8 @@ export const InboundService = {
     return res.data;
   },
 
-  /** Admin selesaikan penerimaan: status → RECEIVED, semua participant ACTIVE
-   *  otomatis di-withdraw, session mobile ditutup. */
+  /** Admin selesaikan penerimaan: status → COMPLETED (penerimaan selesai, lepas dari
+   *  putaway), semua participant ACTIVE otomatis di-withdraw, session mobile ditutup. */
   finalize: async (id: string) => {
     const res = await fetchClient<ApiResponse<Inbound>>(
       `/inbounds/${id}/close-receiving`,

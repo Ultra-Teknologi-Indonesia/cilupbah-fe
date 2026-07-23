@@ -644,8 +644,8 @@ export function PenerimaanDetailView({ id }: { id: string }) {
         title="Selesaikan penerimaan?"
         description={
           activeParticipants.length > 0
-            ? `Masih ada ${activeParticipants.length} staff yang sedang scan di mobile. Menyelesaikan akan menutup sesi mereka dan mencatat discrepancy antara qty diterima dan yang diharapkan. Aksi ini mengunci dokumen ke status RECEIVED.`
-            : "Status dokumen akan naik ke RECEIVED dan discrepancy tercatat. Setelah ini penerimaan tidak bisa menerima scan baru; putaway sudah bisa dijalankan."
+            ? `Masih ada ${activeParticipants.length} staff yang sedang scan di mobile. Menyelesaikan akan menutup sesi mereka dan mencatat discrepancy antara qty diterima dan yang diharapkan. Aksi ini menandai penerimaan Selesai.`
+            : "Penerimaan akan ditandai Selesai dan discrepancy tercatat. Setelah ini penerimaan tidak bisa menerima scan baru; putaway sudah bisa dijalankan."
         }
         confirmLabel="Ya, selesaikan"
         cancelLabel="Batal"
