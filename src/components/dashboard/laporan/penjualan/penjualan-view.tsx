@@ -22,11 +22,13 @@ import { Button } from "@/components/ui/button";
 import { PenjualanDialog } from "./penjualan-dialog";
 import { PenjualanProdukDialog } from "./penjualan-produk-dialog";
 import { PenjualanReturDialog } from "./penjualan-retur-dialog";
+import { RincianPendapatanDialog } from "./rincian-pendapatan-dialog";
 
 type ActiveDialog =
   | "penjualan"
   | "penjualan-produk"
   | "retur-penjualan"
+  | "rincian-pendapatan"
   | null;
 
 export function PenjualanView() {
@@ -65,8 +67,9 @@ export function PenjualanView() {
         <ReportCard
           icon={<WalletIcon className="size-5" />}
           title="Rincian Pendapatan"
-          description="Rincian pendapatan bersih per pesanan setelah potongan dan biaya."
-          comingSoon
+          description="Pendapatan bersih, HPP, dan laba kotor per faktur atau per barang — unduh Excel."
+          actionLabel="Unduh Excel"
+          onClick={() => setActive("rincian-pendapatan")}
         />
         <ReportCard
           icon={<UsersIcon className="size-5" />}
@@ -93,6 +96,10 @@ export function PenjualanView() {
       <PenjualanReturDialog
         open={active === "retur-penjualan"}
         onOpenChange={(o) => setActive(o ? "retur-penjualan" : null)}
+      />
+      <RincianPendapatanDialog
+        open={active === "rincian-pendapatan"}
+        onOpenChange={(o) => setActive(o ? "rincian-pendapatan" : null)}
       />
     </>
   );
