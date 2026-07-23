@@ -21,8 +21,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PenjualanDialog } from "./penjualan-dialog";
 import { PenjualanProdukDialog } from "./penjualan-produk-dialog";
+import { PenjualanReturDialog } from "./penjualan-retur-dialog";
 
-type ActiveDialog = "penjualan" | "penjualan-produk" | null;
+type ActiveDialog =
+  | "penjualan"
+  | "penjualan-produk"
+  | "retur-penjualan"
+  | null;
 
 export function PenjualanView() {
   const [active, setActive] = React.useState<ActiveDialog>(null);
@@ -53,8 +58,9 @@ export function PenjualanView() {
         <ReportCard
           icon={<RotateCcwIcon className="size-5" />}
           title="Retur Penjualan"
-          description="Daftar retur penjualan berikut alasan dan nilai pengembalian."
-          comingSoon
+          description="Retur penjualan per barang berikut rak putaway, resi, dan nilai pengembalian — unduh Excel."
+          actionLabel="Unduh Excel"
+          onClick={() => setActive("retur-penjualan")}
         />
         <ReportCard
           icon={<WalletIcon className="size-5" />}
@@ -83,6 +89,10 @@ export function PenjualanView() {
       <PenjualanProdukDialog
         open={active === "penjualan-produk"}
         onOpenChange={(o) => setActive(o ? "penjualan-produk" : null)}
+      />
+      <PenjualanReturDialog
+        open={active === "retur-penjualan"}
+        onOpenChange={(o) => setActive(o ? "retur-penjualan" : null)}
       />
     </>
   );
