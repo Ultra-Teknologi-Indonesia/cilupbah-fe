@@ -20,8 +20,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PenjualanDialog } from "./penjualan-dialog";
+import { PenjualanProdukDialog } from "./penjualan-produk-dialog";
 
-type ActiveDialog = "penjualan" | null;
+type ActiveDialog = "penjualan" | "penjualan-produk" | null;
 
 export function PenjualanView() {
   const [active, setActive] = React.useState<ActiveDialog>(null);
@@ -39,8 +40,9 @@ export function PenjualanView() {
         <ReportCard
           icon={<BarChart3Icon className="size-5" />}
           title="Penjualan Produk"
-          description="Rekap penjualan per produk/SKU beserta kuantitas dan nilai."
-          comingSoon
+          description="Penjualan per produk/SKU (1 baris per barang pesanan), filter SKU dan lokasi — unduh Excel."
+          actionLabel="Unduh Excel"
+          onClick={() => setActive("penjualan-produk")}
         />
         <ReportCard
           icon={<BarChart3Icon className="size-5" />}
@@ -77,6 +79,10 @@ export function PenjualanView() {
       <PenjualanDialog
         open={active === "penjualan"}
         onOpenChange={(o) => setActive(o ? "penjualan" : null)}
+      />
+      <PenjualanProdukDialog
+        open={active === "penjualan-produk"}
+        onOpenChange={(o) => setActive(o ? "penjualan-produk" : null)}
       />
     </>
   );
