@@ -45,6 +45,14 @@ interface ComboboxBaseProps {
    * ditampilkan penuh (wrap, tanpa truncate). Cocok untuk label panjang.
    */
   wrap?: boolean;
+  /**
+   * Lazy-load / infinite scroll. `onLoadMore` dipanggil saat scroll mendekati
+   * dasar list selama `hasMore` true; `loadingMore` menampilkan footer "Memuat…".
+   * Parent (mis. useInfiniteQuery) bertanggung jawab menambah `options`.
+   */
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  loadingMore?: boolean;
 }
 
 interface SingleComboboxProps extends ComboboxBaseProps {
@@ -79,11 +87,16 @@ export function Combobox({
   onQueryChange,
   loading,
   wrap,
+  onLoadMore,
+  hasMore,
+  loadingMore,
   multiple,
   maxVisible = 2,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const sentinelRef = React.useRef<HTMLLIElement>(null);
 
   const isMulti = multiple === true;
   const selectedValues: string[] = isMulti
@@ -136,6 +149,22 @@ export function Combobox({
       multiOnChange(selectedValues.filter((v) => v !== optValue));
     }
   }
+
+  React.useEffect(() => {
+    if (!open || !onLoadMore) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && hasMore && !loadingMore) {
+          onLoadMore();
+        }
+      },
+      { root: scrollRef.current, rootMargin: "120px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [open, onLoadMore, hasMore, loadingMore, filtered.length]);
 
   const visibleBadges = wrap
     ? selectedValues
@@ -254,6 +283,7 @@ export function Combobox({
           />
         </div>
         <div
+          ref={scrollRef}
           className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
           onWheel={(e) => e.stopPropagation()}
           onTouchMove={(e) => e.stopPropagation()}
@@ -305,7 +335,7 @@ export function Combobox({
                           />
                         )}
                         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                          <span className="line-clamp-2 break-words leading-snug">
+                          <span className="break-words whitespace-normal leading-snug">
                             {opt.label}
                           </span>
                           {opt.hint && (
@@ -347,6 +377,12 @@ export function Combobox({
                 </li>
               );
             })}
+            {onLoadMore && <li ref={sentinelRef} aria-hidden className="h-px" />}
+            {loadingMore && (
+              <li className="px-3 py-2 text-center text-xs text-muted-foreground">
+                Memuat…
+              </li>
+            )}
             {showCreate && !exactMatch && (
               <li>
                 <button
