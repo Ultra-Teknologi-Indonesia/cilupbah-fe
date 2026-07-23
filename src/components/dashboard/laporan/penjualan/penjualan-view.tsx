@@ -3,7 +3,6 @@
 import * as React from "react";
 import {
   BarChart3Icon,
-  ReceiptTextIcon,
   RotateCcwIcon,
   ShoppingCartIcon,
   UsersIcon,
@@ -54,12 +53,6 @@ export function PenjualanView() {
           onClick={() => setActive("penjualan-produk")}
         />
         <ReportCard
-          icon={<BarChart3Icon className="size-5" />}
-          title="Analisa Data Penjualan"
-          description="Analisa tren penjualan lintas periode, channel, dan produk."
-          comingSoon
-        />
-        <ReportCard
           icon={<RotateCcwIcon className="size-5" />}
           title="Retur Penjualan"
           description="Retur penjualan per barang berikut rak putaway, resi, dan nilai pengembalian — unduh Excel."
@@ -79,12 +72,6 @@ export function PenjualanView() {
           description="Daftar pelanggan (kontak) berikut alamat, sumber, dan kategori — unduh Excel."
           actionLabel="Unduh Excel"
           onClick={() => setActive("daftar-pelanggan")}
-        />
-        <ReportCard
-          icon={<ReceiptTextIcon className="size-5" />}
-          title="Cetak Struk"
-          description="Cetak struk penjualan per pesanan."
-          comingSoon
         />
       </div>
 
