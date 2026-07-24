@@ -197,14 +197,14 @@ function PeriodTable({
 
   return (
     <div className="overflow-x-auto">
-      <Table className="w-auto">
+      <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="min-w-[120px]">Periode</TableHead>
+            <TableHead className="w-full min-w-[120px]">Periode</TableHead>
             {PERIOD_COLUMNS.map((col) => (
               <TableHead
                 key={col.key}
-                className="min-w-[104px] text-right whitespace-nowrap"
+                className="min-w-[112px] text-right whitespace-nowrap"
               >
                 {col.header}
               </TableHead>
