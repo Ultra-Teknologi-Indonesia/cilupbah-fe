@@ -169,8 +169,20 @@ const SFX_CANCELED         = [2,0,180,.01,.16,.3,1,1,,-60,.1,,,.7] as const;
 const SFX_CANCEL_REQUESTED = [2,0,700,.01,.09,.2,0,1,,90,.06,,,.6] as const;
 const SFX_COURIER_MISMATCH = [2,0,340,.01,.2,.3,0,1,,-260,.14,,,.9] as const;
 
+let audioUnlocked = false;
+
 export function primeScanAudio(): void {
-  getCtx();
+  const ctx = getCtx();
+  if (!ctx || audioUnlocked) return;
+
+  try {
+    const buffer = ctx.createBuffer(1, 1, 22050);
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+    source.start(0);
+    audioUnlocked = true;
+  } catch {}
 }
 
 export function scanFeedbackFromErrorCode(
