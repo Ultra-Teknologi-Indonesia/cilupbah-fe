@@ -29,99 +29,35 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   useCreateMultiSkuRule,
   useDeleteMultiSkuRule,
-  useMultiSkuRulePreview,
+  useMultiSkuPatternSuggestions,
   useMultiSkuRules,
   useUpdateMultiSkuRule,
 } from "@/hooks/manajemen-rak/use-multi-sku-rules";
 import { cn } from "@/lib/utils";
 import type { BinMultiSkuRule } from "@/types/manajemen-rak/location";
 
-function PatternPreview({
-  locationId,
-  pattern,
-}: {
-  locationId?: string;
-  pattern: string;
-}) {
-  const debounced = useDebouncedValue(pattern, 300);
-  const trimmed = debounced.trim();
-  const { data, isFetching } = useMultiSkuRulePreview(locationId, debounced);
-
-  if (!trimmed) {
-    return (
-      <p className="text-xs text-muted-foreground">
-        Isi pola untuk melihat rak mana saja yang akan terkena.
-      </p>
-    );
-  }
-
-  if (isFetching || !data) {
-    return (
-      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-        <Loader2Icon className="size-3.5 animate-spin" />
-        Menghitung rak yang cocok…
-      </p>
-    );
-  }
-
-  const { matchedCount, samples, totalBins } = data;
-  const nearlyAll = totalBins > 0 && matchedCount / totalBins > 0.9;
-
-  if (matchedCount === 0) {
-    return (
-      <p className="flex items-start gap-1.5 text-xs text-warning">
-        <TriangleAlertIcon className="mt-0.5 size-3.5 shrink-0" />
-        Belum ada rak yang cocok dengan pola ini. Yakin polanya benar?
-      </p>
-    );
-  }
-
-  return (
-    <div className="space-y-1">
-      <p
-        className={cn(
-          "flex items-start gap-1.5 text-xs",
-          nearlyAll ? "text-warning" : "text-muted-foreground",
-        )}
-      >
-        {nearlyAll && (
-          <TriangleAlertIcon className="mt-0.5 size-3.5 shrink-0" />
-        )}
-        <span>
-          Cocok dengan{" "}
-          <span className="font-medium text-foreground tabular-nums">
-            {matchedCount}
-          </span>{" "}
-          rak
-          {nearlyAll
-            ? ` — hampir semua rak di lokasi ini (${totalBins}). Yakin?`
-            : "."}
-        </span>
-      </p>
-      {samples.length > 0 && (
-        <p className="truncate font-mono text-2xs text-muted-foreground">
-          {samples.join(", ")}
-          {matchedCount > samples.length ? ", …" : ""}
-        </p>
-      )}
-    </div>
-  );
-}
-
 function RuleFormDialog({
   open,
   onOpenChange,
   locationId,
   rule,
+  usedPatterns,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   locationId?: string;
   rule: BinMultiSkuRule | null;
+  usedPatterns: string[];
 }) {
   const [pattern, setPattern] = React.useState("");
   const [note, setNote] = React.useState("");
@@ -129,6 +65,19 @@ function RuleFormDialog({
   const createMut = useCreateMultiSkuRule(locationId);
   const updateMut = useUpdateMultiSkuRule(locationId);
   const pending = createMut.isPending || updateMut.isPending;
+
+  const { data: suggestions = [], isLoading: loadingSuggestions } =
+    useMultiSkuPatternSuggestions(locationId, open);
+
+  const options = React.useMemo(
+    () =>
+      suggestions.filter(
+        (s) => s.pattern === rule?.pattern || !usedPatterns.includes(s.pattern),
+      ),
+    [suggestions, usedPatterns, rule?.pattern],
+  );
+
+  const selected = options.find((s) => s.pattern === pattern) ?? null;
 
   React.useEffect(() => {
     if (!open) return;
@@ -165,20 +114,40 @@ function RuleFormDialog({
               Pola Kode Rak
               <span className="text-destructive"> *</span>
             </Label>
-            <Input
-              id="multi-sku-pattern"
-              value={pattern}
-              onChange={(e) => setPattern(e.target.value)}
-              placeholder="GK-*"
-              maxLength={100}
-              autoFocus
-            />
-            <p className="text-xs text-muted-foreground">
-              Pakai <span className="font-mono">*</span> untuk bagian yang
-              bebas. Contoh: <span className="font-mono">GK-*</span> cocok
-              dengan semua rak berawalan GK-.
-            </p>
-            <PatternPreview locationId={locationId} pattern={pattern} />
+            <Select value={pattern} onValueChange={setPattern}>
+              <SelectTrigger id="multi-sku-pattern" className="w-full">
+                <SelectValue
+                  placeholder={
+                    loadingSuggestions ? "Memuat…" : "Pilih kelompok rak"
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {options.map((s) => (
+                  <SelectItem key={s.pattern} value={s.pattern}>
+                    <span className="font-mono">{s.pattern}</span>
+                    <span className="ml-2 text-muted-foreground">
+                      {s.matchedCount} rak
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {!loadingSuggestions && options.length === 0 && (
+              <p className="flex items-start gap-1.5 text-xs text-warning">
+                <TriangleAlertIcon className="mt-0.5 size-3.5 shrink-0" />
+                Tidak ada kelompok rak yang tersisa. Semua sudah punya aturan,
+                atau lokasi ini belum punya rak.
+              </p>
+            )}
+
+            {selected && (
+              <p className="truncate font-mono text-2xs text-muted-foreground">
+                {selected.samples.join(", ")}
+                {selected.matchedCount > selected.samples.length ? ", …" : ""}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -367,6 +336,7 @@ export function MultiSkuRulesCard({
         onOpenChange={setFormOpen}
         locationId={locationId}
         rule={editing}
+        usedPatterns={rules.map((r) => r.pattern)}
       />
 
       <ConfirmDialog

@@ -1,9 +1,9 @@
 import { fetchClient } from "@/lib/api-client";
 import type { ApiResponse } from "@/types/api.types";
 import type {
+  BinMultiSkuPatternSuggestion,
   BinMultiSkuRule,
   BinMultiSkuRulePayload,
-  BinMultiSkuRulePreview,
   RawBinMultiSkuRule,
 } from "@/types/manajemen-rak/location";
 
@@ -25,26 +25,20 @@ export const BinMultiSkuRuleService = {
     return (res.data ?? []).map(mapRule);
   },
 
-  preview: async (
+  suggestions: async (
     locationId: string,
-    pattern: string,
-  ): Promise<BinMultiSkuRulePreview> => {
+  ): Promise<BinMultiSkuPatternSuggestion[]> => {
     const res = await fetchClient<
-      ApiResponse<{
-        pattern: string;
-        matched_count: number;
-        samples: string[];
-        total_bins: number;
-      }>
-    >(
-      `/locations/${locationId}/multi-sku-rules/preview?pattern=${encodeURIComponent(pattern)}`,
-    );
-    return {
-      pattern: res.data?.pattern ?? "",
-      matchedCount: res.data?.matched_count ?? 0,
-      samples: res.data?.samples ?? [],
-      totalBins: res.data?.total_bins ?? 0,
-    };
+      ApiResponse<
+        { pattern: string; matched_count: number; samples: string[] }[]
+      >
+    >(`/locations/${locationId}/multi-sku-rules/suggestions`);
+
+    return (res.data ?? []).map((s) => ({
+      pattern: s.pattern,
+      matchedCount: s.matched_count,
+      samples: s.samples ?? [],
+    }));
   },
 
   create: async (

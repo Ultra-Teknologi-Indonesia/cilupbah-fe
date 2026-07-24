@@ -785,6 +785,8 @@ function BinSkuAssignCell({
   );
 }
 
+const NEW_ZONE_VALUE = "__new__";
+
 let binRowSeq = 0;
 function clientId(): string {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -863,6 +865,7 @@ export function LayoutGudangTab({
   const isSmallWarehouse = serverMode && locationCode === "WH-KECIL";
 
   const [zoneCode, setZoneCode] = React.useState("");
+  const [zoneIsNew, setZoneIsNew] = React.useState(false);
   const [rowCode, setRowCode] = React.useState("B");
   const [columnCode, setColumnCode] = React.useState("K");
   const [binCode, setBinCode] = React.useState("R");
@@ -954,6 +957,13 @@ export function LayoutGudangTab({
         value: z.id,
         label: z.zone_name || z.zone_code,
       })),
+    [zonesData],
+  );
+  const zoneCodeOptions = React.useMemo(
+    () =>
+      Array.from(
+        new Set((zonesData ?? []).map((z) => z.zone_code).filter(Boolean)),
+      ).sort((a, b) => a.localeCompare(b)),
     [zonesData],
   );
 
@@ -1248,13 +1258,57 @@ export function LayoutGudangTab({
                 Zona
                 <span className="text-destructive"> *</span>
               </Label>
-              <Input
-                value={zoneCode}
-                onChange={(e) => setZoneCode(e.target.value)}
-                disabled={disabled}
-                maxLength={20}
-                placeholder="mis. IN, O, GK"
-              />
+              {zoneIsNew ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={zoneCode}
+                    onChange={(e) => setZoneCode(e.target.value)}
+                    disabled={disabled}
+                    maxLength={20}
+                    placeholder="mis. IN, O, GK"
+                    autoFocus
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setZoneIsNew(false);
+                      setZoneCode("");
+                    }}
+                    disabled={disabled}
+                  >
+                    Batal
+                  </Button>
+                </div>
+              ) : (
+                <Select
+                  value={zoneCode}
+                  onValueChange={(v) => {
+                    if (v === NEW_ZONE_VALUE) {
+                      setZoneIsNew(true);
+                      setZoneCode("");
+                      return;
+                    }
+                    setZoneCode(v);
+                  }}
+                  disabled={disabled}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Pilih zona" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {zoneCodeOptions.map((code) => (
+                      <SelectItem key={code} value={code}>
+                        {code}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value={NEW_ZONE_VALUE}>
+                      + Zona baru…
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <div className="space-y-2">
               <Label className="text-muted-foreground">Contoh kode</Label>

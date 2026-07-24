@@ -12,8 +12,8 @@ export const multiSkuRuleKeys = {
   all: ["multi-sku-rules"] as const,
   list: (locationId: string) =>
     ["multi-sku-rules", "list", locationId] as const,
-  preview: (locationId: string, pattern: string) =>
-    ["multi-sku-rules", "preview", locationId, pattern] as const,
+  suggestions: (locationId: string) =>
+    ["multi-sku-rules", "suggestions", locationId] as const,
 };
 
 export function useMultiSkuRules(locationId: string | undefined, enabled = true) {
@@ -25,18 +25,15 @@ export function useMultiSkuRules(locationId: string | undefined, enabled = true)
   });
 }
 
-export function useMultiSkuRulePreview(
+export function useMultiSkuPatternSuggestions(
   locationId: string | undefined,
-  pattern: string,
   enabled = true,
 ) {
-  const trimmed = pattern.trim();
-
   return useQuery({
-    queryKey: multiSkuRuleKeys.preview(locationId ?? "", trimmed),
-    queryFn: () => BinMultiSkuRuleService.preview(locationId!, trimmed),
-    enabled: enabled && !!locationId && trimmed.length > 0,
-    staleTime: 10_000,
+    queryKey: multiSkuRuleKeys.suggestions(locationId ?? ""),
+    queryFn: () => BinMultiSkuRuleService.suggestions(locationId!),
+    enabled: enabled && !!locationId,
+    staleTime: 30_000,
   });
 }
 

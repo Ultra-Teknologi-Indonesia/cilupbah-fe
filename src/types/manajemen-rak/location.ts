@@ -136,11 +136,10 @@ export interface BinMultiSkuRulePayload {
   is_active?: boolean;
 }
 
-export interface BinMultiSkuRulePreview {
+export interface BinMultiSkuPatternSuggestion {
   pattern: string;
   matchedCount: number;
   samples: string[];
-  totalBins: number;
 }
 
 export interface LocationPayload {
