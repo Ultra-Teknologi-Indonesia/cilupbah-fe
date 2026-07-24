@@ -24,6 +24,18 @@ export interface ScanPutawayPayload {
   qty: number;
 }
 
+/** Total akumulasi qty seluruh item inbound (lintas halaman), dari meta BE. */
+export interface InboundItemTotals {
+  expected_qty: number;
+  received_qty: number;
+  putaway_qty: number;
+  line_count: number;
+}
+
+export interface InboundItemsResponse extends ApiPaginated<InboundItem> {
+  meta: ApiPaginated<InboundItem>["meta"] & { totals?: InboundItemTotals };
+}
+
 export const InboundService = {
   list: async (params: InboundListParams = {}) => {
     const sp = new URLSearchParams();
@@ -68,7 +80,7 @@ export const InboundService = {
     if (params.search) query.search = params.search;
     if (params.sort) query.sort = params.sort;
 
-    const res = await fetchClient<ApiPaginated<InboundItem>>(
+    const res = await fetchClient<InboundItemsResponse>(
       `/inbounds/${id}/items`,
       { params: query },
     );

@@ -28,6 +28,7 @@ import {
   TableRow,
   TableHead,
   TableCell,
+  TableFooter,
 } from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
@@ -524,6 +525,44 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                       );
                     })}
                   </TableBody>
+                  {itemsMeta?.totals && (
+                    <TableFooter className="border-t-2 border-border/60 bg-muted/40">
+                      <TableRow className="hover:bg-transparent">
+                        <TableCell className="px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          Total keseluruhan
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 text-right font-semibold tabular-nums text-foreground">
+                          {itemsMeta.totals.expected_qty}
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 text-right font-semibold tabular-nums text-foreground">
+                          {itemsMeta.totals.received_qty}
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 text-right font-semibold tabular-nums text-foreground">
+                          {itemsMeta.totals.putaway_qty}
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 text-right tabular-nums">
+                          {(() => {
+                            const d =
+                              itemsMeta.totals.received_qty -
+                              itemsMeta.totals.expected_qty;
+                            return d !== 0 ? (
+                              <Badge
+                                variant="outline"
+                                className="border-destructive/30 text-2xs text-destructive"
+                              >
+                                {d > 0 ? "+" : ""}
+                                {d}
+                              </Badge>
+                            ) : (
+                              <span className="font-semibold text-foreground">0</span>
+                            );
+                          })()}
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5" />
+                        <TableCell className="px-3 py-2.5" />
+                      </TableRow>
+                    </TableFooter>
+                  )}
                 </Table>
                 {itemsMeta && (
                   <div className="mt-3 print:hidden">
