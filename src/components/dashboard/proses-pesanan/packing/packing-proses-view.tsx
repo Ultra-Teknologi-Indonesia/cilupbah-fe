@@ -139,9 +139,9 @@ function OrderPackCard({
           <span className="text-xs text-muted-foreground">No. Packing</span>
           <div className="font-mono text-xs font-semibold">{pl.packlistNo}</div>
         </div>
-        <div>
+        <div className="min-w-0 flex-1">
           <span className="text-xs text-muted-foreground">Customer</span>
-          <div className="font-medium">{pl.customerName ?? "—"}</div>
+          <div className="truncate font-medium">{pl.customerName ?? "—"}</div>
         </div>
         <div className="ml-auto flex items-center gap-3">
           {done ? (
@@ -546,8 +546,8 @@ export function PackingProsesView() {
           />
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_420px]">
-          <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
+          <div className="flex min-w-0 flex-col gap-4">
             {/* Checker + scan controls */}
             <div className="rounded-2xl border border-border bg-card p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
