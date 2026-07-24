@@ -29,13 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
 import {
   useCreateMultiSkuRule,
   useDeleteMultiSkuRule,
@@ -69,7 +63,7 @@ function RuleFormDialog({
   const { data: suggestions = [], isLoading: loadingSuggestions } =
     useMultiSkuPatternSuggestions(locationId, open);
 
-  const options = React.useMemo(
+  const available = React.useMemo(
     () =>
       suggestions.filter(
         (s) => s.pattern === rule?.pattern || !usedPatterns.includes(s.pattern),
@@ -77,7 +71,17 @@ function RuleFormDialog({
     [suggestions, usedPatterns, rule?.pattern],
   );
 
-  const selected = options.find((s) => s.pattern === pattern) ?? null;
+  const options: ComboboxOption[] = React.useMemo(
+    () =>
+      available.map((s) => ({
+        value: s.pattern,
+        label: s.pattern,
+        hint: `${s.matchedCount} rak`,
+      })),
+    [available],
+  );
+
+  const selected = available.find((s) => s.pattern === pattern) ?? null;
 
   React.useEffect(() => {
     if (!open) return;
@@ -114,25 +118,18 @@ function RuleFormDialog({
               Pola Kode Rak
               <span className="text-destructive"> *</span>
             </Label>
-            <Select value={pattern} onValueChange={setPattern}>
-              <SelectTrigger id="multi-sku-pattern" className="w-full">
-                <SelectValue
-                  placeholder={
-                    loadingSuggestions ? "Memuat…" : "Pilih kelompok rak"
-                  }
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {options.map((s) => (
-                  <SelectItem key={s.pattern} value={s.pattern}>
-                    <span className="font-mono">{s.pattern}</span>
-                    <span className="ml-2 text-muted-foreground">
-                      {s.matchedCount} rak
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Combobox
+              id="multi-sku-pattern"
+              options={options}
+              value={pattern || null}
+              onChange={(v) => setPattern(v ?? "")}
+              placeholder="Pilih kelompok rak"
+              searchPlaceholder="Cari pola, mis. GK atau O-LX"
+              emptyText={
+                loadingSuggestions ? "Memuat…" : "Tidak ada pola yang cocok."
+              }
+              loading={loadingSuggestions}
+            />
 
             {!loadingSuggestions && options.length === 0 && (
               <p className="flex items-start gap-1.5 text-xs text-warning">
