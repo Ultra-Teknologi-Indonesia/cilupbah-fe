@@ -21,23 +21,56 @@ export type PrintWithDriverCallResult = {
   label: LabelResult | null;
   label_preparing?: boolean;
   label_error?: string;
+  /** True bila driver marketplace menolak tapi label tetap dicetak via force_label. */
+  driver_call_forced?: boolean;
 };
+
+/**
+ * BE membalas 422 saat panggilan driver marketplace gagal (mis. Shopee
+ * "not eligible for rescheduling"), dengan `errors.driver_call_status = "failed"`
+ * dan pesan yang menyarankan `?force_label=1`. Deteksi kasus ini agar bisa
+ * fallback otomatis mencetak label tanpa driver.
+ */
+function isDriverCallFailure(err: unknown): boolean {
+  const body = err as {
+    message?: unknown;
+    errors?: Record<string, unknown> | null;
+  } | null;
+  if (body?.errors && typeof body.errors === "object") {
+    if (body.errors.driver_call_status === "failed") return true;
+  }
+  return typeof body?.message === "string" && body.message.includes("force_label");
+}
 
 export function usePrintWithDriverCall() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: {
+    mutationFn: async (data: {
       orderId: string;
       documentType?: string;
       documentSize?: string;
       forceLabel?: boolean;
-    }) =>
-      OutboundService.printWithDriverCall(data.orderId, {
-        document_type: data.documentType,
-        document_size: data.documentSize,
-        force_label: data.forceLabel,
-      }),
+    }): Promise<PrintWithDriverCallResult> => {
+      const call = (force?: boolean) =>
+        OutboundService.printWithDriverCall(data.orderId, {
+          document_type: data.documentType,
+          document_size: data.documentSize,
+          force_label: force ?? data.forceLabel,
+        });
+
+      try {
+        return await call();
+      } catch (err) {
+        // Driver ditolak marketplace (paket tak bisa dijadwal ulang, dsb):
+        // label tetap wajib dicetak. Fallback otomatis sekali dengan force_label.
+        if (!data.forceLabel && isDriverCallFailure(err)) {
+          const forced = await call(true);
+          return { ...forced, driver_call_forced: true };
+        }
+        throw err;
+      }
+    },
     onSuccess: (result, variables) => {
       if (result.label) {
         window.open(
@@ -47,21 +80,25 @@ export function usePrintWithDriverCall() {
         );
       } else if (result.label_preparing) {
         toast.warning(
-          "Driver terpanggil. Label masih disiapkan Shopee, coba unduh lagi dalam beberapa detik.",
+          "Driver terpanggil. Label masih disiapkan, coba unduh lagi dalam beberapa detik.",
         );
       } else if (result.label_error) {
         toast.warning(`Driver terpanggil. Label gagal diambil: ${result.label_error}`);
       }
 
       if (result.driver_call_status === "success") {
-        toast.success("Driver Shopee berhasil dipanggil.");
+        toast.success("Driver marketplace berhasil dipanggil.");
+      } else if (result.driver_call_forced || result.driver_call_status === "failed") {
+        toast.warning(
+          `Driver tidak bisa dipanggil${result.driver_call_message ? `: ${result.driver_call_message}` : ""}. Label tetap dicetak.`,
+        );
       }
 
       qc.invalidateQueries({ queryKey: ["fulfillment"] });
       qc.invalidateQueries({ queryKey: ["orders"] });
     },
     onError: (err) => {
-      apiError(err, "Panggilan driver Shopee gagal.");
+      apiError(err, "Panggilan driver marketplace gagal.");
     },
   });
 }

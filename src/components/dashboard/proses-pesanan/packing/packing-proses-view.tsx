@@ -245,12 +245,10 @@ function OrderPackCard({
 }
 
 export function PackingProsesView() {
-  const checkerInputRef = React.useRef<HTMLInputElement>(null);
   const orderScanRef = React.useRef<HTMLInputElement>(null);
 
   const [stage, setStage] = React.useState<"checker" | "packing">("checker");
   const [checkerId, setCheckerId] = React.useState<string | null>(null);
-  const [checkerQuery, setCheckerQuery] = React.useState("");
   const [orderScan, setOrderScan] = React.useState("");
   const [packlistIds, setPacklistIds] = React.useState<string[]>([]);
   const [scanFocusKey, setScanFocusKey] = React.useState(0);
@@ -338,7 +336,17 @@ export function PackingProsesView() {
       const full =
         pl.items.length > 0 &&
         pl.items.every((i) => i.qtyPacked >= i.qtyOrdered);
-      if (full && pl.status !== "COMPLETED" && !completedRef.current.has(pl.id)) {
+      // `full` bisa bersumber dari optimistic update usePackItem (onMutate),
+      // yang menulis qtyPacked SEBELUM POST /pack commit di server. Jika kita
+      // menembak /complete saat itu, server masih melihat qty_packed lama →
+      // "Masih ada N item belum selesai di-pack", lalu onError menghapus guard
+      // dan efek menembak ulang → storm. Tunggu sampai queue pack idle dulu.
+      if (
+        full &&
+        pl.status !== "COMPLETED" &&
+        !completedRef.current.has(pl.id) &&
+        !packItem.isPending
+      ) {
         completedRef.current.add(pl.id);
         completePacklist.mutate(pl.id, {
           onSuccess: () => {
@@ -346,27 +354,15 @@ export function PackingProsesView() {
             if (
               pl.orderId &&
               isShopeeInstantOrSameDay({
+                source: pl.source,
                 shippingProvider: pl.shippingProvider,
                 shippingType: pl.shippingType,
                 isInstant: pl.isInstant,
               })
             ) {
-              printWithDriverCall.mutate(
-                { orderId: pl.orderId },
-                {
-                  onSuccess: (res) => {
-                    if (res.driver_call_status === "success") {
-                      toast.success("Driver Shopee berhasil dipanggil.");
-                    } else if (res.driver_call_status === "failed") {
-                      toast.warning(
-                        `Panggilan driver Shopee gagal: ${res.driver_call_message ?? "Coba lagi nanti."}`,
-                      );
-                    }
-                  },
-                  onError: () =>
-                    toast.warning("Gagal memanggil driver Shopee otomatis."),
-                },
-              );
+              // Pesan sukses/gagal + fallback force_label + buka label ditangani
+              // di dalam usePrintWithDriverCall — jangan duplikasi toast di sini.
+              printWithDriverCall.mutate({ orderId: pl.orderId });
             }
             const remaining = packlistIdsRef.current.filter(
               (x) => x !== pl.id,
@@ -385,7 +381,7 @@ export function PackingProsesView() {
         });
       }
     });
-  }, [packlists, completePacklist, printWithDriverCall]);
+  }, [packlists, packItem.isPending, completePacklist, printWithDriverCall]);
 
   const pickerList = React.useMemo(() => pickers.data ?? [], [pickers.data]);
   const checkerName =
