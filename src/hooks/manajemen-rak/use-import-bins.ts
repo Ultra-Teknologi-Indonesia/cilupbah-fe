@@ -12,6 +12,14 @@ interface ImportBinsVars {
   file: File;
 }
 
+export function useDownloadBinImportTemplate() {
+  return useMutation({
+    mutationFn: (locationId: string) =>
+      LocationBinService.downloadImportTemplate(locationId),
+    onError: (err) => apiError(err, "Gagal mengunduh template"),
+  });
+}
+
 export function useImportBinsPreview() {
   return useMutation({
     mutationFn: ({ locationId, file }: ImportBinsVars) =>

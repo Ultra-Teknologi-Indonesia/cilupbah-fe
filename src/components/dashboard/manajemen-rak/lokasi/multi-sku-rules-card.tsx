@@ -53,8 +53,8 @@ function RuleFormDialog({
   rule: BinMultiSkuRule | null;
   usedPatterns: string[];
 }) {
-  const [pattern, setPattern] = React.useState("");
-  const [note, setNote] = React.useState("");
+  const [pattern, setPattern] = React.useState(rule?.pattern ?? "");
+  const [note, setNote] = React.useState(rule?.note ?? "");
 
   const createMut = useCreateMultiSkuRule(locationId);
   const updateMut = useUpdateMultiSkuRule(locationId);
@@ -82,12 +82,6 @@ function RuleFormDialog({
   );
 
   const selected = available.find((s) => s.pattern === pattern) ?? null;
-
-  React.useEffect(() => {
-    if (!open) return;
-    setPattern(rule?.pattern ?? "");
-    setNote(rule?.note ?? "");
-  }, [open, rule]);
 
   const handleSave = async () => {
     const trimmed = pattern.trim();
@@ -193,6 +187,7 @@ export function MultiSkuRulesCard({
   const [expanded, setExpanded] = React.useState(false);
   const [formOpen, setFormOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<BinMultiSkuRule | null>(null);
+  const [formKey, setFormKey] = React.useState(0);
   const [pendingDelete, setPendingDelete] =
     React.useState<BinMultiSkuRule | null>(null);
 
@@ -201,13 +196,17 @@ export function MultiSkuRulesCard({
 
   const totalMatched = rules.reduce((sum, r) => sum + r.matchedCount, 0);
 
+  // formKey me-remount dialog tiap kali dibuka, supaya isinya diseed dari `rule`
+  // lewat useState initializer — bukan lewat efek yang memanggil setState.
   const openCreate = () => {
     setEditing(null);
+    setFormKey((k) => k + 1);
     setFormOpen(true);
   };
 
   const openEdit = (rule: BinMultiSkuRule) => {
     setEditing(rule);
+    setFormKey((k) => k + 1);
     setFormOpen(true);
   };
 
@@ -329,6 +328,7 @@ export function MultiSkuRulesCard({
       )}
 
       <RuleFormDialog
+        key={formKey}
         open={formOpen}
         onOpenChange={setFormOpen}
         locationId={locationId}

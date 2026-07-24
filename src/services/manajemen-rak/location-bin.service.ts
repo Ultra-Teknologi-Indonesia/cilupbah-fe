@@ -1,4 +1,4 @@
-import { fetchClient } from "@/lib/api-client";
+import { fetchBlob, fetchClient } from "@/lib/api-client";
 import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type {
   BinListParams,
@@ -78,6 +78,13 @@ export interface BinPreviewResult {
 }
 
 export const LocationBinService = {
+  downloadImportTemplate: (locationId: string) =>
+    fetchBlob(
+      `/locations/${locationId}/bins/import/template`,
+      "template-import-kode-rak.xlsx",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ),
+
   generate: async (
     locationId: string,
     payload: GenerateBinsPayload,

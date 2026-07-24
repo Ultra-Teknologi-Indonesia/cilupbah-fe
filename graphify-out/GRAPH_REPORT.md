@@ -1,16 +1,16 @@
 # Graph Report - cilupbah-fe  (2026-07-24)
 
 ## Corpus Check
-- 888 files · ~1,753,245 words
+- 888 files · ~1,753,362 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 7505 nodes · 21948 edges · 384 communities (167 shown, 217 thin omitted)
+- 7505 nodes · 21952 edges · 368 communities (169 shown, 199 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 57 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f8c8c579`
+- Built from commit: `32180b36`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -361,13 +361,10 @@
 - [[_COMMUNITY_Community 345|Community 345]]
 - [[_COMMUNITY_Community 346|Community 346]]
 - [[_COMMUNITY_Community 347|Community 347]]
-- [[_COMMUNITY_Community 348|Community 348]]
 - [[_COMMUNITY_Community 349|Community 349]]
 - [[_COMMUNITY_Community 350|Community 350]]
-- [[_COMMUNITY_Community 351|Community 351]]
 - [[_COMMUNITY_Community 352|Community 352]]
 - [[_COMMUNITY_Community 353|Community 353]]
-- [[_COMMUNITY_Community 354|Community 354]]
 - [[_COMMUNITY_Community 355|Community 355]]
 - [[_COMMUNITY_Community 356|Community 356]]
 - [[_COMMUNITY_Community 357|Community 357]]
@@ -376,28 +373,15 @@
 - [[_COMMUNITY_Community 360|Community 360]]
 - [[_COMMUNITY_Community 361|Community 361]]
 - [[_COMMUNITY_Community 362|Community 362]]
-- [[_COMMUNITY_Community 363|Community 363]]
 - [[_COMMUNITY_Community 364|Community 364]]
 - [[_COMMUNITY_Community 365|Community 365]]
-- [[_COMMUNITY_Community 366|Community 366]]
-- [[_COMMUNITY_Community 367|Community 367]]
-- [[_COMMUNITY_Community 368|Community 368]]
-- [[_COMMUNITY_Community 369|Community 369]]
 - [[_COMMUNITY_Community 370|Community 370]]
 - [[_COMMUNITY_Community 372|Community 372]]
-- [[_COMMUNITY_Community 373|Community 373]]
-- [[_COMMUNITY_Community 374|Community 374]]
 - [[_COMMUNITY_Community 375|Community 375]]
-- [[_COMMUNITY_Community 376|Community 376]]
-- [[_COMMUNITY_Community 377|Community 377]]
-- [[_COMMUNITY_Community 378|Community 378]]
-- [[_COMMUNITY_Community 379|Community 379]]
 - [[_COMMUNITY_Community 380|Community 380]]
-- [[_COMMUNITY_Community 381|Community 381]]
-- [[_COMMUNITY_Community 382|Community 382]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `cn()` - 532 edges
+1. `cn()` - 531 edges
 2. `Button()` - 252 edges
 3. `warn()` - 154 edges
 4. `ConfigNamespace` - 141 edges
@@ -423,7 +407,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (384 total, 217 thin omitted)
+## Communities (368 total, 199 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.05
@@ -438,8 +422,8 @@ Cohesion: 0.06
 Nodes (35): dependencies, @aejkatappaja/phantom-ui, axios, class-variance-authority, clsx, cmdk, date-fns, framer-motion (+27 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.05
-Nodes (45): DrillableQty(), EMPTY_FILTERS, FilterState, MetricCells(), MetricSubHeaders(), PosisiStokView(), SERVER_SORT_MAP, SortDir (+37 more)
+Cohesion: 0.06
+Nodes (47): StockListResponse, DrillableQty(), EMPTY_FILTERS, FilterState, MetricCells(), MetricSubHeaders(), PosisiStokView(), SERVER_SORT_MAP (+39 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.12
@@ -450,36 +434,36 @@ Cohesion: 0.10
 Nodes (19): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+11 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.03
-Nodes (20): Annotation, AnnotationBorderStyle, CircleAnnotation, getPdfColorArray(), getQuadPoints(), getRgbColor(), getTilingPatternIR(), getTransformMatrix() (+12 more)
+Cohesion: 0.04
+Nodes (18): Annotation, AnnotationBorderStyle, CircleAnnotation, getPdfColorArray(), getQuadPoints(), getRgbColor(), isNumberArray(), LineAnnotation (+10 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.02
-Nodes (179): StockAllocationRow(), EMPTY_FILTERS, FilterState, SUB_TABS, SubTab, BuatPenempatanManualDialog(), deleteDescription(), EMPTY_FILTERS (+171 more)
+Cohesion: 0.03
+Nodes (147): EMPTY_FILTERS, FilterState, SUB_TABS, SubTab, EMPTY_FILTERS, FilterState, handleExportPutaway(), EMPTY_FILTERS (+139 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.07
 Nodes (34): useIsMobile(), DashboardNavigation(), SubRoute, Team, TeamSwitcher(), DropdownMenuShortcut(), Sidebar(), SIDEBAR_TRANSITION (+26 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.06
-Nodes (6): RefSet, RefSetCache, StructElementNode, validateCSSFont(), validateFontName(), XmlObject
+Cohesion: 0.03
+Nodes (28): addChildren(), CFFParser, computeIDs(), encodeToXmlString(), escapePDFName(), generateFont(), getFontSubstitution(), getIndexes() (+20 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.10
-Nodes (25): DownloadSatuanDialog(), StoreMultiSelect(), SUPPORTED, buildProgressColumns(), STATE_BAR, ProgressTab(), ChannelSearchItem, channelSearchRowId() (+17 more)
+Cohesion: 0.09
+Nodes (29): DownloadMassalDialog(), DownloadSatuanDialog(), StoreMultiSelect(), SUPPORTED, buildProgressColumns(), STATE_BAR, ProgressTab(), TransactionDetailSheet() (+21 more)
 
 ### Community 12 - "Community 12"
 Cohesion: 0.09
-Nodes (27): useSkuOptionsInfinite(), ProductVariantPopover(), SkuMultiComboboxLazy(), SkuMultiComboboxLazyProps, Command(), CommandDialog(), CommandEmpty(), CommandGroup() (+19 more)
+Nodes (26): useSkuOptionsInfinite(), SkuMultiComboboxLazy(), SkuMultiComboboxLazyProps, Command(), CommandDialog(), CommandEmpty(), CommandGroup(), CommandInput() (+18 more)
 
 ### Community 13 - "Community 13"
-Cohesion: 0.01
-Nodes (291): aa, AbortException, ac, Acrobat, Acrobat7, ADBE_JSConsole, AdjustData, adjustWidths() (+283 more)
+Cohesion: 0.00
+Nodes (293): aa, AbortException, ac, Acrobat, ADBE_JSConsole, ADBE_JSDebugger, AddViewerPreferences, adjustWidths() (+285 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.04
-Nodes (66): BinRow, BinSkuEntry, clientId(), DimensionRowProps, ImportBinsDialog(), LayoutGudangTab(), LayoutGudangTabProps, PER_PAGE_OPTIONS (+58 more)
+Cohesion: 0.05
+Nodes (53): BinRow, BinSkuAssignment, BinSkuEntry, clientId(), DimensionRowProps, ImportBinsDialog(), LayoutGudangTab(), LayoutGudangTabProps (+45 more)
 
 ### Community 15 - "Community 15"
 Cohesion: 0.29
@@ -490,8 +474,8 @@ Cohesion: 0.50
 Nodes (3): Deploy on Vercel, Getting Started, Learn More
 
 ### Community 17 - "Community 17"
-Cohesion: 0.05
-Nodes (99): CopyJsonButton(), CopyJsonButtonProps, Props, Props, UnassignReasonDialog(), requiresNote(), UNASSIGN_REASON_CODES, UNASSIGN_REASON_LABELS (+91 more)
+Cohesion: 0.04
+Nodes (105): BuatPenempatanManualDialogProps, Inbound, TerimaTransferDialogProps, BundleComponentValue, Props, Props, UNASSIGN_REASON_CODES, UNASSIGN_REASON_LABELS (+97 more)
 
 ### Community 19 - "Community 19"
 Cohesion: 0.20
@@ -499,51 +483,51 @@ Nodes (9): 0. Orientasi Kode (graphify), 1. Stack & Struktur, 2. Lapisan Data (S
 
 ### Community 21 - "Community 21"
 Cohesion: 0.04
-Nodes (63): BulkBuatPicklistConfirmDialogProps, CompletedShipmentOrderRow, Courier, DriverCallMethod, DriverCallStatus, FulfillmentOrder, FulfillmentOrderItem, OutboundMonitoring (+55 more)
+Nodes (61): CompletedShipmentOrderRow, Courier, DriverCallMethod, DriverCallStatus, FulfillmentOrderItem, OutboundMonitoring, Packlist, PacklistDetail (+53 more)
 
 ### Community 24 - "Community 24"
 Cohesion: 0.06
-Nodes (44): DataTablePagination(), DetailHeader(), GalleryItem, ProductTypeBadge(), TYPE_LABEL, TYPE_STYLE, StatusActions(), HasilTab() (+36 more)
+Nodes (44): DetailHeader(), GalleryItem, ProductTypeBadge(), TYPE_LABEL, TYPE_STYLE, StatusActions(), CHANNEL_COLORS, PRODUCT_STATUS_META (+36 more)
 
 ### Community 32 - "Community 32"
-Cohesion: 0.10
-Nodes (35): useLogout(), useRemoveAvatar(), useUploadAvatar(), useGlassSpecular(), getInitials(), AvatarUploader(), AvatarUploaderProps, DashboardSidebar() (+27 more)
+Cohesion: 0.11
+Nodes (30): useLogout(), useGlassSpecular(), DashboardSidebar(), Logo(), dashboardGroups, filterNavGroups(), filterSettingsRoutes(), findGroupIdForPath() (+22 more)
 
 ### Community 33 - "Community 33"
-Cohesion: 0.22
-Nodes (12): Putaway, PutawayItem, PutawayListParams, PutawayStatus, AssignStaffPayload, BinListItem, BinLookupResult, ProcessItemPayload (+4 more)
+Cohesion: 0.06
+Nodes (51): InlineQtyEdit(), deleteDescription(), PenempatanBarangTab(), PlacementEntry, PlacementRow(), PlacementRowProps, PutawayItemRowProps, PutawayProcessView() (+43 more)
 
 ### Community 34 - "Community 34"
-Cohesion: 0.03
-Nodes (42): Builder, buildHuffmanTable(), bytesToString(), Commands, compileCharString(), compileGlyf(), computeIDs(), decodeScan() (+34 more)
+Cohesion: 0.05
+Nodes (24): Builder, buildHuffmanTable(), Commands, compileCharString(), CompiledFont, compileGlyf(), decodeScan(), EvaluatorPreprocessor (+16 more)
 
 ### Community 35 - "Community 35"
-Cohesion: 0.04
-Nodes (67): JsonBlock(), JsonBlockProps, ProgressBar(), PutawayItemRow(), ReviewItemRow(), CreatableCombobox(), SortHeader(), fmtDate() (+59 more)
+Cohesion: 0.03
+Nodes (69): JsonBlock(), JsonBlockProps, ProgressBar(), PutawayItemRow(), ReviewItemRow(), CreatableCombobox(), SortHeader(), fmtDate() (+61 more)
 
 ### Community 36 - "Community 36"
 Cohesion: 0.04
-Nodes (33): GET(), CipherTransform, createBuiltInCMap(), decrypt(), expectInt(), expectString(), extendCMap(), find() (+25 more)
+Nodes (21): bytesToString(), CipherTransform, DecodeStream, decrypt(), find(), findBlock(), FlateStream, getFontFileType() (+13 more)
 
 ### Community 37 - "Community 37"
-Cohesion: 0.05
-Nodes (12): ChunkedStream, ChunkedStreamManager, CmykICCBasedCS, fetchSync(), getUint8ArrayMemory0(), IccColorSpace, NetworkPdfManager, passArray8ToWasm0() (+4 more)
+Cohesion: 0.07
+Nodes (6): ChunkedStream, ChunkedStreamManager, MessageHandler, NetworkPdfManager, PDFWorkerStream, wrapReason()
 
 ### Community 38 - "Community 38"
 Cohesion: 0.05
 Nodes (43): PackCorrectButton(), PacklistTable(), PickingProsesView(), PicklistItem, CreateShipmentPayload, all, board, useCancelShipment() (+35 more)
 
 ### Community 39 - "Community 39"
-Cohesion: 0.07
-Nodes (34): DeleteLocationDialogProps, BinSkuAssignment, createDefaults, LocationFormPage(), LocationFormPageProps, Section, toFormValues(), LocationListView() (+26 more)
+Cohesion: 0.06
+Nodes (43): InventoryTransferService, ReceiveTransferPayload, apiError(), ApiErrorBody, ApiSuccessBody, extractValidationSummary(), normalize(), DeleteLocationDialog() (+35 more)
 
 ### Community 41 - "Community 41"
-Cohesion: 0.08
-Nodes (34): BuatPenempatanManualDialogProps, Inbound, InboundReceiptsParams, KronologiPenerimaanItem(), PenerimaanDetailView(), TYPE_LABEL, InlineSourceQtyEditor(), TerimaTransferDialogProps (+26 more)
+Cohesion: 0.09
+Nodes (30): InboundAssignment, InboundEditLock, InboundItem, InboundListParams, InboundParticipant, InboundParticipantStatus, InboundReceipt, InboundStatus (+22 more)
 
 ### Community 42 - "Community 42"
-Cohesion: 0.04
-Nodes (23): AppearanceStreamEvaluator, Catalog, collectActions(), _collectJS(), createValidAbsoluteUrl(), DecodingContext, FeatureTest, fetchDest() (+15 more)
+Cohesion: 0.03
+Nodes (27): AppearanceStreamEvaluator, assert(), Catalog, collectActions(), _collectJS(), createValidAbsoluteUrl(), DecodingContext, FeatureTest (+19 more)
 
 ### Community 43 - "Community 43"
 Cohesion: 0.06
@@ -554,96 +538,96 @@ Cohesion: 0.17
 Nodes (11): Konvensi per halaman, M2 · Persediaan, M3 · Penjualan, M4 · Pembelian, M5 · Gudang, M6 · Laporan & Keuangan, 🎯 Milestone 1 — PRODUK (prioritas), Milestone berikutnya (+3 more)
 
 ### Community 46 - "Community 46"
-Cohesion: 0.11
-Nodes (24): MonitorAnalyticsTableProps, FailedSyncParams, KronologiParams, KronologiView, MonitorAnalyticsParams, MonitorAnalyticsRow, MonitorListParams, MonitorStockRow (+16 more)
+Cohesion: 0.10
+Nodes (25): MonitorAnalyticsTableProps, FailedSyncParams, KronologiParams, KronologiView, MonitorAnalyticsParams, MonitorAnalyticsRow, MonitorListParams, MonitorStockRow (+17 more)
 
 ### Community 47 - "Community 47"
-Cohesion: 0.13
-Nodes (20): OrderImportDialog(), OrderImportErrorSheet(), OrderImportView(), OrderImportBatch, OrderImportBatchError, OrderImportBatchParams, OrderImportBatchState, OrderImportService (+12 more)
+Cohesion: 0.09
+Nodes (29): MASTER_FILTER, OrderImportDialog(), OrderImportErrorSheet(), OrderImportView(), OrderImportBatch, OrderImportBatchError, OrderImportBatchParams, OrderImportBatchState (+21 more)
 
 ### Community 48 - "Community 48"
 Cohesion: 0.03
-Nodes (99): QueueRow(), DataTableColumnHeader(), DataTableColumnHeaderProps, formatCurrency(), formatDateTime(), formatPickingDuration(), DeleteLocationDialog(), LocationTable() (+91 more)
+Nodes (101): QueueRow(), DataTableColumnHeader(), DataTableColumnHeaderProps, formatCurrency(), formatDateTime(), Query, View, EMPTY_FILTERS (+93 more)
 
 ### Community 50 - "Community 50"
 Cohesion: 0.16
 Nodes (11): Props, InternalStore, InternalStoreFormData, InternalStoreListParams, InternalStoreService, useActiveInternalStores(), useCreateInternalStore(), useDeleteInternalStoreLogo() (+3 more)
 
 ### Community 51 - "Community 51"
-Cohesion: 0.12
-Nodes (26): AnalyticsKind, MonitorAnalyticsTable(), MonitorStockTable(), EMPTY_FILTERS, EMPTY_META, KRON_VIEW_VALUES, KRONOLOGI_VIEWS, MonitorFilters (+18 more)
+Cohesion: 0.10
+Nodes (20): AnalyticsKind, MonitorAnalyticsTable(), CATEGORY_STYLE, MonitorKronologiTable(), MonitorKronologiTableProps, PageMeta, QtyCell(), KronologiRow (+12 more)
 
 ### Community 52 - "Community 52"
 Cohesion: 0.12
-Nodes (24): NaikkanDetailParams, NaikkanHistoryParams, NaikkanListParams, NaikkanService, RaiseProductDetail, RaiseProductStore, RawDetail, RawStore (+16 more)
+Nodes (23): NaikkanDetailParams, NaikkanHistoryParams, NaikkanListParams, NaikkanService, RaiseProductDetail, RawDetail, RawStore, naikkanDetailKey() (+15 more)
 
 ### Community 53 - "Community 53"
-Cohesion: 0.10
-Nodes (20): CorrectItemButton(), PindahBinEditView(), BinTransferDetail, BinTransferDetailItem, BinTransferItemPayload, BinTransferListItem, BinTransferListParams, BinTransferPayload (+12 more)
+Cohesion: 0.07
+Nodes (33): openBinTransferPdf(), PenerimaanTransferView(), ReceiveLine, PindahBinEditView(), EMPTY_FILTERS, FilterState, PindahBinListTable(), PindahBinView() (+25 more)
 
 ### Community 54 - "Community 54"
 Cohesion: 0.06
 Nodes (54): AcceptReplenishmentPayload, AddReplenishmentItemPayload, ListResponse, StockReplenishmentService, StockReplenishment, StockReplenishmentListParams, UpdateReplenishmentItemPayload, KEYS (+46 more)
 
 ### Community 55 - "Community 55"
-Cohesion: 0.01
-Nodes (77): AppearanceFilter, Arc, Barcode, BatchOutput, Bind, Border, Break, BreakAfter (+69 more)
+Cohesion: 0.02
+Nodes (51): AppearanceFilter, BatchOutput, Bind, Calculate, Certificates, Compress, Connect, CurrencySymbol (+43 more)
 
 ### Community 56 - "Community 56"
-Cohesion: 0.09
-Nodes (34): TAB_KEYS, TabKey, BarangKeluarPage(), DetailTab, TabKomposisi(), TABS, useUrlTab(), Tab (+26 more)
+Cohesion: 0.06
+Nodes (44): BarangKeluarPage(), activeId(), Tab, TABS, DownloadView(), TABS, useUrlTab(), AktivitasImpexTabs() (+36 more)
 
 ### Community 57 - "Community 57"
-Cohesion: 0.07
-Nodes (39): ReturChannelTab(), CreateInvoiceDeductionPayload, CreateRefundPayload, ReturnSettlement, ReturnSettlementInvoice, ReturnSettlementRefund, ReturnSettlementStatus, ReturnSettlementService (+31 more)
+Cohesion: 0.11
+Nodes (24): CreateInvoiceDeductionPayload, CreateRefundPayload, ReturnSettlement, ReturnSettlementInvoice, ReturnSettlementRefund, ReturnSettlementStatus, ReturnSettlementService, money() (+16 more)
 
 ### Community 58 - "Community 58"
-Cohesion: 0.03
-Nodes (21): ButtonWidgetAnnotation, ChoiceWidgetAnnotation, Dict, ErrorFont, escapeString(), FakeUnicodeFont, FreeTextAnnotation, getModificationDate() (+13 more)
+Cohesion: 0.04
+Nodes (21): ButtonWidgetAnnotation, ChoiceWidgetAnnotation, Dict, ErrorFont, escapeString(), FakeUnicodeFont, FreeTextAnnotation, getInheritableProperty() (+13 more)
 
 ### Community 60 - "Community 60"
 Cohesion: 0.16
 Nodes (16): ChannelListing, ChannelListingParams, ChannelListingResult, channelListingRowId(), ChannelListingVariant, ChannelProductService, RawChannelListing, RawConnection (+8 more)
 
 ### Community 61 - "Community 61"
-Cohesion: 0.08
-Nodes (29): ImportDialog(), ImportErrorSheet(), ImportView(), ImportBatch, ImportBatchError, ImportBatchParams, ImportBatchState, ImportBatchType (+21 more)
+Cohesion: 0.11
+Nodes (21): ImportDialog(), ImportErrorSheet(), ImportView(), ImportBatch, ImportBatchError, ImportBatchParams, ImportBatchState, ImportBatchType (+13 more)
 
 ### Community 62 - "Community 62"
 Cohesion: 0.10
 Nodes (18): INITIAL_PARAMS, PesananDetailView(), PesananFormPage(), PesananListView(), PurchaseOrder, PurchaseOrderFormData, PurchaseOrderItem, PurchaseOrderItemFormData (+10 more)
 
 ### Community 63 - "Community 63"
-Cohesion: 0.09
-Nodes (21): DocumentFetchResult, DocumentTypeConfig, HARGA_LABEL, BARCODE_PAPER_OPTIONS, BarcodeHarga, BarcodeJenis, BarcodePaper, BarcodeReportParams (+13 more)
+Cohesion: 0.05
+Nodes (32): DocumentPreviewView(), DocumentPreviewViewProps, LoadState, PdfViewer, PreviewToolbar(), PreviewToolbarProps, ZOOM_STEPS, DOCUMENT_TYPES (+24 more)
 
 ### Community 64 - "Community 64"
-Cohesion: 0.11
-Nodes (5): CFF, CFFFont, PDFFunction, PDFFunctionFactory, toNumberArray()
+Cohesion: 0.08
+Nodes (4): getXfaFontDict(), getXfaFontName(), JpegStream, XFAFactory
 
 ### Community 65 - "Community 65"
-Cohesion: 0.11
-Nodes (19): PrintCapabilityOption, PrintLabelCapabilities, PRINT_LABEL_CAPABILITIES_KEY(), usePrintLabelCapabilities(), run(), runShippingLabel(), SUPPORTED_LABEL_CHANNELS, CHANNEL_LABEL (+11 more)
+Cohesion: 0.13
+Nodes (15): PrintCapabilityOption, PrintLabelCapabilities, PRINT_LABEL_CAPABILITIES_KEY(), usePrintLabelCapabilities(), defaultValue(), LabelPrintOptions(), CHANNEL_LABEL, DialogState (+7 more)
 
 ### Community 66 - "Community 66"
-Cohesion: 0.11
-Nodes (6): addHTML(), createLine(), ExclGroup, flushHTML(), getAvailableSpace(), Subform
+Cohesion: 0.04
+Nodes (13): addHTML(), Area, Border, createLine(), ExclGroup, flushHTML(), getAvailableSpace(), getRelevant() (+5 more)
 
 ### Community 67 - "Community 67"
 Cohesion: 0.11
 Nodes (14): CategoryCertification, DraftRow, RawCategoryRules, RawDraft, RawHistory, RawMatchRow, RawRequiredAttribute, RawRequiredAttributeOption (+6 more)
 
 ### Community 68 - "Community 68"
-Cohesion: 0.11
-Nodes (28): Channel, ChannelCode, ChannelGroup, ConnectedStore, IntegrationStatus, RawChannel, RawConnectedStore, StoreIntegration (+20 more)
+Cohesion: 0.13
+Nodes (22): Channel, ChannelGroup, ConnectedStore, CHANNEL_CATALOG, DISPLAY_NAME, groupCode(), GroupedStores, groupStores() (+14 more)
 
 ### Community 69 - "Community 69"
-Cohesion: 0.15
-Nodes (15): userKeys, LoginHistory, LoginHistoryParams, RawLoginHistory, RawRole, RawUser, RawUserLocation, Role (+7 more)
+Cohesion: 0.07
+Nodes (32): RoleService, roleKeys, useCreateRole(), useDeleteRole(), useRoleList(), useUpdateRole(), useBulkDeleteUsers(), useDeleteUser() (+24 more)
 
 ### Community 70 - "Community 70"
-Cohesion: 0.08
-Nodes (38): AuthService, CurrentUser, HistoryParams, AuthData, ChangePasswordPayload, ForgotPasswordPayload, LoginHistoryEntry, LoginRequest (+30 more)
+Cohesion: 0.07
+Nodes (42): AuthService, CurrentUser, HistoryParams, AuthData, ChangePasswordPayload, ForgotPasswordPayload, LoginHistoryEntry, LoginRequest (+34 more)
 
 ### Community 71 - "Community 71"
 Cohesion: 0.20
@@ -651,35 +635,35 @@ Nodes (9): A. BE — Transit & transfer (sesi sebelumnya, sudah merged ke workin
 
 ### Community 72 - "Community 72"
 Cohesion: 0.12
-Nodes (21): InventorySyncService, RawMatrixMeta, RawMatrixResponse, RawMatrixRow, RawStoreCell, RawStoreColumn, SyncBulkToggleInput, SyncMatrixMeta (+13 more)
+Nodes (22): ChannelCode, InventorySyncService, RawMatrixMeta, RawMatrixResponse, RawMatrixRow, RawStoreCell, RawStoreColumn, SyncBulkToggleInput (+14 more)
 
 ### Community 73 - "Community 73"
-Cohesion: 0.10
-Nodes (15): PelangganDetailView(), KontakDetailView(), FIELD_SECTION_MAP, FormErrors, KontakFormPage(), KontakFormPageProps, Section, toRegionOptions() (+7 more)
+Cohesion: 0.12
+Nodes (8): FIELD_SECTION_MAP, FormErrors, KontakFormPageProps, Section, toRegionOptions(), TYPE_OPTIONS, validateForm(), isValidPhone()
 
 ### Community 74 - "Community 74"
-Cohesion: 0.09
-Nodes (11): Binder, createDataNode(), createText(), DatasetReader, decodeString(), parseExpression(), parseXFAPath(), searchNode() (+3 more)
+Cohesion: 0.04
+Nodes (22): Binder, CFF, CFFFont, CmykICCBasedCS, createDataNode(), createText(), DatasetReader, decodeString() (+14 more)
 
 ### Community 75 - "Community 75"
-Cohesion: 0.05
-Nodes (9): CFFCompiler, CFFDict, CFFOffsetTracker, CFFParser, CFFStrings, CFFTopDict, ColorSpaceUtils, parseIndex() (+1 more)
+Cohesion: 0.07
+Nodes (8): CFFCompiler, CFFDict, CFFOffsetTracker, CFFPrivateDict, CFFStrings, CFFTopDict, FontFinder, stringToBytes()
 
 ### Community 77 - "Community 77"
-Cohesion: 0.23
-Nodes (14): asArray(), Col, docWrap(), esc(), field(), genericDoc(), invoiceDoc(), itemTable() (+6 more)
+Cohesion: 0.14
+Nodes (20): asArray(), Col, docWrap(), esc(), field(), genericDoc(), invoiceDoc(), itemTable() (+12 more)
 
 ### Community 78 - "Community 78"
-Cohesion: 0.07
-Nodes (30): ensurePrimary(), mediaItemsFromDetail(), ProductMediaManager(), SYNC_STYLE, detailToFormValues(), detailVariantLocks(), reconstructVariants(), s() (+22 more)
+Cohesion: 0.11
+Nodes (14): ensurePrimary(), mediaItemsFromDetail(), ProductMediaManager(), SYNC_STYLE, AccountRef, BundleComponent, DetailChannelMapping, DetailMedia (+6 more)
 
 ### Community 79 - "Community 79"
 Cohesion: 0.11
 Nodes (22): Props, ImportSettingDialog(), Props, ImportConfirmResult, ImportPreviewResult, ImportSettingType, InventorySettingProduct, RackManualMove (+14 more)
 
 ### Community 80 - "Community 80"
-Cohesion: 0.10
-Nodes (17): ProductPickerService, useProductPickerSearch(), WarehouseUser, LookupResponse, RawUser, WarehouseUserService, CategoryFormAttributes, FormAttribute (+9 more)
+Cohesion: 0.40
+Nodes (4): CategoryFormAttributes, FormAttribute, FormAttributeChannelStatus, FormAttributeOption
 
 ### Community 81 - "Community 81"
 Cohesion: 0.15
@@ -690,8 +674,8 @@ Cohesion: 0.11
 Nodes (23): ContactBuyerDialogProps, CourierPickupDialogProps, EditOrderItemDialogProps, Props, CancellationSub, OrderCardList(), OrderCardListProps, ContactChannel (+15 more)
 
 ### Community 83 - "Community 83"
-Cohesion: 0.23
-Nodes (12): DataTableProps, DataTableFacetedFilter(), DataTableFacetedFilterProps, DataTableToolbar(), DataTableToolbarProps, DataTableViewOptions(), DataTableViewOptionsProps, FacetedFilter (+4 more)
+Cohesion: 0.21
+Nodes (13): DataTableProps, DataTableFacetedFilter(), DataTableFacetedFilterProps, DataTablePagination(), DataTableToolbar(), DataTableToolbarProps, DataTableViewOptions(), DataTableViewOptionsProps (+5 more)
 
 ### Community 84 - "Community 84"
 Cohesion: 0.23
@@ -710,44 +694,44 @@ Cohesion: 0.29
 Nodes (7): scripts, build, dev, lint, start, strip-comments, strip-comments:dry
 
 ### Community 88 - "Community 88"
-Cohesion: 0.15
-Nodes (20): BulkUploadResult, DraftParams, DraftStatus, HistoryParams, HistoryRow, UploadListingParams, channelDraftsKey(), requiredAttributesKey() (+12 more)
+Cohesion: 0.16
+Nodes (19): BulkUploadResult, DraftParams, DraftStatus, HistoryParams, HistoryRow, UploadListingParams, channelDraftsKey(), requiredAttributesKey() (+11 more)
 
 ### Community 89 - "Community 89"
 Cohesion: 0.50
 Nodes (3): name, private, version
 
 ### Community 90 - "Community 90"
-Cohesion: 0.12
-Nodes (5): BaseShading, BaseStream, Pattern, RadialAxialShading, unreachable()
+Cohesion: 0.04
+Nodes (11): AESBaseCipher, AstNode, BasePdfManager, BaseShading, BaseStream, ColorSpace, IdentityCMap, Pattern (+3 more)
 
 ### Community 93 - "Community 93"
 Cohesion: 0.08
 Nodes (29): CUSTOMER_TYPE_LABEL, TabBukuHarga(), TabChannel(), TabRiwayat(), TabVariasi(), BulkVariantAction, ChannelListingItem, ChannelListingRow (+21 more)
 
 ### Community 94 - "Community 94"
-Cohesion: 0.14
-Nodes (14): PermissionService, usePermissionCatalog(), useCreateUser(), useRoles(), useUpdateUser(), useUserDetail(), baseSchema, createSchema (+6 more)
+Cohesion: 0.11
+Nodes (19): PermissionMatrix(), usePermissionCatalog(), useRoleDetail(), useSyncRolePermissions(), useCreateUser(), useRoles(), useUpdateUser(), baseSchema (+11 more)
 
 ### Community 95 - "Community 95"
-Cohesion: 0.06
-Nodes (47): createDetailHook(), createListHook(), createMutationHook(), createResourceKeys(), MutationConfig, ResourceKeys, ImportPenyesuaianDialog(), PenyesuaianDetail() (+39 more)
+Cohesion: 0.18
+Nodes (14): PenyesuaianDetail(), PenyesuaianTab(), BulkDeleteResult, StockAdjustmentService, StockAdjustment, StockAdjustmentFormData, StockAdjustmentItem, StockAdjustmentItemInput (+6 more)
 
 ### Community 96 - "Community 96"
-Cohesion: 0.09
-Nodes (30): BuatBundleForm(), BuatProdukForm(), EditProdukForm(), FormDetailSection(), FormSalesSection(), FormShippingSection(), FormVariantSection(), MediaUploader() (+22 more)
+Cohesion: 0.07
+Nodes (47): LoginForm(), loginSchema, LoginValues, useLogin(), BuatBundleForm(), BuatProdukForm(), EditProdukForm(), FormDetailSection() (+39 more)
 
 ### Community 97 - "Community 97"
-Cohesion: 0.25
-Nodes (3): ARCFourCipher, calculateMD5(), CipherTransformFactory
+Cohesion: 0.23
+Nodes (4): ARCFourCipher, calculateMD5(), CipherTransformFactory, utf8StringToString()
 
 ### Community 98 - "Community 98"
 Cohesion: 0.23
 Nodes (3): getB(), MeshShading, MeshStreamReader
 
 ### Community 99 - "Community 99"
-Cohesion: 0.04
-Nodes (11): assert(), DecodeStream, Jbig2Stream, JpegStream, JpxStream, PDFImage, PDFWorkerStream, PredictorStream (+3 more)
+Cohesion: 0.12
+Nodes (7): convertBlackAndWhiteToRGBA(), convertToRGBA(), getSizeInBytes(), ImageResizer, log2(), PDFImage, resizeImageMask()
 
 ### Community 101 - "Community 101"
 Cohesion: 0.20
@@ -762,80 +746,84 @@ Cohesion: 0.23
 Nodes (11): ContactImportService, ImportInvalidRow, ImportRowMapped, ImportRowRaw, ImportSaveResult, ImportValidateResult, ImportValidRow, ImportPemasokDialog() (+3 more)
 
 ### Community 104 - "Community 104"
-Cohesion: 0.07
-Nodes (9): B, Br, FontSelector, _i, layoutText(), P, stripQuotes(), TextMeasure (+1 more)
+Cohesion: 0.08
+Nodes (8): B, Br, FontSelector, _i, layoutText(), P, stripQuotes(), TextMeasure
 
 ### Community 105 - "Community 105"
-Cohesion: 0.14
-Nodes (17): PermissionMatrix(), RoleService, roleKeys, useCreateRole(), useDeleteRole(), useRoleDetail(), useRoleList(), useSyncRolePermissions() (+9 more)
+Cohesion: 0.11
+Nodes (26): ReturChannelTab(), formatCurrency(), isMpDecisionActionable(), SalesReturnDetailView(), SalesReturn, SalesReturnAppeal, SalesReturnFormData, SalesReturnItem (+18 more)
 
 ### Community 106 - "Community 106"
-Cohesion: 0.09
-Nodes (20): CategoryPicker(), ChannelAttributeSelect(), ChannelMappingCell(), EditKategoriDialog(), ImportSystemDialog(), KategoriListTab(), KategoriMappingTab(), KategoriService (+12 more)
+Cohesion: 0.10
+Nodes (19): CategoryPicker(), ChannelAttributeSelect(), ChannelMappingCell(), EditKategoriDialog(), ImportSystemDialog(), KategoriListTab(), KategoriMappingTab(), TambahKategoriDialog() (+11 more)
 
 ### Community 107 - "Community 107"
-Cohesion: 0.03
-Nodes (15): addChildren(), AnnotationFactory, clearGlobalCaches(), FontFinder, getNewAnnotationsMap(), getXfaFontDict(), getXfaFontName(), GlobalColorSpaceCache (+7 more)
+Cohesion: 0.05
+Nodes (7): AnnotationFactory, clearGlobalCaches(), GlobalColorSpaceCache, isArrayEqual(), Page, RefSetCache, WorkerMessageHandler
 
 ### Community 108 - "Community 108"
-Cohesion: 0.24
-Nodes (8): BundleBuilder(), SelectedCategory, ProductMasterView(), ProductStats(), useMasterProducts(), SORT_FIELD, useProductListQuery(), ProductPickerDialog()
+Cohesion: 0.08
+Nodes (23): BundleBuilder(), FlatCategory, HasilTab(), TYPE_OPTIONS, View, VIEW_DEFAULT_SIZE, CategoryNode, SelectedCategory (+15 more)
 
 ### Community 109 - "Community 109"
 Cohesion: 0.29
 Nodes (10): SalesmanTab(), SalesmanFormData, SalesmanItem, SalesmanListParams, SalesmanService, useCreateSalesman(), useDeleteSalesman(), useSalesmanDetail() (+2 more)
 
 ### Community 110 - "Community 110"
-Cohesion: 0.15
-Nodes (14): IntegrasiChannelPage(), KontakPemasokPage(), setServerFetcher(), getServerQueryClient(), serverFetch(), INITIAL_PARAMS, LokasiPage(), ProdukMasterPage() (+6 more)
+Cohesion: 0.12
+Nodes (13): IntegrasiChannelPage(), KontakPemasokPage(), setServerFetcher(), getServerQueryClient(), serverFetch(), LokasiPage(), ProdukMasterPage(), PantauanPage() (+5 more)
 
 ### Community 111 - "Community 111"
-Cohesion: 0.09
-Nodes (36): LoginForm(), loginSchema, LoginValues, LupaPasswordForm(), ResetPasswordForm(), useForgotPassword(), useLogin(), useResetPassword() (+28 more)
+Cohesion: 0.12
+Nodes (15): LupaPasswordForm(), LupaPasswordScreen(), useForgotPassword(), useVerifyResetOtp(), VerifikasiOtpForm(), VerifikasiOtpScreen(), verifyOtpSchema, VerifyOtpValues (+7 more)
 
 ### Community 112 - "Community 112"
-Cohesion: 0.15
-Nodes (14): AktivitasImpexTabs(), ExportTab(), ImpexActivityService, PageMeta, ImpexRefreshButton(), ImportTab(), ImpexActivity, ImpexActivityDetail (+6 more)
+Cohesion: 0.23
+Nodes (10): ImpexActivityService, PageMeta, ImpexRefreshButton(), ImpexActivity, ImpexActivityDetail, ImpexActivityListParams, ImpexDirection, ImpexStatus (+2 more)
 
 ### Community 113 - "Community 113"
 Cohesion: 0.19
 Nodes (12): applyStandardFontGlyphMap(), buildToFontChar(), er, getStandardFontName(), hr, isKnownFontName(), jr, normalizeFontName() (+4 more)
 
 ### Community 114 - "Community 114"
-Cohesion: 0.10
-Nodes (25): FlatCategory, EditMediaItem, buildCreatePayload(), num(), buildUpdatePayload(), num(), VariantMediaEntry, CategoryNode (+17 more)
+Cohesion: 0.11
+Nodes (24): EditMediaItem, buildCreatePayload(), num(), buildUpdatePayload(), num(), VariantMediaEntry, CreateMediaInput, CreateProductPayload (+16 more)
 
 ### Community 115 - "Community 115"
 Cohesion: 0.07
 Nodes (12): AstArgument, AstBinaryOperation, AstLiteral, AstMin, AstVariable, AstVariableDefinition, buildAddOperation(), buildMinOperation() (+4 more)
 
 ### Community 117 - "Community 117"
-Cohesion: 0.15
+Cohesion: 0.13
 Nodes (12): ContextCache, decodeBitmap(), decodeIAID(), decodeInteger(), decodeMMRBitmap(), decodeRefinement(), decodeTextRegion(), getCustomHuffmanTable() (+4 more)
 
 ### Community 118 - "Community 118"
 Cohesion: 0.14
 Nodes (17): formatNumber(), buildKpis(), computeDelta(), DAY_TERM_LABEL, Delta, EMPTY_SUMMARY, formatPct(), KpiCard() (+9 more)
 
+### Community 119 - "Community 119"
+Cohesion: 0.11
+Nodes (22): BuatPenempatanManualDialog(), useAcceptReplenishment(), useDebouncedValue(), useUsers(), AcceptReplenishmentDialog(), ChannelBadge(), OrderStatusBadge(), useRefreshShipmentTracking() (+14 more)
+
 ### Community 120 - "Community 120"
-Cohesion: 0.20
-Nodes (13): StockAllocationList(), ChannelService, StockAllocationListResult, StockAllocationParams, StoreFlags, RawStockAllocationStore, StockAllocationStore, StockSourceMode (+5 more)
+Cohesion: 0.14
+Nodes (18): StockAllocationList(), ChannelService, StockAllocationListResult, StockAllocationParams, StoreFlags, IntegrationStatus, RawChannel, RawConnectedStore (+10 more)
 
 ### Community 122 - "Community 122"
-Cohesion: 0.17
-Nodes (6): activeId(), PengaturanTabBar(), Tab, TABS, InventorySettingsView(), Tab
+Cohesion: 0.10
+Nodes (20): StockAllocationRow(), CONDITION_OPTIONS, LineDraft, SalesReturnFormPage(), useCreateSalesReturn(), FormSpecificationSection(), useUpdateStockAllocation(), HppReportView() (+12 more)
 
 ### Community 123 - "Community 123"
-Cohesion: 0.03
-Nodes (31): addCachedImageOps(), adjustMapping(), amendFallbackToUnicode(), convertCidString(), createCmapTable(), createNameTable(), createOS2Table(), createPostTable() (+23 more)
+Cohesion: 0.05
+Nodes (25): adjustMapping(), amendFallbackToUnicode(), convertCidString(), createCmapTable(), createNameTable(), createOS2Table(), createPostTable(), fetchBinaryData() (+17 more)
 
 ### Community 126 - "Community 126"
 Cohesion: 0.29
 Nodes (6): CreatePurchaseReturnPayload, PurchaseReturn, PurchaseReturnItem, PurchaseReturnItemCondition, PurchaseReturnListParams, PurchaseReturnStatus
 
 ### Community 127 - "Community 127"
-Cohesion: 0.10
-Nodes (13): DocumentPreviewView(), DocumentPreviewViewProps, LoadState, PdfViewer, defaultValue(), LabelPrintOptions(), PreviewToolbar(), PreviewToolbarProps (+5 more)
+Cohesion: 0.16
+Nodes (14): CadangDetail(), getRemainingDays(), CadangTab(), ReservedStock, ReservedStockFormData, ReservedStockItem, ReservedStockItemInput, ReservedStockListParams (+6 more)
 
 ### Community 128 - "Community 128"
 Cohesion: 0.23
@@ -847,19 +835,23 @@ Nodes (20): AutoLocate(), DEFAULT_CENTER, LocationMapCanvas(), LocationMapCanvas
 
 ### Community 130 - "Community 130"
 Cohesion: 0.04
-Nodes (45): applyAssist(), ariaLabel(), Caption, checkDimensions(), ChoiceList, computeBbox(), ContentArea, createWrapper() (+37 more)
+Nodes (43): applyAssist(), ariaLabel(), Caption, CheckButton, checkDimensions(), computeBbox(), ContentArea, Corner (+35 more)
 
 ### Community 131 - "Community 131"
-Cohesion: 0.10
-Nodes (17): DaftarPelangganService, SalesListParams, LaporanPenjualanService, SalesProductParams, LaporanProdukService, SkuOption, LaporanReturPenjualanService, useExportCustomerList() (+9 more)
+Cohesion: 0.13
+Nodes (13): DaftarPelangganService, SalesListParams, LaporanPenjualanService, LaporanReturPenjualanService, useExportCustomerList(), useExportSalesList(), useExportSalesReturn(), DaftarPelangganDialog() (+5 more)
 
 ### Community 132 - "Community 132"
 Cohesion: 0.29
 Nodes (6): RincianPendapatanMode, RincianPendapatanParams, RincianPendapatanService, useExportRincianPendapatan(), RincianPendapatanDialog(), startOfMonth()
 
-### Community 134 - "Community 134"
+### Community 133 - "Community 133"
 Cohesion: 0.19
-Nodes (12): InboundAssignment, InboundEditLock, InboundItem, InboundListParams, InboundParticipant, InboundParticipantStatus, InboundReceipt, InboundStatus (+4 more)
+Nodes (13): createDetailHook(), createListHook(), createResourceKeys(), MutationConfig, ResourceKeys, StockRevaluationService, StockRevaluation, StockRevaluationFormData (+5 more)
+
+### Community 134 - "Community 134"
+Cohesion: 0.18
+Nodes (14): MultiSkuRulesCard(), RuleFormDialog(), BinMultiSkuRuleService, BinMultiSkuPatternSuggestion, BinMultiSkuRule, BinMultiSkuRulePayload, RawBinMultiSkuRule, multiSkuRuleKeys (+6 more)
 
 ### Community 135 - "Community 135"
 Cohesion: 0.19
@@ -871,31 +863,35 @@ Nodes (6): BulkLabelBatch, BulkLabelBatchItem, BulkLabelBatchStatus, BulkLabelCr
 
 ### Community 137 - "Community 137"
 Cohesion: 0.04
-Nodes (12): DownloadView(), activeId(), ProdukTabBar(), Tab, TABS, CardGridSkeleton(), DetailSkeleton(), FormSkeleton() (+4 more)
+Nodes (11): BarangMasukTabBar(), activeId(), ProdukTabBar(), Tab, TABS, CardGridSkeleton(), DetailSkeleton(), FormSkeleton() (+3 more)
 
 ### Community 140 - "Community 140"
-Cohesion: 0.14
-Nodes (10): PelangganFormPage(), PelangganFormPageProps, Section, SOURCE_OPTIONS, toRegionOptions(), useContactCategories(), useCreateContact(), useAllSalesmen() (+2 more)
+Cohesion: 0.12
+Nodes (17): PelangganDetailView(), PelangganFormPage(), PelangganFormPageProps, Section, SOURCE_OPTIONS, toRegionOptions(), KontakDetailView(), KontakFormPage() (+9 more)
 
 ### Community 141 - "Community 141"
 Cohesion: 0.16
 Nodes (3): CompositeGlyph, GlyfTable, Glyph
 
 ### Community 142 - "Community 142"
-Cohesion: 0.21
-Nodes (9): ApiDocsTab(), fetchJson(), EndpointDetail(), MAP, MethodBadge(), ApiDocEndpoint, ApiDocIndex, ApiDocModule (+1 more)
+Cohesion: 0.11
+Nodes (18): fetchJson(), GET(), createBuiltInCMap(), expectInt(), expectString(), extendCMap(), isCmd(), parseBfChar() (+10 more)
 
 ### Community 143 - "Community 143"
-Cohesion: 0.05
-Nodes (58): useObjectUrl(), VariantImageCell(), DataTablePaginationProps, STATUS_LABEL, STATUS_STYLE, SyncStatusBadge(), TabPagination(), STATUS_OPTIONS (+50 more)
+Cohesion: 0.06
+Nodes (47): useObjectUrl(), VariantImageCell(), DataTablePaginationProps, STATUS_LABEL, STATUS_STYLE, SyncStatusBadge(), TabPagination(), STATUS_OPTIONS (+39 more)
 
 ### Community 147 - "Community 147"
 Cohesion: 0.16
 Nodes (16): OpnameDetail(), OpnameTab(), StockOpnameService, StockOpname, StockOpnameFormData, StockOpnameItem, StockOpnameListParams, stockOpnameKeys (+8 more)
 
+### Community 148 - "Community 148"
+Cohesion: 0.19
+Nodes (12): createMutationHook(), ImportPenyesuaianDialog(), ImportConfirmPayload, ImportPreviewError, ImportPreviewItem, ImportPreviewResponse, ImportPreviewSummary, ImportPreviewWarning (+4 more)
+
 ### Community 151 - "Community 151"
-Cohesion: 0.24
-Nodes (7): FAQ_CATEGORIES, FAQ_ITEMS, Markdown(), MarkdownProps, FaqCategory, FaqItem, FaqTab()
+Cohesion: 0.31
+Nodes (8): FAQ_CATEGORIES, FAQ_ITEMS, ApiDocIndex, ApiDocModule, FaqCategory, FaqItem, ManualEntry, FaqTab()
 
 ### Community 152 - "Community 152"
 Cohesion: 0.24
@@ -914,24 +910,28 @@ Cohesion: 0.15
 Nodes (9): CHANNEL_OPTIONS, CONTACT_STATUS_OPTIONS, CONTENT_OPTIONS, DECISION_OPTIONS, EMPTY, FilterState, LABEL_PRINTED_OPTIONS, PAYMENT_OPTIONS (+1 more)
 
 ### Community 157 - "Community 157"
-Cohesion: 0.24
-Nodes (3): getSizeInBytes(), ImageResizer, log2()
+Cohesion: 0.23
+Nodes (7): metadata, RootLayout(), sfPro, PhantomProvider(), QueryProvider(), LiquidGlassFilter(), Toaster()
+
+### Community 158 - "Community 158"
+Cohesion: 0.35
+Nodes (9): detailToFormValues(), detailVariantLocks(), reconstructVariants(), s(), buildCombos(), comboKey(), comboLabel(), skuPart() (+1 more)
 
 ### Community 159 - "Community 159"
-Cohesion: 0.08
-Nodes (25): clearLoginSession(), setLoginSession(), metadata, RootLayout(), sfPro, forceLogout(), IdleLockDialog(), IdleLockPrompt() (+17 more)
+Cohesion: 0.12
+Nodes (18): clearLoginSession(), setLoginSession(), forceLogout(), IdleLockDialog(), IdleLockPrompt(), PUBLIC_PREFIXES, baseOptions(), clearSessionCookies() (+10 more)
 
 ### Community 160 - "Community 160"
-Cohesion: 0.11
-Nodes (22): Can(), CanProps, PermissionChecks, usePermissions(), InformasiTab(), regionKeys, useCities(), useDistricts() (+14 more)
+Cohesion: 0.25
+Nodes (8): InformasiTab(), regionKeys, useCities(), useDistricts(), useProvinces(), useVillages(), useWarehouseUsers(), PesananManualFormPage()
 
 ### Community 161 - "Community 161"
-Cohesion: 0.24
-Nodes (8): useFetchConnectedStores(), ChannelCategoryNode, FlatChannelCategory, PetakanKategoriDialog(), PetakanKategoriDialogProps, useChannelCategories(), useMapCategoryToChannel(), useSyncChannelCategories()
+Cohesion: 0.14
+Nodes (16): useFetchConnectedStores(), CategoryAttributeItem, CategoryFormAttributes, ChannelAttributeItem, ChannelCategoryNode, ChannelInfo, FlatKategori, KategoriItem (+8 more)
 
 ### Community 162 - "Community 162"
-Cohesion: 0.05
-Nodes (48): Me, SalesReturn, SalesReturnAppeal, SalesReturnFormData, SalesReturnItem, SalesReturnItemInput, SalesReturnListParams, SalesReturnMarketplaceDecision (+40 more)
+Cohesion: 0.04
+Nodes (54): Me, SalesProductParams, LaporanProdukService, SkuOption, NegativeStockParams, NegativeStockRow, NegativeStockService, ProductPickerService (+46 more)
 
 ### Community 163 - "Community 163"
 Cohesion: 0.15
@@ -939,19 +939,19 @@ Nodes (18): BulkActionBar(), ExportCancelDialog(), ExportOrdersDialog(), OrderFi
 
 ### Community 164 - "Community 164"
 Cohesion: 0.06
-Nodes (35): AuthShell(), AuthShellProps, LoginScreen(), LupaPasswordScreen(), ResetPasswordScreen(), updateProfileSchema, UpdateProfileValues, useUpdateProfile() (+27 more)
+Nodes (37): AuthShell(), AuthShellProps, Can(), CanProps, LoginScreen(), updateProfileSchema, UpdateProfileValues, PermissionChecks (+29 more)
 
 ### Community 165 - "Community 165"
-Cohesion: 0.23
-Nodes (10): MatchRow, RulesSummary, UploadDestination, uploadListingKey(), useMatchListing(), useUploadListing(), useUploadToStores(), useUploadWithAttributes() (+2 more)
+Cohesion: 0.21
+Nodes (11): MatchRow, RulesSummary, UploadDestination, uploadListingKey(), useMatchListing(), useUploadListing(), useUploadToStores(), useUploadWithAttributes() (+3 more)
 
 ### Community 166 - "Community 166"
 Cohesion: 0.03
-Nodes (85): LineBin, LineDraft, TransferKeluarFormPageProps, BULAN, HARI, DEFAULT_METHODS, TerimaTransferDialog(), useReceiveTransfer() (+77 more)
+Nodes (86): EndpointDetail(), MAP, MethodBadge(), CopyJsonButton(), CopyJsonButtonProps, ApiDocEndpoint, LineBin, LineDraft (+78 more)
 
 ### Community 167 - "Community 167"
-Cohesion: 0.14
-Nodes (13): ArchiveView(), ArchivedProduct, RawArchivedItem, ArchiveParams, ArchiveResult, ProductArchiveService, MasterProductsParams, MasterProductsResult (+5 more)
+Cohesion: 0.20
+Nodes (11): ArchiveView(), ArchivedProduct, RawArchivedItem, ArchiveParams, ArchiveResult, ProductArchiveService, MasterProductsResult, RawMasterItem (+3 more)
 
 ### Community 168 - "Community 168"
 Cohesion: 0.24
@@ -962,32 +962,32 @@ Cohesion: 0.27
 Nodes (9): CONTENT_DIR, __dirname, ENTRIES_FILE, injectImage(), loadContentFiles(), main(), MANIFEST_FILE, ROOT (+1 more)
 
 ### Community 172 - "Community 172"
-Cohesion: 0.18
-Nodes (11): MonitorTab, MonitorSyncFailedTable(), ANALYTICS_TABS, EMPTY_ANALYTICS, EMPTY_KRONOLOGI, EMPTY_META, EMPTY_STOCK, _EMPTY_SYNC (+3 more)
+Cohesion: 0.16
+Nodes (22): MonitorStokView(), MonitorSyncFailedTable(), ANALYTICS_TABS, EMPTY_ANALYTICS, EMPTY_KRONOLOGI, EMPTY_META, EMPTY_STOCK, _EMPTY_SYNC (+14 more)
 
 ### Community 179 - "Community 179"
 Cohesion: 0.40
 Nodes (3): Jbig2Image, processSegments(), readSegments()
 
 ### Community 180 - "Community 180"
-Cohesion: 0.25
-Nodes (4): activeId(), BarangMasukTabBar(), Tab, TABS
+Cohesion: 0.32
+Nodes (5): DeliveryMethod, ManualOrderItemPayload, ManualOrderPayload, ManualOrderService, useCreateManualOrder()
 
 ### Community 181 - "Community 181"
-Cohesion: 0.03
-Nodes (95): useMe(), InlineQtyEdit(), PlacementEntry, PlacementRow(), PlacementRowProps, PutawayItemRowProps, PutawayProcessView(), PutawayProcessViewProps (+87 more)
+Cohesion: 0.05
+Nodes (48): useMe(), formatPickingDuration(), getCtx(), playScanFeedback(), primeScanAudio(), scanFeedbackFromErrorCode(), ScanFeedbackKind, SFX_CANCEL_REQUESTED (+40 more)
 
 ### Community 183 - "Community 183"
 Cohesion: 0.27
 Nodes (9): calculate_sha256_ch(), calculate_sha256_littleSigma(), calculate_sha256_littleSigmaPrime(), calculate_sha256_maj(), calculate_sha256_sigma(), calculate_sha256_sigmaPrime(), calculateSHA256(), PDF17 (+1 more)
 
 ### Community 187 - "Community 187"
-Cohesion: 0.52
-Nodes (3): NegativeStockParams, NegativeStockRow, NegativeStockService
+Cohesion: 0.33
+Nodes (4): ResetPasswordForm(), ResetPasswordScreen(), useResetPassword(), metadata
 
 ### Community 201 - "Community 201"
-Cohesion: 0.25
-Nodes (10): useConnectedStores(), DownloadMassalDialog(), useStartDownload(), naikkanListKey(), useCreateNaikkan(), useDeleteNaikkan(), useNaikkanList(), buildStoreColumns() (+2 more)
+Cohesion: 0.29
+Nodes (9): useConnectedStores(), RaiseProductStore, naikkanListKey(), useCreateNaikkan(), useDeleteNaikkan(), useNaikkanList(), buildStoreColumns(), NaikkanStoreView() (+1 more)
 
 ### Community 221 - "Community 221"
 Cohesion: 0.19
@@ -1009,57 +1009,49 @@ Nodes (40): OrderPerformanceDialog(), startOfMonth(), PicklistReportDialog(), st
 Cohesion: 0.29
 Nodes (4): _a, Button, fixURL(), recoverJsURL()
 
-### Community 232 - "Community 232"
-Cohesion: 0.25
-Nodes (6): useBulkDeleteUsers(), useDeleteUser(), useLoginHistory(), formatDate(), UserDetailPage(), UserListView()
+### Community 230 - "Community 230"
+Cohesion: 0.03
+Nodes (30): Arc, Barcode, Break, BreakAfter, BreakBefore, ChoiceList, Comb, config_Area (+22 more)
 
 ### Community 234 - "Community 234"
-Cohesion: 0.09
-Nodes (25): AddTransferItemPayload, BulkTransferDeleteResult, CreateTransferDraftPayload, OutboundTransferService, TransferKeluarTab(), TransferOutDetailView(), useApproveTransfer(), useBulkDeleteTransfer() (+17 more)
+Cohesion: 0.10
+Nodes (23): AddTransferItemPayload, BulkTransferDeleteResult, CreateTransferDraftPayload, OutboundTransferService, TransferKeluarTab(), TransferOutDetailView(), useApproveTransfer(), useBulkDeleteTransfer() (+15 more)
 
 ### Community 235 - "Community 235"
-Cohesion: 0.40
-Nodes (3): BantuanTabs(), isTab(), metadata
+Cohesion: 0.24
+Nodes (7): ApiDocsTab(), BantuanTabs(), isTab(), TAB_KEYS, TabKey, metadata, ManualTab()
 
 ### Community 236 - "Community 236"
 Cohesion: 0.29
 Nodes (3): RichTextEditor(), RichTextEditorProps, turndown
-
-### Community 237 - "Community 237"
-Cohesion: 0.29
-Nodes (7): RegionOption, CountryOption, mapRegion(), RawCountry, RawRegion, RegionService, toNumber()
 
 ### Community 239 - "Community 239"
 Cohesion: 0.33
 Nodes (5): PermissionMatrixProps, PermissionActionCell, PermissionExtra, PermissionGroup, PermissionResource
 
 ### Community 241 - "Community 241"
-Cohesion: 0.12
-Nodes (18): PicklistTable(), defaultSubFor(), FulfillmentStage, STAGE_CONFIG, stageConfig(), ProsesPesananPage(), FulfillmentBoard(), ProsesPesananView() (+10 more)
+Cohesion: 0.18
+Nodes (17): PicklistTable(), defaultSubFor(), FulfillmentStage, STAGE_CONFIG, stageConfig(), FulfillmentBoard(), ProsesPesananView(), activeStage() (+9 more)
 
 ### Community 243 - "Community 243"
 Cohesion: 0.29
 Nodes (3): AtributVariasiView(), useCategoryFormAttributes(), useDeleteCategoryAttribute()
 
-### Community 244 - "Community 244"
-Cohesion: 0.33
-Nodes (6): CATEGORY_STYLE, MonitorKronologiTable(), MonitorKronologiTableProps, PageMeta, QtyCell(), KronologiRow
-
 ### Community 246 - "Community 246"
 Cohesion: 0.33
 Nodes (4): OrderDetailView(), useDeleteOrderItem, useSetPaid, useOrder
+
+### Community 251 - "Community 251"
+Cohesion: 0.05
+Nodes (12): addCachedImageOps(), BaseLocalCache, ColorSpaceUtils, getNewAnnotationsMap(), getTilingPatternIR(), getTransformMatrix(), lookupMatrix(), lookupRect() (+4 more)
 
 ### Community 253 - "Community 253"
 Cohesion: 0.13
 Nodes (17): OrderActivity, OrderActivityEntity, OrderActivityMeta, OrderActivityResponse, OrderActivityService, formatRiwayatValue(), labelForAction(), labelForField() (+9 more)
 
 ### Community 255 - "Community 255"
-Cohesion: 0.15
-Nodes (9): EditProdukLoader(), ProductDetailSkeleton(), ProductDetailView(), LifecycleAction, ACTION_LABEL, productDetailKey(), useProductDetail(), useProductLifecycle() (+1 more)
-
-### Community 256 - "Community 256"
-Cohesion: 0.20
-Nodes (3): DynamicRender, FormatError, NameAttr
+Cohesion: 0.13
+Nodes (10): EditProdukLoader(), ShippingCard(), yn(), ProductDetailSkeleton(), DetailTab, ProductDetailView(), TabKomposisi(), useProductDetail() (+2 more)
 
 ### Community 261 - "Community 261"
 Cohesion: 0.50
@@ -1080,17 +1072,17 @@ Nodes (3): failed, generated_at, shots
 ## Knowledge Gaps
 - **1086 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+1081 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **217 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **199 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `fetchJson()` connect `Community 142` to `Community 36`?**
-  _High betweenness centrality (0.207) - this node is a cross-community bridge._
-- **Why does `cn()` connect `Community 35` to `Community 0`, `Community 129`, `Community 128`, `Community 259`, `Community 3`, `Community 135`, `Community 8`, `Community 9`, `Community 11`, `Community 140`, `Community 12`, `Community 142`, `Community 143`, `Community 14`, `Community 17`, `Community 267`, `Community 147`, `Community 151`, `Community 24`, `Community 153`, `Community 156`, `Community 159`, `Community 32`, `Community 161`, `Community 160`, `Community 163`, `Community 164`, `Community 165`, `Community 166`, `Community 39`, `Community 38`, `Community 41`, `Community 48`, `Community 50`, `Community 51`, `Community 181`, `Community 54`, `Community 56`, `Community 57`, `Community 61`, `Community 62`, `Community 63`, `Community 68`, `Community 73`, `Community 78`, `Community 79`, `Community 83`, `Community 84`, `Community 93`, `Community 95`, `Community 96`, `Community 103`, `Community 234`, `Community 106`, `Community 108`, `Community 236`, `Community 111`, `Community 241`, `Community 243`, `Community 244`, `Community 118`, `Community 246`, `Community 127`?**
+- **Why does `fetchJson()` connect `Community 142` to `Community 166`?**
+  _High betweenness centrality (0.211) - this node is a cross-community bridge._
+- **Why does `cn()` connect `Community 35` to `Community 0`, `Community 129`, `Community 128`, `Community 259`, `Community 3`, `Community 134`, `Community 135`, `Community 8`, `Community 9`, `Community 11`, `Community 140`, `Community 12`, `Community 14`, `Community 143`, `Community 267`, `Community 17`, `Community 147`, `Community 148`, `Community 151`, `Community 24`, `Community 153`, `Community 156`, `Community 157`, `Community 32`, `Community 33`, `Community 161`, `Community 163`, `Community 164`, `Community 165`, `Community 166`, `Community 39`, `Community 38`, `Community 41`, `Community 172`, `Community 47`, `Community 48`, `Community 50`, `Community 51`, `Community 181`, `Community 54`, `Community 53`, `Community 56`, `Community 187`, `Community 61`, `Community 62`, `Community 63`, `Community 68`, `Community 73`, `Community 78`, `Community 79`, `Community 83`, `Community 84`, `Community 119`, `Community 93`, `Community 95`, `Community 96`, `Community 226`, `Community 103`, `Community 105`, `Community 234`, `Community 235`, `Community 106`, `Community 108`, `Community 236`, `Community 111`, `Community 241`, `Community 114`, `Community 243`, `Community 118`, `Community 246`, `Community 122`, `Community 127`?**
   _High betweenness centrality (0.151) - this node is a cross-community bridge._
-- **Why does `s()` connect `Community 78` to `Community 74`, `Community 123`, `Community 55`?**
-  _High betweenness centrality (0.136) - this node is a cross-community bridge._
+- **Why does `s()` connect `Community 158` to `Community 130`, `Community 123`, `Community 74`?**
+  _High betweenness centrality (0.133) - this node is a cross-community bridge._
 - **Are the 3 inferred relationships involving `cn()` (e.g. with `PenerimaanDetailPage()` and `PutawayProcessPage()`) actually correct?**
   _`cn()` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `$schema`, `style`, `rsc` to the rest of the system?**

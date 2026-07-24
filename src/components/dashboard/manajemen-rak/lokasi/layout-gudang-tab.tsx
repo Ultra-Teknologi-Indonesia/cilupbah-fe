@@ -12,6 +12,7 @@ import {
   CopyIcon,
   SparklesIcon,
   UploadIcon,
+  DownloadIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -67,6 +68,7 @@ import {
 } from "@/hooks/manajemen-rak/use-location-bins";
 import { usePendingPutawaySkus } from "@/hooks/manajemen-rak/use-pending-putaway-skus";
 import {
+  useDownloadBinImportTemplate,
   useImportBins,
   useImportBinsPreview,
 } from "@/hooks/manajemen-rak/use-import-bins";
@@ -244,6 +246,7 @@ function ImportBinsDialog({
   } | null>(null);
   const previewMut = useImportBinsPreview();
   const importMut = useImportBins();
+  const templateMut = useDownloadBinImportTemplate();
 
   const reset = () => {
     setFile(null);
@@ -292,6 +295,28 @@ function ImportBinsDialog({
         </DialogHeader>
 
         <div className="flex flex-col gap-4 py-2">
+          <div className="flex items-start justify-between gap-3 rounded-xl border border-border bg-muted/40 p-3">
+            <p className="text-xs text-muted-foreground">
+              Belum punya filenya? Unduh template — sudah berisi judul kolom yang
+              benar dan contoh kode rak dari lokasi ini.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="shrink-0 gap-1.5"
+              onClick={() => templateMut.mutate(locationId)}
+              disabled={templateMut.isPending}
+            >
+              {templateMut.isPending ? (
+                <Loader2Icon className="size-4 animate-spin" />
+              ) : (
+                <DownloadIcon className="size-4" />
+              )}
+              Template
+            </Button>
+          </div>
+
           <div className="space-y-2">
             <Label>File (.xlsx / .csv)</Label>
             <Input
