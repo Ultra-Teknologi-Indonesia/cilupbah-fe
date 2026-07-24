@@ -114,11 +114,12 @@ export const InventoryStockService = {
   bySku: (
     sku: string,
     locationId?: string,
-    opts?: { requireStock?: boolean },
+    opts?: { requireStock?: boolean; strategy?: "default" | "fifo" },
   ) => {
     const params = new URLSearchParams();
     if (locationId) params.set("location_id", locationId);
     if (opts?.requireStock) params.set("require_stock", "1");
+    if (opts?.strategy === "fifo") params.set("strategy", "fifo");
     const qs = params.toString() ? `?${params.toString()}` : "";
     return fetchClient<
       ApiResponse<{

@@ -99,7 +99,7 @@ function zzfx(
   p *= masterVol;
 
   for (len = (e + m + r + t + c) | 0; i < len; buf[i++] = s * p) {
-    if (!(++crush % ((F * 100) | 0) || !F)) {
+    if (!(++crush % ((F * 100) | 0))) {
       s = q
         ? q > 1
           ? q > 2

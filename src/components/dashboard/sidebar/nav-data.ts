@@ -360,6 +360,41 @@ export function findGroupIdForPath(
   return bestId;
 }
 
+/**
+ * Link menu paling spesifik (prefix terpanjang) yang cocok dengan pathname.
+ * Dipakai untuk menentukan SATU item aktif di sidebar, supaya link generik
+ * seperti `/dashboard` tidak ikut aktif di setiap sub-halaman.
+ */
+export function findActiveNavLink(pathname: string): string | null {
+  let best: string | null = null;
+  let bestLen = -1;
+
+  const consider = (link: string) => {
+    const len = linkMatchLen(pathname, link);
+    if (len > bestLen) {
+      bestLen = len;
+      best = link;
+    }
+  };
+
+  for (const group of dashboardGroups) {
+    for (const item of group.items) {
+      consider(item.link);
+      item.match?.forEach(consider);
+      item.subs?.forEach((s) => {
+        consider(s.link);
+        s.subs?.forEach((n) => consider(n.link));
+      });
+    }
+  }
+  for (const route of settingsRoutes) {
+    consider(route.link);
+    route.subs?.forEach((s) => consider(s.link));
+  }
+
+  return best;
+}
+
 export function isLeafGroup(group: NavGroup): boolean {
   return group.items.length === 1 && !group.items[0].subs?.length;
 }

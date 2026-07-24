@@ -159,7 +159,9 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
         await Promise.allSettled(
           uniqueSkus.map(async (sku) => {
             try {
-              const r = await InventoryStockService.bySku(sku, srcLoc);
+              const r = await InventoryStockService.bySku(sku, srcLoc, {
+                strategy: "fifo",
+              });
               stockBySku.set(sku, {
                 available_bins: r.data.available_bins ?? [],
               });
@@ -188,6 +190,7 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
             });
           }
           const curBin = bins.find((b) => b.id === it.source_bin?.id);
+          const fifoFallback = it.source_bin?.id ? undefined : bins[0];
           const variantOptions = (it.product?.options ?? [])
             .map((o) => o.value)
             .filter(Boolean)
@@ -203,8 +206,8 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
               it.product?.media?.[0]?.url ??
               it.product?.product?.media?.[0]?.url ??
               null,
-            binId: it.source_bin?.id ?? "",
-            binOnHand: curBin?.onHand ?? it.qty,
+            binId: it.source_bin?.id ?? fifoFallback?.id ?? "",
+            binOnHand: curBin?.onHand ?? fifoFallback?.onHand ?? it.qty,
             qty: String(it.qty),
             notes: "",
             availableBins: bins,
@@ -273,10 +276,7 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
       code: b.code,
       onHand: b.on_hand,
     }));
-    const primary = stock.primary_bin
-      ? bins.find((b) => b.id === stock.primary_bin!.id)
-      : undefined;
-    const chosen = primary ?? bins[0];
+    const chosen = bins[0];
     return {
       rowId: newRowId(),
       serverItemId: undefined,
@@ -301,7 +301,9 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
 
     setScanning(true);
     try {
-      const res = await InventoryStockService.bySku(q, sourceLocationId);
+      const res = await InventoryStockService.bySku(q, sourceLocationId, {
+        strategy: "fifo",
+      });
       const stock = res.data;
 
       const existing = lines.find((l) => l.itemId === stock.id);
@@ -347,7 +349,11 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
     if (fresh.length === 0) return;
 
     const results = await Promise.allSettled(
-      fresh.map((p) => InventoryStockService.bySku(p.sku, sourceLocationId)),
+      fresh.map((p) =>
+        InventoryStockService.bySku(p.sku, sourceLocationId, {
+          strategy: "fifo",
+        }),
+      ),
     );
 
     const newLines: LineDraft[] = [];
@@ -744,9 +750,9 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                   const qtyOverStock = qtyNum > l.binOnHand;
                   const qtyInvalid =
                     !l.binId || qtyNum < 1 || dupBin || qtyOverStock;
-                  const binOptsForLine = l.availableBins.map((b) => ({
+                  const binOptsForLine = l.availableBins.map((b, i) => ({
                     value: b.id,
-                    label: b.code,
+                    label: i === 0 ? `${b.code} · stok terlama` : b.code,
                   }));
                   return (
                     <TableRow key={l.rowId} className="bg-background/50">
