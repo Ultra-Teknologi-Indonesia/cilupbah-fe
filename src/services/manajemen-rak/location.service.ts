@@ -20,6 +20,7 @@ function mapBin(raw: RawLocationBin): LocationBin {
     isInbound: raw.is_inbound,
     isStockAcknowledged: raw.is_stock_acknowledged ?? true,
     isLargeBin: raw.is_large_bin ?? false,
+    allowsMultiSku: raw.allows_multi_sku ?? false,
     skus: (raw.skus ?? []).map((s) => ({
       variantId: s.variant_id,
       sku: s.sku,

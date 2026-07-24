@@ -71,6 +71,10 @@ import {
   useImportBinsPreview,
 } from "@/hooks/manajemen-rak/use-import-bins";
 import { useZones } from "@/hooks/manajemen-rak/use-zones";
+import {
+  MultiSkuBadge,
+  MultiSkuRulesCard,
+} from "@/components/dashboard/manajemen-rak/lokasi/multi-sku-rules-card";
 import { useListState } from "@/hooks/use-list-state";
 import type {
   BinDraft,
@@ -662,6 +666,7 @@ type BinRow = BinPreviewItem & {
   binId?: string;
   skus?: BinSkuEntry[];
   isNew?: boolean;
+  allowsMultiSku?: boolean;
 };
 
 function CopyableSku({ sku }: { sku: string }) {
@@ -1323,6 +1328,10 @@ export function LayoutGudangTab({
         </div>
       </div>
 
+      {isSmallWarehouse && (
+        <MultiSkuRulesCard locationId={locationId} disabled={disabled} />
+      )}
+
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="relative w-full max-w-xs">
@@ -1564,6 +1573,7 @@ export function LayoutGudangTab({
                               Baru
                             </Badge>
                           )}
+                          {b.allowsMultiSku && <MultiSkuBadge />}
                         </div>
                       </TableCell>
                       <TableCell className="px-3 py-2.5 align-top">

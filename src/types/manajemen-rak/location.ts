@@ -95,6 +95,7 @@ export interface RawLocationBin {
   is_inbound: boolean;
   is_stock_acknowledged: boolean;
   is_large_bin: boolean;
+  allows_multi_sku?: boolean;
   skus?: RawBinSku[];
 }
 
@@ -108,7 +109,38 @@ export interface LocationBin {
   isInbound: boolean;
   isStockAcknowledged: boolean;
   isLargeBin: boolean;
+  allowsMultiSku: boolean;
   skus: BinSku[];
+}
+
+export interface RawBinMultiSkuRule {
+  id: string;
+  location_id: string;
+  pattern: string;
+  note: string | null;
+  is_active: boolean;
+  matched_count?: number;
+}
+
+export interface BinMultiSkuRule {
+  id: string;
+  pattern: string;
+  note: string | null;
+  isActive: boolean;
+  matchedCount: number;
+}
+
+export interface BinMultiSkuRulePayload {
+  pattern: string;
+  note?: string | null;
+  is_active?: boolean;
+}
+
+export interface BinMultiSkuRulePreview {
+  pattern: string;
+  matchedCount: number;
+  samples: string[];
+  totalBins: number;
 }
 
 export interface LocationPayload {
