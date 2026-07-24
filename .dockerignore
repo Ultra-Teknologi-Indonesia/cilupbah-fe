@@ -1,0 +1,10 @@
+/node_modules
+/.next
+/out
+/build
+/.git
+/.idea
+/coverage
+*.tsbuildinfo
+.env*
+lint_results*.json

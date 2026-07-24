@@ -1,0 +1,19 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: production-cilupbah-fe
+    container_name: cilupbah-fe-production
+    entrypoint: ["/usr/local/bin/start.production.sh"]
+    ports:
+      - "3000:3000"
+    volumes:
+      - /var/www/cilupbah-fe:/app
+    environment:
+      - NODE_ENV=production
+      # ⚠️ WAJIB DIGANTI: URL backend production (di-bake ke bundle saat build).
+      # Jangan biarkan menunjuk ke staging.
+      - NEXT_PUBLIC_API_URL=https://REPLACE-WITH-PRODUCTION-API-DOMAIN
+      - PUPPETEER_SKIP_DOWNLOAD=true
+    restart: unless-stopped
