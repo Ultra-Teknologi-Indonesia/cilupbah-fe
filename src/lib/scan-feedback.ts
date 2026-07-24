@@ -163,8 +163,8 @@ function zzfx(
   source.start();
 }
 
-const SFX_SUCCESS          = [2,0,987,.005,.04,.5,0,1.5,,500,.05,,,.8] as const;
-const SFX_ERROR            = [2.3,,380,.005,.05,.3,2,1,,,-150,.11,,.03,,,,.45] as const;
+const SFX_SUCCESS          = [2.4,,1046,.002,.02,.22,,1,,,,,,,,,,.3,.05] as const;
+const SFX_ERROR            = [2.4,,440,.003,.03,.16,1,1,,,-130,.09,,,,,,.4] as const;
 const SFX_CANCELED         = [2,0,180,.01,.16,.3,1,1,,-60,.1,,,.7] as const;
 const SFX_CANCEL_REQUESTED = [2,0,700,.01,.09,.2,0,1,,90,.06,,,.6] as const;
 const SFX_COURIER_MISMATCH = [2,0,340,.01,.2,.3,0,1,,-260,.14,,,.9] as const;
