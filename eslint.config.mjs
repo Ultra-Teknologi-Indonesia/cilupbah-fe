@@ -12,11 +12,21 @@ const eslintConfig = defineConfig([
           varsIgnorePattern: "^_",
           caughtErrorsIgnorePattern: "^_",
         }
-      ]
+      ],
     }
   },
   ...nextVitals,
   ...nextTs,
+  // Ditaruh SETELAH nextVitals/nextTs agar override menang. React Compiler
+  // sengaja melewati (skip) komponen yang memakai API react-hook-form
+  // (`watch()`) & TanStack Table (`useReactTable()`) — keduanya mengembalikan
+  // fungsi yang tak bisa dimemo. Informasional & tak bisa diperbaiki tanpa
+  // membuang lib-nya, jadi dimatikan.
+  {
+    rules: {
+      "react-hooks/incompatible-library": "off",
+    },
+  },
   // Komponen tidak boleh memanggil service langsung — akses data lewat layer
   // hooks (react-query) agar caching/invalidations konsisten. Masih "warn"
   // karena ada pelanggar lama (lihat AUDIT-FE.md §2); jangan tambah baru.

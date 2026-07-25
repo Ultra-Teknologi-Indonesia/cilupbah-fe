@@ -96,6 +96,7 @@ export function PutawayReviewView({ id }: PutawayReviewViewProps) {
 
   useEffect(() => {
     if (allItems.length > 0 && !didAutoExpand) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- auto-expand item saat data pertama tiba
       setExpandedItems(new Set(allItems.map((it) => it.id)));
       setDidAutoExpand(true);
     }

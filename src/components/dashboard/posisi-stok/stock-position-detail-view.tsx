@@ -455,7 +455,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
   );
 
   const { data, isLoading } = useStockMovements(params);
-  const movements = data?.data ?? [];
+  const movements = useMemo(() => data?.data ?? [], [data]);
   const dayGroups = useMemo(() => groupMovementsByDay(movements), [movements]);
   const meta = data?.meta ?? {
     current_page: 1,
@@ -769,7 +769,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
 
 function BinSection({ itemId }: { itemId: string }) {
   const { data, isLoading } = useItemStock(itemId);
-  const bins: BinInventory[] = data?.data ?? [];
+  const bins: BinInventory[] = useMemo(() => data?.data ?? [], [data]);
 
   const { data: locData } = useLocations({ perPage: 100 });
 

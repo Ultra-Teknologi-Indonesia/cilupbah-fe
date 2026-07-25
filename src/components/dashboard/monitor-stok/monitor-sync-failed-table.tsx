@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { RefreshCwIcon, CheckIcon } from "lucide-react";
 
 import { formatDateTime } from "@/lib/format";
@@ -75,10 +75,10 @@ export function MonitorSyncFailedTable({
     });
   };
 
-  const toggleAll = () => {
+  const toggleAll = useCallback(() => {
     if (selected.size === rows.length) setSelected(new Set());
     else setSelected(new Set(rows.map((r) => r.id)));
-  };
+  }, [selected, rows]);
 
   const handleRetry = () => {
     if (!retryId) return;
@@ -197,7 +197,7 @@ export function MonitorSyncFailedTable({
         ),
       },
     ],
-    [rows, selected, retry.isPending],
+    [rows, selected, retry.isPending, toggleAll],
   );
 
   return (

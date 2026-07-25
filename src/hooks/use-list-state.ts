@@ -60,6 +60,9 @@ export function useListState<F extends object>(
       next[k] = parsed;
     }
     return next as F;
+    // emptyFilters diasumsikan konstanta stabil dari pemanggil (mis. EMPTY_FILTERS module-level);
+    // menambahkannya akan memecah memoisasi untuk pemanggil objek inline dan berisiko loop URL-state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterUrlSync, searchParams, filterKeyFor]);
 
   const [search, setSearchRaw] = useState<string>(() => readSearch());
@@ -117,6 +120,10 @@ export function useListState<F extends object>(
       return [{ id: nextSortBy, desc: nextSortDir === "desc" }];
     });
     /* eslint-enable react-hooks/set-state-in-effect */
+    // Sinkronisasi URL->state: semua reader (readNumber/readSearch/readFilters) & key turunan
+    // efektif hanya berubah lewat searchParams. Menambah dep berisiko loop/refetch untuk
+    // pemanggil dengan emptyFilters objek inline; setState di sini sudah guarded (prev===next).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlSync, searchParams]);
 
   const writeUrl = useCallback(
@@ -208,6 +215,8 @@ export function useListState<F extends object>(
       }
       writeUrl(updates);
     },
+    // emptyFilters diasumsikan konstanta stabil pemanggil; menambahkannya berisiko loop URL-state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [urlSync, filterUrlSync, writeUrl, pageKey, filterKeyFor],
   );
 
@@ -226,6 +235,8 @@ export function useListState<F extends object>(
       }
       writeUrl(updates);
     },
+    // emptyFilters diasumsikan konstanta stabil pemanggil; menambahkannya berisiko loop URL-state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [urlSync, filterUrlSync, writeUrl, pageKey, filterKeyFor],
   );
 

@@ -82,6 +82,7 @@ function MediaFigure({
           title="Buka gambar ukuran penuh"
           className="block bg-muted/40 no-underline transition-opacity hover:opacity-90"
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={source}
             alt={alt ?? ""}

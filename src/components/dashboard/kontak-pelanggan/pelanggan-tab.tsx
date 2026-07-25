@@ -98,7 +98,7 @@ export function PelangganTab() {
   const { data: categories = [] } = useContactCategories();
   const deleteMut = useDeleteContact();
 
-  const items = data?.items ?? [];
+  const items = useMemo(() => data?.items ?? [], [data]);
   const meta = data?.meta ?? {
     current_page: 1,
     last_page: 1,

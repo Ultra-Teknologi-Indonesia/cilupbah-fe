@@ -38,6 +38,8 @@ import {
 } from "@/hooks/barang-masuk/use-sales-return-actions";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import type { SalesReturn } from "@/types/barang-masuk/sales-return";
+// TODO(hooks): aksi imperatif one-off, migrasi ke hook react-query nanti (legacy)
+// eslint-disable-next-line no-restricted-imports
 import { SalesReturnService } from "@/services/barang-masuk/sales-return.service";
 import { DateRangePicker } from "@/components/ui/date-picker";
 import { toast } from "sonner";

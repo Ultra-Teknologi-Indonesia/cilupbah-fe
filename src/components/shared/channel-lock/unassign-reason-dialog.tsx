@@ -62,6 +62,7 @@ export function UnassignReasonDialog({
 
   React.useEffect(() => {
     if (!open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset form saat dialog ditutup
       setReason(null);
       setNote("");
       setAssigneeId("");

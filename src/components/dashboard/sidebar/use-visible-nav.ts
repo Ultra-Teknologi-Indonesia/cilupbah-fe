@@ -11,7 +11,7 @@ import {
 } from "./nav-data";
 
 export function useVisibleNav() {
-  const { canAny, isOwner, permissions } = usePermissions();
+  const { canAny } = usePermissions();
 
   const has = React.useCallback(
     (perm?: string | string[]) =>
@@ -21,11 +21,11 @@ export function useVisibleNav() {
 
   const groups = React.useMemo(
     () => filterNavGroups(dashboardGroups, has),
-    [has, isOwner, permissions],
+    [has],
   );
   const settings = React.useMemo(
     () => filterSettingsRoutes(settingsRoutes, has),
-    [has, isOwner, permissions],
+    [has],
   );
 
   return { groups, settings };

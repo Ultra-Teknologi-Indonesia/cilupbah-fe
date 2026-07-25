@@ -110,7 +110,7 @@ export function SalesmanTab() {
   const updateMut = useUpdateSalesman();
   const deleteMut = useDeleteSalesman();
 
-  const items = data?.items ?? [];
+  const items = useMemo(() => data?.items ?? [], [data]);
   const meta = data?.meta ?? {
     current_page: 1,
     last_page: 1,

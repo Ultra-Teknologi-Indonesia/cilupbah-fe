@@ -98,12 +98,12 @@ export function UserListView() {
     });
   }
 
-  function handleToggleAll() {
+  const handleToggleAll = React.useCallback(() => {
     const allSelected =
       selectableIds.length > 0 &&
       selectableIds.every((id) => selectedIds.has(id));
     setSelectedIds(allSelected ? new Set() : new Set(selectableIds));
-  }
+  }, [selectableIds, selectedIds]);
 
   const columns = React.useMemo<ColumnDef<User>[]>(
     () => [
@@ -213,7 +213,7 @@ export function UserListView() {
         },
       },
     ],
-    [selectedIds, selectableIds, isProtected, canDelete],
+    [selectedIds, selectableIds, isProtected, canDelete, handleToggleAll],
   );
 
   function handleConfirmDelete() {

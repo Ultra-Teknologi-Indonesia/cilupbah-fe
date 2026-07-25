@@ -59,7 +59,7 @@ export function CadangTab() {
   const { data: locData } = useLocations({ perPage: 100 });
   const cancelMut = useCancelReservedStock();
 
-  const items = data?.items ?? [];
+  const items = useMemo(() => data?.items ?? [], [data]);
   const total = data?.meta?.total ?? 0;
 
   const locationOptions = useMemo(

@@ -25,6 +25,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+// TODO(hooks): aksi imperatif one-off, migrasi ke hook react-query nanti (legacy)
+// eslint-disable-next-line no-restricted-imports
 import { OutboundService } from "@/services/proses-pesanan/outbound.service";
 import type {
   BulkLabelBatch,

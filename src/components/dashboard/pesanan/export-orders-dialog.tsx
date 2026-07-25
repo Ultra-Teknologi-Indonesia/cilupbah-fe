@@ -15,6 +15,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+// TODO(hooks): aksi imperatif one-off, migrasi ke hook react-query nanti (legacy)
+// eslint-disable-next-line no-restricted-imports
 import { OrderService } from "@/services/pesanan/order.service";
 import type { OrderTab } from "@/types/pesanan/order";
 

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { SearchIcon, ExternalLinkIcon, BookOpenIcon, XIcon } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
@@ -17,8 +17,6 @@ import { MANUAL_ENTRIES, MANUAL_GROUPS } from "@/lib/bantuan/manual.registry";
 import { Markdown } from "@/components/bantuan/markdown";
 
 export function ManualTab() {
-  const router = useRouter();
-  const pathname = usePathname();
   const params = useSearchParams();
   const activeSlug = params.get("slug") ?? MANUAL_ENTRIES[0]?.slug ?? "";
 

@@ -110,7 +110,7 @@ export function PesananView() {
 
   const { data, isLoading, isFetching } = useOrders(params);
 
-  const orders = data?.data ?? [];
+  const orders = useMemo(() => data?.data ?? [], [data]);
   const meta = data?.meta ?? {
     current_page: 1,
     last_page: 1,

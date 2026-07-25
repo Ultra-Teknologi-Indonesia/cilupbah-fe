@@ -56,6 +56,7 @@ export function ApiDocsTab() {
   React.useEffect(() => {
     if (!moduleFromUrl || !index) return;
     if (!index.modules.some((m) => m.slug === moduleFromUrl)) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sinkronisasi modul aktif dari URL saat mount
     setActiveModuleSlug(moduleFromUrl);
   }, [moduleFromUrl, index]);
 

@@ -56,7 +56,10 @@ export function NaikkanDetailView({ id }: { id: string }) {
   });
 
   const store = detailQuery.data?.store;
-  const details = detailQuery.data?.details ?? [];
+  const details = React.useMemo(
+    () => detailQuery.data?.details ?? [],
+    [detailQuery.data],
+  );
   const detailMeta = detailQuery.data?.meta;
   const historyItems = historyQuery.data?.items ?? [];
   const historyMeta = historyQuery.data?.meta;
@@ -86,7 +89,7 @@ export function NaikkanDetailView({ id }: { id: string }) {
           }),
         onRemove: (detail) => setRemoveTarget(detail),
       }),
-    [],
+    [updateMut],
   );
 
   if (detailQuery.isLoading) {

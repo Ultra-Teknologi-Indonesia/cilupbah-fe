@@ -172,7 +172,7 @@ export function DestinationTable({
     if (!key || key === requestedKey.current) return;
     requestedKey.current = key;
     runMatch(storeIds);
-  }, [rows]);
+  }, [rows, runMatch]);
 
   const columns = React.useMemo<ColumnDef<UploadDestination>[]>(
     () => [
@@ -388,6 +388,7 @@ export function DestinationTable({
       matchMap,
       matching,
       notifyUploaded,
+      productId,
       runMatch,
       upload,
       uploadWithAttrs,

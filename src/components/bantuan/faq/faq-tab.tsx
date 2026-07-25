@@ -35,6 +35,7 @@ export function FaqTab() {
     if (!focusId) return;
     const target = FAQ_ITEMS.find((i) => i.id === focusId);
     if (!target) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fokuskan FAQ dari URL saat mount
     setActiveCat("all");
     setQuery("");
     setOpenIds((prev) => (prev.includes(focusId) ? prev : [...prev, focusId]));

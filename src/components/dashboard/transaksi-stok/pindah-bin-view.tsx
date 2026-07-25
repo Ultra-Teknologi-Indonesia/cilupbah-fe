@@ -36,6 +36,8 @@ import {
   StockedProductPickerDialog,
   type StockedPickedProduct,
 } from "@/components/dashboard/transaksi-stok/stocked-product-picker-dialog";
+// TODO(hooks): aksi imperatif one-off, migrasi ke hook react-query nanti (legacy)
+// eslint-disable-next-line no-restricted-imports
 import { InventoryStockService } from "@/services/persediaan/inventory.service";
 import { playScanFeedback } from "@/lib/scan-feedback";
 import { toast } from "sonner";

@@ -95,7 +95,7 @@ export function PacklistTable() {
   );
   const { data, isLoading, isFetching, refetch } = usePacklists(params);
 
-  const packlists = data?.items ?? [];
+  const packlists = React.useMemo(() => data?.items ?? [], [data]);
   const meta = data?.meta ?? {
     current_page: 1,
     last_page: 1,

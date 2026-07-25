@@ -201,7 +201,10 @@ export function FormVariantSection({
       };
     });
     setValue("variants", next, { shouldDirty: true });
-  }, [typesKey, baseSku]);
+    // variationTypes sengaja diwakili typesKey (JSON.stringify) agar efek hanya jalan saat
+    // ISI berubah, bukan saat identitas array watch() berubah tiap render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [typesKey, baseSku, getValues, setValue]);
 
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [bulkColumn, setBulkColumn] = React.useState<

@@ -17,6 +17,8 @@ import {
   useProductUploadHistories,
   useReuploadHistory,
 } from "@/hooks/master-produk/use-product-tabs";
+// TODO(hooks): migrasi ke hook react-query (legacy)
+// eslint-disable-next-line no-restricted-imports
 import type { UploadHistoryRow } from "@/services/master-produk/product-tabs.service";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
@@ -43,6 +45,17 @@ export function TabRiwayat({ productId }: { productId: string }) {
   const lastPage = data?.meta?.last_page ?? 1;
 
   const reupload = useReuploadHistory(productId);
+
+  const onReupload = React.useCallback(
+    (id: string) => {
+      reupload.mutate(id, {
+        onSuccess: () => toast.success("Produk diantrekan untuk upload ulang"),
+        onError: () => toast.error("Gagal mengantrekan upload ulang"),
+      });
+    },
+    [reupload],
+  );
+
   const columns = React.useMemo<ColumnDef<UploadHistoryRow>[]>(
     () => [
       {
@@ -125,15 +138,8 @@ export function TabRiwayat({ productId }: { productId: string }) {
         },
       },
     ],
-    [reupload.isPending],
+    [reupload.isPending, onReupload],
   );
-
-  const onReupload = (id: string) => {
-    reupload.mutate(id, {
-      onSuccess: () => toast.success("Produk diantrekan untuk upload ulang"),
-      onError: () => toast.error("Gagal mengantrekan upload ulang"),
-    });
-  };
 
   return (
     <div className="flex flex-col gap-3">

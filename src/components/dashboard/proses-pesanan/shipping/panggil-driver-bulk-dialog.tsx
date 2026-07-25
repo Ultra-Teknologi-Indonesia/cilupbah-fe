@@ -58,6 +58,7 @@ export function PanggilDriverBulkDialog({
   );
 
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset form saat dialog ditutup
     if (!open) setShipperId("");
   }, [open]);
 

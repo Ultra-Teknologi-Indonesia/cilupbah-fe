@@ -108,7 +108,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
     !!inbound && inbound.status !== "CANCELLED" && !isLocked;
 
   const { data: me } = useMe();
-  const roles = me?.roles ?? [];
+  const roles = React.useMemo(() => me?.roles ?? [], [me]);
   const canUnassign = roles.some((r) =>
     ["owner", "admin", "kepala gudang", "leader inbound"].includes(r),
   );

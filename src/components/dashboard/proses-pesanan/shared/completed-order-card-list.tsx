@@ -160,6 +160,7 @@ export function FulfillmentCardList({
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
 
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset seleksi saat stage/tab berganti
     setSelectedIds(new Set());
   }, [stage, tab]);
 

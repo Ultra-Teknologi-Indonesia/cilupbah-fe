@@ -101,7 +101,7 @@ export function PenyesuaianTab() {
   const deleteMut = useDeleteStockAdjustment();
   const bulkDeleteMut = useBulkDeleteStockAdjustment();
 
-  const items = data?.items ?? [];
+  const items = useMemo(() => data?.items ?? [], [data]);
   const total = data?.meta?.total ?? 0;
 
   const locationOptions = useMemo(

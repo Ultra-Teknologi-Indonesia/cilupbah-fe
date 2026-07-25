@@ -89,7 +89,7 @@ export function DashboardSidebar() {
         if (!open) toggleSidebar();
       }
     },
-    [activeGroupId, open, panelOpen, toggleSidebar, groups],
+    [activeGroupId, open, toggleSidebar, groups],
   );
 
   if (isMobile) {

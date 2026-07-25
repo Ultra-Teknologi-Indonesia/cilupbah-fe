@@ -65,7 +65,7 @@ export function OpnameTab() {
   const startMut = useStartStockOpname();
   const deleteMut = useDeleteStockOpname();
 
-  const items = data?.items ?? [];
+  const items = useMemo(() => data?.items ?? [], [data]);
   const total = data?.meta?.total ?? 0;
 
   const locationOptions = useMemo(

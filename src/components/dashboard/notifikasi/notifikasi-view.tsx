@@ -106,7 +106,7 @@ export function NotifikasiView() {
   });
   const markAll = useMarkAllNotificationsRead();
 
-  const rawItems = data?.items ?? [];
+  const rawItems = React.useMemo(() => data?.items ?? [], [data]);
   const meta = data?.meta;
   const total = meta?.total ?? 0;
   const lastPage = meta?.last_page ?? 0;

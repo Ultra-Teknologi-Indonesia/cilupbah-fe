@@ -173,6 +173,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     if (allItems.length > 0 && !didAutoExpand) {
       const placed = allItems.filter((it) => it.putaway_qty > 0);
       if (placed.length > 0) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setExpandedItems(new Set(placed.map((it) => it.id)));
         setDidAutoExpand(true);
       }
@@ -984,6 +985,8 @@ function PlacementRow({
     }
     if (item.recommended_bin) return item.recommended_bin.id;
     return null;
+    // Sengaja dihitung sekali — hanya dipakai sebagai nilai awal useState.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [selectedBinId, setSelectedBinId] = useState<string | null>(
@@ -1013,7 +1016,14 @@ function PlacementRow({
     if (focusTarget === "qty") {
       setTimeout(() => qtyInputRef.current?.focus(), 50);
     }
+    // Fokus sekali saat mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Ref dibaca sekali saat render untuk perbandingan qty pada tombol Simpan;
+  // aman karena setiap save memicu re-render (qty/hasSaved berubah).
+  // eslint-disable-next-line react-hooks/refs
+  const lastSaved = lastSavedQty.current;
 
   const saveNow = useCallback(
     (binId: string, targetQty: number, afterSave?: () => void) => {
@@ -1094,7 +1104,7 @@ function PlacementRow({
             <Button
               type="button"
               size="sm"
-              disabled={!selectedBinId || processMutation.isPending || (parseInt(qty) || 0) <= lastSavedQty.current}
+              disabled={!selectedBinId || processMutation.isPending || (parseInt(qty) || 0) <= lastSaved}
               onClick={handleSave}
               className="h-8 px-3 text-xs"
             >

@@ -28,14 +28,6 @@ import {
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
 import {
   usePicklistDetail,
@@ -46,7 +38,6 @@ import {
   useCompletePicklist,
   useUnassignPicklist,
   useResetPicklistAssignment,
-  fulfillmentKeys,
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import {
   AssignmentLockBanner,
@@ -55,7 +46,6 @@ import {
 } from "@/components/shared/channel-lock";
 import { useMe } from "@/hooks/auth/use-auth";
 import { useListState } from "@/hooks/use-list-state";
-import { OutboundService } from "@/services/proses-pesanan/outbound.service";
 import { DeleteOrderDialog } from "@/components/dashboard/proses-pesanan/shared/delete-order-dialog";
 import type {
   FulfillmentListParams,

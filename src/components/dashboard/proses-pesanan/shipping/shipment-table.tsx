@@ -42,6 +42,8 @@ import type {
   Shipment,
   ShipmentDetail,
 } from "@/types/proses-pesanan/fulfillment";
+// TODO(hooks): aksi imperatif one-off, migrasi ke hook react-query nanti (legacy)
+// eslint-disable-next-line no-restricted-imports
 import { OutboundService } from "@/services/proses-pesanan/outbound.service";
 import { ShipmentDriverBadge } from "@/components/dashboard/proses-pesanan/shared/driver-call-indicator";
 import { useListState } from "@/hooks/use-list-state";

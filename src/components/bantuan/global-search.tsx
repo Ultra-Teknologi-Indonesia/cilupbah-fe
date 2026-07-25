@@ -149,6 +149,7 @@ export function GlobalHelpSearch() {
   const totalHits = flat.length;
 
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset highlight saat query berubah
     setActiveIdx(0);
   }, [query]);
 
@@ -258,7 +259,7 @@ export function GlobalHelpSearch() {
                   <Loader2Icon className="size-3.5 animate-spin" /> Mengindeks endpoint API…
                 </span>
               ) : (
-                <>Tidak ada hasil untuk <span className="font-medium text-foreground">"{query}"</span></>
+                <>Tidak ada hasil untuk <span className="font-medium text-foreground">&quot;{query}&quot;</span></>
               )}
             </div>
           ) : (

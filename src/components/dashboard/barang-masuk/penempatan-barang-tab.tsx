@@ -119,6 +119,11 @@ function deleteDescription(p: Putaway | null): string {
   }
 }
 
+const sortByStatus: Record<string, string> = {
+  COMPLETED: "-completed_at",
+  IN_PROGRESS: "-started_at",
+};
+
 export function PenempatanBarangTab() {
   const router = useRouter();
   const list = useListState<FilterState>(EMPTY_FILTERS, {
@@ -134,11 +139,6 @@ export function PenempatanBarangTab() {
 
   const deleteMut = useDeletePutaway();
   const bulkDeleteMut = useBulkDeletePutaway();
-
-  const sortByStatus: Record<string, string> = {
-    COMPLETED: "-completed_at",
-    IN_PROGRESS: "-started_at",
-  };
 
   const params = useMemo(
     () => ({

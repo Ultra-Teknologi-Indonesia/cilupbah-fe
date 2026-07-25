@@ -264,6 +264,7 @@ export function FulfillmentFilterBar({
   const [portalTarget, setPortalTarget] = React.useState<HTMLElement | null>(null);
 
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- ambil target portal dari DOM saat mount
     setPortalTarget(document.getElementById("proses-pesanan-filter-portal"));
   }, []);
 
