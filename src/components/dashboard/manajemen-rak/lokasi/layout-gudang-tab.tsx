@@ -1188,8 +1188,8 @@ export function LayoutGudangTab({
 
   const removeDescription = removeTarget
     ? removeTarget.sku.onHand > 0
-      ? `Stok ${removeTarget.sku.onHand.toLocaleString("id-ID")} pcs "${removeTarget.sku.sku}" di rak ${removeTarget.binCode} akan disesuaikan menjadi 0 (penyesuaian stok tercatat), lalu rak dikosongkan. Kalau stok masih terpakai, gunakan Pindah.`
-      : `SKU "${removeTarget.sku.sku}" akan dikeluarkan dari rak ${removeTarget.binCode}. Stok fisik sudah 0, jadi tidak ada penyesuaian.`
+      ? `Sistem membuat dokumen Koreksi Stok untuk menurunkan ${removeTarget.sku.onHand.toLocaleString("id-ID")} pcs "${removeTarget.sku.sku}" di rak ${removeTarget.binCode} menjadi 0, lalu rak dikosongkan. Dokumen tercatat di Transaksi Stok › Koreksi Stok. Kalau stok masih terpakai, gunakan Pindah.`
+      : `SKU "${removeTarget.sku.sku}" akan dikeluarkan dari rak ${removeTarget.binCode}. Stok fisik sudah 0, jadi tidak ada koreksi stok.`
     : "";
   const pendingSkusQuery = usePendingPutawaySkus(locationId, isSmallWarehouse);
   const pendingSkus = React.useMemo(

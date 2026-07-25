@@ -253,9 +253,19 @@ export const LocationBinService = {
     locationId: string,
     binId: string,
     itemId: string,
-  ): Promise<{ bin_id: string; item_id: string; removed_qty: number }> => {
+  ): Promise<{
+    bin_id: string;
+    item_id: string;
+    removed_qty: number;
+    adjustment_no: string | null;
+  }> => {
     const res = await fetchClient<
-      ApiResponse<{ bin_id: string; item_id: string; removed_qty: number }>
+      ApiResponse<{
+        bin_id: string;
+        item_id: string;
+        removed_qty: number;
+        adjustment_no: string | null;
+      }>
     >(`/locations/${locationId}/bins/${binId}/remove-sku`, {
       method: "POST",
       data: { item_id: itemId },

@@ -123,7 +123,7 @@ export function useRemoveSkuBin(locationId?: string) {
     onSuccess: (data) => {
       toast.success(
         data.removed_qty > 0
-          ? `SKU dikeluarkan, ${data.removed_qty} stok disesuaikan jadi 0`
+          ? `SKU dikeluarkan · Koreksi Stok ${data.adjustment_no ?? ""} (−${data.removed_qty} stok)`
           : "SKU berhasil dikeluarkan dari rak",
       );
       qc.invalidateQueries({ queryKey: locationBinKeys.all });
