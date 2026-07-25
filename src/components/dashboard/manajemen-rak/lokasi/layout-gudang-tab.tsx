@@ -1124,7 +1124,9 @@ export function LayoutGudangTab({
     { perPage: 50, debounceMs: 300, namespace: "layout" },
   );
   const [sort, setSort] = React.useState<string | undefined>(undefined);
-  const filter: BinListParams["filter"] = {};
+  // Bin inbound sistem (bin_final_code "DEFAULT", is_inbound=true) bukan rak fisik —
+  // diakses lewat endpoint /default-bin, jadi dikecualikan dari daftar rak di sini.
+  const filter: BinListParams["filter"] = { is_inbound: false };
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [selectAllAcrossPages, setSelectAllAcrossPages] = React.useState(false);
   const [uniformOpen, setUniformOpen] = React.useState(false);
