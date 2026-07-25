@@ -64,6 +64,51 @@ export function usePreviewBins(
   });
 }
 
+export function useMoveSkuBin(locationId?: string) {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (vars: {
+      sourceBinId: string;
+      itemId: string;
+      destinationBinId: string;
+    }) => {
+      if (!locationId) throw new Error("locationId is required");
+      return LocationBinService.moveSku(
+        locationId,
+        vars.sourceBinId,
+        vars.itemId,
+        vars.destinationBinId,
+      );
+    },
+    onSuccess: (data) => {
+      toast.success(`${data.moved_qty} stok berhasil dipindah ke rak tujuan`);
+      qc.invalidateQueries({ queryKey: locationBinKeys.all });
+    },
+    onError: (err) => apiError(err, "Gagal memindahkan SKU"),
+  });
+}
+
+export function useRemoveSkuBin(locationId?: string) {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (vars: { binId: string; itemId: string }) => {
+      if (!locationId) throw new Error("locationId is required");
+      return LocationBinService.removeSku(locationId, vars.binId, vars.itemId);
+    },
+    onSuccess: (data) => {
+      toast.success(
+        data.removed_qty > 0
+          ? `SKU dikeluarkan, ${data.removed_qty} stok disesuaikan jadi 0`
+          : "SKU berhasil dikeluarkan dari rak",
+      );
+      qc.invalidateQueries({ queryKey: locationBinKeys.all });
+    },
+    onError: (err) => apiError(err, "Gagal mengeluarkan SKU"),
+  });
+}
+
 export function useUniformApplyBins(locationId?: string) {
   const qc = useQueryClient();
 

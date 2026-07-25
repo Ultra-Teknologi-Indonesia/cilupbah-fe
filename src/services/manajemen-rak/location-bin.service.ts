@@ -223,4 +223,43 @@ export const LocationBinService = {
     });
     return res.data;
   },
+
+  moveSku: async (
+    locationId: string,
+    sourceBinId: string,
+    itemId: string,
+    destinationBinId: string,
+  ): Promise<{
+    source_bin_id: string;
+    destination_bin_id: string;
+    item_id: string;
+    moved_qty: number;
+  }> => {
+    const res = await fetchClient<
+      ApiResponse<{
+        source_bin_id: string;
+        destination_bin_id: string;
+        item_id: string;
+        moved_qty: number;
+      }>
+    >(`/locations/${locationId}/bins/${sourceBinId}/move-sku`, {
+      method: "POST",
+      data: { item_id: itemId, destination_bin_id: destinationBinId },
+    });
+    return res.data;
+  },
+
+  removeSku: async (
+    locationId: string,
+    binId: string,
+    itemId: string,
+  ): Promise<{ bin_id: string; item_id: string; removed_qty: number }> => {
+    const res = await fetchClient<
+      ApiResponse<{ bin_id: string; item_id: string; removed_qty: number }>
+    >(`/locations/${locationId}/bins/${binId}/remove-sku`, {
+      method: "POST",
+      data: { item_id: itemId },
+    });
+    return res.data;
+  },
 };

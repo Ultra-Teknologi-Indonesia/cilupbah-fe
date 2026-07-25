@@ -7,6 +7,8 @@ import {
   ArrowUpDownIcon,
   ArrowUpIcon,
   ArrowDownIcon,
+  ArrowRightLeftIcon,
+  PackageMinusIcon,
   Loader2Icon,
   PrinterIcon,
   CopyIcon,
@@ -65,7 +67,11 @@ import {
 import {
   useLocationBins,
   useUniformApplyBins,
+  useMoveSkuBin,
+  useRemoveSkuBin,
 } from "@/hooks/manajemen-rak/use-location-bins";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { usePendingPutawaySkus } from "@/hooks/manajemen-rak/use-pending-putaway-skus";
 import {
   useDownloadBinImportTemplate,
@@ -717,9 +723,89 @@ function CopyableSku({ sku }: { sku: string }) {
   );
 }
 
-function IsiRakCell({ skus }: { skus?: BinSkuEntry[] }) {
+interface IsiRakActions {
+  onMove: (sku: BinSkuEntry) => void;
+  onRemove: (sku: BinSkuEntry) => void;
+  disabled?: boolean;
+}
+
+function SkuActions({
+  sku,
+  actions,
+}: {
+  sku: BinSkuEntry;
+  actions: IsiRakActions;
+}) {
+  return (
+    <div className="flex items-center gap-0.5">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => actions.onMove(sku)}
+            disabled={actions.disabled}
+            aria-label={`Pindah ${sku.sku} ke rak lain`}
+          >
+            <ArrowRightLeftIcon className="size-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Pindah ke rak lain</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="text-destructive hover:text-destructive"
+            onClick={() => actions.onRemove(sku)}
+            disabled={actions.disabled}
+            aria-label={`Keluarkan ${sku.sku} dari rak`}
+          >
+            <PackageMinusIcon className="size-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Keluarkan dari rak</TooltipContent>
+      </Tooltip>
+    </div>
+  );
+}
+
+function IsiRakCell({
+  skus,
+  actions,
+}: {
+  skus?: BinSkuEntry[];
+  actions?: IsiRakActions;
+}) {
   if (!skus || skus.length === 0) {
     return <span className="text-muted-foreground">—</span>;
+  }
+
+  if (actions) {
+    return (
+      <div className="flex flex-col gap-1.5">
+        {skus.map((s) => (
+          <div
+            key={s.variantId}
+            className="flex items-center justify-between gap-2"
+          >
+            <div className="flex min-w-0 flex-col leading-tight">
+              <span
+                className="truncate text-sm font-medium max-w-[240px]"
+                title={s.name}
+              >
+                {s.name}
+              </span>
+              <CopyableSku sku={s.sku} />
+            </div>
+            <SkuActions sku={s} actions={actions} />
+          </div>
+        ))}
+      </div>
+    );
   }
 
   const [first, ...rest] = skus;
@@ -807,6 +893,109 @@ function BinSkuAssignCell({
         </p>
       )}
     </div>
+  );
+}
+
+function MoveSkuDialog({
+  open,
+  onOpenChange,
+  locationId,
+  sourceBinId,
+  sourceBinCode,
+  sku,
+  pending,
+  onConfirm,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  locationId: string;
+  sourceBinId: string;
+  sourceBinCode: string;
+  sku: BinSkuEntry | null;
+  pending?: boolean;
+  onConfirm: (destinationBinId: string) => void;
+}) {
+  const [search, setSearch] = React.useState("");
+  const [destId, setDestId] = React.useState<string | null>(null);
+  const debouncedSearch = useDebouncedValue(search, 300);
+
+  const candidatesQuery = useLocationBins(open ? locationId : undefined, {
+    search: debouncedSearch || undefined,
+    perPage: 20,
+  });
+
+  const options: ComboboxOption[] = React.useMemo(() => {
+    const items = candidatesQuery.data?.items ?? [];
+    return items
+      .filter(
+        (b) =>
+          b.id !== sourceBinId &&
+          !b.isInbound &&
+          (b.skus?.length ?? 0) === 0,
+      )
+      .map((b) => ({ value: b.id, label: b.binFinalCode }));
+  }, [candidatesQuery.data, sourceBinId]);
+
+  return (
+    <Dialog open={open} onOpenChange={pending ? undefined : onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Pindah SKU ke rak lain</DialogTitle>
+          <DialogClose />
+        </DialogHeader>
+
+        <div className="flex flex-col gap-4 py-2">
+          {sku && (
+            <div className="rounded-xl border border-border bg-muted/40 p-3 text-sm">
+              <p className="font-medium">{sku.name}</p>
+              <p className="font-mono text-xs text-muted-foreground">
+                {sku.sku}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Dari rak <span className="font-mono">{sourceBinCode}</span> ·{" "}
+                {sku.onHand.toLocaleString("id-ID")} pcs akan dipindah seluruhnya
+              </p>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Label>Rak tujuan (kosong)</Label>
+            <Combobox
+              options={options}
+              value={destId}
+              onChange={setDestId}
+              onQueryChange={setSearch}
+              loading={candidatesQuery.isFetching}
+              placeholder="Pilih rak tujuan"
+              searchPlaceholder="Cari kode rak kosong"
+              emptyText={
+                candidatesQuery.isFetching
+                  ? "Memuat…"
+                  : "Tidak ada rak kosong yang cocok."
+              }
+            />
+            <p className="text-2xs text-muted-foreground">
+              Hanya rak kosong yang bisa dipilih. Stok pindah utuh dalam satu
+              proses (tidak perlu penyesuaian manual).
+            </p>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Batal
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => destId && onConfirm(destId)}
+            disabled={!destId || pending}
+          >
+            {pending && <Loader2Icon className="mr-2 size-3.5 animate-spin" />}
+            Pindahkan
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -945,6 +1134,45 @@ export function LayoutGudangTab({
 
   const binsQuery = useLocationBins(locationId, params);
   const uniformMut = useUniformApplyBins(locationId);
+  const moveSkuMut = useMoveSkuBin(locationId);
+  const removeSkuMut = useRemoveSkuBin(locationId);
+
+  const [moveTarget, setMoveTarget] = React.useState<{
+    binId: string;
+    binCode: string;
+    sku: BinSkuEntry;
+  } | null>(null);
+  const [removeTarget, setRemoveTarget] = React.useState<{
+    binId: string;
+    binCode: string;
+    sku: BinSkuEntry;
+  } | null>(null);
+
+  const handleConfirmMove = (destinationBinId: string) => {
+    if (!moveTarget) return;
+    moveSkuMut.mutate(
+      {
+        sourceBinId: moveTarget.binId,
+        itemId: moveTarget.sku.variantId,
+        destinationBinId,
+      },
+      { onSuccess: () => setMoveTarget(null) },
+    );
+  };
+
+  const handleConfirmRemove = () => {
+    if (!removeTarget) return;
+    removeSkuMut.mutate(
+      { binId: removeTarget.binId, itemId: removeTarget.sku.variantId },
+      { onSuccess: () => setRemoveTarget(null) },
+    );
+  };
+
+  const removeDescription = removeTarget
+    ? removeTarget.sku.onHand > 0
+      ? `Stok ${removeTarget.sku.onHand.toLocaleString("id-ID")} pcs "${removeTarget.sku.sku}" di rak ${removeTarget.binCode} akan disesuaikan menjadi 0 (penyesuaian stok tercatat), lalu rak dikosongkan. Kalau stok masih terpakai, gunakan Pindah.`
+      : `SKU "${removeTarget.sku.sku}" akan dikeluarkan dari rak ${removeTarget.binCode}. Stok fisik sudah 0, jadi tidak ada penyesuaian.`
+    : "";
   const pendingSkusQuery = usePendingPutawaySkus(locationId, isSmallWarehouse);
   const pendingSkus = React.useMemo(
     () => pendingSkusQuery.data ?? [],
@@ -1661,7 +1889,28 @@ export function LayoutGudangTab({
                       </TableCell>
                       <TableCell className="px-3 py-2.5 align-top">
                         {b.skus && b.skus.length > 0 ? (
-                          <IsiRakCell skus={b.skus} />
+                          <IsiRakCell
+                            skus={b.skus}
+                            actions={
+                              isSmallWarehouse && b.binId && !isPending
+                                ? {
+                                    onMove: (sku) =>
+                                      setMoveTarget({
+                                        binId: b.binId!,
+                                        binCode: b.binFinalCode,
+                                        sku,
+                                      }),
+                                    onRemove: (sku) =>
+                                      setRemoveTarget({
+                                        binId: b.binId!,
+                                        binCode: b.binFinalCode,
+                                        sku,
+                                      }),
+                                    disabled,
+                                  }
+                                : undefined
+                            }
+                          />
                         ) : isSmallWarehouse && b.binId && !isPending ? (
                           <BinSkuAssignCell
                             staged={assignMap.get(b.binId) ?? null}
@@ -1796,6 +2045,39 @@ export function LayoutGudangTab({
         pending={uniformMut.isPending}
         scopeLabel={selectionScopeLabel}
         zoneOptions={zoneSelectOptions}
+      />
+
+      {isSmallWarehouse && locationId && (
+        <MoveSkuDialog
+          key={
+            moveTarget
+              ? `${moveTarget.binId}:${moveTarget.sku.variantId}`
+              : "closed"
+          }
+          open={!!moveTarget}
+          onOpenChange={(o) => {
+            if (!o) setMoveTarget(null);
+          }}
+          locationId={locationId}
+          sourceBinId={moveTarget?.binId ?? ""}
+          sourceBinCode={moveTarget?.binCode ?? ""}
+          sku={moveTarget?.sku ?? null}
+          pending={moveSkuMut.isPending}
+          onConfirm={handleConfirmMove}
+        />
+      )}
+
+      <ConfirmDialog
+        open={!!removeTarget}
+        onOpenChange={(o) => {
+          if (!o) setRemoveTarget(null);
+        }}
+        title="Keluarkan SKU dari rak?"
+        description={removeDescription}
+        confirmLabel="Keluarkan"
+        variant="destructive"
+        loading={removeSkuMut.isPending}
+        onConfirm={handleConfirmRemove}
       />
 
       {serverMode && locationId && (
