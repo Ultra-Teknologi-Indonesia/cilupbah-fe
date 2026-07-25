@@ -395,7 +395,7 @@ export function PesananManualFormPage() {
 
       <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
         <div className="flex flex-col gap-5">
-          {/* Informasi Pesanan */}
+
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -507,7 +507,6 @@ export function PesananManualFormPage() {
             </div>
           </LiquidGlass>
 
-          {/* Produk */}
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -687,7 +686,6 @@ export function PesananManualFormPage() {
             </div>
           </LiquidGlass>
 
-          {/* Penerima */}
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -767,7 +765,6 @@ export function PesananManualFormPage() {
             </div>
           </LiquidGlass>
 
-          {/* Pengiriman */}
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -814,7 +811,6 @@ export function PesananManualFormPage() {
           </LiquidGlass>
         </div>
 
-        {/* Rincian sidebar */}
         <LiquidGlass
           radius={16}
           intensity="subtle"

@@ -170,7 +170,6 @@ export function RevaluasiDetail({ id }: { id: string }) {
     );
   }
 
-
   const isApproved = reval.status === "APPROVED";
 
   const totalSelisih = (reval.items ?? []).reduce((sum, item) => {

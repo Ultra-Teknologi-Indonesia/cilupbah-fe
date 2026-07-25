@@ -3,11 +3,6 @@ import type {
   ShipmentType,
 } from "@/types/proses-pesanan/fulfillment";
 
-/**
- * Cermin dari CourierMappingService::resolveShipmentType() di BE — dipakai
- * untuk menebak default "Tipe Pengiriman" dari nama kurir tanpa bergantung
- * pada field Courier.type (sudah dihapus, redundan dengan shipment_type).
- */
 export function guessShipmentTypeFromCourierName(name: string): ShipmentType {
   const lower = name.trim().toLowerCase();
 

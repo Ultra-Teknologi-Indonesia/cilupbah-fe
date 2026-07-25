@@ -61,8 +61,7 @@ export function LoginForm({ className }: { className?: string }) {
   const onSubmit = (values: LoginValues) =>
     mutation.mutate(values, {
       onSuccess: async (res) => {
-        // Buang sisa status kunci sesi lama sebelum masuk dashboard, kalau
-        // tidak layar bisa langsung terkunci karena flag idle-lock basi.
+
         resetIdleLock();
         if (res.data?.access_token && res.data?.refresh_token) {
           await setLoginSession({

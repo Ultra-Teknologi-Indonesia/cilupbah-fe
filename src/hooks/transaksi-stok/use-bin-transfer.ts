@@ -229,7 +229,6 @@ export function useBinTransferUpdate(id: string) {
   });
 }
 
-/** Cetak surat jalan: memindahkan status BARU_DIBUAT -> SEDANG_DIJALAN. */
 export function usePrintBinTransfer() {
   const qc = useQueryClient();
   return useMutation({
@@ -247,7 +246,6 @@ export function usePrintBinTransfer() {
   });
 }
 
-/** Kembalikan ke Baru Dibuat: SEDANG_DIJALAN -> BARU_DIBUAT. */
 export function useRevertBinTransferPrint() {
   const qc = useQueryClient();
   return useMutation({
@@ -266,7 +264,6 @@ export function useRevertBinTransferPrint() {
   });
 }
 
-/** Hapus draft (hanya BARU_DIBUAT). */
 export function useDeleteBinTransfer() {
   const qc = useQueryClient();
   return useMutation({

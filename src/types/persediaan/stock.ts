@@ -11,7 +11,7 @@ export interface TotalStocks {
   on_hand: number;
   on_order: number;
   available: number;
-  /** Stok fisik yang sedang berpindah antar gudang (transfer keluar belum diterima). */
+
   transit: number;
 }
 
@@ -104,7 +104,7 @@ export interface StockMovementParams {
   "filter[location_id]"?: string;
   "filter[store_id]"?: string;
   "filter[source]"?: string;
-  /** Scope drill-down Posisi Stok; definisi source-nya dimiliki BE (DRILL_SCOPES). */
+
   "filter[drill]"?: "transit" | "allocation";
   "filter[direction]"?: "in" | "out";
   "filter[date_from]"?: string;

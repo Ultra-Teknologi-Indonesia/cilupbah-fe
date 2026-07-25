@@ -123,8 +123,6 @@ export function PicklistReportDialog({
         !exportPicklist.isPending
       : Boolean(picklistId) && !exportDetail.isPending;
 
-  // Output Excel: mode Tanggal selalu unduh XLSX; mode No Picklist mengikuti
-  // pilihan Format (PDF pratinjau vs XLSX berfoto).
   const isExcelOutput = mode === "tanggal" || format === "excel";
   const busy = exportPicklist.isPending || exportDetail.isPending;
 

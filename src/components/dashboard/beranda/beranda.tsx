@@ -18,7 +18,6 @@ import {
   type PeriodValue,
 } from "./dashboard-controls";
 
-/** Rentang tanggal untuk metrik omzet/pesanan berdasarkan periode terpilih. */
 function rangeForPeriod(period: PeriodValue) {
   const days = Number(period);
   const to = new Date();

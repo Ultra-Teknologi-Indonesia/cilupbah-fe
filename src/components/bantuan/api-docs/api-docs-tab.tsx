@@ -41,7 +41,6 @@ export function ApiDocsTab() {
 
   const moduleLoading = activeModuleSlug !== null && activeModule?.slug !== activeModuleSlug;
 
-  // Load index
   React.useEffect(() => {
     fetchJson<ApiDocIndex>(INDEX_URL)
       .then((d) => {
@@ -54,7 +53,6 @@ export function ApiDocsTab() {
       .catch((e) => setIndexErr(String(e)));
   }, []);
 
-  // Sync activeModuleSlug when URL `?module=` changes (e.g. from global search)
   React.useEffect(() => {
     if (!moduleFromUrl || !index) return;
     if (!index.modules.some((m) => m.slug === moduleFromUrl)) return;
@@ -72,7 +70,6 @@ export function ApiDocsTab() {
     [params, pathname, router],
   );
 
-  // Load module on selection
   React.useEffect(() => {
     if (!activeModuleSlug) return;
     let cancelled = false;
@@ -130,7 +127,7 @@ export function ApiDocsTab() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Header stats */}
+
       <Card className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-stretch gap-x-6 gap-y-3 divide-x divide-border/60 text-sm">
           <div className="pr-6">
@@ -158,7 +155,7 @@ export function ApiDocsTab() {
       </Card>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[260px_320px_1fr]">
-        {/* Column 1: Module list */}
+
         <Card className={cn("flex flex-col gap-2 overflow-hidden p-3", panelHeight)}>
           <div className="px-2 pt-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
             Modul BE
@@ -188,7 +185,6 @@ export function ApiDocsTab() {
           </ScrollArea>
         </Card>
 
-        {/* Column 2: Endpoint list */}
         <Card className={cn("flex flex-col gap-2 overflow-hidden p-3", panelHeight)}>
           <div className="flex flex-col gap-2 px-1">
             <div className="relative">
@@ -259,7 +255,6 @@ export function ApiDocsTab() {
           </ScrollArea>
         </Card>
 
-        {/* Column 3: Endpoint detail */}
         {activeEndpoint ? (
           <EndpointDetail endpoint={activeEndpoint} className={panelHeight} />
         ) : (

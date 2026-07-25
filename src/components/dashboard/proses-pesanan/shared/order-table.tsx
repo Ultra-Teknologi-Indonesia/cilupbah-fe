@@ -56,16 +56,16 @@ interface OrderTableProps {
   orders: Order[];
   tab: OrderTab;
   variant: OrderCardVariant;
-  /** Enable the leading selection column. */
+
   selectable?: boolean;
   selectedIds?: Set<string>;
   onToggle?: (id: string, checked: boolean) => void;
   allSelected?: boolean;
   someSelected?: boolean;
   onToggleAll?: () => void;
-  /** Extra columns rendered before the Aksi column. */
+
   extraColumns?: OrderTableExtraColumn[];
-  /** Per-row eligibility. Rows returning `selectable: false` render a disabled checkbox with tooltip. */
+
   getRowSelectable?: (order: Order) => RowSelectability;
   sorting?: SortingState;
   onSortingChange?: (sorting: SortingState) => void;
@@ -93,7 +93,7 @@ function SortableTableHead({
 
   const toggleSort = () => {
     if (isSorted === "desc") {
-      onSortingChange([]); // Reset
+      onSortingChange([]); 
     } else if (isSorted === "asc") {
       onSortingChange([{ id, desc: true }]);
     } else {

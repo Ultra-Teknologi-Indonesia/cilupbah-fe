@@ -552,7 +552,7 @@ export function ShipmentDetailView({ id }: { id: string }) {
     { page, per_page: perPage, q: debouncedSearch },
     !!id
   );
-  
+
   const scanOrder = useScanOrderToShipment();
   const removeOrder = useRemoveOrderFromShipment();
 
@@ -910,7 +910,7 @@ export function ShipmentDetailView({ id }: { id: string }) {
                 </TableBody>
               </Table>
             </div>
-            
+
             {meta && (
               <div className="p-4 border-t border-border bg-muted/20">
                 <SimplePagination

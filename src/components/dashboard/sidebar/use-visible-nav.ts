@@ -10,10 +10,6 @@ import {
   filterSettingsRoutes,
 } from "./nav-data";
 
-/**
- * Nav yang sudah difilter sesuai hak akses pengguna. Dipakai bersama oleh
- * rail & panel sidebar agar konsisten. Owner melihat semua (usePermissions).
- */
 export function useVisibleNav() {
   const { canAny, isOwner, permissions } = usePermissions();
 

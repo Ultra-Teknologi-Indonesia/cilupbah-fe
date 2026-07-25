@@ -92,7 +92,7 @@ export function useListState<F extends object>(
     const nextFilters = readFilters();
     const nextSortBy = searchParams.get(sortByRawKey);
     const nextSortDir = searchParams.get(sortDirRawKey);
-    
+
     /* eslint-disable react-hooks/set-state-in-effect */
     setPageRaw((prev) => (prev === nextPage ? prev : nextPage));
     setPerPageRaw((prev) => (prev === nextPerPage ? prev : nextPerPage));

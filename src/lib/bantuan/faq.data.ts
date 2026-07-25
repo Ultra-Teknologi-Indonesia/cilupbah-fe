@@ -15,7 +15,7 @@ export const FAQ_CATEGORIES: { key: FaqCategory; label: string }[] = [
 ];
 
 export const FAQ_ITEMS: FaqItem[] = [
-  // ===== UMUM / AKUN =====
+
   {
     id: "umum-01",
     category: "umum",
@@ -74,7 +74,6 @@ export const FAQ_ITEMS: FaqItem[] = [
     relatedManualSlug: "profil-saya/sesi-riwayat",
   },
 
-  // ===== PESANAN =====
   {
     id: "pesanan-01",
     category: "pesanan",
@@ -131,7 +130,6 @@ export const FAQ_ITEMS: FaqItem[] = [
     relatedManualSlug: "integrasi-channel/koneksi",
   },
 
-  // ===== PICKING PACKING SHIPPING =====
   {
     id: "pps-01",
     category: "picking-packing-shipping",
@@ -201,7 +199,6 @@ export const FAQ_ITEMS: FaqItem[] = [
       "Untuk kurir instan / offline: **Shipping → detail pesanan → Terkirim** → isi waktu terima + penerima. Untuk channel MP: status auto sinkron dari webhook tracking.",
   },
 
-  // ===== PRODUK & BUNDLE =====
   {
     id: "produk-01",
     category: "produk",
@@ -255,7 +252,6 @@ export const FAQ_ITEMS: FaqItem[] = [
       "Master kurir persis mengikuti daftar Jubelio (canonicalNames). Tidak boleh custom karena berdampak ke label & tracking. Kurir tidak terpakai di-*deactivate*, bukan dihapus.",
   },
 
-  // ===== STOK GUDANG =====
   {
     id: "stok-01",
     category: "stok-gudang",
@@ -338,7 +334,6 @@ export const FAQ_ITEMS: FaqItem[] = [
       "Kebijakan: semua penjualan dialokasi dari WH-KECIL (frontline). Gudang besar hanya untuk restock ke kecil via Transfer. Picklist otomatis set `location_id = WH-KECIL`; tidak ada fallback.",
   },
 
-  // ===== INTEGRASI CHANNEL =====
   {
     id: "chan-01",
     category: "integrasi-channel",
@@ -393,7 +388,6 @@ export const FAQ_ITEMS: FaqItem[] = [
       "Cek: (1) toggle *sync_enabled* di matriks per SKU × store, (2) mapping SKU aktif, (3) token belum expired. Log push stok di menu *Notifikasi* filter *Sync Stok*.",
   },
 
-  // ===== RETUR =====
   {
     id: "retur-01",
     category: "retur",
@@ -424,7 +418,6 @@ export const FAQ_ITEMS: FaqItem[] = [
       "**Pengaturan → Retur → Tambah Retur Manual**. Referensi pesanan, item + qty retur, alasan, kondisi barang. Simpan → stok kembali ke rak retur.",
   },
 
-  // ===== PEMBELIAN =====
   {
     id: "beli-01",
     category: "pembelian",
@@ -456,7 +449,6 @@ export const FAQ_ITEMS: FaqItem[] = [
       "**Permintaan Restock → Tambah**. Cabang pemohon → cabang sumber, item + qty. Setelah di-approve, jadi Transfer Keluar.",
   },
 
-  // ===== LAPORAN =====
   {
     id: "lap-01",
     category: "laporan",
@@ -479,7 +471,6 @@ export const FAQ_ITEMS: FaqItem[] = [
       "Gunakan filter *Periode* (dari-sampai, preset harian/mingguan/bulanan) dan *Lokasi* (multi-select). Beberapa laporan mendukung *Group By Lokasi* di kolom tabel.",
   },
 
-  // ===== PENGATURAN =====
   {
     id: "set-01",
     category: "pengaturan",
@@ -519,7 +510,6 @@ export const FAQ_ITEMS: FaqItem[] = [
       "**Kategori & Merek**. Kategori bisa tree (parent → child). Merek flat. Digunakan sebagai filter di *Produk* dan *Laporan*.",
   },
 
-  // ===== TROUBLESHOOTING =====
   {
     id: "trb-01",
     category: "troubleshooting",

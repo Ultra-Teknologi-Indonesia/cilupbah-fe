@@ -11,7 +11,7 @@ function Table({
   ...props
 }: React.ComponentProps<"table"> & {
   containerClassName?: string;
-  /** Set false saat tabel dibungkus scroller lain (mis. ScrollArea) agar tak double-scroll. */
+
   scrollContainer?: boolean;
 }) {
   return (

@@ -10,11 +10,11 @@ export interface StatCardProps {
   value: string;
   hint?: string;
   icon?: LucideIcon;
-  /** Semantic accent for the icon tile. Defaults to neutral. */
+
   tone?: "default" | "success" | "warning" | "destructive";
-  /** Bila diisi, kartu jadi tautan ke halaman terkait. */
+
   href?: string;
-  /** Emphasis nilai. "hero" untuk metrik utama, "lg" sekunder menonjol. */
+
   emphasis?: "default" | "lg" | "hero";
   isLoading?: boolean;
   className?: string;

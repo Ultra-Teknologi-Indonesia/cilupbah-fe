@@ -122,8 +122,6 @@ export function CadangDetail({ id }: { id: string }) {
     );
   }
 
-
-
   const isActive = stock.status === "ACTIVE";
   const remaining = getRemainingDays(stock.end_date);
 

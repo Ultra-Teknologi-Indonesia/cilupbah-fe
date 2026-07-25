@@ -10,11 +10,7 @@ interface ProductVariantCellProps {
   className?: string;
   maxWidth?: number | string;
   emphasis?: "default" | "strong";
-  /**
-   * When true, render the SKU as a click-to-copy control (with toast) instead of
-   * plain text. Use this whenever the cell lives inside a clickable row so users
-   * can copy the SKU without triggering the row's navigation.
-   */
+
   copyableSku?: boolean;
 }
 

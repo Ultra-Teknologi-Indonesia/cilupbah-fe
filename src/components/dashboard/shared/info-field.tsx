@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 interface InfoFieldProps {
   label: string;
   value?: React.ReactNode;
-  /** Optional leading icon (renders an icon chip next to the label/value). */
+
   icon?: LucideIcon;
-  /** "vertical" (default): label above value. "horizontal": fixed-width label left, value right. */
+
   orientation?: "vertical" | "horizontal";
   className?: string;
 }
@@ -17,11 +17,6 @@ function isEmpty(value: React.ReactNode) {
   return value === null || value === undefined || value === "";
 }
 
-/**
- * Canonical key/value display for detail pages. Replaces the various bespoke
- * `Field` / `DetailRow` / `InfoRow` patterns so every record surface renders
- * labels and values with the same typography.
- */
 export function InfoField({
   label,
   value,

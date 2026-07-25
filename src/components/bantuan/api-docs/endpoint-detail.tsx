@@ -51,7 +51,7 @@ export function EndpointDetail({
 }) {
   return (
     <Card className={cn("flex flex-col overflow-hidden p-0", className)}>
-      {/* Sticky header */}
+
       <div className="flex shrink-0 flex-col gap-3 border-b border-border px-6 py-5">
         <div className="flex flex-wrap items-center gap-2">
           <MethodBadge method={endpoint.method} />
@@ -78,7 +78,7 @@ export function EndpointDetail({
 
       <ScrollArea className="min-h-0 flex-1">
         <div className="flex flex-col gap-5 px-6 py-6">
-          {/* Meta grid */}
+
           <div className="grid grid-cols-1 gap-3 rounded-xl bg-muted/50 p-3 text-xs tabular-nums sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <div className="text-muted-foreground">Modul</div>

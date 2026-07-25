@@ -1,15 +1,11 @@
-/**
- * Bentuk katalog Hak Akses dari backend `GET /permissions/catalog`
- * (mengikuti PermissionCatalog::matrix()). Dipakai untuk merender matriks
- * izin bergrup di halaman Peran & form Hak Akses pengguna.
- */
+
 
 export interface PermissionActionCell {
-  /** view | create | edit | delete | export | import */
+
   action: string;
-  /** Label ID untuk header kolom (Lihat, Tambah, …). */
+
   label: string;
-  /** Nama permission penuh, mis. "view-produk". */
+
   permission: string;
 }
 

@@ -26,7 +26,7 @@ import {
 } from "@/lib/phone";
 
 interface PhoneInputProps {
-  /** Nilai E.164, mis. "+628123456789". String kosong = belum diisi. */
+
   value?: string | null;
   onChange: (value: string) => void;
   disabled?: boolean;

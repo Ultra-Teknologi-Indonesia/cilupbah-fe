@@ -121,7 +121,7 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
   const [prefilled, setPrefilled] = React.useState(false);
   const [prevData, setPrevData] = React.useState(detail.data);
   const [prevMode, setPrevMode] = React.useState(mode);
-  
+
   if (mode !== prevMode || detail.data !== prevData) {
     setPrevMode(mode);
     setPrevData(detail.data);

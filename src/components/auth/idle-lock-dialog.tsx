@@ -32,14 +32,6 @@ async function forceLogout() {
   window.location.href = "/login";
 }
 
-/**
- * Kunci layar saat aplikasi lama tidak dipakai padahal tab masih terbuka.
- *
- * Ini pengaman terhadap orang lain yang menghampiri layar, bukan pengaman
- * kriptografis: cookie sesi tetap sah selama terkunci, yang diblokir adalah
- * antarmukanya. Karena itu dialog di-mount di root layout supaya menutup
- * seluruh halaman.
- */
 export function IdleLockDialog() {
   const pathname = usePathname();
   const isPublic = PUBLIC_PREFIXES.some((p) => pathname?.startsWith(p));
@@ -54,10 +46,6 @@ export function IdleLockDialog() {
   return <IdleLockPrompt email={me?.email} />;
 }
 
-/**
- * Dipisah supaya state form lahir bersih setiap kali layar terkunci —
- * tanpa perlu effect untuk mereset password & pesan error.
- */
 function IdleLockPrompt({ email }: { email?: string }) {
   const unlockScreen = useIdleLockStore((s) => s.unlock);
   const queryClient = useQueryClient();
@@ -76,14 +64,12 @@ function IdleLockPrompt({ email }: { email?: string }) {
     try {
       await unlock.mutateAsync(password);
       unlockScreen();
-      // Data bisa saja basi setelah lama menganggur.
+
       queryClient.invalidateQueries();
     } catch (err) {
       const status = (err as { status?: number })?.status;
       const code = (err as { code?: string })?.code;
 
-      // Refresh token ikut mati selagi idle — tidak ada yang bisa dibuka
-      // lagi, user memang harus login ulang.
       if (status === 401 || code === "SESSION_EXPIRED") {
         await forceLogout();
         return;

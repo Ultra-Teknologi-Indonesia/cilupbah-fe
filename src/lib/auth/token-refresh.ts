@@ -17,31 +17,18 @@ const BACKEND_URL =
   process.env.NEXT_PUBLIC_API_URL ||
   "http://localhost:8000";
 
-/** Refresh lebih awal supaya token tidak kedaluwarsa di tengah perjalanan request. */
 const REFRESH_SKEW_MS = 60_000;
 
 const REFRESH_TIMEOUT_MS = 10_000;
 
-/**
- * Backend menghapus refresh token lama setiap kali dirotasi. Kalau beberapa
- * request bersamaan sama-sama memanggil /auth/refresh, hanya yang pertama
- * berhasil dan sisanya dapat 401 — user ter-logout padahal sesinya sehat.
- * Map ini membuat request kedua dst. menunggu promise yang sama.
- *
- * PENTING: berkas ini hanya boleh di-import oleh Route Handler. proxy.ts
- * memuat modul di instance terpisah, jadi kalau proxy ikut mengimpor akan
- * lahir Map kedua dan single-flight-nya bocor. Proxy mengakses ini lewat
- * HTTP ke /api/auth/refresh.
- */
 const inFlight = new Map<string, Promise<TokenPair | null>>();
 
 export type SessionState =
-  /** Ada sesi hidup — pakai token ini. */
+
   | { status: "ok"; accessToken: string }
-  /** Belum pernah login sama sekali. Endpoint publik (login, lupa password)
-   *  harus tetap diteruskan tanpa header Authorization. */
+
   | { status: "anonymous" }
-  /** Pernah punya sesi, tapi sudah tidak bisa diselamatkan — harus login ulang. */
+
   | { status: "expired" };
 
 async function requestNewPair(refreshToken: string): Promise<TokenPair | null> {
@@ -75,11 +62,6 @@ async function requestNewPair(refreshToken: string): Promise<TokenPair | null> {
   }
 }
 
-/**
- * Tukar refresh token jadi pasangan baru dan simpan ke cookie.
- * Mengembalikan null kalau refresh token sudah tidak sah — pemanggil
- * harus memperlakukan itu sebagai logout.
- */
 export async function refreshSession(): Promise<TokenPair | null> {
   const jar = await cookies();
   const refreshToken = jar.get(REFRESH_TOKEN_COOKIE)?.value;
@@ -94,8 +76,7 @@ export async function refreshSession(): Promise<TokenPair | null> {
   const existing = inFlight.get(refreshToken);
   if (existing) {
     const pair = await existing;
-    // Pemenang single-flight sudah menulis cookie; yang menunggu cukup
-    // memakai hasilnya.
+
     return pair;
   }
 
@@ -115,17 +96,11 @@ export async function refreshSession(): Promise<TokenPair | null> {
   return pair;
 }
 
-/**
- * Access token yang dijamin masih berlaku, menyegarkannya lebih dulu bila
- * perlu. Dipakai oleh proxy /api/app sebelum meneruskan request.
- */
 export async function getValidAccessToken(): Promise<SessionState> {
   const jar = await cookies();
   const accessToken = jar.get(ACCESS_TOKEN_COOKIE)?.value;
   const refreshToken = jar.get(REFRESH_TOKEN_COOKIE)?.value;
 
-  // Tidak ada jejak sesi sama sekali. Jangan blokir di sini — request bisa
-  // saja menuju endpoint publik seperti /auth/login atau /auth/forgot-password.
   if (!accessToken && !refreshToken) {
     return { status: "anonymous" };
   }
@@ -142,8 +117,6 @@ export async function getValidAccessToken(): Promise<SessionState> {
 
   if (pair) return { status: "ok", accessToken: pair.access_token };
 
-  // Sesi lama dari sebelum fitur ini ada hanya punya cookie access tanpa
-  // penanda kedaluwarsa. Teruskan apa adanya; backend yang memutuskan.
   if (accessToken && !refreshToken) {
     return { status: "ok", accessToken };
   }

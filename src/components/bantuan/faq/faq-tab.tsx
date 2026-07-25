@@ -31,7 +31,6 @@ export function FaqTab() {
 
   const itemRefs = React.useRef<Map<string, HTMLDivElement | null>>(new Map());
 
-  // When ?id= changes, force expand + scroll + jump to "all" if item hidden by filter.
   React.useEffect(() => {
     if (!focusId) return;
     const target = FAQ_ITEMS.find((i) => i.id === focusId);
@@ -39,7 +38,7 @@ export function FaqTab() {
     setActiveCat("all");
     setQuery("");
     setOpenIds((prev) => (prev.includes(focusId) ? prev : [...prev, focusId]));
-    // Wait for accordion to expand before scrolling.
+
     const raf = requestAnimationFrame(() => {
       const el = itemRefs.current.get(focusId);
       if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });

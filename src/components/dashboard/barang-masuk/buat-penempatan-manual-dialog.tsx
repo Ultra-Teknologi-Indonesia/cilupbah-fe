@@ -26,10 +26,7 @@ interface BuatPenempatanManualDialogProps {
   inbounds: Inbound[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /**
-   * Dipanggil setelah dokumen berhasil dibuat (mis. untuk mereset seleksi tabel
-   * atau navigasi ke proses penempatan). `data` adalah payload putaway dari BE.
-   */
+
   onSuccess?: (data?: unknown) => void;
 }
 

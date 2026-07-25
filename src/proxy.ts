@@ -32,16 +32,6 @@ function timestamp(raw?: string): number | null {
   return Number.isFinite(value) && value > 0 ? value : null;
 }
 
-/**
- * Render Server Component tidak boleh menulis cookie, jadi fetcher RSC
- * (lib/api-server.ts) tidak bisa menyegarkan token sendiri. Di sinilah
- * penyegaran untuk navigasi halaman terjadi — sebelum render dimulai.
- *
- * Penyegaran dilakukan lewat HTTP ke /api/auth/refresh, bukan dengan
- * mengimpor token-refresh.ts langsung: proxy dimuat di instance modul
- * terpisah dari Route Handler, jadi impor langsung akan menghasilkan Map
- * single-flight kedua dan penguncian antar-request-nya bocor.
- */
 async function refreshViaFunnel(
   request: NextRequest,
 ): Promise<string[] | null> {
@@ -60,10 +50,6 @@ async function refreshViaFunnel(
   }
 }
 
-/**
- * Gabungkan nilai cookie sesi yang baru ke header cookie request lama,
- * supaya RSC pada request yang sama membaca token hasil refresh.
- */
 function rewriteCookieHeader(original: string, setCookies: string[]): string {
   const fresh = new Map<string, string>();
 
@@ -109,10 +95,6 @@ export async function proxy(request: NextRequest) {
     request.cookies.get(ACCESS_EXPIRES_COOKIE)?.value,
   );
 
-  // Sesi dianggap hidup selama refresh token masih dalam jendelanya —
-  // access token yang basi bukan alasan melempar user ke halaman login,
-  // karena masih bisa ditukar. Sesi lama dari sebelum fitur ini ada hanya
-  // punya cookie access, jadi tetap diterima.
   const hasLiveSession = refreshToken
     ? refreshExpiresAt === null || refreshExpiresAt > Date.now()
     : Boolean(accessToken);
@@ -138,9 +120,6 @@ export async function proxy(request: NextRequest) {
       return redirectToLogin(request, pathname);
     }
 
-    // Cookie baru harus ikut ke DUA arah: ke browser lewat set-cookie, dan
-    // ke request yang sedang berjalan — kalau tidak, RSC di bawah ini masih
-    // membaca token lama dari header cookie asli dan tetap kena 401.
     const requestHeaders = new Headers(request.headers);
     const rewritten = rewriteCookieHeader(
       request.headers.get("cookie") ?? "",

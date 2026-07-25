@@ -62,12 +62,6 @@ export interface OrderListParams {
   item_id?: string;
 }
 
-/**
- * Bucket status granular untuk filter multi-select di tab "Semua" — mirip
- * checklist "Cari status" Jubelio. Key harus sama dengan
- * SalesOrderRepository::STATUS_FILTER_KEYS di backend. Diurutkan alfabetis
- * berdasarkan label agar tampilannya konsisten dengan referensi Jubelio.
- */
 export const STATUS_FILTER_OPTIONS: { value: string; label: string }[] = [
   { value: "cancelled", label: "Batal" },
   { value: "unpaid", label: "Belum Bayar" },

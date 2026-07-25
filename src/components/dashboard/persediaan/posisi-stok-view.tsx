@@ -81,11 +81,9 @@ const STOCK_FILTER_TABS: {
 ];
 const STOCK_FILTER_KEYS = STOCK_FILTER_TABS.map((t) => t.key);
 
-/** Kolom kiri yang selalu terlihat (sticky) saat scroll horizontal antar lokasi. */
 const PRODUCT_COL_W = 300;
 const COST_COL_W = 120;
 
-/** localStorage: daftar location_id yang disembunyikan dari kolom Posisi Stok. */
 const HIDDEN_LOCATIONS_KEY = "posisi-stok:hidden-locations";
 
 interface FilterState {
@@ -94,7 +92,6 @@ interface FilterState {
 
 const EMPTY_FILTERS: FilterState = { channel: "" };
 
-/** Field yang bisa di-sort di server (sisanya di-sort client-side pada data halaman). */
 const SERVER_SORT_MAP: Partial<Record<SortField, string>> = {
   item_code: "product_variants.sku",
 };
@@ -229,13 +226,6 @@ function DrillableQty({
   );
 }
 
-/**
- * 3 sel metrik (On Hand · On Order · Available) untuk satu lokasi
- * ataupun untuk kolom Total. `stock` undefined = lokasi tanpa stok → semua 0.
- * On Hand & On Order bisa di-klik untuk drill-down (Kronologi / Pesanan) yang
- * otomatis terfilter. Available yang negatif ditampilkan dengan badge merah
- * mengikuti gaya Jubelio.
- */
 function MetricCells({
   stock,
   emphasize,
@@ -287,7 +277,6 @@ function MetricCells({
   );
 }
 
-/** Popover pemilih lokasi yang ditampilkan sebagai kolom (default: semua). */
 function VisibleLocationsControl({
   locations,
   hidden,
@@ -411,7 +400,7 @@ export function PosisiStokView() {
         setHiddenLocations(parsed.filter((x) => typeof x === "string"));
       }
     } catch {
-      /* abaikan localStorage yang rusak */
+
     }
   }, []);
 
@@ -420,7 +409,7 @@ export function PosisiStokView() {
     try {
       window.localStorage.setItem(HIDDEN_LOCATIONS_KEY, JSON.stringify(next));
     } catch {
-      /* penyimpanan mungkin tidak tersedia */
+
     }
   }, []);
 
@@ -632,7 +621,7 @@ export function PosisiStokView() {
               >
                 <Table scrollContainer={false}>
                 <TableHeader>
-                  {/* Baris 1: grup lokasi + Total */}
+
                   <TableRow className="border-b border-border/60">
                     <TableHead
                       rowSpan={2}
@@ -705,7 +694,6 @@ export function PosisiStokView() {
                     </TableHead>
                   </TableRow>
 
-                  {/* Baris 2: sub-kolom metrik */}
                   <TableRow className="border-b border-border/60">
                     {visibleLocations.map((l) => (
                       <MetricSubHeaders
@@ -853,7 +841,6 @@ export function PosisiStokView() {
   );
 }
 
-/** Sub-header 3 metrik. Untuk kolom Total, On Hand & Available bisa di-sort. */
 function MetricSubHeaders({
   total = false,
   borderLeft = false,

@@ -6,16 +6,6 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-/**
- * Qty diterima yang bisa disunting langsung di sel tabel — klik angka, ketik,
- * Enter untuk simpan, Escape untuk batal. Tidak ada dialog dan tidak ada isian
- * alasan: selisihnya otomatis dibuatkan dokumen Penyesuaian Stok oleh backend,
- * lengkap dengan remarks yang disusun otomatis.
- *
- * Catatan: `AGENTS.md` menetapkan "edit memakai modal dialog, bukan inline".
- * Pola inline di sini adalah pengecualian yang diminta klien secara eksplisit
- * (20 Jul 2026) untuk koreksi qty, karena aksinya sering dan bernilai tunggal.
- */
 export function InlineQtyEdit({
   value,
   minQty = 0,

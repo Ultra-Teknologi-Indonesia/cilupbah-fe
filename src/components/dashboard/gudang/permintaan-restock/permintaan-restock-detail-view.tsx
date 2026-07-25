@@ -124,7 +124,6 @@ export function PermintaanRestockDetailView({ id }: Props) {
         ]}
       />
 
-      {/* Header ringkas */}
       <LiquidGlass
         radius={16}
         intensity="subtle"
@@ -214,7 +213,6 @@ export function PermintaanRestockDetailView({ id }: Props) {
         </div>
       </LiquidGlass>
 
-      {/* Daftar produk */}
       <LiquidGlass
         radius={16}
         intensity="subtle"

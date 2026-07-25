@@ -33,23 +33,12 @@ interface ComboboxBaseProps {
   className?: string;
   onCreateOption?: (query: string) => void;
   createLabel?: (query: string) => string;
-  /**
-   * Kalau diisi, dipanggil setiap kali user mengetik.
-   * Combobox akan berhenti menyaring lokal & menampilkan seluruh `options` — parent bertanggung jawab
-   * fetch remote berdasarkan query ini.
-   */
+
   onQueryChange?: (query: string) => void;
   loading?: boolean;
-  /**
-   * Kalau true: badge terpilih membungkus ke bawah (bukan +N) dan opsi dropdown
-   * ditampilkan penuh (wrap, tanpa truncate). Cocok untuk label panjang.
-   */
+
   wrap?: boolean;
-  /**
-   * Lazy-load / infinite scroll. `onLoadMore` dipanggil saat scroll mendekati
-   * dasar list selama `hasMore` true; `loadingMore` menampilkan footer "Memuat…".
-   * Parent (mis. useInfiniteQuery) bertanggung jawab menambah `options`.
-   */
+
   onLoadMore?: () => void;
   hasMore?: boolean;
   loadingMore?: boolean;

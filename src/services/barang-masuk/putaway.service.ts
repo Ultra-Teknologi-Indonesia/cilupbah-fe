@@ -174,7 +174,6 @@ export const PutawayService = {
     return res.data;
   },
 
-  /** Tombol A "Alihkan Tugas" — TAHAN placement. */
   unassign: async (
     putawayId: string,
     payload: {
@@ -190,7 +189,6 @@ export const PutawayService = {
     return res.data;
   },
 
-  /** Tombol B "Reset & Alihkan" — reverse semua placement. */
   resetAssignment: async (
     putawayId: string,
     payload: { reason_note: string; new_assignee_id?: string },

@@ -36,7 +36,6 @@ const _EXTRA_COLS: Record<AnalyticsKind, string[]> = {
   "perkiraan-habis": ["Rata-rata/hari", "Estimasi Hari", "Perkiraan Habis"],
 };
 
-
 function Thumb({ url, alt }: { url: string | null; alt: string }) {
   return (
     <div

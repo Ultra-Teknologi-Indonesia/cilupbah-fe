@@ -32,11 +32,10 @@ interface BuatPengirimanDialogProps {
   shippingProvider?: string | null;
   shippingType?: string | null;
 
-  /** @deprecated Lokasi auto-resolve ke WH-KECIL di BE. Props ini diabaikan. */
   locationId?: string | null;
-  /** @deprecated */
+
   locationName?: string | null;
-  /** @deprecated */
+
   multiLocation?: boolean;
 }
 

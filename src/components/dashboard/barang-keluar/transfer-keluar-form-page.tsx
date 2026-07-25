@@ -166,7 +166,7 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                 available_bins: r.data.available_bins ?? [],
               });
             } catch {
-              /* biarkan — rak fallback dari source_bin item */
+
             }
           }),
         );
@@ -473,7 +473,7 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
         try {
           await OutboundTransferService.removeItem(id, oid);
         } catch {
-          /* biarkan — laporkan via toast di akhir */
+
         }
       }
     }
@@ -543,7 +543,6 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
         ]}
       />
 
-      {/* Header fields */}
       <LiquidGlass
         radius={16}
         intensity="subtle"
@@ -618,7 +617,6 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
         </div>
       </LiquidGlass>
 
-      {/* Hidden current-user capture (name string) — hanya mode create */}
       {mode === "create" && (
         <div className="sr-only" aria-hidden="true">
           <UserSelect
@@ -630,7 +628,6 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
         </div>
       )}
 
-      {/* Items */}
       <LiquidGlass
         radius={16}
         intensity="subtle"

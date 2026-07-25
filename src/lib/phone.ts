@@ -7,7 +7,6 @@ export interface PhoneCountry {
   flag: string;
 }
 
-/** Bendera emoji dari kode ISO 3166-1 alpha-2 (regional indicator). */
 function flagEmoji(iso: string): string {
   return iso
     .toUpperCase()
@@ -25,7 +24,6 @@ const allCountries: PhoneCountry[] = (
   }))
   .filter((c) => c.dial.length > 0);
 
-/** Sumber data: cilupbah-be/database/data/CountryCodes.json. Indonesia di urutan pertama. */
 export const PHONE_COUNTRIES: PhoneCountry[] = [
   ...allCountries.filter((c) => c.iso === "ID"),
   ...allCountries.filter((c) => c.iso !== "ID"),
@@ -33,7 +31,6 @@ export const PHONE_COUNTRIES: PhoneCountry[] = [
 
 export const DEFAULT_DIAL = "62";
 
-/** E.164: tanda plus, kode negara, total 7-15 digit. */
 export const PHONE_E164_REGEX = /^\+[1-9]\d{6,14}$/;
 
 export function isValidPhone(value: string): boolean {
@@ -52,10 +49,6 @@ export function findCountryByDial(dial: string): PhoneCountry | undefined {
   return PHONE_COUNTRIES.find((c) => c.dial === dial);
 }
 
-/**
- * Memecah nilai telepon apa pun (E.164, lokal 08xx, 62xx, dengan
- * spasi/strip) menjadi kode negara + nomor nasional.
- */
 export function splitPhone(value: string): { dial: string; national: string } {
   const raw = value.trim();
   let digits = raw.replace(/\D/g, "");
@@ -84,12 +77,10 @@ export function joinPhone(dial: string, national: string): string {
   return national ? `+${dial}${national}` : "";
 }
 
-/** E.164 maksimal 15 digit termasuk kode negara. */
 export function maxNationalDigits(dial: string): number {
   return 15 - dial.length;
 }
 
-/** Masking tampilan nomor nasional: 812 3456 7890. */
 export function formatNationalNumber(digits: string): string {
   if (digits.length <= 3) return digits;
   const groups = [digits.slice(0, 3)];
@@ -99,7 +90,6 @@ export function formatNationalNumber(digits: string): string {
   return groups.join(" ");
 }
 
-/** Format tampilan lengkap: +62 812 3456 7890. */
 export function formatPhoneDisplay(value: string | null | undefined): string {
   if (!value) return "";
   const { dial, national } = splitPhone(value);

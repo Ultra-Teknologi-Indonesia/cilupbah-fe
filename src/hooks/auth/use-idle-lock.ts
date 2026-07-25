@@ -3,12 +3,10 @@
 import { useEffect } from "react";
 import { create } from "zustand";
 
-/** Lama tanpa aktivitas sebelum layar dikunci. */
 export const IDLE_TIMEOUT_MS = 30 * 60 * 1000;
 
 const CHECK_INTERVAL_MS = 15_000;
 
-/** Jangan menulis localStorage tiap mousemove. */
 const ACTIVITY_THROTTLE_MS = 15_000;
 
 export const MAX_UNLOCK_ATTEMPTS = 5;
@@ -31,11 +29,6 @@ type IdleLockState = {
   unlock: () => void;
 };
 
-/**
- * Status kunci disimpan di localStorage, bukan hanya state React, supaya
- * seluruh tab ikut terkunci dan ikut terbuka bersamaan. Aktivitas di satu
- * tab juga menahan timer di tab lain.
- */
 export const useIdleLockStore = create<IdleLockState>((set) => ({
   locked: false,
   lock: () => {
@@ -53,11 +46,6 @@ export const useIdleLockStore = create<IdleLockState>((set) => ({
   },
 }));
 
-/**
- * Bersihkan sisa status kunci dari sesi sebelumnya. Wajib dipanggil saat
- * login sukses: tanpa ini, `auth:locked` atau `auth:last-activity` yang basi
- * membuat layar langsung terkunci begitu dashboard ter-mount.
- */
 export function resetIdleLock() {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(LOCKED_KEY);
@@ -71,10 +59,6 @@ function readLastActivity(): number {
   return Number.isFinite(value) && value > 0 ? value : Date.now();
 }
 
-/**
- * Pantau aktivitas dan kunci layar setelah idle. Dipasang sekali saja di
- * komponen idle lock yang di-mount di root layout.
- */
 export function useIdleLock(enabled: boolean) {
   const lock = useIdleLockStore((s) => s.lock);
   const locked = useIdleLockStore((s) => s.locked);
@@ -82,7 +66,6 @@ export function useIdleLock(enabled: boolean) {
   useEffect(() => {
     if (!enabled) return;
 
-    // Pulihkan status kunci saat tab baru dibuka atau halaman di-reload.
     if (window.localStorage.getItem(LOCKED_KEY) === "1") {
       useIdleLockStore.setState({ locked: true });
     } else if (!window.localStorage.getItem(LAST_ACTIVITY_KEY)) {
@@ -107,14 +90,7 @@ export function useIdleLock(enabled: boolean) {
     };
 
     const onVisibility = () => {
-      // Hanya memeriksa saat tab kembali terlihat. Sengaja TIDAK menandai
-      // aktivitas saat tab disembunyikan: pindah ke tab lain bukan aktivitas
-      // di aplikasi ini, dan menandainya justru memundurkan waktu kunci.
-      //
-      // Pemeriksaan di sini wajib karena setInterval tidak berjalan (atau
-      // di-throttle berat) saat laptop tidur / tab di latar belakang —
-      // tanpa ini, user membuka laptop setelah berjam-jam dan layar tidak
-      // terkunci.
+
       if (document.visibilityState === "visible") checkIdle();
     };
 

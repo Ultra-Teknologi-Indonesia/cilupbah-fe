@@ -31,24 +31,16 @@ async function writeToClipboard(text: string): Promise<boolean> {
 }
 
 export interface UseCopyToClipboardOptions {
-  /** How long the `copied` flag stays true before resetting, in ms. */
+
   resetDelay?: number;
 }
 
 export interface UseCopyToClipboard {
   copied: boolean;
-  /**
-   * Copy `text` to the clipboard and show a success toast.
-   * Pass `message` to override the default toast, or `null` to suppress it.
-   */
+
   copy: (text: string, message?: string | null) => Promise<void>;
 }
 
-/**
- * Shared clipboard primitive: writes text to the clipboard, shows a toast, and
- * tracks a transient `copied` flag for check-mark UI. Use this instead of calling
- * `navigator.clipboard.writeText` + `toast` inline.
- */
 export function useCopyToClipboard(
   options: UseCopyToClipboardOptions = {},
 ): UseCopyToClipboard {

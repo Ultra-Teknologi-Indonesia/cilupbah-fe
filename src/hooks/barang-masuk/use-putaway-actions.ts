@@ -161,7 +161,6 @@ export function useDeletePutawayPlacement() {
   });
 }
 
-/** Tombol A "Alihkan Tugas" — TAHAN placement. */
 export function useUnassignPutaway(putawayId: string) {
   const qc = useQueryClient();
   return useMutation({
@@ -182,7 +181,6 @@ export function useUnassignPutaway(putawayId: string) {
   });
 }
 
-/** Tombol B "Reset & Alihkan" — reverse semua placement. */
 export function useResetPutawayAssignment(putawayId: string) {
   const qc = useQueryClient();
   return useMutation({

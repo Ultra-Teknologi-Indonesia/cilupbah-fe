@@ -94,7 +94,6 @@ function handleExportPutaway(items: Putaway[]) {
   );
 }
 
-/** Aksi utama per baris menyesuaikan status: Mulai / Lanjutkan / Lihat. */
 function primaryAction(item: Putaway): { label: string; href: string } {
   if (item.status === "COMPLETED") {
     return { label: "Lihat", href: `/dashboard/barang-masuk/penempatan/${item.id}` };

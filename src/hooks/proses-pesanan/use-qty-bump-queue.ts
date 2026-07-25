@@ -3,39 +3,14 @@
 import * as React from "react";
 
 export interface QtyBumpQueueOptions {
-  /** Extra attempts after the first, on top of the initial try. Default 2 (3 tries total). */
+
   retries?: number;
-  /** Base backoff between retries in ms, scaled by attempt number. Default 600. */
+
   retryDelayMs?: number;
-  /**
-   * Called once a target's commit fails on every attempt and the queue gives
-   * up on it. There is no manual "retry" affordance in the scan UI by design
-   * (checkers only interact with the scanner) — this is the sole signal that
-   * a physically-scanned unit did not actually persist, so the caller should
-   * surface it loudly (toast/alert) rather than fail silently.
-   */
+
   onGiveUp?: (itemId: string) => void;
 }
 
-/**
- * Serialized, coalescing qty committer for scan-to-increment flows.
- *
- * Scan-based warehouse UIs (picking/packing) fire many rapid "+1" events. The
- * underlying mutations send an ABSOLUTE qty, so naive per-scan mutations can
- * commit out-of-order and clobber the final value. This queue guarantees:
- *
- * - At most one in-flight commit per item (serialized).
- * - Rapid scans while a commit is in flight are coalesced into one follow-up
- *   commit carrying the latest target — 10 fast scans collapse to ~1-2 calls.
- * - The final committed value always equals the last requested target.
- * - A commit that fails (e.g. transient network drop) is retried with
- *   backoff before giving up — scanning is the only interaction the checker
- *   has, so transient failures must self-heal without a manual retry step.
- *
- * `commit(itemId, absoluteQty)` performs the actual mutation (returns a promise).
- * Optimistic UI + rollback are expected to live inside `commit` (e.g. the
- * mutation's own `onMutate`/`onError`).
- */
 export function useQtyBumpQueue(
   commit: (itemId: string, absoluteQty: number) => Promise<unknown>,
   options?: QtyBumpQueueOptions,
@@ -93,11 +68,6 @@ export function useQtyBumpQueue(
     }
   }, []);
 
-  /**
-   * Increment (or decrement) an item's target qty by `delta`, clamped to
-   * `[0, max]`, seeding from `base` (the server's current qty) when no target
-   * is pending. Returns the new target, or `null` if already capped.
-   */
   const bump = React.useCallback(
     ({
       itemId,

@@ -52,11 +52,6 @@ export function Markdown({ children, className }: MarkdownProps) {
   );
 }
 
-/**
- * Renders `![alt](src "title")` as a figure with caption.
- * When src is a video file, renders <video> instead.
- * Otherwise renders zoomable <img> (opens full-size in new tab on click).
- */
 function MediaFigure({
   src,
   alt,
@@ -104,9 +99,6 @@ function MediaFigure({
   );
 }
 
-/**
- * External links get a target="_blank" + icon; internal (starts with "/") stays SPA.
- */
 function LinkOrEmbed({ href, children }: React.ComponentProps<"a">) {
   const url = href ?? "";
   const external = /^https?:\/\//i.test(url);

@@ -17,11 +17,7 @@ async function serverFetch<T>(
 ): Promise<T> {
   const path = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
   const store = await cookies();
-  // Sengaja TIDAK menyegarkan token di sini. Next melarang menulis cookie
-  // saat render Server Component, jadi pasangan token hasil rotasi tidak
-  // bisa disimpan — dan karena backend menghapus refresh token lama saat
-  // rotasi, token barunya akan hilang dan user justru ter-logout.
-  // proxy.ts sudah menyegarkan cookie sebelum render ini dimulai.
+
   const token = store.get("token")?.value || store.get("session")?.value;
 
   const method = (options?.method ?? "GET").toUpperCase();

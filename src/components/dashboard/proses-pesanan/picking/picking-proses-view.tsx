@@ -85,10 +85,6 @@ type ApiErrorShape = {
   errors?: Record<string, unknown> | null;
 };
 
-/**
- * 409 dari BE saat item sudah dituntaskan picker lain. Dibedakan dari error
- * biasa supaya picking bersama tidak terasa seperti kegagalan.
- */
 function isItemAlreadyFull(err: unknown): boolean {
   if (!err || typeof err !== "object") return false;
   const body = err as ApiErrorShape;
@@ -230,8 +226,6 @@ export function PickingProsesView({ id }: { id: string }) {
     } as FulfillmentListParams;
   }, [list.page, list.perPage, list.sorting]);
 
-  // Polling menyala selagi picklist masih dikerjakan: picking free-for-all, jadi
-  // rekan lain bisa menambah progres pada picklist yang sama kapan saja.
   const itemsQuery = usePicklistItems(id, params, {
     live: pl?.status === "IN_PROGRESS" || pl?.status === "DRAFT",
   });
@@ -269,9 +263,7 @@ export function PickingProsesView({ id }: { id: string }) {
           binCode,
         });
       } catch (e) {
-        // Rekan lain lebih dulu menuntaskan item ini. Ini kejadian normal pada
-        // picking bersama, bukan kegagalan teknis: beri tahu dengan ramah dan
-        // selaraskan layar, jangan suruh scan ulang.
+
         if (isItemAlreadyFull(e)) {
           playScanFeedback("error");
           toast.info(readApiMessage(e) ?? "Barang ini sudah lengkap.");
@@ -307,9 +299,7 @@ export function PickingProsesView({ id }: { id: string }) {
   const isTerminal = pl
     ? ["COMPLETED", "FAILED", "CANCELLED"].includes(pl.status)
     : false;
-  // Picking free-for-all: web boleh ikut menggarap picklist yang sedang
-  // dipegang picker mobile. Tidak ada lagi channel lock — keamanan datanya
-  // dijaga di BE (row lock + kontrak qty_delta), bukan dengan menutup UI.
+
   const editable = !!pl && !isTerminal;
 
   React.useEffect(() => {
@@ -393,9 +383,7 @@ export function PickingProsesView({ id }: { id: string }) {
       }
 
       const item = itemsRef.current.find((i) => i.id === res.item_id);
-      // Penjaga lokal supaya tidak mengirim request yang jelas akan ditolak.
-      // Datanya bisa basi (rekan lain mungkin baru saja menambah), jadi otoritas
-      // tetap di BE yang membalas 409 ITEM_ALREADY_FULL.
+
       if (item && item.qtyPicked >= item.qtyOrdered) {
         playScanFeedback("error");
         toast.info(`${item.sku} sudah lengkap.`);

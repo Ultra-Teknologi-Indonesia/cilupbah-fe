@@ -66,10 +66,6 @@ export interface DocumentTypeConfig {
 
   resetBeforeRetry?: (id: string) => Promise<void>;
 
-  /**
-   * Opsional: unduh dokumen versi Excel (.xlsx). Bila ada, tombol "Excel"
-   * ditampilkan di header preview di samping tombol Unduh (PDF).
-   */
   excel?: {
     fetch: (id: string, query?: URLSearchParams) => Promise<Blob>;
     filename: (id: string, meta?: DocumentMeta) => string;
@@ -451,7 +447,6 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     filename: (id, meta) =>
       `${(meta?.transfer_number as string | undefined) ?? `TRFO-${id}`}.pdf`,
   },
-
 
   "purchase-order": {
     title: "Barang Masuk Pembelian",

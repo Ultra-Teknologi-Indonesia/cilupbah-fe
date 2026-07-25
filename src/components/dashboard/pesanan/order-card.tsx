@@ -434,9 +434,7 @@ export function OrderActions({
             {order.contacted_at ? "Ubah Konfirmasi" : "Catat Konfirmasi"}
           </Button>
         )}
-        {/* Boleh dipindah dari empty-stock maupun failed-pick — BE akan skip
-            via shortfall guard (hasStockShortfall) jika stok belum tersedia,
-            dan toast menampilkan {moved} · {skipped}. */}
+
         <Button
           size="sm"
           className="h-8 gap-1.5 text-xs"

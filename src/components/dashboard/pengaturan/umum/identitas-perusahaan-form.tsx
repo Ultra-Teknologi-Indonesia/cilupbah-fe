@@ -50,7 +50,6 @@ export function IdentitasPerusahaanForm() {
   const { can } = usePermissions();
   const canEdit = can("edit-pengaturan-sistem");
 
-  // null = belum disentuh (pakai nilai server); { url } = hasil unggah/hapus lokal.
   const [logoOverride, setLogoOverride] = React.useState<{
     url: string | null;
   } | null>(null);

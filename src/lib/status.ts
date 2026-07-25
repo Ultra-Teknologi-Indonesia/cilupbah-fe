@@ -74,7 +74,6 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     MP_NOT_RETURN: { label: "Bukan Retur", variant: "muted" },
   },
 
-
   "inventory-transfer": {
     DRAFT: { label: "Draft", variant: "muted" },
     APPROVED: { label: "Disetujui", variant: "indigo" },

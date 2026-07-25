@@ -41,7 +41,6 @@ import { exportCsv } from "@/lib/export-csv";
 import type { Inbound } from "@/types/barang-masuk/inbound";
 import { formatDateTime } from "@/lib/format";
 
-/** Sub-tab sumber → filter[type] pada daftar penerimaan. */
 type SourceTab = "semua" | "pesanan" | "transfer" | "retur";
 const SOURCE_TABS: readonly SourceTab[] = [
   "pesanan",
@@ -56,13 +55,11 @@ const TAB_TO_TYPE: Record<SourceTab, string> = {
   retur: "SALES_RETURN",
 };
 
-/** Putaway yang masih berjalan (bisa dilanjutkan prosesnya). */
 function activePutaway(item: Inbound) {
   return item.putaways?.find(
     (p) => !["COMPLETED", "CANCELLED"].includes(p.status),
   );
 }
-
 
 const TYPE_LABEL: Record<string, string> = {
   PURCHASE_ORDER: "PO",
@@ -104,8 +101,6 @@ function ProgressBar({ value, total }: { value: number; total: number }) {
   );
 }
 
-/** Penerimaan bisa dibuat penempatan: masih ada qty pending (received - putaway - reserved).
- *  COMPLETED = penerimaan selesai (bukan putaway selesai) → tetap bisa di-putaway selama qty pending > 0. */
 function isSelectable(item: Inbound): boolean {
   const totalRecv = item.items?.reduce((s, i) => s + (i.received_qty || 0), 0) ?? 0;
   const totalPutaway =
@@ -119,7 +114,6 @@ function isSelectable(item: Inbound): boolean {
   );
 }
 
-/** Transfer sedang dijalan yang belum diterima → bisa di-Terima dari web. */
 function isTransitReceivable(item: Inbound): boolean {
   return (
     item.type === "TRANSIT_IN" &&

@@ -18,7 +18,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-
 import { QRCodeSVG } from "qrcode.react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -84,7 +83,7 @@ interface PlacementEntry {
   initialBinCode: string;
   initialBinQty: number;
   maxQty: number;
-  /** Set when this row is a committed placement (from API) that can be deleted to correct a mis-scan. */
+
   committedPlacementId?: string;
 }
 
@@ -134,9 +133,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const isNotStarted = putaway?.status === "NOT_STARTED";
   const isInProgress = putaway?.status === "IN_PROGRESS";
   const isCompleted = putaway?.status === "COMPLETED";
-  // Dokumen boleh dipegang staff di mobile dan tetap diedit dari web (keputusan
-  // klien 20 Jul 2026). Statusnya cuma ditampilkan lewat AssignmentLockBanner
-  // mode="advisory"; yang menjaga adalah optimistic lock di BE, bukan kunci UI.
+
   const canEdit = isNotStarted || isInProgress;
 
   const { data: me } = useMe();
@@ -308,8 +305,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
     },
     [allItems, addPlacementForItem],
   );
-
-
 
   const onProcessed = useCallback(() => {
     refetchItems();
@@ -1209,15 +1204,6 @@ function PlacementRow({
   );
 }
 
-/**
- * Koreksi qty diterima langsung dari sel tabel Penempatan — tanpa dialog.
- * Yang diubah sebenarnya adalah baris Penerimaan asalnya; selisihnya otomatis
- * jadi dokumen Penyesuaian Stok di BE, remarks-nya disusun otomatis juga.
- *
- * Satu baris putaway bisa bersumber dari beberapa penerimaan (penempatan
- * gabungan). Kalau begitu, tiap sumber dapat inputnya sendiri dan diberi label
- * nomor penerimaan — jangan diam-diam menyunting yang pertama saja.
- */
 function InlineSourceQtyEditors({
   sources,
   onCorrected,

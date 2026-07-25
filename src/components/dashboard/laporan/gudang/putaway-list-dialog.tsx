@@ -55,8 +55,6 @@ export function PutawayListDialog({
     open,
   );
 
-  // Nomor penempatan terikat pada tanggal dan lokasi, jadi pilihan lama
-  // dikosongkan begitu salah satunya berubah.
   function handleDateChange(next: Date | undefined) {
     setDate(next);
     setPutawayIds([]);

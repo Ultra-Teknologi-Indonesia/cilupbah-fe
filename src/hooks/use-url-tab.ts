@@ -15,8 +15,7 @@ export function useUrlTab<T extends string>(
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { validValues, clearKeys } = options ?? {};
-  
-  // Need this to stabilize dependency array
+
   const clearKeysKey = JSON.stringify(clearKeys);
 
   const raw = searchParams.get(key);
@@ -41,10 +40,10 @@ export function useUrlTab<T extends string>(
       } else {
         params.set(key, next);
       }
-      // Re-parse clearKeys from clearKeysKey inside the callback to avoid stale closures if options object changes
+
       const parsedClearKeys = clearKeysKey ? JSON.parse(clearKeysKey) as string[] : [];
       for (const k of parsedClearKeys) params.delete(k);
-      
+
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },

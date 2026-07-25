@@ -46,7 +46,6 @@ const MODE_OPTIONS: { value: OrderPerformanceMode; label: string }[] = [
   { value: "summary", label: "Summary" },
 ];
 
-/** Pesanan tidak punya Summary — backend pun menolaknya dengan 422. */
 const JENIS_TANPA_SUMMARY: OrderPerformanceJenis[] = ["pesanan"];
 
 function formatDateISO(d: Date): string {
@@ -77,9 +76,6 @@ export function OrderPerformanceDialog({
 
   const summaryDisabled = jenis !== "" && JENIS_TANPA_SUMMARY.includes(jenis);
 
-  // Diturunkan, bukan disinkronkan lewat effect: kombinasi Pesanan + Summary
-  // tidak pernah bisa terkirim, dan pilihan Summary pengguna tetap utuh kalau
-  // ia berpindah ke jenis lain.
   const effectiveMode: OrderPerformanceMode = summaryDisabled ? "detail" : mode;
 
   function handleOpenChange(next: boolean) {

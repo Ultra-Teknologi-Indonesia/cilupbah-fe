@@ -12,11 +12,6 @@ interface LocationComboboxProps {
   className?: string;
 }
 
-/**
- * Pemilih lokasi tunggal, untuk laporan yang memang hanya bisa satu gudang.
- * Jangan pakai LocationMultiCombobox lalu diambil pilihan terakhir — pengguna
- * bisa memilih beberapa lalu melihatnya hilang tanpa penjelasan.
- */
 export function LocationCombobox({
   value,
   onChange,

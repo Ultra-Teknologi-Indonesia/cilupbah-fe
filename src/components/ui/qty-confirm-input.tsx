@@ -17,11 +17,7 @@ interface QtyConfirmInputProps {
   autoSelectOnFocus?: boolean;
   autoFocus?: boolean;
   allowOverWithConfirm?: boolean;
-  /**
-   * Terima qty berapa pun tanpa toast/blok — over-max hanya diberi ring amber.
-   * Dipakai untuk flow yang boleh mencatat minus (Penempatan/Pengambilan/Transfer/Penyesuaian)
-   * setelah kebijakan longgar stok.
-   */
+
   warnOnly?: boolean;
   disabled?: boolean;
   placeholder?: string;

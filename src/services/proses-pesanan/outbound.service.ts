@@ -660,13 +660,7 @@ export const OutboundService = {
   startPicklist: async (id: string): Promise<void> => {
     await fetchClient(`/outbound/picklists/${id}/start`, { method: "POST" });
   },
-  /**
-   * Dua mode, wajib salah satu:
-   * - qty_delta  : penambahan relatif, dipakai semua alur scan. Server yang
-   *                menghitung total di dalam row lock, jadi aman walau beberapa
-   *                orang menggarap picklist yang sama sekaligus.
-   * - qty_picked : nilai absolut, khusus koreksi manual.
-   */
+
   pickItem: async (
     picklistId: string,
     itemId: string,
@@ -1454,7 +1448,6 @@ export const OutboundService = {
     );
   },
 
-  /** Tombol A "Alihkan Tugas" — TAHAN alokasi pick. */
   unassignPicklist: async (
     picklistId: string,
     payload: {
@@ -1470,7 +1463,6 @@ export const OutboundService = {
     return res.data;
   },
 
-  /** Tombol B "Reset & Alihkan" — clear allocation + reset picked_qty. */
   resetPicklistAssignment: async (
     picklistId: string,
     payload: { reason_note: string; new_assignee_id?: string },

@@ -34,9 +34,9 @@ export type User = {
   name: string;
   email: string;
   roles: string[];
-  /** Hak akses efektif (role + langsung). Owner → seluruh permission. */
+
   permissions: string[];
-  /** Hak akses langsung (override per-user) di luar bawaan role. */
+
   directPermissions: string[];
   nik: string | null;
   warehouseId: string | null;

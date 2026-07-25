@@ -34,7 +34,7 @@ interface ActionQueueTableProps {
   title: string;
   icon: LucideIcon;
   emptyMessage: string;
-  /** Link to the full list page (e.g. Pesanan tab) for "Lihat semua". */
+
   viewAllHref?: string;
 }
 

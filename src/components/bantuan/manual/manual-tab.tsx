@@ -45,8 +45,6 @@ export function ManualTab() {
 
   const active = MANUAL_ENTRIES.find((e) => e.slug === activeSlug);
 
-
-
   const detailHeight = "h-[calc(100dvh-260px)]";
 
   return (

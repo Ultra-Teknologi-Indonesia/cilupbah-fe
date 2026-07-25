@@ -34,7 +34,7 @@ export interface ShipmentExportParams {
   from: string;
   to: string;
   courier_ids?: string[];
-  /** Dikodekan "<source>::<status mentah>" oleh backend. */
+
   status_mp?: string;
 }
 

@@ -36,7 +36,7 @@ import { toast } from "sonner";
 const LIST_HREF = "/dashboard/transaksi-stok?tab=transfer";
 
 interface ReceiveLine {
-  itemId: string; // bin_transfer_item_id
+  itemId: string; 
   destBinId: string;
   qty: string;
 }

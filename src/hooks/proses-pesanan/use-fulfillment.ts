@@ -246,15 +246,6 @@ export function usePicklistDetail(id: string, enabled = true) {
   });
 }
 
-/**
- * `params` wajib masuk query key, kalau tidak ganti sort tidak memicu refetch.
- * `fulfillmentKeys.picklistItems(id)` tetap dipakai sebagai prefix untuk
- * invalidate/optimistic update lintas semua variasi params.
- *
- * Polling dipakai karena picking free-for-all: beberapa orang bisa menggarap
- * picklist yang sama, dan tidak ada infra realtime di BE. Hanya aktif selagi
- * picklist masih dikerjakan supaya tidak membebani server sia-sia.
- */
 export function usePicklistItems(
   id: string,
   params: FulfillmentListParams,
@@ -295,13 +286,6 @@ export function usePrefetchPacklistDetail() {
   );
 }
 
-/**
- * `qtyDelta` untuk alur scan (aman konkuren), `qtyPicked` untuk koreksi manual.
- *
- * Optimistic update menyasar cache `picklistItems` — itulah yang dibaca tabel.
- * Sebelumnya menulis ke `picklistDetail`, sehingga hasil scan tidak pernah
- * terlihat sampai reload manual.
- */
 export function usePickItem() {
   const qc = useQueryClient();
   return useMutation({
@@ -560,7 +544,6 @@ export function useUnfailPickItem() {
   });
 }
 
-
 export function useScanOrder() {
   const qc = useQueryClient();
   return useMutation({
@@ -583,10 +566,6 @@ export function usePacklistDetail(id: string, enabled = true) {
   });
 }
 
-/**
- * Fetch several packlist details in parallel — used by the multi-order packing
- * station where one session spans multiple scanned orders/packlists.
- */
 export function usePacklistDetails(ids: string[]) {
   return useQueries({
     queries: ids.map((id) => ({
@@ -1013,7 +992,6 @@ export function useCompletedShipments(
   });
 }
 
-/** Channel Lock — Tombol A "Alihkan Tugas" — TAHAN alokasi pick. */
 export function useUnassignPicklist(picklistId: string) {
   const qc = useQueryClient();
   return useMutation({
@@ -1035,7 +1013,6 @@ export function useUnassignPicklist(picklistId: string) {
   });
 }
 
-/** Channel Lock — Tombol B "Reset & Alihkan" — clear allocation. */
 export function useResetPicklistAssignment(picklistId: string) {
   const qc = useQueryClient();
   return useMutation({

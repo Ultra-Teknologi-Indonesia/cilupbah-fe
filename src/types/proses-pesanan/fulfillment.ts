@@ -56,8 +56,6 @@ export function defaultSubFor(stage: FulfillmentStage): string | null {
   return cfg && cfg.subs.length ? cfg.subs[0].key : null;
 }
 
-// ── Pantauan (monitoring) ─────────────────────────────────────────────
-
 export interface RawOutboundMonitoringPeriod {
   day_term: number;
   ready_to_process: number;

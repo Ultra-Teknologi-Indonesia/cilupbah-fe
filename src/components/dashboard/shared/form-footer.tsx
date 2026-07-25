@@ -7,11 +7,6 @@ interface FormFooterProps {
   className?: string;
 }
 
-/**
- * Canonical action footer for form pages. Holds the primary Batal/Simpan
- * buttons and sits as the last element of a form's vertical stack. Form
- * action buttons must live here, never in the PageTitle header.
- */
 export function FormFooter({ children, className }: FormFooterProps) {
   return (
     <div

@@ -51,7 +51,7 @@ function useObjectUrl(file: File | undefined) {
       return;
     }
     const u = URL.createObjectURL(file);
-     
+
     setUrl(u);
     return () => URL.revokeObjectURL(u);
   }, [file]);

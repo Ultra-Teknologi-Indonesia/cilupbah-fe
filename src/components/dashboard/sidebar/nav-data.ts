@@ -360,11 +360,6 @@ export function findGroupIdForPath(
   return bestId;
 }
 
-/**
- * Link menu paling spesifik (prefix terpanjang) yang cocok dengan pathname.
- * Dipakai untuk menentukan SATU item aktif di sidebar, supaya link generik
- * seperti `/dashboard` tidak ikut aktif di setiap sub-halaman.
- */
 export function findActiveNavLink(pathname: string): string | null {
   let best: string | null = null;
   let bestLen = -1;

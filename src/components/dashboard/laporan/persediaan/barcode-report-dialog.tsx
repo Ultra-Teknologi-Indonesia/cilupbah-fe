@@ -68,7 +68,7 @@ export function BarcodeReportDialog({
 
   function handleJenisChange(next: string) {
     setJenis(next as BarcodeJenis);
-    setIds([]); // sumber picker berubah (variant vs produk induk)
+    setIds([]); 
   }
 
   function handleCetak() {

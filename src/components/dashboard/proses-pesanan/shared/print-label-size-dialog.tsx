@@ -79,7 +79,7 @@ function readPref(): PrintLabelSize {
     const raw = window.localStorage.getItem(PREF_KEY);
     if (raw === "thermal_100x150" || raw === "thermal_100x120") return raw;
   } catch {
-    /* ignore */
+
   }
   return DEFAULT_SIZE;
 }
@@ -89,7 +89,7 @@ function writePref(size: PrintLabelSize) {
   try {
     window.localStorage.setItem(PREF_KEY, size);
   } catch {
-    /* ignore quota */
+
   }
 }
 

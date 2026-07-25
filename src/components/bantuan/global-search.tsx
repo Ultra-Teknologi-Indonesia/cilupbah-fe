@@ -72,7 +72,6 @@ export function GlobalHelpSearch() {
   const wrapRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  // Lazy-load API index on first focus
   const loadApiIndex = React.useCallback(() => {
     if (apiIndex || apiLoading) return;
     setApiLoading(true);
@@ -83,7 +82,6 @@ export function GlobalHelpSearch() {
       .finally(() => setApiLoading(false));
   }, [apiIndex, apiLoading]);
 
-  // Click outside closes
   React.useEffect(() => {
     function onClick(e: MouseEvent) {
       if (!wrapRef.current) return;

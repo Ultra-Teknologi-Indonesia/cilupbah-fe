@@ -112,10 +112,6 @@ export const UserService = {
     await fetchClient<ApiResponse<null>>(`/users/${id}`, { method: "DELETE" });
   },
 
-  /**
-   * Hapus banyak pengguna. Reuse endpoint single-delete (yang sudah menjaga
-   * larangan hapus diri-sendiri/owner), jalan paralel, laporkan gagal per-id.
-   */
   bulkDelete: async (
     ids: string[],
   ): Promise<{ deleted: string[]; failed: { id: string; message: string }[] }> => {
@@ -141,7 +137,6 @@ export const UserService = {
     return { deleted, failed };
   },
 
-  /** Sinkronkan hak akses langsung (override per-user). */
   syncPermissions: async (id: string, permissions: string[]) => {
     const res = await fetchClient<ApiResponse<RawUser>>(
       `/users/${id}/permissions`,

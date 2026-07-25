@@ -196,8 +196,6 @@ export function MultiSkuRulesCard({
 
   const totalMatched = rules.reduce((sum, r) => sum + r.matchedCount, 0);
 
-  // formKey me-remount dialog tiap kali dibuka, supaya isinya diseed dari `rule`
-  // lewat useState initializer — bukan lewat efek yang memanggil setState.
   const openCreate = () => {
     setEditing(null);
     setFormKey((k) => k + 1);

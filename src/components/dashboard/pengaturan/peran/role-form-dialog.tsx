@@ -23,7 +23,7 @@ import { apiError } from "@/lib/toast";
 interface RoleFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Kalau diisi → mode edit metadata; kosong → buat peran baru. */
+
   role?: Role | null;
   onCreated?: (role: Role) => void;
 }

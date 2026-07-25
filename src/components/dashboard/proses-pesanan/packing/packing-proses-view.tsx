@@ -336,11 +336,7 @@ export function PackingProsesView() {
       const full =
         pl.items.length > 0 &&
         pl.items.every((i) => i.qtyPacked >= i.qtyOrdered);
-      // `full` bisa bersumber dari optimistic update usePackItem (onMutate),
-      // yang menulis qtyPacked SEBELUM POST /pack commit di server. Jika kita
-      // menembak /complete saat itu, server masih melihat qty_packed lama →
-      // "Masih ada N item belum selesai di-pack", lalu onError menghapus guard
-      // dan efek menembak ulang → storm. Tunggu sampai queue pack idle dulu.
+
       if (
         full &&
         pl.status !== "COMPLETED" &&
@@ -360,8 +356,7 @@ export function PackingProsesView() {
                 isInstant: pl.isInstant,
               })
             ) {
-              // Pesan sukses/gagal + fallback force_label + buka label ditangani
-              // di dalam usePrintWithDriverCall — jangan duplikasi toast di sini.
+
               printWithDriverCall.mutate({ orderId: pl.orderId });
             }
             const remaining = packlistIdsRef.current.filter(
@@ -548,7 +543,7 @@ export function PackingProsesView() {
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
           <div className="flex min-w-0 flex-col gap-4">
-            {/* Checker + scan controls */}
+
             <div className="rounded-2xl border border-border bg-card p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-sm">
@@ -626,7 +621,6 @@ export function PackingProsesView() {
               </div>
             </div>
 
-            {/* Order cards */}
             {packlistIds.length === 0 ? (
               <div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-border/80 bg-muted/20 py-20">
                 <div className="flex size-16 items-center justify-center rounded-full bg-muted/60">

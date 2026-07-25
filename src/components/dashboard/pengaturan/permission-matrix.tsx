@@ -32,7 +32,6 @@ import type {
   PermissionResource,
 } from "@/types/pengaturan/permission";
 
-/** Urutan & label kolom aksi tetap (gaya Jubelio). */
 const ACTION_COLUMNS = [
   { action: "view", label: "Lihat" },
   { action: "create", label: "Tambah" },
@@ -44,15 +43,12 @@ const ACTION_COLUMNS = [
 
 interface PermissionMatrixProps {
   catalog: PermissionGroup[];
-  /** Permission terpilih yang bisa diedit (controlled). */
+
   value: string[];
   onChange: (next: string[]) => void;
-  /**
-   * Permission bawaan (mis. dari peran) — tampil tercentang & terkunci,
-   * tidak ikut `value`.
-   */
+
   baseline?: string[];
-  /** Read-only penuh (mis. role owner). */
+
   disabled?: boolean;
 }
 
@@ -123,7 +119,7 @@ export function PermissionMatrix({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Toolbar */}
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="relative w-full max-w-xs">
           <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />

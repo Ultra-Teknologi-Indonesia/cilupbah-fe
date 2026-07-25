@@ -10,7 +10,6 @@ import { useUrlTab } from "@/hooks/use-url-tab";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-
 type Tab = "pelanggan" | "salesman" | "kategori";
 
 const TABS: { key: Tab; label: string; icon: typeof UsersIcon }[] = [

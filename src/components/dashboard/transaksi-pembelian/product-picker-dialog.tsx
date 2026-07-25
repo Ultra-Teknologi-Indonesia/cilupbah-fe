@@ -84,8 +84,6 @@ export function ProductPickerDialog({
     onOpenChange(next);
   };
 
-
-
   const { data, isLoading, isFetching } = useMasterProducts({
     search: search || undefined,
     page,

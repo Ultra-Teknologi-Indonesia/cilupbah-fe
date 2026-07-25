@@ -12,7 +12,7 @@ function ScrollArea({
   viewportClassName,
   ...props
 }: React.ComponentProps<typeof ScrollAreaPrimitive.Root> & {
-  /** Scrollbar(s) yang dirender. Default "vertical" agar tak mengubah pemakaian lama. */
+
   orientation?: "vertical" | "horizontal" | "both";
   viewportClassName?: string;
 }) {

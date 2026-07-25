@@ -102,7 +102,6 @@ export function useCorrectReceivedLines(inboundId: string) {
   });
 }
 
-/** Batalkan (hapus) beberapa penerimaan sekaligus. */
 export function useBulkCancelInbounds() {
   const qc = useQueryClient();
   return useMutation({
@@ -125,8 +124,6 @@ export function useBulkCancelInbounds() {
   });
 }
 
-/** Set jumlah diterima aktual (naik/turun) pada satu baris penerimaan.
- *  Optional expectedUpdatedAt → optimistic lock (fix H4). */
 export function useSetReceivedQty(inboundId: string) {
   const qc = useQueryClient();
   return useMutation({
@@ -158,7 +155,6 @@ export function useSetReceivedQty(inboundId: string) {
   });
 }
 
-/** Tombol A "Alihkan Tugas" — TAHAN progress. */
 export function useUnassignInbound(inboundId: string) {
   const qc = useQueryClient();
   return useMutation({
@@ -180,7 +176,6 @@ export function useUnassignInbound(inboundId: string) {
   });
 }
 
-/** Tombol B "Reset & Alihkan" — reverse stok Bin Inbound + audit. */
 export function useResetInboundAssignment(inboundId: string) {
   const qc = useQueryClient();
   return useMutation({
@@ -197,7 +192,6 @@ export function useResetInboundAssignment(inboundId: string) {
   });
 }
 
-/** Fase 2: admin tarik participant sesi mobile. */
 export function useWithdrawParticipant(inboundId: string) {
   const qc = useQueryClient();
   return useMutation({
@@ -215,7 +209,6 @@ export function useWithdrawParticipant(inboundId: string) {
   });
 }
 
-/** F5: buat Inbound susulan dari PO. */
 export function useReceiveAdditional() {
   const qc = useQueryClient();
   return useMutation({
@@ -229,10 +222,6 @@ export function useReceiveAdditional() {
   });
 }
 
-/**
- * Batch-simpan koreksi qty diterima. Hasilnya per-item (fulfilled/rejected)
- * supaya caller bisa menandai baris yang gagal tetap sebagai dirty.
- */
 export function useSetReceivedQtyBatch(inboundId: string) {
   const qc = useQueryClient();
   return useMutation({

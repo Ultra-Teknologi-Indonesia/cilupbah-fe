@@ -48,7 +48,6 @@ import {
 } from "@/hooks/barang-masuk/use-sales-return-actions";
 import { formatDate } from "@/lib/format";
 
-/** Keputusan MP yang masih bisa ditindaklanjuti (belum final di sisi marketplace). */
 function isMpDecisionActionable(decision?: string | null): boolean {
   return !decision || decision === "MP_PENDING";
 }

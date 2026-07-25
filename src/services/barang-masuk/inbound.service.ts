@@ -24,7 +24,6 @@ export interface ScanPutawayPayload {
   qty: number;
 }
 
-/** Total akumulasi qty seluruh item inbound (lintas halaman), dari meta BE. */
 export interface InboundItemTotals {
   expected_qty: number;
   received_qty: number;
@@ -152,11 +151,6 @@ export const InboundService = {
     return res.data;
   },
 
-  /** Set jumlah diterima aktual pada satu baris (boleh naik/turun).
-   *  Selisihnya otomatis dibuatkan dokumen Penyesuaian Stok; remarks-nya
-   *  disusun otomatis oleh BE, jadi FE tidak perlu mengirim alasan.
-   *  Kalau expectedUpdatedAt diberikan, BE cek optimistic lock dan balas
-   *  412 STALE_WRITE kalau data server sudah berubah. */
   setReceivedQty: async (
     inboundId: string,
     itemId: string,
@@ -175,7 +169,6 @@ export const InboundService = {
     return res.data;
   },
 
-  /** Batalkan (hapus) beberapa penerimaan sekaligus. */
   bulkCancel: async (ids: string[]) => {
     const res = await fetchClient<
       ApiResponse<{
@@ -189,7 +182,6 @@ export const InboundService = {
     return res.data;
   },
 
-  /** Tombol A "Alihkan Tugas" — TAHAN progress, opsional reassign ke user baru. */
   unassign: async (
     inboundId: string,
     payload: {
@@ -205,7 +197,6 @@ export const InboundService = {
     return res.data;
   },
 
-  /** Tombol B "Reset & Alihkan" — reverse received_qty ke 0 + audit. */
   resetAssignment: async (
     inboundId: string,
     payload: { reason_note: string; new_assignee_id?: string },
@@ -231,7 +222,6 @@ export const InboundService = {
     );
   },
 
-  /** Fase 2 multi-staff: admin tarik participant dari web. */
   withdrawParticipant: async (
     inboundId: string,
     userId: string,
@@ -247,8 +237,6 @@ export const InboundService = {
     return res.data;
   },
 
-  /** Admin selesaikan penerimaan: status → COMPLETED (penerimaan selesai, lepas dari
-   *  putaway), semua participant ACTIVE otomatis di-withdraw, session mobile ditutup. */
   finalize: async (id: string) => {
     const res = await fetchClient<ApiResponse<Inbound>>(
       `/inbounds/${id}/close-receiving`,
@@ -257,7 +245,6 @@ export const InboundService = {
     return res.data;
   },
 
-  /** F5: buat Inbound susulan dari PO (delivery bertahap). */
   receiveAdditional: async (poId: string) => {
     const res = await fetchClient<ApiResponse<Inbound>>(
       `/purchase-orders/${poId}/receive-additional`,

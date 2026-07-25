@@ -40,7 +40,6 @@ const CATEGORY_STYLE: Record<string, string> = {
   OTHER: "bg-muted text-muted-foreground border-border/60",
 };
 
-
 function QtyCell({ qty }: { qty: number }) {
   const positive = qty > 0;
   const zero = qty === 0;

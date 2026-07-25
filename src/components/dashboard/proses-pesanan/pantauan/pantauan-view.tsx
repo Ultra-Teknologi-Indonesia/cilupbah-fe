@@ -65,8 +65,6 @@ const DAY_TERM_LABEL: Record<number, string> = {
   4: "> 3 Hari",
 };
 
-// ── KPI card ──────────────────────────────────────────────────────────
-
 interface KpiCardProps {
   label: string;
   value: number;
@@ -146,8 +144,6 @@ function KpiCard({
     </Card>
   );
 }
-
-// ── Period table ──────────────────────────────────────────────────────
 
 const PERIOD_COLUMNS: {
   key: keyof Pick<
@@ -233,8 +229,6 @@ function PeriodTable({
     </div>
   );
 }
-
-// ── View ──────────────────────────────────────────────────────────────
 
 function buildKpis(summary: OutboundMonitoringSummary): KpiCardProps[] {
   return [

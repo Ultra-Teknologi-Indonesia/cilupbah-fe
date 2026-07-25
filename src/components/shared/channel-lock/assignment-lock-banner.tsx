@@ -14,14 +14,7 @@ interface AssignmentLockBannerProps {
   onReset?: () => void;
   canUnassign?: boolean;
   canReset?: boolean;
-  /**
-   * "lock" (default) — dokumen terkunci untuk assignee-nya.
-   * "collaborative" — dokumen boleh digarap siapa saja, nama assignee sekadar
-   * informasi (Picking). Jangan tampilkan bahasa "dinonaktifkan" di mode ini.
-   * "advisory" — dokumen dipegang mobile tapi web TETAP boleh mengedit
-   * (Penempatan & Penerimaan, keputusan klien 20 Jul 2026). Tetap kuning
-   * sebagai pengingat koordinasi, tapi jangan bilang edit dinonaktifkan.
-   */
+
   mode?: "lock" | "collaborative" | "advisory";
 }
 

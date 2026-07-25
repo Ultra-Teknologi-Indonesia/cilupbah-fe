@@ -205,7 +205,7 @@ export function SyncStokHargaView({
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (raw) setHiddenStores(JSON.parse(raw) as string[]);
     } catch {
-      /* ignore */
+
     }
   }, []);
 
@@ -214,7 +214,7 @@ export function SyncStokHargaView({
     try {
       localStorage.setItem(HIDDEN_STORES_KEY, JSON.stringify(next));
     } catch {
-      /* ignore */
+
     }
   }, []);
 

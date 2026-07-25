@@ -40,7 +40,7 @@ if (typeof window !== "undefined") {
     previousPathname = window.location.pathname;
     return originalPushState.apply(window.history, args);
   };
-  
+
   window.addEventListener('popstate', () => {
     appNavigated = false;
   });
@@ -74,7 +74,7 @@ export function PageTitle({
       ) {
         return;
       }
-      
+
       try {
         const targetUrl = new URL(e.currentTarget.href);
         if (canGoBackTo(targetUrl.pathname)) {
@@ -82,7 +82,7 @@ export function PageTitle({
           router.back();
         }
       } catch {
-        // Fallback to default link behavior if URL parsing fails
+
       }
     },
     [router],

@@ -20,10 +20,6 @@ export async function clearLoginSession() {
   clearSessionCookies(cookieStore);
 }
 
-/**
- * Penanda kedaluwarsa untuk klien. Bukan rahasia — hanya angka waktu —
- * dan dipakai idle lock serta penjadwal refresh proaktif.
- */
 export async function readSessionMeta(): Promise<{
   accessExpiresAt: number | null;
   refreshExpiresAt: number | null;

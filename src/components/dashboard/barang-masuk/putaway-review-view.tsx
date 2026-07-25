@@ -35,7 +35,6 @@ interface PutawayReviewViewProps {
   id: string;
 }
 
-/** Rincian rak tujuan sebuah item (read-only): dari placements, fallback destination_bin. */
 function itemPlacements(
   item: PutawayItem,
 ): { code: string; qty: number }[] {
@@ -211,7 +210,7 @@ export function PutawayReviewView({ id }: PutawayReviewViewProps) {
         </LiquidGlass>
       ) : (
         <div className="flex flex-col gap-4">
-          {/* Ringkasan */}
+
           <LiquidGlass
             radius={20}
             intensity="subtle"
@@ -265,7 +264,6 @@ export function PutawayReviewView({ id }: PutawayReviewViewProps) {
             </div>
           </LiquidGlass>
 
-          {/* Daftar item */}
           <LiquidGlass
             radius={20}
             intensity="subtle"

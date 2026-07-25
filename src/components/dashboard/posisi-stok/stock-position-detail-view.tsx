@@ -211,9 +211,6 @@ function resolveTransactionHref(source: string, trxNo: string): string | null {
   }
 }
 
-// Mutasi picking mencatat no. picklist, tapi yang relevan buat pengguna adalah
-// pesanan yang mengambil SKU ini. Backend meresolusi order_no-nya; no. picklist
-// tetap disimpan sebagai hint di tooltip.
 function resolveTransactionDisplay(m: StockMovement) {
   const isPick = m.source === "PICKING" || m.source === "PICKING_REVERSAL";
 
@@ -339,11 +336,6 @@ type MovementDayGroup = {
   netQty: number;
 };
 
-/**
- * Kelompokkan mutasi per hari kalender (Asia/Jakarta). Mengandalkan data yang
- * sudah terurut menurun berdasarkan `transaction_date`, sehingga cukup memecah
- * saat tanggalnya berganti. `netQty` = jumlah bersih pergerakan hari itu.
- */
 function groupMovementsByDay(movements: StockMovement[]): MovementDayGroup[] {
   const groups: MovementDayGroup[] = [];
   let current: MovementDayGroup | null = null;

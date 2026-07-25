@@ -11,10 +11,7 @@ const apiClient = axios.create({
 
 let sessionExpiredHandled = false;
 apiClient.interceptors.response.use(undefined, async (error) => {
-  // Proxy /api/app menandai 401 yang benar-benar berarti "sesi habis" —
-  // refresh token pun sudah tidak bisa dipakai. 401 tanpa penanda ini
-  // berarti request tertentu ditolak, bukan sesi mati, jadi jangan
-  // melempar user keluar.
+
   const isSessionExpired =
     axios.isAxiosError(error) &&
     error.response?.status === 401 &&

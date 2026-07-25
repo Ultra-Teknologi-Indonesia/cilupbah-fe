@@ -30,7 +30,7 @@ interface CourierPickupDialogProps {
   pickup?: CourierPickup | null;
 }
 
-const MAX_PHOTO_BYTES = 4 * 1024 * 1024; // 4MB, samakan dengan validasi BE
+const MAX_PHOTO_BYTES = 4 * 1024 * 1024; 
 
 export function CourierPickupDialog({
   open,

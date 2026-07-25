@@ -21,16 +21,10 @@ export type PrintWithDriverCallResult = {
   label: LabelResult | null;
   label_preparing?: boolean;
   label_error?: string;
-  /** True bila driver marketplace menolak tapi label tetap dicetak via force_label. */
+
   driver_call_forced?: boolean;
 };
 
-/**
- * BE membalas 422 saat panggilan driver marketplace gagal (mis. Shopee
- * "not eligible for rescheduling"), dengan `errors.driver_call_status = "failed"`
- * dan pesan yang menyarankan `?force_label=1`. Deteksi kasus ini agar bisa
- * fallback otomatis mencetak label tanpa driver.
- */
 function isDriverCallFailure(err: unknown): boolean {
   const body = err as {
     message?: unknown;
@@ -62,8 +56,7 @@ export function usePrintWithDriverCall() {
       try {
         return await call();
       } catch (err) {
-        // Driver ditolak marketplace (paket tak bisa dijadwal ulang, dsb):
-        // label tetap wajib dicetak. Fallback otomatis sekali dengan force_label.
+
         if (!data.forceLabel && isDriverCallFailure(err)) {
           const forced = await call(true);
           return { ...forced, driver_call_forced: true };

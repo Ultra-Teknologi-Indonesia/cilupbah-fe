@@ -19,7 +19,6 @@ export interface ScanAutoflowLine {
 
   done?: boolean;
 
-  /** Thumbnail opsional ditampilkan di dropdown "Pilih manual". */
   imageUrl?: string;
 }
 
@@ -34,7 +33,6 @@ interface ScanAutoflowBarProps {
   scanPlaceholder?: string;
   manualPlaceholder?: string;
 
-  /** Sembunyikan dropdown "Pilih manual" agar resolusi hanya lewat scan. */
   hideManualSelect?: boolean;
   hint?: string;
   className?: string;

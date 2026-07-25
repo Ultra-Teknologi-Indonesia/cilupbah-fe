@@ -33,10 +33,6 @@ export const InventoryStockService = {
     return fetchClient<StockListResponse>(`/inventory?${sp}`);
   },
 
-  // Diteruskan generik dari StockMovementParams, bukan whitelist manual: pola
-  // lama membuang param baru tanpa suara (filter[drill] sempat hilang di sini
-  // dan bikin drill-down On Order menampilkan seluruh mutasi). Kunci kontraknya
-  // ada di tipe StockMovementParams -- menambah field di sana sudah cukup.
   movements: (params: StockMovementParams) => {
     const sp = new URLSearchParams();
     for (const [key, value] of Object.entries(params)) {
