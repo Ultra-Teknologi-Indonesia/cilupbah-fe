@@ -927,8 +927,13 @@ export function LayoutGudangTab({
 
   const resetListPage = list.resetPage;
   React.useEffect(() => {
+    // Reset ke halaman 1 HANYA saat sort berubah. `resetListPage` sengaja tak
+    // dimasukkan ke deps: identitasnya berganti tiap URL berubah (useSearchParams),
+    // jadi bila disertakan, klik "next" mengubah URL → efek ini ikut jalan →
+    // langsung mereset kembali ke halaman 1 (tak bisa pindah halaman).
     resetListPage();
-  }, [sort, resetListPage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sort]);
 
   const params: BinListParams = {
     page: list.page,
