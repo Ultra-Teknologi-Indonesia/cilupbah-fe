@@ -15,4 +15,4 @@ echo "==> Building Next.js production bundle (API: ${NEXT_PUBLIC_API_URL:-<unset
 pnpm run build
 
 echo "==> Starting Next.js..."
-exec pnpm run start -- --hostname 0.0.0.0 --port 3000
+exec pnpm exec next start -H 0.0.0.0 -p 3000
