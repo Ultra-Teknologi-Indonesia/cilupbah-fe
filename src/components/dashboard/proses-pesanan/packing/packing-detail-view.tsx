@@ -466,22 +466,22 @@ export function PackingDetailView({ id }: { id: string }) {
                 Tidak ada item dalam packlist ini.
               </div>
             ) : (
-              <Table className="border-collapse">
+              <Table className="table-fixed border-collapse">
                 <TableHeader>
                   <TableRow className="border-b border-border bg-muted/40 text-left text-muted-foreground">
                     <TableHead className="px-4 py-3 text-muted-foreground">
                       Produk
                     </TableHead>
-                    <TableHead className="px-4 py-3 text-muted-foreground text-center">
+                    <TableHead className="w-28 px-4 py-3 text-muted-foreground text-center">
                       QTY Pesanan
                     </TableHead>
-                    <TableHead className="px-4 py-3 text-muted-foreground text-center">
+                    <TableHead className="w-24 px-4 py-3 text-muted-foreground text-center">
                       QTY Pack
                     </TableHead>
-                    <TableHead className="px-4 py-3 text-muted-foreground text-center">
+                    <TableHead className="w-28 px-4 py-3 text-muted-foreground text-center">
                       Status
                     </TableHead>
-                    <TableHead className="px-4 py-3 text-muted-foreground text-right">
+                    <TableHead className="w-20 px-4 py-3 text-muted-foreground text-right">
                       Aksi
                     </TableHead>
                   </TableRow>
@@ -505,7 +505,7 @@ export function PackingDetailView({ id }: { id: string }) {
                               size={80}
                             />
                             <div className="min-w-0 flex-1">
-                              <p className="font-medium text-foreground truncate">
+                              <p className="font-medium text-foreground break-words">
                                 {item.description ?? item.sku}
                               </p>
                               <p
