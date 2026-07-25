@@ -497,7 +497,7 @@ export function PackingDetailView({ id }: { id: string }) {
                           done && "bg-success/[0.04]",
                         )}
                       >
-                        <TableCell className="px-4 py-3">
+                        <TableCell className="whitespace-normal px-4 py-3">
                           <div className="flex items-center gap-3">
                             <ItemImage
                               src={item.imageUrl}
