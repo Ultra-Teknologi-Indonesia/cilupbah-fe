@@ -66,6 +66,7 @@ import {
 } from "@/lib/manajemen-rak/bin-preview";
 import {
   useLocationBins,
+  useLocationBinsInfinite,
   useUniformApplyBins,
   useMoveSkuBin,
   useRemoveSkuBin,
@@ -920,13 +921,13 @@ function MoveSkuDialog({
   const [destId, setDestId] = React.useState<string | null>(null);
   const debouncedSearch = useDebouncedValue(search, 300);
 
-  const candidatesQuery = useLocationBins(open ? locationId : undefined, {
-    search: debouncedSearch || undefined,
-    perPage: 20,
-  });
+  const candidatesQuery = useLocationBinsInfinite(
+    open ? locationId : undefined,
+    { search: debouncedSearch || undefined, perPage: 20 },
+  );
 
   const options: ComboboxOption[] = React.useMemo(() => {
-    const items = candidatesQuery.data?.items ?? [];
+    const items = candidatesQuery.data?.pages.flatMap((p) => p.items) ?? [];
     return items
       .filter((b) => {
         if (b.id === sourceBinId || b.isInbound) return false;
@@ -978,11 +979,14 @@ function MoveSkuDialog({
               value={destId}
               onChange={setDestId}
               onQueryChange={setSearch}
-              loading={candidatesQuery.isFetching}
+              loading={candidatesQuery.isLoading}
+              onLoadMore={() => candidatesQuery.fetchNextPage()}
+              hasMore={candidatesQuery.hasNextPage}
+              loadingMore={candidatesQuery.isFetchingNextPage}
               placeholder="Pilih rak tujuan"
               searchPlaceholder="Cari kode rak"
               emptyText={
-                candidatesQuery.isFetching
+                candidatesQuery.isLoading
                   ? "Memuat…"
                   : "Tidak ada rak yang cocok."
               }

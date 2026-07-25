@@ -2,6 +2,7 @@
 
 import {
   useQuery,
+  useInfiniteQuery,
   useMutation,
   useQueryClient,
   keepPreviousData,
@@ -38,6 +39,24 @@ export function useLocationBins(
     queryFn: () => LocationBinService.list(locationId!, params),
     enabled: !!locationId,
     placeholderData: keepPreviousData,
+    staleTime: 5_000,
+  });
+}
+
+export function useLocationBinsInfinite(
+  locationId: string | undefined,
+  params: Omit<BinListParams, "page"> = {},
+) {
+  return useInfiniteQuery({
+    queryKey: ["location-bins", "infinite", locationId ?? "", params] as const,
+    queryFn: ({ pageParam }) =>
+      LocationBinService.list(locationId!, { ...params, page: pageParam }),
+    enabled: !!locationId,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const { current_page, last_page } = lastPage.meta;
+      return current_page < last_page ? current_page + 1 : undefined;
+    },
     staleTime: 5_000,
   });
 }
