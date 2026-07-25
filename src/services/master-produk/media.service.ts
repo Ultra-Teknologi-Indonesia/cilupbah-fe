@@ -19,6 +19,7 @@ export const MediaService = {
     const res = await fetchClient<ApiResponse<RawMedia>>("/media/upload", {
       method: "POST",
       data: form,
+      headers: { "Content-Type": "multipart/form-data" },
     });
 
     return { uuid: res.data.uuid, url: res.data.url };
