@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PaginationState, SortingState } from "@tanstack/react-table";
 
@@ -24,6 +24,16 @@ export function useListState<F extends object>(
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  // Selalu simpan searchParams terbaru di ref agar `writeUrl` bisa membaca URL
+  // saat ini TANPA menjadikan searchParams sebagai dependency-nya. Tanpa ini,
+  // writeUrl (dan semua callback turunan: setPage/resetPage/…) berganti
+  // identitas tiap URL berubah, sehingga efek yang bergantung padanya (mis.
+  // debounce search) ter-refire saat navigasi & mereset halaman ke 1.
+  const searchParamsRef = useRef(searchParams);
+  useEffect(() => {
+    searchParamsRef.current = searchParams;
+  }, [searchParams]);
 
   const pageKey = `${ns}page`;
   const perPageKey = `${ns}per_page`;
@@ -129,7 +139,7 @@ export function useListState<F extends object>(
   const writeUrl = useCallback(
     (updates: Record<string, string | number | boolean | null | undefined>) => {
       if (!urlSync) return;
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParamsRef.current.toString());
       for (const [key, value] of Object.entries(updates)) {
         if (
           value === null ||
@@ -146,15 +156,7 @@ export function useListState<F extends object>(
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
-    [
-      urlSync,
-      searchParams,
-      router,
-      pathname,
-      pageKey,
-      perPageKey,
-      defaultPerPage,
-    ],
+    [urlSync, router, pathname, pageKey, perPageKey, defaultPerPage],
   );
 
   const setPage = useCallback(
