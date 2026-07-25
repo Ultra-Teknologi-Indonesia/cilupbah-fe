@@ -51,7 +51,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
 
   return (
     <div className="space-y-6">
-      {}
+
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField
           control={form.control}
@@ -97,7 +97,6 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
 
       <Separator />
 
-      {}
       <div className="space-y-4">
         <SectionTitle>Alamat</SectionTitle>
 
@@ -270,7 +269,6 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
 
       <Separator />
 
-      {}
       <div className="space-y-4">
         <SectionTitle>Kontak</SectionTitle>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -341,7 +339,6 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
 
       <Separator />
 
-      {}
       <div className="flex flex-wrap gap-6">
         <FormField
           control={form.control}

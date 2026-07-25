@@ -143,7 +143,7 @@ export function HppReportView() {
 
   return (
     <div className="flex flex-col gap-4">
-      {}
+
       <LiquidGlass
         radius={16}
         intensity="subtle"
@@ -216,7 +216,6 @@ export function HppReportView() {
         </div>
       </LiquidGlass>
 
-      {}
       <LiquidGlass
         radius={16}
         intensity="subtle"

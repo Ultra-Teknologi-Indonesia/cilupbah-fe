@@ -810,9 +810,9 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
       )}
 
       <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
-        {}
+
         <div className="flex flex-col gap-4">
-          {}
+
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -879,7 +879,6 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             </div>
           )}
 
-          {}
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -1016,9 +1015,8 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             </div>
           </LiquidGlass>
 
-          {}
           <div className="grid gap-4 sm:grid-cols-2">
-            {}
+
             <LiquidGlass
               radius={16}
               intensity="subtle"
@@ -1049,7 +1047,6 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               </div>
             </LiquidGlass>
 
-            {}
             <LiquidGlass
               radius={16}
               intensity="subtle"
@@ -1084,9 +1081,8 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           />
         </div>
 
-        {}
         <div className="flex flex-col gap-4">
-          {}
+
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -1094,7 +1090,6 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           >
             <FinancialSummary order={order} />
 
-            {}
             <div className="mt-4 border-t border-border/40 pt-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">
@@ -1114,7 +1109,6 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             </div>
           </LiquidGlass>
 
-          {}
           {(order.buyer_message || order.seller_note) && (
             <LiquidGlass
               radius={16}
@@ -1147,7 +1141,6 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             </LiquidGlass>
           )}
 
-          {}
           <LiquidGlass
             radius={16}
             intensity="subtle"

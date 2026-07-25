@@ -93,7 +93,6 @@ export function TransactionDetailSheet({
           </div>
         </SheetHeader>
 
-        {}
         <div className="flex flex-wrap items-center gap-2 px-6 py-3">
           <div className="relative min-w-0 flex-1">
             <Input
@@ -113,7 +112,6 @@ export function TransactionDetailSheet({
           />
         </div>
 
-        {}
         <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
           {query.isLoading ? (
             <div className="flex flex-col gap-2">

@@ -436,7 +436,6 @@ export function SalesReturnDetailView({ id }: { id: string }) {
         </LiquidGlass>
       )}
 
-      {}
       <ConfirmDialog
         open={action === "accept"}
         onOpenChange={(o) => {

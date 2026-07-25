@@ -308,7 +308,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
         className={cn("relative h-full w-full", className)}
       >
         {(!isLoaded || loading) && <DefaultLoader />}
-        {}
+
         {mapInstance && children}
       </div>
     </MapContext.Provider>

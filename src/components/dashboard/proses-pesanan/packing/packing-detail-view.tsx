@@ -414,9 +414,9 @@ export function PackingDetailView({ id }: { id: string }) {
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_420px]">
-        {}
+
         <div className="flex flex-col gap-4">
-          {}
+
           <div className="rounded-2xl border border-border bg-card p-5">
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
               <div>
@@ -440,7 +440,6 @@ export function PackingDetailView({ id }: { id: string }) {
             </div>
           </div>
 
-          {}
           {editable && (
             <div className="rounded-2xl border border-border bg-card p-4">
               <label className="text-xs font-medium text-muted-foreground">
@@ -458,7 +457,6 @@ export function PackingDetailView({ id }: { id: string }) {
             </div>
           )}
 
-          {}
           <div className="overflow-x-auto rounded-2xl border border-border bg-card">
             {items.length === 0 ? (
               <div className="py-16 text-center text-sm text-muted-foreground">
@@ -563,7 +561,6 @@ export function PackingDetailView({ id }: { id: string }) {
           </div>
         </div>
 
-        {}
         <aside className="flex flex-col gap-4">
           <div className="rounded-2xl border border-border bg-card p-4">
             <ProgressBar packed={totalPacked} total={totalOrdered} />

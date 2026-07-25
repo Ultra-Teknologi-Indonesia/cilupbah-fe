@@ -179,7 +179,7 @@ export function TabVariasi({ productId }: { productId: string }) {
 
   return (
     <div className="flex flex-col gap-3">
-      {}
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="relative max-w-xs flex-1">
           <SearchIcon className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -199,7 +199,6 @@ export function TabVariasi({ productId }: { productId: string }) {
         </div>
       </div>
 
-      {}
       {selected.size > 0 && (
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm">
           <span className="font-medium">{selected.size} dipilih</span>
@@ -217,7 +216,6 @@ export function TabVariasi({ productId }: { productId: string }) {
         </div>
       )}
 
-      {}
       <Table
         containerClassName="rounded-lg border border-border/60 bg-card"
         className="min-w-[720px] border-collapse"

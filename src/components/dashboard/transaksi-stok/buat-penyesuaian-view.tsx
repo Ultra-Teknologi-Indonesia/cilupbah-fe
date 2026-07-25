@@ -318,7 +318,6 @@ export function BuatPenyesuaianView() {
         ]}
       />
 
-      {}
       <LiquidGlass
         radius={16}
         intensity="subtle"
@@ -381,7 +380,6 @@ export function BuatPenyesuaianView() {
         </div>
       </LiquidGlass>
 
-      {}
       <div className="sr-only" aria-hidden="true">
         <UserSelect
           value={createdBy}
@@ -391,7 +389,6 @@ export function BuatPenyesuaianView() {
         />
       </div>
 
-      {}
       <LiquidGlass
         radius={16}
         intensity="subtle"
@@ -402,7 +399,6 @@ export function BuatPenyesuaianView() {
             Item Koreksi Stok <span className="text-destructive">*</span>
           </Label>
 
-          {}
           <div className="flex flex-col gap-1.5">
             <div className="relative">
               {scanning ? (
@@ -501,7 +497,7 @@ export function BuatPenyesuaianView() {
                   }));
                   return (
                     <TableRow key={l.itemId} className="bg-background/50">
-                      {}
+
                       <TableCell className="px-3 py-2.5">
                         <div className="flex max-w-[260px] items-center gap-3">
                           {l.thumbnail ? (
@@ -530,7 +526,7 @@ export function BuatPenyesuaianView() {
                           </div>
                         </div>
                       </TableCell>
-                      {}
+
                       <TableCell className="px-3 py-2.5">
                         <Combobox
                           options={binOptsForLine}
@@ -556,7 +552,7 @@ export function BuatPenyesuaianView() {
                           className="h-9 min-w-[160px]"
                         />
                       </TableCell>
-                      {}
+
                       <TableCell className="px-3 py-2.5 text-right align-top">
                         <Input
                           type="number"
@@ -577,11 +573,11 @@ export function BuatPenyesuaianView() {
                           </p>
                         )}
                       </TableCell>
-                      {}
+
                       <TableCell className="px-3 py-2.5 text-right font-mono tabular-nums text-muted-foreground align-top">
                         {l.binOnHand}
                       </TableCell>
-                      {}
+
                       <TableCell
                         className={cn(
                           "px-3 py-2.5 text-right font-mono font-semibold tabular-nums align-top",
@@ -590,7 +586,7 @@ export function BuatPenyesuaianView() {
                       >
                         {qtyAkhir}
                       </TableCell>
-                      {}
+
                       <TableCell className="px-3 py-2.5">
                         <Input
                           value={l.notes}
@@ -601,7 +597,7 @@ export function BuatPenyesuaianView() {
                           className="h-9 min-w-[140px]"
                         />
                       </TableCell>
-                      {}
+
                       <TableCell className="px-3 py-2.5 text-right">
                         <Button
                           variant="ghost"
@@ -620,7 +616,6 @@ export function BuatPenyesuaianView() {
             </TableBody>
           </Table>
 
-          {}
           <div className="flex items-center justify-between">
             <Button
               variant="outline"

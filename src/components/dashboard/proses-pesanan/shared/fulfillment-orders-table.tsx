@@ -449,7 +449,7 @@ function OrderCard({
           "border-l-4 border-l-destructive bg-destructive/5",
       )}
     >
-      {}
+
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-border/40 px-4 py-2.5 sm:px-5">
         {isCancelled ? (
           <Tooltip>
@@ -568,7 +568,6 @@ function OrderCard({
         </div>
       </div>
 
-      {}
       {order.items.length > 0 && (
         <div className="border-b border-border/40 px-4 py-2.5 sm:px-5">
           <div className="flex flex-col gap-2">
@@ -604,7 +603,6 @@ function OrderCard({
         </div>
       )}
 
-      {}
       <div className="grid grid-cols-2 gap-x-6 gap-y-3 px-4 py-3.5 sm:grid-cols-4 sm:px-5">
         <div>
           <OrderStatusBadge status={order.status} />
@@ -675,7 +673,6 @@ function OrderCard({
         </div>
       </div>
 
-      {}
       <div className="flex items-center gap-2 border-t border-border/40 px-4 py-2.5 sm:px-5">
         <div className="flex flex-1 flex-wrap items-center gap-2">
           {visibleActions.map((a) => (
@@ -907,7 +904,7 @@ export function FulfillmentOrdersTable({
 
   return (
     <div>
-      {}
+
       {filterFields && filterFields.length > 0 ? (
         <>
           <FulfillmentFilterBar
@@ -985,7 +982,6 @@ export function FulfillmentOrdersTable({
         </div>
       )}
 
-      {}
       {selected.size > 0 && (
         <div className="flex flex-wrap items-center gap-2 border-y border-primary/20 bg-primary/5 px-4 py-2.5 sm:px-5">
           <Checkbox
@@ -1111,7 +1107,6 @@ export function FulfillmentOrdersTable({
         </div>
       )}
 
-      {}
       <div className="px-4 py-3 sm:px-5">
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
@@ -1121,7 +1116,7 @@ export function FulfillmentOrdersTable({
           <EmptyState icon={PackageIcon} title="Tidak ada pesanan." className="py-16" />
         ) : (
           <div className="flex flex-col gap-3">
-            {}
+
             {selected.size === 0 && orders.length > 0 && (
               <div className="flex items-center gap-2 px-1">
                 <Checkbox
@@ -1168,7 +1163,6 @@ export function FulfillmentOrdersTable({
         )}
       </div>
 
-      {}
       <div className="px-4 pb-4 sm:px-5">
         <SimplePagination
           page={meta.current_page}
@@ -1236,7 +1230,6 @@ export function FulfillmentOrdersTable({
         onDeleted={clearSelection}
       />
 
-      {}
       {singlePengirimanOrder && (
         <BuatPengirimanDialog
           open={true}

@@ -153,7 +153,7 @@ export function MediaUploader({
         </p>
         {video ? (
           <div className="relative w-40 overflow-hidden rounded-xl border border-border bg-muted/40">
-            { }
+
             <video
               src={video.url}
               muted

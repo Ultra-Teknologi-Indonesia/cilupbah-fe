@@ -152,7 +152,7 @@ export function ImportPenyesuaianDialog({
 
         <ScrollArea className="min-h-0 flex-1">
           <div className="flex flex-col gap-4 p-6">
-            {}
+
             <div className="sr-only" aria-hidden="true">
               <UserSelect
                 value={createdBy}
@@ -163,7 +163,7 @@ export function ImportPenyesuaianDialog({
 
             {!preview && (
               <>
-                {}
+
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="flex flex-col gap-1.5">
                     <Label className="text-sm font-medium">
@@ -216,7 +216,6 @@ export function ImportPenyesuaianDialog({
                   </div>
                 </div>
 
-                {}
                 <div
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={handleDropFile}
@@ -258,7 +257,6 @@ export function ImportPenyesuaianDialog({
                   />
                 </div>
 
-                {}
                 <div className="rounded-lg border border-border bg-muted/30 px-4 py-3">
                   <p className="mb-1 text-sm font-medium">
                     Isi salah satu <span className="font-mono">delta_qty</span>{" "}
@@ -336,7 +334,7 @@ function PreviewPanel({ preview }: { preview: ImportPreviewResponse }) {
   const s = preview.summary;
   return (
     <div className="flex flex-col gap-4">
-      {}
+
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <SummaryCard label="Total Baris" value={s.total_rows} />
         <SummaryCard label="Valid" value={s.valid} tone="ok" />
@@ -344,7 +342,6 @@ function PreviewPanel({ preview }: { preview: ImportPreviewResponse }) {
         <SummaryCard label="Warning" value={s.warnings} tone="warn" />
       </div>
 
-      {}
       {(preview.errors.length > 0 || preview.warnings.length > 0) && (
         <div className="flex max-h-40 flex-col gap-2 overflow-y-auto rounded-md border border-border bg-muted/20 p-3">
           {preview.errors.map((e: ImportPreviewError, i) => (
@@ -366,7 +363,6 @@ function PreviewPanel({ preview }: { preview: ImportPreviewResponse }) {
         </div>
       )}
 
-      {}
       {preview.items.length > 0 && (
         <Table
           containerClassName="rounded-lg border border-border"

@@ -1517,7 +1517,6 @@ export function LayoutGudangTab({
                   <TableHead className="w-24 px-3 py-3" />
                 </TableRow>
 
-                {}
                 {serverMode &&
                   allPageSelected &&
                   !selectAllAcrossPages &&

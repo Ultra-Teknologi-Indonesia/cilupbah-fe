@@ -269,7 +269,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
         )}
 
         <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-          {}
+
           <nav className="flex flex-col gap-2">
             {navItems
               .filter((n) => n.show)
@@ -290,7 +290,6 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
               ))}
           </nav>
 
-          {}
           <div className="rounded-2xl border border-border bg-card p-6">
             {section === "informasi" ? (
               <InformasiTab disabled={locked} />

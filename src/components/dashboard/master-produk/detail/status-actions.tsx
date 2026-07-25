@@ -103,7 +103,6 @@ export function StatusActions({
         </Button>
       )}
 
-      {}
       <Dialog
         open={!!confirm}
         onOpenChange={(o) => {

@@ -373,7 +373,7 @@ export function MonitorStokView() {
         intensity="subtle"
         className="bg-white/30 dark:bg-white/[0.04]"
       >
-        {}
+
         <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-4 sm:px-5">
           {tab === "stok-kosong" ? (
             <Tabs

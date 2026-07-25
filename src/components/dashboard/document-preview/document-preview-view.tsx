@@ -237,7 +237,7 @@ function KnownDocumentPreview({
 
   return (
     <div className="fixed inset-0 z-[60] flex flex-col overflow-y-auto bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
-      {}
+
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
           <Button
@@ -310,7 +310,6 @@ function KnownDocumentPreview({
         </div>
       </header>
 
-      {}
       {state.kind === "ready" && numPages > 0 && (
         <PreviewToolbar
           pageNumber={pageNumber}
@@ -324,7 +323,6 @@ function KnownDocumentPreview({
         />
       )}
 
-      {}
       <main className="flex-1">
         {state.kind === "loading" && <LoadingState message={state.progress} />}
         {state.kind === "error" && (

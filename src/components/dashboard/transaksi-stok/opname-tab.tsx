@@ -245,7 +245,6 @@ export function OpnameTab() {
         }
       />
 
-      {}
       <ConfirmDialog
         open={!!startTarget}
         onOpenChange={(v) => {
@@ -272,7 +271,6 @@ export function OpnameTab() {
         </div>
       </ConfirmDialog>
 
-      {}
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(v) => !v && setDeleteTarget(null)}

@@ -202,7 +202,7 @@ export function ReadyToProcessCardList() {
 
   return (
     <div>
-      {}
+
       <FulfillmentFilterBar
         value={list.filters as FulfillmentFilterValue}
         onChange={(v) =>
@@ -240,7 +240,6 @@ export function ReadyToProcessCardList() {
         </div>
       </div>
 
-      {}
       <div className="px-4 pb-4 sm:px-5">
         {isLoading ? (
           <div className="flex flex-col gap-3 py-3">

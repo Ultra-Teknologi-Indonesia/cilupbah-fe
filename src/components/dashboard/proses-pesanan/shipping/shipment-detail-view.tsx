@@ -660,7 +660,6 @@ export function ShipmentDetailView({ id }: { id: string }) {
         }
       />
 
-      {}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 px-1">
         <LiquidGlass
           radius={16}
@@ -736,7 +735,6 @@ export function ShipmentDetailView({ id }: { id: string }) {
           </>
         )}
 
-      {}
       {isScheduled && (
         <LiquidGlass
           radius={16}
@@ -777,7 +775,6 @@ export function ShipmentDetailView({ id }: { id: string }) {
         </LiquidGlass>
       )}
 
-      {}
       <LiquidGlass
         radius={16}
         intensity="subtle"

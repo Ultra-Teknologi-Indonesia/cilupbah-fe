@@ -897,7 +897,7 @@ export function OrderCard({
           "border-orange-400/60 bg-orange-50/40 dark:border-orange-500/40 dark:bg-orange-950/15",
       )}
     >
-      {}
+
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-border/40 px-4 py-2.5 sm:px-5">
         {onSelectedChange && (
           <Checkbox
@@ -1005,7 +1005,6 @@ export function OrderCard({
         </div>
       </div>
 
-      {}
       <div className="flex flex-col gap-4 px-4 py-3.5 sm:px-5 lg:flex-row lg:gap-6">
         <div className="flex-1 space-y-2.5 lg:max-w-[360px]">
           {groupedItems.length > 0 ? (
@@ -1094,7 +1093,6 @@ export function OrderCard({
         </div>
       </div>
 
-      {}
       <div className="flex items-center gap-2 border-t border-border/40 px-4 py-2 sm:px-5">
         <Button
           variant="link"

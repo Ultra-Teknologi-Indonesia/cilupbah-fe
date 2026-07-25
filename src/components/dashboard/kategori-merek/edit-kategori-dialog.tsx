@@ -170,7 +170,7 @@ export function EditKategoriDialog({
           intensity="strong"
           className="bg-white/85 dark:bg-neutral-900/85"
         >
-          {}
+
           <div className="flex items-center justify-between border-b border-border/60 px-5 py-4 sm:px-6">
             <div>
               <DialogTitle className="text-lg">Edit Kategori</DialogTitle>
@@ -187,7 +187,7 @@ export function EditKategoriDialog({
 
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 px-5 py-4 sm:px-6">
-              {}
+
               <div className="space-y-2">
                 <Label>Lokasi</Label>
                 <div className="grid grid-cols-1 divide-y divide-border/60 overflow-hidden rounded-2xl border border-border/60 lg:grid-cols-3 lg:divide-x lg:divide-y-0">
@@ -209,7 +209,6 @@ export function EditKategoriDialog({
                 </div>
               </div>
 
-              {}
               <div className="space-y-2">
                 <Label htmlFor="edit-kategori-name">Nama Kategori</Label>
                 <div className="flex items-center gap-0 rounded-xl border border-border/60 bg-background/50 focus-within:ring-2 focus-within:ring-primary/30">
@@ -224,7 +223,6 @@ export function EditKategoriDialog({
               </div>
             </div>
 
-            {}
             <div className="flex items-center justify-end gap-3 border-t border-border/60 px-5 py-4 sm:px-6">
               <Button
                 type="button"

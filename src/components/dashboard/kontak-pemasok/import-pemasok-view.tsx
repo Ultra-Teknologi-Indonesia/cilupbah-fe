@@ -133,7 +133,7 @@ export function ImportPemasokDialog({
           <div className="flex flex-col gap-4 p-6">
             {showUploadStep && (
               <>
-                {}
+
                 <div
                   className={cn(
                     "flex items-center gap-3 rounded-lg border px-4 py-3 transition-colors cursor-pointer",
@@ -165,7 +165,6 @@ export function ImportPemasokDialog({
                   <UploadIcon className="size-4 shrink-0 text-muted-foreground" />
                 </div>
 
-                {}
                 <div className="space-y-3 text-sm text-muted-foreground">
                   <p>
                     Import menggunakan file *.xlsx yang diexport dari excel.
@@ -179,7 +178,6 @@ export function ImportPemasokDialog({
                   </p>
                 </div>
 
-                {}
                 <button
                   type="button"
                   onClick={() => downloadTemplate()}
@@ -191,10 +189,9 @@ export function ImportPemasokDialog({
               </>
             )}
 
-            {}
             {result && (
               <>
-                {}
+
                 <div className="grid gap-3 sm:grid-cols-3">
                   <div className="rounded-xl border border-border/40 p-3">
                     <p className="text-xs text-muted-foreground">Total Baris</p>
@@ -224,7 +221,6 @@ export function ImportPemasokDialog({
                   </div>
                 </div>
 
-                {}
                 <div className="flex items-center justify-between">
                   <div className="flex gap-1">
                     <button
@@ -282,7 +278,6 @@ export function ImportPemasokDialog({
                   </div>
                 )}
 
-                {}
                 <ScrollArea className="w-full rounded-lg border border-border/40">
                   <Table
                     containerClassName="w-max overflow-visible"
@@ -337,7 +332,6 @@ export function ImportPemasokDialog({
           </div>
         </ScrollArea>
 
-        {}
         {showUploadStep && (
           <div className="shrink-0 border-t px-6 py-4 flex justify-end">
             <Button

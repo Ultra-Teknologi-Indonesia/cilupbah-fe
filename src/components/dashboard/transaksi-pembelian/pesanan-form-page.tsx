@@ -352,7 +352,7 @@ export function PesananFormPage({ mode, id }: Props) {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
         <div className="flex flex-col gap-6">
-          {}
+
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -440,7 +440,6 @@ export function PesananFormPage({ mode, id }: Props) {
             </div>
           </LiquidGlass>
 
-          {}
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -639,7 +638,6 @@ export function PesananFormPage({ mode, id }: Props) {
           </LiquidGlass>
         </div>
 
-        {}
         <div>
           <LiquidGlass
             radius={16}

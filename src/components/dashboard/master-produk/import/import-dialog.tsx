@@ -94,7 +94,7 @@ export function ImportDialog({ type, open, onOpenChange, onQueued }: Props) {
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
-          {}
+
           <a
             href={importTemplateUrl(type)}
             download
@@ -111,7 +111,6 @@ export function ImportDialog({ type, open, onOpenChange, onQueued }: Props) {
             </div>
           </a>
 
-          {}
           <div
             onDragOver={(e) => {
               e.preventDefault();

@@ -71,7 +71,7 @@ export function BundleBuilder({
 
   return (
     <div className="flex flex-col gap-3">
-      {}
+
       {value.length === 0 ? (
         <EmptyState
           icon={PackageIcon}
@@ -145,7 +145,6 @@ export function BundleBuilder({
         </ul>
       )}
 
-      {}
       <div className="relative">
         {open ? (
           <div className="rounded-lg border border-border/60 bg-card shadow-sm">

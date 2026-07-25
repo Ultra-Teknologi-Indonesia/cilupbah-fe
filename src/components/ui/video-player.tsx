@@ -102,7 +102,7 @@ export function VideoPlayer({
       onMouseLeave={() => playing && setShowControls(false)}
       {...props}
     >
-      { }
+
       <video
         ref={videoRef}
         src={src}
@@ -124,7 +124,6 @@ export function VideoPlayer({
         onClick={togglePlay}
       />
 
-      {}
       {!playing && (
         <button
           type="button"
@@ -137,14 +136,13 @@ export function VideoPlayer({
         </button>
       )}
 
-      {}
       <div
         className={cn(
           "absolute inset-x-0 bottom-0 z-20 flex flex-col gap-1 bg-gradient-to-t from-black/80 to-transparent px-3 pb-2.5 pt-8 transition-opacity duration-200",
           showControls ? "opacity-100" : "pointer-events-none opacity-0",
         )}
       >
-        {}
+
         <div
           role="slider"
           tabIndex={0}
@@ -213,7 +211,7 @@ export function VideoThumbnail({
 
   return (
     <div className={cn("relative overflow-hidden", className)} {...props}>
-      { }
+
       <video
         ref={videoRef}
         src={src}

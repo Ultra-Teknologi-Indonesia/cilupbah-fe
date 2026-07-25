@@ -1293,7 +1293,6 @@ export function StockPositionDetailView({ itemId }: { itemId: string }) {
         ]}
       />
 
-      {}
       {isLoading ? (
         <LiquidGlass
           radius={20}
@@ -1371,7 +1370,6 @@ export function StockPositionDetailView({ itemId }: { itemId: string }) {
         </LiquidGlass>
       )}
 
-      {}
       {item && (
         <LiquidGlass
           radius={20}

@@ -130,7 +130,7 @@ export function ProductMediaManager({
 
   return (
     <div className="flex flex-col gap-6">
-      {}
+
       <div>
         <div className="mb-2 flex items-center justify-between">
           <h4 className="text-sm font-semibold">Gambar Produk</h4>
@@ -215,7 +215,6 @@ export function ProductMediaManager({
         </p>
       </div>
 
-      {}
       <div>
         <h4 className="mb-1 text-sm font-semibold">Video Produk</h4>
         <p className="mb-2 text-xs text-muted-foreground">
@@ -223,7 +222,7 @@ export function ProductMediaManager({
         </p>
         {video ? (
           <div className="relative w-40 overflow-hidden rounded-xl border border-border/60 bg-muted/30">
-            { }
+
             <video
               src={video.url}
               muted

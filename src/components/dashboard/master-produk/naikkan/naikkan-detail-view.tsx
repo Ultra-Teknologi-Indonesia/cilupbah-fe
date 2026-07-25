@@ -132,7 +132,7 @@ export function NaikkanDetailView({ id }: { id: string }) {
       intensity="default"
       className="bg-white/40 dark:bg-white/[0.06]"
     >
-      {}
+
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 py-3 sm:px-5">
         <div className="flex items-center gap-3">
           {store.channelCode && (
@@ -178,7 +178,6 @@ export function NaikkanDetailView({ id }: { id: string }) {
         </div>
       </div>
 
-      {}
       <div className="border-b border-border/60 px-4 pt-1 sm:px-5">
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabValue)}>
           <TabsList variant="line">
@@ -188,7 +187,6 @@ export function NaikkanDetailView({ id }: { id: string }) {
         </Tabs>
       </div>
 
-      {}
       <div className="px-4 py-5 sm:px-5">
         {tab === "produk" ? (
           <DataTable
@@ -238,7 +236,6 @@ export function NaikkanDetailView({ id }: { id: string }) {
         )}
       </div>
 
-      {}
       <NaikkanProdukPickerDialog
         open={showPicker}
         onOpenChange={setShowPicker}
@@ -252,7 +249,6 @@ export function NaikkanDetailView({ id }: { id: string }) {
         addingId={addMut.isPending ? (addMut.variables as string) : null}
       />
 
-      {}
       <ConfirmDialog
         open={!!removeTarget}
         onOpenChange={(open) => !open && setRemoveTarget(null)}
@@ -269,7 +265,6 @@ export function NaikkanDetailView({ id }: { id: string }) {
         }}
       />
 
-      {}
       <ConfirmDialog
         open={showRaiseConfirm}
         onOpenChange={setShowRaiseConfirm}

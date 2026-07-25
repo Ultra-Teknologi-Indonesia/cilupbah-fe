@@ -161,7 +161,7 @@ export function ReturnSettlementView({ returnId }: { returnId: string }) {
         </LiquidGlass>
       ) : (
         <>
-          {}
+
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -230,7 +230,6 @@ export function ReturnSettlementView({ returnId }: { returnId: string }) {
             </div>
           </LiquidGlass>
 
-          {}
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -345,7 +344,6 @@ export function ReturnSettlementView({ returnId }: { returnId: string }) {
             </div>
           </LiquidGlass>
 
-          {}
           {(settlement.invoices ?? []).length > 0 && (
             <LiquidGlass
               radius={16}

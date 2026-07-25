@@ -267,7 +267,6 @@ export function OrderFilters({
         className="h-9 bg-background"
       />
 
-      {}
       <div className="flex flex-col gap-1 sm:col-span-2">
         <label className="text-xs font-medium text-muted-foreground">
           Pembayaran

@@ -171,7 +171,6 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
         </div>
       </LiquidGlass>
 
-      {}
       <LiquidGlass radius={24} className="bg-white/40 dark:bg-white/[0.06]">
         <div className="p-6">
           <h2 className="mb-4 text-lg font-semibold">Riwayat Login</h2>

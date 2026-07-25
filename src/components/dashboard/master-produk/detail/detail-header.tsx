@@ -119,7 +119,7 @@ function Gallery({
               >
                 {item.type === "video" ? (
                   <div className="relative size-full bg-muted/60">
-                    { }
+
                     <video
                       src={item.url}
                       muted

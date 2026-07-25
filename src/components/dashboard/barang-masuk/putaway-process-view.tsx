@@ -435,7 +435,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
         </LiquidGlass>
       ) : (
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
-          {}
+
           <aside className="flex w-full flex-col gap-5 lg:sticky lg:top-4 lg:w-64 lg:shrink-0">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -494,7 +494,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
             </div>
           </aside>
 
-          {}
           <div className="flex min-w-0 flex-1 flex-col gap-4">
             <LiquidGlass
               radius={20}

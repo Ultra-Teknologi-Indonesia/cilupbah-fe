@@ -440,7 +440,6 @@ export function OpnameDetail({ id }: { id: string }) {
         </div>
       </LiquidGlass>
 
-      {}
       <ConfirmDialog
         open={startOpen}
         onOpenChange={(open) => {
@@ -472,7 +471,6 @@ export function OpnameDetail({ id }: { id: string }) {
         </div>
       </ConfirmDialog>
 
-      {}
       <ConfirmDialog
         open={finalizeOpen}
         onOpenChange={(open) => {
@@ -509,7 +507,6 @@ export function OpnameDetail({ id }: { id: string }) {
         </div>
       </ConfirmDialog>
 
-      {}
       <ConfirmDialog
         open={cancelOpen}
         onOpenChange={(open) => {
@@ -527,7 +524,6 @@ export function OpnameDetail({ id }: { id: string }) {
         }}
       />
 
-      {}
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={(open) => {
@@ -548,7 +544,6 @@ export function OpnameDetail({ id }: { id: string }) {
         }}
       />
 
-      {}
       <ConfirmDialog
         open={countDialog.open}
         onOpenChange={(open) => {

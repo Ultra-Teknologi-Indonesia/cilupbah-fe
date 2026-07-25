@@ -276,7 +276,7 @@ export function DownloadSatuanDialog({
         </DialogHeader>
 
         <div className="grid min-h-0 flex-1 md:grid-cols-[20rem_1fr]">
-          {}
+
           <div className="flex min-w-0 flex-col gap-4 border-b border-border/60 p-6 md:border-b-0 md:border-r">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium">Kata kunci</label>
@@ -361,7 +361,6 @@ export function DownloadSatuanDialog({
             </Button>
           </div>
 
-          {}
           <div className="flex min-h-0 min-w-0 flex-col">
             <div className="flex items-center justify-between border-b border-border/60 px-5 py-3">
               <span className="text-sm font-medium">Daftar Produk</span>

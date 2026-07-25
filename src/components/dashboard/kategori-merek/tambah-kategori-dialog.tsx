@@ -213,7 +213,7 @@ export function TambahKategoriDialog({
           intensity="strong"
           className="bg-white/85 dark:bg-neutral-900/85"
         >
-          {}
+
           <div className="flex items-center justify-between border-b border-border/60 px-5 py-4 sm:px-6">
             <div>
               <DialogTitle className="text-lg">Buat Kategori</DialogTitle>
@@ -230,7 +230,7 @@ export function TambahKategoriDialog({
 
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 px-5 py-4 sm:px-6">
-              {}
+
               <div className="flex items-center gap-3">
                 <Button type="button" variant="outline" onClick={() => { setMode("root"); setPathIds([]); setSearch(""); setDebouncedSearch(""); }} className={cn("h-auto rounded-full px-4 py-1.5 text-sm font-medium transition-colors", mode === "root" ? "border-primary bg-primary/10 text-primary hover:bg-primary/20" : "border-border hover:bg-muted/60")}>
                   Kategori Baru
@@ -240,12 +240,10 @@ export function TambahKategoriDialog({
                 </Button>
               </div>
 
-              {}
               {mode === "sub" && (
                 <div className="space-y-2">
                   <Label>Kategori Induk</Label>
 
-                  {}
                   <div className="relative">
                     <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
@@ -259,7 +257,6 @@ export function TambahKategoriDialog({
                     )}
                   </div>
 
-                  {}
                   {debouncedSearch.length >= 2 ? (
                     <ScrollArea className="h-56 rounded-2xl border border-border/60">
                       {isSearching ? (
@@ -313,7 +310,6 @@ export function TambahKategoriDialog({
                 </div>
               )}
 
-              {}
               <div className="space-y-2">
                 <Label htmlFor="kategori-name">Nama Kategori</Label>
                 {mode === "sub" && parentId ? (
@@ -336,7 +332,6 @@ export function TambahKategoriDialog({
               </div>
             </div>
 
-            {}
             <div className="flex items-center justify-end gap-3 border-t border-border/60 px-5 py-4 sm:px-6">
               <Button
                 type="button"
