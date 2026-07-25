@@ -11,7 +11,6 @@ import {
   UploadCloudIcon,
 } from "lucide-react";
 
-import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Tab = {
@@ -76,53 +75,44 @@ export function ProdukTabBar() {
   const active = activeId(pathname, searchParams.get("status"));
 
   return (
-    <LiquidGlass
-      radius={16}
-      intensity="subtle"
-      showGlow={false}
-      showShadow={false}
-      reactive={false}
-      className="w-fit max-w-full overflow-x-auto bg-white/50 p-1.5 dark:bg-white/[0.06]"
-    >
-      <Tabs value={active}>
-        <TabsList className="gap-1 bg-transparent">
-          {TABS.map((tab) => {
-            const Icon = tab.icon;
+    <Tabs value={active}>
+      <TabsList variant="glass" className="max-w-full overflow-x-auto">
+        {TABS.map((tab) => {
+          const Icon = tab.icon;
 
-            if (!tab.href) {
-              return (
-                <TabsTrigger
-                  key={tab.id}
-                  value={tab.id}
-                  disabled
-                  title="Segera hadir"
-                  className="text-muted-foreground/60"
-                >
-                  <Icon />
-                  {tab.label}
-                  <span className="rounded bg-muted px-1 py-0.5 text-2xs font-medium text-muted-foreground">
-                    Segera
-                  </span>
-                </TabsTrigger>
-              );
-            }
-
+          if (!tab.href) {
             return (
               <TabsTrigger
                 key={tab.id}
                 value={tab.id}
-                asChild
-                className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
+                disabled
+                title="Segera hadir"
+                className="text-muted-foreground/60"
               >
-                <Link href={tab.href}>
-                  <Icon />
-                  {tab.label}
-                </Link>
+                <Icon />
+                {tab.label}
+                <span className="rounded bg-muted px-1 py-0.5 text-2xs font-medium text-muted-foreground">
+                  Segera
+                </span>
               </TabsTrigger>
             );
-          })}
-        </TabsList>
-      </Tabs>
-    </LiquidGlass>
+          }
+
+          return (
+            <TabsTrigger
+              key={tab.id}
+              value={tab.id}
+              asChild
+              className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
+            >
+              <Link href={tab.href}>
+                <Icon />
+                {tab.label}
+              </Link>
+            </TabsTrigger>
+          );
+        })}
+      </TabsList>
+    </Tabs>
   );
 }

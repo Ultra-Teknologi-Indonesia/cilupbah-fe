@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { PlusIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PindahBinListTable } from "./pindah-bin-list-table";
 import { BinTransferReceiptListTable } from "./bin-transfer-receipt-list-table";
@@ -38,26 +37,17 @@ export function TransferTab() {
           onValueChange={(v) => setSubTab(v as SubTab)}
           className="flex flex-col gap-4"
         >
-          <LiquidGlass
-            radius={16}
-            intensity="subtle"
-            showGlow={false}
-            showShadow={false}
-            reactive={false}
-            className="w-fit max-w-full overflow-x-auto bg-white/50 p-1.5 dark:bg-white/[0.06]"
-          >
-            <TabsList className="gap-1 bg-transparent">
-              {SUB_TABS.map(({ key, label }) => (
-                <TabsTrigger
-                  key={key}
-                  value={key}
-                  className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
-                >
-                  {label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </LiquidGlass>
+          <TabsList variant="glass" className="max-w-full overflow-x-auto">
+            {SUB_TABS.map(({ key, label }) => (
+              <TabsTrigger
+                key={key}
+                value={key}
+                className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
+              >
+                {label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
         </Tabs>
 
         <Button size="sm" onClick={handleAdd} className="gap-1.5">

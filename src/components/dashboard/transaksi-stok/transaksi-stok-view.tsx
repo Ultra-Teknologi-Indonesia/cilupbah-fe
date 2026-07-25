@@ -2,7 +2,6 @@
 
 import { SlidersHorizontalIcon, ArrowLeftRightIcon } from "lucide-react";
 
-import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUrlTab } from "@/hooks/use-url-tab";
 import { PenyesuaianTab } from "@/components/dashboard/transaksi-stok/penyesuaian-tab";
@@ -24,32 +23,23 @@ export function TransaksiStokView() {
 
   return (
     <>
-      <LiquidGlass
-        radius={16}
-        intensity="subtle"
-        showGlow={false}
-        showShadow={false}
-        reactive={false}
-        className="w-fit max-w-full overflow-x-auto bg-white/50 p-1.5 dark:bg-white/[0.06]"
-      >
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Tab)}>
-          <TabsList className="gap-1 bg-transparent">
-            {TABS.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <TabsTrigger
-                  key={tab.key}
-                  value={tab.key}
-                  className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
-                >
-                  <Icon />
-                  {tab.label}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
-        </Tabs>
-      </LiquidGlass>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Tab)}>
+        <TabsList variant="glass" className="max-w-full overflow-x-auto">
+          {TABS.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <TabsTrigger
+                key={tab.key}
+                value={tab.key}
+                className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
+              >
+                <Icon />
+                {tab.label}
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
+      </Tabs>
 
       {activeTab === "penyesuaian" && <PenyesuaianTab />}
       {activeTab === "transfer" && <TransferTab />}

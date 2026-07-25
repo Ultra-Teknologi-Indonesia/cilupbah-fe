@@ -7,7 +7,6 @@ import { PelangganTab } from "@/components/dashboard/kontak-pelanggan/pelanggan-
 import { SalesmanTab } from "@/components/dashboard/kontak-pelanggan/salesman-tab";
 import { KategoriTab } from "@/components/dashboard/kontak-pelanggan/kategori-tab";
 import { useUrlTab } from "@/hooks/use-url-tab";
-import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 type Tab = "pelanggan" | "salesman" | "kategori";
@@ -33,27 +32,18 @@ export default function KontakPelangganPage() {
       />
 
       <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as Tab)}>
-        <LiquidGlass
-          radius={16}
-          intensity="subtle"
-          showGlow={false}
-          showShadow={false}
-          reactive={false}
-          className="w-fit max-w-full overflow-x-auto bg-white/50 p-1.5 dark:bg-white/[0.06]"
-        >
-          <TabsList className="gap-1 bg-transparent">
-            {TABS.map(({ key, label, icon: Icon }) => (
-              <TabsTrigger
-                key={key}
-                value={key}
-                className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
-              >
-                <Icon />
-                {label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </LiquidGlass>
+        <TabsList variant="glass" className="max-w-full overflow-x-auto">
+          {TABS.map(({ key, label, icon: Icon }) => (
+            <TabsTrigger
+              key={key}
+              value={key}
+              className="text-muted-foreground data-active:bg-background data-active:font-medium data-active:text-primary data-active:shadow-sm"
+            >
+              <Icon />
+              {label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
         <div className="mt-6">
           <TabsContent value="pelanggan" className="mt-0 outline-none">

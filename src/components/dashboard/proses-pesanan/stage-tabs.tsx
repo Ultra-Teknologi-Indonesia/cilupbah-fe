@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   STAGE_CONFIG,
@@ -22,27 +21,14 @@ export function StageTabs() {
   const active = activeStage(pathname);
 
   return (
-    <LiquidGlass
-      radius={16}
-      intensity="subtle"
-      showGlow={false}
-      showShadow={false}
-      reactive={false}
-      className="w-fit max-w-full overflow-x-auto bg-white/50 p-1.5 dark:bg-white/[0.06]"
-    >
-      <Tabs value={active}>
-        <TabsList className="gap-1 bg-transparent">
-          {STAGE_CONFIG.map(({ key, label }) => (
-            <TabsTrigger
-              key={key}
-              value={key}
-              asChild
-            >
-              <Link href={`/dashboard/proses-pesanan/${key}`}>{label}</Link>
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
-    </LiquidGlass>
+    <Tabs value={active}>
+      <TabsList variant="glass" className="max-w-full overflow-x-auto">
+        {STAGE_CONFIG.map(({ key, label }) => (
+          <TabsTrigger key={key} value={key} asChild>
+            <Link href={`/dashboard/proses-pesanan/${key}`}>{label}</Link>
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 }
