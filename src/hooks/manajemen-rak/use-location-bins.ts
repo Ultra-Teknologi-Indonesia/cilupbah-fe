@@ -57,7 +57,11 @@ export function useLocationBinsInfinite(
       const { current_page, last_page } = lastPage.meta;
       return current_page < last_page ? current_page + 1 : undefined;
     },
-    staleTime: 5_000,
+    // Halaman yang sudah di-fetch tetap tersimpan; scroll ke atas tak fetch
+    // ulang. Refetch hanya saat query key berubah (mis. teks pencarian).
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 }
 
