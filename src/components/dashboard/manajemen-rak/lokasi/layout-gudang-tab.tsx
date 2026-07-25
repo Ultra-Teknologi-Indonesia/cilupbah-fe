@@ -697,6 +697,7 @@ type BinRow = BinPreviewItem & {
   binId?: string;
   skus?: BinSkuEntry[];
   isNew?: boolean;
+  isInbound?: boolean;
   allowsMultiSku?: boolean;
 };
 
@@ -927,13 +928,25 @@ function MoveSkuDialog({
   const options: ComboboxOption[] = React.useMemo(() => {
     const items = candidatesQuery.data?.items ?? [];
     return items
-      .filter(
-        (b) =>
-          b.id !== sourceBinId &&
-          !b.isInbound &&
-          (b.skus?.length ?? 0) === 0,
-      )
-      .map((b) => ({ value: b.id, label: b.binFinalCode }));
+      .filter((b) => {
+        if (b.id === sourceBinId || b.isInbound) return false;
+        const occupied = (b.skus?.length ?? 0) > 0;
+        // Rak kosong selalu boleh. Rak berisi hanya boleh kalau rak itu
+        // mengizinkan multi-SKU (aturan dari pola kode rak di BE).
+        return b.allowsMultiSku || !occupied;
+      })
+      .map((b) => {
+        const count = b.skus?.length ?? 0;
+        return {
+          value: b.id,
+          label: b.binFinalCode,
+          hint: b.allowsMultiSku
+            ? count > 0
+              ? `Multi-SKU · berisi ${count} SKU`
+              : "Multi-SKU · kosong"
+            : undefined,
+        };
+      });
   }, [candidatesQuery.data, sourceBinId]);
 
   return (
@@ -959,7 +972,7 @@ function MoveSkuDialog({
           )}
 
           <div className="space-y-2">
-            <Label>Rak tujuan (kosong)</Label>
+            <Label>Rak tujuan</Label>
             <Combobox
               options={options}
               value={destId}
@@ -967,16 +980,17 @@ function MoveSkuDialog({
               onQueryChange={setSearch}
               loading={candidatesQuery.isFetching}
               placeholder="Pilih rak tujuan"
-              searchPlaceholder="Cari kode rak kosong"
+              searchPlaceholder="Cari kode rak"
               emptyText={
                 candidatesQuery.isFetching
                   ? "Memuat…"
-                  : "Tidak ada rak kosong yang cocok."
+                  : "Tidak ada rak yang cocok."
               }
             />
             <p className="text-2xs text-muted-foreground">
-              Hanya rak kosong yang bisa dipilih. Stok pindah utuh dalam satu
-              proses (tidak perlu penyesuaian manual).
+              Rak kosong, atau rak multi-SKU yang boleh menampung lebih dari
+              satu SKU. Stok pindah utuh dalam satu proses (tanpa penyesuaian
+              manual).
             </p>
           </div>
         </div>
@@ -1340,6 +1354,8 @@ export function LayoutGudangTab({
           isStockAcknowledged:
             patch.isStockAcknowledged ?? row.isStockAcknowledged,
           isLargeBin: patch.isLargeBin ?? row.isLargeBin,
+          isInbound: row.isInbound,
+          allowsMultiSku: row.allowsMultiSku,
           skus: row.skus,
         };
       })
@@ -1892,7 +1908,10 @@ export function LayoutGudangTab({
                           <IsiRakCell
                             skus={b.skus}
                             actions={
-                              isSmallWarehouse && b.binId && !isPending
+                              isSmallWarehouse &&
+                              b.binId &&
+                              !isPending &&
+                              !b.isInbound
                                 ? {
                                     onMove: (sku) =>
                                       setMoveTarget({
