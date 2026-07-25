@@ -4,6 +4,10 @@ import type {
   InventoryTransfer,
   InventoryTransferListParams,
 } from "@/types/barang-masuk/inventory-transfer";
+import type {
+  TransferImportPreview,
+  TransferImportConfirmResult,
+} from "@/types/barang-keluar/transfer-import";
 
 export interface BulkTransferDeleteResult {
   deleted: number;
@@ -234,6 +238,37 @@ export const OutboundTransferService = {
     const res = await fetchClient<ApiResponse<BulkTransferDeleteResult>>(
       "/inventory/transfers/bulk/delete",
       { method: "POST", data: { ids } },
+    );
+    return res.data;
+  },
+
+  importTemplateUrl: (): string =>
+    "/api/app/inventory/transfers/import/template",
+
+  importPreview: async (file: File): Promise<TransferImportPreview> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetchClient<ApiResponse<TransferImportPreview>>(
+      "/inventory/transfers/import/preview",
+      {
+        method: "POST",
+        data: formData,
+        headers: { "Content-Type": "multipart/form-data" },
+      },
+    );
+    return res.data;
+  },
+
+  importConfirm: async (
+    previewToken: string,
+    createdBy: string,
+  ): Promise<TransferImportConfirmResult> => {
+    const res = await fetchClient<ApiResponse<TransferImportConfirmResult>>(
+      "/inventory/transfers/import/confirm",
+      {
+        method: "POST",
+        data: { preview_token: previewToken, created_by: createdBy },
+      },
     );
     return res.data;
   },

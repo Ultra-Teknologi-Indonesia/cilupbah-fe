@@ -13,6 +13,28 @@ import { apiError } from "@/lib/toast";
 
 const STALE = 30 * 1000;
 
+export const importTransferTemplateUrl = (): string =>
+  OutboundTransferService.importTemplateUrl();
+
+export function useImportTransferPreview() {
+  return useMutation({
+    mutationFn: (file: File) => OutboundTransferService.importPreview(file),
+    onError: (err) => apiError(err, "Gagal memuat pratinjau import"),
+  });
+}
+
+export function useImportTransferConfirm() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ token, createdBy }: { token: string; createdBy: string }) =>
+      OutboundTransferService.importConfirm(token, createdBy),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
+    },
+    onError: (err) => apiError(err, "Gagal menerapkan import"),
+  });
+}
+
 export function useOutboundDrafts(params: InventoryTransferListParams = {}) {
   return useQuery({
     queryKey: ["outbound-transfer", "drafts", params],

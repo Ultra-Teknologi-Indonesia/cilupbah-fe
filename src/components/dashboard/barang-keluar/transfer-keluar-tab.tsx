@@ -13,6 +13,7 @@ import {
   PrinterIcon,
   Trash2Icon,
   Loader2Icon,
+  UploadIcon,
 } from "lucide-react";
 
 import type { DateRange } from "react-day-picker";
@@ -43,6 +44,7 @@ import { apiError } from "@/lib/toast";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import type { InventoryTransfer } from "@/types/barang-masuk/inventory-transfer";
 import { formatDate } from "@/lib/format";
+import { ImportTransferDialog } from "@/components/dashboard/barang-keluar/import-transfer-dialog";
 
 type SubTab = "draft" | "transit" | "finished";
 
@@ -282,6 +284,7 @@ export function TransferKeluarTab() {
   const { data: me } = useMe();
   const meName = me?.name ?? "";
   const [printingId, setPrintingId] = useState<string | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   const openTransferPdf = useCallback((id: string) => {
     window.open(
@@ -624,15 +627,25 @@ export function TransferKeluarTab() {
               ))}
             </TabsList>
           </Tabs>
-          <Button
-            size="sm"
-            onClick={() =>
-              router.push("/dashboard/barang-keluar/transfer/tambah")
-            }
-          >
-            <PlusIcon className="mr-1.5 size-4" />
-            Tambah baru
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setImportOpen(true)}
+            >
+              <UploadIcon className="mr-1.5 size-4" />
+              Import
+            </Button>
+            <Button
+              size="sm"
+              onClick={() =>
+                router.push("/dashboard/barang-keluar/transfer/tambah")
+              }
+            >
+              <PlusIcon className="mr-1.5 size-4" />
+              Tambah baru
+            </Button>
+          </div>
         </div>
 
         <FilterToolbar
@@ -750,6 +763,12 @@ export function TransferKeluarTab() {
             },
           });
         }}
+      />
+
+      <ImportTransferDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        createdBy={meName}
       />
     </>
   );
