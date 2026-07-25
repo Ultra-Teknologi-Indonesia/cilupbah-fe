@@ -615,8 +615,7 @@ export function PackingDetailView({ id }: { id: string }) {
       <DeleteOrderDialog
         open={deleteOrderOpen}
         onOpenChange={setDeleteOrderOpen}
-        orderId={pk.orderId}
-        orderNo={pk.orderNo}
+        orders={pk.orderId ? [{ id: pk.orderId, no: pk.orderNo }] : []}
         onDeleted={() => router.push(LIST_HREF)}
       />
     </div>

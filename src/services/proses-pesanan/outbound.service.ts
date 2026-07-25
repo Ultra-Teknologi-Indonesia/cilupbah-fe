@@ -1391,6 +1391,17 @@ export const OutboundService = {
     });
   },
 
+  bulkDeleteFulfillmentOrders: async (
+    orderIds: string[],
+    reason: string,
+  ): Promise<ReadyToShipResult[]> => {
+    const res = await fetchClient<{ data: RawReadyToShipResult[] }>(
+      `/outbound/orders/bulk-delete`,
+      { method: "POST", data: { order_ids: orderIds, reason } },
+    );
+    return (res.data ?? []).map(mapShipResult);
+  },
+
   preManifestCancelList: async (
     params: FulfillmentListParams,
   ): Promise<ListResult<FulfillmentOrder>> => {

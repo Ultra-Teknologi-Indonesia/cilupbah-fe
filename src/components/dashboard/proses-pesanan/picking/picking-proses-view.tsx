@@ -1093,8 +1093,11 @@ export function PickingProsesView({ id }: { id: string }) {
         onOpenChange={(open) => {
           if (!open) setDeleteOrderTarget(null);
         }}
-        orderId={deleteOrderTarget?.orderId ?? null}
-        orderNo={deleteOrderTarget?.orderNo ?? null}
+        orders={
+          deleteOrderTarget?.orderId
+            ? [{ id: deleteOrderTarget.orderId, no: deleteOrderTarget.orderNo }]
+            : []
+        }
         onDeleted={() => {
           const deletedOrderId = deleteOrderTarget?.orderId;
           const remainingOrderIds = new Set(

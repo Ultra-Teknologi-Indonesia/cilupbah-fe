@@ -651,8 +651,7 @@ export function OrderActions({
         <DeleteOrderDialog
           open={deleteOpen}
           onOpenChange={setDeleteOpen}
-          orderId={order.id}
-          orderNo={order.salesorder_no}
+          orders={[{ id: order.id, no: order.salesorder_no }]}
         />
       </>
     );

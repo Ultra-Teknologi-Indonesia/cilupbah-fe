@@ -433,8 +433,11 @@ export function PacklistTable() {
       <DeleteOrderDialog
         open={!!deleteTarget}
         onOpenChange={(o) => !o && setDeleteTarget(null)}
-        orderId={deleteTarget?.orderId ?? null}
-        orderNo={deleteTarget?.orderNo ?? null}
+        orders={
+          deleteTarget?.orderId
+            ? [{ id: deleteTarget.orderId, no: deleteTarget.orderNo }]
+            : []
+        }
       />
     </div>
   );

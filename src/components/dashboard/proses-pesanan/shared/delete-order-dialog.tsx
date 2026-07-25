@@ -16,7 +16,10 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
-import { useDeleteFulfillmentOrder } from "@/hooks/proses-pesanan/use-fulfillment";
+import {
+  useBulkDeleteFulfillmentOrders,
+  useDeleteFulfillmentOrder,
+} from "@/hooks/proses-pesanan/use-fulfillment";
 import { apiError } from "@/lib/toast";
 import {
   FAIL_REASON_LABEL,
@@ -30,23 +33,30 @@ const REASONS: PicklistFailReasonCode[] = [
   "OTHER",
 ];
 
+export interface DeleteOrderTarget {
+  id: string;
+  no?: string | null;
+}
+
 export function DeleteOrderDialog({
   open,
   onOpenChange,
-  orderId,
-  orderNo,
+  orders,
   onDeleted,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  orderId: string | null;
-  orderNo?: string | null;
+  orders: DeleteOrderTarget[];
   onDeleted?: () => void;
 }) {
   const [reasonCode, setReasonCode] =
     React.useState<PicklistFailReasonCode>("STOCK_EMPTY");
   const [note, setNote] = React.useState("");
   const deleteOrder = useDeleteFulfillmentOrder();
+  const bulkDeleteOrders = useBulkDeleteFulfillmentOrders();
+
+  const isBulk = orders.length > 1;
+  const isPending = deleteOrder.isPending || bulkDeleteOrders.isPending;
 
   const [prevOpen, setPrevOpen] = React.useState(open);
   if (open !== prevOpen) {
@@ -60,19 +70,45 @@ export function DeleteOrderDialog({
   const requiresNote = reasonCode === "OTHER";
   const trimmedNote = note.trim();
   const noteValid = !requiresNote || trimmedNote.length >= 5;
-  const canConfirm = noteValid && !deleteOrder.isPending;
+  const canConfirm = orders.length > 0 && noteValid && !isPending;
 
-  const handleConfirm = () => {
-    if (!orderId || !canConfirm) return;
+  const handleConfirm = async () => {
+    if (!canConfirm) return;
     const reason = trimmedNote
       ? `${FAIL_REASON_LABEL[reasonCode]} — ${trimmedNote}`
       : FAIL_REASON_LABEL[reasonCode];
+
+    if (isBulk) {
+      try {
+        const results = await bulkDeleteOrders.mutateAsync({
+          orderIds: orders.map((o) => o.id),
+          reason,
+        });
+        const ok = results.filter((r) => r.status === "success").length;
+        const failed = results.filter((r) => r.status === "failed");
+        if (failed.length) {
+          toast.error(
+            `${ok} pesanan dihapus, ${failed.length} gagal.` +
+              (failed[0].message ? ` (${failed[0].message})` : ""),
+          );
+        } else {
+          toast.success(`${ok} pesanan dihapus dari fulfillment.`);
+        }
+        onOpenChange(false);
+        onDeleted?.();
+      } catch (e) {
+        apiError(e, "Gagal menghapus pesanan.");
+      }
+      return;
+    }
+
+    const target = orders[0];
     deleteOrder.mutate(
-      { orderId, reason },
+      { orderId: target.id, reason },
       {
         onSuccess: () => {
           toast.success(
-            `Pesanan ${orderNo ?? ""} dipindah ke Gagal Picking.`.replace(
+            `Pesanan ${target.no ?? ""} dipindah ke Gagal Picking.`.replace(
               /\s+/g,
               " ",
             ),
@@ -89,14 +125,14 @@ export function DeleteOrderDialog({
     <Dialog
       open={open}
       onOpenChange={(v) => {
-        if (!deleteOrder.isPending) onOpenChange(v);
+        if (!isPending) onOpenChange(v);
       }}
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <TriangleAlertIcon className="size-4 text-destructive" />
-            Hapus Pengambilan
+            {isBulk ? `Hapus ${orders.length} Pesanan` : "Hapus Pengambilan"}
           </DialogTitle>
           <DialogDescription>
             Pilih alasan pesanan dihapus dari picking. Pesanan akan dipindah ke
@@ -106,10 +142,12 @@ export function DeleteOrderDialog({
 
         <div className="rounded-md border border-border bg-muted/30 p-3 text-sm">
           <div className="font-medium text-foreground">
-            Pesanan {orderNo ?? orderId ?? "—"}
+            {isBulk
+              ? `${orders.length} pesanan dipilih`
+              : `Pesanan ${orders[0]?.no ?? orders[0]?.id ?? "—"}`}
           </div>
           <div className="mt-2 text-xs text-muted-foreground">
-            Pesanan akan{" "}
+            {isBulk ? "Semua pesanan" : "Pesanan"} akan{" "}
             <span className="font-semibold text-foreground">
               masuk Gagal Picking
             </span>{" "}
@@ -153,7 +191,7 @@ export function DeleteOrderDialog({
             }
             maxLength={500}
             rows={3}
-            disabled={deleteOrder.isPending}
+            disabled={isPending}
           />
           {requiresNote && !noteValid && trimmedNote.length > 0 && (
             <p className="text-xs text-destructive">
@@ -166,7 +204,7 @@ export function DeleteOrderDialog({
           <Button
             variant="ghost"
             onClick={() => onOpenChange(false)}
-            disabled={deleteOrder.isPending}
+            disabled={isPending}
           >
             Batal
           </Button>
@@ -175,10 +213,8 @@ export function DeleteOrderDialog({
             onClick={handleConfirm}
             disabled={!canConfirm}
           >
-            {deleteOrder.isPending && (
-              <Loader2Icon className="size-4 animate-spin" />
-            )}
-            Ya, Hapus Pengambilan
+            {isPending && <Loader2Icon className="size-4 animate-spin" />}
+            {isBulk ? `Ya, Hapus ${orders.length} Pesanan` : "Ya, Hapus Pengambilan"}
           </Button>
         </DialogFooter>
       </DialogContent>

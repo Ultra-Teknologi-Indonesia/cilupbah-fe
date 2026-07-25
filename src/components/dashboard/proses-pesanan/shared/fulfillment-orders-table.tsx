@@ -730,6 +730,7 @@ export function FulfillmentOrdersTable({
     React.useState<FulfillmentOrder | null>(null);
   const [deleteTarget, setDeleteTarget] =
     React.useState<FulfillmentOrder | null>(null);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
   const [filter, setFilter] = React.useState<FulfillmentFilterValue>({});
 
   const [prevStage, setPrevStage] = React.useState(stage);
@@ -1098,6 +1099,15 @@ export function FulfillmentOrdersTable({
           )}
           <Button
             size="sm"
+            variant="outline"
+            className="border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
+            onClick={() => setBulkDeleteOpen(true)}
+          >
+            <Trash2Icon className="size-4" />
+            Hapus
+          </Button>
+          <Button
+            size="sm"
             variant="ghost"
             onClick={clearSelection}
             className="ml-auto"
@@ -1221,12 +1231,20 @@ export function FulfillmentOrdersTable({
         })()}
 
       <DeleteOrderDialog
-        open={!!deleteTarget}
+        open={bulkDeleteOpen || !!deleteTarget}
         onOpenChange={(open) => {
-          if (!open) setDeleteTarget(null);
+          if (!open) {
+            setBulkDeleteOpen(false);
+            setDeleteTarget(null);
+          }
         }}
-        orderId={deleteTarget?.id ?? null}
-        orderNo={deleteTarget?.salesorderNo ?? null}
+        orders={
+          bulkDeleteOpen
+            ? selectedOrders.map((o) => ({ id: o.id, no: o.salesorderNo }))
+            : deleteTarget
+              ? [{ id: deleteTarget.id, no: deleteTarget.salesorderNo }]
+              : []
+        }
         onDeleted={clearSelection}
       />
 

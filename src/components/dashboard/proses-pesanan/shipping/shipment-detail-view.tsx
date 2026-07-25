@@ -946,8 +946,11 @@ export function ShipmentDetailView({ id }: { id: string }) {
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-        orderId={deleteTarget?.orderId ?? null}
-        orderNo={deleteTarget?.orderNo ?? null}
+        orders={
+          deleteTarget?.orderId
+            ? [{ id: deleteTarget.orderId, no: deleteTarget.orderNo }]
+            : []
+        }
       />
     </div>
   );

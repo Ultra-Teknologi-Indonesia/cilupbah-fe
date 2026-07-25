@@ -794,6 +794,22 @@ export function useDeleteFulfillmentOrder() {
   });
 }
 
+export function useBulkDeleteFulfillmentOrders() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      orderIds,
+      reason,
+    }: {
+      orderIds: string[];
+      reason: string;
+    }) => OutboundService.bulkDeleteFulfillmentOrders(orderIds, reason),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.all });
+    },
+  });
+}
+
 export function usePreManifestCancelCount() {
   return useQuery({
     queryKey: fulfillmentKeys.count("pre-manifest-cancel"),
