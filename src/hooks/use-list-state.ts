@@ -35,6 +35,15 @@ export function useListState<F extends object>(
     searchParamsRef.current = searchParams;
   }, [searchParams]);
 
+  // Nilai search terakhir yang KITA tulis ke URL (via debounce writeUrl). Dipakai
+  // untuk membedakan echo tulisan sendiri dari navigasi eksternal (back/forward).
+  // Tanpa ini, echo URL yang telat (router.replace itu async & search di-debounce)
+  // menimpa ketikan terbaru: ketik "deni" lalu lanjut "denim jeans" → saat URL
+  // "deni" akhirnya sampai, input balik jadi "deni".
+  const lastPushedSearchRef = useRef<string>(
+    urlSync ? (searchParams.get(`${ns}search`) ?? "").trim() : "",
+  );
+
   const pageKey = `${ns}page`;
   const perPageKey = `${ns}per_page`;
   const searchKey = `${ns}search`;
@@ -109,11 +118,15 @@ export function useListState<F extends object>(
     /* eslint-disable react-hooks/set-state-in-effect */
     setPageRaw((prev) => (prev === nextPage ? prev : nextPage));
     setPerPageRaw((prev) => (prev === nextPerPage ? prev : nextPerPage));
-    setSearchRaw((prev) => (prev === nextSearch ? prev : nextSearch));
-    setDebouncedSearch((prev) => {
-      const t = nextSearch.trim();
-      return prev === t ? prev : t;
-    });
+    // Hanya adopsi search dari URL bila perubahannya EKSTERNAL (back/forward /
+    // navigasi baru), bukan echo telat dari writeUrl debounce kita sendiri —
+    // jika tidak, echo lama menimpa ketikan terbaru yang belum ter-flush.
+    const nextTrimmed = nextSearch.trim();
+    if (nextTrimmed !== lastPushedSearchRef.current) {
+      lastPushedSearchRef.current = nextTrimmed;
+      setSearchRaw((prev) => (prev === nextSearch ? prev : nextSearch));
+      setDebouncedSearch((prev) => (prev === nextTrimmed ? prev : nextTrimmed));
+    }
     setFiltersRaw((prev) => {
       const prevR = prev as Record<string, FilterPrimitive>;
       const nextR = nextFilters as Record<string, FilterPrimitive>;
@@ -188,6 +201,7 @@ export function useListState<F extends object>(
   useEffect(() => {
     const timer = setTimeout(() => {
       const trimmed = search.trim();
+      lastPushedSearchRef.current = trimmed;
       setDebouncedSearch((prev) => (prev === trimmed ? prev : trimmed));
       setPageRaw(1);
       if (urlSync) {
