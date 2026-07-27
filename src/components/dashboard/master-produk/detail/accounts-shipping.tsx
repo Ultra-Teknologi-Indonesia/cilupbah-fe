@@ -21,7 +21,11 @@ export function ShippingCard({ product }: { product: ProductDetail }) {
       <h3 className="mb-2 text-sm font-semibold">Pengiriman</h3>
       <Row
         label="Berat"
-        value={product.weight != null ? `${product.weight} kg` : "—"}
+        value={
+          product.weight != null
+            ? `${product.weight} ${product.weightUnit ?? "kg"}`
+            : "—"
+        }
       />
       <Row label="Konsinyasi" value={yn(product.isConsignment)} />
     </div>
