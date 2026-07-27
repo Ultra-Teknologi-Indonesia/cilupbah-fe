@@ -8,7 +8,7 @@ export const buatProdukSchema = z
       .min(1, "Nama produk wajib diisi")
       .min(25, "Nama produk minimal 25 karakter (syarat upload ke TikTok).")
       .max(255, "Nama produk maksimal 255 karakter."),
-    sku: z.string().trim().min(1, "SKU wajib diisi").max(50),
+    sku: z.string().trim().max(50, "SKU maksimal 50 karakter."),
     category: z
       .object({ id: z.string(), name: z.string(), path: z.array(z.string()) })
       .nullable(),
@@ -97,7 +97,7 @@ export const buatProdukSchema = z
 export const buatBundleSchema = z
   .object({
     name: z.string().trim().min(1, "Nama produk wajib diisi").max(255),
-    sku: z.string().trim().min(1, "SKU wajib diisi").max(50),
+    sku: z.string().trim().max(50, "SKU maksimal 50 karakter."),
     category: z
       .object({ id: z.string(), name: z.string(), path: z.array(z.string()) })
       .nullable(),

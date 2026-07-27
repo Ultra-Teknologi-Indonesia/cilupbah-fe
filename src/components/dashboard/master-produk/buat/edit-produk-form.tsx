@@ -9,7 +9,6 @@ import { ArrowLeftIcon, InfoIcon, Loader2Icon, SaveIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { apiError } from "@/lib/toast";
-import { cn } from "@/lib/utils";
 import { buatProdukSchema } from "@/schemas/master-produk";
 import type {
   BuatProdukFormValues,
@@ -205,9 +204,9 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
       {isMultiVariant && (
         <div className="flex items-start gap-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground/80">
           <InfoIcon className="mt-0.5 size-4 shrink-0 text-primary" />
-          Produk ini memiliki {product.variants.length} varian. Bagian Penjualan
-          &amp; Pembelian dikunci — edit harga/pajak per varian akan tersedia
-          lewat editor variasi.
+          Produk ini memiliki {product.variants.length} varian. Harga tiap
+          varian diatur di step Varian (kolom Harga Jual); harga jual default di
+          bawah dipakai untuk varian yang harganya belum diisi.
         </div>
       )}
 
@@ -230,15 +229,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
               lockedValues={variantLocks.lockedValues}
             />
 
-            <fieldset
-              disabled={isMultiVariant}
-              className={cn(
-                "m-0 min-w-0 border-0 p-0",
-                isMultiVariant && "opacity-60",
-              )}
-            >
-              <FormSalesSection />
-            </fieldset>
+            <FormSalesSection />
 
             <FormShippingSection />
 

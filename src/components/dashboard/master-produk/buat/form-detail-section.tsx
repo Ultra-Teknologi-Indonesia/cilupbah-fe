@@ -79,7 +79,10 @@ export function FormDetailSection({
           render={({ field }) => (
             <FormItem>
               <FormLabel>
-                SKU <span className="text-destructive">*</span>
+                SKU{" "}
+                <span className="text-muted-foreground font-normal">
+                  (opsional)
+                </span>
               </FormLabel>
               <FormControl>
                 <Input
