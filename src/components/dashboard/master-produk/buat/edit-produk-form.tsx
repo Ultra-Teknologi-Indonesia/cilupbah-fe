@@ -1,11 +1,10 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeftIcon, InfoIcon, Loader2Icon, SaveIcon } from "lucide-react";
+import { InfoIcon, Loader2Icon, SaveIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { apiError } from "@/lib/toast";
@@ -168,6 +167,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
       <PageTitle
         title="Edit Produk"
         description={product.name}
+        backHref={detailHref}
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Produk Master", href: "/dashboard/produk" },
@@ -175,21 +175,14 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
           { label: "Edit" },
         ]}
         actions={
-          <div className="flex items-center gap-2">
-            <Button variant="outline" asChild disabled={busy}>
-              <Link href={detailHref}>
-                <ArrowLeftIcon /> Kembali
-              </Link>
-            </Button>
-            <Button
-              variant="primary"
-              onClick={() => !busy && handleSubmit(onValid, onInvalid)()}
-              disabled={busy}
-            >
-              {busy ? <Loader2Icon className="animate-spin" /> : <SaveIcon />}
-              Simpan perubahan
-            </Button>
-          </div>
+          <Button
+            variant="primary"
+            onClick={() => !busy && handleSubmit(onValid, onInvalid)()}
+            disabled={busy}
+          >
+            {busy ? <Loader2Icon className="animate-spin" /> : <SaveIcon />}
+            Simpan perubahan
+          </Button>
         }
       />
 

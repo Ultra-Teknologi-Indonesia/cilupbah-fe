@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { VideoPlayer } from "@/components/ui/video-player";
 import {
   Dialog,
@@ -180,25 +179,24 @@ export function DetailHeader({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-card/60 px-4 py-3 shadow-sm backdrop-blur-xl">
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" asChild aria-label="Kembali">
-            <Link href="/dashboard/produk">
-              <ArrowLeftIcon /> Kembali
-            </Link>
-          </Button>
-          <nav className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Link href="/dashboard" className="hover:text-foreground">
-              Dashboard
-            </Link>
-            <ChevronRightIcon className="size-3" />
-            <Link href="/dashboard/produk" className="hover:text-foreground">
-              Produk Master
-            </Link>
-            <ChevronRightIcon className="size-3" />
-            <span className="truncate text-foreground">{product.name}</span>
-          </nav>
-        </div>
+      <div>
+        <Link
+          href="/dashboard/produk"
+          className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeftIcon className="size-4" /> Kembali
+        </Link>
+        <nav className="flex items-center gap-1 text-xs text-muted-foreground">
+          <Link href="/dashboard" className="hover:text-foreground">
+            Dashboard
+          </Link>
+          <ChevronRightIcon className="size-3" />
+          <Link href="/dashboard/produk" className="hover:text-foreground">
+            Produk Master
+          </Link>
+          <ChevronRightIcon className="size-3" />
+          <span className="truncate text-foreground">{product.name}</span>
+        </nav>
       </div>
 
       <div className="rounded-2xl border border-border/60 bg-card/60 p-4 shadow-sm backdrop-blur-xl sm:p-6">
