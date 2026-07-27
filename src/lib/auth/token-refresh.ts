@@ -21,17 +21,27 @@ const REFRESH_SKEW_MS = 60_000;
 
 const REFRESH_TIMEOUT_MS = 10_000;
 
-const inFlight = new Map<string, Promise<TokenPair | null>>();
+const RETRY_BACKOFF_MS = 400;
+
+const inFlight = new Map<string, Promise<PairResult>>();
 
 export type SessionState =
-
   | { status: "ok"; accessToken: string }
-
   | { status: "anonymous" }
+  | { status: "expired" }
+  | { status: "unavailable" };
 
-  | { status: "expired" };
+export type RefreshResult =
+  | { status: "ok"; pair: TokenPair }
+  | { status: "dead" }
+  | { status: "retryable" };
 
-async function requestNewPair(refreshToken: string): Promise<TokenPair | null> {
+type PairResult =
+  | { status: "ok"; pair: TokenPair }
+  | { status: "dead" }
+  | { status: "retryable" };
+
+async function attemptRefresh(refreshToken: string): Promise<PairResult> {
   try {
     const res = await fetch(`${BACKEND_URL}/api/v1/auth/refresh`, {
       method: "POST",
@@ -44,56 +54,71 @@ async function requestNewPair(refreshToken: string): Promise<TokenPair | null> {
       signal: AbortSignal.timeout(REFRESH_TIMEOUT_MS),
     });
 
-    if (!res.ok) return null;
+    if (res.status === 401) return { status: "dead" };
+
+    if (!res.ok) return { status: "retryable" };
 
     const body = await res.json();
     const data = body?.data;
 
-    if (!data?.access_token || !data?.refresh_token) return null;
+    if (!data?.access_token || !data?.refresh_token) {
+      return { status: "retryable" };
+    }
 
     return {
-      access_token: data.access_token,
-      refresh_token: data.refresh_token,
-      expires_in: data.expires_in,
-      refresh_expires_in: data.refresh_expires_in,
+      status: "ok",
+      pair: {
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        expires_in: data.expires_in,
+        refresh_expires_in: data.refresh_expires_in,
+      },
     };
   } catch {
-    return null;
+    return { status: "retryable" };
   }
 }
 
-export async function refreshSession(): Promise<TokenPair | null> {
+async function requestNewPair(refreshToken: string): Promise<PairResult> {
+  const first = await attemptRefresh(refreshToken);
+  if (first.status !== "retryable") return first;
+
+  await new Promise((resolve) => setTimeout(resolve, RETRY_BACKOFF_MS));
+  return attemptRefresh(refreshToken);
+}
+
+export async function refreshSession(): Promise<RefreshResult> {
   const jar = await cookies();
   const refreshToken = jar.get(REFRESH_TOKEN_COOKIE)?.value;
 
-  if (!refreshToken) return null;
+  if (!refreshToken) return { status: "dead" };
 
   if (!refreshWindowOpen(jar.get(REFRESH_EXPIRES_COOKIE)?.value)) {
     clearSessionCookies(jar);
-    return null;
+    return { status: "dead" };
   }
 
   const existing = inFlight.get(refreshToken);
-  if (existing) {
-    const pair = await existing;
+  const attempt =
+    existing ??
+    requestNewPair(refreshToken).finally(() => {
+      inFlight.delete(refreshToken);
+    });
+  if (!existing) inFlight.set(refreshToken, attempt);
 
-    return pair;
+  const result = await attempt;
+
+  if (result.status === "ok") {
+    writeSessionCookies(jar, result.pair);
+    return { status: "ok", pair: result.pair };
   }
 
-  const attempt = requestNewPair(refreshToken).finally(() => {
-    inFlight.delete(refreshToken);
-  });
-  inFlight.set(refreshToken, attempt);
-
-  const pair = await attempt;
-
-  if (!pair) {
+  if (result.status === "dead") {
     clearSessionCookies(jar);
-    return null;
+    return { status: "dead" };
   }
 
-  writeSessionCookies(jar, pair);
-  return pair;
+  return { status: "retryable" };
 }
 
 export async function getValidAccessToken(): Promise<SessionState> {
@@ -113,9 +138,16 @@ export async function getValidAccessToken(): Promise<SessionState> {
     return { status: "ok", accessToken };
   }
 
-  const pair = await refreshSession();
+  const result = await refreshSession();
 
-  if (pair) return { status: "ok", accessToken: pair.access_token };
+  if (result.status === "ok") {
+    return { status: "ok", accessToken: result.pair.access_token };
+  }
+
+  if (result.status === "retryable") {
+    if (accessToken) return { status: "ok", accessToken };
+    return { status: "unavailable" };
+  }
 
   if (accessToken && !refreshToken) {
     return { status: "ok", accessToken };

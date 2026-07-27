@@ -14,6 +14,18 @@ function sessionExpiredResponse() {
   );
 }
 
+function refreshUnavailableResponse() {
+  return NextResponse.json(
+    {
+      code: "REFRESH_UNAVAILABLE",
+      title: "Gagal menyegarkan sesi",
+      message:
+        "Server sedang sibuk menyegarkan sesi Anda. Coba lakukan lagi sebentar lagi.",
+    },
+    { status: 503 },
+  );
+}
+
 async function proxyRequest(
   request: NextRequest,
   { params: _params }: { params: Promise<{ path: string[] }> },
@@ -50,6 +62,10 @@ async function proxyRequest(
     return sessionExpiredResponse();
   }
 
+  if (session.status === "unavailable") {
+    return refreshUnavailableResponse();
+  }
+
   if (session.status === "ok") {
     headers.set("authorization", `Bearer ${session.accessToken}`);
   }
@@ -66,13 +82,17 @@ async function proxyRequest(
     });
 
     if (response.status === 401 && session.status === "ok") {
-      const pair = await refreshSession();
+      const result = await refreshSession();
 
-      if (!pair) {
+      if (result.status === "retryable") {
+        return refreshUnavailableResponse();
+      }
+
+      if (result.status !== "ok") {
         return sessionExpiredResponse();
       }
 
-      headers.set("authorization", `Bearer ${pair.access_token}`);
+      headers.set("authorization", `Bearer ${result.pair.access_token}`);
       response = await fetch(targetUrl, {
         method: request.method,
         headers,

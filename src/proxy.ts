@@ -32,9 +32,12 @@ function timestamp(raw?: string): number | null {
   return Number.isFinite(value) && value > 0 ? value : null;
 }
 
-async function refreshViaFunnel(
-  request: NextRequest,
-): Promise<string[] | null> {
+type FunnelResult =
+  | { status: "ok"; cookies: string[] }
+  | { status: "retryable" }
+  | { status: "dead" };
+
+async function refreshViaFunnel(request: NextRequest): Promise<FunnelResult> {
   try {
     const res = await fetch(new URL("/api/auth/refresh", request.url), {
       method: "POST",
@@ -42,11 +45,13 @@ async function refreshViaFunnel(
       cache: "no-store",
     });
 
-    if (!res.ok) return null;
+    if (res.ok) return { status: "ok", cookies: res.headers.getSetCookie() };
 
-    return res.headers.getSetCookie();
+    if (res.status === 503) return { status: "retryable" };
+
+    return { status: "dead" };
   } catch {
-    return null;
+    return { status: "retryable" };
   }
 }
 
@@ -114,12 +119,17 @@ export async function proxy(request: NextRequest) {
     accessExpiresAt === null || accessExpiresAt - Date.now() < REFRESH_SKEW_MS;
 
   if (isProtectedRoute && refreshToken && accessStale) {
-    const setCookies = await refreshViaFunnel(request);
+    const refresh = await refreshViaFunnel(request);
 
-    if (!setCookies) {
+    if (refresh.status === "dead") {
       return redirectToLogin(request, pathname);
     }
 
+    if (refresh.status === "retryable") {
+      return NextResponse.next();
+    }
+
+    const setCookies = refresh.cookies;
     const requestHeaders = new Headers(request.headers);
     const rewritten = rewriteCookieHeader(
       request.headers.get("cookie") ?? "",

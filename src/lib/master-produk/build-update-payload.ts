@@ -48,20 +48,25 @@ export function buildUpdatePayload(
   }
 
   if (values.variationTypes.length > 0) {
-    payload.variation_types = values.variationTypes.map((t, i) => ({
-      attribute_id: t.attributeId,
-      sort_order: i,
-    }));
+    const typeNameById = new Map(
+      values.variationTypes.map((t) => [t.attributeId, t.name]),
+    );
+    payload.variation_types = values.variationTypes.map((t, i) =>
+      t.attributeId < 0
+        ? { name: t.name, sort_order: i }
+        : { attribute_id: t.attributeId, sort_order: i },
+    );
     payload.variants = values.variants.map((row) => {
       const v: CreateVariantInput = {
         sku: row.sku.trim(),
         sell_price: num(row.sellPrice) ?? num(values.sellPrice) ?? 0,
         weight: num(row.weight) ?? null,
         is_active: true,
-        options: row.options.map((o) => ({
-          attribute_id: o.attributeId,
-          value: o.value,
-        })),
+        options: row.options.map((o) =>
+          o.attributeId < 0
+            ? { name: typeNameById.get(o.attributeId) ?? "", value: o.value }
+            : { attribute_id: o.attributeId, value: o.value },
+        ),
       };
       const vm = opts.variantMedia?.find((m) => m.variantKey === row.key);
       if (vm) {
