@@ -224,10 +224,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
           >
             <FormDetailSection />
 
-            <FormVariantSection
-              lockedTypeIds={variantLocks.lockedTypeIds}
-              lockedValues={variantLocks.lockedValues}
-            />
+            <FormVariantSection lockedTypeIds={variantLocks.lockedTypeIds} />
 
             <FormSalesSection />
 

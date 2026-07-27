@@ -158,10 +158,8 @@ function OptionAdder({
 
 export function FormVariantSection({
   lockedTypeIds = [],
-  lockedValues = {},
 }: {
   lockedTypeIds?: number[];
-  lockedValues?: Record<number, string[]>;
 } = {}) {
   const { watch, setValue, getValues } = useFormContext<BuatProdukFormValues>();
   const category = watch("category");
@@ -333,11 +331,6 @@ export function FormVariantSection({
     setBulkValue("");
   };
 
-  const isLockedValue = (attrId: number, value: string) =>
-    (lockedValues[attrId] ?? []).some(
-      (v) => v.toLowerCase() === value.toLowerCase(),
-    );
-
   return (
     <FormSectionCard id="varian" title="Varian Produk">
       <p className="mb-4 text-sm text-muted-foreground">
@@ -391,7 +384,7 @@ export function FormVariantSection({
                   </span>
                 )}
                 {t.values.map((val, vi) => {
-                  const valLocked = locked || isLockedValue(t.attributeId, val);
+                  const valLocked = t.values.length <= 1;
                   return (
                     <span
                       key={val}
@@ -409,7 +402,7 @@ export function FormVariantSection({
                             </span>
                           </TooltipTrigger>
                           <TooltipContent>
-                            Opsi varian yang sudah digunakan tidak dapat dihapus
+                            Minimal harus ada 1 opsi varian
                           </TooltipContent>
                         </Tooltip>
                       ) : (

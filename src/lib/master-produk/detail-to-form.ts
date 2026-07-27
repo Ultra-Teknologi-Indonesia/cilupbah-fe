@@ -54,14 +54,10 @@ function reconstructVariants(p: ProductDetail) {
 
 export function detailVariantLocks(p: ProductDetail): {
   lockedTypeIds: number[];
-  lockedValues: Record<number, string[]>;
 } {
   const { variationTypes } = reconstructVariants(p);
   return {
     lockedTypeIds: variationTypes.map((t) => t.attributeId),
-    lockedValues: Object.fromEntries(
-      variationTypes.map((t) => [t.attributeId, t.values]),
-    ),
   };
 }
 
