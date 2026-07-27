@@ -36,6 +36,7 @@ import {
   comboKey,
   comboLabel,
   skuPart,
+  sortVariantValues,
 } from "@/lib/master-produk/variant-combos";
 import type {
   BuatProdukFormValues,
@@ -235,7 +236,11 @@ export function FormVariantSection({
   }
 
   const setTypes = (next: BuatProdukFormValues["variationTypes"]) =>
-    setValue("variationTypes", next, { shouldDirty: true });
+    setValue(
+      "variationTypes",
+      next.map((t) => ({ ...t, values: sortVariantValues(t.values) })),
+      { shouldDirty: true },
+    );
 
   const addType = (attr: FormAttribute) => {
     if (variationTypes.length >= 2) return;

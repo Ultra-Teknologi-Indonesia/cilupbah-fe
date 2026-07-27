@@ -21,3 +21,9 @@ export const comboLabel = (opts: VarOption[]): string =>
   opts.map((o) => o.value).join(" / ");
 
 export const skuPart = (s: string): string => s.replace(/[^A-Za-z0-9]+/g, "-");
+
+export const compareVariantValue = (a: string, b: string): number =>
+  a.localeCompare(b, "id", { numeric: true, sensitivity: "base" });
+
+export const sortVariantValues = (values: string[]): string[] =>
+  [...values].sort(compareVariantValue);
