@@ -161,8 +161,7 @@ export function BuatProdukForm() {
 
   function sectionStatus(id: string): SectionStatus {
     if (sectionHasError(id)) return "error";
-    if (id === "detail")
-      return v.name && v.sku && v.category ? "valid" : "empty";
+    if (id === "detail") return v.name && v.category ? "valid" : "empty";
     if (id === "penjualan") return v.sellPrice ? "valid" : "empty";
     if (id === "pengiriman") return v.weight ? "valid" : "empty";
     if (id === "media")

@@ -139,8 +139,8 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
   }
   function sectionStatus(id: string): SectionStatus {
     if (sectionHasError(id)) return "error";
-    if (id === "detail")
-      return v.name && v.sku && v.category ? "valid" : "empty";
+    if (id === "detail") return v.name && v.category ? "valid" : "empty";
+    if (id === "varian") return "valid";
     if (id === "penjualan") return v.sellPrice ? "valid" : "empty";
     if (id === "pengiriman") return v.weight ? "valid" : "empty";
     if (id === "media") return mediaItems.length > 0 ? "valid" : "empty";
@@ -149,7 +149,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
 
   const sections = [
     { id: "detail", label: "Detail Produk", status: sectionStatus("detail") },
-    { id: "varian", label: "Varian", status: "empty" as SectionStatus },
+    { id: "varian", label: "Varian", status: sectionStatus("varian") },
     {
       id: "penjualan",
       label: "Penjualan & Pembelian",
