@@ -27,13 +27,14 @@ import {
   useBulkDeleteStockAdjustment,
 } from "@/hooks/transaksi-stok/use-stock-adjustments";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
-import { exportCsv } from "@/lib/export-csv";
+import { StockAdjustmentService } from "@/services/transaksi-stok/stock-adjustment.service";
 import type {
   StockAdjustment,
   StockAdjustmentListParams,
 } from "@/types/transaksi-stok/stock-adjustment";
 import { formatDate } from "@/lib/format";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 
 interface FilterState {
   location_id: string;
@@ -226,55 +227,33 @@ export function PenyesuaianTab() {
     });
   }
 
-  const handleExport = useCallback(() => {
-    if (items.length === 0) return;
-    const rows: string[][] = [];
+  const [isExportLoading, setIsExportLoading] = useState(false);
 
-    items.forEach((item: StockAdjustment) => {
-      const adjItems = item.items ?? [];
-      if (adjItems.length === 0) {
-        rows.push([
-          item.adjustment_no,
-          formatDate(item.transaction_date),
-          item.location?.location_name ?? "",
-          item.notes ?? "",
-          "",
-          "",
-          "",
-          item.created_by,
-        ]);
-      } else {
-        adjItems.forEach((line) => {
-          const qty = line.difference_qty ?? ((line.actual_qty ?? 0) - (line.system_qty ?? 0));
-          rows.push([
-            item.adjustment_no,
-            formatDate(item.transaction_date),
-            item.location?.location_name ?? "",
-            line.notes || item.notes || "",
-            line.product?.sku ?? "",
-            line.product?.product?.name ?? "",
-            String(qty),
-            item.created_by,
-          ]);
-        });
-      }
-    });
+  const handleExport = useCallback(async () => {
+    setIsExportLoading(true);
+    try {
+      const params: StockAdjustmentListParams = {};
+      if (list.filters.location_id) params["filter[location_id]"] = list.filters.location_id;
+      if (list.filters.date_from) params["filter[date_from]"] = list.filters.date_from;
+      if (list.filters.date_to) params["filter[date_to]"] = list.filters.date_to;
+      if (list.search) params.search = list.search;
 
-    exportCsv(
-      "koreksi-stok.csv",
-      [
-        "No. Koreksi Stok",
-        "Tgl. Transaksi",
-        "Lokasi",
-        "Note",
-        "SKU",
-        "Nama Barang",
-        "Qty",
-        "Dibuat Oleh",
-      ],
-      rows,
-    );
-  }, [items]);
+      const blob = await StockAdjustmentService.exportXlsx(params);
+      const filename = `koreksi-stok-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}.xlsx`;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success(`${filename} berhasil diunduh`);
+    } catch (err) {
+      apiError(err, "Gagal mengunduh Excel.");
+    } finally {
+      setIsExportLoading(false);
+    }
+  }, [list.filters, list.search]);
+
 
   return (
     <div className="flex flex-col gap-4">

@@ -88,4 +88,20 @@ export const StockAdjustmentService = {
     );
     return res.data;
   },
+
+  exportXlsx: async (params: StockAdjustmentListParams = {}): Promise<Blob> => {
+    const sp = new URLSearchParams();
+    if (params.search) sp.set("search", params.search);
+    if (params["filter[location_id]"])
+      sp.set("filter[location_id]", params["filter[location_id]"]);
+    if (params["filter[date_from]"])
+      sp.set("filter[date_from]", params["filter[date_from]"]);
+    if (params["filter[date_to]"])
+      sp.set("filter[date_to]", params["filter[date_to]"]);
+
+    return fetchBlobRaw(
+      `${BASE}/export/xlsx?${sp}`,
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
+  },
 };
