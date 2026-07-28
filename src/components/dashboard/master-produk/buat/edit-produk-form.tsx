@@ -44,8 +44,6 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
     if (product.media.length > 0) {
       return mediaItemsFromDetail(product.media);
     }
-    // Fallback: derive unique images from variant.image when product-level media is empty
-    // (e.g. products imported from Shopee where images live at variant level)
     const seenUrls = new Set<string>();
     const fallbackItems: EditMediaItem[] = [];
     for (const v of product.variants) {
@@ -61,7 +59,6 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
         });
       }
     }
-    // If still empty but primaryImage exists, add it alone
     if (fallbackItems.length === 0 && product.primaryImage) {
       fallbackItems.push({
         localId: "fallback_primary",
