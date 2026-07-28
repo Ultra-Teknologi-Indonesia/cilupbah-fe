@@ -167,6 +167,8 @@ export function useListState<F extends object>(
         }
       }
       const qs = params.toString();
+      searchParamsRef.current =
+        new URLSearchParams(qs) as unknown as typeof searchParamsRef.current;
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
     [urlSync, router, pathname, pageKey, perPageKey, defaultPerPage],
@@ -201,15 +203,16 @@ export function useListState<F extends object>(
   useEffect(() => {
     const timer = setTimeout(() => {
       const trimmed = search.trim();
+      if (trimmed === debouncedSearch) return;
       lastPushedSearchRef.current = trimmed;
-      setDebouncedSearch((prev) => (prev === trimmed ? prev : trimmed));
+      setDebouncedSearch(trimmed);
       setPageRaw(1);
       if (urlSync) {
         writeUrl({ [searchKey]: trimmed || null, [pageKey]: 1 });
       }
     }, debounceMs);
     return () => clearTimeout(timer);
-  }, [search, debounceMs, urlSync, writeUrl, searchKey, pageKey]);
+  }, [search, debouncedSearch, debounceMs, urlSync, writeUrl, searchKey, pageKey]);
 
   const setFilters = useCallback(
     (f: F) => {

@@ -1123,9 +1123,16 @@ export function LayoutGudangTab({
     {},
     { perPage: 50, debounceMs: 300, namespace: "layout" },
   );
-  const [sort, setSort] = React.useState<string | undefined>(undefined);
-  // Bin inbound sistem (bin_final_code "DEFAULT", is_inbound=true) bukan rak fisik —
-  // diakses lewat endpoint /default-bin, jadi dikecualikan dari daftar rak di sini.
+  const sort = list.sorting.length
+    ? `${list.sorting[0].desc ? "-" : ""}${list.sorting[0].id}`
+    : undefined;
+  const handleSortChange = (next: string | undefined) => {
+    if (!next) list.setSorting([]);
+    else if (next.startsWith("-"))
+      list.setSorting([{ id: next.slice(1), desc: true }]);
+    else list.setSorting([{ id: next, desc: false }]);
+    list.resetPage();
+  };
   const filter: BinListParams["filter"] = { is_inbound: false };
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [selectAllAcrossPages, setSelectAllAcrossPages] = React.useState(false);
@@ -1133,16 +1140,6 @@ export function LayoutGudangTab({
   const [importOpen, setImportOpen] = React.useState(false);
   const [paperSize, setPaperSize] =
     React.useState<BinQrPaper>(BIN_QR_PAPER_DEFAULT);
-
-  const resetListPage = list.resetPage;
-  React.useEffect(() => {
-    // Reset ke halaman 1 HANYA saat sort berubah. `resetListPage` sengaja tak
-    // dimasukkan ke deps: identitasnya berganti tiap URL berubah (useSearchParams),
-    // jadi bila disertakan, klik "next" mengubah URL → efek ini ikut jalan →
-    // langsung mereset kembali ke halaman 1 (tak bisa pindah halaman).
-    resetListPage();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sort]);
 
   const params: BinListParams = {
     page: list.page,
@@ -1306,7 +1303,7 @@ export function LayoutGudangTab({
     const generated = buildBinPreview(payload).map(toNewRow);
     if (serverMode) {
       setPendingBins(generated);
-      resetListPage();
+      list.resetPage();
     } else {
       setLocalBins(generated);
     }
@@ -1757,7 +1754,7 @@ export function LayoutGudangTab({
                       label="Kode Rak"
                       field="bin_final_code"
                       currentSort={sort}
-                      onSort={setSort}
+                      onSort={handleSortChange}
                     />
                   </TableHead>
                   <TableHead className="px-3 py-3 text-left font-medium text-muted-foreground">
