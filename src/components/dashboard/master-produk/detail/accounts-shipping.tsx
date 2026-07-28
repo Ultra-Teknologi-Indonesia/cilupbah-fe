@@ -27,6 +27,14 @@ export function ShippingCard({ product }: { product: ProductDetail }) {
             : "—"
         }
       />
+      <Row
+        label="Dimensi (P×L×T)"
+        value={
+          product.length != null && product.width != null && product.height != null
+            ? `${product.length} × ${product.width} × ${product.height} cm`
+            : "—"
+        }
+      />
       <Row label="Konsinyasi" value={yn(product.isConsignment)} />
     </div>
   );
