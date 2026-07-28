@@ -61,6 +61,9 @@ export function buildCreatePayload(
     status: opts.status,
     weight: num(values.weight) ?? null,
     weight_unit: values.weightUnit ?? "kg",
+    length: num(values.length) ?? null,
+    width: num(values.width) ?? null,
+    height: num(values.height) ?? null,
     ...(opts.media?.length ? { media: opts.media } : {}),
     ...(hasVariants
       ? {

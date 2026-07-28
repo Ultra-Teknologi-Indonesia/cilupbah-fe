@@ -18,6 +18,9 @@ export interface CreateVariantInput {
   sku: string;
   sell_price: number;
   weight?: number | null;
+  length?: number | null;
+  width?: number | null;
+  height?: number | null;
   is_active?: boolean;
   options?: VariantOptionInput[];
   media?: CreateMediaInput[];
@@ -44,6 +47,9 @@ export interface CreateProductPayload {
   status?: ProductCreateStatus;
   weight?: number | null;
   weight_unit?: "gram" | "kg";
+  length?: number | null;
+  width?: number | null;
+  height?: number | null;
   media?: CreateMediaInput[];
   variation_types?: VariationTypeInput[];
   specifications?: SpecificationInput[];

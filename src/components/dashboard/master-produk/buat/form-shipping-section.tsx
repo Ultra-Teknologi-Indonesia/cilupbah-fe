@@ -62,6 +62,50 @@ export function FormShippingSection() {
           )}
         />
       </div>
+
+      <div className="mt-5 grid gap-5 md:grid-cols-3">
+        <FormField
+          control={control}
+          name="length"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Panjang (cm)</FormLabel>
+              <FormControl>
+                <Input type="number" min={0} placeholder="0" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="width"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Lebar (cm)</FormLabel>
+              <FormControl>
+                <Input type="number" min={0} placeholder="0" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="height"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tinggi (cm)</FormLabel>
+              <FormControl>
+                <Input type="number" min={0} placeholder="0" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     </FormSectionCard>
   );
 }

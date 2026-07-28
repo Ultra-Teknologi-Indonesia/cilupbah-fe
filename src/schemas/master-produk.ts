@@ -17,6 +17,9 @@ export const buatProdukSchema = z
     sellPrice: z.string().optional(),
     weight: z.string().min(1, "Berat wajib diisi"),
     weightUnit: z.enum(["gram", "kg"]).default("kg"),
+    length: z.string().optional(),
+    width: z.string().optional(),
+    height: z.string().optional(),
 
     variationTypes: z
       .array(

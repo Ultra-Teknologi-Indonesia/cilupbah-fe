@@ -80,6 +80,9 @@ export function detailToFormValues(p: ProductDetail): BuatProdukFormValues {
     sellPrice: s(variant?.sellPrice ?? null),
     weight: s(p.weight),
     weightUnit: p.weightUnit ?? "kg",
+    length: s(p.length),
+    width: s(p.width),
+    height: s(p.height),
     variationTypes,
     variants,
 

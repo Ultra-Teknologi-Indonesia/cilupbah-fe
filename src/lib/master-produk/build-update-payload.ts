@@ -35,6 +35,9 @@ export function buildUpdatePayload(
     is_bundle: values.isBundle,
     weight: num(values.weight) ?? null,
     weight_unit: values.weightUnit ?? "kg",
+    length: num(values.length) ?? null,
+    width: num(values.width) ?? null,
+    height: num(values.height) ?? null,
   };
 
   const specifications = values.specifications
