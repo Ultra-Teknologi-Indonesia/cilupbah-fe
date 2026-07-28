@@ -71,7 +71,7 @@ export function useUpdateProduct(id: string) {
       const payload = buildUpdatePayload(values, {
         includeVariant,
         originalVariantSku,
-        media,
+        media: mediaItems.length > 0 ? media : undefined,
         variantMedia: variantMedia.length > 0 ? variantMedia : undefined,
       });
       return ProductUpdateService.update(id, payload);

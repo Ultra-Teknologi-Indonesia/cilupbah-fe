@@ -40,9 +40,43 @@ import { FormSectionCard } from "@/components/ui/form-section-card";
 
 export function EditProdukForm({ product }: { product: ProductDetail }) {
   const router = useRouter();
-  const [mediaItems, setMediaItems] = React.useState<EditMediaItem[]>(() =>
-    mediaItemsFromDetail(product.media),
-  );
+  const [mediaItems, setMediaItems] = React.useState<EditMediaItem[]>(() => {
+    if (product.media.length > 0) {
+      return mediaItemsFromDetail(product.media);
+    }
+    // Fallback: derive unique images from variant.image when product-level media is empty
+    // (e.g. products imported from Shopee where images live at variant level)
+    const seenUrls = new Set<string>();
+    const fallbackItems: EditMediaItem[] = [];
+    for (const v of product.variants) {
+      if (v.image && !seenUrls.has(v.image)) {
+        seenUrls.add(v.image);
+        fallbackItems.push({
+          localId: `fallback_${fallbackItems.length}`,
+          kind: "existing" as const,
+          mediaType: "image" as const,
+          url: v.image,
+          uuid: null,
+          isPrimary: v.image === product.primaryImage,
+        });
+      }
+    }
+    // If still empty but primaryImage exists, add it alone
+    if (fallbackItems.length === 0 && product.primaryImage) {
+      fallbackItems.push({
+        localId: "fallback_primary",
+        kind: "existing" as const,
+        mediaType: "image" as const,
+        url: product.primaryImage,
+        uuid: null,
+        isPrimary: true,
+      });
+    }
+    return mediaItemsFromDetail(product.media.length > 0 ? product.media : []).length > 0
+      ? mediaItemsFromDetail(product.media)
+      : fallbackItems;
+  });
+
   const { mutateAsync, isPending } = useUpdateProduct(product.id);
   const { mutateAsync: saveBundle, isPending: isBundlePending } =
     useCreateBundle();
