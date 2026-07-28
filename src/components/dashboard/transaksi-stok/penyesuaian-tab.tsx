@@ -228,15 +228,51 @@ export function PenyesuaianTab() {
 
   const handleExport = useCallback(() => {
     if (items.length === 0) return;
+    const rows: string[][] = [];
+
+    items.forEach((item: StockAdjustment) => {
+      const adjItems = item.items ?? [];
+      if (adjItems.length === 0) {
+        rows.push([
+          item.adjustment_no,
+          formatDate(item.transaction_date),
+          item.location?.location_name ?? "",
+          item.notes ?? "",
+          "",
+          "",
+          "",
+          item.created_by,
+        ]);
+      } else {
+        adjItems.forEach((line) => {
+          const qty = line.difference_qty ?? ((line.actual_qty ?? 0) - (line.system_qty ?? 0));
+          rows.push([
+            item.adjustment_no,
+            formatDate(item.transaction_date),
+            item.location?.location_name ?? "",
+            line.notes || item.notes || "",
+            line.product?.sku ?? "",
+            line.product?.product?.name ?? "",
+            String(qty),
+            item.created_by,
+          ]);
+        });
+      }
+    });
+
     exportCsv(
       "koreksi-stok.csv",
-      ["No. Koreksi Stok", "Tgl. Transaksi", "Lokasi", "Dibuat Oleh"],
-      items.map((item: StockAdjustment) => [
-        item.adjustment_no,
-        formatDate(item.transaction_date),
-        item.location?.location_name ?? "",
-        item.created_by,
-      ]),
+      [
+        "No. Koreksi Stok",
+        "Tgl. Transaksi",
+        "Lokasi",
+        "Note",
+        "SKU",
+        "Nama Barang",
+        "Qty",
+        "Dibuat Oleh",
+      ],
+      rows,
     );
   }, [items]);
 
