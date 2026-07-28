@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "framer-motion";
-import { Eye, Lock } from "lucide-react";
+import { Eye, EyeOff, Lock } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -41,19 +40,7 @@ export const PasswordInput = React.forwardRef<
         aria-label={visible ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
         aria-pressed={visible}
       >
-        <span className="relative grid size-4 place-items-center">
-          <Eye className="size-4" />
-          <span className="pointer-events-none absolute inset-0 grid place-items-center">
-            <span className="block h-[1.6px] w-[22px] -rotate-45">
-              <motion.span
-                className="block h-full w-full origin-right rounded-full bg-current"
-                initial={false}
-                animate={{ scaleX: visible ? 0 : 1 }}
-                transition={{ duration: 0.22, ease: "easeInOut" }}
-              />
-            </span>
-          </span>
-        </span>
+        {visible ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
       </button>
     </div>
   );

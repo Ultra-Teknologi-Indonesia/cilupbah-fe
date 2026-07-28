@@ -23,7 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const PUBLIC_PREFIXES = ["/login", "/register", "/lupa-password"];
+const PROTECTED_PREFIXES = ["/dashboard"];
 
 async function forceLogout() {
   try {
@@ -34,10 +34,10 @@ async function forceLogout() {
 
 export function IdleLockDialog() {
   const pathname = usePathname();
-  const isPublic = PUBLIC_PREFIXES.some((p) => pathname?.startsWith(p));
+  const isProtected = PROTECTED_PREFIXES.some((p) => pathname?.startsWith(p));
 
   const { data: me } = useMe();
-  const enabled = !isPublic && Boolean(me);
+  const enabled = isProtected && Boolean(me);
 
   const locked = useIdleLock(enabled);
 
@@ -116,6 +116,7 @@ function IdleLockPrompt({ email }: { email?: string }) {
 
           <div className="my-6 space-y-2">
             <PasswordInput
+              showIcon={false}
               autoFocus
               autoComplete="current-password"
               placeholder="Password"
