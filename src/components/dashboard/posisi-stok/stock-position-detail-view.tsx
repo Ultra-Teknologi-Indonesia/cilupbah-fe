@@ -94,7 +94,7 @@ const MOVEMENT_VIEW_VALUES: readonly MovementView[] = [
 const DIRECTION_VALUES = ["in", "out"] as const;
 type Direction = (typeof DIRECTION_VALUES)[number] | "";
 
-const DRILL_VALUES = ["transit", "allocation"] as const;
+const DRILL_VALUES = ["transit", "allocation", "order_active"] as const;
 type Drill = (typeof DRILL_VALUES)[number] | "";
 
 function parseMovementView(raw: string | null): MovementView {

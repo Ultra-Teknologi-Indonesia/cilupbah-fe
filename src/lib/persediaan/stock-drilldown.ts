@@ -11,7 +11,10 @@ export function buildStockDrillHref(
   const p = new URLSearchParams();
   p.set("tab", "kronologi");
 
-  if (metric === "on_order") p.set("source", ORDER_SOURCE_TOKENS);
+  if (metric === "on_order") {
+    p.set("source", ORDER_SOURCE_TOKENS);
+    p.set("drill", "order_active");
+  }
 
   if (metric === "transit") p.set("drill", "transit");
 
