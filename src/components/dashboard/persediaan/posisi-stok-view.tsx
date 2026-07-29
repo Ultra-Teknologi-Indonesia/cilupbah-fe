@@ -264,7 +264,7 @@ function MetricCells({
           itemId={itemId}
           locationId={locationId}
           metric="on_order"
-          title={`Lihat kronologi pesanan ${scopeLabel}`}
+          title={`Lihat pesanan yang sedang diproses ${scopeLabel}`}
         />
       </TableCell>
       <TableCell className={cellCls}>
