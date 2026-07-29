@@ -721,12 +721,9 @@ export function PosisiStokView() {
                     return (
                       <TableRow
                         key={item.item_id}
-                        onClick={() =>
-                          router.push(`/dashboard/posisi-stok/${item.item_id}`)
-                        }
                         onMouseEnter={() => prefetchDetail(item.item_id)}
                         onFocus={() => prefetchDetail(item.item_id)}
-                        className="group cursor-pointer border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
+                        className="group border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
                       >
                         <TableCell
                           className="sticky left-0 z-20 bg-background px-3 py-3"
@@ -736,24 +733,33 @@ export function PosisiStokView() {
                           }}
                         >
                           <div className="flex items-center gap-3">
-                            {item.thumbnail ? (
-                              <Image
-                                src={item.thumbnail}
-                                alt={item.item_name ?? item.item_code}
-                                width={40}
-                                height={40}
-                                className="h-10 w-10 shrink-0 rounded-xl border border-border/40 object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted/60">
-                                <PackageIcon className="size-5 text-muted-foreground/60" />
-                              </div>
-                            )}
+                            <Link
+                              href={`/dashboard/posisi-stok/${item.item_id}`}
+                              aria-label={`Buka detail ${item.item_name || item.item_code}`}
+                              className="shrink-0"
+                            >
+                              {item.thumbnail ? (
+                                <Image
+                                  src={item.thumbnail}
+                                  alt={item.item_name ?? item.item_code}
+                                  width={40}
+                                  height={40}
+                                  className="h-10 w-10 shrink-0 rounded-xl border border-border/40 object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted/60">
+                                  <PackageIcon className="size-5 text-muted-foreground/60" />
+                                </div>
+                              )}
+                            </Link>
                             <div className="flex min-w-0 flex-col gap-0.5">
                               <div className="flex flex-wrap items-center gap-1.5">
-                                <span className="whitespace-normal break-words text-sm font-medium text-foreground">
+                                <Link
+                                  href={`/dashboard/posisi-stok/${item.item_id}`}
+                                  className="whitespace-normal break-words text-sm font-medium text-foreground transition-colors hover:text-primary hover:underline"
+                                >
                                   {item.item_name || item.item_code}
-                                </span>
+                                </Link>
                                 {item.is_bundle && (
                                   <Badge
                                     variant="outline"
