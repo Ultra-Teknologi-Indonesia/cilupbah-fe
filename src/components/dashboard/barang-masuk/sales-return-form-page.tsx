@@ -121,15 +121,6 @@ export function SalesReturnFormPage() {
           { label: "Retur", href: LIST_HREF },
           { label: "Buat Retur" },
         ]}
-        actions={
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push(LIST_HREF)}
-          >
-            <ArrowLeftIcon className="mr-1.5 size-4" /> Kembali
-          </Button>
-        }
       />
 
       <LiquidGlass
