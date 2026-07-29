@@ -1400,8 +1400,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/manajemen-rak/lokasi/layout-gudang-tab.tsx": {
-    "mtime": 1785140959.0909367,
-    "ast_hash": "c35927345a929ec4161655ba95957313",
+    "mtime": 1785205776.9550142,
+    "ast_hash": "92a97ed11f7ed40a07f78e8abc408d26",
     "semantic_hash": ""
   },
   "src/components/dashboard/manajemen-rak/lokasi/location-form-page.tsx": {
@@ -1460,8 +1460,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/buat/edit-produk-form.tsx": {
-    "mtime": 1785148986.0319273,
-    "ast_hash": "21f039cb717ce44b13f839727ab03963",
+    "mtime": 1785250216.6934938,
+    "ast_hash": "cd4deea17a935e7403af373beb0be658",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/buat/edit-produk-loader.tsx": {
@@ -1480,8 +1480,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/buat/form-shipping-section.tsx": {
-    "mtime": 1783822937.4707344,
-    "ast_hash": "89bdc0209c6dbdbfce7a462b3e3de000",
+    "mtime": 1785248255.6684098,
+    "ast_hash": "347b92275ab516dbaea7a519dee94d56",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/buat/form-specification-section.tsx": {
@@ -1510,8 +1510,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/detail/accounts-shipping.tsx": {
-    "mtime": 1785145443.7916121,
-    "ast_hash": "2183041e0a833227e76600582ea38836",
+    "mtime": 1785251199.0970132,
+    "ast_hash": "6d14c5c4d69d0e55b236d046a9fc797e",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/detail/channel-listing.tsx": {
@@ -1825,8 +1825,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/pengaturan/pengaturan-tab-bar.tsx": {
-    "mtime": 1784020178.965156,
-    "ast_hash": "4bb843ee0ce8b04307c1a8bbc3b878bf",
+    "mtime": 1785286769.4264967,
+    "ast_hash": "3fc39bfc84de7c59367921c626bdb079",
     "semantic_hash": ""
   },
   "src/components/dashboard/pengaturan/pengguna/user-detail-page.tsx": {
@@ -2375,8 +2375,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/penyesuaian-tab.tsx": {
-    "mtime": 1784944397.7276351,
-    "ast_hash": "1b4ff5395fe495dce1f28a0e0df704c6",
+    "mtime": 1785249646.8427527,
+    "ast_hash": "98ea1897ea648c9aca8a1888b709e763",
     "semantic_hash": ""
   },
   "src/components/dashboard/transaksi-stok/pindah-bin-detail-view.tsx": {
@@ -3180,8 +3180,8 @@
     "semantic_hash": ""
   },
   "src/hooks/master-produk/use-update-product.ts": {
-    "mtime": 1783822937.5915215,
-    "ast_hash": "bab70799f4ea2c5d475e23c8cf735dac",
+    "mtime": 1785250050.9567454,
+    "ast_hash": "575cde93b5b6ef42d07f9c8043880507",
     "semantic_hash": ""
   },
   "src/hooks/master-produk/use-upload.ts": {
@@ -3365,8 +3365,8 @@
     "semantic_hash": ""
   },
   "src/hooks/use-list-state.ts": {
-    "mtime": 1785202831.255002,
-    "ast_hash": "3f2a344ccbe4dd37840ca3e430aa23fb",
+    "mtime": 1785205790.2891984,
+    "ast_hash": "5006858ab94c06ce23e315961b8e9497",
     "semantic_hash": ""
   },
   "src/hooks/use-mobile.ts": {
@@ -3450,13 +3450,13 @@
     "semantic_hash": ""
   },
   "src/lib/master-produk/build-create-payload.ts": {
-    "mtime": 1783822937.6151156,
-    "ast_hash": "8ef0fa5f0d384ea1c15dc07a9f0f31ed",
+    "mtime": 1785248239.7600656,
+    "ast_hash": "e2b56d78c277224c119b210c63eb43ff",
     "semantic_hash": ""
   },
   "src/lib/master-produk/build-update-payload.ts": {
-    "mtime": 1785140959.1977649,
-    "ast_hash": "24d7be199e0173ba5cd0d9af1cf4937c",
+    "mtime": 1785248244.0888584,
+    "ast_hash": "d5d3557e088a1d4d0153a29da1aa3b61",
     "semantic_hash": ""
   },
   "src/lib/master-produk/category-tree.ts": {
@@ -3470,8 +3470,8 @@
     "semantic_hash": ""
   },
   "src/lib/master-produk/detail-to-form.ts": {
-    "mtime": 1785147799.2274957,
-    "ast_hash": "e295d8069bdef662289d96f66d36230e",
+    "mtime": 1785248248.6285114,
+    "ast_hash": "6bb46f747afb1f29684df71021a4bbb4",
     "semantic_hash": ""
   },
   "src/lib/master-produk/server-field-map.ts": {
@@ -3575,8 +3575,8 @@
     "semantic_hash": ""
   },
   "src/schemas/master-produk.ts": {
-    "mtime": 1785145123.1074347,
-    "ast_hash": "5b3409a077b21266326686a644bd2e0f",
+    "mtime": 1785248216.6346605,
+    "ast_hash": "f9cc3590f1a8a4cae79e0f020d0dac6d",
     "semantic_hash": ""
   },
   "src/schemas/pengaturan/company-profile.ts": {
@@ -3765,8 +3765,8 @@
     "semantic_hash": ""
   },
   "src/services/master-produk/product-detail.service.ts": {
-    "mtime": 1783822937.6402771,
-    "ast_hash": "dca19de6d524604979b65ca7d382deda",
+    "mtime": 1785248235.6459649,
+    "ast_hash": "992f5bd7016583c44ee422947da6dff3",
     "semantic_hash": ""
   },
   "src/services/master-produk/product-list.service.ts": {
@@ -3885,8 +3885,8 @@
     "semantic_hash": ""
   },
   "src/services/transaksi-stok/stock-adjustment.service.ts": {
-    "mtime": 1783823111.6105287,
-    "ast_hash": "0c2d8712870a0b311599e761b4dd0d18",
+    "mtime": 1785249581.0315545,
+    "ast_hash": "4aeae137735f0cba9ff5a4f5271b9329",
     "semantic_hash": ""
   },
   "src/services/transaksi-stok/stock-opname.service.ts": {
@@ -4060,8 +4060,8 @@
     "semantic_hash": ""
   },
   "src/types/master-produk/create.ts": {
-    "mtime": 1783822937.2234507,
-    "ast_hash": "e64e629c6c9c7638c2184e1653dbf638",
+    "mtime": 1785248221.1631315,
+    "ast_hash": "16b3a559f00ae60ad1ea4f1f286bcd1f",
     "semantic_hash": ""
   },
   "src/types/master-produk/form.ts": {
@@ -4080,8 +4080,8 @@
     "semantic_hash": ""
   },
   "src/types/master-produk/product-detail.ts": {
-    "mtime": 1783822937.2245684,
-    "ast_hash": "71907e9ec8dd969558f015b307928a3a",
+    "mtime": 1785248348.2727768,
+    "ast_hash": "9e6994630214a69dce5aa4a9e7aab561",
     "semantic_hash": ""
   },
   "src/types/master-produk/product.ts": {
@@ -4585,8 +4585,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/persediaan/produk-settings-table.tsx": {
-    "mtime": 1784704563.0268643,
-    "ast_hash": "b9f5fdc824a33c098bd1761525a02eef",
+    "mtime": 1785287125.678748,
+    "ast_hash": "513d87d0478af39a5560828338508d17",
     "semantic_hash": ""
   },
   "src/hooks/laporan/use-laporan-penjualan.ts": {

@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { EmptyState } from "@/components/ui/empty-state";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
 import {
   SimplePagination,
   TABLE_PAGE_SIZES,
@@ -135,156 +136,166 @@ export function ProdukSettingsTable() {
 
   return (
     <div className="flex flex-col gap-4">
-      <FilterToolbar
-        search={list.search}
-        onSearchChange={list.setSearch}
-        searchPlaceholder="Cari produk, SKU, atau barcode..."
-        align="end"
-        trailing={toolbar}
-      />
-
-      {isLoading ? (
-        <TableSkeleton rows={8} cols={7} />
-      ) : rows.length === 0 ? (
-        <EmptyState
-          icon={PackageIcon}
-          title="Belum ada produk"
-          description="Produk tersimpan akan muncul di sini."
+      <LiquidGlass
+        radius={20}
+        intensity="subtle"
+        className="bg-white/30 dark:bg-white/[0.04]"
+      >
+        <FilterToolbar
+          search={list.search}
+          onSearchChange={list.setSearch}
+          searchPlaceholder="Cari produk, SKU, atau barcode..."
+          align="end"
+          trailing={toolbar}
         />
-      ) : (
-        <div className="rounded-2xl border border-border">
-          <Table className="min-w-[960px]">
-            <TableHeader>
-              <TableRow className="border-b border-border bg-muted/40">
-                <TableHead className="px-3 py-3 text-left font-medium text-muted-foreground">
-                  Produk
-                </TableHead>
-                <TableHead className="px-3 py-3 text-left font-medium text-muted-foreground">
-                  Barcode
-                </TableHead>
-                <TableHead className="px-3 py-3 text-center font-medium text-muted-foreground">
-                  Alokasi Rak
-                </TableHead>
-                <TableHead className="px-3 py-3 text-right font-medium text-muted-foreground">
-                  Batas Stok Menipis
-                </TableHead>
-                <TableHead className="px-3 py-3 text-right font-medium text-muted-foreground">
-                  Batas Stok Aman
-                </TableHead>
-                <TableHead className="px-3 py-3 text-right font-medium text-muted-foreground">
-                  Lama Pembelian
-                </TableHead>
-                <TableHead className="px-3 py-3 text-center font-medium text-muted-foreground">
-                  Stok Tak Terbatas
-                </TableHead>
-                <TableHead className="w-14 px-3 py-3" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((p) => (
-                <TableRow
-                  key={p.itemId}
-                  className="border-b border-border/60 last:border-0"
-                >
-                  <TableCell className="px-3 py-2.5">
-                    <div className="flex items-center gap-3">
-                      {p.thumbnail ? (
-                        <Image
-                          src={p.thumbnail}
-                          alt=""
-                          width={40}
-                          height={40}
-                          unoptimized
-                          className="size-10 shrink-0 rounded-xl border border-border/60 object-cover"
-                        />
-                      ) : (
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted/60">
-                          <PackageIcon className="size-5 text-muted-foreground/60" />
-                        </div>
-                      )}
-                      <div className="flex min-w-0 flex-col gap-0.5">
-                        <span className="line-clamp-2 text-sm font-medium">
-                          {p.productName}
-                        </span>
-                        {p.variationValues.length > 0 && (
-                          <span className="truncate text-xs text-muted-foreground">
-                            {p.variationValues.map((v) => v.value).join(", ")}
-                          </span>
-                        )}
-                        <CopySku sku={p.sku} />
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="px-3 py-2.5 text-sm">
-                    {p.barcode ? (
-                      <code className="rounded-lg bg-muted/60 px-1.5 py-0.5 text-xs">
-                        {p.barcode}
-                      </code>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="px-3 py-2.5 text-center">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setRakItem(p)}
-                    >
-                      Lihat
-                    </Button>
-                  </TableCell>
-                  <TableCell className="px-3 py-2.5 text-right tabular-nums">
-                    {p.minStock}
-                  </TableCell>
-                  <TableCell className="px-3 py-2.5 text-right tabular-nums">
-                    {p.safeStock}
-                  </TableCell>
-                  <TableCell className="px-3 py-2.5 text-right tabular-nums">
-                    {p.purchaseLeadTime > 0 ? (
-                      `${p.purchaseLeadTime} hari`
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="px-3 py-2.5 text-center">
-                    {p.isUnlimitedStock ? (
-                      <Badge variant="secondary">Ya</Badge>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="px-3 py-2.5 text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => setEditItem(p)}
-                      aria-label="Ubah batas stok"
-                    >
-                      <PencilIcon className="size-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
 
-          {meta && (
-            <div className="border-t border-border px-3 py-2">
-              <SimplePagination
-                page={meta.current_page}
-                lastPage={meta.last_page}
-                perPage={meta.per_page}
-                onPageChange={list.setPage}
-                onPerPageChange={list.setPerPage}
-                pageSizeOptions={TABLE_PAGE_SIZES}
-                total={meta.total}
-                isFetching={isFetching}
-                label="produk"
-              />
+        <div className="px-4 py-3 sm:px-5">
+          {isLoading ? (
+            <TableSkeleton rows={8} cols={7} />
+          ) : rows.length === 0 ? (
+            <EmptyState
+              icon={PackageIcon}
+              title="Belum ada produk"
+              description="Produk tersimpan akan muncul di sini."
+            />
+          ) : (
+            <div className="rounded-2xl border border-border">
+              <Table className="min-w-[960px]">
+                <TableHeader>
+                  <TableRow className="border-b border-border bg-muted/40">
+                    <TableHead className="px-3 py-3 text-left font-medium text-muted-foreground">
+                      Produk
+                    </TableHead>
+                    <TableHead className="px-3 py-3 text-left font-medium text-muted-foreground">
+                      Barcode
+                    </TableHead>
+                    <TableHead className="px-3 py-3 text-center font-medium text-muted-foreground">
+                      Alokasi Rak
+                    </TableHead>
+                    <TableHead className="px-3 py-3 text-right font-medium text-muted-foreground">
+                      Batas Stok Menipis
+                    </TableHead>
+                    <TableHead className="px-3 py-3 text-right font-medium text-muted-foreground">
+                      Batas Stok Aman
+                    </TableHead>
+                    <TableHead className="px-3 py-3 text-right font-medium text-muted-foreground">
+                      Lama Pembelian
+                    </TableHead>
+                    <TableHead className="px-3 py-3 text-center font-medium text-muted-foreground">
+                      Stok Tak Terbatas
+                    </TableHead>
+                    <TableHead className="w-14 px-3 py-3" />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((p) => (
+                    <TableRow
+                      key={p.itemId}
+                      className="border-b border-border/60 last:border-0"
+                    >
+                      <TableCell className="px-3 py-2.5">
+                        <div className="flex items-center gap-3">
+                          {p.thumbnail ? (
+                            <Image
+                              src={p.thumbnail}
+                              alt=""
+                              width={40}
+                              height={40}
+                              unoptimized
+                              className="size-10 shrink-0 rounded-xl border border-border/60 object-cover"
+                            />
+                          ) : (
+                            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted/60">
+                              <PackageIcon className="size-5 text-muted-foreground/60" />
+                            </div>
+                          )}
+                          <div className="flex min-w-0 flex-col gap-0.5">
+                            <span className="line-clamp-2 text-sm font-medium">
+                              {p.productName}
+                            </span>
+                            {p.variationValues.length > 0 && (
+                              <span className="truncate text-xs text-muted-foreground">
+                                {p.variationValues
+                                  .map((v) => v.value)
+                                  .join(", ")}
+                              </span>
+                            )}
+                            <CopySku sku={p.sku} />
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-sm">
+                        {p.barcode ? (
+                          <code className="rounded-lg bg-muted/60 px-1.5 py-0.5 text-xs">
+                            {p.barcode}
+                          </code>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-center">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setRakItem(p)}
+                        >
+                          Lihat
+                        </Button>
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-right tabular-nums">
+                        {p.minStock}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-right tabular-nums">
+                        {p.safeStock}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-right tabular-nums">
+                        {p.purchaseLeadTime > 0 ? (
+                          `${p.purchaseLeadTime} hari`
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-center">
+                        {p.isUnlimitedStock ? (
+                          <Badge variant="secondary">Ya</Badge>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => setEditItem(p)}
+                          aria-label="Ubah batas stok"
+                        >
+                          <PencilIcon className="size-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {meta && (
+                <div className="border-t border-border px-3 py-2">
+                  <SimplePagination
+                    page={meta.current_page}
+                    lastPage={meta.last_page}
+                    perPage={meta.per_page}
+                    onPageChange={list.setPage}
+                    onPerPageChange={list.setPerPage}
+                    pageSizeOptions={TABLE_PAGE_SIZES}
+                    total={meta.total}
+                    isFetching={isFetching}
+                    label="produk"
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>
-      )}
+      </LiquidGlass>
 
       <ImportSettingDialog
         type={importType}

@@ -47,7 +47,7 @@ const TABS: Tab[] = [
   },
   {
     id: "persediaan",
-    label: "Sinkronisasi Stok & Harga",
+    label: "Persediaan",
     icon: SlidersHorizontalIcon,
     href: "/dashboard/pengaturan/persediaan",
   },
