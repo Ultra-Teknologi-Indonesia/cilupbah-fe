@@ -3,7 +3,6 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useMemo, useCallback, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   EyeIcon,
   LockIcon,
@@ -155,8 +154,6 @@ function handleExportList(items: Inbound[]) {
 }
 
 export function PenerimaanBarangTab() {
-  const router = useRouter();
-
   const list = useListState<FilterState>(EMPTY_FILTERS, {
     perPage: 20,
     debounceMs: 300,
@@ -583,17 +580,9 @@ export function PenerimaanBarangTab() {
         onOpenChange={(open) => {
           if (!open) setPenempatanTargets([]);
         }}
-        onSuccess={(data) => {
+        onSuccess={() => {
           resetSelectionRef.current?.();
           resetSelectionRef.current = null;
-          const putawayId =
-            (data as { id?: string })?.id ??
-            (Array.isArray(data)
-              ? (data[0] as { id?: string })?.id
-              : undefined);
-          if (putawayId) {
-            router.push(`/dashboard/barang-masuk/putaway/${putawayId}`);
-          }
         }}
       />
 
