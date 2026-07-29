@@ -1,5 +1,8 @@
 export type DrillMetric = "on_hand" | "on_order" | "transit";
 
+const ORDER_SOURCE_TOKENS =
+  "ORDER_RESERVE,ORDER_RELEASE,RESERVE,RESERVE_CANCEL,RESERVE_EXPIRED";
+
 export function buildStockDrillHref(
   itemId: string,
   metric: DrillMetric,
@@ -8,7 +11,7 @@ export function buildStockDrillHref(
   const p = new URLSearchParams();
   p.set("tab", "kronologi");
 
-  if (metric === "on_order") p.set("source", "ORDER");
+  if (metric === "on_order") p.set("source", ORDER_SOURCE_TOKENS);
 
   if (metric === "transit") p.set("drill", "transit");
 
