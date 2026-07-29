@@ -96,6 +96,8 @@ export function ReturChannelTab() {
   );
   const [processedBy, setProcessedBy] = useState("");
   const [rejectReason, setRejectReason] = useState("");
+  // Qty disetujui per item saat Terima (default = qty retur, bisa dikurangi).
+  const [approvedQty, setApprovedQty] = useState<Record<string, number>>({});
 
   const [exportRange, setExportRange] = useState<DateRange | undefined>({
     from: new Date(),
@@ -523,31 +525,93 @@ export function ReturChannelTab() {
       <ConfirmDialog
         open={!!acceptTarget}
         onOpenChange={(open) => {
-          if (!open) setAcceptTarget(null);
+          if (!open) {
+            setAcceptTarget(null);
+            setApprovedQty({});
+          }
         }}
         title="Setujui Retur"
-        description={`Setujui retur ${acceptTarget?.return_number ?? ""}?`}
+        description={`Setujui retur ${acceptTarget?.return_number ?? ""}? Qty yang disetujui akan langsung diterima dan siap ditempatkan.`}
         confirmLabel="Setujui"
         loading={acceptMutation.isPending}
         onConfirm={() => {
           if (!acceptTarget || !processedBy.trim()) return;
+          const items = acceptTarget.items.map((it) => ({
+            item_id: it.item_id,
+            approved_qty: approvedQty[it.item_id] ?? it.qty,
+          }));
           acceptMutation.mutate(
-            { id: acceptTarget.id, processed_by: processedBy.trim() },
-            { onSuccess: () => setAcceptTarget(null) },
+            { id: acceptTarget.id, processed_by: processedBy.trim(), items },
+            {
+              onSuccess: () => {
+                setAcceptTarget(null);
+                setApprovedQty({});
+              },
+            },
           );
         }}
       >
-        <div className="px-1 py-2">
-          <Label htmlFor="accept-by" className="text-sm font-medium">
-            Diproses oleh <span className="text-destructive">*</span>
-          </Label>
-          <UserSelect
-            value={processedBy}
-            onChange={setProcessedBy}
-            defaultToSelf
-            placeholder="Nama petugas"
-            className="mt-1.5"
-          />
+        <div className="space-y-4 px-1 py-2">
+          <div>
+            <Label htmlFor="accept-by" className="text-sm font-medium">
+              Diproses oleh <span className="text-destructive">*</span>
+            </Label>
+            <UserSelect
+              value={processedBy}
+              onChange={setProcessedBy}
+              defaultToSelf
+              placeholder="Nama petugas"
+              className="mt-1.5"
+            />
+          </div>
+
+          {acceptTarget && acceptTarget.items.length > 0 && (
+            <div>
+              <Label className="text-sm font-medium">Qty disetujui</Label>
+              <div className="mt-1.5 space-y-2">
+                {acceptTarget.items.map((it) => {
+                  const current = approvedQty[it.item_id] ?? it.qty;
+                  return (
+                    <div
+                      key={it.id}
+                      className="flex items-center gap-3 rounded-xl bg-muted px-3 py-2"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">
+                          {it.product?.product?.name ??
+                            it.product?.sku ??
+                            it.item_id}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {it.product?.sku ?? "—"} · diretur {it.qty}
+                        </p>
+                      </div>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={it.qty}
+                        value={current}
+                        onChange={(e) => {
+                          const raw = Number(e.target.value);
+                          const clamped = Number.isNaN(raw)
+                            ? 0
+                            : Math.max(0, Math.min(raw, it.qty));
+                          setApprovedQty((prev) => ({
+                            ...prev,
+                            [it.item_id]: clamped,
+                          }));
+                        }}
+                        className="w-20 text-right"
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        / {it.qty}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </ConfirmDialog>
 

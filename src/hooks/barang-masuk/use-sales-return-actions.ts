@@ -8,8 +8,15 @@ import { apiError } from "@/lib/toast";
 export function useAcceptSalesReturn() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, processed_by }: { id: string; processed_by: string }) =>
-      SalesReturnService.accept(id, { processed_by }),
+    mutationFn: ({
+      id,
+      processed_by,
+      items,
+    }: {
+      id: string;
+      processed_by: string;
+      items?: { item_id: string; approved_qty: number }[];
+    }) => SalesReturnService.accept(id, { processed_by, items }),
     onSuccess: () => {
       toast.success("Retur berhasil disetujui");
       qc.invalidateQueries({ queryKey: ["sales-return"] });

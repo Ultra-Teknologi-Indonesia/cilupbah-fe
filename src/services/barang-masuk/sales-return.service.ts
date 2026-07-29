@@ -69,7 +69,13 @@ export const SalesReturnService = {
     return { items: res.data ?? [], meta: res.meta };
   },
 
-  accept: async (id: string, data: { processed_by: string }) => {
+  accept: async (
+    id: string,
+    data: {
+      processed_by: string;
+      items?: { item_id: string; approved_qty: number }[];
+    },
+  ) => {
     const res = await fetchClient<ApiResponse<SalesReturn>>(
       `/sales/returns/${id}/accept`,
       {

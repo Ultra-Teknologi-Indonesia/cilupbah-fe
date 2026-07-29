@@ -33,6 +33,7 @@ export interface SalesReturnItem {
   sales_return_id: string;
   item_id: string;
   qty: number;
+  approved_qty?: number | null;
   condition?: string | null;
   reason?: string | null;
   notes?: string | null;
