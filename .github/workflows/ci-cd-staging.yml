@@ -130,6 +130,12 @@ jobs:
           context: .
           file: Dockerfile.staging
           push: true
+          # build-push-action default nyalain provenance attestation, yang
+          # bikin image jadi OCI index (manifest list) walau cuma 1 arch —
+          # itu bikin GHCR baca description dari annotation index, bukan
+          # label di config image (labels di bawah jadi tidak kebaca).
+          provenance: false
+          sbom: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
