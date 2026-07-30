@@ -83,6 +83,15 @@ jobs:
         id: vars
         run: echo "short_sha=$(git rev-parse --short=7 HEAD)" >> "$GITHUB_OUTPUT"
 
+      - name: Get commit subject
+        id: commit
+        run: |
+          {
+            echo "subject<<COMMIT_EOF"
+            git log -1 --pretty=%s
+            echo "COMMIT_EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Determine Next Patch Version
         id: version
         run: |
@@ -102,7 +111,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag ${{ steps.version.outputs.new_tag }}
+          git tag -a ${{ steps.version.outputs.new_tag }} -m "${{ steps.commit.outputs.subject }} (${{ steps.vars.outputs.short_sha }})"
           git push origin ${{ steps.version.outputs.new_tag }}
 
       - name: Setup Docker Buildx
@@ -125,6 +134,12 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             NEXT_PUBLIC_API_URL=https://staging.ultra-fit.id
+          labels: |
+            org.opencontainers.image.title=cilupbah-frontend
+            org.opencontainers.image.description=${{ steps.commit.outputs.subject }}
+            org.opencontainers.image.version=${{ steps.version.outputs.new_tag }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
           tags: |
             ${{ env.IMAGE_BASE }}:latest
             ${{ env.IMAGE_BASE }}:${{ steps.version.outputs.new_tag }}
