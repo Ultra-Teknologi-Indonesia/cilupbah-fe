@@ -38,11 +38,3 @@ export function tiktokStatusGroup(
   if (raw) return raw.toUpperCase() === "UNPAID" ? "unpaid" : "paid";
   return isPaid ? "paid" : "unpaid";
 }
-
-/** Status yang dikirim ke endpoint cancel-reasons TikTok (samakan derivasi dengan BE). */
-export function tiktokReasonStatus(order: {
-  channel_status_raw: string | null;
-  is_paid: boolean;
-}): string {
-  return order.channel_status_raw ?? (order.is_paid ? "ON_HOLD" : "UNPAID");
-}

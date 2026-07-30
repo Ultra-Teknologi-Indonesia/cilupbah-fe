@@ -114,24 +114,15 @@ export const useRequestChannelCancel = createMutationHook({
   invalidates: ({ orderId }) => forOrder(orderId),
 });
 
-export function useCancelReasons(
-  marketplace: string | null | undefined,
-  opts?: { shopId?: string | null; status?: string | null; enabled?: boolean },
+export function useOrderCancelReasons(
+  orderId: string | null | undefined,
+  opts?: { enabled?: boolean },
 ) {
   return useQuery({
-    queryKey: [
-      "cancel-reasons",
-      marketplace ?? null,
-      opts?.shopId ?? null,
-      opts?.status ?? null,
-    ],
-    queryFn: () =>
-      OrderService.getCancelReasons(marketplace as string, {
-        shopId: opts?.shopId,
-        status: opts?.status,
-      }),
-    enabled: Boolean(marketplace) && (opts?.enabled ?? true),
-    staleTime: 5 * 60 * 1000,
+    queryKey: ["order-cancel-reasons", orderId ?? null],
+    queryFn: () => OrderService.getOrderCancelReasons(orderId as string),
+    enabled: Boolean(orderId) && (opts?.enabled ?? true),
+    staleTime: 60 * 1000,
   });
 }
 

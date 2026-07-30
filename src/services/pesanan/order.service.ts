@@ -136,16 +136,9 @@ export const OrderService = {
     });
   },
 
-  getCancelReasons: (
-    marketplace: string,
-    opts?: { shopId?: string | null; status?: string | null },
-  ) => {
-    const sp = new URLSearchParams();
-    if (opts?.shopId) sp.set("shop_id", opts.shopId);
-    if (opts?.status) sp.set("status", opts.status);
-    const qs = sp.toString();
+  getOrderCancelReasons: (orderId: string) => {
     return fetchClient<ApiResponse<CancelReason[]>>(
-      `/marketplace/cancel-reasons/${marketplace}${qs ? `?${qs}` : ""}`,
+      `/sales/orders/${orderId}/cancel-reasons`,
     );
   },
 

@@ -13,11 +13,10 @@ import {
 } from "@/components/ui/select";
 import {
   useBulkRequestChannelCancel,
-  useCancelReasons,
+  useOrderCancelReasons,
 } from "@/hooks/pesanan/use-order-actions";
 import {
   canRequestChannelCancel,
-  tiktokReasonStatus,
   tiktokStatusGroup,
 } from "@/lib/pesanan/cancel-eligibility";
 import type { Order } from "@/types/pesanan/order";
@@ -29,9 +28,7 @@ interface BulkRequestCancelDialogProps {
   onDone?: () => void;
 }
 
-type Analysis =
-  | { error: string }
-  | { source: string; shopId: string | null; status: string | null };
+type Analysis = { error: string } | { source: string };
 
 export function BulkRequestCancelDialog({
   open,
@@ -65,7 +62,7 @@ export function BulkRequestCancelDialog({
       if (shops.length > 1) {
         return { error: "Untuk Lazada, pilih pesanan dari satu toko yang sama." };
       }
-      return { source, shopId: shops[0] ?? null, status: null };
+      return { source };
     }
     if (source === "tiktok") {
       const groups = Array.from(
@@ -79,23 +76,21 @@ export function BulkRequestCancelDialog({
             "Untuk TikTok, pilih pesanan dengan status seragam (semua belum bayar atau semua sudah bayar).",
         };
       }
-      return {
-        source,
-        shopId: eligible[0].channel_shop_id,
-        status: tiktokReasonStatus(eligible[0]),
-      };
+      return { source };
     }
-    return { source, shopId: eligible[0].channel_shop_id, status: null };
+    return { source };
   }, [eligible]);
 
   const hasError = "error" in analysis;
   const marketplace = hasError ? undefined : analysis.source;
 
-  const reasonsQuery = useCancelReasons(marketplace, {
-    shopId: hasError ? null : analysis.shopId,
-    status: hasError ? null : analysis.status,
-    enabled: open && !hasError,
-  });
+  // Reasons diambil dari BE per-order (sumber kebenaran tunggal). Karena semua
+  // order eligible dijamin seragam (channel + toko + grup status), reasons order
+  // pertama berlaku untuk seluruh batch.
+  const reasonsQuery = useOrderCancelReasons(
+    hasError ? undefined : eligible[0]?.id,
+    { enabled: open && !hasError },
+  );
 
   const bulkCancel = useBulkRequestChannelCancel();
   const reasons = reasonsQuery.data?.data ?? [];

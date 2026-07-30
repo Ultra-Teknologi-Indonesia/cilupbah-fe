@@ -12,25 +12,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  useCancelReasons,
+  useOrderCancelReasons,
   useRequestChannelCancel,
 } from "@/hooks/pesanan/use-order-actions";
-import { tiktokReasonStatus } from "@/lib/pesanan/cancel-eligibility";
 import type { Order } from "@/types/pesanan/order";
 
 interface RequestCancelDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  order: Pick<
-    Order,
-    | "id"
-    | "salesorder_no"
-    | "source"
-    | "channel_shop_id"
-    | "channel_status"
-    | "channel_status_raw"
-    | "is_paid"
-  >;
+  order: Pick<Order, "id" | "salesorder_no" | "source">;
 }
 
 export function RequestCancelDialog({
@@ -41,16 +31,8 @@ export function RequestCancelDialog({
   const [reason, setReason] = React.useState<string>("");
 
   const marketplace = order.source ?? undefined;
-  const statusContext =
-    order.source === "tiktok"
-      ? tiktokReasonStatus(order)
-      : (order.channel_status_raw ?? order.channel_status ?? undefined);
 
-  const reasonsQuery = useCancelReasons(marketplace, {
-    shopId: order.channel_shop_id,
-    status: statusContext,
-    enabled: open,
-  });
+  const reasonsQuery = useOrderCancelReasons(order.id, { enabled: open });
 
   const requestCancel = useRequestChannelCancel();
 
