@@ -65,7 +65,7 @@ export async function fetchClient<T>(
       const body = error.response.data;
       const payload =
         body && typeof body === "object" ? { ...body } : { message: body };
-      throw { status: error.response.status, ...payload };
+      throw { ...payload, status: error.response.status };
     }
     if (axios.isAxiosError(error)) {
       throw {
