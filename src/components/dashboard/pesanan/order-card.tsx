@@ -268,6 +268,16 @@ export function OrderActions({
     acceptReturn.isPending ||
     rejectReturn.isPending;
 
+  // Order yang pembatalannya sedang diproses marketplace ditahan: tampilkan
+  // indikator, bukan aksi proses/kirim. Tab channel-cancel punya UI-nya sendiri.
+  if (order.channel_cancel_status === "pending" && tab !== "channel-cancel") {
+    return (
+      <span className="text-xs font-medium text-warning">
+        Menunggu konfirmasi pembatalan marketplace
+      </span>
+    );
+  }
+
   if (tab === "unpaid") return <OrderCancelMenu order={order} />;
 
   if (tab === "ready-to-process") {
