@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Runtime image GHCR cuma butuh .next/standalone + .next/static (bukan
+  // seluruh node_modules) — lihat Dockerfile stage `runner`.
+  output: "standalone",
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**" },

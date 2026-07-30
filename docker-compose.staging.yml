@@ -1,0 +1,12 @@
+services:
+  web:
+    image: ghcr.io/ultra-teknologi-indonesia/cilupbah-frontend:latest
+    container_name: cilupbah-fe-staging
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      # URL backend staging — dibaca di runtime (bukan di-bake ke image),
+      # lihat catatan di Dockerfile.staging.
+      - API_URL=https://REPLACE-WITH-STAGING-API-DOMAIN
+    restart: unless-stopped
