@@ -105,7 +105,7 @@ export interface StockMovementParams {
   "filter[store_id]"?: string;
   "filter[source]"?: string;
 
-  "filter[drill]"?: "transit" | "allocation";
+  "filter[drill]"?: "transit" | "allocation" | "order_active";
   "filter[direction]"?: "in" | "out";
   "filter[date_from]"?: string;
   "filter[date_to]"?: string;
