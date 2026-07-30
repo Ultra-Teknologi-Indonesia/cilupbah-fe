@@ -8,6 +8,7 @@ import {
   Loader2Icon,
   SlidersHorizontalIcon,
   ChevronDownIcon,
+  RefreshCwIcon,
 } from "lucide-react";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Combobox } from "@/components/ui/combobox";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
@@ -48,6 +50,7 @@ import {
   type SyncMatrixParams,
   type SyncStoreColumn,
 } from "@/hooks/persediaan/use-inventory-sync";
+import { useSyncStock } from "@/hooks/master-produk/use-sync-stock";
 
 type Mode = "sync" | "produk";
 
@@ -138,11 +141,13 @@ function StoreColumnHeader({
   store,
   mode,
   onBulk,
+  onSyncStock,
   pending,
 }: {
   store: SyncStoreColumn;
   mode: Mode;
   onBulk: (channelShopId: string, syncEnabled: boolean) => void;
+  onSyncStock: (store: SyncStoreColumn) => void;
   pending: boolean;
 }) {
   return (
@@ -183,6 +188,15 @@ function StoreColumnHeader({
               className="flex w-full items-center gap-2 rounded-xl px-2 py-1.5 text-left text-sm text-destructive hover:bg-muted disabled:opacity-50"
             >
               Matikan semua
+            </button>
+            <div className="my-1 border-t border-border/60" />
+            <button
+              type="button"
+              onClick={() => onSyncStock(store)}
+              className="flex w-full items-center gap-2 rounded-xl px-2 py-1.5 text-left text-sm hover:bg-muted"
+            >
+              <RefreshCwIcon className="size-4 text-muted-foreground" />
+              Sinkronkan stok toko ini
             </button>
           </PopoverContent>
         </Popover>
@@ -233,6 +247,8 @@ export function SyncStokHargaView({
   const { data, isLoading, isFetching } = useInventorySync(params);
   const toggle = useToggleSync(params);
   const bulkToggle = useBulkToggleSync();
+  const syncStock = useSyncStock();
+  const [syncStore, setSyncStore] = useState<SyncStoreColumn | null>(null);
 
   const rows = data?.rows ?? [];
   const meta = data?.meta;
@@ -279,6 +295,10 @@ export function SyncStokHargaView({
     },
     [bulkToggle, params.search, params.channelCode],
   );
+
+  const handleSyncStock = useCallback((store: SyncStoreColumn) => {
+    setSyncStore(store);
+  }, []);
 
   const modeTabs = (
     <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
@@ -371,6 +391,7 @@ export function SyncStokHargaView({
                             store={store}
                             mode={mode}
                             onBulk={handleBulk}
+                            onSyncStock={handleSyncStock}
                             pending={bulkToggle.isPending}
                           />
                         </TableHead>
@@ -502,6 +523,30 @@ export function SyncStokHargaView({
           )}
         </div>
       </LiquidGlass>
+
+      <ConfirmDialog
+        open={!!syncStore}
+        onOpenChange={(o) => !o && setSyncStore(null)}
+        title="Sinkronkan Stok Toko"
+        description={
+          syncStore
+            ? `Sinkronkan stok SEMUA produk toko ${syncStore.shopName ?? ""} ke channel? Ini memproses banyak item di latar belakang.`
+            : ""
+        }
+        confirmLabel="Sinkronkan"
+        loading={syncStock.isPending}
+        onConfirm={() => {
+          if (!syncStore) return;
+          syncStock.mutate(
+            {
+              mode: "all",
+              channelShopId: syncStore.channelShopId,
+              filters: { channel_shop_id: syncStore.channelShopId },
+            },
+            { onSuccess: () => setSyncStore(null) },
+          );
+        }}
+      />
     </div>
   );
 }

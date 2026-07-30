@@ -5,6 +5,7 @@ import type { PaginationState, SortingState } from "@tanstack/react-table";
 
 import { DataTable } from "@/components/ui/data-table";
 import type { Product } from "@/types/master-produk";
+import type { SyncStockFilters } from "@/hooks/master-produk/use-sync-stock";
 import { productColumns } from "./product-columns";
 import { ProductBulkActions } from "./product-bulk-actions";
 import { ProductVariantDetail } from "./product-variant-detail";
@@ -17,6 +18,7 @@ export interface ProductListViewProps {
   onSortingChange: (s: SortingState) => void;
   pagination: PaginationState;
   onPaginationChange: (p: PaginationState) => void;
+  syncFilters?: SyncStockFilters;
 }
 
 export function ProductTable({
@@ -27,6 +29,7 @@ export function ProductTable({
   onSortingChange,
   pagination,
   onPaginationChange,
+  syncFilters,
 }: ProductListViewProps) {
   return (
     <DataTable
@@ -45,7 +48,12 @@ export function ProductTable({
       enableRowSelection
       renderSubRow={(product) => <ProductVariantDetail product={product} />}
       bulkActions={(selected, table) => (
-        <ProductBulkActions selected={selected} table={table} />
+        <ProductBulkActions
+          selected={selected}
+          table={table}
+          total={total}
+          syncFilters={syncFilters}
+        />
       )}
       tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
       emptyState={

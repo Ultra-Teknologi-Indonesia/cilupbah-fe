@@ -47,6 +47,12 @@ export function ProductExplorer({ query }: { query: Query }) {
   const total = query.result.data?.meta?.total ?? 0;
   const isLoading = query.result.isLoading;
 
+  const syncFilters = {
+    ...(query.search ? { search: query.search } : {}),
+    ...(query.status ? { status: query.status } : {}),
+    ...(query.category?.id ? { category_id: query.category.id } : {}),
+  };
+
   const viewProps = {
     items,
     total,
@@ -55,6 +61,7 @@ export function ProductExplorer({ query }: { query: Query }) {
     onSortingChange: query.setSorting,
     pagination: query.pagination,
     onPaginationChange: query.setPagination,
+    syncFilters,
   };
 
   const toggleBtn = (

@@ -11,6 +11,7 @@ import { PackageIcon,
   BoxesIcon,
   BoxIcon,
   MapPinIcon,
+  RefreshCwIcon,
   Loader2Icon } from "lucide-react";
 import Image from "next/image";
 
@@ -19,6 +20,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   Popover,
   PopoverContent,
@@ -54,6 +56,7 @@ import {
   useStockPosition,
   usePrefetchStockDetail,
 } from "@/hooks/persediaan/use-stock-position";
+import { useSyncStock } from "@/hooks/master-produk/use-sync-stock";
 import type {
   StockItem,
   StockListParams,
@@ -371,6 +374,11 @@ function parseSortParam(raw: string | null): {
 export function PosisiStokView() {
   const router = useRouter();
   const prefetchStockDetail = usePrefetchStockDetail();
+  const syncStock = useSyncStock();
+
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectAllAcross, setSelectAllAcross] = useState(false);
+  const [syncOpen, setSyncOpen] = useState(false);
 
   const [stockFilter, setStockFilterRaw] = useUrlTab<StockFilter>(
     "tab",
@@ -541,6 +549,78 @@ export function PosisiStokView() {
     ];
   }, [meta.channels]);
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSelected(new Set());
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSelectAllAcross(false);
+  }, [params]);
+
+  const pageItemIds = useMemo(() => items.map((i) => i.item_id), [items]);
+
+  const allPageSelected =
+    items.length > 0 && pageItemIds.every((id) => selected.has(id));
+  const somePageSelected = pageItemIds.some((id) => selected.has(id));
+
+  const hasActiveFilter =
+    Boolean(list.debouncedSearch) ||
+    stockFilter !== "all" ||
+    Boolean(list.filters.channel);
+
+  const canSelectAllAcross =
+    allPageSelected && meta.total > items.length && !hasActiveFilter;
+
+  if (!allPageSelected && selectAllAcross) {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSelectAllAcross(false);
+  }
+
+  const selectedGroupIds = useMemo(() => {
+    const set = new Set<string>();
+    for (const it of items) {
+      if (selected.has(it.item_id)) set.add(it.item_group_id);
+    }
+    return Array.from(set);
+  }, [items, selected]);
+
+  const toggleRow = useCallback((id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const togglePage = useCallback(() => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      const allSelected = pageItemIds.every((id) => next.has(id));
+      if (allSelected) {
+        for (const id of pageItemIds) next.delete(id);
+      } else {
+        for (const id of pageItemIds) next.add(id);
+      }
+      return next;
+    });
+    setSelectAllAcross(false);
+  }, [pageItemIds]);
+
+  const runSync = useCallback(() => {
+    const payload = selectAllAcross
+      ? ({ mode: "all" } as const)
+      : ({ mode: "bulk", productIds: selectedGroupIds } as const);
+    syncStock.mutate(payload, {
+      onSuccess: () => {
+        setSyncOpen(false);
+        setSelected(new Set());
+        setSelectAllAcross(false);
+      },
+    });
+  }, [selectAllAcross, selectedGroupIds, syncStock]);
+
+  const selectedCount = selected.size;
+
   const filterTabs = (
     <Tabs
       value={stockFilter || ""}
@@ -613,6 +693,47 @@ export function PosisiStokView() {
             />
           ) : (
             <div className="flex flex-col gap-3">
+              {selectedCount > 0 && (
+                <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border/40 bg-muted/40 px-4 py-2.5">
+                  <span className="text-sm font-medium text-foreground">
+                    {selectAllAcross
+                      ? `Semua ${meta.total} produk dipilih`
+                      : `${selectedCount} dipilih`}
+                  </span>
+                  {canSelectAllAcross &&
+                    (selectAllAcross ? (
+                      <button
+                        type="button"
+                        onClick={() => setSelectAllAcross(false)}
+                        className="text-xs font-medium text-primary hover:underline"
+                      >
+                        Batalkan
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setSelectAllAcross(true)}
+                        className="text-xs font-medium text-primary hover:underline"
+                      >
+                        Pilih semua {meta.total} produk
+                      </button>
+                    ))}
+                  <Button
+                    size="sm"
+                    className="ml-auto rounded-full"
+                    disabled={syncStock.isPending}
+                    onClick={() => setSyncOpen(true)}
+                  >
+                    {syncStock.isPending ? (
+                      <Loader2Icon className="size-4 animate-spin" />
+                    ) : (
+                      <RefreshCwIcon className="size-4" />
+                    )}
+                    Sinkronkan Stok
+                    {!selectAllAcross && ` (${selectedCount})`}
+                  </Button>
+                </div>
+              )}
               <ScrollArea
                 orientation="horizontal"
                 type="auto"
@@ -628,13 +749,27 @@ export function PosisiStokView() {
                       className="sticky left-0 z-30 bg-background px-3 align-bottom text-xs font-medium uppercase tracking-wider text-muted-foreground"
                       style={{ width: PRODUCT_COL_W, minWidth: PRODUCT_COL_W }}
                     >
-                      <SortHeader
-                        label="Produk"
-                        field="item_code"
-                        activeField={sortField}
-                        dir={sortDir}
-                        onSort={handleSort}
-                      />
+                      <span className="inline-flex items-center gap-2">
+                        <Checkbox
+                          checked={
+                            allPageSelected
+                              ? true
+                              : somePageSelected
+                                ? "indeterminate"
+                                : false
+                          }
+                          onCheckedChange={togglePage}
+                          disabled={items.length === 0}
+                          aria-label="Pilih semua produk di halaman ini"
+                        />
+                        <SortHeader
+                          label="Produk"
+                          field="item_code"
+                          activeField={sortField}
+                          dir={sortDir}
+                          onSort={handleSort}
+                        />
+                      </span>
                     </TableHead>
                     <TableHead
                       rowSpan={2}
@@ -733,6 +868,16 @@ export function PosisiStokView() {
                           }}
                         >
                           <div className="flex items-center gap-3">
+                            <span
+                              className="shrink-0"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Checkbox
+                                checked={selected.has(item.item_id)}
+                                onCheckedChange={() => toggleRow(item.item_id)}
+                                aria-label={`Pilih ${item.item_name || item.item_code}`}
+                              />
+                            </span>
                             <Link
                               href={`/dashboard/posisi-stok/${item.item_id}`}
                               aria-label={`Buka detail ${item.item_name || item.item_code}`}
@@ -843,6 +988,20 @@ export function PosisiStokView() {
           )}
         </div>
       </LiquidGlass>
+
+      <ConfirmDialog
+        open={syncOpen}
+        onOpenChange={setSyncOpen}
+        title="Sinkronkan Stok ke Channel"
+        description={
+          selectAllAcross
+            ? "Sinkronkan stok SEMUA produk ke channel? Ini memproses banyak item di latar belakang."
+            : `Sinkronkan stok ${selectedGroupIds.length} produk ke channel?`
+        }
+        confirmLabel="Sinkronkan"
+        loading={syncStock.isPending}
+        onConfirm={runSync}
+      />
     </div>
   );
 }

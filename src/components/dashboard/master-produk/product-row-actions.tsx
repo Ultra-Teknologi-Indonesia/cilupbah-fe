@@ -9,6 +9,7 @@ import {
   CopyIcon,
   ArchiveIcon,
   ArchiveRestoreIcon,
+  RefreshCwIcon,
   Trash2Icon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -29,6 +30,7 @@ import {
   useArchiveProduct,
 } from "@/hooks/master-produk/use-product-actions";
 import { useRestoreProduct } from "@/hooks/master-produk/use-archived-products";
+import { useSyncStock } from "@/hooks/master-produk/use-sync-stock";
 import type { Product } from "@/types/master-produk";
 import { useCopyToClipboard } from "@/hooks/shared/use-copy-to-clipboard";
 
@@ -41,6 +43,7 @@ export function ProductRowActions({ product }: { product: Product }) {
   const deleteMut = useDeleteProduct();
   const archiveMut = useArchiveProduct();
   const restoreMut = useRestoreProduct();
+  const syncStock = useSyncStock();
   const { copy } = useCopyToClipboard();
 
   const notify = (msg: string) => toast(msg, { description: product.itemName });
@@ -88,6 +91,21 @@ export function ProductRowActions({ product }: { product: Product }) {
           >
             <CopyIcon className="size-4 text-muted-foreground" />
             Salin ID
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem
+            disabled={syncStock.isPending}
+            onClick={() =>
+              syncStock.mutate({
+                mode: "single",
+                productIds: [product.itemGroupId],
+              })
+            }
+          >
+            <RefreshCwIcon className="size-4 text-muted-foreground" />
+            Sinkronkan Stok
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
