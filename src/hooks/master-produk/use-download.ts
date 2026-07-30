@@ -59,6 +59,11 @@ export function useDownloadTransactionDetail(
     enabled: !!id,
     placeholderData: keepPreviousData,
     staleTime: 15 * 1000,
+
+    refetchInterval: (query) => {
+      const state = query.state.data?.state;
+      return state === "downloading" || state === "queued" ? 5000 : false;
+    },
   });
 }
 
@@ -103,19 +108,45 @@ export function useStartDownload() {
           s.shopId,
         ]);
       }
-      await Promise.all(
-        Array.from(byChannel, ([channel, shopIds]) =>
+      const entries = Array.from(byChannel);
+      const results = await Promise.allSettled(
+        entries.map(([channel, shopIds]) =>
           shopIds.length === 1
             ? DownloadService.downloadShop(channel, shopIds[0])
             : DownloadService.downloadShopBulk(channel, shopIds),
         ),
       );
-      return stores.length;
+
+      const succeeded: { channel: string; count: number }[] = [];
+      const failed: { channel: string; count: number }[] = [];
+      results.forEach((r, i) => {
+        const [channel, shopIds] = entries[i];
+        (r.status === "fulfilled" ? succeeded : failed).push({
+          channel,
+          count: shopIds.length,
+        });
+      });
+
+      if (succeeded.length === 0) {
+        const rejected = results.find(
+          (r): r is PromiseRejectedResult => r.status === "rejected",
+        );
+        throw rejected?.reason ?? new Error("Semua download gagal diantrekan");
+      }
+
+      return { succeeded, failed };
     },
-    onSuccess: (count) => {
-      toast.success(`Download ${count} toko diantrekan`, {
+    onSuccess: ({ succeeded, failed }) => {
+      const okCount = succeeded.reduce((sum, s) => sum + s.count, 0);
+      toast.success(`Download ${okCount} toko diantrekan`, {
         description: "Pantau progresnya di tab Progress.",
       });
+      if (failed.length > 0) {
+        const failCount = failed.reduce((sum, f) => sum + f.count, 0);
+        toast.warning(`${failCount} toko gagal diantrekan`, {
+          description: `Channel gagal: ${failed.map((f) => f.channel).join(", ")}`,
+        });
+      }
       qc.invalidateQueries({
         queryKey: ["master-produk", "download-transactions"],
       });

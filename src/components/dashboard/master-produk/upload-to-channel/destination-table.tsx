@@ -13,7 +13,6 @@ import {
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -107,12 +106,6 @@ export function DestinationTable({
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
   });
-
-  const notifyUploaded = React.useCallback((uploaded: number) => {
-    if (uploaded > 0) {
-      toast.success(`${uploaded} toko berhasil diantrekan`);
-    }
-  }, []);
 
   const match = useMatchListing(productId);
   const upload = useUploadToStores(productId);
@@ -360,9 +353,7 @@ export function DestinationTable({
                   if (d.channelCode === "tiktok") {
                     setAttrDialog({ shopIds: [d.shopId], shopId: d.shopId });
                   } else {
-                    upload.mutate([d.shopId], {
-                      onSuccess: (res) => notifyUploaded(res.uploaded),
-                    });
+                    upload.mutate([d.shopId]);
                   }
                 }}
                 title={
@@ -387,7 +378,6 @@ export function DestinationTable({
       isUploaded,
       matchMap,
       matching,
-      notifyUploaded,
       productId,
       runMatch,
       upload,
@@ -511,6 +501,7 @@ export function DestinationTable({
                     <DialogClose asChild>
                       <Button
                         variant="primary"
+                        disabled={upload.isPending || uploadWithAttrs.isPending}
                         onClick={() => {
                           const eligible = confirmRows.filter(
                             (r) =>
@@ -525,9 +516,7 @@ export function DestinationTable({
                           );
 
                           if (nonTiktok.length > 0) {
-                            upload.mutate(nonTiktok, {
-                              onSuccess: (res) => notifyUploaded(res.uploaded),
-                            });
+                            upload.mutate(nonTiktok);
                           }
 
                           if (tiktok.length > 0) {
@@ -585,7 +574,6 @@ export function DestinationTable({
                   Object.keys(mapping).length > 0 ? mapping : null,
               },
               {
-                onSuccess: (res) => notifyUploaded(res.uploaded),
                 onSettled: () => {
                   attrDialog.resetSelection?.();
                   setAttrDialog(null);

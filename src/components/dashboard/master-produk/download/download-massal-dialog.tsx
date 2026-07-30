@@ -71,14 +71,18 @@ export function DownloadMassalDialog({
   };
 
   const submit = async () => {
-    await start.mutateAsync(
-      selectedStores.map((s) => ({
-        channel: s.channel!.code,
-        shopId: s.shop_id,
-      })),
-    );
-    onOpenChange(false);
-    onQueued?.();
+    try {
+      await start.mutateAsync(
+        selectedStores.map((s) => ({
+          channel: s.channel!.code,
+          shopId: s.shop_id,
+        })),
+      );
+      onOpenChange(false);
+      onQueued?.();
+    } catch {
+      // Error toast ditangani oleh onError hook; biarkan dialog terbuka.
+    }
   };
 
   return (

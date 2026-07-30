@@ -26,6 +26,20 @@ function refreshUnavailableResponse() {
   );
 }
 
+function gatewayTimeoutResponse() {
+  return NextResponse.json(
+    {
+      code: "GATEWAY_TIMEOUT",
+      title: "Permintaan terlalu lama",
+      message:
+        "Server tidak merespons tepat waktu. Coba lagi beberapa saat lagi.",
+    },
+    { status: 504 },
+  );
+}
+
+const PROXY_TIMEOUT_MS = 30_000;
+
 async function proxyRequest(
   request: NextRequest,
   { params: _params }: { params: Promise<{ path: string[] }> },
@@ -74,11 +88,15 @@ async function proxyRequest(
 
   const body = hasBody ? await request.arrayBuffer() : undefined;
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), PROXY_TIMEOUT_MS);
+
   try {
     let response = await fetch(targetUrl, {
       method: request.method,
       headers,
       body,
+      signal: controller.signal,
     });
 
     if (response.status === 401 && session.status === "ok") {
@@ -97,12 +115,15 @@ async function proxyRequest(
         method: request.method,
         headers,
         body,
+        signal: controller.signal,
       });
 
       if (response.status === 401) {
         return sessionExpiredResponse();
       }
     }
+
+    clearTimeout(timeoutId);
 
     const passthroughHeaders = new Headers();
     for (const header of [
@@ -121,6 +142,13 @@ async function proxyRequest(
       headers: passthroughHeaders,
     });
   } catch (error) {
+    clearTimeout(timeoutId);
+
+    if (controller.signal.aborted) {
+      console.error("API Proxy Timeout:", targetUrl);
+      return gatewayTimeoutResponse();
+    }
+
     const message = error instanceof Error ? error.message : String(error);
     console.error("API Proxy Error:", targetUrl, message);
 

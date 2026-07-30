@@ -167,9 +167,16 @@ export function TransactionDetailSheet({
                     </div>
 
                     <div className="w-44 shrink-0 text-right">
-                      <span className="text-xs font-medium text-success">
-                        Master
-                      </span>
+                      {ok && p.isMaster ? (
+                        <span
+                          className="text-xs font-medium text-success"
+                          title={p.masterItemName ?? undefined}
+                        >
+                          Master
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
                     </div>
                   </div>
                 );
