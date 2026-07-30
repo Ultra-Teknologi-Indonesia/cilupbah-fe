@@ -266,31 +266,7 @@ export function OrderActions({
     acceptReturn.isPending ||
     rejectReturn.isPending;
 
-  if (tab === "unpaid") {
-    if (!canRequestCancel) return null;
-    return (
-      <>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-sm" aria-label="Aksi lainnya">
-              <MoreHorizontalIcon className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-44">
-            <DropdownMenuItem onSelect={() => setRequestCancelOpen(true)}>
-              <BanIcon className="size-4 mr-2" />
-              Ajukan Pembatalan
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <RequestCancelDialog
-          open={requestCancelOpen}
-          onOpenChange={setRequestCancelOpen}
-          order={order}
-        />
-      </>
-    );
-  }
+  if (tab === "unpaid") return <OrderCancelMenu order={order} />;
 
   if (tab === "ready-to-process") {
     return (
@@ -364,6 +340,7 @@ export function OrderActions({
           open={relocateOpen}
           onOpenChange={setRelocateOpen}
         />
+        <OrderCancelMenu order={order} />
       </>
     );
   }
@@ -487,6 +464,7 @@ export function OrderActions({
             defaultNote={order.contact_note ?? undefined}
           />
         )}
+        <OrderCancelMenu order={order} />
       </>
     );
   }
@@ -699,6 +677,29 @@ export function OrderActions({
   }
 
   return null;
+}
+
+function OrderCancelMenu({ order }: { order: Order }) {
+  const [open, setOpen] = React.useState(false);
+  if (!canRequestChannelCancel(order)) return null;
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon-sm" aria-label="Aksi lainnya">
+            <MoreHorizontalIcon className="size-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="min-w-44">
+          <DropdownMenuItem onSelect={() => setOpen(true)}>
+            <BanIcon className="size-4 mr-2" />
+            Ajukan Pembatalan
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <RequestCancelDialog open={open} onOpenChange={setOpen} order={order} />
+    </>
+  );
 }
 
 function ShipByDeadline({ date }: { date?: string | null }) {
