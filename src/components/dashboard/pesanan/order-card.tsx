@@ -533,11 +533,6 @@ export function OrderActions({
             Dibatalkan di marketplace
           </span>
         )}
-        {order.cancel_reason && (
-          <span className="text-xs text-muted-foreground">
-            Alasan: {order.cancel_reason}
-          </span>
-        )}
         {(st === "pending" || st === "failed") && !order.is_canceled && (
           <Button
             variant="outline"
@@ -966,6 +961,8 @@ export function OrderCard({
   variant?: OrderCardVariant;
 }) {
   const { copy } = useCopyToClipboard();
+  const isCancelView =
+    tab === "cancellation" || tab === "channel-cancel" || order.is_canceled;
   const groupedItems = React.useMemo(() => {
     const map = new Map<string, OrderItem>();
     for (const item of order.items) {
@@ -1117,7 +1114,7 @@ export function OrderCard({
         <div
           className={cn(
             "grid flex-1 grid-cols-2 gap-x-6 gap-y-3 lg:items-start",
-            "sm:grid-cols-3 xl:grid-cols-5",
+            isCancelView ? "sm:grid-cols-3 xl:grid-cols-4" : "sm:grid-cols-3 xl:grid-cols-5",
           )}
         >
           <div>
@@ -1154,40 +1151,60 @@ export function OrderCard({
             </p>
           </div>
 
-          <div className="min-w-0">
-            <p className="mb-0.5 text-2xs font-medium uppercase tracking-wider text-muted-foreground/70">
-              Pengiriman
-            </p>
-            {order.shipping?.provider ? (
-              <div className="flex items-start gap-1 text-sm">
-                <TruckIcon className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
-                <div className="min-w-0">
-                  <p className="font-medium">{order.shipping.provider}</p>
-                  {order.shipping.tracking_number ? (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            copy(order.shipping.tracking_number!)
-                          }
-                          className="mt-1 inline-flex items-center gap-1 rounded-md bg-muted/60 px-1.5 py-0.5 font-mono text-2xs font-semibold text-foreground tabular-nums hover:bg-muted transition-colors"
-                        >
-                          <span className="text-muted-foreground">AWB:</span>
-                          {order.shipping.tracking_number}
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>Klik untuk salin resi</TooltipContent>
-                    </Tooltip>
-                  ) : null}
-                </div>
+          {isCancelView ? (
+            <div className="col-span-2 min-w-0 sm:col-span-1">
+              <p className="mb-0.5 text-2xs font-medium uppercase tracking-wider text-muted-foreground/70">
+                Alasan Pembatalan
+              </p>
+              {order.cancel_reason ? (
+                <p className="flex items-start gap-1 text-sm">
+                  <BanIcon className="mt-0.5 size-3.5 shrink-0 text-destructive" />
+                  <span className="line-clamp-3 font-medium text-foreground">
+                    {order.cancel_reason}
+                  </span>
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">—</p>
+              )}
+            </div>
+          ) : (
+            <>
+              <div className="min-w-0">
+                <p className="mb-0.5 text-2xs font-medium uppercase tracking-wider text-muted-foreground/70">
+                  Pengiriman
+                </p>
+                {order.shipping?.provider ? (
+                  <div className="flex items-start gap-1 text-sm">
+                    <TruckIcon className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+                    <div className="min-w-0">
+                      <p className="font-medium">{order.shipping.provider}</p>
+                      {order.shipping.tracking_number ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                copy(order.shipping.tracking_number!)
+                              }
+                              className="mt-1 inline-flex items-center gap-1 rounded-md bg-muted/60 px-1.5 py-0.5 font-mono text-2xs font-semibold text-foreground tabular-nums hover:bg-muted transition-colors"
+                            >
+                              <span className="text-muted-foreground">AWB:</span>
+                              {order.shipping.tracking_number}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Klik untuk salin resi</TooltipContent>
+                        </Tooltip>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">—</p>
+                )}
               </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">—</p>
-            )}
-          </div>
 
-          <ShipByDeadline date={order.ship_by_date} />
+              <ShipByDeadline date={order.ship_by_date} />
+            </>
+          )}
         </div>
       </div>
 
