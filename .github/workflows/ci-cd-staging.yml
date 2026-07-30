@@ -111,10 +111,10 @@ jobs:
           fi
 
           # Body multi-baris buat pesan git tag (bisa dilihat via `git show <tag>`)
+          # — subject + FULL body per commit, bukan cuma subject (%s) doang.
           {
             echo "body<<CHANGELOG_EOF"
-            git log "$RANGE" --pretty=format:'- %s (%h)'
-            echo ""
+            git log "$RANGE" --pretty=format:'%h %s%n%n%b%n'
             echo "CHANGELOG_EOF"
           } >> "$GITHUB_OUTPUT"
 
