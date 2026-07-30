@@ -84,6 +84,7 @@ import {
   useMoveToReady,
   useAcceptCancelRequest,
   useRejectCancelRequest,
+  useReleaseChannelCancel,
   useAcceptReturn,
   useRejectReturn,
   useRelocateOrder,
@@ -234,6 +235,7 @@ export function OrderActions({
   const moveToReady = useMoveToReady();
   const acceptCancel = useAcceptCancelRequest();
   const rejectCancel = useRejectCancelRequest();
+  const releaseCancel = useReleaseChannelCancel();
   const acceptReturn = useAcceptReturn();
   const rejectReturn = useRejectReturn();
 
@@ -493,6 +495,42 @@ export function OrderActions({
           <XIcon className="size-3.5" />
           {rejectCancel.isPending ? "Memproses..." : "Tolak"}
         </Button>
+      </>
+    );
+  }
+
+  if (tab === "channel-cancel") {
+    const st = order.channel_cancel_status;
+    return (
+      <>
+        {st === "pending" && (
+          <span className="text-xs font-medium text-warning">
+            Menunggu konfirmasi marketplace
+          </span>
+        )}
+        {st === "failed" && (
+          <span className="text-xs font-medium text-destructive">
+            Ditolak marketplace
+            {order.channel_cancel_error ? `: ${order.channel_cancel_error}` : ""}
+          </span>
+        )}
+        {st === "accepted" && (
+          <span className="text-xs font-medium text-success">
+            Dibatalkan di marketplace
+          </span>
+        )}
+        {(st === "pending" || st === "failed") && !order.is_canceled && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            disabled={releaseCancel.isPending}
+            onClick={() => releaseCancel.mutate(order.id)}
+          >
+            <ArrowRightIcon className="size-3.5" />
+            {releaseCancel.isPending ? "Memproses..." : "Lanjutkan Proses"}
+          </Button>
+        )}
       </>
     );
   }

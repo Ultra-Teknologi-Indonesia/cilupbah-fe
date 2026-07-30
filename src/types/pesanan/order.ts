@@ -8,7 +8,10 @@ export type OrderTab =
   | "empty-stock"
   | "failed-pick"
   | "cancellation"
+  | "channel-cancel"
   | "returned";
+
+export type ChannelCancelSub = "pending" | "failed" | "accepted";
 
 export type CancellationSub = "pending" | "cancelled" | "post_pack";
 export type ReturnSub = "pending" | "accepted" | "rejected";
@@ -239,6 +242,7 @@ export const TAB_CONFIG: readonly TabConfigItem[] = [
   { key: "empty-stock", label: "Stok Kosong", zone: "problem" },
   { key: "failed-pick", label: "Gagal Picking", zone: "problem" },
   { key: "cancellation", label: "Batal", zone: "admin" },
+  { key: "channel-cancel", label: "Batal ke Marketplace", zone: "admin" },
   { key: "returned", label: "Diretur", zone: "admin" },
 ] as const;
 
@@ -253,6 +257,11 @@ export const SUB_PILL_CONFIG: Partial<
     { key: "pending", label: "Menunggu" },
     { key: "cancelled", label: "Dibatalkan" },
     { key: "post_pack", label: "Batal Setelah Packing" },
+  ],
+  "channel-cancel": [
+    { key: "pending", label: "Diproses" },
+    { key: "failed", label: "Ditolak" },
+    { key: "accepted", label: "Berhasil" },
   ],
   returned: [
     { key: "pending", label: "Menunggu" },
@@ -305,6 +314,7 @@ export const TABS_WITH_ACTIONS: Set<OrderTab> = new Set([
   "empty-stock",
   "failed-pick",
   "cancellation",
+  "channel-cancel",
   "returned",
 ]);
 

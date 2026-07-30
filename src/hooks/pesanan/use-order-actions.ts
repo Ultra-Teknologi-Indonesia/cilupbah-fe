@@ -69,16 +69,14 @@ export const useMoveToReady = createMutationHook({
   successMessage: (res) => {
     const moved = res.data?.moved ?? 0;
     const skipped = res.data?.skipped ?? [];
-    if (skipped.length > 0) {
-      const nos = skipped
-        .map((s) => s.salesorder_no)
-        .filter(Boolean)
-        .join(", ");
-      return `${moved} pesanan siap diproses · ${skipped.length} dilewati karena stok kosong${
-        nos ? ` (${nos})` : ""
-      }`;
-    }
-    return "Pesanan siap diproses oleh gudang.";
+    if (skipped.length === 0) return "Pesanan siap diproses oleh gudang.";
+    const cancelHeld = skipped.filter((s) => s.reason === "cancel_pending");
+    const stockHeld = skipped.filter((s) => s.reason !== "cancel_pending");
+    const parts = [`${moved} pesanan siap diproses`];
+    if (stockHeld.length) parts.push(`${stockHeld.length} dilewati (stok kosong)`);
+    if (cancelHeld.length)
+      parts.push(`${cancelHeld.length} ditahan (pembatalan diproses)`);
+    return parts.join(" · ");
   },
   errorMessage: "Gagal memindahkan pesanan",
   invalidates: forBulk,
@@ -112,6 +110,13 @@ export const useRequestChannelCancel = createMutationHook({
   successMessage: "Permintaan pembatalan dikirim ke marketplace",
   errorMessage: "Gagal mengirim permintaan pembatalan",
   invalidates: ({ orderId }) => forOrder(orderId),
+});
+
+export const useReleaseChannelCancel = createMutationHook({
+  mutationFn: (orderId: string) => OrderService.releaseChannelCancel(orderId),
+  successMessage: "Hold pembatalan dilepas, pesanan bisa diproses",
+  errorMessage: "Gagal melepas hold pembatalan",
+  invalidates: (orderId) => forOrder(orderId),
 });
 
 export function useOrderCancelReasons(

@@ -107,7 +107,11 @@ export const OrderService = {
     return fetchClient<
       ApiResponse<{
         moved: number;
-        skipped: Array<{ id: string; salesorder_no: string | null }>;
+        skipped: Array<{
+          id: string;
+          salesorder_no: string | null;
+          reason?: "cancel_pending" | "empty_stock";
+        }>;
       }>
     >("/sales/orders/move-to-ready", {
       method: "POST",
@@ -149,6 +153,13 @@ export const OrderService = {
         method: "POST",
         data: { reason },
       },
+    );
+  },
+
+  releaseChannelCancel: (orderId: string) => {
+    return fetchClient<ApiResponse<Order>>(
+      `/sales/orders/${orderId}/release-cancel`,
+      { method: "POST" },
     );
   },
 
