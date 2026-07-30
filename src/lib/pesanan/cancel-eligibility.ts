@@ -6,9 +6,12 @@ export const CANCELABLE_CHANNEL_STATUS: Record<string, string[]> = {
   lazada: ["UNPAID", "PROCESSED"],
 };
 
+const PRE_SHIP_LOCAL = ["pending", "reserved", "picked", "packed"];
+
 type CancelEligibleOrder = Pick<
   Order,
   | "source"
+  | "status"
   | "channel_status"
   | "is_canceled"
   | "cancel_requested_at"
@@ -16,15 +19,28 @@ type CancelEligibleOrder = Pick<
 >;
 
 export function canRequestChannelCancel(order: CancelEligibleOrder): boolean {
-  return (
-    !!order.source &&
-    order.source in CANCELABLE_CHANNEL_STATUS &&
-    !order.is_canceled &&
-    order.channel_cancel_status !== "pending" &&
-    !order.cancel_requested_at &&
-    !!order.channel_status &&
-    CANCELABLE_CHANNEL_STATUS[order.source].includes(order.channel_status)
-  );
+  if (
+    !order.source ||
+    !(order.source in CANCELABLE_CHANNEL_STATUS) ||
+    order.is_canceled ||
+    order.channel_cancel_status === "pending" ||
+    order.cancel_requested_at
+  ) {
+    return false;
+  }
+
+  const cs = order.channel_status;
+  if (cs && CANCELABLE_CHANNEL_STATUS[order.source].includes(cs)) {
+    return true;
+  }
+
+  // channel_status tak dikenal (UNKNOWN/kosong, mis. sync belum isi) -> andalkan
+  // status LOKAL pra-kirim; channel API tetap otoritas final saat submit.
+  if ((!cs || cs === "UNKNOWN") && PRE_SHIP_LOCAL.includes(order.status)) {
+    return true;
+  }
+
+  return false;
 }
 
 /**
