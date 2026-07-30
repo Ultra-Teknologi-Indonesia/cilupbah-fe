@@ -169,6 +169,21 @@ export const InboundService = {
     return res.data;
   },
 
+  setDiscrepancyNote: async (
+    inboundId: string,
+    itemId: string,
+    note: string | null,
+  ) => {
+    const res = await fetchClient<ApiResponse<Inbound>>(
+      `/inbounds/${inboundId}/items/${itemId}/note`,
+      {
+        method: "PATCH",
+        data: { note: note ?? "" },
+      },
+    );
+    return res.data;
+  },
+
   bulkCancel: async (ids: string[]) => {
     const res = await fetchClient<
       ApiResponse<{

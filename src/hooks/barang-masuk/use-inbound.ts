@@ -155,6 +155,20 @@ export function useSetReceivedQty(inboundId: string) {
   });
 }
 
+export function useSetDiscrepancyNote(inboundId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ itemId, note }: { itemId: string; note: string | null }) =>
+      InboundService.setDiscrepancyNote(inboundId, itemId, note),
+    onSuccess: () => {
+      toast.success("Berhasil menyimpan catatan");
+      qc.invalidateQueries({ queryKey: ["inbound", "detail", inboundId] });
+      qc.invalidateQueries({ queryKey: ["inbound", "items", inboundId] });
+    },
+    onError: (err) => apiError(err, "Gagal menyimpan catatan"),
+  });
+}
+
 export function useUnassignInbound(inboundId: string) {
   const qc = useQueryClient();
   return useMutation({

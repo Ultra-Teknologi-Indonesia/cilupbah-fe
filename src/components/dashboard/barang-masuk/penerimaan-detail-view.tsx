@@ -36,6 +36,7 @@ import { InfoField } from "@/components/dashboard/shared/info-field";
 import { SortableHeader } from "@/components/dashboard/shared/sortable-header";
 import { CopySku } from "@/components/dashboard/shared/copy-sku";
 import { InlineQtyEdit } from "@/components/dashboard/barang-masuk/inline-qty-edit";
+import { DiscrepancyNoteEdit } from "@/components/dashboard/barang-masuk/discrepancy-note-edit";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { KronologiPenerimaanItem } from "@/components/dashboard/barang-masuk/kronologi-penerimaan-tab";
 import {
@@ -43,6 +44,7 @@ import {
   useInboundDetail,
   useInboundItems,
   useResetInboundAssignment,
+  useSetDiscrepancyNote,
   useSetReceivedQtyBatch,
   useUnassignInbound,
   useWithdrawParticipant,
@@ -67,6 +69,7 @@ const TYPE_LABEL: Record<string, string> = {
 export function PenerimaanDetailView({ id }: { id: string }) {
   const { data: inbound, isLoading } = useInboundDetail(id, { pollMs: 10000 });
   const batchMutation = useSetReceivedQtyBatch(id);
+  const noteMutation = useSetDiscrepancyNote(id);
 
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(20);
@@ -75,6 +78,9 @@ export function PenerimaanDetailView({ id }: { id: string }) {
   const [sort, setSort] = React.useState<string | undefined>(undefined);
   const [openItemId, setOpenItemId] = React.useState<string | null>(null);
   const [savingItemId, setSavingItemId] = React.useState<string | null>(null);
+  const [savingNoteItemId, setSavingNoteItemId] = React.useState<string | null>(
+    null,
+  );
 
   React.useEffect(() => {
     const t = setTimeout(() => {
@@ -147,6 +153,15 @@ export function PenerimaanDetailView({ id }: { id: string }) {
       }
     } finally {
       setSavingItemId(null);
+    }
+  };
+
+  const saveDiscrepancyNote = async (itemId: string, note: string) => {
+    setSavingNoteItemId(itemId);
+    try {
+      await noteMutation.mutateAsync({ itemId, note: note || null });
+    } finally {
+      setSavingNoteItemId(null);
     }
   };
 
@@ -484,8 +499,16 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                                 <span className="text-foreground">0</span>
                               )}
                             </TableCell>
-                            <TableCell className="max-w-[200px] truncate whitespace-normal px-3 py-2.5 text-xs text-foreground">
-                              {item.discrepancy_note ?? "—"}
+                            <TableCell className="max-w-[220px] px-3 py-2.5 text-xs text-foreground">
+                              <DiscrepancyNoteEdit
+                                note={item.discrepancy_note}
+                                productName={productName}
+                                disabled={!canEdit}
+                                saving={savingNoteItemId === item.id}
+                                onSave={(note) =>
+                                  saveDiscrepancyNote(item.id, note)
+                                }
+                              />
                             </TableCell>
                             <TableCell className="px-3 py-2.5 text-right">
                               <button
