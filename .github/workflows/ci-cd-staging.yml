@@ -83,15 +83,6 @@ jobs:
         id: vars
         run: echo "short_sha=$(git rev-parse --short=7 HEAD)" >> "$GITHUB_OUTPUT"
 
-      - name: Get commit subject
-        id: commit
-        run: |
-          {
-            echo "subject<<COMMIT_EOF"
-            git log -1 --pretty=%s
-            echo "COMMIT_EOF"
-          } >> "$GITHUB_OUTPUT"
-
       - name: Determine Next Patch Version
         id: version
         run: |
@@ -106,12 +97,39 @@ jobs:
             NEW_TAG="v${MAJOR}.${MINOR}.$((PATCH + 1))"
           fi
           echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
+          echo "last_tag=$LAST_TAG" >> "$GITHUB_OUTPUT"
+
+      # Kumpulin semua commit sejak tag terakhir (bukan cuma HEAD) — satu
+      # push bisa berisi lebih dari 1 commit.
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          if [ -n "${{ steps.version.outputs.last_tag }}" ]; then
+            RANGE="${{ steps.version.outputs.last_tag }}..HEAD"
+          else
+            RANGE="HEAD"
+          fi
+
+          # Body multi-baris buat pesan git tag (bisa dilihat via `git show <tag>`)
+          {
+            echo "body<<CHANGELOG_EOF"
+            git log "$RANGE" --pretty=format:'- %s (%h)'
+            echo ""
+            echo "CHANGELOG_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          # Ringkasan 1-baris buat label/annotation OCI (harus 1 baris)
+          {
+            echo "summary<<CHANGELOG_SUMMARY_EOF"
+            git log "$RANGE" --pretty=format:'%s (%h)' | paste -sd '; ' -
+            echo "CHANGELOG_SUMMARY_EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Create & Push Git Tag
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a ${{ steps.version.outputs.new_tag }} -m "${{ steps.commit.outputs.subject }} (${{ steps.vars.outputs.short_sha }})"
+          git tag -a ${{ steps.version.outputs.new_tag }} -m "${{ steps.changelog.outputs.body }}"
           git push origin ${{ steps.version.outputs.new_tag }}
 
       - name: Setup Docker Buildx
@@ -142,7 +160,15 @@ jobs:
             NEXT_PUBLIC_API_URL=https://staging.ultra-fit.id
           labels: |
             org.opencontainers.image.title=cilupbah-frontend
-            org.opencontainers.image.description=${{ steps.commit.outputs.subject }}
+            org.opencontainers.image.description=${{ steps.changelog.outputs.summary }}
+            org.opencontainers.image.version=${{ steps.version.outputs.new_tag }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          # GHCR baca description dari annotation di manifest, bukan dari
+          # Config.Labels di atas — jadi perlu di-set terpisah di sini juga.
+          annotations: |
+            org.opencontainers.image.title=cilupbah-frontend
+            org.opencontainers.image.description=${{ steps.changelog.outputs.summary }}
             org.opencontainers.image.version=${{ steps.version.outputs.new_tag }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
