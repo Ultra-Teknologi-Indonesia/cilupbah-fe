@@ -17,6 +17,7 @@ import {
 } from "@/hooks/pesanan/use-order-actions";
 import {
   canRequestChannelCancel,
+  tiktokReasonStatus,
   tiktokStatusGroup,
 } from "@/lib/pesanan/cancel-eligibility";
 import type { Order } from "@/types/pesanan/order";
@@ -69,9 +70,7 @@ export function BulkRequestCancelDialog({
     if (source === "tiktok") {
       const groups = Array.from(
         new Set(
-          eligible.map((o) =>
-            tiktokStatusGroup(o.channel_status_raw ?? o.channel_status),
-          ),
+          eligible.map((o) => tiktokStatusGroup(o.channel_status_raw, o.is_paid)),
         ),
       );
       if (groups.length > 1) {
@@ -83,7 +82,7 @@ export function BulkRequestCancelDialog({
       return {
         source,
         shopId: eligible[0].channel_shop_id,
-        status: eligible[0].channel_status_raw ?? eligible[0].channel_status,
+        status: tiktokReasonStatus(eligible[0]),
       };
     }
     return { source, shopId: eligible[0].channel_shop_id, status: null };

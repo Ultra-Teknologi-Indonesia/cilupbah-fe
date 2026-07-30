@@ -27,7 +27,22 @@ export function canRequestChannelCancel(order: CancelEligibleOrder): boolean {
   );
 }
 
-/** Kelompok status TikTok untuk pemilihan set alasan (samakan dengan BE). */
-export function tiktokStatusGroup(raw: string | null): "unpaid" | "paid" {
-  return (raw ?? "").toUpperCase() === "UNPAID" ? "unpaid" : "paid";
+/**
+ * Kelompok status TikTok untuk pemilihan set alasan (samakan dengan BE).
+ * Bila status mentah kosong, pakai is_paid: paid -> ON_HOLD (paid set), else unpaid.
+ */
+export function tiktokStatusGroup(
+  raw: string | null,
+  isPaid = false,
+): "unpaid" | "paid" {
+  if (raw) return raw.toUpperCase() === "UNPAID" ? "unpaid" : "paid";
+  return isPaid ? "paid" : "unpaid";
+}
+
+/** Status yang dikirim ke endpoint cancel-reasons TikTok (samakan derivasi dengan BE). */
+export function tiktokReasonStatus(order: {
+  channel_status_raw: string | null;
+  is_paid: boolean;
+}): string {
+  return order.channel_status_raw ?? (order.is_paid ? "ON_HOLD" : "UNPAID");
 }
