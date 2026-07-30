@@ -270,7 +270,11 @@ export function OrderActions({
 
   // Order yang pembatalannya sedang diproses marketplace ditahan: tampilkan
   // indikator, bukan aksi proses/kirim. Tab channel-cancel punya UI-nya sendiri.
-  if (order.channel_cancel_status === "pending" && tab !== "channel-cancel") {
+  if (
+    order.channel_cancel_status === "pending" &&
+    !order.is_canceled &&
+    tab !== "channel-cancel"
+  ) {
     return (
       <span className="text-xs font-medium text-warning">
         Menunggu konfirmasi pembatalan marketplace
@@ -527,6 +531,11 @@ export function OrderActions({
         {st === "accepted" && (
           <span className="text-xs font-medium text-success">
             Dibatalkan di marketplace
+          </span>
+        )}
+        {order.cancel_reason && (
+          <span className="text-xs text-muted-foreground">
+            Alasan: {order.cancel_reason}
           </span>
         )}
         {(st === "pending" || st === "failed") && !order.is_canceled && (
