@@ -124,7 +124,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            NEXT_PUBLIC_API_URL=https://TODO-STAGING-API-URL.example.com
+            NEXT_PUBLIC_API_URL=https://staging.ultra-fit.id
           tags: |
             ${{ env.IMAGE_BASE }}:latest
             ${{ env.IMAGE_BASE }}:${{ steps.version.outputs.new_tag }}

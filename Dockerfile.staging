@@ -10,6 +10,9 @@
 FROM node:20-slim AS deps
 WORKDIR /app
 RUN npm install -g pnpm@9
+# Puppeteer cuma dev-dependency (build/test script) — skip download Chromium-nya,
+# node:20-slim juga tidak punya `unzip` yang dibutuhkan installer-nya.
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 COPY package.json pnpm-lock.yaml .npmrc ./
 RUN pnpm install --frozen-lockfile
 
@@ -28,7 +31,6 @@ COPY . .
 # lewat build-arg ini — jadi image yang sama bisa dipakai di semua environment.
 ARG NEXT_PUBLIC_API_URL=http://localhost:8000
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 RUN pnpm run build
 
