@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   XIcon,
   PlayIcon,
@@ -17,7 +18,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import type { OrderTab, SubFilter } from "@/types/pesanan/order";
+import type { Order, OrderTab, SubFilter } from "@/types/pesanan/order";
 import type { PrintLabelOrderInput } from "@/components/dashboard/proses-pesanan/shared/print-label-size-dialog";
 import {
   useBulkMarkContacted,
@@ -29,6 +30,7 @@ import {
   useBulkRejectReturn,
 } from "@/hooks/pesanan/use-order-actions";
 import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
+import { BulkRequestCancelDialog } from "./bulk-request-cancel-dialog";
 
 export function BulkActionBar({
   tab,
@@ -37,6 +39,7 @@ export function BulkActionBar({
   onClear,
   selectedIds,
   selectedLabelInputs,
+  selectedOrders,
 }: {
   tab: OrderTab;
   subFilter: SubFilter;
@@ -44,6 +47,7 @@ export function BulkActionBar({
   onClear: () => void;
   selectedIds?: string[];
   selectedLabelInputs?: PrintLabelOrderInput[];
+  selectedOrders?: Order[];
 }) {
   if (count === 0) return null;
 
@@ -72,6 +76,7 @@ export function BulkActionBar({
           count={count}
           selectedIds={selectedIds ?? []}
           selectedLabelInputs={selectedLabelInputs ?? []}
+          selectedOrders={selectedOrders ?? []}
           onDone={onClear}
         />
       </div>
@@ -85,6 +90,7 @@ function TabBulkActions({
   count,
   selectedIds,
   selectedLabelInputs,
+  selectedOrders,
   onDone,
 }: {
   tab: OrderTab;
@@ -92,8 +98,10 @@ function TabBulkActions({
   count: number;
   selectedIds: string[];
   selectedLabelInputs: PrintLabelOrderInput[];
+  selectedOrders: Order[];
   onDone: () => void;
 }) {
+  const [bulkCancelOpen, setBulkCancelOpen] = useState(false);
   const bulkContact = useBulkMarkContacted();
   const moveToReady = useMoveToReady();
   const markComplete = useMarkComplete();
@@ -316,11 +324,17 @@ function TabBulkActions({
           variant="ghost"
           size="sm"
           className="h-8 gap-1.5 text-xs text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10"
-          onClick={placeholder("Batalkan")}
+          onClick={() => setBulkCancelOpen(true)}
         >
           <BanIcon className="size-3.5" />
-          Batalkan
+          Ajukan Pembatalan
         </Button>
+        <BulkRequestCancelDialog
+          open={bulkCancelOpen}
+          onOpenChange={setBulkCancelOpen}
+          orders={selectedOrders}
+          onDone={onDone}
+        />
       </>
     );
   }

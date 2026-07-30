@@ -25,6 +25,7 @@ import {
   MessageCircleIcon,
   MoreHorizontalIcon,
   Trash2Icon,
+  BanIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -45,6 +46,8 @@ import { BuatPicklistDialog } from "@/components/dashboard/proses-pesanan/pickin
 import { BuatPengirimanDialog } from "@/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog";
 import { DriverCallIndicator } from "@/components/dashboard/proses-pesanan/shared/driver-call-indicator";
 import { DeleteOrderDialog } from "@/components/dashboard/proses-pesanan/shared/delete-order-dialog";
+import { RequestCancelDialog } from "@/components/dashboard/pesanan/request-cancel-dialog";
+import { canRequestChannelCancel } from "@/lib/pesanan/cancel-eligibility";
 import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
 import { isShopeeInstantOrSameDay } from "@/lib/proses-pesanan/shopee";
 import {
@@ -224,6 +227,7 @@ export function OrderActions({
   const [contactOpen, setContactOpen] = React.useState(false);
   const [pengirimanOpen, setPengirimanOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [requestCancelOpen, setRequestCancelOpen] = React.useState(false);
 
   const markComplete = useMarkComplete();
   const requestAwb = useRequestAwb();
@@ -234,6 +238,8 @@ export function OrderActions({
   const rejectReturn = useRejectReturn();
 
   const isMarketplace = !!order.source && order.source !== "manual";
+
+  const canRequestCancel = canRequestChannelCancel(order);
 
   const handlePrintLabel = () => {
     if (isMarketplace) {
@@ -260,7 +266,31 @@ export function OrderActions({
     acceptReturn.isPending ||
     rejectReturn.isPending;
 
-  if (tab === "unpaid") return null;
+  if (tab === "unpaid") {
+    if (!canRequestCancel) return null;
+    return (
+      <>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon-sm" aria-label="Aksi lainnya">
+              <MoreHorizontalIcon className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-44">
+            <DropdownMenuItem onSelect={() => setRequestCancelOpen(true)}>
+              <BanIcon className="size-4 mr-2" />
+              Ajukan Pembatalan
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <RequestCancelDialog
+          open={requestCancelOpen}
+          onOpenChange={setRequestCancelOpen}
+          order={order}
+        />
+      </>
+    );
+  }
 
   if (tab === "ready-to-process") {
     return (
@@ -620,6 +650,12 @@ export function OrderActions({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-44">
+              {canRequestCancel && (
+                <DropdownMenuItem onSelect={() => setRequestCancelOpen(true)}>
+                  <BanIcon className="size-4 mr-2" />
+                  Ajukan Pembatalan
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 variant="destructive"
                 onSelect={() => setDeleteOpen(true)}
@@ -652,6 +688,11 @@ export function OrderActions({
           open={deleteOpen}
           onOpenChange={setDeleteOpen}
           orders={[{ id: order.id, no: order.salesorder_no }]}
+        />
+        <RequestCancelDialog
+          open={requestCancelOpen}
+          onOpenChange={setRequestCancelOpen}
+          order={order}
         />
       </>
     );

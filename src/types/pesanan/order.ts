@@ -99,6 +99,7 @@ export interface Order {
   status: OrderStatus;
   status_history?: StatusHistoryEntry[];
   channel_status: string | null;
+  channel_status_raw: string | null;
   is_paid: boolean;
   is_canceled: boolean;
   cancel_reason: string | null;
@@ -106,6 +107,9 @@ export interface Order {
   cancel_request_reason: string | null;
   cancel_accepted_at: string | null;
   cancel_channel: "auto" | "manual" | null;
+  channel_cancel_status: "pending" | "accepted" | "rejected" | "failed" | null;
+  channel_cancel_error: string | null;
+  channel_cancel_requested_at: string | null;
   pick_failed_at: string | null;
   pick_failed_by: string | null;
   pick_fail_reason: string | null;

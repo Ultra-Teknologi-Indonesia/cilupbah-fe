@@ -232,6 +232,7 @@ export function PesananView() {
         selectedLabelInputs={orders
           .filter((o) => selectedIds.has(o.id))
           .map((o) => ({ id: o.id, source: o.source }))}
+        selectedOrders={orders.filter((o) => selectedIds.has(o.id))}
       />
     </div>
   );

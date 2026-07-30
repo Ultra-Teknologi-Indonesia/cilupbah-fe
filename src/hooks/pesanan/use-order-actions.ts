@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import {
   OrderService,
   type UpdateOrderItemData,
@@ -105,6 +106,35 @@ export const useRejectCancelRequest = createMutationHook({
   invalidates: (orderId) => forOrder(orderId),
 });
 
+export const useRequestChannelCancel = createMutationHook({
+  mutationFn: (data: { orderId: string; reason: string }) =>
+    OrderService.requestChannelCancel(data.orderId, data.reason),
+  successMessage: "Permintaan pembatalan dikirim ke marketplace",
+  errorMessage: "Gagal mengirim permintaan pembatalan",
+  invalidates: ({ orderId }) => forOrder(orderId),
+});
+
+export function useCancelReasons(
+  marketplace: string | null | undefined,
+  opts?: { shopId?: string | null; status?: string | null; enabled?: boolean },
+) {
+  return useQuery({
+    queryKey: [
+      "cancel-reasons",
+      marketplace ?? null,
+      opts?.shopId ?? null,
+      opts?.status ?? null,
+    ],
+    queryFn: () =>
+      OrderService.getCancelReasons(marketplace as string, {
+        shopId: opts?.shopId,
+        status: opts?.status,
+      }),
+    enabled: Boolean(marketplace) && (opts?.enabled ?? true),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 export const useAcceptReturn = createMutationHook({
   mutationFn: (returnId: string) => OrderService.acceptReturn(returnId),
   successMessage: "Retur berhasil diterima",
@@ -147,6 +177,18 @@ export const useBulkRejectCancelRequest = createMutationHook({
     settleBulk(orderIds.map((id) => OrderService.rejectCancelRequest(id))),
   successMessage: bulkMessage("pembatalannya ditolak"),
   errorMessage: "Gagal menolak pembatalan",
+  invalidates: forBulk,
+});
+
+export const useBulkRequestChannelCancel = createMutationHook({
+  mutationFn: (data: { orderIds: string[]; reason: string }) =>
+    settleBulk(
+      data.orderIds.map((id) =>
+        OrderService.requestChannelCancel(id, data.reason),
+      ),
+    ),
+  successMessage: bulkMessage("diajukan pembatalannya"),
+  errorMessage: "Gagal mengajukan pembatalan",
   invalidates: forBulk,
 });
 

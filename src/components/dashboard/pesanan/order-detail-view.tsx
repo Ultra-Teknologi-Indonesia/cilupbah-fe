@@ -29,6 +29,7 @@ import {
   ImageIcon,
   ZapIcon,
   HistoryIcon,
+  BanIcon,
   MoreHorizontalIcon,
 } from "lucide-react";
 
@@ -84,6 +85,8 @@ import { ContactBuyerDialog } from "./contact-buyer-dialog";
 import { CourierPickupDialog } from "./courier-pickup-dialog";
 import { EditOrderItemDialog } from "./edit-order-item-dialog";
 import { RiwayatPesananDialog } from "./riwayat-pesanan-dialog";
+import { RequestCancelDialog } from "./request-cancel-dialog";
+import { canRequestChannelCancel } from "@/lib/pesanan/cancel-eligibility";
 import {
   formatCurrency,
   formatDateLong,
@@ -598,6 +601,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
   const [contactOpen, setContactOpen] = React.useState(false);
   const [pickupOpen, setPickupOpen] = React.useState(false);
   const [riwayatOpen, setRiwayatOpen] = React.useState(false);
+  const [requestCancelOpen, setRequestCancelOpen] = React.useState(false);
   const [editingItem, setEditingItem] = React.useState<OrderItem | null>(null);
   const [deletingItemId, setDeletingItemId] = React.useState<string | null>(
     null,
@@ -606,6 +610,8 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
   const order = data?.data;
 
   const isMarketplace = !!order?.source && order.source !== "manual";
+
+  const canRequestCancel = !!order && canRequestChannelCancel(order);
 
   const handlePrintInvoice = () => {
     window.open(
@@ -721,6 +727,12 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                   <HistoryIcon className="size-4" />
                   Riwayat
                 </DropdownMenuItem>
+                {canRequestCancel && (
+                  <DropdownMenuItem onClick={() => setRequestCancelOpen(true)}>
+                    <BanIcon className="size-4" />
+                    Ajukan Pembatalan
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
             {isMarketplace && order.shipping?.tracking_number && (
@@ -1180,6 +1192,12 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         open={riwayatOpen}
         onOpenChange={setRiwayatOpen}
         orderId={order.id}
+      />
+
+      <RequestCancelDialog
+        open={requestCancelOpen}
+        onOpenChange={setRequestCancelOpen}
+        order={order}
       />
 
       {editingItem && (

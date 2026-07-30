@@ -8,6 +8,11 @@ import type {
   OrderTabCounts,
 } from "@/types/pesanan/order";
 
+export interface CancelReason {
+  key: string;
+  label: string;
+}
+
 export interface UpdateOrderItemData {
   sku?: string;
   description?: string;
@@ -129,6 +134,29 @@ export const OrderService = {
       method: "POST",
       data: reason ? { reason } : undefined,
     });
+  },
+
+  getCancelReasons: (
+    marketplace: string,
+    opts?: { shopId?: string | null; status?: string | null },
+  ) => {
+    const sp = new URLSearchParams();
+    if (opts?.shopId) sp.set("shop_id", opts.shopId);
+    if (opts?.status) sp.set("status", opts.status);
+    const qs = sp.toString();
+    return fetchClient<ApiResponse<CancelReason[]>>(
+      `/marketplace/cancel-reasons/${marketplace}${qs ? `?${qs}` : ""}`,
+    );
+  },
+
+  requestChannelCancel: (orderId: string, reason: string) => {
+    return fetchClient<ApiResponse<Order>>(
+      `/sales/orders/${orderId}/request-cancel`,
+      {
+        method: "POST",
+        data: { reason },
+      },
+    );
   },
 
   exportOrders: (params: {
