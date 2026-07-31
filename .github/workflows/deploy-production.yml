@@ -1,0 +1,85 @@
+name: Production Deploy
+
+permissions:
+  contents: read
+  packages: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versi image yang mau di-deploy, contoh: v1.0.5 (lihat di tab Packages repo)"
+        required: true
+        type: string
+
+jobs:
+  # ─────────────────────────────────────────────
+  # Sanity check dulu SEBELUM nyentuh production:
+  # - format versi harus vX.Y.Z (hindari typo)
+  # - image dengan tag itu harus benar-benar ada di GHCR
+  # ─────────────────────────────────────────────
+  validate-input:
+    name: Validate Version Input
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cek format versi
+        run: |
+          VERSION="${{ inputs.version }}"
+          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Format versi salah. Harus seperti v1.0.5"
+            exit 1
+          fi
+
+      - name: Login GHCR (read-only)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cek image ada di GHCR
+        run: |
+          docker manifest inspect ghcr.io/ultra-teknologi-indonesia/cilupbah-frontend:${{ inputs.version }} > /dev/null
+          echo "Image ${{ inputs.version }} ditemukan di GHCR, lanjut deploy."
+
+  # ─────────────────────────────────────────────
+  # Job ini pakai `environment: production`.
+  # WAJIB dibuat dulu manual di:
+  # Settings > Environments > New environment > "production"
+  # -> centang "Required reviewers", tambahkan reviewer
+  # Kalau environment ini belum dibuat, job akan tetap jalan
+  # TANPA approval gate (jadi jangan lupa setup-nya).
+  # ─────────────────────────────────────────────
+  deploy:
+    name: Deploy to Production
+    needs: validate-input
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Deploy via SSH ke server production
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.FE_PROD_DEPLOY_SERVER }}
+          username: ${{ secrets.FE_PROD_DEPLOY_USER }}
+          key: ${{ secrets.FE_PROD_SSH_PRIVATE_KEY }}
+          timeout: 30m
+          command_timeout: 30m
+          script: |
+            set -e
+
+            VERSION="${{ inputs.version }}"
+            IMAGE="ghcr.io/ultra-teknologi-indonesia/cilupbah-frontend:${VERSION}"
+
+            echo "Deploying $IMAGE ke production..."
+
+            cd ${{ secrets.FE_PROD_DEPLOY_PATH }}
+
+            # Pin docker-compose.production.yml ke tag versi yang diminta,
+            # bukan cuma restart pakai apapun yang ke-pull sebelumnya.
+            sed -i "s|^\( *image: \).*|\1${IMAGE}|" docker-compose.production.yml
+
+            docker compose -f docker-compose.production.yml pull
+            docker compose -f docker-compose.production.yml up -d --remove-orphans
+
+            echo "Production deployment success: $VERSION"

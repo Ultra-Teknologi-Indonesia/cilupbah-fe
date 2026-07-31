@@ -1,19 +1,16 @@
 services:
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: production-cilupbah-fe
+    # Tag di sini di-pin otomatis oleh deploy-production.yml (sed ke versi
+    # yang dipilih saat workflow_dispatch) — jangan diandalkan sebagai
+    # sumber kebenaran versi yang sedang jalan, cek `docker ps` di VPS.
+    image: ghcr.io/ultra-teknologi-indonesia/cilupbah-frontend:latest
     container_name: cilupbah-fe-production
-    entrypoint: ["/usr/local/bin/start.production.sh"]
     ports:
-      - "3000:3000"
-    volumes:
-      - /var/www/cilupbah-fe:/app
+      - "6001:6001"
     environment:
       - NODE_ENV=production
-      # ⚠️ WAJIB DIGANTI: URL backend production (di-bake ke bundle saat build).
-      # Jangan biarkan menunjuk ke staging.
-      - NEXT_PUBLIC_API_URL=https://REPLACE-WITH-PRODUCTION-API-DOMAIN
-      - PUPPETEER_SKIP_DOWNLOAD=true
+      - PORT=6001
+      # URL backend production — dibaca di runtime (bukan di-bake ke image),
+      # lihat catatan di Dockerfile.
+      - API_URL=http://backend.ultra-fit.id/
     restart: unless-stopped

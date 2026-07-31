@@ -146,7 +146,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: Dockerfile.staging
           push: true
           # build-push-action default nyalain provenance attestation, yang
           # bikin image jadi OCI index (manifest list) walau cuma 1 arch —
