@@ -4,13 +4,16 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertTriangleIcon, Loader2Icon, SendIcon, XIcon } from "lucide-react";
+import { Loader2Icon, SendIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
-import { apiError } from "@/lib/toast";
 import { buatProdukSchema } from "@/schemas/master-produk";
 import type { BuatProdukFormValues } from "@/types/master-produk";
 import { useCreateProduct } from "@/hooks/master-produk/use-create-product";
-import { SERVER_FIELD_MAP } from "@/lib/master-produk/server-field-map";
+import {
+  humanizeServerErrors,
+  type ServerErrorItem,
+} from "@/lib/master-produk/humanize-server-errors";
+import { FormErrorAlert } from "@/components/dashboard/shared/form-error-alert";
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -38,7 +41,7 @@ export function BuatProdukForm() {
     if (files.some((f) => f.type.startsWith("image/"))) setMediaError(false);
   }, []);
   const modeRef = React.useRef<"master">("master");
-  const [serverErrors, setServerErrors] = React.useState<string[]>([]);
+  const [serverErrors, setServerErrors] = React.useState<ServerErrorItem[]>([]);
   const [cancelOpen, setCancelOpen] = React.useState(false);
   const { mutateAsync, isPending } = useCreateProduct();
 
@@ -70,21 +73,26 @@ export function BuatProdukForm() {
 
   const applyServerErrors = (err: unknown): boolean => {
     const body = err as { message?: string; errors?: Record<string, string[]> };
-    const serverErrs = body?.errors;
-    if (!serverErrs || typeof serverErrs !== "object") return false;
+    const singleVariant = form.getValues("variationTypes").length === 0;
+    const { alertItems, fieldErrors, firstPath } = humanizeServerErrors(
+      body?.errors,
+      { singleVariant },
+    );
 
-    const allMessages: string[] = [];
-    let firstField: keyof BuatProdukFormValues | undefined;
-    for (const [key, messages] of Object.entries(serverErrs)) {
-      const msg = Array.isArray(messages) ? messages[0] : String(messages);
-      allMessages.push(msg);
-      const field = SERVER_FIELD_MAP[key];
-      if (!field) continue;
-      form.setError(field, { type: "server", message: msg });
-      firstField ??= field;
+    if (!alertItems.length) {
+      if (body?.message) {
+        setServerErrors([{ label: "", message: body.message }]);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return true;
+      }
+      return false;
     }
-    setServerErrors(allMessages);
-    if (firstField) form.setFocus(firstField);
+
+    for (const fe of fieldErrors) {
+      form.setError(fe.path as never, { type: "server", message: fe.message });
+    }
+    setServerErrors(alertItems);
+    if (firstPath) form.setFocus(firstPath as never);
     window.scrollTo({ top: 0, behavior: "smooth" });
     return true;
   };
@@ -103,11 +111,14 @@ export function BuatProdukForm() {
       router.push("/dashboard/produk");
     } catch (err) {
       const body = err as { message?: string };
-      if (applyServerErrors(err)) {
-        apiError(err, "Beberapa isian ditolak server");
-      } else {
-        setServerErrors([body?.message || "Gagal menyimpan produk"]);
-        apiError(err, "Gagal menyimpan produk");
+      if (!applyServerErrors(err)) {
+        setServerErrors([
+          {
+            label: "",
+            message: body?.message || "Gagal menyimpan produk. Silakan coba lagi.",
+          },
+        ]);
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     }
   };
@@ -198,28 +209,10 @@ export function BuatProdukForm() {
         ]}
       />
 
-      {serverErrors.length > 0 && (
-        <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3">
-          <AlertTriangleIcon className="mt-0.5 size-5 shrink-0 text-destructive" />
-          <div className="flex-1 space-y-1">
-            <p className="text-sm font-medium text-destructive">
-              Gagal menyimpan produk — perbaiki kesalahan berikut:
-            </p>
-            <ul className="list-disc space-y-0.5 pl-4 text-sm text-destructive/90">
-              {serverErrors.map((msg, i) => (
-                <li key={i}>{msg}</li>
-              ))}
-            </ul>
-          </div>
-          <button
-            type="button"
-            onClick={() => setServerErrors([])}
-            className="shrink-0 text-destructive/60 hover:text-destructive"
-          >
-            <XIcon className="size-4" />
-          </button>
-        </div>
-      )}
+      <FormErrorAlert
+        items={serverErrors}
+        onDismiss={() => setServerErrors([])}
+      />
 
       <div className="grid gap-6 lg:grid-cols-[14rem_1fr]">
         <aside className="hidden lg:block">

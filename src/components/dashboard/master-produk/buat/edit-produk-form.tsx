@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { InfoIcon, Loader2Icon, SaveIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { apiError } from "@/lib/toast";
 import { buatProdukSchema } from "@/schemas/master-produk";
 import type {
   BuatProdukFormValues,
@@ -17,7 +16,11 @@ import {
   detailToFormValues,
   detailVariantLocks,
 } from "@/lib/master-produk/detail-to-form";
-import { SERVER_FIELD_MAP } from "@/lib/master-produk/server-field-map";
+import {
+  humanizeServerErrors,
+  type ServerErrorItem,
+} from "@/lib/master-produk/humanize-server-errors";
+import { FormErrorAlert } from "@/components/dashboard/shared/form-error-alert";
 import { useUpdateProduct } from "@/hooks/master-produk/use-update-product";
 import { useCreateBundle } from "@/hooks/master-produk/use-create-bundle";
 
@@ -100,24 +103,36 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
   } = form;
   const v = watch();
 
+  const [serverErrors, setServerErrors] = React.useState<ServerErrorItem[]>([]);
+
   const applyServerErrors = (err: unknown): boolean => {
-    const body = err as { errors?: Record<string, string[]> };
-    if (!body?.errors || typeof body.errors !== "object") return false;
-    let firstField: keyof BuatProdukFormValues | undefined;
-    for (const [key, messages] of Object.entries(body.errors)) {
-      const field = SERVER_FIELD_MAP[key];
-      if (!field) continue;
-      form.setError(field, {
-        type: "server",
-        message: Array.isArray(messages) ? messages[0] : String(messages),
-      });
-      firstField ??= field;
+    const body = err as { message?: string; errors?: Record<string, string[]> };
+    const singleVariant = form.getValues("variationTypes").length === 0;
+    const { alertItems, fieldErrors, firstPath } = humanizeServerErrors(
+      body?.errors,
+      { singleVariant },
+    );
+
+    if (!alertItems.length) {
+      if (body?.message) {
+        setServerErrors([{ label: "", message: body.message }]);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return true;
+      }
+      return false;
     }
-    if (firstField) form.setFocus(firstField);
+
+    for (const fe of fieldErrors) {
+      form.setError(fe.path as never, { type: "server", message: fe.message });
+    }
+    setServerErrors(alertItems);
+    if (firstPath) form.setFocus(firstPath as never);
+    window.scrollTo({ top: 0, behavior: "smooth" });
     return true;
   };
 
   const onValid = async (data: BuatProdukFormValues) => {
+    setServerErrors([]);
     try {
       if (data.isBundle) {
         await saveBundle({
@@ -144,8 +159,17 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
       toast.success("Perubahan produk disimpan");
       router.push(detailHref);
     } catch (err) {
-      if (applyServerErrors(err)) apiError(err, "Beberapa isian ditolak server");
-      else apiError(err, "Gagal menyimpan perubahan");
+      const body = err as { message?: string };
+      if (!applyServerErrors(err)) {
+        setServerErrors([
+          {
+            label: "",
+            message:
+              body?.message || "Gagal menyimpan perubahan. Silakan coba lagi.",
+          },
+        ]);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
     }
   };
 
@@ -215,6 +239,11 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
             Simpan perubahan
           </Button>
         }
+      />
+
+      <FormErrorAlert
+        items={serverErrors}
+        onDismiss={() => setServerErrors([])}
       />
 
       {product.status === "master" && (

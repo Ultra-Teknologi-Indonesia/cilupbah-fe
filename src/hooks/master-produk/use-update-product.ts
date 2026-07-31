@@ -14,7 +14,6 @@ import type {
 } from "@/types/master-produk";
 import type { EditMediaItem } from "@/components/dashboard/master-produk/buat/product-media-manager";
 import { productDetailKey } from "./use-product-detail";
-import { apiError } from "@/lib/toast";
 
 export interface UpdateProductVars {
   values: BuatProdukFormValues;
@@ -80,7 +79,5 @@ export function useUpdateProduct(id: string) {
       qc.invalidateQueries({ queryKey: productDetailKey(id) });
       qc.invalidateQueries({ queryKey: ["master-produk", "list"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal memperbarui produk"),
   });
 }
