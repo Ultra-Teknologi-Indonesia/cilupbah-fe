@@ -13,7 +13,7 @@ export type OrderTab =
 
 export type ChannelCancelSub = "pending" | "failed" | "accepted";
 
-export type CancellationSub = "pending" | "cancelled" | "post_pack";
+export type CancellationSub = "pending" | "accepted" | "rejected" | "cancelled" | "post_pack";
 export type ReturnSub = "pending" | "accepted" | "rejected";
 export type SubFilter = CancellationSub | ReturnSub | null;
 
@@ -255,6 +255,8 @@ export const SUB_PILL_CONFIG: Partial<
   ],
   cancellation: [
     { key: "pending", label: "Menunggu" },
+    { key: "accepted", label: "Diterima" },
+    { key: "rejected", label: "Ditolak" },
     { key: "cancelled", label: "Dibatalkan" },
     { key: "post_pack", label: "Batal Setelah Packing" },
   ],

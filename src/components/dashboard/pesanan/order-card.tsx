@@ -486,7 +486,13 @@ export function OrderActions({
   }
 
   if (tab === "cancellation") {
-    if (subFilter === "cancelled" || order.status === "cancelled") return null;
+    if (
+      subFilter === "cancelled" ||
+      subFilter === "accepted" ||
+      subFilter === "rejected" ||
+      order.status === "cancelled"
+    )
+      return null;
 
     return (
       <>
@@ -1156,11 +1162,11 @@ export function OrderCard({
               <p className="mb-0.5 text-2xs font-medium uppercase tracking-wider text-muted-foreground/70">
                 Alasan Pembatalan
               </p>
-              {order.cancel_reason ? (
+              {order.cancel_request_reason ?? order.cancel_reason ? (
                 <p className="flex items-start gap-1 text-sm">
                   <BanIcon className="mt-0.5 size-3.5 shrink-0 text-destructive" />
                   <span className="line-clamp-3 font-medium text-foreground">
-                    {order.cancel_reason}
+                    {order.cancel_request_reason ?? order.cancel_reason}
                   </span>
                 </p>
               ) : (
