@@ -80,6 +80,12 @@ jobs:
             sed -i "s|^\( *image: \).*|\1${IMAGE}|" docker-compose.production.yml
 
             docker compose -f docker-compose.production.yml pull
+
+            # Container lama dari pipeline sebelumnya (dibuat di luar compose
+            # project ini) bisa bentrok nama dengan container yang mau dibuat
+            # compose up di bawah — paksa hapus dulu biar aman.
+            docker rm -f cilupbah-fe-production 2>/dev/null || true
+
             docker compose -f docker-compose.production.yml up -d --remove-orphans
 
             echo "Production deployment success: $VERSION"
