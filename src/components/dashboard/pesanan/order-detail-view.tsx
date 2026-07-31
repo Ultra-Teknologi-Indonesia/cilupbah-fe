@@ -31,6 +31,7 @@ import {
   HistoryIcon,
   BanIcon,
   MoreHorizontalIcon,
+  BanknoteIcon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -1107,10 +1108,21 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 <span className="text-sm text-muted-foreground">
                   Status Bayar
                 </span>
-                <StatusBadge 
-                  domain="order-payment" 
-                  status={order.is_paid ? "PAID" : "UNPAID"} 
-                />
+                <div className="flex items-center gap-2">
+                  {order.is_cod && (
+                    <Badge
+                      variant="outline"
+                      className="gap-1 border-border bg-foreground/90 text-background"
+                    >
+                      <BanknoteIcon className="size-3" />
+                      COD
+                    </Badge>
+                  )}
+                  <StatusBadge
+                    domain="order-payment"
+                    status={order.is_paid ? "PAID" : "UNPAID"}
+                  />
+                </div>
               </div>
               {order.is_paid && order.payment_method_name && (
                 <p className="mt-1.5 text-xs text-muted-foreground">

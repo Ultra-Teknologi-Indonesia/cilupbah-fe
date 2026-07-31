@@ -26,6 +26,7 @@ import {
   MoreHorizontalIcon,
   Trash2Icon,
   BanIcon,
+  BanknoteIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -989,6 +990,17 @@ export function OrderCard({
     return Array.from(map.values());
   }, [order.items]);
 
+  // Instan mendesak: batas kirim < 1 jam atau sudah terlambat.
+  const shipDeadline = order.ship_by_date ? new Date(order.ship_by_date) : null;
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now();
+  const msToDeadline =
+    shipDeadline && !Number.isNaN(shipDeadline.getTime())
+      ? shipDeadline.getTime() - now
+      : null;
+  const isInstantUrgent =
+    !!order.is_instant && msToDeadline !== null && msToDeadline < 60 * 60 * 1000;
+
   return (
     <div
       className={cn(
@@ -996,6 +1008,8 @@ export function OrderCard({
         selected && "border-primary/40 bg-primary/[0.02]",
         order.is_instant &&
           "border-orange-400/60 bg-orange-50/40 dark:border-orange-500/40 dark:bg-orange-950/15",
+        isInstantUrgent &&
+          "border-destructive/60 bg-destructive/[0.04] dark:border-destructive/50",
       )}
     >
 
@@ -1028,12 +1042,35 @@ export function OrderCard({
         {order.is_instant && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="inline-flex items-center gap-0.5 rounded border border-orange-500/60 bg-orange-500/15 px-1.5 py-0.5 text-2xs font-semibold text-orange-700 dark:text-orange-400">
-                <ZapIcon className="h-2.5 w-2.5 fill-current" />
+              <span
+                className={cn(
+                  "inline-flex items-center gap-0.5 rounded border px-1.5 py-0.5 text-2xs font-semibold",
+                  isInstantUrgent
+                    ? "border-destructive/60 bg-destructive/15 text-destructive"
+                    : "border-orange-500/60 bg-orange-500/15 text-orange-700 dark:text-orange-400",
+                )}
+              >
+                <ZapIcon className="size-2.5 fill-current" />
                 INSTANT
               </span>
             </TooltipTrigger>
-            <TooltipContent>Pesanan instan (SLA ~2 jam) — prioritaskan!</TooltipContent>
+            <TooltipContent>
+              {isInstantUrgent
+                ? "Pesanan instan — batas kirim < 1 jam atau terlambat, segera kirim!"
+                : "Pesanan instan — prioritaskan pengiriman."}
+            </TooltipContent>
+          </Tooltip>
+        )}
+
+        {order.is_cod && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-flex items-center gap-0.5 rounded border border-border bg-foreground/90 px-1.5 py-0.5 text-2xs font-semibold text-background">
+                <BanknoteIcon className="size-2.5" />
+                COD
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>Bayar di tempat (Cash on Delivery)</TooltipContent>
           </Tooltip>
         )}
 
