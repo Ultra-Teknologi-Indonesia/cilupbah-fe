@@ -29,6 +29,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Combobox } from "@/components/ui/combobox";
+import { LocationMultiCombobox } from "@/components/dashboard/laporan/shared/location-multi-combobox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PermissionMatrix } from "@/components/dashboard/pengaturan/permission-matrix";
 import {
@@ -83,6 +84,7 @@ const baseSchema = z.object({
   email: z.string().email("Format email tidak valid"),
   nik: z.string().optional().or(z.literal("")),
   roles: z.array(z.string()).min(1, "Pilih minimal satu peran"),
+  location_ids: z.array(z.string()),
 });
 
 const createSchema = baseSchema
@@ -129,6 +131,7 @@ type FormValues = {
   email: string;
   nik?: string;
   roles: string[];
+  location_ids: string[];
   password: string;
   password_confirmation: string;
 };
@@ -187,6 +190,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
       password: "",
       password_confirmation: "",
       roles: [],
+      location_ids: [],
     },
     values:
       user && isEdit
@@ -197,6 +201,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
             password: "",
             password_confirmation: "",
             roles: user.roles.filter((r) => r !== "owner"),
+            location_ids: user.locations.map((l) => l.locationId),
           }
         : undefined,
   });
@@ -228,6 +233,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
     }
     if (!isOwnerUser) {
       payload.permissions = directPerms;
+      payload.location_ids = values.location_ids;
     }
 
     if (isEdit && userId) {
@@ -367,6 +373,30 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                     </FormItem>
                   )}
                 />
+
+                {!isOwnerUser && (
+                  <FormField
+                    control={form.control}
+                    name="location_ids"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Gudang</FormLabel>
+                        <LocationMultiCombobox
+                          value={field.value ?? []}
+                          onChange={(vals) =>
+                            form.setValue("location_ids", vals, {
+                              shouldValidate: true,
+                            })
+                          }
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Kosongkan untuk memberi akses ke semua gudang.
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 <FormField
                   control={form.control}

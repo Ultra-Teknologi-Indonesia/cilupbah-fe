@@ -150,7 +150,7 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
               </div>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Lokasi</p>
+              <p className="text-sm text-muted-foreground">Akses Gudang</p>
               <div className="mt-1 flex flex-wrap gap-1">
                 {user.locations.length > 0 ? (
                   user.locations.map((l) => (
@@ -159,7 +159,9 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
                     </Badge>
                   ))
                 ) : (
-                  <span className="text-sm">-</span>
+                  <span className="text-sm text-muted-foreground">
+                    Semua gudang
+                  </span>
                 )}
               </div>
             </div>

@@ -116,4 +116,5 @@ export type UserFormPayload = {
   permissions?: string[];
   nik?: string | null;
   warehouse_id?: string | null;
+  location_ids?: string[];
 };

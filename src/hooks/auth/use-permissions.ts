@@ -17,6 +17,12 @@ export interface PermissionChecks {
   canAny: (permissions: string[]) => boolean;
 
   canAll: (permissions: string[]) => boolean;
+
+  isWarehouseRestricted: boolean;
+
+  allowedLocationIds: string[] | null;
+
+  canAccessWarehouse: (locationId: string | null | undefined) => boolean;
 }
 
 export function usePermissions(): PermissionChecks {
@@ -36,6 +42,28 @@ export function usePermissions(): PermissionChecks {
     const canAll = (list: string[]): boolean =>
       isOwner || list.every((p) => granted.has(p));
 
-    return { isOwner, permissions, isLoading, can, canAny, canAll };
+    const assignedLocationIds = (me?.locations ?? []).map((l) => l.location_id);
+    const isWarehouseRestricted = !isOwner && assignedLocationIds.length > 0;
+    const allowedLocationIds = isWarehouseRestricted
+      ? assignedLocationIds
+      : null;
+
+    const canAccessWarehouse = (
+      locationId: string | null | undefined,
+    ): boolean =>
+      !isWarehouseRestricted ||
+      (locationId != null && assignedLocationIds.includes(locationId));
+
+    return {
+      isOwner,
+      permissions,
+      isLoading,
+      can,
+      canAny,
+      canAll,
+      isWarehouseRestricted,
+      allowedLocationIds,
+      canAccessWarehouse,
+    };
   }, [me, isLoading]);
 }
