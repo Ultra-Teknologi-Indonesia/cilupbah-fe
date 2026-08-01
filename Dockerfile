@@ -30,7 +30,25 @@ COPY . .
 ARG NEXT_PUBLIC_API_URL=http://localhost:8000
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
-RUN pnpm run build
+# DSN sengaja default kosong: sentry-shared.ts memakai `enabled: Boolean(DSN)`,
+# jadi build lokal/CI tidak mengirim event ke Sentry kalau tidak diisi.
+ARG NEXT_PUBLIC_SENTRY_DSN=
+ENV NEXT_PUBLIC_SENTRY_DSN=${NEXT_PUBLIC_SENTRY_DSN}
+
+ARG NEXT_PUBLIC_SENTRY_ENVIRONMENT=production
+ENV NEXT_PUBLIC_SENTRY_ENVIRONMENT=${NEXT_PUBLIC_SENTRY_ENVIRONMENT}
+
+ARG SENTRY_ORG=
+ARG SENTRY_PROJECT=
+ENV SENTRY_ORG=${SENTRY_ORG}
+ENV SENTRY_PROJECT=${SENTRY_PROJECT}
+
+# Auth token lewat BuildKit secret, bukan ARG — ARG tersimpan di metadata
+# image dan bisa dibaca `docker history`. Kalau secret tidak disuplai, build
+# tetap jalan, cuma source map tidak terunggah ke Sentry.
+RUN --mount=type=secret,id=sentry_auth_token \
+    SENTRY_AUTH_TOKEN="$(cat /run/secrets/sentry_auth_token 2>/dev/null || true)" \
+    pnpm run build
 
 # ── runner: image production minimal (Next.js standalone output) ──
 FROM node:20-slim AS runner
