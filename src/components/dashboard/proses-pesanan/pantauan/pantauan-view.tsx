@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   CalendarDaysIcon,
   CalendarRangeIcon,
@@ -28,6 +29,11 @@ import type {
   OutboundMonitoringPeriod,
   OutboundMonitoringSummary,
 } from "@/types/proses-pesanan/fulfillment";
+import {
+  DAY_TERM_LABEL,
+  PANTAUAN_COLUMNS,
+  pantauanDetailHref,
+} from "@/types/proses-pesanan/pantauan-drilldown";
 
 type Tone = "default" | "success" | "warning" | "info";
 
@@ -56,14 +62,6 @@ function formatPct(pct: number): string {
     maximumFractionDigits: 2,
   })} %`;
 }
-
-const DAY_TERM_LABEL: Record<number, string> = {
-  0: "Hari ini",
-  1: "1 Hari",
-  2: "2 Hari",
-  3: "3 Hari",
-  4: "> 3 Hari",
-};
 
 interface KpiCardProps {
   label: string;
@@ -145,30 +143,17 @@ function KpiCard({
   );
 }
 
-const PERIOD_COLUMNS: {
-  key: keyof Pick<
-    OutboundMonitoringPeriod,
-    "pick" | "pending" | "pack" | "readyToShip" | "waitingShip"
-  >;
-  header: string;
-}[] = [
-  { key: "pick", header: "Picking" },
-  { key: "pending", header: "Ditunda" },
-  { key: "pack", header: "Packing" },
-  { key: "readyToShip", header: "Siap Kirim" },
-  { key: "waitingShip", header: "Menunggu Pengiriman" },
-];
-
-function NumberCell({ value }: { value: number }) {
+function NumberCell({ value, href }: { value: number; href: string }) {
   return (
-    <span
+    <Link
+      href={href}
       className={cn(
-        "tabular-nums",
+        "inline-flex justify-end px-1 tabular-nums underline-offset-4 transition-colors hover:text-primary hover:underline",
         value > 0 ? "font-medium text-foreground" : "text-muted-foreground",
       )}
     >
       {formatNumber(value)}
-    </span>
+    </Link>
   );
 }
 
@@ -197,12 +182,12 @@ function PeriodTable({
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead className="w-full min-w-[120px]">Periode</TableHead>
-            {PERIOD_COLUMNS.map((col) => (
+            {PANTAUAN_COLUMNS.map((col) => (
               <TableHead
-                key={col.key}
+                key={col.slug}
                 className="min-w-[112px] text-right whitespace-nowrap"
               >
-                {col.header}
+                {col.label}
               </TableHead>
             ))}
           </TableRow>
@@ -213,12 +198,15 @@ function PeriodTable({
               <TableCell className="font-medium whitespace-nowrap">
                 {DAY_TERM_LABEL[row.dayTerm] ?? `${row.dayTerm} Hari`}
               </TableCell>
-              {PERIOD_COLUMNS.map((col) => (
-                <TableCell key={col.key} className="text-right">
+              {PANTAUAN_COLUMNS.map((col) => (
+                <TableCell key={col.slug} className="text-right">
                   {isLoading ? (
                     <Skeleton className="ml-auto h-4 w-10" />
                   ) : (
-                    <NumberCell value={row[col.key]} />
+                    <NumberCell
+                      value={row[col.monitoringField]}
+                      href={pantauanDetailHref(col.slug, row.dayTerm)}
+                    />
                   )}
                 </TableCell>
               ))}

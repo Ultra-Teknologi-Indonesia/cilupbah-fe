@@ -21,6 +21,7 @@ import {
 import { FulfillmentBulkActionBar } from "@/components/dashboard/proses-pesanan/shared/fulfillment-bulk-action-bar";
 import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
 import type { Order, OrderTab } from "@/types/pesanan/order";
+import type { FulfillmentListParams } from "@/types/proses-pesanan/fulfillment";
 import { useOrdersByStage } from "@/hooks/proses-pesanan/use-fulfillment";
 import { useListState } from "@/hooks/use-list-state";
 import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper";
@@ -90,6 +91,7 @@ export function FulfillmentCardList({
   excludeTransit,
   extraColumns,
   searchPlaceholder = "Cari no. pesanan…",
+  baseParams,
 }: {
   stage: string;
   tab?: OrderTab;
@@ -102,6 +104,7 @@ export function FulfillmentCardList({
   excludeTransit?: boolean;
   extraColumns?: OrderTableExtraColumn[];
   searchPlaceholder?: string;
+  baseParams?: Partial<FulfillmentListParams>;
 }) {
   const list = useListState<CardFilterState>(EMPTY_CARD_FILTERS, {
     perPage: 20,
@@ -130,6 +133,7 @@ export function FulfillmentCardList({
       status: list.filters.status || undefined,
       channel_status: list.filters.channel_status || undefined,
       exclude_transit: excludeTransit ? ("1" as const) : undefined,
+      ...baseParams,
     }),
     [
       list.debouncedSearch,
@@ -137,6 +141,7 @@ export function FulfillmentCardList({
       list.perPage,
       list.filters,
       excludeTransit,
+      baseParams,
     ],
   );
 
