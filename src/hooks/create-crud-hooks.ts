@@ -9,8 +9,9 @@ import {
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { apiError } from "@/lib/toast";
+import { STALE_DEFAULT } from "@/lib/query-config";
 
-const DEFAULT_STALE = 30_000;
+const DEFAULT_STALE = STALE_DEFAULT;
 
 export interface ResourceKeys {
   all: readonly string[];

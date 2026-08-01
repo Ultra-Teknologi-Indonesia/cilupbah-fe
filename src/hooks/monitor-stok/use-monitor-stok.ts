@@ -14,8 +14,7 @@ import type {
   KronologiParams,
   KronologiRow,
 } from "@/types/monitor-stok/monitor";
-
-const STALE = 30 * 1000;
+import { liveQueryOptions, STALE_STATIC } from "@/lib/query-config";
 
 const EMPTY_META = { current_page: 1, last_page: 1, per_page: 20, total: 0 };
 const EMPTY_STOCK = { items: [] as MonitorStockRow[], meta: EMPTY_META };
@@ -82,8 +81,7 @@ export function useMonitorList(
       }
     },
     enabled: isStockTab(tab),
-    staleTime: STALE,
-    placeholderData: (prev) => prev,
+    ...liveQueryOptions,
   });
 }
 
@@ -106,8 +104,7 @@ export function useMonitorAnalytics(
       }
     },
     enabled: isAnalyticsTab(tab),
-    staleTime: STALE,
-    placeholderData: (prev) => prev,
+    ...liveQueryOptions,
   });
 }
 
@@ -115,8 +112,7 @@ export function useMonitorSummary(params: MonitorListParams) {
   return useQuery({
     queryKey: ["monitor-stok", "summary", params],
     queryFn: () => MonitorStockService.summary(params),
-    staleTime: STALE,
-    placeholderData: (prev) => prev,
+    ...liveQueryOptions,
   });
 }
 
@@ -127,8 +123,7 @@ export function useFailedSync(tab: MonitorTab, params: FailedSyncParams) {
     queryKey: ["monitor-stok", "failed-sync", params],
     queryFn: () => MonitorStockService.failedSync(params),
     enabled: isSyncTab(tab),
-    staleTime: STALE,
-    placeholderData: (prev) => prev,
+    ...liveQueryOptions,
   });
 }
 
@@ -160,8 +155,7 @@ export function useKronologi(tab: MonitorTab, params: KronologiParams) {
         ? MonitorStockService.kronologi(params)
         : Promise.resolve(EMPTY_KRONOLOGI),
     enabled: isKronologiTab(tab),
-    staleTime: STALE,
-    placeholderData: (prev) => prev,
+    ...liveQueryOptions,
   });
 }
 
@@ -170,6 +164,6 @@ export function useMovementFilters(enabled: boolean) {
     queryKey: ["monitor-stok", "movement-filters"],
     queryFn: () => MonitorStockService.movementFilters(),
     enabled,
-    staleTime: 5 * 60 * 1000,
+    staleTime: STALE_STATIC,
   });
 }

@@ -10,6 +10,7 @@ import {
 } from "@/services/channel/channel.service";
 import type { StockSourceMode } from "@/types/channel";
 import { apiError } from "@/lib/toast";
+import { freshOnViewOptions } from "@/lib/query-config";
 import { CHANNEL_STORES_KEY } from "./use-connected-stores";
 
 export type { StockAllocationParams };
@@ -25,7 +26,7 @@ export function useStockAllocationStores(params: StockAllocationParams = {}) {
   return useQuery({
     queryKey: stockAllocationKeys.list(params),
     queryFn: () => ChannelService.listStockAllocation(params),
-    staleTime: 30 * 1000,
+    ...freshOnViewOptions,
   });
 }
 

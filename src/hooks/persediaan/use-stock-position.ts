@@ -8,8 +8,13 @@ import type {
   StockListParams,
   StockMovementParams,
 } from "@/types/persediaan/stock";
+import {
+  freshOnViewOptions,
+  STALE_DEFAULT,
+  STALE_STATIC,
+} from "@/lib/query-config";
 
-const STALE = 30_000;
+const STALE = STALE_DEFAULT;
 
 const all = ["inventory"] as const;
 
@@ -38,7 +43,7 @@ export function useStockPosition(params: StockListParams) {
   return useQuery({
     queryKey: inventoryKeys.list(params),
     queryFn: () => InventoryStockService.list(params),
-    staleTime: STALE,
+    ...freshOnViewOptions,
   });
 }
 
@@ -64,7 +69,7 @@ export function useItemStock(itemId: string) {
   return useQuery({
     queryKey: inventoryKeys.itemStock(itemId),
     queryFn: () => InventoryStockService.getItemStock(itemId),
-    staleTime: STALE,
+    ...freshOnViewOptions,
     enabled: !!itemId,
   });
 }
@@ -73,7 +78,7 @@ export function useMovementFilters() {
   return useQuery({
     queryKey: inventoryKeys.movementFilters(),
     queryFn: () => InventoryStockService.movementFilters(),
-    staleTime: 60 * 60 * 1000,
+    staleTime: STALE_STATIC,
   });
 }
 
