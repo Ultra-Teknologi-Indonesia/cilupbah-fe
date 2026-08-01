@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { CircleUserRound, ClockIcon, ShieldCheckIcon } from "lucide-react";
 
 import { PageTitle } from "@/components/dashboard/page-title";
+import { AppVersion } from "@/components/dashboard/app-version";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { AktivitasTab } from "./tabs/aktivitas-tab";
@@ -76,6 +77,8 @@ export function ProfilSayaShell() {
           <AktivitasTab />
         </TabsContent>
       </Tabs>
+
+      <AppVersion className="pt-2 pb-4" />
     </div>
   );
 }

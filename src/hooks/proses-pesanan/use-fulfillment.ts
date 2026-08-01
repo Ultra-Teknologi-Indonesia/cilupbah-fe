@@ -11,6 +11,7 @@ import {
 import { createMutationHook } from "@/hooks/create-crud-hooks";
 import { toast } from "sonner";
 import { apiError } from "@/lib/toast";
+import { invalidateStockViews } from "@/lib/stock-cache";
 
 import {
   OutboundService,
@@ -349,6 +350,7 @@ export function usePickItem() {
       qc.invalidateQueries({
         queryKey: fulfillmentKeys.picklistDetail(v.picklistId),
       });
+      invalidateStockViews(qc);
     },
   });
 }
@@ -370,6 +372,7 @@ export function useUnpickItem() {
         queryKey: fulfillmentKeys.picklistDetail(v.picklistId),
       });
       qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+      invalidateStockViews(qc);
     },
   });
 }
@@ -449,7 +452,10 @@ export function useAdHocPick() {
         bin_id?: string | null;
       }>;
     }) => OutboundService.adHocPick(payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+      invalidateStockViews(qc);
+    },
   });
 }
 
@@ -470,6 +476,7 @@ export function useAdHocPickScan() {
     }) => OutboundService.adHocPickScan(payload),
     onSuccess: (__d, __v) => {
       qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+      invalidateStockViews(qc);
     },
   });
 }
@@ -482,6 +489,7 @@ export function useFailPicklist() {
     onSuccess: (_d, v) => {
       qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
       qc.invalidateQueries({ queryKey: fulfillmentKeys.picklistDetail(v.id) });
+      invalidateStockViews(qc);
     },
   });
 }
@@ -492,6 +500,7 @@ export function useRevertPicklist() {
     mutationFn: (id: string) => OutboundService.revertPicklist(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: fulfillmentKeys.all });
+      invalidateStockViews(qc);
     },
   });
 }
@@ -520,6 +529,7 @@ export function useFailPickItem() {
         queryKey: fulfillmentKeys.picklistDetail(v.picklistId),
       });
       qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+      invalidateStockViews(qc);
     },
   });
 }
@@ -540,6 +550,7 @@ export function useUnfailPickItem() {
         queryKey: fulfillmentKeys.picklistDetail(v.picklistId),
       });
       qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+      invalidateStockViews(qc);
     },
   });
 }
@@ -790,6 +801,7 @@ export function useDeleteFulfillmentOrder() {
       OutboundService.deleteFulfillmentOrder(orderId, reason),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: fulfillmentKeys.all });
+      invalidateStockViews(qc);
     },
   });
 }
@@ -806,6 +818,7 @@ export function useBulkDeleteFulfillmentOrders() {
     }) => OutboundService.bulkDeleteFulfillmentOrders(orderIds, reason),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: fulfillmentKeys.all });
+      invalidateStockViews(qc);
     },
   });
 }
@@ -1038,7 +1051,7 @@ export function useResetPicklistAssignment(picklistId: string) {
       toast.success("Picklist berhasil di-reset, alokasi pick dikembalikan");
       qc.invalidateQueries({ queryKey: ["fulfillment"] });
       qc.invalidateQueries({ queryKey: ["picklists"] });
-      qc.invalidateQueries({ queryKey: ["inventory"] });
+      invalidateStockViews(qc);
     },
     onError: (err) => apiError(err, "Gagal reset picklist"),
   });

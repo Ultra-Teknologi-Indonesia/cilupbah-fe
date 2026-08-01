@@ -10,6 +10,7 @@ import type {
   PutawayDeleteAction,
 } from "@/services/barang-masuk/putaway.service";
 import { apiError } from "@/lib/toast";
+import { invalidateStockViews } from "@/lib/stock-cache";
 
 export type { BinListItem };
 
@@ -103,6 +104,7 @@ export function useProcessPutawayItem() {
     onSuccess: () => {
       toast.success("Item berhasil ditempatkan");
       qc.invalidateQueries({ queryKey: ["putaway"] });
+      invalidateStockViews(qc);
     },
     onError: (err) =>
       apiError(err, "Gagal menempatkan item"),
@@ -189,7 +191,7 @@ export function useResetPutawayAssignment(putawayId: string) {
     onSuccess: () => {
       toast.success("Putaway berhasil di-reset, semua penempatan dibalik");
       qc.invalidateQueries({ queryKey: ["putaway"] });
-      qc.invalidateQueries({ queryKey: ["inventory"] });
+      invalidateStockViews(qc);
     },
     onError: (err) => apiError(err, "Gagal reset putaway"),
   });

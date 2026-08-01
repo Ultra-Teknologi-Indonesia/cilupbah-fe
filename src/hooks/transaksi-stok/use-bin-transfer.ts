@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { apiError } from "@/lib/toast";
 import { fetchClient } from "@/lib/api-client";
 import { LocationBinService } from "@/services/manajemen-rak/location-bin.service";
+import { invalidateStockViews } from "@/lib/stock-cache";
 
 export function useLocationBins(locationId: string) {
   return useQuery({
@@ -119,9 +120,7 @@ export function useBinTransferCreate() {
     onSuccess: () => {
       toast.success("Transfer internal berhasil dibuat");
       qc.invalidateQueries({ queryKey: ["bin-transfers"] });
-      qc.invalidateQueries({ queryKey: ["inventory"] });
-      qc.invalidateQueries({ queryKey: ["posisi-stok"] });
-      qc.invalidateQueries({ queryKey: ["monitor-stok"] });
+      invalidateStockViews(qc);
     },
     onError: (err) => apiError(err, "Gagal membuat transfer"),
   });
@@ -196,9 +195,7 @@ export function useBinTransferItemDelete(id: string) {
       toast.success("Baris transfer dikoreksi, stok dikembalikan ke rak asal");
       qc.invalidateQueries({ queryKey: ["bin-transfers"] });
       qc.invalidateQueries({ queryKey: ["bin-transfer", id] });
-      qc.invalidateQueries({ queryKey: ["inventory"] });
-      qc.invalidateQueries({ queryKey: ["posisi-stok"] });
-      qc.invalidateQueries({ queryKey: ["monitor-stok"] });
+      invalidateStockViews(qc);
     },
     onError: (err) => apiError(err, "Gagal mengoreksi baris transfer"),
   });
@@ -276,9 +273,7 @@ export function useDeleteBinTransfer() {
     onSuccess: () => {
       toast.success("Transfer internal berhasil dihapus");
       qc.invalidateQueries({ queryKey: ["bin-transfers"] });
-      qc.invalidateQueries({ queryKey: ["inventory"] });
-      qc.invalidateQueries({ queryKey: ["posisi-stok"] });
-      qc.invalidateQueries({ queryKey: ["monitor-stok"] });
+      invalidateStockViews(qc);
     },
     onError: (err) => apiError(err, "Gagal menghapus transfer"),
   });
@@ -314,9 +309,7 @@ export function useReceiveBinTransfer() {
       toast.success("Penerimaan transfer berhasil disimpan");
       qc.invalidateQueries({ queryKey: ["bin-transfers"] });
       qc.invalidateQueries({ queryKey: ["bin-transfer-receipts"] });
-      qc.invalidateQueries({ queryKey: ["inventory"] });
-      qc.invalidateQueries({ queryKey: ["posisi-stok"] });
-      qc.invalidateQueries({ queryKey: ["monitor-stok"] });
+      invalidateStockViews(qc);
     },
     onError: (err) => apiError(err, "Gagal menyimpan penerimaan transfer"),
   });

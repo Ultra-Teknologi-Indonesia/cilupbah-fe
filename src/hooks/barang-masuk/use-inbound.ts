@@ -13,6 +13,7 @@ import {
 } from "@/services/barang-masuk/inbound.service";
 import type { InboundListParams } from "@/types/barang-masuk/inbound";
 import { apiError } from "@/lib/toast";
+import { invalidateStockViews } from "@/lib/stock-cache";
 
 const STALE = 30 * 1000;
 
@@ -95,7 +96,7 @@ export function useCorrectReceivedLines(inboundId: string) {
       toast.success("Penerimaan dikoreksi, stok dikembalikan dari bin inbound");
       qc.invalidateQueries({ queryKey: ["inbound", "detail", inboundId] });
       qc.invalidateQueries({ queryKey: ["inbound", "list"] });
-      qc.invalidateQueries({ queryKey: ["inventory"] });
+      invalidateStockViews(qc);
     },
     onError: (err) =>
       apiError(err, "Gagal mengoreksi penerimaan"),
@@ -115,7 +116,7 @@ export function useBulkCancelInbounds() {
         toast.success(`${ok} penerimaan dihapus`);
       }
       qc.invalidateQueries({ queryKey: ["inbound", "list"] });
-      qc.invalidateQueries({ queryKey: ["inventory"] });
+      invalidateStockViews(qc);
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
       qc.invalidateQueries({ queryKey: ["purchase-order"] });
     },
@@ -142,7 +143,7 @@ export function useSetReceivedQty(inboundId: string) {
       qc.invalidateQueries({ queryKey: ["inbound", "detail", inboundId] });
       qc.invalidateQueries({ queryKey: ["inbound", "items", inboundId] });
       qc.invalidateQueries({ queryKey: ["inbound", "list"] });
-      qc.invalidateQueries({ queryKey: ["inventory"] });
+      invalidateStockViews(qc);
     },
     onError: (err: unknown) => {
       const code = (err as { errors?: { code?: string } })?.errors?.code;
@@ -200,7 +201,7 @@ export function useResetInboundAssignment(inboundId: string) {
       qc.invalidateQueries({ queryKey: ["inbound", "detail", inboundId] });
       qc.invalidateQueries({ queryKey: ["inbound", "items", inboundId] });
       qc.invalidateQueries({ queryKey: ["inbound", "list"] });
-      qc.invalidateQueries({ queryKey: ["inventory"] });
+      invalidateStockViews(qc);
     },
     onError: (err) => apiError(err, "Gagal reset penerimaan"),
   });
@@ -270,7 +271,7 @@ export function useSetReceivedQtyBatch(inboundId: string) {
       qc.invalidateQueries({ queryKey: ["inbound", "detail", inboundId] });
       qc.invalidateQueries({ queryKey: ["inbound", "items", inboundId] });
       qc.invalidateQueries({ queryKey: ["inbound", "list"] });
-      qc.invalidateQueries({ queryKey: ["inventory"] });
+      invalidateStockViews(qc);
     },
   });
 }

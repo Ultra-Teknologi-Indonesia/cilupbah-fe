@@ -1,7 +1,38 @@
+import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
+// Versi aplikasi yang ditampilkan di UI. Prioritas:
+// 1) build-arg NEXT_PUBLIC_APP_VERSION (di-set CI dari tag rilis; .git tidak
+//    ikut ke image Docker jadi git describe tidak jalan di sana),
+// 2) tag Git terakhir untuk build lokal,
+// 3) fallback ke version di package.json.
+function resolveAppVersion(): string {
+  if (process.env.NEXT_PUBLIC_APP_VERSION) {
+    return process.env.NEXT_PUBLIC_APP_VERSION;
+  }
+  try {
+    return execSync("git describe --tags --abbrev=0", {
+      stdio: ["ignore", "pipe", "ignore"],
+    })
+      .toString()
+      .trim();
+  } catch {
+    try {
+      const pkg = JSON.parse(readFileSync("./package.json", "utf8"));
+      return `v${pkg.version}`;
+    } catch {
+      return "dev";
+    }
+  }
+}
+
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_APP_VERSION: resolveAppVersion(),
+  },
   // Runtime image GHCR cuma butuh .next/standalone + .next/static (bukan
   // seluruh node_modules) — lihat Dockerfile stage `runner`.
   output: "standalone",
@@ -44,6 +75,5 @@ export default withSentryConfig(nextConfig, {
   authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: !process.env.CI,
   widenClientFileUpload: true,
-  disableLogger: true,
   telemetry: false,
 });

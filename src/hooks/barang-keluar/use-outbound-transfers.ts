@@ -10,6 +10,7 @@ import type {
   AddTransferItemPayload,
 } from "@/services/barang-keluar/outbound-transfer.service";
 import { apiError } from "@/lib/toast";
+import { invalidateStockViews } from "@/lib/stock-cache";
 
 const STALE = 30 * 1000;
 
@@ -131,6 +132,7 @@ export function useApproveTransfer() {
     onSuccess: () => {
       toast.success("Transfer berhasil di-approve");
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
+      invalidateStockViews(qc);
     },
     onError: (err) =>
       apiError(err, "Gagal approve transfer"),
@@ -144,6 +146,7 @@ export function useSubmitDraft() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["outbound-transfer", "drafts"] });
       qc.invalidateQueries({ queryKey: ["outbound-transfer", "transit"] });
+      invalidateStockViews(qc);
     },
     onError: (err) =>
       apiError(err, "Gagal mengirim transfer"),
@@ -156,6 +159,7 @@ export function useRevertToDraft() {
     mutationFn: (id: string) => OutboundTransferService.revertToDraft(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
+      invalidateStockViews(qc);
     },
     onError: (err) =>
       apiError(err, "Gagal mengembalikan transfer ke Baru Dibuat"),
@@ -170,6 +174,7 @@ export function useShipTransfer() {
     onSuccess: () => {
       toast.success("Transfer berhasil dikirim — stok telah dikurangi");
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
+      invalidateStockViews(qc);
     },
     onError: (err) =>
       apiError(err, "Gagal mengirim transfer"),
@@ -189,6 +194,7 @@ export function useCancelTransfer() {
     onSuccess: () => {
       toast.success("Transfer berhasil dibatalkan");
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
+      invalidateStockViews(qc);
     },
     onError: (err) =>
       apiError(err, "Gagal membatalkan transfer"),
@@ -202,6 +208,7 @@ export function useDeleteTransfer() {
     onSuccess: () => {
       toast.success("Transfer berhasil dihapus");
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
+      invalidateStockViews(qc);
     },
     onError: (err) =>
       apiError(err, "Gagal menghapus transfer"),
@@ -225,6 +232,7 @@ export function useBulkDeleteTransfer() {
         toast.success(message);
       }
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
+      invalidateStockViews(qc);
     },
     onError: (err) =>
       apiError(err, "Gagal memproses transfer"),

@@ -38,7 +38,7 @@ export const commonSentryOptions = {
   dsn: SENTRY_DSN,
   enabled: Boolean(SENTRY_DSN),
   environment: process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT,
-  tracesSampleRate: 0,
+  tracesSampleRate: 0.1,
   sendDefaultPii: false,
   ignoreErrors: IGNORE_ERRORS,
   beforeSend,

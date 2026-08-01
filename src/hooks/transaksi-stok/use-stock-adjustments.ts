@@ -15,6 +15,7 @@ import {
   createMutationHook,
   createResourceKeys,
 } from "@/hooks/create-crud-hooks";
+import { STOCK_VIEW_KEYS } from "@/lib/stock-cache";
 
 export const stockAdjustmentKeys = createResourceKeys("stock-adjustment");
 
@@ -44,14 +45,14 @@ export const useCreateStockAdjustment = createMutationHook({
     StockAdjustmentService.create(data),
   successMessage: "Koreksi stok berhasil dibuat",
   errorMessage: "Gagal membuat koreksi stok",
-  invalidates: () => [stockAdjustmentKeys.lists],
+  invalidates: () => [stockAdjustmentKeys.lists, ...STOCK_VIEW_KEYS],
 });
 
 export const useDeleteStockAdjustment = createMutationHook({
   mutationFn: (id: string) => StockAdjustmentService.delete(id),
   successMessage: "Koreksi stok berhasil dihapus",
   errorMessage: "Gagal menghapus koreksi stok",
-  invalidates: () => [stockAdjustmentKeys.lists],
+  invalidates: () => [stockAdjustmentKeys.lists, ...STOCK_VIEW_KEYS],
 });
 
 export const useBulkDeleteStockAdjustment = createMutationHook<
@@ -64,5 +65,5 @@ export const useBulkDeleteStockAdjustment = createMutationHook<
       ? `${data.deleted} dokumen dihapus, ${data.failed.length} gagal`
       : `${data.deleted} dokumen berhasil dihapus`,
   errorMessage: "Gagal menghapus koreksi stok",
-  invalidates: () => [stockAdjustmentKeys.lists],
+  invalidates: () => [stockAdjustmentKeys.lists, ...STOCK_VIEW_KEYS],
 });
