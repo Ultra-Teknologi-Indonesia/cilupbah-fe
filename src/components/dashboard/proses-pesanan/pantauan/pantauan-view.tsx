@@ -148,8 +148,8 @@ function NumberCell({ value, href }: { value: number; href: string }) {
     <Link
       href={href}
       className={cn(
-        "inline-flex justify-end px-1 tabular-nums underline-offset-4 transition-colors hover:text-primary hover:underline",
-        value > 0 ? "font-medium text-foreground" : "text-muted-foreground",
+        "inline-flex justify-end px-1 font-medium tabular-nums text-primary underline-offset-4 transition-colors hover:underline",
+        value === 0 && "font-normal text-primary/50",
       )}
     >
       {formatNumber(value)}
