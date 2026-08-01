@@ -265,6 +265,7 @@ export function TransferKeluarTab() {
   const deleteMutation = useDeleteTransfer();
   const revertMutation = useRevertToDraft();
   const isRevertTarget = deleteTarget?.status === "IN_TRANSIT";
+  const isReceivedTarget = deleteTarget?.status === "RECEIVED";
 
   const [bulkDeleteState, setBulkDeleteState] = useState<{
     ids: string[];
@@ -561,6 +562,16 @@ export function TransferKeluarTab() {
             <PrinterIcon className="size-3.5" />
           )}
         </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => setDeleteTarget(item)}
+          aria-label="Hapus transfer & kembalikan stok ke gudang asal"
+          title="Hapus transfer & kembalikan stok ke gudang asal"
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+        >
+          <Trash2Icon className="size-3.5" />
+        </Button>
       </div>
     ),
     [handleReprint, printingId],
@@ -714,7 +725,9 @@ export function TransferKeluarTab() {
         description={
           isRevertTarget
             ? `Transfer ${deleteTarget?.transfer_number ?? ""} sedang dijalan. Menghapus akan membatalkan pengiriman dan mengembalikannya ke Baru Dibuat (stok dikembalikan ke rak asal).`
-            : `Hapus transfer ${deleteTarget?.transfer_number ?? ""}? Stok yang sudah dialokasikan akan dikembalikan. Aksi ini tidak bisa dibatalkan.`
+            : isReceivedTarget
+              ? `Transfer ${deleteTarget?.transfer_number ?? ""} sudah diterima di gudang tujuan. Menghapus akan membatalkan penerimaan, menarik kembali stok dari gudang tujuan, dan mengembalikannya ke gudang asal. Aksi ini tidak bisa dibatalkan.`
+              : `Hapus transfer ${deleteTarget?.transfer_number ?? ""}? Stok yang sudah dialokasikan akan dikembalikan. Aksi ini tidak bisa dibatalkan.`
         }
         confirmLabel={isRevertTarget ? "Kembalikan" : "Hapus"}
         variant="destructive"
