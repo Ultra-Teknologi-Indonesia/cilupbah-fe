@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { FilterIcon, SearchIcon, XIcon } from "lucide-react";
+import { FilterIcon, RefreshCwIcon, SearchIcon, XIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ export function FilterToolbar({
   align = "start",
   leading,
   trailing,
+  onRefresh,
+  isRefreshing = false,
   gridCols = 3,
   children,
   className,
@@ -30,6 +32,8 @@ export function FilterToolbar({
   align?: "start" | "end";
   leading?: React.ReactNode;
   trailing?: React.ReactNode;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
   gridCols?: 1 | 2 | 3 | 4;
   children?: React.ReactNode;
   className?: string;
@@ -56,6 +60,12 @@ export function FilterToolbar({
             <Input
               value={search ?? ""}
               onChange={(e) => onSearchChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && onRefresh) {
+                  e.preventDefault();
+                  onRefresh();
+                }
+              }}
               placeholder={searchPlaceholder}
               className="h-9 rounded-full bg-background pl-9 pr-8"
             />
@@ -70,6 +80,23 @@ export function FilterToolbar({
               </button>
             )}
           </div>
+        )}
+
+        {onRefresh && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            aria-label="Muat ulang data"
+            title="Muat ulang data"
+            className="h-9 w-9 shrink-0 rounded-full p-0"
+          >
+            <RefreshCwIcon
+              className={cn("size-4", isRefreshing && "animate-spin")}
+            />
+          </Button>
         )}
 
         {hasChildren && (

@@ -108,7 +108,7 @@ export function PesananView() {
     [tab, subFilter, listSearch.debouncedSearch, listSearch.page, listSearch.perPage, filters],
   );
 
-  const { data, isLoading, isFetching } = useOrders(params);
+  const { data, isLoading, isFetching, refetch } = useOrders(params);
 
   const orders = useMemo(() => data?.data ?? [], [data]);
   const meta = data?.meta ?? {
@@ -182,6 +182,8 @@ export function PesananView() {
           filters={filters}
           onChange={handleFilterChange}
           leading={selectAllCheckbox}
+          onRefresh={() => refetch()}
+          isRefreshing={isFetching}
           tab={tab}
           trailing={
             <div className="flex items-center gap-2">

@@ -143,6 +143,8 @@ export function OrderFilters({
   onChange,
   leading,
   trailing,
+  onRefresh,
+  isRefreshing,
   tab,
 }: {
   query: string;
@@ -151,6 +153,8 @@ export function OrderFilters({
   onChange: (f: FilterState) => void;
   leading?: React.ReactNode;
   trailing?: React.ReactNode;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
   tab?: OrderTab;
 }) {
   const { data: locData } = useLocations();
@@ -207,6 +211,8 @@ export function OrderFilters({
       align="end"
       leading={leading}
       trailing={trailing}
+      onRefresh={onRefresh}
+      isRefreshing={isRefreshing}
     >
       {tab === "all" && (
         <Combobox

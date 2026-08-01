@@ -485,7 +485,7 @@ export function PosisiStokView() {
     ],
   );
 
-  const { data, isLoading, isFetching } = useStockPosition(params);
+  const { data, isLoading, isFetching, refetch } = useStockPosition(params);
 
   const items = useMemo(() => {
     const raw = data?.data ?? [];
@@ -650,6 +650,8 @@ export function PosisiStokView() {
           searchPlaceholder="Cari produk atau SKU..."
           align="end"
           leading={filterTabs}
+          onRefresh={() => refetch()}
+          isRefreshing={isFetching}
           trailing={
             <VisibleLocationsControl
               locations={meta.locations}

@@ -75,12 +75,6 @@ jobs:
 
             cd ${{ secrets.FE_PROD_DEPLOY_PATH }}
 
-            # Ambil docker-compose.production.yml terbaru dari repo. Tanpa ini,
-            # perubahan env/port di compose tidak pernah sampai ke server —
-            # yang dipakai tetap file lama yang sudah ada di VPS.
-            git fetch origin main
-            git reset --hard origin/main
-
             # Pin docker-compose.production.yml ke tag versi yang diminta,
             # bukan cuma restart pakai apapun yang ke-pull sebelumnya.
             sed -i "s|^\( *image: \).*|\1${IMAGE}|" docker-compose.production.yml
