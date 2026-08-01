@@ -24,7 +24,7 @@ function isTabId(value: string | null): value is TabId {
   return value === "profil" || value === "keamanan" || value === "aktivitas";
 }
 
-export function ProfilSayaShell() {
+export function ProfilSayaShell({ version }: { version: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeParam = searchParams.get("tab");
@@ -78,7 +78,7 @@ export function ProfilSayaShell() {
         </TabsContent>
       </Tabs>
 
-      <AppVersion className="pt-2 pb-4" />
+      <AppVersion version={version} className="pt-2 pb-4" />
     </div>
   );
 }

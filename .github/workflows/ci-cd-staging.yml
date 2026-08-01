@@ -125,6 +125,23 @@ jobs:
             echo "CHANGELOG_SUMMARY_EOF"
           } >> "$GITHUB_OUTPUT"
 
+      # package.json = satu-satunya sumber versi yang dibaca UI (dibaca lewat
+      # FILE, bukan env var). Vercel clone shallow tanpa git tag, jadi versi
+      # WAJIB ikut ke dalam tree — bump di sini lalu commit ke main. [skip ci]
+      # mencegah workflow ini ter-trigger ulang; Vercel tetap rebuild commit ini
+      # sehingga staging membaca versi yang benar. Image Docker (VPS) juga ikut
+      # ter-bump karena build memakai working tree ini (COPY . .).
+      - name: Sync package.json ke versi rilis
+        run: |
+          VERSION="${{ steps.version.outputs.new_tag }}"
+          jq --arg v "${VERSION#v}" '.version = $v' package.json > package.json.tmp
+          mv package.json.tmp package.json
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json
+          git commit -m "chore(release): $VERSION [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}
+
       - name: Create & Push Git Tag
         env:
           # Lewat env var, bukan interpolasi langsung ke command — commit
@@ -162,7 +179,6 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             NEXT_PUBLIC_API_URL=https://staging.ultra-fit.id
-            NEXT_PUBLIC_APP_VERSION=${{ steps.version.outputs.new_tag }}
           labels: |
             org.opencontainers.image.title=cilupbah-frontend
             org.opencontainers.image.description=${{ steps.changelog.outputs.summary }}

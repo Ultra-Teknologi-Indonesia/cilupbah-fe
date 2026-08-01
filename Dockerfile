@@ -30,12 +30,6 @@ COPY . .
 ARG NEXT_PUBLIC_API_URL=http://localhost:8000
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
-# Versi rilis untuk ditampilkan di UI. .git di-exclude via .dockerignore, jadi
-# tidak bisa `git describe` di sini — CI menyuplai tag rilis lewat build-arg
-# ini (lihat ci-cd-staging.yml). Kosong -> next.config.ts fallback ke package.json.
-ARG NEXT_PUBLIC_APP_VERSION
-ENV NEXT_PUBLIC_APP_VERSION=${NEXT_PUBLIC_APP_VERSION}
-
 RUN pnpm run build
 
 # ── runner: image production minimal (Next.js standalone output) ──
