@@ -612,11 +612,13 @@ export function PenerimaanBarangTab() {
           const allPO = deleteTargets.every(
             (d) => d.source_type === "purchase_order",
           );
-          const hasCompleted = deleteTargets.some(
-            (d) => d.status === "COMPLETED",
+          const hasReceived = deleteTargets.some((d) =>
+            ["RECEIVED", "PARTIAL", "PUTAWAY_IN_PROGRESS", "COMPLETED"].includes(
+              d.status,
+            ),
           );
 
-          if (allTransfer && hasCompleted) {
+          if (allTransfer && hasReceived) {
             return isSingle
               ? `Penerimaan ${target.transaction_number} sudah selesai diterima. Menghapus akan membalik penempatan yang sudah masuk rak dan mengembalikan Transfer Keluar terkait ke Sedang Dijalan. Barang bisa diterima ulang.`
               : "Sebagian penerimaan sudah selesai diterima. Menghapus akan membalik penempatan yang sudah masuk rak dan mengembalikan Transfer Keluar terkait ke Sedang Dijalan.";
@@ -628,7 +630,7 @@ export function PenerimaanBarangTab() {
               : "Penerimaan transfer dihapus dan Transfer Keluar terkait dikembalikan ke Sedang Dijalan. Barang bisa diterima ulang.";
           }
 
-          if (allPO && hasCompleted) {
+          if (allPO && hasReceived) {
             return isSingle
               ? `Penerimaan ${target.transaction_number} sudah selesai diterima. Menghapus akan membalik penempatan yang sudah masuk rak dan mengembalikan Pesanan Pembelian ke status Belum Diterima agar bisa diterima ulang.`
               : "Sebagian penerimaan PO sudah selesai diterima. Menghapus akan membalik penempatan yang sudah masuk rak dan mengembalikan Pesanan Pembelian ke Belum Diterima.";
