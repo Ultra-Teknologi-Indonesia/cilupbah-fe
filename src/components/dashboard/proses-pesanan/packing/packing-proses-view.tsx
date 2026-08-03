@@ -485,7 +485,7 @@ export function PackingProsesView() {
       } catch {
       }
     }
-    playScanFeedback("error");
+    playScanFeedback("sku_mismatch");
     toast.error(`SKU/Barcode "${code}" tidak ditemukan di sesi ini.`);
     refocusScan();
   };

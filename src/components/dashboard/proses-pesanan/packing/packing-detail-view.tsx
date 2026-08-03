@@ -324,7 +324,7 @@ export function PackingDetailView({ id }: { id: string }) {
         onSuccess: (res) => {
           if (!res) {
             toast.error(`SKU/Barcode "${code}" tidak ditemukan.`);
-            playScanFeedback("error");
+            playScanFeedback("sku_mismatch");
             return;
           }
           const matched = items.find((i) => i.id === res.itemId);

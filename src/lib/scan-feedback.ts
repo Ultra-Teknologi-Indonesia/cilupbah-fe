@@ -1,6 +1,7 @@
 export type ScanFeedbackKind =
   | "ok"
   | "error"
+  | "sku_mismatch"
   | "order_canceled"
   | "order_cancel_requested"
   | "courier_mismatch";
@@ -169,6 +170,71 @@ const SFX_CANCELED         = [2,0,180,.01,.16,.3,1,1,,-60,.1,,,.7] as const;
 const SFX_CANCEL_REQUESTED = [2,0,700,.01,.09,.2,0,1,,90,.06,,,.6] as const;
 const SFX_COURIER_MISMATCH = [2,0,340,.01,.2,.3,0,1,,-260,.14,,,.9] as const;
 
+const VOICE_SRC: Partial<Record<ScanFeedbackKind, string>> = {
+  sku_mismatch: "/audio/sku-yang-discan-tidak-sesuai.mp3",
+  courier_mismatch: "/audio/kurir-yang-discan-tidak-sesuai.mp3",
+  order_cancel_requested: "/audio/sedang-request-cancel.mp3",
+  order_canceled: "/audio/paket-cancel.mp3",
+};
+
+const voiceBuffers = new Map<string, AudioBuffer>();
+const voiceLoading = new Map<string, Promise<AudioBuffer | null>>();
+
+function loadVoice(url: string): Promise<AudioBuffer | null> {
+  const cached = voiceBuffers.get(url);
+  if (cached) return Promise.resolve(cached);
+
+  const inflight = voiceLoading.get(url);
+  if (inflight) return inflight;
+
+  const ctx = getCtx();
+  if (!ctx) return Promise.resolve(null);
+
+  const p = fetch(url)
+    .then((r) =>
+      r.ok ? r.arrayBuffer() : Promise.reject(new Error(String(r.status))),
+    )
+    .then((buf) => ctx.decodeAudioData(buf))
+    .then((decoded) => {
+      voiceBuffers.set(url, decoded);
+      voiceLoading.delete(url);
+      return decoded;
+    })
+    .catch(() => {
+      voiceLoading.delete(url);
+      return null;
+    });
+
+  voiceLoading.set(url, p);
+  return p;
+}
+
+function playBuffer(ctx: AudioContext, buffer: AudioBuffer): void {
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  source.connect(ctx.destination);
+  source.start();
+}
+
+function playVoice(url: string, fallback: () => void): void {
+  const ctx = getCtx();
+  if (!ctx) {
+    fallback();
+    return;
+  }
+
+  const cached = voiceBuffers.get(url);
+  if (cached) {
+    playBuffer(ctx, cached);
+    return;
+  }
+
+  void loadVoice(url).then((buffer) => {
+    if (buffer) playBuffer(ctx, buffer);
+    else fallback();
+  });
+}
+
 let audioUnlocked = false;
 
 export function primeScanAudio(): void {
@@ -182,6 +248,7 @@ export function primeScanAudio(): void {
     source.connect(ctx.destination);
     source.start(0);
     audioUnlocked = true;
+    for (const url of Object.values(VOICE_SRC)) void loadVoice(url);
   } catch {}
 }
 
@@ -195,27 +262,37 @@ export function scanFeedbackFromErrorCode(
       return "order_cancel_requested";
     case "courier_mismatch":
       return "courier_mismatch";
+    case "sku_mismatch":
+      return "sku_mismatch";
     default:
       return "error";
   }
 }
 
-export function playScanFeedback(kind: ScanFeedbackKind): void {
+function voiceFallbackTone(kind: ScanFeedbackKind): void {
   switch (kind) {
-    case "ok":
-      zzfx(...SFX_SUCCESS);
-      break;
-    case "order_canceled":
-      zzfx(...SFX_CANCELED);
+    case "courier_mismatch":
+      zzfx(...SFX_COURIER_MISMATCH);
       break;
     case "order_cancel_requested":
       zzfx(...SFX_CANCEL_REQUESTED);
       break;
-    case "courier_mismatch":
-      zzfx(...SFX_COURIER_MISMATCH);
+    case "order_canceled":
+      zzfx(...SFX_CANCELED);
       break;
     default:
       zzfx(...SFX_ERROR);
+  }
+}
+
+export function playScanFeedback(kind: ScanFeedbackKind): void {
+  const voiceUrl = VOICE_SRC[kind];
+  if (voiceUrl) {
+    playVoice(voiceUrl, () => voiceFallbackTone(kind));
+  } else if (kind === "ok") {
+    zzfx(...SFX_SUCCESS);
+  } else {
+    zzfx(...SFX_ERROR);
   }
 
   if (
