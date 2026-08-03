@@ -9,6 +9,7 @@ import {
   SlidersHorizontalIcon,
   ChevronDownIcon,
   RefreshCwIcon,
+  ToggleRightIcon,
 } from "lucide-react";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -249,6 +250,7 @@ export function SyncStokHargaView({
   const bulkToggle = useBulkToggleSync();
   const syncStock = useSyncStock();
   const [syncStore, setSyncStore] = useState<SyncStoreColumn | null>(null);
+  const [bulkAllTarget, setBulkAllTarget] = useState<boolean | null>(null);
 
   const rows = data?.rows ?? [];
   const meta = data?.meta;
@@ -300,6 +302,31 @@ export function SyncStokHargaView({
     setSyncStore(store);
   }, []);
 
+  const handleBulkAll = useCallback(
+    (syncEnabled: boolean) => {
+      bulkToggle.mutate(
+        {
+          syncEnabled,
+          search: params.search,
+          channelCode: params.channelCode,
+        },
+        { onSuccess: () => setBulkAllTarget(null) },
+      );
+    },
+    [bulkToggle, params.search, params.channelCode],
+  );
+
+  const bulkAllScope = useMemo(() => {
+    const parts: string[] = [];
+    if (params.channelCode) {
+      parts.push(
+        `channel ${CHANNEL_LABEL[params.channelCode] ?? params.channelCode}`,
+      );
+    }
+    if (params.search) parts.push(`pencarian "${params.search}"`);
+    return parts.length > 0 ? parts.join(" + ") : "SEMUA toko & produk";
+  }, [params.channelCode, params.search]);
+
   const modeTabs = (
     <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
       <TabsList variant="line" className="h-auto">
@@ -326,11 +353,47 @@ export function SyncStokHargaView({
           align="end"
           leading={embedded ? undefined : modeTabs}
           trailing={
-            <VisibleStoresControl
-              stores={storesCatalog}
-              hidden={hiddenStores}
-              onChange={updateHiddenStores}
-            />
+            <div className="flex items-center gap-2">
+              {mode === "sync" && (
+                <Popover modal={true}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-9 gap-2 rounded-full"
+                      disabled={bulkToggle.isPending}
+                    >
+                      <ToggleRightIcon className="size-4" />
+                      Sync semua
+                      <ChevronDownIcon className="size-3" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="w-52 p-1">
+                    <button
+                      type="button"
+                      disabled={bulkToggle.isPending}
+                      onClick={() => setBulkAllTarget(true)}
+                      className="flex w-full items-center gap-2 rounded-xl px-2 py-1.5 text-left text-sm hover:bg-muted disabled:opacity-50"
+                    >
+                      Aktifkan semua sync
+                    </button>
+                    <button
+                      type="button"
+                      disabled={bulkToggle.isPending}
+                      onClick={() => setBulkAllTarget(false)}
+                      className="flex w-full items-center gap-2 rounded-xl px-2 py-1.5 text-left text-sm text-destructive hover:bg-muted disabled:opacity-50"
+                    >
+                      Matikan semua sync
+                    </button>
+                  </PopoverContent>
+                </Popover>
+              )}
+              <VisibleStoresControl
+                stores={storesCatalog}
+                hidden={hiddenStores}
+                onChange={updateHiddenStores}
+              />
+            </div>
           }
           onReset={list.hasActiveFilter ? () => list.resetFilters() : undefined}
           hasFilter={list.hasActiveFilter}
@@ -545,6 +608,24 @@ export function SyncStokHargaView({
             },
             { onSuccess: () => setSyncStore(null) },
           );
+        }}
+      />
+
+      <ConfirmDialog
+        open={bulkAllTarget !== null}
+        onOpenChange={(o) => !o && setBulkAllTarget(null)}
+        title={bulkAllTarget ? "Aktifkan Semua Sync" : "Matikan Semua Sync"}
+        description={
+          bulkAllTarget
+            ? `Nyalakan sync stok & harga untuk ${bulkAllScope}. Semua listing dalam cakupan ini akan mulai push stok & harga ke channel. Lanjutkan?`
+            : `Matikan sync stok & harga untuk ${bulkAllScope}. Sistem berhenti push stok & harga ke channel untuk listing dalam cakupan ini. Lanjutkan?`
+        }
+        confirmLabel={bulkAllTarget ? "Aktifkan semua" : "Matikan semua"}
+        variant={bulkAllTarget ? "default" : "destructive"}
+        loading={bulkToggle.isPending}
+        onConfirm={() => {
+          if (bulkAllTarget === null) return;
+          handleBulkAll(bulkAllTarget);
         }}
       />
     </div>
