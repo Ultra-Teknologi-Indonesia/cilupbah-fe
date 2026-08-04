@@ -10,7 +10,7 @@ import type {
   ConnectedStore,
 } from "@/types/channel";
 import { ChannelLogo } from "./channel-logo";
-import { StoresTable } from "./stores-table";
+import { StoreCard } from "./store-card";
 
 export function ChannelGroup({
   group,
@@ -78,14 +78,17 @@ export function ChannelGroup({
       </header>
 
       {open && (
-        <div className="border-t border-border/60">
-          <StoresTable
-            stores={group.stores}
-            onToggleActive={onToggleActive}
-            onToggleOrders={onToggleOrders}
-            onRefresh={onRefresh}
-            onDisconnect={onDisconnect}
-          />
+        <div className="grid grid-cols-1 gap-3 border-t border-border/60 p-4 md:grid-cols-2 xl:grid-cols-3">
+          {group.stores.map((store) => (
+            <StoreCard
+              key={store.id}
+              store={store}
+              onToggleActive={onToggleActive}
+              onToggleOrders={onToggleOrders}
+              onRefresh={onRefresh}
+              onDisconnect={onDisconnect}
+            />
+          ))}
         </div>
       )}
     </section>
