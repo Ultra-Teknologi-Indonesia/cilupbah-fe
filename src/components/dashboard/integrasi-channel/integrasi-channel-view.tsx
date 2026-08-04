@@ -18,8 +18,10 @@ import {
   useRefreshToken,
   useToggleStoreFlag,
 } from "@/hooks/channel/use-channel-actions";
+import { GlobalSyncToggle } from "@/components/dashboard/channel/global-sync-toggle";
 import { ChannelGroup } from "./channel-group";
 import { ConnectMarketplacePanel } from "./connect-marketplace-panel";
+import { StatusDownloadPesanan } from "./status-download-pesanan";
 import { WooCommerceConnectDialog } from "./woocommerce-connect-dialog";
 
 function GroupSkeleton() {
@@ -75,6 +77,11 @@ export function IntegrasiChannelView() {
     [data],
   );
 
+  const allStores = React.useMemo(
+    () => groups.flatMap((g) => g.stores),
+    [groups],
+  );
+
   const onToggleActive = (id: string, value: boolean) =>
     toggle.mutate({ id, flags: { is_active: value } });
   const onToggleOrders = (id: string, value: boolean) =>
@@ -111,6 +118,10 @@ export function IntegrasiChannelView() {
 
   return (
     <div className="flex flex-col gap-6">
+      <GlobalSyncToggle />
+
+      <StatusDownloadPesanan stores={allStores} />
+
       {groups.map((group) => (
         <ChannelGroup
           key={group.id}

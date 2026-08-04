@@ -129,4 +129,19 @@ export const ChannelService = {
     );
     return res.data;
   },
+
+  getSyncSetting: async (): Promise<boolean> => {
+    const res = await fetchClient<ApiResponse<{ sync_enabled: boolean }>>(
+      "/channel-sync-setting",
+    );
+    return res.data.sync_enabled;
+  },
+
+  setSyncSetting: async (enabled: boolean): Promise<boolean> => {
+    const res = await fetchClient<ApiResponse<{ sync_enabled: boolean }>>(
+      "/channel-sync-setting",
+      { method: "PUT", data: { sync_enabled: enabled } },
+    );
+    return res.data.sync_enabled;
+  },
 };

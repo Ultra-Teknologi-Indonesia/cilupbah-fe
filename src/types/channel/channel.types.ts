@@ -15,6 +15,13 @@ export interface StoreIntegration {
   note?: string;
 }
 
+export type OrderSyncStatus = "normal" | "pending" | "problem" | "nonaktif";
+
+export interface OrderSyncInfo {
+  status: OrderSyncStatus;
+  note?: string | null;
+}
+
 export interface ConnectedStore {
   id: string;
   shopId: string;
@@ -24,6 +31,8 @@ export interface ConnectedStore {
   isActive: boolean;
   ordersEnabled: boolean;
   integration: StoreIntegration;
+  orderSync: OrderSyncInfo;
+  lastOrderSyncedAt: string | null;
 
   accessNote?: string;
 
@@ -54,6 +63,8 @@ export interface RawConnectedStore {
   is_active: boolean;
   order_sync_enabled: boolean;
   integration: { status: IntegrationStatus; note?: string };
+  order_sync: { status: OrderSyncStatus; note?: string | null };
+  last_order_synced_at: string | null;
   token_expires_at: string | null;
   channel: { id: string; code: string; name: string } | null;
   created_at: string;

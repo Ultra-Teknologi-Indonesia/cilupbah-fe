@@ -1,3 +1,6 @@
+import { formatDistanceToNow } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
+
 const dateShort = new Intl.DateTimeFormat("id-ID", {
   day: "2-digit",
   month: "short",
@@ -124,4 +127,17 @@ export function formatPickingDuration(
   const h = Math.floor(totalMinutes / 60);
   const m = totalMinutes % 60;
   return h > 0 ? `${h}j ${m}m` : `${m}m`;
+}
+
+export function relativeTime(
+  value: string | null | undefined,
+  fallback = "Belum pernah",
+): string {
+  const date = toDate(value);
+  if (!date) return fallback;
+  try {
+    return formatDistanceToNow(date, { locale: idLocale, addSuffix: true });
+  } catch {
+    return fallback;
+  }
 }

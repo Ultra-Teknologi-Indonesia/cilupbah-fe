@@ -42,6 +42,8 @@ function mapStore(raw: RawConnectedStore): ConnectedStore {
     isActive: raw.is_active,
     ordersEnabled: raw.order_sync_enabled,
     integration: raw.integration ?? { status: "normal" },
+    orderSync: raw.order_sync ?? { status: "pending" },
+    lastOrderSyncedAt: raw.last_order_synced_at ?? null,
     connectedAt: raw.created_at,
   };
 }

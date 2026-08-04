@@ -42,6 +42,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { FilterToolbar } from "@/components/dashboard/shared/filter-toolbar";
 import { CopySku } from "@/components/dashboard/shared/copy-sku";
 import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo";
+import { GlobalSyncToggle } from "@/components/dashboard/channel/global-sync-toggle";
 import { TableSkeleton } from "@/components/ui/page-skeleton";
 import { useListState } from "@/hooks/use-list-state";
 import {
@@ -341,6 +342,8 @@ export function SyncStokHargaView({
 
   return (
     <div className="flex flex-col gap-4">
+      <GlobalSyncToggle />
+
       <LiquidGlass
         radius={20}
         intensity="subtle"

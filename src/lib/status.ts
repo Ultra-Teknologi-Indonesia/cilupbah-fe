@@ -37,6 +37,7 @@ export type Domain =
   | "inbound-participant"
   | "putaway"
   | "channel-integration"
+  | "order-download"
   | "picking-item"
   | "product-boost"
   | "product-boost-activity"
@@ -183,6 +184,13 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     normal: { label: "Normal", variant: "success" },
     warning: { label: "Perlu Perhatian", variant: "warning" },
     error: { label: "Integrasi Bermasalah", variant: "destructive" },
+  },
+
+  "order-download": {
+    normal: { label: "Normal", variant: "success" },
+    pending: { label: "Tertunda", variant: "warning" },
+    problem: { label: "Bermasalah", variant: "destructive" },
+    nonaktif: { label: "Nonaktif", variant: "muted" },
   },
 
   "picking-item": {
