@@ -215,6 +215,12 @@ export const dashboardGroups: NavGroup[] = [
         link: "/dashboard/laporan/gudang",
       },
       {
+        id: "laporan-settlement",
+        title: "Laporan Settlement",
+        icon: HandCoins,
+        link: "/dashboard/laporan/settlement",
+      },
+      {
         id: "laporan-stok-minus",
         title: "Riwayat Stok Minus",
         icon: AlertTriangle,
@@ -275,6 +281,7 @@ export const NAV_PERMISSION: Record<string, string | string[]> = {
   "laporan-penjualan": "view-laporan-penjualan",
   "laporan-persediaan": "view-laporan-persediaan",
   "laporan-gudang": "view-laporan-gudang",
+  "laporan-settlement": "view-pembayaran-penjualan",
   "laporan-stok-minus": "view-laporan-stok-minus",
 };
 

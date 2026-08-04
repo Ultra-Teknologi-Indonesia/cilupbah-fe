@@ -169,7 +169,14 @@ export interface CourierPickup {
   recorded_by: string | null;
 }
 
+export interface OrderFeeLine {
+  fee_type: string;
+  channel_fee_code: string | null;
+  amount: number;
+}
+
 export interface OrderFinance {
+  gross_amount: number | null;
   seller_voucher: number | null;
   platform_voucher: number | null;
   payment_voucher: number | null;
@@ -180,11 +187,15 @@ export interface OrderFinance {
   order_processing_fee: number | null;
   seller_shipping_borne: number | null;
   platform_shipping_rebate: number | null;
+  total_tax: number | null;
+  insurance_cost: number | null;
   settlement_amount: number | null;
-  refund_total: number;
+  refund_total: number | null;
   currency: string;
   is_settled: boolean;
+  settled_at: string | null;
   synced_at: string | null;
+  fee_lines?: OrderFeeLine[];
 }
 
 export interface OrderShipping {

@@ -90,6 +90,7 @@ import { RequestCancelDialog } from "./request-cancel-dialog";
 import { canRequestChannelCancel } from "@/lib/pesanan/cancel-eligibility";
 import {
   formatCurrency,
+  formatDate,
   formatDateLong,
   formatDateTime,
 } from "@/lib/format";
@@ -226,6 +227,20 @@ function FinancialSummary({ order }: { order: Order }) {
               {(finance?.settlement_amount ?? 0) < 0 ? "-" : ""}
               {formatCurrency(Math.abs(finance?.settlement_amount ?? 0))}
             </span>
+          </div>
+          <div className="mt-2 flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Tanggal Cair</span>
+            <span className="tabular-nums font-medium text-foreground">
+              {formatDate(finance?.settled_at)}
+            </span>
+          </div>
+          <div className="mt-2 flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Status Pencairan</span>
+            {finance?.is_settled ? (
+              <Badge variant="success">Sudah Cair</Badge>
+            ) : (
+              <Badge variant="muted">Belum Cair</Badge>
+            )}
           </div>
         </div>
       </div>

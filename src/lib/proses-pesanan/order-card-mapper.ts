@@ -61,6 +61,7 @@ export function fulfillmentToOrder(f: FulfillmentOrder): Order {
     grand_total: f.grandTotal,
 
     finance: {
+      gross_amount: null,
       seller_voucher: null,
       platform_voucher: null,
       payment_voucher: null,
@@ -71,10 +72,13 @@ export function fulfillmentToOrder(f: FulfillmentOrder): Order {
       order_processing_fee: null,
       seller_shipping_borne: null,
       platform_shipping_rebate: null,
+      total_tax: null,
+      insurance_cost: null,
       settlement_amount: null,
       refund_total: 0,
       currency: "IDR",
       is_settled: false,
+      settled_at: null,
       synced_at: null,
     },
     shipping: {
