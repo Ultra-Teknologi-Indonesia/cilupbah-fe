@@ -252,10 +252,6 @@ export const DownloadService = {
     };
   },
 
-  approveProduct: async (productId: string): Promise<void> => {
-    await fetchClient(`/products/${productId}/approve`, { method: "POST" });
-  },
-
   downloadShop: async (channel: string, shopId: string): Promise<void> => {
     await fetchClient(`/${channel}/download`, {
       method: "POST",

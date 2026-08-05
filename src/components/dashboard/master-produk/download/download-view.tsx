@@ -18,14 +18,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ProgressTab } from "./progress-tab";
-import { HasilTab } from "./hasil-tab";
 import { DownloadMassalDialog } from "./download-massal-dialog";
 import { DownloadSatuanDialog } from "./download-satuan-dialog";
 
-const TABS = [
-  { id: "progress", label: "Progress" },
-  { id: "hasil", label: "Hasil" },
-] as const;
+const TABS = [{ id: "progress", label: "Progress" }] as const;
 
 export function DownloadView() {
   const router = useRouter();
@@ -99,11 +95,7 @@ export function DownloadView() {
   return (
     <>
       <Tabs value={active} onValueChange={setTab}>
-        {active === "hasil" ? (
-          <HasilTab tabBar={tabBar} actionButton={actionButton} />
-        ) : (
-          <ProgressTab tabBar={tabBar} actionButton={actionButton} />
-        )}
+        <ProgressTab tabBar={tabBar} actionButton={actionButton} />
       </Tabs>
 
       <DownloadMassalDialog

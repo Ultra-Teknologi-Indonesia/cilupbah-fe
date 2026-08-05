@@ -79,23 +79,6 @@ export function useInvalidateDownloads() {
   };
 }
 
-export function useApproveProduct() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (productId: string) =>
-      DownloadService.approveProduct(productId),
-    onSuccess: () => {
-      toast.success("Produk dijadikan master");
-      qc.invalidateQueries({
-        queryKey: ["master-produk", "download-transaction"],
-      });
-      qc.invalidateQueries({ queryKey: ["master-produk"] });
-    },
-    onError: (err) =>
-      apiError(err, "Gagal menjadikan master"),
-  });
-}
-
 export function useStartDownload() {
   const qc = useQueryClient();
   return useMutation({
