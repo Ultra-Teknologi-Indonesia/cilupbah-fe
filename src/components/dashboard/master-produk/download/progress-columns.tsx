@@ -79,6 +79,7 @@ export function buildProgressColumns(
         const {
           state,
           totalDownloaded,
+          totalFailed,
           allProduct,
           progressPercent,
           errorMessage,
@@ -96,6 +97,11 @@ export function buildProgressColumns(
               />
               <span className="tabular-nums text-muted-foreground">
                 {totalDownloaded}/{allProduct}
+                {totalFailed > 0 && (
+                  <span className="ml-1 font-medium text-destructive">
+                    · {totalFailed} gagal
+                  </span>
+                )}
               </span>
             </div>
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">

@@ -343,7 +343,6 @@ export function PesananManualFormPage() {
 
       is_paid: isPaid,
       is_cod: false,
-      is_jubelio_shipment: false,
 
       delivery_method: "COURIER",
       shipping_provider: shippingProvider,

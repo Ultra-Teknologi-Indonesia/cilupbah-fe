@@ -89,8 +89,8 @@ Modul Shipping di \`/dashboard/proses-pesanan\` tab **Shipping** mengatur pencet
 ### Cetak resi
 
 1. **Cetak 1**: buka baris paket, klik **Cetak Resi**. PDF resi terbuka via document-preview.
-2. **Cetak Bulk**: ceklis beberapa baris, klik **Cetak Resi Bulk**. Sistem mem-batch panggilan Jubelio dan menggabungkan hasil PDF dengan FPDI.
-3. Rate limit **5 request/menit** ke Jubelio; jika terlampaui, muncul progress polling asinkron.
+2. **Cetak Bulk**: ceklis beberapa baris, klik **Cetak Resi Bulk**. Sistem mem-batch panggilan channel dan menggabungkan hasil PDF dengan FPDI.
+3. Rate limit **5 request/menit**; jika terlampaui, muncul progress polling asinkron.
 4. Baris channel **Lazada** dan **WooCommerce** ditampilkan grey-out (\`getRowSelectable = false\`) karena label harus ditarik dari sisi channel, bukan generate lokal.
 
 ### Bukti pickup
@@ -188,7 +188,7 @@ Bukti pickup adalah catatan serah terima paket dari operator gudang ke kurir/dri
 ### Form isian
 
 1. **Kode Pickup** — dikirim kurir (mis. AWB pickup code). Sistem memakai **existing-wins upsert**: jika kode sama telah tersimpan, entri lama dipertahankan, tidak ditimpa.
-2. **Nama Kurir/Driver** — pilih dari daftar kurir kanonik (141 nama sinkron Jubelio) atau isi manual untuk kurir instan.
+2. **Nama Kurir/Driver** — pilih dari daftar kurir kanonik (141 nama) atau isi manual untuk kurir instan.
 3. **Nomor Telepon Driver** — **field teks bebas** (sengaja tidak divalidasi E.164) karena driver kadang tidak memiliki nomor tetap yang bisa diverifikasi.
 4. **Foto Bukti** — multi-file, disimpan sebagai media **Spatie Media Library** di collection \`courier_id\`.
 
@@ -213,7 +213,7 @@ Kurir instan seperti **Grab** dan **Gojek** tidak memiliki webhook tracking teri
 ### Setup awal
 
 1. Pastikan kurir Grab/Gojek terdaftar di master kurir (\`/dashboard/pengaturan/kurir\`) dengan flag \`is_instant = true\`.
-2. Master kurir mengikuti daftar kanonik 141 nama Jubelio; kurir tidak dihapus, hanya deactivate.
+2. Master kurir mengikuti daftar kanonik 141 nama; kurir tidak dihapus, hanya deactivate.
 
 ### Alur Shipping
 

@@ -2,127 +2,9 @@
     "slug": "purchase",
     "name": "Purchase",
     "description": "Pesanan pembelian (PO), tagihan (bill), pembayaran.",
-    "endpoints_count": 28,
+    "endpoints_count": 20,
     "undocumented": 0,
     "endpoints": [
-        {
-            "id": "api.purchase.bills.for-return",
-            "module_slug": "purchase",
-            "module_name": "Purchase",
-            "method": "GET",
-            "path": "/api/v1/purchase/bills/for-return",
-            "summary": "Ambil daftar tagihan",
-            "description": "Ambil daftar tagihan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pembayaran-pembelian].",
-            "purpose": "Membutuhkan izin: owner, view-pembayaran-pembelian. Mengembalikan data untuk ditampilkan di UI.",
-            "controller": "Modules\\Purchase\\Http\\Controllers\\PurchaseBillController",
-            "action": "forReturn",
-            "auth": "auth:sanctum",
-            "roles": [
-                "owner",
-                "view-pembayaran-pembelian"
-            ],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [],
-            "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": "mixed"
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Berhasil.",
-                "data": {}
-            },
-            "response_resource": null,
-            "response_errors": [
-                {
-                    "status": 401,
-                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
-                    "body": {
-                        "message": "Unauthenticated."
-                    },
-                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
-                },
-                {
-                    "status": 403,
-                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
-                    "body": {
-                        "message": "This action is unauthorized."
-                    },
-                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
-                },
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                200,
-                401,
-                403,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [
-                {
-                    "name": "contact_id",
-                    "type": "exact",
-                    "column": null,
-                    "scope": null,
-                    "description": "ID kontak (pelanggan atau pemasok) — referensi ke tabel contacts. Cocok persis. Pemakaian: `?filter[contact_id]=value`.",
-                    "usage_example": "?filter[contact_id]=value"
-                }
-            ],
-            "allowed_sorts": [],
-            "allowed_search": [
-                "bill_number"
-            ],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": "-created_at",
-            "related_endpoints": [
-                {
-                    "id": "api.purchase.bills.unpaid",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/bills/unpaid",
-                    "summary": "Ambil daftar tagihan"
-                },
-                {
-                    "id": "api.purchase.bills.overdue",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/bills/overdue",
-                    "summary": "Ambil daftar tagihan"
-                }
-            ],
-            "related_page": "/dashboard/transaksi-pembelian",
-            "related_manual": null,
-            "needs_doc": false
-        },
         {
             "id": "api.purchase.bills.overdue",
             "module_slug": "purchase",
@@ -221,12 +103,6 @@
                     "id": "api.purchase.bills.unpaid",
                     "method": "GET",
                     "path": "/api/v1/purchase/bills/unpaid",
-                    "summary": "Ambil daftar tagihan"
-                },
-                {
-                    "id": "api.purchase.bills.for-return",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/bills/for-return",
                     "summary": "Ambil daftar tagihan"
                 }
             ],
@@ -344,12 +220,6 @@
                     "id": "api.purchase.bills.overdue",
                     "method": "GET",
                     "path": "/api/v1/purchase/bills/overdue",
-                    "summary": "Ambil daftar tagihan"
-                },
-                {
-                    "id": "api.purchase.bills.for-return",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/bills/for-return",
                     "summary": "Ambil daftar tagihan"
                 }
             ],
@@ -528,6 +398,12 @@
                     "summary": "Ambil detail pesanan penjualan"
                 },
                 {
+                    "id": "api.purchase.orders.pdf",
+                    "method": "GET",
+                    "path": "/api/v1/purchase/orders/{id}/pdf",
+                    "summary": "Unduh pesanan penjualan"
+                },
+                {
                     "id": "api.purchase.orders.store",
                     "method": "POST",
                     "path": "/api/v1/purchase/orders",
@@ -538,12 +414,6 @@
                     "method": "PUT",
                     "path": "/api/v1/purchase/orders/{id}",
                     "summary": "Ubah pesanan penjualan"
-                },
-                {
-                    "id": "api.purchase.orders.cancel",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/orders/{id}/cancel",
-                    "summary": "Batalkan pesanan penjualan"
                 },
                 {
                     "id": "api.purchase.orders.receive",
@@ -691,12 +561,24 @@
                     },
                     "description": "Daftar item dalam dokumen (minimal 1 baris)."
                 },
+                "items.*.id": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "exists:purchase_order_items,id"
+                    ],
+                    "exists": "purchase_order_items,id",
+                    "description": "Primary key resource ini (UUID string)."
+                },
                 "items.*.item_id": {
                     "type": "string",
                     "required": true,
                     "rules": [
                         "required",
                         "string",
+                        "distinct",
                         "exists:product_variants,id"
                     ],
                     "exists": "product_variants,id",
@@ -765,6 +647,19 @@
                     },
                     "description": "Nilai diskon per item."
                 },
+                "items.*.shipping_cost": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Ongkos kirim yang ditagihkan."
+                },
                 "items.*.tax_id": {
                     "type": "string",
                     "required": false,
@@ -781,20 +676,22 @@
                 "po_number": "string",
                 "contact_id": 1,
                 "location_id": 1,
-                "order_date": "2026-07-13",
-                "expected_date": "2026-07-13",
+                "order_date": "2026-08-05",
+                "expected_date": "2026-08-05",
                 "ref_no": "string",
                 "payment_term": 1,
                 "is_tax_included": false,
                 "notes": "string",
                 "items": [
                     {
+                        "id": "string",
                         "item_id": 1,
                         "description": "string",
                         "unit": "string",
                         "qty": 1,
                         "unit_price": 0,
                         "disc": 0,
+                        "shipping_cost": 0,
                         "tax_id": 1
                     }
                 ]
@@ -810,12 +707,14 @@
                 "is_tax_included: nullable|boolean",
                 "notes: nullable|string",
                 "items: required|array|min:1",
-                "items.*.item_id: required|string|exists:product_variants,id",
+                "items.*.id: nullable|string|exists:purchase_order_items,id",
+                "items.*.item_id: required|string|distinct|exists:product_variants,id",
                 "items.*.description: nullable|string",
                 "items.*.unit: nullable|string|max:30",
                 "items.*.qty: required|integer|min:1",
                 "items.*.unit_price: required|numeric|min:0",
                 "items.*.disc: nullable|numeric|min:0|max:100",
+                "items.*.shipping_cost: nullable|numeric|min:0",
                 "items.*.tax_id: nullable|string|exists:taxes,id"
             ],
             "response_success_schema": {
@@ -914,16 +813,16 @@
                     "summary": "Ambil detail pesanan penjualan"
                 },
                 {
+                    "id": "api.purchase.orders.pdf",
+                    "method": "GET",
+                    "path": "/api/v1/purchase/orders/{id}/pdf",
+                    "summary": "Unduh pesanan penjualan"
+                },
+                {
                     "id": "api.purchase.orders.update",
                     "method": "PUT",
                     "path": "/api/v1/purchase/orders/{id}",
                     "summary": "Ubah pesanan penjualan"
-                },
-                {
-                    "id": "api.purchase.orders.cancel",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/orders/{id}/cancel",
-                    "summary": "Batalkan pesanan penjualan"
                 },
                 {
                     "id": "api.purchase.orders.receive",
@@ -1057,6 +956,12 @@
                     "summary": "Ambil detail pesanan penjualan"
                 },
                 {
+                    "id": "api.purchase.orders.pdf",
+                    "method": "GET",
+                    "path": "/api/v1/purchase/orders/{id}/pdf",
+                    "summary": "Unduh pesanan penjualan"
+                },
+                {
                     "id": "api.purchase.orders.store",
                     "method": "POST",
                     "path": "/api/v1/purchase/orders",
@@ -1067,12 +972,6 @@
                     "method": "PUT",
                     "path": "/api/v1/purchase/orders/{id}",
                     "summary": "Ubah pesanan penjualan"
-                },
-                {
-                    "id": "api.purchase.orders.cancel",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/orders/{id}/cancel",
-                    "summary": "Batalkan pesanan penjualan"
                 }
             ],
             "related_page": "/dashboard/transaksi-pembelian",
@@ -1249,6 +1148,12 @@
                     "summary": "Ambil detail pesanan penjualan"
                 },
                 {
+                    "id": "api.purchase.orders.pdf",
+                    "method": "GET",
+                    "path": "/api/v1/purchase/orders/{id}/pdf",
+                    "summary": "Unduh pesanan penjualan"
+                },
+                {
                     "id": "api.purchase.orders.store",
                     "method": "POST",
                     "path": "/api/v1/purchase/orders",
@@ -1259,12 +1164,6 @@
                     "method": "PUT",
                     "path": "/api/v1/purchase/orders/{id}",
                     "summary": "Ubah pesanan penjualan"
-                },
-                {
-                    "id": "api.purchase.orders.cancel",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/orders/{id}/cancel",
-                    "summary": "Batalkan pesanan penjualan"
                 },
                 {
                     "id": "api.purchase.orders.receive",
@@ -1447,6 +1346,12 @@
                     "summary": "Ambil detail pesanan penjualan"
                 },
                 {
+                    "id": "api.purchase.orders.pdf",
+                    "method": "GET",
+                    "path": "/api/v1/purchase/orders/{id}/pdf",
+                    "summary": "Unduh pesanan penjualan"
+                },
+                {
                     "id": "api.purchase.orders.store",
                     "method": "POST",
                     "path": "/api/v1/purchase/orders",
@@ -1457,12 +1362,6 @@
                     "method": "PUT",
                     "path": "/api/v1/purchase/orders/{id}",
                     "summary": "Ubah pesanan penjualan"
-                },
-                {
-                    "id": "api.purchase.orders.cancel",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/orders/{id}/cancel",
-                    "summary": "Batalkan pesanan penjualan"
                 },
                 {
                     "id": "api.purchase.orders.receive",
@@ -1603,6 +1502,12 @@
                     "summary": "Ambil detail pesanan penjualan"
                 },
                 {
+                    "id": "api.purchase.orders.pdf",
+                    "method": "GET",
+                    "path": "/api/v1/purchase/orders/{id}/pdf",
+                    "summary": "Unduh pesanan penjualan"
+                },
+                {
                     "id": "api.purchase.orders.store",
                     "method": "POST",
                     "path": "/api/v1/purchase/orders",
@@ -1613,12 +1518,6 @@
                     "method": "PUT",
                     "path": "/api/v1/purchase/orders/{id}",
                     "summary": "Ubah pesanan penjualan"
-                },
-                {
-                    "id": "api.purchase.orders.cancel",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/orders/{id}/cancel",
-                    "summary": "Batalkan pesanan penjualan"
                 }
             ],
             "related_page": "/dashboard/transaksi-pembelian",
@@ -1756,6 +1655,12 @@
                     "summary": "Ambil detail pesanan penjualan"
                 },
                 {
+                    "id": "api.purchase.orders.pdf",
+                    "method": "GET",
+                    "path": "/api/v1/purchase/orders/{id}/pdf",
+                    "summary": "Unduh pesanan penjualan"
+                },
+                {
                     "id": "api.purchase.orders.store",
                     "method": "POST",
                     "path": "/api/v1/purchase/orders",
@@ -1766,12 +1671,6 @@
                     "method": "PUT",
                     "path": "/api/v1/purchase/orders/{id}",
                     "summary": "Ubah pesanan penjualan"
-                },
-                {
-                    "id": "api.purchase.orders.cancel",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/orders/{id}/cancel",
-                    "summary": "Batalkan pesanan penjualan"
                 },
                 {
                     "id": "api.purchase.orders.receive",
@@ -1926,12 +1825,24 @@
                     },
                     "description": "Daftar item dalam dokumen (minimal 1 baris)."
                 },
+                "items.*.id": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "exists:purchase_order_items,id"
+                    ],
+                    "exists": "purchase_order_items,id",
+                    "description": "Primary key resource ini (UUID string)."
+                },
                 "items.*.item_id": {
                     "type": "string",
                     "required": true,
                     "rules": [
                         "required",
                         "string",
+                        "distinct",
                         "exists:product_variants,id"
                     ],
                     "exists": "product_variants,id",
@@ -2000,6 +1911,19 @@
                     },
                     "description": "Nilai diskon per item."
                 },
+                "items.*.shipping_cost": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Ongkos kirim yang ditagihkan."
+                },
                 "items.*.tax_id": {
                     "type": "string",
                     "required": false,
@@ -2016,20 +1940,22 @@
                 "po_number": "string",
                 "contact_id": 1,
                 "location_id": 1,
-                "order_date": "2026-07-13",
-                "expected_date": "2026-07-13",
+                "order_date": "2026-08-05",
+                "expected_date": "2026-08-05",
                 "ref_no": "string",
                 "payment_term": 1,
                 "is_tax_included": false,
                 "notes": "string",
                 "items": [
                     {
+                        "id": "string",
                         "item_id": 1,
                         "description": "string",
                         "unit": "string",
                         "qty": 1,
                         "unit_price": 0,
                         "disc": 0,
+                        "shipping_cost": 0,
                         "tax_id": 1
                     }
                 ]
@@ -2045,12 +1971,14 @@
                 "is_tax_included: nullable|boolean",
                 "notes: nullable|string",
                 "items: required|array|min:1",
-                "items.*.item_id: required|string|exists:product_variants,id",
+                "items.*.id: nullable|string|exists:purchase_order_items,id",
+                "items.*.item_id: required|string|distinct|exists:product_variants,id",
                 "items.*.description: nullable|string",
                 "items.*.unit: nullable|string|max:30",
                 "items.*.qty: required|integer|min:1",
                 "items.*.unit_price: required|numeric|min:0",
                 "items.*.disc: nullable|numeric|min:0|max:100",
+                "items.*.shipping_cost: nullable|numeric|min:0",
                 "items.*.tax_id: nullable|string|exists:taxes,id"
             ],
             "response_success_schema": {
@@ -2149,16 +2077,16 @@
                     "summary": "Ambil detail pesanan penjualan"
                 },
                 {
+                    "id": "api.purchase.orders.pdf",
+                    "method": "GET",
+                    "path": "/api/v1/purchase/orders/{id}/pdf",
+                    "summary": "Unduh pesanan penjualan"
+                },
+                {
                     "id": "api.purchase.orders.store",
                     "method": "POST",
                     "path": "/api/v1/purchase/orders",
                     "summary": "Buat pesanan penjualan"
-                },
-                {
-                    "id": "api.purchase.orders.cancel",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/orders/{id}/cancel",
-                    "summary": "Batalkan pesanan penjualan"
                 },
                 {
                     "id": "api.purchase.orders.receive",
@@ -2172,20 +2100,20 @@
             "needs_doc": false
         },
         {
-            "id": "api.purchase.orders.cancel",
+            "id": "api.purchase.orders.activities",
             "module_slug": "purchase",
             "module_name": "Purchase",
-            "method": "POST",
-            "path": "/api/v1/purchase/orders/{id}/cancel",
-            "summary": "Batalkan pesanan penjualan",
-            "description": "Batalkan pesanan penjualan.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-transaksi-pembelian].",
-            "purpose": "Membutuhkan izin: owner, edit-transaksi-pembelian. Membuat resource baru atau memicu aksi domain.",
-            "controller": "Modules\\Purchase\\Http\\Controllers\\PurchaseOrderController",
-            "action": "cancel",
+            "method": "GET",
+            "path": "/api/v1/purchase/orders/{id}/activities",
+            "summary": "Ambil daftar pesanan penjualan",
+            "description": "Ambil daftar pesanan penjualan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-transaksi-pembelian].",
+            "purpose": "Membutuhkan izin: owner, view-transaksi-pembelian. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Purchase\\Http\\Controllers\\PurchaseOrderActivityController",
+            "action": "index",
             "auth": "auth:sanctum",
             "roles": [
                 "owner",
-                "edit-transaksi-pembelian"
+                "view-transaksi-pembelian"
             ],
             "rate_limit": null,
             "deprecated": false,
@@ -2206,14 +2134,62 @@
             "response_success_schema": {
                 "success": "boolean",
                 "message": "string",
-                "data": "object|null"
+                "data": [
+                    {
+                        "id": "mixed",
+                        "entity_type": "mixed",
+                        "entity_id": "mixed",
+                        "action": "mixed",
+                        "action_id": "mixed",
+                        "label": "mixed",
+                        "actor_id": "mixed",
+                        "actor_name": "mixed",
+                        "actor_email": "mixed",
+                        "entity_no": "mixed",
+                        "note": "mixed",
+                        "qty": "mixed",
+                        "prev_values": "mixed",
+                        "new_values": "mixed",
+                        "created_at": "mixed"
+                    }
+                ],
+                "meta": {
+                    "current_page": "integer",
+                    "per_page": "integer",
+                    "total": "integer",
+                    "last_page": "integer"
+                }
             },
             "response_success_example": {
                 "success": true,
-                "message": "PO berhasil dibatalkan",
-                "data": {}
+                "message": "Berhasil.",
+                "data": [
+                    {
+                        "id": "019ea2afad1d733eafb905816d10590e",
+                        "entity_type": "string",
+                        "entity_id": "019ea2afad1d733eafb905816d10590e",
+                        "action": "string",
+                        "action_id": "019ea2afad1d733eafb905816d10590e",
+                        "label": "string",
+                        "actor_id": "019ea2afad1d733eafb905816d10590e",
+                        "actor_name": "string",
+                        "actor_email": "string",
+                        "entity_no": "string",
+                        "note": "string",
+                        "qty": "string",
+                        "prev_values": "string",
+                        "new_values": "string",
+                        "created_at": "string"
+                    }
+                ],
+                "meta": {
+                    "current_page": 1,
+                    "per_page": 10,
+                    "total": 1,
+                    "last_page": 1
+                }
             },
-            "response_resource": null,
+            "response_resource": "Modules\\Purchase\\Http\\Resources\\PurchaseOrderActivityResource",
             "response_errors": [
                 {
                     "status": 401,
@@ -2254,7 +2230,7 @@
                 }
             ],
             "status_codes": [
-                201,
+                200,
                 401,
                 403,
                 422,
@@ -2267,56 +2243,7 @@
             "allowed_includes": [],
             "allowed_fields": [],
             "default_sort": null,
-            "related_endpoints": [
-                {
-                    "id": "api.purchase.orders.receivable",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/orders/receivable",
-                    "summary": "Ambil daftar pesanan penjualan"
-                },
-                {
-                    "id": "api.purchase.orders.progress",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/orders/progress",
-                    "summary": "Ambil daftar pesanan penjualan"
-                },
-                {
-                    "id": "api.purchase.orders.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/orders",
-                    "summary": "Ambil daftar pesanan penjualan"
-                },
-                {
-                    "id": "api.purchase.orders.show",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/orders/{id}",
-                    "summary": "Ambil detail pesanan penjualan"
-                },
-                {
-                    "id": "api.purchase.orders.items",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/orders/{id}/items",
-                    "summary": "Ambil detail pesanan penjualan"
-                },
-                {
-                    "id": "api.purchase.orders.store",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/orders",
-                    "summary": "Buat pesanan penjualan"
-                },
-                {
-                    "id": "api.purchase.orders.update",
-                    "method": "PUT",
-                    "path": "/api/v1/purchase/orders/{id}",
-                    "summary": "Ubah pesanan penjualan"
-                },
-                {
-                    "id": "api.purchase.orders.receive",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/orders/{id}/receive",
-                    "summary": "Terima pesanan penjualan"
-                }
-            ],
+            "related_endpoints": [],
             "related_page": "/dashboard/transaksi-pembelian",
             "related_manual": null,
             "needs_doc": false
@@ -2455,6 +2382,12 @@
                     "summary": "Ambil detail pesanan penjualan"
                 },
                 {
+                    "id": "api.purchase.orders.pdf",
+                    "method": "GET",
+                    "path": "/api/v1/purchase/orders/{id}/pdf",
+                    "summary": "Unduh pesanan penjualan"
+                },
+                {
                     "id": "api.purchase.orders.store",
                     "method": "POST",
                     "path": "/api/v1/purchase/orders",
@@ -2467,10 +2400,154 @@
                     "summary": "Ubah pesanan penjualan"
                 },
                 {
-                    "id": "api.purchase.orders.cancel",
+                    "id": "api.purchase.orders.receive",
                     "method": "POST",
-                    "path": "/api/v1/purchase/orders/{id}/cancel",
-                    "summary": "Batalkan pesanan penjualan"
+                    "path": "/api/v1/purchase/orders/{id}/receive",
+                    "summary": "Terima pesanan penjualan"
+                }
+            ],
+            "related_page": "/dashboard/transaksi-pembelian",
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.purchase.orders.pdf",
+            "module_slug": "purchase",
+            "module_name": "Purchase",
+            "method": "GET",
+            "path": "/api/v1/purchase/orders/{id}/pdf",
+            "summary": "Unduh pesanan penjualan",
+            "description": "Unduh pesanan penjualan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-transaksi-pembelian].",
+            "purpose": "Membutuhkan izin: owner, view-transaksi-pembelian. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Purchase\\Http\\Controllers\\PurchaseOrderController",
+            "action": "downloadPdf",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-transaksi-pembelian"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "required": true,
+                    "description": "Primary key resource ini (UUID string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "mixed"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Berhasil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.purchase.orders.receivable",
+                    "method": "GET",
+                    "path": "/api/v1/purchase/orders/receivable",
+                    "summary": "Ambil daftar pesanan penjualan"
+                },
+                {
+                    "id": "api.purchase.orders.progress",
+                    "method": "GET",
+                    "path": "/api/v1/purchase/orders/progress",
+                    "summary": "Ambil daftar pesanan penjualan"
+                },
+                {
+                    "id": "api.purchase.orders.index",
+                    "method": "GET",
+                    "path": "/api/v1/purchase/orders",
+                    "summary": "Ambil daftar pesanan penjualan"
+                },
+                {
+                    "id": "api.purchase.orders.show",
+                    "method": "GET",
+                    "path": "/api/v1/purchase/orders/{id}",
+                    "summary": "Ambil detail pesanan penjualan"
+                },
+                {
+                    "id": "api.purchase.orders.items",
+                    "method": "GET",
+                    "path": "/api/v1/purchase/orders/{id}/items",
+                    "summary": "Ambil detail pesanan penjualan"
+                },
+                {
+                    "id": "api.purchase.orders.store",
+                    "method": "POST",
+                    "path": "/api/v1/purchase/orders",
+                    "summary": "Buat pesanan penjualan"
+                },
+                {
+                    "id": "api.purchase.orders.update",
+                    "method": "PUT",
+                    "path": "/api/v1/purchase/orders/{id}",
+                    "summary": "Ubah pesanan penjualan"
                 },
                 {
                     "id": "api.purchase.orders.receive",
@@ -2627,7 +2704,7 @@
             "body_example": {
                 "reference_number": "string",
                 "location_id": 1,
-                "receive_date": "2026-07-13",
+                "receive_date": "2026-08-05",
                 "notes": "string",
                 "items": [
                     {
@@ -2747,6 +2824,12 @@
                     "summary": "Ambil detail pesanan penjualan"
                 },
                 {
+                    "id": "api.purchase.orders.pdf",
+                    "method": "GET",
+                    "path": "/api/v1/purchase/orders/{id}/pdf",
+                    "summary": "Unduh pesanan penjualan"
+                },
+                {
                     "id": "api.purchase.orders.store",
                     "method": "POST",
                     "path": "/api/v1/purchase/orders",
@@ -2757,12 +2840,6 @@
                     "method": "PUT",
                     "path": "/api/v1/purchase/orders/{id}",
                     "summary": "Ubah pesanan penjualan"
-                },
-                {
-                    "id": "api.purchase.orders.cancel",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/orders/{id}/cancel",
-                    "summary": "Batalkan pesanan penjualan"
                 }
             ],
             "related_page": "/dashboard/transaksi-pembelian",
@@ -3125,7 +3202,7 @@
             "body_example": {
                 "purchase_bill_id": 1,
                 "amount": 0,
-                "payment_date": "2026-07-13",
+                "payment_date": "2026-08-05",
                 "payment_method": "string",
                 "reference_no": "string",
                 "notes": "string",
@@ -3358,1190 +3435,6 @@
             "needs_doc": false
         },
         {
-            "id": "api.purchase.return-settlements.destroy",
-            "module_slug": "purchase",
-            "module_name": "Purchase",
-            "method": "DELETE",
-            "path": "/api/v1/purchase/return-settlements",
-            "summary": "Hapus settlement retur",
-            "description": "Hapus settlement retur.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: minimal satu izin dari [owner, delete-pembayaran-pembelian].",
-            "purpose": "Membutuhkan izin: owner, delete-pembayaran-pembelian. Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
-            "controller": "Modules\\Purchase\\Http\\Controllers\\PurchaseReturnSettlementController",
-            "action": "destroy",
-            "auth": "auth:sanctum",
-            "roles": [
-                "owner",
-                "delete-pembayaran-pembelian"
-            ],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [],
-            "query_params": [
-                {
-                    "name": "id",
-                    "type": "string",
-                    "description": "Primary key resource ini (UUID string).",
-                    "required": false
-                }
-            ],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": "object|null"
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Settlement berhasil dihapus",
-                "data": {}
-            },
-            "response_resource": null,
-            "response_errors": [
-                {
-                    "status": 401,
-                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
-                    "body": {
-                        "message": "Unauthenticated."
-                    },
-                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
-                },
-                {
-                    "status": 403,
-                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
-                    "body": {
-                        "message": "This action is unauthorized."
-                    },
-                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
-                },
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                204,
-                401,
-                403,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [],
-            "allowed_sorts": [],
-            "allowed_search": [],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": null,
-            "related_endpoints": [
-                {
-                    "id": "api.purchase.return-settlements.bills.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/bills",
-                    "summary": "Ambil daftar tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.bills.show",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/bills/{id}",
-                    "summary": "Ambil detail tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/refunds",
-                    "summary": "Ambil daftar settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.show",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/refunds/{id}",
-                    "summary": "Ambil detail settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements",
-                    "summary": "Ambil daftar settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.bills.store",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/return-settlements/bills",
-                    "summary": "Buat tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.store",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/return-settlements/refunds",
-                    "summary": "Buat settlement retur"
-                }
-            ],
-            "related_page": "/dashboard/transaksi-pembelian",
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
-            "id": "api.purchase.return-settlements.index",
-            "module_slug": "purchase",
-            "module_name": "Purchase",
-            "method": "GET",
-            "path": "/api/v1/purchase/return-settlements",
-            "summary": "Ambil daftar settlement retur",
-            "description": "Ambil daftar settlement retur.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pembayaran-pembelian].",
-            "purpose": "Membutuhkan izin: owner, view-pembayaran-pembelian. Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
-            "controller": "Modules\\Purchase\\Http\\Controllers\\PurchaseReturnSettlementController",
-            "action": "index",
-            "auth": "auth:sanctum",
-            "roles": [
-                "owner",
-                "view-pembayaran-pembelian"
-            ],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [],
-            "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": "mixed"
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Berhasil.",
-                "data": {}
-            },
-            "response_resource": null,
-            "response_errors": [
-                {
-                    "status": 401,
-                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
-                    "body": {
-                        "message": "Unauthenticated."
-                    },
-                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
-                },
-                {
-                    "status": 403,
-                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
-                    "body": {
-                        "message": "This action is unauthorized."
-                    },
-                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
-                },
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                200,
-                401,
-                403,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [
-                {
-                    "name": "status",
-                    "type": "exact",
-                    "column": null,
-                    "scope": null,
-                    "description": "Status resource. Nilai valid tergantung modul — lihat enum di kolom rules. Cocok persis. Pemakaian: `?filter[status]=draft`.",
-                    "usage_example": "?filter[status]=draft",
-                    "enum": [
-                        "draft",
-                        "submitted",
-                        "approved",
-                        "received",
-                        "closed",
-                        "cancelled"
-                    ]
-                },
-                {
-                    "name": "return_id",
-                    "type": "exact",
-                    "column": null,
-                    "scope": null,
-                    "description": "ID return (referensi ke resource return). Cocok persis. Pemakaian: `?filter[return_id]=value`.",
-                    "usage_example": "?filter[return_id]=value"
-                }
-            ],
-            "allowed_sorts": [
-                "settlement_number",
-                "total_amount",
-                "created_at"
-            ],
-            "allowed_search": [
-                "settlement_number"
-            ],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": "-created_at",
-            "related_endpoints": [
-                {
-                    "id": "api.purchase.return-settlements.bills.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/bills",
-                    "summary": "Ambil daftar tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.bills.show",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/bills/{id}",
-                    "summary": "Ambil detail tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/refunds",
-                    "summary": "Ambil daftar settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.show",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/refunds/{id}",
-                    "summary": "Ambil detail settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.bills.store",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/return-settlements/bills",
-                    "summary": "Buat tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.store",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/return-settlements/refunds",
-                    "summary": "Buat settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.destroy",
-                    "method": "DELETE",
-                    "path": "/api/v1/purchase/return-settlements",
-                    "summary": "Hapus settlement retur"
-                }
-            ],
-            "related_page": "/dashboard/transaksi-pembelian",
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
-            "id": "api.purchase.return-settlements.bills.index",
-            "module_slug": "purchase",
-            "module_name": "Purchase",
-            "method": "GET",
-            "path": "/api/v1/purchase/return-settlements/bills",
-            "summary": "Ambil daftar tagihan",
-            "description": "Ambil daftar tagihan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pembayaran-pembelian].",
-            "purpose": "Membutuhkan izin: owner, view-pembayaran-pembelian. Mengembalikan data untuk ditampilkan di UI.",
-            "controller": "Modules\\Purchase\\Http\\Controllers\\PurchaseReturnSettlementController",
-            "action": "billIndex",
-            "auth": "auth:sanctum",
-            "roles": [
-                "owner",
-                "view-pembayaran-pembelian"
-            ],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [],
-            "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": "mixed"
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Berhasil.",
-                "data": {}
-            },
-            "response_resource": null,
-            "response_errors": [
-                {
-                    "status": 401,
-                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
-                    "body": {
-                        "message": "Unauthenticated."
-                    },
-                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
-                },
-                {
-                    "status": 403,
-                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
-                    "body": {
-                        "message": "This action is unauthorized."
-                    },
-                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
-                },
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                200,
-                401,
-                403,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [
-                {
-                    "name": "settlement_id",
-                    "type": "exact",
-                    "column": null,
-                    "scope": null,
-                    "description": "ID settlement (referensi ke resource settlement). Cocok persis. Pemakaian: `?filter[settlement_id]=value`.",
-                    "usage_example": "?filter[settlement_id]=value"
-                }
-            ],
-            "allowed_sorts": [],
-            "allowed_search": [],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": "-created_at",
-            "related_endpoints": [
-                {
-                    "id": "api.purchase.return-settlements.bills.show",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/bills/{id}",
-                    "summary": "Ambil detail tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/refunds",
-                    "summary": "Ambil daftar settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.show",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/refunds/{id}",
-                    "summary": "Ambil detail settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements",
-                    "summary": "Ambil daftar settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.bills.store",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/return-settlements/bills",
-                    "summary": "Buat tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.store",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/return-settlements/refunds",
-                    "summary": "Buat settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.destroy",
-                    "method": "DELETE",
-                    "path": "/api/v1/purchase/return-settlements",
-                    "summary": "Hapus settlement retur"
-                }
-            ],
-            "related_page": "/dashboard/transaksi-pembelian",
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
-            "id": "api.purchase.return-settlements.bills.store",
-            "module_slug": "purchase",
-            "module_name": "Purchase",
-            "method": "POST",
-            "path": "/api/v1/purchase/return-settlements/bills",
-            "summary": "Buat tagihan",
-            "description": "Buat tagihan.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, create-pembayaran-pembelian].",
-            "purpose": "Membutuhkan izin: owner, create-pembayaran-pembelian. Membuat resource baru atau memicu aksi domain.",
-            "controller": "Modules\\Purchase\\Http\\Controllers\\PurchaseReturnSettlementController",
-            "action": "billStore",
-            "auth": "auth:sanctum",
-            "roles": [
-                "owner",
-                "create-pembayaran-pembelian"
-            ],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [],
-            "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": "object|null"
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Bill ditambahkan ke settlement",
-                "data": {}
-            },
-            "response_resource": null,
-            "response_errors": [
-                {
-                    "status": 401,
-                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
-                    "body": {
-                        "message": "Unauthenticated."
-                    },
-                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
-                },
-                {
-                    "status": 403,
-                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
-                    "body": {
-                        "message": "This action is unauthorized."
-                    },
-                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
-                },
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                201,
-                401,
-                403,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [],
-            "allowed_sorts": [],
-            "allowed_search": [],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": null,
-            "related_endpoints": [
-                {
-                    "id": "api.purchase.return-settlements.bills.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/bills",
-                    "summary": "Ambil daftar tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.bills.show",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/bills/{id}",
-                    "summary": "Ambil detail tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/refunds",
-                    "summary": "Ambil daftar settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.show",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/refunds/{id}",
-                    "summary": "Ambil detail settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements",
-                    "summary": "Ambil daftar settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.store",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/return-settlements/refunds",
-                    "summary": "Buat settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.destroy",
-                    "method": "DELETE",
-                    "path": "/api/v1/purchase/return-settlements",
-                    "summary": "Hapus settlement retur"
-                }
-            ],
-            "related_page": "/dashboard/transaksi-pembelian",
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
-            "id": "api.purchase.return-settlements.bills.show",
-            "module_slug": "purchase",
-            "module_name": "Purchase",
-            "method": "GET",
-            "path": "/api/v1/purchase/return-settlements/bills/{id}",
-            "summary": "Ambil detail tagihan",
-            "description": "Ambil detail tagihan.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pembayaran-pembelian].",
-            "purpose": "Membutuhkan izin: owner, view-pembayaran-pembelian. Mengembalikan data untuk ditampilkan di UI.",
-            "controller": "Modules\\Purchase\\Http\\Controllers\\PurchaseReturnSettlementController",
-            "action": "billShow",
-            "auth": "auth:sanctum",
-            "roles": [
-                "owner",
-                "view-pembayaran-pembelian"
-            ],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [
-                {
-                    "name": "id",
-                    "type": "string",
-                    "required": true,
-                    "description": "Primary key resource ini (UUID string)."
-                }
-            ],
-            "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": []
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Berhasil.",
-                "data": []
-            },
-            "response_resource": "Modules\\Purchase\\Http\\Resources\\PurchaseReturnSettlementResource",
-            "response_errors": [
-                {
-                    "status": 401,
-                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
-                    "body": {
-                        "message": "Unauthenticated."
-                    },
-                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
-                },
-                {
-                    "status": 403,
-                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
-                    "body": {
-                        "message": "This action is unauthorized."
-                    },
-                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
-                },
-                {
-                    "status": 404,
-                    "reason": "Settlement bill tidak ditemukan",
-                    "body": {
-                        "success": false,
-                        "message": "Settlement bill tidak ditemukan"
-                    }
-                },
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                200,
-                401,
-                403,
-                404,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [],
-            "allowed_sorts": [],
-            "allowed_search": [],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": null,
-            "related_endpoints": [
-                {
-                    "id": "api.purchase.return-settlements.bills.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/bills",
-                    "summary": "Ambil daftar tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/refunds",
-                    "summary": "Ambil daftar settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.show",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/refunds/{id}",
-                    "summary": "Ambil detail settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements",
-                    "summary": "Ambil daftar settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.bills.store",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/return-settlements/bills",
-                    "summary": "Buat tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.store",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/return-settlements/refunds",
-                    "summary": "Buat settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.destroy",
-                    "method": "DELETE",
-                    "path": "/api/v1/purchase/return-settlements",
-                    "summary": "Hapus settlement retur"
-                }
-            ],
-            "related_page": "/dashboard/transaksi-pembelian",
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
-            "id": "api.purchase.return-settlements.refunds.index",
-            "module_slug": "purchase",
-            "module_name": "Purchase",
-            "method": "GET",
-            "path": "/api/v1/purchase/return-settlements/refunds",
-            "summary": "Ambil daftar settlement retur",
-            "description": "Ambil daftar settlement retur.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pembayaran-pembelian].",
-            "purpose": "Membutuhkan izin: owner, view-pembayaran-pembelian. Mengembalikan data untuk ditampilkan di UI.",
-            "controller": "Modules\\Purchase\\Http\\Controllers\\PurchaseReturnSettlementController",
-            "action": "refundIndex",
-            "auth": "auth:sanctum",
-            "roles": [
-                "owner",
-                "view-pembayaran-pembelian"
-            ],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [],
-            "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": "mixed"
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Berhasil.",
-                "data": {}
-            },
-            "response_resource": null,
-            "response_errors": [
-                {
-                    "status": 401,
-                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
-                    "body": {
-                        "message": "Unauthenticated."
-                    },
-                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
-                },
-                {
-                    "status": 403,
-                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
-                    "body": {
-                        "message": "This action is unauthorized."
-                    },
-                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
-                },
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                200,
-                401,
-                403,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [
-                {
-                    "name": "settlement_id",
-                    "type": "exact",
-                    "column": null,
-                    "scope": null,
-                    "description": "ID settlement (referensi ke resource settlement). Cocok persis. Pemakaian: `?filter[settlement_id]=value`.",
-                    "usage_example": "?filter[settlement_id]=value"
-                }
-            ],
-            "allowed_sorts": [],
-            "allowed_search": [],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": "-created_at",
-            "related_endpoints": [
-                {
-                    "id": "api.purchase.return-settlements.bills.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/bills",
-                    "summary": "Ambil daftar tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.bills.show",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/bills/{id}",
-                    "summary": "Ambil detail tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.show",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/refunds/{id}",
-                    "summary": "Ambil detail settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements",
-                    "summary": "Ambil daftar settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.bills.store",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/return-settlements/bills",
-                    "summary": "Buat tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.store",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/return-settlements/refunds",
-                    "summary": "Buat settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.destroy",
-                    "method": "DELETE",
-                    "path": "/api/v1/purchase/return-settlements",
-                    "summary": "Hapus settlement retur"
-                }
-            ],
-            "related_page": "/dashboard/transaksi-pembelian",
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
-            "id": "api.purchase.return-settlements.refunds.store",
-            "module_slug": "purchase",
-            "module_name": "Purchase",
-            "method": "POST",
-            "path": "/api/v1/purchase/return-settlements/refunds",
-            "summary": "Buat settlement retur",
-            "description": "Buat settlement retur.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, create-pembayaran-pembelian].",
-            "purpose": "Membutuhkan izin: owner, create-pembayaran-pembelian. Membuat resource baru atau memicu aksi domain.",
-            "controller": "Modules\\Purchase\\Http\\Controllers\\PurchaseReturnSettlementController",
-            "action": "refundStore",
-            "auth": "auth:sanctum",
-            "roles": [
-                "owner",
-                "create-pembayaran-pembelian"
-            ],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [],
-            "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": "object|null"
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Refund ditambahkan ke settlement",
-                "data": {}
-            },
-            "response_resource": null,
-            "response_errors": [
-                {
-                    "status": 401,
-                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
-                    "body": {
-                        "message": "Unauthenticated."
-                    },
-                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
-                },
-                {
-                    "status": 403,
-                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
-                    "body": {
-                        "message": "This action is unauthorized."
-                    },
-                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
-                },
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                201,
-                401,
-                403,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [],
-            "allowed_sorts": [],
-            "allowed_search": [],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": null,
-            "related_endpoints": [
-                {
-                    "id": "api.purchase.return-settlements.bills.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/bills",
-                    "summary": "Ambil daftar tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.bills.show",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/bills/{id}",
-                    "summary": "Ambil detail tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/refunds",
-                    "summary": "Ambil daftar settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.show",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/refunds/{id}",
-                    "summary": "Ambil detail settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements",
-                    "summary": "Ambil daftar settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.bills.store",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/return-settlements/bills",
-                    "summary": "Buat tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.destroy",
-                    "method": "DELETE",
-                    "path": "/api/v1/purchase/return-settlements",
-                    "summary": "Hapus settlement retur"
-                }
-            ],
-            "related_page": "/dashboard/transaksi-pembelian",
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
-            "id": "api.purchase.return-settlements.refunds.show",
-            "module_slug": "purchase",
-            "module_name": "Purchase",
-            "method": "GET",
-            "path": "/api/v1/purchase/return-settlements/refunds/{id}",
-            "summary": "Ambil detail settlement retur",
-            "description": "Ambil detail settlement retur.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pembayaran-pembelian].",
-            "purpose": "Membutuhkan izin: owner, view-pembayaran-pembelian. Mengembalikan data untuk ditampilkan di UI.",
-            "controller": "Modules\\Purchase\\Http\\Controllers\\PurchaseReturnSettlementController",
-            "action": "refundShow",
-            "auth": "auth:sanctum",
-            "roles": [
-                "owner",
-                "view-pembayaran-pembelian"
-            ],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [
-                {
-                    "name": "id",
-                    "type": "string",
-                    "required": true,
-                    "description": "Primary key resource ini (UUID string)."
-                }
-            ],
-            "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": []
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Berhasil.",
-                "data": []
-            },
-            "response_resource": "Modules\\Purchase\\Http\\Resources\\PurchaseReturnSettlementResource",
-            "response_errors": [
-                {
-                    "status": 401,
-                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
-                    "body": {
-                        "message": "Unauthenticated."
-                    },
-                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
-                },
-                {
-                    "status": 403,
-                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
-                    "body": {
-                        "message": "This action is unauthorized."
-                    },
-                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
-                },
-                {
-                    "status": 404,
-                    "reason": "Settlement refund tidak ditemukan",
-                    "body": {
-                        "success": false,
-                        "message": "Settlement refund tidak ditemukan"
-                    }
-                },
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                200,
-                401,
-                403,
-                404,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [],
-            "allowed_sorts": [],
-            "allowed_search": [],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": null,
-            "related_endpoints": [
-                {
-                    "id": "api.purchase.return-settlements.bills.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/bills",
-                    "summary": "Ambil daftar tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.bills.show",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/bills/{id}",
-                    "summary": "Ambil detail tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements/refunds",
-                    "summary": "Ambil daftar settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.index",
-                    "method": "GET",
-                    "path": "/api/v1/purchase/return-settlements",
-                    "summary": "Ambil daftar settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.bills.store",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/return-settlements/bills",
-                    "summary": "Buat tagihan"
-                },
-                {
-                    "id": "api.purchase.return-settlements.refunds.store",
-                    "method": "POST",
-                    "path": "/api/v1/purchase/return-settlements/refunds",
-                    "summary": "Buat settlement retur"
-                },
-                {
-                    "id": "api.purchase.return-settlements.destroy",
-                    "method": "DELETE",
-                    "path": "/api/v1/purchase/return-settlements",
-                    "summary": "Hapus settlement retur"
-                }
-            ],
-            "related_page": "/dashboard/transaksi-pembelian",
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
             "id": "api.purchase.serial-number.mark-printed",
             "module_slug": "purchase",
             "module_name": "Purchase",
@@ -4649,12 +3542,15 @@
             "method": "GET",
             "path": "/api/v1/purchase/serial-number/wms/{bill_detail_id}",
             "summary": "Ambil detail wms",
-            "description": "Ambil detail wms.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil detail wms.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-transaksi-pembelian].",
+            "purpose": "Membutuhkan izin: owner, view-transaksi-pembelian. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Purchase\\Http\\Controllers\\PurchaseSerialNumberController",
             "action": "wmsByBillDetail",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-transaksi-pembelian"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,

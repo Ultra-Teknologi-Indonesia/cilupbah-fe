@@ -1,9 +1,9 @@
 {
-    "generated_at": "2026-07-13T18:06:35+00:00",
+    "generated_at": "2026-08-05T03:47:45+00:00",
     "version": "1.0.0",
     "totals": {
         "modules": 18,
-        "endpoints": 795,
+        "endpoints": 858,
         "undocumented": 0
     },
     "modules": [
@@ -11,14 +11,14 @@
             "slug": "auth",
             "name": "Auth",
             "description": "Autentikasi, pengguna, role/permission (RBAC), profil saya.",
-            "endpoints_count": 29,
+            "endpoints_count": 34,
             "undocumented": 0
         },
         {
             "slug": "channel",
             "name": "Channel",
             "description": "Integrasi marketplace: Shopee, Lazada, TikTok, WooCommerce.",
-            "endpoints_count": 107,
+            "endpoints_count": 102,
             "undocumented": 0
         },
         {
@@ -39,14 +39,14 @@
             "slug": "inbound",
             "name": "Inbound",
             "description": "Penerimaan barang (dari PO / Transfer masuk) & penempatan (putaway).",
-            "endpoints_count": 23,
+            "endpoints_count": 31,
             "undocumented": 0
         },
         {
             "slug": "inventory",
             "name": "Inventory",
             "description": "Stok, mutasi, transfer bin, transfer antar gudang, penyesuaian, opname.",
-            "endpoints_count": 154,
+            "endpoints_count": 167,
             "undocumented": 0
         },
         {
@@ -60,7 +60,7 @@
             "slug": "outbound",
             "name": "Outbound",
             "description": "Picking, packing, shipping, kurir, resi.",
-            "endpoints_count": 85,
+            "endpoints_count": 93,
             "undocumented": 0
         },
         {
@@ -74,7 +74,7 @@
             "slug": "purchase",
             "name": "Purchase",
             "description": "Pesanan pembelian (PO), tagihan (bill), pembayaran.",
-            "endpoints_count": 28,
+            "endpoints_count": 20,
             "undocumented": 0
         },
         {
@@ -88,14 +88,14 @@
             "slug": "report",
             "name": "Report",
             "description": "Laporan HPP, persediaan, retur, stok minus, dsb.",
-            "endpoints_count": 16,
+            "endpoints_count": 38,
             "undocumented": 0
         },
         {
             "slug": "sales",
             "name": "Sales",
             "description": "Pesanan penjualan, retur, invoice, pembayaran, toko internal.",
-            "endpoints_count": 113,
+            "endpoints_count": 119,
             "undocumented": 0
         },
         {
@@ -116,7 +116,7 @@
             "slug": "warehouse",
             "name": "Warehouse",
             "description": "Gudang, zona, rak (bin), lokasi.",
-            "endpoints_count": 29,
+            "endpoints_count": 43,
             "undocumented": 0
         },
         {

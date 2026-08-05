@@ -2,7 +2,7 @@
     "slug": "warehouse",
     "name": "Warehouse",
     "description": "Gudang, zona, rak (bin), lokasi.",
-    "endpoints_count": 29,
+    "endpoints_count": 43,
     "undocumented": 0,
     "endpoints": [
         {
@@ -212,10 +212,22 @@
                     "summary": "Ambil daftar rak"
                 },
                 {
+                    "id": "api.warehouse.bins.import.template",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/import/template",
+                    "summary": "Impor dari file rak"
+                },
+                {
                     "id": "api.warehouse.bins.print-qr",
                     "method": "GET",
                     "path": "/api/v1/locations/{locationId}/bins/print-qr",
                     "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.pending-putaway-skus",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+                    "summary": "Tempatkan ke rak lokasi"
                 },
                 {
                     "id": "api.warehouse.bins.print-qr-job",
@@ -236,22 +248,10 @@
                     "summary": "Buat rak"
                 },
                 {
-                    "id": "api.warehouse.bins.bulk-update",
-                    "method": "PUT",
-                    "path": "/api/v1/locations/{locationId}/bins/bulk",
-                    "summary": "Batch (bulk) rak"
-                },
-                {
-                    "id": "api.warehouse.bins.uniform-apply",
+                    "id": "api.warehouse.bins.import-preview",
                     "method": "POST",
-                    "path": "/api/v1/locations/{locationId}/bins/uniform-apply",
-                    "summary": "Buat rak"
-                },
-                {
-                    "id": "api.warehouse.bins.default",
-                    "method": "GET",
-                    "path": "/api/v1/locations/{locationId}/default-bin",
-                    "summary": "Ambil detail lokasi"
+                    "path": "/api/v1/locations/{locationId}/bins/import/preview",
+                    "summary": "Impor dari file rak"
                 }
             ],
             "related_page": null,
@@ -379,10 +379,22 @@
                     "summary": "Ambil daftar rak"
                 },
                 {
+                    "id": "api.warehouse.bins.import.template",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/import/template",
+                    "summary": "Impor dari file rak"
+                },
+                {
                     "id": "api.warehouse.bins.print-qr",
                     "method": "GET",
                     "path": "/api/v1/locations/{locationId}/bins/print-qr",
                     "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.pending-putaway-skus",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+                    "summary": "Tempatkan ke rak lokasi"
                 },
                 {
                     "id": "api.warehouse.bins.print-qr-job",
@@ -403,22 +415,10 @@
                     "summary": "Buat rak"
                 },
                 {
-                    "id": "api.warehouse.bins.bulk-update",
-                    "method": "PUT",
-                    "path": "/api/v1/locations/{locationId}/bins/bulk",
-                    "summary": "Batch (bulk) rak"
-                },
-                {
-                    "id": "api.warehouse.bins.uniform-apply",
+                    "id": "api.warehouse.bins.import-preview",
                     "method": "POST",
-                    "path": "/api/v1/locations/{locationId}/bins/uniform-apply",
-                    "summary": "Buat rak"
-                },
-                {
-                    "id": "api.warehouse.bins.default",
-                    "method": "GET",
-                    "path": "/api/v1/locations/{locationId}/default-bin",
-                    "summary": "Ambil detail lokasi"
+                    "path": "/api/v1/locations/{locationId}/bins/import/preview",
+                    "summary": "Impor dari file rak"
                 }
             ],
             "related_page": null,
@@ -1788,12 +1788,15 @@
             "method": "GET",
             "path": "/api/v1/locations/pos",
             "summary": "Ambil daftar lokasi",
-            "description": "Ambil daftar lokasi.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil daftar lokasi.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-manajemen-rak].",
+            "purpose": "Membutuhkan izin: owner, view-manajemen-rak. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Warehouse\\Http\\Controllers\\LocationController",
             "action": "pos",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-manajemen-rak"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -1984,12 +1987,15 @@
             "method": "GET",
             "path": "/api/v1/locations/store",
             "summary": "Ambil daftar lokasi",
-            "description": "Ambil daftar lokasi.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
+            "description": "Ambil daftar lokasi.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-manajemen-rak].",
+            "purpose": "Membutuhkan izin: owner, view-manajemen-rak. Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
             "controller": "Modules\\Warehouse\\Http\\Controllers\\ChannelWarehouseController",
             "action": "index",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-manajemen-rak"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -2190,6 +2196,7 @@
                         "is_inbound": "boolean",
                         "is_stock_acknowledged": "mixed",
                         "is_large_bin": "mixed",
+                        "allows_multi_sku": "mixed",
                         "category": "mixed",
                         "skus": "mixed",
                         "created_at": "string",
@@ -2219,6 +2226,7 @@
                         "is_inbound": false,
                         "is_stock_acknowledged": "string",
                         "is_large_bin": "string",
+                        "allows_multi_sku": "string",
                         "category": "string",
                         "skus": "string",
                         "created_at": "@OA\\Generator::UNDEFINED🙈",
@@ -2344,10 +2352,22 @@
             "default_sort": "bin_final_code",
             "related_endpoints": [
                 {
+                    "id": "api.warehouse.bins.import.template",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/import/template",
+                    "summary": "Impor dari file rak"
+                },
+                {
                     "id": "api.warehouse.bins.print-qr",
                     "method": "GET",
                     "path": "/api/v1/locations/{locationId}/bins/print-qr",
                     "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.pending-putaway-skus",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+                    "summary": "Tempatkan ke rak lokasi"
                 },
                 {
                     "id": "api.warehouse.bins.print-qr-job",
@@ -2368,28 +2388,16 @@
                     "summary": "Buat rak"
                 },
                 {
-                    "id": "api.warehouse.bins.bulk-update",
-                    "method": "PUT",
-                    "path": "/api/v1/locations/{locationId}/bins/bulk",
-                    "summary": "Batch (bulk) rak"
-                },
-                {
-                    "id": "api.warehouse.bins.uniform-apply",
+                    "id": "api.warehouse.bins.import-preview",
                     "method": "POST",
-                    "path": "/api/v1/locations/{locationId}/bins/uniform-apply",
-                    "summary": "Buat rak"
+                    "path": "/api/v1/locations/{locationId}/bins/import/preview",
+                    "summary": "Impor dari file rak"
                 },
                 {
-                    "id": "api.warehouse.bins.default",
-                    "method": "GET",
-                    "path": "/api/v1/locations/{locationId}/default-bin",
-                    "summary": "Ambil detail lokasi"
-                },
-                {
-                    "id": "api.warehouse.bins.store",
+                    "id": "api.warehouse.bins.import",
                     "method": "POST",
-                    "path": "/api/v1/bins",
-                    "summary": "Buat rak"
+                    "path": "/api/v1/locations/{locationId}/bins/import",
+                    "summary": "Impor dari file rak"
                 }
             ],
             "related_page": null,
@@ -2404,7 +2412,7 @@
             "path": "/api/v1/locations/{locationId}/bins/bulk",
             "summary": "Batch (bulk) rak",
             "description": "Batch (bulk) rak.\nResponse: 200 dengan data resource yang sudah diperbarui.\nOtorisasi: minimal satu izin dari [owner, edit-manajemen-rak].",
-            "purpose": "Membutuhkan izin: owner, edit-manajemen-rak. Memperbarui resource yang sudah ada.",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, edit-manajemen-rak. Memperbarui resource yang sudah ada.",
             "controller": "Modules\\Warehouse\\Http\\Controllers\\LocationBinController",
             "action": "bulkUpdate",
             "auth": "auth:sanctum",
@@ -2415,7 +2423,7 @@
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
-            "form_request": null,
+            "form_request": "Modules\\Warehouse\\Http\\Requests\\BulkUpdateLocationBinRequest",
             "path_params": [
                 {
                     "name": "locationId",
@@ -2425,9 +2433,93 @@
                 }
             ],
             "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
+            "body_schema": {
+                "bins": {
+                    "type": "array",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "array",
+                        "min:1"
+                    ],
+                    "constraints": {
+                        "min": 1
+                    },
+                    "description": "Field bins (tipe array)."
+                },
+                "bins.*.id": {
+                    "type": "uuid",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "uuid"
+                    ],
+                    "description": "Primary key resource ini (UUID string)."
+                },
+                "bins.*.bin_final_code": {
+                    "type": "string",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "string",
+                        "max:255"
+                    ],
+                    "constraints": {
+                        "max": 255
+                    },
+                    "description": "Field bin final code (tipe string)."
+                },
+                "bins.*.is_stock_acknowledged": {
+                    "type": "boolean",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "boolean"
+                    ],
+                    "description": "Flag boolean untuk is stock acknowledged."
+                },
+                "bins.*.is_large_bin": {
+                    "type": "boolean",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "boolean"
+                    ],
+                    "description": "Flag boolean untuk is large bin."
+                },
+                "bins.*.category": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "max:255"
+                    ],
+                    "constraints": {
+                        "max": 255
+                    },
+                    "description": "Field category (tipe string)."
+                }
+            },
+            "body_example": {
+                "bins": [
+                    {
+                        "id": "00000000-0000-0000-0000-000000000000",
+                        "bin_final_code": "string",
+                        "is_stock_acknowledged": false,
+                        "is_large_bin": false,
+                        "category": "string"
+                    }
+                ]
+            },
+            "validation": [
+                "bins: required|array|min:1",
+                "bins.*.id: required|uuid",
+                "bins.*.bin_final_code: required|string|max:255",
+                "bins.*.is_stock_acknowledged: required|boolean",
+                "bins.*.is_large_bin: required|boolean",
+                "bins.*.category: nullable|string|max:255"
+            ],
             "response_success_schema": {
                 "success": "boolean",
                 "message": "string",
@@ -2516,10 +2608,22 @@
                     "summary": "Ambil daftar rak"
                 },
                 {
+                    "id": "api.warehouse.bins.import.template",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/import/template",
+                    "summary": "Impor dari file rak"
+                },
+                {
                     "id": "api.warehouse.bins.print-qr",
                     "method": "GET",
                     "path": "/api/v1/locations/{locationId}/bins/print-qr",
                     "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.pending-putaway-skus",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+                    "summary": "Tempatkan ke rak lokasi"
                 },
                 {
                     "id": "api.warehouse.bins.print-qr-job",
@@ -2540,22 +2644,10 @@
                     "summary": "Buat rak"
                 },
                 {
-                    "id": "api.warehouse.bins.uniform-apply",
+                    "id": "api.warehouse.bins.import-preview",
                     "method": "POST",
-                    "path": "/api/v1/locations/{locationId}/bins/uniform-apply",
-                    "summary": "Buat rak"
-                },
-                {
-                    "id": "api.warehouse.bins.default",
-                    "method": "GET",
-                    "path": "/api/v1/locations/{locationId}/default-bin",
-                    "summary": "Ambil detail lokasi"
-                },
-                {
-                    "id": "api.warehouse.bins.store",
-                    "method": "POST",
-                    "path": "/api/v1/bins",
-                    "summary": "Buat rak"
+                    "path": "/api/v1/locations/{locationId}/bins/import/preview",
+                    "summary": "Impor dari file rak"
                 }
             ],
             "related_page": null,
@@ -2592,31 +2684,18 @@
             ],
             "query_params": [],
             "body_schema": {
-                "floor_code": {
+                "zone_code": {
                     "type": "string",
                     "required": true,
                     "rules": [
                         "required",
                         "string",
-                        "max:10"
+                        "max:20"
                     ],
                     "constraints": {
-                        "max": 10
+                        "max": 20
                     },
-                    "description": "Field floor code (tipe string)."
-                },
-                "qty_floor": {
-                    "type": "integer",
-                    "required": true,
-                    "rules": [
-                        "required",
-                        "integer",
-                        "min:1"
-                    ],
-                    "constraints": {
-                        "min": 1
-                    },
-                    "description": "Field qty floor (tipe integer)."
+                    "description": "Field zone code (tipe string)."
                 },
                 "row_code": {
                     "type": "string",
@@ -2726,8 +2805,7 @@
                 }
             },
             "body_example": {
-                "floor_code": "string",
-                "qty_floor": 1,
+                "zone_code": "string",
                 "row_code": "string",
                 "qty_row": 1,
                 "column_code": "string",
@@ -2738,8 +2816,7 @@
                 "per_page": 1
             },
             "validation": [
-                "floor_code: required|string|max:10",
-                "qty_floor: required|integer|min:1",
+                "zone_code: required|string|max:20",
                 "row_code: required|string|max:10",
                 "qty_row: required|integer|min:1",
                 "column_code: required|string|max:10",
@@ -2830,10 +2907,22 @@
                     "summary": "Ambil daftar rak"
                 },
                 {
+                    "id": "api.warehouse.bins.import.template",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/import/template",
+                    "summary": "Impor dari file rak"
+                },
+                {
                     "id": "api.warehouse.bins.print-qr",
                     "method": "GET",
                     "path": "/api/v1/locations/{locationId}/bins/print-qr",
                     "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.pending-putaway-skus",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+                    "summary": "Tempatkan ke rak lokasi"
                 },
                 {
                     "id": "api.warehouse.bins.print-qr-job",
@@ -2848,28 +2937,508 @@
                     "summary": "Buat rak"
                 },
                 {
-                    "id": "api.warehouse.bins.bulk-update",
-                    "method": "PUT",
-                    "path": "/api/v1/locations/{locationId}/bins/bulk",
-                    "summary": "Batch (bulk) rak"
-                },
-                {
-                    "id": "api.warehouse.bins.uniform-apply",
+                    "id": "api.warehouse.bins.import-preview",
                     "method": "POST",
-                    "path": "/api/v1/locations/{locationId}/bins/uniform-apply",
-                    "summary": "Buat rak"
+                    "path": "/api/v1/locations/{locationId}/bins/import/preview",
+                    "summary": "Impor dari file rak"
                 },
                 {
-                    "id": "api.warehouse.bins.default",
+                    "id": "api.warehouse.bins.import",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/import",
+                    "summary": "Impor dari file rak"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.warehouse.bins.import",
+            "module_slug": "warehouse",
+            "module_name": "Warehouse",
+            "method": "POST",
+            "path": "/api/v1/locations/{locationId}/bins/import",
+            "summary": "Impor dari file rak",
+            "description": "Impor dari file rak.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-manajemen-rak].",
+            "purpose": "Membutuhkan izin: owner, edit-manajemen-rak. Membuat resource baru atau memicu aksi domain.",
+            "controller": "Modules\\Warehouse\\Http\\Controllers\\LocationBinController",
+            "action": "import",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "edit-manajemen-rak"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [
+                {
+                    "name": "locationId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field location id (tipe string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "existing",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 404,
+                    "reason": "Lokasi tidak ditemukan.",
+                    "body": {
+                        "success": false,
+                        "message": "Lokasi tidak ditemukan."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Gagal membaca file.",
+                    "body": {
+                        "success": false,
+                        "message": "Gagal membaca file."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Tidak ada kode rak terbaca.",
+                    "body": {
+                        "success": false,
+                        "message": "Tidak ada kode rak terbaca."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                201,
+                401,
+                403,
+                404,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.warehouse.bins.index",
                     "method": "GET",
-                    "path": "/api/v1/locations/{locationId}/default-bin",
-                    "summary": "Ambil detail lokasi"
+                    "path": "/api/v1/locations/{locationId}/bins",
+                    "summary": "Ambil daftar rak"
                 },
                 {
-                    "id": "api.warehouse.bins.store",
+                    "id": "api.warehouse.bins.import.template",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/import/template",
+                    "summary": "Impor dari file rak"
+                },
+                {
+                    "id": "api.warehouse.bins.print-qr",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/print-qr",
+                    "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.pending-putaway-skus",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+                    "summary": "Tempatkan ke rak lokasi"
+                },
+                {
+                    "id": "api.warehouse.bins.print-qr-job",
                     "method": "POST",
-                    "path": "/api/v1/bins",
+                    "path": "/api/v1/locations/{locationId}/bins/print-qr-job",
+                    "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.preview",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/preview",
                     "summary": "Buat rak"
+                },
+                {
+                    "id": "api.warehouse.bins.generate",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/generate",
+                    "summary": "Buat rak"
+                },
+                {
+                    "id": "api.warehouse.bins.import-preview",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/import/preview",
+                    "summary": "Impor dari file rak"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.warehouse.bins.import-preview",
+            "module_slug": "warehouse",
+            "module_name": "Warehouse",
+            "method": "POST",
+            "path": "/api/v1/locations/{locationId}/bins/import/preview",
+            "summary": "Impor dari file rak",
+            "description": "Impor dari file rak.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-manajemen-rak].",
+            "purpose": "Membutuhkan izin: owner, edit-manajemen-rak. Membuat resource baru atau memicu aksi domain.",
+            "controller": "Modules\\Warehouse\\Http\\Controllers\\LocationBinController",
+            "action": "importPreview",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "edit-manajemen-rak"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [
+                {
+                    "name": "locationId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field location id (tipe string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "new",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 404,
+                    "reason": "Lokasi tidak ditemukan.",
+                    "body": {
+                        "success": false,
+                        "message": "Lokasi tidak ditemukan."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Gagal membaca file.",
+                    "body": {
+                        "success": false,
+                        "message": "Gagal membaca file."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                201,
+                401,
+                403,
+                404,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.warehouse.bins.index",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins",
+                    "summary": "Ambil daftar rak"
+                },
+                {
+                    "id": "api.warehouse.bins.import.template",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/import/template",
+                    "summary": "Impor dari file rak"
+                },
+                {
+                    "id": "api.warehouse.bins.print-qr",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/print-qr",
+                    "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.pending-putaway-skus",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+                    "summary": "Tempatkan ke rak lokasi"
+                },
+                {
+                    "id": "api.warehouse.bins.print-qr-job",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/print-qr-job",
+                    "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.preview",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/preview",
+                    "summary": "Buat rak"
+                },
+                {
+                    "id": "api.warehouse.bins.generate",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/generate",
+                    "summary": "Buat rak"
+                },
+                {
+                    "id": "api.warehouse.bins.import",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/import",
+                    "summary": "Impor dari file rak"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.warehouse.bins.import.template",
+            "module_slug": "warehouse",
+            "module_name": "Warehouse",
+            "method": "GET",
+            "path": "/api/v1/locations/{locationId}/bins/import/template",
+            "summary": "Impor dari file rak",
+            "description": "Impor dari file rak.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-manajemen-rak].",
+            "purpose": "Membutuhkan izin: owner, view-manajemen-rak. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Warehouse\\Http\\Controllers\\LocationBinController",
+            "action": "importTemplate",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-manajemen-rak"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [
+                {
+                    "name": "locationId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field location id (tipe string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Impor sedang diproses. Cek di Aktivitas Impex.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.warehouse.bins.index",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins",
+                    "summary": "Ambil daftar rak"
+                },
+                {
+                    "id": "api.warehouse.bins.print-qr",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/print-qr",
+                    "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.pending-putaway-skus",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+                    "summary": "Tempatkan ke rak lokasi"
+                },
+                {
+                    "id": "api.warehouse.bins.print-qr-job",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/print-qr-job",
+                    "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.preview",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/preview",
+                    "summary": "Buat rak"
+                },
+                {
+                    "id": "api.warehouse.bins.generate",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/generate",
+                    "summary": "Buat rak"
+                },
+                {
+                    "id": "api.warehouse.bins.import-preview",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/import/preview",
+                    "summary": "Impor dari file rak"
+                },
+                {
+                    "id": "api.warehouse.bins.import",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/import",
+                    "summary": "Impor dari file rak"
                 }
             ],
             "related_page": null,
@@ -2906,31 +3475,18 @@
             ],
             "query_params": [],
             "body_schema": {
-                "floor_code": {
+                "zone_code": {
                     "type": "string",
                     "required": true,
                     "rules": [
                         "required",
                         "string",
-                        "max:10"
+                        "max:20"
                     ],
                     "constraints": {
-                        "max": 10
+                        "max": 20
                     },
-                    "description": "Field floor code (tipe string)."
-                },
-                "qty_floor": {
-                    "type": "integer",
-                    "required": true,
-                    "rules": [
-                        "required",
-                        "integer",
-                        "min:1"
-                    ],
-                    "constraints": {
-                        "min": 1
-                    },
-                    "description": "Field qty floor (tipe integer)."
+                    "description": "Field zone code (tipe string)."
                 },
                 "row_code": {
                     "type": "string",
@@ -3040,8 +3596,7 @@
                 }
             },
             "body_example": {
-                "floor_code": "string",
-                "qty_floor": 1,
+                "zone_code": "string",
                 "row_code": "string",
                 "qty_row": 1,
                 "column_code": "string",
@@ -3052,8 +3607,7 @@
                 "per_page": 1
             },
             "validation": [
-                "floor_code: required|string|max:10",
-                "qty_floor: required|integer|min:1",
+                "zone_code: required|string|max:20",
                 "row_code: required|string|max:10",
                 "qty_row: required|integer|min:1",
                 "column_code: required|string|max:10",
@@ -3135,10 +3689,22 @@
                     "summary": "Ambil daftar rak"
                 },
                 {
+                    "id": "api.warehouse.bins.import.template",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/import/template",
+                    "summary": "Impor dari file rak"
+                },
+                {
                     "id": "api.warehouse.bins.print-qr",
                     "method": "GET",
                     "path": "/api/v1/locations/{locationId}/bins/print-qr",
                     "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.pending-putaway-skus",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+                    "summary": "Tempatkan ke rak lokasi"
                 },
                 {
                     "id": "api.warehouse.bins.print-qr-job",
@@ -3153,28 +3719,16 @@
                     "summary": "Buat rak"
                 },
                 {
-                    "id": "api.warehouse.bins.bulk-update",
-                    "method": "PUT",
-                    "path": "/api/v1/locations/{locationId}/bins/bulk",
-                    "summary": "Batch (bulk) rak"
-                },
-                {
-                    "id": "api.warehouse.bins.uniform-apply",
+                    "id": "api.warehouse.bins.import-preview",
                     "method": "POST",
-                    "path": "/api/v1/locations/{locationId}/bins/uniform-apply",
-                    "summary": "Buat rak"
+                    "path": "/api/v1/locations/{locationId}/bins/import/preview",
+                    "summary": "Impor dari file rak"
                 },
                 {
-                    "id": "api.warehouse.bins.default",
-                    "method": "GET",
-                    "path": "/api/v1/locations/{locationId}/default-bin",
-                    "summary": "Ambil detail lokasi"
-                },
-                {
-                    "id": "api.warehouse.bins.store",
+                    "id": "api.warehouse.bins.import",
                     "method": "POST",
-                    "path": "/api/v1/bins",
-                    "summary": "Buat rak"
+                    "path": "/api/v1/locations/{locationId}/bins/import",
+                    "summary": "Impor dari file rak"
                 }
             ],
             "related_page": null,
@@ -3189,7 +3743,7 @@
             "path": "/api/v1/locations/{locationId}/bins/print-qr",
             "summary": "Cetak rak",
             "description": "Cetak rak.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-manajemen-rak].",
-            "purpose": "Membutuhkan izin: owner, view-manajemen-rak. Mengembalikan data untuk ditampilkan di UI.",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, view-manajemen-rak. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Warehouse\\Http\\Controllers\\LocationBinController",
             "action": "printQr",
             "auth": "auth:sanctum",
@@ -3200,7 +3754,7 @@
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
-            "form_request": null,
+            "form_request": "Modules\\Warehouse\\Http\\Requests\\PrintQrLocationBinRequest",
             "path_params": [
                 {
                     "name": "locationId",
@@ -3210,20 +3764,58 @@
                 }
             ],
             "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
+            "body_schema": {
+                "bin_ids": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string"
+                    ],
+                    "description": "Field bin ids (tipe string)."
+                },
+                "paper": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "in:thermal_50x40,thermal_80x40,a4_single,a4_multi"
+                    ],
+                    "enum": [
+                        "thermal_50x40",
+                        "thermal_80x40",
+                        "a4_single",
+                        "a4_multi"
+                    ],
+                    "description": "Field paper (tipe string)."
+                }
+            },
+            "body_example": {
+                "bin_ids": "string",
+                "paper": "thermal_50x40"
+            },
+            "validation": [
+                "bin_ids: nullable|string",
+                "paper: nullable|string|in:thermal_50x40,thermal_80x40,a4_single,a4_multi"
+            ],
             "response_success_schema": {
                 "success": "boolean",
                 "message": "string",
-                "data": "object|null"
+                "data": {
+                    "bin_final_code": "string",
+                    "qr_data_uri": "mixed"
+                }
             },
             "response_success_example": {
                 "success": true,
-                "message": "PDF berhasil dibuat.",
-                "data": {}
+                "message": "Berhasil.",
+                "data": {
+                    "bin_final_code": "FL01-RW02-COLA-BIN100",
+                    "qr_data_uri": "string"
+                }
             },
-            "response_resource": null,
+            "response_resource": "Modules\\Warehouse\\Http\\Resources\\BinQrItemResource",
             "response_errors": [
                 {
                     "status": 401,
@@ -3247,14 +3839,6 @@
                     "body": {
                         "success": false,
                         "message": "Lokasi tidak ditemukan."
-                    }
-                },
-                {
-                    "status": 422,
-                    "reason": "ID bin tidak valid: {$id}",
-                    "body": {
-                        "success": false,
-                        "message": "ID bin tidak valid: {$id}"
                     }
                 },
                 {
@@ -3292,8 +3876,8 @@
                 401,
                 403,
                 404,
-                422,
-                500
+                500,
+                422
             ],
             "side_effects": [],
             "allowed_filters": [],
@@ -3308,6 +3892,18 @@
                     "method": "GET",
                     "path": "/api/v1/locations/{locationId}/bins",
                     "summary": "Ambil daftar rak"
+                },
+                {
+                    "id": "api.warehouse.bins.import.template",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/import/template",
+                    "summary": "Impor dari file rak"
+                },
+                {
+                    "id": "api.warehouse.bins.pending-putaway-skus",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+                    "summary": "Tempatkan ke rak lokasi"
                 },
                 {
                     "id": "api.warehouse.bins.print-qr-job",
@@ -3328,28 +3924,16 @@
                     "summary": "Buat rak"
                 },
                 {
-                    "id": "api.warehouse.bins.bulk-update",
-                    "method": "PUT",
-                    "path": "/api/v1/locations/{locationId}/bins/bulk",
-                    "summary": "Batch (bulk) rak"
-                },
-                {
-                    "id": "api.warehouse.bins.uniform-apply",
+                    "id": "api.warehouse.bins.import-preview",
                     "method": "POST",
-                    "path": "/api/v1/locations/{locationId}/bins/uniform-apply",
-                    "summary": "Buat rak"
+                    "path": "/api/v1/locations/{locationId}/bins/import/preview",
+                    "summary": "Impor dari file rak"
                 },
                 {
-                    "id": "api.warehouse.bins.default",
-                    "method": "GET",
-                    "path": "/api/v1/locations/{locationId}/default-bin",
-                    "summary": "Ambil detail lokasi"
-                },
-                {
-                    "id": "api.warehouse.bins.store",
+                    "id": "api.warehouse.bins.import",
                     "method": "POST",
-                    "path": "/api/v1/bins",
-                    "summary": "Buat rak"
+                    "path": "/api/v1/locations/{locationId}/bins/import",
+                    "summary": "Impor dari file rak"
                 }
             ],
             "related_page": null,
@@ -3364,7 +3948,7 @@
             "path": "/api/v1/locations/{locationId}/bins/print-qr-job",
             "summary": "Cetak rak",
             "description": "Cetak rak.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-manajemen-rak].",
-            "purpose": "Membutuhkan izin: owner, edit-manajemen-rak. Membuat resource baru atau memicu aksi domain.",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, edit-manajemen-rak. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Warehouse\\Http\\Controllers\\LocationBinController",
             "action": "printQrJob",
             "auth": "auth:sanctum",
@@ -3375,7 +3959,7 @@
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
-            "form_request": null,
+            "form_request": "Modules\\Warehouse\\Http\\Requests\\PrintQrLocationBinRequest",
             "path_params": [
                 {
                     "name": "locationId",
@@ -3385,9 +3969,41 @@
                 }
             ],
             "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
+            "body_schema": {
+                "bin_ids": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string"
+                    ],
+                    "description": "Field bin ids (tipe string)."
+                },
+                "paper": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "in:thermal_50x40,thermal_80x40,a4_single,a4_multi"
+                    ],
+                    "enum": [
+                        "thermal_50x40",
+                        "thermal_80x40",
+                        "a4_single",
+                        "a4_multi"
+                    ],
+                    "description": "Field paper (tipe string)."
+                }
+            },
+            "body_example": {
+                "bin_ids": "string",
+                "paper": "thermal_50x40"
+            },
+            "validation": [
+                "bin_ids: nullable|string",
+                "paper: nullable|string|in:thermal_50x40,thermal_80x40,a4_single,a4_multi"
+            ],
             "response_success_schema": {
                 "success": "boolean",
                 "message": "string",
@@ -3468,10 +4084,22 @@
                     "summary": "Ambil daftar rak"
                 },
                 {
+                    "id": "api.warehouse.bins.import.template",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/import/template",
+                    "summary": "Impor dari file rak"
+                },
+                {
                     "id": "api.warehouse.bins.print-qr",
                     "method": "GET",
                     "path": "/api/v1/locations/{locationId}/bins/print-qr",
                     "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.pending-putaway-skus",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+                    "summary": "Tempatkan ke rak lokasi"
                 },
                 {
                     "id": "api.warehouse.bins.preview",
@@ -3486,28 +4114,16 @@
                     "summary": "Buat rak"
                 },
                 {
-                    "id": "api.warehouse.bins.bulk-update",
-                    "method": "PUT",
-                    "path": "/api/v1/locations/{locationId}/bins/bulk",
-                    "summary": "Batch (bulk) rak"
-                },
-                {
-                    "id": "api.warehouse.bins.uniform-apply",
+                    "id": "api.warehouse.bins.import-preview",
                     "method": "POST",
-                    "path": "/api/v1/locations/{locationId}/bins/uniform-apply",
-                    "summary": "Buat rak"
+                    "path": "/api/v1/locations/{locationId}/bins/import/preview",
+                    "summary": "Impor dari file rak"
                 },
                 {
-                    "id": "api.warehouse.bins.default",
-                    "method": "GET",
-                    "path": "/api/v1/locations/{locationId}/default-bin",
-                    "summary": "Ambil detail lokasi"
-                },
-                {
-                    "id": "api.warehouse.bins.store",
+                    "id": "api.warehouse.bins.import",
                     "method": "POST",
-                    "path": "/api/v1/bins",
-                    "summary": "Buat rak"
+                    "path": "/api/v1/locations/{locationId}/bins/import",
+                    "summary": "Impor dari file rak"
                 }
             ],
             "related_page": null,
@@ -3729,10 +4345,22 @@
                     "summary": "Ambil daftar rak"
                 },
                 {
+                    "id": "api.warehouse.bins.import.template",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/import/template",
+                    "summary": "Impor dari file rak"
+                },
+                {
                     "id": "api.warehouse.bins.print-qr",
                     "method": "GET",
                     "path": "/api/v1/locations/{locationId}/bins/print-qr",
                     "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.pending-putaway-skus",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+                    "summary": "Tempatkan ke rak lokasi"
                 },
                 {
                     "id": "api.warehouse.bins.print-qr-job",
@@ -3753,22 +4381,590 @@
                     "summary": "Buat rak"
                 },
                 {
-                    "id": "api.warehouse.bins.bulk-update",
-                    "method": "PUT",
-                    "path": "/api/v1/locations/{locationId}/bins/bulk",
-                    "summary": "Batch (bulk) rak"
-                },
-                {
-                    "id": "api.warehouse.bins.default",
-                    "method": "GET",
-                    "path": "/api/v1/locations/{locationId}/default-bin",
-                    "summary": "Ambil detail lokasi"
-                },
-                {
-                    "id": "api.warehouse.bins.store",
+                    "id": "api.warehouse.bins.import-preview",
                     "method": "POST",
-                    "path": "/api/v1/bins",
+                    "path": "/api/v1/locations/{locationId}/bins/import/preview",
+                    "summary": "Impor dari file rak"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.warehouse.bins.assign-sku",
+            "module_slug": "warehouse",
+            "module_name": "Warehouse",
+            "method": "POST",
+            "path": "/api/v1/locations/{locationId}/bins/{binId}/assign-sku",
+            "summary": "Assign ke petugas rak",
+            "description": "Assign ke petugas rak.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-manajemen-rak].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, edit-manajemen-rak. Membuat resource baru atau memicu aksi domain.",
+            "controller": "Modules\\Warehouse\\Http\\Controllers\\LocationBinController",
+            "action": "assignSku",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "edit-manajemen-rak"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": "Modules\\Warehouse\\Http\\Requests\\AssignSkuLocationBinRequest",
+            "path_params": [
+                {
+                    "name": "locationId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field location id (tipe string)."
+                },
+                {
+                    "name": "binId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field bin id (tipe string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": {
+                "item_id": {
+                    "type": "uuid",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "uuid",
+                        "exists:product_variants,id"
+                    ],
+                    "exists": "product_variants,id",
+                    "description": "ID/kode item dari sumber (channel atau internal)."
+                }
+            },
+            "body_example": {
+                "item_id": "00000000-0000-0000-0000-000000000000"
+            },
+            "validation": [
+                "item_id: required|uuid|exists:product_variants,id"
+            ],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "SKU berhasil ditempatkan ke rak.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 404,
+                    "reason": "Lokasi atau rak tidak ditemukan.",
+                    "body": {
+                        "success": false,
+                        "message": "Lokasi atau rak tidak ditemukan."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Gagal menempatkan SKU.",
+                    "body": {
+                        "success": false,
+                        "message": "Gagal menempatkan SKU."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                201,
+                401,
+                403,
+                404,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.warehouse.bins.index",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins",
+                    "summary": "Ambil daftar rak"
+                },
+                {
+                    "id": "api.warehouse.bins.import.template",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/import/template",
+                    "summary": "Impor dari file rak"
+                },
+                {
+                    "id": "api.warehouse.bins.print-qr",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/print-qr",
+                    "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.pending-putaway-skus",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+                    "summary": "Tempatkan ke rak lokasi"
+                },
+                {
+                    "id": "api.warehouse.bins.print-qr-job",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/print-qr-job",
+                    "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.preview",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/preview",
                     "summary": "Buat rak"
+                },
+                {
+                    "id": "api.warehouse.bins.generate",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/generate",
+                    "summary": "Buat rak"
+                },
+                {
+                    "id": "api.warehouse.bins.import-preview",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/import/preview",
+                    "summary": "Impor dari file rak"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.warehouse.bins.move-sku",
+            "module_slug": "warehouse",
+            "module_name": "Warehouse",
+            "method": "POST",
+            "path": "/api/v1/locations/{locationId}/bins/{binId}/move-sku",
+            "summary": "Buat rak",
+            "description": "Buat rak.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-manajemen-rak].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, edit-manajemen-rak. Membuat resource baru atau memicu aksi domain.",
+            "controller": "Modules\\Warehouse\\Http\\Controllers\\LocationBinController",
+            "action": "moveSku",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "edit-manajemen-rak"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": "Modules\\Warehouse\\Http\\Requests\\MoveSkuLocationBinRequest",
+            "path_params": [
+                {
+                    "name": "locationId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field location id (tipe string)."
+                },
+                {
+                    "name": "binId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field bin id (tipe string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": {
+                "item_id": {
+                    "type": "uuid",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "uuid",
+                        "exists:product_variants,id"
+                    ],
+                    "exists": "product_variants,id",
+                    "description": "ID/kode item dari sumber (channel atau internal)."
+                },
+                "destination_bin_id": {
+                    "type": "uuid",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "uuid",
+                        "exists:location_bins,id"
+                    ],
+                    "exists": "location_bins,id",
+                    "description": "ID destination bin (referensi ke resource destination bin)."
+                }
+            },
+            "body_example": {
+                "item_id": "00000000-0000-0000-0000-000000000000",
+                "destination_bin_id": "00000000-0000-0000-0000-000000000000"
+            },
+            "validation": [
+                "item_id: required|uuid|exists:product_variants,id",
+                "destination_bin_id: required|uuid|exists:location_bins,id"
+            ],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "SKU berhasil dipindahkan ke rak tujuan.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 404,
+                    "reason": "Lokasi atau rak tidak ditemukan.",
+                    "body": {
+                        "success": false,
+                        "message": "Lokasi atau rak tidak ditemukan."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Gagal memindahkan SKU.",
+                    "body": {
+                        "success": false,
+                        "message": "Gagal memindahkan SKU."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                201,
+                401,
+                403,
+                404,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.warehouse.bins.index",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins",
+                    "summary": "Ambil daftar rak"
+                },
+                {
+                    "id": "api.warehouse.bins.import.template",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/import/template",
+                    "summary": "Impor dari file rak"
+                },
+                {
+                    "id": "api.warehouse.bins.print-qr",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/print-qr",
+                    "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.pending-putaway-skus",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+                    "summary": "Tempatkan ke rak lokasi"
+                },
+                {
+                    "id": "api.warehouse.bins.print-qr-job",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/print-qr-job",
+                    "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.preview",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/preview",
+                    "summary": "Buat rak"
+                },
+                {
+                    "id": "api.warehouse.bins.generate",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/generate",
+                    "summary": "Buat rak"
+                },
+                {
+                    "id": "api.warehouse.bins.import-preview",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/import/preview",
+                    "summary": "Impor dari file rak"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.warehouse.bins.remove-sku",
+            "module_slug": "warehouse",
+            "module_name": "Warehouse",
+            "method": "POST",
+            "path": "/api/v1/locations/{locationId}/bins/{binId}/remove-sku",
+            "summary": "Buat rak",
+            "description": "Buat rak.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-manajemen-rak].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, edit-manajemen-rak. Membuat resource baru atau memicu aksi domain.",
+            "controller": "Modules\\Warehouse\\Http\\Controllers\\LocationBinController",
+            "action": "removeSku",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "edit-manajemen-rak"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": "Modules\\Warehouse\\Http\\Requests\\RemoveSkuLocationBinRequest",
+            "path_params": [
+                {
+                    "name": "locationId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field location id (tipe string)."
+                },
+                {
+                    "name": "binId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field bin id (tipe string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": {
+                "item_id": {
+                    "type": "uuid",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "uuid",
+                        "exists:product_variants,id"
+                    ],
+                    "exists": "product_variants,id",
+                    "description": "ID/kode item dari sumber (channel atau internal)."
+                }
+            },
+            "body_example": {
+                "item_id": "00000000-0000-0000-0000-000000000000"
+            },
+            "validation": [
+                "item_id: required|uuid|exists:product_variants,id"
+            ],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "SKU berhasil dikeluarkan dari rak.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 404,
+                    "reason": "Lokasi atau rak tidak ditemukan.",
+                    "body": {
+                        "success": false,
+                        "message": "Lokasi atau rak tidak ditemukan."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Gagal mengeluarkan SKU.",
+                    "body": {
+                        "success": false,
+                        "message": "Gagal mengeluarkan SKU."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                201,
+                401,
+                403,
+                404,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.warehouse.bins.index",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins",
+                    "summary": "Ambil daftar rak"
+                },
+                {
+                    "id": "api.warehouse.bins.import.template",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/import/template",
+                    "summary": "Impor dari file rak"
+                },
+                {
+                    "id": "api.warehouse.bins.print-qr",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/print-qr",
+                    "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.pending-putaway-skus",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+                    "summary": "Tempatkan ke rak lokasi"
+                },
+                {
+                    "id": "api.warehouse.bins.print-qr-job",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/print-qr-job",
+                    "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.preview",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/preview",
+                    "summary": "Buat rak"
+                },
+                {
+                    "id": "api.warehouse.bins.generate",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/generate",
+                    "summary": "Buat rak"
+                },
+                {
+                    "id": "api.warehouse.bins.import-preview",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/import/preview",
+                    "summary": "Impor dari file rak"
                 }
             ],
             "related_page": null,
@@ -3782,12 +4978,15 @@
             "method": "GET",
             "path": "/api/v1/locations/{locationId}/default-bin",
             "summary": "Ambil detail lokasi",
-            "description": "Ambil detail lokasi.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil detail lokasi.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-manajemen-rak].",
+            "purpose": "Membutuhkan izin: owner, view-manajemen-rak. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Warehouse\\Http\\Controllers\\LocationBinController",
             "action": "defaultBin",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-manajemen-rak"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -3885,6 +5084,908 @@
                     "summary": "Ambil daftar rak"
                 },
                 {
+                    "id": "api.warehouse.bins.import.template",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/import/template",
+                    "summary": "Impor dari file rak"
+                },
+                {
+                    "id": "api.warehouse.bins.print-qr",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/print-qr",
+                    "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.pending-putaway-skus",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+                    "summary": "Tempatkan ke rak lokasi"
+                },
+                {
+                    "id": "api.warehouse.bins.print-qr-job",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/print-qr-job",
+                    "summary": "Cetak rak"
+                },
+                {
+                    "id": "api.warehouse.bins.preview",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/preview",
+                    "summary": "Buat rak"
+                },
+                {
+                    "id": "api.warehouse.bins.generate",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/generate",
+                    "summary": "Buat rak"
+                },
+                {
+                    "id": "api.warehouse.bins.import-preview",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/import/preview",
+                    "summary": "Impor dari file rak"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.warehouse.multi-sku-rules.index",
+            "module_slug": "warehouse",
+            "module_name": "Warehouse",
+            "method": "GET",
+            "path": "/api/v1/locations/{locationId}/multi-sku-rules",
+            "summary": "Ambil daftar lokasi",
+            "description": "Ambil daftar lokasi.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-manajemen-rak].",
+            "purpose": "Membutuhkan izin: owner, view-manajemen-rak. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Warehouse\\Http\\Controllers\\BinMultiSkuRuleController",
+            "action": "index",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-manajemen-rak"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [
+                {
+                    "name": "locationId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field location id (tipe string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": [
+                    {
+                        "id": "mixed",
+                        "location_id": "mixed",
+                        "pattern": "mixed",
+                        "note": "mixed",
+                        "is_active": "mixed",
+                        "matched_count": "mixed",
+                        "created_at": "mixed",
+                        "updated_at": "mixed"
+                    }
+                ],
+                "meta": {
+                    "current_page": "integer",
+                    "per_page": "integer",
+                    "total": "integer",
+                    "last_page": "integer"
+                }
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Berhasil.",
+                "data": [
+                    {
+                        "id": "019ea2afad1d733eafb905816d10590e",
+                        "location_id": "019ea2afad1d733eafb905816d10590e",
+                        "pattern": "string",
+                        "note": "string",
+                        "is_active": "string",
+                        "matched_count": "string",
+                        "created_at": "string",
+                        "updated_at": "string"
+                    }
+                ],
+                "meta": {
+                    "current_page": 1,
+                    "per_page": 10,
+                    "total": 1,
+                    "last_page": 1
+                }
+            },
+            "response_resource": "Modules\\Warehouse\\Http\\Resources\\BinMultiSkuRuleResource",
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.warehouse.multi-sku-rules.suggestions",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules/suggestions",
+                    "summary": "Ambil detail lokasi"
+                },
+                {
+                    "id": "api.warehouse.multi-sku-rules.store",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules",
+                    "summary": "Buat lokasi"
+                },
+                {
+                    "id": "api.warehouse.multi-sku-rules.update",
+                    "method": "PUT",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules/{ruleId}",
+                    "summary": "Ubah lokasi"
+                },
+                {
+                    "id": "api.warehouse.multi-sku-rules.destroy",
+                    "method": "DELETE",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules/{ruleId}",
+                    "summary": "Hapus lokasi"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.warehouse.multi-sku-rules.store",
+            "module_slug": "warehouse",
+            "module_name": "Warehouse",
+            "method": "POST",
+            "path": "/api/v1/locations/{locationId}/multi-sku-rules",
+            "summary": "Buat lokasi",
+            "description": "Buat lokasi.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, create-manajemen-rak].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, create-manajemen-rak. Membuat resource baru atau memicu aksi domain.",
+            "controller": "Modules\\Warehouse\\Http\\Controllers\\BinMultiSkuRuleController",
+            "action": "store",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "create-manajemen-rak"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": "Modules\\Warehouse\\Http\\Requests\\SaveBinMultiSkuRuleRequest",
+            "path_params": [
+                {
+                    "name": "locationId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field location id (tipe string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": {
+                    "id": "mixed",
+                    "location_id": "mixed",
+                    "pattern": "mixed",
+                    "note": "mixed",
+                    "is_active": "mixed",
+                    "matched_count": "mixed",
+                    "created_at": "mixed",
+                    "updated_at": "mixed"
+                }
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Berhasil.",
+                "data": {
+                    "id": "019ea2afad1d733eafb905816d10590e",
+                    "location_id": "019ea2afad1d733eafb905816d10590e",
+                    "pattern": "string",
+                    "note": "string",
+                    "is_active": "string",
+                    "matched_count": "string",
+                    "created_at": "string",
+                    "updated_at": "string"
+                }
+            },
+            "response_resource": "Modules\\Warehouse\\Http\\Resources\\BinMultiSkuRuleResource",
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Pola ini sudah terdaftar di lokasi ini.",
+                    "body": {
+                        "success": false,
+                        "message": "Pola ini sudah terdaftar di lokasi ini."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                201,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.warehouse.multi-sku-rules.index",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules",
+                    "summary": "Ambil daftar lokasi"
+                },
+                {
+                    "id": "api.warehouse.multi-sku-rules.suggestions",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules/suggestions",
+                    "summary": "Ambil detail lokasi"
+                },
+                {
+                    "id": "api.warehouse.multi-sku-rules.update",
+                    "method": "PUT",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules/{ruleId}",
+                    "summary": "Ubah lokasi"
+                },
+                {
+                    "id": "api.warehouse.multi-sku-rules.destroy",
+                    "method": "DELETE",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules/{ruleId}",
+                    "summary": "Hapus lokasi"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.warehouse.multi-sku-rules.suggestions",
+            "module_slug": "warehouse",
+            "module_name": "Warehouse",
+            "method": "GET",
+            "path": "/api/v1/locations/{locationId}/multi-sku-rules/suggestions",
+            "summary": "Ambil detail lokasi",
+            "description": "Ambil detail lokasi.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-manajemen-rak].",
+            "purpose": "Membutuhkan izin: owner, view-manajemen-rak. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Warehouse\\Http\\Controllers\\BinMultiSkuRuleController",
+            "action": "suggestions",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-manajemen-rak"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [
+                {
+                    "name": "locationId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field location id (tipe string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Daftar pola yang tersedia berhasil diambil",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.warehouse.multi-sku-rules.index",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules",
+                    "summary": "Ambil daftar lokasi"
+                },
+                {
+                    "id": "api.warehouse.multi-sku-rules.store",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules",
+                    "summary": "Buat lokasi"
+                },
+                {
+                    "id": "api.warehouse.multi-sku-rules.update",
+                    "method": "PUT",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules/{ruleId}",
+                    "summary": "Ubah lokasi"
+                },
+                {
+                    "id": "api.warehouse.multi-sku-rules.destroy",
+                    "method": "DELETE",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules/{ruleId}",
+                    "summary": "Hapus lokasi"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.warehouse.multi-sku-rules.destroy",
+            "module_slug": "warehouse",
+            "module_name": "Warehouse",
+            "method": "DELETE",
+            "path": "/api/v1/locations/{locationId}/multi-sku-rules/{ruleId}",
+            "summary": "Hapus lokasi",
+            "description": "Hapus lokasi.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: minimal satu izin dari [owner, delete-manajemen-rak].",
+            "purpose": "Membutuhkan izin: owner, delete-manajemen-rak. Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
+            "controller": "Modules\\Warehouse\\Http\\Controllers\\BinMultiSkuRuleController",
+            "action": "destroy",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "delete-manajemen-rak"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [
+                {
+                    "name": "locationId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field location id (tipe string)."
+                },
+                {
+                    "name": "ruleId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field rule id (tipe string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Aturan rak multi-SKU berhasil dihapus",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 404,
+                    "reason": "Aturan tidak ditemukan.",
+                    "body": {
+                        "success": false,
+                        "message": "Aturan tidak ditemukan."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                204,
+                401,
+                403,
+                404,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.warehouse.multi-sku-rules.index",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules",
+                    "summary": "Ambil daftar lokasi"
+                },
+                {
+                    "id": "api.warehouse.multi-sku-rules.suggestions",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules/suggestions",
+                    "summary": "Ambil detail lokasi"
+                },
+                {
+                    "id": "api.warehouse.multi-sku-rules.store",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules",
+                    "summary": "Buat lokasi"
+                },
+                {
+                    "id": "api.warehouse.multi-sku-rules.update",
+                    "method": "PUT",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules/{ruleId}",
+                    "summary": "Ubah lokasi"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.warehouse.multi-sku-rules.update",
+            "module_slug": "warehouse",
+            "module_name": "Warehouse",
+            "method": "PUT",
+            "path": "/api/v1/locations/{locationId}/multi-sku-rules/{ruleId}",
+            "summary": "Ubah lokasi",
+            "description": "Ubah lokasi.\nResponse: 200 dengan data resource yang sudah diperbarui.\nOtorisasi: minimal satu izin dari [owner, edit-manajemen-rak].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, edit-manajemen-rak. Memperbarui resource yang sudah ada.",
+            "controller": "Modules\\Warehouse\\Http\\Controllers\\BinMultiSkuRuleController",
+            "action": "update",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "edit-manajemen-rak"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": "Modules\\Warehouse\\Http\\Requests\\SaveBinMultiSkuRuleRequest",
+            "path_params": [
+                {
+                    "name": "locationId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field location id (tipe string)."
+                },
+                {
+                    "name": "ruleId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field rule id (tipe string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": {
+                    "id": "mixed",
+                    "location_id": "mixed",
+                    "pattern": "mixed",
+                    "note": "mixed",
+                    "is_active": "mixed",
+                    "matched_count": "mixed",
+                    "created_at": "mixed",
+                    "updated_at": "mixed"
+                }
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Berhasil.",
+                "data": {
+                    "id": "019ea2afad1d733eafb905816d10590e",
+                    "location_id": "019ea2afad1d733eafb905816d10590e",
+                    "pattern": "string",
+                    "note": "string",
+                    "is_active": "string",
+                    "matched_count": "string",
+                    "created_at": "string",
+                    "updated_at": "string"
+                }
+            },
+            "response_resource": "Modules\\Warehouse\\Http\\Resources\\BinMultiSkuRuleResource",
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 404,
+                    "reason": "Aturan tidak ditemukan.",
+                    "body": {
+                        "success": false,
+                        "message": "Aturan tidak ditemukan."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Pola ini sudah terdaftar di lokasi ini.",
+                    "body": {
+                        "success": false,
+                        "message": "Pola ini sudah terdaftar di lokasi ini."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                404,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.warehouse.multi-sku-rules.index",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules",
+                    "summary": "Ambil daftar lokasi"
+                },
+                {
+                    "id": "api.warehouse.multi-sku-rules.suggestions",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules/suggestions",
+                    "summary": "Ambil detail lokasi"
+                },
+                {
+                    "id": "api.warehouse.multi-sku-rules.store",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules",
+                    "summary": "Buat lokasi"
+                },
+                {
+                    "id": "api.warehouse.multi-sku-rules.destroy",
+                    "method": "DELETE",
+                    "path": "/api/v1/locations/{locationId}/multi-sku-rules/{ruleId}",
+                    "summary": "Hapus lokasi"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.warehouse.bins.pending-putaway-skus",
+            "module_slug": "warehouse",
+            "module_name": "Warehouse",
+            "method": "GET",
+            "path": "/api/v1/locations/{locationId}/pending-putaway-skus",
+            "summary": "Tempatkan ke rak lokasi",
+            "description": "Tempatkan ke rak lokasi.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-manajemen-rak].",
+            "purpose": "Membutuhkan izin: owner, view-manajemen-rak. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Warehouse\\Http\\Controllers\\LocationBinController",
+            "action": "pendingPutawaySkus",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-manajemen-rak"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [
+                {
+                    "name": "locationId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field location id (tipe string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Daftar SKU siap putaway berhasil diambil",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.warehouse.bins.index",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins",
+                    "summary": "Ambil daftar rak"
+                },
+                {
+                    "id": "api.warehouse.bins.import.template",
+                    "method": "GET",
+                    "path": "/api/v1/locations/{locationId}/bins/import/template",
+                    "summary": "Impor dari file rak"
+                },
+                {
                     "id": "api.warehouse.bins.print-qr",
                     "method": "GET",
                     "path": "/api/v1/locations/{locationId}/bins/print-qr",
@@ -3909,22 +6010,16 @@
                     "summary": "Buat rak"
                 },
                 {
-                    "id": "api.warehouse.bins.bulk-update",
-                    "method": "PUT",
-                    "path": "/api/v1/locations/{locationId}/bins/bulk",
-                    "summary": "Batch (bulk) rak"
+                    "id": "api.warehouse.bins.import-preview",
+                    "method": "POST",
+                    "path": "/api/v1/locations/{locationId}/bins/import/preview",
+                    "summary": "Impor dari file rak"
                 },
                 {
-                    "id": "api.warehouse.bins.uniform-apply",
+                    "id": "api.warehouse.bins.import",
                     "method": "POST",
-                    "path": "/api/v1/locations/{locationId}/bins/uniform-apply",
-                    "summary": "Buat rak"
-                },
-                {
-                    "id": "api.warehouse.bins.store",
-                    "method": "POST",
-                    "path": "/api/v1/bins",
-                    "summary": "Buat rak"
+                    "path": "/api/v1/locations/{locationId}/bins/import",
+                    "summary": "Impor dari file rak"
                 }
             ],
             "related_page": null,
@@ -6205,6 +8300,379 @@
                     "method": "GET",
                     "path": "/api/v1/qr-jobs/{id}",
                     "summary": "Ambil detail qr jobs"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.warehouse.company.index",
+            "module_slug": "warehouse",
+            "module_name": "Warehouse",
+            "method": "GET",
+            "path": "/api/v1/systemsetting/company",
+            "summary": "Ambil daftar pengaturan sistem",
+            "description": "Ambil daftar pengaturan sistem.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pengaturan-sistem].",
+            "purpose": "Membutuhkan izin: owner, view-pengaturan-sistem. Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
+            "controller": "Modules\\Warehouse\\Http\\Controllers\\CompanyProfileController",
+            "action": "index",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-pengaturan-sistem"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": {
+                    "legal_name": "mixed",
+                    "brand_name": "mixed",
+                    "npwp": "mixed",
+                    "address": "mixed",
+                    "city": "mixed",
+                    "postal_code": "mixed",
+                    "phone": "mixed",
+                    "email": "mixed",
+                    "logo_media_id": "mixed",
+                    "logo_url": "mixed",
+                    "signature_media_id": "mixed",
+                    "signature_url": "mixed",
+                    "updated_at": "mixed"
+                }
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Berhasil.",
+                "data": {
+                    "legal_name": "string",
+                    "brand_name": "string",
+                    "npwp": "string",
+                    "address": "string",
+                    "city": "string",
+                    "postal_code": "string",
+                    "phone": "string",
+                    "email": "string",
+                    "logo_media_id": "019ea2afad1d733eafb905816d10590e",
+                    "logo_url": "string",
+                    "signature_media_id": "019ea2afad1d733eafb905816d10590e",
+                    "signature_url": "string",
+                    "updated_at": "string"
+                }
+            },
+            "response_resource": "Modules\\Warehouse\\Http\\Resources\\CompanyProfileResource",
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.warehouse.company.store",
+                    "method": "POST",
+                    "path": "/api/v1/systemsetting/company",
+                    "summary": "Buat pengaturan sistem"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.warehouse.company.store",
+            "module_slug": "warehouse",
+            "module_name": "Warehouse",
+            "method": "POST",
+            "path": "/api/v1/systemsetting/company",
+            "summary": "Buat pengaturan sistem",
+            "description": "Buat pengaturan sistem.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pengaturan-sistem].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, edit-pengaturan-sistem. Membuat resource baru atau memicu aksi domain.",
+            "controller": "Modules\\Warehouse\\Http\\Controllers\\CompanyProfileController",
+            "action": "store",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "edit-pengaturan-sistem"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": "Modules\\Warehouse\\Http\\Requests\\SaveCompanyProfileRequest",
+            "path_params": [],
+            "query_params": [],
+            "body_schema": {
+                "legal_name": {
+                    "type": "string",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "string",
+                        "max:255"
+                    ],
+                    "constraints": {
+                        "max": 255
+                    },
+                    "description": "Field legal name (tipe string)."
+                },
+                "address": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "max:1000"
+                    ],
+                    "constraints": {
+                        "max": 1000
+                    },
+                    "description": "Field address (tipe string)."
+                },
+                "city": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "max:255"
+                    ],
+                    "constraints": {
+                        "max": 255
+                    },
+                    "description": "Field city (tipe string)."
+                },
+                "postal_code": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "max:16"
+                    ],
+                    "constraints": {
+                        "max": 16
+                    },
+                    "description": "Field postal code (tipe string)."
+                },
+                "phone": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "max:32"
+                    ],
+                    "constraints": {
+                        "max": 32
+                    },
+                    "description": "Nomor telepon (E.164)."
+                },
+                "email": {
+                    "type": "email",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "email",
+                        "max:255"
+                    ],
+                    "constraints": {
+                        "max": 255
+                    },
+                    "description": "Alamat email (RFC 5321)."
+                },
+                "logo_media_id": {
+                    "type": "uuid",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "uuid"
+                    ],
+                    "description": "ID logo media (referensi ke resource logo media)."
+                },
+                "signature_media_id": {
+                    "type": "uuid",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "uuid"
+                    ],
+                    "description": "ID signature media (referensi ke resource signature media)."
+                }
+            },
+            "body_example": {
+                "legal_name": "string",
+                "address": "string",
+                "city": "string",
+                "postal_code": "string",
+                "phone": "string",
+                "email": "user@example.com",
+                "logo_media_id": "00000000-0000-0000-0000-000000000000",
+                "signature_media_id": "00000000-0000-0000-0000-000000000000"
+            },
+            "validation": [
+                "legal_name: required|string|max:255",
+                "address: nullable|string|max:1000",
+                "city: nullable|string|max:255",
+                "postal_code: nullable|string|max:16",
+                "phone: nullable|string|max:32",
+                "email: nullable|email|max:255",
+                "logo_media_id: nullable|uuid",
+                "signature_media_id: nullable|uuid"
+            ],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": {
+                    "legal_name": "mixed",
+                    "brand_name": "mixed",
+                    "npwp": "mixed",
+                    "address": "mixed",
+                    "city": "mixed",
+                    "postal_code": "mixed",
+                    "phone": "mixed",
+                    "email": "mixed",
+                    "logo_media_id": "mixed",
+                    "logo_url": "mixed",
+                    "signature_media_id": "mixed",
+                    "signature_url": "mixed",
+                    "updated_at": "mixed"
+                }
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Berhasil.",
+                "data": {
+                    "legal_name": "string",
+                    "brand_name": "string",
+                    "npwp": "string",
+                    "address": "string",
+                    "city": "string",
+                    "postal_code": "string",
+                    "phone": "string",
+                    "email": "string",
+                    "logo_media_id": "019ea2afad1d733eafb905816d10590e",
+                    "logo_url": "string",
+                    "signature_media_id": "019ea2afad1d733eafb905816d10590e",
+                    "signature_url": "string",
+                    "updated_at": "string"
+                }
+            },
+            "response_resource": "Modules\\Warehouse\\Http\\Resources\\CompanyProfileResource",
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                201,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.warehouse.company.index",
+                    "method": "GET",
+                    "path": "/api/v1/systemsetting/company",
+                    "summary": "Ambil daftar pengaturan sistem"
                 }
             ],
             "related_page": null,

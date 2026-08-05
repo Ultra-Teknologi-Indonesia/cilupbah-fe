@@ -188,12 +188,17 @@
             "allowed_sorts": [
                 "transaction_date",
                 "created_at",
-                "grand_total"
+                "grand_total",
+                "salesorder_no",
+                "status"
             ],
             "allowed_search": [
                 "salesorder_no",
                 "channel_order_no",
-                "tracking_number"
+                "tracking_number",
+                "shipping_provider",
+                "shipping_type",
+                "completedPicklists.picklist_no"
             ],
             "allowed_includes": [],
             "allowed_fields": [],

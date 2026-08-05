@@ -77,8 +77,8 @@ export function EditOrderItemDialog({
         <DialogHeader>
           <DialogTitle>Ubah Item Pesanan</DialogTitle>
           <DialogDescription>
-            Perubahan hanya berlaku di sistem internal (Jubelio) dan tidak
-            dikirim ke marketplace.
+            Perubahan hanya berlaku di sistem internal dan tidak dikirim ke
+            marketplace.
           </DialogDescription>
         </DialogHeader>
 

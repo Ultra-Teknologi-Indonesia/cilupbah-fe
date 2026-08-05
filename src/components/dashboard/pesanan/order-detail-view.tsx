@@ -902,8 +902,8 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           {(order.customer_decision === "replace" ||
             order.status === "pending") && (
             <div className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-2.5 text-xs text-warning">
-              Perubahan item pesanan hanya update sistem internal (Jubelio) —
-              tidak dikirim ke marketplace.
+              Perubahan item pesanan hanya update sistem internal — tidak
+              dikirim ke marketplace.
             </div>
           )}
 

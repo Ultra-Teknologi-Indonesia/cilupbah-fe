@@ -12,12 +12,15 @@
             "method": "GET",
             "path": "/api/v1/accounts/lookup/all",
             "summary": "Ambil semua (tanpa paginasi) akun COA",
-            "description": "Ambil semua (tanpa paginasi) akun COA.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
+            "description": "Ambil semua (tanpa paginasi) akun COA.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-akun].",
+            "purpose": "Membutuhkan izin: owner, view-akun. Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
             "controller": "Modules\\Finance\\Http\\Controllers\\AccountLookupController",
             "action": "all",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-akun"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,

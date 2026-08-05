@@ -2,7 +2,7 @@
     "slug": "inbound",
     "name": "Inbound",
     "description": "Penerimaan barang (dari PO / Transfer masuk) & penempatan (putaway).",
-    "endpoints_count": 23,
+    "endpoints_count": 31,
     "undocumented": 0,
     "endpoints": [
         {
@@ -195,6 +195,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.store",
                     "method": "POST",
                     "path": "/api/v1/inbounds",
@@ -204,12 +210,6 @@
                     "id": "api.inbounds.show",
                     "method": "GET",
                     "path": "/api/v1/inbounds/{id}",
-                    "summary": "Ambil detail penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.items",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}/items",
                     "summary": "Ambil detail penerimaan barang"
                 }
             ],
@@ -366,7 +366,7 @@
                 "type": "PURCHASE_ORDER",
                 "source_type": "string",
                 "source_id": 1,
-                "expected_date": "2026-07-13",
+                "expected_date": "2026-08-05",
                 "created_by": "string",
                 "items": [
                     {
@@ -483,6 +483,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -492,12 +498,6 @@
                     "id": "api.inbounds.show",
                     "method": "GET",
                     "path": "/api/v1/inbounds/{id}",
-                    "summary": "Ambil detail penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.items",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}/items",
                     "summary": "Ambil detail penerimaan barang"
                 }
             ],
@@ -512,12 +512,15 @@
             "method": "POST",
             "path": "/api/v1/inbounds/assignments/{assignmentId}/start",
             "summary": "Assign ke petugas penerimaan barang",
-            "description": "Assign ke petugas penerimaan barang.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Assign ke petugas penerimaan barang.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-barang-masuk].",
+            "purpose": "Membutuhkan izin: owner, edit-barang-masuk. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Inbound\\Http\\Controllers\\InboundController",
             "action": "startAssignment",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-barang-masuk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -630,6 +633,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -640,12 +649,6 @@
                     "method": "POST",
                     "path": "/api/v1/inbounds",
                     "summary": "Buat penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.show",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}",
-                    "summary": "Ambil detail penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -660,7 +663,7 @@
             "path": "/api/v1/inbounds/bulk-cancel",
             "summary": "Batalkan penerimaan barang",
             "description": "Batalkan penerimaan barang.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, delete-barang-masuk].",
-            "purpose": "Membutuhkan izin: owner, delete-barang-masuk. Membuat resource baru atau memicu aksi domain.",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, delete-barang-masuk. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Inbound\\Http\\Controllers\\InboundController",
             "action": "bulkCancel",
             "auth": "auth:sanctum",
@@ -671,12 +674,45 @@
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
-            "form_request": null,
+            "form_request": "Modules\\Inbound\\Http\\Requests\\BulkCancelInboundRequest",
             "path_params": [],
             "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
+            "body_schema": {
+                "ids": {
+                    "type": "array",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "array",
+                        "min:1"
+                    ],
+                    "constraints": {
+                        "min": 1
+                    },
+                    "description": "Field ids (tipe array)."
+                },
+                "ids.*": {
+                    "type": "string",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "string",
+                        "distinct",
+                        "exists:inbounds,id"
+                    ],
+                    "exists": "inbounds,id",
+                    "description": "Field ids (tipe string)."
+                }
+            },
+            "body_example": {
+                "ids": [
+                    []
+                ]
+            },
+            "validation": [
+                "ids: required|array|min:1",
+                "ids.*: required|string|distinct|exists:inbounds,id"
+            ],
             "response_success_schema": {
                 "success": "boolean",
                 "message": "string",
@@ -775,6 +811,12 @@
                     "summary": "Tempatkan ke rak penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -791,11 +833,148 @@
                     "method": "GET",
                     "path": "/api/v1/inbounds/{id}",
                     "summary": "Ambil detail penerimaan barang"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.inbounds.counts",
+            "module_slug": "inbound",
+            "module_name": "Inbound",
+            "method": "GET",
+            "path": "/api/v1/inbounds/counts",
+            "summary": "Hitung jumlah per tab penerimaan barang",
+            "description": "Hitung jumlah per tab penerimaan barang.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-barang-masuk].",
+            "purpose": "Membutuhkan izin: owner, view-barang-masuk. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Inbound\\Http\\Controllers\\InboundController",
+            "action": "counts",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-barang-masuk"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Jumlah inbound per status",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
                 },
                 {
-                    "id": "api.inbounds.items",
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.inbounds.receivedItems",
                     "method": "GET",
-                    "path": "/api/v1/inbounds/{id}/items",
+                    "path": "/api/v1/inbounds/received-items",
+                    "summary": "Terima penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.myAssignments",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/my-assignments",
+                    "summary": "Assign ke petugas penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.scanQr",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/scan/{qrCode}",
+                    "summary": "Ambil detail penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.scanPutaway",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds/scan-putaway",
+                    "summary": "Tempatkan ke rak penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.bulkCancel",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds/bulk-cancel",
+                    "summary": "Batalkan penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.index",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds",
+                    "summary": "Ambil daftar penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.store",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds",
+                    "summary": "Buat penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.show",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/{id}",
                     "summary": "Ambil detail penerimaan barang"
                 }
             ],
@@ -928,6 +1107,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -943,12 +1128,6 @@
                     "id": "api.inbounds.show",
                     "method": "GET",
                     "path": "/api/v1/inbounds/{id}",
-                    "summary": "Ambil detail penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.items",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}/items",
                     "summary": "Ambil detail penerimaan barang"
                 }
             ],
@@ -1099,6 +1278,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -1115,12 +1300,6 @@
                     "method": "GET",
                     "path": "/api/v1/inbounds/{id}",
                     "summary": "Ambil detail penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.items",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}/items",
-                    "summary": "Ambil detail penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -1134,12 +1313,15 @@
             "method": "POST",
             "path": "/api/v1/inbounds/scan-putaway",
             "summary": "Tempatkan ke rak penerimaan barang",
-            "description": "Tempatkan ke rak penerimaan barang.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membuat resource baru atau memicu aksi domain.",
+            "description": "Tempatkan ke rak penerimaan barang.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-penempatan].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, edit-penempatan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Inbound\\Http\\Controllers\\InboundController",
             "action": "scanPutaway",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-penempatan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -1220,6 +1402,14 @@
                     "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
                 },
                 {
+                    "status": 500,
+                    "reason": "Gagal memindai.",
+                    "body": {
+                        "success": false,
+                        "message": "Gagal memindai."
+                    }
+                },
+                {
                     "status": 422,
                     "reason": "Validasi payload gagal (aturan FormRequest / validate())",
                     "body": {
@@ -1245,8 +1435,8 @@
                 201,
                 401,
                 403,
-                422,
-                500
+                500,
+                422
             ],
             "side_effects": [],
             "allowed_filters": [],
@@ -1281,6 +1471,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -1297,12 +1493,6 @@
                     "method": "GET",
                     "path": "/api/v1/inbounds/{id}",
                     "summary": "Ambil detail penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.items",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}/items",
-                    "summary": "Ambil detail penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -1316,12 +1506,15 @@
             "method": "GET",
             "path": "/api/v1/inbounds/scan/{qrCode}",
             "summary": "Ambil detail penerimaan barang",
-            "description": "Ambil detail penerimaan barang.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil detail penerimaan barang.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-barang-masuk].",
+            "purpose": "Membutuhkan izin: owner, view-barang-masuk. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Inbound\\Http\\Controllers\\InboundController",
             "action": "scanQr",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-barang-masuk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -1334,7 +1527,14 @@
                     "description": "Field qr code (tipe string)."
                 }
             ],
-            "query_params": [],
+            "query_params": [
+                {
+                    "name": "inbound_id",
+                    "type": "string",
+                    "description": "ID inbound (referensi ke resource inbound).",
+                    "required": false
+                }
+            ],
             "body_schema": [],
             "body_example": [],
             "validation": [],
@@ -1437,6 +1637,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -1452,12 +1658,6 @@
                     "id": "api.inbounds.show",
                     "method": "GET",
                     "path": "/api/v1/inbounds/{id}",
-                    "summary": "Ambil detail penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.items",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}/items",
                     "summary": "Ambil detail penerimaan barang"
                 }
             ],
@@ -1602,6 +1802,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -1612,12 +1818,6 @@
                     "method": "POST",
                     "path": "/api/v1/inbounds",
                     "summary": "Buat penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.items",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}/items",
-                    "summary": "Ambil detail penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -1694,7 +1894,7 @@
             },
             "response_success_example": {
                 "success": true,
-                "message": "Berhasil meng-assign.",
+                "message": "Inbound berhasil di-assign",
                 "data": {}
             },
             "response_resource": null,
@@ -1783,6 +1983,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -1793,12 +1999,388 @@
                     "method": "POST",
                     "path": "/api/v1/inbounds",
                     "summary": "Buat penerimaan barang"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.inbounds.unassign",
+            "module_slug": "inbound",
+            "module_name": "Inbound",
+            "method": "DELETE",
+            "path": "/api/v1/inbounds/{id}/assignment",
+            "summary": "Lepas assignment penerimaan barang",
+            "description": "Lepas assignment penerimaan barang.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: minimal satu izin dari [owner, edit-barang-masuk].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, edit-barang-masuk. Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
+            "controller": "Modules\\Inbound\\Http\\Controllers\\InboundController",
+            "action": "unassign",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "edit-barang-masuk"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": "Modules\\Inbound\\Http\\Requests\\UnassignInboundRequest",
+            "path_params": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "required": true,
+                    "description": "Primary key resource ini (UUID string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": {
+                "reason_code": {
+                    "type": "string",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "in:\"SALAH_TAP\",\"SHIFT_HABIS\",\"SAKIT\",\"KENDALA_TEKNIS\",\"LAINNYA\""
+                    ],
+                    "enum": [
+                        "\"SALAH_TAP\"",
+                        "\"SHIFT_HABIS\"",
+                        "\"SAKIT\"",
+                        "\"KENDALA_TEKNIS\"",
+                        "\"LAINNYA\""
+                    ],
+                    "description": "Field reason code (tipe string)."
+                },
+                "reason_note": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "max:500"
+                    ],
+                    "constraints": {
+                        "max": 500
+                    },
+                    "description": "Field reason note (tipe string)."
+                },
+                "new_assignee_id": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "exists:users,id"
+                    ],
+                    "exists": "users,id",
+                    "description": "ID new assignee (referensi ke resource new assignee)."
+                }
+            },
+            "body_example": {
+                "reason_code": "\"SALAH_TAP\"",
+                "reason_note": "string",
+                "new_assignee_id": 1
+            },
+            "validation": [
+                "reason_code: required|in:\"SALAH_TAP\",\"SHIFT_HABIS\",\"SAKIT\",\"KENDALA_TEKNIS\",\"LAINNYA\"",
+                "reason_note: nullable|string|max:500",
+                "new_assignee_id: nullable|string|exists:users,id"
+            ],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Berhasil meng-assign.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
                 },
                 {
-                    "id": "api.inbounds.show",
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                204,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.inbounds.receivedItems",
                     "method": "GET",
-                    "path": "/api/v1/inbounds/{id}",
+                    "path": "/api/v1/inbounds/received-items",
+                    "summary": "Terima penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.myAssignments",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/my-assignments",
+                    "summary": "Assign ke petugas penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.scanQr",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/scan/{qrCode}",
                     "summary": "Ambil detail penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.scanPutaway",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds/scan-putaway",
+                    "summary": "Tempatkan ke rak penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.bulkCancel",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds/bulk-cancel",
+                    "summary": "Batalkan penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.index",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds",
+                    "summary": "Ambil daftar penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.store",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds",
+                    "summary": "Buat penerimaan barang"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.inbounds.resetAssignment",
+            "module_slug": "inbound",
+            "module_name": "Inbound",
+            "method": "POST",
+            "path": "/api/v1/inbounds/{id}/assignment/reset",
+            "summary": "Assign ke petugas penerimaan barang",
+            "description": "Assign ke petugas penerimaan barang.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-barang-masuk].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, edit-barang-masuk. Membuat resource baru atau memicu aksi domain.",
+            "controller": "Modules\\Inbound\\Http\\Controllers\\InboundController",
+            "action": "resetAssignment",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "edit-barang-masuk"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": "Modules\\Inbound\\Http\\Requests\\ResetInboundAssignmentRequest",
+            "path_params": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "required": true,
+                    "description": "Primary key resource ini (UUID string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": {
+                "reason_note": {
+                    "type": "string",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "string",
+                        "min:10",
+                        "max:500"
+                    ],
+                    "constraints": {
+                        "min": 10,
+                        "max": 500
+                    },
+                    "description": "Field reason note (tipe string)."
+                },
+                "new_assignee_id": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "exists:users,id"
+                    ],
+                    "exists": "users,id",
+                    "description": "ID new assignee (referensi ke resource new assignee)."
+                }
+            },
+            "body_example": {
+                "reason_note": "string",
+                "new_assignee_id": 1
+            },
+            "validation": [
+                "reason_note: required|string|min:10|max:500",
+                "new_assignee_id: nullable|string|exists:users,id"
+            ],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Penerimaan berhasil di-reset. Semua qty diterima dikembalikan ke 0.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                201,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.inbounds.receivedItems",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/received-items",
+                    "summary": "Terima penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.myAssignments",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/my-assignments",
+                    "summary": "Assign ke petugas penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.scanQr",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/scan/{qrCode}",
+                    "summary": "Ambil detail penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.scanPutaway",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds/scan-putaway",
+                    "summary": "Tempatkan ke rak penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.bulkCancel",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds/bulk-cancel",
+                    "summary": "Batalkan penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.index",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds",
+                    "summary": "Ambil daftar penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.store",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds",
+                    "summary": "Buat penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -1933,6 +2515,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -1943,12 +2531,6 @@
                     "method": "POST",
                     "path": "/api/v1/inbounds",
                     "summary": "Buat penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.show",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}",
-                    "summary": "Ambil detail penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -1963,7 +2545,7 @@
             "path": "/api/v1/inbounds/{id}/auto-putaway",
             "summary": "Tempatkan ke rak penerimaan barang",
             "description": "Tempatkan ke rak penerimaan barang.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-barang-masuk].",
-            "purpose": "Membutuhkan izin: owner, edit-barang-masuk. Membuat resource baru atau memicu aksi domain.",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, edit-barang-masuk. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Inbound\\Http\\Controllers\\InboundController",
             "action": "autoPutaway",
             "auth": "auth:sanctum",
@@ -1974,7 +2556,7 @@
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
-            "form_request": null,
+            "form_request": "Modules\\Inbound\\Http\\Requests\\ExecuteAutoPutawayRequest",
             "path_params": [
                 {
                     "name": "id",
@@ -1984,9 +2566,27 @@
                 }
             ],
             "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
+            "body_schema": {
+                "created_by": {
+                    "type": "string",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "string",
+                        "max:100"
+                    ],
+                    "constraints": {
+                        "max": 100
+                    },
+                    "description": "Field created by (tipe string)."
+                }
+            },
+            "body_example": {
+                "created_by": "string"
+            },
+            "validation": [
+                "created_by: required|string|max:100"
+            ],
             "response_success_schema": {
                 "success": "boolean",
                 "message": "string",
@@ -2083,6 +2683,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -2093,12 +2699,6 @@
                     "method": "POST",
                     "path": "/api/v1/inbounds",
                     "summary": "Buat penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.show",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}",
-                    "summary": "Ambil detail penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -2233,6 +2833,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -2243,12 +2849,6 @@
                     "method": "POST",
                     "path": "/api/v1/inbounds",
                     "summary": "Buat penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.show",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}",
-                    "summary": "Ambil detail penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -2383,6 +2983,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -2393,12 +2999,6 @@
                     "method": "POST",
                     "path": "/api/v1/inbounds",
                     "summary": "Buat penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.show",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}",
-                    "summary": "Ambil detail penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -2444,7 +3044,7 @@
             },
             "response_success_example": {
                 "success": true,
-                "message": "Receiving ditutup, discrepancy tercatat",
+                "message": "Penerimaan diselesaikan.",
                 "data": {}
             },
             "response_resource": null,
@@ -2533,6 +3133,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -2543,12 +3149,6 @@
                     "method": "POST",
                     "path": "/api/v1/inbounds",
                     "summary": "Buat penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.show",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}",
-                    "summary": "Ambil detail penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -2590,11 +3190,11 @@
             "response_success_schema": {
                 "success": "boolean",
                 "message": "string",
-                "data": "mixed"
+                "data": "object|null"
             },
             "response_success_example": {
                 "success": true,
-                "message": "Berhasil.",
+                "message": "Daftar item Inbound berhasil diambil",
                 "data": {}
             },
             "response_resource": null,
@@ -2697,6 +3297,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -2707,12 +3313,6 @@
                     "method": "POST",
                     "path": "/api/v1/inbounds",
                     "summary": "Buat penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.show",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}",
-                    "summary": "Ambil detail penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -2720,25 +3320,25 @@
             "needs_doc": false
         },
         {
-            "id": "api.inbounds.correctReceived",
+            "id": "api.inbounds.setDiscrepancyNote",
             "module_slug": "inbound",
             "module_name": "Inbound",
-            "method": "DELETE",
-            "path": "/api/v1/inbounds/{id}/items/{itemId}/received",
-            "summary": "Terima penerimaan barang",
-            "description": "Terima penerimaan barang.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: minimal satu izin dari [owner, delete-barang-masuk].",
-            "purpose": "Membutuhkan izin: owner, delete-barang-masuk. Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
+            "method": "PATCH",
+            "path": "/api/v1/inbounds/{id}/items/{itemId}/note",
+            "summary": "Ubah penerimaan barang",
+            "description": "Ubah penerimaan barang.\nResponse: 200 dengan data resource yang sudah diperbarui.\nOtorisasi: minimal satu izin dari [owner, edit-barang-masuk].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, edit-barang-masuk. Memperbarui resource yang sudah ada.",
             "controller": "Modules\\Inbound\\Http\\Controllers\\InboundController",
-            "action": "correctReceivedLine",
+            "action": "setDiscrepancyNote",
             "auth": "auth:sanctum",
             "roles": [
                 "owner",
-                "delete-barang-masuk"
+                "edit-barang-masuk"
             ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
-            "form_request": null,
+            "form_request": "Modules\\Inbound\\Http\\Requests\\SetDiscrepancyNoteRequest",
             "path_params": [
                 {
                     "name": "id",
@@ -2754,9 +3354,209 @@
                 }
             ],
             "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
+            "body_schema": {
+                "note": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "max:1000"
+                    ],
+                    "constraints": {
+                        "max": 1000
+                    },
+                    "description": "Catatan bebas."
+                }
+            },
+            "body_example": {
+                "note": "string"
+            },
+            "validation": [
+                "note: nullable|string|max:1000"
+            ],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Catatan diperbarui.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Gagal menyimpan catatan.",
+                    "body": {
+                        "success": false,
+                        "message": "Gagal menyimpan catatan."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.inbounds.receivedItems",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/received-items",
+                    "summary": "Terima penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.myAssignments",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/my-assignments",
+                    "summary": "Assign ke petugas penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.scanQr",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/scan/{qrCode}",
+                    "summary": "Ambil detail penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.scanPutaway",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds/scan-putaway",
+                    "summary": "Tempatkan ke rak penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.bulkCancel",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds/bulk-cancel",
+                    "summary": "Batalkan penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.index",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds",
+                    "summary": "Ambil daftar penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.store",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds",
+                    "summary": "Buat penerimaan barang"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.inbounds.correctReceived",
+            "module_slug": "inbound",
+            "module_name": "Inbound",
+            "method": "DELETE",
+            "path": "/api/v1/inbounds/{id}/items/{itemId}/received",
+            "summary": "Terima penerimaan barang",
+            "description": "Terima penerimaan barang.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: minimal satu izin dari [owner, delete-barang-masuk].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, delete-barang-masuk. Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
+            "controller": "Modules\\Inbound\\Http\\Controllers\\InboundController",
+            "action": "correctReceivedLine",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "delete-barang-masuk"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": "Modules\\Inbound\\Http\\Requests\\CorrectReceivedLineRequest",
+            "path_params": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "required": true,
+                    "description": "Primary key resource ini (UUID string)."
+                },
+                {
+                    "name": "itemId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field item id (tipe string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": {
+                "qty": {
+                    "type": "integer",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "integer",
+                        "min:1"
+                    ],
+                    "constraints": {
+                        "min": 1
+                    },
+                    "description": "Kuantitas (satuan default)."
+                }
+            },
+            "body_example": {
+                "qty": 1
+            },
+            "validation": [
+                "qty: nullable|integer|min:1"
+            ],
             "response_success_schema": {
                 "success": "boolean",
                 "message": "string",
@@ -2861,6 +3661,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -2871,12 +3677,6 @@
                     "method": "POST",
                     "path": "/api/v1/inbounds",
                     "summary": "Buat penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.show",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}",
-                    "summary": "Ambil detail penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -2891,7 +3691,7 @@
             "path": "/api/v1/inbounds/{id}/items/{itemId}/received-qty",
             "summary": "Terima penerimaan barang",
             "description": "Terima penerimaan barang.\nResponse: 200 dengan data resource yang sudah diperbarui.\nOtorisasi: minimal satu izin dari [owner, edit-barang-masuk].",
-            "purpose": "Membutuhkan izin: owner, edit-barang-masuk. Memperbarui resource yang sudah ada.",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, edit-barang-masuk. Memperbarui resource yang sudah ada.",
             "controller": "Modules\\Inbound\\Http\\Controllers\\InboundController",
             "action": "setReceivedQty",
             "auth": "auth:sanctum",
@@ -2902,7 +3702,7 @@
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
-            "form_request": null,
+            "form_request": "Modules\\Inbound\\Http\\Requests\\SetReceivedQtyRequest",
             "path_params": [
                 {
                     "name": "id",
@@ -2918,9 +3718,49 @@
                 }
             ],
             "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
+            "body_schema": {
+                "qty": {
+                    "type": "integer",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "integer",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Kuantitas (satuan default)."
+                },
+                "reason_note": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string"
+                    ],
+                    "description": "Field reason note (tipe string)."
+                },
+                "_expected_updated_at": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string"
+                    ],
+                    "description": "Timestamp  expected updated (ISO 8601)."
+                }
+            },
+            "body_example": {
+                "qty": 1,
+                "reason_note": "string",
+                "_expected_updated_at": "string"
+            },
+            "validation": [
+                "qty: required|integer|min:0",
+                "reason_note: nullable|string",
+                "_expected_updated_at: nullable|string"
+            ],
             "response_success_schema": {
                 "success": "boolean",
                 "message": "string",
@@ -2928,7 +3768,7 @@
             },
             "response_success_example": {
                 "success": true,
-                "message": "Jumlah diterima berhasil diperbarui.",
+                "message": "Jumlah diterima diperbarui. Penyesuaian Stok dibuat otomatis.",
                 "data": {}
             },
             "response_resource": null,
@@ -3025,6 +3865,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -3035,12 +3881,319 @@
                     "method": "POST",
                     "path": "/api/v1/inbounds",
                     "summary": "Buat penerimaan barang"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.inbounds.join",
+            "module_slug": "inbound",
+            "module_name": "Inbound",
+            "method": "POST",
+            "path": "/api/v1/inbounds/{id}/join",
+            "summary": "Buat penerimaan barang",
+            "description": "Buat penerimaan barang.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-barang-masuk].",
+            "purpose": "Membutuhkan izin: owner, edit-barang-masuk. Membuat resource baru atau memicu aksi domain.",
+            "controller": "Modules\\Inbound\\Http\\Controllers\\InboundController",
+            "action": "joinSession",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "edit-barang-masuk"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "required": true,
+                    "description": "Primary key resource ini (UUID string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Anda bergabung dalam sesi penerimaan.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
                 },
                 {
-                    "id": "api.inbounds.show",
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                201,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.inbounds.receivedItems",
                     "method": "GET",
-                    "path": "/api/v1/inbounds/{id}",
+                    "path": "/api/v1/inbounds/received-items",
+                    "summary": "Terima penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.myAssignments",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/my-assignments",
+                    "summary": "Assign ke petugas penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.scanQr",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/scan/{qrCode}",
                     "summary": "Ambil detail penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.scanPutaway",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds/scan-putaway",
+                    "summary": "Tempatkan ke rak penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.bulkCancel",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds/bulk-cancel",
+                    "summary": "Batalkan penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.index",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds",
+                    "summary": "Ambil daftar penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.store",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds",
+                    "summary": "Buat penerimaan barang"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.inbounds.participants.withdraw",
+            "module_slug": "inbound",
+            "module_name": "Inbound",
+            "method": "POST",
+            "path": "/api/v1/inbounds/{id}/participants/{userId}/withdraw",
+            "summary": "Buat penerimaan barang",
+            "description": "Buat penerimaan barang.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-barang-masuk].",
+            "purpose": "Membutuhkan izin: owner, edit-barang-masuk. Membuat resource baru atau memicu aksi domain.",
+            "controller": "Modules\\Inbound\\Http\\Controllers\\InboundController",
+            "action": "withdrawParticipant",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "edit-barang-masuk"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "required": true,
+                    "description": "Primary key resource ini (UUID string)."
+                },
+                {
+                    "name": "userId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field user id (tipe string)."
+                }
+            ],
+            "query_params": [
+                {
+                    "name": "reason_note",
+                    "type": "string",
+                    "description": "Field reason note (tipe string).",
+                    "required": false
+                }
+            ],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Peserta berhasil ditarik dari sesi.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                201,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.inbounds.receivedItems",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/received-items",
+                    "summary": "Terima penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.myAssignments",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/my-assignments",
+                    "summary": "Assign ke petugas penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.scanQr",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/scan/{qrCode}",
+                    "summary": "Ambil detail penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.scanPutaway",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds/scan-putaway",
+                    "summary": "Tempatkan ke rak penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.bulkCancel",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds/bulk-cancel",
+                    "summary": "Batalkan penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.index",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds",
+                    "summary": "Ambil daftar penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.store",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds",
+                    "summary": "Buat penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -3192,6 +4345,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -3202,12 +4361,6 @@
                     "method": "POST",
                     "path": "/api/v1/inbounds",
                     "summary": "Buat penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.show",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}",
-                    "summary": "Ambil detail penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -3342,6 +4495,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -3352,12 +4511,6 @@
                     "method": "POST",
                     "path": "/api/v1/inbounds",
                     "summary": "Buat penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.show",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}",
-                    "summary": "Ambil detail penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -3601,6 +4754,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -3611,12 +4770,204 @@
                     "method": "POST",
                     "path": "/api/v1/inbounds",
                     "summary": "Buat penerimaan barang"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.inbounds.receipts",
+            "module_slug": "inbound",
+            "module_name": "Inbound",
+            "method": "GET",
+            "path": "/api/v1/inbounds/{id}/receipts",
+            "summary": "Ambil detail penerimaan barang",
+            "description": "Ambil detail penerimaan barang.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-barang-masuk].",
+            "purpose": "Membutuhkan izin: owner, view-barang-masuk. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Inbound\\Http\\Controllers\\InboundController",
+            "action": "receipts",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-barang-masuk"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "required": true,
+                    "description": "Primary key resource ini (UUID string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "mixed"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Berhasil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
                 },
                 {
-                    "id": "api.inbounds.show",
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [
+                {
+                    "name": "received_by_user_id",
+                    "type": "exact",
+                    "column": "inbound_receipts.received_by_user_id",
+                    "scope": null,
+                    "description": "ID received by user (referensi ke resource received by user). Cocok persis. Pemakaian: `?filter[received_by_user_id]=value`.",
+                    "usage_example": "?filter[received_by_user_id]=value"
+                },
+                {
+                    "name": "inbound_item_id",
+                    "type": "exact",
+                    "column": "inbound_receipts.inbound_item_id",
+                    "scope": null,
+                    "description": "ID inbound item (referensi ke resource inbound item). Cocok persis. Pemakaian: `?filter[inbound_item_id]=value`.",
+                    "usage_example": "?filter[inbound_item_id]=value"
+                },
+                {
+                    "name": "condition",
+                    "type": "exact",
+                    "column": "inbound_receipts.condition",
+                    "scope": null,
+                    "description": "Field condition (tipe filter). Cocok persis. Pemakaian: `?filter[condition]=value`.",
+                    "usage_example": "?filter[condition]=value"
+                },
+                {
+                    "name": "date_from",
+                    "type": "callback",
+                    "column": null,
+                    "scope": null,
+                    "description": "Field date from (tipe filter). Diproses via callback custom di Repository. Nilai valid tergantung logika — lihat kolom enum bila ada.",
+                    "usage_example": "?filter[date_from]=value"
+                },
+                {
+                    "name": "date_to",
+                    "type": "callback",
+                    "column": null,
+                    "scope": null,
+                    "description": "Field date to (tipe filter). Diproses via callback custom di Repository. Nilai valid tergantung logika — lihat kolom enum bila ada.",
+                    "usage_example": "?filter[date_to]=value"
+                }
+            ],
+            "allowed_sorts": [
+                "received_date",
+                "inbound_receipts.received_date",
+                "qty",
+                "inbound_receipts.qty",
+                "sku",
+                "product_variants.sku"
+            ],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": "-received_date",
+            "related_endpoints": [
+                {
+                    "id": "api.inbounds.receivedItems",
                     "method": "GET",
-                    "path": "/api/v1/inbounds/{id}",
+                    "path": "/api/v1/inbounds/received-items",
+                    "summary": "Terima penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.myAssignments",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/my-assignments",
+                    "summary": "Assign ke petugas penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.scanQr",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/scan/{qrCode}",
                     "summary": "Ambil detail penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.scanPutaway",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds/scan-putaway",
+                    "summary": "Tempatkan ke rak penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.bulkCancel",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds/bulk-cancel",
+                    "summary": "Batalkan penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.index",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds",
+                    "summary": "Ambil daftar penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.store",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds",
+                    "summary": "Buat penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -3655,9 +5006,10 @@
             "body_schema": {
                 "received_by": {
                     "type": "string",
-                    "required": true,
+                    "required": false,
                     "rules": [
-                        "required",
+                        "sometimes",
+                        "nullable",
                         "string",
                         "max:100"
                     ],
@@ -3757,7 +5109,7 @@
                 ]
             },
             "validation": [
-                "received_by: required|string|max:100",
+                "received_by: sometimes|nullable|string|max:100",
                 "items: required|array|min:1",
                 "items.*.inbound_item_id: required|string|uuid|exists:inbound_items,id",
                 "items.*.qty: required|integer|min:1",
@@ -3861,6 +5213,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -3871,12 +5229,6 @@
                     "method": "POST",
                     "path": "/api/v1/inbounds",
                     "summary": "Buat penerimaan barang"
-                },
-                {
-                    "id": "api.inbounds.show",
-                    "method": "GET",
-                    "path": "/api/v1/inbounds/{id}",
-                    "summary": "Ambil detail penerimaan barang"
                 }
             ],
             "related_page": null,
@@ -3891,7 +5243,7 @@
             "path": "/api/v1/inbounds/{id}/received",
             "summary": "Terima penerimaan barang",
             "description": "Terima penerimaan barang.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: minimal satu izin dari [owner, delete-barang-masuk].",
-            "purpose": "Membutuhkan izin: owner, delete-barang-masuk. Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, delete-barang-masuk. Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
             "controller": "Modules\\Inbound\\Http\\Controllers\\InboundController",
             "action": "correctReceivedLines",
             "auth": "auth:sanctum",
@@ -3902,7 +5254,7 @@
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
-            "form_request": null,
+            "form_request": "Modules\\Inbound\\Http\\Requests\\CorrectReceivedLinesRequest",
             "path_params": [
                 {
                     "name": "id",
@@ -3912,9 +5264,56 @@
                 }
             ],
             "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
+            "body_schema": {
+                "items": {
+                    "type": "array",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "array",
+                        "min:1"
+                    ],
+                    "constraints": {
+                        "min": 1
+                    },
+                    "description": "Daftar item dalam dokumen (minimal 1 baris)."
+                },
+                "items.*.item_id": {
+                    "type": "string",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "string"
+                    ],
+                    "description": "ID/kode item dari sumber (channel atau internal)."
+                },
+                "items.*.qty": {
+                    "type": "integer",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "integer",
+                        "min:1"
+                    ],
+                    "constraints": {
+                        "min": 1
+                    },
+                    "description": "Kuantitas (satuan default)."
+                }
+            },
+            "body_example": {
+                "items": [
+                    {
+                        "item_id": 1,
+                        "qty": 1
+                    }
+                ]
+            },
+            "validation": [
+                "items: required|array|min:1",
+                "items.*.item_id: required|string",
+                "items.*.qty: nullable|integer|min:1"
+            ],
             "response_success_schema": {
                 "success": "boolean",
                 "message": "string",
@@ -4019,6 +5418,12 @@
                     "summary": "Batalkan penerimaan barang"
                 },
                 {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
                     "id": "api.inbounds.index",
                     "method": "GET",
                     "path": "/api/v1/inbounds",
@@ -4029,12 +5434,165 @@
                     "method": "POST",
                     "path": "/api/v1/inbounds",
                     "summary": "Buat penerimaan barang"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.inbounds.receiveAdditional",
+            "module_slug": "inbound",
+            "module_name": "Inbound",
+            "method": "POST",
+            "path": "/api/v1/purchase-orders/{poId}/receive-additional",
+            "summary": "Terima pesanan pembelian (PO)",
+            "description": "Terima pesanan pembelian (PO).\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, create-barang-masuk].",
+            "purpose": "Membutuhkan izin: owner, create-barang-masuk. Membuat resource baru atau memicu aksi domain.",
+            "controller": "Modules\\Inbound\\Http\\Controllers\\InboundController",
+            "action": "receiveAdditional",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "create-barang-masuk"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [
+                {
+                    "name": "poId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Field po id (tipe string)."
+                }
+            ],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Penerimaan susulan berhasil dibuat.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
                 },
                 {
-                    "id": "api.inbounds.show",
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 404,
+                    "reason": "PO tidak ditemukan",
+                    "body": {
+                        "success": false,
+                        "message": "PO tidak ditemukan"
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                201,
+                401,
+                403,
+                404,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.inbounds.receivedItems",
                     "method": "GET",
-                    "path": "/api/v1/inbounds/{id}",
+                    "path": "/api/v1/inbounds/received-items",
+                    "summary": "Terima penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.myAssignments",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/my-assignments",
+                    "summary": "Assign ke petugas penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.scanQr",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/scan/{qrCode}",
                     "summary": "Ambil detail penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.scanPutaway",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds/scan-putaway",
+                    "summary": "Tempatkan ke rak penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.bulkCancel",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds/bulk-cancel",
+                    "summary": "Batalkan penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.counts",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds/counts",
+                    "summary": "Hitung jumlah per tab penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.index",
+                    "method": "GET",
+                    "path": "/api/v1/inbounds",
+                    "summary": "Ambil daftar penerimaan barang"
+                },
+                {
+                    "id": "api.inbounds.store",
+                    "method": "POST",
+                    "path": "/api/v1/inbounds",
+                    "summary": "Buat penerimaan barang"
                 }
             ],
             "related_page": null,

@@ -18,6 +18,8 @@ export interface DownloadTransaction {
   isDownloaded: boolean;
   onDownloadProcess: boolean;
   totalDownloaded: number;
+  totalFailed: number;
+  isPartial: boolean;
   allProduct: number;
   progressPercent: number;
   errorMessage: string | null;
@@ -38,6 +40,8 @@ interface RawDownloadTransaction {
   is_downloaded: boolean;
   on_download_process: boolean;
   total_downloaded: number;
+  total_failed: number;
+  is_partial: boolean;
   all_product: number;
   progress_percent: number;
   error_message: string | null;
@@ -68,6 +72,8 @@ function mapTransaction(raw: RawDownloadTransaction): DownloadTransaction {
     isDownloaded: raw.is_downloaded,
     onDownloadProcess: raw.on_download_process,
     totalDownloaded: raw.total_downloaded,
+    totalFailed: raw.total_failed ?? 0,
+    isPartial: raw.is_partial ?? false,
     allProduct: raw.all_product,
     progressPercent: raw.progress_percent,
     errorMessage: raw.error_message,

@@ -134,6 +134,6 @@ Cilupbah membedakan dua aksi penghentian produk. Keduanya bersifat **LOKAL** —
 1. Untuk menonaktifkan listing di marketplace, buka masing-masing dashboard channel dan **archive/delist** sendiri.
 2. Sinkronisasi Cilupbah tidak mengirim perintah delete ke Shopee/Lazada/TikTok/WooCommerce.
 
-> Peringatan: Jubelio delete/archive **TIDAK** auto propagate ke marketplace. Anda wajib archive manual di dashboard channel bila memang ingin menutup listing.
+> Peringatan: delete/archive di Cilupbah **TIDAK** auto propagate ke marketplace. Anda wajib archive manual di dashboard channel bila memang ingin menutup listing.
 
 > Gotcha: setelah arsip, mapping channel tetap ada tetapi dinonaktifkan. Aktifkan kembali produk sebelum re-mapping.`;

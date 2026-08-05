@@ -6513,12 +6513,15 @@
             "method": "GET",
             "path": "/api/v1/inventory/categories/category-map/{id}",
             "summary": "Ambil detail kategori produk",
-            "description": "Ambil detail kategori produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil detail kategori produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-kategori].",
+            "purpose": "Membutuhkan izin: owner, view-kategori. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Product\\Http\\Controllers\\CategoryController",
             "action": "channelMap",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-kategori"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -6709,12 +6712,15 @@
             "method": "GET",
             "path": "/api/v1/inventory/internal-price-list",
             "summary": "Ambil daftar internal price list",
-            "description": "Ambil daftar internal price list.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
+            "description": "Ambil daftar internal price list.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-harga-jual].",
+            "purpose": "Membutuhkan izin: owner, view-harga-jual. Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
             "controller": "Modules\\Product\\Http\\Controllers\\PriceListController",
             "action": "index",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-harga-jual"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -6869,12 +6875,15 @@
             "method": "GET",
             "path": "/api/v1/inventory/item-bundles",
             "summary": "Ambil daftar item bundles",
-            "description": "Ambil daftar item bundles.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil daftar item bundles.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-bundle].",
+            "purpose": "Membutuhkan izin: owner, view-bundle. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Product\\Http\\Controllers\\ProductController",
             "action": "bundles",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-bundle"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -6922,6 +6931,9 @@
                         "package_contents": "mixed",
                         "weight": "mixed",
                         "weight_unit": "mixed",
+                        "length": "mixed",
+                        "width": "mixed",
+                        "height": "mixed",
                         "accounts": "mixed",
                         "sales": "mixed",
                         "sales_return": "mixed",
@@ -6954,7 +6966,6 @@
                         "unlimited_shops": "mixed",
                         "on_hand": "mixed",
                         "pending_placement": "mixed",
-                        "reserved": "mixed",
                         "on_order": "mixed",
                         "available": "mixed",
                         "verified_at": "mixed",
@@ -7010,6 +7021,9 @@
                         "package_contents": "string",
                         "weight": "string",
                         "weight_unit": "string",
+                        "length": "string",
+                        "width": "string",
+                        "height": "string",
                         "accounts": "string",
                         "sales": "string",
                         "sales_return": "string",
@@ -7042,7 +7056,6 @@
                         "unlimited_shops": "string",
                         "on_hand": "string",
                         "pending_placement": "string",
-                        "reserved": "string",
                         "on_order": "string",
                         "available": "string",
                         "verified_at": "string",
@@ -7137,18 +7150,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -7176,6 +7177,18 @@
                     "method": "GET",
                     "path": "/api/v1/products",
                     "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
                 }
             ],
             "related_page": null,
@@ -7189,12 +7202,15 @@
             "method": "POST",
             "path": "/api/v1/inventory/items",
             "summary": "Buat items",
-            "description": "Buat items.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat items.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, create-bundle].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, create-bundle. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Product\\Http\\Controllers\\ProductController",
             "action": "storeBundle",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "create-bundle"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -7390,216 +7406,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/products/uploadable",
-                    "summary": "Unggah produk"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/products/bulk-archive",
-                    "summary": "Arsipkan produk"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/products/bulk-restore",
-                    "summary": "Kembalikan produk"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/products/bulk-delete",
-                    "summary": "Batch (bulk) produk"
-                }
-            ],
-            "related_page": null,
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
-            "id": "api.",
-            "module_slug": "product",
-            "module_name": "Product",
-            "method": "POST",
-            "path": "/api/v1/inventory/items/all-stocks",
-            "summary": "Buat all stocks",
-            "description": "Buat all stocks.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membuat resource baru atau memicu aksi domain.",
-            "controller": "Modules\\Product\\Http\\Controllers\\ProductController",
-            "action": "allStocks",
-            "auth": "auth:sanctum",
-            "roles": [],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": "Modules\\Product\\Http\\Requests\\ItemIdsRequest",
-            "path_params": [],
-            "query_params": [],
-            "body_schema": {
-                "item_ids": {
-                    "type": "array",
-                    "required": true,
-                    "rules": [
-                        "required",
-                        "array"
-                    ],
-                    "description": "Field item ids (tipe array)."
-                },
-                "item_ids.*": {
-                    "type": "uuid",
-                    "required": true,
-                    "rules": [
-                        "required",
-                        "uuid"
-                    ],
-                    "description": "Field item ids (tipe uuid)."
-                }
-            },
-            "body_example": {
-                "item_ids": [
-                    []
-                ]
-            },
-            "validation": [
-                "item_ids: required|array",
-                "item_ids.*: required|uuid"
-            ],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": [
-                    {
-                        "item_id": "mixed",
-                        "sku": "mixed",
-                        "on_hand": "mixed",
-                        "pending_placement": "mixed",
-                        "reserved": "mixed",
-                        "on_order": "mixed",
-                        "available": "mixed"
-                    }
-                ],
-                "meta": {
-                    "current_page": "integer",
-                    "per_page": "integer",
-                    "total": "integer",
-                    "last_page": "integer"
-                }
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Berhasil.",
-                "data": [
-                    {
-                        "item_id": "019ea2afad1d733eafb905816d10590e",
-                        "sku": "string",
-                        "on_hand": "string",
-                        "pending_placement": "string",
-                        "reserved": "string",
-                        "on_order": "string",
-                        "available": "string"
-                    }
-                ],
-                "meta": {
-                    "current_page": 1,
-                    "per_page": 10,
-                    "total": 1,
-                    "last_page": 1
-                }
-            },
-            "response_resource": "Modules\\Product\\Http\\Resources\\ProductStockResource",
-            "response_errors": [
-                {
-                    "status": 401,
-                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
-                    "body": {
-                        "message": "Unauthenticated."
-                    },
-                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
-                },
-                {
-                    "status": 403,
-                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
-                    "body": {
-                        "message": "This action is unauthorized."
-                    },
-                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
-                },
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                201,
-                401,
-                403,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [],
-            "allowed_sorts": [],
-            "allowed_search": [],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": null,
-            "related_endpoints": [
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/items/by-sku/{sku}",
-                    "summary": "Ambil detail by sku"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -7627,6 +7433,18 @@
                     "method": "GET",
                     "path": "/api/v1/products",
                     "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
                 }
             ],
             "related_page": null,
@@ -7640,12 +7458,15 @@
             "method": "GET",
             "path": "/api/v1/inventory/items/by-sku/{sku}",
             "summary": "Ambil detail by sku",
-            "description": "Ambil detail by sku.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil detail by sku.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-produk].",
+            "purpose": "Membutuhkan izin: owner, view-produk. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Product\\Http\\Controllers\\ProductController",
             "action": "showBySku",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -7699,6 +7520,9 @@
                     "package_contents": "mixed",
                     "weight": "mixed",
                     "weight_unit": "mixed",
+                    "length": "mixed",
+                    "width": "mixed",
+                    "height": "mixed",
                     "accounts": "mixed",
                     "sales": "mixed",
                     "sales_return": "mixed",
@@ -7731,7 +7555,6 @@
                     "unlimited_shops": "mixed",
                     "on_hand": "mixed",
                     "pending_placement": "mixed",
-                    "reserved": "mixed",
                     "on_order": "mixed",
                     "available": "mixed",
                     "verified_at": "mixed",
@@ -7779,6 +7602,9 @@
                     "package_contents": "string",
                     "weight": "string",
                     "weight_unit": "string",
+                    "length": "string",
+                    "width": "string",
+                    "height": "string",
                     "accounts": "string",
                     "sales": "string",
                     "sales_return": "string",
@@ -7811,7 +7637,6 @@
                     "unlimited_shops": "string",
                     "on_hand": "string",
                     "pending_placement": "string",
-                    "reserved": "string",
                     "on_order": "string",
                     "available": "string",
                     "verified_at": "string",
@@ -7888,24 +7713,6 @@
             "related_endpoints": [
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -7933,6 +7740,24 @@
                     "method": "GET",
                     "path": "/api/v1/products",
                     "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
+                },
+                {
+                    "id": "api.product.update",
+                    "method": "PUT",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ubah produk"
                 }
             ],
             "related_page": null,
@@ -7946,12 +7771,15 @@
             "method": "GET",
             "path": "/api/v1/inventory/items/channel-category-attributes",
             "summary": "Ambil semua (tanpa paginasi) channel category attributes",
-            "description": "Ambil semua (tanpa paginasi) channel category attributes.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
+            "description": "Ambil semua (tanpa paginasi) channel category attributes.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-kategori].",
+            "purpose": "Membutuhkan izin: owner, view-kategori. Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
             "controller": "Modules\\Product\\Http\\Controllers\\ChannelAttributeController",
             "action": "all",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-kategori"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -8127,12 +7955,15 @@
             "method": "GET",
             "path": "/api/v1/inventory/items/errors",
             "summary": "Ambil daftar errors",
-            "description": "Ambil daftar errors.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil daftar errors.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-produk].",
+            "purpose": "Membutuhkan izin: owner, view-produk. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Product\\Http\\Controllers\\ProductSyncLogController",
             "action": "errors",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -8152,7 +7983,9 @@
                     "thumbnail": "mixed",
                     "upload_date": "mixed",
                     "success": "mixed",
+                    "status": "mixed",
                     "status_message": "mixed",
+                    "error": "mixed",
                     "can_reupload": "mixed",
                     "shop_name": "mixed",
                     "channel_code": "mixed",
@@ -8174,7 +8007,9 @@
                     "thumbnail": "string",
                     "upload_date": "string",
                     "success": "string",
+                    "status": "string",
                     "status_message": "string",
+                    "error": "string",
                     "can_reupload": "string",
                     "shop_name": "string",
                     "channel_code": "string",
@@ -8613,12 +8448,15 @@
             "method": "POST",
             "path": "/api/v1/inventory/items/prices",
             "summary": "Buat prices",
-            "description": "Buat prices.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat prices.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, view-harga-jual].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, view-harga-jual. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Product\\Http\\Controllers\\ProductController",
             "action": "prices",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-harga-jual"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -8761,15 +8599,202 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
+                    "method": "GET",
+                    "path": "/api/v1/products/uploadable",
+                    "summary": "Unggah produk"
                 },
                 {
                     "id": "api.",
+                    "method": "POST",
+                    "path": "/api/v1/products/bulk-archive",
+                    "summary": "Arsipkan produk"
+                },
+                {
+                    "id": "api.",
+                    "method": "POST",
+                    "path": "/api/v1/products/bulk-restore",
+                    "summary": "Kembalikan produk"
+                },
+                {
+                    "id": "api.",
+                    "method": "POST",
+                    "path": "/api/v1/products/bulk-delete",
+                    "summary": "Batch (bulk) produk"
+                },
+                {
+                    "id": "api.product.index",
                     "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
+                    "path": "/api/v1/products",
+                    "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.",
+            "module_slug": "product",
+            "module_name": "Product",
+            "method": "POST",
+            "path": "/api/v1/inventory/items/variant-stocks",
+            "summary": "Buat variant stocks",
+            "description": "Buat variant stocks.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, view-posisi-stok].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, view-posisi-stok. Membuat resource baru atau memicu aksi domain.",
+            "controller": "Modules\\Product\\Http\\Controllers\\ProductController",
+            "action": "allStocks",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-posisi-stok"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": "Modules\\Product\\Http\\Requests\\ItemIdsRequest",
+            "path_params": [],
+            "query_params": [],
+            "body_schema": {
+                "item_ids": {
+                    "type": "array",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "array"
+                    ],
+                    "description": "Field item ids (tipe array)."
+                },
+                "item_ids.*": {
+                    "type": "uuid",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "uuid"
+                    ],
+                    "description": "Field item ids (tipe uuid)."
+                }
+            },
+            "body_example": {
+                "item_ids": [
+                    []
+                ]
+            },
+            "validation": [
+                "item_ids: required|array",
+                "item_ids.*: required|uuid"
+            ],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": [
+                    {
+                        "item_id": "mixed",
+                        "sku": "mixed",
+                        "on_hand": "mixed",
+                        "pending_placement": "mixed",
+                        "on_order": "mixed",
+                        "available": "mixed"
+                    }
+                ],
+                "meta": {
+                    "current_page": "integer",
+                    "per_page": "integer",
+                    "total": "integer",
+                    "last_page": "integer"
+                }
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Berhasil.",
+                "data": [
+                    {
+                        "item_id": "019ea2afad1d733eafb905816d10590e",
+                        "sku": "string",
+                        "on_hand": "string",
+                        "pending_placement": "string",
+                        "on_order": "string",
+                        "available": "string"
+                    }
+                ],
+                "meta": {
+                    "current_page": 1,
+                    "per_page": 10,
+                    "total": 1,
+                    "last_page": 1
+                }
+            },
+            "response_resource": "Modules\\Product\\Http\\Resources\\ProductStockResource",
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                201,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.",
+                    "method": "GET",
+                    "path": "/api/v1/inventory/items/by-sku/{sku}",
+                    "summary": "Ambil detail by sku"
                 },
                 {
                     "id": "api.",
@@ -8800,6 +8825,18 @@
                     "method": "GET",
                     "path": "/api/v1/products",
                     "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
                 }
             ],
             "related_page": null,
@@ -8813,12 +8850,15 @@
             "method": "POST",
             "path": "/api/v1/inventory/price-list",
             "summary": "Ubah price list",
-            "description": "Ubah price list.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membuat resource baru atau memicu aksi domain.",
+            "description": "Ubah price list.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-harga-jual].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, edit-harga-jual. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Product\\Http\\Controllers\\PriceListController",
             "action": "update",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-harga-jual"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -9610,6 +9650,9 @@
                         "package_contents": "mixed",
                         "weight": "mixed",
                         "weight_unit": "mixed",
+                        "length": "mixed",
+                        "width": "mixed",
+                        "height": "mixed",
                         "accounts": "mixed",
                         "sales": "mixed",
                         "sales_return": "mixed",
@@ -9642,7 +9685,6 @@
                         "unlimited_shops": "mixed",
                         "on_hand": "mixed",
                         "pending_placement": "mixed",
-                        "reserved": "mixed",
                         "on_order": "mixed",
                         "available": "mixed",
                         "verified_at": "mixed",
@@ -9698,6 +9740,9 @@
                         "package_contents": "string",
                         "weight": "string",
                         "weight_unit": "string",
+                        "length": "string",
+                        "width": "string",
+                        "height": "string",
                         "accounts": "string",
                         "sales": "string",
                         "sales_return": "string",
@@ -9730,7 +9775,6 @@
                         "unlimited_shops": "string",
                         "on_hand": "string",
                         "pending_placement": "string",
-                        "reserved": "string",
                         "on_order": "string",
                         "available": "string",
                         "verified_at": "string",
@@ -9833,24 +9877,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -9872,6 +9898,24 @@
                     "method": "POST",
                     "path": "/api/v1/products/bulk-delete",
                     "summary": "Batch (bulk) produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
+                },
+                {
+                    "id": "api.product.update",
+                    "method": "PUT",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ubah produk"
                 }
             ],
             "related_page": "/dashboard/produk",
@@ -10117,6 +10161,58 @@
                         "min": 0
                     },
                     "description": "Field weight (tipe number)."
+                },
+                "weight_unit": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "in:gram,kg"
+                    ],
+                    "enum": [
+                        "gram",
+                        "kg"
+                    ],
+                    "description": "Field weight unit (tipe string)."
+                },
+                "length": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field length (tipe number)."
+                },
+                "width": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field width (tipe number)."
+                },
+                "height": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field height (tipe number)."
                 },
                 "package_contents": {
                     "type": "string",
@@ -10435,6 +10531,45 @@
                     },
                     "description": "Field weight (tipe number)."
                 },
+                "variants.*.length": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field length (tipe number)."
+                },
+                "variants.*.width": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field width (tipe number)."
+                },
+                "variants.*.height": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field height (tipe number)."
+                },
                 "variants.*.unlimited_shop_ids": {
                     "type": "array",
                     "required": false,
@@ -10628,6 +10763,10 @@
                 "inventory_account_id": "00000000-0000-0000-0000-000000000000",
                 "cogs_account_id": "00000000-0000-0000-0000-000000000000",
                 "weight": 0,
+                "weight_unit": "gram",
+                "length": 0,
+                "width": 0,
+                "height": 0,
                 "package_contents": "string",
                 "media": [
                     {
@@ -10664,6 +10803,9 @@
                         "safe_stock": 1,
                         "is_active": false,
                         "weight": 0,
+                        "length": 0,
+                        "width": 0,
+                        "height": 0,
                         "unlimited_shop_ids": [
                             []
                         ],
@@ -10713,6 +10855,10 @@
                 "inventory_account_id: nullable|uuid|exists:accounts,id,account_type,\"asset\"",
                 "cogs_account_id: nullable|uuid|exists:accounts,id,account_type,\"expense\"",
                 "weight: nullable|numeric|min:0",
+                "weight_unit: nullable|in:gram,kg",
+                "length: nullable|numeric|min:0",
+                "width: nullable|numeric|min:0",
+                "height: nullable|numeric|min:0",
                 "package_contents: nullable|string|max:2000",
                 "media: required|array|min:1|max:10",
                 "media.*.media_uuid: required_without:media.*.url|bail|uuid|exists:media,uuid",
@@ -10739,6 +10885,9 @@
                 "variants.*.safe_stock: nullable|integer|min:0",
                 "variants.*.is_active: nullable|boolean",
                 "variants.*.weight: nullable|numeric|min:0",
+                "variants.*.length: nullable|numeric|min:0",
+                "variants.*.width: nullable|numeric|min:0",
+                "variants.*.height: nullable|numeric|min:0",
                 "variants.*.unlimited_shop_ids: nullable|array",
                 "variants.*.unlimited_shop_ids.*: uuid|distinct|exists:channel_shops,id",
                 "variants.*.options: nullable|array",
@@ -10786,22 +10935,6 @@
                 },
                 {
                     "status": 422,
-                    "reason": "Gagal menyimpan.",
-                    "body": {
-                        "success": false,
-                        "message": "Gagal menyimpan."
-                    }
-                },
-                {
-                    "status": 500,
-                    "reason": "Gagal membuat produk",
-                    "body": {
-                        "success": false,
-                        "message": "Gagal membuat produk"
-                    }
-                },
-                {
-                    "status": 422,
                     "reason": "Validasi payload gagal (aturan FormRequest / validate())",
                     "body": {
                         "message": "The given data was invalid.",
@@ -10845,24 +10978,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -10884,6 +10999,24 @@
                     "method": "POST",
                     "path": "/api/v1/products/bulk-delete",
                     "summary": "Batch (bulk) produk"
+                },
+                {
+                    "id": "api.product.index",
+                    "method": "GET",
+                    "path": "/api/v1/products",
+                    "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.update",
+                    "method": "PUT",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ubah produk"
                 }
             ],
             "related_page": "/dashboard/produk",
@@ -11262,24 +11395,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -11301,6 +11416,24 @@
                     "method": "GET",
                     "path": "/api/v1/products",
                     "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
+                },
+                {
+                    "id": "api.product.update",
+                    "method": "PUT",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ubah produk"
                 }
             ],
             "related_page": null,
@@ -11405,24 +11538,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -11444,6 +11559,24 @@
                     "method": "GET",
                     "path": "/api/v1/products",
                     "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
+                },
+                {
+                    "id": "api.product.update",
+                    "method": "PUT",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ubah produk"
                 }
             ],
             "related_page": null,
@@ -11548,24 +11681,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -11587,6 +11702,24 @@
                     "method": "GET",
                     "path": "/api/v1/products",
                     "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
+                },
+                {
+                    "id": "api.product.update",
+                    "method": "PUT",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ubah produk"
                 }
             ],
             "related_page": null,
@@ -14083,12 +14216,15 @@
             "method": "GET",
             "path": "/api/v1/products/master-data/cogs-accounts",
             "summary": "Hitung jumlah per tab produk",
-            "description": "Hitung jumlah per tab produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Hitung jumlah per tab produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-produk].",
+            "purpose": "Membutuhkan izin: owner, view-produk. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Product\\Http\\Controllers\\ProductMasterDataController",
             "action": "cogsAccounts",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -14205,12 +14341,15 @@
             "method": "GET",
             "path": "/api/v1/products/master-data/inventory-accounts",
             "summary": "Hitung jumlah per tab produk",
-            "description": "Hitung jumlah per tab produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Hitung jumlah per tab produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-produk].",
+            "purpose": "Membutuhkan izin: owner, view-produk. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Product\\Http\\Controllers\\ProductMasterDataController",
             "action": "inventoryAccounts",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -14327,12 +14466,15 @@
             "method": "GET",
             "path": "/api/v1/products/master-data/purchase-taxes",
             "summary": "Ambil daftar produk",
-            "description": "Ambil daftar produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil daftar produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-produk].",
+            "purpose": "Membutuhkan izin: owner, view-produk. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Product\\Http\\Controllers\\ProductMasterDataController",
             "action": "purchaseTaxes",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -14449,12 +14591,15 @@
             "method": "GET",
             "path": "/api/v1/products/master-data/sales-accounts",
             "summary": "Hitung jumlah per tab produk",
-            "description": "Hitung jumlah per tab produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Hitung jumlah per tab produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-produk].",
+            "purpose": "Membutuhkan izin: owner, view-produk. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Product\\Http\\Controllers\\ProductMasterDataController",
             "action": "salesAccounts",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -14571,12 +14716,15 @@
             "method": "GET",
             "path": "/api/v1/products/master-data/sales-return-accounts",
             "summary": "Hitung jumlah per tab produk",
-            "description": "Hitung jumlah per tab produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Hitung jumlah per tab produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-produk].",
+            "purpose": "Membutuhkan izin: owner, view-produk. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Product\\Http\\Controllers\\ProductMasterDataController",
             "action": "salesReturnAccounts",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -14693,12 +14841,15 @@
             "method": "GET",
             "path": "/api/v1/products/master-data/sales-taxes",
             "summary": "Ambil daftar produk",
-            "description": "Ambil daftar produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil daftar produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-produk].",
+            "purpose": "Membutuhkan izin: owner, view-produk. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Product\\Http\\Controllers\\ProductMasterDataController",
             "action": "salesTaxes",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -17139,6 +17290,9 @@
                         "package_contents": "mixed",
                         "weight": "mixed",
                         "weight_unit": "mixed",
+                        "length": "mixed",
+                        "width": "mixed",
+                        "height": "mixed",
                         "accounts": "mixed",
                         "sales": "mixed",
                         "sales_return": "mixed",
@@ -17171,7 +17325,6 @@
                         "unlimited_shops": "mixed",
                         "on_hand": "mixed",
                         "pending_placement": "mixed",
-                        "reserved": "mixed",
                         "on_order": "mixed",
                         "available": "mixed",
                         "verified_at": "mixed",
@@ -17227,6 +17380,9 @@
                         "package_contents": "string",
                         "weight": "string",
                         "weight_unit": "string",
+                        "length": "string",
+                        "width": "string",
+                        "height": "string",
                         "accounts": "string",
                         "sales": "string",
                         "sales_return": "string",
@@ -17259,7 +17415,6 @@
                         "unlimited_shops": "string",
                         "on_hand": "string",
                         "pending_placement": "string",
-                        "reserved": "string",
                         "on_order": "string",
                         "available": "string",
                         "verified_at": "string",
@@ -17354,24 +17509,6 @@
                 {
                     "id": "api.",
                     "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
                     "path": "/api/v1/products/bulk-archive",
                     "summary": "Arsipkan produk"
                 },
@@ -17392,6 +17529,24 @@
                     "method": "GET",
                     "path": "/api/v1/products",
                     "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
+                },
+                {
+                    "id": "api.product.update",
+                    "method": "PUT",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ubah produk"
                 }
             ],
             "related_page": null,
@@ -17503,24 +17658,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -17542,6 +17679,24 @@
                     "method": "POST",
                     "path": "/api/v1/products/bulk-delete",
                     "summary": "Batch (bulk) produk"
+                },
+                {
+                    "id": "api.product.index",
+                    "method": "GET",
+                    "path": "/api/v1/products",
+                    "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
                 }
             ],
             "related_page": null,
@@ -17653,24 +17808,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -17692,6 +17829,24 @@
                     "method": "POST",
                     "path": "/api/v1/products/bulk-delete",
                     "summary": "Batch (bulk) produk"
+                },
+                {
+                    "id": "api.product.index",
+                    "method": "GET",
+                    "path": "/api/v1/products",
+                    "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
                 }
             ],
             "related_page": null,
@@ -18915,24 +19070,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -18954,6 +19091,24 @@
                     "method": "POST",
                     "path": "/api/v1/products/bulk-delete",
                     "summary": "Batch (bulk) produk"
+                },
+                {
+                    "id": "api.product.index",
+                    "method": "GET",
+                    "path": "/api/v1/products",
+                    "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
                 }
             ],
             "related_page": null,
@@ -19110,24 +19265,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -19149,6 +19286,24 @@
                     "method": "POST",
                     "path": "/api/v1/products/bulk-delete",
                     "summary": "Batch (bulk) produk"
+                },
+                {
+                    "id": "api.product.index",
+                    "method": "GET",
+                    "path": "/api/v1/products",
+                    "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
                 }
             ],
             "related_page": null,
@@ -19260,24 +19415,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -19299,6 +19436,24 @@
                     "method": "POST",
                     "path": "/api/v1/products/bulk-delete",
                     "summary": "Batch (bulk) produk"
+                },
+                {
+                    "id": "api.product.index",
+                    "method": "GET",
+                    "path": "/api/v1/products",
+                    "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
                 }
             ],
             "related_page": null,
@@ -19759,24 +19914,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -19798,6 +19935,24 @@
                     "method": "POST",
                     "path": "/api/v1/products/bulk-delete",
                     "summary": "Batch (bulk) produk"
+                },
+                {
+                    "id": "api.product.index",
+                    "method": "GET",
+                    "path": "/api/v1/products",
+                    "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
                 }
             ],
             "related_page": null,
@@ -19926,24 +20081,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -19965,6 +20102,24 @@
                     "method": "POST",
                     "path": "/api/v1/products/bulk-delete",
                     "summary": "Batch (bulk) produk"
+                },
+                {
+                    "id": "api.product.index",
+                    "method": "GET",
+                    "path": "/api/v1/products",
+                    "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
                 }
             ],
             "related_page": null,
@@ -20093,24 +20248,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -20132,6 +20269,24 @@
                     "method": "POST",
                     "path": "/api/v1/products/bulk-delete",
                     "summary": "Batch (bulk) produk"
+                },
+                {
+                    "id": "api.product.index",
+                    "method": "GET",
+                    "path": "/api/v1/products",
+                    "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
                 }
             ],
             "related_page": "/dashboard/produk",
@@ -20207,6 +20362,9 @@
                     "package_contents": "mixed",
                     "weight": "mixed",
                     "weight_unit": "mixed",
+                    "length": "mixed",
+                    "width": "mixed",
+                    "height": "mixed",
                     "accounts": "mixed",
                     "sales": "mixed",
                     "sales_return": "mixed",
@@ -20239,7 +20397,6 @@
                     "unlimited_shops": "mixed",
                     "on_hand": "mixed",
                     "pending_placement": "mixed",
-                    "reserved": "mixed",
                     "on_order": "mixed",
                     "available": "mixed",
                     "verified_at": "mixed",
@@ -20287,6 +20444,9 @@
                     "package_contents": "string",
                     "weight": "string",
                     "weight_unit": "string",
+                    "length": "string",
+                    "width": "string",
+                    "height": "string",
                     "accounts": "string",
                     "sales": "string",
                     "sales_return": "string",
@@ -20319,7 +20479,6 @@
                     "unlimited_shops": "string",
                     "on_hand": "string",
                     "pending_placement": "string",
-                    "reserved": "string",
                     "on_order": "string",
                     "available": "string",
                     "verified_at": "string",
@@ -20402,24 +20561,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -20441,6 +20582,24 @@
                     "method": "POST",
                     "path": "/api/v1/products/bulk-delete",
                     "summary": "Batch (bulk) produk"
+                },
+                {
+                    "id": "api.product.index",
+                    "method": "GET",
+                    "path": "/api/v1/products",
+                    "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
+                },
+                {
+                    "id": "api.product.update",
+                    "method": "PUT",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ubah produk"
                 }
             ],
             "related_page": "/dashboard/produk",
@@ -20493,10 +20652,10 @@
                 },
                 "sku": {
                     "type": "string",
-                    "required": true,
+                    "required": false,
                     "rules": [
                         "sometimes",
-                        "required",
+                        "nullable",
                         "string",
                         "max:255",
                         "unique:products,sku,NULL,id"
@@ -20625,6 +20784,62 @@
                         "min": 0
                     },
                     "description": "Field weight (tipe number)."
+                },
+                "weight_unit": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "sometimes",
+                        "nullable",
+                        "in:gram,kg"
+                    ],
+                    "enum": [
+                        "gram",
+                        "kg"
+                    ],
+                    "description": "Field weight unit (tipe string)."
+                },
+                "length": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "sometimes",
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field length (tipe number)."
+                },
+                "width": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "sometimes",
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field width (tipe number)."
+                },
+                "height": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "sometimes",
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field height (tipe number)."
                 },
                 "package_contents": {
                     "type": "string",
@@ -20830,16 +21045,27 @@
                 },
                 "variation_types.*.attribute_id": {
                     "type": "integer",
-                    "required": true,
+                    "required": false,
                     "rules": [
-                        "required",
+                        "nullable",
                         "bail",
                         "integer",
-                        "distinct",
-                        "exists:attributes,id"
+                        "distinct"
                     ],
-                    "exists": "attributes,id",
                     "description": "ID attribute (referensi ke resource attribute)."
+                },
+                "variation_types.*.name": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "max:100"
+                    ],
+                    "constraints": {
+                        "max": 100
+                    },
+                    "description": "Nama resource."
                 },
                 "variation_types.*.sort_order": {
                     "type": "integer",
@@ -20921,15 +21147,26 @@
                 },
                 "variants.*.options.*.attribute_id": {
                     "type": "integer",
-                    "required": true,
+                    "required": false,
                     "rules": [
-                        "required",
+                        "nullable",
                         "bail",
-                        "integer",
-                        "exists:attributes,id"
+                        "integer"
                     ],
-                    "exists": "attributes,id",
                     "description": "ID attribute (referensi ke resource attribute)."
+                },
+                "variants.*.options.*.name": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "max:100"
+                    ],
+                    "constraints": {
+                        "max": 100
+                    },
+                    "description": "Nama resource."
                 },
                 "variants.*.options.*.value": {
                     "type": "string",
@@ -21070,6 +21307,48 @@
                     },
                     "description": "Field weight (tipe number)."
                 },
+                "variants.*.length": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "sometimes",
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field length (tipe number)."
+                },
+                "variants.*.width": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "sometimes",
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field width (tipe number)."
+                },
+                "variants.*.height": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "sometimes",
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field height (tipe number)."
+                },
                 "variants.*.unlimited_shop_ids": {
                     "type": "array",
                     "required": false,
@@ -21166,6 +21445,10 @@
                 "is_bundle": false,
                 "is_consignment": false,
                 "weight": 0,
+                "weight_unit": "gram",
+                "length": 0,
+                "width": 0,
+                "height": 0,
                 "package_contents": "string",
                 "is_cod_allowed": false,
                 "is_active": false,
@@ -21189,6 +21472,7 @@
                 "variation_types": [
                     {
                         "attribute_id": 1,
+                        "name": "string",
                         "sort_order": 1
                     }
                 ],
@@ -21204,6 +21488,7 @@
                         "options": [
                             {
                                 "attribute_id": 1,
+                                "name": "string",
                                 "value": "string"
                             }
                         ],
@@ -21217,6 +21502,9 @@
                         "safe_stock": 1,
                         "is_active": false,
                         "weight": 0,
+                        "length": 0,
+                        "width": 0,
+                        "height": 0,
                         "unlimited_shop_ids": [
                             []
                         ],
@@ -21234,7 +21522,7 @@
             },
             "validation": [
                 "name: sometimes|required|string|max:255",
-                "sku: sometimes|required|string|max:255|unique:products,sku,NULL,id",
+                "sku: sometimes|nullable|string|max:255|unique:products,sku,NULL,id",
                 "description: sometimes|nullable|string",
                 "category_id: sometimes|required|bail|integer|exists:categories,id",
                 "search_keyword: sometimes|nullable|string",
@@ -21245,6 +21533,10 @@
                 "is_bundle: sometimes|boolean",
                 "is_consignment: sometimes|boolean",
                 "weight: sometimes|nullable|numeric|min:0",
+                "weight_unit: sometimes|nullable|in:gram,kg",
+                "length: sometimes|nullable|numeric|min:0",
+                "width: sometimes|nullable|numeric|min:0",
+                "height: sometimes|nullable|numeric|min:0",
                 "package_contents: sometimes|nullable|string|max:2000",
                 "is_cod_allowed: sometimes|boolean",
                 "is_active: sometimes|boolean",
@@ -21263,7 +21555,8 @@
                 "media.*.is_primary: nullable|boolean",
                 "media.*.sort_order: nullable|integer",
                 "variation_types: sometimes|nullable|array|max:2",
-                "variation_types.*.attribute_id: required|bail|integer|distinct|exists:attributes,id",
+                "variation_types.*.attribute_id: nullable|bail|integer|distinct",
+                "variation_types.*.name: nullable|string|max:100",
                 "variation_types.*.sort_order: nullable|integer|min:0",
                 "specifications: sometimes|nullable|array",
                 "specifications.*.attribute_id: required|bail|integer|exists:attributes,id",
@@ -21271,7 +21564,8 @@
                 "specifications.*.text_value: nullable|string",
                 "variants: sometimes|array|min:1",
                 "variants.*.options: sometimes|array",
-                "variants.*.options.*.attribute_id: required|bail|integer|exists:attributes,id",
+                "variants.*.options.*.attribute_id: nullable|bail|integer",
+                "variants.*.options.*.name: nullable|string|max:100",
                 "variants.*.options.*.value: required|string",
                 "variants.*.sku: required_with:variants|string|max:50|distinct:ignore_case",
                 "variants.*.barcode: sometimes|nullable|string|max:100",
@@ -21283,6 +21577,9 @@
                 "variants.*.safe_stock: sometimes|nullable|integer|min:0",
                 "variants.*.is_active: sometimes|boolean",
                 "variants.*.weight: sometimes|nullable|numeric|min:0",
+                "variants.*.length: sometimes|nullable|numeric|min:0",
+                "variants.*.width: sometimes|nullable|numeric|min:0",
+                "variants.*.height: sometimes|nullable|numeric|min:0",
                 "variants.*.unlimited_shop_ids: sometimes|nullable|array",
                 "variants.*.unlimited_shop_ids.*: uuid|distinct|exists:channel_shops,id",
                 "variants.*.media: sometimes|array",
@@ -21329,6 +21626,9 @@
                     "package_contents": "mixed",
                     "weight": "mixed",
                     "weight_unit": "mixed",
+                    "length": "mixed",
+                    "width": "mixed",
+                    "height": "mixed",
                     "accounts": "mixed",
                     "sales": "mixed",
                     "sales_return": "mixed",
@@ -21361,7 +21661,6 @@
                     "unlimited_shops": "mixed",
                     "on_hand": "mixed",
                     "pending_placement": "mixed",
-                    "reserved": "mixed",
                     "on_order": "mixed",
                     "available": "mixed",
                     "verified_at": "mixed",
@@ -21409,6 +21708,9 @@
                     "package_contents": "string",
                     "weight": "string",
                     "weight_unit": "string",
+                    "length": "string",
+                    "width": "string",
+                    "height": "string",
                     "accounts": "string",
                     "sales": "string",
                     "sales_return": "string",
@@ -21441,7 +21743,6 @@
                     "unlimited_shops": "string",
                     "on_hand": "string",
                     "pending_placement": "string",
-                    "reserved": "string",
                     "on_order": "string",
                     "available": "string",
                     "verified_at": "string",
@@ -21476,14 +21777,6 @@
                     "body": {
                         "success": false,
                         "message": "Produk tidak ditemukan"
-                    }
-                },
-                {
-                    "status": 422,
-                    "reason": "Gagal memperbarui.",
-                    "body": {
-                        "success": false,
-                        "message": "Gagal memperbarui."
                     }
                 },
                 {
@@ -21532,24 +21825,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -21571,6 +21846,24 @@
                     "method": "POST",
                     "path": "/api/v1/products/bulk-delete",
                     "summary": "Batch (bulk) produk"
+                },
+                {
+                    "id": "api.product.index",
+                    "method": "GET",
+                    "path": "/api/v1/products",
+                    "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
                 }
             ],
             "related_page": "/dashboard/produk",
@@ -21623,10 +21916,10 @@
                 },
                 "sku": {
                     "type": "string",
-                    "required": true,
+                    "required": false,
                     "rules": [
                         "sometimes",
-                        "required",
+                        "nullable",
                         "string",
                         "max:255",
                         "unique:products,sku,NULL,id"
@@ -21755,6 +22048,62 @@
                         "min": 0
                     },
                     "description": "Field weight (tipe number)."
+                },
+                "weight_unit": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "sometimes",
+                        "nullable",
+                        "in:gram,kg"
+                    ],
+                    "enum": [
+                        "gram",
+                        "kg"
+                    ],
+                    "description": "Field weight unit (tipe string)."
+                },
+                "length": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "sometimes",
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field length (tipe number)."
+                },
+                "width": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "sometimes",
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field width (tipe number)."
+                },
+                "height": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "sometimes",
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field height (tipe number)."
                 },
                 "package_contents": {
                     "type": "string",
@@ -21960,16 +22309,27 @@
                 },
                 "variation_types.*.attribute_id": {
                     "type": "integer",
-                    "required": true,
+                    "required": false,
                     "rules": [
-                        "required",
+                        "nullable",
                         "bail",
                         "integer",
-                        "distinct",
-                        "exists:attributes,id"
+                        "distinct"
                     ],
-                    "exists": "attributes,id",
                     "description": "ID attribute (referensi ke resource attribute)."
+                },
+                "variation_types.*.name": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "max:100"
+                    ],
+                    "constraints": {
+                        "max": 100
+                    },
+                    "description": "Nama resource."
                 },
                 "variation_types.*.sort_order": {
                     "type": "integer",
@@ -22051,15 +22411,26 @@
                 },
                 "variants.*.options.*.attribute_id": {
                     "type": "integer",
-                    "required": true,
+                    "required": false,
                     "rules": [
-                        "required",
+                        "nullable",
                         "bail",
-                        "integer",
-                        "exists:attributes,id"
+                        "integer"
                     ],
-                    "exists": "attributes,id",
                     "description": "ID attribute (referensi ke resource attribute)."
+                },
+                "variants.*.options.*.name": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "string",
+                        "max:100"
+                    ],
+                    "constraints": {
+                        "max": 100
+                    },
+                    "description": "Nama resource."
                 },
                 "variants.*.options.*.value": {
                     "type": "string",
@@ -22200,6 +22571,48 @@
                     },
                     "description": "Field weight (tipe number)."
                 },
+                "variants.*.length": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "sometimes",
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field length (tipe number)."
+                },
+                "variants.*.width": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "sometimes",
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field width (tipe number)."
+                },
+                "variants.*.height": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "sometimes",
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field height (tipe number)."
+                },
                 "variants.*.unlimited_shop_ids": {
                     "type": "array",
                     "required": false,
@@ -22296,6 +22709,10 @@
                 "is_bundle": false,
                 "is_consignment": false,
                 "weight": 0,
+                "weight_unit": "gram",
+                "length": 0,
+                "width": 0,
+                "height": 0,
                 "package_contents": "string",
                 "is_cod_allowed": false,
                 "is_active": false,
@@ -22319,6 +22736,7 @@
                 "variation_types": [
                     {
                         "attribute_id": 1,
+                        "name": "string",
                         "sort_order": 1
                     }
                 ],
@@ -22334,6 +22752,7 @@
                         "options": [
                             {
                                 "attribute_id": 1,
+                                "name": "string",
                                 "value": "string"
                             }
                         ],
@@ -22347,6 +22766,9 @@
                         "safe_stock": 1,
                         "is_active": false,
                         "weight": 0,
+                        "length": 0,
+                        "width": 0,
+                        "height": 0,
                         "unlimited_shop_ids": [
                             []
                         ],
@@ -22364,7 +22786,7 @@
             },
             "validation": [
                 "name: sometimes|required|string|max:255",
-                "sku: sometimes|required|string|max:255|unique:products,sku,NULL,id",
+                "sku: sometimes|nullable|string|max:255|unique:products,sku,NULL,id",
                 "description: sometimes|nullable|string",
                 "category_id: sometimes|required|bail|integer|exists:categories,id",
                 "search_keyword: sometimes|nullable|string",
@@ -22375,6 +22797,10 @@
                 "is_bundle: sometimes|boolean",
                 "is_consignment: sometimes|boolean",
                 "weight: sometimes|nullable|numeric|min:0",
+                "weight_unit: sometimes|nullable|in:gram,kg",
+                "length: sometimes|nullable|numeric|min:0",
+                "width: sometimes|nullable|numeric|min:0",
+                "height: sometimes|nullable|numeric|min:0",
                 "package_contents: sometimes|nullable|string|max:2000",
                 "is_cod_allowed: sometimes|boolean",
                 "is_active: sometimes|boolean",
@@ -22393,7 +22819,8 @@
                 "media.*.is_primary: nullable|boolean",
                 "media.*.sort_order: nullable|integer",
                 "variation_types: sometimes|nullable|array|max:2",
-                "variation_types.*.attribute_id: required|bail|integer|distinct|exists:attributes,id",
+                "variation_types.*.attribute_id: nullable|bail|integer|distinct",
+                "variation_types.*.name: nullable|string|max:100",
                 "variation_types.*.sort_order: nullable|integer|min:0",
                 "specifications: sometimes|nullable|array",
                 "specifications.*.attribute_id: required|bail|integer|exists:attributes,id",
@@ -22401,7 +22828,8 @@
                 "specifications.*.text_value: nullable|string",
                 "variants: sometimes|array|min:1",
                 "variants.*.options: sometimes|array",
-                "variants.*.options.*.attribute_id: required|bail|integer|exists:attributes,id",
+                "variants.*.options.*.attribute_id: nullable|bail|integer",
+                "variants.*.options.*.name: nullable|string|max:100",
                 "variants.*.options.*.value: required|string",
                 "variants.*.sku: required_with:variants|string|max:50|distinct:ignore_case",
                 "variants.*.barcode: sometimes|nullable|string|max:100",
@@ -22413,6 +22841,9 @@
                 "variants.*.safe_stock: sometimes|nullable|integer|min:0",
                 "variants.*.is_active: sometimes|boolean",
                 "variants.*.weight: sometimes|nullable|numeric|min:0",
+                "variants.*.length: sometimes|nullable|numeric|min:0",
+                "variants.*.width: sometimes|nullable|numeric|min:0",
+                "variants.*.height: sometimes|nullable|numeric|min:0",
                 "variants.*.unlimited_shop_ids: sometimes|nullable|array",
                 "variants.*.unlimited_shop_ids.*: uuid|distinct|exists:channel_shops,id",
                 "variants.*.media: sometimes|array",
@@ -22459,6 +22890,9 @@
                     "package_contents": "mixed",
                     "weight": "mixed",
                     "weight_unit": "mixed",
+                    "length": "mixed",
+                    "width": "mixed",
+                    "height": "mixed",
                     "accounts": "mixed",
                     "sales": "mixed",
                     "sales_return": "mixed",
@@ -22491,7 +22925,6 @@
                     "unlimited_shops": "mixed",
                     "on_hand": "mixed",
                     "pending_placement": "mixed",
-                    "reserved": "mixed",
                     "on_order": "mixed",
                     "available": "mixed",
                     "verified_at": "mixed",
@@ -22539,6 +22972,9 @@
                     "package_contents": "string",
                     "weight": "string",
                     "weight_unit": "string",
+                    "length": "string",
+                    "width": "string",
+                    "height": "string",
                     "accounts": "string",
                     "sales": "string",
                     "sales_return": "string",
@@ -22571,7 +23007,6 @@
                     "unlimited_shops": "string",
                     "on_hand": "string",
                     "pending_placement": "string",
-                    "reserved": "string",
                     "on_order": "string",
                     "available": "string",
                     "verified_at": "string",
@@ -22606,14 +23041,6 @@
                     "body": {
                         "success": false,
                         "message": "Produk tidak ditemukan"
-                    }
-                },
-                {
-                    "status": 422,
-                    "reason": "Gagal memperbarui.",
-                    "body": {
-                        "success": false,
-                        "message": "Gagal memperbarui."
                     }
                 },
                 {
@@ -22662,24 +23089,6 @@
                 },
                 {
                     "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/all-stocks",
-                    "summary": "Buat all stocks"
-                },
-                {
-                    "id": "api.",
-                    "method": "POST",
-                    "path": "/api/v1/inventory/items/prices",
-                    "summary": "Buat prices"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/inventory/item-bundles",
-                    "summary": "Ambil daftar item bundles"
-                },
-                {
-                    "id": "api.",
                     "method": "GET",
                     "path": "/api/v1/products/uploadable",
                     "summary": "Unggah produk"
@@ -22701,6 +23110,24 @@
                     "method": "POST",
                     "path": "/api/v1/products/bulk-delete",
                     "summary": "Batch (bulk) produk"
+                },
+                {
+                    "id": "api.product.index",
+                    "method": "GET",
+                    "path": "/api/v1/products",
+                    "summary": "Ambil daftar produk"
+                },
+                {
+                    "id": "api.product.show",
+                    "method": "GET",
+                    "path": "/api/v1/products/{product}",
+                    "summary": "Ambil detail produk"
+                },
+                {
+                    "id": "api.product.store",
+                    "method": "POST",
+                    "path": "/api/v1/products",
+                    "summary": "Buat produk"
                 }
             ],
             "related_page": "/dashboard/produk",
@@ -24400,7 +24827,9 @@
                     "thumbnail": "mixed",
                     "upload_date": "mixed",
                     "success": "mixed",
+                    "status": "mixed",
                     "status_message": "mixed",
+                    "error": "mixed",
                     "can_reupload": "mixed",
                     "shop_name": "mixed",
                     "channel_code": "mixed",
@@ -24422,7 +24851,9 @@
                     "thumbnail": "string",
                     "upload_date": "string",
                     "success": "string",
+                    "status": "string",
                     "status_message": "string",
+                    "error": "string",
                     "can_reupload": "string",
                     "shop_name": "string",
                     "channel_code": "string",
@@ -25174,12 +25605,15 @@
             "method": "GET",
             "path": "/api/v1/{channel}/categories",
             "summary": "Ambil daftar kategori produk",
-            "description": "Ambil daftar kategori produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil daftar kategori produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-kategori].",
+            "purpose": "Membutuhkan izin: owner, view-kategori. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Product\\Http\\Controllers\\ChannelCategoryController",
             "action": "index",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-kategori"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -25350,12 +25784,15 @@
             "method": "GET",
             "path": "/api/v1/{channel}/categories/{categoryId}/attributes",
             "summary": "Ambil daftar atribut kategori",
-            "description": "Ambil daftar atribut kategori.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil daftar atribut kategori.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-kategori].",
+            "purpose": "Membutuhkan izin: owner, view-kategori. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Product\\Http\\Controllers\\ChannelAttributeController",
             "action": "index",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-kategori"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -25537,12 +25974,15 @@
             "method": "GET",
             "path": "/api/v1/{channel}/products",
             "summary": "Ambil daftar produk",
-            "description": "Ambil daftar produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil daftar produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-produk].",
+            "purpose": "Membutuhkan izin: owner, view-produk. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Product\\Http\\Controllers\\ChannelProductController",
             "action": "index",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -25616,6 +26056,9 @@
                         "package_contents": "mixed",
                         "weight": "mixed",
                         "weight_unit": "mixed",
+                        "length": "mixed",
+                        "width": "mixed",
+                        "height": "mixed",
                         "accounts": "mixed",
                         "sales": "mixed",
                         "sales_return": "mixed",
@@ -25648,7 +26091,6 @@
                         "unlimited_shops": "mixed",
                         "on_hand": "mixed",
                         "pending_placement": "mixed",
-                        "reserved": "mixed",
                         "on_order": "mixed",
                         "available": "mixed",
                         "verified_at": "mixed",
@@ -25704,6 +26146,9 @@
                         "package_contents": "string",
                         "weight": "string",
                         "weight_unit": "string",
+                        "length": "string",
+                        "width": "string",
+                        "height": "string",
                         "accounts": "string",
                         "sales": "string",
                         "sales_return": "string",
@@ -25736,7 +26181,6 @@
                         "unlimited_shops": "string",
                         "on_hand": "string",
                         "pending_placement": "string",
-                        "reserved": "string",
                         "on_order": "string",
                         "available": "string",
                         "verified_at": "string",
@@ -25883,12 +26327,15 @@
             "method": "POST",
             "path": "/api/v1/{channel}/products",
             "summary": "Buat produk",
-            "description": "Buat produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, create-produk].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, create-produk. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Product\\Http\\Controllers\\ChannelProductController",
             "action": "store",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "create-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -26126,6 +26573,58 @@
                         "min": 0
                     },
                     "description": "Field weight (tipe number)."
+                },
+                "weight_unit": {
+                    "type": "string",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "in:gram,kg"
+                    ],
+                    "enum": [
+                        "gram",
+                        "kg"
+                    ],
+                    "description": "Field weight unit (tipe string)."
+                },
+                "length": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field length (tipe number)."
+                },
+                "width": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field width (tipe number)."
+                },
+                "height": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field height (tipe number)."
                 },
                 "package_contents": {
                     "type": "string",
@@ -26444,6 +26943,45 @@
                     },
                     "description": "Field weight (tipe number)."
                 },
+                "variants.*.length": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field length (tipe number)."
+                },
+                "variants.*.width": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field width (tipe number)."
+                },
+                "variants.*.height": {
+                    "type": "number",
+                    "required": false,
+                    "rules": [
+                        "nullable",
+                        "numeric",
+                        "min:0"
+                    ],
+                    "constraints": {
+                        "min": 0
+                    },
+                    "description": "Field height (tipe number)."
+                },
                 "variants.*.unlimited_shop_ids": {
                     "type": "array",
                     "required": false,
@@ -26637,6 +27175,10 @@
                 "inventory_account_id": "00000000-0000-0000-0000-000000000000",
                 "cogs_account_id": "00000000-0000-0000-0000-000000000000",
                 "weight": 0,
+                "weight_unit": "gram",
+                "length": 0,
+                "width": 0,
+                "height": 0,
                 "package_contents": "string",
                 "media": [
                     {
@@ -26673,6 +27215,9 @@
                         "safe_stock": 1,
                         "is_active": false,
                         "weight": 0,
+                        "length": 0,
+                        "width": 0,
+                        "height": 0,
                         "unlimited_shop_ids": [
                             []
                         ],
@@ -26722,6 +27267,10 @@
                 "inventory_account_id: nullable|uuid|exists:accounts,id,account_type,\"asset\"",
                 "cogs_account_id: nullable|uuid|exists:accounts,id,account_type,\"expense\"",
                 "weight: nullable|numeric|min:0",
+                "weight_unit: nullable|in:gram,kg",
+                "length: nullable|numeric|min:0",
+                "width: nullable|numeric|min:0",
+                "height: nullable|numeric|min:0",
                 "package_contents: nullable|string|max:2000",
                 "media: required|array|min:1|max:10",
                 "media.*.media_uuid: required_without:media.*.url|bail|uuid|exists:media,uuid",
@@ -26748,6 +27297,9 @@
                 "variants.*.safe_stock: nullable|integer|min:0",
                 "variants.*.is_active: nullable|boolean",
                 "variants.*.weight: nullable|numeric|min:0",
+                "variants.*.length: nullable|numeric|min:0",
+                "variants.*.width: nullable|numeric|min:0",
+                "variants.*.height: nullable|numeric|min:0",
                 "variants.*.unlimited_shop_ids: nullable|array",
                 "variants.*.unlimited_shop_ids.*: uuid|distinct|exists:channel_shops,id",
                 "variants.*.options: nullable|array",
@@ -27909,12 +28461,15 @@
             "method": "DELETE",
             "path": "/api/v1/{channel}/products/{product}",
             "summary": "Hapus produk",
-            "description": "Hapus produk.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: default policy modul.",
-            "purpose": "Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
+            "description": "Hapus produk.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: minimal satu izin dari [owner, delete-produk].",
+            "purpose": "Membutuhkan izin: owner, delete-produk. Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
             "controller": "Modules\\Product\\Http\\Controllers\\ChannelProductController",
             "action": "destroy",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "delete-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -28078,12 +28633,15 @@
             "method": "GET",
             "path": "/api/v1/{channel}/products/{product}",
             "summary": "Ambil detail produk",
-            "description": "Ambil detail produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil detail produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-produk].",
+            "purpose": "Membutuhkan izin: owner, view-produk. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Product\\Http\\Controllers\\ChannelProductController",
             "action": "show",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -28150,6 +28708,9 @@
                     "package_contents": "mixed",
                     "weight": "mixed",
                     "weight_unit": "mixed",
+                    "length": "mixed",
+                    "width": "mixed",
+                    "height": "mixed",
                     "accounts": "mixed",
                     "sales": "mixed",
                     "sales_return": "mixed",
@@ -28182,7 +28743,6 @@
                     "unlimited_shops": "mixed",
                     "on_hand": "mixed",
                     "pending_placement": "mixed",
-                    "reserved": "mixed",
                     "on_order": "mixed",
                     "available": "mixed",
                     "verified_at": "mixed",
@@ -28230,6 +28790,9 @@
                     "package_contents": "string",
                     "weight": "string",
                     "weight_unit": "string",
+                    "length": "string",
+                    "width": "string",
+                    "height": "string",
                     "accounts": "string",
                     "sales": "string",
                     "sales_return": "string",
@@ -28262,7 +28825,6 @@
                     "unlimited_shops": "string",
                     "on_hand": "string",
                     "pending_placement": "string",
-                    "reserved": "string",
                     "on_order": "string",
                     "available": "string",
                     "verified_at": "string",
@@ -28388,12 +28950,15 @@
             "method": "PATCH",
             "path": "/api/v1/{channel}/products/{product}",
             "summary": "Ubah produk",
-            "description": "Ubah produk.\nResponse: 200 dengan data resource yang sudah diperbarui.\nOtorisasi: default policy modul.",
-            "purpose": "Memperbarui resource yang sudah ada.",
+            "description": "Ubah produk.\nResponse: 200 dengan data resource yang sudah diperbarui.\nOtorisasi: minimal satu izin dari [owner, edit-produk].",
+            "purpose": "Membutuhkan izin: owner, edit-produk. Memperbarui resource yang sudah ada.",
             "controller": "Modules\\Product\\Http\\Controllers\\ChannelProductController",
             "action": "update",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -28541,12 +29106,15 @@
             "method": "PUT",
             "path": "/api/v1/{channel}/products/{product}",
             "summary": "Ubah produk",
-            "description": "Ubah produk.\nResponse: 200 dengan data resource yang sudah diperbarui.\nOtorisasi: default policy modul.",
-            "purpose": "Memperbarui resource yang sudah ada.",
+            "description": "Ubah produk.\nResponse: 200 dengan data resource yang sudah diperbarui.\nOtorisasi: minimal satu izin dari [owner, edit-produk].",
+            "purpose": "Membutuhkan izin: owner, edit-produk. Memperbarui resource yang sudah ada.",
             "controller": "Modules\\Product\\Http\\Controllers\\ChannelProductController",
             "action": "update",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,

@@ -173,7 +173,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     category: "picking-packing-shipping",
     question: "Kenapa cetak resi Lazada/WooCommerce di-grey-out?",
     answer:
-      "Kedua channel belum mendukung cetak resi otomatis via Jubelio. Cetak manual di dashboard channel masing-masing, lalu upload nomor resi via **Edit Pesanan → Nomor Resi**.",
+      "Kedua channel belum mendukung cetak resi otomatis via Cilupbah. Cetak manual di dashboard channel masing-masing, lalu upload nomor resi via **Edit Pesanan → Nomor Resi**.",
   },
   {
     id: "pps-07",
@@ -249,7 +249,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     category: "produk",
     question: "Kenapa master kurir hanya 141 nama tertentu?",
     answer:
-      "Master kurir persis mengikuti daftar Jubelio (canonicalNames). Tidak boleh custom karena berdampak ke label & tracking. Kurir tidak terpakai di-*deactivate*, bukan dihapus.",
+      "Master kurir persis mengikuti daftar kurir kanonik (canonicalNames). Tidak boleh custom karena berdampak ke label & tracking. Kurir tidak terpakai di-*deactivate*, bukan dihapus.",
   },
 
   {

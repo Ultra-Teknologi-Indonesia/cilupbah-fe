@@ -1,7 +1,6 @@
 export type DeliveryMethod =
   | "COURIER"
-  | "SELF_PICKUP"
-  | "JUBELIO_SHIPMENT";
+  | "SELF_PICKUP";
 
 export interface ManualOrderItemPayload {
   item_id: string;
@@ -40,7 +39,6 @@ export interface ManualOrderPayload {
 
   is_paid?: boolean;
   is_cod?: boolean;
-  is_jubelio_shipment?: boolean;
 
   delivery_method: DeliveryMethod;
   shipping_provider?: string | null;

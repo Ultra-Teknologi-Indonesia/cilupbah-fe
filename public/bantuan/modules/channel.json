@@ -2,9 +2,225 @@
     "slug": "channel",
     "name": "Channel",
     "description": "Integrasi marketplace: Shopee, Lazada, TikTok, WooCommerce.",
-    "endpoints_count": 107,
+    "endpoints_count": 102,
     "undocumented": 0,
     "endpoints": [
+        {
+            "id": "api.channel-sync-setting.show",
+            "module_slug": "channel",
+            "module_name": "Channel",
+            "method": "GET",
+            "path": "/api/v1/channel-sync-setting",
+            "summary": "Ambil detail channel sync setting",
+            "description": "Ambil detail channel sync setting.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, view-integrasi-channel. Mengembalikan data untuk ditampilkan di UI.",
+            "controller": "Modules\\Channel\\Http\\Controllers\\ChannelSyncSettingController",
+            "action": "show",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "view-integrasi-channel"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Pengaturan sinkronisasi channel berhasil diambil",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.channel-sync-setting.update",
+                    "method": "PUT",
+                    "path": "/api/v1/channel-sync-setting",
+                    "summary": "Ubah channel sync setting"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.channel-sync-setting.update",
+            "module_slug": "channel",
+            "module_name": "Channel",
+            "method": "PUT",
+            "path": "/api/v1/channel-sync-setting",
+            "summary": "Ubah channel sync setting",
+            "description": "Ubah channel sync setting.\nResponse: 200 dengan data resource yang sudah diperbarui.\nOtorisasi: minimal satu izin dari [owner, edit-integrasi-channel].",
+            "purpose": "Menerima payload yang divalidasi (lihat Body Schema). Membutuhkan izin: owner, edit-integrasi-channel. Memperbarui resource yang sudah ada.",
+            "controller": "Modules\\Channel\\Http\\Controllers\\ChannelSyncSettingController",
+            "action": "update",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "edit-integrasi-channel"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": "Modules\\Channel\\Http\\Requests\\UpdateChannelSyncSettingRequest",
+            "path_params": [],
+            "query_params": [],
+            "body_schema": {
+                "sync_enabled": {
+                    "type": "boolean",
+                    "required": true,
+                    "rules": [
+                        "required",
+                        "boolean"
+                    ],
+                    "description": "Field sync enabled (tipe boolean)."
+                }
+            },
+            "body_example": {
+                "sync_enabled": false
+            },
+            "validation": [
+                "sync_enabled: required|boolean"
+            ],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "mixed"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "Berhasil.",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                200,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [
+                {
+                    "id": "api.channel-sync-setting.show",
+                    "method": "GET",
+                    "path": "/api/v1/channel-sync-setting",
+                    "summary": "Ambil detail channel sync setting"
+                }
+            ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
         {
             "id": "api.channel.index",
             "module_slug": "channel",
@@ -175,178 +391,16 @@
                     "summary": "Cetak channel marketplace"
                 },
                 {
-                    "id": "api.channel.show",
-                    "method": "GET",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ambil detail channel marketplace"
-                },
-                {
-                    "id": "api.channel.store",
-                    "method": "POST",
-                    "path": "/api/v1/channels",
-                    "summary": "Buat channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PUT",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PATCH",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
                     "id": "api.",
                     "method": "PATCH",
                     "path": "/api/v1/marketplace/store/{id}",
                     "summary": "Ubah store"
-                }
-            ],
-            "related_page": "/dashboard/integrasi-channel",
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
-            "id": "api.channel.store",
-            "module_slug": "channel",
-            "module_name": "Channel",
-            "method": "POST",
-            "path": "/api/v1/channels",
-            "summary": "Buat channel marketplace",
-            "description": "Buat channel marketplace.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
-            "controller": "Modules\\Channel\\Http\\Controllers\\ChannelController",
-            "action": "store",
-            "auth": "auth:sanctum",
-            "roles": [
-                "owner",
-                "create-integrasi-channel"
-            ],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [],
-            "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": "mixed",
-                "meta": "object?"
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Berhasil.",
-                "data": {}
-            },
-            "response_resource": null,
-            "response_errors": [
-                {
-                    "status": 401,
-                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
-                    "body": {
-                        "message": "Unauthenticated."
-                    },
-                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
-                },
-                {
-                    "status": 403,
-                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
-                    "body": {
-                        "message": "This action is unauthorized."
-                    },
-                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
-                },
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                201,
-                401,
-                403,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [],
-            "allowed_sorts": [],
-            "allowed_search": [],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": null,
-            "related_endpoints": [
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/marketplace/stock-allocation",
-                    "summary": "Ambil daftar stock allocation"
                 },
                 {
                     "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/marketplace/store",
-                    "summary": "Ambil daftar store"
-                },
-                {
-                    "id": "api.channels.print-label-capabilities",
-                    "method": "GET",
-                    "path": "/api/v1/channels/print-label-capabilities",
-                    "summary": "Cetak channel marketplace"
-                },
-                {
-                    "id": "api.channel.index",
-                    "method": "GET",
-                    "path": "/api/v1/channels",
-                    "summary": "Ambil daftar channel marketplace"
-                },
-                {
-                    "id": "api.channel.show",
-                    "method": "GET",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ambil detail channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PUT",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PATCH",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
-                    "id": "api.",
-                    "method": "PATCH",
+                    "method": "DELETE",
                     "path": "/api/v1/marketplace/store/{id}",
-                    "summary": "Ubah store"
+                    "summary": "Hapus store"
                 }
             ],
             "related_page": "/dashboard/integrasi-channel",
@@ -469,641 +523,19 @@
                     "summary": "Ambil daftar channel marketplace"
                 },
                 {
-                    "id": "api.channel.show",
-                    "method": "GET",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ambil detail channel marketplace"
-                },
-                {
-                    "id": "api.channel.store",
-                    "method": "POST",
-                    "path": "/api/v1/channels",
-                    "summary": "Buat channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PUT",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PATCH",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
                     "id": "api.",
                     "method": "PATCH",
                     "path": "/api/v1/marketplace/store/{id}",
                     "summary": "Ubah store"
+                },
+                {
+                    "id": "api.",
+                    "method": "DELETE",
+                    "path": "/api/v1/marketplace/store/{id}",
+                    "summary": "Hapus store"
                 }
             ],
             "related_page": null,
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
-            "id": "api.channel.destroy",
-            "module_slug": "channel",
-            "module_name": "Channel",
-            "method": "DELETE",
-            "path": "/api/v1/channels/{channel}",
-            "summary": "Hapus channel marketplace",
-            "description": "Hapus channel marketplace.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: default policy modul.",
-            "purpose": "Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
-            "controller": "Modules\\Channel\\Http\\Controllers\\ChannelController",
-            "action": "destroy",
-            "auth": "auth:sanctum",
-            "roles": [
-                "owner",
-                "delete-integrasi-channel"
-            ],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [
-                {
-                    "name": "channel",
-                    "type": "string",
-                    "required": true,
-                    "description": "Field channel (tipe string)."
-                }
-            ],
-            "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": "mixed",
-                "meta": "object?"
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Berhasil.",
-                "data": {}
-            },
-            "response_resource": null,
-            "response_errors": [
-                {
-                    "status": 401,
-                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
-                    "body": {
-                        "message": "Unauthenticated."
-                    },
-                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
-                },
-                {
-                    "status": 403,
-                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
-                    "body": {
-                        "message": "This action is unauthorized."
-                    },
-                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
-                },
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                204,
-                401,
-                403,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [],
-            "allowed_sorts": [],
-            "allowed_search": [],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": null,
-            "related_endpoints": [
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/marketplace/stock-allocation",
-                    "summary": "Ambil daftar stock allocation"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/marketplace/store",
-                    "summary": "Ambil daftar store"
-                },
-                {
-                    "id": "api.channels.print-label-capabilities",
-                    "method": "GET",
-                    "path": "/api/v1/channels/print-label-capabilities",
-                    "summary": "Cetak channel marketplace"
-                },
-                {
-                    "id": "api.channel.index",
-                    "method": "GET",
-                    "path": "/api/v1/channels",
-                    "summary": "Ambil daftar channel marketplace"
-                },
-                {
-                    "id": "api.channel.show",
-                    "method": "GET",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ambil detail channel marketplace"
-                },
-                {
-                    "id": "api.channel.store",
-                    "method": "POST",
-                    "path": "/api/v1/channels",
-                    "summary": "Buat channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PUT",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PATCH",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                }
-            ],
-            "related_page": "/dashboard/integrasi-channel",
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
-            "id": "api.channel.show",
-            "module_slug": "channel",
-            "module_name": "Channel",
-            "method": "GET",
-            "path": "/api/v1/channels/{channel}",
-            "summary": "Ambil detail channel marketplace",
-            "description": "Ambil detail channel marketplace.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
-            "controller": "Modules\\Channel\\Http\\Controllers\\ChannelController",
-            "action": "show",
-            "auth": "auth:sanctum",
-            "roles": [
-                "owner",
-                "view-integrasi-channel"
-            ],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [
-                {
-                    "name": "channel",
-                    "type": "string",
-                    "required": true,
-                    "description": "Field channel (tipe string)."
-                }
-            ],
-            "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": "mixed",
-                "meta": "object?"
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Berhasil.",
-                "data": []
-            },
-            "response_resource": null,
-            "response_errors": [
-                {
-                    "status": 401,
-                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
-                    "body": {
-                        "message": "Unauthenticated."
-                    },
-                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
-                },
-                {
-                    "status": 403,
-                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
-                    "body": {
-                        "message": "This action is unauthorized."
-                    },
-                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
-                },
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                200,
-                401,
-                403,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [],
-            "allowed_sorts": [],
-            "allowed_search": [],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": null,
-            "related_endpoints": [
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/marketplace/stock-allocation",
-                    "summary": "Ambil daftar stock allocation"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/marketplace/store",
-                    "summary": "Ambil daftar store"
-                },
-                {
-                    "id": "api.channels.print-label-capabilities",
-                    "method": "GET",
-                    "path": "/api/v1/channels/print-label-capabilities",
-                    "summary": "Cetak channel marketplace"
-                },
-                {
-                    "id": "api.channel.index",
-                    "method": "GET",
-                    "path": "/api/v1/channels",
-                    "summary": "Ambil daftar channel marketplace"
-                },
-                {
-                    "id": "api.channel.store",
-                    "method": "POST",
-                    "path": "/api/v1/channels",
-                    "summary": "Buat channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PUT",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PATCH",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
-                    "id": "api.",
-                    "method": "PATCH",
-                    "path": "/api/v1/marketplace/store/{id}",
-                    "summary": "Ubah store"
-                }
-            ],
-            "related_page": "/dashboard/integrasi-channel",
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
-            "id": "api.channel.update",
-            "module_slug": "channel",
-            "module_name": "Channel",
-            "method": "PATCH",
-            "path": "/api/v1/channels/{channel}",
-            "summary": "Ubah channel marketplace",
-            "description": "Ubah channel marketplace.\nResponse: 200 dengan data resource yang sudah diperbarui.\nOtorisasi: default policy modul.",
-            "purpose": "Memperbarui resource yang sudah ada.",
-            "controller": "Modules\\Channel\\Http\\Controllers\\ChannelController",
-            "action": "update",
-            "auth": "auth:sanctum",
-            "roles": [
-                "owner",
-                "edit-integrasi-channel"
-            ],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [
-                {
-                    "name": "channel",
-                    "type": "string",
-                    "required": true,
-                    "description": "Field channel (tipe string)."
-                }
-            ],
-            "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": "mixed",
-                "meta": "object?"
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Berhasil.",
-                "data": {}
-            },
-            "response_resource": null,
-            "response_errors": [
-                {
-                    "status": 401,
-                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
-                    "body": {
-                        "message": "Unauthenticated."
-                    },
-                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
-                },
-                {
-                    "status": 403,
-                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
-                    "body": {
-                        "message": "This action is unauthorized."
-                    },
-                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
-                },
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                200,
-                401,
-                403,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [],
-            "allowed_sorts": [],
-            "allowed_search": [],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": null,
-            "related_endpoints": [
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/marketplace/stock-allocation",
-                    "summary": "Ambil daftar stock allocation"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/marketplace/store",
-                    "summary": "Ambil daftar store"
-                },
-                {
-                    "id": "api.channels.print-label-capabilities",
-                    "method": "GET",
-                    "path": "/api/v1/channels/print-label-capabilities",
-                    "summary": "Cetak channel marketplace"
-                },
-                {
-                    "id": "api.channel.index",
-                    "method": "GET",
-                    "path": "/api/v1/channels",
-                    "summary": "Ambil daftar channel marketplace"
-                },
-                {
-                    "id": "api.channel.show",
-                    "method": "GET",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ambil detail channel marketplace"
-                },
-                {
-                    "id": "api.channel.store",
-                    "method": "POST",
-                    "path": "/api/v1/channels",
-                    "summary": "Buat channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PUT",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
-                    "id": "api.",
-                    "method": "PATCH",
-                    "path": "/api/v1/marketplace/store/{id}",
-                    "summary": "Ubah store"
-                }
-            ],
-            "related_page": "/dashboard/integrasi-channel",
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
-            "id": "api.channel.update",
-            "module_slug": "channel",
-            "module_name": "Channel",
-            "method": "PUT",
-            "path": "/api/v1/channels/{channel}",
-            "summary": "Ubah channel marketplace",
-            "description": "Ubah channel marketplace.\nResponse: 200 dengan data resource yang sudah diperbarui.\nOtorisasi: default policy modul.",
-            "purpose": "Memperbarui resource yang sudah ada.",
-            "controller": "Modules\\Channel\\Http\\Controllers\\ChannelController",
-            "action": "update",
-            "auth": "auth:sanctum",
-            "roles": [
-                "owner",
-                "edit-integrasi-channel"
-            ],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [
-                {
-                    "name": "channel",
-                    "type": "string",
-                    "required": true,
-                    "description": "Field channel (tipe string)."
-                }
-            ],
-            "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": "mixed",
-                "meta": "object?"
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Berhasil.",
-                "data": {}
-            },
-            "response_resource": null,
-            "response_errors": [
-                {
-                    "status": 401,
-                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
-                    "body": {
-                        "message": "Unauthenticated."
-                    },
-                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
-                },
-                {
-                    "status": 403,
-                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
-                    "body": {
-                        "message": "This action is unauthorized."
-                    },
-                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
-                },
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                200,
-                401,
-                403,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [],
-            "allowed_sorts": [],
-            "allowed_search": [],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": null,
-            "related_endpoints": [
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/marketplace/stock-allocation",
-                    "summary": "Ambil daftar stock allocation"
-                },
-                {
-                    "id": "api.",
-                    "method": "GET",
-                    "path": "/api/v1/marketplace/store",
-                    "summary": "Ambil daftar store"
-                },
-                {
-                    "id": "api.channels.print-label-capabilities",
-                    "method": "GET",
-                    "path": "/api/v1/channels/print-label-capabilities",
-                    "summary": "Cetak channel marketplace"
-                },
-                {
-                    "id": "api.channel.index",
-                    "method": "GET",
-                    "path": "/api/v1/channels",
-                    "summary": "Ambil daftar channel marketplace"
-                },
-                {
-                    "id": "api.channel.show",
-                    "method": "GET",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ambil detail channel marketplace"
-                },
-                {
-                    "id": "api.channel.store",
-                    "method": "POST",
-                    "path": "/api/v1/channels",
-                    "summary": "Buat channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PATCH",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
-                    "id": "api.",
-                    "method": "PATCH",
-                    "path": "/api/v1/marketplace/store/{id}",
-                    "summary": "Ubah store"
-                }
-            ],
-            "related_page": "/dashboard/integrasi-channel",
             "related_manual": null,
             "needs_doc": false
         },
@@ -1149,9 +581,12 @@
                     "is_downloaded": "mixed",
                     "on_download_process": "mixed",
                     "total_downloaded": "mixed",
+                    "total_failed": "mixed",
+                    "is_partial": "mixed",
                     "all_product": "mixed",
                     "progress_percent": "mixed",
-                    "error_message": "mixed"
+                    "error_message": "mixed",
+                    "error": "mixed"
                 }
             },
             "response_success_example": {
@@ -1171,9 +606,12 @@
                     "is_downloaded": "string",
                     "on_download_process": "string",
                     "total_downloaded": "string",
+                    "total_failed": "string",
+                    "is_partial": "string",
                     "all_product": "string",
                     "progress_percent": "string",
-                    "error_message": "string"
+                    "error_message": "string",
+                    "error": "string"
                 }
             },
             "response_resource": "Modules\\Channel\\Http\\Resources\\DownloadTransactionResource",
@@ -1335,9 +773,12 @@
                     "is_downloaded": "mixed",
                     "on_download_process": "mixed",
                     "total_downloaded": "mixed",
+                    "total_failed": "mixed",
+                    "is_partial": "mixed",
                     "all_product": "mixed",
                     "progress_percent": "mixed",
-                    "error_message": "mixed"
+                    "error_message": "mixed",
+                    "error": "mixed"
                 }
             },
             "response_success_example": {
@@ -1357,9 +798,12 @@
                     "is_downloaded": "string",
                     "on_download_process": "string",
                     "total_downloaded": "string",
+                    "total_failed": "string",
+                    "is_partial": "string",
                     "all_product": "string",
                     "progress_percent": "string",
-                    "error_message": "string"
+                    "error_message": "string",
+                    "error": "string"
                 }
             },
             "response_resource": "Modules\\Channel\\Http\\Resources\\DownloadTransactionResource",
@@ -1539,12 +983,15 @@
             "method": "POST",
             "path": "/api/v1/lazada/auto-sync/pull-orders",
             "summary": "Buat Lazada",
-            "description": "Buat Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaSyncApiController",
             "action": "pullOrdersAll",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -1779,12 +1226,15 @@
             "method": "GET",
             "path": "/api/v1/lazada/cancel-reasons",
             "summary": "Batalkan Lazada",
-            "description": "Batalkan Lazada.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Batalkan Lazada.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pesanan].",
+            "purpose": "Membutuhkan izin: owner, view-pesanan. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaSyncApiController",
             "action": "cancelReasons",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -1934,12 +1384,15 @@
             "method": "POST",
             "path": "/api/v1/lazada/listing/validate",
             "summary": "Buat Lazada",
-            "description": "Buat Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-produk-naik].",
+            "purpose": "Membutuhkan izin: owner, edit-produk-naik. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaSyncApiController",
             "action": "validateListing",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-produk-naik"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -2074,12 +1527,15 @@
             "method": "GET",
             "path": "/api/v1/lazada/logistics",
             "summary": "Ambil daftar Lazada",
-            "description": "Ambil daftar Lazada.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil daftar Lazada.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, view-pengiriman. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaSyncApiController",
             "action": "logistics",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -2229,12 +1685,15 @@
             "method": "GET",
             "path": "/api/v1/lazada/stores",
             "summary": "Ambil daftar Lazada",
-            "description": "Ambil daftar Lazada.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
+            "description": "Ambil daftar Lazada.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, view-integrasi-channel. Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaStoreController",
             "action": "index",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -2259,6 +1718,9 @@
                         "location_name": "mixed",
                         "location_code": "mixed",
                         "integration": "mixed",
+                        "order_sync": "mixed",
+                        "last_order_synced_at": "mixed",
+                        "token_status": "mixed",
                         "token_expires_at": "mixed",
                         "last_synced_at": "mixed",
                         "channel": "mixed",
@@ -2290,6 +1752,9 @@
                         "location_name": "string",
                         "location_code": "string",
                         "integration": "string",
+                        "order_sync": "string",
+                        "last_order_synced_at": "string",
+                        "token_status": "string",
                         "token_expires_at": "string",
                         "last_synced_at": "string",
                         "channel": "string",
@@ -2414,12 +1879,15 @@
             "method": "DELETE",
             "path": "/api/v1/lazada/stores/{id}",
             "summary": "Hapus Lazada",
-            "description": "Hapus Lazada.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: default policy modul.",
-            "purpose": "Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
+            "description": "Hapus Lazada.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: minimal satu izin dari [owner, delete-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, delete-integrasi-channel. Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaStoreController",
             "action": "destroy",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "delete-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -2540,12 +2008,15 @@
             "method": "GET",
             "path": "/api/v1/lazada/stores/{id}",
             "summary": "Ambil detail Lazada",
-            "description": "Ambil detail Lazada.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil detail Lazada.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, view-integrasi-channel. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaStoreController",
             "action": "show",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -2565,50 +2036,14 @@
             "response_success_schema": {
                 "success": "boolean",
                 "message": "string",
-                "data": {
-                    "id": "mixed",
-                    "shop_id": "mixed",
-                    "shop_name": "mixed",
-                    "is_active": "mixed",
-                    "order_sync_enabled": "mixed",
-                    "stock_source_mode": "mixed",
-                    "location_id": "mixed",
-                    "location_name": "mixed",
-                    "location_code": "mixed",
-                    "integration": "mixed",
-                    "token_expires_at": "mixed",
-                    "last_synced_at": "mixed",
-                    "channel": "mixed",
-                    "code": "mixed",
-                    "name": "mixed",
-                    "created_at": "mixed",
-                    "updated_at": "mixed"
-                }
+                "data": "object|null"
             },
             "response_success_example": {
                 "success": true,
-                "message": "Berhasil.",
-                "data": {
-                    "id": "019ea2afad1d733eafb905816d10590e",
-                    "shop_id": "019ea2afad1d733eafb905816d10590e",
-                    "shop_name": "string",
-                    "is_active": "string",
-                    "order_sync_enabled": "string",
-                    "stock_source_mode": "string",
-                    "location_id": "019ea2afad1d733eafb905816d10590e",
-                    "location_name": "string",
-                    "location_code": "string",
-                    "integration": "string",
-                    "token_expires_at": "string",
-                    "last_synced_at": "string",
-                    "channel": "string",
-                    "code": "string",
-                    "name": "string",
-                    "created_at": "string",
-                    "updated_at": "string"
-                }
+                "message": "Detail toko berhasil diambil",
+                "data": {}
             },
-            "response_resource": "Modules\\Channel\\Http\\Resources\\ChannelShopResource",
+            "response_resource": null,
             "response_errors": [
                 {
                     "status": 401,
@@ -2702,12 +2137,15 @@
             "method": "POST",
             "path": "/api/v1/lazada/stores/{id}/refresh-token",
             "summary": "Refresh token Lazada",
-            "description": "Refresh token Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Refresh token Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, edit-integrasi-channel. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaStoreController",
             "action": "refreshToken",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -2819,12 +2257,15 @@
             "method": "GET",
             "path": "/api/v1/lazada/sync/awb",
             "summary": "Cetak Lazada",
-            "description": "Cetak Lazada.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Cetak Lazada.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, edit-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, edit-pengiriman. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaSyncApiController",
             "action": "printAwb",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -2967,12 +2408,15 @@
             "method": "POST",
             "path": "/api/v1/lazada/sync/cancel",
             "summary": "Batalkan Lazada",
-            "description": "Batalkan Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Batalkan Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaSyncApiController",
             "action": "cancelOrder",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -3122,12 +2566,15 @@
             "method": "POST",
             "path": "/api/v1/lazada/sync/categories",
             "summary": "Sinkronisasi kategori produk",
-            "description": "Sinkronisasi kategori produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Sinkronisasi kategori produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-kategori].",
+            "purpose": "Membutuhkan izin: owner, edit-kategori. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaSyncApiController",
             "action": "syncCategories",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-kategori"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -3270,12 +2717,15 @@
             "method": "POST",
             "path": "/api/v1/lazada/sync/category-attributes",
             "summary": "Sinkronisasi Lazada",
-            "description": "Sinkronisasi Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Sinkronisasi Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-kategori].",
+            "purpose": "Membutuhkan izin: owner, edit-kategori. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaSyncApiController",
             "action": "syncCategoryAttributes",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-kategori"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -3418,12 +2868,15 @@
             "method": "POST",
             "path": "/api/v1/lazada/sync/fulfill",
             "summary": "Buat Lazada",
-            "description": "Buat Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, edit-pengiriman. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaSyncApiController",
             "action": "processFulfillment",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -3560,12 +3013,15 @@
             "method": "POST",
             "path": "/api/v1/lazada/sync/fulfill-pack",
             "summary": "Kemas Lazada",
-            "description": "Kemas Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Kemas Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, edit-pengiriman. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaSyncApiController",
             "action": "fulfillPack",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -3715,12 +3171,15 @@
             "method": "POST",
             "path": "/api/v1/lazada/sync/products/push",
             "summary": "Buat produk",
-            "description": "Buat produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-produk].",
+            "purpose": "Membutuhkan izin: owner, edit-produk. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaSyncApiController",
             "action": "pushProduct",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -3855,12 +3314,15 @@
             "method": "POST",
             "path": "/api/v1/lazada/sync/pull",
             "summary": "Buat Lazada",
-            "description": "Buat Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaSyncApiController",
             "action": "pullOrders",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -4010,12 +3472,15 @@
             "method": "POST",
             "path": "/api/v1/lazada/sync/rts",
             "summary": "Kirim Lazada",
-            "description": "Kirim Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Kirim Lazada.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, edit-pengiriman. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\LazadaSyncApiController",
             "action": "readyToShip",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -4171,7 +3636,7 @@
             "action": "verify",
             "auth": "none",
             "roles": [],
-            "rate_limit": null,
+            "rate_limit": "120,1",
             "deprecated": false,
             "since_version": null,
             "form_request": null,
@@ -4251,7 +3716,7 @@
             "action": "handle",
             "auth": "none",
             "roles": [],
-            "rate_limit": null,
+            "rate_limit": "120,1",
             "deprecated": false,
             "since_version": null,
             "form_request": null,
@@ -4336,12 +3801,15 @@
             "method": "GET",
             "path": "/api/v1/marketplace/cancel-reasons",
             "summary": "Ambil daftar cancel reasons",
-            "description": "Ambil daftar cancel reasons.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
+            "description": "Ambil daftar cancel reasons.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pesanan].",
+            "purpose": "Membutuhkan izin: owner, view-pesanan. Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
             "controller": "Modules\\Channel\\Http\\Controllers\\MarketplaceCancelReasonController",
             "action": "index",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -4434,12 +3902,15 @@
             "method": "GET",
             "path": "/api/v1/marketplace/cancel-reasons/{marketplace}",
             "summary": "Ambil detail cancel reasons",
-            "description": "Ambil detail cancel reasons.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil detail cancel reasons.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pesanan].",
+            "purpose": "Membutuhkan izin: owner, view-pesanan. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\MarketplaceCancelReasonController",
             "action": "show",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -4458,6 +3929,12 @@
                     "type": "string",
                     "description": "ID toko marketplace.",
                     "required": false
+                },
+                {
+                    "name": "status",
+                    "type": "string",
+                    "description": "Status resource. Nilai valid tergantung modul — lihat enum di kolom rules.",
+                    "required": false
                 }
             ],
             "body_schema": [],
@@ -4470,7 +3947,7 @@
             },
             "response_success_example": {
                 "success": true,
-                "message": "Daftar alasan pembatalan {$mp} (live)",
+                "message": "Daftar alasan pembatalan lazada (live)",
                 "data": {}
             },
             "response_resource": null,
@@ -4490,6 +3967,22 @@
                         "message": "This action is unauthorized."
                     },
                     "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Parameter shop_id wajib untuk alasan pembatalan Lazada.",
+                    "body": {
+                        "success": false,
+                        "message": "Parameter shop_id wajib untuk alasan pembatalan Lazada."
+                    }
+                },
+                {
+                    "status": 502,
+                    "reason": "Gagal memuat alasan pembatalan Lazada. Coba lagi.",
+                    "body": {
+                        "success": false,
+                        "message": "Gagal memuat alasan pembatalan Lazada. Coba lagi."
+                    }
                 },
                 {
                     "status": 422,
@@ -4518,6 +4011,7 @@
                 401,
                 403,
                 422,
+                502,
                 500
             ],
             "side_effects": [],
@@ -4546,12 +4040,15 @@
             "method": "GET",
             "path": "/api/v1/marketplace/stock-allocation",
             "summary": "Ambil daftar stock allocation",
-            "description": "Ambil daftar stock allocation.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil daftar stock allocation.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-posisi-stok].",
+            "purpose": "Membutuhkan izin: owner, view-posisi-stok. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ChannelController",
             "action": "stockAllocation",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-posisi-stok"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -4693,34 +4190,16 @@
                     "summary": "Ambil daftar channel marketplace"
                 },
                 {
-                    "id": "api.channel.show",
-                    "method": "GET",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ambil detail channel marketplace"
-                },
-                {
-                    "id": "api.channel.store",
-                    "method": "POST",
-                    "path": "/api/v1/channels",
-                    "summary": "Buat channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PUT",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PATCH",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
                     "id": "api.",
                     "method": "PATCH",
                     "path": "/api/v1/marketplace/store/{id}",
                     "summary": "Ubah store"
+                },
+                {
+                    "id": "api.",
+                    "method": "DELETE",
+                    "path": "/api/v1/marketplace/store/{id}",
+                    "summary": "Hapus store"
                 }
             ],
             "related_page": null,
@@ -4767,6 +4246,9 @@
                         "location_name": "mixed",
                         "location_code": "mixed",
                         "integration": "mixed",
+                        "order_sync": "mixed",
+                        "last_order_synced_at": "mixed",
+                        "token_status": "mixed",
                         "token_expires_at": "mixed",
                         "last_synced_at": "mixed",
                         "channel": "mixed",
@@ -4798,6 +4280,9 @@
                         "location_name": "string",
                         "location_code": "string",
                         "integration": "string",
+                        "order_sync": "string",
+                        "last_order_synced_at": "string",
+                        "token_status": "string",
                         "token_expires_at": "string",
                         "last_synced_at": "string",
                         "channel": "string",
@@ -4911,34 +4396,16 @@
                     "summary": "Ambil daftar channel marketplace"
                 },
                 {
-                    "id": "api.channel.show",
-                    "method": "GET",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ambil detail channel marketplace"
-                },
-                {
-                    "id": "api.channel.store",
-                    "method": "POST",
-                    "path": "/api/v1/channels",
-                    "summary": "Buat channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PUT",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PATCH",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
                     "id": "api.",
                     "method": "PATCH",
                     "path": "/api/v1/marketplace/store/{id}",
                     "summary": "Ubah store"
+                },
+                {
+                    "id": "api.",
+                    "method": "DELETE",
+                    "path": "/api/v1/marketplace/store/{id}",
+                    "summary": "Hapus store"
                 }
             ],
             "related_page": null,
@@ -5075,28 +4542,10 @@
                     "summary": "Ambil daftar channel marketplace"
                 },
                 {
-                    "id": "api.channel.show",
-                    "method": "GET",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ambil detail channel marketplace"
-                },
-                {
-                    "id": "api.channel.store",
-                    "method": "POST",
-                    "path": "/api/v1/channels",
-                    "summary": "Buat channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PUT",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
+                    "id": "api.",
                     "method": "PATCH",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
+                    "path": "/api/v1/marketplace/store/{id}",
+                    "summary": "Ubah store"
                 }
             ],
             "related_page": null,
@@ -5203,6 +4652,9 @@
                     "location_name": "mixed",
                     "location_code": "mixed",
                     "integration": "mixed",
+                    "order_sync": "mixed",
+                    "last_order_synced_at": "mixed",
+                    "token_status": "mixed",
                     "token_expires_at": "mixed",
                     "last_synced_at": "mixed",
                     "channel": "mixed",
@@ -5226,6 +4678,9 @@
                     "location_name": "string",
                     "location_code": "string",
                     "integration": "string",
+                    "order_sync": "string",
+                    "last_order_synced_at": "string",
+                    "token_status": "string",
                     "token_expires_at": "string",
                     "last_synced_at": "string",
                     "channel": "string",
@@ -5315,30 +4770,132 @@
                     "summary": "Ambil daftar channel marketplace"
                 },
                 {
-                    "id": "api.channel.show",
-                    "method": "GET",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ambil detail channel marketplace"
-                },
-                {
-                    "id": "api.channel.store",
-                    "method": "POST",
-                    "path": "/api/v1/channels",
-                    "summary": "Buat channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PUT",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
-                },
-                {
-                    "id": "api.channel.update",
-                    "method": "PATCH",
-                    "path": "/api/v1/channels/{channel}",
-                    "summary": "Ubah channel marketplace"
+                    "id": "api.",
+                    "method": "DELETE",
+                    "path": "/api/v1/marketplace/store/{id}",
+                    "summary": "Hapus store"
                 }
             ],
+            "related_page": null,
+            "related_manual": null,
+            "needs_doc": false
+        },
+        {
+            "id": "api.products.sync-stock",
+            "module_slug": "channel",
+            "module_name": "Channel",
+            "method": "POST",
+            "path": "/api/v1/products/sync-stock",
+            "summary": "Sinkronisasi produk",
+            "description": "Sinkronisasi produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-produk].",
+            "purpose": "Membutuhkan izin: owner, edit-produk. Membuat resource baru atau memicu aksi domain.",
+            "controller": "Modules\\Channel\\Http\\Controllers\\ProductStockSyncController",
+            "action": "syncStock",
+            "auth": "auth:sanctum",
+            "roles": [
+                "owner",
+                "edit-produk"
+            ],
+            "rate_limit": null,
+            "deprecated": false,
+            "since_version": null,
+            "form_request": null,
+            "path_params": [],
+            "query_params": [],
+            "body_schema": [],
+            "body_example": [],
+            "validation": [],
+            "response_success_schema": {
+                "success": "boolean",
+                "message": "string",
+                "data": "object|null"
+            },
+            "response_success_example": {
+                "success": true,
+                "message": "filters",
+                "data": {}
+            },
+            "response_resource": null,
+            "response_errors": [
+                {
+                    "status": 401,
+                    "reason": "Belum terautentikasi (token tidak ada / kedaluwarsa)",
+                    "body": {
+                        "message": "Unauthenticated."
+                    },
+                    "terjemahan": "Sesi Anda sudah berakhir. Silakan login ulang."
+                },
+                {
+                    "status": 403,
+                    "reason": "Hak akses ditolak (permission Spatie tidak terpenuhi)",
+                    "body": {
+                        "message": "This action is unauthorized."
+                    },
+                    "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 422,
+                    "reason": "Mode single hanya menerima tepat satu product_id.",
+                    "body": {
+                        "success": false,
+                        "message": "Mode single hanya menerima tepat satu product_id."
+                    }
+                },
+                {
+                    "status": 500,
+                    "reason": "Gagal memulai sinkronisasi stok massal.",
+                    "body": {
+                        "success": false,
+                        "message": "Gagal memulai sinkronisasi stok massal."
+                    }
+                },
+                {
+                    "status": 500,
+                    "reason": "Gagal mengantrekan sinkronisasi stok.",
+                    "body": {
+                        "success": false,
+                        "message": "Gagal mengantrekan sinkronisasi stok."
+                    }
+                },
+                {
+                    "status": 422,
+                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
+                    "body": {
+                        "message": "The given data was invalid.",
+                        "errors": {
+                            "nama_field": [
+                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
+                            ]
+                        }
+                    },
+                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
+                },
+                {
+                    "status": 500,
+                    "reason": "Kesalahan server (exception tak tertangani)",
+                    "body": {
+                        "message": "Server Error"
+                    },
+                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
+                }
+            ],
+            "status_codes": [
+                201,
+                401,
+                403,
+                422,
+                500
+            ],
+            "side_effects": [
+                "Job/Event: ManualStockResyncAllJob"
+            ],
+            "allowed_filters": [],
+            "allowed_sorts": [],
+            "allowed_search": [],
+            "allowed_includes": [],
+            "allowed_fields": [],
+            "default_sort": null,
+            "related_endpoints": [],
             "related_page": null,
             "related_manual": null,
             "needs_doc": false
@@ -5430,12 +4987,15 @@
             "method": "POST",
             "path": "/api/v1/shopee/auto-sync/pull-orders",
             "summary": "Buat Shopee",
-            "description": "Buat Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "pullOrdersAll",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -5682,7 +5242,7 @@
             "action": "handle",
             "auth": "none",
             "roles": [],
-            "rate_limit": null,
+            "rate_limit": "120,1",
             "deprecated": false,
             "since_version": null,
             "form_request": null,
@@ -5751,24 +5311,6 @@
                     "method": "POST",
                     "path": "/api/v1/shopee/webhook",
                     "summary": "Buat Shopee"
-                },
-                {
-                    "id": "api.shopee.push-debug",
-                    "method": "GET",
-                    "path": "/api/v1/shopee/push-debug",
-                    "summary": "Ambil daftar Shopee"
-                },
-                {
-                    "id": "api.shopee.push-ping",
-                    "method": "GET",
-                    "path": "/api/v1/shopee/push-ping",
-                    "summary": "Ambil daftar Shopee"
-                },
-                {
-                    "id": "api.shopee.push-ping",
-                    "method": "POST",
-                    "path": "/api/v1/shopee/push-ping",
-                    "summary": "Buat Shopee"
                 }
             ],
             "related_page": null,
@@ -5782,12 +5324,15 @@
             "method": "GET",
             "path": "/api/v1/shopee/cancel-reasons",
             "summary": "Batalkan Shopee",
-            "description": "Batalkan Shopee.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Batalkan Shopee.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pesanan].",
+            "purpose": "Membutuhkan izin: owner, view-pesanan. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "cancelReasons",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -5922,12 +5467,15 @@
             "method": "GET",
             "path": "/api/v1/shopee/logistics",
             "summary": "Ambil daftar Shopee",
-            "description": "Ambil daftar Shopee.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil daftar Shopee.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, view-pengiriman. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "logistics",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -6077,12 +5625,15 @@
             "method": "GET",
             "path": "/api/v1/shopee/products/{item}/models",
             "summary": "Ambil detail produk",
-            "description": "Ambil detail produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil detail produk.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-produk].",
+            "purpose": "Membutuhkan izin: owner, view-produk. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "getModels",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -6226,330 +5777,21 @@
             "needs_doc": false
         },
         {
-            "id": "api.shopee.push-debug",
-            "module_slug": "channel",
-            "module_name": "Channel",
-            "method": "GET",
-            "path": "/api/v1/shopee/push-debug",
-            "summary": "Ambil daftar Shopee",
-            "description": "Ambil daftar Shopee.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
-            "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeWebhookController",
-            "action": "debug",
-            "auth": "none",
-            "roles": [],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [],
-            "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": "object|null"
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "redirect_uri",
-                "data": {}
-            },
-            "response_resource": null,
-            "response_errors": [
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                200,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [],
-            "allowed_sorts": [],
-            "allowed_search": [],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": null,
-            "related_endpoints": [
-                {
-                    "id": "api.shopee.callback.push",
-                    "method": "POST",
-                    "path": "/api/v1/shopee/callback",
-                    "summary": "Buat Shopee"
-                },
-                {
-                    "id": "api.shopee.webhook.verify",
-                    "method": "GET",
-                    "path": "/api/v1/shopee/webhook",
-                    "summary": "Verifikasi Shopee"
-                },
-                {
-                    "id": "api.shopee.webhook",
-                    "method": "POST",
-                    "path": "/api/v1/shopee/webhook",
-                    "summary": "Buat Shopee"
-                },
-                {
-                    "id": "api.shopee.push-ping",
-                    "method": "GET",
-                    "path": "/api/v1/shopee/push-ping",
-                    "summary": "Ambil daftar Shopee"
-                },
-                {
-                    "id": "api.shopee.push-ping",
-                    "method": "POST",
-                    "path": "/api/v1/shopee/push-ping",
-                    "summary": "Buat Shopee"
-                }
-            ],
-            "related_page": null,
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
-            "id": "api.shopee.push-ping",
-            "module_slug": "channel",
-            "module_name": "Channel",
-            "method": "GET",
-            "path": "/api/v1/shopee/push-ping",
-            "summary": "Ambil daftar Shopee",
-            "description": "Ambil daftar Shopee.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
-            "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeWebhookController",
-            "action": "ping",
-            "auth": "none",
-            "roles": [],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [],
-            "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": "mixed"
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Berhasil.",
-                "data": {}
-            },
-            "response_resource": null,
-            "response_errors": [
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                200,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [],
-            "allowed_sorts": [],
-            "allowed_search": [],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": null,
-            "related_endpoints": [
-                {
-                    "id": "api.shopee.callback.push",
-                    "method": "POST",
-                    "path": "/api/v1/shopee/callback",
-                    "summary": "Buat Shopee"
-                },
-                {
-                    "id": "api.shopee.webhook.verify",
-                    "method": "GET",
-                    "path": "/api/v1/shopee/webhook",
-                    "summary": "Verifikasi Shopee"
-                },
-                {
-                    "id": "api.shopee.webhook",
-                    "method": "POST",
-                    "path": "/api/v1/shopee/webhook",
-                    "summary": "Buat Shopee"
-                },
-                {
-                    "id": "api.shopee.push-debug",
-                    "method": "GET",
-                    "path": "/api/v1/shopee/push-debug",
-                    "summary": "Ambil daftar Shopee"
-                },
-                {
-                    "id": "api.shopee.push-ping",
-                    "method": "POST",
-                    "path": "/api/v1/shopee/push-ping",
-                    "summary": "Buat Shopee"
-                }
-            ],
-            "related_page": null,
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
-            "id": "api.shopee.push-ping",
-            "module_slug": "channel",
-            "module_name": "Channel",
-            "method": "POST",
-            "path": "/api/v1/shopee/push-ping",
-            "summary": "Buat Shopee",
-            "description": "Buat Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
-            "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeWebhookController",
-            "action": "ping",
-            "auth": "none",
-            "roles": [],
-            "rate_limit": null,
-            "deprecated": false,
-            "since_version": null,
-            "form_request": null,
-            "path_params": [],
-            "query_params": [],
-            "body_schema": [],
-            "body_example": [],
-            "validation": [],
-            "response_success_schema": {
-                "success": "boolean",
-                "message": "string",
-                "data": "mixed"
-            },
-            "response_success_example": {
-                "success": true,
-                "message": "Berhasil.",
-                "data": {}
-            },
-            "response_resource": null,
-            "response_errors": [
-                {
-                    "status": 422,
-                    "reason": "Validasi payload gagal (aturan FormRequest / validate())",
-                    "body": {
-                        "message": "The given data was invalid.",
-                        "errors": {
-                            "nama_field": [
-                                "Pesan validasi per-field (dari FormRequest::messages() atau default Laravel)."
-                            ]
-                        }
-                    },
-                    "terjemahan": "Data yang dikirim tidak lolos validasi. Cek key `errors` untuk detail per-field."
-                },
-                {
-                    "status": 500,
-                    "reason": "Kesalahan server (exception tak tertangani)",
-                    "body": {
-                        "message": "Server Error"
-                    },
-                    "terjemahan": "Terjadi kesalahan tak terduga di server. Cek log Laravel & Sentry untuk trace."
-                }
-            ],
-            "status_codes": [
-                201,
-                422,
-                500
-            ],
-            "side_effects": [],
-            "allowed_filters": [],
-            "allowed_sorts": [],
-            "allowed_search": [],
-            "allowed_includes": [],
-            "allowed_fields": [],
-            "default_sort": null,
-            "related_endpoints": [
-                {
-                    "id": "api.shopee.callback.push",
-                    "method": "POST",
-                    "path": "/api/v1/shopee/callback",
-                    "summary": "Buat Shopee"
-                },
-                {
-                    "id": "api.shopee.webhook.verify",
-                    "method": "GET",
-                    "path": "/api/v1/shopee/webhook",
-                    "summary": "Verifikasi Shopee"
-                },
-                {
-                    "id": "api.shopee.webhook",
-                    "method": "POST",
-                    "path": "/api/v1/shopee/webhook",
-                    "summary": "Buat Shopee"
-                },
-                {
-                    "id": "api.shopee.push-debug",
-                    "method": "GET",
-                    "path": "/api/v1/shopee/push-debug",
-                    "summary": "Ambil daftar Shopee"
-                },
-                {
-                    "id": "api.shopee.push-ping",
-                    "method": "GET",
-                    "path": "/api/v1/shopee/push-ping",
-                    "summary": "Ambil daftar Shopee"
-                }
-            ],
-            "related_page": null,
-            "related_manual": null,
-            "needs_doc": false
-        },
-        {
             "id": "api.shopee.stores.index",
             "module_slug": "channel",
             "module_name": "Channel",
             "method": "GET",
             "path": "/api/v1/shopee/stores",
             "summary": "Ambil daftar Shopee",
-            "description": "Ambil daftar Shopee.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
+            "description": "Ambil daftar Shopee.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, view-integrasi-channel. Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeStoreController",
             "action": "index",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -6574,6 +5816,9 @@
                         "location_name": "mixed",
                         "location_code": "mixed",
                         "integration": "mixed",
+                        "order_sync": "mixed",
+                        "last_order_synced_at": "mixed",
+                        "token_status": "mixed",
                         "token_expires_at": "mixed",
                         "last_synced_at": "mixed",
                         "channel": "mixed",
@@ -6605,6 +5850,9 @@
                         "location_name": "string",
                         "location_code": "string",
                         "integration": "string",
+                        "order_sync": "string",
+                        "last_order_synced_at": "string",
+                        "token_status": "string",
                         "token_expires_at": "string",
                         "last_synced_at": "string",
                         "channel": "string",
@@ -6729,12 +5977,15 @@
             "method": "DELETE",
             "path": "/api/v1/shopee/stores/{id}",
             "summary": "Hapus Shopee",
-            "description": "Hapus Shopee.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: default policy modul.",
-            "purpose": "Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
+            "description": "Hapus Shopee.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: minimal satu izin dari [owner, delete-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, delete-integrasi-channel. Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeStoreController",
             "action": "destroy",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "delete-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -6855,12 +6106,15 @@
             "method": "GET",
             "path": "/api/v1/shopee/stores/{id}",
             "summary": "Ambil detail Shopee",
-            "description": "Ambil detail Shopee.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil detail Shopee.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, view-integrasi-channel. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeStoreController",
             "action": "show",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -6880,50 +6134,14 @@
             "response_success_schema": {
                 "success": "boolean",
                 "message": "string",
-                "data": {
-                    "id": "mixed",
-                    "shop_id": "mixed",
-                    "shop_name": "mixed",
-                    "is_active": "mixed",
-                    "order_sync_enabled": "mixed",
-                    "stock_source_mode": "mixed",
-                    "location_id": "mixed",
-                    "location_name": "mixed",
-                    "location_code": "mixed",
-                    "integration": "mixed",
-                    "token_expires_at": "mixed",
-                    "last_synced_at": "mixed",
-                    "channel": "mixed",
-                    "code": "mixed",
-                    "name": "mixed",
-                    "created_at": "mixed",
-                    "updated_at": "mixed"
-                }
+                "data": "object|null"
             },
             "response_success_example": {
                 "success": true,
-                "message": "Berhasil.",
-                "data": {
-                    "id": "019ea2afad1d733eafb905816d10590e",
-                    "shop_id": "019ea2afad1d733eafb905816d10590e",
-                    "shop_name": "string",
-                    "is_active": "string",
-                    "order_sync_enabled": "string",
-                    "stock_source_mode": "string",
-                    "location_id": "019ea2afad1d733eafb905816d10590e",
-                    "location_name": "string",
-                    "location_code": "string",
-                    "integration": "string",
-                    "token_expires_at": "string",
-                    "last_synced_at": "string",
-                    "channel": "string",
-                    "code": "string",
-                    "name": "string",
-                    "created_at": "string",
-                    "updated_at": "string"
-                }
+                "message": "Detail toko berhasil diambil",
+                "data": {}
             },
-            "response_resource": "Modules\\Channel\\Http\\Resources\\ChannelShopResource",
+            "response_resource": null,
             "response_errors": [
                 {
                     "status": 401,
@@ -7017,12 +6235,15 @@
             "method": "POST",
             "path": "/api/v1/shopee/stores/{id}/refresh-token",
             "summary": "Refresh token Shopee",
-            "description": "Refresh token Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Refresh token Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, edit-integrasi-channel. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeStoreController",
             "action": "refreshToken",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -7134,12 +6355,15 @@
             "method": "GET",
             "path": "/api/v1/shopee/sync/awb",
             "summary": "Ambil daftar Shopee",
-            "description": "Ambil daftar Shopee.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil daftar Shopee.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, edit-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, edit-pengiriman. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "airwayBill",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -7282,12 +6506,15 @@
             "method": "POST",
             "path": "/api/v1/shopee/sync/awb",
             "summary": "Buat Shopee",
-            "description": "Buat Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, edit-pengiriman. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "airwayBill",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -7430,12 +6657,15 @@
             "method": "POST",
             "path": "/api/v1/shopee/sync/cancel",
             "summary": "Batalkan Shopee",
-            "description": "Batalkan Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Batalkan Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "cancelOrder",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -7585,12 +6815,15 @@
             "method": "POST",
             "path": "/api/v1/shopee/sync/categories",
             "summary": "Sinkronisasi kategori produk",
-            "description": "Sinkronisasi kategori produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Sinkronisasi kategori produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-kategori].",
+            "purpose": "Membutuhkan izin: owner, edit-kategori. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "syncCategories",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-kategori"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -7733,12 +6966,15 @@
             "method": "POST",
             "path": "/api/v1/shopee/sync/category-attributes",
             "summary": "Sinkronisasi Shopee",
-            "description": "Sinkronisasi Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Sinkronisasi Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-kategori].",
+            "purpose": "Membutuhkan izin: owner, edit-kategori. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "syncCategoryAttributes",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-kategori"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -7881,12 +7117,15 @@
             "method": "POST",
             "path": "/api/v1/shopee/sync/handle-buyer-cancel",
             "summary": "Batalkan Shopee",
-            "description": "Batalkan Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Batalkan Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "handleBuyerCancel",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -8036,12 +7275,15 @@
             "method": "POST",
             "path": "/api/v1/shopee/sync/mass-ship",
             "summary": "Kirim Shopee",
-            "description": "Kirim Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Kirim Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, edit-pengiriman. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "massShipOrder",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -8197,12 +7439,15 @@
             "method": "GET",
             "path": "/api/v1/shopee/sync/packages",
             "summary": "Kemas Shopee",
-            "description": "Kemas Shopee.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Kemas Shopee.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pesanan].",
+            "purpose": "Membutuhkan izin: owner, view-pesanan. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "packages",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -8352,12 +7597,15 @@
             "method": "POST",
             "path": "/api/v1/shopee/sync/products/push",
             "summary": "Buat produk",
-            "description": "Buat produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-produk].",
+            "purpose": "Membutuhkan izin: owner, edit-produk. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "pushProduct",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -8492,12 +7740,15 @@
             "method": "POST",
             "path": "/api/v1/shopee/sync/pull",
             "summary": "Buat Shopee",
-            "description": "Buat Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "pullOrders",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -8632,12 +7883,15 @@
             "method": "POST",
             "path": "/api/v1/shopee/sync/ship",
             "summary": "Kirim Shopee",
-            "description": "Kirim Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Kirim Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, edit-pengiriman. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "shipOrder",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -8793,12 +8047,15 @@
             "method": "POST",
             "path": "/api/v1/shopee/sync/split",
             "summary": "Buat Shopee",
-            "description": "Buat Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, edit-pengiriman. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "splitOrder",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -8948,12 +8205,15 @@
             "method": "POST",
             "path": "/api/v1/shopee/sync/unsplit",
             "summary": "Buat Shopee",
-            "description": "Buat Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, edit-pengiriman. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "unsplitOrder",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -9103,12 +8363,15 @@
             "method": "POST",
             "path": "/api/v1/shopee/sync/update-shipping",
             "summary": "Kirim Shopee",
-            "description": "Kirim Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Kirim Shopee.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, edit-pengiriman. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ShopeeSyncApiController",
             "action": "updateShipping",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -9264,7 +8527,7 @@
             "action": "verify",
             "auth": "none",
             "roles": [],
-            "rate_limit": null,
+            "rate_limit": "120,1",
             "deprecated": false,
             "since_version": null,
             "form_request": null,
@@ -9331,24 +8594,6 @@
                     "method": "POST",
                     "path": "/api/v1/shopee/webhook",
                     "summary": "Buat Shopee"
-                },
-                {
-                    "id": "api.shopee.push-debug",
-                    "method": "GET",
-                    "path": "/api/v1/shopee/push-debug",
-                    "summary": "Ambil daftar Shopee"
-                },
-                {
-                    "id": "api.shopee.push-ping",
-                    "method": "GET",
-                    "path": "/api/v1/shopee/push-ping",
-                    "summary": "Ambil daftar Shopee"
-                },
-                {
-                    "id": "api.shopee.push-ping",
-                    "method": "POST",
-                    "path": "/api/v1/shopee/push-ping",
-                    "summary": "Buat Shopee"
                 }
             ],
             "related_page": null,
@@ -9368,7 +8613,7 @@
             "action": "handle",
             "auth": "none",
             "roles": [],
-            "rate_limit": null,
+            "rate_limit": "120,1",
             "deprecated": false,
             "since_version": null,
             "form_request": null,
@@ -9437,24 +8682,6 @@
                     "method": "GET",
                     "path": "/api/v1/shopee/webhook",
                     "summary": "Verifikasi Shopee"
-                },
-                {
-                    "id": "api.shopee.push-debug",
-                    "method": "GET",
-                    "path": "/api/v1/shopee/push-debug",
-                    "summary": "Ambil daftar Shopee"
-                },
-                {
-                    "id": "api.shopee.push-ping",
-                    "method": "GET",
-                    "path": "/api/v1/shopee/push-ping",
-                    "summary": "Ambil daftar Shopee"
-                },
-                {
-                    "id": "api.shopee.push-ping",
-                    "method": "POST",
-                    "path": "/api/v1/shopee/push-ping",
-                    "summary": "Buat Shopee"
                 }
             ],
             "related_page": null,
@@ -9548,12 +8775,15 @@
             "method": "POST",
             "path": "/api/v1/tiktok/auto-sync/pull-orders",
             "summary": "Buat TikTok Shop",
-            "description": "Buat TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "pullOrdersAll",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -9688,12 +8918,15 @@
             "method": "POST",
             "path": "/api/v1/tiktok/auto-sync/pull-products",
             "summary": "Buat TikTok Shop",
-            "description": "Buat TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-produk].",
+            "purpose": "Membutuhkan izin: owner, edit-produk. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "pullProductsAll",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -9921,12 +9154,15 @@
             "method": "GET",
             "path": "/api/v1/tiktok/cancel-reasons",
             "summary": "Batalkan TikTok Shop",
-            "description": "Batalkan TikTok Shop.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Batalkan TikTok Shop.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pesanan].",
+            "purpose": "Membutuhkan izin: owner, view-pesanan. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "cancelReasons",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -10061,12 +9297,15 @@
             "method": "GET",
             "path": "/api/v1/tiktok/stores",
             "summary": "Ambil daftar TikTok Shop",
-            "description": "Ambil daftar TikTok Shop.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
+            "description": "Ambil daftar TikTok Shop.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, view-integrasi-channel. Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokStoreController",
             "action": "index",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -10091,6 +9330,9 @@
                         "location_name": "mixed",
                         "location_code": "mixed",
                         "integration": "mixed",
+                        "order_sync": "mixed",
+                        "last_order_synced_at": "mixed",
+                        "token_status": "mixed",
                         "token_expires_at": "mixed",
                         "last_synced_at": "mixed",
                         "channel": "mixed",
@@ -10122,6 +9364,9 @@
                         "location_name": "string",
                         "location_code": "string",
                         "integration": "string",
+                        "order_sync": "string",
+                        "last_order_synced_at": "string",
+                        "token_status": "string",
                         "token_expires_at": "string",
                         "last_synced_at": "string",
                         "channel": "string",
@@ -10246,12 +9491,15 @@
             "method": "DELETE",
             "path": "/api/v1/tiktok/stores/{id}",
             "summary": "Hapus TikTok Shop",
-            "description": "Hapus TikTok Shop.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: default policy modul.",
-            "purpose": "Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
+            "description": "Hapus TikTok Shop.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: minimal satu izin dari [owner, delete-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, delete-integrasi-channel. Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokStoreController",
             "action": "destroy",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "delete-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -10372,12 +9620,15 @@
             "method": "GET",
             "path": "/api/v1/tiktok/stores/{id}",
             "summary": "Ambil detail TikTok Shop",
-            "description": "Ambil detail TikTok Shop.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil detail TikTok Shop.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, view-integrasi-channel. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokStoreController",
             "action": "show",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -10498,12 +9749,15 @@
             "method": "POST",
             "path": "/api/v1/tiktok/stores/{id}/refresh-token",
             "summary": "Refresh token TikTok Shop",
-            "description": "Refresh token TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Refresh token TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, edit-integrasi-channel. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokStoreController",
             "action": "refreshToken",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -10615,12 +9869,15 @@
             "method": "POST",
             "path": "/api/v1/tiktok/sync/accept",
             "summary": "Buat TikTok Shop",
-            "description": "Buat TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "acceptOrder",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -10755,12 +10012,15 @@
             "method": "GET",
             "path": "/api/v1/tiktok/sync/awb",
             "summary": "Ambil daftar TikTok Shop",
-            "description": "Ambil daftar TikTok Shop.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil daftar TikTok Shop.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, edit-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, edit-pengiriman. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "airwayBill",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -10910,12 +10170,15 @@
             "method": "POST",
             "path": "/api/v1/tiktok/sync/awb",
             "summary": "Buat TikTok Shop",
-            "description": "Buat TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, edit-pengiriman. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "airwayBill",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -11065,12 +10328,15 @@
             "method": "POST",
             "path": "/api/v1/tiktok/sync/cancel",
             "summary": "Batalkan TikTok Shop",
-            "description": "Batalkan TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Batalkan TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "cancelOrder",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -11205,12 +10471,15 @@
             "method": "POST",
             "path": "/api/v1/tiktok/sync/categories",
             "summary": "Sinkronisasi kategori produk",
-            "description": "Sinkronisasi kategori produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Sinkronisasi kategori produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-kategori].",
+            "purpose": "Membutuhkan izin: owner, edit-kategori. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "syncCategories",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-kategori"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -11353,12 +10622,15 @@
             "method": "POST",
             "path": "/api/v1/tiktok/sync/category-attributes",
             "summary": "Sinkronisasi TikTok Shop",
-            "description": "Sinkronisasi TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Sinkronisasi TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-kategori].",
+            "purpose": "Membutuhkan izin: owner, edit-kategori. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "syncCategoryAttributes",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-kategori"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -11501,12 +10773,15 @@
             "method": "POST",
             "path": "/api/v1/tiktok/sync/decline",
             "summary": "Buat TikTok Shop",
-            "description": "Buat TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "declineOrder",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -11641,12 +10916,15 @@
             "method": "POST",
             "path": "/api/v1/tiktok/sync/handle-buyer-cancel",
             "summary": "Batalkan TikTok Shop",
-            "description": "Batalkan TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Batalkan TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "handleBuyerCancel",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -11789,12 +11067,15 @@
             "method": "GET",
             "path": "/api/v1/tiktok/sync/packages",
             "summary": "Kemas TikTok Shop",
-            "description": "Kemas TikTok Shop.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Kemas TikTok Shop.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pesanan].",
+            "purpose": "Membutuhkan izin: owner, view-pesanan. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "packages",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -11937,12 +11218,15 @@
             "method": "POST",
             "path": "/api/v1/tiktok/sync/products/bulk-push",
             "summary": "Batch (bulk) produk",
-            "description": "Batch (bulk) produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Batch (bulk) produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-produk].",
+            "purpose": "Membutuhkan izin: owner, edit-produk. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "bulkPush",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -12077,12 +11361,15 @@
             "method": "POST",
             "path": "/api/v1/tiktok/sync/products/push",
             "summary": "Buat produk",
-            "description": "Buat produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-produk].",
+            "purpose": "Membutuhkan izin: owner, edit-produk. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "pushProduct",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -12217,12 +11504,15 @@
             "method": "POST",
             "path": "/api/v1/tiktok/sync/products/sync",
             "summary": "Sinkronisasi produk",
-            "description": "Sinkronisasi produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Sinkronisasi produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-produk].",
+            "purpose": "Membutuhkan izin: owner, edit-produk. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "syncProduct",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -12357,12 +11647,15 @@
             "method": "POST",
             "path": "/api/v1/tiktok/sync/pull",
             "summary": "Buat TikTok Shop",
-            "description": "Buat TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "pullOrders",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -12497,12 +11790,15 @@
             "method": "POST",
             "path": "/api/v1/tiktok/sync/ship",
             "summary": "Kirim TikTok Shop",
-            "description": "Kirim TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Kirim TikTok Shop.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, edit-pengiriman. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\TikTokSyncApiController",
             "action": "shipOrder",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -12651,7 +11947,7 @@
             "action": "handle",
             "auth": "none",
             "roles": [],
-            "rate_limit": null,
+            "rate_limit": "120,1",
             "deprecated": false,
             "since_version": null,
             "form_request": null,
@@ -12691,6 +11987,14 @@
                     "body": {
                         "success": false,
                         "message": "Tidak diizinkan"
+                    }
+                },
+                {
+                    "status": 401,
+                    "reason": "Timestamp kadaluarsa",
+                    "body": {
+                        "success": false,
+                        "message": "Timestamp kadaluarsa"
                     }
                 },
                 {
@@ -12742,12 +12046,15 @@
             "method": "GET",
             "path": "/api/v1/woocommerce/auth",
             "summary": "Ambil daftar WooCommerce",
-            "description": "Ambil daftar WooCommerce.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil daftar WooCommerce.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, view-integrasi-channel. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\WooCommerceAuthController",
             "action": "redirect",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -12846,12 +12153,15 @@
             "method": "POST",
             "path": "/api/v1/woocommerce/auto-sync/pull-orders",
             "summary": "Buat WooCommerce",
-            "description": "Buat WooCommerce.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat WooCommerce.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\WooCommerceSyncApiController",
             "action": "pullOrdersAll",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -13063,12 +12373,15 @@
             "method": "POST",
             "path": "/api/v1/woocommerce/connect",
             "summary": "Buat WooCommerce",
-            "description": "Buat WooCommerce.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat WooCommerce.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, create-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, create-integrasi-channel. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\WooCommerceAuthController",
             "action": "connect",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "create-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -13175,12 +12488,15 @@
             "method": "GET",
             "path": "/api/v1/woocommerce/stores",
             "summary": "Ambil daftar WooCommerce",
-            "description": "Ambil daftar WooCommerce.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
+            "description": "Ambil daftar WooCommerce.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, view-integrasi-channel. Mendukung filter, sort, search, dan pagination (Spatie Query Builder — lihat section Filter/Sort/Search).",
             "controller": "Modules\\Channel\\Http\\Controllers\\WooCommerceStoreController",
             "action": "index",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -13205,6 +12521,9 @@
                         "location_name": "mixed",
                         "location_code": "mixed",
                         "integration": "mixed",
+                        "order_sync": "mixed",
+                        "last_order_synced_at": "mixed",
+                        "token_status": "mixed",
                         "token_expires_at": "mixed",
                         "last_synced_at": "mixed",
                         "channel": "mixed",
@@ -13236,6 +12555,9 @@
                         "location_name": "string",
                         "location_code": "string",
                         "integration": "string",
+                        "order_sync": "string",
+                        "last_order_synced_at": "string",
+                        "token_status": "string",
                         "token_expires_at": "string",
                         "last_synced_at": "string",
                         "channel": "string",
@@ -13354,12 +12676,15 @@
             "method": "DELETE",
             "path": "/api/v1/woocommerce/stores/{id}",
             "summary": "Hapus WooCommerce",
-            "description": "Hapus WooCommerce.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: default policy modul.",
-            "purpose": "Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
+            "description": "Hapus WooCommerce.\nResponse: 200/204. Perhatikan aturan revert/soft-delete yang berlaku pada resource ini.\nOtorisasi: minimal satu izin dari [owner, delete-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, delete-integrasi-channel. Menghapus resource. Ikuti aturan revert/soft-delete yang berlaku.",
             "controller": "Modules\\Channel\\Http\\Controllers\\WooCommerceStoreController",
             "action": "destroy",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "delete-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -13474,12 +12799,15 @@
             "method": "GET",
             "path": "/api/v1/woocommerce/stores/{id}",
             "summary": "Ambil detail WooCommerce",
-            "description": "Ambil detail WooCommerce.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Ambil detail WooCommerce.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-integrasi-channel].",
+            "purpose": "Membutuhkan izin: owner, view-integrasi-channel. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\WooCommerceStoreController",
             "action": "show",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-integrasi-channel"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -13499,50 +12827,14 @@
             "response_success_schema": {
                 "success": "boolean",
                 "message": "string",
-                "data": {
-                    "id": "mixed",
-                    "shop_id": "mixed",
-                    "shop_name": "mixed",
-                    "is_active": "mixed",
-                    "order_sync_enabled": "mixed",
-                    "stock_source_mode": "mixed",
-                    "location_id": "mixed",
-                    "location_name": "mixed",
-                    "location_code": "mixed",
-                    "integration": "mixed",
-                    "token_expires_at": "mixed",
-                    "last_synced_at": "mixed",
-                    "channel": "mixed",
-                    "code": "mixed",
-                    "name": "mixed",
-                    "created_at": "mixed",
-                    "updated_at": "mixed"
-                }
+                "data": "object|null"
             },
             "response_success_example": {
                 "success": true,
-                "message": "Berhasil.",
-                "data": {
-                    "id": "019ea2afad1d733eafb905816d10590e",
-                    "shop_id": "019ea2afad1d733eafb905816d10590e",
-                    "shop_name": "string",
-                    "is_active": "string",
-                    "order_sync_enabled": "string",
-                    "stock_source_mode": "string",
-                    "location_id": "019ea2afad1d733eafb905816d10590e",
-                    "location_name": "string",
-                    "location_code": "string",
-                    "integration": "string",
-                    "token_expires_at": "string",
-                    "last_synced_at": "string",
-                    "channel": "string",
-                    "code": "string",
-                    "name": "string",
-                    "created_at": "string",
-                    "updated_at": "string"
-                }
+                "message": "Detail toko berhasil diambil",
+                "data": {}
             },
-            "response_resource": "Modules\\Channel\\Http\\Resources\\ChannelShopResource",
+            "response_resource": null,
             "response_errors": [
                 {
                     "status": 401,
@@ -13630,12 +12922,15 @@
             "method": "POST",
             "path": "/api/v1/woocommerce/sync/cancel",
             "summary": "Batalkan WooCommerce",
-            "description": "Batalkan WooCommerce.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Batalkan WooCommerce.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\WooCommerceSyncApiController",
             "action": "cancelOrder",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -13754,12 +13049,15 @@
             "method": "POST",
             "path": "/api/v1/woocommerce/sync/products/push",
             "summary": "Buat produk",
-            "description": "Buat produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat produk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-produk].",
+            "purpose": "Membutuhkan izin: owner, edit-produk. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\WooCommerceSyncApiController",
             "action": "pushProduct",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -13872,12 +13170,15 @@
             "method": "POST",
             "path": "/api/v1/woocommerce/sync/pull",
             "summary": "Buat WooCommerce",
-            "description": "Buat WooCommerce.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Buat WooCommerce.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\WooCommerceSyncApiController",
             "action": "pullOrders",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -13996,12 +13297,15 @@
             "method": "POST",
             "path": "/api/v1/woocommerce/sync/ship",
             "summary": "Kirim WooCommerce",
-            "description": "Kirim WooCommerce.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Kirim WooCommerce.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pengiriman].",
+            "purpose": "Membutuhkan izin: owner, edit-pengiriman. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\WooCommerceSyncApiController",
             "action": "shipOrder",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pengiriman"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -14126,7 +13430,7 @@
             "action": "verify",
             "auth": "none",
             "roles": [],
-            "rate_limit": null,
+            "rate_limit": "120,1",
             "deprecated": false,
             "since_version": null,
             "form_request": null,
@@ -14206,7 +13510,7 @@
             "action": "handle",
             "auth": "none",
             "roles": [],
-            "rate_limit": null,
+            "rate_limit": "120,1",
             "deprecated": false,
             "since_version": null,
             "form_request": null,
@@ -14282,12 +13586,15 @@
             "method": "POST",
             "path": "/api/v1/{channel}/download",
             "summary": "Unduh download",
-            "description": "Unduh download.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Unduh download.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ChannelDownloadController",
             "action": "download",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -14321,9 +13628,12 @@
                     "is_downloaded": "mixed",
                     "on_download_process": "mixed",
                     "total_downloaded": "mixed",
+                    "total_failed": "mixed",
+                    "is_partial": "mixed",
                     "all_product": "mixed",
                     "progress_percent": "mixed",
-                    "error_message": "mixed"
+                    "error_message": "mixed",
+                    "error": "mixed"
                 }
             },
             "response_success_example": {
@@ -14343,9 +13653,12 @@
                     "is_downloaded": "string",
                     "on_download_process": "string",
                     "total_downloaded": "string",
+                    "total_failed": "string",
+                    "is_partial": "string",
                     "all_product": "string",
                     "progress_percent": "string",
-                    "error_message": "string"
+                    "error_message": "string",
+                    "error": "string"
                 }
             },
             "response_resource": "Modules\\Channel\\Http\\Resources\\DownloadTransactionResource",
@@ -14441,12 +13754,15 @@
             "method": "POST",
             "path": "/api/v1/{channel}/download-product",
             "summary": "Unduh download product",
-            "description": "Unduh download product.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Unduh download product.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-produk].",
+            "purpose": "Membutuhkan izin: owner, edit-produk. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ChannelDownloadController",
             "action": "downloadProduct",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-produk"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -14566,12 +13882,15 @@
             "method": "POST",
             "path": "/api/v1/{channel}/download/bulk",
             "summary": "Unduh bulk",
-            "description": "Unduh bulk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: default policy modul.",
-            "purpose": "Membuat resource baru atau memicu aksi domain.",
+            "description": "Unduh bulk.\nResponse: 201 dengan data resource yang baru dibuat. Trigger side-effects sesuai domain (event/job/notifikasi) — lihat section Side Effects.\nOtorisasi: minimal satu izin dari [owner, edit-pesanan].",
+            "purpose": "Membutuhkan izin: owner, edit-pesanan. Membuat resource baru atau memicu aksi domain.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ChannelDownloadController",
             "action": "downloadBulk",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "edit-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
@@ -14605,9 +13924,12 @@
                     "is_downloaded": "mixed",
                     "on_download_process": "mixed",
                     "total_downloaded": "mixed",
+                    "total_failed": "mixed",
+                    "is_partial": "mixed",
                     "all_product": "mixed",
                     "progress_percent": "mixed",
-                    "error_message": "mixed"
+                    "error_message": "mixed",
+                    "error": "mixed"
                 }
             },
             "response_success_example": {
@@ -14627,9 +13949,12 @@
                     "is_downloaded": "string",
                     "on_download_process": "string",
                     "total_downloaded": "string",
+                    "total_failed": "string",
+                    "is_partial": "string",
                     "all_product": "string",
                     "progress_percent": "string",
-                    "error_message": "string"
+                    "error_message": "string",
+                    "error": "string"
                 }
             },
             "response_resource": "Modules\\Channel\\Http\\Resources\\DownloadTransactionResource",
@@ -14649,6 +13974,14 @@
                         "message": "This action is unauthorized."
                     },
                     "terjemahan": "Anda tidak memiliki izin untuk melakukan aksi ini. Hubungi Admin untuk penambahan izin."
+                },
+                {
+                    "status": 500,
+                    "reason": "Gagal memulai download massal.",
+                    "body": {
+                        "success": false,
+                        "message": "Gagal memulai download massal."
+                    }
                 },
                 {
                     "status": 422,
@@ -14676,8 +14009,8 @@
                 201,
                 401,
                 403,
-                422,
-                500
+                500,
+                422
             ],
             "side_effects": [],
             "allowed_filters": [],
@@ -14717,12 +14050,15 @@
             "method": "GET",
             "path": "/api/v1/{channel}/download/search",
             "summary": "Cari search",
-            "description": "Cari search.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: default policy modul.",
-            "purpose": "Mengembalikan data untuk ditampilkan di UI.",
+            "description": "Cari search.\nResponse: envelope ApiResponse `{success, message, data}` (jika daftar: dengan meta pagination).\nOtorisasi: minimal satu izin dari [owner, view-pesanan].",
+            "purpose": "Membutuhkan izin: owner, view-pesanan. Mengembalikan data untuk ditampilkan di UI.",
             "controller": "Modules\\Channel\\Http\\Controllers\\ChannelDownloadController",
             "action": "search",
             "auth": "auth:sanctum",
-            "roles": [],
+            "roles": [
+                "owner",
+                "view-pesanan"
+            ],
             "rate_limit": null,
             "deprecated": false,
             "since_version": null,
