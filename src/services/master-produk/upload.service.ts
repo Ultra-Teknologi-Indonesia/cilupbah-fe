@@ -166,6 +166,18 @@ export interface HistoryParams {
   perPage?: number;
 }
 
+export type HistoryStatus = "success" | "failed" | "pending";
+export type ErrorCategory = "token" | "retryable" | "user_fixable" | "fatal";
+
+interface RawHistoryError {
+  category: ErrorCategory;
+  title: string;
+  reason: string;
+  action: string | null;
+  detail: string | null;
+  retryable: boolean;
+}
+
 interface RawHistory {
   id: string;
   item_group_id: string;
@@ -173,13 +185,24 @@ interface RawHistory {
   thumbnail: string | null;
   upload_date: string | null;
   success: boolean;
+  status: HistoryStatus | null;
   status_message: string | null;
+  error: RawHistoryError | null;
   can_reupload: boolean;
   shop_name: string | null;
   channel_code: string | null;
   channel_name: string | null;
   store_id: string | null;
   channel_url: string | null;
+}
+
+export interface HistoryError {
+  category: ErrorCategory;
+  title: string;
+  reason: string;
+  action: string | null;
+  detail: string | null;
+  retryable: boolean;
 }
 
 export interface HistoryRow {
@@ -189,7 +212,9 @@ export interface HistoryRow {
   thumbnail: string | null;
   uploadDate: string | null;
   success: boolean;
+  status: HistoryStatus;
   statusMessage: string | null;
+  error: HistoryError | null;
   canReupload: boolean;
   storeName: string | null;
   channelCode: string | null;
@@ -206,7 +231,9 @@ function mapHistory(raw: RawHistory): HistoryRow {
     thumbnail: raw.thumbnail,
     uploadDate: raw.upload_date,
     success: raw.success,
+    status: raw.status ?? (raw.success ? "success" : "failed"),
     statusMessage: raw.status_message,
+    error: raw.error,
     canReupload: raw.can_reupload,
     storeName: raw.shop_name,
     channelCode: raw.channel_code,

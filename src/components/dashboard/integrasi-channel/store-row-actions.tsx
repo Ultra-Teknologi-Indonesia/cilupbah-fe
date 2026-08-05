@@ -1,7 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { MoreHorizontalIcon, RefreshCwIcon, Unlink2Icon } from "lucide-react";
+import {
+  ExternalLinkIcon,
+  MoreHorizontalIcon,
+  RefreshCwIcon,
+  Unlink2Icon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,10 +30,12 @@ import type { ConnectedStore } from "@/types/channel";
 export function StoreRowActions({
   store,
   onRefresh,
+  onReauth,
   onDisconnect,
 }: {
   store: ConnectedStore;
   onRefresh: (store: ConnectedStore) => void;
+  onReauth: (store: ConnectedStore) => void;
   onDisconnect: (store: ConnectedStore) => void;
 }) {
   const [confirmOpen, setConfirmOpen] = React.useState(false);
@@ -46,6 +53,10 @@ export function StoreRowActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-44">
+          <DropdownMenuItem onSelect={() => onReauth(store)}>
+            <ExternalLinkIcon className="size-4 text-muted-foreground" />
+            Hubungkan Ulang
+          </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => onRefresh(store)}>
             <RefreshCwIcon className="size-4 text-muted-foreground" />
             Refresh token

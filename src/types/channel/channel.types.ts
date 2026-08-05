@@ -9,10 +9,13 @@ export type ChannelCode =
 
 export type IntegrationStatus = "normal" | "warning" | "error";
 
+export type ChannelStoreAction = "reauth";
+
 export interface StoreIntegration {
   status: IntegrationStatus;
 
   note?: string;
+  action?: ChannelStoreAction | null;
 }
 
 export type OrderSyncStatus = "normal" | "pending" | "problem" | "nonaktif";
@@ -20,6 +23,7 @@ export type OrderSyncStatus = "normal" | "pending" | "problem" | "nonaktif";
 export interface OrderSyncInfo {
   status: OrderSyncStatus;
   note?: string | null;
+  action?: ChannelStoreAction | null;
 }
 
 export interface ConnectedStore {
@@ -62,8 +66,8 @@ export interface RawConnectedStore {
   shop_name: string;
   is_active: boolean;
   order_sync_enabled: boolean;
-  integration: { status: IntegrationStatus; note?: string };
-  order_sync: { status: OrderSyncStatus; note?: string | null };
+  integration: { status: IntegrationStatus; note?: string; action?: ChannelStoreAction | null };
+  order_sync: { status: OrderSyncStatus; note?: string | null; action?: ChannelStoreAction | null };
   last_order_synced_at: string | null;
   token_expires_at: string | null;
   channel: { id: string; code: string; name: string } | null;

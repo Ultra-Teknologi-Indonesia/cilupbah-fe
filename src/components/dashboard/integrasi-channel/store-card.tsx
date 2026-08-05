@@ -1,8 +1,10 @@
 "use client";
 
+import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { relativeTime } from "@/lib/format";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import type { ConnectedStore } from "@/types/channel";
 import { ChannelLogo } from "./channel-logo";
@@ -20,15 +22,20 @@ export function StoreCard({
   onToggleActive,
   onToggleOrders,
   onRefresh,
+  onReauth,
   onDisconnect,
 }: {
   store: ConnectedStore;
   onToggleActive: (id: string, value: boolean) => void;
   onToggleOrders: (id: string, value: boolean) => void;
   onRefresh: (store: ConnectedStore) => void;
+  onReauth: (store: ConnectedStore) => void;
   onDisconnect: (store: ConnectedStore) => void;
 }) {
   const status = store.orderSync.status;
+  const needsReauth =
+    store.integration.action === "reauth" ||
+    store.orderSync.action === "reauth";
 
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-muted/30 p-4">
@@ -53,6 +60,7 @@ export function StoreCard({
           <StoreRowActions
             store={store}
             onRefresh={onRefresh}
+            onReauth={onReauth}
             onDisconnect={onDisconnect}
           />
         </div>
@@ -81,6 +89,17 @@ export function StoreCard({
           </div>
         )}
       </div>
+
+      {needsReauth && (
+        <Button
+          size="sm"
+          onClick={() => onReauth(store)}
+          className="w-full gap-1.5"
+        >
+          <ExternalLink className="size-3.5" />
+          Hubungkan Ulang
+        </Button>
+      )}
 
       <div className="mt-auto flex items-center justify-between gap-4 border-t border-border/60 pt-3">
         <div className="flex items-center gap-2">

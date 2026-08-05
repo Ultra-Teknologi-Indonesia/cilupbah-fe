@@ -6,10 +6,14 @@ import { formatDateTime } from "@/lib/format";
 import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import {
   CheckCircle2Icon,
+  ChevronDownIcon,
+  ClockIcon,
   ExternalLinkIcon,
   ImageIcon,
   InfoIcon,
   RotateCcwIcon,
+  WrenchIcon,
+  XCircleIcon,
 } from "lucide-react";
 
 import { format, parseISO } from "date-fns";
@@ -21,6 +25,22 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Select,
   SelectContent,
@@ -46,37 +66,164 @@ const STATUS_OPTIONS = [
   { value: "pending", label: "Diproses" },
 ];
 
+const STATUS_META: Record<
+  HistoryRow["status"],
+  { label: string; icon: React.ElementType; className: string }
+> = {
+  success: {
+    label: "Sukses",
+    icon: CheckCircle2Icon,
+    className: "text-success bg-success/10",
+  },
+  failed: {
+    label: "Gagal",
+    icon: XCircleIcon,
+    className: "text-destructive bg-destructive/10",
+  },
+  pending: {
+    label: "Diproses",
+    icon: ClockIcon,
+    className: "text-warning bg-warning/10",
+  },
+};
+
 function HistoryStatus({ row }: { row: HistoryRow }) {
-  if (row.success) {
+  const meta = STATUS_META[row.status] ?? STATUS_META.pending;
+  const Icon = meta.icon;
+  const label =
+    row.status === "pending" ? "Sedang diproses" : meta.label;
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span
+            role="img"
+            aria-label={`Status: ${label}`}
+            className={
+              "inline-flex size-7 items-center justify-center rounded-full " +
+              meta.className
+            }
+          >
+            <Icon className="size-4" />
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>{label}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+const CATEGORY_BADGE: Record<string, { label: string; className: string }> = {
+  user_fixable: {
+    label: "Perlu diperbaiki",
+    className: "bg-warning/10 text-warning",
+  },
+  retryable: {
+    label: "Bisa dicoba lagi",
+    className: "bg-primary/10 text-primary",
+  },
+  token: {
+    label: "Hubungkan ulang",
+    className: "bg-primary/10 text-primary",
+  },
+  fatal: {
+    label: "Ditolak channel",
+    className: "bg-destructive/10 text-destructive",
+  },
+};
+
+function KeteranganCell({ row }: { row: HistoryRow }) {
+  const [openDetail, setOpenDetail] = React.useState(false);
+
+  if (row.status === "success") {
+    return <span className="text-sm text-muted-foreground">—</span>;
+  }
+
+  if (row.status === "pending") {
     return (
-      <span
-        className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-2xs font-medium text-success bg-success/10"
-        title={row.statusMessage ?? undefined}
-      >
-        <CheckCircle2Icon className="size-3.5" />
-        Sukses
+      <span className="text-sm text-muted-foreground">
+        Sedang diproses…
       </span>
     );
   }
+
+  const error = row.error;
+  const title = error?.title ?? "Produk gagal di-upload";
+  const reason = error?.reason ?? row.statusMessage ?? "Gagal";
+  const badge = CATEGORY_BADGE[error?.category ?? "fatal"];
+  const hasMore = !!(error?.action || error?.detail);
+
   return (
-    <div className="flex flex-col items-start gap-1">
-      <span
-        className={
-          "rounded px-1.5 py-0.5 text-2xs font-medium " +
-          (row.canReupload
-            ? "bg-destructive/10 text-destructive"
-            : "bg-warning/10 text-warning")
-        }
-      >
-        {row.canReupload ? "Gagal" : "Diproses"}
+    <div className="flex max-w-[22rem] flex-col items-start gap-1">
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="text-sm font-medium text-foreground">{title}</span>
+        {badge && (
+          <span
+            className={
+              "rounded-full px-1.5 py-0.5 text-2xs font-medium " +
+              badge.className
+            }
+          >
+            {badge.label}
+          </span>
+        )}
+      </div>
+      <span className="line-clamp-2 break-words text-xs leading-snug text-muted-foreground">
+        {reason}
       </span>
-      {row.statusMessage && (
-        <span
-          className="line-clamp-2 max-w-[18rem] break-words text-2xs leading-snug text-destructive/90"
-          title={row.statusMessage}
-        >
-          {row.statusMessage}
-        </span>
+      {hasMore && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              Selengkapnya
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-80 gap-3">
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-semibold text-foreground">
+                {title}
+              </span>
+              <span className="text-xs leading-snug text-muted-foreground">
+                {reason}
+              </span>
+            </div>
+            {error?.action && (
+              <div className="flex items-start gap-2 rounded-2xl bg-muted/50 p-3">
+                <WrenchIcon className="mt-0.5 size-4 shrink-0 text-primary" />
+                <span className="text-xs leading-snug text-foreground">
+                  {error.action}
+                </span>
+              </div>
+            )}
+            {error?.detail && (
+              <Collapsible open={openDetail} onOpenChange={setOpenDetail}>
+                <CollapsibleTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 text-2xs font-medium text-muted-foreground hover:text-foreground"
+                  >
+                    <ChevronDownIcon
+                      className={
+                        "size-3 transition-transform " +
+                        (openDetail ? "rotate-180" : "")
+                      }
+                    />
+                    Detail teknis
+                  </button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <pre className="mt-1.5 max-h-40 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-muted/60 p-2 text-2xs leading-snug text-muted-foreground">
+                    {error.detail}
+                  </pre>
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+          </PopoverContent>
+        </Popover>
       )}
     </div>
   );
@@ -240,8 +387,19 @@ export function HasilTab({
       },
       {
         accessorKey: "success",
-        header: "Status",
-        cell: ({ row }) => <HistoryStatus row={row.original} />,
+        header: () => <div className="text-center">Status</div>,
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            <HistoryStatus row={row.original} />
+          </div>
+        ),
+        size: 64,
+      },
+      {
+        id: "keterangan",
+        header: "Keterangan",
+        enableSorting: false,
+        cell: ({ row }) => <KeteranganCell row={row.original} />,
       },
       {
         id: "actions",

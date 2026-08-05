@@ -18,6 +18,7 @@ export function ChannelGroup({
   onToggleActive,
   onToggleOrders,
   onRefresh,
+  onReauth,
   onDisconnect,
 }: {
   group: ChannelGroupType;
@@ -25,6 +26,7 @@ export function ChannelGroup({
   onToggleActive: (id: string, value: boolean) => void;
   onToggleOrders: (id: string, value: boolean) => void;
   onRefresh: (store: ConnectedStore) => void;
+  onReauth: (store: ConnectedStore) => void;
   onDisconnect: (store: ConnectedStore) => void;
 }) {
   const [open, setOpen] = React.useState(true);
@@ -86,6 +88,7 @@ export function ChannelGroup({
               onToggleActive={onToggleActive}
               onToggleOrders={onToggleOrders}
               onRefresh={onRefresh}
+              onReauth={onReauth}
               onDisconnect={onDisconnect}
             />
           ))}

@@ -66,8 +66,10 @@ export function useRefreshToken() {
       toast.success("Token toko diperbarui");
       qc.invalidateQueries({ queryKey: CHANNEL_STORES_KEY });
     },
-    onError: (err) =>
-      apiError(err, "Gagal memperbarui token. Mungkin perlu hubungkan ulang."),
+    onError: (err) => {
+      apiError(err, "Gagal memperbarui token. Mungkin perlu hubungkan ulang.");
+      qc.invalidateQueries({ queryKey: CHANNEL_STORES_KEY });
+    },
   });
 }
 

@@ -86,6 +86,15 @@ export function IntegrasiChannelView() {
       store.channel.code === "tokopedia" ? "tiktok" : store.channel.code;
     refresh.mutate({ channel, id: store.id });
   };
+  const onReauth = (store: ConnectedStore) => {
+    const code =
+      store.channel.code === "tokopedia" ? "tiktok" : store.channel.code;
+    if (code === "woocommerce") {
+      setWooOpen(true);
+      return;
+    }
+    connect(code);
+  };
   const onAdd = (group: ChannelGroupType) =>
     group.code === "woocommerce" ? setWooOpen(true) : connect(group.code);
   const onConnect = (channel: Channel) => connect(channel.code);
@@ -122,6 +131,7 @@ export function IntegrasiChannelView() {
           onToggleActive={onToggleActive}
           onToggleOrders={onToggleOrders}
           onRefresh={onRefresh}
+          onReauth={onReauth}
           onDisconnect={onDisconnect}
         />
       ))}
