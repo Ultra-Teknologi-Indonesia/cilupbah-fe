@@ -176,8 +176,10 @@ function KeteranganCell({ row }: { row: HistoryRow }) {
               {reason}
             </span>
           </TooltipTrigger>
-          <TooltipContent className="max-w-sm whitespace-normal break-words">
-            {reason}
+          <TooltipContent className="max-w-sm">
+            <span className="block min-w-0 whitespace-normal break-words [overflow-wrap:anywhere]">
+              {reason}
+            </span>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -359,8 +361,10 @@ export function HasilTab({
                     </div>
                   </TooltipTrigger>
                   {h.itemGroupName && (
-                    <TooltipContent className="max-w-sm whitespace-normal break-words">
-                      {h.itemGroupName}
+                    <TooltipContent className="max-w-sm">
+                      <span className="block min-w-0 whitespace-normal break-words [overflow-wrap:anywhere]">
+                        {h.itemGroupName}
+                      </span>
                     </TooltipContent>
                   )}
                 </Tooltip>
