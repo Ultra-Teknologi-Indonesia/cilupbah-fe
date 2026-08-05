@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { toast } from "sonner";
 import {
   CheckIcon,
@@ -430,8 +431,21 @@ export function DownloadSatuanDialog({
                             setRowSel((prev) => ({ ...prev, [id]: !!v }))
                           }
                         />
-                        <div className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-muted/40">
-                          <PackageIcon className="size-4 text-muted-foreground" />
+                        <div className="relative size-10 shrink-0 overflow-hidden rounded-xl bg-muted/40">
+                          {item.image ? (
+                            <Image
+                              src={item.image}
+                              alt=""
+                              fill
+                              sizes="40px"
+                              unoptimized
+                              className="object-cover"
+                            />
+                          ) : (
+                            <span className="grid size-full place-items-center">
+                              <PackageIcon className="size-4 text-muted-foreground" />
+                            </span>
+                          )}
                           <ChannelLogo
                             code={item.channelCode}
                             name={item.channelCode}
@@ -439,7 +453,7 @@ export function DownloadSatuanDialog({
                           />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium">
+                          <p className="line-clamp-2 text-sm font-medium">
                             {item.name}
                           </p>
                           <p className="truncate font-mono text-xs text-muted-foreground">
