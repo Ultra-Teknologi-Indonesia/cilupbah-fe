@@ -12,7 +12,7 @@ Monorepo `cilupbah-superapp/`: **`cilupbah-be`** (Laravel modular, `Modules/*`),
 ## Yang sudah selesai
 
 ### A. BE — Transit & transfer (sesi sebelumnya, sudah merged ke working tree)
-- "Transit" = **lokasi sistem nyata** (ala Jubelio), bukan sekadar status. `locations.is_system` (tak bisa hapus, selalu aktif) & `is_locked` (tak bisa edit). Seeder buat **Gudang Pusat** (`is_system`) & **Transit** (`is_system`+`is_locked`). Guard di `LocationService::delete/update`.
+- "Transit" = **lokasi sistem nyata** (ala sistem lama), bukan sekadar status. `locations.is_system` (tak bisa hapus, selalu aktif) & `is_locked` (tak bisa edit). Seeder buat **Gudang Pusat** (`is_system`) & **Transit** (`is_system`+`is_locked`). Guard di `LocationService::delete/update`.
 - Transfer stok lewat lokasi Transit: `transferOut` source→Transit, `transferIn` Transit→tujuan. Penomoran `TRFO-`/`TRFI-` (+kolom `inventory_transfers.receive_number`). Double-count diperbaiki: inbound `TRANSIT_IN` dibuat langsung `RECEIVED` (non-receivable). `transfer()` lama (dead code) dihapus.
 
 ### B. BE — Lokasi (Milestone 1) ✅
@@ -46,7 +46,7 @@ Monorepo `cilupbah-superapp/`: **`cilupbah-be`** (Laravel modular, `Modules/*`),
 
 ## Update 2026-06-17 (lanjutan) — hardening
 - **Folder internal di-rename** `*/pengaturan` → `*/manajemen-rak` (components/hooks/services/types/lib). Import sudah disesuaikan. Route stub `app/dashboard/pengaturan/page.tsx` **tetap** (masih dipakai menu Pengaturan top-level).
-- **Default Staff**: BE endpoint bergaya Jubelio `GET /api/v1/systemsetting/users?pageSize=&page=&q=` (auth saja, tanpa permission `view-user`) → response `{ data: [{user_id, email, last_login, is_owner}], totalCount }` (`UserService::getUserLookup`, `UserController::lookup`). FE `warehouse-user.service` map ke `WarehouseUser{id,email,isOwner,lastLogin}`; combobox label = email. Test: `systemsetting users lookup ...` ✅ (auth tanpa view-user 200; filter `q`).
+- **Default Staff**: BE endpoint bergaya sistem lama `GET /api/v1/systemsetting/users?pageSize=&page=&q=` (auth saja, tanpa permission `view-user`) → response `{ data: [{user_id, email, last_login, is_owner}], totalCount }` (`UserService::getUserLookup`, `UserController::lookup`). FE `warehouse-user.service` map ke `WarehouseUser{id,email,isOwner,lastLogin}`; combobox label = email. Test: `systemsetting users lookup ...` ✅ (auth tanpa view-user 200; filter `q`).
 - **Region prefill (edit)**: `LocationResource.village` kini dibentuk eksplisit nested (`village→district→city→province`, hanya id+nama). Lebih robust untuk cascade saat edit.
 - **Pagination list**: `per_page=10` + pager Prev/Next ("Halaman X dari Y"), reset ke 1 saat search berubah.
 - **Map picker**: diverifikasi sesuai mapcn docs (`Map center/zoom`, `MapMarker draggable`+`onDragEnd`, `MarkerContent`). OK.
