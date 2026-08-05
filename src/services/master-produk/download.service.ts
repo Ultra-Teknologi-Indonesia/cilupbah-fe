@@ -1,5 +1,6 @@
 import { fetchClient } from "@/lib/api-client";
 import type { ApiPaginated, ApiResponse } from "@/types/api.types";
+import type { HistoryError } from "@/services/master-produk/upload.service";
 
 export type DownloadState = "queued" | "downloading" | "done" | "failed";
 
@@ -20,6 +21,7 @@ export interface DownloadTransaction {
   allProduct: number;
   progressPercent: number;
   errorMessage: string | null;
+  error: HistoryError | null;
 }
 
 interface RawDownloadTransaction {
@@ -39,6 +41,7 @@ interface RawDownloadTransaction {
   all_product: number;
   progress_percent: number;
   error_message: string | null;
+  error: HistoryError | null;
 }
 
 export interface DownloadTransactionParams {
@@ -68,6 +71,7 @@ function mapTransaction(raw: RawDownloadTransaction): DownloadTransaction {
     allProduct: raw.all_product,
     progressPercent: raw.progress_percent,
     errorMessage: raw.error_message,
+    error: raw.error,
   };
 }
 

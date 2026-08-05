@@ -5,6 +5,12 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { cn } from "@/lib/utils";
 import { formatDateTime } from "@/lib/format";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type {
   DownloadState,
   DownloadTransaction,
@@ -76,8 +82,10 @@ export function buildProgressColumns(
           allProduct,
           progressPercent,
           errorMessage,
+          error,
         } = row.original;
         const pct = Math.min(100, Math.max(0, progressPercent));
+        const reason = error?.reason ?? errorMessage;
         return (
           <div className="flex min-w-40 flex-col gap-1">
             <div className="flex items-center justify-between gap-2 text-xs">
@@ -99,13 +107,28 @@ export function buildProgressColumns(
                 style={{ width: `${pct}%` }}
               />
             </div>
-            {state === "failed" && errorMessage && (
-              <span
-                className="truncate text-xs text-destructive"
-                title={errorMessage}
-              >
-                {errorMessage}
-              </span>
+            {state === "failed" && reason && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="line-clamp-2 whitespace-normal break-words text-xs text-destructive">
+                      {reason}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-sm">
+                    <div className="flex min-w-0 flex-col gap-1">
+                      <span className="block whitespace-normal break-words [overflow-wrap:anywhere]">
+                        {reason}
+                      </span>
+                      {error?.action && (
+                        <span className="block whitespace-normal break-words text-background/70 [overflow-wrap:anywhere]">
+                          {error.action}
+                        </span>
+                      )}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
           </div>
         );
