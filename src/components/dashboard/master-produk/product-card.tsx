@@ -29,7 +29,7 @@ export function ProductCard({
   return (
     <div
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md",
+        "group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm",
         selected && "ring-2 ring-primary",
       )}
     >
