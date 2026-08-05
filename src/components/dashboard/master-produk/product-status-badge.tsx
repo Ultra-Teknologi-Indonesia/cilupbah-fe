@@ -9,10 +9,13 @@ export function ProductStatusBadge({
   status: ProductStatus;
   className?: string;
 }) {
-  const { label, variant } = PRODUCT_STATUS_META[status];
+  const meta = PRODUCT_STATUS_META[status] ?? {
+    label: status,
+    variant: "muted" as const,
+  };
   return (
-    <Badge variant={variant} className={className}>
-      {label}
+    <Badge variant={meta.variant} className={className}>
+      {meta.label}
     </Badge>
   );
 }

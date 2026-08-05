@@ -1,4 +1,8 @@
-export type ProductStatus = "master" | "archived";
+export type ProductStatus =
+  | "download"
+  | "in_review"
+  | "master"
+  | "archived";
 
 export interface ProductVariant {
   itemId: string;
