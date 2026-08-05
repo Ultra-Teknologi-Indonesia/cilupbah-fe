@@ -14,7 +14,7 @@ import {
 import { SidebarRailNav } from "./sidebar-rail-nav";
 import { SidebarPanel } from "./sidebar-panel";
 import DashboardNavigation from "./nav-main";
-import { findGroupIdForPath, isLeafGroup } from "./nav-data";
+import { dashboardGroups, findGroupIdForPath, isLeafGroup } from "./nav-data";
 import { useVisibleNav } from "./use-visible-nav";
 
 const useIsomorphicLayoutEffect =
@@ -29,13 +29,13 @@ export function DashboardSidebar() {
   const [panelPos, setPanelPos] = React.useState({ top: 72, maxHeight: 0 });
 
   const [activeGroupId, setActiveGroupId] = React.useState(() =>
-    findGroupIdForPath(pathname, groups),
+    findGroupIdForPath(pathname, dashboardGroups),
   );
 
   const [prevPath, setPrevPath] = React.useState(pathname);
   if (pathname !== prevPath) {
     setPrevPath(pathname);
-    setActiveGroupId(findGroupIdForPath(pathname, groups));
+    setActiveGroupId(findGroupIdForPath(pathname, dashboardGroups));
   }
 
   const activeGroup =
