@@ -169,9 +169,18 @@ function KeteranganCell({ row }: { row: HistoryRow }) {
           </span>
         )}
       </div>
-      <span className="line-clamp-2 break-words text-xs leading-snug text-muted-foreground">
-        {reason}
-      </span>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="line-clamp-2 whitespace-normal break-words text-xs leading-snug text-muted-foreground">
+              {reason}
+            </span>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-sm whitespace-normal break-words">
+            {reason}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       {hasMore && (
         <Popover>
           <PopoverTrigger asChild>
@@ -342,12 +351,24 @@ export function HasilTab({
                   <ImageIcon className="size-4 text-muted-foreground" />
                 )}
               </div>
-              <div className="min-w-0 truncate font-medium">
-                {h.itemGroupName ?? "—"}
-              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="line-clamp-2 min-w-0 whitespace-normal break-words font-medium">
+                      {h.itemGroupName ?? "—"}
+                    </div>
+                  </TooltipTrigger>
+                  {h.itemGroupName && (
+                    <TooltipContent className="max-w-sm whitespace-normal break-words">
+                      {h.itemGroupName}
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
             </div>
           );
         },
+        size: 320,
       },
       {
         id: "store",
