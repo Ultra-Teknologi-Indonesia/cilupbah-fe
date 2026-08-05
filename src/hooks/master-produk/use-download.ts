@@ -12,13 +12,13 @@ import {
   DownloadService,
   type DownloadTransactionParams,
   type DownloadTransactionDetailParams,
-  type ChannelSearchItem,
 } from "@/services/master-produk/download.service";
 import { apiError } from "@/lib/toast";
 
 export { channelSearchRowId } from "@/services/master-produk/download.service";
 export type {
   ChannelSearchItem,
+  ChannelSearchPage,
   DownloadState,
   DownloadTransaction,
 } from "@/services/master-produk/download.service";
@@ -156,39 +156,16 @@ export function useStartDownload() {
   });
 }
 
-export function useChannelSearch() {
+export function useChannelSearchPage() {
   return useMutation({
-    mutationFn: (params: { channel: string; shopId: string; q: string }) =>
-      DownloadService.searchChannel(params),
-    onError: (err) =>
-      apiError(err, "Gagal mencari produk"),
-  });
-}
-
-export function useChannelSearchMulti() {
-  return useMutation({
-    mutationFn: async ({
-      stores,
-      q,
-    }: {
-      stores: { channel: string; shopId: string; shopName: string }[];
+    mutationFn: (params: {
+      channel: string;
+      shopId: string;
       q: string;
-    }) => {
-      const failed: string[] = [];
-      const batches = await Promise.all(
-        stores.map((s) =>
-          DownloadService.searchChannel({
-            channel: s.channel,
-            shopId: s.shopId,
-            q,
-          }).catch(() => {
-            failed.push(s.shopName);
-            return [] as ChannelSearchItem[];
-          }),
-        ),
-      );
-      return { results: batches.flat(), failed };
-    },
+      offset: number;
+      limit: number;
+    }) => DownloadService.searchChannel(params),
+    onError: (err) => apiError(err, "Gagal mencari produk"),
   });
 }
 

@@ -177,6 +177,12 @@ function mapSearchItem(raw: RawChannelSearchItem): ChannelSearchItem {
   };
 }
 
+export interface ChannelSearchPage {
+  items: ChannelSearchItem[];
+  nextOffset: number | null;
+  hasMore: boolean;
+}
+
 export const channelSearchRowId = (
   i: Pick<ChannelSearchItem, "shopId" | "externalProductId">,
 ) => `${i.shopId}:${i.externalProductId}`;
@@ -271,14 +277,25 @@ export const DownloadService = {
     channel: string;
     shopId: string;
     q: string;
-  }): Promise<ChannelSearchItem[]> => {
+    offset?: number;
+    limit?: number;
+  }): Promise<ChannelSearchPage> => {
     const search = new URLSearchParams();
     search.set("shop_id", params.shopId);
     if (params.q) search.set("q", params.q);
+    search.set("offset", String(params.offset ?? 0));
+    search.set("limit", String(params.limit ?? 20));
     const res = await fetchClient<ApiResponse<RawChannelSearchItem[]>>(
       `/${params.channel}/download/search?${search.toString()}`,
     );
-    return (res.data ?? []).map(mapSearchItem);
+    const meta =
+      ((res as { meta?: { next_offset?: number | null; has_more?: boolean } })
+        .meta ?? {});
+    return {
+      items: (res.data ?? []).map(mapSearchItem),
+      nextOffset: meta.next_offset ?? null,
+      hasMore: !!meta.has_more,
+    };
   },
 
   downloadProduct: async (params: {

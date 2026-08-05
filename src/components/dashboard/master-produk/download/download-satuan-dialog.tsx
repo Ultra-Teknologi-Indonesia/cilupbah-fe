@@ -34,7 +34,7 @@ import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-lo
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
 import {
   channelSearchRowId,
-  useChannelSearchMulti,
+  useChannelSearchPage,
   useDownloadProduct,
   type ChannelSearchItem,
 } from "@/hooks/master-produk/use-download";
@@ -173,21 +173,29 @@ export function DownloadSatuanDialog({
 }) {
   const { data: stores = [] } = useConnectedStores();
   const downloadOne = useDownloadProduct();
-  const searchMulti = useChannelSearchMulti();
+  const searchPage = useChannelSearchPage();
 
   const [q, setQ] = React.useState("");
   const [selectedStores, setSelectedStores] = React.useState<
     Record<string, boolean>
   >({});
-  const [results, setResults] = React.useState<ChannelSearchItem[] | null>(
-    null,
-  );
+  const [items, setItems] = React.useState<ChannelSearchItem[]>([]);
+  const [started, setStarted] = React.useState(false);
   const [searching, setSearching] = React.useState(false);
+  const [loadingMore, setLoadingMore] = React.useState(false);
+  const [hasMore, setHasMore] = React.useState(false);
   const [rowSel, setRowSel] = React.useState<Record<string, boolean>>({});
   const [downloaded, setDownloaded] = React.useState<Record<string, boolean>>(
     {},
   );
   const [pending, setPending] = React.useState<Record<string, boolean>>({});
+
+  // Cursor per toko (offset channel) untuk infinite scroll.
+  const cursorsRef = React.useRef<
+    Record<string, { channel: string; offset: number; done: boolean }>
+  >({});
+  const loadGuard = React.useRef(false);
+  const sentinelRef = React.useRef<HTMLDivElement | null>(null);
 
   const [prevOpen, setPrevOpen] = React.useState(open);
   if (prevOpen !== open) {
@@ -195,12 +203,23 @@ export function DownloadSatuanDialog({
     if (open) {
       setQ("");
       setSelectedStores({});
-      setResults(null);
+      setItems([]);
+      setStarted(false);
+      setSearching(false);
+      setLoadingMore(false);
+      setHasMore(false);
       setRowSel({});
       setDownloaded({});
       setPending({});
     }
   }
+
+  React.useEffect(() => {
+    if (open) {
+      cursorsRef.current = {};
+      loadGuard.current = false;
+    }
+  }, [open]);
 
   const supportedStores = React.useMemo(
     () =>
@@ -211,31 +230,86 @@ export function DownloadSatuanDialog({
   );
   const chosen = supportedStores.filter((s) => selectedStores[s.shop_id]);
 
+  const loadMore = React.useCallback(async () => {
+    if (loadGuard.current) return;
+    const pendingStores = Object.entries(cursorsRef.current).filter(
+      ([, c]) => !c.done,
+    );
+    if (pendingStores.length === 0) {
+      setHasMore(false);
+      return;
+    }
+    loadGuard.current = true;
+    try {
+      const failed: string[] = [];
+      const pages = await Promise.all(
+        pendingStores.map(([shopId, c]) =>
+          searchPage
+            .mutateAsync({ channel: c.channel, shopId, q, offset: c.offset, limit: 20 })
+            .then((page) => ({ shopId, page }))
+            .catch(() => {
+              failed.push(shopId);
+              return { shopId, page: null };
+            }),
+        ),
+      );
+      const fresh: ChannelSearchItem[] = [];
+      for (const { shopId, page } of pages) {
+        const c = cursorsRef.current[shopId];
+        if (!c) continue;
+        if (!page) {
+          c.done = true;
+          continue;
+        }
+        fresh.push(...page.items);
+        c.offset = page.nextOffset ?? c.offset;
+        c.done = !page.hasMore || page.nextOffset === null;
+      }
+      if (fresh.length) setItems((prev) => [...prev, ...fresh]);
+      setHasMore(Object.values(cursorsRef.current).some((c) => !c.done));
+      if (failed.length > 0) {
+        toast.error(`Gagal memuat dari ${failed.length} toko`);
+      }
+    } finally {
+      loadGuard.current = false;
+    }
+  }, [q, searchPage]);
+
   const apply = async () => {
     if (chosen.length === 0) {
       toast("Pilih minimal satu toko");
       return;
     }
-    setSearching(true);
-    setResults(null);
+    cursorsRef.current = Object.fromEntries(
+      chosen.map((s) => [
+        s.shop_id,
+        { channel: s.channel!.code, offset: 0, done: false },
+      ]),
+    );
+    setStarted(true);
+    setItems([]);
     setRowSel({});
-    try {
-      const { results, failed } = await searchMulti.mutateAsync({
-        stores: chosen.map((s) => ({
-          channel: s.channel!.code,
-          shopId: s.shop_id,
-          shopName: s.shop_name ?? s.shop_id,
-        })),
-        q,
-      });
-      setResults(results);
-      if (failed.length > 0) {
-        toast.error(`Gagal mencari di: ${failed.join(", ")}`);
-      }
-    } finally {
-      setSearching(false);
-    }
+    setHasMore(true);
+    setSearching(true);
+    await loadMore();
+    setSearching(false);
   };
+
+  React.useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasMore || searching) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && !loadGuard.current) {
+          setLoadingMore(true);
+          loadMore().finally(() => setLoadingMore(false));
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [hasMore, searching, loadMore]);
 
   const runDownload = async (item: ChannelSearchItem) => {
     const id = channelSearchRowId(item);
@@ -253,7 +327,6 @@ export function DownloadSatuanDialog({
     }
   };
 
-  const items = results ?? [];
   const selectedItems = items.filter((i) => rowSel[channelSearchRowId(i)]);
   const bulkBusy = Object.values(pending).some(Boolean);
 
@@ -369,6 +442,7 @@ export function DownloadSatuanDialog({
                 Total{" "}
                 <span className="font-medium text-foreground tabular-nums">
                   {items.length}
+                  {hasMore ? "+" : ""}
                 </span>
               </span>
             </div>
@@ -400,7 +474,7 @@ export function DownloadSatuanDialog({
                   <Loader2Icon className="mr-2 size-4 animate-spin" /> Mencari
                   produk…
                 </div>
-              ) : results === null ? (
+              ) : !started ? (
                 <div className="flex h-full min-h-[20rem] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-muted-foreground">
                   <div className="grid size-12 place-items-center rounded-2xl bg-muted/50">
                     <SearchIcon className="size-6" />
@@ -415,7 +489,8 @@ export function DownloadSatuanDialog({
                   Tidak ada produk yang cocok.
                 </div>
               ) : (
-                <ul className="divide-y divide-border/60">
+                <>
+                  <ul className="divide-y divide-border/60">
                   {items.map((item) => {
                     const id = channelSearchRowId(item);
                     const isDone = downloaded[id] || item.alreadyDownloaded;
@@ -480,7 +555,19 @@ export function DownloadSatuanDialog({
                       </li>
                     );
                   })}
-                </ul>
+                  </ul>
+                  <div
+                    ref={sentinelRef}
+                    className="flex items-center justify-center py-4 text-xs text-muted-foreground"
+                  >
+                    {loadingMore && (
+                      <>
+                        <Loader2Icon className="mr-2 size-4 animate-spin" />
+                        Memuat…
+                      </>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           </div>
