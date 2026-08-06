@@ -32,7 +32,7 @@ export function PillTab<T extends string>({
     <TabsTrigger
       value={item.key}
       className={cn(
-        "inline-flex h-auto items-center gap-1.5 rounded-full font-medium transition-colors after:hidden!",
+        "inline-flex h-auto flex-none items-center gap-1.5 rounded-full font-medium transition-colors after:hidden!",
         variant === "solid" ? "px-3 py-1.5 text-sm" : "px-2.5 py-1 text-xs",
         active
           ? variant === "solid"

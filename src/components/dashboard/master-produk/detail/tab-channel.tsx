@@ -144,7 +144,7 @@ export function TabChannel({ productId }: { productId: string }) {
             setPage(p.pageIndex + 1);
             setPerPage(p.pageSize);
           }}
-          tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+          tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-head]]:text-xs [&_[data-slot=table-cell]]:py-2.5"
           emptyState={
             isError ? (
               <div className="py-10 text-center text-sm text-muted-foreground">

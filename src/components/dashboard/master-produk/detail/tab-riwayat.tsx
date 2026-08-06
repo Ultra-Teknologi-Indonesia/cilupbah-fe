@@ -191,7 +191,7 @@ export function TabRiwayat({ productId }: { productId: string }) {
               setPage(p.pageIndex + 1);
               setPerPage(p.pageSize);
             }}
-            tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
+            tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-head]]:text-xs [&_[data-slot=table-cell]]:py-2.5"
             emptyState={
               <div className="flex flex-col items-center justify-center py-10 text-sm text-muted-foreground">
                 Belum ada riwayat upload.
