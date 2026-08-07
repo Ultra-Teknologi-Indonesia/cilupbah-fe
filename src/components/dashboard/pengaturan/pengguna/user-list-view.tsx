@@ -59,6 +59,7 @@ function formatDate(iso: string | null): string {
 export function UserListView() {
   const { data: me } = useMe();
   const { can } = usePermissions();
+  const canEdit = can("edit-user");
   const canDelete = can("delete-user");
 
   const list = useListState<Record<string, never>>(
@@ -185,18 +186,20 @@ export function UserListView() {
           const showDelete = canDelete && !isProtected(user);
           return (
             <div className="flex justify-end gap-1">
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                asChild
-                aria-label={`Edit ${user.name}`}
-              >
-                <Link
-                  href={`/dashboard/pengaturan/pengguna/${user.id}/edit`}
+              {canEdit && (
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  asChild
+                  aria-label={`Edit ${user.name}`}
                 >
-                  <PencilIcon className="size-4" />
-                </Link>
-              </Button>
+                  <Link
+                    href={`/dashboard/pengaturan/pengguna/${user.id}/edit`}
+                  >
+                    <PencilIcon className="size-4" />
+                  </Link>
+                </Button>
+              )}
               {showDelete && (
                 <Button
                   variant="ghost"
@@ -213,7 +216,7 @@ export function UserListView() {
         },
       },
     ],
-    [selectedIds, selectableIds, isProtected, canDelete, handleToggleAll],
+    [selectedIds, selectableIds, isProtected, canEdit, canDelete, handleToggleAll],
   );
 
   function handleConfirmDelete() {

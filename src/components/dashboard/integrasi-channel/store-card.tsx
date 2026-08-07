@@ -6,6 +6,7 @@ import { relativeTime } from "@/lib/format";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 import type { ConnectedStore } from "@/types/channel";
 import { ChannelLogo } from "./channel-logo";
 import { StoreRowActions } from "./store-row-actions";
@@ -32,6 +33,8 @@ export function StoreCard({
   onReauth: (store: ConnectedStore) => void;
   onDisconnect: (store: ConnectedStore) => void;
 }) {
+  const { can } = usePermissions();
+  const canEdit = can("edit-integrasi-channel");
   const status = store.orderSync.status;
   const needsReauth =
     store.integration.action === "reauth" ||
@@ -90,7 +93,7 @@ export function StoreCard({
         )}
       </div>
 
-      {needsReauth && (
+      {needsReauth && canEdit && (
         <Button
           size="sm"
           onClick={() => onReauth(store)}
@@ -101,24 +104,28 @@ export function StoreCard({
         </Button>
       )}
 
-      <div className="mt-auto flex items-center justify-between gap-4 border-t border-border/60 pt-3">
-        <div className="flex items-center gap-2">
-          <Switch
-            checked={store.isActive}
-            onCheckedChange={(v) => onToggleActive(store.id, v)}
-            aria-label={`Toko aktif ${store.shopName}`}
-          />
-          <span className="text-xs text-muted-foreground">Toko Aktif</span>
+      {canEdit && (
+        <div className="mt-auto flex items-center justify-between gap-4 border-t border-border/60 pt-3">
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={store.isActive}
+              onCheckedChange={(v) => onToggleActive(store.id, v)}
+              aria-label={`Toko aktif ${store.shopName}`}
+            />
+            <span className="text-xs text-muted-foreground">Toko Aktif</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={store.ordersEnabled}
+              onCheckedChange={(v) => onToggleOrders(store.id, v)}
+              aria-label={`Sinkron pesanan ${store.shopName}`}
+            />
+            <span className="text-xs text-muted-foreground">
+              Sinkron Pesanan
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Switch
-            checked={store.ordersEnabled}
-            onCheckedChange={(v) => onToggleOrders(store.id, v)}
-            aria-label={`Sinkron pesanan ${store.shopName}`}
-          />
-          <span className="text-xs text-muted-foreground">Sinkron Pesanan</span>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -20,6 +20,7 @@ import { DataTable } from "@/components/ui/data-table/data-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FilterToolbar } from "@/components/dashboard/shared/filter-toolbar";
 import { useListState } from "@/hooks/use-list-state";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 import {
   Dialog,
   DialogContent,
@@ -62,6 +63,9 @@ export function KategoriTab() {
   const createMut = useCreateCategory();
   const updateMut = useUpdateCategory();
   const deleteMut = useDeleteCategory();
+  const { can } = usePermissions();
+  const canEdit = can("edit-kontak-pelanggan");
+  const canDelete = can("delete-kontak-pelanggan");
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<ContactCategory | null>(null);
@@ -133,29 +137,33 @@ export function KategoriTab() {
               className="flex items-center justify-end gap-1"
               onClick={(e) => e.stopPropagation()}
             >
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => openEdit(cat)}
-                aria-label="Edit"
-              >
-                <PencilIcon className="size-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => setDeleteTarget(cat)}
-                aria-label="Hapus"
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2Icon className="size-3.5" />
-              </Button>
+              {canEdit && (
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => openEdit(cat)}
+                  aria-label="Edit"
+                >
+                  <PencilIcon className="size-3.5" />
+                </Button>
+              )}
+              {canDelete && (
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => setDeleteTarget(cat)}
+                  aria-label="Hapus"
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2Icon className="size-3.5" />
+                </Button>
+              )}
             </div>
           );
         },
       },
     ],
-    [],
+    [canEdit, canDelete],
   );
 
   const saving = createMut.isPending || updateMut.isPending;
@@ -173,10 +181,12 @@ export function KategoriTab() {
           searchPlaceholder="Cari kode atau nama..."
           align="end"
           trailing={
-            <Button variant="primary" size="sm" onClick={openCreate}>
-              <PlusIcon className="mr-1.5 size-4" />
-              Buat Kategori
-            </Button>
+            canEdit ? (
+              <Button variant="primary" size="sm" onClick={openCreate}>
+                <PlusIcon className="mr-1.5 size-4" />
+                Buat Kategori
+              </Button>
+            ) : undefined
           }
         />
 

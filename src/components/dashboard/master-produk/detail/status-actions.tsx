@@ -21,6 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Can } from "@/components/auth/can";
 import type { ProductDetail } from "@/types/master-produk";
 import type { LifecycleAction } from "@/hooks/master-produk/use-product-detail";
 
@@ -63,12 +64,14 @@ export function StatusActions({
       {product.status === "master" && (
         <>
           {editBtn}
-          <Button variant="outline" asChild disabled={isPending}>
-            <Link href={`/dashboard/produk/${product.id}/upload-to-channel`}>
-              <ArrowUpRightIcon />
-              Upload ke channel
-            </Link>
-          </Button>
+          <Can permission="create-produk-naik">
+            <Button variant="outline" asChild disabled={isPending}>
+              <Link href={`/dashboard/produk/${product.id}/upload-to-channel`}>
+                <ArrowUpRightIcon />
+                Upload ke channel
+              </Link>
+            </Button>
+          </Can>
         </>
       )}
 

@@ -71,6 +71,27 @@ export function PermissionMatrix({
   const [query, setQuery] = React.useState("");
   const [openGroups, setOpenGroups] = React.useState<Set<string>>(new Set());
 
+  const { viewOf, viewPerms, siblingsOf } = React.useMemo(() => {
+    const viewOf: Record<string, string> = {};
+    const viewPerms = new Set<string>();
+    const siblingsOf: Record<string, string[]> = {};
+    for (const group of catalog) {
+      for (const resource of group.resources) {
+        const viewPerm = resource.actions.find(
+          (a) => a.action === "view",
+        )?.permission;
+        if (!viewPerm) continue;
+        const perms = resourcePerms(resource);
+        viewPerms.add(viewPerm);
+        siblingsOf[viewPerm] = perms.filter((p) => p !== viewPerm);
+        for (const p of perms) {
+          if (p !== viewPerm) viewOf[p] = viewPerm;
+        }
+      }
+    }
+    return { viewOf, viewPerms, siblingsOf };
+  }, [catalog]);
+
   const isChecked = (perm: string) => valueSet.has(perm) || baseSet.has(perm);
   const isLocked = (perm: string) => disabled || baseSet.has(perm);
 
@@ -85,7 +106,21 @@ export function PermissionMatrix({
   };
   const toggleOne = (perm: string) => {
     if (isLocked(perm)) return;
-    toggleMany([perm], !valueSet.has(perm));
+    const turnOn = !valueSet.has(perm);
+    const next = new Set(value);
+    if (turnOn) {
+      next.add(perm);
+      const view = viewOf[perm];
+      if (view && !isLocked(view)) next.add(view);
+    } else {
+      next.delete(perm);
+      if (viewPerms.has(perm)) {
+        for (const sibling of siblingsOf[perm] ?? []) {
+          if (!isLocked(sibling)) next.delete(sibling);
+        }
+      }
+    }
+    onChange([...next]);
   };
 
   const allChecked = (perms: string[]) =>

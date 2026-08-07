@@ -11,6 +11,7 @@ import type { ChannelCode } from "@/types/channel";
 
 export function buildStoreColumns(
   onDelete: (store: RaiseProductStore) => void,
+  canDelete: boolean,
 ): ColumnDef<RaiseProductStore>[] {
   return [
     {
@@ -65,14 +66,16 @@ export function buildStoreColumns(
                 Lihat
               </Link>
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 gap-1.5 text-destructive hover:text-destructive"
-              onClick={() => onDelete(s)}
-            >
-              <Trash2Icon className="size-4" />
-            </Button>
+            {canDelete && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 gap-1.5 text-destructive hover:text-destructive"
+                onClick={() => onDelete(s)}
+              >
+                <Trash2Icon className="size-4" />
+              </Button>
+            )}
           </div>
         );
       },

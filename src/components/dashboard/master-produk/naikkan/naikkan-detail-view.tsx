@@ -26,6 +26,8 @@ import {
 } from "@/hooks/master-produk/use-naikkan";
 import type { RaiseProductDetail } from "@/hooks/master-produk/use-naikkan";
 import type { ChannelCode } from "@/types/channel";
+import { usePermissions } from "@/hooks/auth/use-permissions";
+import { Can } from "@/components/auth/can";
 import { buildProdukColumns } from "./naikkan-produk-columns";
 import { aktivitasColumns } from "./naikkan-aktivitas-columns";
 import { NaikkanProdukPickerDialog } from "./naikkan-produk-picker-dialog";
@@ -79,6 +81,10 @@ export function NaikkanDetailView({ id }: { id: string }) {
     [details],
   );
 
+  const { can } = usePermissions();
+  const canEdit = can("edit-produk-naik");
+  const canDelete = can("delete-produk-naik");
+
   const produkColumns = React.useMemo(
     () =>
       buildProdukColumns({
@@ -88,8 +94,10 @@ export function NaikkanDetailView({ id }: { id: string }) {
             data: { is_repeatable: value },
           }),
         onRemove: (detail) => setRemoveTarget(detail),
+        canEdit,
+        canDelete,
       }),
-    [updateMut],
+    [updateMut, canEdit, canDelete],
   );
 
   if (detailQuery.isLoading) {
@@ -155,29 +163,31 @@ export function NaikkanDetailView({ id }: { id: string }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-9 gap-1.5"
-            onClick={() => setShowPicker(true)}
-          >
-            <PlusIcon className="size-4" />
-            Tambah Produk
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            className="h-9 gap-1.5"
-            disabled={details.length === 0 || raiseMut.isPending}
-            onClick={() => setShowRaiseConfirm(true)}
-          >
-            {raiseMut.isPending ? (
-              <Loader2Icon className="size-4 animate-spin" />
-            ) : (
-              <RocketIcon className="size-4" />
-            )}
-            Naikkan Produk
-          </Button>
+          <Can permission="edit-produk-naik">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 gap-1.5"
+              onClick={() => setShowPicker(true)}
+            >
+              <PlusIcon className="size-4" />
+              Tambah Produk
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              className="h-9 gap-1.5"
+              disabled={details.length === 0 || raiseMut.isPending}
+              onClick={() => setShowRaiseConfirm(true)}
+            >
+              {raiseMut.isPending ? (
+                <Loader2Icon className="size-4 animate-spin" />
+              ) : (
+                <RocketIcon className="size-4" />
+              )}
+              Naikkan Produk
+            </Button>
+          </Can>
         </div>
       </div>
 

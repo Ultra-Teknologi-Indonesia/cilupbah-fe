@@ -21,6 +21,8 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
 import { useListState } from "@/hooks/use-list-state";
 import { useUrlTab } from "@/hooks/use-url-tab";
+import { Can } from "@/components/auth/can";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 import {
   useContacts,
   useContactCategories,
@@ -97,6 +99,7 @@ export function PelangganTab() {
   const { data, isLoading, isFetching } = useContacts(params);
   const { data: categories = [] } = useContactCategories();
   const deleteMut = useDeleteContact();
+  const { can } = usePermissions();
 
   const items = useMemo(() => data?.items ?? [], [data]);
   const meta = data?.meta ?? {
@@ -172,15 +175,17 @@ export function PelangganTab() {
               className="flex items-center justify-end gap-1"
               onClick={(e) => e.stopPropagation()}
             >
-              <Button variant="ghost" size="icon-sm" asChild>
-                <Link
-                  href={`/dashboard/kontak-pelanggan/${item.id}/edit`}
-                  aria-label="Edit"
-                >
-                  <PencilIcon className="size-3.5" />
-                </Link>
-              </Button>
-              {!item.is_system && (
+              {can("edit-kontak-pelanggan") && (
+                <Button variant="ghost" size="icon-sm" asChild>
+                  <Link
+                    href={`/dashboard/kontak-pelanggan/${item.id}/edit`}
+                    aria-label="Edit"
+                  >
+                    <PencilIcon className="size-3.5" />
+                  </Link>
+                </Button>
+              )}
+              {!item.is_system && can("delete-kontak-pelanggan") && (
                 <Button
                   variant="ghost"
                   size="icon-sm"
@@ -196,7 +201,7 @@ export function PelangganTab() {
         },
       },
     ],
-    [],
+    [can],
   );
 
   const categoryOptions = useMemo(
@@ -298,24 +303,28 @@ export function PelangganTab() {
           activeCount={activeCount}
           gridCols={2}
           leading={
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 rounded-full"
-              onClick={handleExport}
-              disabled={items.length === 0}
-            >
-              <DownloadIcon className="mr-1.5 size-4" />
-              Export CSV
-            </Button>
+            <Can permission="export-kontak-pelanggan">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 rounded-full"
+                onClick={handleExport}
+                disabled={items.length === 0}
+              >
+                <DownloadIcon className="mr-1.5 size-4" />
+                Export CSV
+              </Button>
+            </Can>
           }
           trailing={
-            <Button variant="primary" asChild>
-              <Link href="/dashboard/kontak-pelanggan/tambah">
-                <PlusIcon className="size-4" />
-                Buat Pelanggan
-              </Link>
-            </Button>
+            <Can permission="create-kontak-pelanggan">
+              <Button variant="primary" asChild>
+                <Link href="/dashboard/kontak-pelanggan/tambah">
+                  <PlusIcon className="size-4" />
+                  Buat Pelanggan
+                </Link>
+              </Button>
+            </Can>
           }
         >
           <Combobox

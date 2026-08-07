@@ -12,6 +12,7 @@ import { ResourceListView } from "@/components/dashboard/shared/resource-list-vi
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { getStatusMeta } from "@/lib/status";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 import { useListState } from "@/hooks/use-list-state";
 import {
   useStockOpnames,
@@ -48,6 +49,8 @@ export function OpnameTab() {
   const [deleteTarget, setDeleteTarget] = useState<StockOpname | null>(null);
   const [startTarget, setStartTarget] = useState<StockOpname | null>(null);
   const [processBy, setProcessBy] = useState("");
+  const { can } = usePermissions();
+  const canManage = can("edit-stok-opname");
 
   const params = useMemo<StockOpnameListParams>(
     () => ({
@@ -142,24 +145,28 @@ export function OpnameTab() {
                 className="flex items-center justify-end gap-1"
                 onClick={(e) => e.stopPropagation()}
               >
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={() => setStartTarget(item)}
-                  aria-label="Mulai"
-                  className="text-blue-600 hover:text-blue-700"
-                >
-                  <PlayIcon className="size-3.5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={() => setDeleteTarget(item)}
-                  aria-label="Hapus"
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2Icon className="size-3.5" />
-                </Button>
+                {canManage && (
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => setStartTarget(item)}
+                    aria-label="Mulai"
+                    className="text-blue-600 hover:text-blue-700"
+                  >
+                    <PlayIcon className="size-3.5" />
+                  </Button>
+                )}
+                {canManage && (
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => setDeleteTarget(item)}
+                    aria-label="Hapus"
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2Icon className="size-3.5" />
+                  </Button>
+                )}
               </div>
             );
           }
@@ -167,7 +174,7 @@ export function OpnameTab() {
         },
       },
     ],
-    [],
+    [canManage],
   );
 
   function handleDelete() {

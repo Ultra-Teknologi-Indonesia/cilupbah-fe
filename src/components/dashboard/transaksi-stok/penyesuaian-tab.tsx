@@ -13,6 +13,8 @@ import {
 import type { DateRange } from "react-day-picker";
 
 import { Button } from "@/components/ui/button";
+import { Can } from "@/components/auth/can";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
 import { DateRangePicker } from "@/components/ui/date-picker";
@@ -77,6 +79,8 @@ export function PenyesuaianTab() {
     onDone: () => void;
   } | null>(null);
   const [importOpen, setImportOpen] = useState(false);
+  const { can } = usePermissions();
+  const canDelete = can("delete-penyesuaian-stok");
 
   const params = useMemo<StockAdjustmentListParams>(
     () => ({
@@ -204,20 +208,22 @@ export function PenyesuaianTab() {
                 <PrinterIcon className="size-3.5" />
               </Link>
             </Button>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={() => setDeleteTarget(row.original)}
-              aria-label="Hapus"
-              className="text-destructive hover:text-destructive"
-            >
-              <Trash2Icon className="size-3.5" />
-            </Button>
+            {canDelete && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setDeleteTarget(row.original)}
+                aria-label="Hapus"
+                className="text-destructive hover:text-destructive"
+              >
+                <Trash2Icon className="size-3.5" />
+              </Button>
+            )}
           </div>
         ),
       },
     ],
-    [],
+    [canDelete],
   );
 
   function handleDelete() {
@@ -252,7 +258,7 @@ export function PenyesuaianTab() {
         isLoading={isLoading}
         isFetching={isFetching}
         searchPlaceholder="Cari no. koreksi stok..."
-        onExport={handleExport}
+        onExport={can("export-penyesuaian-stok") ? handleExport : undefined}
         enableRowSelection
         getRowId={(row) => row.id}
         bulkActions={(selected, table) => {
@@ -283,38 +289,44 @@ export function PenyesuaianTab() {
                 <PrinterIcon className="mr-1.5 size-4" />
                 Cetak {ids.length}
               </Button>
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={() =>
-                  setBulkDeleteState({
-                    ids,
-                    onDone: () => table.resetRowSelection(),
-                  })
-                }
-              >
-                <Trash2Icon className="mr-1.5 size-4" />
-                Hapus {ids.length}
-              </Button>
+              {canDelete && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() =>
+                    setBulkDeleteState({
+                      ids,
+                      onDone: () => table.resetRowSelection(),
+                    })
+                  }
+                >
+                  <Trash2Icon className="mr-1.5 size-4" />
+                  Hapus {ids.length}
+                </Button>
+              )}
             </>
           );
         }}
         toolbarTrailing={
           <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-1.5"
-              onClick={() => setImportOpen(true)}
-            >
-              Import
-            </Button>
-            <Button size="sm" asChild className="gap-1.5">
-              <Link href="/dashboard/transaksi-stok/penyesuaian/buat">
-                <PlusIcon className="size-4" />
-                Koreksi Stok Baru
-              </Link>
-            </Button>
+            <Can permission="import-penyesuaian-stok">
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5"
+                onClick={() => setImportOpen(true)}
+              >
+                Import
+              </Button>
+            </Can>
+            <Can permission="create-penyesuaian-stok">
+              <Button size="sm" asChild className="gap-1.5">
+                <Link href="/dashboard/transaksi-stok/penyesuaian/buat">
+                  <PlusIcon className="size-4" />
+                  Koreksi Stok Baru
+                </Link>
+              </Button>
+            </Can>
           </div>
         }
         emptyIcon={SlidersHorizontalIcon}

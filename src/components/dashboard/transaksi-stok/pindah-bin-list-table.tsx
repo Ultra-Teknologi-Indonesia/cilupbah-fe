@@ -20,6 +20,7 @@ import { DateRangePicker } from "@/components/ui/date-picker";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { ResourceListView } from "@/components/dashboard/shared/resource-list-view";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 import { useListState } from "@/hooks/use-list-state";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import {
@@ -90,6 +91,10 @@ export function PindahBinListTable({
   const printMut = usePrintBinTransfer();
   const revertMut = useRevertBinTransferPrint();
   const deleteMut = useDeleteBinTransfer();
+
+  const { can } = usePermissions();
+  const canEdit = can("edit-pindah-bin");
+  const canDelete = can("delete-pindah-bin");
 
   const [printingId, setPrintingId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<BinTransferListItem | null>(
@@ -263,36 +268,40 @@ export function PindahBinListTable({
                 <PrinterIcon className="size-3.5" />
               )}
             </Button>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={() =>
-                router.push(
-                  `/dashboard/transaksi-stok/pindah-bin/${item.id}/edit`,
-                )
-              }
-              aria-label="Edit transfer"
-              title="Edit transfer"
-            >
-              <PencilIcon className="size-3.5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={() => setDeleteTarget(item)}
-              aria-label="Hapus transfer"
-              title="Hapus transfer"
-              className="text-destructive hover:text-destructive"
-            >
-              <Trash2Icon className="size-3.5" />
-            </Button>
+            {canEdit && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() =>
+                  router.push(
+                    `/dashboard/transaksi-stok/pindah-bin/${item.id}/edit`,
+                  )
+                }
+                aria-label="Edit transfer"
+                title="Edit transfer"
+              >
+                <PencilIcon className="size-3.5" />
+              </Button>
+            )}
+            {canDelete && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setDeleteTarget(item)}
+                aria-label="Hapus transfer"
+                title="Hapus transfer"
+                className="text-destructive hover:text-destructive"
+              >
+                <Trash2Icon className="size-3.5" />
+              </Button>
+            )}
           </div>
         );
       },
     });
 
     return base;
-  }, [isTransit, printingId, handlePrint, handleReprint, router]);
+  }, [isTransit, printingId, handlePrint, handleReprint, router, canEdit, canDelete]);
 
   const handleExport = useCallback(() => {
     if (items.length === 0) return;

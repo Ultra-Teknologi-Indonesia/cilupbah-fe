@@ -258,6 +258,7 @@ export const settingsRoutes: Route[] = [
 ];
 
 export const NAV_PERMISSION: Record<string, string | string[]> = {
+  dashboard: "view-dashboard",
   produk: "view-produk",
   "kategori-merek": "view-kategori",
   "posisi-stok": "view-posisi-stok",
@@ -307,16 +308,55 @@ export function filterNavGroups(
 }
 
 export function filterSettingsRoutes(routes: Route[], has: PermCheck): Route[] {
-  return routes.map((route) =>
-    route.subs
-      ? {
-          ...route,
-          subs: route.subs.filter((sub) =>
-            has(SETTINGS_SUB_PERMISSION[sub.link]),
-          ),
-        }
-      : route,
-  );
+  return routes
+    .map((route) =>
+      route.subs
+        ? {
+            ...route,
+            subs: route.subs.filter((sub) =>
+              has(SETTINGS_SUB_PERMISSION[sub.link]),
+            ),
+          }
+        : route,
+    )
+    .filter((route) => !route.subs || route.subs.length > 0);
+}
+
+export function permissionForPath(
+  pathname: string,
+): string | string[] | undefined {
+  let best: string | string[] | undefined;
+  let bestLen = -1;
+
+  const consider = (link: string, perm: string | string[] | undefined) => {
+    const matches =
+      link === "/dashboard"
+        ? pathname === link
+        : pathname === link || pathname.startsWith(link + "/");
+    if (matches && link.length > bestLen) {
+      bestLen = link.length;
+      best = perm;
+    }
+  };
+
+  for (const group of dashboardGroups) {
+    for (const item of group.items) {
+      const perm = NAV_PERMISSION[item.id];
+      consider(item.link, perm);
+      item.match?.forEach((m) => consider(m, perm));
+      item.subs?.forEach((s) => {
+        consider(s.link, perm);
+        s.subs?.forEach((n) => consider(n.link, perm));
+      });
+    }
+  }
+  for (const route of settingsRoutes) {
+    route.subs?.forEach((s) =>
+      consider(s.link, SETTINGS_SUB_PERMISSION[s.link]),
+    );
+  }
+
+  return best;
 }
 
 export const sampleNotifications = [

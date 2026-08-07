@@ -26,6 +26,7 @@ import { PRODUCT_STATUS_OPTIONS } from "@/lib/master-produk/constants";
 import { useCategoryTree } from "@/hooks/master-produk/use-master-data";
 import type { useProductListQuery } from "@/hooks/master-produk/use-product-list-query";
 import type { ImportBatchType } from "@/hooks/master-produk/use-import";
+import { Can } from "@/components/auth/can";
 import { CategoryPicker } from "./buat/category-picker";
 import { FilterToolbar } from "./filter-toolbar";
 import { ImportDialog } from "./import/import-dialog";
@@ -106,6 +107,7 @@ export function ProductExplorer({ query }: { query: Query }) {
               {toggleBtn("card", "Tampilan kartu", LayoutGridIcon)}
               {toggleBtn("table", "Tampilan tabel", TableIcon)}
             </div>
+            <Can permission="import-produk">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="h-9 gap-2">
@@ -141,6 +143,8 @@ export function ProductExplorer({ query }: { query: Query }) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            </Can>
+            <Can permission="create-produk">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="primary" size="sm" className="h-9 gap-2">
@@ -176,6 +180,7 @@ export function ProductExplorer({ query }: { query: Query }) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            </Can>
           </div>
         </div>
 

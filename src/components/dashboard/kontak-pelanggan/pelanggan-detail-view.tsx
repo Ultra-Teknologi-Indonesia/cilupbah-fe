@@ -15,6 +15,7 @@ import { PageTitle } from "@/components/dashboard/page-title";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Can } from "@/components/auth/can";
 import { cn } from "@/lib/utils";
 import {
   useContactDetail,
@@ -100,21 +101,25 @@ export function PelangganDetailView({ id }: { id: string }) {
         actions={
           <div className="flex items-center gap-2">
             {!contact.is_system && (
-              <Button
-                variant="outline"
-                className="text-destructive hover:text-destructive"
-                onClick={() => setDeleteOpen(true)}
-              >
-                <Trash2Icon className="size-4" />
-                Hapus
-              </Button>
+              <Can permission="delete-kontak-pelanggan">
+                <Button
+                  variant="outline"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  <Trash2Icon className="size-4" />
+                  Hapus
+                </Button>
+              </Can>
             )}
-            <Button variant="primary" asChild>
-              <Link href={`/dashboard/kontak-pelanggan/${id}/edit`}>
-                <PencilIcon className="size-4" />
-                Edit
-              </Link>
-            </Button>
+            <Can permission="edit-kontak-pelanggan">
+              <Button variant="primary" asChild>
+                <Link href={`/dashboard/kontak-pelanggan/${id}/edit`}>
+                  <PencilIcon className="size-4" />
+                  Edit
+                </Link>
+              </Button>
+            </Can>
           </div>
         }
       />

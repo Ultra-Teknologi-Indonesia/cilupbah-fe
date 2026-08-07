@@ -18,6 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Can } from "@/components/auth/can";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -38,6 +39,7 @@ import {
   useDeleteStockOpname,
   useCountOpnameItem,
 } from "@/hooks/transaksi-stok/use-stock-opname";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 import { exportCsv } from "@/lib/export-csv";
 import { formatDate } from "@/lib/format";
 
@@ -78,6 +80,8 @@ export function OpnameDetail({ id }: { id: string }) {
   const cancelMut = useCancelStockOpname();
   const deleteMut = useDeleteStockOpname();
   const countMut = useCountOpnameItem();
+  const { can } = usePermissions();
+  const canManage = can("edit-stok-opname");
 
   const isDraft = opname?.status === "DRAFT";
   const isInProgress = opname?.status === "IN_PROGRESS";
@@ -217,7 +221,7 @@ export function OpnameDetail({ id }: { id: string }) {
       },
     ];
 
-    if (isInProgress) {
+    if (isInProgress && canManage) {
       cols.push({
         id: "actions",
         header: "",
@@ -252,7 +256,7 @@ export function OpnameDetail({ id }: { id: string }) {
       });
     }
     return cols;
-  }, [isInProgress]);
+  }, [isInProgress, canManage]);
 
   const hasUncounted =
     opname?.items?.some((i) => i.qty_actual == null) ?? false;
@@ -336,7 +340,7 @@ export function OpnameDetail({ id }: { id: string }) {
               Export CSV
             </Button>
             {isDraft && (
-              <>
+              <Can permission="edit-stok-opname">
                 <Button
                   size="sm"
                   onClick={() => {
@@ -358,33 +362,37 @@ export function OpnameDetail({ id }: { id: string }) {
                   <Trash2Icon className="mr-1.5 size-3.5" />
                   Hapus
                 </Button>
-              </>
+              </Can>
             )}
             {isInProgress && (
-              <Button
-                size="sm"
-                onClick={() => {
-                  setFinalizeOpen(true);
-                  setFinalizeBy("");
-                }}
-                disabled={actionPending || hasUncounted}
-                className="bg-success text-white hover:bg-success/90"
-              >
-                <CheckCircle2Icon className="mr-1.5 size-3.5" />
-                Finalisasi
-              </Button>
+              <Can permission="edit-stok-opname">
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setFinalizeOpen(true);
+                    setFinalizeBy("");
+                  }}
+                  disabled={actionPending || hasUncounted}
+                  className="bg-success text-white hover:bg-success/90"
+                >
+                  <CheckCircle2Icon className="mr-1.5 size-3.5" />
+                  Finalisasi
+                </Button>
+              </Can>
             )}
             {!isFinalized && !isDraft && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCancelOpen(true)}
-                disabled={actionPending}
-                className="border-destructive/30 text-destructive hover:bg-destructive/10"
-              >
-                <XCircleIcon className="mr-1.5 size-3.5" />
-                Batalkan
-              </Button>
+              <Can permission="edit-stok-opname">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCancelOpen(true)}
+                  disabled={actionPending}
+                  className="border-destructive/30 text-destructive hover:bg-destructive/10"
+                >
+                  <XCircleIcon className="mr-1.5 size-3.5" />
+                  Batalkan
+                </Button>
+              </Can>
             )}
           </div>
         }

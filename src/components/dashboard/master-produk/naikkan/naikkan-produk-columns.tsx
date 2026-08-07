@@ -33,6 +33,8 @@ function resultBadge(isSuccess: boolean | null) {
 export function buildProdukColumns(opts: {
   onToggleRepeatable: (detail: RaiseProductDetail, value: boolean) => void;
   onRemove: (detail: RaiseProductDetail) => void;
+  canEdit: boolean;
+  canDelete: boolean;
 }): ColumnDef<RaiseProductDetail>[] {
   return [
     {
@@ -113,6 +115,7 @@ export function buildProdukColumns(opts: {
         return (
           <Switch
             checked={d.isRepeatable}
+            disabled={!opts.canEdit}
             onCheckedChange={(checked) => opts.onToggleRepeatable(d, checked)}
           />
         );
@@ -126,18 +129,19 @@ export function buildProdukColumns(opts: {
     {
       id: "actions",
       header: "",
-      cell: ({ row }) => (
-        <div className="flex items-center justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 text-destructive hover:text-destructive"
-            onClick={() => opts.onRemove(row.original)}
-          >
-            <Trash2Icon className="size-4" />
-          </Button>
-        </div>
-      ),
+      cell: ({ row }) =>
+        opts.canDelete ? (
+          <div className="flex items-center justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 text-destructive hover:text-destructive"
+              onClick={() => opts.onRemove(row.original)}
+            >
+              <Trash2Icon className="size-4" />
+            </Button>
+          </div>
+        ) : null,
     },
   ];
 }

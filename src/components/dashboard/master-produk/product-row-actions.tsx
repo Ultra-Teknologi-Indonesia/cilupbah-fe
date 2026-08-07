@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Can } from "@/components/auth/can";
 import {
   useDeleteProduct,
   useArchiveProduct,
@@ -75,14 +76,16 @@ export function ProductRowActions({ product }: { product: Product }) {
             <EyeIcon className="size-4 text-muted-foreground" />
             Lihat detail
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() =>
-              router.push(`/dashboard/produk/${product.itemGroupId}/edit`)
-            }
-          >
-            <PencilIcon className="size-4 text-muted-foreground" />
-            Edit
-          </DropdownMenuItem>
+          <Can permission="edit-produk">
+            <DropdownMenuItem
+              onClick={() =>
+                router.push(`/dashboard/produk/${product.itemGroupId}/edit`)
+              }
+            >
+              <PencilIcon className="size-4 text-muted-foreground" />
+              Edit
+            </DropdownMenuItem>
+          </Can>
           <DropdownMenuItem
             onClick={() => {
               copy(product.itemGroupId, null);
@@ -93,51 +96,57 @@ export function ProductRowActions({ product }: { product: Product }) {
             Salin ID
           </DropdownMenuItem>
 
-          <DropdownMenuSeparator />
+          <Can permission="edit-produk">
+            <DropdownMenuSeparator />
 
-          <DropdownMenuItem
-            disabled={syncStock.isPending}
-            onClick={() =>
-              syncStock.mutate({
-                mode: "single",
-                productIds: [product.itemGroupId],
-              })
-            }
-          >
-            <RefreshCwIcon className="size-4 text-muted-foreground" />
-            Sinkronkan Stok
-          </DropdownMenuItem>
-
-          <DropdownMenuSeparator />
-
-          {product.status === "archived" ? (
             <DropdownMenuItem
-              disabled={restoreMut.isPending}
-              onClick={() => restoreMut.mutate(product.itemGroupId)}
+              disabled={syncStock.isPending}
+              onClick={() =>
+                syncStock.mutate({
+                  mode: "single",
+                  productIds: [product.itemGroupId],
+                })
+              }
             >
-              <ArchiveRestoreIcon className="size-4 text-muted-foreground" />
-              Pulihkan
+              <RefreshCwIcon className="size-4 text-muted-foreground" />
+              Sinkronkan Stok
             </DropdownMenuItem>
-          ) : product.status === "master" ? (
-            <DropdownMenuItem
-              onClick={() => {
-                setArchiveReason("");
-                setArchiveOpen(true);
-              }}
-            >
-              <ArchiveIcon className="size-4 text-muted-foreground" />
-              Arsipkan
-            </DropdownMenuItem>
-          ) : null}
+          </Can>
 
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={() => setDeleteOpen(true)}
-          >
-            <Trash2Icon className="size-4" />
-            Hapus
-          </DropdownMenuItem>
+
+          <Can permission="edit-produk">
+            {product.status === "archived" ? (
+              <DropdownMenuItem
+                disabled={restoreMut.isPending}
+                onClick={() => restoreMut.mutate(product.itemGroupId)}
+              >
+                <ArchiveRestoreIcon className="size-4 text-muted-foreground" />
+                Pulihkan
+              </DropdownMenuItem>
+            ) : product.status === "master" ? (
+              <DropdownMenuItem
+                onClick={() => {
+                  setArchiveReason("");
+                  setArchiveOpen(true);
+                }}
+              >
+                <ArchiveIcon className="size-4 text-muted-foreground" />
+                Arsipkan
+              </DropdownMenuItem>
+            ) : null}
+          </Can>
+
+          <Can permission="delete-produk">
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => setDeleteOpen(true)}
+            >
+              <Trash2Icon className="size-4" />
+              Hapus
+            </DropdownMenuItem>
+          </Can>
         </DropdownMenuContent>
       </DropdownMenu>
 

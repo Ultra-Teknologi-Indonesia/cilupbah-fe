@@ -6,6 +6,7 @@ import { UploadCloudIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Can } from "@/components/auth/can";
 import { DraftTab } from "./draft-tab";
 import { HasilTab } from "./hasil-tab";
 import { ProductPickerDialog } from "./product-picker-dialog";
@@ -45,15 +46,17 @@ export function UploadMassalView() {
   );
 
   const actionButton = (
-    <Button
-      variant="primary"
-      size="sm"
-      className="h-9 gap-2"
-      onClick={() => setPickerOpen(true)}
-    >
-      <UploadCloudIcon className="size-4" />
-      Upload Baru
-    </Button>
+    <Can permission="create-produk-naik">
+      <Button
+        variant="primary"
+        size="sm"
+        className="h-9 gap-2"
+        onClick={() => setPickerOpen(true)}
+      >
+        <UploadCloudIcon className="size-4" />
+        Upload Baru
+      </Button>
+    </Can>
   );
 
   return (

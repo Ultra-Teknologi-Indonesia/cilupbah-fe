@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Can } from "@/components/auth/can";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -557,15 +558,17 @@ export function PindahBinView() {
         <Button variant="outline" onClick={() => router.push(LIST_HREF)}>
           Batal
         </Button>
-        <Button
-          onClick={handleSubmit}
-          disabled={!canSubmit || createMut.isPending}
-        >
-          {createMut.isPending && (
-            <Loader2Icon className="mr-2 size-4 animate-spin" />
-          )}
-          Simpan
-        </Button>
+        <Can permission="create-pindah-bin">
+          <Button
+            onClick={handleSubmit}
+            disabled={!canSubmit || createMut.isPending}
+          >
+            {createMut.isPending && (
+              <Loader2Icon className="mr-2 size-4 animate-spin" />
+            )}
+            Simpan
+          </Button>
+        </Can>
       </FormFooter>
 
       <StockedProductPickerDialog

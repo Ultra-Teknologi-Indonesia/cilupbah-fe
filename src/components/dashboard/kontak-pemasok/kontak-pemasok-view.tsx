@@ -25,6 +25,8 @@ import { DataTable } from "@/components/ui/data-table/data-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
 import { ImportPemasokDialog } from "@/components/dashboard/kontak-pemasok/import-pemasok-view";
+import { Can } from "@/components/auth/can";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 import {
   useContacts,
   useContactCategories,
@@ -107,6 +109,7 @@ export function KontakPemasokView() {
   const { data, isLoading, isFetching } = useContacts(params);
   const { data: categories = [] } = useContactCategories();
   const deleteMut = useDeleteContact();
+  const { can } = usePermissions();
 
   const items = data?.items ?? [];
   const meta = data?.meta ?? {
@@ -190,15 +193,17 @@ export function KontakPemasokView() {
               className="flex items-center justify-end gap-1"
               onClick={(e) => e.stopPropagation()}
             >
-              <Button variant="ghost" size="icon-sm" asChild>
-                <Link
-                  href={`/dashboard/kontak-pemasok/${item.id}/edit`}
-                  aria-label="Edit"
-                >
-                  <PencilIcon className="size-3.5" />
-                </Link>
-              </Button>
-              {!item.is_system && (
+              {can("edit-kontak-pemasok") && (
+                <Button variant="ghost" size="icon-sm" asChild>
+                  <Link
+                    href={`/dashboard/kontak-pemasok/${item.id}/edit`}
+                    aria-label="Edit"
+                  >
+                    <PencilIcon className="size-3.5" />
+                  </Link>
+                </Button>
+              )}
+              {!item.is_system && can("delete-kontak-pemasok") && (
                 <Button
                   variant="ghost"
                   size="icon-sm"
@@ -214,7 +219,7 @@ export function KontakPemasokView() {
         },
       },
     ],
-    [],
+    [can],
   );
 
   const categoryOptions = useMemo(
@@ -269,16 +274,20 @@ export function KontakPemasokView() {
         <div className="flex flex-wrap items-center justify-between gap-2 px-5 pt-4">
           {filterTabs}
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => setImportOpen(true)}>
-              <UploadIcon className="size-4" />
-              Import
-            </Button>
-            <Button variant="primary" asChild>
-              <Link href="/dashboard/kontak-pemasok/tambah">
-                <PlusIcon className="size-4" />
-                Buat Pemasok
-              </Link>
-            </Button>
+            <Can permission="import-kontak-pemasok">
+              <Button variant="outline" onClick={() => setImportOpen(true)}>
+                <UploadIcon className="size-4" />
+                Import
+              </Button>
+            </Can>
+            <Can permission="create-kontak-pemasok">
+              <Button variant="primary" asChild>
+                <Link href="/dashboard/kontak-pemasok/tambah">
+                  <PlusIcon className="size-4" />
+                  Buat Pemasok
+                </Link>
+              </Button>
+            </Can>
           </div>
         </div>
 

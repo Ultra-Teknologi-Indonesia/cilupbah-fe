@@ -18,6 +18,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 import type { Order, OrderTab, SubFilter } from "@/types/pesanan/order";
 import type { PrintLabelOrderInput } from "@/components/dashboard/proses-pesanan/shared/print-label-size-dialog";
 import {
@@ -109,11 +110,14 @@ function TabBulkActions({
   const rejectCancel = useBulkRejectCancelRequest();
   const acceptReturn = useBulkAcceptReturn();
   const rejectReturn = useBulkRejectReturn();
+  const { can } = usePermissions();
+  const canEdit = can("edit-pesanan");
 
   const placeholder = (label: string) => () =>
     toast.info(`${label} untuk ${count} pesanan akan segera tersedia`);
 
   if (tab === "ready-to-process") {
+    if (!canEdit) return null;
     return (
       <>
         <Button
@@ -165,17 +169,19 @@ function TabBulkActions({
           <PrinterIcon className="size-3.5" />
           Cetak Resi
         </Button>
-        <Button
-          size="sm"
-          className="h-8 gap-1.5 text-xs"
-          disabled={markComplete.isPending || selectedIds.length === 0}
-          onClick={() =>
-            markComplete.mutate(selectedIds, { onSuccess: () => onDone() })
-          }
-        >
-          <CheckCircleIcon className="size-3.5" />
-          {markComplete.isPending ? "Menyelesaikan..." : "Selesaikan"}
-        </Button>
+        {canEdit && (
+          <Button
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            disabled={markComplete.isPending || selectedIds.length === 0}
+            onClick={() =>
+              markComplete.mutate(selectedIds, { onSuccess: () => onDone() })
+            }
+          >
+            <CheckCircleIcon className="size-3.5" />
+            {markComplete.isPending ? "Menyelesaikan..." : "Selesaikan"}
+          </Button>
+        )}
       </>
     );
   }
@@ -196,6 +202,7 @@ function TabBulkActions({
   }
 
   if (tab === "empty-stock" || tab === "failed-pick") {
+    if (!canEdit) return null;
     return (
       <>
         {tab === "empty-stock" && (
@@ -234,6 +241,7 @@ function TabBulkActions({
 
   if (tab === "cancellation") {
     if (subFilter === "cancelled") return null;
+    if (!canEdit) return null;
     const cancelBusy = acceptCancel.isPending || rejectCancel.isPending;
     return (
       <>
@@ -279,6 +287,7 @@ function TabBulkActions({
         </Button>
       );
     }
+    if (!canEdit) return null;
     const returnBusy = acceptReturn.isPending || rejectReturn.isPending;
     return (
       <>
@@ -310,6 +319,7 @@ function TabBulkActions({
   }
 
   if (tab === "all") {
+    if (!canEdit) return null;
     return (
       <>
         <Button

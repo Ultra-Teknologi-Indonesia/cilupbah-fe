@@ -12,6 +12,7 @@ import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Can } from "@/components/auth/can";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { PageTitle } from "@/components/dashboard/page-title";
@@ -138,15 +139,17 @@ export function CadangDetail({ id }: { id: string }) {
         actions={
           <div className="flex items-center gap-2">
             {isActive && (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setCancelOpen(true)}
-                disabled={cancelMut.isPending}
-              >
-                <XCircleIcon className="mr-1.5 size-3.5" />
-                Batalkan
-              </Button>
+              <Can permission="edit-posisi-stok">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setCancelOpen(true)}
+                  disabled={cancelMut.isPending}
+                >
+                  <XCircleIcon className="mr-1.5 size-3.5" />
+                  Batalkan
+                </Button>
+              </Can>
             )}
           </div>
         }

@@ -21,6 +21,8 @@ import {
   useDeleteNaikkan,
 } from "@/hooks/master-produk/use-naikkan";
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
+import { usePermissions } from "@/hooks/auth/use-permissions";
+import { Can } from "@/components/auth/can";
 import type { RaiseProductStore } from "@/hooks/master-produk/use-naikkan";
 import { buildStoreColumns } from "./naikkan-store-columns";
 import { NaikkanTambahDialog } from "./naikkan-tambah-dialog";
@@ -56,9 +58,12 @@ export function NaikkanStoreView() {
     [stores],
   );
 
+  const { can } = usePermissions();
+  const canDelete = can("delete-produk-naik");
+
   const columns = React.useMemo(
-    () => buildStoreColumns((s) => setDeleteTarget(s)),
-    [],
+    () => buildStoreColumns((s) => setDeleteTarget(s), canDelete),
+    [canDelete],
   );
 
   const applySearch = () => {
@@ -96,15 +101,17 @@ export function NaikkanStoreView() {
           </Button>
         </div>
 
-        <Button
-          variant="primary"
-          size="sm"
-          className="h-9 gap-1.5"
-          onClick={() => setShowTambah(true)}
-        >
-          <PlusIcon className="size-4" />
-          Buat Naikkan
-        </Button>
+        <Can permission="create-produk-naik">
+          <Button
+            variant="primary"
+            size="sm"
+            className="h-9 gap-1.5"
+            onClick={() => setShowTambah(true)}
+          >
+            <PlusIcon className="size-4" />
+            Buat Naikkan
+          </Button>
+        </Can>
       </div>
 
       <div className="px-4 py-5 sm:px-5">

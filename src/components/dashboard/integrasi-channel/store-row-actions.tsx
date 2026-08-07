@@ -25,6 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 import type { ConnectedStore } from "@/types/channel";
 
 export function StoreRowActions({
@@ -39,6 +40,9 @@ export function StoreRowActions({
   onDisconnect: (store: ConnectedStore) => void;
 }) {
   const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const { can } = usePermissions();
+  const canEdit = can("edit-integrasi-channel");
+  const canDelete = can("delete-integrasi-channel");
 
   return (
     <>
@@ -53,22 +57,28 @@ export function StoreRowActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-44">
-          <DropdownMenuItem onSelect={() => onReauth(store)}>
-            <ExternalLinkIcon className="size-4 text-muted-foreground" />
-            Hubungkan Ulang
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => onRefresh(store)}>
-            <RefreshCwIcon className="size-4 text-muted-foreground" />
-            Refresh token
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant="destructive"
-            onSelect={() => setConfirmOpen(true)}
-          >
-            <Unlink2Icon className="size-4" />
-            Putuskan
-          </DropdownMenuItem>
+          {canEdit && (
+            <>
+              <DropdownMenuItem onSelect={() => onReauth(store)}>
+                <ExternalLinkIcon className="size-4 text-muted-foreground" />
+                Hubungkan Ulang
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => onRefresh(store)}>
+                <RefreshCwIcon className="size-4 text-muted-foreground" />
+                Refresh token
+              </DropdownMenuItem>
+            </>
+          )}
+          {canEdit && canDelete && <DropdownMenuSeparator />}
+          {canDelete && (
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={() => setConfirmOpen(true)}
+            >
+              <Unlink2Icon className="size-4" />
+              Putuskan
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 

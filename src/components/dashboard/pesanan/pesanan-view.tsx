@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ImportIcon, PlusIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Can } from "@/components/auth/can";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -170,10 +171,12 @@ export function PesananView() {
               </div>
             )}
           </div>
-          <div className="flex items-center gap-2">
-            {tab === "cancellation" && <ExportCancelDialog />}
-            <ExportOrdersDialog tab={tab} />
-          </div>
+          <Can permission="export-pesanan">
+            <div className="flex items-center gap-2">
+              {tab === "cancellation" && <ExportCancelDialog />}
+              <ExportOrdersDialog tab={tab} />
+            </div>
+          </Can>
         </div>
 
         <OrderFilters
@@ -187,18 +190,22 @@ export function PesananView() {
           tab={tab}
           trailing={
             <div className="flex items-center gap-2">
-              <Button asChild variant="outline" size="sm" className="h-9 rounded-full gap-1.5">
-                <Link href="/dashboard/pesanan/import">
-                  <ImportIcon className="size-4" />
-                  Import
-                </Link>
-              </Button>
-              <Button asChild variant="primary" size="sm" className="h-9 rounded-full gap-1.5">
-                <Link href="/dashboard/pesanan/tambah">
-                  <PlusIcon className="size-4" />
-                  Buat Pesanan
-                </Link>
-              </Button>
+              <Can permission="import-pesanan">
+                <Button asChild variant="outline" size="sm" className="h-9 rounded-full gap-1.5">
+                  <Link href="/dashboard/pesanan/import">
+                    <ImportIcon className="size-4" />
+                    Import
+                  </Link>
+                </Button>
+              </Can>
+              <Can permission="create-pesanan">
+                <Button asChild variant="primary" size="sm" className="h-9 rounded-full gap-1.5">
+                  <Link href="/dashboard/pesanan/tambah">
+                    <PlusIcon className="size-4" />
+                    Buat Pesanan
+                  </Link>
+                </Button>
+              </Can>
             </div>
           }
         />

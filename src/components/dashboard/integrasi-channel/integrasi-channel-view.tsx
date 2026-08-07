@@ -5,6 +5,7 @@ import { StoreIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Can } from "@/components/auth/can";
 import type {
   Channel,
   ChannelGroup as ChannelGroupType,
@@ -121,7 +122,9 @@ export function IntegrasiChannelView() {
 
   return (
     <div className="flex flex-col gap-6">
-      <GlobalSyncToggle />
+      <Can permission="edit-integrasi-channel">
+        <GlobalSyncToggle />
+      </Can>
 
       {groups.map((group) => (
         <ChannelGroup
@@ -148,12 +151,14 @@ export function IntegrasiChannelView() {
       )}
 
       {available.length > 0 && (
-        <ConnectMarketplacePanel
-          channels={available}
-          onConnect={onConnect}
-          onConnectWoo={() => setWooOpen(true)}
-          pendingCode={pendingCode}
-        />
+        <Can permission="create-integrasi-channel">
+          <ConnectMarketplacePanel
+            channels={available}
+            onConnect={onConnect}
+            onConnectWoo={() => setWooOpen(true)}
+            pendingCode={pendingCode}
+          />
+        </Can>
       )}
 
       <WooCommerceConnectDialog open={wooOpen} onOpenChange={setWooOpen} />

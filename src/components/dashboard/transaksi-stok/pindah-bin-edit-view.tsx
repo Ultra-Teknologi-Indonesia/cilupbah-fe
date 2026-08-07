@@ -6,6 +6,7 @@ import Link from "next/link";
 import { InfoIcon, Loader2Icon, PackageSearchIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Can } from "@/components/auth/can";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -185,12 +186,14 @@ export function PindahBinEditView({ id }: { id: string }) {
         <Button variant="outline" onClick={() => router.push(detailHref)}>
           Batal
         </Button>
-        <Button onClick={handleSave} disabled={!canSubmit}>
-          {updateMut.isPending && (
-            <Loader2Icon className="mr-2 size-4 animate-spin" />
-          )}
-          Simpan
-        </Button>
+        <Can permission="edit-pindah-bin">
+          <Button onClick={handleSave} disabled={!canSubmit}>
+            {updateMut.isPending && (
+              <Loader2Icon className="mr-2 size-4 animate-spin" />
+            )}
+            Simpan
+          </Button>
+        </Can>
       </FormFooter>
     </div>
   );

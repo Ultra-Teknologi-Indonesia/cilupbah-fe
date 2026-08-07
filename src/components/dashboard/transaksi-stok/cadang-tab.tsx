@@ -17,6 +17,7 @@ import {
   useCancelReservedStock,
 } from "@/hooks/transaksi-stok/use-reserved-stocks";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 import { exportCsv } from "@/lib/export-csv";
 import type {
   ReservedStock,
@@ -58,6 +59,8 @@ export function CadangTab() {
   const { data, isLoading, isFetching } = useReservedStocks(params);
   const { data: locData } = useLocations({ perPage: 100 });
   const cancelMut = useCancelReservedStock();
+  const { can } = usePermissions();
+  const canCancel = can("edit-posisi-stok");
 
   const items = useMemo(() => data?.items ?? [], [data]);
   const total = data?.meta?.total ?? 0;
@@ -139,7 +142,7 @@ export function CadangTab() {
         header: () => <div className="text-right">Aksi</div>,
         cell: ({ row }) => {
           const item = row.original;
-          if (item.status === "ACTIVE") {
+          if (item.status === "ACTIVE" && canCancel) {
             return (
               <div
                 className="flex items-center justify-end"
@@ -161,7 +164,7 @@ export function CadangTab() {
         },
       },
     ],
-    [],
+    [canCancel],
   );
 
   function handleCancel() {
