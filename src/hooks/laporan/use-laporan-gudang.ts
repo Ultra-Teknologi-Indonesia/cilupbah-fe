@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 
+import { useAsyncExport } from "@/hooks/laporan/use-async-export";
 import { LaporanGudangService } from "@/services/laporan/laporan-gudang.service";
 import type {
   OrderPerformanceParams,
@@ -24,15 +25,9 @@ function downloadBlob(blob: Blob, filename: string) {
 }
 
 export function useExportTransferReport() {
-  return useMutation({
-    mutationFn: async (params: TransferReportParams) => {
-      const blob = await LaporanGudangService.exportTransfer(params);
-      downloadBlob(
-        blob,
-        `laporan-transfer-${params.jenis}-${params.from}-${params.to}.xlsx`,
-      );
-    },
-  });
+  return useAsyncExport((params: TransferReportParams) =>
+    LaporanGudangService.exportTransferAsync(params),
+  );
 }
 
 export function useExportPicklistReport() {
@@ -54,57 +49,33 @@ export function useExportShipmentList() {
 }
 
 export function useExportOrderPerformance() {
-  return useMutation({
-    mutationFn: async (params: OrderPerformanceParams) => {
-      const blob = await LaporanGudangService.exportOrderPerformance(params);
-      downloadBlob(
-        blob,
-        `laporan-performa-${params.jenis}-${params.mode}-${params.from}-${params.to}.xlsx`,
-      );
-    },
-  });
+  return useAsyncExport((params: OrderPerformanceParams) =>
+    LaporanGudangService.exportOrderPerformanceAsync(params),
+  );
 }
 
 export function useExportPutawayPerformance() {
-  return useMutation({
-    mutationFn: async (params: PutawayPerformanceParams) => {
-      const blob = await LaporanGudangService.exportPutawayPerformance(params);
-      downloadBlob(
-        blob,
-        `laporan-performa-penempatan-${params.mode}-${params.from}-${params.to}.xlsx`,
-      );
-    },
-  });
+  return useAsyncExport((params: PutawayPerformanceParams) =>
+    LaporanGudangService.exportPutawayPerformanceAsync(params),
+  );
 }
 
 export function useExportPutawayList() {
-  return useMutation({
-    mutationFn: async (params: PutawayListParams) => {
-      const blob = await LaporanGudangService.exportPutawayList(params);
-      downloadBlob(blob, `daftar-penempatan-barang-${params.date}.xlsx`);
-    },
-  });
+  return useAsyncExport((params: PutawayListParams) =>
+    LaporanGudangService.exportPutawayListAsync(params),
+  );
 }
 
 export function useExportShipmentByCourier() {
-  return useMutation({
-    mutationFn: async (params: ShipmentByCourierParams) => {
-      const blob = await LaporanGudangService.exportShipmentByCourier(params);
-      downloadBlob(
-        blob,
-        `laporan-pengiriman-ekspedisi-${params.mode}-${params.from}-${params.to}.xlsx`,
-      );
-    },
-  });
+  return useAsyncExport((params: ShipmentByCourierParams) =>
+    LaporanGudangService.exportShipmentByCourierAsync(params),
+  );
 }
 
 export function useExportPicklistDetail() {
-  return useMutation({
-    mutationFn: async (params: PicklistDetailPdfParams) => {
-      const blob = await LaporanGudangService.exportPicklistDetail(params);
-      downloadBlob(blob, `detail-picklist-${params.picklist_id.slice(0, 8)}.xlsx`);
-    },
-  });
+  return useAsyncExport((params: PicklistDetailPdfParams) =>
+    LaporanGudangService.exportPicklistDetailAsync(params),
+  );
 }
 
 export function useShipmentFilterOptions(enabled = true) {

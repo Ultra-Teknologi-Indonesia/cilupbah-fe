@@ -1,4 +1,5 @@
 import { fetchBlobPost, fetchBlobRaw, fetchClient } from "@/lib/api-client";
+import type { ApiResponse } from "@/types/api.types";
 import type {
   PicklistDetailPdfParams,
   PicklistExportParams,
@@ -109,6 +110,88 @@ export const LaporanGudangService = {
 
   exportPicklistDetail: (params: PicklistDetailPdfParams): Promise<Blob> => {
     return fetchBlobPost(`/reports/wms/pick-list/xlsx`, params, XLSX_MIME);
+  },
+
+  // ---- Varian ASINKRON (antrean) untuk laporan berbasis memori ----
+  // Memicu job, mengembalikan export_id untuk di-polling (lihat useAsyncExport).
+  exportTransferAsync: async (
+    params: TransferReportParams,
+  ): Promise<string> => {
+    const sp = new URLSearchParams();
+    sp.set("jenis", params.jenis);
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    params.item_ids?.forEach((id) => sp.append("item_ids[]", id));
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      `/reports/wms/transfer/export/async?${sp.toString()}`,
+    );
+    return res.data.export_id;
+  },
+
+  exportOrderPerformanceAsync: async (
+    params: OrderPerformanceParams,
+  ): Promise<string> => {
+    const sp = new URLSearchParams();
+    sp.set("jenis", params.jenis);
+    sp.set("mode", params.mode);
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    params.location_ids?.forEach((id) => sp.append("location_ids[]", id));
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      `/reports/wms/order-performance/export/async?${sp.toString()}`,
+    );
+    return res.data.export_id;
+  },
+
+  exportPutawayPerformanceAsync: async (
+    params: PutawayPerformanceParams,
+  ): Promise<string> => {
+    const sp = new URLSearchParams();
+    sp.set("mode", params.mode);
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    params.location_ids?.forEach((id) => sp.append("location_ids[]", id));
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      `/reports/wms/putaway-performance/export/async?${sp.toString()}`,
+    );
+    return res.data.export_id;
+  },
+
+  exportPutawayListAsync: async (
+    params: PutawayListParams,
+  ): Promise<string> => {
+    const sp = new URLSearchParams();
+    sp.set("date", params.date);
+    sp.set("location_id", params.location_id);
+    params.putaway_ids?.forEach((id) => sp.append("putaway_ids[]", id));
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      `/reports/wms/putaway-list/export/async?${sp.toString()}`,
+    );
+    return res.data.export_id;
+  },
+
+  exportShipmentByCourierAsync: async (
+    params: ShipmentByCourierParams,
+  ): Promise<string> => {
+    const sp = new URLSearchParams();
+    sp.set("mode", params.mode);
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    params.location_ids?.forEach((id) => sp.append("location_ids[]", id));
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      `/reports/wms/shipment-by-courier/export/async?${sp.toString()}`,
+    );
+    return res.data.export_id;
+  },
+
+  exportPicklistDetailAsync: async (
+    params: PicklistDetailPdfParams,
+  ): Promise<string> => {
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      `/reports/wms/pick-list/xlsx/async`,
+      { method: "POST", data: params },
+    );
+    return res.data.export_id;
   },
 
   putawayListPdf: (params: PutawayListParams): Promise<Blob> => {

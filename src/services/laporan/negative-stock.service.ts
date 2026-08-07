@@ -1,5 +1,5 @@
 import { fetchBlobRaw, fetchClient } from "@/lib/api-client";
-import type { ApiPaginated } from "@/types/api.types";
+import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type {
   NegativeStockParams,
   NegativeStockRow,
@@ -32,5 +32,14 @@ export const NegativeStockService = {
       `/reports/negative-stock/export?${sp.toString()}`,
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
+  },
+
+  // Varian asinkron: memicu job antrean, mengembalikan export_id untuk polling.
+  exportAsync: async (params: NegativeStockParams = {}): Promise<string> => {
+    const sp = buildQuery(params);
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      `/reports/negative-stock/export/async?${sp.toString()}`,
+    );
+    return res.data.export_id;
   },
 };

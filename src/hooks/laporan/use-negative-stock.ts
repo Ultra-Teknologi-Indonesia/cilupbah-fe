@@ -1,7 +1,8 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
+import { useAsyncExport } from "@/hooks/laporan/use-async-export";
 import { NegativeStockService } from "@/services/laporan/negative-stock.service";
 import type { NegativeStockParams } from "@/types/laporan/negative-stock";
 
@@ -18,18 +19,7 @@ export function useNegativeStock(params: NegativeStockParams, enabled = true) {
 }
 
 export function useNegativeStockExport() {
-  return useMutation({
-    mutationFn: async (params: NegativeStockParams) => {
-      const blob = await NegativeStockService.export(params);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      const stamp = new Date().toISOString().slice(0, 10);
-      const from = params.from ?? "semua";
-      const to = params.to ?? stamp;
-      a.download = `riwayat-stok-minus-${from}-${to}.xlsx`;
-      a.click();
-      URL.revokeObjectURL(url);
-    },
-  });
+  return useAsyncExport((params: NegativeStockParams) =>
+    NegativeStockService.exportAsync(params),
+  );
 }
