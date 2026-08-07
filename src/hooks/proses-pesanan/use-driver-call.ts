@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { apiError } from "@/lib/toast";
+import { fulfillmentKeys } from "@/hooks/proses-pesanan/use-fulfillment";
 import { OutboundService } from "@/services/proses-pesanan/outbound.service";
 
 type LabelResult = {
@@ -87,8 +88,8 @@ export function usePrintWithDriverCall() {
         );
       }
 
-      qc.invalidateQueries({ queryKey: ["fulfillment"] });
-      qc.invalidateQueries({ queryKey: ["orders"] });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.all });
+      qc.invalidateQueries({ queryKey: ["pesanan"] });
     },
     onError: (err) => {
       apiError(err, "Panggilan driver marketplace gagal.");
@@ -103,8 +104,8 @@ export function useRetryDriverCall() {
     mutationFn: (orderId: string) => OutboundService.retryDriverCall(orderId),
     onSuccess: () => {
       toast.success("Panggilan driver Shopee dicoba ulang.");
-      qc.invalidateQueries({ queryKey: ["fulfillment"] });
-      qc.invalidateQueries({ queryKey: ["orders"] });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.all });
+      qc.invalidateQueries({ queryKey: ["pesanan"] });
     },
     onError: (err) => {
       apiError(err, "Gagal retry panggilan driver.");
@@ -131,8 +132,7 @@ export function useRefreshShipmentTracking() {
       qc.invalidateQueries({
         queryKey: ["shipment-tracking-events", shipmentId],
       });
-      qc.invalidateQueries({ queryKey: ["fulfillment"] });
-      qc.invalidateQueries({ queryKey: ["shipments"] });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.all });
     },
     onError: (err) => {
       apiError(err, "Gagal memperbarui tracking driver.");
@@ -166,9 +166,8 @@ export function useCallInstantDriverBulk() {
           `${successCount} sukses, ${failedCount} gagal — cek detail per pesanan.`,
         );
       }
-      qc.invalidateQueries({ queryKey: ["fulfillment"] });
-      qc.invalidateQueries({ queryKey: ["orders"] });
-      qc.invalidateQueries({ queryKey: ["shipments"] });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.all });
+      qc.invalidateQueries({ queryKey: ["pesanan"] });
     },
     onError: (err) => {
       apiError(err, "Gagal memanggil kurir instan.");

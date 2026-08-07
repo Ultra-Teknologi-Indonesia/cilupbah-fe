@@ -12,7 +12,7 @@ export function useCreateManualOrder() {
     mutationFn: ManualOrderService.create,
     onSuccess: () => {
       toast.success("Pesanan berhasil dibuat");
-      qc.invalidateQueries({ queryKey: ["order"] });
+      qc.invalidateQueries({ queryKey: ["pesanan"] });
     },
     onError: (err) => apiError(err, "Gagal membuat pesanan"),
   });

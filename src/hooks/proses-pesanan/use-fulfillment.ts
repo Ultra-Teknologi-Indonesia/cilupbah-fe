@@ -1035,8 +1035,7 @@ export function useUnassignPicklist(picklistId: string) {
           ? "Tugas picking berhasil dialihkan"
           : "Assignment picking dibatalkan",
       );
-      qc.invalidateQueries({ queryKey: ["fulfillment"] });
-      qc.invalidateQueries({ queryKey: ["picklists"] });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.all });
     },
     onError: (err) => apiError(err, "Gagal mengalihkan tugas picking"),
   });
@@ -1049,8 +1048,7 @@ export function useResetPicklistAssignment(picklistId: string) {
       OutboundService.resetPicklistAssignment(picklistId, payload),
     onSuccess: () => {
       toast.success("Picklist berhasil di-reset, alokasi pick dikembalikan");
-      qc.invalidateQueries({ queryKey: ["fulfillment"] });
-      qc.invalidateQueries({ queryKey: ["picklists"] });
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.all });
       invalidateStockViews(qc);
     },
     onError: (err) => apiError(err, "Gagal reset picklist"),

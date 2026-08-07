@@ -39,7 +39,6 @@ function useInvalidateChannelProducts() {
   const qc = useQueryClient();
   return React.useCallback(() => {
     qc.invalidateQueries({ queryKey: ["master-produk", "channel-products"] });
-    qc.invalidateQueries({ queryKey: ["channel-monitor"] });
   }, [qc]);
 }
 
