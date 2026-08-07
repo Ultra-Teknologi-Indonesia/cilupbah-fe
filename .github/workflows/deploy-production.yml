@@ -91,11 +91,13 @@ jobs:
             # Cleanup image lama — sisakan HANYA yang sedang jalan (KEEP=1).
             # Ditaruh SETELAH up -d sukses; `set -e` menghentikan script di atas
             # kalau deploy gagal, jadi image lama tetap utuh untuk rollback.
-            # `prune -af` membuang image yang tak dirujuk container manapun —
-            # Docker menjamin image yang sedang jalan tidak ikut terhapus.
+            # SCOPED ke repo ini saja (VPS bisa dipakai bersama app lain), jadi
+            # hindari `prune -af` global. `docker rmi` gagal-aman untuk image yang
+            # sedang dipakai container, jadi yang jalan selamat.
             # Rollback = jalankan ulang workflow ini dengan `version` lama
             # (image ditarik ulang dari GHCR).
-            docker image prune -af
-            docker builder prune -af
+            docker images "${IMAGE%:*}" --format '{{.Repository}}:{{.Tag}}' \
+              | grep -v ':<none>$' | xargs -r -n1 docker rmi 2>/dev/null || true
+            docker image prune -f
 
             echo "Production deployment success: $VERSION"

@@ -231,10 +231,13 @@ jobs:
             # 4. Cleanup image lama — sisakan HANYA yang sedang jalan (KEEP=1).
             # Ditaruh SETELAH up -d sukses; `set -e` sudah menghentikan script
             # di atas kalau deploy gagal, jadi image lama tetap utuh untuk rollback.
-            # `prune -af` menghapus image yang tak dirujuk container manapun —
-            # Docker menjamin image yang sedang jalan tidak ikut terhapus.
+            # SCOPED ke repo ini saja — VPS dipakai bersama app lain (Gitea dll),
+            # jadi JANGAN `prune -af` global. `docker rmi` gagal-aman untuk image
+            # yang sedang dipakai container, jadi yang jalan selamat.
+            # `image prune -f` (tanpa -a) cuma buang layer dangling (<none>).
             # Rollback ditangani deploy-production.yml (re-pull versi dari GHCR).
-            docker image prune -af
-            docker builder prune -af
+            docker images "${{ env.IMAGE_BASE }}" --format '{{.Repository}}:{{.Tag}}' \
+              | grep -v ':<none>$' | xargs -r -n1 docker rmi 2>/dev/null || true
+            docker image prune -f
 
             echo "Deployment Success"
