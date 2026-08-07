@@ -85,8 +85,7 @@ export function BuatPenempatanManualDialog({
     },
     onSuccess: (data) => {
       toast.success("Dokumen penempatan berhasil dibuat");
-      queryClient.invalidateQueries({ queryKey: ["putaways"] });
-      queryClient.invalidateQueries({ queryKey: ["inbounds"] });
+      queryClient.invalidateQueries({ queryKey: ["putaway"] });
       queryClient.invalidateQueries({ queryKey: ["inbound"] });
       queryClient.invalidateQueries({ queryKey: ["purchase-order"] });
       onOpenChange(false);

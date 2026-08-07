@@ -110,8 +110,15 @@ export async function proxy(request: NextRequest) {
 
   if (isGuestRoute && hasLiveSession) {
     const callbackUrl = request.nextUrl.searchParams.get("callbackUrl");
+    // Hanya izinkan path relatif internal. Tolak protocol-relative ("//evil.com")
+    // dan "/\evil.com" yang di-resolve new URL() menjadi origin eksternal.
     const dest =
-      callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : "/dashboard";
+      callbackUrl &&
+      callbackUrl.startsWith("/") &&
+      !callbackUrl.startsWith("//") &&
+      !callbackUrl.startsWith("/\\")
+        ? callbackUrl
+        : "/dashboard";
     return NextResponse.redirect(new URL(dest, request.url));
   }
 

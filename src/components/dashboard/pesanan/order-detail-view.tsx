@@ -32,6 +32,7 @@ import {
   BanIcon,
   MoreHorizontalIcon,
   BanknoteIcon,
+  TriangleAlertIcon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -610,7 +611,7 @@ function CourierPickupCard({
 }
 
 export function OrderDetailView({ orderId }: { orderId: string }) {
-  const { data, isLoading } = useOrder(orderId);
+  const { data, isLoading, isError, error, refetch } = useOrder(orderId);
   const setPaid = useSetPaid();
   const _markComplete = useMarkComplete();
   const deleteItem = useDeleteOrderItem();
@@ -670,6 +671,24 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           <Skeleton className="h-80 w-full" />
         </div>
       </div>
+    );
+  }
+
+  // Bedakan error transien (500/jaringan) dari benar-benar tidak ditemukan (404):
+  // yang transien ditawari "Coba lagi", bukan disamarkan sebagai pesanan hilang.
+  if (isError && (error as { status?: number } | null)?.status !== 404) {
+    return (
+      <EmptyState
+        icon={TriangleAlertIcon}
+        title="Gagal memuat pesanan."
+        description="Terjadi gangguan saat mengambil data pesanan."
+        className="py-20"
+        action={
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            Coba lagi
+          </Button>
+        }
+      />
     );
   }
 

@@ -80,7 +80,10 @@ export function LoginForm({ className }: { className?: string }) {
           "callbackUrl",
         );
         router.push(
-          callbackUrl && callbackUrl.startsWith("/")
+          callbackUrl &&
+            callbackUrl.startsWith("/") &&
+            !callbackUrl.startsWith("//") &&
+            !callbackUrl.startsWith("/\\")
             ? callbackUrl
             : "/dashboard",
         );
