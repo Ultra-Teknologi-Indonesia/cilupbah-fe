@@ -158,7 +158,7 @@ export function ContactBuyerDialog({
               <RadioGroup
                 value={decision}
                 onValueChange={(v) => setDecision(v as CustomerDecision)}
-                className="grid grid-cols-3 gap-2"
+                className="grid grid-cols-1 gap-2 sm:grid-cols-3"
               >
                 {DECISION_OPTIONS.map(([value, label]) => (
                   <label

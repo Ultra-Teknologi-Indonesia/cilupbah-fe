@@ -203,7 +203,7 @@ export function SalesReturnFormPage() {
               {lines.map((l) => (
                 <div
                   key={l.itemId}
-                  className="grid grid-cols-[1fr_170px_90px_auto] items-center gap-3 rounded-lg border border-border bg-muted/20 px-3 py-2.5"
+                  className="grid grid-cols-1 gap-3 rounded-lg border border-border bg-muted/20 px-3 py-2.5 sm:grid-cols-[1fr_170px_90px_auto] sm:items-center"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">{l.name}</p>
@@ -211,35 +211,37 @@ export function SalesReturnFormPage() {
                       {l.sku}
                     </p>
                   </div>
-                  <Combobox
-                    options={CONDITION_OPTIONS}
-                    value={l.condition}
-                    onChange={(v) =>
-                      updateLine(l.itemId, { condition: v ?? "GOOD" })
-                    }
-                    placeholder="Kondisi"
-                    searchPlaceholder="Kondisi"
-                    className="h-9"
-                  />
-                  <Input
-                    type="number"
-                    min={1}
-                    value={l.qty}
-                    onChange={(e) =>
-                      updateLine(l.itemId, { qty: e.target.value })
-                    }
-                    placeholder="Qty"
-                    className="h-9"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => removeLine(l.itemId)}
-                    aria-label="Hapus"
-                    className="text-destructive"
-                  >
-                    <Trash2Icon className="size-4" />
-                  </Button>
+                  <div className="flex items-center gap-3 sm:contents">
+                    <Combobox
+                      options={CONDITION_OPTIONS}
+                      value={l.condition}
+                      onChange={(v) =>
+                        updateLine(l.itemId, { condition: v ?? "GOOD" })
+                      }
+                      placeholder="Kondisi"
+                      searchPlaceholder="Kondisi"
+                      className="h-9 flex-1 sm:flex-initial"
+                    />
+                    <Input
+                      type="number"
+                      min={1}
+                      value={l.qty}
+                      onChange={(e) =>
+                        updateLine(l.itemId, { qty: e.target.value })
+                      }
+                      placeholder="Qty"
+                      className="h-9 w-20 sm:w-auto"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => removeLine(l.itemId)}
+                      aria-label="Hapus"
+                      className="text-destructive"
+                    >
+                      <Trash2Icon className="size-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
               <p className="text-xs text-muted-foreground">

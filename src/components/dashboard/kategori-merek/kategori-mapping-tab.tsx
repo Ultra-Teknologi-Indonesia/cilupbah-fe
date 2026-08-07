@@ -87,8 +87,8 @@ export function KategoriMappingTab({ search }: { search: string }) {
       ) : (
         <div className="overflow-hidden">
           <Table
-            className="table-fixed w-full"
-            containerClassName="overflow-x-hidden"
+            className="table-fixed w-full min-w-[560px]"
+            containerClassName="overflow-x-auto"
           >
             <colgroup>
               <col className="w-[34%]" />
