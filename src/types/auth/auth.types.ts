@@ -24,6 +24,17 @@ export interface AuthData {
 
 export type LoginResponse = ApiResponse<AuthData>;
 
+export type LoginServerError = {
+  status?: number;
+  title?: string | null;
+  message?: string | null;
+  errors?: Record<string, string[] | string> | null;
+};
+
+export type LoginServerResult =
+  | { ok: true; user: { name: string | null } }
+  | { ok: false; error: LoginServerError };
+
 export interface UpdateProfilePayload {
   name: string;
   nik?: string | null;

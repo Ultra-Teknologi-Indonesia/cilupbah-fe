@@ -4,8 +4,6 @@ import type {
   ChangePasswordPayload,
   ForgotPasswordPayload,
   LoginHistoryEntry,
-  LoginRequest,
-  LoginResponse,
   MediaUploadResult,
   MyProfile,
   ResetPasswordPayload,
@@ -24,13 +22,6 @@ export interface HistoryParams {
 }
 
 export const AuthService = {
-  login: async (credentials: LoginRequest): Promise<LoginResponse> => {
-    return fetchClient<LoginResponse>("/auth/login", {
-      method: "POST",
-      data: credentials,
-    });
-  },
-
   logout: async (): Promise<void> => {
     await fetchClient("/auth/logout", { method: "POST" });
   },

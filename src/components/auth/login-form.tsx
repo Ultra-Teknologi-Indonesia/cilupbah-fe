@@ -10,7 +10,6 @@ import { ArrowRight, Loader2, Mail } from "lucide-react";
 
 import { useLogin } from "@/hooks/auth/use-auth";
 import { resetIdleLock } from "@/hooks/auth/use-idle-lock";
-import { setLoginSession } from "@/app/actions/auth.actions";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/sonner";
 import { apiError } from "@/lib/toast";
@@ -60,20 +59,11 @@ export function LoginForm({ className }: { className?: string }) {
 
   const onSubmit = (values: LoginValues) =>
     mutation.mutate(values, {
-      onSuccess: async (res) => {
-
+      onSuccess: (user) => {
         resetIdleLock();
-        if (res.data?.access_token && res.data?.refresh_token) {
-          await setLoginSession({
-            access_token: res.data.access_token,
-            refresh_token: res.data.refresh_token,
-            expires_in: res.data.expires_in,
-            refresh_expires_in: res.data.refresh_expires_in,
-          });
-        }
         toast.success("Berhasil masuk", {
-          description: res.data?.user?.name
-            ? `Selamat datang kembali, ${res.data.user.name}.`
+          description: user?.name
+            ? `Selamat datang kembali, ${user.name}.`
             : "Mengalihkan ke dashboard…",
         });
         const callbackUrl = new URLSearchParams(window.location.search).get(

@@ -3,7 +3,10 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { AuthService } from "@/services/auth/auth.service";
-import { clearLoginSession } from "@/app/actions/auth.actions";
+import {
+  clearLoginSession,
+  loginServerSide,
+} from "@/app/actions/auth.actions";
 import type {
   ForgotPasswordPayload,
   LoginRequest,
@@ -22,7 +25,11 @@ export function useMe() {
 
 export function useLogin() {
   return useMutation({
-    mutationFn: (values: LoginRequest) => AuthService.login(values),
+    mutationFn: async (values: LoginRequest) => {
+      const result = await loginServerSide(values);
+      if (!result.ok) throw result.error;
+      return result.user;
+    },
   });
 }
 
