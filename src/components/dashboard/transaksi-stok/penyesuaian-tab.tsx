@@ -25,9 +25,9 @@ import {
   useStockAdjustments,
   useDeleteStockAdjustment,
   useBulkDeleteStockAdjustment,
+  useExportStockAdjustments,
 } from "@/hooks/transaksi-stok/use-stock-adjustments";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
-import { StockAdjustmentService } from "@/services/transaksi-stok/stock-adjustment.service";
 import type {
   StockAdjustment,
   StockAdjustmentListParams,
@@ -227,33 +227,20 @@ export function PenyesuaianTab() {
     });
   }
 
-  const [isExportLoading, setIsExportLoading] = useState(false);
+  const exportMut = useExportStockAdjustments();
 
-  const handleExport = useCallback(async () => {
-    setIsExportLoading(true);
-    try {
-      const params: StockAdjustmentListParams = {};
-      if (list.filters.location_id) params["filter[location_id]"] = list.filters.location_id;
-      if (list.filters.date_from) params["filter[date_from]"] = list.filters.date_from;
-      if (list.filters.date_to) params["filter[date_to]"] = list.filters.date_to;
-      if (list.search) params.search = list.search;
+  const handleExport = useCallback(() => {
+    const params: StockAdjustmentListParams = {};
+    if (list.filters.location_id) params["filter[location_id]"] = list.filters.location_id;
+    if (list.filters.date_from) params["filter[date_from]"] = list.filters.date_from;
+    if (list.filters.date_to) params["filter[date_to]"] = list.filters.date_to;
+    if (list.search) params.search = list.search;
 
-      const blob = await StockAdjustmentService.exportXlsx(params);
-      const filename = `koreksi-stok-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}.xlsx`;
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success(`${filename} berhasil diunduh`);
-    } catch (err) {
-      apiError(err, "Gagal mengunduh Excel.");
-    } finally {
-      setIsExportLoading(false);
-    }
-  }, [list.filters, list.search]);
-
+    exportMut.mutate(params, {
+      onSuccess: (filename) => toast.success(`${filename} berhasil diunduh`),
+      onError: (err) => apiError(err, "Gagal mengunduh Excel."),
+    });
+  }, [list.filters, list.search, exportMut]);
 
   return (
     <div className="flex flex-col gap-4">

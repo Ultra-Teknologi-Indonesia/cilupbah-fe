@@ -985,7 +985,7 @@ function PlacementRow({
     }
     if (item.recommended_bin) return item.recommended_bin.id;
     return null;
-    // Sengaja dihitung sekali — hanya dipakai sebagai nilai awal useState.
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -1016,12 +1016,10 @@ function PlacementRow({
     if (focusTarget === "qty") {
       setTimeout(() => qtyInputRef.current?.focus(), 50);
     }
-    // Fokus sekali saat mount.
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Ref dibaca sekali saat render untuk perbandingan qty pada tombol Simpan;
-  // aman karena setiap save memicu re-render (qty/hasSaved berubah).
   // eslint-disable-next-line react-hooks/refs
   const lastSaved = lastSavedQty.current;
 

@@ -17,7 +17,7 @@ import {
   useProductUploadHistories,
   useReuploadHistory,
 } from "@/hooks/master-produk/use-product-tabs";
-// TODO(hooks): migrasi ke hook react-query (legacy)
+
 // eslint-disable-next-line no-restricted-imports
 import type { UploadHistoryRow } from "@/services/master-produk/product-tabs.service";
 import type { ColumnDef } from "@tanstack/react-table";

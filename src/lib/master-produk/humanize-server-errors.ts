@@ -1,10 +1,4 @@
-/**
- * Ubah error validasi backend (keyed by path seperti "variants.0.sku") menjadi:
- * - alertItems: daftar { label human-readable Bahasa Indonesia, message } untuk
- *   alert ringkasan di atas form.
- * - fieldErrors: pemetaan ke path field react-hook-form untuk menandai field
- *   (border merah + bg merah lembut + pesan inline).
- */
+
 
 const BASE_LABELS: Record<string, string> = {
   name: "Nama Produk",
@@ -70,7 +64,6 @@ export function humanizeServerErrorKey(key: string): string {
   return key.replace(/_/g, " ").replace(/\./g, " › ");
 }
 
-/** Petakan key server -> path field react-hook-form (null bila tak ada field). */
 function mapToRhfPath(key: string, singleVariant: boolean): string | null {
   const direct: Record<string, string> = {
     name: "name",
@@ -87,7 +80,6 @@ function mapToRhfPath(key: string, singleVariant: boolean): string | null {
     const i = parts[1];
     const leaf = parts[2];
 
-    // Produk 1 varian: server mengirim variants.0.* -> field top-level di form.
     if (singleVariant && i === "0") {
       if (leaf === "sku") return "sku";
       if (leaf === "sell_price") return "sellPrice";

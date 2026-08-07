@@ -67,7 +67,9 @@ function collectRanges(code, filename) {
     if (jsx && ts.isJsxExpression(node) && !node.expression) {
       const s = node.getStart(sf);
       const e = node.getEnd();
-      if (/\/[*/]/.test(code.slice(s, e))) {
+      const raw = code.slice(s, e);
+      // Pertahankan directive yang dibungkus JSX, mis. `{/* eslint-disable-next-line ... */}`.
+      if (/\/[*/]/.test(raw) && !isDirective(raw.replace(/^\{|\}$/g, ""))) {
         extra.push({ pos: s, end: e });
         return;
       }

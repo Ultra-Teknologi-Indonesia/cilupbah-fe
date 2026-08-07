@@ -34,7 +34,7 @@ import {
   ProductPickerDialog,
   type PickedProduct,
 } from "@/components/dashboard/transaksi-pembelian/product-picker-dialog";
-// TODO(hooks): aksi imperatif one-off, migrasi ke hook react-query nanti (legacy)
+
 // eslint-disable-next-line no-restricted-imports
 import { InventoryStockService } from "@/services/persediaan/inventory.service";
 import { cn } from "@/lib/utils";

@@ -47,6 +47,14 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  // Script Node (CommonJS) di luar bundel Next — `require()` memang idiomatik
+  // di sini, jadi larangan no-require-imports (khusus TS) tidak berlaku.
+  {
+    files: ["scripts/**/*.{js,cjs}"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

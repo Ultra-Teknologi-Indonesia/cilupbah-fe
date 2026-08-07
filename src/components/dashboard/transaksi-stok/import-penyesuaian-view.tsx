@@ -34,7 +34,7 @@ import {
   usePreviewStockAdjustmentImport,
   useConfirmStockAdjustmentImport,
 } from "@/hooks/transaksi-stok/use-stock-adjustment-import";
-// TODO(hooks): aksi imperatif one-off, migrasi ke hook react-query nanti (legacy)
+
 // eslint-disable-next-line no-restricted-imports
 import { StockAdjustmentImportService } from "@/services/transaksi-stok/stock-adjustment-import.service";
 import type {

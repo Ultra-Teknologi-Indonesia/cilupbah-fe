@@ -932,8 +932,7 @@ function MoveSkuDialog({
       .filter((b) => {
         if (b.id === sourceBinId || b.isInbound) return false;
         const occupied = (b.skus?.length ?? 0) > 0;
-        // Rak kosong selalu boleh. Rak berisi hanya boleh kalau rak itu
-        // mengizinkan multi-SKU (aturan dari pola kode rak di BE).
+
         return b.allowsMultiSku || !occupied;
       })
       .map((b) => {

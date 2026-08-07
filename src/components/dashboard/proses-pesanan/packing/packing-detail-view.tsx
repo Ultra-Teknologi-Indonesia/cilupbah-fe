@@ -281,8 +281,7 @@ export function PackingDetailView({ id }: { id: string }) {
         onError: () => {},
       });
     }
-    // Sengaja hanya bergantung pada pk?.id: start sekali per packlist.
-    // Menambah pk/startPacklist akan memicu mutate berulang selama status masih DRAFT.
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pk?.id]);
 

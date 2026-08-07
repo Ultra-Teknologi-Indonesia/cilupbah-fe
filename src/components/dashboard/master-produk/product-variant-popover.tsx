@@ -40,7 +40,7 @@ export function ProductVariantPopover({ product }: { product: Product }) {
   React.useEffect(() => cancelClose, []);
 
   return (
-    <Popover modal={true} open={open} onOpenChange={setOpen}>
+    <Popover modal={false} open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
           type="button"

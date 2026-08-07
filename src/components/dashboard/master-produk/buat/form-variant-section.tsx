@@ -200,8 +200,7 @@ export function FormVariantSection({
       };
     });
     setValue("variants", next, { shouldDirty: true });
-    // variationTypes sengaja diwakili typesKey (JSON.stringify) agar efek hanya jalan saat
-    // ISI berubah, bukan saat identitas array watch() berubah tiap render.
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [typesKey, baseSku, getValues, setValue]);
 

@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeftIcon,
   Loader2Icon,
   PackageSearchIcon,
   PlusIcon,

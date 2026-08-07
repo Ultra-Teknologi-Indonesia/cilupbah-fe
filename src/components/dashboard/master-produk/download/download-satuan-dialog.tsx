@@ -190,7 +190,6 @@ export function DownloadSatuanDialog({
   );
   const [pending, setPending] = React.useState<Record<string, boolean>>({});
 
-  // Cursor per toko (offset channel) untuk infinite scroll.
   const cursorsRef = React.useRef<
     Record<string, { channel: string; offset: number; done: boolean }>
   >({});

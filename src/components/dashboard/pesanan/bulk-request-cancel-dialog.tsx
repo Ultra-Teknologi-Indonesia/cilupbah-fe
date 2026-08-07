@@ -84,9 +84,6 @@ export function BulkRequestCancelDialog({
   const hasError = "error" in analysis;
   const marketplace = hasError ? undefined : analysis.source;
 
-  // Reasons diambil dari BE per-order (sumber kebenaran tunggal). Karena semua
-  // order eligible dijamin seragam (channel + toko + grup status), reasons order
-  // pertama berlaku untuk seluruh batch.
   const reasonsQuery = useOrderCancelReasons(
     hasError ? undefined : eligible[0]?.id,
     { enabled: open && !hasError },

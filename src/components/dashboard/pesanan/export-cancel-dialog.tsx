@@ -15,7 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-// TODO(hooks): aksi imperatif one-off, migrasi ke hook react-query nanti (legacy)
+
 // eslint-disable-next-line no-restricted-imports
 import { OrderService } from "@/services/pesanan/order.service";
 

@@ -81,7 +81,7 @@ export function DownloadMassalDialog({
       onOpenChange(false);
       onQueued?.();
     } catch {
-      // Error toast ditangani oleh onError hook; biarkan dialog terbuka.
+
     }
   };
 

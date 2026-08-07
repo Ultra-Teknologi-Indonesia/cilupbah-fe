@@ -29,7 +29,7 @@ export default function Home() {
 
   return (
     <main className="relative flex min-h-[100dvh] flex-col overflow-hidden bg-background font-sans">
-      {/* Ethereal background glow — single brand accent, subtle */}
+
       <div
         aria-hidden
         className="pointer-events-none absolute -top-40 left-1/2 size-[42rem] -translate-x-1/2 rounded-full bg-primary/10 blur-[140px]"
@@ -39,7 +39,6 @@ export default function Home() {
         className="pointer-events-none absolute -bottom-52 -left-32 size-[32rem] rounded-full bg-primary/[0.05] blur-[130px]"
       />
 
-      {/* Minimal brand mark (not a nav) */}
       <div className="relative z-10 mx-auto flex w-full max-w-7xl items-center gap-2.5 px-6 pt-8 sm:px-10">
         <Image
           src="/logo-mark.png"
@@ -54,7 +53,6 @@ export default function Home() {
         </span>
       </div>
 
-      {/* Hero — the single section */}
       <section className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center px-5 pb-16 text-center sm:px-6 sm:pb-24">
         <motion.div
           variants={container}

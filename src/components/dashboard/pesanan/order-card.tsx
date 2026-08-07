@@ -269,8 +269,6 @@ export function OrderActions({
     acceptReturn.isPending ||
     rejectReturn.isPending;
 
-  // Order yang pembatalannya sedang diproses marketplace ditahan: tampilkan
-  // indikator, bukan aksi proses/kirim. Tab channel-cancel punya UI-nya sendiri.
   if (
     order.channel_cancel_status === "pending" &&
     !order.is_canceled &&
@@ -990,7 +988,6 @@ export function OrderCard({
     return Array.from(map.values());
   }, [order.items]);
 
-  // Instan mendesak: batas kirim < 1 jam atau sudah terlambat.
   const shipDeadline = order.ship_by_date ? new Date(order.ship_by_date) : null;
   // eslint-disable-next-line react-hooks/purity
   const now = Date.now();

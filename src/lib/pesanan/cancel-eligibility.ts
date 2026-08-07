@@ -34,8 +34,6 @@ export function canRequestChannelCancel(order: CancelEligibleOrder): boolean {
     return true;
   }
 
-  // channel_status tak dikenal (UNKNOWN/kosong, mis. sync belum isi) -> andalkan
-  // status LOKAL pra-kirim; channel API tetap otoritas final saat submit.
   if ((!cs || cs === "UNKNOWN") && PRE_SHIP_LOCAL.includes(order.status)) {
     return true;
   }
@@ -43,10 +41,6 @@ export function canRequestChannelCancel(order: CancelEligibleOrder): boolean {
   return false;
 }
 
-/**
- * Kelompok status TikTok untuk pemilihan set alasan (samakan dengan BE).
- * Bila status mentah kosong, pakai is_paid: paid -> ON_HOLD (paid set), else unpaid.
- */
 export function tiktokStatusGroup(
   raw: string | null,
   isPaid = false,

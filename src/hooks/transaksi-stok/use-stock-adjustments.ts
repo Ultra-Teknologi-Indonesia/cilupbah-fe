@@ -1,5 +1,5 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import {
   StockAdjustmentService,
@@ -54,6 +54,26 @@ export const useDeleteStockAdjustment = createMutationHook({
   errorMessage: "Gagal menghapus koreksi stok",
   invalidates: () => [stockAdjustmentKeys.lists, ...STOCK_VIEW_KEYS],
 });
+
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export function useExportStockAdjustments() {
+  return useMutation({
+    mutationFn: async (params: StockAdjustmentListParams = {}) => {
+      const blob = await StockAdjustmentService.exportXlsx(params);
+      const filename = `koreksi-stok-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}.xlsx`;
+      downloadBlob(blob, filename);
+      return filename;
+    },
+  });
+}
 
 export const useBulkDeleteStockAdjustment = createMutationHook<
   string[],

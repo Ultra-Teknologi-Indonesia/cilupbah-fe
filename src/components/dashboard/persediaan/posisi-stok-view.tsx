@@ -552,7 +552,6 @@ export function PosisiStokView() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelected(new Set());
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectAllAcross(false);
   }, [params]);
 
@@ -571,7 +570,6 @@ export function PosisiStokView() {
     allPageSelected && meta.total > items.length && !hasActiveFilter;
 
   if (!allPageSelected && selectAllAcross) {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectAllAcross(false);
   }
 

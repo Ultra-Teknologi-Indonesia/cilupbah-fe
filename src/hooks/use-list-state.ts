@@ -25,21 +25,11 @@ export function useListState<F extends object>(
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Selalu simpan searchParams terbaru di ref agar `writeUrl` bisa membaca URL
-  // saat ini TANPA menjadikan searchParams sebagai dependency-nya. Tanpa ini,
-  // writeUrl (dan semua callback turunan: setPage/resetPage/…) berganti
-  // identitas tiap URL berubah, sehingga efek yang bergantung padanya (mis.
-  // debounce search) ter-refire saat navigasi & mereset halaman ke 1.
   const searchParamsRef = useRef(searchParams);
   useEffect(() => {
     searchParamsRef.current = searchParams;
   }, [searchParams]);
 
-  // Nilai search terakhir yang KITA tulis ke URL (via debounce writeUrl). Dipakai
-  // untuk membedakan echo tulisan sendiri dari navigasi eksternal (back/forward).
-  // Tanpa ini, echo URL yang telat (router.replace itu async & search di-debounce)
-  // menimpa ketikan terbaru: ketik "deni" lalu lanjut "denim jeans" → saat URL
-  // "deni" akhirnya sampai, input balik jadi "deni".
   const lastPushedSearchRef = useRef<string>(
     urlSync ? (searchParams.get(`${ns}search`) ?? "").trim() : "",
   );
@@ -79,8 +69,7 @@ export function useListState<F extends object>(
       next[k] = parsed;
     }
     return next as F;
-    // emptyFilters diasumsikan konstanta stabil dari pemanggil (mis. EMPTY_FILTERS module-level);
-    // menambahkannya akan memecah memoisasi untuk pemanggil objek inline dan berisiko loop URL-state.
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterUrlSync, searchParams, filterKeyFor]);
 
@@ -118,9 +107,7 @@ export function useListState<F extends object>(
     /* eslint-disable react-hooks/set-state-in-effect */
     setPageRaw((prev) => (prev === nextPage ? prev : nextPage));
     setPerPageRaw((prev) => (prev === nextPerPage ? prev : nextPerPage));
-    // Hanya adopsi search dari URL bila perubahannya EKSTERNAL (back/forward /
-    // navigasi baru), bukan echo telat dari writeUrl debounce kita sendiri —
-    // jika tidak, echo lama menimpa ketikan terbaru yang belum ter-flush.
+
     const nextTrimmed = nextSearch.trim();
     if (nextTrimmed !== lastPushedSearchRef.current) {
       lastPushedSearchRef.current = nextTrimmed;
@@ -143,9 +130,7 @@ export function useListState<F extends object>(
       return [{ id: nextSortBy, desc: nextSortDir === "desc" }];
     });
     /* eslint-enable react-hooks/set-state-in-effect */
-    // Sinkronisasi URL->state: semua reader (readNumber/readSearch/readFilters) & key turunan
-    // efektif hanya berubah lewat searchParams. Menambah dep berisiko loop/refetch untuk
-    // pemanggil dengan emptyFilters objek inline; setState di sini sudah guarded (prev===next).
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlSync, searchParams]);
 
@@ -234,7 +219,7 @@ export function useListState<F extends object>(
       }
       writeUrl(updates);
     },
-    // emptyFilters diasumsikan konstanta stabil pemanggil; menambahkannya berisiko loop URL-state.
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [urlSync, filterUrlSync, writeUrl, pageKey, filterKeyFor],
   );
@@ -254,7 +239,7 @@ export function useListState<F extends object>(
       }
       writeUrl(updates);
     },
-    // emptyFilters diasumsikan konstanta stabil pemanggil; menambahkannya berisiko loop URL-state.
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [urlSync, filterUrlSync, writeUrl, pageKey, filterKeyFor],
   );
