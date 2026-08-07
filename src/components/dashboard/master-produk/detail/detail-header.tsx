@@ -86,7 +86,7 @@ function Gallery({
   const current = items[Math.min(idx, items.length - 1)];
 
   return (
-    <div className="space-y-2">
+    <div className="mx-auto w-full max-w-xs space-y-2 sm:max-w-none">
       <div className="grid aspect-square w-full place-items-center overflow-hidden rounded-xl border border-border bg-muted/30">
         {!current ? (
           <ImageIcon className="size-10 text-muted-foreground" />
@@ -208,7 +208,7 @@ export function DetailHeader({
             <ProductStatusBadge status={product.status} />
             <ProductTypeBadge type={product.productType} />
           </div>
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex w-full items-center gap-2 sm:w-auto sm:shrink-0">
             <StatusActions
               product={product}
               isPending={lifecyclePending}
