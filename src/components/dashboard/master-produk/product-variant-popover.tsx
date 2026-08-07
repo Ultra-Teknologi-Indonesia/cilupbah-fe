@@ -66,7 +66,11 @@ export function ProductVariantPopover({ product }: { product: Product }) {
         <p className="px-2 pt-1 text-xs font-medium text-muted-foreground">
           {product.variants.length} varian
         </p>
-        <ScrollArea className="max-h-72">
+        <ScrollArea
+          type="always"
+          className="max-h-72"
+          viewportClassName="[&>div]:!block"
+        >
           <ul className="flex flex-col gap-0.5 pr-2.5">
             {product.variants.map((v) => (
               <li
