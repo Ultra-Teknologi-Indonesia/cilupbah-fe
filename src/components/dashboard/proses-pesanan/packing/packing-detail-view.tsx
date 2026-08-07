@@ -278,7 +278,7 @@ export function PackingDetailView({ id }: { id: string }) {
   React.useEffect(() => {
     if (pk && pk.status === "DRAFT") {
       startPacklist.mutate(id, {
-        onError: () => {},
+        onError: (e) => apiError(e, "Gagal memulai packing."),
       });
     }
 

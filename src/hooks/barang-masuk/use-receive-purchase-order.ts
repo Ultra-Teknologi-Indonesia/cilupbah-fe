@@ -15,7 +15,6 @@ export function useReceivePurchaseOrder() {
       toast.success("Penerimaan barang berhasil disimpan");
       qc.invalidateQueries({ queryKey: ["purchase-order"] });
       qc.invalidateQueries({ queryKey: ["inbound"] });
-      qc.invalidateQueries({ queryKey: ["inbounds"] });
     },
     onError: (err) =>
       apiError(err, "Gagal menyimpan penerimaan"),
