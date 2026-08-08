@@ -1,28 +1,92 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { lookup } from "node:dns/promises";
+import net from "node:net";
+
+import { ACCESS_TOKEN_COOKIE } from "@/lib/auth/session-cookies";
+
+const MAX_REDIRECTS = 3;
+
+/** IP internal/privat/loopback/link-local/metadata yang tak boleh dijangkau. */
+function isBlockedIp(ip: string): boolean {
+  let addr = ip.toLowerCase();
+  // IPv4-mapped IPv6 (::ffff:10.0.0.1) → periksa bagian IPv4-nya.
+  if (addr.startsWith("::ffff:") && net.isIPv4(addr.slice(7))) addr = addr.slice(7);
+
+  if (net.isIPv4(addr)) {
+    const [a, b] = addr.split(".").map(Number);
+    return (
+      a === 0 ||
+      a === 10 ||
+      a === 127 ||
+      (a === 169 && b === 254) || // link-local + 169.254.169.254 (cloud metadata)
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      (a === 100 && b >= 64 && b <= 127) // CGNAT
+    );
+  }
+  return (
+    addr === "::" ||
+    addr === "::1" ||
+    addr.startsWith("fc") ||
+    addr.startsWith("fd") || // ULA
+    addr.startsWith("fe80") // link-local
+  );
+}
+
+/** Tolak non-HTTPS dan host yang menunjuk (termasuk via DNS) ke IP internal. */
+async function assertSafeUrl(target: URL): Promise<void> {
+  if (target.protocol !== "https:") {
+    throw new Response("Only HTTPS URLs allowed", { status: 400 });
+  }
+  const host = target.hostname;
+  if (net.isIP(host)) {
+    if (isBlockedIp(host)) throw new Response("Blocked host", { status: 400 });
+    return;
+  }
+  const resolved = await lookup(host, { all: true });
+  if (resolved.length === 0 || resolved.some((r) => isBlockedIp(r.address))) {
+    throw new Response("Blocked host", { status: 400 });
+  }
+}
+
+/** Fetch dengan validasi SSRF di SETIAP hop redirect (menutup bypass via 3xx). */
+async function safeFetch(startUrl: string): Promise<Response> {
+  let current = startUrl;
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    await assertSafeUrl(new URL(current));
+    const res = await fetch(current, { redirect: "manual" });
+    const loc = res.headers.get("location");
+    if (res.status >= 300 && res.status < 400 && loc) {
+      current = new URL(loc, current).toString();
+      continue;
+    }
+    return res;
+  }
+  throw new Response("Too many redirects", { status: 400 });
+}
 
 export async function GET(request: NextRequest) {
+  // Route ini di bawah /api sehingga dilewati middleware auth — jaga di sini:
+  // hanya sesi terautentikasi yang boleh memakai proxy (cegah SSRF anonim).
+  const cookieStore = await cookies();
+  if (!cookieStore.get(ACCESS_TOKEN_COOKIE)?.value) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const url = request.nextUrl.searchParams.get("url");
   if (!url) {
-    return NextResponse.json(
-      { error: "Missing url parameter" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Missing url parameter" }, { status: 400 });
   }
 
   try {
-    const parsed = new URL(url);
-    if (parsed.protocol !== "https:") {
-      return NextResponse.json(
-        { error: "Only HTTPS URLs allowed" },
-        { status: 400 },
-      );
-    }
+    new URL(url);
   } catch {
     return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
   }
 
   try {
-    const response = await fetch(url);
+    const response = await safeFetch(url);
     if (!response.ok) {
       return new NextResponse(null, {
         status: response.status,
@@ -40,6 +104,8 @@ export async function GET(request: NextRequest) {
 
     return new NextResponse(response.body, { status: 200, headers });
   } catch (error) {
+    // assertSafeUrl melempar Response (host diblokir / non-https).
+    if (error instanceof Response) return error;
     const message = error instanceof Error ? error.message : String(error);
     console.error("Proxy download error:", url, message);
     return NextResponse.json(

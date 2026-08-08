@@ -3,6 +3,7 @@ import Image from "next/image";
 
 import * as React from "react";
 import Link from "next/link";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 import {
   ArrowLeftIcon,
   ChevronRightIcon,
@@ -246,7 +247,9 @@ export function DetailHeader({
                 </div>
                 <div
                   className="prose-sm max-w-none line-clamp-4 text-sm leading-relaxed text-foreground/90 [&_a]:text-primary [&_a]:underline"
-                  dangerouslySetInnerHTML={{ __html: product.description }}
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeHtml(product.description),
+                  }}
                 />
                 <button
                   type="button"
@@ -268,7 +271,7 @@ export function DetailHeader({
                         <div
                           className="prose-sm max-w-none text-sm leading-relaxed text-foreground/90 [&_a]:text-primary [&_a]:underline"
                           dangerouslySetInnerHTML={{
-                            __html: product.description,
+                            __html: sanitizeHtml(product.description),
                           }}
                         />
                       </div>
