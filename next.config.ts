@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
   // seluruh node_modules) — lihat Dockerfile stage `runner`.
   output: "standalone",
   images: {
+    // Sengaja luas: gambar produk berasal dari CDN marketplace yang beragam DAN
+    // dari toko WooCommerce ber-domain arbitrer (dikontrol pelanggan), sehingga
+    // allowlist host akan memutus gambar yang sah. Membatasi open-image-proxy
+    // butuh strategi proxy khusus, bukan sekadar daftar host di sini.
     remotePatterns: [
       { protocol: "https", hostname: "**" },
     ],
@@ -23,13 +27,24 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["lucide-react"],
   },
   async headers() {
-    // Security header dasar (defense-in-depth). CSP penuh belum dipasang di
-    // sini karena butuh setup nonce + pengujian — itu bagian dari perbaikan
-    // sanitasi XSS deskripsi produk, bukan header statis.
+    // Security header dasar (defense-in-depth). CSP di bawah sengaja TANPA
+    // membatasi script-src/style-src/img-src: app memakai inline CSS (inlineCss),
+    // script Next inline, dan gambar dari host arbitrer — membatasinya butuh
+    // infrastruktur nonce dan berisiko memutus app. Direktif yang dipasang
+    // menutup clickjacking, injeksi <base>, plugin/objek, dan pembajakan form —
+    // lapis kedua di atas sanitasi DOMPurify deskripsi produk.
+    const csp = [
+      "base-uri 'self'",
+      "object-src 'none'",
+      "frame-ancestors 'self'",
+      "form-action 'self'",
+    ].join("; ");
+
     return [
       {
         source: "/(.*)",
         headers: [
+          { key: "Content-Security-Policy", value: csp },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },

@@ -94,7 +94,11 @@ import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useCopyToClipboard } from "@/hooks/shared/use-copy-to-clipboard";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 
-export function ChannelIcon({ source }: { source: string | null }) {
+export const ChannelIcon = React.memo(function ChannelIcon({
+  source,
+}: {
+  source: string | null;
+}) {
   if (!source) return null;
   const ch = CHANNEL_MAP[source];
   if (!ch) return null;
@@ -124,9 +128,9 @@ export function ChannelIcon({ source }: { source: string | null }) {
       <TooltipContent>{ch.label}</TooltipContent>
     </Tooltip>
   );
-}
+});
 
-function ItemRow({ item }: { item: OrderItem }) {
+const ItemRow = React.memo(function ItemRow({ item }: { item: OrderItem }) {
   return (
     <div className="flex items-center gap-3">
       {item.image_url ? (
@@ -153,7 +157,7 @@ function ItemRow({ item }: { item: OrderItem }) {
       </span>
     </div>
   );
-}
+});
 
 function RelocateDialog({
   order,

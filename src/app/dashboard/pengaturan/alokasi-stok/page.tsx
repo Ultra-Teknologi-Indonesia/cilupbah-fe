@@ -1,5 +1,3 @@
-"use client";
-
 import { PageTitle } from "@/components/dashboard/page-title";
 import { PengaturanTabBar } from "@/components/dashboard/pengaturan/pengaturan-tab-bar";
 import { StockAllocationList } from "@/components/dashboard/pengaturan/alokasi-stok/stock-allocation-list";

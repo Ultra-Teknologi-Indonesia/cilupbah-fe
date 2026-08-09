@@ -180,6 +180,7 @@ export function PermintaanRestockView() {
                           size="icon"
                           variant="ghost"
                           title="Lihat detail"
+                          aria-label="Lihat detail"
                         >
                           <Link href={`/dashboard/permintaan-restock/${r.id}`}>
                             <EyeIcon className="size-4" />
@@ -191,6 +192,7 @@ export function PermintaanRestockView() {
                               size="icon"
                               variant="ghost"
                               title="Terima"
+                              aria-label="Terima"
                               onClick={() => setAcceptTarget(r)}
                             >
                               <CheckIcon className="size-4 text-success" />
@@ -199,6 +201,7 @@ export function PermintaanRestockView() {
                               size="icon"
                               variant="ghost"
                               title="Tolak"
+                              aria-label="Tolak"
                               onClick={() => setRejectTarget(r)}
                             >
                               <XIcon className="size-4 text-destructive" />

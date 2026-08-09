@@ -6,6 +6,27 @@ import net from "node:net";
 import { ACCESS_TOKEN_COOKIE } from "@/lib/auth/session-cookies";
 
 const MAX_REDIRECTS = 3;
+const MAX_BYTES = 50 * 1024 * 1024; // 50 MB — batas wajar untuk resi/label/gambar produk.
+
+/** Tipe konten "aktif" yang bisa dirender same-origin — dinetralkan jadi unduhan biner. */
+const ACTIVE_CONTENT_TYPES = [
+  "text/html",
+  "application/xhtml+xml",
+  "image/svg+xml",
+  "application/xml",
+  "text/xml",
+];
+
+/** Nama file unduhan dari path URL, di-sanitasi; fallback "download". */
+function downloadFilename(rawUrl: string): string {
+  try {
+    const base = new URL(rawUrl).pathname.split("/").pop() || "";
+    const clean = base.replace(/[^\w.\-]/g, "_").slice(0, 128);
+    return clean || "download";
+  } catch {
+    return "download";
+  }
+}
 
 /** IP internal/privat/loopback/link-local/metadata yang tak boleh dijangkau. */
 function isBlockedIp(ip: string): boolean {
@@ -94,12 +115,29 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const headers = new Headers();
-    const ct = response.headers.get("content-type");
-    if (ct) headers.set("content-type", ct);
-    const cd = response.headers.get("content-disposition");
-    if (cd) headers.set("content-disposition", cd);
     const cl = response.headers.get("content-length");
+    if (cl && Number(cl) > MAX_BYTES) {
+      return NextResponse.json({ error: "Resource too large" }, { status: 413 });
+    }
+
+    const headers = new Headers();
+
+    // Content-type upstream diteruskan, KECUALI tipe aktif yang bisa dirender
+    // same-origin (HTML/SVG/XML) — dipaksa biner agar tak dieksekusi di origin app.
+    const ct = (response.headers.get("content-type") || "").toLowerCase();
+    const isActive = ACTIVE_CONTENT_TYPES.some((t) => ct.startsWith(t));
+    headers.set(
+      "content-type",
+      !ct || isActive ? "application/octet-stream" : ct,
+    );
+
+    // Selalu paksa unduhan (bukan render inline) — ini proxy download, dan
+    // disposition upstream tak boleh menentukan cara browser memperlakukan body.
+    headers.set(
+      "content-disposition",
+      `attachment; filename="${downloadFilename(url)}"`,
+    );
+    headers.set("x-content-type-options", "nosniff");
     if (cl) headers.set("content-length", cl);
 
     return new NextResponse(response.body, { status: 200, headers });

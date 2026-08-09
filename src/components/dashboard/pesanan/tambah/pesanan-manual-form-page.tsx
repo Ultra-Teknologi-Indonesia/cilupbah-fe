@@ -442,6 +442,7 @@ export function PesananManualFormPage() {
                     type="button"
                     variant="outline"
                     size="icon"
+                    aria-label="Tambah pelanggan"
                     onClick={() => setAddPelangganOpen(true)}
                   >
                     <PlusIcon className="size-4" />
@@ -653,6 +654,7 @@ export function PesananManualFormPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
+                                aria-label="Hapus item"
                                 onClick={() => removeItem(idx)}
                               >
                                 <Trash2Icon className="size-4" />

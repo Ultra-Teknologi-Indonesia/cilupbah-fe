@@ -237,6 +237,7 @@ function AtributRow({
           variant="ghost"
           size="icon"
           className="size-8 text-destructive hover:text-destructive"
+          aria-label="Hapus item"
           onClick={onDelete}
         >
           <Trash2Icon className="size-4" />

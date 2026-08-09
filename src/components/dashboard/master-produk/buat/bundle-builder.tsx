@@ -107,6 +107,7 @@ export function BundleBuilder({
                   variant="outline"
                   size="icon"
                   className="size-7"
+                  aria-label="Kurangi jumlah"
                   onClick={() => setQty(c.variantId, c.qty - 1)}
                   disabled={c.qty <= 1}
                 >
@@ -126,6 +127,7 @@ export function BundleBuilder({
                   variant="outline"
                   size="icon"
                   className="size-7"
+                  aria-label="Tambah jumlah"
                   onClick={() => setQty(c.variantId, c.qty + 1)}
                 >
                   <PlusIcon className="size-3.5" />
@@ -136,6 +138,7 @@ export function BundleBuilder({
                 variant="ghost"
                 size="icon"
                 className="size-7 text-muted-foreground hover:text-destructive"
+                aria-label="Hapus item"
                 onClick={() => remove(c.variantId)}
               >
                 <Trash2Icon className="size-4" />
@@ -159,6 +162,7 @@ export function BundleBuilder({
               />
               <button
                 type="button"
+                aria-label="Tutup pencarian"
                 onClick={() => setOpen(false)}
                 className="text-muted-foreground hover:text-foreground"
               >

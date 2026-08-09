@@ -122,7 +122,11 @@ function SortableTableHead({
   );
 }
 
-function ItemSummary({ order }: { order: Order }) {
+const ItemSummary = React.memo(function ItemSummary({
+  order,
+}: {
+  order: Order;
+}) {
   const qty = order.items.reduce((sum, i) => sum + i.qty_in_base, 0);
   const skuCount = order.items.length;
   const first = order.items[0];
@@ -149,7 +153,7 @@ function ItemSummary({ order }: { order: Order }) {
       </TooltipContent>
     </Tooltip>
   );
-}
+});
 
 function OrderRow({
   order,

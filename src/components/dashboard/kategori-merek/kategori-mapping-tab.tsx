@@ -162,7 +162,7 @@ export function KategoriMappingTab({ search }: { search: string }) {
                   <TableCell className="px-1 align-top">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8">
+                        <Button variant="ghost" size="icon" className="size-8" aria-label="Menu aksi">
                           <MoreHorizontalIcon className="size-4" />
                         </Button>
                       </DropdownMenuTrigger>

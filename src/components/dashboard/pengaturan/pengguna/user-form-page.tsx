@@ -420,7 +420,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                             {...field}
                           />
                           <div className="absolute inset-y-0 right-0 flex items-center gap-0.5 pr-1.5">
-                            <Button type="button" variant="ghost" size="icon" tabIndex={-1} className="size-7 rounded-md text-muted-foreground"
+                            <Button type="button" variant="ghost" size="icon" aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"} className="size-7 rounded-md text-muted-foreground"
                               onClick={() => setShowPassword((v) => !v)}
                             >
                               {showPassword ? (
@@ -429,7 +429,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                                 <EyeIcon className="size-3.5" />
                               )}
                             </Button>
-                            <Button type="button" variant="ghost" size="icon" tabIndex={-1} className="size-7 rounded-md text-muted-foreground"
+                            <Button type="button" variant="ghost" size="icon" aria-label="Buat kata sandi otomatis" className="size-7 rounded-md text-muted-foreground"
                               onClick={async () => {
                                 const pwd = generatePassword();
                                 form.setValue("password", pwd, {
@@ -520,7 +520,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                             {...field}
                           />
                           <div className="absolute inset-y-0 right-0 flex items-center pr-1.5">
-                            <Button type="button" variant="ghost" size="icon" tabIndex={-1} className="size-7 rounded-md text-muted-foreground"
+                            <Button type="button" variant="ghost" size="icon" aria-label={showConfirmPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"} className="size-7 rounded-md text-muted-foreground"
                               onClick={() => setShowConfirmPassword((v) => !v)}
                             >
                               {showConfirmPassword ? (
