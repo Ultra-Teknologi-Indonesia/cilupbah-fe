@@ -49,6 +49,7 @@ import type {
 import { AlokasiRakDialog } from "./alokasi-rak-dialog";
 import { EditThresholdDialog } from "./edit-threshold-dialog";
 import { ImportSettingDialog } from "./import-setting-dialog";
+import { RackImportDialog } from "./rack-import-dialog";
 
 const IMPORT_ITEMS: { type: ImportSettingType; label: string; desc: string }[] =
   [
@@ -80,6 +81,7 @@ export function ProdukSettingsTable() {
   const [importType, setImportType] = React.useState<ImportSettingType | null>(
     null,
   );
+  const [rackImportOpen, setRackImportOpen] = React.useState(false);
   const [rakItem, setRakItem] = React.useState<InventorySettingProduct | null>(
     null,
   );
@@ -122,7 +124,11 @@ export function ProdukSettingsTable() {
           {IMPORT_ITEMS.map((it) => (
             <DropdownMenuItem
               key={it.type}
-              onSelect={() => setImportType(it.type)}
+              onSelect={() =>
+                it.type === "rack-allocation"
+                  ? setRackImportOpen(true)
+                  : setImportType(it.type)
+              }
               className="flex-col items-start gap-0.5"
             >
               <span className="font-medium">{it.label}</span>
@@ -301,6 +307,7 @@ export function ProdukSettingsTable() {
         type={importType}
         onOpenChange={(o) => !o && setImportType(null)}
       />
+      <RackImportDialog open={rackImportOpen} onOpenChange={setRackImportOpen} />
       <AlokasiRakDialog
         itemId={rakItem?.itemId ?? null}
         sku={rakItem?.sku}
