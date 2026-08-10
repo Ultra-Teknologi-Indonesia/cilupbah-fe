@@ -187,6 +187,45 @@ export const channelSearchRowId = (
   i: Pick<ChannelSearchItem, "shopId" | "externalProductId">,
 ) => `${i.shopId}:${i.externalProductId}`;
 
+export interface DownloadFailureReason {
+  reason: string;
+  count: number;
+}
+
+export interface DownloadFailureSample {
+  externalProductId: string | null;
+  title: string | null;
+  reason: string;
+  detail: string | null;
+}
+
+export interface DownloadFailures {
+  trxId: string;
+  trxNo: string;
+  state: DownloadState;
+  totalFailed: number;
+  loggedFailures: number;
+  jobError: HistoryError | null;
+  reasons: DownloadFailureReason[];
+  samples: DownloadFailureSample[];
+}
+
+interface RawDownloadFailures {
+  trx_id: string;
+  trx_no: string;
+  state: DownloadState;
+  total_failed: number;
+  logged_failures: number;
+  job_error: HistoryError | null;
+  reasons: { reason: string; count: number }[];
+  samples: {
+    external_product_id: string | null;
+    title: string | null;
+    reason: string;
+    detail: string | null;
+  }[];
+}
+
 export const DownloadService = {
   listTransactions: async (
     params: DownloadTransactionParams = {},
@@ -306,5 +345,30 @@ export const DownloadService = {
         external_product_id: params.externalProductId,
       },
     });
+  },
+
+  getFailures: async (id: string): Promise<DownloadFailures> => {
+    const res = await fetchClient<ApiResponse<RawDownloadFailures>>(
+      `/download-transactions/${id}/failures`,
+    );
+    const d = res.data;
+    return {
+      trxId: d.trx_id,
+      trxNo: d.trx_no,
+      state: d.state,
+      totalFailed: d.total_failed,
+      loggedFailures: d.logged_failures,
+      jobError: d.job_error ?? null,
+      reasons: (d.reasons ?? []).map((r) => ({
+        reason: r.reason,
+        count: r.count,
+      })),
+      samples: (d.samples ?? []).map((s) => ({
+        externalProductId: s.external_product_id,
+        title: s.title,
+        reason: s.reason,
+        detail: s.detail,
+      })),
+    };
   },
 };

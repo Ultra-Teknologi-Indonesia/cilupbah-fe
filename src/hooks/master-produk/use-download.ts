@@ -21,6 +21,9 @@ export type {
   ChannelSearchPage,
   DownloadState,
   DownloadTransaction,
+  DownloadFailures,
+  DownloadFailureReason,
+  DownloadFailureSample,
 } from "@/services/master-produk/download.service";
 
 export const downloadTrxKey = (params: DownloadTransactionParams) =>
@@ -64,6 +67,18 @@ export function useDownloadTransactionDetail(
       const state = query.state.data?.state;
       return state === "downloading" || state === "queued" ? 5000 : false;
     },
+  });
+}
+
+export const downloadFailuresKey = (id: string) =>
+  ["master-produk", "download-transaction", id, "failures"] as const;
+
+export function useDownloadFailures(id: string | null, enabled: boolean) {
+  return useQuery({
+    queryKey: downloadFailuresKey(id ?? ""),
+    queryFn: () => DownloadService.getFailures(id as string),
+    enabled: !!id && enabled,
+    staleTime: 30 * 1000,
   });
 }
 
