@@ -40,6 +40,9 @@ export interface Product {
   variations: { label: string; values: string[] }[];
   variants: ProductVariant[];
   onlineStatus: ProductChannelStatus[];
+  isMerged: boolean;
+  masterName: string | null;
+  memberIds: string[];
 }
 
 export interface RawMasterVariant {
@@ -76,4 +79,7 @@ export interface RawMasterItem {
   variations: { label: string; values: string[] }[];
   variants: RawMasterVariant[];
   online_status: RawMasterOnlineStatus[];
+  is_merged?: boolean;
+  master_name?: string | null;
+  member_ids?: string[];
 }

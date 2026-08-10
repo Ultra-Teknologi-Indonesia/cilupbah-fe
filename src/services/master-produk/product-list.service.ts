@@ -55,6 +55,9 @@ function mapMasterItem(raw: RawMasterItem): Product {
       channelUrl: o.channel_url,
       errorText: o.error_text,
     })),
+    isMerged: raw.is_merged ?? false,
+    masterName: raw.master_name ?? null,
+    memberIds: raw.member_ids ?? [raw.item_group_id],
   };
 }
 

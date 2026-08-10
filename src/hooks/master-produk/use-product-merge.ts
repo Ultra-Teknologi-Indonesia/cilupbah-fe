@@ -65,7 +65,7 @@ export const useApplyMerge = createMutationHook<
   mutationFn: (vars) => ProductMergeService.apply(vars),
   successMessage: (data) => `Berhasil menggabungkan ${data.merged} produk`,
   errorMessage: "Gagal menggabungkan produk",
-  invalidates: () => [mergeKeys.all],
+  invalidates: () => [mergeKeys.all, ["master-produk"]],
 });
 
 export const useAutoMerge = createMutationHook<
@@ -78,33 +78,40 @@ export const useAutoMerge = createMutationHook<
       ? `Berhasil menggabungkan otomatis ${data.merged} produk`
       : "Tidak ada produk baru untuk digabung otomatis",
   errorMessage: "Gagal menggabungkan otomatis",
-  invalidates: () => [mergeKeys.all],
+  invalidates: () => [mergeKeys.all, ["master-produk"]],
 });
 
 export const useUnmergeMaster = createMutationHook<string>({
   mutationFn: (masterName) => ProductMergeService.unmergeMaster(masterName),
   successMessage: "Berhasil melepas gabungan",
   errorMessage: "Gagal melepas gabungan",
-  invalidates: () => [mergeKeys.all],
+  invalidates: () => [mergeKeys.all, ["master-produk"]],
+});
+
+export const useBulkUnmergeMasters = createMutationHook<string[]>({
+  mutationFn: (masterNames) => ProductMergeService.bulkUnmerge(masterNames),
+  successMessage: "Berhasil melepas gabungan",
+  errorMessage: "Gagal melepas gabungan",
+  invalidates: () => [mergeKeys.all, ["master-produk"]],
 });
 
 export const useUnmergeProduct = createMutationHook<string>({
   mutationFn: (productId) => ProductMergeService.unmerge(productId),
   successMessage: "Berhasil melepas produk dari master",
   errorMessage: "Gagal melepas produk",
-  invalidates: () => [mergeKeys.all],
+  invalidates: () => [mergeKeys.all, ["master-produk"]],
 });
 
 export const useHideMasters = createMutationHook<string[]>({
   mutationFn: (masterNames) => ProductMergeService.hide(masterNames),
   successMessage: "Berhasil menyembunyikan produk",
   errorMessage: "Gagal menyembunyikan produk",
-  invalidates: () => [mergeKeys.all],
+  invalidates: () => [mergeKeys.all, ["master-produk"]],
 });
 
 export const useUnhideMasters = createMutationHook<string[]>({
   mutationFn: (masterNames) => ProductMergeService.unhide(masterNames),
   successMessage: "Berhasil menampilkan kembali produk",
   errorMessage: "Gagal menampilkan produk",
-  invalidates: () => [mergeKeys.all],
+  invalidates: () => [mergeKeys.all, ["master-produk"]],
 });

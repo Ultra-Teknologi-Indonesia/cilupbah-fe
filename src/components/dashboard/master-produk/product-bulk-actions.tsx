@@ -2,7 +2,14 @@
 
 import * as React from "react";
 import type { Table } from "@tanstack/react-table";
-import { ArchiveIcon, DownloadIcon, RefreshCwIcon, Trash2Icon } from "lucide-react";
+import {
+  ArchiveIcon,
+  CombineIcon,
+  DownloadIcon,
+  Link2OffIcon,
+  RefreshCwIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -14,7 +21,17 @@ import {
 } from "@/hooks/master-produk/use-product-actions";
 import { useSyncStock } from "@/hooks/master-produk/use-sync-stock";
 import type { SyncStockFilters } from "@/hooks/master-produk/use-sync-stock";
+import {
+  useApplyMerge,
+  useBulkUnmergeMasters,
+} from "@/hooks/master-produk/use-product-merge";
+import { usePermissions } from "@/hooks/auth/use-permissions";
+import { MergeApplyDialog } from "@/components/dashboard/master-produk/gabung/merge-apply-dialog";
 import type { Product } from "@/types/master-produk";
+
+function pickLongestName(names: string[]): string {
+  return names.reduce((a, b) => (b.length > a.length ? b : a), names[0] ?? "");
+}
 
 export function ProductBulkActions({
   selected,
@@ -30,14 +47,32 @@ export function ProductBulkActions({
   const [archiveOpen, setArchiveOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [syncOpen, setSyncOpen] = React.useState(false);
+  const [mergeOpen, setMergeOpen] = React.useState(false);
+  const [unmergeOpen, setUnmergeOpen] = React.useState(false);
   const [selectAllAcross, setSelectAllAcross] = React.useState(false);
   const [archiveReason, setArchiveReason] = React.useState("");
 
   const bulkArchive = useBulkArchive();
   const bulkDelete = useBulkDelete();
   const syncStock = useSyncStock();
+  const applyMerge = useApplyMerge();
+  const bulkUnmerge = useBulkUnmergeMasters();
 
-  const ids = selected.map((p) => p.itemGroupId);
+  const { can } = usePermissions();
+  const canMerge = can("merge-product");
+  const canUnmerge = can("unmerge-product");
+
+  const ids = Array.from(
+    new Set(selected.flatMap((p) => p.memberIds ?? [p.itemGroupId])),
+  );
+
+  const mergedMasterNames = Array.from(
+    new Set(
+      selected
+        .filter((p) => p.isMerged && p.masterName)
+        .map((p) => p.masterName as string),
+    ),
+  );
 
   const allPageSelected = table.getIsAllPageRowsSelected();
   const canSelectAllAcross = allPageSelected && total > selected.length;
@@ -69,6 +104,24 @@ export function ProductBulkActions({
             Pilih semua {total} produk
           </button>
         ))}
+
+      {canMerge && selected.length >= 2 && (
+        <Button variant="primary" size="sm" onClick={() => setMergeOpen(true)}>
+          <CombineIcon className="size-4" />
+          Gabungkan
+        </Button>
+      )}
+      {canUnmerge && mergedMasterNames.length > 0 && (
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={bulkUnmerge.isPending}
+          onClick={() => setUnmergeOpen(true)}
+        >
+          <Link2OffIcon className="size-4" />
+          Lepas gabungan
+        </Button>
+      )}
 
       <Button
         variant="outline"
@@ -179,6 +232,46 @@ export function ProductBulkActions({
           bulkDelete.mutate(ids, {
             onSuccess: () => {
               setDeleteOpen(false);
+              table.resetRowSelection();
+            },
+          });
+        }}
+      />
+
+      <MergeApplyDialog
+        open={mergeOpen}
+        onOpenChange={setMergeOpen}
+        products={selected.map((p) => ({
+          id: p.itemGroupId,
+          name: p.itemName,
+        }))}
+        defaultMasterName={pickLongestName(selected.map((p) => p.itemName))}
+        loading={applyMerge.isPending}
+        onConfirm={(masterName) => {
+          applyMerge.mutate(
+            { masterName, productIds: ids },
+            {
+              onSuccess: () => {
+                setMergeOpen(false);
+                table.resetRowSelection();
+              },
+            },
+          );
+        }}
+      />
+
+      <ConfirmDialog
+        open={unmergeOpen}
+        onOpenChange={setUnmergeOpen}
+        title="Lepas gabungan?"
+        description={`${mergedMasterNames.length} master akan dilepas. Produk anggotanya kembali tampil terpisah.`}
+        confirmLabel="Lepas gabungan"
+        variant="destructive"
+        loading={bulkUnmerge.isPending}
+        onConfirm={() => {
+          bulkUnmerge.mutate(mergedMasterNames, {
+            onSuccess: () => {
+              setUnmergeOpen(false);
               table.resetRowSelection();
             },
           });

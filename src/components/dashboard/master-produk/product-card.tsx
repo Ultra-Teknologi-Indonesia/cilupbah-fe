@@ -102,6 +102,11 @@ export function ProductCard({
               Bundle
             </Badge>
           )}
+          {product.isMerged && (
+            <Badge variant="success" className="px-1.5 py-0 text-2xs">
+              Tergabung
+            </Badge>
+          )}
         </div>
 
         {product.variations.length > 0 && (
