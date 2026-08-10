@@ -1259,33 +1259,33 @@ export const OutboundService = {
     orderIds: string[],
     documentSize: "thermal_100x150" | "thermal_100x120",
   ): Promise<{ batch_id: string }> => {
-    const res = await fetchClient<{ batch_id: string }>(
+    const res = await fetchClient<ApiResponse<{ batch_id: string }>>(
       `/sales/shipping-labels/bulk`,
       {
         method: "POST",
         data: { order_ids: orderIds, document_size: documentSize },
       },
     );
-    return res as unknown as { batch_id: string };
+    return res.data;
   },
 
   getBulkShippingLabelBatch: async (
     batchId: string,
   ): Promise<import("@/types/proses-pesanan/bulk-label").BulkLabelBatch> => {
     const res = await fetchClient<
-      import("@/types/proses-pesanan/bulk-label").BulkLabelBatch
+      ApiResponse<import("@/types/proses-pesanan/bulk-label").BulkLabelBatch>
     >(`/sales/shipping-labels/bulk/${encodeURIComponent(batchId)}`);
-    return res as unknown as import("@/types/proses-pesanan/bulk-label").BulkLabelBatch;
+    return res.data;
   },
 
   retryFailedBulkShippingLabels: async (
     batchId: string,
   ): Promise<{ batch_id: string }> => {
-    const res = await fetchClient<{ batch_id: string }>(
+    const res = await fetchClient<ApiResponse<{ batch_id: string }>>(
       `/sales/shipping-labels/bulk/${encodeURIComponent(batchId)}/retry-failed`,
       { method: "POST" },
     );
-    return res as unknown as { batch_id: string };
+    return res.data;
   },
 
   pickListByPicklist: async (picklistId: string): Promise<unknown> => {
