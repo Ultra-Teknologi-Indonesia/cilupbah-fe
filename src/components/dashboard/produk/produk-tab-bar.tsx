@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import {
   ArchiveIcon,
   CloudDownloadIcon,
+  CombineIcon,
   ImportIcon,
   Package2Icon,
   RocketIcon,
@@ -26,6 +27,12 @@ const TABS: Tab[] = [
     label: "Master",
     icon: Package2Icon,
     href: "/dashboard/produk/master",
+  },
+  {
+    id: "gabung",
+    label: "Gabung",
+    icon: CombineIcon,
+    href: "/dashboard/produk/gabung",
   },
   {
     id: "upload",
@@ -65,6 +72,7 @@ function activeId(pathname: string, _status: string | null): string {
   if (pathname.startsWith("/dashboard/produk/upload")) return "upload";
   if (pathname.startsWith("/dashboard/produk/download")) return "download";
   if (pathname.startsWith("/dashboard/produk/import")) return "import";
+  if (pathname.startsWith("/dashboard/produk/gabung")) return "gabung";
   if (pathname.startsWith("/dashboard/produk/master")) return "master";
   return "";
 }
