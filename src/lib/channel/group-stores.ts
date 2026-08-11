@@ -41,6 +41,7 @@ function mapStore(raw: RawConnectedStore): ConnectedStore {
     channel: { code, name: raw.channel?.name ?? code },
     isActive: raw.is_active,
     ordersEnabled: raw.order_sync_enabled,
+    isShadowMode: raw.is_shadow_mode ?? false,
     integration: raw.integration ?? { status: "normal" },
     orderSync: raw.order_sync ?? { status: "pending" },
     lastOrderSyncedAt: raw.last_order_synced_at ?? null,

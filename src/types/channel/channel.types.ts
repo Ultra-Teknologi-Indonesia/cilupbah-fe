@@ -34,6 +34,7 @@ export interface ConnectedStore {
   channel: { code: ChannelCode; name: string };
   isActive: boolean;
   ordersEnabled: boolean;
+  isShadowMode: boolean;
   integration: StoreIntegration;
   orderSync: OrderSyncInfo;
   lastOrderSyncedAt: string | null;
@@ -66,6 +67,7 @@ export interface RawConnectedStore {
   shop_name: string;
   is_active: boolean;
   order_sync_enabled: boolean;
+  is_shadow_mode: boolean;
   integration: { status: IntegrationStatus; note?: string; action?: ChannelStoreAction | null };
   order_sync: { status: OrderSyncStatus; note?: string | null; action?: ChannelStoreAction | null };
   last_order_synced_at: string | null;

@@ -17,6 +17,7 @@ export function ChannelGroup({
   onAdd,
   onToggleActive,
   onToggleOrders,
+  onToggleShadow,
   onRefresh,
   onReauth,
   onDisconnect,
@@ -25,6 +26,7 @@ export function ChannelGroup({
   onAdd: (group: ChannelGroupType) => void;
   onToggleActive: (id: string, value: boolean) => void;
   onToggleOrders: (id: string, value: boolean) => void;
+  onToggleShadow: (id: string, value: boolean) => void;
   onRefresh: (store: ConnectedStore) => void;
   onReauth: (store: ConnectedStore) => void;
   onDisconnect: (store: ConnectedStore) => void;
@@ -87,6 +89,7 @@ export function ChannelGroup({
               store={store}
               onToggleActive={onToggleActive}
               onToggleOrders={onToggleOrders}
+              onToggleShadow={onToggleShadow}
               onRefresh={onRefresh}
               onReauth={onReauth}
               onDisconnect={onDisconnect}

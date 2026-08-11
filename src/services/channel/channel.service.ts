@@ -12,6 +12,7 @@ import type {
 export interface StoreFlags {
   is_active?: boolean;
   order_sync_enabled?: boolean;
+  is_shadow_mode?: boolean;
   stock_source_mode?: StockSourceMode;
   location_id?: string | null;
 }

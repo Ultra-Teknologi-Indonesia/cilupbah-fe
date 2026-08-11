@@ -22,6 +22,7 @@ export function StoreCard({
   store,
   onToggleActive,
   onToggleOrders,
+  onToggleShadow,
   onRefresh,
   onReauth,
   onDisconnect,
@@ -29,6 +30,7 @@ export function StoreCard({
   store: ConnectedStore;
   onToggleActive: (id: string, value: boolean) => void;
   onToggleOrders: (id: string, value: boolean) => void;
+  onToggleShadow: (id: string, value: boolean) => void;
   onRefresh: (store: ConnectedStore) => void;
   onReauth: (store: ConnectedStore) => void;
   onDisconnect: (store: ConnectedStore) => void;
@@ -105,7 +107,7 @@ export function StoreCard({
       )}
 
       {canEdit && (
-        <div className="mt-auto flex items-center justify-between gap-4 border-t border-border/60 pt-3">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-4 border-t border-border/60 pt-3">
           <div className="flex items-center gap-2">
             <Switch
               checked={store.isActive}
@@ -122,6 +124,16 @@ export function StoreCard({
             />
             <span className="text-xs text-muted-foreground">
               Sinkron Pesanan
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={store.isShadowMode}
+              onCheckedChange={(v) => onToggleShadow(store.id, v)}
+              aria-label={`Shadow mode ${store.shopName}`}
+            />
+            <span className="text-xs text-muted-foreground" title="Mode simulasi: tarik order tanpa potong stok">
+              Shadow Mode
             </span>
           </div>
         </div>
