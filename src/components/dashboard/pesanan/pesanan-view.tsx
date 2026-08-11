@@ -103,6 +103,7 @@ export function PesananView() {
       decision:
         (filters.decision as OrderListParams["decision"]) || undefined,
       status: filters.status.length > 0 ? filters.status : undefined,
+      shadow: (filters.shadow as OrderListParams["shadow"]) || undefined,
       page: listSearch.page,
       per_page: listSearch.perPage,
     }),

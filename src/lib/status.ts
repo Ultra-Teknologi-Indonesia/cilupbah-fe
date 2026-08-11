@@ -45,7 +45,8 @@ export type Domain =
   | "download-task"
   | "stock-replenishment"
   | "impex-activity"
-  | "bulk-label-item";
+  | "bulk-label-item"
+  | "order-origin";
 
 export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
   "sales-return": {
@@ -244,6 +245,10 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     done: { label: "Berhasil", variant: "success" },
     failed: { label: "Gagal", variant: "destructive" },
     skipped_instant: { label: "Instant courier", variant: "orange" },
+  },
+
+  "order-origin": {
+    shadow: { label: "Shadow", variant: "muted" },
   },
 };
 

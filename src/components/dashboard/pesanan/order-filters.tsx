@@ -44,6 +44,11 @@ const LABEL_PRINTED_OPTIONS = [
   { value: "no", label: "Belum cetak" },
 ];
 
+const SHADOW_OPTIONS = [
+  { value: "only", label: "Hanya shadow" },
+  { value: "all", label: "Semua" },
+];
+
 const CONTACT_STATUS_OPTIONS = [
   { value: "not_contacted", label: "Belum dihubungi" },
   { value: "contacted", label: "Sudah dihubungi" },
@@ -68,6 +73,7 @@ export interface FilterState {
   contact_status: string;
   decision: string;
   status: string[];
+  shadow: string;
 }
 
 const EMPTY: FilterState = {
@@ -83,6 +89,7 @@ const EMPTY: FilterState = {
   contact_status: "",
   decision: "",
   status: [],
+  shadow: "",
 };
 
 function toDate(s: string): Date | undefined {
@@ -191,6 +198,7 @@ export function OrderFilters({
       filters.label_printed,
       filters.contact_status,
       filters.decision,
+      filters.shadow,
     ].filter(Boolean).length + (filters.status.length > 0 ? 1 : 0);
 
   const dateRange = useMemo<DateRange | undefined>(() => {
@@ -294,6 +302,18 @@ export function OrderFilters({
           value={filters.label_printed}
           onValueChange={(v) => onChange({ ...filters, label_printed: v })}
           options={LABEL_PRINTED_OPTIONS}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1 sm:col-span-2">
+        <label className="text-xs font-medium text-muted-foreground">
+          Order Shadow
+        </label>
+        <FilterRadioGroup
+          name="shadow"
+          value={filters.shadow}
+          onValueChange={(v) => onChange({ ...filters, shadow: v })}
+          options={SHADOW_OPTIONS}
         />
       </div>
 

@@ -1040,6 +1040,20 @@ export function OrderCard({
           <TooltipContent>Klik untuk salin No. Pesanan</TooltipContent>
         </Tooltip>
 
+        {order.is_shadow && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <StatusBadge domain="order-origin" status="shadow" />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              Order pembanding migrasi. Tidak difulfill & tidak memotong stok di
+              sistem ini.
+            </TooltipContent>
+          </Tooltip>
+        )}
+
         {order.is_instant && (
           <Tooltip>
             <TooltipTrigger asChild>
