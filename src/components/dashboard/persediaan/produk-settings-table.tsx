@@ -172,9 +172,7 @@ export function ProdukSettingsTable() {
                     <TableHead className="px-3 py-3 text-left font-medium text-muted-foreground">
                       Produk
                     </TableHead>
-                    <TableHead className="px-3 py-3 text-left font-medium text-muted-foreground">
-                      Barcode
-                    </TableHead>
+
                     <TableHead className="px-3 py-3 text-center font-medium text-muted-foreground">
                       Alokasi Rak
                     </TableHead>
@@ -230,15 +228,7 @@ export function ProdukSettingsTable() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="px-3 py-2.5 text-sm">
-                        {p.barcode ? (
-                          <code className="rounded-lg bg-muted/60 px-1.5 py-0.5 text-xs">
-                            {p.barcode}
-                          </code>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
+
                       <TableCell className="px-3 py-2.5 text-center">
                         <Button
                           variant="outline"
