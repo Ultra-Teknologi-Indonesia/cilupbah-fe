@@ -4,6 +4,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { ProdukTabBar } from "@/components/dashboard/produk/produk-tab-bar";
 import { ProductMasterView } from "@/components/dashboard/master-produk/product-master-view";
+import { MergeSuggestionsButton } from "@/components/dashboard/master-produk/gabung/merge-suggestions-button";
 import { TabBarSkeleton, TableSkeleton } from "@/components/ui/page-skeleton";
 import { getServerQueryClient } from "@/lib/api-server";
 import {
@@ -39,6 +40,7 @@ export default async function ProdukMasterPage({
           { label: "Katalog" },
           { label: "Produk Master" },
         ]}
+        actions={<MergeSuggestionsButton />}
       />
 
       <Suspense fallback={<TabBarSkeleton />}>
