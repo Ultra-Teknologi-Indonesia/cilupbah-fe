@@ -210,6 +210,21 @@ export const LocationBinService = {
     }));
   },
 
+  listEligibleSkus: async (
+    locationId: string,
+    binId: string,
+    params?: { search?: string; page?: number; per_page?: number },
+  ): Promise<ApiPaginated<RawPendingPutawaySku>> => {
+    const q = new URLSearchParams();
+    if (params?.search) q.set("search", params.search);
+    if (params?.page) q.set("page", params.page.toString());
+    if (params?.per_page) q.set("per_page", params.per_page.toString());
+    const qs = q.toString() ? `?${q.toString()}` : "";
+    return fetchClient<ApiPaginated<RawPendingPutawaySku>>(
+      `/locations/${locationId}/bins/${binId}/eligible-skus${qs}`,
+    );
+  },
+
   assignSku: async (
     locationId: string,
     binId: string,

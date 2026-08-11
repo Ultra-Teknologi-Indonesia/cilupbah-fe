@@ -73,7 +73,7 @@ import {
 } from "@/hooks/manajemen-rak/use-location-bins";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { usePendingPutawaySkus } from "@/hooks/manajemen-rak/use-pending-putaway-skus";
+import { useEligibleSkusInfinite } from "@/hooks/manajemen-rak/use-eligible-skus";
 import {
   useDownloadBinImportTemplate,
   useImportBins,
@@ -843,28 +843,46 @@ function IsiRakCell({
   );
 }
 
+const DEBOUNCE_MS = 300;
+
 function BinSkuAssignCell({
+  locationId,
+  binId,
   staged,
-  pendingSkus,
   stagedVariantIds,
-  loading,
   disabled,
   onChange,
 }: {
+  locationId: string;
+  binId: string;
   staged: PendingPutawaySku | null;
-  pendingSkus: PendingPutawaySku[];
   stagedVariantIds: Set<string>;
-  loading?: boolean;
   disabled?: boolean;
-  onChange: (variantId: string | null) => void;
+  onChange: (sku: PendingPutawaySku | null) => void;
 }) {
+  const [rawQuery, setRawQuery] = React.useState("");
+  const [query, setQuery] = React.useState("");
+
+  React.useEffect(() => {
+    const t = setTimeout(() => setQuery(rawQuery), DEBOUNCE_MS);
+    return () => clearTimeout(t);
+  }, [rawQuery]);
+
+  const { data, isFetching, isFetchingNextPage, hasNextPage, fetchNextPage } =
+    useEligibleSkusInfinite(locationId, binId, query);
+
+  const pendingSkus = React.useMemo(
+    () => data?.pages.flatMap((p) => p.data) ?? [],
+    [data]
+  );
+
   const options: ComboboxOption[] = React.useMemo(
-    () =>
-      pendingSkus
+    () => {
+      const opts = pendingSkus
         .filter(
           (s) =>
             s.variantId === staged?.variantId ||
-            !stagedVariantIds.has(s.variantId),
+            !stagedVariantIds.has(s.variantId)
         )
         .map((s) => ({
           value: s.variantId,
@@ -872,8 +890,21 @@ function BinSkuAssignCell({
           hint: s.sku,
           badgeLabel: s.sku,
           imageUrl: s.thumbnail ?? undefined,
-        })),
-    [pendingSkus, stagedVariantIds, staged?.variantId],
+        }));
+        
+      if (staged && !opts.find(o => o.value === staged.variantId)) {
+        opts.push({
+          value: staged.variantId,
+          label: staged.name,
+          hint: staged.sku,
+          badgeLabel: staged.sku,
+          imageUrl: staged.thumbnail ?? undefined,
+        });
+      }
+      
+      return opts;
+    },
+    [pendingSkus, stagedVariantIds, staged]
   );
 
   return (
@@ -881,18 +912,31 @@ function BinSkuAssignCell({
       <Combobox
         options={options}
         value={staged?.variantId ?? null}
-        onChange={onChange}
-        placeholder="Pilih SKU siap putaway"
+        onChange={(val) => {
+          if (!val) onChange(null);
+          else {
+            const found = pendingSkus.find(s => s.variantId === val) || staged;
+            onChange(found || null);
+          }
+        }}
+        onQueryChange={setRawQuery}
+        loading={isFetching && !isFetchingNextPage}
+        onLoadMore={fetchNextPage}
+        hasMore={hasNextPage}
+        loadingMore={isFetchingNextPage}
+        placeholder="Pilih SKU..."
         searchPlaceholder="Cari SKU / nama"
-        emptyText={loading ? "Memuat…" : "Tidak ada SKU siap putaway."}
-        loading={loading}
+        emptyText={isFetching && !isFetchingNextPage ? "Memuat…" : "Tidak ada SKU valid."}
         disabled={disabled}
         wrap
       />
       {staged && (
-        <p className="text-2xs text-primary">
-          Akan ditempatkan ke rak ini saat Simpan.
-        </p>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+          <Badge variant="outline" className="font-mono bg-background">
+            {staged.sku}
+          </Badge>
+          <span className="truncate flex-1">{staged.name}</span>
+        </div>
       )}
     </div>
   );
@@ -1189,25 +1233,18 @@ export function LayoutGudangTab({
       ? `Sistem membuat dokumen Koreksi Stok untuk menurunkan ${removeTarget.sku.onHand.toLocaleString("id-ID")} pcs "${removeTarget.sku.sku}" di rak ${removeTarget.binCode} menjadi 0, lalu rak dikosongkan. Dokumen tercatat di Transaksi Stok › Koreksi Stok. Kalau stok masih terpakai, gunakan Pindah.`
       : `SKU "${removeTarget.sku.sku}" akan dikeluarkan dari rak ${removeTarget.binCode}. Stok fisik sudah 0, jadi tidak ada koreksi stok.`
     : "";
-  const pendingSkusQuery = usePendingPutawaySkus(locationId, isSmallWarehouse);
-  const pendingSkus = React.useMemo(
-    () => pendingSkusQuery.data ?? [],
-    [pendingSkusQuery.data],
-  );
   const stagedVariantIds = React.useMemo(
     () => new Set(Array.from(assignMap.values()).map((s) => s.variantId)),
     [assignMap],
   );
 
-  const handleAssignChange = (binId: string, variantId: string | null) => {
+  const handleAssignChange = (binId: string, sku: PendingPutawaySku | null) => {
     setAssignMap((prev) => {
       const next = new Map(prev);
-      if (!variantId) {
+      if (!sku) {
         next.delete(binId);
       } else {
-        const sku = pendingSkus.find((s) => s.variantId === variantId);
-        if (sku) next.set(binId, sku);
-        else next.delete(binId);
+        next.set(binId, sku);
       }
       return next;
     });
@@ -1934,13 +1971,13 @@ export function LayoutGudangTab({
                           />
                         ) : isSmallWarehouse && b.binId && !isPending ? (
                           <BinSkuAssignCell
+                            locationId={locationId}
+                            binId={b.binId}
                             staged={assignMap.get(b.binId) ?? null}
-                            pendingSkus={pendingSkus}
                             stagedVariantIds={stagedVariantIds}
-                            loading={pendingSkusQuery.isLoading}
                             disabled={disabled}
-                            onChange={(variantId) =>
-                              handleAssignChange(b.binId!, variantId)
+                            onChange={(sku) =>
+                              handleAssignChange(b.binId!, sku)
                             }
                           />
                         ) : (
