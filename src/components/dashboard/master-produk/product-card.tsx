@@ -51,12 +51,7 @@ export function ProductCard({
           </div>
         )}
 
-        <div
-          className={cn(
-            "absolute left-2 top-2 transition-opacity",
-            selected ? "opacity-100" : "opacity-0 group-hover:opacity-100",
-          )}
-        >
+        <div className="absolute left-2 top-2">
           <Checkbox
             checked={selected}
             onCheckedChange={(v) => onSelectedChange(!!v)}

@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-table";
 import { SearchXIcon } from "lucide-react";
 
+import { Checkbox } from "@/components/ui/checkbox";
 import { DataTablePagination } from "@/components/ui/data-table";
 import { GRID_PAGE_SIZES } from "@/components/ui/simple-pagination";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -62,6 +63,20 @@ export function ProductCardView({
 
   return (
     <div className="flex flex-col gap-4">
+      {rows.length > 0 && (
+        <label className="flex w-fit cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
+            aria-label="Pilih semua produk di halaman ini"
+          />
+          Pilih semua
+        </label>
+      )}
+
       {selectedRows.length > 0 && (
         <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-muted/40 px-4 py-2.5 text-sm">
           <span className="font-medium">{selectedRows.length} dipilih</span>

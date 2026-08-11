@@ -30,8 +30,8 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1786342168.574194,
-    "ast_hash": "e91cb3f6b4e17820ded768e714992615",
+    "mtime": 1786421000.8848457,
+    "ast_hash": "5acb54a8aeb65876f1d6d287ba855749",
     "semantic_hash": ""
   },
   "postcss.config.mjs": {
@@ -665,7 +665,7 @@
     "semantic_hash": ""
   },
   "src/app/dashboard/produk/master/page.tsx": {
-    "mtime": 1783822937.2735167,
+    "mtime": 1786425358.1225948,
     "ast_hash": "f5457e43b23f94725007d1171a114f27",
     "semantic_hash": ""
   },
@@ -1775,18 +1775,18 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/product-bulk-actions.tsx": {
-    "mtime": 1785380769.789269,
-    "ast_hash": "061401d0091a5739d86929e31a31541f",
+    "mtime": 1786421000.8871236,
+    "ast_hash": "f17c571e69f5df523502c56bdebff6ba",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/product-card-view.tsx": {
-    "mtime": 1783822937.4665046,
-    "ast_hash": "f8a48e6db3ef920fb45c43e742b546e4",
+    "mtime": 1786425377.1654823,
+    "ast_hash": "58f36ceb85cdfc9acaf0dc7a1f713e0f",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/product-card.tsx": {
-    "mtime": 1785924031.9594915,
-    "ast_hash": "30a7a794766498dc466964d607b03122",
+    "mtime": 1786425362.066835,
+    "ast_hash": "ea9b19d0be60aa1dedb93ea7e5114550",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/product-channel-badges.tsx": {
@@ -1795,8 +1795,8 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/product-columns.tsx": {
-    "mtime": 1784019269.5246294,
-    "ast_hash": "f0a6a55dc921c01b58d98e7d636a615a",
+    "mtime": 1786421000.887941,
+    "ast_hash": "9e9bd5681902c1d0a8f815dd9915b365",
     "semantic_hash": ""
   },
   "src/components/dashboard/master-produk/product-explorer.tsx": {
@@ -2000,7 +2000,7 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/persediaan/produk-settings-table.tsx": {
-    "mtime": 1786361809.608474,
+    "mtime": 1786362296.2397072,
     "ast_hash": "a0373c38fb2fd4cbb70003150adbc850",
     "semantic_hash": ""
   },
@@ -4080,8 +4080,8 @@
     "semantic_hash": ""
   },
   "src/services/master-produk/product-list.service.ts": {
-    "mtime": 1783822937.6397357,
-    "ast_hash": "3f5e29a233fdaa66da5478e5d559905a",
+    "mtime": 1786421000.888475,
+    "ast_hash": "b2d08d472dae571b4b9b60a61f9ea151",
     "semantic_hash": ""
   },
   "src/services/master-produk/product-tabs.service.ts": {
@@ -4435,8 +4435,8 @@
     "semantic_hash": ""
   },
   "src/types/master-produk/product.ts": {
-    "mtime": 1785920803.0766814,
-    "ast_hash": "8bfac12cb8ab6d9436739d1264428d60",
+    "mtime": 1786421000.8892539,
+    "ast_hash": "c8f518705fdb17a88e07a5411feda23e",
     "semantic_hash": ""
   },
   "src/types/monitor-stok/monitor.ts": {
@@ -4940,18 +4940,43 @@
     "semantic_hash": ""
   },
   "src/components/dashboard/persediaan/rack-import-dialog.tsx": {
-    "mtime": 1786361785.3548522,
+    "mtime": 1786362296.2399907,
     "ast_hash": "1a1089bd6c457b8a4b585cdfd14f095d",
     "semantic_hash": ""
   },
   "src/hooks/persediaan/use-rack-import.ts": {
-    "mtime": 1786361672.6747427,
+    "mtime": 1786362296.2406278,
     "ast_hash": "0f12f5a8f10d9b4b3f78fa5b057727bb",
     "semantic_hash": ""
   },
   "src/services/persediaan/rack-import.service.ts": {
-    "mtime": 1786361844.023237,
+    "mtime": 1786362296.2409282,
     "ast_hash": "db1f31a8afbb9f94add6e6a76d598199",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/master-produk/gabung/merge-apply-dialog.tsx": {
+    "mtime": 1786421000.8862426,
+    "ast_hash": "4bd81f567579d3189aa104be48708c92",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/master-produk/gabung/merge-suggestions-button.tsx": {
+    "mtime": 1786421000.8864295,
+    "ast_hash": "122d556469de5a4eb9937b31c2fa7ab0",
+    "semantic_hash": ""
+  },
+  "src/hooks/master-produk/use-product-merge.ts": {
+    "mtime": 1786421000.8881042,
+    "ast_hash": "b7a485e287a56a7e3dbf9ce5d430e16c",
+    "semantic_hash": ""
+  },
+  "src/services/master-produk/product-merge.service.ts": {
+    "mtime": 1786421000.8886497,
+    "ast_hash": "c9d1aa65b81e4c18ae69a52c886c6539",
+    "semantic_hash": ""
+  },
+  "src/types/product-merge.ts": {
+    "mtime": 1786421000.889418,
+    "ast_hash": "ba7192dce0c23b6a5002ca74ce41c1c8",
     "semantic_hash": ""
   }
 }
