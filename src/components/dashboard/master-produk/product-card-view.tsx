@@ -39,10 +39,8 @@ export function ProductCardView({
     rowCount: total,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
-    onPaginationChange: (u) =>
-      onPaginationChange(typeof u === "function" ? u(pagination) : u),
-    onSortingChange: (u) =>
-      onSortingChange(typeof u === "function" ? u(sorting) : u),
+    onPaginationChange: onPaginationChange,
+    onSortingChange: onSortingChange,
     getCoreRowModel: getCoreRowModel(),
   });
 

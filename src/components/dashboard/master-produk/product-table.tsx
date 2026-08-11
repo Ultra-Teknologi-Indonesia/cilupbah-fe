@@ -15,9 +15,9 @@ export interface ProductListViewProps {
   total: number;
   isLoading: boolean;
   sorting: SortingState;
-  onSortingChange: (s: SortingState) => void;
+  onSortingChange: React.Dispatch<React.SetStateAction<SortingState>>;
   pagination: PaginationState;
-  onPaginationChange: (p: PaginationState) => void;
+  onPaginationChange: React.Dispatch<React.SetStateAction<PaginationState>>;
   syncFilters?: SyncStockFilters;
 }
 

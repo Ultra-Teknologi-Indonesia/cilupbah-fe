@@ -72,9 +72,9 @@ export interface DataTableProps<TData, TValue> {
 
   rowCount?: number;
   sorting?: SortingState;
-  onSortingChange?: (s: SortingState) => void;
+  onSortingChange?: React.Dispatch<React.SetStateAction<SortingState>>;
   pagination?: PaginationState;
-  onPaginationChange?: (p: PaginationState) => void;
+  onPaginationChange?: React.Dispatch<React.SetStateAction<PaginationState>>;
 
   isLoading?: boolean;
   isFetching?: boolean;
@@ -159,15 +159,12 @@ export function DataTable<TData, TValue>({
     rowCount: manualPagination ? rowCount : undefined,
     getRowCanExpand: renderSubRow ? () => true : undefined,
     onSortingChange: (updater) => {
-      const next = typeof updater === "function" ? updater(sorting) : updater;
-      setInternalSorting(next);
-      onSortingChange?.(next);
+      setInternalSorting(updater);
+      onSortingChange?.(updater);
     },
     onPaginationChange: (updater) => {
-      const next =
-        typeof updater === "function" ? updater(pagination) : updater;
-      setInternalPagination(next);
-      onPaginationChange?.(next);
+      setInternalPagination(updater);
+      onPaginationChange?.(updater);
     },
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
