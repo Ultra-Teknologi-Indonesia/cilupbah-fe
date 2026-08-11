@@ -70,6 +70,9 @@ export interface RawConnectedStore {
   is_shadow_mode: boolean;
   shadow_started_at: string | null;
   shadow_last_pulled_at: string | null;
+  stock_push_enabled: boolean;
+  stock_push_buffer: number;
+  stock_handover_at: string | null;
   integration: { status: IntegrationStatus; note?: string; action?: ChannelStoreAction | null };
   order_sync: { status: OrderSyncStatus; note?: string | null; action?: ChannelStoreAction | null };
   last_order_synced_at: string | null;

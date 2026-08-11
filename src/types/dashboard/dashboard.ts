@@ -3,6 +3,7 @@ export interface DashboardSummary {
   orders_total: number;
   orders_by_status: Record<string, number>;
   orders_by_channel: Record<string, number>;
+  data_starts_at: string | null;
   ready_to_process: number;
   empty_stock: number;
   failed_pick: number;
