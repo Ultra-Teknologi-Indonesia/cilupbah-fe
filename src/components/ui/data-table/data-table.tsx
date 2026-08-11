@@ -72,9 +72,9 @@ export interface DataTableProps<TData, TValue> {
 
   rowCount?: number;
   sorting?: SortingState;
-  onSortingChange?: React.Dispatch<React.SetStateAction<SortingState>>;
+  onSortingChange?: (sorting: SortingState) => void;
   pagination?: PaginationState;
-  onPaginationChange?: React.Dispatch<React.SetStateAction<PaginationState>>;
+  onPaginationChange?: (pagination: PaginationState) => void;
 
   isLoading?: boolean;
   isFetching?: boolean;
@@ -160,11 +160,19 @@ export function DataTable<TData, TValue>({
     getRowCanExpand: renderSubRow ? () => true : undefined,
     onSortingChange: (updater) => {
       setInternalSorting(updater);
-      onSortingChange?.(updater);
+      if (onSortingChange) {
+        onSortingChange(
+          typeof updater === "function" ? updater(sorting) : updater
+        );
+      }
     },
     onPaginationChange: (updater) => {
       setInternalPagination(updater);
-      onPaginationChange?.(updater);
+      if (onPaginationChange) {
+        onPaginationChange(
+          typeof updater === "function" ? updater(pagination) : updater
+        );
+      }
     },
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
@@ -300,7 +308,9 @@ export function DataTable<TData, TValue>({
               ) : (
                 <TableRow>
                   <TableCell colSpan={colSpan} className="h-32 text-center">
-                    {emptyState ?? <EmptyState title="Belum ada data" className="py-2" />}
+                    {emptyState ?? (
+                      <EmptyState title="Belum ada data" className="py-2" />
+                    )}
                   </TableCell>
                 </TableRow>
               )}
