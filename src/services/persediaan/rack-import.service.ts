@@ -153,10 +153,16 @@ export const RackImportService = {
 
   listRows: async (
     batchId: string,
-    params: { status?: RackImportRowStatus; page?: number; perPage?: number } = {},
+    params: {
+      status?: RackImportRowStatus;
+      search?: string;
+      page?: number;
+      perPage?: number;
+    } = {},
   ): Promise<{ items: RackImportRow[]; meta: PageMeta }> => {
     const q = new URLSearchParams();
     if (params.status) q.set("status", params.status);
+    if (params.search) q.set("search", params.search);
     q.set("page", String(params.page ?? 1));
     q.set("per_page", String(params.perPage ?? 20));
     const res = await fetchClient<ApiPaginated<RawRackImportRow>>(

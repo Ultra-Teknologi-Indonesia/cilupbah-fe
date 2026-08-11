@@ -61,7 +61,12 @@ export function useRackImportBatch(batchId: string | null) {
 
 export function useRackImportRows(
   batchId: string | null,
-  params: { status?: RackImportRowStatus; page?: number; perPage?: number },
+  params: {
+    status?: RackImportRowStatus;
+    search?: string;
+    page?: number;
+    perPage?: number;
+  },
 ) {
   return useQuery({
     queryKey: ["persediaan", "rack-import-rows", batchId ?? "", params] as const,

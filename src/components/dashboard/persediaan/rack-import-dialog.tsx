@@ -6,8 +6,10 @@ import {
   DownloadIcon,
   FileSpreadsheetIcon,
   Loader2Icon,
+  SearchIcon,
   TriangleAlertIcon,
   UploadIcon,
+  XIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,6 +23,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
+import { SimplePagination } from "@/components/ui/simple-pagination";
 import {
   Table,
   TableBody,
@@ -29,6 +34,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   rackImportErrorsDownloadUrl,
   rackImportTemplateUrl,
@@ -39,13 +45,14 @@ import {
 } from "@/hooks/persediaan/use-rack-import";
 import type {
   RackImportBatch,
-  RackImportRow,
   RackImportRowStatus,
 } from "@/hooks/persediaan/use-rack-import";
 
 const ACCEPT = ".csv,.xlsx,.xls";
 const MAX_SIZE = 20 * 1024 * 1024;
-const PREVIEW_SAMPLE = 50;
+const DEFAULT_PER_PAGE = 50;
+
+type StatusFilter = RackImportRowStatus | "all";
 
 interface Props {
   open: boolean;
@@ -86,9 +93,6 @@ export function RackImportDialog({ open, onOpenChange }: Props) {
   const { data: batch } = useRackImportBatch(batchId);
 
   const isPreviewed = batch?.state === "previewed";
-  const { data: rows } = useRackImportRows(isPreviewed ? batchId : null, {
-    perPage: PREVIEW_SAMPLE,
-  });
 
   const reset = React.useCallback(() => {
     setFile(null);
@@ -131,7 +135,7 @@ export function RackImportDialog({ open, onOpenChange }: Props) {
         onOpenChange(o);
       }}
     >
-      <DialogContent className="sm:max-w-3xl">
+      <DialogContent className="sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>Import Alokasi Rak</DialogTitle>
           <DialogDescription>
@@ -171,11 +175,10 @@ export function RackImportDialog({ open, onOpenChange }: Props) {
             onAgain={reset}
             onClose={() => onOpenChange(false)}
           />
-        ) : isPreviewed && batch ? (
+        ) : isPreviewed && batch && batchId ? (
           <PreviewStep
+            batchId={batchId}
             batch={batch}
-            rows={rows?.items ?? []}
-            totalRows={rows?.meta?.total ?? batch.totalRows}
             confirmPending={confirmMut.isPending}
             onChangeFile={reset}
             onApply={applyPreview}
@@ -318,68 +321,121 @@ function ProgressStep({
   );
 }
 
-function SummaryBadge({
+function FilterChip({
+  active,
   value,
   label,
-  className,
+  tone,
+  onClick,
 }: {
+  active: boolean;
   value: number;
   label: string;
-  className?: string;
+  tone: string;
+  onClick: () => void;
 }) {
   return (
-    <Badge variant="outline" className={className}>
-      <span className="tabular-nums font-semibold">{value}</span>
-      <span className="ml-1 font-normal">{label}</span>
-    </Badge>
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors",
+        active
+          ? "border-primary bg-primary/10"
+          : "border-border hover:bg-muted/50",
+      )}
+    >
+      <span className={cn("tabular-nums font-semibold", tone)}>{value}</span>
+      <span className={cn("font-normal", active ? "" : "text-muted-foreground")}>
+        {label}
+      </span>
+    </button>
   );
 }
 
 function PreviewStep({
+  batchId,
   batch,
-  rows,
-  totalRows,
   confirmPending,
   onChangeFile,
   onApply,
 }: {
+  batchId: string;
   batch: RackImportBatch;
-  rows: RackImportRow[];
-  totalRows: number;
   confirmPending: boolean;
   onChangeFile: () => void;
   onApply: () => void;
 }) {
+  const [status, setStatus] = React.useState<StatusFilter>("all");
+  const [searchInput, setSearchInput] = React.useState("");
+  const [page, setPage] = React.useState(1);
+  const [perPage, setPerPage] = React.useState(DEFAULT_PER_PAGE);
+  const search = useDebouncedValue(searchInput.trim(), 350);
+
+  const { data, isFetching } = useRackImportRows(batchId, {
+    status: status === "all" ? undefined : status,
+    search: search || undefined,
+    page,
+    perPage,
+  });
+
+  const rows = data?.items ?? [];
+  const total = data?.meta?.total ?? 0;
+  const lastPage = data?.meta?.last_page ?? 1;
+  const filtering = status !== "all" || search.length > 0;
+
   const hasProblems = batch.errorRows + batch.manualMoveRows > 0;
   const canApply = batch.placeRows > 0;
-  const shownAll = rows.length >= totalRows;
+
+  const changeStatus = (next: StatusFilter) => {
+    setStatus(next);
+    setPage(1);
+  };
+  const toggle = (next: StatusFilter) =>
+    changeStatus(status === next ? "all" : next);
+  const changeSearch = (value: string) => {
+    setSearchInput(value);
+    setPage(1);
+  };
 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2 text-sm">
-        <span className="text-muted-foreground">Total baris:</span>
-        <Badge variant="secondary" className="tabular-nums">
-          {batch.totalRows}
-        </Badge>
-        <SummaryBadge
+        <FilterChip
+          active={status === "all"}
+          value={batch.totalRows}
+          label="Total baris"
+          tone=""
+          onClick={() => changeStatus("all")}
+        />
+        <FilterChip
+          active={status === "place"}
           value={batch.placeRows}
           label="ditempatkan"
-          className="text-success"
+          tone="text-success"
+          onClick={() => toggle("place")}
         />
-        <SummaryBadge
+        <FilterChip
+          active={status === "manual_move"}
           value={batch.manualMoveRows}
           label="Pindah Bin"
-          className="text-warning"
+          tone="text-warning"
+          onClick={() => toggle("manual_move")}
         />
-        <SummaryBadge
+        <FilterChip
+          active={status === "already"}
           value={batch.alreadyRows}
           label="sudah sesuai"
-          className="text-muted-foreground"
+          tone="text-muted-foreground"
+          onClick={() => toggle("already")}
         />
-        <SummaryBadge
+        <FilterChip
+          active={status === "error"}
           value={batch.errorRows}
           label="gagal"
-          className="text-destructive"
+          tone="text-destructive"
+          onClick={() => toggle("error")}
         />
         {hasProblems && (
           <a
@@ -395,10 +451,30 @@ function PreviewStep({
         )}
       </div>
 
+      <div className="relative">
+        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={searchInput}
+          onChange={(e) => changeSearch(e.target.value)}
+          placeholder="Cari SKU, kode rak, atau gudang…"
+          className="pl-9"
+        />
+        {searchInput && (
+          <button
+            type="button"
+            onClick={() => changeSearch("")}
+            aria-label="Bersihkan pencarian"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted/60"
+          >
+            <XIcon className="size-3.5" />
+          </button>
+        )}
+      </div>
+
       <div className="max-h-[46vh] overflow-auto rounded-2xl border border-border">
-        <Table className="min-w-[640px]">
-          <TableHeader>
-            <TableRow className="border-b border-border/60 bg-muted/40">
+        <Table className="min-w-[720px]">
+          <TableHeader className="sticky top-0 z-10">
+            <TableRow className="border-b border-border/60 bg-muted/60 backdrop-blur">
               <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
                 SKU
               </TableHead>
@@ -417,33 +493,60 @@ function PreviewStep({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.map((r) => (
-              <TableRow
-                key={r.id}
-                className="border-b border-border/40 last:border-0"
-              >
-                <TableCell className="px-3 py-2 font-mono text-xs">
-                  {r.sku}
-                </TableCell>
-                <TableCell className="px-3 py-2 text-sm">{r.location}</TableCell>
-                <TableCell className="px-3 py-2 text-sm">{r.bin}</TableCell>
-                <TableCell className="px-3 py-2">
-                  <RowStatusPill status={r.status} />
-                </TableCell>
-                <TableCell className="px-3 py-2 text-xs text-muted-foreground">
-                  {r.message}
+            {rows.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="p-0">
+                  <EmptyState
+                    icon={SearchIcon}
+                    className="py-10"
+                    title={filtering ? "Tidak ada baris cocok" : "Belum ada baris"}
+                    description={
+                      filtering
+                        ? "Coba ubah kata kunci atau filter status."
+                        : "Pratinjau belum menghasilkan baris."
+                    }
+                  />
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              rows.map((r) => (
+                <TableRow
+                  key={r.id}
+                  className="border-b border-border/40 last:border-0"
+                >
+                  <TableCell className="px-3 py-2 font-mono text-xs whitespace-nowrap">
+                    {r.sku}
+                  </TableCell>
+                  <TableCell className="px-3 py-2 text-sm whitespace-nowrap">
+                    {r.location}
+                  </TableCell>
+                  <TableCell className="px-3 py-2 text-sm whitespace-nowrap">
+                    {r.bin}
+                  </TableCell>
+                  <TableCell className="px-3 py-2">
+                    <RowStatusPill status={r.status} />
+                  </TableCell>
+                  <TableCell className="px-3 py-2 text-xs text-muted-foreground">
+                    {r.message}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
-      {!shownAll && (
-        <p className="text-xs text-muted-foreground">
-          Menampilkan {rows.length} dari {totalRows} baris. Unduh laporan untuk
-          daftar lengkap baris bermasalah.
-        </p>
-      )}
+
+      <SimplePagination
+        page={page}
+        lastPage={lastPage}
+        onPageChange={setPage}
+        perPage={perPage}
+        onPerPageChange={setPerPage}
+        pageSizeOptions={[50, 100, 200]}
+        isFetching={isFetching}
+        total={total}
+        label="baris"
+      />
 
       <div className="flex justify-end gap-2 pt-1">
         <Button variant="outline" onClick={onChangeFile}>
