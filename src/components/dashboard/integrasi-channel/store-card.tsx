@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { relativeTime } from "@/lib/format";
 import { Switch } from "@/components/ui/switch";
@@ -21,22 +21,28 @@ const NOTE_STYLE: Record<string, string> = {
 export function StoreCard({
   store,
   onToggleActive,
-  onToggleOrders,
   onToggleShadow,
+  onOpenSync,
   onRefresh,
   onReauth,
   onDisconnect,
 }: {
   store: ConnectedStore;
   onToggleActive: (id: string, value: boolean) => void;
-  onToggleOrders: (id: string, value: boolean) => void;
   onToggleShadow: (id: string, value: boolean) => void;
+  onOpenSync: (store: ConnectedStore) => void;
   onRefresh: (store: ConnectedStore) => void;
   onReauth: (store: ConnectedStore) => void;
   onDisconnect: (store: ConnectedStore) => void;
 }) {
   const { can } = usePermissions();
   const canEdit = can("edit-integrasi-channel");
+  const activeAxes = [
+    store.ordersEnabled,
+    store.catalogPullEnabled,
+    store.catalogPushEnabled,
+    store.stockPushEnabled,
+  ].filter(Boolean).length;
   const status = store.orderSync.status;
   const needsReauth =
     store.integration.action === "reauth" ||
@@ -116,16 +122,16 @@ export function StoreCard({
             />
             <span className="text-xs text-muted-foreground">Toko Aktif</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={store.ordersEnabled}
-              onCheckedChange={(v) => onToggleOrders(store.id, v)}
-              aria-label={`Sinkron pesanan ${store.shopName}`}
-            />
-            <span className="text-xs text-muted-foreground">
-              Sinkron Pesanan
-            </span>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onOpenSync(store)}
+            className="gap-1.5 text-xs text-muted-foreground"
+          >
+            <SlidersHorizontal className="size-3.5" />
+            Sinkronisasi
+            <span className="text-foreground">{activeAxes}/4</span>
+          </Button>
           <div className="flex items-center gap-2">
             <Switch
               checked={store.isShadowMode}

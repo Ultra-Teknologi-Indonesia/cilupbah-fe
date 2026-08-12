@@ -35,6 +35,9 @@ export interface ConnectedStore {
   isActive: boolean;
   ordersEnabled: boolean;
   isShadowMode: boolean;
+  catalogPullEnabled: boolean;
+  catalogPushEnabled: boolean;
+  stockPushEnabled: boolean;
   integration: StoreIntegration;
   orderSync: OrderSyncInfo;
   lastOrderSyncedAt: string | null;
@@ -43,6 +46,17 @@ export interface ConnectedStore {
 
   linkedStore?: { code: ChannelCode; name: string };
   connectedAt: string;
+}
+
+export interface StoreFlags {
+  is_active?: boolean;
+  order_sync_enabled?: boolean;
+  is_shadow_mode?: boolean;
+  catalog_pull_enabled?: boolean;
+  catalog_push_enabled?: boolean;
+  stock_push_enabled?: boolean;
+  stock_source_mode?: StockSourceMode;
+  location_id?: string | null;
 }
 
 export interface ChannelGroup {
@@ -73,6 +87,8 @@ export interface RawConnectedStore {
   stock_push_enabled: boolean;
   stock_push_buffer: number;
   stock_handover_at: string | null;
+  catalog_pull_enabled: boolean;
+  catalog_push_enabled: boolean;
   integration: { status: IntegrationStatus; note?: string; action?: ChannelStoreAction | null };
   order_sync: { status: OrderSyncStatus; note?: string | null; action?: ChannelStoreAction | null };
   last_order_synced_at: string | null;

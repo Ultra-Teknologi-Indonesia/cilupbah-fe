@@ -22,6 +22,7 @@ export function fulfillmentToOrder(f: FulfillmentOrder): Order {
     salesorder_no: f.salesorderNo,
     channel_order_no: f.channelOrderNo,
     source: f.source,
+    is_shadow: false,
     channel_shop_id: null,
     shop_name: null,
     customer_name: f.customerName ?? "",

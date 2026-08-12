@@ -10,6 +10,7 @@ import type {
   Channel,
   ChannelGroup as ChannelGroupType,
   ConnectedStore,
+  StoreFlags,
 } from "@/types/channel";
 import { groupStores } from "@/lib/channel/group-stores";
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
@@ -23,6 +24,7 @@ import { GlobalSyncToggle } from "@/components/dashboard/channel/global-sync-tog
 import { ChannelGroup } from "./channel-group";
 import { ConnectMarketplacePanel } from "./connect-marketplace-panel";
 import { WooCommerceConnectDialog } from "./woocommerce-connect-dialog";
+import { StoreSyncDialog } from "./store-sync-dialog";
 
 function GroupSkeleton() {
   return (
@@ -53,6 +55,7 @@ export function IntegrasiChannelView() {
   const refresh = useRefreshToken();
   const { connect, pendingCode } = useConnectChannel();
   const [wooOpen, setWooOpen] = React.useState(false);
+  const [syncStore, setSyncStore] = React.useState<ConnectedStore | null>(null);
 
   React.useEffect(() => {
     const sp = new URLSearchParams(window.location.search);
@@ -79,10 +82,11 @@ export function IntegrasiChannelView() {
 
   const onToggleActive = (id: string, value: boolean) =>
     toggle.mutate({ id, flags: { is_active: value } });
-  const onToggleOrders = (id: string, value: boolean) =>
-    toggle.mutate({ id, flags: { order_sync_enabled: value } });
   const onToggleShadow = (id: string, value: boolean) =>
     toggle.mutate({ id, flags: { is_shadow_mode: value } });
+  const onSyncFlagsChange = (id: string, flags: StoreFlags) =>
+    toggle.mutate({ id, flags });
+  const onOpenSync = (store: ConnectedStore) => setSyncStore(store);
   const onDisconnect = (store: ConnectedStore) => disconnect.mutate(store.id);
   const onRefresh = (store: ConnectedStore) => {
     const channel =
@@ -134,7 +138,7 @@ export function IntegrasiChannelView() {
           group={group}
           onAdd={onAdd}
           onToggleActive={onToggleActive}
-          onToggleOrders={onToggleOrders}
+          onOpenSync={onOpenSync}
           onToggleShadow={onToggleShadow}
           onRefresh={onRefresh}
           onReauth={onReauth}
@@ -165,6 +169,13 @@ export function IntegrasiChannelView() {
       )}
 
       <WooCommerceConnectDialog open={wooOpen} onOpenChange={setWooOpen} />
+      <StoreSyncDialog
+        store={syncStore ? (groups.flatMap((g) => g.stores).find((s) => s.id === syncStore.id) ?? syncStore) : null}
+        open={syncStore !== null}
+        onOpenChange={(open) => !open && setSyncStore(null)}
+        onChange={onSyncFlagsChange}
+        disabled={toggle.isPending}
+      />
     </div>
   );
 }

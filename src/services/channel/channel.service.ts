@@ -6,16 +6,10 @@ import type {
   RawConnectedStore,
   RawStockAllocationStore,
   StockAllocationStore,
-  StockSourceMode,
+  StoreFlags,
 } from "@/types/channel";
 
-export interface StoreFlags {
-  is_active?: boolean;
-  order_sync_enabled?: boolean;
-  is_shadow_mode?: boolean;
-  stock_source_mode?: StockSourceMode;
-  location_id?: string | null;
-}
+export type { StoreFlags };
 
 export interface StockAllocationParams {
   page?: number;
