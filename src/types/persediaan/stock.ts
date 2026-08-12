@@ -87,6 +87,11 @@ export interface BinInventory {
   on_hand: number;
   on_order: number;
   available: number;
+
+  /** Sudah diambil dari rak ini tapi belum dikemas. */
+  picked_not_packed: number;
+  /** Yang masih ada di rak ini. Dihitung di backend. */
+  actual: number;
   avg_cost: number;
 }
 

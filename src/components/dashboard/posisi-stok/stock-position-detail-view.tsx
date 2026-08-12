@@ -996,6 +996,12 @@ function BinSection({ itemId }: { itemId: string }) {
               On Hand
             </TableHead>
             <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">
+              Stok Aktual
+            </TableHead>
+            <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">
+              Di Meja Packing
+            </TableHead>
+            <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">
               On Order
             </TableHead>
             <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">
@@ -1029,6 +1035,19 @@ function BinSection({ itemId }: { itemId: string }) {
               </TableCell>
               <TableCell className="px-3 py-2.5 text-right font-semibold tabular-nums">
                 {b.on_hand}
+              </TableCell>
+              <TableCell className="px-3 py-2.5 text-right font-semibold tabular-nums">
+                {b.actual ?? b.on_hand}
+              </TableCell>
+              <TableCell
+                className={cn(
+                  "px-3 py-2.5 text-right tabular-nums",
+                  (b.picked_not_packed ?? 0) > 0
+                    ? "text-warning"
+                    : "text-muted-foreground",
+                )}
+              >
+                {b.picked_not_packed ?? 0}
               </TableCell>
               <TableCell className="px-3 py-2.5 text-right tabular-nums text-warning">
                 {b.on_order}
