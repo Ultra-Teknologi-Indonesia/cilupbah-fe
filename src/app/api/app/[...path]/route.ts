@@ -129,7 +129,6 @@ async function proxyRequest(
     for (const header of [
       "content-type",
       "content-disposition",
-      "content-length",
       "cache-control",
     ]) {
       const value = response.headers.get(header);
