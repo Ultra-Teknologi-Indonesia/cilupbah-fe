@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { ExternalLinkIcon } from "lucide-react";
 
 import {
   Select,
@@ -108,25 +109,52 @@ export function TabChannel({ productId }: { productId: string }) {
               {
                 accessorKey: "listings",
                 header: "Listing channel",
-                cell: ({ row }) => (
-                  <div className="flex flex-wrap gap-1.5">
-                    {row.original.listings.map((l, i) => (
-                      <span
-                        key={i}
-                        className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-background px-2 py-1 text-xs"
-                        title={l.channelName ?? undefined}
-                      >
-                        <span className="truncate max-w-[160px]">
-                          {l.shopName ?? l.channelCode}
-                        </span>
-                        <SyncStatusBadge
-                          status={l.syncStatus}
-                          reason={l.errorMessage}
-                        />
-                      </span>
-                    ))}
-                  </div>
-                ),
+                cell: ({ row }) => {
+                  const listings = row.original.listings;
+                  if (listings.length === 0) {
+                    return (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    );
+                  }
+                  return (
+                    <div className="flex flex-col gap-1.5">
+                      {listings.map((l, i) => (
+                        <div
+                          key={i}
+                          className="flex items-center gap-2 rounded-xl border border-border/60 bg-background px-2 py-1 text-xs"
+                        >
+                          <span className="min-w-0 flex-1 truncate">
+                            <span className="text-muted-foreground">
+                              {l.channelName ?? l.channelCode ?? "—"}
+                            </span>
+                            {" · "}
+                            {l.shopName ?? "—"}
+                          </span>
+                          {l.channelUrl ? (
+                            <a
+                              href={l.channelUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex max-w-[280px] items-center gap-1 truncate font-medium text-primary hover:underline"
+                              title={l.channelUrl}
+                            >
+                              <span className="truncate">{l.channelUrl}</span>
+                              <ExternalLinkIcon className="size-3.5 shrink-0" />
+                            </a>
+                          ) : (
+                            <span className="text-muted-foreground">
+                              Tanpa link
+                            </span>
+                          )}
+                          <SyncStatusBadge
+                            status={l.syncStatus}
+                            reason={l.errorMessage}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  );
+                },
               },
             ],
             [],

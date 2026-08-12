@@ -63,6 +63,8 @@ export interface ChannelListingItem {
   channelName: string | null;
   channelCode: string | null;
   externalProductId: string | null;
+  externalSkuId: string | null;
+  channelUrl: string | null;
   syncStatus: string | null;
   errorMessage: string | null;
   lastSyncedAt: string | null;
@@ -83,6 +85,8 @@ interface RawChannelListingRow {
     channel_name: string | null;
     channel_code: string | null;
     external_product_id: string | null;
+    external_sku_id: string | null;
+    channel_url: string | null;
     sync_status: string | null;
     error_message: string | null;
     last_synced_at: string | null;
@@ -209,6 +213,8 @@ export const ProductTabsService = {
           channelName: l.channel_name,
           channelCode: l.channel_code,
           externalProductId: l.external_product_id,
+          externalSkuId: l.external_sku_id,
+          channelUrl: l.channel_url,
           syncStatus: l.sync_status,
           errorMessage: l.error_message,
           lastSyncedAt: l.last_synced_at,
