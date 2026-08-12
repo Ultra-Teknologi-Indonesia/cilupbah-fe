@@ -278,12 +278,16 @@ function QtyCell({ qty }: { qty: number }) {
 
 function StockSummaryCards({
   onHand,
+  actual,
+  pickedNotPacked,
   onOrder,
   transit,
   available,
   avgCost,
 }: {
   onHand: number;
+  actual: number;
+  pickedNotPacked: number;
   onOrder: number;
   transit: number;
   available: number;
@@ -291,6 +295,15 @@ function StockSummaryCards({
 }) {
   const cards = [
     { label: "On Hand", value: onHand, color: "" },
+    { label: "Stok Aktual", value: actual, color: "" },
+    {
+      label: "Di Meja Packing",
+      value: pickedNotPacked,
+      color:
+        pickedNotPacked > 0
+          ? "text-warning"
+          : "text-muted-foreground",
+    },
     { label: "On Order", value: onOrder, color: "" },
     {
       label: "Transit",
@@ -311,7 +324,7 @@ function StockSummaryCards({
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
       {cards.map((c) => (
         <LiquidGlass
           key={c.label}
@@ -1354,6 +1367,8 @@ export function StockPositionDetailView({ itemId }: { itemId: string }) {
 
           <StockSummaryCards
             onHand={item.total_stocks.on_hand}
+            actual={item.total_stocks.actual ?? item.total_stocks.on_hand}
+            pickedNotPacked={item.total_stocks.picked_not_packed ?? 0}
             onOrder={item.total_stocks.on_order}
             transit={item.total_stocks.transit ?? 0}
             available={item.total_stocks.available}

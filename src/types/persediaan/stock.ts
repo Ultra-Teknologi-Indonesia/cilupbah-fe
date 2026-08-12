@@ -13,6 +13,11 @@ export interface TotalStocks {
   available: number;
 
   transit: number;
+
+  /** Sudah diambil dari rak tapi belum dikemas — fisiknya di meja packing. */
+  picked_not_packed: number;
+  /** Yang masih ada di rak. Dihitung di backend, jangan diturunkan di sini. */
+  actual: number;
 }
 
 export interface VariationValue {
