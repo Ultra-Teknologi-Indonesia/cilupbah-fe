@@ -48,6 +48,7 @@ import { BuatPengirimanDialog } from "@/components/dashboard/proses-pesanan/ship
 import { DriverCallIndicator } from "@/components/dashboard/proses-pesanan/shared/driver-call-indicator";
 import { DeleteOrderDialog } from "@/components/dashboard/proses-pesanan/shared/delete-order-dialog";
 import { RequestCancelDialog } from "@/components/dashboard/pesanan/request-cancel-dialog";
+import { DirectCompletionDialog } from "@/components/dashboard/pesanan/direct-completion-dialog";
 import { canRequestChannelCancel } from "@/lib/pesanan/cancel-eligibility";
 import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
 import { isShopeeInstantOrSameDay } from "@/lib/proses-pesanan/shopee";
@@ -342,17 +343,10 @@ export function OrderActions({
           <ArrowRightIcon className="size-3.5" />
           {moveToReady.isPending ? "Memproses..." : "Proses Pesanan"}
         </Button>
-        <ConfirmDialog
+        <DirectCompletionDialog
           open={completeOpen}
           onOpenChange={setCompleteOpen}
-          title="Selesaikan pesanan ini?"
-          description={`Pesanan ${order.salesorder_no} akan ditandai selesai.`}
-          confirmLabel="Ya, Selesaikan"
-          cancelLabel="Batal"
-          onConfirm={() => {
-            setCompleteOpen(false);
-            markComplete.mutate([order.id]);
-          }}
+          orderIds={[order.id]}
         />
         <RelocateDialog
           order={order}

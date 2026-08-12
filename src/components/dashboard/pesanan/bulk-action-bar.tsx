@@ -32,6 +32,7 @@ import {
 } from "@/hooks/pesanan/use-order-actions";
 import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
 import { BulkRequestCancelDialog } from "./bulk-request-cancel-dialog";
+import { DirectCompletionDialog } from "./direct-completion-dialog";
 
 export function BulkActionBar({
   tab,
@@ -103,6 +104,7 @@ function TabBulkActions({
   onDone: () => void;
 }) {
   const [bulkCancelOpen, setBulkCancelOpen] = useState(false);
+  const [directCompleteOpen, setDirectCompleteOpen] = useState(false);
   const bulkContact = useBulkMarkContacted();
   const moveToReady = useMoveToReady();
   const markComplete = useMarkComplete();
@@ -144,14 +146,18 @@ function TabBulkActions({
           variant="outline"
           size="sm"
           className="h-8 gap-1.5 text-xs"
-          disabled={markComplete.isPending || selectedIds.length === 0}
-          onClick={() =>
-            markComplete.mutate(selectedIds, { onSuccess: () => onDone() })
-          }
+          disabled={selectedIds.length === 0}
+          onClick={() => setDirectCompleteOpen(true)}
         >
           <CheckCircleIcon className="size-3.5" />
-          {markComplete.isPending ? "Menyelesaikan..." : "Selesaikan"}
+          Selesaikan
         </Button>
+        <DirectCompletionDialog
+          open={directCompleteOpen}
+          onOpenChange={setDirectCompleteOpen}
+          orderIds={selectedIds}
+          onDone={onDone}
+        />
       </>
     );
   }
