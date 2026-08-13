@@ -176,6 +176,7 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
             "courier",
             "location",
             "courier_type",
+            "awb",
             "payment",
             "date",
           ]}

@@ -43,6 +43,7 @@ type ReadyFilterState = {
   location_id: string;
   source: string;
   channel_shop_id: string;
+  awb: string;
   label_printed: string;
   date_from: string;
   date_to: string;
@@ -53,6 +54,7 @@ const EMPTY_READY_FILTERS: ReadyFilterState = {
   location_id: "",
   source: "",
   channel_shop_id: "",
+  awb: "",
   label_printed: "",
   date_from: "",
   date_to: "",
@@ -76,6 +78,7 @@ export function ReadyToProcessCardList() {
       location_id: list.filters.location_id || undefined,
       source: list.filters.source || undefined,
       channel_shop_id: list.filters.channel_shop_id || undefined,
+      awb: (list.filters.awb as "yes" | "no" | "") || undefined,
       label_printed:
         (list.filters.label_printed as "yes" | "no" | "") || undefined,
       date_from: list.filters.date_from || undefined,
@@ -214,6 +217,7 @@ export function ReadyToProcessCardList() {
           "location",
           "channel",
           "store",
+          "awb",
           "label_printed",
           "date",
         ]}

@@ -49,6 +49,7 @@ type CardFilterState = {
   location_id: string;
   source: string;
   channel_shop_id: string;
+  awb: string;
   label_printed: string;
   date_from: string;
   date_to: string;
@@ -65,6 +66,7 @@ const EMPTY_CARD_FILTERS: CardFilterState = {
   location_id: "",
   source: "",
   channel_shop_id: "",
+  awb: "",
   label_printed: "",
   date_from: "",
   date_to: "",
@@ -118,6 +120,7 @@ export function FulfillmentCardList({
       location_id: list.filters.location_id || undefined,
       source: list.filters.source || undefined,
       channel_shop_id: list.filters.channel_shop_id || undefined,
+      awb: (list.filters.awb as "yes" | "no" | "") || undefined,
       label_printed:
         (list.filters.label_printed as "yes" | "no" | "") || undefined,
       date_from: list.filters.date_from || undefined,

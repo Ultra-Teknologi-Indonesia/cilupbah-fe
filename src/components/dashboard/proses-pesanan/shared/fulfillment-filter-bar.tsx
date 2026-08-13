@@ -23,6 +23,7 @@ export type FulfillmentFilterField =
   | "location"
   | "channel"
   | "store"
+  | "awb"
   | "label_printed"
   | "date"
   | "zone"
@@ -37,6 +38,7 @@ export interface FulfillmentFilterValue {
   location_id?: string;
   source?: string;
   channel_shop_id?: string;
+  awb?: string;
   label_printed?: string;
   date_from?: string;
   date_to?: string;
@@ -73,6 +75,11 @@ const CHANNEL_OPTIONS = [
 const LABEL_PRINTED_OPTIONS = [
   { value: "yes", label: "Sudah cetak" },
   { value: "no", label: "Belum cetak" },
+];
+
+const AWB_OPTIONS = [
+  { value: "yes", label: "Sudah ada" },
+  { value: "no", label: "Belum ada" },
 ];
 
 const PAYMENT_OPTIONS = [
@@ -226,6 +233,7 @@ export function FulfillmentFilterBar({
     if (value.location_id) n++;
     if (value.source) n++;
     if (value.channel_shop_id) n++;
+    if (value.awb) n++;
     if (value.label_printed) n++;
     if (value.date_from || value.date_to) n++;
     if (value.zone_id) n++;
@@ -401,6 +409,16 @@ export function FulfillmentFilterBar({
                     onChange={(v) => patch({ channel_shop_id: v ?? undefined })}
                     placeholder="Semua toko"
                     searchPlaceholder="Cari toko"
+                  />
+                </FieldWrapper>
+              )}
+              {includes("awb") && (
+                <FieldWrapper label="No. Resi">
+                  <FilterRadioGroup
+                    name="awb"
+                    value={value.awb}
+                    onValueChange={(v) => patch({ awb: v })}
+                    options={AWB_OPTIONS}
                   />
                 </FieldWrapper>
               )}

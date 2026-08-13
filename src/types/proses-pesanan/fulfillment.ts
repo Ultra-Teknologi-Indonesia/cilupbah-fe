@@ -127,6 +127,7 @@ export interface FulfillmentListParams {
   channel_status?: string;
   payment?: "cod" | "noncod";
   courier_type?: "instant" | "regular";
+  awb?: "yes" | "no";
   label_printed?: "yes" | "no";
   date_from?: string;
   date_to?: string;

@@ -77,6 +77,7 @@ function buildQuery(
     q.set("filter[channel_status]", params.channel_status);
   if (params.payment) q.set("filter[payment]", params.payment);
   if (params.courier_type) q.set("filter[courier_type]", params.courier_type);
+  if (params.awb) q.set("filter[awb]", params.awb);
   if (params.label_printed)
     q.set("filter[label_printed]", params.label_printed);
   if (params.date_from) q.set("filter[date_from]", params.date_from);
