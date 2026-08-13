@@ -66,9 +66,7 @@ export function ProductVariantDetail({ product }: { product: Product }) {
                       ))}
                     </div>
                   ) : (
-                    <span className="text-xs text-muted-foreground">
-                      Default
-                    </span>
+                    <span className="text-xs text-muted-foreground">—</span>
                   )}
                 </TableCell>
                 <TableCell className="py-2 pr-4 px-0 text-right tabular-nums">
