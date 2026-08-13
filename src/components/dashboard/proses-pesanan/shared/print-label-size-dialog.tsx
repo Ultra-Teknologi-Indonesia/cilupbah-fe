@@ -66,11 +66,11 @@ export function openPrintLabelSizeDialog(
 }
 
 const PREF_KEY = "pref:print-label-size";
-const DEFAULT_SIZE: PrintLabelSize = "thermal_100x150";
+const DEFAULT_SIZE: PrintLabelSize = "thermal_100x120";
 
 const SIZE_OPTIONS: { value: PrintLabelSize; label: string }[] = [
-  { value: "thermal_100x150", label: "10×15 cm (Thermal)" },
   { value: "thermal_100x120", label: "10×12 cm (Thermal)" },
+  { value: "thermal_100x150", label: "10×15 cm (Thermal)" },
 ];
 
 function readPref(): PrintLabelSize {
