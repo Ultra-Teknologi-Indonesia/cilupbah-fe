@@ -4,6 +4,8 @@ import {
   SimplePagination,
   TABLE_PAGE_SIZES,
 } from "@/components/ui/simple-pagination";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { cn } from "@/lib/utils";
 
 const PAGE_SIZES = TABLE_PAGE_SIZES;
 
@@ -35,41 +37,25 @@ export function TabPagination({
   );
 }
 
-const STATUS_STYLE: Record<string, string> = {
-  synced: "text-success bg-success/10",
-  in_review: "text-warning bg-warning/10",
-  pending: "text-warning bg-warning/10",
-  syncing: "text-warning bg-warning/10",
-  rejected: "text-destructive bg-destructive/10",
-  failed: "text-destructive bg-destructive/10",
-  deactivated: "text-muted-foreground bg-muted",
-};
-const STATUS_LABEL: Record<string, string> = {
-  synced: "Tersinkron",
-  in_review: "Direview",
-  pending: "Menunggu",
-  syncing: "Sinkron…",
-  rejected: "Ditolak",
-  failed: "Gagal",
-  deactivated: "Nonaktif",
-};
-
 export function SyncStatusBadge({
   status,
   reason,
+  className,
 }: {
   status: string | null;
   reason?: string | null;
+  className?: string;
 }) {
   const s = status ?? "";
+  const failed = s === "rejected" || s === "failed";
+
   return (
-    <span
-      className={`rounded px-1.5 py-0.5 text-2xs font-medium ${STATUS_STYLE[s] ?? "text-muted-foreground bg-muted"}`}
-      title={
-        reason && (s === "rejected" || s === "failed") ? reason : undefined
-      }
-    >
-      {STATUS_LABEL[s] ?? s ?? "—"}
+    <span title={reason && failed ? reason : undefined}>
+      <StatusBadge
+        domain="channel-listing-sync"
+        status={s}
+        className={cn("px-2 py-0.5 text-2xs font-medium", className)}
+      />
     </span>
   );
 }

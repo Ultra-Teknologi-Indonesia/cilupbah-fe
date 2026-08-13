@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ExternalLinkIcon } from "lucide-react";
+import { ExternalLinkIcon, StoreIcon } from "lucide-react";
 
 import {
   Select,
@@ -10,26 +10,175 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo";
 import { useProductChannelListings } from "@/hooks/master-produk/use-product-tabs";
-import { SyncStatusBadge } from "./tab-pagination";
-import type { ColumnDef } from "@tanstack/react-table";
-import { DataTable } from "@/components/ui/data-table/data-table";
+import { SyncStatusBadge, TabPagination } from "./tab-pagination";
 import type { ChannelListingRow } from "@/hooks/master-produk/use-product-tabs";
+import type { ChannelCode } from "@/types/channel";
+
+type Listing = ChannelListingRow["listings"][number];
+
+interface ChannelBucket {
+  code: ChannelCode;
+  name: string;
+  listings: Listing[];
+}
+
+const CHANNEL_ORDER = [
+  "shopee",
+  "tiktok",
+  "tokopedia",
+  "lazada",
+  "woocommerce",
+  "blibli",
+];
+
+function bucketByChannel(listings: Listing[]): ChannelBucket[] {
+  const buckets = new Map<string, ChannelBucket>();
+
+  for (const listing of listings) {
+    const code = (listing.channelCode ?? "unknown") as ChannelCode;
+    const bucket = buckets.get(code) ?? {
+      code,
+      name: listing.channelName ?? listing.channelCode ?? "Channel lain",
+      listings: [],
+    };
+    bucket.listings.push(listing);
+    buckets.set(code, bucket);
+  }
+
+  return [...buckets.values()].sort((a, b) => {
+    const ai = CHANNEL_ORDER.indexOf(a.code);
+    const bi = CHANNEL_ORDER.indexOf(b.code);
+    return (
+      (ai === -1 ? CHANNEL_ORDER.length : ai) -
+      (bi === -1 ? CHANNEL_ORDER.length : bi)
+    );
+  });
+}
+
+function ListingRow({ listing }: { listing: Listing }) {
+  return (
+    <li className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-colors hover:bg-muted/60">
+      <span
+        className="min-w-0 flex-1 truncate text-xs text-foreground"
+        title={listing.shopName ?? undefined}
+      >
+        {listing.shopName ?? "Tanpa nama toko"}
+      </span>
+      <SyncStatusBadge
+        status={listing.syncStatus}
+        reason={listing.errorMessage}
+      />
+      {listing.channelUrl ? (
+        <Button
+          asChild
+          variant="ghost"
+          size="icon-xs"
+          className="text-muted-foreground hover:text-primary"
+        >
+          <a
+            href={listing.channelUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={listing.channelUrl}
+            aria-label={`Buka listing di ${listing.channelName ?? "channel"}`}
+          >
+            <ExternalLinkIcon />
+          </a>
+        </Button>
+      ) : (
+        <span
+          className="grid size-6 place-items-center text-2xs text-muted-foreground"
+          title="Listing ini tidak punya tautan"
+        >
+          —
+        </span>
+      )}
+    </li>
+  );
+}
+
+function VariantCard({ row }: { row: ChannelListingRow }) {
+  const buckets = React.useMemo(
+    () => bucketByChannel(row.listings),
+    [row.listings],
+  );
+
+  return (
+    <div className="rounded-4xl border border-border/60 bg-card p-4">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-border/60 pb-3">
+        <span className="font-mono text-sm font-medium text-primary">
+          {row.sku}
+        </span>
+        {row.options.map((option, i) => (
+          <span
+            key={i}
+            className="rounded-xl bg-muted px-2 py-0.5 text-2xs text-foreground/80"
+          >
+            {option.value}
+          </span>
+        ))}
+        <span className="ml-auto text-xs text-muted-foreground tabular-nums">
+          {row.listings.length} listing
+        </span>
+      </div>
+
+      {buckets.length === 0 ? (
+        <p className="pt-3 text-xs text-muted-foreground">
+          Varian ini belum ter-listing di channel mana pun.
+        </p>
+      ) : (
+        <div className="grid gap-3 pt-3 lg:grid-cols-2 xl:grid-cols-3">
+          {buckets.map((bucket) => (
+            <div
+              key={bucket.code}
+              className="rounded-xl border border-border/60 bg-muted/30 p-3"
+            >
+              <div className="flex items-center gap-2">
+                <ChannelLogo
+                  code={bucket.code}
+                  name={bucket.name}
+                  className="size-6 text-2xs"
+                />
+                <span className="min-w-0 flex-1 truncate text-sm font-semibold">
+                  {bucket.name}
+                </span>
+                <span className="text-2xs text-muted-foreground tabular-nums">
+                  {bucket.listings.length}
+                </span>
+              </div>
+              <ul className="mt-2 space-y-0.5">
+                {bucket.listings.map((listing, i) => (
+                  <ListingRow key={i} listing={listing} />
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function TabChannel({ productId }: { productId: string }) {
   const [channel, setChannel] = React.useState("");
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(20);
 
-  const { data, isLoading, isError, refetch, isFetching: _isFetching } =
+  const { data, isLoading, isError, refetch, isFetching } =
     useProductChannelListings(
       productId,
       { page, perPage, channel: channel || undefined },
       true,
     );
+
   const rows = React.useMemo(() => data?.items ?? [], [data]);
   const meta = data?.meta;
-  const _lastPage = meta?.last_page ?? 1;
+  const lastPage = meta?.last_page ?? 1;
   const total = meta?.total ?? 0;
 
   const channelOptions = React.useMemo(() => {
@@ -42,6 +191,11 @@ export function TabChannel({ productId }: { productId: string }) {
     return [...m.entries()];
   }, [rows]);
 
+  const listingCount = React.useMemo(
+    () => rows.reduce((sum, r) => sum + r.listings.length, 0),
+    [rows],
+  );
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -52,146 +206,89 @@ export function TabChannel({ productId }: { productId: string }) {
             setPage(1);
           }}
         >
-          <SelectTrigger className="h-9 w-[200px]">
+          <SelectTrigger className="h-9 w-[220px]">
             <SelectValue placeholder="Semua channel" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Semua channel</SelectItem>
             {channelOptions.map(([code, name]) => (
               <SelectItem key={code} value={code}>
-                {name}
+                <span className="flex items-center gap-2">
+                  <ChannelLogo
+                    code={code as ChannelCode}
+                    name={name}
+                    className="size-4 text-2xs"
+                  />
+                  {name}
+                </span>
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <div className="text-sm text-muted-foreground">
-          Total{" "}
           <span className="font-semibold text-foreground tabular-nums">
             {total}
           </span>{" "}
           varian ter-listing
+          {listingCount > 0 && (
+            <>
+              {" · "}
+              <span className="font-semibold text-foreground tabular-nums">
+                {listingCount}
+              </span>{" "}
+              listing di halaman ini
+            </>
+          )}
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border/60 bg-card">
-        <DataTable
-          columns={React.useMemo<ColumnDef<ChannelListingRow>[]>(
-            () => [
-              {
-                accessorKey: "sku",
-                header: "SKU",
-                cell: ({ row }) => (
-                  <span className="font-mono text-xs text-primary">
-                    {row.original.sku}
-                  </span>
-                ),
-              },
-              {
-                accessorKey: "options",
-                header: "Opsi",
-                cell: ({ row }) => (
-                  <div className="flex flex-wrap gap-1">
-                    {row.original.options.length === 0 ? (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    ) : (
-                      row.original.options.map((o, i) => (
-                        <span
-                          key={i}
-                          className="rounded bg-muted px-1.5 py-0.5 text-2xs text-foreground/80"
-                        >
-                          {o.value}
-                        </span>
-                      ))
-                    )}
-                  </div>
-                ),
-              },
-              {
-                accessorKey: "listings",
-                header: "Listing channel",
-                cell: ({ row }) => {
-                  const listings = row.original.listings;
-                  if (listings.length === 0) {
-                    return (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    );
-                  }
-                  return (
-                    <div className="flex flex-col gap-1.5">
-                      {listings.map((l, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center gap-2 rounded-xl border border-border/60 bg-background px-2 py-1 text-xs"
-                        >
-                          <span className="min-w-0 flex-1 truncate">
-                            <span className="text-muted-foreground">
-                              {l.channelName ?? l.channelCode ?? "—"}
-                            </span>
-                            {" · "}
-                            {l.shopName ?? "—"}
-                          </span>
-                          {l.channelUrl ? (
-                            <a
-                              href={l.channelUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex max-w-[280px] items-center gap-1 truncate font-medium text-primary hover:underline"
-                              title={l.channelUrl}
-                            >
-                              <span className="truncate">{l.channelUrl}</span>
-                              <ExternalLinkIcon className="size-3.5 shrink-0" />
-                            </a>
-                          ) : (
-                            <span className="text-muted-foreground">
-                              Tanpa link
-                            </span>
-                          )}
-                          <SyncStatusBadge
-                            status={l.syncStatus}
-                            reason={l.errorMessage}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  );
-                },
-              },
-            ],
-            [],
-          )}
-          data={rows}
-          isLoading={isLoading}
-          hideToolbar
-          manualPagination
-          pagination={{
-            pageIndex: page - 1,
-            pageSize: perPage,
-          }}
-          rowCount={total}
-          onPaginationChange={(p) => {
-            setPage(p.pageIndex + 1);
-            setPerPage(p.pageSize);
-          }}
-          tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-head]]:text-xs [&_[data-slot=table-cell]]:py-2.5"
-          emptyState={
-            isError ? (
-              <div className="py-10 text-center text-sm text-muted-foreground">
-                Gagal memuat.{" "}
-                <button
-                  className="font-medium text-primary hover:underline"
-                  onClick={() => refetch()}
-                >
-                  Coba lagi
-                </button>
-              </div>
-            ) : (
-              <div className="py-10 text-center text-sm text-muted-foreground">
-                Belum ada listing channel.
-              </div>
-            )
+      {isLoading ? (
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-40 rounded-4xl" />
+          ))}
+        </div>
+      ) : isError ? (
+        <EmptyState
+          title="Gagal memuat listing channel"
+          description="Periksa koneksi lalu muat ulang data."
+          action={
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
+              Coba lagi
+            </Button>
           }
         />
-      </div>
+      ) : rows.length === 0 ? (
+        <EmptyState
+          icon={StoreIcon}
+          title="Belum ada listing channel"
+          description={
+            channel
+              ? "Tidak ditemukan listing untuk channel yang dipilih."
+              : "Produk ini belum diunggah ke marketplace mana pun."
+          }
+        />
+      ) : (
+        <div className="flex flex-col gap-3">
+          {rows.map((row) => (
+            <VariantCard key={row.variantId} row={row} />
+          ))}
+        </div>
+      )}
+
+      {rows.length > 0 && (
+        <TabPagination
+          page={page}
+          perPage={perPage}
+          lastPage={lastPage}
+          isFetching={isFetching}
+          onPage={setPage}
+          onPerPage={(n) => {
+            setPerPage(n);
+            setPage(1);
+          }}
+        />
+      )}
     </div>
   );
 }
