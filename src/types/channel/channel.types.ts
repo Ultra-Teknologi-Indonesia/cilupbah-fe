@@ -39,6 +39,7 @@ export interface ConnectedStore {
   catalogPushEnabled: boolean;
   stockPushEnabled: boolean;
   fulfillmentPushEnabled: boolean;
+  handoverMethod: HandoverMethod;
   integration: StoreIntegration;
   orderSync: OrderSyncInfo;
   lastOrderSyncedAt: string | null;
@@ -57,6 +58,7 @@ export interface StoreFlags {
   catalog_push_enabled?: boolean;
   stock_push_enabled?: boolean;
   fulfillment_push_enabled?: boolean;
+  handover_method?: HandoverMethod;
   stock_source_mode?: StockSourceMode;
   location_id?: string | null;
 }
@@ -91,6 +93,7 @@ export interface RawConnectedStore {
   stock_handover_at: string | null;
   fulfillment_push_enabled: boolean;
   fulfillment_handover_at: string | null;
+  handover_method: HandoverMethod;
   catalog_pull_enabled: boolean;
   catalog_push_enabled: boolean;
   integration: { status: IntegrationStatus; note?: string; action?: ChannelStoreAction | null };
@@ -108,6 +111,13 @@ export interface RawChannel {
 }
 
 export type StockSourceMode = "total" | "location";
+
+/**
+ * Cara paket diserahkan ke kurir. Hanya berlaku sebagai preferensi saat
+ * marketplace menawarkan lebih dari satu pilihan; kalau marketplace cuma
+ * menawarkan satu, sistem selalu ikut marketplace.
+ */
+export type HandoverMethod = "dropoff" | "pickup";
 
 export interface StockAllocationStore {
   storeId: string;

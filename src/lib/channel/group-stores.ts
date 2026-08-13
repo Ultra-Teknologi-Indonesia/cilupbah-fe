@@ -46,6 +46,7 @@ function mapStore(raw: RawConnectedStore): ConnectedStore {
     catalogPushEnabled: raw.catalog_push_enabled ?? true,
     stockPushEnabled: raw.stock_push_enabled ?? true,
     fulfillmentPushEnabled: raw.fulfillment_push_enabled ?? true,
+    handoverMethod: raw.handover_method ?? "dropoff",
     integration: raw.integration ?? { status: "normal" },
     orderSync: raw.order_sync ?? { status: "pending" },
     lastOrderSyncedAt: raw.last_order_synced_at ?? null,
