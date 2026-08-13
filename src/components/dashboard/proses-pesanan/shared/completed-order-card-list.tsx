@@ -40,10 +40,6 @@ function shippingLabelSelectability(order: Order): RowSelectability {
       reason: "Kanal ini belum mendukung cetak resi otomatis",
     };
   }
-  const awb = order.shipping?.tracking_number;
-  if (!awb) {
-    return { selectable: false, reason: "Belum ada nomor resi" };
-  }
   return { selectable: true };
 }
 
