@@ -208,6 +208,7 @@ export function ReadyToProcessCardList() {
         onChange={(v) =>
           list.setFilters({ ...EMPTY_READY_FILTERS, ...v } as ReadyFilterState)
         }
+        courierStage="ready-to-process"
         fields={[
           "courier",
           "location",

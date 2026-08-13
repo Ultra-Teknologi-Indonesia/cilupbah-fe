@@ -579,6 +579,13 @@ export const OutboundService = {
     };
   },
 
+  courierOptionsByStage: async (stage: string): Promise<string[]> => {
+    const res = await fetchClient<{ success?: boolean; data: string[] }>(
+      `/outbound/orders/${stage}/courier-options`,
+    );
+    return res.data ?? [];
+  },
+
   couriersAll: async (): Promise<Courier[]> => {
     const res = await fetchClient<{ success?: boolean; data: RawCourier[] }>(
       `/outbound/couriers/all`,

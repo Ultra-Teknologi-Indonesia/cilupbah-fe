@@ -117,6 +117,15 @@ export function useCouriers(enabled = true) {
   });
 }
 
+export function useStageCourierOptions(stage: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: [...all, "courier-options", stage],
+    queryFn: () => OutboundService.courierOptionsByStage(stage as string),
+    staleTime: 60_000,
+    enabled: enabled && !!stage,
+  });
+}
+
 export function usePickingCounts() {
   const belum = useQuery({
     queryKey: fulfillmentKeys.count("picking-belum"),

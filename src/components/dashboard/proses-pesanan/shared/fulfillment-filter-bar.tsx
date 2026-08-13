@@ -13,7 +13,10 @@ import { Input } from "@/components/ui/input";
 import { DateRangePicker } from "@/components/ui/date-picker";
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
-import { useCouriers } from "@/hooks/proses-pesanan/use-fulfillment";
+import {
+  useCouriers,
+  useStageCourierOptions,
+} from "@/hooks/proses-pesanan/use-fulfillment";
 
 export type FulfillmentFilterField =
   | "courier"
@@ -52,6 +55,7 @@ interface Props {
   statusOptions?: { value: string; label: string }[];
   channelStatusOptions?: { value: string; label: string }[];
   courierMode?: "shipping_provider" | "courier_code";
+  courierStage?: string;
   excludeTransit?: boolean;
   search?: string;
   onSearchChange?: (v: string) => void;
@@ -168,6 +172,7 @@ export function FulfillmentFilterBar({
   statusOptions,
   channelStatusOptions,
   courierMode = "shipping_provider",
+  courierStage,
   excludeTransit,
   search,
   onSearchChange,
@@ -181,17 +186,25 @@ export function FulfillmentFilterBar({
     [fields],
   );
 
-  const couriers = useCouriers(includes("courier"));
+  const useStageCouriers = includes("courier") && !!courierStage;
+  const couriers = useCouriers(includes("courier") && !useStageCouriers);
+  const stageCouriers = useStageCourierOptions(courierStage, useStageCouriers);
   const locations = useLocations(includes("location") ? { perPage: 200 } : {});
   const stores = useConnectedStores();
 
   const courierOptions = React.useMemo(() => {
+    if (useStageCouriers) {
+      return (stageCouriers.data ?? []).map((name) => ({
+        value: name,
+        label: name,
+      }));
+    }
     const list = couriers.data ?? [];
     return list.map((c) => ({
       value: courierMode === "courier_code" ? (c.code ?? c.id) : c.name,
       label: c.name,
     }));
-  }, [couriers.data, courierMode]);
+  }, [useStageCouriers, stageCouriers.data, couriers.data, courierMode]);
 
   const locationOptions = React.useMemo(() => {
     const list = locations.data?.items ?? [];
