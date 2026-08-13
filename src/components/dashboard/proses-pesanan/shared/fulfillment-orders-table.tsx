@@ -843,15 +843,20 @@ export function FulfillmentOrdersTable({
       const results = await readyToShip.mutateAsync(ids);
       const ok = results.filter((r) => r.status === "success").length;
       const failed = results.filter((r) => r.status === "failed");
-      const skipped = results.filter((r) => r.status === "skipped").length;
+      const skipped = results.filter((r) => r.status === "skipped");
       if (failed.length) {
         toast.error(
-          `${ok} berhasil, ${failed.length} gagal${skipped ? `, ${skipped} dilewati` : ""}.` +
+          `${ok} berhasil, ${failed.length} gagal${skipped.length ? `, ${skipped.length} dilewati` : ""}.` +
             (failed[0].message ? ` (${failed[0].message})` : ""),
+        );
+      } else if (ok === 0 && skipped.length) {
+        toast.warning(
+          `${skipped.length} pesanan dilewati.` +
+            (skipped[0].message ? ` (${skipped[0].message})` : ""),
         );
       } else {
         toast.success(
-          `${ok} pesanan diteruskan "Siap Dikirim"${skipped ? `, ${skipped} dilewati` : ""}.`,
+          `${ok} pesanan diteruskan "Siap Dikirim"${skipped.length ? `, ${skipped.length} dilewati` : ""}.`,
         );
       }
       clearSelection();
@@ -885,13 +890,21 @@ export function FulfillmentOrdersTable({
       const results = await retryPickup.mutateAsync(ids);
       const ok = results.filter((r) => r.status === "success").length;
       const failed = results.filter((r) => r.status === "failed");
+      const skipped = results.filter((r) => r.status === "skipped");
       if (failed.length) {
         toast.error(
           `${ok} berhasil, ${failed.length} gagal atur ulang pickup.` +
             (failed[0].message ? ` (${failed[0].message})` : ""),
         );
+      } else if (ok === 0 && skipped.length) {
+        toast.warning(
+          `${skipped.length} pesanan dilewati.` +
+            (skipped[0].message ? ` (${skipped[0].message})` : ""),
+        );
       } else {
-        toast.success(`${ok} pesanan berhasil diatur ulang pickup.`);
+        toast.success(
+          `${ok} pesanan berhasil diatur ulang pickup${skipped.length ? `, ${skipped.length} dilewati` : ""}.`,
+        );
       }
       clearSelection();
     } catch (err) {

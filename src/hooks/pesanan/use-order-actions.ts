@@ -85,7 +85,15 @@ export const useMoveToReady = createMutationHook({
 export const useRequestAwb = createMutationHook({
   mutationFn: (data: { orderId: string; courierCode?: string }) =>
     OrderService.requestAwb(data.orderId, data.courierCode),
-  successMessage: "Nomor resi berhasil diminta",
+  successMessage: (res) => {
+    const outcome = res.data as
+      | { status?: string; message?: string }
+      | undefined;
+
+    return outcome?.status === "skipped"
+      ? (outcome.message ?? "Permintaan resi dilewati")
+      : "Nomor resi berhasil diminta";
+  },
   errorMessage: "Gagal meminta nomor resi",
   invalidates: ({ orderId }) => forOrder(orderId),
 });

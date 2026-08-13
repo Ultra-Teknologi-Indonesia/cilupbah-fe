@@ -40,6 +40,12 @@ const AXES: {
     hint: "Menimpa stok dan harga yang tayang di marketplace.",
     value: (s) => s.stockPushEnabled,
   },
+  {
+    key: "fulfillment_push_enabled",
+    label: "Kirim status pesanan",
+    hint: "Menandai siap kirim, mengambil resi, memanggil driver, dan membatalkan pesanan di marketplace.",
+    value: (s) => s.fulfillmentPushEnabled,
+  },
 ];
 
 export function StoreSyncDialog({
