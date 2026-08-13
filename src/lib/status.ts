@@ -252,7 +252,9 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
   "bulk-label-item": {
     pending: { label: "Menunggu", variant: "muted" },
     downloading: { label: "Mengambil", variant: "info" },
+    waiting_awb: { label: "Menarik No. Resi", variant: "info" },
     waiting_shopee_prep: { label: "Menunggu Shopee", variant: "warning" },
+    waiting_lazada_prep: { label: "Menunggu Lazada", variant: "warning" },
     done: { label: "Berhasil", variant: "success" },
     failed: { label: "Gagal", variant: "destructive" },
     skipped_instant: { label: "Instant courier", variant: "orange" },

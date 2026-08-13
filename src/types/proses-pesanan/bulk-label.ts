@@ -3,7 +3,9 @@ export type BulkLabelBatchStatus = "processing" | "ready" | "failed";
 export type BulkLabelItemStatus =
   | "pending"
   | "downloading"
+  | "waiting_awb"
   | "waiting_shopee_prep"
+  | "waiting_lazada_prep"
   | "done"
   | "failed"
   | "skipped_instant";
@@ -36,6 +38,7 @@ export interface BulkLabelBatch {
   failed: number;
   skipped?: number;
   waiting_shopee: number;
+  waiting_awb?: number;
   retryable_count?: number;
   started_at: string | null;
   finished_at: string | null;

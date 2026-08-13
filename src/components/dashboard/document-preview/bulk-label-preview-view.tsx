@@ -65,7 +65,9 @@ function ItemRow({ item }: { item: BulkLabelBatchItem }) {
   const isTransient =
     item.status === "pending" ||
     item.status === "downloading" ||
-    item.status === "waiting_shopee_prep";
+    item.status === "waiting_awb" ||
+    item.status === "waiting_shopee_prep" ||
+    item.status === "waiting_lazada_prep";
 
   return (
     <TableRow
@@ -98,7 +100,11 @@ function ItemRow({ item }: { item: BulkLabelBatchItem }) {
         {isTransient ? (
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Loader2 className="size-3 animate-spin" />
-            <span>Mengambil…</span>
+            <span>
+              {item.status === "waiting_awb"
+                ? "Menarik dari marketplace…"
+                : "Mengambil…"}
+            </span>
           </div>
         ) : item.tracking_number ? (
           <span className="font-mono text-xs">{item.tracking_number}</span>
@@ -176,6 +182,9 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
   const isFailed = data.status === "failed";
   const isProcessing = data.status === "processing";
   const skipped = data.skipped ?? 0;
+  const waitingAwb =
+    data.waiting_awb ??
+    data.items.filter((i) => i.status === "waiting_awb").length;
   const retryableCount =
     data.retryable_count ??
     data.items.filter((i) => i.status === "failed" && i.is_retryable).length;
@@ -204,6 +213,7 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
               {data.done}/{data.total} berhasil
               {skipped > 0 && ` · ${skipped} dilewati (instant courier)`}
               {data.failed > 0 && ` · ${data.failed} gagal`}
+              {waitingAwb > 0 && ` · ${waitingAwb} menarik No. Resi`}
               {data.waiting_shopee > 0 &&
                 ` · ${data.waiting_shopee} menunggu Shopee`}
             </p>
