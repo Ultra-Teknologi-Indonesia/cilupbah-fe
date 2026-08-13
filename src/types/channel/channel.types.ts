@@ -44,8 +44,6 @@ export interface ConnectedStore {
   orderSync: OrderSyncInfo;
   lastOrderSyncedAt: string | null;
 
-  accessNote?: string;
-
   linkedStore?: { code: ChannelCode; name: string };
   connectedAt: string;
 }

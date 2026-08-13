@@ -67,6 +67,12 @@ export function StoreCard({
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
+          {store.integration.status !== "normal" && (
+            <StatusBadge
+              domain="channel-integration"
+              status={store.integration.status}
+            />
+          )}
           <StatusBadge domain="order-download" status={status} />
           <StoreRowActions
             store={store}
@@ -86,8 +92,17 @@ export function StoreCard({
         <p className="text-xs text-muted-foreground">
           Terakhir di-update: {relativeTime(store.lastOrderSyncedAt)}
         </p>
-        {store.accessNote && (
-          <p className="text-xs text-destructive">{store.accessNote}</p>
+        {store.integration.note && (
+          <p
+            className={cn(
+              "text-xs",
+              store.integration.status === "error"
+                ? "text-destructive"
+                : "text-warning",
+            )}
+          >
+            {store.integration.note}
+          </p>
         )}
         {store.linkedStore && (
           <div className="flex items-center gap-1.5 pt-0.5 text-xs text-muted-foreground">
