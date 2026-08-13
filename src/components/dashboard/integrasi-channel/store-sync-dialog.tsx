@@ -8,18 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import type {
-  ConnectedStore,
-  HandoverMethod,
-  StoreFlags,
-} from "@/types/channel";
+import type { ConnectedStore, StoreFlags } from "@/types/channel";
 
 const AXES: {
   key: keyof StoreFlags;
@@ -103,33 +92,6 @@ export function StoreSyncDialog({
             </div>
           ))}
 
-          <div className="flex items-start justify-between gap-4 border-t pt-4">
-            <div className="flex flex-col gap-0.5">
-              <span className="text-sm">Serah terima paket</span>
-              <span className="text-xs text-muted-foreground">
-                Dipakai hanya kalau marketplace menawarkan dua pilihan. Kalau
-                marketplace cuma menawarkan satu, sistem ikut marketplace.
-              </span>
-            </div>
-            <Select
-              value={store.handoverMethod}
-              disabled={disabled}
-              onValueChange={(v) =>
-                onChange(store.id, { handover_method: v as HandoverMethod })
-              }
-            >
-              <SelectTrigger
-                className="w-40 shrink-0"
-                aria-label={`Serah terima paket ${store.shopName}`}
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="dropoff">Antar ke counter</SelectItem>
-                <SelectItem value="pickup">Pickup kurir</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
         {store.isShadowMode && (

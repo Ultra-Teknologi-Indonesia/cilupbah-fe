@@ -130,17 +130,19 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
   const router = useRouter();
   const [retrying, setRetrying] = React.useState(false);
 
-  const { data, error, isLoading } = useQuery<BulkLabelBatch>({
+  const { data, error, isLoading, refetch } = useQuery<BulkLabelBatch>({
     queryKey: ["bulk-label-batch", batchId],
     queryFn: () => OutboundService.getBulkShippingLabelBatch(batchId),
-    refetchInterval: (q) =>
-      q.state.data?.status === "processing" ? 2000 : false,
-    refetchIntervalInBackground: true,
   });
 
-  const handleRetry = async () => {
+  const handleRetry = async (hasRetryable: boolean) => {
     setRetrying(true);
     try {
+      if (!hasRetryable) {
+        await refetch();
+        return;
+      }
+
       const res = await OutboundService.retryFailedBulkShippingLabels(batchId);
       toast.success("Berhasil membuat batch retry untuk item gagal.");
       router.replace(
@@ -217,15 +219,20 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
               {data.waiting_shopee > 0 &&
                 ` · ${data.waiting_shopee} menunggu Shopee`}
             </p>
+            {isProcessing && (
+              <p className="text-xs text-muted-foreground">
+                Tekan Coba Lagi untuk memperbarui sampai semua No. Resi muncul.
+              </p>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {retryableCount > 0 && (
+          {(retryableCount > 0 || isProcessing) && (
             <Button
               size="sm"
               variant="outline"
-              onClick={handleRetry}
-              disabled={retrying || isProcessing}
+              onClick={() => handleRetry(retryableCount > 0)}
+              disabled={retrying}
               className="rounded-full"
             >
               {retrying ? (
@@ -233,7 +240,7 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
               ) : (
                 <RefreshCcwIcon className="size-4" />
               )}
-              Coba Lagi ({retryableCount})
+              {retryableCount > 0 ? `Coba Lagi (${retryableCount})` : "Coba Lagi"}
             </Button>
           )}
           {canPrint && (
