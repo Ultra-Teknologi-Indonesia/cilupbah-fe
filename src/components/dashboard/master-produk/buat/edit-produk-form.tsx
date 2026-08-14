@@ -203,7 +203,9 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
 
   const sections = [
     { id: "detail", label: "Detail Produk", status: sectionStatus("detail") },
-    { id: "varian", label: "Varian", status: sectionStatus("varian") },
+    ...(product.isBundle
+      ? []
+      : [{ id: "varian", label: "Varian", status: sectionStatus("varian") }]),
     {
       id: "penjualan",
       label: "Penjualan & Pembelian",
@@ -275,9 +277,11 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
             className="flex flex-col gap-6"
             onSubmit={(e) => e.preventDefault()}
           >
-            <FormDetailSection />
+            <FormDetailSection mode={product.isBundle ? "bundle" : "product"} />
 
-            <FormVariantSection lockedTypeIds={variantLocks.lockedTypeIds} />
+            {!product.isBundle && (
+              <FormVariantSection lockedTypeIds={variantLocks.lockedTypeIds} />
+            )}
 
             <FormSalesSection />
 
