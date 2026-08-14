@@ -67,7 +67,7 @@ export function detailToFormValues(p: ProductDetail): BuatProdukFormValues {
 
   return {
     name: p.name,
-    sku: p.sku ?? variant?.sku ?? "",
+    sku: p.sku ?? "",
     category: p.category
       ? {
           id: String(p.category.id),
