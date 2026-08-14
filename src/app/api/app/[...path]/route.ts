@@ -136,7 +136,9 @@ async function proxyRequest(
       if (value) passthroughHeaders.set(header, value);
     }
 
-    return new NextResponse(response.body, {
+    const resBuffer = await response.arrayBuffer();
+
+    return new NextResponse(resBuffer, {
       status: response.status,
       statusText: response.statusText,
       headers: passthroughHeaders,
