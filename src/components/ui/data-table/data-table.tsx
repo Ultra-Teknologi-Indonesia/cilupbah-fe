@@ -227,11 +227,6 @@ export function DataTable<TData, TValue>({
         )}
         aria-busy={isRefreshing || showSkeleton}
       >
-        {isRefreshing && (
-          <div className="absolute inset-x-0 top-0 z-20 h-0.5 w-full overflow-hidden bg-primary/20">
-            <div className="h-full w-1/3 animate-[indeterminate_1.2s_infinite_linear] bg-primary" />
-          </div>
-        )}
         <ScrollArea className="w-full whitespace-nowrap">
           <Table>
             <TableHeader className="bg-muted/40">

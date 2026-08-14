@@ -71,12 +71,6 @@ export function ProductCardView({
       )}
       aria-busy={isFetching}
     >
-      {isFetching && (
-        <div className="absolute -top-2 inset-x-0 z-20 h-0.5 w-full overflow-hidden rounded-full bg-primary/20">
-          <div className="h-full w-1/3 animate-[indeterminate_1.2s_infinite_linear] bg-primary" />
-        </div>
-      )}
-
       {rows.length > 0 && (
         <label className="flex w-fit cursor-pointer items-center gap-2 text-sm text-muted-foreground">
           <Checkbox
