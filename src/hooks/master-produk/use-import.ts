@@ -28,6 +28,12 @@ export const importTemplateUrl = (type: ImportBatchType) =>
 export const importErrorsDownloadUrl = (batchId: string) =>
   ImportService.errorsDownloadUrl(batchId);
 
+export const downloadImportTemplate = (type: ImportBatchType) =>
+  ImportService.downloadTemplate(type);
+
+export const downloadImportErrors = (batchId: string, batchNo?: string) =>
+  ImportService.downloadErrors(batchId, batchNo);
+
 export const importBatchKey = (params: ImportBatchParams) =>
   ["master-produk", "import-batches", params] as const;
 

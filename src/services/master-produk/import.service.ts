@@ -1,4 +1,4 @@
-import { fetchClient } from "@/lib/api-client";
+import { fetchClient, fetchBlob } from "@/lib/api-client";
 import type { ApiPaginated } from "@/types/api.types";
 
 export type ImportBatchState =
@@ -137,6 +137,22 @@ export const ImportService = {
       },
     );
     return mapBatch(res.data);
+  },
+
+  downloadTemplate: (type: ImportBatchType): Promise<void> => {
+    const filename =
+      type === "single"
+        ? "Template_Import_Product.xlsx"
+        : "Template_Import_Bundle.xlsx";
+    return fetchBlob(`/products/import/template/${type}`, filename);
+  },
+
+  downloadErrors: (batchId: string, batchNo?: string): Promise<void> => {
+    const filename = `import-errors-${batchNo ?? batchId}.xlsx`;
+    return fetchBlob(
+      `/products/import/batches/${batchId}/errors/download`,
+      filename,
+    );
   },
 
   templateUrl: (type: ImportBatchType): string =>

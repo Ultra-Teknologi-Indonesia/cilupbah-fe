@@ -36,8 +36,8 @@ import {
 } from "@/components/ui/table";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
-  rackImportErrorsDownloadUrl,
-  rackImportTemplateUrl,
+  downloadRackImportErrors,
+  downloadRackImportTemplate,
   useConfirmRackImport,
   useRackImportBatch,
   useRackImportRows,
@@ -47,6 +47,7 @@ import type {
   RackImportBatch,
   RackImportRowStatus,
 } from "@/hooks/persediaan/use-rack-import";
+import { apiError } from "@/lib/toast";
 
 const ACCEPT = ".csv,.xlsx,.xls";
 const MAX_SIZE = 20 * 1024 * 1024;
@@ -210,21 +211,42 @@ function UploadStep({
   onCancel: () => void;
   onStart: () => void;
 }) {
+  const [isDownloading, setIsDownloading] = React.useState(false);
+
+  const handleDownloadTemplate = async () => {
+    try {
+      setIsDownloading(true);
+      await downloadRackImportTemplate();
+      toast.success("Template berhasil didownload");
+    } catch (err: unknown) {
+      apiError(err, "Gagal mendownload template");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4">
-      <a
-        href={rackImportTemplateUrl()}
-        download
-        className="flex items-center gap-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 px-4 py-3 text-sm transition-colors hover:bg-primary/10"
+      <button
+        type="button"
+        disabled={isDownloading}
+        onClick={handleDownloadTemplate}
+        className="flex items-center gap-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 px-4 py-3 text-left text-sm transition-colors hover:bg-primary/10 disabled:opacity-50"
       >
-        <DownloadIcon className="size-5 shrink-0 text-primary" />
+        {isDownloading ? (
+          <Loader2Icon className="size-5 shrink-0 animate-spin text-primary" />
+        ) : (
+          <DownloadIcon className="size-5 shrink-0 text-primary" />
+        )}
         <div className="min-w-0 flex-1">
-          <div className="font-medium text-primary">Unduh Template</div>
+          <div className="font-medium text-primary">
+            {isDownloading ? "Mengunduh Template..." : "Unduh Template"}
+          </div>
           <div className="text-xs text-muted-foreground">
             template-import-rack-allocation.xlsx
           </div>
         </div>
-      </a>
+      </button>
 
       <div
         onDragOver={(e) => {
@@ -387,6 +409,19 @@ function PreviewStep({
 
   const hasProblems = batch.errorRows + batch.manualMoveRows > 0;
   const canApply = batch.placeRows > 0;
+  const [isDownloadingErrors, setIsDownloadingErrors] = React.useState(false);
+
+  const handleDownloadErrors = async () => {
+    try {
+      setIsDownloadingErrors(true);
+      await downloadRackImportErrors(batch.id, batch.batchNo);
+      toast.success("Laporan error berhasil didownload");
+    } catch (err: unknown) {
+      apiError(err, "Gagal mendownload laporan error");
+    } finally {
+      setIsDownloadingErrors(false);
+    }
+  };
 
   const changeStatus = (next: StatusFilter) => {
     setStatus(next);
@@ -438,16 +473,20 @@ function PreviewStep({
           onClick={() => toggle("error")}
         />
         {hasProblems && (
-          <a
-            href={rackImportErrorsDownloadUrl(batch.id)}
-            download
-            className="ml-auto"
+          <Button
+            variant="outline"
+            size="sm"
+            className="ml-auto gap-1.5"
+            disabled={isDownloadingErrors}
+            onClick={handleDownloadErrors}
           >
-            <Button variant="outline" size="sm" className="gap-1.5">
+            {isDownloadingErrors ? (
+              <Loader2Icon className="size-4 animate-spin" />
+            ) : (
               <DownloadIcon className="size-4" />
-              Unduh laporan
-            </Button>
-          </a>
+            )}
+            Unduh laporan
+          </Button>
         )}
       </div>
 

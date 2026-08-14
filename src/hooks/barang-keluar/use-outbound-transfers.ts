@@ -17,6 +17,9 @@ const STALE = 30 * 1000;
 export const importTransferTemplateUrl = (): string =>
   OutboundTransferService.importTemplateUrl();
 
+export const downloadImportTransferTemplate = (): Promise<void> =>
+  OutboundTransferService.downloadTemplate();
+
 export function useImportTransferPreview() {
   return useMutation({
     mutationFn: (file: File) => OutboundTransferService.importPreview(file),

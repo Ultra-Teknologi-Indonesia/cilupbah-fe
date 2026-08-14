@@ -70,6 +70,12 @@ export const InventorySettingService = {
     );
   },
 
+  downloadTemplate: (type: ImportSettingType): Promise<void> =>
+    fetchBlob(
+      `/inventory/settings/import/template/${type}`,
+      `template-import-${type}.xlsx`,
+    ),
+
   importTemplateUrl: (type: ImportSettingType): string =>
     `/api/app/inventory/settings/import/template/${type}`,
 

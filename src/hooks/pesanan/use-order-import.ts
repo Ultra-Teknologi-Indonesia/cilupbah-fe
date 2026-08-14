@@ -25,6 +25,12 @@ export const orderImportTemplateUrl = () => OrderImportService.templateUrl();
 export const orderImportErrorsDownloadUrl = (batchId: string) =>
   OrderImportService.errorsDownloadUrl(batchId);
 
+export const downloadOrderImportTemplate = () =>
+  OrderImportService.downloadTemplate();
+
+export const downloadOrderImportErrors = (batchId: string, batchNo?: string) =>
+  OrderImportService.downloadErrors(batchId, batchNo);
+
 export const orderImportBatchKey = (params: OrderImportBatchParams) =>
   ["pesanan", "import-batches", params] as const;
 

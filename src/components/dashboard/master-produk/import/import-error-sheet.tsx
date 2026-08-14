@@ -3,7 +3,13 @@
 import * as React from "react";
 import type { PaginationState } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { AlertTriangleIcon, DownloadIcon, SearchXIcon } from "lucide-react";
+import {
+  AlertTriangleIcon,
+  DownloadIcon,
+  Loader2Icon,
+  SearchXIcon,
+} from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,11 +21,12 @@ import {
 } from "@/components/ui/sheet";
 import { DataTable } from "@/components/ui/data-table";
 import {
-  importErrorsDownloadUrl,
+  downloadImportErrors,
   useImportBatchErrors,
   type ImportBatch,
   type ImportBatchError,
 } from "@/hooks/master-produk/use-import";
+import { apiError } from "@/lib/toast";
 
 const columns: ColumnDef<ImportBatchError>[] = [
   {
@@ -65,10 +72,25 @@ export function ImportErrorSheet({ batch, open, onOpenChange }: Props) {
     if (open) setPagination((p) => ({ ...p, pageIndex: 0 }));
   }
 
+  const [isDownloading, setIsDownloading] = React.useState(false);
+
   const query = useImportBatchErrors(batch?.id ?? null, {
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
   });
+
+  const handleDownloadErrors = async () => {
+    if (!batch) return;
+    try {
+      setIsDownloading(true);
+      await downloadImportErrors(batch.id, batch.batchNo);
+      toast.success("Error report berhasil didownload");
+    } catch (err: unknown) {
+      apiError(err, "Gagal mendownload error report");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const items = query.data?.items ?? [];
   const total = query.data?.meta?.total ?? 0;
@@ -86,11 +108,19 @@ export function ImportErrorSheet({ batch, open, onOpenChange }: Props) {
         <div className="flex flex-col gap-4 pt-4">
           {batch && (
             <div className="flex justify-end">
-              <Button variant="outline" size="sm" className="gap-1.5" asChild>
-                <a href={importErrorsDownloadUrl(batch.id)} download>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                disabled={isDownloading}
+                onClick={handleDownloadErrors}
+              >
+                {isDownloading ? (
+                  <Loader2Icon className="size-4 animate-spin" />
+                ) : (
                   <DownloadIcon className="size-4" />
-                  Download Error Report
-                </a>
+                )}
+                Download Error Report
               </Button>
             </div>
           )}

@@ -88,23 +88,47 @@ export async function fetchBlob(
     ? endpoint
     : `/${endpoint}`;
 
-  const response = await apiClient(formattedEndpoint, {
-    responseType: "blob",
-    headers: { Accept: "*/*" },
-  });
+  try {
+    const response = await apiClient(formattedEndpoint, {
+      responseType: "blob",
+      headers: { Accept: "*/*" },
+    });
 
-  const blob = mimeType
-    ? new Blob([response.data], { type: mimeType })
-    : response.data;
+    const blob = mimeType
+      ? new Blob([response.data], { type: mimeType })
+      : response.data;
 
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      let body = error.response.data;
+      if (body instanceof Blob) {
+        try {
+          const text = await body.text();
+          body = JSON.parse(text);
+        } catch {}
+      }
+      const payload =
+        body && typeof body === "object" ? { ...body } : { message: body };
+      throw { ...payload, status: error.response.status };
+    }
+    if (axios.isAxiosError(error)) {
+      throw {
+        status: 0,
+        title: "Tidak dapat terhubung ke server",
+        message:
+          "Periksa koneksi internet Anda, lalu coba lagi. Jika masalah berlanjut, laporkan ke admin/developer terkait masalah ini.",
+      };
+    }
+    throw error;
+  }
 }
 
 export async function fetchBlobRaw(

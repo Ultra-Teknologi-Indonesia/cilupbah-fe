@@ -1,4 +1,4 @@
-import { fetchClient, fetchBlobRaw, fetchBlobPost } from "@/lib/api-client";
+import { fetchClient, fetchBlob, fetchBlobRaw, fetchBlobPost } from "@/lib/api-client";
 import type { ApiResponse, ApiPaginated } from "@/types/api.types";
 import type {
   InventoryTransfer,
@@ -241,6 +241,12 @@ export const OutboundTransferService = {
     );
     return res.data;
   },
+
+  downloadTemplate: (): Promise<void> =>
+    fetchBlob(
+      "/inventory/transfers/import/template",
+      "template-import-transfer-keluar.xlsx",
+    ),
 
   importTemplateUrl: (): string =>
     "/api/app/inventory/transfers/import/template",

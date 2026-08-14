@@ -1,4 +1,4 @@
-import { fetchClient } from "@/lib/api-client";
+import { fetchClient, fetchBlob } from "@/lib/api-client";
 import type { ApiPaginated } from "@/types/api.types";
 
 export type RackImportState =
@@ -114,6 +114,18 @@ function mapRow(raw: RawRackImportRow): RackImportRow {
 }
 
 export const RackImportService = {
+  downloadTemplate: (): Promise<void> =>
+    fetchBlob(
+      "/inventory/settings/import/template/rack-allocation",
+      "Template_Alokasi_Rak.xlsx",
+    ),
+
+  downloadErrors: (batchId: string, batchNo?: string): Promise<void> =>
+    fetchBlob(
+      `/inventory/settings/rack-import/batches/${batchId}/errors/download`,
+      `import-errors-${batchNo ?? batchId}.xlsx`,
+    ),
+
   templateUrl: (): string =>
     `/api/app/inventory/settings/import/template/rack-allocation`,
 

@@ -20,6 +20,9 @@ const KEY = "inventory-settings";
 export const importSettingTemplateUrl = (type: ImportSettingType) =>
   InventorySettingService.importTemplateUrl(type);
 
+export const downloadImportSettingTemplate = (type: ImportSettingType) =>
+  InventorySettingService.downloadTemplate(type);
+
 export function useExportRackAllocation() {
   return useMutation({
     mutationFn: (params: { search?: string } = {}) =>

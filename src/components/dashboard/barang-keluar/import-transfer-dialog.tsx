@@ -29,10 +29,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  importTransferTemplateUrl,
+  downloadImportTransferTemplate,
   useImportTransferConfirm,
   useImportTransferPreview,
 } from "@/hooks/barang-keluar/use-outbound-transfers";
+import { apiError } from "@/lib/toast";
 import type { TransferImportPreview } from "@/types/barang-keluar/transfer-import";
 
 const ACCEPT = ".xlsx,.xls";
@@ -63,9 +64,22 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
   const [preview, setPreview] = React.useState<TransferImportPreview | null>(
     null,
   );
+  const [isDownloading, setIsDownloading] = React.useState(false);
 
   const previewMut = useImportTransferPreview();
   const confirmMut = useImportTransferConfirm();
+
+  const handleDownloadTemplate = async () => {
+    try {
+      setIsDownloading(true);
+      await downloadImportTransferTemplate();
+      toast.success("Template berhasil didownload");
+    } catch (err: unknown) {
+      apiError(err, "Gagal mendownload template");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const reset = React.useCallback(() => {
     setFile(null);
@@ -132,19 +146,26 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
 
         {!preview ? (
           <div className="flex flex-col gap-4">
-            <a
-              href={importTransferTemplateUrl()}
-              download
-              className="flex items-center gap-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 px-4 py-3 text-sm transition-colors hover:bg-primary/10"
+            <button
+              type="button"
+              disabled={isDownloading}
+              onClick={handleDownloadTemplate}
+              className="flex items-center gap-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 px-4 py-3 text-left text-sm transition-colors hover:bg-primary/10 disabled:opacity-50"
             >
-              <DownloadIcon className="size-5 shrink-0 text-primary" />
+              {isDownloading ? (
+                <Loader2Icon className="size-5 shrink-0 animate-spin text-primary" />
+              ) : (
+                <DownloadIcon className="size-5 shrink-0 text-primary" />
+              )}
               <div className="min-w-0 flex-1">
-                <div className="font-medium text-primary">Unduh Template</div>
+                <div className="font-medium text-primary">
+                  {isDownloading ? "Mengunduh Template..." : "Unduh Template"}
+                </div>
                 <div className="text-xs text-muted-foreground">
                   template-import-transfer-keluar.xlsx
                 </div>
               </div>
-            </a>
+            </button>
 
             <div
               onDragOver={(e) => {

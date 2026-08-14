@@ -30,6 +30,12 @@ export const rackImportTemplateUrl = () => RackImportService.templateUrl();
 export const rackImportErrorsDownloadUrl = (batchId: string) =>
   RackImportService.errorsDownloadUrl(batchId);
 
+export const downloadRackImportTemplate = () =>
+  RackImportService.downloadTemplate();
+
+export const downloadRackImportErrors = (batchId: string, batchNo?: string) =>
+  RackImportService.downloadErrors(batchId, batchNo);
+
 export function useRackImportBatches(params: {
   state?: RackImportState;
   page?: number;

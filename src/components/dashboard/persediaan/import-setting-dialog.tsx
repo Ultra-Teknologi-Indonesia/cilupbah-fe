@@ -28,10 +28,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  importSettingTemplateUrl,
+  downloadImportSettingTemplate,
   useImportSettingConfirm,
   useImportSettingPreview,
 } from "@/hooks/persediaan/use-inventory-settings";
+import { apiError } from "@/lib/toast";
 import type {
   ImportPreviewResult,
   ImportSettingType,
@@ -99,11 +100,25 @@ export function ImportSettingDialog({ type, onOpenChange }: Props) {
   const [file, setFile] = React.useState<File | null>(null);
   const [dragOver, setDragOver] = React.useState(false);
   const [preview, setPreview] = React.useState<ImportPreviewResult | null>(null);
+  const [isDownloading, setIsDownloading] = React.useState(false);
 
   const previewMut = useImportSettingPreview();
   const confirmMut = useImportSettingConfirm();
 
   const isRack = type === "rack-allocation";
+
+  const handleDownloadTemplate = async () => {
+    if (!type) return;
+    try {
+      setIsDownloading(true);
+      await downloadImportSettingTemplate(type);
+      toast.success("Template berhasil didownload");
+    } catch (err: unknown) {
+      apiError(err, "Gagal mendownload template");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const reset = React.useCallback(() => {
     setFile(null);
@@ -166,19 +181,26 @@ export function ImportSettingDialog({ type, onOpenChange }: Props) {
         {!preview ? (
           <div className="flex flex-col gap-4">
             {type && (
-              <a
-                href={importSettingTemplateUrl(type)}
-                download
-                className="flex items-center gap-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 px-4 py-3 text-sm transition-colors hover:bg-primary/10"
+              <button
+                type="button"
+                disabled={isDownloading}
+                onClick={handleDownloadTemplate}
+                className="flex items-center gap-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 px-4 py-3 text-left text-sm transition-colors hover:bg-primary/10 disabled:opacity-50"
               >
-                <DownloadIcon className="size-5 shrink-0 text-primary" />
+                {isDownloading ? (
+                  <Loader2Icon className="size-5 shrink-0 animate-spin text-primary" />
+                ) : (
+                  <DownloadIcon className="size-5 shrink-0 text-primary" />
+                )}
                 <div className="min-w-0 flex-1">
-                  <div className="font-medium text-primary">Unduh Template</div>
+                  <div className="font-medium text-primary">
+                    {isDownloading ? "Mengunduh Template..." : "Unduh Template"}
+                  </div>
                   <div className="text-xs text-muted-foreground">
                     template-import-{type}.xlsx
                   </div>
                 </div>
-              </a>
+              </button>
             )}
 
             <div

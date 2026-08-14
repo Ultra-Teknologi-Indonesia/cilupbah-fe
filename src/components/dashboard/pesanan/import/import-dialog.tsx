@@ -8,6 +8,7 @@ import {
   UploadIcon,
 } from "lucide-react";
 
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,9 +19,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  orderImportTemplateUrl,
+  downloadOrderImportTemplate,
   useOrderImportFile,
 } from "@/hooks/pesanan/use-order-import";
+import { apiError } from "@/lib/toast";
 
 const ACCEPT = ".xlsx,.xls,.csv";
 const MAX_SIZE = 20 * 1024 * 1024;
@@ -36,6 +38,7 @@ export function OrderImportDialog({ open, onOpenChange, onQueued }: Props) {
   const [file, setFile] = React.useState<File | null>(null);
   const [dragOver, setDragOver] = React.useState(false);
   const [sizeError, setSizeError] = React.useState(false);
+  const [isDownloading, setIsDownloading] = React.useState(false);
 
   const importFile = useOrderImportFile();
 
@@ -60,6 +63,18 @@ export function OrderImportDialog({ open, onOpenChange, onQueued }: Props) {
     e.preventDefault();
     setDragOver(false);
     handleFile(e.dataTransfer.files[0]);
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      setIsDownloading(true);
+      await downloadOrderImportTemplate();
+      toast.success("Template berhasil didownload");
+    } catch (err: unknown) {
+      apiError(err, "Gagal mendownload template");
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -88,19 +103,26 @@ export function OrderImportDialog({ open, onOpenChange, onQueued }: Props) {
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
-          <a
-            href={orderImportTemplateUrl()}
-            download
-            className="flex items-center gap-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 px-4 py-3 text-sm transition-colors hover:bg-primary/10"
+          <button
+            type="button"
+            disabled={isDownloading}
+            onClick={handleDownloadTemplate}
+            className="flex items-center gap-3 rounded-lg border border-dashed border-primary/40 bg-primary/5 px-4 py-3 text-left text-sm transition-colors hover:bg-primary/10 disabled:opacity-50"
           >
-            <DownloadIcon className="size-5 shrink-0 text-primary" />
+            {isDownloading ? (
+              <Loader2Icon className="size-5 shrink-0 animate-spin text-primary" />
+            ) : (
+              <DownloadIcon className="size-5 shrink-0 text-primary" />
+            )}
             <div className="min-w-0 flex-1">
-              <div className="font-medium text-primary">Download Template</div>
+              <div className="font-medium text-primary">
+                {isDownloading ? "Mengunduh Template..." : "Download Template"}
+              </div>
               <div className="text-xs text-muted-foreground">
                 Template_Import_Pesanan.xlsx
               </div>
             </div>
-          </a>
+          </button>
 
           <div
             onDragOver={(e) => {

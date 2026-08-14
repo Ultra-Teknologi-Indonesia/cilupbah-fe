@@ -49,7 +49,8 @@ async function proxyRequest(
   const targetUrl = `${BACKEND_URL}${targetPath}${url.search}`;
 
   const headers = new Headers();
-  headers.set("accept", "application/json");
+  const incomingAccept = request.headers.get("accept");
+  headers.set("accept", incomingAccept || "application/json");
   headers.set("x-client-type", "web");
 
   const contentType = request.headers.get("content-type");

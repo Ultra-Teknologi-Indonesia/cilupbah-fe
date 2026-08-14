@@ -1,4 +1,4 @@
-import { fetchClient } from "@/lib/api-client";
+import { fetchClient, fetchBlob } from "@/lib/api-client";
 import type { ApiPaginated } from "@/types/api.types";
 
 export type OrderImportBatchState =
@@ -133,6 +133,18 @@ export const OrderImportService = {
     );
     return mapBatch(res.data);
   },
+
+  downloadTemplate: (): Promise<void> =>
+    fetchBlob(
+      "/sales/orders/import/template",
+      "Template_Import_Pesanan.xlsx",
+    ),
+
+  downloadErrors: (batchId: string, batchNo?: string): Promise<void> =>
+    fetchBlob(
+      `/sales/orders/import/batches/${batchId}/errors/download`,
+      `import-errors-${batchNo ?? batchId}.xlsx`,
+    ),
 
   templateUrl: (): string => "/api/app/sales/orders/import/template",
 
