@@ -246,7 +246,7 @@ export function DetailHeader({
                   Deskripsi
                 </div>
                 <div
-                  className="prose-sm max-w-none line-clamp-4 text-sm leading-relaxed text-foreground/90 [&_a]:text-primary [&_a]:underline"
+                  className="prose-sm max-w-none line-clamp-4 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90 [&_a]:text-primary [&_a]:underline"
                   dangerouslySetInnerHTML={{
                     __html: sanitizeHtml(product.description),
                   }}
@@ -269,7 +269,7 @@ export function DetailHeader({
                     >
                       <div className="px-6 py-5">
                         <div
-                          className="prose-sm max-w-none text-sm leading-relaxed text-foreground/90 [&_a]:text-primary [&_a]:underline"
+                          className="prose-sm max-w-none whitespace-pre-wrap text-sm leading-relaxed text-foreground/90 [&_a]:text-primary [&_a]:underline"
                           dangerouslySetInnerHTML={{
                             __html: sanitizeHtml(product.description),
                           }}
