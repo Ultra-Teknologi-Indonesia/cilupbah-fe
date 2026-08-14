@@ -95,6 +95,7 @@ export function detailToFormValues(p: ProductDetail): BuatProdukFormValues {
       variantId: c.componentVariantId,
       productName: c.product?.name ?? "",
       sku: c.sku,
+      thumbnail: c.thumbnail ?? null,
       variationValues: c.variationValues.map((o) => ({ value: o.value })),
       qty: c.qty,
     })),

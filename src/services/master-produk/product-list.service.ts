@@ -43,6 +43,7 @@ function mapMasterItem(raw: RawMasterItem): Product {
       sellPrice: v.sell_price,
       barcode: v.barcode,
       taxRate: v.tax_rate,
+      thumbnail: v.thumbnail ?? null,
       variationValues: v.variation_values ?? [],
       storeNames: (v.store_names ?? []).map((s) => ({
         storeName: s.store_name,

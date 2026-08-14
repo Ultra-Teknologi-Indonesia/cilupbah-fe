@@ -10,6 +10,7 @@ export interface ProductVariant {
   sellPrice: number | null;
   barcode: string | null;
   taxRate: number | null;
+  thumbnail?: string | null;
   variationValues: { label: string; value: string }[];
   storeNames: { storeName: string }[];
 
@@ -51,6 +52,7 @@ export interface RawMasterVariant {
   sell_price: number | null;
   barcode: string | null;
   tax_rate: number | null;
+  thumbnail?: string | null;
   variation_values: { label: string; value: string }[];
   store_names: { store_name: string }[];
 }

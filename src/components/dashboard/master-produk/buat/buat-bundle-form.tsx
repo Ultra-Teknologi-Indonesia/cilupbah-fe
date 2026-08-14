@@ -82,7 +82,7 @@ export function BuatBundleForm() {
         ]}
       />
 
-      <div className="mx-auto w-full max-w-2xl">
+      <div className="w-full">
         <Form {...form}>
           <form
             className="flex flex-col gap-6"

@@ -64,6 +64,7 @@ export interface BundleComponent {
   qty: number;
   sku: string | null;
   product: { id: string; name: string } | null;
+  thumbnail?: string | null;
   variationValues: DetailVariantOption[];
   stock: {
     onHand: number;

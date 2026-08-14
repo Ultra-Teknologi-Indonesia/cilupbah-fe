@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { InfoIcon, Loader2Icon, SaveIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
 import { buatProdukSchema } from "@/schemas/master-produk";
 import type {
   BuatProdukFormValues,
@@ -265,12 +266,19 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[14rem_1fr]">
-        <aside className="hidden lg:block">
-          <Card className="sticky top-6 gap-0 px-2 py-4 backdrop-blur-xl">
-            <SectionNav sections={sections} />
-          </Card>
-        </aside>
+      <div
+        className={cn(
+          "grid gap-6",
+          !product.isBundle && "lg:grid-cols-[14rem_1fr]",
+        )}
+      >
+        {!product.isBundle && (
+          <aside className="hidden lg:block">
+            <Card className="sticky top-6 gap-0 px-2 py-4 backdrop-blur-xl">
+              <SectionNav sections={sections} />
+            </Card>
+          </aside>
+        )}
 
         <Form {...form}>
           <form
@@ -280,19 +288,20 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
             <FormDetailSection mode={product.isBundle ? "bundle" : "full"} />
 
             {!product.isBundle && (
-              <FormVariantSection lockedTypeIds={variantLocks.lockedTypeIds} />
+              <>
+                <FormVariantSection
+                  lockedTypeIds={variantLocks.lockedTypeIds}
+                />
+                <FormSalesSection />
+                <FormShippingSection />
+                <FormSectionCard id="media" title="Gambar & Video Produk">
+                  <ProductMediaManager
+                    value={mediaItems}
+                    onChange={setMediaItems}
+                  />
+                </FormSectionCard>
+              </>
             )}
-
-            <FormSalesSection />
-
-            <FormShippingSection />
-
-            <FormSectionCard id="media" title="Gambar & Video Produk">
-              <ProductMediaManager
-                value={mediaItems}
-                onChange={setMediaItems}
-              />
-            </FormSectionCard>
           </form>
         </Form>
       </div>
