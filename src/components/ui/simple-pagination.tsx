@@ -5,6 +5,7 @@ import {
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
+  Loader2Icon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -80,8 +81,11 @@ export function SimplePagination({
           </div>
         )}
 
-        <div className="flex w-[7.5rem] items-center justify-center text-sm font-medium">
-          Halaman {lastPage === 0 ? 0 : page} dari {lastPage}
+        <div className="flex w-[8.5rem] items-center justify-center gap-1.5 text-sm font-medium">
+          <span>Halaman {lastPage === 0 ? 0 : page} dari {lastPage}</span>
+          {isFetching && (
+            <Loader2Icon className="size-3.5 animate-spin text-primary" />
+          )}
         </div>
 
         <div className="flex items-center gap-1.5">

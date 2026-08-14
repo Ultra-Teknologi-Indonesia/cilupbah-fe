@@ -221,12 +221,17 @@ export function DataTable<TData, TValue>({
 
       <div
         className={cn(
-          "overflow-hidden rounded-t-2xl border border-border bg-card backdrop-blur-xl transition-opacity duration-200",
+          "relative overflow-hidden rounded-t-2xl border border-border bg-card backdrop-blur-xl transition-opacity duration-200",
           isRefreshing && "pointer-events-none opacity-60",
           tableContainerClassName,
         )}
         aria-busy={isRefreshing || showSkeleton}
       >
+        {isRefreshing && (
+          <div className="absolute inset-x-0 top-0 z-20 h-0.5 w-full overflow-hidden bg-primary/20">
+            <div className="h-full w-1/3 animate-[indeterminate_1.2s_infinite_linear] bg-primary" />
+          </div>
+        )}
         <ScrollArea className="w-full whitespace-nowrap">
           <Table>
             <TableHeader className="bg-muted/40">
@@ -293,12 +298,10 @@ export function DataTable<TData, TValue>({
                         </TableCell>
                       ))}
                     </TableRow>
+
                     {renderSubRow && row.getIsExpanded() && (
-                      <TableRow>
-                        <TableCell
-                          colSpan={colSpan}
-                          className="bg-muted/20 p-0"
-                        >
+                      <TableRow className="bg-muted/20 hover:bg-muted/20">
+                        <TableCell colSpan={colSpan} className="p-0">
                           {renderSubRow(row.original, row)}
                         </TableCell>
                       </TableRow>
@@ -307,10 +310,11 @@ export function DataTable<TData, TValue>({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={colSpan} className="h-32 text-center">
-                    {emptyState ?? (
-                      <EmptyState title="Belum ada data" className="py-2" />
-                    )}
+                  <TableCell
+                    colSpan={colSpan}
+                    className="h-48 text-center text-muted-foreground"
+                  >
+                    {emptyState ?? "Tidak ada data"}
                   </TableCell>
                 </TableRow>
               )}
@@ -324,6 +328,7 @@ export function DataTable<TData, TValue>({
         <DataTablePagination
           table={table}
           pageSizeOptions={pageSizeOptions}
+          isFetching={isFetching || isRefreshing}
           showSelectionCount={!!enableRowSelection}
         />
       )}

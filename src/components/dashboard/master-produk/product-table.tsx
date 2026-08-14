@@ -14,6 +14,7 @@ export interface ProductListViewProps {
   items: Product[];
   total: number;
   isLoading: boolean;
+  isFetching?: boolean;
   sorting: SortingState;
   onSortingChange: (sorting: SortingState) => void;
   pagination: PaginationState;
@@ -25,6 +26,7 @@ export function ProductTable({
   items,
   total,
   isLoading,
+  isFetching,
   sorting,
   onSortingChange,
   pagination,
@@ -36,6 +38,7 @@ export function ProductTable({
       columns={productColumns}
       data={items}
       isLoading={isLoading}
+      isFetching={isFetching}
       getRowId={(p) => p.itemGroupId}
       hideToolbar
       manualPagination

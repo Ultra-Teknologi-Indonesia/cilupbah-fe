@@ -10,6 +10,7 @@ import {
   ChevronDownIcon,
   PackageIcon,
   LayersIcon,
+  Loader2Icon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -47,6 +48,7 @@ export function ProductExplorer({ query }: { query: Query }) {
   const items = query.result.data?.items ?? [];
   const total = query.result.data?.meta?.total ?? 0;
   const isLoading = query.result.isLoading;
+  const isFetching = query.result.isFetching;
 
   const syncFilters = {
     ...(query.search ? { search: query.search } : {}),
@@ -58,6 +60,7 @@ export function ProductExplorer({ query }: { query: Query }) {
     items,
     total,
     isLoading,
+    isFetching,
     sorting: query.sorting,
     onSortingChange: query.setSorting,
     pagination: query.pagination,
@@ -96,9 +99,14 @@ export function ProductExplorer({ query }: { query: Query }) {
       >
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6 sm:py-5">
           <div>
-            <h2 className="text-base font-medium">Daftar Produk</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-medium">Daftar Produk</h2>
+              {isFetching && (
+                <Loader2Icon className="size-3.5 animate-spin text-primary" />
+              )}
+            </div>
             <p className="text-sm text-muted-foreground">
-              {isLoading ? "Memuat…" : `${total} produk`}
+              {isLoading && items.length === 0 ? "Memuat…" : `${total} produk`}
             </p>
           </div>
 

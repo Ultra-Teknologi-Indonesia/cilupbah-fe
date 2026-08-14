@@ -6,6 +6,7 @@ import {
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
+  Loader2Icon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -21,13 +22,14 @@ import { TABLE_PAGE_SIZES } from "@/components/ui/simple-pagination";
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
   pageSizeOptions?: number[];
-
+  isFetching?: boolean;
   showSelectionCount?: boolean;
 }
 
 export function DataTablePagination<TData>({
   table,
   pageSizeOptions = TABLE_PAGE_SIZES,
+  isFetching = false,
   showSelectionCount = true,
 }: DataTablePaginationProps<TData>) {
   const pageIndex = table.getState().pagination.pageIndex;
@@ -55,6 +57,7 @@ export function DataTablePagination<TData>({
           <Select
             value={`${pageSize}`}
             onValueChange={(value) => table.setPageSize(Number(value))}
+            disabled={isFetching}
           >
             <SelectTrigger
               size="sm"
@@ -72,8 +75,11 @@ export function DataTablePagination<TData>({
           </Select>
         </div>
 
-        <div className="flex w-[7.5rem] items-center justify-center text-sm font-medium">
-          Halaman {pageCount === 0 ? 0 : pageIndex + 1} dari {pageCount}
+        <div className="flex w-[8.5rem] items-center justify-center gap-1.5 text-sm font-medium">
+          <span>Halaman {pageCount === 0 ? 0 : pageIndex + 1} dari {pageCount}</span>
+          {isFetching && (
+            <Loader2Icon className="size-3.5 animate-spin text-primary" />
+          )}
         </div>
 
         <div className="flex items-center gap-1.5">
@@ -82,7 +88,7 @@ export function DataTablePagination<TData>({
             size="icon"
             className="hidden size-8 lg:flex"
             onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
+            disabled={!table.getCanPreviousPage() || isFetching}
             aria-label="Halaman pertama"
           >
             <ChevronsLeftIcon className="size-4" />
@@ -92,7 +98,7 @@ export function DataTablePagination<TData>({
             size="icon"
             className="size-8"
             onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            disabled={!table.getCanPreviousPage() || isFetching}
             aria-label="Halaman sebelumnya"
           >
             <ChevronLeftIcon className="size-4" />
@@ -102,7 +108,7 @@ export function DataTablePagination<TData>({
             size="icon"
             className="size-8"
             onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            disabled={!table.getCanNextPage() || isFetching}
             aria-label="Halaman berikutnya"
           >
             <ChevronRightIcon className="size-4" />
@@ -112,7 +118,7 @@ export function DataTablePagination<TData>({
             size="icon"
             className="hidden size-8 lg:flex"
             onClick={() => table.setPageIndex(pageCount - 1)}
-            disabled={!table.getCanNextPage()}
+            disabled={!table.getCanNextPage() || isFetching}
             aria-label="Halaman terakhir"
           >
             <ChevronsRightIcon className="size-4" />

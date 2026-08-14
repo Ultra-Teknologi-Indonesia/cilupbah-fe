@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-table";
 import { SearchXIcon } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTablePagination } from "@/components/ui/data-table";
 import { GRID_PAGE_SIZES } from "@/components/ui/simple-pagination";
@@ -21,6 +22,7 @@ export function ProductCardView({
   items,
   total,
   isLoading,
+  isFetching,
   sorting,
   onSortingChange,
   pagination,
@@ -46,7 +48,7 @@ export function ProductCardView({
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (isLoading) {
+  if (isLoading && items.length === 0) {
     return (
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {Array.from({ length: 8 }).map((_, i) => (
@@ -62,7 +64,19 @@ export function ProductCardView({
     .rows.map((r) => r.original);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div
+      className={cn(
+        "relative flex flex-col gap-4 transition-opacity duration-200",
+        isFetching && "pointer-events-none opacity-60",
+      )}
+      aria-busy={isFetching}
+    >
+      {isFetching && (
+        <div className="absolute -top-2 inset-x-0 z-20 h-0.5 w-full overflow-hidden rounded-full bg-primary/20">
+          <div className="h-full w-1/3 animate-[indeterminate_1.2s_infinite_linear] bg-primary" />
+        </div>
+      )}
+
       {rows.length > 0 && (
         <label className="flex w-fit cursor-pointer items-center gap-2 text-sm text-muted-foreground">
           <Checkbox
@@ -107,7 +121,11 @@ export function ProductCardView({
         </div>
       )}
 
-      <DataTablePagination table={table} pageSizeOptions={GRID_PAGE_SIZES} />
+      <DataTablePagination
+        table={table}
+        pageSizeOptions={GRID_PAGE_SIZES}
+        isFetching={isFetching}
+      />
     </div>
   );
 }
