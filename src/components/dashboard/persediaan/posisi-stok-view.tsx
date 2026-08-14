@@ -658,9 +658,11 @@ export function PosisiStokView() {
             />
           }
           onReset={
-            list.hasActiveFilter ? () => list.resetFilters() : undefined
+            list.hasActiveFilter || !!list.search
+              ? list.resetAll
+              : undefined
           }
-          hasFilter={list.hasActiveFilter}
+          hasFilter={list.hasActiveFilter || !!list.search}
           activeCount={list.activeFilterCount}
           gridCols={2}
         >

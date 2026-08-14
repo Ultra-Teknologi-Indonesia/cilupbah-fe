@@ -185,7 +185,7 @@ export function OrderFilters({
   const hasActive =
     Object.entries(filters).some(([k, v]) =>
       k === "status" ? (v as string[]).length > 0 : Boolean(v),
-    );
+    ) || Boolean(query);
   const activeCount =
     [
       filters.channel,
@@ -213,7 +213,14 @@ export function OrderFilters({
       search={query}
       onSearchChange={onQueryChange}
       searchPlaceholder="Cari no. pesanan, nama, SKU…"
-      onReset={hasActive ? () => onChange(EMPTY) : undefined}
+      onReset={
+        hasActive
+          ? () => {
+              onChange(EMPTY);
+              onQueryChange?.("");
+            }
+          : undefined
+      }
       hasFilter={hasActive}
       activeCount={activeCount}
       align="end"

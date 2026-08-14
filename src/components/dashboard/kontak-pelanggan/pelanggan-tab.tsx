@@ -295,11 +295,14 @@ export function PelangganTab() {
           searchPlaceholder="Cari nama, perusahaan, email..."
           align="end"
           onReset={
-            hasActiveFilter
-              ? () => setFilters(EMPTY_FILTERS)
+            hasActiveFilter || !!search
+              ? () => {
+                  setFilters(EMPTY_FILTERS);
+                  setSearch("");
+                }
               : undefined
           }
-          hasFilter={hasActiveFilter}
+          hasFilter={hasActiveFilter || !!search}
           activeCount={activeCount}
           gridCols={2}
           leading={

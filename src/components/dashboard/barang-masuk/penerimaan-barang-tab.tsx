@@ -489,8 +489,12 @@ export function PenerimaanBarangTab() {
           onSearchChange={list.setSearch}
           searchPlaceholder="Cari no. penerimaan..."
           align="end"
-          onReset={hasActiveFilter ? () => list.resetFilters() : undefined}
-          hasFilter={hasActiveFilter}
+          onReset={
+            hasActiveFilter || !!list.search
+              ? list.resetAll
+              : undefined
+          }
+          hasFilter={hasActiveFilter || !!list.search}
           activeCount={activeCount}
           gridCols={2}
         >

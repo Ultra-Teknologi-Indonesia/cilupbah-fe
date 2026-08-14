@@ -37,10 +37,7 @@ export function useListState<F extends object>(
   const pageKey = `${ns}page`;
   const perPageKey = `${ns}per_page`;
   const searchKey = `${ns}search`;
-  const filterKeyFor = useCallback(
-    (k: string) => `${ns}filter_${k}`,
-    [ns],
-  );
+  const filterKeyFor = useCallback((k: string) => `${ns}filter_${k}`, [ns]);
 
   const readNumber = useCallback(
     (key: string, fallback: number) => {
@@ -124,7 +121,11 @@ export function useListState<F extends object>(
     });
     setSortingRaw((prev) => {
       if (!nextSortBy) return prev.length === 0 ? prev : [];
-      if (prev.length === 1 && prev[0].id === nextSortBy && prev[0].desc === (nextSortDir === "desc")) {
+      if (
+        prev.length === 1 &&
+        prev[0].id === nextSortBy &&
+        prev[0].desc === (nextSortDir === "desc")
+      ) {
         return prev;
       }
       return [{ id: nextSortBy, desc: nextSortDir === "desc" }];
@@ -152,8 +153,9 @@ export function useListState<F extends object>(
         }
       }
       const qs = params.toString();
-      searchParamsRef.current =
-        new URLSearchParams(qs) as unknown as typeof searchParamsRef.current;
+      searchParamsRef.current = new URLSearchParams(
+        qs,
+      ) as unknown as typeof searchParamsRef.current;
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
     [urlSync, router, pathname, pageKey, perPageKey, defaultPerPage],
@@ -197,7 +199,15 @@ export function useListState<F extends object>(
       }
     }, debounceMs);
     return () => clearTimeout(timer);
-  }, [search, debouncedSearch, debounceMs, urlSync, writeUrl, searchKey, pageKey]);
+  }, [
+    search,
+    debouncedSearch,
+    debounceMs,
+    urlSync,
+    writeUrl,
+    searchKey,
+    pageKey,
+  ]);
 
   const setFilters = useCallback(
     (f: F) => {
@@ -244,6 +254,35 @@ export function useListState<F extends object>(
     [urlSync, filterUrlSync, writeUrl, pageKey, filterKeyFor],
   );
 
+  const resetAll = useCallback(() => {
+    setSearchRaw("");
+    setDebouncedSearch("");
+    lastPushedSearchRef.current = "";
+    setFiltersRaw(emptyFilters);
+    setPageRaw(1);
+    if (!urlSync) return;
+    const updates: Record<string, FilterPrimitive> = {
+      [pageKey]: 1,
+      [searchKey]: null,
+    };
+    if (filterUrlSync) {
+      for (const k of Object.keys(
+        emptyFilters as Record<string, FilterPrimitive>,
+      )) {
+        updates[filterKeyFor(k)] = null;
+      }
+    }
+    writeUrl(updates);
+  }, [
+    emptyFilters,
+    urlSync,
+    filterUrlSync,
+    writeUrl,
+    pageKey,
+    searchKey,
+    filterKeyFor,
+  ]);
+
   const setSorting = useCallback(
     (updaterOrValue: SortingState | ((old: SortingState) => SortingState)) => {
       setSortingRaw((old) => {
@@ -270,8 +309,21 @@ export function useListState<F extends object>(
     [writeUrl, urlSync, sortByRawKey, sortDirRawKey],
   );
 
-  const hasActiveFilter = Object.values(filters).some(Boolean);
-  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+  const activeFilterCount = useMemo(() => {
+    const fR = filters as Record<string, FilterPrimitive>;
+    const defR = emptyFilters as Record<string, FilterPrimitive>;
+    let count = 0;
+    for (const k of Object.keys(fR)) {
+      const val = fR[k];
+      const def = defR[k];
+      if (val !== def && val !== "" && val !== null && val !== undefined) {
+        count++;
+      }
+    }
+    return count;
+  }, [filters, emptyFilters]);
+
+  const hasActiveFilter = activeFilterCount > 0;
 
   const pagination = useMemo<PaginationState>(
     () => ({ pageIndex: page - 1, pageSize: perPage }),
@@ -301,6 +353,8 @@ export function useListState<F extends object>(
     filters,
     setFilters,
     resetFilters,
+    resetAll,
+    reset: resetAll,
     sorting,
     setSorting,
     hasActiveFilter,

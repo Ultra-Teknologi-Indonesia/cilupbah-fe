@@ -664,8 +664,12 @@ export function TransferKeluarTab() {
           onSearchChange={list.setSearch}
           searchPlaceholder="Cari no. transfer..."
           align="end"
-          onReset={list.hasActiveFilter ? list.resetFilters : undefined}
-          hasFilter={list.hasActiveFilter}
+          onReset={
+            list.hasActiveFilter || !!list.search
+              ? list.resetAll
+              : undefined
+          }
+          hasFilter={list.hasActiveFilter || !!list.search}
           activeCount={list.activeFilterCount}
           gridCols={2}
         >

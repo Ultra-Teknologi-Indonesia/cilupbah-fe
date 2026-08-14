@@ -24,6 +24,8 @@ interface ResourceListViewProps<T> {
     | "pagination"
     | "onPaginationChange"
     | "resetFilters"
+    | "resetAll"
+    | "reset"
   >;
   columns: ColumnDef<T>[];
   rows: T[];
@@ -83,8 +85,12 @@ export function ResourceListView<T>({
         onSearchChange={list.setSearch}
         searchPlaceholder={searchPlaceholder}
         align="end"
-        onReset={list.hasActiveFilter ? list.resetFilters : undefined}
-        hasFilter={list.hasActiveFilter}
+        onReset={
+          list.hasActiveFilter || !!list.search
+            ? list.resetAll
+            : undefined
+        }
+        hasFilter={list.hasActiveFilter || !!list.search}
         activeCount={list.activeFilterCount}
         gridCols={filterGridCols}
         leading={

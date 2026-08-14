@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useMemo, useCallback } from "react";
 import { useListState } from "@/hooks/use-list-state";
+import { useUrlTab } from "@/hooks/use-url-tab";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -55,12 +56,14 @@ function ProgressBar({ placed, total }: { placed: number; total: number }) {
   );
 }
 
+const STATUS_TABS = ["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "ALL"] as const;
+type StatusTab = (typeof STATUS_TABS)[number];
+
 interface FilterState {
-  status: string;
   location_id: string;
 }
 
-const EMPTY_FILTERS: FilterState = { status: "NOT_STARTED", location_id: "" };
+const EMPTY_FILTERS: FilterState = { location_id: "" };
 
 function handleExportPutaway(items: Putaway[]) {
   const headers = [
@@ -126,6 +129,10 @@ const sortByStatus: Record<string, string> = {
 
 export function PenempatanBarangTab() {
   const router = useRouter();
+  const [statusTab, setStatusTab] = useUrlTab<StatusTab>("status", "NOT_STARTED", {
+    validValues: STATUS_TABS,
+    clearKeys: ["penempatan_page"],
+  });
   const list = useListState<FilterState>(EMPTY_FILTERS, {
     perPage: 20,
     debounceMs: 350,
@@ -145,11 +152,11 @@ export function PenempatanBarangTab() {
       search: list.debouncedSearch || undefined,
       page: list.page,
       per_page: list.perPage,
-      "filter[status]": list.filters.status || undefined,
+      "filter[status]": statusTab === "ALL" ? undefined : statusTab,
       "filter[location_id]": list.filters.location_id || undefined,
-      sort: sortByStatus[list.filters.status] ?? undefined,
+      sort: statusTab !== "ALL" ? sortByStatus[statusTab] ?? undefined : undefined,
     }),
-    [list.debouncedSearch, list.page, list.perPage, list.filters],
+    [list.debouncedSearch, list.page, list.perPage, list.filters.location_id, statusTab],
   );
 
   const { data, isLoading, isFetching } = usePutaways(params);
@@ -174,7 +181,7 @@ export function PenempatanBarangTab() {
     [locData],
   );
 
-  const activeStatus = list.filters.status;
+  const activeStatus = statusTab === "ALL" ? "" : statusTab;
 
   const columns = useMemo<ColumnDef<Putaway>[]>(
     () => [
@@ -406,13 +413,8 @@ export function PenempatanBarangTab() {
       >
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-3 sm:px-5">
           <Tabs
-            value={list.filters.status || "ALL"}
-            onValueChange={(val) =>
-              list.setFilters({
-                ...list.filters,
-                status: val === "ALL" ? "" : val,
-              })
-            }
+            value={statusTab}
+            onValueChange={(val) => setStatusTab(val as StatusTab)}
           >
             <TabsList variant="line" className="h-auto">
               <TabsTrigger value="NOT_STARTED">Belum Mulai</TabsTrigger>
@@ -439,8 +441,12 @@ export function PenempatanBarangTab() {
           onSearchChange={list.setSearch}
           searchPlaceholder="Cari no. penempatan..."
           align="end"
-          onReset={list.hasActiveFilter ? list.resetFilters : undefined}
-          hasFilter={list.hasActiveFilter}
+          onReset={
+            list.hasActiveFilter || !!list.search
+              ? list.resetAll
+              : undefined
+          }
+          hasFilter={list.hasActiveFilter || !!list.search}
           activeCount={list.activeFilterCount}
           gridCols={1}
         >

@@ -193,7 +193,6 @@ export function SalesmanTab() {
     );
   }, [items]);
 
-  const hasFilter = !!statusFilter;
   const columns = useMemo<ColumnDef<SalesmanItem>[]>(
     () => [
       {
@@ -279,6 +278,7 @@ export function SalesmanTab() {
   );
 
   const activeCount = statusFilter ? 1 : 0;
+  const hasFilter = Boolean(statusFilter || search);
 
   return (
     <>
@@ -292,7 +292,14 @@ export function SalesmanTab() {
           onSearchChange={setSearch}
           searchPlaceholder="Cari nama, kode, email..."
           align="end"
-          onReset={hasFilter ? () => setFilters(EMPTY_FILTERS) : undefined}
+          onReset={
+            hasFilter
+              ? () => {
+                  setFilters(EMPTY_FILTERS);
+                  setSearch("");
+                }
+              : undefined
+          }
           hasFilter={hasFilter}
           activeCount={activeCount}
           gridCols={2}

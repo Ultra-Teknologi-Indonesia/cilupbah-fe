@@ -206,9 +206,14 @@ export function PesananListView() {
           searchPlaceholder="Cari no. pesanan, pemasok..."
           align="end"
           onReset={
-            hasActiveFilter ? () => setFilters(EMPTY_FILTERS) : undefined
+            hasActiveFilter || !!search
+              ? () => {
+                  setFilters(EMPTY_FILTERS);
+                  setSearch("");
+                }
+              : undefined
           }
-          hasFilter={hasActiveFilter}
+          hasFilter={hasActiveFilter || !!search}
           activeCount={activeCount}
           gridCols={2}
           trailing={
