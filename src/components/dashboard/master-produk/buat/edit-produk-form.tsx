@@ -277,7 +277,7 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
             className="flex flex-col gap-6"
             onSubmit={(e) => e.preventDefault()}
           >
-            <FormDetailSection mode={product.isBundle ? "bundle" : "product"} />
+            <FormDetailSection mode={product.isBundle ? "bundle" : "full"} />
 
             {!product.isBundle && (
               <FormVariantSection lockedTypeIds={variantLocks.lockedTypeIds} />
