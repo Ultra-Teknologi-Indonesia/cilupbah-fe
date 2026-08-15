@@ -1,15 +1,17 @@
 "use client";
 
-import { PrinterIcon, Trash2Icon } from "lucide-react";
+import { PrinterIcon, Trash2Icon, TruckIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 interface FulfillmentBulkActionBarProps {
   selectedCount: number;
   onReset: () => void;
-  onPrintLabel: () => void;
+  onReadyToShip?: () => void;
+  onPrintLabel?: () => void;
   onPrintInvoice?: () => void;
   onPrintInvoiceAndLabel?: () => void;
+  readyToShipDisabled?: string;
   printLabelDisabled?: string;
   printInvoiceDisabled?: string;
 }
@@ -17,9 +19,11 @@ interface FulfillmentBulkActionBarProps {
 export function FulfillmentBulkActionBar({
   selectedCount,
   onReset,
+  onReadyToShip,
   onPrintLabel,
   onPrintInvoice,
   onPrintInvoiceAndLabel,
+  readyToShipDisabled,
   printLabelDisabled,
   printInvoiceDisabled,
 }: FulfillmentBulkActionBarProps) {
@@ -41,16 +45,32 @@ export function FulfillmentBulkActionBar({
       </span>
 
       <div className="ml-auto flex flex-wrap items-center gap-1.5">
-        <Button
-          size="sm"
-          onClick={onPrintLabel}
-          disabled={!!printLabelDisabled}
-          title={printLabelDisabled}
-          className="rounded-full"
-        >
-          <PrinterIcon className="size-4" />
-          Cetak Label Pengiriman
-        </Button>
+        {onReadyToShip && (
+          <Button
+            size="sm"
+            onClick={onReadyToShip}
+            disabled={!!readyToShipDisabled}
+            title={readyToShipDisabled}
+            className="rounded-full gap-1.5"
+          >
+            <TruckIcon className="size-4" />
+            Siap Kirim
+          </Button>
+        )}
+
+        {onPrintLabel && (
+          <Button
+            size="sm"
+            variant={onReadyToShip ? "outline" : "default"}
+            onClick={onPrintLabel}
+            disabled={!!printLabelDisabled}
+            title={printLabelDisabled}
+            className="rounded-full gap-1.5"
+          >
+            <PrinterIcon className="size-4" />
+            Cetak Label Pengiriman
+          </Button>
+        )}
 
         {onPrintInvoice && (
           <Button

@@ -19,6 +19,7 @@ import {
   type RowSelectability,
 } from "@/components/dashboard/proses-pesanan/shared/order-table";
 import { FulfillmentBulkActionBar } from "@/components/dashboard/proses-pesanan/shared/fulfillment-bulk-action-bar";
+import { AmbilNoResiDialog } from "@/components/dashboard/proses-pesanan/shared/ambil-no-resi-dialog";
 import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
 import type { Order, OrderTab } from "@/types/pesanan/order";
 import type { FulfillmentListParams } from "@/types/proses-pesanan/fulfillment";
@@ -162,6 +163,8 @@ export function FulfillmentCardList({
   );
 
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+  const [ambilResiOpen, setAmbilResiOpen] = React.useState(false);
+  const [resiOrderIds, setResiOrderIds] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reset seleksi saat stage/tab berganti
@@ -204,12 +207,22 @@ export function FulfillmentCardList({
     });
   }, [eligibleIds]);
 
-  const handlePrintLabel = React.useCallback(() => {
-    const orderInputs = mappedOrders
+  const handleReadyToShip = React.useCallback(() => {
+    const ids = mappedOrders
       .filter((m) => selectedIds.has(m.ui.id))
-      .map((m) => ({ id: m.ui.id, source: m.ui.source ?? null }));
-    if (orderInputs.length === 0) return;
-    void DocActions.shippingLabel(orderInputs);
+      .map((m) => m.ui.id);
+    if (ids.length === 0) return;
+    setResiOrderIds(ids);
+    setAmbilResiOpen(true);
+  }, [mappedOrders, selectedIds]);
+
+  const handlePrintLabel = React.useCallback(() => {
+    const ids = mappedOrders
+      .filter((m) => selectedIds.has(m.ui.id))
+      .map((m) => m.ui.id);
+    if (ids.length === 0) return;
+    setResiOrderIds(ids);
+    setAmbilResiOpen(true);
   }, [mappedOrders, selectedIds]);
 
   const handlePrintInvoice = React.useCallback(() => {
@@ -281,6 +294,7 @@ export function FulfillmentCardList({
               <FulfillmentBulkActionBar
                 selectedCount={selectedIds.size}
                 onReset={() => setSelectedIds(new Set())}
+                onReadyToShip={handleReadyToShip}
                 onPrintLabel={handlePrintLabel}
                 onPrintInvoice={handlePrintInvoice}
               />
@@ -318,6 +332,12 @@ export function FulfillmentCardList({
           total={meta.total}
         />
       </div>
+
+      <AmbilNoResiDialog
+        open={ambilResiOpen}
+        onOpenChange={setAmbilResiOpen}
+        orderIds={resiOrderIds}
+      />
     </div>
   );
 }

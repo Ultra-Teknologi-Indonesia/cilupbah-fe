@@ -8,6 +8,7 @@ import {
   PackageOpenIcon,
   PrinterIcon,
   RefreshCwIcon,
+  TruckIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -19,7 +20,7 @@ import {
   GRID_PAGE_SIZES,
 } from "@/components/ui/simple-pagination";
 import { OrderTable } from "@/components/dashboard/proses-pesanan/shared/order-table";
-import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
+import { AmbilNoResiDialog } from "@/components/dashboard/proses-pesanan/shared/ambil-no-resi-dialog";
 import { BulkBuatPicklistConfirmDialog } from "@/components/dashboard/proses-pesanan/picking/bulk-buat-picklist-confirm-dialog";
 import {
   FulfillmentFilterBar,
@@ -70,6 +71,15 @@ export function ReadyToProcessCardList() {
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [pickerId, setPickerId] = React.useState<string>("");
   const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const [ambilResiOpen, setAmbilResiOpen] = React.useState(false);
+  const [resiOrderIds, setResiOrderIds] = React.useState<string[]>([]);
+
+  const handleOpenAmbilResi = React.useCallback(() => {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    setResiOrderIds(ids);
+    setAmbilResiOpen(true);
+  }, [selected]);
 
   const params = React.useMemo(
     () => ({
@@ -319,19 +329,18 @@ export function ReadyToProcessCardList() {
                       Buat Picklist
                     </Button>
                     <Button
+                      size="sm"
+                      className="rounded-full gap-1.5"
+                      onClick={handleOpenAmbilResi}
+                    >
+                      <TruckIcon className="size-4" />
+                      Siap Kirim
+                    </Button>
+                    <Button
                       variant="outline"
                       size="sm"
-                      className="rounded-full"
-                      onClick={() => {
-                        const orderInputs = mappedOrders
-                          .filter((m) => selected.has(m.ui.id))
-                          .map((m) => ({
-                            id: m.ui.id,
-                            source: m.ui.source ?? null,
-                          }));
-                        if (orderInputs.length === 0) return;
-                        void DocActions.shippingLabel(orderInputs);
-                      }}
+                      className="rounded-full gap-1.5"
+                      onClick={handleOpenAmbilResi}
                     >
                       <PrinterIcon className="size-4" />
                       Cetak Label
@@ -384,6 +393,12 @@ export function ReadyToProcessCardList() {
         locationName={locationName}
         loading={createPicklist.isPending}
         onConfirm={handleCreatePicklist}
+      />
+
+      <AmbilNoResiDialog
+        open={ambilResiOpen}
+        onOpenChange={setAmbilResiOpen}
+        orderIds={resiOrderIds}
       />
     </div>
   );

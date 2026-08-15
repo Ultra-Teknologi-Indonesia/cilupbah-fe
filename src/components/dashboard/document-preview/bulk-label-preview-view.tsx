@@ -240,7 +240,9 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
               ) : (
                 <RefreshCcwIcon className="size-4" />
               )}
-              {retryableCount > 0 ? `Coba Lagi (${retryableCount})` : "Coba Lagi"}
+              {retryableCount > 0
+                ? `Coba Lagi (${retryableCount})`
+                : "Coba Lagi"}
             </Button>
           )}
           {canPrint && (
@@ -305,10 +307,7 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
             </TableHeader>
             <TableBody>
               {data.items.map((item) => (
-                <ItemRow
-                  key={item.id ?? item.order_id}
-                  item={item}
-                />
+                <ItemRow key={item.id ?? item.order_id} item={item} />
               ))}
             </TableBody>
           </Table>

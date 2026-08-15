@@ -31,6 +31,7 @@ import { useListState } from "@/hooks/use-list-state";
 import { DeleteOrderDialog } from "../shared/delete-order-dialog";
 import { FulfillmentBulkActionBar } from "../shared/fulfillment-bulk-action-bar";
 import { UbahPackerDialog } from "./ubah-packer-dialog";
+import { AmbilNoResiDialog } from "../shared/ambil-no-resi-dialog";
 import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -44,8 +45,6 @@ function packlistLabelEligible(p: Packlist): {
   if (!src) return { eligible: false, reason: "Pesanan manual" };
   if (!PACKLIST_LABEL_CHANNELS.has(src))
     return { eligible: false, reason: "Kanal belum didukung" };
-  if (!p.trackingNumber)
-    return { eligible: false, reason: "Belum ada nomor resi" };
   return { eligible: true };
 }
 
@@ -76,6 +75,8 @@ export function PacklistTable() {
     null,
   );
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+  const [ambilResiOpen, setAmbilResiOpen] = React.useState(false);
+  const [resiOrderIds, setResiOrderIds] = React.useState<string[]>([]);
 
   const params = React.useMemo(
     () => ({
@@ -147,6 +148,15 @@ export function PacklistTable() {
       return next;
     });
   }, [eligibleOrderIds]);
+
+  const handleReadyToShip = React.useCallback(() => {
+    const ids = packlists
+      .filter((p) => p.orderId && selectedIds.has(p.orderId))
+      .map((p) => p.orderId as string);
+    if (ids.length === 0) return;
+    setResiOrderIds(ids);
+    setAmbilResiOpen(true);
+  }, [packlists, selectedIds]);
 
   const handlePrintLabel = React.useCallback(() => {
     const orderInputs = packlists
@@ -391,6 +401,7 @@ export function PacklistTable() {
           <FulfillmentBulkActionBar
             selectedCount={selectedIds.size}
             onReset={() => setSelectedIds(new Set())}
+            onReadyToShip={handleReadyToShip}
             onPrintLabel={handlePrintLabel}
             onPrintInvoice={handlePrintInvoice}
           />
@@ -438,6 +449,12 @@ export function PacklistTable() {
             ? [{ id: deleteTarget.orderId, no: deleteTarget.orderNo }]
             : []
         }
+      />
+
+      <AmbilNoResiDialog
+        open={ambilResiOpen}
+        onOpenChange={setAmbilResiOpen}
+        orderIds={resiOrderIds}
       />
     </div>
   );
