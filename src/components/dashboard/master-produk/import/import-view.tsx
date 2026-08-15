@@ -9,8 +9,10 @@ import {
   CheckCircle2Icon,
   ChevronDownIcon,
   ClockIcon,
+  EyeIcon,
   FileSpreadsheetIcon,
   ImportIcon,
+  LayersIcon,
   Loader2Icon,
   PackageIcon,
   RefreshCwIcon,
@@ -19,6 +21,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -44,35 +47,80 @@ import type {
   ImportBatchType,
 } from "@/hooks/master-produk/use-import";
 import { ImportDialog } from "./import-dialog";
-import { ImportErrorSheet } from "./import-error-sheet";
+import { ImportRowSheet } from "./import-row-sheet";
 
 function stateLabel(state: ImportBatchState) {
   switch (state) {
     case "queued":
       return "Menunggu";
+    case "previewing":
+      return "Validasi File";
+    case "previewed":
+      return "Siap Diterapkan";
+    case "confirming":
     case "processing":
-      return "Diproses";
+      return "Sedang Menerapkan";
     case "done":
       return "Selesai";
     case "done_with_errors":
-      return "Selesai (Error)";
+      return "Selesai (Sebagian Error)";
     case "failed":
       return "Gagal";
   }
 }
 
-function StateIcon({ state }: { state: ImportBatchState }) {
+function StateBadge({ state }: { state: ImportBatchState }) {
   switch (state) {
     case "queued":
-      return <ClockIcon className="size-4 text-muted-foreground" />;
+      return (
+        <Badge variant="outline" className="border-muted-foreground/30 text-muted-foreground">
+          <ClockIcon className="mr-1 size-3" />
+          Menunggu
+        </Badge>
+      );
+    case "previewing":
+      return (
+        <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 animate-pulse">
+          <Loader2Icon className="mr-1 size-3 animate-spin" />
+          Validasi File
+        </Badge>
+      );
+    case "previewed":
+      return (
+        <Badge variant="outline" className="border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400">
+          <CheckCircle2Icon className="mr-1 size-3" />
+          Siap Diterapkan
+        </Badge>
+      );
+    case "confirming":
     case "processing":
-      return <Loader2Icon className="size-4 animate-spin text-blue-500" />;
+      return (
+        <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary animate-pulse">
+          <Loader2Icon className="mr-1 size-3 animate-spin" />
+          Menerapkan
+        </Badge>
+      );
     case "done":
-      return <CheckCircle2Icon className="size-4 text-success" />;
+      return (
+        <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+          <CheckCircle2Icon className="mr-1 size-3" />
+          Selesai
+        </Badge>
+      );
     case "done_with_errors":
-      return <AlertTriangleIcon className="size-4 text-warning" />;
+      return (
+        <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+          <AlertTriangleIcon className="mr-1 size-3" />
+          Selesai (Ada Error)
+        </Badge>
+      );
     case "failed":
-      return <XCircleIcon className="size-4 text-destructive" />;
+      return (
+        <Badge variant="outline" className="border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400">
+          <XCircleIcon className="mr-1 size-3" />
+          Gagal
+        </Badge>
+      );
   }
 }
 
@@ -87,19 +135,19 @@ function ProgressBar({
     state === "failed"
       ? "bg-destructive"
       : state === "done_with_errors"
-        ? "bg-warning"
+        ? "bg-amber-500"
         : state === "done"
-          ? "bg-success"
+          ? "bg-emerald-500"
           : "bg-primary";
   return (
     <div className="flex items-center gap-2">
       <div className="h-2 w-full max-w-[120px] overflow-hidden rounded-full bg-muted">
         <div
-          className={cn("h-full rounded-full transition-all", color)}
-          style={{ width: `${Math.min(100, percent)}%` }}
+          className={cn("h-full rounded-full transition-all duration-300", color)}
+          style={{ width: `${Math.min(100, Math.max(state === "previewing" || state === "confirming" ? 10 : 0, percent))}%` }}
         />
       </div>
-      <span className="tabular-nums text-xs text-muted-foreground">
+      <span className="tabular-nums text-xs text-muted-foreground font-medium">
         {percent}%
       </span>
     </div>
@@ -107,14 +155,14 @@ function ProgressBar({
 }
 
 function buildColumns(
-  onViewErrors: (b: ImportBatch) => void,
+  onViewDetails: (b: ImportBatch) => void,
 ): ColumnDef<ImportBatch>[] {
   return [
     {
       accessorKey: "batchNo",
-      header: "Batch",
+      header: "No. Batch",
       cell: ({ row }) => (
-        <span className="font-mono text-xs text-primary">
+        <span className="font-mono text-xs font-semibold text-primary">
           {row.original.batchNo}
         </span>
       ),
@@ -122,20 +170,30 @@ function buildColumns(
     {
       accessorKey: "type",
       header: "Tipe",
-      size: 100,
+      size: 110,
       cell: ({ row }) => (
-        <span className="rounded-xl bg-muted px-2 py-0.5 text-xs font-medium">
-          {row.original.type === "single" ? "Satuan" : "Bundle"}
+        <span className="inline-flex items-center gap-1 rounded-xl bg-muted/60 px-2 py-0.5 text-xs font-medium">
+          {row.original.type === "single" ? (
+            <>
+              <PackageIcon className="size-3 text-muted-foreground" />
+              Satuan
+            </>
+          ) : (
+            <>
+              <LayersIcon className="size-3 text-muted-foreground" />
+              Bundle
+            </>
+          )}
         </span>
       ),
     },
     {
       accessorKey: "originalFilename",
-      header: "File",
+      header: "Nama File",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <FileSpreadsheetIcon className="size-4 shrink-0 text-success" />
-          <span className="max-w-[200px] truncate">
+          <FileSpreadsheetIcon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <span className="max-w-[200px] truncate font-medium">
             {row.original.originalFilename}
           </span>
         </div>
@@ -144,21 +202,13 @@ function buildColumns(
     {
       accessorKey: "state",
       header: "Status",
-      size: 150,
-      cell: ({ row }) => {
-        const b = row.original;
-        return (
-          <div className="flex items-center gap-1.5">
-            <StateIcon state={b.state} />
-            <span className="text-sm">{stateLabel(b.state)}</span>
-          </div>
-        );
-      },
+      size: 160,
+      cell: ({ row }) => <StateBadge state={row.original.state} />,
     },
     {
       id: "progress",
-      header: "Progress",
-      size: 180,
+      header: "Progres",
+      size: 160,
       cell: ({ row }) => (
         <ProgressBar
           percent={row.original.progressPercent}
@@ -168,31 +218,24 @@ function buildColumns(
     },
     {
       id: "rows",
-      header: "Baris",
-      size: 160,
+      header: "Rincian Baris",
+      size: 180,
       cell: ({ row }) => {
         const b = row.original;
-        if (b.state === "queued")
-          return <span className="text-sm text-muted-foreground">—</span>;
         return (
-          <div className="flex gap-3 text-xs">
-            <span className="text-muted-foreground">Total {b.totalRows}</span>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-muted-foreground tabular-nums">
+              Total {b.totalRows}
+            </span>
             {b.successRows > 0 && (
-              <span className="text-success">
-                {b.successRows} OK
+              <span className="text-emerald-600 dark:text-emerald-400 font-medium tabular-nums">
+                • {b.successRows} Berhasil
               </span>
             )}
             {b.failedRows > 0 && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onViewErrors(b);
-                }}
-                className="font-medium text-destructive hover:underline"
-              >
-                {b.failedRows} gagal
-              </button>
+              <span className="text-rose-600 dark:text-rose-400 font-medium tabular-nums">
+                • {b.failedRows} Gagal
+              </span>
             )}
           </div>
         );
@@ -200,15 +243,37 @@ function buildColumns(
     },
     {
       accessorKey: "createdAt",
-      header: "Tanggal",
-      size: 160,
+      header: "Waktu Unggah",
+      size: 150,
       cell: ({ row }) => {
         const d = row.original.createdAt;
         if (!d) return "—";
         return (
-          <span className="text-sm tabular-nums text-muted-foreground">
+          <span className="text-xs tabular-nums text-muted-foreground">
             {formatDateTime(d)}
           </span>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: "",
+      size: 100,
+      cell: ({ row }) => {
+        const b = row.original;
+        return (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewDetails(b);
+            }}
+            className="h-8 gap-1 text-xs text-primary hover:text-primary hover:bg-primary/10"
+          >
+            <EyeIcon className="size-3.5" />
+            Detail & Baris
+          </Button>
         );
       },
     },
@@ -219,7 +284,9 @@ export function ImportView() {
   const [importType, setImportType] = React.useState<ImportBatchType | null>(
     null,
   );
-  const [errorBatch, setErrorBatch] = React.useState<ImportBatch | null>(null);
+  const [selectedBatch, setSelectedBatch] = React.useState<ImportBatch | null>(
+    null,
+  );
 
   const [typeFilter, setTypeFilter] = React.useState<"all" | ImportBatchType>(
     "all",
@@ -241,7 +308,7 @@ export function ImportView() {
 
   const items = query.data?.items ?? [];
   const total = query.data?.meta?.total ?? 0;
-  const columns = React.useMemo(() => buildColumns(setErrorBatch), []);
+  const columns = React.useMemo(() => buildColumns(setSelectedBatch), []);
 
   const hasFilter = typeFilter !== "all" || stateFilter !== "all";
 
@@ -255,7 +322,7 @@ export function ImportView() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 py-3 sm:px-5">
           <div className="flex items-center gap-2">
             <ImportIcon className="size-5 text-primary" />
-            <h2 className="font-semibold">Import Produk</h2>
+            <h2 className="font-semibold">Katalog & Riwayat Import Produk</h2>
           </div>
 
           <div className="flex items-center gap-3">
@@ -270,26 +337,26 @@ export function ImportView() {
               <DropdownMenuContent align="end" className="w-64">
                 <DropdownMenuItem
                   onSelect={() => setImportType("single")}
-                  className="flex-col items-start gap-0.5"
+                  className="flex-col items-start gap-0.5 cursor-pointer"
                 >
                   <span className="flex items-center gap-2 font-medium">
-                    <PackageIcon className="size-4" />
+                    <PackageIcon className="size-4 text-primary" />
                     Import Produk Satuan
                   </span>
                   <span className="pl-6 text-xs text-muted-foreground">
-                    Buat/update produk dari file Excel.
+                    Validasi & buat produk satuan dari file Excel.
                   </span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onSelect={() => setImportType("bundle")}
-                  className="flex-col items-start gap-0.5"
+                  className="flex-col items-start gap-0.5 cursor-pointer"
                 >
                   <span className="flex items-center gap-2 font-medium">
-                    <PackageIcon className="size-4" />
+                    <LayersIcon className="size-4 text-primary" />
                     Import Produk Bundle
                   </span>
                   <span className="pl-6 text-xs text-muted-foreground">
-                    Atur komposisi bundle dari file Excel.
+                    Validasi komponen & buat bundle dari file Excel.
                   </span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -298,7 +365,7 @@ export function ImportView() {
             <Button
               variant="outline"
               size="sm"
-              className="h-8 gap-1.5"
+              className="h-9 gap-1.5"
               onClick={() => query.refetch()}
               disabled={query.isFetching}
               title="Muat ulang"
@@ -358,10 +425,11 @@ export function ImportView() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Semua Status</SelectItem>
-              <SelectItem value="queued">Menunggu</SelectItem>
-              <SelectItem value="processing">Diproses</SelectItem>
+              <SelectItem value="previewing">Validasi File</SelectItem>
+              <SelectItem value="previewed">Siap Diterapkan</SelectItem>
+              <SelectItem value="processing">Sedang Menerapkan</SelectItem>
               <SelectItem value="done">Selesai</SelectItem>
-              <SelectItem value="done_with_errors">Selesai (Error)</SelectItem>
+              <SelectItem value="done_with_errors">Selesai (Ada Error)</SelectItem>
               <SelectItem value="failed">Gagal</SelectItem>
             </SelectContent>
           </Select>
@@ -397,7 +465,7 @@ export function ImportView() {
                 <EmptyState
                   icon={SearchXIcon}
                   title="Belum ada riwayat import"
-                  description="Mulai dari Import Baru → pilih Satuan atau Bundle."
+                  description="Mulai dengan mengklik Import Baru → pilih Satuan atau Bundle."
                   className="py-6"
                 />
               }
@@ -415,10 +483,10 @@ export function ImportView() {
         />
       )}
 
-      <ImportErrorSheet
-        batch={errorBatch}
-        open={!!errorBatch}
-        onOpenChange={(o) => !o && setErrorBatch(null)}
+      <ImportRowSheet
+        batch={selectedBatch}
+        open={!!selectedBatch}
+        onOpenChange={(o) => !o && setSelectedBatch(null)}
       />
     </>
   );

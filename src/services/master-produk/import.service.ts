@@ -2,7 +2,15 @@ import { fetchClient, fetchBlob } from "@/lib/api-client";
 import type { ApiPaginated } from "@/types/api.types";
 
 export type ImportBatchState =
-  "queued" | "processing" | "done" | "done_with_errors" | "failed";
+  | "queued"
+  | "previewing"
+  | "previewed"
+  | "confirming"
+  | "processing"
+  | "done"
+  | "done_with_errors"
+  | "failed";
+
 export type ImportBatchType = "single" | "bundle";
 
 export interface ImportBatch {
@@ -32,6 +40,36 @@ interface RawImportBatch {
   failed_rows: number;
   progress_percent: number;
   error_message: string | null;
+  created_at: string;
+}
+
+export type ImportRowStatus = "valid" | "invalid" | "success" | "failed";
+
+export interface ImportBatchRow {
+  id: string;
+  importBatchId: string;
+  rowNumber: number;
+  sku: string | null;
+  name: string | null;
+  categoryName: string | null;
+  sellPrice: number | null;
+  status: ImportRowStatus;
+  message: string | null;
+  payload: Record<string, unknown> | null;
+  createdAt: string;
+}
+
+interface RawImportBatchRow {
+  id: string;
+  import_batch_id: string;
+  row_number: number;
+  sku: string | null;
+  name: string | null;
+  category_name: string | null;
+  sell_price: number | null;
+  status: ImportRowStatus;
+  message: string | null;
+  payload: Record<string, unknown> | null;
   created_at: string;
 }
 
@@ -65,12 +103,28 @@ function mapBatch(raw: RawImportBatch): ImportBatch {
     type: raw.type,
     state: raw.state,
     originalFilename: raw.original_filename,
-    totalRows: raw.total_rows,
-    processedRows: raw.processed_rows,
-    successRows: raw.success_rows,
-    failedRows: raw.failed_rows,
-    progressPercent: raw.progress_percent,
+    totalRows: raw.total_rows ?? 0,
+    processedRows: raw.processed_rows ?? 0,
+    successRows: raw.success_rows ?? 0,
+    failedRows: raw.failed_rows ?? 0,
+    progressPercent: raw.progress_percent ?? 0,
     errorMessage: raw.error_message,
+    createdAt: raw.created_at,
+  };
+}
+
+function mapRow(raw: RawImportBatchRow): ImportBatchRow {
+  return {
+    id: raw.id,
+    importBatchId: raw.import_batch_id,
+    rowNumber: raw.row_number,
+    sku: raw.sku,
+    name: raw.name,
+    categoryName: raw.category_name,
+    sellPrice: raw.sell_price,
+    status: raw.status,
+    message: raw.message,
+    payload: raw.payload,
     createdAt: raw.created_at,
   };
 }
@@ -107,6 +161,22 @@ export const ImportService = {
     return mapBatch(res.data);
   },
 
+  listRows: async (
+    batchId: string,
+    params: { page?: number; perPage?: number; status?: string; search?: string } = {},
+  ): Promise<{ items: ImportBatchRow[]; meta: PageMeta }> => {
+    const q = new URLSearchParams();
+    q.set("page", String(params.page ?? 1));
+    q.set("per_page", String(params.perPage ?? 25));
+    if (params.status && params.status !== "all") q.set("status", params.status);
+    if (params.search) q.set("search", params.search);
+
+    const res = await fetchClient<ApiPaginated<RawImportBatchRow>>(
+      `/products/import/batches/${batchId}/rows?${q.toString()}`,
+    );
+    return { items: (res.data ?? []).map(mapRow), meta: res.meta };
+  },
+
   listErrors: async (
     batchId: string,
     params: { page?: number; perPage?: number } = {},
@@ -134,6 +204,16 @@ export const ImportService = {
         method: "POST",
         data: formData,
         headers: { "Content-Type": "multipart/form-data" },
+      },
+    );
+    return mapBatch(res.data);
+  },
+
+  confirmBatch: async (batchId: string): Promise<ImportBatch> => {
+    const res = await fetchClient<{ data: RawImportBatch }>(
+      `/products/import/batches/${batchId}/confirm`,
+      {
+        method: "POST",
       },
     );
     return mapBatch(res.data);
