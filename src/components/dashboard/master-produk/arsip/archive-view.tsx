@@ -132,7 +132,12 @@ export function ArchiveView() {
                 ) : (
                   <span className="font-mono text-foreground">—</span>
                 )}
-                <span>· {row.original.totalVariants} varian</span>
+                <span>
+                  ·{" "}
+                  {row.original.isBundle
+                    ? `${row.original.totalComponents ?? row.original.totalVariants} komposisi`
+                    : `${row.original.totalVariants} varian`}
+                </span>
               </div>
             </div>
           </div>

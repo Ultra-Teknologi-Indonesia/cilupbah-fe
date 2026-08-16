@@ -39,6 +39,12 @@ export function ProductVariantPopover({ product }: { product: Product }) {
 
   React.useEffect(() => cancelClose, []);
 
+  const count = product.isBundle
+    ? (product.totalComponents ?? product.variants.length ?? 0)
+    : product.totalVariants;
+  const label = product.isBundle ? "komposisi" : "varian";
+  const headerLabel = product.isBundle ? "komponen bundle" : "varian";
+
   return (
     <Popover modal={false} open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -53,7 +59,7 @@ export function ProductVariantPopover({ product }: { product: Product }) {
           )}
         >
           <PackageIcon className="size-3" />
-          {product.totalVariants} varian
+          {count} {label}
         </button>
       </PopoverTrigger>
       <PopoverContent
@@ -64,7 +70,7 @@ export function ProductVariantPopover({ product }: { product: Product }) {
         className="w-72 gap-2 p-2"
       >
         <p className="px-2 pt-1 text-xs font-medium text-muted-foreground">
-          {product.variants.length} varian
+          {product.isBundle ? count : product.variants.length} {headerLabel}
         </p>
         <ScrollArea
           type="always"

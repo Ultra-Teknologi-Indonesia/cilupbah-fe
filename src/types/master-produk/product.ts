@@ -36,6 +36,7 @@ export interface Product {
   categoryName: string;
   sellPrice: number | null;
   totalVariants: number;
+  totalComponents?: number;
   lastModified: string;
   thumbnail: string | null;
   variations: { label: string; values: string[] }[];
@@ -77,6 +78,7 @@ export interface RawMasterItem {
   sell_price: number | null;
   category_name: string | null;
   total_variants: number;
+  total_components?: number;
   thumbnail: string | null;
   variations: { label: string; values: string[] }[];
   variants: RawMasterVariant[];

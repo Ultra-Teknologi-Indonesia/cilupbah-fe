@@ -123,7 +123,9 @@ export const productColumns: ColumnDef<Product>[] = [
               )}
               <span className="inline-flex items-center gap-1">
                 <PackageIcon className="size-3" />
-                {p.totalVariants} varian
+                {p.isBundle
+                  ? `${p.totalComponents ?? p.totalVariants} komposisi`
+                  : `${p.totalVariants} varian`}
               </span>
             </div>
           </div>

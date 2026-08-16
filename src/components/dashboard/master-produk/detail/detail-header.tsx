@@ -231,7 +231,9 @@ export function DetailHeader({
               <div className="text-xs text-muted-foreground">Harga</div>
               <div className="text-2xl font-bold tabular-nums">{priceText}</div>
               <div className="text-xs text-muted-foreground">
-                {product.totalVariants} varian
+                {product.isBundle
+                  ? `${product.bundleComponents?.length ?? product.totalVariants} komposisi`
+                  : `${product.totalVariants} varian`}
               </div>
             </div>
 

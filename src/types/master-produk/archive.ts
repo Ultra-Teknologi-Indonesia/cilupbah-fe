@@ -12,7 +12,9 @@ export interface ArchivedProduct {
   sku: string | null;
   categoryName: string;
   thumbnail: string | null;
+  isBundle?: boolean;
   totalVariants: number;
+  totalComponents?: number;
   archivedAt: string | null;
   archivedBy: string | null;
   archiveReason: string | null;
