@@ -13,12 +13,22 @@ export type OrderTab =
 
 export type ChannelCancelSub = "pending" | "failed" | "accepted";
 
-export type CancellationSub = "pending" | "accepted" | "rejected" | "cancelled" | "post_pack";
+export type CancellationSub =
+  | "pending"
+  | "accepted"
+  | "rejected"
+  | "cancelled"
+  | "post_pack";
 export type ReturnSub = "pending" | "accepted" | "rejected";
 export type SubFilter = CancellationSub | ReturnSub | null;
 
 export type OrderStatus =
-  "pending" | "reserved" | "picked" | "packed" | "shipped" | "cancelled";
+  | "pending"
+  | "reserved"
+  | "picked"
+  | "packed"
+  | "shipped"
+  | "cancelled";
 
 export type ContactChannel =
   | "marketplace_chat"
@@ -250,8 +260,6 @@ export const TAB_CONFIG: readonly TabConfigItem[] = [
   { key: "all", label: "Semua", zone: "lifecycle" },
   { key: "unpaid", label: "Belum Dibayar", zone: "lifecycle" },
   { key: "ready-to-process", label: "Siap Proses", zone: "lifecycle" },
-  { key: "in-transit", label: "Dikirim", zone: "lifecycle" },
-  { key: "completed", label: "Selesai", zone: "lifecycle" },
   { key: "failed", label: "Gagal Download", zone: "problem" },
   { key: "empty-stock", label: "Stok Kosong", zone: "problem" },
   { key: "failed-pick", label: "Gagal Picking", zone: "problem" },
