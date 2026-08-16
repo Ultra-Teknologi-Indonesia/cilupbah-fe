@@ -156,6 +156,7 @@ export interface Order {
   items: OrderItem[];
   received_date: string | null;
   ship_by_date: string | null;
+  has_unmapped_items?: boolean;
   is_instant?: boolean;
   priority_fulfillment?: boolean;
   is_cod?: boolean;

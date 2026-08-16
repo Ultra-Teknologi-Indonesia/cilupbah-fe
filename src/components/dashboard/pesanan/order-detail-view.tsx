@@ -1100,7 +1100,8 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                         </TableCell>
                       )}
                     </TableRow>
-                  ))}
+                  );
+                })}
                   {order.items.length === 0 && (
                     <TableRow>
                       <TableCell
