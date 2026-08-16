@@ -14,9 +14,11 @@ import { Tabs, TabsList } from "@/components/ui/tabs";
 export function OrderStatusTabs({
   active,
   onChange,
+  isFetching = false,
 }: {
   active: OrderTab;
   onChange: (tab: OrderTab) => void;
+  isFetching?: boolean;
 }) {
   const { data, isLoading } = useOrderCounts();
   const counts = data?.data;
@@ -45,6 +47,7 @@ export function OrderStatusTabs({
                   countLoading: isLoading,
                 }}
                 active={active === key}
+                isFetching={active === key && isFetching}
                 onSelect={onChange}
               />
             ))}
@@ -59,13 +62,24 @@ export function OrderSubStatusPills({
   active,
   subFilter,
   onSubFilterChange,
+  isFetching = false,
 }: {
   active: OrderTab;
   subFilter: SubFilter;
   onSubFilterChange: (sub: SubFilter) => void;
+  isFetching?: boolean;
 }) {
   const subPills = SUB_PILL_CONFIG[active];
   if (!subPills) return null;
+
+  const items = [
+    { key: "__all__", label: "Semua", isFetching: !subFilter && isFetching },
+    ...subPills.map(({ key, label }) => ({
+      key,
+      label,
+      isFetching: subFilter === key && isFetching,
+    })),
+  ];
 
   return (
     <PillTabs
@@ -75,10 +89,7 @@ export function OrderSubStatusPills({
       onSelect={(key) =>
         onSubFilterChange(key === "__all__" ? null : (key as SubFilter))
       }
-      items={[
-        { key: "__all__", label: "Semua" },
-        ...subPills.map(({ key, label }) => ({ key, label })),
-      ]}
+      items={items}
     />
   );
 }

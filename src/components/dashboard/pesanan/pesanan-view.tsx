@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { ImportIcon, PlusIcon } from "lucide-react";
+import { ImportIcon, Loader2Icon, PlusIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Can } from "@/components/auth/can";
@@ -152,22 +152,42 @@ export function PesananView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <OrderStatusTabs active={tab} onChange={handleTabChange} />
+      <OrderStatusTabs
+        active={tab}
+        onChange={handleTabChange}
+        isFetching={isFetching}
+      />
 
       <LiquidGlass
         radius={24}
         intensity="default"
-        className="bg-white/40 dark:bg-white/[0.06]"
+        className="relative overflow-hidden bg-white/40 dark:bg-white/[0.06]"
       >
+        {/* Indeterminate linear progress bar during fetching */}
+        {isFetching && (
+          <div className="absolute top-0 left-0 right-0 h-1 overflow-hidden z-30">
+            <div className="h-full w-full bg-primary/20 animate-progress-indeterminate" />
+          </div>
+        )}
+
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6 sm:py-5">
           <div className="min-w-0">
-            <h2 className="text-base font-medium">{tabLabel}</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-base font-medium">{tabLabel}</h2>
+              {isFetching && (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium bg-primary/10 text-primary border border-primary/20 rounded-full shadow-2xs transition-all animate-in fade-in duration-150">
+                  <Loader2Icon className="size-3 animate-spin shrink-0" />
+                  <span>Memuat...</span>
+                </div>
+              )}
+            </div>
             {hasSubPills && (
               <div className="mt-3">
                 <OrderSubStatusPills
                   active={tab}
                   subFilter={subFilter}
                   onSubFilterChange={handleSubFilterChange}
+                  isFetching={isFetching}
                 />
               </div>
             )}

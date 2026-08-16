@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { FilterIcon, RefreshCwIcon, SearchIcon, XIcon } from "lucide-react";
+import { FilterIcon, Loader2Icon, RefreshCwIcon, SearchIcon, XIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -56,7 +56,11 @@ export function FilterToolbar({
                 : "w-full sm:w-auto sm:min-w-[200px]",
             )}
           >
-            <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            {isRefreshing ? (
+              <Loader2Icon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-primary" />
+            ) : (
+              <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            )}
             <Input
               value={search ?? ""}
               onChange={(e) => onSearchChange(e.target.value)}
@@ -67,7 +71,7 @@ export function FilterToolbar({
                 }
               }}
               placeholder={searchPlaceholder}
-              className="h-9 rounded-full bg-background pl-9 pr-8"
+              className="h-9 rounded-full bg-background pl-9 pr-8 transition-colors focus:border-primary"
             />
             {(search?.length ?? 0) > 0 && (
               <button

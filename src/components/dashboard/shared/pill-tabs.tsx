@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { Loader2Icon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,25 +15,30 @@ export interface PillTabItem<T extends string = string> {
   count?: number | null;
 
   countLoading?: boolean;
+  isFetching?: boolean;
 }
 
 export function PillTab<T extends string>({
   item,
   active,
   variant = "solid",
+  isFetching,
   onSelect: _onSelect,
 }: {
   item: PillTabItem<T>;
   active: boolean;
   variant?: "solid" | "soft";
+  isFetching?: boolean;
   onSelect: (key: T) => void;
 }) {
   const Icon = item.icon;
+  const showSpinner = (active && (isFetching || item.isFetching)) ?? false;
+
   return (
     <TabsTrigger
       value={item.key}
       className={cn(
-        "inline-flex h-auto flex-none items-center gap-1.5 rounded-full font-medium transition-colors after:hidden!",
+        "inline-flex h-auto flex-none items-center gap-1.5 rounded-full font-medium transition-all after:hidden!",
         variant === "solid" ? "px-3 py-1.5 text-sm" : "px-2.5 py-1 text-xs",
         active
           ? variant === "solid"
@@ -43,14 +49,18 @@ export function PillTab<T extends string>({
             : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
       )}
     >
-      {Icon && <Icon className="size-4" />}
+      {showSpinner ? (
+        <Loader2Icon className="size-3.5 animate-spin shrink-0 text-current" />
+      ) : (
+        Icon && <Icon className="size-4" />
+      )}
       {item.label}
       {item.countLoading ? (
         <Skeleton className="h-4 w-6 rounded-full" />
       ) : item.count != null ? (
         <span
           className={cn(
-            "rounded-full px-1.5 text-xs tabular-nums",
+            "rounded-full px-1.5 text-xs tabular-nums transition-colors",
             active && variant === "solid"
               ? "bg-background/20 text-background"
               : "bg-background text-muted-foreground",
