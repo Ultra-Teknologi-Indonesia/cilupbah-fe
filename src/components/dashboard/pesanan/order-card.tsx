@@ -1098,7 +1098,7 @@ export function OrderCard({
         )}
 
         {/* Badge Kirim Hari Ini (Sky Blue) */}
-        {isShipToday && (
+        {isShipToday && order.is_paid && tab !== "unpaid" && (
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="inline-flex size-6 items-center justify-center rounded-lg border border-sky-500/40 bg-sky-500/10 text-sky-600 dark:border-sky-500/30 dark:bg-sky-500/15 dark:text-sky-400">
@@ -1298,7 +1298,9 @@ export function OrderCard({
                 )}
               </div>
 
-              <ShipByDeadline date={order.ship_by_date} />
+              {tab !== "unpaid" && order.is_paid && (
+                <ShipByDeadline date={order.ship_by_date} />
+              )}
             </>
           )}
         </div>
