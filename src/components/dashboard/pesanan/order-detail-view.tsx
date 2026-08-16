@@ -33,6 +33,7 @@ import {
   MoreHorizontalIcon,
   BanknoteIcon,
   TriangleAlertIcon,
+  InfoIcon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -213,16 +214,40 @@ function FinancialSummary({ order }: { order: Order }) {
               {formatCurrency(order.grand_total)}
             </span>
           </div>
-          <div className="mt-2 flex justify-between text-sm">
-            <span className="text-muted-foreground">
-              Diterima Bersih (Settlement)
-            </span>
+          <div className="mt-2.5 flex items-center justify-between text-sm">
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <span>Diterima Bersih (Settlement)</span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex text-muted-foreground/70 hover:text-foreground transition-colors"
+                  >
+                    <InfoIcon className="size-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs text-xs">
+                  {(finance?.settlement_amount ?? 0) > 0
+                    ? "Total dana bersih yang diteruskan oleh marketplace ke saldo toko setelah dipotong komisi & biaya penanganan."
+                    : "Rincian pemotongan komisi resmi dan pencairan final akan diterbitkan oleh marketplace setelah pesanan terkirim / selesai (estimasi hak produk saat ini: " +
+                      formatCurrency(
+                        Math.max(
+                          (order.sub_total ?? 0) - (order.total_disc ?? 0),
+                          0,
+                        ),
+                      ) +
+                      ")."}
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <span
               className={cn(
-                "tabular-nums font-medium",
-                (finance?.settlement_amount ?? 0) < 0
-                  ? "text-destructive"
-                  : "text-success",
+                "tabular-nums",
+                (finance?.settlement_amount ?? 0) > 0
+                  ? "font-semibold text-emerald-600 dark:text-emerald-400"
+                  : (finance?.settlement_amount ?? 0) < 0
+                    ? "font-semibold text-destructive"
+                    : "font-medium text-foreground/80",
               )}
             >
               {(finance?.settlement_amount ?? 0) < 0 ? "-" : ""}
@@ -1128,12 +1153,12 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           />
         </div>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 lg:sticky lg:top-4 lg:self-start">
 
           <LiquidGlass
             radius={16}
             intensity="subtle"
-            className="bg-white/30 dark:bg-white/[0.04] p-5 sticky top-4"
+            className="bg-white/30 dark:bg-white/[0.04] p-5"
           >
             <FinancialSummary order={order} />
 
