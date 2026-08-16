@@ -67,13 +67,14 @@ export function StoreCard({
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          {store.integration.status !== "normal" && (
+          {store.integration.status !== "normal" ? (
             <StatusBadge
               domain="channel-integration"
               status={store.integration.status}
             />
+          ) : (
+            <StatusBadge domain="order-download" status={status} />
           )}
-          <StatusBadge domain="order-download" status={status} />
           <StoreRowActions
             store={store}
             onRefresh={onRefresh}
@@ -83,27 +84,33 @@ export function StoreCard({
         </div>
       </div>
 
-      <div className="space-y-0.5">
-        {store.orderSync.note && (
-          <p className={cn("text-xs", NOTE_STYLE[status] ?? "text-muted-foreground")}>
-            {store.orderSync.note}
-          </p>
-        )}
+      <div className="space-y-1">
+        {/* Prioritas catatan: jika integrasi bermasalah tampilkan catatan integrasi, jika tidak tampilkan catatan order sync */}
+        {(() => {
+          const primaryNote = store.integration.status !== "normal" && store.integration.note
+            ? { text: store.integration.note, isError: store.integration.status === "error" }
+            : store.orderSync.note
+              ? { text: store.orderSync.note, isError: status === "problem" }
+              : null;
+
+          if (!primaryNote) return null;
+
+          return (
+            <p
+              className={cn(
+                "text-xs leading-relaxed",
+                primaryNote.isError ? "text-destructive font-medium" : "text-muted-foreground"
+              )}
+            >
+              {primaryNote.text}
+            </p>
+          );
+        })()}
+
         <p className="text-xs text-muted-foreground">
           Terakhir di-update: {relativeTime(store.lastOrderSyncedAt)}
         </p>
-        {store.integration.note && (
-          <p
-            className={cn(
-              "text-xs",
-              store.integration.status === "error"
-                ? "text-destructive"
-                : "text-warning",
-            )}
-          >
-            {store.integration.note}
-          </p>
-        )}
+
         {store.linkedStore && (
           <div className="flex items-center gap-1.5 pt-0.5 text-xs text-muted-foreground">
             <ChannelLogo
