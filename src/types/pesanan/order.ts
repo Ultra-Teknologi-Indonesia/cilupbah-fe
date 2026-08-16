@@ -265,7 +265,7 @@ export const TAB_CONFIG: readonly TabConfigItem[] = [
   { key: "failed", label: "Gagal Download", zone: "problem" },
   { key: "empty-stock", label: "Stok Kosong", zone: "problem" },
   { key: "failed-pick", label: "Gagal Picking", zone: "problem" },
-  { key: "cancellation", label: "Batal", zone: "admin" },
+  { key: "cancellation", label: "Request Cancel", zone: "admin" },
   { key: "channel-cancel", label: "Batal ke Marketplace", zone: "admin" },
   { key: "returned", label: "Diretur", zone: "admin" },
 ] as const;
@@ -278,11 +278,11 @@ export const SUB_PILL_CONFIG: Partial<
     { key: "confirmed", label: "Sudah Konfirmasi" },
   ],
   cancellation: [
-    { key: "pending", label: "Menunggu" },
-    { key: "accepted", label: "Diterima" },
-    { key: "rejected", label: "Ditolak" },
-    { key: "cancelled", label: "Dibatalkan" },
+    { key: "pending", label: "Perlu Diproses" },
     { key: "post_pack", label: "Batal Setelah Packing" },
+    { key: "accepted", label: "Disetujui" },
+    { key: "rejected", label: "Ditolak" },
+    { key: "cancelled", label: "Riwayat Dibatalkan" },
   ],
   "channel-cancel": [
     { key: "pending", label: "Diproses" },
