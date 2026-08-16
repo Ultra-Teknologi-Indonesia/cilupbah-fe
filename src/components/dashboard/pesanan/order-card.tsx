@@ -464,7 +464,7 @@ export function OrderActions({
           <ArrowRightIcon className="size-3.5" />
           {moveToReady.isPending
             ? "Memindahkan..."
-            : "Pindahkan ke Perlu Dikirim"}
+            : "Pindahkan ke Siap Proses"}
         </Button>
         {tab === "empty-stock" && (
           <ContactBuyerDialog
