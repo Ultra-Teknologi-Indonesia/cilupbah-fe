@@ -214,46 +214,57 @@ function FinancialSummary({ order }: { order: Order }) {
               {formatCurrency(order.grand_total)}
             </span>
           </div>
-          <div className="mt-2.5 flex items-center justify-between text-sm">
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <span>Diterima Bersih (Settlement)</span>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    className="inline-flex text-muted-foreground/70 hover:text-foreground transition-colors"
-                  >
-                    <InfoIcon className="size-3.5" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs text-xs">
-                  {(finance?.settlement_amount ?? 0) > 0
-                    ? "Total dana bersih yang diteruskan oleh marketplace ke saldo toko setelah dipotong komisi & biaya penanganan."
-                    : "Rincian pemotongan komisi resmi dan pencairan final akan diterbitkan oleh marketplace setelah pesanan terkirim / selesai (estimasi hak produk saat ini: " +
-                      formatCurrency(
-                        Math.max(
-                          (order.sub_total ?? 0) - (order.total_disc ?? 0),
-                          0,
-                        ),
-                      ) +
-                      ")."}
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            <span
-              className={cn(
-                "tabular-nums",
-                (finance?.settlement_amount ?? 0) > 0
-                  ? "font-semibold text-emerald-600 dark:text-emerald-400"
-                  : (finance?.settlement_amount ?? 0) < 0
-                    ? "font-semibold text-destructive"
-                    : "font-medium text-foreground/80",
-              )}
-            >
-              {(finance?.settlement_amount ?? 0) < 0 ? "-" : ""}
-              {formatCurrency(Math.abs(finance?.settlement_amount ?? 0))}
-            </span>
-          </div>
+          {(() => {
+            const hasSettlement =
+              finance?.settlement_amount !== null &&
+              finance?.settlement_amount !== undefined &&
+              finance?.settlement_amount > 0;
+            const estimatedNet = Math.max(
+              (order.sub_total ?? 0) - (order.total_disc ?? 0),
+              0,
+            );
+
+            return (
+              <div className="mt-2.5 flex items-center justify-between text-sm">
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                  <span>Diterima Bersih (Settlement)</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        className="inline-flex text-muted-foreground/70 hover:text-foreground transition-colors"
+                      >
+                        <InfoIcon className="size-3.5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs text-xs">
+                      {hasSettlement
+                        ? "Total dana bersih yang diteruskan oleh marketplace ke saldo toko setelah dipotong komisi & biaya penanganan."
+                        : "Rincian pemotongan komisi resmi dan pencairan final akan diterbitkan oleh marketplace setelah pesanan terkirim / selesai (estimasi hak produk saat ini: " +
+                          formatCurrency(estimatedNet) +
+                          ")."}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <span
+                  className={cn(
+                    "tabular-nums",
+                    hasSettlement
+                      ? "font-semibold text-emerald-600 dark:text-emerald-400"
+                      : (finance?.settlement_amount ?? 0) < 0
+                        ? "font-semibold text-destructive"
+                        : "font-medium text-foreground/80",
+                  )}
+                >
+                  {hasSettlement
+                    ? formatCurrency(finance?.settlement_amount!)
+                    : (finance?.settlement_amount ?? 0) < 0
+                      ? `-${formatCurrency(Math.abs(finance?.settlement_amount ?? 0))}`
+                      : `${formatCurrency(estimatedNet)} (Est.)`}
+                </span>
+              </div>
+            );
+          })()}
           <div className="mt-2 flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Tanggal Cair</span>
             <span className="tabular-nums font-medium text-foreground">
