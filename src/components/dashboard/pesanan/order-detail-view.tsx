@@ -892,7 +892,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         </LiquidGlass>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
+      <div className="grid items-start gap-4 lg:grid-cols-[1fr_340px]">
 
         <div className="flex flex-col gap-4">
 
@@ -929,22 +929,18 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 <span>{formatDateTime(order.transaction_date)}</span>
               </InfoRow>
 
-              {order.source && (
-                <InfoRow icon={TruckIcon} label="Sumber">
-                  <ChannelBadge source={order.source} />
-                  {order.shop_name && (
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      {order.shop_name}
-                    </span>
-                  )}
-                </InfoRow>
-              )}
+              <InfoRow icon={TruckIcon} label="Sumber">
+                <ChannelBadge source={order.source} />
+                {order.shop_name && (
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    {order.shop_name}
+                  </span>
+                )}
+              </InfoRow>
 
-              {order.location_name && (
-                <InfoRow icon={MapPinIcon} label="Lokasi Pengambilan">
-                  <span>{order.location_name}</span>
-                </InfoRow>
-              )}
+              <InfoRow icon={MapPinIcon} label="Lokasi Pengambilan">
+                <span>{order.location_name || "—"}</span>
+              </InfoRow>
             </div>
           </LiquidGlass>
 
@@ -954,9 +950,16 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               onEdit={() => setContactOpen(true)}
             />
           )}
-          {(order.customer_decision === "replace" ||
-            order.status === "pending") && (
-            <div className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-2.5 text-xs text-warning">
+
+          {order.has_unmapped_items && (
+            <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+              Pesanan ini memiliki produk yang belum terhubung ke Master
+              Produk. Hubungkan SKU channel ke SKU master sebelum memproses.
+            </div>
+          )}
+
+          {order.status === "pending" && (
+            <div className="rounded-xl border border-border/40 bg-muted/20 p-4 text-xs text-muted-foreground">
               Perubahan item pesanan hanya update sistem internal — tidak
               dikirim ke marketplace.
             </div>
@@ -1001,57 +1004,72 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {order.items.map((item) => (
-                    <TableRow
-                      key={item.id}
-                      className="border-b border-border/20 last:border-0"
-                    >
-                      <TableCell className="px-3 py-2.5">
-                        <div className="size-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
-                          {item.image_url ? (
-                            <Image
-                              src={item.image_url}
-                              alt={item.description || item.sku}
-                              width={40}
-                              height={40}
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                              <PackageIcon className="size-4 opacity-50" />
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-3 py-2.5">
-                        <div className="flex min-w-0 flex-col gap-0.5 max-w-[280px]">
-                          <span className="font-medium whitespace-normal break-words">
-                            {item.description || "—"}
-                          </span>
-                          <span className="font-mono text-2xs text-muted-foreground">
-                            SKU: {item.sku}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-3 py-2.5 text-right tabular-nums">
-                        {formatCurrency(item.price)}
-                      </TableCell>
-                      <TableCell className="px-3 py-2.5 text-center tabular-nums font-medium">
-                        {item.qty_in_base}
-                      </TableCell>
-                      <TableCell className="px-3 py-2.5 text-right tabular-nums">
-                        {item.disc > 0 ? (
-                          <span className="text-warning">
-                            {item.disc}%
-                            <br />
-                            <span className="text-2xs">
-                              -{formatCurrency(item.disc_amount)}
+                  {order.items.map((item) => {
+                    const discountPercent =
+                      item.price > 0 && item.disc_amount > 0
+                        ? Math.round(
+                            (item.disc_amount /
+                              (item.price * (item.qty_in_base || 1))) *
+                              100,
+                          )
+                        : item.disc > 0 && item.disc <= 100
+                          ? Math.round(item.disc)
+                          : null;
+
+                    return (
+                      <TableRow
+                        key={item.id}
+                        className="border-b border-border/20 last:border-0"
+                      >
+                        <TableCell className="px-3 py-2.5">
+                          <div className="size-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
+                            {item.image_url ? (
+                              <Image
+                                src={item.image_url}
+                                alt={item.description || item.sku}
+                                width={40}
+                                height={40}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                                <PackageIcon className="size-4 opacity-50" />
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5">
+                          <div className="flex min-w-0 flex-col gap-0.5 max-w-[280px]">
+                            <span className="font-medium whitespace-normal break-words">
+                              {item.description || "—"}
                             </span>
-                          </span>
-                        ) : (
-                          "—"
-                        )}
-                      </TableCell>
+                            <span className="font-mono text-2xs text-muted-foreground">
+                              SKU: {item.sku}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 text-right tabular-nums">
+                          {formatCurrency(item.price)}
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 text-center tabular-nums font-medium">
+                          {item.qty_in_base}
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 text-right tabular-nums">
+                          {item.disc_amount > 0 || item.disc > 0 ? (
+                            <div className="flex flex-col items-end gap-0.5">
+                              {discountPercent !== null && discountPercent > 0 && (
+                                <span className="inline-flex items-center rounded bg-rose-500/10 px-1.5 py-0.5 text-2xs font-semibold text-rose-600 dark:bg-rose-500/15 dark:text-rose-400">
+                                  {discountPercent}%
+                                </span>
+                              )}
+                              <span className="text-xs font-semibold text-rose-600 dark:text-rose-400 tabular-nums">
+                                -{formatCurrency(item.disc_amount > 0 ? item.disc_amount : item.disc)}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
                       <TableCell className="px-3 py-2.5 text-right font-medium tabular-nums">
                         {formatCurrency(item.amount)}
                       </TableCell>
