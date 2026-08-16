@@ -27,6 +27,8 @@ import {
   Trash2Icon,
   BanIcon,
   BanknoteIcon,
+  StarIcon,
+  CalendarClockIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -996,6 +998,18 @@ export function OrderCard({
   const isInstantUrgent =
     !!order.is_instant && msToDeadline !== null && msToDeadline < 60 * 60 * 1000;
 
+  const isShipToday = React.useMemo(() => {
+    if (!order.ship_by_date) return false;
+    const deadline = new Date(order.ship_by_date);
+    if (Number.isNaN(deadline.getTime())) return false;
+    const today = new Date();
+    return (
+      deadline.getFullYear() === today.getFullYear() &&
+      deadline.getMonth() === today.getMonth() &&
+      deadline.getDate() === today.getDate()
+    );
+  }, [order.ship_by_date]);
+
   return (
     <div
       className={cn(
@@ -1048,38 +1062,68 @@ export function OrderCard({
           </Tooltip>
         )}
 
+        {/* Badge Prioritas (Gold / Amber) */}
+        {order.priority_fulfillment && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-flex size-6 items-center justify-center rounded-lg border border-amber-500/40 bg-amber-500/10 text-amber-600 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-400">
+                <StarIcon className="size-3.5 fill-current" />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>Pesanan Prioritas (Next-Day Delivery / Priority Fulfillment)</TooltipContent>
+          </Tooltip>
+        )}
+
+        {/* Badge Instan (Orange / Urgent Red) */}
         {order.is_instant && (
           <Tooltip>
             <TooltipTrigger asChild>
               <span
                 className={cn(
-                  "inline-flex items-center gap-0.5 rounded border px-1.5 py-0.5 text-2xs font-semibold",
+                  "inline-flex size-6 items-center justify-center rounded-lg border transition-colors",
                   isInstantUrgent
-                    ? "border-destructive/60 bg-destructive/15 text-destructive"
-                    : "border-orange-500/60 bg-orange-500/15 text-orange-700 dark:text-orange-400",
+                    ? "border-destructive/60 bg-destructive/15 text-destructive animate-pulse"
+                    : "border-orange-500/40 bg-orange-500/10 text-orange-600 dark:border-orange-500/30 dark:bg-orange-500/15 dark:text-orange-400",
                 )}
               >
-                <ZapIcon className="size-2.5 fill-current" />
-                INSTANT
+                <ZapIcon className="size-3.5 fill-current" />
               </span>
             </TooltipTrigger>
             <TooltipContent>
               {isInstantUrgent
-                ? "Pesanan instan — batas kirim < 1 jam atau terlambat, segera kirim!"
-                : "Pesanan instan — prioritaskan pengiriman."}
+                ? "Pengiriman Instan Sangat Mendesak (< 1 jam atau terlambat)"
+                : "Pengiriman Instan / Same Day"}
             </TooltipContent>
           </Tooltip>
         )}
 
+        {/* Badge Kirim Hari Ini (Sky Blue) */}
+        {isShipToday && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-flex size-6 items-center justify-center rounded-lg border border-sky-500/40 bg-sky-500/10 text-sky-600 dark:border-sky-500/30 dark:bg-sky-500/15 dark:text-sky-400">
+                <CalendarClockIcon className="size-3.5" />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              Wajib Kirim Hari Ini (Batas SLA:{" "}
+              {format(new Date(order.ship_by_date!), "dd MMM HH:mm", {
+                locale: idLocale,
+              })}
+              )
+            </TooltipContent>
+          </Tooltip>
+        )}
+
+        {/* Badge COD (Emerald Green) */}
         {order.is_cod && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="inline-flex items-center gap-0.5 rounded border border-border bg-foreground/90 px-1.5 py-0.5 text-2xs font-semibold text-background">
-                <BanknoteIcon className="size-2.5" />
-                COD
+              <span className="inline-flex size-6 items-center justify-center rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-400">
+                <BanknoteIcon className="size-3.5" />
               </span>
             </TooltipTrigger>
-            <TooltipContent>Bayar di tempat (Cash on Delivery)</TooltipContent>
+            <TooltipContent>Bayar di Tempat (COD / Cash on Delivery)</TooltipContent>
           </Tooltip>
         )}
 

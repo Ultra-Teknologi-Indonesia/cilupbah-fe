@@ -157,6 +157,7 @@ export interface Order {
   received_date: string | null;
   ship_by_date: string | null;
   is_instant?: boolean;
+  priority_fulfillment?: boolean;
   is_cod?: boolean;
   shipping_type?: string | null;
   driver_call_status?: "pending" | "success" | "failed" | null;
