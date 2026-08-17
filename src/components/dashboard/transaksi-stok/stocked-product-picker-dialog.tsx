@@ -62,6 +62,36 @@ interface RawRow {
   sell_price: number;
 }
 
+import { Skeleton } from "@/components/ui/skeleton";
+
+function StockedProductPickerSkeleton() {
+  return (
+    <div className="space-y-4 p-6">
+      <div className="flex items-center gap-3 rounded-xl border bg-muted/20 p-3">
+        <Skeleton className="size-10 rounded-xl" />
+        <div className="flex-1 space-y-1.5">
+          <Skeleton className="h-4 w-1/3" />
+          <Skeleton className="h-3 w-1/5" />
+        </div>
+      </div>
+      <div className="space-y-2 pl-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-4 border-b border-border/40 py-2.5"
+          >
+            <Skeleton className="size-4 rounded" />
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-44 font-mono" />
+            <Skeleton className="h-5 w-28 rounded-full" />
+            <Skeleton className="ml-auto h-4 w-12" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function StockedProductPickerDialog({
   open,
   onOpenChange,
@@ -142,6 +172,9 @@ export function StockedProductPickerDialog({
     return Array.from(map.values());
   }, [rows]);
 
+  const showSkeleton = isLoading || (isFetching && groups.length === 0);
+  const isRefreshing = isFetching && !isLoading && groups.length > 0;
+
   const total = data?.meta?.total ?? 0;
   const lastPage = Math.max(1, Math.ceil(total / perPage));
 
@@ -191,15 +224,17 @@ export function StockedProductPickerDialog({
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Cari nama produk / SKU…"
-              className="h-10 rounded-full border-border bg-background pl-9"
+              className="h-10 rounded-full border-border bg-background pl-9 pr-9"
             />
+            {isFetching && (
+              <Loader2Icon className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+            )}
           </div>
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col border-t">
-          {isLoading ? (
-            <div className="flex flex-1 items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
-              <Loader2Icon className="size-4 animate-spin" /></div>
+          {showSkeleton ? (
+            <StockedProductPickerSkeleton />
           ) : groups.length === 0 ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-2 py-16 text-center">
               <SearchXIcon className="size-8 text-muted-foreground" />
@@ -209,7 +244,13 @@ export function StockedProductPickerDialog({
               </p>
             </div>
           ) : (
-            <ScrollArea className="min-h-0 flex-1">
+            <ScrollArea
+              className={cn(
+                "min-h-0 flex-1",
+                isRefreshing &&
+                  "opacity-60 pointer-events-none transition-opacity duration-200",
+              )}
+            >
               <Table className="min-w-max">
                 <TableHeader className="sticky top-0 z-10 bg-background">
                   <TableRow className="hover:bg-transparent">

@@ -48,6 +48,106 @@ interface ProductPickerDialogProps {
   initialSearch?: string;
 }
 
+import { Skeleton } from "@/components/ui/skeleton";
+
+function matchesVariant(
+  variant: {
+    sku: string;
+    variationValues: { label: string; value: string }[];
+  },
+  parentName: string,
+  searchQuery: string,
+): boolean {
+  const query = searchQuery.trim();
+  if (!query) return true;
+
+  const normalize = (s: string) =>
+    s.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+  const queryLower = query.toLowerCase();
+  const queryClean = normalize(query);
+  const queryTokens = queryLower.split(/\s+/).filter(Boolean);
+
+  const skuLower = (variant.sku || "").toLowerCase();
+  const skuClean = normalize(variant.sku || "");
+
+  // 1. Direct SKU substring match or normalized alphanumeric SKU match (e.g. LSM-H-PINK-IP-11-PRO)
+  if (
+    skuLower.includes(queryLower) ||
+    (queryClean.length >= 2 && skuClean.includes(queryClean))
+  ) {
+    return true;
+  }
+
+  // 2. Build variant attribute text (e.g. "Warna Hot Pink Type Hp 11 Pro")
+  const varAttrValues = variant.variationValues
+    .map((v) => `${v.label} ${v.value}`)
+    .join(" ")
+    .toLowerCase();
+  const varAttrValuesClean = normalize(varAttrValues);
+
+  if (
+    queryClean.length >= 2 &&
+    varAttrValuesClean.includes(queryClean)
+  ) {
+    return true;
+  }
+
+  // 3. Combined text for token checking: "ParentName + SKU + VariationValues"
+  const combinedText = `${parentName} ${variant.sku || ""} ${varAttrValues}`.toLowerCase();
+  const allTokensMatch = queryTokens.every((token) =>
+    combinedText.includes(token),
+  );
+
+  if (allTokensMatch) {
+    // If the entire query literally only matches the parent name (e.g. searching "Liquid Silicone Magnetic")
+    const parentMatchesAll = queryTokens.every((token) =>
+      parentName.toLowerCase().includes(token),
+    );
+    if (parentMatchesAll) {
+      return true;
+    }
+    // If query has variant-specific tokens (e.g. "pink", "11", "pro"), check that this variant matches at least one variant-specific token
+    const variantMatchesSomeToken = queryTokens.some(
+      (token) =>
+        skuLower.includes(token) ||
+        varAttrValues.includes(token) ||
+        (token.length >= 2 && (skuClean.includes(normalize(token)) || varAttrValuesClean.includes(normalize(token)))),
+    );
+    return variantMatchesSomeToken;
+  }
+
+  return false;
+}
+
+function ProductPickerSkeleton() {
+  return (
+    <div className="space-y-4 p-6">
+      <div className="flex items-center gap-3 rounded-xl border bg-muted/20 p-3">
+        <Skeleton className="size-10 rounded-xl" />
+        <div className="flex-1 space-y-1.5">
+          <Skeleton className="h-4 w-1/3" />
+          <Skeleton className="h-3 w-1/5" />
+        </div>
+      </div>
+      <div className="space-y-2 pl-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-4 border-b border-border/40 py-2.5"
+          >
+            <Skeleton className="size-4 rounded" />
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-44 font-mono" />
+            <Skeleton className="h-5 w-28 rounded-full" />
+            <Skeleton className="ml-auto h-4 w-12" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ProductPickerDialog({
   open,
   onOpenChange,
@@ -107,7 +207,9 @@ export function ProductPickerDialog({
 
     for (const p of data?.items ?? []) {
       const filteredVariants = p.variants.filter(
-        (v) => !excludeIds.includes(v.itemId),
+        (v) =>
+          !excludeIds.includes(v.itemId) &&
+          matchesVariant(v, p.itemName, search),
       );
       if (filteredVariants.length === 0) continue;
       result.push({
@@ -125,7 +227,10 @@ export function ProductPickerDialog({
       });
     }
     return result;
-  }, [data, excludeIds]);
+  }, [data, excludeIds, search]);
+
+  const showSkeleton = isLoading || (isFetching && products.length === 0);
+  const isRefreshing = isFetching && !isLoading && products.length > 0;
 
   const visibleItemIds = React.useMemo(
     () => products.flatMap((p) => p.variants.map((v) => v.itemId)),
@@ -188,24 +293,32 @@ export function ProductPickerDialog({
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Cari nama produk / SKU…"
-              className="h-10 rounded-full border-border bg-background pl-9"
+              className="h-10 rounded-full border-border bg-background pl-9 pr-9"
             />
+            {isFetching && (
+              <Loader2Icon className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+            )}
           </div>
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col border-t">
-          {isLoading ? (
-            <div className="flex flex-1 items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
-              <Loader2Icon className="size-4 animate-spin" /></div>
+          {showSkeleton ? (
+            <ProductPickerSkeleton />
           ) : products.length === 0 ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-2 py-16 text-center">
               <SearchXIcon className="size-8 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">
-                Produk tidak ditemukan
+                Produk tidak ditemukan{search ? ` untuk "${search}"` : ""}
               </p>
             </div>
           ) : (
-            <ScrollArea className="min-h-0 flex-1">
+            <ScrollArea
+              className={cn(
+                "min-h-0 flex-1",
+                isRefreshing &&
+                  "opacity-60 pointer-events-none transition-opacity duration-200",
+              )}
+            >
               <Table className="min-w-max">
                 <TableHeader className="sticky top-0 z-10 bg-background">
                   <TableRow className="hover:bg-transparent">
