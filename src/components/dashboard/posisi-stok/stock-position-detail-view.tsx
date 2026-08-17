@@ -122,26 +122,37 @@ function parseIntParam(raw: string | null, fallback: number): number {
 }
 
 const CATEGORY_COLOR: Record<string, string> = {
+  TAGIHAN:
+    "text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20",
+  PENYESUAIAN:
+    "text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20",
+  RETUR_PEMBELIAN:
+    "text-rose-600 bg-rose-50 border-rose-200 dark:text-rose-400 dark:bg-rose-500/10 dark:border-rose-500/20",
+  RETUR_PENJUALAN:
+    "text-teal-600 bg-teal-50 border-teal-200 dark:text-teal-400 dark:bg-teal-500/10 dark:border-teal-500/20",
+  FAKTUR:
+    "text-orange-600 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-500/10 dark:border-orange-500/20",
+  PESANAN:
+    "text-sky-600 bg-sky-50 border-sky-200 dark:text-sky-400 dark:bg-sky-500/10 dark:border-sky-500/20",
+  TRANSFER:
+    "text-purple-600 bg-purple-50 border-purple-200 dark:text-purple-400 dark:bg-purple-500/10 dark:border-purple-500/20",
+  PESANAN_BATAL:
+    "text-emerald-600 bg-emerald-50 border-emerald-200 dark:text-emerald-400 dark:bg-emerald-500/10 dark:border-emerald-500/20",
+  CADANGAN:
+    "text-slate-600 bg-slate-50 border-slate-200 dark:text-slate-400 dark:bg-slate-500/10 dark:border-slate-500/20",
+  // Legacy aliases
   PURCHASE:
-    "text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-500/10 dark:border-green-500/20",
+    "text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20",
   CONSIGNMENT:
     "text-lime-600 bg-lime-50 border-lime-200 dark:text-lime-400 dark:bg-lime-500/10 dark:border-lime-500/20",
   ADJUSTMENT:
     "text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20",
-  PURCHASE_RETURN:
-    "text-rose-600 bg-rose-50 border-rose-200 dark:text-rose-400 dark:bg-rose-500/10 dark:border-rose-500/20",
-  SALES_RETURN:
-    "text-teal-600 bg-teal-50 border-teal-200 dark:text-teal-400 dark:bg-teal-500/10 dark:border-teal-500/20",
   PICKING:
     "text-emerald-600 bg-emerald-50 border-emerald-200 dark:text-emerald-400 dark:bg-emerald-500/10 dark:border-emerald-500/20",
   ALOKASI:
     "text-indigo-600 bg-indigo-50 border-indigo-200 dark:text-indigo-400 dark:bg-indigo-500/10 dark:border-indigo-500/20",
-  PESANAN:
-    "text-sky-600 bg-sky-50 border-sky-200 dark:text-sky-400 dark:bg-sky-500/10 dark:border-sky-500/20",
   INVOICE:
     "text-orange-600 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-500/10 dark:border-orange-500/20",
-  TRANSFER:
-    "text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20",
   REVALUATION:
     "text-violet-600 bg-violet-50 border-violet-200 dark:text-violet-400 dark:bg-violet-500/10 dark:border-violet-500/20",
 };
@@ -155,7 +166,7 @@ const VIEW_TABS: {
     value: "all",
     label: "Semua",
     description:
-      "Semua sumber, termasuk alokasi pesanan yang belum diproses.",
+      "Semua sumber, termasuk pesanan dan cadangan yang sedang aktif.",
   },
   {
     value: "clean",
@@ -191,6 +202,10 @@ function resolveTransactionHref(source: string, trxNo: string): string | null {
     case "ORDER_SHIP":
     case "ORDER_PICK":
     case "ORDER_RESTORE":
+    case "ORDER":
+    case "ORDER_RESERVE":
+    case "ORDER_RELEASE":
+    case "ORDER_CANCELLED":
       return `/dashboard/pesanan?search=${enc}`;
     case "TRANSFER_IN":
     case "TRANSIT_IN":
