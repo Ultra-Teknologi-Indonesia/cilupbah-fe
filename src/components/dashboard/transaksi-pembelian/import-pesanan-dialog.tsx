@@ -179,6 +179,7 @@ export function ImportPesananDialog({ open, onOpenChange }: Props) {
     <Dialog
       open={open}
       onOpenChange={(o) => {
+        if (confirmMut.isPending || previewMut.isPending) return;
         if (!o) reset();
         onOpenChange(o);
       }}
@@ -580,13 +581,19 @@ export function ImportPesananDialog({ open, onOpenChange }: Props) {
 
             {/* Bottom Actions */}
             <div className="flex items-center justify-between pt-1 border-t border-border/40">
-              <Button variant="outline" size="sm" onClick={reset}>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={confirmMut.isPending}
+                onClick={reset}
+              >
                 Ganti File
               </Button>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
+                  disabled={confirmMut.isPending}
                   onClick={() => onOpenChange(false)}
                 >
                   Batal
