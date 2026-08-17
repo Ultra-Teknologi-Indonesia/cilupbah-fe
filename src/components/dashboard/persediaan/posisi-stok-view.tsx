@@ -635,6 +635,9 @@ export function PosisiStokView() {
     </Tabs>
   );
 
+  const showSkeleton = isLoading || (isFetching && items.length === 0);
+  const isRefreshing = isFetching && !isLoading && items.length > 0;
+
   return (
     <div className="flex flex-col gap-4">
       <LiquidGlass
@@ -678,14 +681,8 @@ export function PosisiStokView() {
           />
         </FilterToolbar>
 
-        {isFetching && !isLoading && (
-          <div className="flex justify-center py-1">
-            <Loader2Icon className="size-4 animate-spin text-primary" />
-          </div>
-        )}
-
         <div className="px-4 py-3 sm:px-5">
-          {isLoading ? (
+          {showSkeleton ? (
             <StockSkeleton />
           ) : items.length === 0 ? (
             <EmptyState
@@ -694,7 +691,12 @@ export function PosisiStokView() {
               description="Produk yang memiliki stok akan muncul di sini."
             />
           ) : (
-            <div className="flex flex-col gap-3">
+            <div
+              className={cn(
+                "flex flex-col gap-3 transition-opacity duration-200",
+                isRefreshing && "pointer-events-none opacity-60",
+              )}
+            >
               {selectedCount > 0 && (
                 <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border/40 bg-muted/40 px-4 py-2.5">
                   <span className="text-sm font-medium text-foreground">
