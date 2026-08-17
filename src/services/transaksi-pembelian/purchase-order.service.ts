@@ -139,4 +139,54 @@ export const PurchaseOrderService = {
 
   pdf: async (id: string): Promise<Blob> =>
     fetchBlobRaw(`/purchase/orders/${id}/pdf`, "application/pdf"),
+
+  downloadImportTemplate: async (): Promise<Blob> =>
+    fetchBlobRaw(
+      "/purchase/orders/import/template",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ),
+
+  previewImport: async (
+    file: File,
+  ): Promise<
+    import("@/types/transaksi-pembelian/purchase-order-import").PurchaseImportPreview
+  > => {
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetchClient<
+      ApiResponse<
+        import("@/types/transaksi-pembelian/purchase-order-import").PurchaseImportPreview
+      >
+    >("/purchase/orders/import/preview", {
+      method: "POST",
+      data: fd,
+    });
+    return res.data;
+  },
+
+  confirmImport: async (
+    previewToken: string,
+  ): Promise<
+    import("@/types/transaksi-pembelian/purchase-order-import").PurchaseImportConfirmResult
+  > => {
+    const res = await fetchClient<
+      ApiResponse<
+        import("@/types/transaksi-pembelian/purchase-order-import").PurchaseImportConfirmResult
+      >
+    >("/purchase/orders/import/confirm", {
+      method: "POST",
+      data: { preview_token: previewToken },
+    });
+    return res.data;
+  },
+
+  exportList: async (params: PurchaseOrderListParams = {}): Promise<Blob> => {
+    const sp = buildListParams(params);
+    return fetchBlobRaw(`/purchase/orders/export/list?${sp}`, "text/csv");
+  },
+
+  exportDetail: async (params: PurchaseOrderListParams = {}): Promise<Blob> => {
+    const sp = buildListParams(params);
+    return fetchBlobRaw(`/purchase/orders/export/detail?${sp}`, "text/csv");
+  },
 };

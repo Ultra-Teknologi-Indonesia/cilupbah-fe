@@ -4,16 +4,39 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { useState, useMemo } from "react";
 import { useListState } from "@/hooks/use-list-state";
 import Link from "next/link";
-import { PlusIcon, ClipboardListIcon, Trash2Icon } from "lucide-react";
+import {
+  PlusIcon,
+  ClipboardListIcon,
+  Trash2Icon,
+  UploadIcon,
+  DownloadIcon,
+  FileSpreadsheetIcon,
+  Loader2Icon,
+  ChevronDownIcon,
+} from "lucide-react";
+import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Can } from "@/components/auth/can";
 
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { DateRangePicker } from "@/components/ui/date-picker";
+import { ImportPesananDialog } from "@/components/dashboard/transaksi-pembelian/import-pesanan-dialog";
+import {
+  downloadPurchaseOrderListExport,
+  downloadPurchaseOrderExportDetail,
+} from "@/hooks/transaksi-pembelian/use-purchase-order-import-export";
 import type { ColumnDef } from "@tanstack/react-table";
 
 import {
@@ -62,6 +85,10 @@ export function PesananListView() {
   const [bulkDeleteTarget, setBulkDeleteTarget] = useState<
     PurchaseOrder[] | null
   >(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [isExportingList, setIsExportingList] = useState(false);
+  const [isExportingDetail, setIsExportingDetail] = useState(false);
+
   const deleteMut = useDeletePurchaseOrder();
   const bulkDeleteMut = useBulkDeletePurchaseOrder();
 
@@ -72,7 +99,9 @@ export function PesananListView() {
     });
   }
 
-  function handleBulkDelete(table: { toggleAllPageRowsSelected: (value?: boolean) => void }) {
+  function handleBulkDelete(table: {
+    toggleAllPageRowsSelected: (value?: boolean) => void;
+  }) {
     if (!bulkDeleteTarget) return;
     const ids = bulkDeleteTarget.map((p) => p.id);
     bulkDeleteMut.mutate(ids, {
@@ -96,6 +125,30 @@ export function PesananListView() {
 
     return p;
   }, [debouncedSearch, page, perPage, filters]);
+
+  const handleExportList = async () => {
+    try {
+      setIsExportingList(true);
+      await downloadPurchaseOrderListExport(params);
+      toast.success("Export ringkasan pesanan berhasil diunduh");
+    } catch (err: unknown) {
+      apiError(err, "Gagal mengekspor data ringkasan pesanan");
+    } finally {
+      setIsExportingList(false);
+    }
+  };
+
+  const handleExportDetail = async () => {
+    try {
+      setIsExportingDetail(true);
+      await downloadPurchaseOrderExportDetail(params);
+      toast.success("Export rincian item pesanan berhasil diunduh");
+    } catch (err: unknown) {
+      apiError(err, "Gagal mengekspor rincian item pesanan");
+    } finally {
+      setIsExportingDetail(false);
+    }
+  };
 
   const { data, isLoading, isFetching } = usePurchaseOrders(params);
   const { data: locData } = useLocations({ perPage: 100 });
