@@ -108,4 +108,20 @@ export const ProductListService = {
     );
     return { items: (res.data ?? []).map(mapMasterItem), meta: res.meta };
   },
+
+  getPickerProducts: async (
+    params: MasterProductsParams = {},
+  ): Promise<MasterProductsResult> => {
+    const q = new URLSearchParams();
+    if (params.search) q.set("search", params.search);
+    if (params.status) q.set("status", params.status);
+    if (params.categoryId) q.set("filter[category_id]", params.categoryId);
+    q.set("page", String(params.page ?? 1));
+    q.set("per_page", String(params.perPage ?? 20));
+
+    const res = await fetchClient<ApiPaginated<RawMasterItem>>(
+      `/products/picker?${q.toString()}`,
+    );
+    return { items: (res.data ?? []).map(mapMasterItem), meta: res.meta };
+  },
 };

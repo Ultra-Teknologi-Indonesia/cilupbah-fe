@@ -26,7 +26,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { SimplePagination } from "@/components/ui/simple-pagination";
-import { useMasterProducts } from "@/hooks/master-produk/use-master-products";
+import { usePickerProducts } from "@/hooks/master-produk/use-master-products";
 import { useAggregatedStocksByIds } from "@/hooks/persediaan/use-stock-position";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
@@ -49,76 +49,6 @@ interface ProductPickerDialogProps {
 }
 
 import { Skeleton } from "@/components/ui/skeleton";
-
-function matchesVariant(
-  variant: {
-    sku: string;
-    variationValues: { label: string; value: string }[];
-  },
-  parentName: string,
-  searchQuery: string,
-): boolean {
-  const query = searchQuery.trim();
-  if (!query) return true;
-
-  const normalize = (s: string) =>
-    s.toLowerCase().replace(/[^a-z0-9]/g, "");
-
-  const queryLower = query.toLowerCase();
-  const queryClean = normalize(query);
-  const queryTokens = queryLower.split(/\s+/).filter(Boolean);
-
-  const skuLower = (variant.sku || "").toLowerCase();
-  const skuClean = normalize(variant.sku || "");
-
-  // 1. Direct SKU substring match or normalized alphanumeric SKU match (e.g. LSM-H-PINK-IP-11-PRO)
-  if (
-    skuLower.includes(queryLower) ||
-    (queryClean.length >= 2 && skuClean.includes(queryClean))
-  ) {
-    return true;
-  }
-
-  // 2. Build variant attribute text (e.g. "Warna Hot Pink Type Hp 11 Pro")
-  const varAttrValues = variant.variationValues
-    .map((v) => `${v.label} ${v.value}`)
-    .join(" ")
-    .toLowerCase();
-  const varAttrValuesClean = normalize(varAttrValues);
-
-  if (
-    queryClean.length >= 2 &&
-    varAttrValuesClean.includes(queryClean)
-  ) {
-    return true;
-  }
-
-  // 3. Combined text for token checking: "ParentName + SKU + VariationValues"
-  const combinedText = `${parentName} ${variant.sku || ""} ${varAttrValues}`.toLowerCase();
-  const allTokensMatch = queryTokens.every((token) =>
-    combinedText.includes(token),
-  );
-
-  if (allTokensMatch) {
-    // If the entire query literally only matches the parent name (e.g. searching "Liquid Silicone Magnetic")
-    const parentMatchesAll = queryTokens.every((token) =>
-      parentName.toLowerCase().includes(token),
-    );
-    if (parentMatchesAll) {
-      return true;
-    }
-    // If query has variant-specific tokens (e.g. "pink", "11", "pro"), check that this variant matches at least one variant-specific token
-    const variantMatchesSomeToken = queryTokens.some(
-      (token) =>
-        skuLower.includes(token) ||
-        varAttrValues.includes(token) ||
-        (token.length >= 2 && (skuClean.includes(normalize(token)) || varAttrValuesClean.includes(normalize(token)))),
-    );
-    return variantMatchesSomeToken;
-  }
-
-  return false;
-}
 
 function ProductPickerSkeleton() {
   return (
@@ -184,11 +114,14 @@ export function ProductPickerDialog({
     onOpenChange(next);
   };
 
-  const { data, isLoading, isFetching } = useMasterProducts({
-    search: search || undefined,
-    page,
-    perPage,
-  });
+  const { data, isLoading, isFetching } = usePickerProducts(
+    {
+      search: search || undefined,
+      page,
+      perPage,
+    },
+    { enabled: open },
+  );
 
   const products = React.useMemo(() => {
     const result: {
@@ -207,9 +140,7 @@ export function ProductPickerDialog({
 
     for (const p of data?.items ?? []) {
       const filteredVariants = p.variants.filter(
-        (v) =>
-          !excludeIds.includes(v.itemId) &&
-          matchesVariant(v, p.itemName, search),
+        (v) => !excludeIds.includes(v.itemId),
       );
       if (filteredVariants.length === 0) continue;
       result.push({
@@ -227,7 +158,7 @@ export function ProductPickerDialog({
       });
     }
     return result;
-  }, [data, excludeIds, search]);
+  }, [data, excludeIds]);
 
   const showSkeleton = isLoading || (isFetching && products.length === 0);
   const isRefreshing = isFetching && !isLoading && products.length > 0;

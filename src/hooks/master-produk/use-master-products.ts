@@ -47,3 +47,17 @@ export function useDownloadedProducts(
     staleTime: 30 * 1000,
   });
 }
+
+export function usePickerProducts(
+  params: MasterProductsParams = {},
+  options: { enabled?: boolean } = {},
+) {
+  return useQuery({
+    queryKey: ["products-picker", params],
+    placeholderData: keepPreviousData,
+    queryFn: () => ProductListService.getPickerProducts(params),
+    staleTime: 30 * 1000,
+    enabled: options.enabled ?? true,
+  });
+}
+
