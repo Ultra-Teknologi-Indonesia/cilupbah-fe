@@ -43,6 +43,7 @@ export function TerimaTransferDialog({
 }: TerimaTransferDialogProps) {
   const receive = useReceiveTransfer();
   const [receivedBy, setReceivedBy] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const detail = useInboundDetail(open ? inbound?.id : undefined);
   const items = useMemo(
@@ -59,10 +60,15 @@ export function TerimaTransferDialog({
     setQtyMap((prev) => ({ ...prev, [itemId]: n }));
   };
 
-  const canSubmit = !!inbound?.source_id && !!receivedBy && items.length > 0;
+  const isAlreadyReceived =
+    detail.data?.status === "RECEIVED" || inbound?.status === "RECEIVED";
+  const isBusy = receive.isPending || isSubmitting;
+  const canSubmit =
+    !!inbound?.source_id && !!receivedBy && items.length > 0 && !isAlreadyReceived && !isBusy;
 
   const handleSubmit = () => {
-    if (!inbound?.source_id) return;
+    if (!inbound?.source_id || isBusy || isAlreadyReceived) return;
+    setIsSubmitting(true);
     receive.mutate(
       {
         id: inbound.source_id,
@@ -76,9 +82,13 @@ export function TerimaTransferDialog({
       },
       {
         onSuccess: () => {
+          setIsSubmitting(false);
           onOpenChange(false);
           setReceivedBy("");
           onSuccess?.();
+        },
+        onError: () => {
+          setIsSubmitting(false);
         },
       },
     );
@@ -192,12 +202,12 @@ export function TerimaTransferDialog({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            disabled={receive.isPending}
+            disabled={isBusy}
           >
             Batal
           </Button>
-          <Button onClick={handleSubmit} disabled={!canSubmit || receive.isPending}>
-            {receive.isPending && (
+          <Button onClick={handleSubmit} disabled={!canSubmit || isBusy}>
+            {isBusy && (
               <Loader2Icon className="mr-2 size-4 animate-spin" />
             )}
             Terima
