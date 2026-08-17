@@ -270,12 +270,65 @@ export function PesananListView() {
           activeCount={activeCount}
           gridCols={2}
           trailing={
-            <Button variant="primary" asChild>
-              <Link href="/dashboard/transaksi-pembelian/pesanan/tambah">
-                <PlusIcon className="size-4" />
-                Buat Pesanan
-              </Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Can permission="view-transaksi-pembelian">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      disabled={isExportingList || isExportingDetail}
+                      className="gap-2"
+                    >
+                      {isExportingList || isExportingDetail ? (
+                        <Loader2Icon className="size-4 animate-spin" />
+                      ) : (
+                        <DownloadIcon className="size-4" />
+                      )}
+                      Export
+                      <ChevronDownIcon className="size-3.5 opacity-60" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={handleExportList}
+                      disabled={isExportingList}
+                      className="cursor-pointer gap-2"
+                    >
+                      <FileSpreadsheetIcon className="size-4 text-emerald-600 dark:text-emerald-400" />
+                      Export Ringkasan Pesanan (List)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleExportDetail}
+                      disabled={isExportingDetail}
+                      className="cursor-pointer gap-2"
+                    >
+                      <FileSpreadsheetIcon className="size-4 text-emerald-600 dark:text-emerald-400" />
+                      Export Rincian Item (Detail)
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </Can>
+
+              <Can permission="create-transaksi-pembelian">
+                <Button
+                  variant="outline"
+                  onClick={() => setImportOpen(true)}
+                  className="gap-2"
+                >
+                  <UploadIcon className="size-4" />
+                  Import
+                </Button>
+              </Can>
+
+              <Can permission="create-transaksi-pembelian">
+                <Button variant="primary" asChild>
+                  <Link href="/dashboard/transaksi-pembelian/pesanan/tambah">
+                    <PlusIcon className="size-4" />
+                    Buat Pesanan
+                  </Link>
+                </Button>
+              </Can>
+            </div>
           }
         >
           <Combobox
@@ -362,6 +415,11 @@ export function PesananListView() {
         onConfirm={() =>
           handleBulkDelete({ toggleAllPageRowsSelected: () => {} })
         }
+      />
+
+      <ImportPesananDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
       />
     </div>
   );
