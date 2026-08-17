@@ -23,6 +23,7 @@ import {
   TAB_CONFIG,
 } from "@/types/pesanan/order";
 
+import { scrollDashboardToTop } from "@/components/ui/simple-pagination";
 import { OrderStatusTabs, OrderSubStatusPills } from "./order-status-tabs";
 import { OrderFilters, EMPTY_FILTERS, type FilterState } from "./order-filters";
 import { OrderCardList } from "./order-card-list";
@@ -60,6 +61,7 @@ export function PesananView() {
     (t: OrderTab) => {
       setTabUrl(t);
       clearSelection();
+      scrollDashboardToTop();
     },
     [setTabUrl, clearSelection],
   );
@@ -68,6 +70,7 @@ export function PesananView() {
     (s: SubFilter) => {
       setSubUrl(s ?? "");
       clearSelection();
+      scrollDashboardToTop();
     },
     [setSubUrl, clearSelection],
   );
@@ -76,6 +79,7 @@ export function PesananView() {
     (f: FilterState) => {
       setFilters(f);
       listSearch.resetPage();
+      scrollDashboardToTop();
     },
     [listSearch],
   );

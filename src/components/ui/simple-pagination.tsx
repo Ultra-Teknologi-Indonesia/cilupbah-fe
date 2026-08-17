@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -20,6 +21,23 @@ import {
 export const TABLE_PAGE_SIZES = [20, 50, 100, 200];
 export const GRID_PAGE_SIZES = [24, 48, 96, 128, 196];
 const DEFAULT_PAGE_SIZES = TABLE_PAGE_SIZES;
+
+export function scrollDashboardToTop() {
+  if (typeof window === "undefined") return;
+
+  // 1. Scroll dashboard layout container (.overflow-y-auto)
+  const scrollContainers = document.querySelectorAll(".overflow-y-auto, [data-sidebar-inset]");
+  scrollContainers.forEach((el) => {
+    if (el instanceof HTMLElement && el.scrollTop > 0) {
+      el.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  });
+
+  // 2. Window / document fallback
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  document.documentElement.scrollTo({ top: 0, behavior: "smooth" });
+  document.body.scrollTo({ top: 0, behavior: "smooth" });
+}
 
 interface SimplePaginationProps {
   page: number;
@@ -47,10 +65,15 @@ export function SimplePagination({
   const showSizeSelector =
     perPage !== undefined && onPerPageChange !== undefined;
 
+  const handlePageChange = (newPage: number) => {
+    onPageChange(newPage);
+    scrollDashboardToTop();
+  };
+
   return (
     <div className="flex flex-col-reverse items-center gap-4 border-t border-border/60 pt-3 sm:flex-row sm:justify-between">
       <div className="text-sm text-muted-foreground">
-        {total !== undefined && label ? `${total} ${label}` : " "}
+        {total !== undefined && label ? `${total} ${label}` : " "}
       </div>
 
       <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
@@ -61,7 +84,7 @@ export function SimplePagination({
               value={`${perPage}`}
               onValueChange={(v) => {
                 onPerPageChange!(Number(v));
-                onPageChange(1);
+                handlePageChange(1);
               }}
             >
               <SelectTrigger
@@ -93,7 +116,7 @@ export function SimplePagination({
             variant="outline"
             size="icon"
             className="hidden size-8 lg:flex"
-            onClick={() => onPageChange(1)}
+            onClick={() => handlePageChange(1)}
             disabled={page <= 1 || isFetching}
             aria-label="Halaman pertama"
           >
@@ -103,7 +126,7 @@ export function SimplePagination({
             variant="outline"
             size="icon"
             className="size-8"
-            onClick={() => onPageChange(Math.max(1, page - 1))}
+            onClick={() => handlePageChange(Math.max(1, page - 1))}
             disabled={page <= 1 || isFetching}
             aria-label="Halaman sebelumnya"
           >
@@ -113,7 +136,7 @@ export function SimplePagination({
             variant="outline"
             size="icon"
             className="size-8"
-            onClick={() => onPageChange(Math.min(lastPage, page + 1))}
+            onClick={() => handlePageChange(Math.min(lastPage, page + 1))}
             disabled={page >= lastPage || isFetching}
             aria-label="Halaman berikutnya"
           >
@@ -123,7 +146,7 @@ export function SimplePagination({
             variant="outline"
             size="icon"
             className="hidden size-8 lg:flex"
-            onClick={() => onPageChange(lastPage)}
+            onClick={() => handlePageChange(lastPage)}
             disabled={page >= lastPage || isFetching}
             aria-label="Halaman terakhir"
           >
