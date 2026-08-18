@@ -160,6 +160,7 @@ export const PurchaseOrderService = {
     >("/purchase/orders/import/preview", {
       method: "POST",
       data: fd,
+      headers: { "Content-Type": "multipart/form-data" },
     });
     return res.data;
   },

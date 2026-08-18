@@ -15,7 +15,10 @@ export const InternalStoreService = {
     if (params.per_page) sp.set("per_page", String(params.per_page));
     if (params.search) sp.set("search", params.search);
     if (params["filter[is_active]"] !== undefined)
-      sp.set("filter[is_active]", String(Number(!!params["filter[is_active]"])));
+      sp.set(
+        "filter[is_active]",
+        String(Number(!!params["filter[is_active]"])),
+      );
     if (params.sort) sp.set("sort", params.sort);
     const qs = sp.toString();
     const res = await fetchClient<ApiPaginated<InternalStore>>(
@@ -60,7 +63,11 @@ export const InternalStoreService = {
       fd.append("logo", logo);
       const res = await fetchClient<ApiResponse<InternalStore>>(
         `${BASE}/${id}`,
-        { method: "POST", data: fd },
+        {
+          method: "POST",
+          data: fd,
+          headers: { "Content-Type": "multipart/form-data" },
+        },
       );
       return res.data;
     }
@@ -81,7 +88,11 @@ export const InternalStoreService = {
     fd.append("logo", file);
     const res = await fetchClient<ApiResponse<InternalStore>>(
       `${BASE}/${id}/logo`,
-      { method: "POST", data: fd },
+      {
+        method: "POST",
+        data: fd,
+        headers: { "Content-Type": "multipart/form-data" },
+      },
     );
     return res.data;
   },

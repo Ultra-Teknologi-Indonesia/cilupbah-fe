@@ -15,6 +15,8 @@ import {
   MapPinIcon,
   CalendarIcon,
   LayersIcon,
+  FileTextIcon,
+  TagIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -36,7 +38,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   downloadPurchaseOrderTemplate,
   useImportPurchaseOrderPreview,
@@ -63,7 +64,7 @@ function StatusBadge({ status }: { status: "ready" | "error" }) {
   return status === "ready" ? (
     <Badge
       variant="outline"
-      className="gap-1 border-success/30 bg-success/10 text-success text-xs font-medium"
+      className="gap-1 border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-semibold shrink-0"
     >
       <CheckCircle2Icon className="size-3" />
       Siap Dibuat
@@ -71,7 +72,7 @@ function StatusBadge({ status }: { status: "ready" | "error" }) {
   ) : (
     <Badge
       variant="outline"
-      className="gap-1 border-destructive/30 bg-destructive/10 text-destructive text-xs font-medium"
+      className="gap-1 border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-400 text-xs font-semibold shrink-0"
     >
       <XCircleIcon className="size-3" />
       Terdapat Error
@@ -132,8 +133,12 @@ export function ImportPesananDialog({ open, onOpenChange }: Props) {
       const result = await previewMut.mutateAsync(file);
       setPreview(result);
       setTab(result.summary.invalid_docs > 0 ? "invalid" : "all");
-      // Auto-expand the first 2 documents
-      setExpandedDocs({ 0: true, 1: true });
+      // Auto-expand all documents initially for clear inspection
+      const initialExpanded: Record<number, boolean> = {};
+      result.documents.forEach((_, idx) => {
+        initialExpanded[idx] = true;
+      });
+      setExpandedDocs(initialExpanded);
     } catch (err: unknown) {
       apiError(err, "Gagal memproses pratinjau file import");
     }
@@ -186,8 +191,10 @@ export function ImportPesananDialog({ open, onOpenChange }: Props) {
     >
       <DialogContent
         className={cn(
-          "flex max-h-[92vh] flex-col gap-0 p-0 transition-all duration-200",
-          preview ? "w-full max-w-5xl" : "w-full max-w-xl",
+          "!flex !flex-col !gap-0 !p-0 transition-all duration-200 overflow-hidden",
+          preview
+            ? "w-full max-w-[96vw] sm:max-w-5xl md:max-w-6xl lg:max-w-7xl h-[90vh] max-h-[90vh]"
+            : "w-full max-w-xl sm:max-w-xl h-auto max-h-[90vh]",
         )}
       >
         <DialogHeader className="shrink-0 border-b border-border/40 px-6 py-4">
@@ -203,7 +210,7 @@ export function ImportPesananDialog({ open, onOpenChange }: Props) {
 
         {!preview ? (
           // STEP 1: Upload & Instructions
-          <div className="flex flex-col gap-4 p-6">
+          <div className="flex flex-col gap-4 p-6 overflow-y-auto">
             <button
               type="button"
               disabled={isDownloading}
@@ -255,7 +262,7 @@ export function ImportPesananDialog({ open, onOpenChange }: Props) {
               />
               {file ? (
                 <>
-                  <FileSpreadsheetIcon className="size-11 text-success" />
+                  <FileSpreadsheetIcon className="size-11 text-emerald-600 dark:text-emerald-400" />
                   <div className="font-medium text-sm text-foreground">
                     {file.name}
                   </div>
@@ -317,134 +324,157 @@ export function ImportPesananDialog({ open, onOpenChange }: Props) {
           </div>
         ) : (
           // STEP 2: Preview & Confirmation
-          <div className="flex flex-col min-h-0 flex-1 p-6 gap-4">
-            {/* Stat Summary Cards */}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <div className="rounded-xl border border-border/40 bg-muted/20 p-3">
-                <p className="text-xs text-muted-foreground">
-                  Total Baris Data
-                </p>
-                <p className="text-lg font-bold tabular-nums text-foreground">
-                  {summary?.total_rows ?? 0}
-                </p>
-              </div>
-              <div className="rounded-xl border border-success/30 bg-success/10 p-3">
-                <div className="flex items-center gap-1 text-success text-xs font-medium">
-                  <CheckCircle2Icon className="size-3.5" />
-                  <span>Siap Dibuat</span>
+          <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+            {/* Top Fixed Section: Cards + Errors + Filter */}
+            <div className="shrink-0 p-6 pb-3 space-y-3.5 border-b border-border/40 bg-muted/10">
+              {/* Stat Summary Cards */}
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {/* 1. Total Baris */}
+                <div className="rounded-xl border border-border/60 bg-muted/40 p-3.5 flex flex-col justify-between">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Total Baris Data
+                  </p>
+                  <p className="text-2xl font-bold tabular-nums text-foreground mt-1">
+                    {summary?.total_rows ?? 0}
+                  </p>
                 </div>
-                <p className="text-lg font-bold tabular-nums text-success">
-                  {summary?.valid_docs ?? 0} PO
-                </p>
-              </div>
-              <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3">
-                <div className="flex items-center gap-1 text-destructive text-xs font-medium">
-                  <XCircleIcon className="size-3.5" />
-                  <span>Terdapat Error</span>
-                </div>
-                <p className="text-lg font-bold tabular-nums text-destructive">
-                  {summary?.invalid_docs ?? 0} PO
-                </p>
-              </div>
-              <div className="rounded-xl border border-warning/30 bg-warning/10 p-3">
-                <div className="flex items-center gap-1 text-warning text-xs font-medium">
-                  <AlertTriangleIcon className="size-3.5" />
-                  <span>Peringatan</span>
-                </div>
-                <p className="text-lg font-bold tabular-nums text-warning">
-                  {summary?.warnings ?? 0}
-                </p>
-              </div>
-            </div>
 
-            {/* Error Banner if any */}
-            {preview.errors.length > 0 && (
-              <div className="max-h-24 overflow-auto rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
-                <div className="font-semibold mb-0.5">
-                  Ditemukan {preview.errors.length} masalah validasi:
-                </div>
-                {preview.errors.slice(0, 15).map((e, i) => (
-                  <div key={i}>• {e.error}</div>
-                ))}
-                {preview.errors.length > 15 && (
-                  <div className="text-muted-foreground mt-0.5">
-                    +{preview.errors.length - 15} masalah lainnya...
+                {/* 2. Siap Dibuat */}
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 dark:bg-emerald-950/20 p-3.5 flex flex-col justify-between">
+                  <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
+                    <CheckCircle2Icon className="size-3.5" />
+                    <span>Siap Dibuat</span>
                   </div>
-                )}
-              </div>
-            )}
+                  <p className="text-2xl font-bold tabular-nums text-emerald-700 dark:text-emerald-400 mt-1">
+                    {summary?.valid_docs ?? 0}{" "}
+                    <span className="text-xs font-medium text-emerald-600/80 dark:text-emerald-400/80">
+                      PO
+                    </span>
+                  </p>
+                </div>
 
-            {/* Filter Tabs */}
-            <div className="flex items-center justify-between">
-              <div className="flex gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setTab("all")}
-                  className={cn(
-                    "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
-                    tab === "all"
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted/40",
-                  )}
-                >
-                  Semua ({summary?.total_docs ?? 0})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTab("valid")}
-                  className={cn(
-                    "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
-                    tab === "valid"
-                      ? "bg-success/15 text-success font-semibold"
-                      : "text-muted-foreground hover:bg-muted/40",
-                  )}
-                >
-                  Valid ({summary?.valid_docs ?? 0})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTab("invalid")}
-                  className={cn(
-                    "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
-                    tab === "invalid"
-                      ? "bg-destructive/15 text-destructive font-semibold"
-                      : "text-muted-foreground hover:bg-muted/40",
-                  )}
-                >
-                  Error ({summary?.invalid_docs ?? 0})
-                </button>
+                {/* 3. Terdapat Error */}
+                <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 dark:bg-rose-950/20 p-3.5 flex flex-col justify-between">
+                  <div className="flex items-center gap-1.5 text-rose-700 dark:text-rose-400 text-xs font-semibold">
+                    <XCircleIcon className="size-3.5" />
+                    <span>Terdapat Error</span>
+                  </div>
+                  <p className="text-2xl font-bold tabular-nums text-rose-700 dark:text-rose-400 mt-1">
+                    {summary?.invalid_docs ?? 0}{" "}
+                    <span className="text-xs font-medium text-rose-600/80 dark:text-rose-400/80">
+                      PO
+                    </span>
+                  </p>
+                </div>
+
+                {/* 4. Peringatan */}
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 dark:bg-amber-950/20 p-3.5 flex flex-col justify-between">
+                  <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 text-xs font-semibold">
+                    <AlertTriangleIcon className="size-3.5" />
+                    <span>Peringatan</span>
+                  </div>
+                  <p className="text-2xl font-bold tabular-nums text-amber-700 dark:text-amber-400 mt-1">
+                    {summary?.warnings ?? 0}
+                  </p>
+                </div>
               </div>
 
-              <div className="text-xs text-muted-foreground">
-                Menampilkan {filteredDocs.length} dokumen pesanan
+              {/* Error Banner if any */}
+              {preview.errors.length > 0 && (
+                <div className="max-h-24 overflow-y-auto rounded-xl border border-rose-500/30 bg-rose-500/10 dark:bg-rose-950/20 px-3.5 py-2 text-xs text-rose-700 dark:text-rose-400">
+                  <div className="font-semibold mb-0.5 flex items-center gap-1.5">
+                    <AlertTriangleIcon className="size-3.5 shrink-0" />
+                    <span>Ditemukan {preview.errors.length} masalah validasi:</span>
+                  </div>
+                  <div className="space-y-0.5 pl-5">
+                    {preview.errors.map((e, i) => {
+                      const text =
+                        e.row && !e.error.startsWith(`Baris ${e.row}:`)
+                          ? `Baris ${e.row}: ${e.error}`
+                          : e.error;
+                      return <div key={i}>• {text}</div>;
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Filter Tabs */}
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+                <div className="flex gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setTab("all")}
+                    className={cn(
+                      "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+                      tab === "all"
+                        ? "bg-primary text-primary-foreground font-semibold shadow-sm"
+                        : "text-muted-foreground hover:bg-muted/60",
+                    )}
+                  >
+                    Semua ({summary?.total_docs ?? 0})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTab("valid")}
+                    className={cn(
+                      "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+                      tab === "valid"
+                        ? "bg-emerald-600 text-white font-semibold shadow-sm"
+                        : "text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10",
+                    )}
+                  >
+                    Valid ({summary?.valid_docs ?? 0})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTab("invalid")}
+                    className={cn(
+                      "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+                      tab === "invalid"
+                        ? "bg-rose-600 text-white font-semibold shadow-sm"
+                        : "text-rose-700 dark:text-rose-400 hover:bg-rose-500/10",
+                    )}
+                  >
+                    Error ({summary?.invalid_docs ?? 0})
+                  </button>
+                </div>
+
+                <div className="text-xs text-muted-foreground">
+                  Menampilkan {filteredDocs.length} dari{" "}
+                  {summary?.total_docs ?? 0} dokumen pesanan
+                </div>
               </div>
             </div>
 
-            {/* Document List & Items Breakdown */}
-            <ScrollArea className="h-[42vh] rounded-xl border border-border/50 bg-background/50">
-              <div className="divide-y divide-border/40 p-3 space-y-3">
-                {filteredDocs.map((doc: PurchaseImportDoc, idx: number) => {
-                  const isExpanded = expandedDocs[idx] ?? false;
+            {/* Middle Scrollable Section: Document List */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-3.5 bg-background">
+              {filteredDocs.length === 0 ? (
+                <div className="py-12 text-center text-sm text-muted-foreground">
+                  Tidak ada dokumen pesanan yang sesuai dengan filter.
+                </div>
+              ) : (
+                filteredDocs.map((doc: PurchaseImportDoc, idx: number) => {
+                  const isExpanded = expandedDocs[idx] ?? true;
 
                   return (
                     <div
                       key={idx}
                       className={cn(
-                        "rounded-xl border p-3.5 transition-colors",
+                        "rounded-xl border p-4 transition-colors",
                         doc.status === "error"
-                          ? "border-destructive/30 bg-destructive/[0.02]"
+                          ? "border-rose-500/30 bg-rose-500/[0.03]"
                           : "border-border/60 bg-card/60",
                       )}
                     >
                       {/* Document Header */}
                       <div
-                        className="flex cursor-pointer items-center justify-between gap-3"
+                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer select-none"
                         onClick={() => toggleExpand(idx)}
                       >
-                        <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
                           <button
                             type="button"
-                            className="text-muted-foreground hover:text-foreground"
+                            className="mt-0.5 text-muted-foreground hover:text-foreground shrink-0"
                           >
                             {isExpanded ? (
                               <ChevronDownIcon className="size-4" />
@@ -452,46 +482,82 @@ export function ImportPesananDialog({ open, onOpenChange }: Props) {
                               <ChevronRightIcon className="size-4" />
                             )}
                           </button>
-                          <div>
-                            <div className="flex items-center gap-2">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
                               <span className="font-semibold font-mono text-sm text-foreground">
-                                {doc.po_number}
+                                {doc.po_number || "(Otomatis)"}
                               </span>
                               <StatusBadge status={doc.status} />
+                              {doc.ref_no && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-2xs font-mono gap-1 text-muted-foreground"
+                                >
+                                  <TagIcon className="size-2.5" />
+                                  {doc.ref_no}
+                                </Badge>
+                              )}
                               {doc.is_tax_included && (
                                 <Badge variant="secondary" className="text-2xs">
                                   Termasuk Pajak
                                 </Badge>
                               )}
                             </div>
-                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-xs text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <Building2Icon className="size-3 text-muted-foreground/70" />
-                                {doc.supplier_name || "—"}
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1.5 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1.5">
+                                <Building2Icon className="size-3 text-muted-foreground/70 shrink-0" />
+                                <span className="font-medium text-foreground/80">
+                                  {doc.supplier_name || "—"}
+                                </span>
                               </span>
-                              <span className="flex items-center gap-1">
-                                <MapPinIcon className="size-3 text-muted-foreground/70" />
-                                {doc.location_name || "—"}
+                              <span className="flex items-center gap-1.5">
+                                <MapPinIcon className="size-3 text-muted-foreground/70 shrink-0" />
+                                <span>{doc.location_name || "—"}</span>
                               </span>
-                              <span className="flex items-center gap-1">
-                                <CalendarIcon className="size-3 text-muted-foreground/70" />
-                                {formatDate(doc.order_date)}
+                              <span className="flex items-center gap-1.5">
+                                <CalendarIcon className="size-3 text-muted-foreground/70 shrink-0" />
+                                <span>{formatDate(doc.order_date)}</span>
                               </span>
-                              <span className="flex items-center gap-1">
-                                <LayersIcon className="size-3 text-muted-foreground/70" />
-                                {doc.item_count} item
+                              <span className="flex items-center gap-1.5">
+                                <LayersIcon className="size-3 text-muted-foreground/70 shrink-0" />
+                                <span>
+                                  {doc.item_count} item (
+                                  {doc.items.reduce(
+                                    (acc, it) => acc + (it.qty || 0),
+                                    0,
+                                  )}{" "}
+                                  qty)
+                                </span>
                               </span>
+                              {doc.notes && (
+                                <span className="flex items-center gap-1.5 italic text-muted-foreground">
+                                  <FileTextIcon className="size-3 text-muted-foreground/70 shrink-0" />
+                                  <span>{doc.notes}</span>
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
 
-                        <div className="text-right shrink-0">
-                          <div className="text-sm font-bold tabular-nums text-foreground">
+                        <div className="text-left sm:text-right shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 pl-7 sm:pl-0">
+                          <div className="text-xs text-muted-foreground">
+                            Total Pesanan
+                          </div>
+                          <div className="text-base font-bold tabular-nums text-foreground">
                             {formatCurrency(doc.total_amount)}
                           </div>
-                          {doc.total_tax > 0 && (
-                            <div className="text-2xs text-muted-foreground">
-                              Pajak: {formatCurrency(doc.total_tax)}
+                          {(doc.total_disc > 0 || doc.total_tax > 0) && (
+                            <div className="text-2xs text-muted-foreground flex items-center sm:justify-end gap-2 mt-0.5">
+                              {doc.total_disc > 0 && (
+                                <span>
+                                  Diskon: -{formatCurrency(doc.total_disc)}
+                                </span>
+                              )}
+                              {doc.total_tax > 0 && (
+                                <span>
+                                  Pajak: +{formatCurrency(doc.total_tax)}
+                                </span>
+                              )}
                             </div>
                           )}
                         </div>
@@ -499,88 +565,117 @@ export function ImportPesananDialog({ open, onOpenChange }: Props) {
 
                       {/* Error Messages for Doc */}
                       {doc.errors.length > 0 && (
-                        <div className="mt-2.5 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-                          {doc.errors.map((err, errIdx) => (
-                            <div key={errIdx}>• {err}</div>
-                          ))}
+                        <div className="mt-3 rounded-lg border border-rose-500/20 bg-rose-500/10 px-3.5 py-2 text-xs text-rose-700 dark:text-rose-400">
+                          <div className="font-semibold mb-0.5">
+                            Kendala pada dokumen ini:
+                          </div>
+                          <div className="space-y-0.5">
+                            {doc.errors.map((err, errIdx) => (
+                              <div key={errIdx}>• {err}</div>
+                            ))}
+                          </div>
                         </div>
                       )}
 
                       {/* Item Breakdown Table */}
                       {isExpanded && (
                         <div className="mt-3.5 overflow-hidden rounded-lg border border-border/40 bg-muted/20">
-                          <Table>
-                            <TableHeader>
-                              <TableRow className="border-b border-border/40 bg-muted/40">
-                                <TableHead className="h-8 py-1 px-3 text-2xs uppercase tracking-wider text-muted-foreground">
-                                  SKU / Produk
-                                </TableHead>
-                                <TableHead className="h-8 py-1 px-3 text-right text-2xs uppercase tracking-wider text-muted-foreground">
-                                  Qty
-                                </TableHead>
-                                <TableHead className="h-8 py-1 px-3 text-right text-2xs uppercase tracking-wider text-muted-foreground">
-                                  Harga
-                                </TableHead>
-                                <TableHead className="h-8 py-1 px-3 text-right text-2xs uppercase tracking-wider text-muted-foreground">
-                                  Diskon
-                                </TableHead>
-                                <TableHead className="h-8 py-1 px-3 text-right text-2xs uppercase tracking-wider text-muted-foreground">
-                                  Pajak
-                                </TableHead>
-                                <TableHead className="h-8 py-1 px-3 text-right text-2xs uppercase tracking-wider text-muted-foreground">
-                                  Total
-                                </TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {doc.items.map((item, itIdx) => (
-                                <TableRow
-                                  key={itIdx}
-                                  className="border-b border-border/20 last:border-0 text-xs"
-                                >
-                                  <TableCell className="py-2 px-3">
-                                    <div className="font-mono font-medium text-foreground">
-                                      {item.sku}
-                                    </div>
-                                    {item.product_name && (
-                                      <div className="text-2xs text-muted-foreground truncate max-w-xs">
-                                        {item.product_name}
-                                      </div>
-                                    )}
-                                  </TableCell>
-                                  <TableCell className="py-2 px-3 text-right font-medium tabular-nums">
-                                    {item.qty}
-                                  </TableCell>
-                                  <TableCell className="py-2 px-3 text-right tabular-nums">
-                                    {formatCurrency(item.unit_price)}
-                                  </TableCell>
-                                  <TableCell className="py-2 px-3 text-right tabular-nums text-muted-foreground">
-                                    {item.disc_amount > 0
-                                      ? formatCurrency(item.disc_amount)
-                                      : "—"}
-                                  </TableCell>
-                                  <TableCell className="py-2 px-3 text-right tabular-nums text-muted-foreground">
-                                    {item.tax_amount > 0
-                                      ? formatCurrency(item.tax_amount)
-                                      : item.tax_name || "—"}
-                                  </TableCell>
-                                  <TableCell className="py-2 px-3 text-right font-semibold tabular-nums text-foreground">
-                                    {formatCurrency(item.amount)}
-                                  </TableCell>
+                          <div className="overflow-x-auto">
+                            <Table className="min-w-[700px]">
+                              <TableHeader>
+                                <TableRow className="border-b border-border/40 bg-muted/40">
+                                  <TableHead className="h-8 py-1.5 px-3 text-2xs uppercase tracking-wider text-muted-foreground w-12 text-center">
+                                    #
+                                  </TableHead>
+                                  <TableHead className="h-8 py-1.5 px-3 text-2xs uppercase tracking-wider text-muted-foreground min-w-[220px]">
+                                    SKU / Produk
+                                  </TableHead>
+                                  <TableHead className="h-8 py-1.5 px-3 text-right text-2xs uppercase tracking-wider text-muted-foreground w-20">
+                                    Qty
+                                  </TableHead>
+                                  <TableHead className="h-8 py-1.5 px-3 text-right text-2xs uppercase tracking-wider text-muted-foreground min-w-[110px]">
+                                    Harga Satuan
+                                  </TableHead>
+                                  <TableHead className="h-8 py-1.5 px-3 text-right text-2xs uppercase tracking-wider text-muted-foreground min-w-[90px]">
+                                    Diskon
+                                  </TableHead>
+                                  <TableHead className="h-8 py-1.5 px-3 text-right text-2xs uppercase tracking-wider text-muted-foreground min-w-[90px]">
+                                    Pajak
+                                  </TableHead>
+                                  <TableHead className="h-8 py-1.5 px-3 text-right text-2xs uppercase tracking-wider text-muted-foreground min-w-[120px]">
+                                    Total
+                                  </TableHead>
                                 </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
+                              </TableHeader>
+                              <TableBody>
+                                {doc.items.map((item, itIdx) => (
+                                  <TableRow
+                                    key={itIdx}
+                                    className="border-b border-border/20 last:border-0 text-xs hover:bg-muted/30"
+                                  >
+                                    <TableCell className="py-2.5 px-3 text-center text-muted-foreground font-mono text-2xs">
+                                      {item.row_no || itIdx + 1}
+                                    </TableCell>
+                                    <TableCell className="py-2.5 px-3">
+                                      <div className="font-mono font-medium text-foreground">
+                                        {item.sku}
+                                      </div>
+                                      {item.product_name && (
+                                        <div className="text-2xs text-muted-foreground line-clamp-2 mt-0.5 max-w-md">
+                                          {item.product_name}
+                                        </div>
+                                      )}
+                                    </TableCell>
+                                    <TableCell className="py-2.5 px-3 text-right font-medium tabular-nums text-foreground">
+                                      {item.qty}
+                                    </TableCell>
+                                    <TableCell className="py-2.5 px-3 text-right tabular-nums">
+                                      {formatCurrency(item.unit_price)}
+                                    </TableCell>
+                                    <TableCell className="py-2.5 px-3 text-right tabular-nums text-muted-foreground">
+                                      {item.disc_amount > 0 ? (
+                                        <span className="text-foreground">
+                                          {formatCurrency(item.disc_amount)}
+                                          {item.disc > 0 && item.disc < 1 && (
+                                            <span className="text-2xs text-muted-foreground block">
+                                              ({(item.disc * 100).toFixed(0)}%)
+                                            </span>
+                                          )}
+                                        </span>
+                                      ) : (
+                                        "—"
+                                      )}
+                                    </TableCell>
+                                    <TableCell className="py-2.5 px-3 text-right tabular-nums text-muted-foreground">
+                                      {item.tax_amount > 0 ? (
+                                        <span className="text-foreground">
+                                          {formatCurrency(item.tax_amount)}
+                                          <span className="text-2xs text-muted-foreground block">
+                                            {item.tax_name || "Pajak"}
+                                          </span>
+                                        </span>
+                                      ) : (
+                                        item.tax_name || "—"
+                                      )}
+                                    </TableCell>
+                                    <TableCell className="py-2.5 px-3 text-right font-semibold tabular-nums text-foreground">
+                                      {formatCurrency(item.amount)}
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
                         </div>
                       )}
                     </div>
                   );
-                })}
-              </div>
-            </ScrollArea>
+                })
+              )}
+            </div>
 
-            {/* Bottom Actions */}
-            <div className="flex items-center justify-between pt-1 border-t border-border/40">
+            {/* Bottom Actions Fixed Pin */}
+            <div className="flex items-center justify-between px-6 py-3.5 border-t border-border/40 bg-muted/10 shrink-0">
               <Button
                 variant="outline"
                 size="sm"
