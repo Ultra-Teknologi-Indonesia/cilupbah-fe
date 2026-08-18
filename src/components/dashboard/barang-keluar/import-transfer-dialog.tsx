@@ -2,10 +2,16 @@
 
 import * as React from "react";
 import {
+  AlertCircleIcon,
+  AlertTriangleIcon,
   ArrowRightIcon,
+  CheckCircle2Icon,
   DownloadIcon,
   FileSpreadsheetIcon,
+  FileTextIcon,
   Loader2Icon,
+  SearchIcon,
+  SearchXIcon,
   UploadIcon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -13,6 +19,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -47,11 +54,19 @@ interface Props {
 
 function StatusPill({ status }: { status: "ready" | "error" }) {
   return status === "ready" ? (
-    <Badge variant="outline" className="shrink-0 text-success">
+    <Badge
+      variant="outline"
+      className="shrink-0 border-emerald-500/30 bg-emerald-500/10 font-medium text-emerald-600 dark:text-emerald-400"
+    >
+      <CheckCircle2Icon className="mr-1 size-3" />
       Siap dibuat
     </Badge>
   ) : (
-    <Badge variant="outline" className="shrink-0 text-destructive">
+    <Badge
+      variant="outline"
+      className="shrink-0 border-rose-500/30 bg-rose-500/10 font-medium text-rose-600 dark:text-rose-400"
+    >
+      <AlertCircleIcon className="mr-1 size-3" />
       Error
     </Badge>
   );
@@ -65,6 +80,8 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
     null,
   );
   const [isDownloading, setIsDownloading] = React.useState(false);
+  const [search, setSearch] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState<"all" | "ready" | "error">("all");
 
   const previewMut = useImportTransferPreview();
   const confirmMut = useImportTransferConfirm();
@@ -85,6 +102,8 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
     setFile(null);
     setPreview(null);
     setDragOver(false);
+    setSearch("");
+    setStatusFilter("all");
     if (inputRef.current) inputRef.current.value = "";
   }, []);
 
@@ -100,8 +119,12 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
 
   const runPreview = async () => {
     if (!file) return;
-    const result = await previewMut.mutateAsync(file);
-    setPreview(result);
+    try {
+      const result = await previewMut.mutateAsync(file);
+      setPreview(result);
+    } catch (err: unknown) {
+      apiError(err, "Gagal memproses file pratinjau");
+    }
   };
 
   const runConfirm = async () => {
@@ -110,22 +133,45 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
       toast.error("Sesi pengguna tidak ditemukan. Muat ulang halaman.");
       return;
     }
-    const res = await confirmMut.mutateAsync({
-      token: preview.token,
-      createdBy,
-    });
-    if (res.failed > 0) {
-      toast.warning(
-        `${res.created} transfer dibuat, ${res.failed} gagal.`,
-      );
-    } else {
-      toast.success(`Berhasil membuat ${res.created} transfer keluar.`);
+    try {
+      const res = await confirmMut.mutateAsync({
+        token: preview.token,
+        createdBy,
+      });
+      if (res.failed > 0) {
+        toast.warning(`${res.created} transfer dibuat, ${res.failed} gagal.`);
+      } else {
+        toast.success(`Berhasil membuat ${res.created} transfer keluar.`);
+      }
+      reset();
+      onOpenChange(false);
+    } catch (err: unknown) {
+      apiError(err, "Gagal membuat transfer keluar");
     }
-    reset();
-    onOpenChange(false);
   };
 
   const summary = preview?.summary;
+
+  const filteredTransfers = React.useMemo(() => {
+    if (!preview?.transfers) return [];
+    return preview.transfers.filter((doc) => {
+      if (statusFilter !== "all" && doc.status !== statusFilter) {
+        return false;
+      }
+      if (!search.trim()) return true;
+      const s = search.toLowerCase();
+      const matchRef = doc.ref_no?.toLowerCase().includes(s);
+      const matchSource = doc.source_location?.toLowerCase().includes(s);
+      const matchDest = doc.destination_location?.toLowerCase().includes(s);
+      const matchItems = doc.items.some(
+        (it) =>
+          it.sku?.toLowerCase().includes(s) ||
+          it.product_name?.toLowerCase().includes(s) ||
+          it.kode_rak?.toLowerCase().includes(s),
+      );
+      return matchRef || matchSource || matchDest || matchItems;
+    });
+  }, [preview?.transfers, search, statusFilter]);
 
   return (
     <Dialog
@@ -135,22 +181,21 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
         onOpenChange(o);
       }}
     >
-      <DialogContent className="sm:max-w-3xl">
-        <DialogHeader>
-          <DialogTitle>Import Transfer Keluar</DialogTitle>
-          <DialogDescription>
-            Unduh template, isi data, simpan sebagai Excel, lalu unggah untuk
-            pratinjau sebelum dokumen dibuat.
+      <DialogContent className="flex max-h-[90vh] w-[95vw] max-w-6xl flex-col p-0 sm:max-h-[88vh]">
+        <DialogHeader className="shrink-0 border-b px-6 py-4">
+          <DialogTitle className="text-xl font-semibold">Import Transfer Keluar</DialogTitle>
+          <DialogDescription className="text-sm">
+            Unduh template, isi data transfer per baris, simpan sebagai Excel, lalu unggah untuk pratinjau sebelum dokumen resmi dibuat.
           </DialogDescription>
         </DialogHeader>
 
         {!preview ? (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5 p-6">
             <button
               type="button"
               disabled={isDownloading}
               onClick={handleDownloadTemplate}
-              className="flex items-center gap-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 px-4 py-3 text-left text-sm transition-colors hover:bg-primary/10 disabled:opacity-50"
+              className="flex items-center gap-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 px-4 py-3.5 text-left text-sm transition-colors hover:bg-primary/10 disabled:opacity-50"
             >
               {isDownloading ? (
                 <Loader2Icon className="size-5 shrink-0 animate-spin text-primary" />
@@ -158,11 +203,11 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
                 <DownloadIcon className="size-5 shrink-0 text-primary" />
               )}
               <div className="min-w-0 flex-1">
-                <div className="font-medium text-primary">
-                  {isDownloading ? "Mengunduh Template..." : "Unduh Template"}
+                <div className="font-semibold text-primary">
+                  {isDownloading ? "Mengunduh Template..." : "Unduh Template Excel"}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  template-import-transfer-keluar.xlsx
+                  template-import-transfer-keluar.xlsx (Format kolom sesuai standar sistem)
                 </div>
               </div>
             </button>
@@ -180,10 +225,10 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
               }}
               onClick={() => inputRef.current?.click()}
               className={cn(
-                "flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed px-6 py-8 text-center transition-colors",
+                "flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-all",
                 dragOver
                   ? "border-primary bg-primary/5"
-                  : "border-border hover:border-primary/40 hover:bg-muted/30",
+                  : "border-border hover:border-primary/40 hover:bg-muted/20",
               )}
             >
               <input
@@ -195,26 +240,34 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
               />
               {file ? (
                 <>
-                  <FileSpreadsheetIcon className="size-10 text-success" />
-                  <div className="font-medium">{file.name}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {(file.size / 1024).toFixed(1)} KB
+                  <div className="flex size-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
+                    <FileSpreadsheetIcon className="size-7" />
+                  </div>
+                  <div>
+                    <div className="text-base font-semibold text-foreground">{file.name}</div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">
+                      Ukuran file: {(file.size / 1024).toFixed(1)} KB — Siap dipratinjau
+                    </div>
                   </div>
                 </>
               ) : (
                 <>
-                  <UploadIcon className="size-8 text-muted-foreground" />
-                  <div className="text-sm font-medium">
-                    Drag &amp; drop file atau klik untuk pilih
+                  <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+                    <UploadIcon className="size-6" />
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    Format: .xlsx, .xls — Maks 5 MB
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">
+                      Drag &amp; drop file Excel ke sini, atau klik untuk memilih file
+                    </div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      Mendukung format .xlsx dan .xls (Maksimal ukuran 5 MB)
+                    </div>
                   </div>
                 </>
               )}
             </div>
 
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2.5 pt-2">
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Batal
               </Button>
@@ -223,117 +276,272 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
                 disabled={!file || previewMut.isPending}
                 onClick={runPreview}
               >
-                {previewMut.isPending && (
-                  <Loader2Icon className="size-4 animate-spin" />
+                {previewMut.isPending ? (
+                  <>
+                    <Loader2Icon className="mr-1.5 size-4 animate-spin" />
+                    Memproses Pratinjau...
+                  </>
+                ) : (
+                  "Pratinjau Data"
                 )}
-                Pratinjau
               </Button>
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-wrap items-center gap-2 text-sm">
-              <span className="text-muted-foreground">Total baris:</span>
-              <Badge variant="secondary">{summary?.total_rows ?? 0}</Badge>
-              <Badge variant="outline" className="text-success">
-                {summary?.valid_docs ?? 0} dokumen siap
-              </Badge>
-              <Badge variant="outline" className="text-destructive">
-                {summary?.errors ?? 0} error
-              </Badge>
-              {(summary?.warnings ?? 0) > 0 && (
-                <Badge variant="outline" className="text-warning">
-                  {summary?.warnings ?? 0} peringatan
-                </Badge>
-              )}
+          <div className="flex min-h-0 flex-1 flex-col gap-3.5 p-6">
+            {/* Summary Stat Cards */}
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+              <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-card px-3.5 py-2.5">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                  <FileTextIcon className="size-4" />
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">Total Baris</div>
+                  <div className="text-lg font-bold tracking-tight text-foreground">
+                    {summary?.total_rows ?? 0}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-3.5 py-2.5">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2Icon className="size-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-medium text-emerald-700 dark:text-emerald-300">Dokumen Siap</div>
+                  <div className="text-lg font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
+                    {summary?.valid_docs ?? 0}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl border border-rose-500/20 bg-rose-500/5 px-3.5 py-2.5">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                  <AlertCircleIcon className="size-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-medium text-rose-700 dark:text-rose-300">Error</div>
+                  <div className="text-lg font-bold tracking-tight text-rose-600 dark:text-rose-400">
+                    {summary?.errors ?? 0}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 px-3.5 py-2.5">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                  <AlertTriangleIcon className="size-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-medium text-amber-700 dark:text-amber-300">Peringatan</div>
+                  <div className="text-lg font-bold tracking-tight text-amber-600 dark:text-amber-400">
+                    {summary?.warnings ?? 0}
+                  </div>
+                </div>
+              </div>
             </div>
 
+            {/* Error alerts box if global errors exist */}
             {preview.errors.length > 0 && (
-              <div className="max-h-28 overflow-auto rounded-2xl border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
-                {preview.errors.slice(0, 30).map((e, i) => (
-                  <div key={i}>{e.error}</div>
-                ))}
-                {preview.errors.length > 30 && (
-                  <div className="text-muted-foreground">
-                    +{preview.errors.length - 30} error lainnya…
-                  </div>
-                )}
+              <div className="max-h-24 overflow-y-auto rounded-xl border border-destructive/30 bg-destructive/5 px-3.5 py-2.5 text-xs text-destructive">
+                <div className="font-semibold">Ditemukan {preview.errors.length} baris bermasalah:</div>
+                <div className="mt-1 space-y-1">
+                  {preview.errors.slice(0, 10).map((e, i) => (
+                    <div key={i} className="flex items-center gap-1.5">
+                      <span className="font-mono font-medium">Baris {e.row}:</span>
+                      <span>{e.error}</span>
+                    </div>
+                  ))}
+                  {preview.errors.length > 10 && (
+                    <div className="italic text-muted-foreground">
+                      +{preview.errors.length - 10} error lainnya…
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
-            <div className="max-h-[45vh] overflow-auto rounded-2xl border border-border">
-              <Table className="min-w-[640px]">
-                <TableHeader>
-                  <TableRow className="border-b border-border/60 bg-muted/40">
-                    <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
-                      No Transfer
-                    </TableHead>
-                    <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
-                      Asal → Tujuan
-                    </TableHead>
-                    <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">
-                      Item
-                    </TableHead>
-                    <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
-                      Status
-                    </TableHead>
-                    <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
-                      Keterangan
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {preview.transfers.map((doc, i) => (
-                    <TableRow
-                      key={i}
-                      className="border-b border-border/40 align-top last:border-0"
-                    >
-                      <TableCell className="px-3 py-2 font-mono text-xs">
-                        {doc.ref_no}
-                      </TableCell>
-                      <TableCell className="px-3 py-2 text-sm">
-                        <span className="inline-flex items-center gap-1">
-                          {doc.source_location || "—"}
-                          <ArrowRightIcon className="size-3 text-muted-foreground" />
-                          {doc.destination_location || "—"}
-                        </span>
-                      </TableCell>
-                      <TableCell className="px-3 py-2 text-right tabular-nums">
-                        {doc.item_count}
-                      </TableCell>
-                      <TableCell className="px-3 py-2">
-                        <StatusPill status={doc.status} />
-                      </TableCell>
-                      <TableCell className="px-3 py-2 text-xs text-muted-foreground">
-                        {doc.status === "error"
-                          ? doc.errors.join(" ")
-                          : doc.items
-                              .map((it) => `${it.sku}×${it.qty}`)
-                              .join(", ")}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            {/* Search & Filter Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-2.5">
+              <div className="relative w-full max-w-sm">
+                <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Cari no transfer, gudang, atau SKU..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="h-9 pl-9 text-xs"
+                />
+              </div>
+
+              <div className="flex items-center gap-1.5 rounded-lg bg-muted/60 p-1 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter("all")}
+                  className={cn(
+                    "rounded-md px-2.5 py-1 font-medium transition-colors",
+                    statusFilter === "all"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  Semua ({preview.transfers.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter("ready")}
+                  className={cn(
+                    "rounded-md px-2.5 py-1 font-medium transition-colors",
+                    statusFilter === "ready"
+                      ? "bg-background text-emerald-600 shadow-sm"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  Siap Dibuat ({summary?.valid_docs ?? 0})
+                </button>
+                {(summary?.errors ?? 0) > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setStatusFilter("error")}
+                    className={cn(
+                      "rounded-md px-2.5 py-1 font-medium transition-colors",
+                      statusFilter === "error"
+                        ? "bg-background text-rose-600 shadow-sm"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    Error ({summary?.errors ?? 0})
+                  </button>
+                )}
+              </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-1">
-              <Button variant="outline" onClick={reset}>
-                Ganti File
-              </Button>
-              <Button
-                variant="primary"
-                disabled={(summary?.valid_docs ?? 0) === 0 || confirmMut.isPending}
-                onClick={runConfirm}
-              >
-                {confirmMut.isPending && (
-                  <Loader2Icon className="size-4 animate-spin" />
-                )}
-                Terapkan{" "}
-                {(summary?.valid_docs ?? 0) > 0
-                  ? `(${summary?.valid_docs} dokumen)`
-                  : ""}
-              </Button>
+            {/* Table Container */}
+            <div className="flex-1 min-h-[220px] max-h-[46vh] overflow-auto rounded-xl border border-border/80 bg-card">
+              {filteredTransfers.length === 0 ? (
+                <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
+                  <SearchXIcon className="size-8 text-muted-foreground" />
+                  <div className="text-sm font-medium text-muted-foreground">
+                    Tidak ada dokumen transfer yang sesuai dengan pencarian
+                  </div>
+                </div>
+              ) : (
+                <Table className="min-w-[850px]">
+                  <TableHeader className="sticky top-0 z-10 border-b border-border/70 bg-muted/90 backdrop-blur-sm">
+                    <TableRow className="border-b border-border/70 text-left text-xs uppercase tracking-wider text-muted-foreground">
+                      <TableHead className="w-[140px] px-3.5 py-2.5 text-xs uppercase tracking-wider">
+                        No Transfer
+                      </TableHead>
+                      <TableHead className="w-[200px] px-3.5 py-2.5 text-xs uppercase tracking-wider">
+                        Rute Transfer
+                      </TableHead>
+                      <TableHead className="w-[80px] px-3.5 py-2.5 text-center text-xs uppercase tracking-wider">
+                        Item
+                      </TableHead>
+                      <TableHead className="w-[130px] px-3.5 py-2.5 text-xs uppercase tracking-wider">
+                        Status
+                      </TableHead>
+                      <TableHead className="px-3.5 py-2.5 text-xs uppercase tracking-wider">
+                        Daftar SKU &amp; Kuantitas
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredTransfers.map((doc, i) => (
+                      <TableRow
+                        key={i}
+                        className="border-b border-border/40 align-top transition-colors hover:bg-muted/30 last:border-0"
+                      >
+                        <TableCell className="px-3.5 py-3 font-mono text-xs font-semibold text-foreground">
+                          <span className="inline-block rounded-md bg-muted/60 px-2 py-1">
+                            {doc.ref_no || "—"}
+                          </span>
+                        </TableCell>
+                        <TableCell className="px-3.5 py-3 text-xs">
+                          <div className="inline-flex items-center gap-1.5 font-medium text-foreground">
+                            <span>{doc.source_location || "—"}</span>
+                            <ArrowRightIcon className="size-3.5 text-muted-foreground" />
+                            <span>{doc.destination_location || "—"}</span>
+                          </div>
+                          {doc.notes && (
+                            <div className="mt-1 text-[11px] text-muted-foreground">
+                              Catatan: {doc.notes}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="px-3.5 py-3 text-center">
+                          <Badge variant="secondary" className="font-mono text-xs font-semibold">
+                            {doc.item_count}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="px-3.5 py-3">
+                          <StatusPill status={doc.status} />
+                        </TableCell>
+                        <TableCell className="px-3.5 py-3">
+                          {doc.status === "error" ? (
+                            <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-2.5 py-1.5 text-xs text-destructive">
+                              {doc.errors.join("; ")}
+                            </div>
+                          ) : (
+                            <div className="flex flex-wrap gap-1.5">
+                              {doc.items.map((it, idx) => (
+                                <span
+                                  key={idx}
+                                  className="inline-flex items-center gap-1 rounded-md border border-border/70 bg-muted/40 px-2 py-1 font-mono text-[11px] text-foreground transition-colors hover:border-primary/40 hover:bg-muted/70"
+                                  title={`${it.product_name || it.sku} (Jumlah: ${it.qty} pcs)${it.kode_rak ? ` • Rak: ${it.kode_rak}` : ""}`}
+                                >
+                                  <span className="font-semibold text-foreground">
+                                    {it.sku}
+                                  </span>
+                                  <span className="rounded bg-primary/10 px-1 py-0.5 text-[10px] font-bold text-primary">
+                                    ×{it.qty}
+                                  </span>
+                                  {it.kode_rak && (
+                                    <span className="border-l border-border/80 pl-1 text-[10px] text-muted-foreground">
+                                      {it.kode_rak}
+                                    </span>
+                                  )}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </div>
+
+            {/* Footer Actions */}
+            <div className="flex items-center justify-between border-t border-border/60 pt-3">
+              <div className="text-xs text-muted-foreground">
+                Menampilkan <span className="font-semibold text-foreground">{filteredTransfers.length}</span> dari{" "}
+                <span className="font-semibold text-foreground">{preview.transfers.length}</span> dokumen
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <Button variant="outline" onClick={reset}>
+                  Ganti File
+                </Button>
+                <Button
+                  variant="primary"
+                  disabled={(summary?.valid_docs ?? 0) === 0 || confirmMut.isPending}
+                  onClick={runConfirm}
+                >
+                  {confirmMut.isPending ? (
+                    <>
+                      <Loader2Icon className="mr-1.5 size-4 animate-spin" />
+                      Membuat Transfer...
+                    </>
+                  ) : (
+                    <>
+                      Terapkan{" "}
+                      {(summary?.valid_docs ?? 0) > 0
+                        ? `(${summary?.valid_docs} Dokumen Siap)`
+                        : ""}
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
         )}
