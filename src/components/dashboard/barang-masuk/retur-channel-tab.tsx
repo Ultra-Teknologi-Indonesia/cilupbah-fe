@@ -45,7 +45,7 @@ import { DateRangePicker } from "@/components/ui/date-picker";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import type { DateRange } from "react-day-picker";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatDateTime } from "@/lib/format";
 
 type ReturSubTab = "unprocessed" | "rejected" | "accepted" | "completed";
 
@@ -328,8 +328,8 @@ export function ReturChannelTab() {
         accessorKey: "created_at",
         header: "Tgl. Retur",
         cell: ({ row }) => (
-          <span className="text-foreground">
-            {formatDate(row.original.created_at)}
+          <span className="text-foreground whitespace-nowrap text-xs">
+            {formatDateTime(row.original.created_at)}
           </span>
         ),
       },

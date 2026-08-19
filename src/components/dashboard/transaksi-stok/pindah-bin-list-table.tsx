@@ -32,7 +32,7 @@ import {
   type BinTransferStatus,
 } from "@/hooks/transaksi-stok/use-bin-transfer";
 import { exportCsv } from "@/lib/export-csv";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatDateTime } from "@/lib/format";
 import { openBinTransferPdf } from "@/lib/bin-transfer-pdf";
 import { toast } from "sonner";
 
@@ -168,8 +168,8 @@ export function PindahBinListTable({
         accessorKey: "transfer_date",
         header: "Tanggal",
         cell: ({ row }) => (
-          <span className="text-foreground">
-            {formatDate(row.original.transfer_date)}
+          <span className="text-foreground whitespace-nowrap text-xs">
+            {formatDateTime(row.original.transfer_date)}
           </span>
         ),
       },

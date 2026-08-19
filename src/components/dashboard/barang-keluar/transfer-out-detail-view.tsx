@@ -33,7 +33,7 @@ import {
 } from "@/hooks/barang-keluar/use-outbound-transfers";
 import { useMe } from "@/hooks/auth/use-auth";
 import { useState, useCallback } from "react";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatDateTime } from "@/lib/format";
 
 const LIST_HREF = "/dashboard/barang-keluar?tab=transfer";
 
@@ -193,7 +193,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
             <InfoRow label="Dibuat oleh" value={transfer.created_by} />
             <InfoRow
               label="Tgl. Dibuat"
-              value={formatDate(transfer.created_at)}
+              value={formatDateTime(transfer.created_at)}
             />
             {transfer.approved_by && (
               <InfoRow label="Disetujui oleh" value={transfer.approved_by} />
@@ -201,7 +201,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
             {transfer.approved_at && (
               <InfoRow
                 label="Tgl. Approve"
-                value={formatDate(transfer.approved_at)}
+                value={formatDateTime(transfer.approved_at)}
               />
             )}
             {transfer.assigned_to && (
@@ -210,7 +210,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
             {transfer.shipped_at && (
               <InfoRow
                 label="Tgl. Kirim"
-                value={formatDate(transfer.shipped_at)}
+                value={formatDateTime(transfer.shipped_at)}
               />
             )}
             {transfer.received_by && (
@@ -219,7 +219,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
             {transfer.received_at && (
               <InfoRow
                 label="Tgl. Diterima"
-                value={formatDate(transfer.received_at)}
+                value={formatDateTime(transfer.received_at)}
               />
             )}
             {transfer.notes && (

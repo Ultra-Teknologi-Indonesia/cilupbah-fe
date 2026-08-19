@@ -43,7 +43,7 @@ import { toast } from "sonner";
 import { apiError } from "@/lib/toast";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import type { InventoryTransfer } from "@/types/barang-masuk/inventory-transfer";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatDateTime } from "@/lib/format";
 import { ImportTransferDialog } from "@/components/dashboard/barang-keluar/import-transfer-dialog";
 
 type SubTab = "draft" | "transit" | "finished";
@@ -154,7 +154,7 @@ function TransferTable({
           <Link
             href={`/dashboard/barang-keluar/transfer/${row.original.id}`}
             onClick={(e) => e.stopPropagation()}
-            className="font-medium text-primary underline-offset-2 transition-colors hover:underline"
+            className="font-medium font-mono text-xs text-primary underline-offset-2 transition-colors hover:underline"
           >
             {row.original.transfer_number}
           </Link>
@@ -164,8 +164,8 @@ function TransferTable({
         accessorKey: "created_at",
         header: "Tanggal",
         cell: ({ row }) => (
-          <span className="text-foreground">
-            {formatDate(row.original.created_at)}
+          <span className="text-foreground whitespace-nowrap text-xs">
+            {formatDateTime(row.original.created_at)}
           </span>
         ),
       },
@@ -173,7 +173,7 @@ function TransferTable({
         id: "source_location",
         header: "Lokasi Asal",
         cell: ({ row }) => (
-          <span className="text-foreground">
+          <span className="text-foreground text-xs">
             {row.original.source_location?.location_name ?? "—"}
           </span>
         ),
@@ -182,7 +182,7 @@ function TransferTable({
         id: "destination_location",
         header: "Lokasi Tujuan",
         cell: ({ row }) => (
-          <span className="text-foreground">
+          <span className="text-foreground text-xs">
             {row.original.destination_location?.location_name ?? "—"}
           </span>
         ),
@@ -191,8 +191,20 @@ function TransferTable({
         id: "items_count",
         header: "Jumlah Item",
         cell: ({ row }) => (
-          <span className="tabular-nums text-foreground">
+          <span className="tabular-nums text-foreground text-xs">
             {row.original.items?.length ?? 0} item
+          </span>
+        ),
+      },
+      {
+        accessorKey: "notes",
+        header: "Catatan",
+        cell: ({ row }) => (
+          <span
+            className="text-muted-foreground text-xs line-clamp-1 max-w-[200px]"
+            title={row.original.notes ?? ""}
+          >
+            {row.original.notes || "—"}
           </span>
         ),
       },
