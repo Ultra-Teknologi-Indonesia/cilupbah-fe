@@ -19,6 +19,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
 import { DateRangePicker } from "@/components/ui/date-picker";
 import type { ColumnDef } from "@tanstack/react-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ResourceListView } from "@/components/dashboard/shared/resource-list-view";
 import { ImportPenyesuaianDialog } from "@/components/dashboard/transaksi-stok/import-penyesuaian-view";
@@ -82,6 +83,12 @@ export function PenyesuaianTab() {
   const { can } = usePermissions();
   const canDelete = can("delete-penyesuaian-stok");
 
+  const sortParam = useMemo(() => {
+    if (!list.sorting || list.sorting.length === 0) return undefined;
+    const s = list.sorting[0];
+    return s.desc ? `-${s.id}` : s.id;
+  }, [list.sorting]);
+
   const params = useMemo<StockAdjustmentListParams>(
     () => ({
       search: list.debouncedSearch || undefined,
@@ -90,8 +97,9 @@ export function PenyesuaianTab() {
       "filter[location_id]": list.filters.location_id || undefined,
       "filter[date_from]": list.filters.date_from || undefined,
       "filter[date_to]": list.filters.date_to || undefined,
+      sort: sortParam,
     }),
-    [list.debouncedSearch, list.page, list.perPage, list.filters],
+    [list.debouncedSearch, list.page, list.perPage, list.filters, sortParam],
   );
 
   const dateRange: DateRange | undefined = useMemo(() => {
@@ -151,7 +159,10 @@ export function PenyesuaianTab() {
       },
       {
         accessorKey: "adjustment_no",
-        header: "No. Koreksi Stok",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Koreksi Stok" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <span className="font-medium font-mono text-xs">
             <Link
@@ -165,7 +176,10 @@ export function PenyesuaianTab() {
       },
       {
         accessorKey: "transaction_date",
-        header: "Tgl. Transaksi",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Tgl. Transaksi" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => {
           const d = row.original.created_at || row.original.transaction_date;
           return (

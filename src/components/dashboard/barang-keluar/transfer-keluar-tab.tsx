@@ -24,8 +24,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
 import { DateRangePicker } from "@/components/ui/date-picker";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
-import type { ColumnDef, Table as TableInstance } from "@tanstack/react-table";
+import type { ColumnDef, Table as TableInstance, SortingState } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
 import {
@@ -96,6 +97,8 @@ function TransferTable({
   onRowClick,
   actionSlot,
   bulkActions,
+  sorting,
+  onSortingChange,
 }: {
   items: InventoryTransfer[];
   isLoading: boolean;
@@ -117,6 +120,8 @@ function TransferTable({
     selected: InventoryTransfer[],
     table: TableInstance<InventoryTransfer>,
   ) => React.ReactNode;
+  sorting?: SortingState;
+  onSortingChange?: (s: SortingState) => void;
 }) {
   const columns = useMemo<ColumnDef<InventoryTransfer>[]>(
     () => [
@@ -149,7 +154,10 @@ function TransferTable({
       },
       {
         accessorKey: "transfer_number",
-        header: "No. Transfer",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Transfer" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <Link
             href={`/dashboard/barang-keluar/transfer/${row.original.id}`}
@@ -162,7 +170,10 @@ function TransferTable({
       },
       {
         accessorKey: "created_at",
-        header: "Tanggal",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Tanggal / Jam" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <span className="text-foreground whitespace-nowrap text-xs">
             {formatDateTime(row.original.created_at)}
@@ -236,6 +247,9 @@ function TransferTable({
           isFetching={isFetching}
           hideToolbar
           manualPagination
+          manualSorting
+          sorting={sorting}
+          onSortingChange={onSortingChange}
           enableRowSelection={!!bulkActions}
           bulkActions={bulkActions}
           onRowClick={onRowClick}
@@ -410,6 +424,12 @@ export function TransferKeluarTab() {
     [setSubTab, list],
   );
 
+  const sortParam = useMemo(() => {
+    if (!list.sorting || list.sorting.length === 0) return undefined;
+    const s = list.sorting[0];
+    return s.desc ? `-${s.id}` : s.id;
+  }, [list.sorting]);
+
   const params = useMemo(
     () => ({
       search: list.debouncedSearch || undefined,
@@ -418,8 +438,9 @@ export function TransferKeluarTab() {
       "filter[source_location_id]": list.filters.location_id || undefined,
       "filter[date_from]": list.filters.date_from || undefined,
       "filter[date_to]": list.filters.date_to || undefined,
+      sort: sortParam,
     }),
-    [list.debouncedSearch, list.page, list.perPage, list.filters],
+    [list.debouncedSearch, list.page, list.perPage, list.filters, sortParam],
   );
 
   const dateRange: DateRange | undefined = useMemo(() => {
@@ -721,6 +742,8 @@ export function TransferKeluarTab() {
           setPerPage={list.setPerPage}
           resetPage={list.resetPage}
           onRowClick={handleRowClick}
+          sorting={list.sorting}
+          onSortingChange={list.setSorting}
           actionSlot={
             subTab === "draft"
               ? draftActions
