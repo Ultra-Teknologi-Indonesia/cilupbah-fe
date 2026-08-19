@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Combobox } from "@/components/ui/combobox";
-import { useUsers } from "@/hooks/pengaturan/use-users";
+import { useUserLookup } from "@/hooks/pengaturan/use-users";
 import { fetchClient } from "@/lib/api-client";
 import { toast } from "sonner";
 import { apiError } from "@/lib/toast";
@@ -37,9 +37,9 @@ export function BuatPenempatanManualDialog({
   onSuccess,
 }: BuatPenempatanManualDialogProps) {
   const queryClient = useQueryClient();
-  const { data: usersData, isLoading: usersLoading } = useUsers({
+  const { data: usersData, isLoading: usersLoading } = useUserLookup({
     perPage: 100,
-    "filter[role]": "putaway",
+    role: "putaway",
   });
   const [assignedTo, setAssignedTo] = useState("");
 

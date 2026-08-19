@@ -57,6 +57,48 @@ function mapRole(raw: RawRole): Role {
 }
 
 export const UserService = {
+  lookup: async (params: { q?: string; search?: string; role?: string | string[]; page?: number; perPage?: number } = {}) => {
+    const qs = new URLSearchParams();
+    const query = params.q ?? params.search;
+    if (query) qs.set("q", query);
+    if (params.page) qs.set("page", String(params.page));
+    if (params.perPage) qs.set("per_page", String(params.perPage));
+    if (params.role) {
+      if (Array.isArray(params.role)) {
+        qs.set("role", params.role.join(","));
+      } else {
+        qs.set("role", params.role);
+      }
+    }
+
+    const res = await fetchClient<ApiPaginated<{
+      id: string;
+      user_id?: string;
+      name: string;
+      email: string;
+      roles?: string[];
+      avatar_url?: string | null;
+      last_login?: string | null;
+    }>>(`/users/lookup?${qs.toString()}`);
+
+    return {
+      items: (res.data ?? []).map((u) => ({
+        id: u.id || u.user_id || "",
+        name: u.name,
+        email: u.email,
+        roles: u.roles ?? [],
+        permissions: [],
+        directPermissions: [],
+        nik: null,
+        warehouseId: null,
+        locations: [],
+        avatarUrl: u.avatar_url ?? null,
+        lastLoginAt: u.last_login ?? null,
+      })),
+      meta: res.meta,
+    };
+  },
+
   list: async (params: UserListParams = {}) => {
     const qs = new URLSearchParams();
     qs.set("page", String(params.page ?? 1));

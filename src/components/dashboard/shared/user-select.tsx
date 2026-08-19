@@ -16,7 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useUsers } from "@/hooks/pengaturan/use-users";
+import { useUserLookup } from "@/hooks/pengaturan/use-users";
 import { useMe } from "@/hooks/auth/use-auth";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
@@ -50,10 +50,10 @@ export function UserSelect({
   const debounced = useDebouncedValue(search, 250);
 
   const { data: me } = useMe();
-  const { data, isLoading } = useUsers({
-    perPage: 20,
+  const { data, isLoading } = useUserLookup({
+    perPage: 30,
     search: debounced || undefined,
-    "filter[role]": role,
+    role,
   });
   const users = data?.items ?? [];
 

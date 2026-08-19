@@ -134,6 +134,7 @@ export function ProductPickerDialog({
         itemId: string;
         sku: string;
         sellPrice: number | null;
+        thumbnail: string | null;
         variationValues: { label: string; value: string }[];
       }[];
     }[] = [];
@@ -153,6 +154,7 @@ export function ProductPickerDialog({
           itemId: v.itemId,
           sku: v.sku,
           sellPrice: v.sellPrice,
+          thumbnail: v.thumbnail ?? p.thumbnail,
           variationValues: v.variationValues,
         })),
       });
@@ -193,7 +195,7 @@ export function ProductPickerDialog({
           sku: variant.sku,
           name: product.itemName,
           variantLabel: variant.variationValues.map((v) => v.value).join(", "),
-          thumbnail: product.thumbnail,
+          thumbnail: variant.thumbnail ?? product.thumbnail,
           sellPrice: variant.sellPrice,
         });
       }
@@ -321,6 +323,7 @@ export function ProductPickerDialog({
                         const variantLabel = v.variationValues
                           .map((vv) => vv.value)
                           .join(" / ");
+                        const variantThumb = v.thumbnail ?? p.thumbnail;
                         return (
                           <TableRow
                             key={v.itemId}
@@ -337,9 +340,27 @@ export function ProductPickerDialog({
                               />
                             </TableCell>
                             <TableCell className="py-2">
-                              <span className="text-sm font-medium">
-                                {variantLabel || "Default"}
-                              </span>
+                              <div className="flex items-center gap-2.5">
+                                <div className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted/40">
+                                  {variantThumb ? (
+                                    <Image
+                                      src={variantThumb}
+                                      alt={v.sku || variantLabel}
+                                      width={28}
+                                      height={28}
+                                      className="size-full object-cover"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = "none";
+                                      }}
+                                    />
+                                  ) : (
+                                    <ImageIcon className="size-3.5 text-muted-foreground" />
+                                  )}
+                                </div>
+                                <span className="text-sm font-medium">
+                                  {variantLabel || "Default"}
+                                </span>
+                              </div>
                             </TableCell>
                             <TableCell className="py-2 font-mono text-xs text-muted-foreground">
                               {v.sku || "—"}

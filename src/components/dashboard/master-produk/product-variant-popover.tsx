@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { PackageIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -78,24 +79,45 @@ export function ProductVariantPopover({ product }: { product: Product }) {
           viewportClassName="[&>div]:!block"
         >
           <ul className="flex flex-col gap-0.5 pr-2.5">
-            {product.variants.map((v) => (
-              <li
-                key={v.itemId}
-                className="flex items-center justify-between gap-3 rounded-xl px-2 py-1.5 hover:bg-muted/60"
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">
-                    {variantName(v.variationValues)}
-                  </p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {v.sku}
-                  </p>
-                </div>
-                <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
-                  {formatIDR(v.sellPrice)}
-                </span>
-              </li>
-            ))}
+            {product.variants.map((v) => {
+              const variantThumb = v.thumbnail ?? product.thumbnail;
+              return (
+                <li
+                  key={v.itemId}
+                  className="flex items-center justify-between gap-3 rounded-xl px-2 py-1.5 hover:bg-muted/60"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted/40">
+                      {variantThumb ? (
+                        <Image
+                          src={variantThumb}
+                          alt={v.sku}
+                          width={28}
+                          height={28}
+                          className="size-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <PackageIcon className="size-3.5 text-muted-foreground/60" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">
+                        {variantName(v.variationValues)}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {v.sku}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                    {formatIDR(v.sellPrice)}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </ScrollArea>
       </PopoverContent>

@@ -62,7 +62,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useUsers } from "@/hooks/pengaturan/use-users";
+import { useUserLookup } from "@/hooks/pengaturan/use-users";
 import { playScanFeedback } from "@/lib/scan-feedback";
 import { matchesKnownBin } from "@/lib/validators/bin-code";
 import { apiError } from "@/lib/toast";
@@ -187,9 +187,8 @@ export function PickingProsesView({ id }: { id: string }) {
   const unassignMutation = useUnassignPicklist(id);
   const resetMutation = useResetPicklistAssignment(id);
 
-  const staffQuery = useUsers({
-    "filter[role]": "picker",
-    "filter[warehouse_id_or_global]": pl?.locationId || undefined,
+  const staffQuery = useUserLookup({
+    role: "picker",
     perPage: 50,
   });
   const staffOptions = React.useMemo(

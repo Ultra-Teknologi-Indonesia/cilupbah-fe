@@ -157,6 +157,7 @@ export function PesananFormPage({ mode, id }: Props) {
         shipping_cost: Number(it.shipping_cost ?? 0),
         thumbnail:
           it.variant?.media?.[0]?.url ??
+          (it.variant as { thumbnail?: string | null })?.thumbnail ??
           it.product?.media?.[0]?.url ??
           it.product?.image_url ??
           null,

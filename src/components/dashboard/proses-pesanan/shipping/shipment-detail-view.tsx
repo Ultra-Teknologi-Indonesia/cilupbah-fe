@@ -52,7 +52,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { UserSelectById } from "@/components/dashboard/shared/user-select-by-id";
 import { useMe } from "@/hooks/auth/use-auth";
-import { useUsers } from "@/hooks/pengaturan/use-users";
+import { useUserLookup } from "@/hooks/pengaturan/use-users";
 import {
   playScanFeedback,
   primeScanAudio,
@@ -133,9 +133,9 @@ function DriverSection({
   const record = useRecordDriverCall();
   const update = useUpdateDriverCall();
   const { data: me } = useMe();
-  const { data: usersData, isLoading: usersLoading } = useUsers({
+  const { data: usersData, isLoading: usersLoading } = useUserLookup({
     perPage: 50,
-    "filter[role]": SHIPPER_ROLES,
+    role: SHIPPER_ROLES,
   });
   const shipperOptions = React.useMemo(
     () =>

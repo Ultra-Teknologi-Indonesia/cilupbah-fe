@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { UserSelectById } from "@/components/dashboard/shared/user-select-by-id";
 import { useMe } from "@/hooks/auth/use-auth";
-import { useUsers } from "@/hooks/pengaturan/use-users";
+import { useUserLookup } from "@/hooks/pengaturan/use-users";
 import { useCallInstantDriverBulk } from "@/hooks/proses-pesanan/use-driver-call";
 import type { Shipment } from "@/types/proses-pesanan/fulfillment";
 
@@ -41,9 +41,9 @@ export function PanggilDriverBulkDialog({
 }: PanggilDriverBulkDialogProps) {
   const [shipperId, setShipperId] = React.useState("");
   const { data: me } = useMe();
-  const { data: usersData, isLoading: usersLoading } = useUsers({
+  const { data: usersData, isLoading: usersLoading } = useUserLookup({
     perPage: 50,
-    "filter[role]": SHIPPER_ROLES,
+    role: SHIPPER_ROLES,
   });
   const call = useCallInstantDriverBulk();
 

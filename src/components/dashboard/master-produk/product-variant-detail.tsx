@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import { PackageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/master-produk";
 import { useVariantStocks } from "@/hooks/master-produk/use-variant-stocks";
@@ -45,13 +47,32 @@ export function ProductVariantDetail({ product }: { product: Product }) {
         <TableBody>
           {product.variants.map((v) => {
             const st = stocks[v.itemId];
+            const variantThumb = v.thumbnail ?? product.thumbnail;
             return (
               <TableRow
                 key={v.itemId}
                 className="border-t border-border/60 hover:bg-transparent"
               >
                 <TableCell className="py-2 pr-4 px-0 font-mono text-xs">
-                  {v.sku}
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted/40">
+                      {variantThumb ? (
+                        <Image
+                          src={variantThumb}
+                          alt={v.sku}
+                          width={28}
+                          height={28}
+                          className="size-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <PackageIcon className="size-3.5 text-muted-foreground/60" />
+                      )}
+                    </div>
+                    <span>{v.sku}</span>
+                  </div>
                 </TableCell>
                 <TableCell className="py-2 pr-4 px-0 whitespace-normal">
                   {v.variationValues.length ? (

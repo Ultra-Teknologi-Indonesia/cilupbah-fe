@@ -192,7 +192,7 @@ export function StockedProductPickerDialog({
           sku: variant.sku,
           name: group.productName,
           variantLabel: variant.variant_label,
-          thumbnail: group.thumbnail ?? variant.thumbnail_url,
+          thumbnail: variant.thumbnail_url ?? group.thumbnail,
           totalOnHand: variant.total_on_hand,
           sellPrice: Number(variant.sell_price ?? 0),
         });
@@ -304,6 +304,7 @@ export function StockedProductPickerDialog({
 
                       {g.variants.map((v) => {
                         const isSelected = selected.has(v.item_id);
+                        const variantThumb = v.thumbnail_url ?? g.thumbnail;
                         return (
                           <TableRow
                             key={v.item_id}
@@ -316,9 +317,27 @@ export function StockedProductPickerDialog({
                               />
                             </TableCell>
                             <TableCell className="py-2">
-                              <span className="text-sm font-medium">
-                                {v.variant_label || "Default"}
-                              </span>
+                              <div className="flex items-center gap-2.5">
+                                <div className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted/40">
+                                  {variantThumb ? (
+                                    <Image
+                                      src={variantThumb}
+                                      alt={v.sku || v.variant_label}
+                                      width={28}
+                                      height={28}
+                                      className="size-full object-cover"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = "none";
+                                      }}
+                                    />
+                                  ) : (
+                                    <ImageIcon className="size-3.5 text-muted-foreground" />
+                                  )}
+                                </div>
+                                <span className="text-sm font-medium">
+                                  {v.variant_label || "Default"}
+                                </span>
+                              </div>
                             </TableCell>
                             <TableCell className="py-2 text-xs text-muted-foreground">
                               {v.sku ? <CopySku sku={v.sku} /> : "—"}

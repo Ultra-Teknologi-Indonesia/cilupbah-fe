@@ -1,4 +1,6 @@
 "use client";
+import Image from "next/image";
+import { PackageIcon } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 
 import {
@@ -47,12 +49,32 @@ export function VariantTable({ variants }: { variants: DetailVariant[] }) {
             className="border-b border-border/40 last:border-0 hover:bg-muted/30"
           >
             <TableCell className="px-3 py-2.5">
-              <div className="font-mono text-xs text-primary">{v.sku}</div>
-              {v.barcode && (
-                <div className="font-mono text-2xs text-muted-foreground">
-                  {v.barcode}
+              <div className="flex items-center gap-2.5">
+                <div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted/40">
+                  {v.image ? (
+                    <Image
+                      src={v.image}
+                      alt={v.sku}
+                      width={32}
+                      height={32}
+                      className="size-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                  ) : (
+                    <PackageIcon className="size-4 text-muted-foreground/60" />
+                  )}
                 </div>
-              )}
+                <div className="min-w-0">
+                  <div className="font-mono text-xs text-primary">{v.sku}</div>
+                  {v.barcode && (
+                    <div className="font-mono text-2xs text-muted-foreground">
+                      {v.barcode}
+                    </div>
+                  )}
+                </div>
+              </div>
             </TableCell>
             <TableCell className="px-3 py-2.5 tabular-nums">
               {formatIDR(v.sellPrice)}

@@ -267,6 +267,7 @@ export function PesananDetailView({ id }: { id: string }) {
                       item.product?.name ?? item.description ?? "—";
                     const imageUrl =
                       item.variant?.media?.[0]?.url ??
+                      (item.variant as { thumbnail?: string | null })?.thumbnail ??
                       item.product?.media?.[0]?.url ??
                       item.product?.image_url;
                     return (

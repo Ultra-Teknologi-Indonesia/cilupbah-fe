@@ -71,7 +71,7 @@ import {
   UnassignReasonDialog,
 } from "@/components/shared/channel-lock";
 import { useMe } from "@/hooks/auth/use-auth";
-import { useUsers } from "@/hooks/pengaturan/use-users";
+import { useUserLookup } from "@/hooks/pengaturan/use-users";
 
 interface PutawayProcessViewProps {
   id: string;
@@ -146,9 +146,8 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const [completeOpen, setCompleteOpen] = useState(false);
   const completeMutation = useCompletePutaway();
 
-  const staffQuery = useUsers({
-    "filter[role]": "putaway",
-    "filter[warehouse_id_or_global]": locationId || undefined,
+  const staffQuery = useUserLookup({
+    role: "putaway",
     perPage: 50,
   });
   const staffOptions = useMemo(

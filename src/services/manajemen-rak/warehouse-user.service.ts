@@ -14,7 +14,7 @@ export const WarehouseUserService = {
     const params = new URLSearchParams({ pageSize: "200", page: "1" });
     if (q) params.set("q", q);
     const res = await fetchClient<LookupResponse>(
-      `/systemsetting/users?${params.toString()}`,
+      `/users/lookup?${params.toString()}`,
     );
     return (res.data ?? []).map((u) => ({
       id: String(u.user_id),

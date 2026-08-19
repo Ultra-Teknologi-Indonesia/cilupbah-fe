@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { UserSelectById } from "@/components/dashboard/shared/user-select-by-id";
-import { useUsers } from "@/hooks/pengaturan/use-users";
+import { useUserLookup } from "@/hooks/pengaturan/use-users";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useAcceptReplenishment } from "@/hooks/gudang/use-stock-replenishment";
 import type { StockReplenishment } from "@/types/gudang/stock-replenishment";
@@ -31,7 +31,7 @@ export function AcceptReplenishmentDialog({ open, onOpenChange, request }: Props
   const [search] = useState("");
   const debounced = useDebouncedValue(search, 250);
 
-  const { data, isLoading } = useUsers({
+  const { data, isLoading } = useUserLookup({
     perPage: 30,
     search: debounced || undefined,
   });
