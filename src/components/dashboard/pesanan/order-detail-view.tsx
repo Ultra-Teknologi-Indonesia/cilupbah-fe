@@ -806,17 +806,29 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-            {isMarketplace && order.shipping?.tracking_number && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1.5"
-                onClick={handlePrintLabel}
-              >
-                <PrinterIcon className="size-4" />
-                Cetak Resi
-              </Button>
-            )}
+            {isMarketplace &&
+              order.shipping?.tracking_number &&
+              !order.is_canceled &&
+              !["shipped", "completed", "cancelled", "returned"].includes(
+                order.status,
+              ) &&
+              ![
+                "SHIPPED",
+                "COMPLETED",
+                "CANCELLED",
+                "DELIVERED",
+                "TO_CONFIRM_RECEIVE",
+              ].includes(order.channel_status?.toUpperCase() ?? "") && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={handlePrintLabel}
+                >
+                  <PrinterIcon className="size-4" />
+                  Cetak Resi
+                </Button>
+              )}
             {order.status === "pending" && (
               <Button
                 variant="outline"

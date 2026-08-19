@@ -363,18 +363,15 @@ export function OrderActions({
   if (tab === "in-transit") {
     return (
       <>
-        {isMarketplace && order.shipping?.tracking_number && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 gap-1.5 text-xs"
-            disabled={busy}
-            onClick={handlePrintLabel}
-          >
-            <PrinterIcon className="size-3.5" />
-            Cetak Resi
-          </Button>
-        )}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          onClick={handlePrintInvoice}
+        >
+          <FileTextIcon className="size-3.5" />
+          Cetak Faktur
+        </Button>
         <Button
           size="sm"
           className="h-8 gap-1.5 text-xs"
@@ -412,18 +409,6 @@ export function OrderActions({
           <FileTextIcon className="size-3.5" />
           Cetak Faktur
         </Button>
-        {isMarketplace && order.shipping?.tracking_number && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 gap-1.5 text-xs"
-            disabled={busy}
-            onClick={handlePrintLabel}
-          >
-            <PrinterIcon className="size-3.5" />
-            Cetak Resi
-          </Button>
-        )}
       </>
     );
   }
@@ -614,7 +599,20 @@ export function OrderActions({
     const secondaryActions: React.ReactNode[] = [];
     let primaryAction: React.ReactNode = null;
 
-    if (isMarketplace && order.shipping?.tracking_number && !order.is_canceled) {
+    const canPrintInAll =
+      isMarketplace &&
+      Boolean(order.shipping?.tracking_number) &&
+      !order.is_canceled &&
+      !["shipped", "completed", "cancelled", "returned"].includes(order.status) &&
+      ![
+        "SHIPPED",
+        "COMPLETED",
+        "CANCELLED",
+        "DELIVERED",
+        "TO_CONFIRM_RECEIVE",
+      ].includes(order.channel_status?.toUpperCase() ?? "");
+
+    if (canPrintInAll) {
       secondaryActions.push(
         <Button
           key="print-resi"
@@ -759,16 +757,48 @@ function OrderCancelMenu({ order }: { order: Order }) {
   );
 }
 
-function ShipByDeadline({ date }: { date?: string | null }) {
-  if (!date) {
+function ShipByDeadline({
+  date,
+  status,
+  channelStatus,
+  isCanceled,
+}: {
+  date?: string | null;
+  status?: string | null;
+  channelStatus?: string | null;
+  isCanceled?: boolean;
+}) {
+  const isFinished =
+    isCanceled ||
+    ["shipped", "completed", "cancelled", "returned"].includes(status ?? "") ||
+    [
+      "SHIPPED",
+      "COMPLETED",
+      "CANCELLED",
+      "DELIVERED",
+      "TO_CONFIRM_RECEIVE",
+    ].includes(channelStatus?.toUpperCase() ?? "");
+
+  if (isFinished || !date) {
+    const displayLabel =
+      isCanceled || status === "cancelled"
+        ? "Dibatalkan"
+        : status === "completed" || channelStatus?.toUpperCase() === "COMPLETED"
+          ? "Selesai"
+          : status === "shipped" || channelStatus?.toUpperCase() === "SHIPPED"
+            ? "Sudah Dikirim"
+            : status === "returned"
+              ? "Diretur"
+              : "—";
+
     return (
       <div className="min-w-0">
         <p className="mb-0.5 text-2xs font-medium uppercase tracking-wider text-muted-foreground/70">
-          Batas Kirim
+          Status Kirim
         </p>
         <div className="flex items-start gap-1 text-sm">
           <ClockIcon className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
-          <p className="font-medium text-muted-foreground">—</p>
+          <p className="font-medium text-muted-foreground">{displayLabel}</p>
         </div>
       </div>
     );
@@ -998,8 +1028,19 @@ export function OrderCard({
   const isInstantUrgent =
     !!order.is_instant && msToDeadline !== null && msToDeadline < 60 * 60 * 1000;
 
+  const isFinished =
+    order.is_canceled ||
+    ["shipped", "completed", "cancelled", "returned"].includes(order.status) ||
+    [
+      "SHIPPED",
+      "COMPLETED",
+      "CANCELLED",
+      "DELIVERED",
+      "TO_CONFIRM_RECEIVE",
+    ].includes(order.channel_status?.toUpperCase() ?? "");
+
   const isShipToday = React.useMemo(() => {
-    if (!order.ship_by_date) return false;
+    if (!order.ship_by_date || isFinished) return false;
     const deadline = new Date(order.ship_by_date);
     if (Number.isNaN(deadline.getTime())) return false;
     const today = new Date();
@@ -1008,7 +1049,7 @@ export function OrderCard({
       deadline.getMonth() === today.getMonth() &&
       deadline.getDate() === today.getDate()
     );
-  }, [order.ship_by_date]);
+  }, [order.ship_by_date, isFinished]);
 
   return (
     <div
@@ -1299,7 +1340,12 @@ export function OrderCard({
               </div>
 
               {tab !== "unpaid" && order.is_paid && (
-                <ShipByDeadline date={order.ship_by_date} />
+                <ShipByDeadline
+                  date={order.ship_by_date}
+                  status={order.status}
+                  channelStatus={order.channel_status}
+                  isCanceled={order.is_canceled}
+                />
               )}
             </>
           )}
