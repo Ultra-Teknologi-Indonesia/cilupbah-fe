@@ -105,9 +105,7 @@ function ItemRow({ item }: { item: BulkLabelBatchItem }) {
           <div className="flex items-center gap-1.5 text-xs text-primary">
             <Loader2 className="size-3.5 animate-spin" />
             <span className="text-[11px] font-medium">
-              {item.status === "waiting_awb"
-                ? "Menarik resi…"
-                : "Mengambil…"}
+              {item.status === "waiting_awb" ? "Menarik resi…" : "Mengambil…"}
             </span>
           </div>
         ) : item.tracking_number ? (
@@ -194,7 +192,14 @@ export function AmbilNoResiDialog({
         isMounted = false;
       };
     }
-  }, [open, initialBatchId, orderIds, documentSize, activeBatchId, onOpenChange]);
+  }, [
+    open,
+    initialBatchId,
+    orderIds,
+    documentSize,
+    activeBatchId,
+    onOpenChange,
+  ]);
 
   const { data, error, isLoading, refetch } = useQuery<BulkLabelBatch>({
     queryKey: ["bulk-label-batch", activeBatchId],
@@ -213,7 +218,8 @@ export function AmbilNoResiDialog({
         return;
       }
 
-      const res = await OutboundService.retryFailedBulkShippingLabels(activeBatchId);
+      const res =
+        await OutboundService.retryFailedBulkShippingLabels(activeBatchId);
       toast.success("Berhasil membuat batch coba lagi.");
       setActiveBatchId(res.batch_id);
     } catch (err) {
@@ -238,7 +244,8 @@ export function AmbilNoResiDialog({
     0;
   const retryableCount =
     data?.retryable_count ??
-    data?.items?.filter((i) => i.status === "failed" && i.is_retryable).length ??
+    data?.items?.filter((i) => i.status === "failed" && i.is_retryable)
+      .length ??
     0;
   const canPrint = isReady && !!data?.pdf_url;
   const anyDone = (data?.done ?? 0) > 0;
@@ -261,10 +268,14 @@ export function AmbilNoResiDialog({
                   Ambil No. Resi
                 </DialogTitle>
                 <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                  {isProcessing && "Sedang menarik nomor resi dari marketplace…"}
-                  {isReady && "Seluruh nomor resi siap dan label dapat dicetak."}
+                  {isProcessing &&
+                    "Sedang menarik nomor resi dari marketplace…"}
+                  {isReady &&
+                    "Seluruh nomor resi siap dan label dapat dicetak."}
                   {isFailed && !anyDone && "Penarikan nomor resi gagal."}
-                  {isFailed && anyDone && "Sebagian nomor resi berhasil ditarik."}
+                  {isFailed &&
+                    anyDone &&
+                    "Sebagian nomor resi berhasil ditarik."}
                 </DialogDescription>
               </div>
             </div>
@@ -325,13 +336,27 @@ export function AmbilNoResiDialog({
             <Table containerClassName="rounded-xl border border-border/60">
               <TableHeader className="bg-muted/40">
                 <TableRow>
-                  <TableHead className="w-[200px] whitespace-nowrap">No. Pesanan</TableHead>
-                  <TableHead className="w-[180px] whitespace-nowrap">No. Paket</TableHead>
-                  <TableHead className="w-[140px] whitespace-nowrap">Tgl. Pesanan</TableHead>
-                  <TableHead className="w-[140px] whitespace-nowrap">Tgl. Pengiriman</TableHead>
-                  <TableHead className="w-[150px] whitespace-nowrap">Kurir</TableHead>
-                  <TableHead className="w-[180px] whitespace-nowrap">No. Resi</TableHead>
-                  <TableHead className="min-w-[200px]">Status Pengambilan</TableHead>
+                  <TableHead className="w-[200px] whitespace-nowrap">
+                    No. Pesanan
+                  </TableHead>
+                  <TableHead className="w-[180px] whitespace-nowrap">
+                    No. Paket
+                  </TableHead>
+                  <TableHead className="w-[140px] whitespace-nowrap">
+                    Tgl. Pesanan
+                  </TableHead>
+                  <TableHead className="w-[140px] whitespace-nowrap">
+                    Tgl. Pengiriman
+                  </TableHead>
+                  <TableHead className="w-[150px] whitespace-nowrap">
+                    Kurir
+                  </TableHead>
+                  <TableHead className="w-[180px] whitespace-nowrap">
+                    No. Resi
+                  </TableHead>
+                  <TableHead className="min-w-[200px]">
+                    Status Pengambilan
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
