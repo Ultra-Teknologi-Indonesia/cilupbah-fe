@@ -248,8 +248,8 @@ export function PenyesuaianDetail({ id }: { id: string }) {
           <InfoRow
             label="Tgl. Transaksi"
             value={
-              adj.transaction_date
-                ? formatDateTimeFull(adj.transaction_date)
+              adj.created_at || adj.transaction_date
+                ? formatDateTimeFull(adj.created_at || adj.transaction_date)
                 : null
             }
           />

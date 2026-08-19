@@ -34,7 +34,7 @@ import type {
   StockAdjustment,
   StockAdjustmentListParams,
 } from "@/types/transaksi-stok/stock-adjustment";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatDateTime } from "@/lib/format";
 import { toast } from "sonner";
 import { apiError } from "@/lib/toast";
 
@@ -153,7 +153,7 @@ export function PenyesuaianTab() {
         accessorKey: "adjustment_no",
         header: "No. Koreksi Stok",
         cell: ({ row }) => (
-          <span className="font-medium">
+          <span className="font-medium font-mono text-xs">
             <Link
               href={`/dashboard/transaksi-stok/penyesuaian/${row.original.id}`}
               className="hover:text-primary hover:underline"
@@ -166,18 +166,33 @@ export function PenyesuaianTab() {
       {
         accessorKey: "transaction_date",
         header: "Tgl. Transaksi",
-        cell: ({ row }) => (
-          <span className="text-foreground">
-            {formatDate(row.original.transaction_date)}
-          </span>
-        ),
+        cell: ({ row }) => {
+          const d = row.original.created_at || row.original.transaction_date;
+          return (
+            <span className="text-foreground whitespace-nowrap text-xs">
+              {formatDateTime(d)}
+            </span>
+          );
+        },
       },
       {
         id: "location",
         header: "Lokasi",
         cell: ({ row }) => (
-          <span className="text-foreground">
+          <span className="text-foreground text-xs">
             {row.original.location?.location_name ?? "—"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "notes",
+        header: "Keterangan",
+        cell: ({ row }) => (
+          <span
+            className="text-muted-foreground text-xs line-clamp-2 max-w-[280px]"
+            title={row.original.notes ?? ""}
+          >
+            {row.original.notes || "—"}
           </span>
         ),
       },
@@ -185,7 +200,7 @@ export function PenyesuaianTab() {
         accessorKey: "created_by",
         header: "Dibuat Oleh",
         cell: ({ row }) => (
-          <span className="text-foreground">{row.original.created_by}</span>
+          <span className="text-foreground text-xs">{row.original.created_by}</span>
         ),
       },
       {
