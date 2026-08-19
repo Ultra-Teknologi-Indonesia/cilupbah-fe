@@ -15,6 +15,8 @@ const STALE = 30_000;
 export const orderKeys = {
   ...createResourceKeys("pesanan"),
   counts: ["pesanan", "counts"] as const,
+  shippingProviders: (params?: Record<string, unknown>) =>
+    ["pesanan", "shipping-providers", params] as const,
 };
 
 export const useOrders = createListHook(orderKeys, (params: OrderListParams) =>
@@ -29,6 +31,23 @@ export function useOrderCounts() {
   return useQuery({
     queryKey: orderKeys.counts,
     queryFn: () => OrderService.getCounts(),
+    staleTime: STALE,
+  });
+}
+
+export function useOrderShippingProviders(params?: {
+  tab?: string;
+  sub?: string;
+  channel?: string;
+  store_id?: string;
+  location_id?: string;
+  date_from?: string;
+  date_to?: string;
+  status?: string[];
+}) {
+  return useQuery({
+    queryKey: orderKeys.shippingProviders(params),
+    queryFn: () => OrderService.getShippingProviders(params),
     staleTime: STALE,
   });
 }

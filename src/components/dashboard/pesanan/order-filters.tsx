@@ -12,7 +12,7 @@ import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolb
 import { cn } from "@/lib/utils";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
-import { useCouriers } from "@/hooks/proses-pesanan/use-fulfillment";
+import { useOrderShippingProviders } from "@/hooks/pesanan/use-orders";
 import {
   CHANNEL_MAP,
   STATUS_FILTER_OPTIONS,
@@ -67,7 +67,7 @@ export interface FilterState {
   content_type: string;
   date_from: string;
   date_to: string;
-  shipping_provider: string;
+  shipping_provider: string[];
   payment: string;
   label_printed: string;
   contact_status: string;
@@ -83,7 +83,7 @@ const EMPTY: FilterState = {
   content_type: "",
   date_from: "",
   date_to: "",
-  shipping_provider: "",
+  shipping_provider: [],
   payment: "",
   label_printed: "",
   contact_status: "",
@@ -166,7 +166,14 @@ export function OrderFilters({
 }) {
   const { data: locData } = useLocations();
   const { data: storeData } = useConnectedStores();
-  const { data: couriersData } = useCouriers();
+  const { data: dynamicProvidersData } = useOrderShippingProviders({
+    tab,
+    channel: filters.channel || undefined,
+    store_id: filters.store_id || undefined,
+    location_id: filters.location_id || undefined,
+    date_from: filters.date_from || undefined,
+    date_to: filters.date_to || undefined,
+  });
 
   const locations = (locData?.items ?? []).map((l) => ({
     value: l.id,
@@ -177,14 +184,27 @@ export function OrderFilters({
     .filter((s) => !filters.channel || s.channel?.code === filters.channel)
     .map((s) => ({ value: s.shop_id, label: s.shop_name }));
 
-  const couriers = (couriersData ?? []).map((c) => ({
-    value: c.name,
-    label: c.name,
-  }));
+  const courierOptions = useMemo(() => {
+    const list = (dynamicProvidersData?.data ?? []).map((p) => ({
+      value: p.name,
+      label: `${p.name} (${p.count})`,
+    }));
+
+    // If user has selected or typed a value not in the active list, keep it visible
+    for (const val of filters.shipping_provider) {
+      if (val && !list.some((o) => o.value.toLowerCase() === val.toLowerCase())) {
+        list.push({ value: val, label: val });
+      }
+    }
+
+    return list;
+  }, [dynamicProvidersData, filters.shipping_provider]);
 
   const hasActive =
     Object.entries(filters).some(([k, v]) =>
-      k === "status" ? (v as string[]).length > 0 : Boolean(v),
+      k === "status" || k === "shipping_provider"
+        ? (v as string[]).length > 0
+        : Boolean(v),
     ) || Boolean(query);
   const activeCount =
     [
@@ -193,13 +213,14 @@ export function OrderFilters({
       filters.location_id,
       filters.content_type,
       filters.date_from || filters.date_to,
-      filters.shipping_provider,
       filters.payment,
       filters.label_printed,
       filters.contact_status,
       filters.decision,
       filters.shadow,
-    ].filter(Boolean).length + (filters.status.length > 0 ? 1 : 0);
+    ].filter(Boolean).length +
+    (filters.status.length > 0 ? 1 : 0) +
+    (filters.shipping_provider.length > 0 ? 1 : 0);
 
   const dateRange = useMemo<DateRange | undefined>(() => {
     const from = toDate(filters.date_from);
@@ -271,12 +292,22 @@ export function OrderFilters({
       />
 
       <Combobox
-        options={[{ value: "", label: "Semua Kurir" }, ...couriers]}
+        multiple
+        options={courierOptions}
         value={filters.shipping_provider}
-        onChange={(v) => onChange({ ...filters, shipping_provider: v ?? "" })}
-        placeholder="Kurir"
-        searchPlaceholder="Cari kurir"
-        className="h-9 bg-background"
+        onChange={(v) => onChange({ ...filters, shipping_provider: v })}
+        onCreateOption={(newVal) => {
+          if (!filters.shipping_provider.includes(newVal)) {
+            onChange({
+              ...filters,
+              shipping_provider: [...filters.shipping_provider, newVal],
+            });
+          }
+        }}
+        placeholder="Semua Kurir"
+        searchPlaceholder="Cari atau ketik nama kurir…"
+        emptyText="Ketik nama kurir untuk menambahkan filter."
+        className="h-9 bg-background sm:col-span-2"
       />
 
       <Combobox

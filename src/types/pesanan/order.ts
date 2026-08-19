@@ -66,7 +66,7 @@ export interface OrderListParams {
   sort_by?: string;
   sort_dir?: "asc" | "desc";
 
-  shipping_provider?: string;
+  shipping_provider?: string | string[];
   payment?: "cod" | "noncod";
   label_printed?: "yes" | "no";
   contact_status?: "contacted" | "not_contacted";

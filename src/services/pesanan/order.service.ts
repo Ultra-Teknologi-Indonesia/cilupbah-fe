@@ -33,9 +33,15 @@ export const OrderService = {
     if (params.location_id) sp.set("filter[location_id]", params.location_id);
     if (params.content_type) sp.set("filter[content_type]", params.content_type);
     if (params.date_from) sp.set("filter[date_from]", params.date_from);
-    if (params.date_to) sp.set("filter[date_to]", params.date_to);
-    if (params.shipping_provider)
-      sp.set("filter[shipping_provider]", params.shipping_provider);
+    if (params.shipping_provider) {
+      if (Array.isArray(params.shipping_provider)) {
+        for (const p of params.shipping_provider) {
+          if (p) sp.append("filter[shipping_provider][]", p);
+        }
+      } else {
+        sp.set("filter[shipping_provider]", params.shipping_provider);
+      }
+    }
     if (params.payment) sp.set("filter[payment]", params.payment);
     if (params.label_printed)
       sp.set("filter[label_printed]", params.label_printed);
@@ -51,6 +57,31 @@ export const OrderService = {
     if (params.sort_dir) sp.set("sort_dir", params.sort_dir);
 
     return fetchClient<ApiPaginated<Order>>(`/sales?${sp}`);
+  },
+
+  getShippingProviders: (params?: {
+    tab?: string;
+    sub?: string;
+    channel?: string;
+    store_id?: string;
+    location_id?: string;
+    date_from?: string;
+    date_to?: string;
+    status?: string[];
+  }) => {
+    const sp = new URLSearchParams();
+    if (params?.tab && params.tab !== "all") sp.set("tab", params.tab);
+    if (params?.sub) sp.set("sub", params.sub);
+    if (params?.channel) sp.set("filter[channel]", params.channel);
+    if (params?.store_id) sp.set("filter[store_id]", params.store_id);
+    if (params?.location_id) sp.set("filter[location_id]", params.location_id);
+    if (params?.date_from) sp.set("filter[date_from]", params.date_from);
+    if (params?.date_to) sp.set("filter[date_to]", params.date_to);
+    for (const s of params?.status ?? []) sp.append("filter[status][]", s);
+
+    return fetchClient<ApiResponse<Array<{ name: string; count: number }>>>(
+      `/sales/shipping-providers?${sp}`,
+    );
   },
 
   getById: (id: string) => {
