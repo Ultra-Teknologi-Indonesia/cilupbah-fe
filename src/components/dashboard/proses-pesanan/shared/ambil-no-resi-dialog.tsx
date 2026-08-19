@@ -80,7 +80,7 @@ function ItemRow({ item }: { item: BulkLabelBatchItem }) {
         item.status === "failed" && "bg-destructive/5",
       )}
     >
-      <TableCell className="align-top font-medium">
+      <TableCell className="align-top font-medium whitespace-nowrap">
         <div className="font-mono text-xs font-semibold">
           {item.salesorder_no ?? item.order_id}
         </div>
@@ -88,19 +88,19 @@ function ItemRow({ item }: { item: BulkLabelBatchItem }) {
           {CHANNEL_LABEL[item.channel] ?? item.channel}
         </div>
       </TableCell>
-      <TableCell className="align-top text-xs">
+      <TableCell className="align-top text-xs whitespace-nowrap">
         {item.no_paket ?? "—"}
       </TableCell>
-      <TableCell className="align-top text-xs">
+      <TableCell className="align-top text-xs whitespace-nowrap">
         {fmtDate(item.tgl_pesanan)}
       </TableCell>
-      <TableCell className="align-top text-xs">
+      <TableCell className="align-top text-xs whitespace-nowrap">
         {fmtDate(item.tgl_pengiriman)}
       </TableCell>
-      <TableCell className="align-top text-xs font-medium">
+      <TableCell className="align-top text-xs font-medium whitespace-nowrap">
         {item.courier_name ?? "—"}
       </TableCell>
-      <TableCell className="align-top">
+      <TableCell className="align-top whitespace-nowrap">
         {isTransient ? (
           <div className="flex items-center gap-1.5 text-xs text-primary">
             <Loader2 className="size-3.5 animate-spin" />
@@ -245,7 +245,7 @@ export function AmbilNoResiDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col p-0 gap-0 overflow-hidden sm:rounded-2xl">
+      <DialogContent className="w-[96vw] max-w-[96vw] sm:max-w-[96vw] md:max-w-6xl xl:max-w-7xl max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden sm:rounded-2xl">
         <DialogHeader className="px-6 py-4 border-b border-border/60 bg-muted/20">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -325,13 +325,13 @@ export function AmbilNoResiDialog({
             <Table containerClassName="rounded-xl border border-border/60">
               <TableHeader className="bg-muted/40">
                 <TableRow>
-                  <TableHead className="w-[180px]">No. Pesanan</TableHead>
-                  <TableHead>No. Paket</TableHead>
-                  <TableHead>Tgl. Pesanan</TableHead>
-                  <TableHead>Tgl. Pengiriman</TableHead>
-                  <TableHead>Kurir</TableHead>
-                  <TableHead className="w-[160px]">No. Resi</TableHead>
-                  <TableHead>Status Pengambilan</TableHead>
+                  <TableHead className="w-[200px] whitespace-nowrap">No. Pesanan</TableHead>
+                  <TableHead className="w-[180px] whitespace-nowrap">No. Paket</TableHead>
+                  <TableHead className="w-[140px] whitespace-nowrap">Tgl. Pesanan</TableHead>
+                  <TableHead className="w-[140px] whitespace-nowrap">Tgl. Pengiriman</TableHead>
+                  <TableHead className="w-[150px] whitespace-nowrap">Kurir</TableHead>
+                  <TableHead className="w-[180px] whitespace-nowrap">No. Resi</TableHead>
+                  <TableHead className="min-w-[200px]">Status Pengambilan</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
