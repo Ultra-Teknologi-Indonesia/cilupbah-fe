@@ -1254,12 +1254,27 @@ export function OrderCard({
             isCancelView ? "sm:grid-cols-3 xl:grid-cols-4" : "sm:grid-cols-3 xl:grid-cols-5",
           )}
         >
-          <div>
+          <div className="min-w-0">
+            <p className="mb-0.5 text-2xs font-medium uppercase tracking-wider text-muted-foreground/70">
+              Status SuperApps
+            </p>
             <StatusBadge
               domain="sales-order"
               status={order.status}
               className="text-xs font-semibold whitespace-nowrap"
             />
+            {order.channel_status && (
+              <div className="mt-1.5 flex flex-col items-start gap-0.5">
+                <span className="text-2xs font-medium text-muted-foreground/70 uppercase tracking-wider">
+                  Status Channel
+                </span>
+                <StatusBadge
+                  domain="channel-status"
+                  status={order.channel_status}
+                  className="text-2xs font-medium whitespace-nowrap"
+                />
+              </div>
+            )}
             {order.cancel_requested_at && !order.is_canceled && (
               <p className="mt-1 text-2xs font-medium text-warning">
                 Pembatalan diminta

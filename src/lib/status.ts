@@ -47,9 +47,29 @@ export type Domain =
   | "stock-replenishment"
   | "impex-activity"
   | "bulk-label-item"
-  | "order-origin";
+  | "order-origin"
+  | "channel-status";
 
 export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
+  "channel-status": {
+    UNPAID: { label: "Belum Dibayar", variant: "warning" },
+    ON_HOLD: { label: "Belum Dibayar", variant: "warning" },
+    READY_TO_SHIP: { label: "Perlu Dikirim", variant: "info" },
+    AWAITING_SHIPMENT: { label: "Perlu Dikirim", variant: "info" },
+    PROCESSED: { label: "Menunggu Pickup Kurir", variant: "purple" },
+    AWAITING_COLLECTION: { label: "Menunggu Pickup Kurir", variant: "purple" },
+    SHIPPED: { label: "Sedang Dikirim", variant: "indigo" },
+    IN_TRANSIT: { label: "Sedang Dikirim", variant: "indigo" },
+    TO_CONFIRM_RECEIVE: { label: "Sampai / Konfirmasi", variant: "teal" },
+    DELIVERED: { label: "Sampai / Konfirmasi", variant: "teal" },
+    COMPLETED: { label: "Selesai", variant: "success" },
+    CANCELLED: { label: "Dibatalkan", variant: "destructive" },
+    CANCELED: { label: "Dibatalkan", variant: "destructive" },
+    IN_CANCEL: { label: "Pengajuan Batal", variant: "orange" },
+    RETURN_REQUESTED: { label: "Pengajuan Retur", variant: "orange" },
+    TO_RETURN: { label: "Pengajuan Retur", variant: "orange" },
+    RETURNED: { label: "Diretur", variant: "muted" },
+  },
   "sales-return": {
     PENDING: { label: "Menunggu", variant: "warning" },
     ACCEPTED: { label: "Disetujui", variant: "info" },
@@ -272,7 +292,9 @@ export function getStatusMeta(
   status: string | null | undefined,
 ): StatusMeta {
   const raw = status ?? "";
-  const meta = STATUS_REGISTRY[domain]?.[raw];
+  const meta =
+    STATUS_REGISTRY[domain]?.[raw] ??
+    STATUS_REGISTRY[domain]?.[raw.toUpperCase()];
   if (meta) return meta;
   return { label: raw || "—", variant: FALLBACK_VARIANT };
 }

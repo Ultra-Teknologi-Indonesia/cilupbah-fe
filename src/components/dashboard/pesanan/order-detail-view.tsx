@@ -851,11 +851,20 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 {setPaid.isPending ? "Memproses..." : "Tandai Lunas"}
               </Button>
             )}
-            <StatusBadge
-              domain="sales-order"
-              status={order.status}
-              className="text-xs font-semibold ml-1"
-            />
+            <div className="flex items-center gap-1.5 ml-1">
+              <StatusBadge
+                domain="sales-order"
+                status={order.status}
+                className="text-xs font-semibold"
+              />
+              {order.channel_status && (
+                <StatusBadge
+                  domain="channel-status"
+                  status={order.channel_status}
+                  className="text-xs font-medium"
+                />
+              )}
+            </div>
           </div>
         }
       />
@@ -953,6 +962,16 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               <InfoRow icon={MapPinIcon} label="Lokasi Pengambilan">
                 <span>{order.location_name || "—"}</span>
               </InfoRow>
+
+              {order.channel_status && (
+                <InfoRow icon={InfoIcon} label="Status Channel (MP)">
+                  <StatusBadge
+                    domain="channel-status"
+                    status={order.channel_status}
+                    className="text-xs font-medium"
+                  />
+                </InfoRow>
+              )}
             </div>
           </LiquidGlass>
 
