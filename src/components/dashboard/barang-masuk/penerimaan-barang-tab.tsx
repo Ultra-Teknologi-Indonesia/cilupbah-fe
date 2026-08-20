@@ -289,7 +289,7 @@ export function PenerimaanBarangTab() {
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
-            title={activeTab === "transfer" ? "Tanggal Transfer Keluar" : "Tanggal"}
+            title={sourceTab === "transfer" ? "Tanggal Transfer Keluar" : "Tanggal"}
           />
         ),
         enableSorting: true,
@@ -453,7 +453,7 @@ export function PenerimaanBarangTab() {
         },
       },
     ],
-    [],
+    [sourceTab],
   );
 
   const items = data?.items ?? [];
