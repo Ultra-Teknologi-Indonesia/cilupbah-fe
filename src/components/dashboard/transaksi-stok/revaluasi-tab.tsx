@@ -6,6 +6,7 @@ import { DollarSignIcon } from "lucide-react";
 
 import { Combobox } from "@/components/ui/combobox";
 import type { ColumnDef } from "@tanstack/react-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ResourceListView } from "@/components/dashboard/shared/resource-list-view";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
@@ -78,7 +79,10 @@ export function RevaluasiTab() {
     () => [
       {
         accessorKey: "revaluation_no",
-        header: "No. Ubah Nilai Stok",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Ubah Nilai Stok" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <span className="font-medium">
             <Link
@@ -128,7 +132,10 @@ export function RevaluasiTab() {
       },
       {
         accessorKey: "approved_at",
-        header: "Tgl. Disetujui",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Tgl. Disetujui" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <span className="text-foreground">
             {row.original.approved_at

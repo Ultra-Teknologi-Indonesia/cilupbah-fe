@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { DateRangePicker } from "@/components/ui/date-picker";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { ResourceListView } from "@/components/dashboard/shared/resource-list-view";
 import { usePermissions } from "@/hooks/auth/use-permissions";
@@ -154,7 +155,10 @@ export function PindahBinListTable({
     const base: ColumnDef<BinTransferListItem>[] = [
       {
         accessorKey: "transfer_number",
-        header: "No. Transfer Internal",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Transfer Internal" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <Link
             href={`/dashboard/transaksi-stok/pindah-bin/${row.original.id}`}
@@ -166,7 +170,10 @@ export function PindahBinListTable({
       },
       {
         accessorKey: "transfer_date",
-        header: "Tanggal",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Tanggal" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <span className="text-foreground whitespace-nowrap text-xs">
             {formatDateTime(row.original.transfer_date)}

@@ -7,6 +7,7 @@ import { ShieldIcon, XCircleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import type { ColumnDef } from "@tanstack/react-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ResourceListView } from "@/components/dashboard/shared/resource-list-view";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
@@ -80,7 +81,10 @@ export function CadangTab() {
     () => [
       {
         accessorKey: "reserved_stock_no",
-        header: "No. Reservasi Stok",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Reservasi Stok" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <span className="font-medium">
             <Link
@@ -103,7 +107,10 @@ export function CadangTab() {
       },
       {
         accessorKey: "start_date",
-        header: "Tgl. Mulai",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Tgl. Mulai" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <span className="text-foreground">
             {formatDate(row.original.start_date)}
@@ -112,7 +119,10 @@ export function CadangTab() {
       },
       {
         accessorKey: "end_date",
-        header: "Tgl. Selesai",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Tgl. Selesai" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <span className="text-foreground">
             {formatDate(row.original.end_date)}

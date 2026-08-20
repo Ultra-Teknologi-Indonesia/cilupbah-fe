@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
@@ -167,7 +168,10 @@ export function ReturChannelTab() {
     const cols: ColumnDef<SalesReturn>[] = [
       {
         accessorKey: "return_number",
-        header: "No. Retur",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Retur" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <Link
             href={`/dashboard/barang-masuk/retur/${row.original.id}`}
@@ -188,7 +192,10 @@ export function ReturChannelTab() {
       },
       {
         accessorKey: "return_tracking_number",
-        header: "No. Resi Retur",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Resi Retur" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => {
           const item = row.original;
           const isSyncing =
@@ -326,7 +333,10 @@ export function ReturChannelTab() {
       },
       {
         accessorKey: "created_at",
-        header: "Tgl. Retur",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Tgl. Retur" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <span className="text-foreground whitespace-nowrap text-xs">
             {formatDateTime(row.original.created_at)}

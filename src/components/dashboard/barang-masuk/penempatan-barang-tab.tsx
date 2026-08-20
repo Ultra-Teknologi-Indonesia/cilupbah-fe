@@ -23,6 +23,7 @@ import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Progress } from "@/components/ui/progress";
 import type { ColumnDef, Table as TableInstance } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
 import {
   Tooltip,
@@ -212,14 +213,24 @@ export function PenempatanBarangTab() {
       },
       {
         accessorKey: "putaway_no",
-        header: "No. Penempatan",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Penempatan" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <span className="font-medium">{row.original.putaway_no}</span>
         ),
       },
       {
         id: "no_pembelian",
-        header: "No. Penerimaan",
+        accessorFn: (row) => {
+          const sources = row.sources;
+          return sources?.[0]?.reference_number ?? row.inbound?.reference_number ?? "";
+        },
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Penerimaan" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => {
           const sources = row.original.sources;
           const ref = sources?.[0]?.reference_number ?? row.original.inbound?.reference_number;
@@ -230,12 +241,25 @@ export function PenempatanBarangTab() {
       },
       {
         id: "tanggal",
-        header:
+        accessorFn: (r) =>
           activeStatus === "COMPLETED"
-            ? "Tgl. Selesai"
+            ? r.completed_at
             : activeStatus === "IN_PROGRESS"
-              ? "Tgl. Mulai"
-              : "Tgl. Dibuat",
+              ? r.started_at
+              : r.created_at,
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={
+              activeStatus === "COMPLETED"
+                ? "Tgl. Selesai"
+                : activeStatus === "IN_PROGRESS"
+                  ? "Tgl. Mulai"
+                  : "Tgl. Dibuat"
+            }
+          />
+        ),
+        enableSorting: true,
         cell: ({ row }) => {
           const r = row.original;
           const date =

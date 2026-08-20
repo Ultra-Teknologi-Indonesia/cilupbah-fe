@@ -31,6 +31,7 @@ import { Can } from "@/components/auth/can";
 
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
 import { DataTable } from "@/components/ui/data-table/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { DateRangePicker } from "@/components/ui/date-picker";
 import { ImportPesananDialog } from "@/components/dashboard/transaksi-pembelian/import-pesanan-dialog";
 import {
@@ -180,7 +181,10 @@ export function PesananListView() {
     () => [
       {
         accessorKey: "po_number",
-        header: "No. Pesanan",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Pesanan" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <Link
             href={`/dashboard/transaksi-pembelian/pesanan/${row.original.id}`}
@@ -204,12 +208,20 @@ export function PesananListView() {
       },
       {
         accessorKey: "order_date",
-        header: "Tgl. Pesanan",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Tgl. Pesanan" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => <span>{formatDate(row.original.order_date)}</span>,
       },
       {
         accessorKey: "total_amount",
-        header: () => <div className="text-right">Nilai</div>,
+        header: ({ column }) => (
+          <div className="flex justify-end">
+            <DataTableColumnHeader column={column} title="Nilai" />
+          </div>
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <div className="text-right font-medium tabular-nums">
             {formatCurrency(row.original.total_amount)}

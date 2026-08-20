@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { CheckIcon, ExternalLinkIcon, EyeIcon, XIcon } from "lucide-react";
+import { ArrowDownIcon, ArrowUpIcon, CheckIcon, ExternalLinkIcon, EyeIcon, XIcon } from "lucide-react";
 
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
@@ -47,6 +47,7 @@ export function PermintaanRestockView() {
   const [rejectTarget, setRejectTarget] = useState<StockReplenishment | null>(
     null,
   );
+  const [sortDir, setSortDir] = useState<"desc" | "asc">("desc");
 
   const params = useMemo(
     () => ({ status: status === "ALL" ? undefined : status, per_page: 30 }),
@@ -56,7 +57,14 @@ export function PermintaanRestockView() {
   const { data, isLoading } = useStockReplenishments(params);
   const rejectMut = useRejectReplenishment();
 
-  const items = data?.items ?? [];
+  const rawItems = data?.items ?? [];
+  const items = useMemo(() => {
+    return [...rawItems].sort((a, b) => {
+      const timeA = new Date(a.requested_at).getTime() || 0;
+      const timeB = new Date(b.requested_at).getTime() || 0;
+      return sortDir === "asc" ? timeA - timeB : timeB - timeA;
+    });
+  }, [rawItems, sortDir]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -98,7 +106,23 @@ export function PermintaanRestockView() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Diminta</TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 gap-1.5 px-2 text-xs font-semibold hover:bg-white/20"
+                    onClick={() =>
+                      setSortDir((prev) => (prev === "asc" ? "desc" : "asc"))
+                    }
+                  >
+                    <span>Diminta</span>
+                    {sortDir === "desc" ? (
+                      <ArrowDownIcon className="size-3.5" />
+                    ) : (
+                      <ArrowUpIcon className="size-3.5" />
+                    )}
+                  </Button>
+                </TableHead>
                 <TableHead>Diminta Oleh</TableHead>
                 <TableHead>Dari → Ke</TableHead>
                 <TableHead>Barang</TableHead>

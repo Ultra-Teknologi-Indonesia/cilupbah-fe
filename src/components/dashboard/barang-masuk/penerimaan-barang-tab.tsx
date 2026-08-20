@@ -27,6 +27,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
 import {
   useInbounds,
@@ -238,7 +239,10 @@ export function PenerimaanBarangTab() {
       },
       {
         accessorKey: "transaction_number",
-        header: "No. Penerimaan",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Penerimaan" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <Link href={`/dashboard/barang-masuk/penerimaan/${row.original.id}`} className="font-medium text-primary underline-offset-2 hover:underline">
             {row.original.transaction_number}
@@ -247,7 +251,10 @@ export function PenerimaanBarangTab() {
       },
       {
         accessorKey: "type",
-        header: "Sumber",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Sumber" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <Badge variant={TYPE_VARIANT[row.original.type] ?? "default"}>
             {TYPE_LABEL[row.original.type] ?? row.original.type}
@@ -256,7 +263,10 @@ export function PenerimaanBarangTab() {
       },
       {
         accessorKey: "reference_number",
-        header: "No. Referensi",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Referensi" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => {
           const ref = row.original.reference_number;
           if (!ref) return <span>—</span>;
@@ -275,7 +285,14 @@ export function PenerimaanBarangTab() {
       },
       {
         id: "tanggal",
-        header: "Tanggal Transfer Keluar",
+        accessorFn: (row) => row.expected_date || row.created_at,
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={activeTab === "transfer" ? "Tanggal Transfer Keluar" : "Tanggal"}
+          />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <span>
             {row.original.expected_date

@@ -7,6 +7,7 @@ import { ClipboardCheckIcon, PlayIcon, Trash2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import type { ColumnDef } from "@tanstack/react-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ResourceListView } from "@/components/dashboard/shared/resource-list-view";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
@@ -25,6 +26,7 @@ import type {
   StockOpname,
   StockOpnameListParams,
 } from "@/types/transaksi-stok/stock-opname";
+import { formatDateTime } from "@/lib/format";
 
 interface FilterState {
   status: string;
@@ -86,7 +88,10 @@ export function OpnameTab() {
     () => [
       {
         accessorKey: "opname_no",
-        header: "No. Stok Opname",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="No. Stok Opname" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <span className="font-medium">
             <Link
@@ -95,6 +100,18 @@ export function OpnameTab() {
             >
               {row.original.opname_no}
             </Link>
+          </span>
+        ),
+      },
+      {
+        accessorKey: "created_at",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Tgl. Dibuat" />
+        ),
+        enableSorting: true,
+        cell: ({ row }) => (
+          <span className="text-foreground whitespace-nowrap text-xs">
+            {formatDateTime(row.original.created_at)}
           </span>
         ),
       },
